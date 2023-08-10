@@ -1,0 +1,5946 @@
+[
+  {
+    "id": 1,
+    "name": "Route 101",
+    "encounters": [
+      {
+        "pokedex_id": 252,
+        "name": "Treecko",
+        "levels": "5",
+        "rate": "100%",
+        "encounter_type": "starter"
+      },
+      {
+        "pokedex_id": 255,
+        "name": "Torchic",
+        "levels": "5",
+        "rate": "100%",
+        "encounter_type": "starter"
+      },
+      {
+        "pokedex_id": 258,
+        "name": "Mudkip",
+        "levels": "5",
+        "rate": "100%",
+        "encounter_type": "starter"
+      },
+      {
+        "pokedex_id": 261,
+        "name": "Poochyena",
+        "levels": "2-3",
+        "rate": "45%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 265,
+        "name": "Wurmple",
+        "levels": "2-3",
+        "rate": "45%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 263,
+        "name": "Zigzagoon",
+        "levels": "2-3",
+        "rate": "10%",
+        "encounter_type": "grass"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Route 102",
+    "encounters": [
+      {
+        "pokedex_id": 261,
+        "name": "Poochyena",
+        "levels": "3-4",
+        "rate": "30%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 265,
+        "name": "Wurmple",
+        "levels": "3-4",
+        "rate": "30%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 263,
+        "name": "Zigzagoon",
+        "levels": "3-4",
+        "rate": "15%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 270,
+        "name": "Lotad",
+        "levels": "3-4",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 273,
+        "name": "Seedot",
+        "levels": "3",
+        "rate": "1%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 280,
+        "name": "Ralts",
+        "levels": "4",
+        "rate": "4%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "20-30",
+        "rate": "1%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 183,
+        "name": "Marill",
+        "levels": "5-35",
+        "rate": "99%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 0,
+        "name": "Margikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 341,
+        "name": "Corphish",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 341,
+        "name": "Corphish",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Route 103",
+    "encounters": [
+      {
+        "pokedex_id": 261,
+        "name": "Poochyena",
+        "levels": "2-4",
+        "rate": "60%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 263,
+        "name": "Zigzagoon",
+        "levels": "3-4",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "2-4",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Route 104",
+    "encounters": [
+      {
+        "pokedex_id": 183,
+        "name": "Marill",
+        "levels": "4-5",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 261,
+        "name": "Poochyena",
+        "levels": "4-5",
+        "rate": "40%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 265,
+        "name": "Wurmple",
+        "levels": "4",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 276,
+        "name": "Taillow",
+        "levels": "4-5",
+        "rate": "10%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "3-5",
+        "rate": "10%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "95%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "100%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "100%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Petalburg Woods",
+    "encounters": [
+      {
+        "pokedex_id": 261,
+        "name": "Poochyena",
+        "levels": "5-6",
+        "rate": "30%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 265,
+        "name": "Wurmple",
+        "levels": "5-6",
+        "rate": "25%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 266,
+        "name": "Silcoon",
+        "levels": "5",
+        "rate": "10%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 268,
+        "name": "Cascoon",
+        "levels": "5",
+        "rate": "10%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 276,
+        "name": "Taillow",
+        "levels": "5-6",
+        "rate": "5%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 285,
+        "name": "Shroomish",
+        "levels": "5-6",
+        "rate": "15%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 287,
+        "name": "Slakoth",
+        "levels": "5-6",
+        "rate": "5%",
+        "encounter_type": "grass"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Rustboro City",
+    "encounters": [
+      {
+        "pokedex_id": 273,
+        "name": "Seedot",
+        "levels": "As Traded",
+        "rate": "100%",
+        "encounter_type": "trade"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Route 115",
+    "encounters": [
+      {
+        "pokedex_id": 39,
+        "name": "Jigglypuff",
+        "levels": "24-25",
+        "rate": "10%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 276,
+        "name": "Taillow",
+        "levels": "23-25",
+        "rate": "40%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 277,
+        "name": "Swellow",
+        "levels": "25",
+        "rate": "10%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "24-26",
+        "rate": "10%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 333,
+        "name": "Swablu",
+        "levels": "23, 25",
+        "rate": "30%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Route 116",
+    "encounters": [
+      {
+        "pokedex_id": 63,
+        "name": "Abra",
+        "levels": "7",
+        "rate": "10%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 261,
+        "name": "Poochyena",
+        "levels": "6-8",
+        "rate": "28%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 276,
+        "name": "Taillow",
+        "levels": "6-8",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 290,
+        "name": "Nincada",
+        "levels": "6-7",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 293,
+        "name": "Whismur",
+        "levels": "6",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 300,
+        "name": "Skitty",
+        "levels": "7-8",
+        "rate": "2%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 300,
+        "name": "Skitty",
+        "levels": "8",
+        "rate": "50%",
+        "encounter_type": "swarm"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Rusturf Tunnel",
+    "encounters": [
+      {
+        "pokedex_id": 293,
+        "name": "Whismur",
+        "levels": "5-8",
+        "rate": "100%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Route 117",
+    "encounters": [
+      {
+        "pokedex_id": 43,
+        "name": "Oddish",
+        "levels": "13-14",
+        "rate": "40%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 183,
+        "name": "Marill",
+        "levels": "13",
+        "rate": "10%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 261,
+        "name": "Poochyena",
+        "levels": "13-14",
+        "rate": "30%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 273,
+        "name": "Seedot",
+        "levels": "13",
+        "rate": "1%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 313,
+        "name": "Volbeat",
+        "levels": "13",
+        "rate": "1%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 314,
+        "name": "Illumise",
+        "levels": "13-14",
+        "rate": "18%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "20-30",
+        "rate": "1%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 183,
+        "name": "Marill",
+        "levels": "5-35",
+        "rate": "99%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 341,
+        "name": "Corphish",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 341,
+        "name": "Corphish",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 273,
+        "name": "Seedot",
+        "levels": "13",
+        "rate": "50%",
+        "encounter_type": "swarm"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "name": "Route 110",
+    "encounters": [
+      {
+        "pokedex_id": 43,
+        "name": "Oddish",
+        "levels": "13",
+        "rate": "10%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 261,
+        "name": "Poochyena",
+        "levels": "12",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "12",
+        "rate": "8%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 309,
+        "name": "Electrike",
+        "levels": "12-13",
+        "rate": "30%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 311,
+        "name": "Plusle",
+        "levels": "12-13",
+        "rate": "2%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 312,
+        "name": "Minun",
+        "levels": "13",
+        "rate": "15%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 316,
+        "name": "Gulpin",
+        "levels": "12-13",
+        "rate": "15%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "name": "Route 111",
+    "encounters": [
+      {
+        "pokedex_id": 27,
+        "name": "Sandshrew",
+        "levels": "19-21",
+        "rate": "35%",
+        "encounter_type": "deepsand"
+      },
+      {
+        "pokedex_id": 328,
+        "name": "Trapinch",
+        "levels": "19-21",
+        "rate": "35%",
+        "encounter_type": "deepsand"
+      },
+      {
+        "pokedex_id": 331,
+        "name": "Cacnea",
+        "levels": "20, 22",
+        "rate": "6%",
+        "encounter_type": "deepsand"
+      },
+      {
+        "pokedex_id": 343,
+        "name": "Baltoy",
+        "levels": "19-21",
+        "rate": "24%",
+        "encounter_type": "deepsand"
+      },
+      {
+        "pokedex_id": 74,
+        "name": "Geodude",
+        "levels": "5-20",
+        "rate": "100%",
+        "encounter_type": "rocksmash"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-35",
+        "rate": "1%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 183,
+        "name": "Marill",
+        "levels": "10-30",
+        "rate": "99%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "name": "Route 113",
+    "encounters": [
+      {
+        "pokedex_id": 218,
+        "name": "Slugma",
+        "levels": "14-16",
+        "rate": "25%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 227,
+        "name": "Skarmory",
+        "levels": "16",
+        "rate": "5%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 327,
+        "name": "Spinda",
+        "levels": "14-16",
+        "rate": "70%",
+        "encounter_type": "grass"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "name": "Route 114",
+    "encounters": [
+      {
+        "pokedex_id": 270,
+        "name": "Lotad",
+        "levels": "15-16",
+        "rate": "30%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 271,
+        "name": "Lombre",
+        "levels": "16, 18",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 274,
+        "name": "Nuzleaf",
+        "levels": "15",
+        "rate": "1%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 333,
+        "name": "Swablu",
+        "levels": "15-17",
+        "rate": "40%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 336,
+        "name": "Seviper",
+        "levels": "15, 17",
+        "rate": "9%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 74,
+        "name": "Geodude",
+        "levels": "5-20",
+        "rate": "100%",
+        "encounter_type": "rocksmash"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-35",
+        "rate": "1%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 183,
+        "name": "Marill",
+        "levels": "10-30",
+        "rate": "99%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 274,
+        "name": "Nuzleaf",
+        "levels": "15",
+        "rate": "50%",
+        "encounter_type": "swarm"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "name": "Meteor Falls 1F 1R",
+    "encounters": [
+      {
+        "pokedex_id": 41,
+        "name": "Zubat",
+        "levels": "14-20",
+        "rate": "80%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "14, 16, 18",
+        "rate": "20%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 41,
+        "name": "Zubat",
+        "levels": "5-35",
+        "rate": "90%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "5-35",
+        "rate": "10%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "name": "Meteor Falls 1F 2R",
+    "encounters": [
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "33, 35, 38, 40",
+        "rate": "65%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "33, 35, 37, 39",
+        "rate": "35%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "30-35",
+        "rate": "90%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "5-35",
+        "rate": "10%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "25-35",
+        "rate": "80%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 340,
+        "name": "Whiscash",
+        "levels": "30-45",
+        "rate": "20%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "name": "Steven's Walking",
+    "encounters": [
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "33, 35, 38, 40",
+        "rate": "65%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "33, 35, 37, 39",
+        "rate": "35%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "name": "Meteor Falls B1F 1R",
+    "encounters": [
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "33, 35, 38, 40",
+        "rate": "65%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "33, 35, 37, 39",
+        "rate": "35%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "30-35",
+        "rate": "90%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "5-35",
+        "rate": "10%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "25-35",
+        "rate": "80%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 340,
+        "name": "Whiscash",
+        "levels": "30-45",
+        "rate": "20%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "name": "Meteor Falls B1F 2R",
+    "encounters": [
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "33, 35, 38, 40",
+        "rate": "50%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "35, 37, 39",
+        "rate": "25%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 371,
+        "name": "Bagon",
+        "levels": "25, 30, 35",
+        "rate": "25%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "30-35",
+        "rate": "90%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "5-35",
+        "rate": "10%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "25-35",
+        "rate": "80%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 340,
+        "name": "Whiscash",
+        "levels": "30-45",
+        "rate": "20%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "name": "Route 112",
+    "encounters": [
+      {
+        "pokedex_id": 183,
+        "name": "Marill",
+        "levels": "14-16",
+        "rate": "28%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 322,
+        "name": "Numel",
+        "levels": "14-16",
+        "rate": "75%",
+        "encounter_type": "grass"
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "name": "Fiery Path",
+    "encounters": [
+      {
+        "pokedex_id": 66,
+        "name": "Machop",
+        "levels": "15-16",
+        "rate": "15%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 88,
+        "name": "Grimer",
+        "levels": "14",
+        "rate": "2%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 109,
+        "name": "Koffing",
+        "levels": "15-16",
+        "rate": "25%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 218,
+        "name": "Slugma",
+        "levels": "15",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 322,
+        "name": "Numel",
+        "levels": "15-16",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 324,
+        "name": "Torkoal",
+        "levels": "14-16",
+        "rate": "18%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "name": "Lavaridge Town",
+    "encounters": [
+      {
+        "pokedex_id": 360,
+        "name": "Wynaut",
+        "levels": "5",
+        "rate": "100%",
+        "encounter_type": "gift"
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "name": "Jagged Pass",
+    "encounters": [
+      {
+        "pokedex_id": 66,
+        "name": "Machop",
+        "levels": "20-22",
+        "rate": "25%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 322,
+        "name": "Numel",
+        "levels": "20-22",
+        "rate": "55%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 325,
+        "name": "Spoink",
+        "levels": "20-22",
+        "rate": "20%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "name": "Magma Hideout 1F",
+    "encounters": [
+      {
+        "pokedex_id": 74,
+        "name": "Geodude",
+        "levels": "27-30",
+        "rate": "55%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 75,
+        "name": "Graveler",
+        "levels": "30-33",
+        "rate": "15%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 324,
+        "name": "Torkoal",
+        "levels": "28, 30",
+        "rate": "30%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "name": "Magma Hideout 2F",
+    "encounters": [
+      {
+        "pokedex_id": 74,
+        "name": "Geodude",
+        "levels": "27-30",
+        "rate": "55%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 75,
+        "name": "Graveler",
+        "levels": "30-33",
+        "rate": "15%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 324,
+        "name": "Torkoal",
+        "levels": "28, 30",
+        "rate": "30%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "name": "Magma Hideout 3F",
+    "encounters": [
+      {
+        "pokedex_id": 74,
+        "name": "Geodude",
+        "levels": "27-30",
+        "rate": "55%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 75,
+        "name": "Graveler",
+        "levels": "30-33",
+        "rate": "15%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 324,
+        "name": "Torkoal",
+        "levels": "28, 30",
+        "rate": "30%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "name": "Magma Hideout 4F",
+    "encounters": [
+      {
+        "pokedex_id": 74,
+        "name": "Geodude",
+        "levels": "27-30",
+        "rate": "55%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 75,
+        "name": "Graveler",
+        "levels": "30-33",
+        "rate": "15%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 324,
+        "name": "Torkoal",
+        "levels": "28, 30",
+        "rate": "30%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "name": "Magma Hideout 5F",
+    "encounters": [
+      {
+        "pokedex_id": 74,
+        "name": "Geodude",
+        "levels": "27-30",
+        "rate": "55%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 75,
+        "name": "Graveler",
+        "levels": "30-33",
+        "rate": "15%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 324,
+        "name": "Torkoal",
+        "levels": "28, 30",
+        "rate": "30%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "name": "Magma Hideout 6F",
+    "encounters": [
+      {
+        "pokedex_id": 74,
+        "name": "Geodude",
+        "levels": "27-30",
+        "rate": "55%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 75,
+        "name": "Graveler",
+        "levels": "30-33",
+        "rate": "15%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 324,
+        "name": "Torkoal",
+        "levels": "28, 30",
+        "rate": "30%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "name": "Magma Hideout 7F",
+    "encounters": [
+      {
+        "pokedex_id": 74,
+        "name": "Geodude",
+        "levels": "27-30",
+        "rate": "55%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 75,
+        "name": "Graveler",
+        "levels": "30-33",
+        "rate": "15%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 324,
+        "name": "Torkoal",
+        "levels": "28, 30",
+        "rate": "30%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "name": "Magma Hideout 8F",
+    "encounters": [
+      {
+        "pokedex_id": 74,
+        "name": "Geodude",
+        "levels": "27-30",
+        "rate": "55%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 75,
+        "name": "Graveler",
+        "levels": "30-33",
+        "rate": "15%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 324,
+        "name": "Torkoal",
+        "levels": "28, 30",
+        "rate": "30%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "name": "Slateport City",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 32,
+    "name": "Route 109",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 33,
+    "name": "Route 108",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 34,
+    "name": "Route 107",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "name": "Route 106",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "name": "Dewford Town",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 37,
+    "name": "Route 105",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 38,
+    "name": "Granite Cave 1F",
+    "encounters": [
+      {
+        "pokedex_id": 41,
+        "name": "Zubat",
+        "levels": "7-8",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 63,
+        "name": "Abra",
+        "levels": "8",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 74,
+        "name": "Geodude",
+        "levels": "6-9",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 296,
+        "name": "Makuhita",
+        "levels": "6-10",
+        "rate": "50%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 39,
+    "name": "Granite Cave Steven's Room",
+    "encounters": [
+      {
+        "pokedex_id": 41,
+        "name": "Zubat",
+        "levels": "7-8",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 63,
+        "name": "Abra",
+        "levels": "8",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 304,
+        "name": "Aron",
+        "levels": "7-8",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 296,
+        "name": "Makuhita",
+        "levels": "6-10",
+        "rate": "50%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 40,
+    "name": "Granite Cave B1F",
+    "encounters": [
+      {
+        "pokedex_id": 41,
+        "name": "Zubat",
+        "levels": "9-10",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 63,
+        "name": "Abra",
+        "levels": "9",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 302,
+        "name": "Sableye",
+        "levels": "9-11",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 296,
+        "name": "Makuhita",
+        "levels": "10-11",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 304,
+        "name": "Aron",
+        "levels": "9-11",
+        "rate": "40%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 41,
+    "name": "Granite Cave B2F",
+    "encounters": [
+      {
+        "pokedex_id": 41,
+        "name": "Zubat",
+        "levels": "10-11",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 63,
+        "name": "Abra",
+        "levels": "10",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 302,
+        "name": "Sableye",
+        "levels": "10-12",
+        "rate": "20%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 304,
+        "name": "Aron",
+        "levels": "10-12",
+        "rate": "40%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 74,
+        "name": "Geodude",
+        "levels": "5-20",
+        "rate": "70%",
+        "encounter_type": "rocksmash"
+      },
+      {
+        "pokedex_id": 299,
+        "name": "Nosepass",
+        "levels": "10-20",
+        "rate": "30%",
+        "encounter_type": "rocksmash"
+      }
+    ]
+  },
+  {
+    "id": 42,
+    "name": "Route 123",
+    "encounters": [
+      {
+        "pokedex_id": 43,
+        "name": "Oddish",
+        "levels": "28",
+        "rate": "5%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 44,
+        "name": "Gloom",
+        "levels": "28",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 261,
+        "name": "Poochyena",
+        "levels": "26",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 262,
+        "name": "Mightyena",
+        "levels": "26, 28",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "26-28",
+        "rate": "9%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 352,
+        "name": "Kecleon",
+        "levels": "25",
+        "rate": "1%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 353,
+        "name": "Shuppet",
+        "levels": "26, 28",
+        "rate": "30%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 43,
+    "name": "Route 118",
+    "encounters": [
+      {
+        "pokedex_id": 263,
+        "name": "Zigzagoon",
+        "levels": "24, 26",
+        "rate": "30%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 264,
+        "name": "Linoone",
+        "levels": "26",
+        "rate": "10%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "25-27",
+        "rate": "19%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 309,
+        "name": "Electrike",
+        "levels": "24, 26",
+        "rate": "30%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 310,
+        "name": "Manectric",
+        "levels": "26",
+        "rate": "10%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 352,
+        "name": "Kecleon",
+        "levels": "25",
+        "rate": "1%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 318,
+        "name": "Carvanha",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 318,
+        "name": "Carvanha",
+        "levels": "20-35, 30-45",
+        "rate": "60%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 319,
+        "name": "Sharpedo",
+        "levels": "30-35",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 44,
+    "name": "Route 119",
+    "encounters": [
+      {
+        "pokedex_id": 43,
+        "name": "Oddish",
+        "levels": "24-27",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 263,
+        "name": "Zigzagoon",
+        "levels": "25-27",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 264,
+        "name": "Linoone",
+        "levels": "25-27",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 352,
+        "name": "Kecleon",
+        "levels": "25",
+        "rate": "1%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 357,
+        "name": "Tropius",
+        "levels": "25-27",
+        "rate": "9%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 318,
+        "name": "Carvanha",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 318,
+        "name": "Carvanha",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 349,
+        "name": "Feebas",
+        "levels": "20-25",
+        "rate": "50%",
+        "encounter_type": "fishing_old"
+      }
+    ]
+  },
+  {
+    "id": 45,
+    "name": "Fortree City",
+    "encounters": [
+      {
+        "pokedex_id": 311,
+        "name": "Plusle",
+        "levels": "As Traded",
+        "rate": "100%",
+        "encounter_type": "trade"
+      }
+    ]
+  },
+  {
+    "id": 46,
+    "name": "Route 120",
+    "encounters": [
+      {
+        "pokedex_id": 43,
+        "name": "Oddish",
+        "levels": "25, 27",
+        "rate": "25%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 183,
+        "name": "Marill",
+        "levels": "25, 27",
+        "rate": "15%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 261,
+        "name": "Poochyena",
+        "levels": "25",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 262,
+        "name": "Mightyena",
+        "levels": "25, 27",
+        "rate": "30%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 273,
+        "name": "Seedot",
+        "levels": "25",
+        "rate": "1",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 352,
+        "name": "Kecleon",
+        "levels": "25",
+        "rate": "1%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 359,
+        "name": "Absol",
+        "levels": "25, 27",
+        "rate": "8%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "20-30",
+        "rate": "1%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 183,
+        "name": "Marill",
+        "levels": "5-35",
+        "rate": "99%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 352,
+        "name": "Kecleon",
+        "levels": "30",
+        "rate": "100%",
+        "encounter_type": "hidden"
+      },
+      {
+        "pokedex_id": 273,
+        "name": "Seedot",
+        "levels": "25",
+        "rate": "50%",
+        "encounter_type": "swarm"
+      }
+    ]
+  },
+  {
+    "id": 47,
+    "name": "Route 122",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "3-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 319,
+        "name": "Sharpedo",
+        "levels": "30-35",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-45",
+        "rate": "60%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 48,
+    "name": "Route 123",
+    "encounters": [
+      {
+        "pokedex_id": 43,
+        "name": "Oddish",
+        "levels": "26, 28",
+        "rate": "15%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 44,
+        "name": "Gloom",
+        "levels": "28",
+        "rate": "5%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 261,
+        "name": "Poochyena",
+        "levels": "26",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 262,
+        "name": "Mightyena",
+        "levels": "26, 28",
+        "rate": "20%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "26-28",
+        "rate": "9%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 352,
+        "name": "Kecleon",
+        "levels": "25",
+        "rate": "1%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 353,
+        "name": "Shuppet",
+        "levels": "26, 28",
+        "rate": "30%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 49,
+    "name": "Mt Pyre 1F",
+    "encounters": [
+      {
+        "pokedex_id": 353,
+        "name": "Shuppet",
+        "levels": "22-29",
+        "rate": "100%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 50,
+    "name": "Mt Pyre 2F",
+    "encounters": [
+      {
+        "pokedex_id": 353,
+        "name": "Shuppet",
+        "levels": "22-29",
+        "rate": "100%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 51,
+    "name": "Mt Pyre 3F",
+    "encounters": [
+      {
+        "pokedex_id": 353,
+        "name": "Shuppet",
+        "levels": "22-29",
+        "rate": "100%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "name": "Mt Pyre 4F",
+    "encounters": [
+      {
+        "pokedex_id": 353,
+        "name": "Shuppet",
+        "levels": "22-29",
+        "rate": "90%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 355,
+        "name": "Duskull",
+        "levels": "25, 27, 29",
+        "rate": "10%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 53,
+    "name": "Mt Pyre 5F",
+    "encounters": [
+      {
+        "pokedex_id": 353,
+        "name": "Shuppet",
+        "levels": "22-29",
+        "rate": "90%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 355,
+        "name": "Duskull",
+        "levels": "25, 27, 29",
+        "rate": "10%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 54,
+    "name": "Mt Pyre 6F",
+    "encounters": [
+      {
+        "pokedex_id": 353,
+        "name": "Shuppet",
+        "levels": "22-29",
+        "rate": "90%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 355,
+        "name": "Duskull",
+        "levels": "25, 27, 29",
+        "rate": "10%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 55,
+    "name": "Mt Pyre Exterior",
+    "encounters": [
+      {
+        "pokedex_id": 37,
+        "name": "Vulpix",
+        "levels": "25, 27, 29",
+        "rate": "30%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "26-28",
+        "rate": "10%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 353,
+        "name": "Shuppet",
+        "levels": "27-29",
+        "rate": "60%",
+        "encounter_type": "grass"
+      }
+    ]
+  },
+  {
+    "id": 56,
+    "name": "Mt Pyre Summit",
+    "encounters": [
+      {
+        "pokedex_id": 353,
+        "name": "Shuppet",
+        "levels": "24-30",
+        "rate": "85%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 355,
+        "name": "Duskull",
+        "levels": "26, 28, 30",
+        "rate": "13%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 358,
+        "name": "Chimecho",
+        "levels": "28",
+        "rate": "2%",
+        "encounter_type": "grass"
+      }
+    ]
+  },
+  {
+    "id": 57,
+    "name": "Lilycove City",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 120,
+        "name": "Staryu",
+        "levels": "25-30",
+        "rate": "15%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-45",
+        "rate": "85%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 58,
+    "name": "Route 134",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "4%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 0,
+        "name": "Tenacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 0,
+        "name": "Tenacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 116,
+        "name": "Horsea",
+        "levels": "25-30",
+        "rate": "15%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 319,
+        "name": "Sharpedo",
+        "levels": "30-35",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-45",
+        "rate": "45%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 59,
+    "name": "Route 133",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "4%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 0,
+        "name": "Tenacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 0,
+        "name": "Tenacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 116,
+        "name": "Horsea",
+        "levels": "25-30",
+        "rate": "15%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 319,
+        "name": "Sharpedo",
+        "levels": "30-35",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-45",
+        "rate": "45%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 60,
+    "name": "Route 132",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "4%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 0,
+        "name": "Tenacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 0,
+        "name": "Tenacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 116,
+        "name": "Horsea",
+        "levels": "25-30",
+        "rate": "15%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 319,
+        "name": "Sharpedo",
+        "levels": "30-35",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-45",
+        "rate": "45%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 61,
+    "name": "Pacifidog Town",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "4%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 319,
+        "name": "Sharpedo",
+        "levels": "30-35",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-45",
+        "rate": "60%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 116,
+        "name": "Horsea",
+        "levels": "As Traded",
+        "rate": "100%",
+        "encounter_type": "trade"
+      }
+    ]
+  },
+  {
+    "id": 62,
+    "name": "Route 130",
+    "encounters": [
+      {
+        "pokedex_id": 360,
+        "name": "Wynaut",
+        "levels": "5, 10, 15, 20, 25, 30, 35, 40, 45, 50",
+        "rate": "100%",
+        "encounter_type": "grass"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "4%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 0,
+        "name": "Tenacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 0,
+        "name": "Tenacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 319,
+        "name": "Sharpedo",
+        "levels": "30-35",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-45",
+        "rate": "60%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 63,
+    "name": "Route 129",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "4%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-30",
+        "rate": "1%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 319,
+        "name": "Sharpedo",
+        "levels": "30-35",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-45",
+        "rate": "60%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 64,
+    "name": "Route 128",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "4%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-30",
+        "rate": "1%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 370,
+        "name": "Luvdisc",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 222,
+        "name": "Corsola",
+        "levels": "30-45",
+        "rate": "15%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "30-45",
+        "rate": "45%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 370,
+        "name": "Luvdisc",
+        "levels": "30-45",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 65,
+    "name": "Route 124",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 319,
+        "name": "Sharpedo",
+        "levels": "30-35",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-45",
+        "rate": "60%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 170,
+        "name": "Chinchou",
+        "levels": "20-30",
+        "rate": "30%",
+        "encounter_type": "underwater"
+      },
+      {
+        "pokedex_id": 366,
+        "name": "Clamperl",
+        "levels": "20-35",
+        "rate": "65%",
+        "encounter_type": "underwater"
+      },
+      {
+        "pokedex_id": 369,
+        "name": "Relicanth",
+        "levels": "30-35",
+        "rate": "5%",
+        "encounter_type": "underwater"
+      }
+    ]
+  },
+  {
+    "id": 66,
+    "name": "Route 125",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 319,
+        "name": "Sharpedo",
+        "levels": "30-35",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-45",
+        "rate": "60%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 67,
+    "name": "Route 126",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 319,
+        "name": "Sharpedo",
+        "levels": "30-35",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-45",
+        "rate": "60%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 170,
+        "name": "Chinchou",
+        "levels": "20-30",
+        "rate": "30%",
+        "encounter_type": "underwater"
+      },
+      {
+        "pokedex_id": 366,
+        "name": "Clamperl",
+        "levels": "20-35",
+        "rate": "65%",
+        "encounter_type": "underwater"
+      },
+      {
+        "pokedex_id": 369,
+        "name": "Relicanth",
+        "levels": "30-35",
+        "rate": "5%",
+        "encounter_type": "underwater"
+      }
+    ]
+  },
+  {
+    "id": 68,
+    "name": "Route 127",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 319,
+        "name": "Sharpedo",
+        "levels": "30-35",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-45",
+        "rate": "60%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 69,
+    "name": "Mossdeep City",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 319,
+        "name": "Sharpedo",
+        "levels": "30-35",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "25-45",
+        "rate": "60%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 374,
+        "name": "Beldum",
+        "levels": "5",
+        "rate": "100%",
+        "encounter_type": "gift"
+      }
+    ]
+  },
+  {
+    "id": 70,
+    "name": "EverGrande City",
+    "encounters": [
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 278,
+        "name": "Wingull",
+        "levels": "10-30",
+        "rate": "35%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 279,
+        "name": "Pelipper",
+        "levels": "25-30",
+        "rate": "4%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 370,
+        "name": "Luvdisc",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 222,
+        "name": "Corsola",
+        "levels": "30-45",
+        "rate": "15%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "30-45",
+        "rate": "45%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 370,
+        "name": "Luvdisc",
+        "levels": "30-45",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 71,
+    "name": "Victory Road 1F",
+    "encounters": [
+      {
+        "pokedex_id": 41,
+        "name": "Zubat",
+        "levels": "36",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "25",
+        "rate": "38, 40%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 293,
+        "name": "Whismur",
+        "levels": "36",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 294,
+        "name": "Loudred",
+        "levels": "40",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 296,
+        "name": "Makuhita",
+        "levels": "36",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 297,
+        "name": "Hariyama",
+        "levels": "38, 40",
+        "rate": "25%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 304,
+        "name": "Aron",
+        "levels": "36",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 305,
+        "name": "Lairon",
+        "levels": "40",
+        "rate": "10%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 72,
+    "name": "Victory Road B1F",
+    "encounters": [
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "38, 40, 42",
+        "rate": "35%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 297,
+        "name": "Hariyama",
+        "levels": "38-42",
+        "rate": "35%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 303,
+        "name": "Mawile",
+        "levels": "38",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 305,
+        "name": "Lairon",
+        "levels": "40-42",
+        "rate": "25%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 74,
+        "name": "Geodude",
+        "levels": "30-40",
+        "rate": "30%",
+        "encounter_type": "rocksmash"
+      },
+      {
+        "pokedex_id": 75,
+        "name": "Graveler",
+        "levels": "30-40",
+        "rate": "70%",
+        "encounter_type": "rocksmash"
+      }
+    ]
+  },
+  {
+    "id": 73,
+    "name": "Victory Road B2F",
+    "encounters": [
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "30, 48, 42",
+        "rate": "35%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 297,
+        "name": "Hariyama",
+        "levels": "38, 40, 42",
+        "rate": "35%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 303,
+        "name": "Mawile",
+        "levels": "38",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 305,
+        "name": "Lairon",
+        "levels": "40, 42",
+        "rate": "25%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "25-40",
+        "rate": "100%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "25-35",
+        "rate": "80%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 340,
+        "name": "Whiscash",
+        "levels": "30-45",
+        "rate": "20%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 74,
+    "name": "Sky Pillar 1F",
+    "encounters": [
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "34-35",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 302,
+        "name": "Sableye",
+        "levels": "33-34",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 344,
+        "name": "Claydol",
+        "levels": "36-38",
+        "rate": "25%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 354,
+        "name": "Banette",
+        "levels": "37-38",
+        "rate": "15%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 75,
+    "name": "Sky Pillar 3F",
+    "encounters": [
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "34-35",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 302,
+        "name": "Sableye",
+        "levels": "33-34",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 344,
+        "name": "Claydol",
+        "levels": "36-38",
+        "rate": "25%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 354,
+        "name": "Banette",
+        "levels": "37-38",
+        "rate": "15%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 76,
+    "name": "Sky Pillar 5F",
+    "encounters": [
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "34-35",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 302,
+        "name": "Sableye",
+        "levels": "33-34",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 334,
+        "name": "Altaria",
+        "levels": "38-39",
+        "rate": "6%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 344,
+        "name": "Claydol",
+        "levels": "36-37",
+        "rate": "19%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 354,
+        "name": "Banette",
+        "levels": "37-38",
+        "rate": "15%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 77,
+    "name": "Sky Pillar Apex",
+    "encounters": [
+      {
+        "pokedex_id": 384,
+        "name": "Rayquaza",
+        "levels": "70",
+        "rate": "100%",
+        "encounter_type": "special"
+      }
+    ]
+  },
+  {
+    "id": 78,
+    "name": "Battle Fronteir",
+    "encounters": [
+      {
+        "pokedex_id": 185,
+        "name": "Sudowoodo",
+        "levels": "40",
+        "rate": "100%",
+        "encounter_type": "wailmerpail"
+      }
+    ]
+  },
+  {
+    "id": 79,
+    "name": "Artisan Cave",
+    "encounters": [
+      {
+        "pokedex_id": 235,
+        "name": "Smeargle",
+        "levels": "40-50",
+        "rate": "100%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 80,
+    "name": "Shoal Cave",
+    "encounters": [
+      {
+        "pokedex_id": 41,
+        "name": "Zubat",
+        "levels": "26-32",
+        "rate": "45%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "32",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 363,
+        "name": "Spheal",
+        "levels": "26-32",
+        "rate": "50%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 41,
+        "name": "Zubat",
+        "levels": "5-35",
+        "rate": "30%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-35",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 363,
+        "name": "Spheal",
+        "levels": "25-35",
+        "rate": "10%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 72,
+        "name": "Tentacool",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 320,
+        "name": "Wailmer",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 81,
+    "name": "Shoal Cave B1F",
+    "encounters": [
+      {
+        "pokedex_id": 41,
+        "name": "Zubat",
+        "levels": "26-30",
+        "rate": "40%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "30-32",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 361,
+        "name": "Snorunt",
+        "levels": "26-30",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 363,
+        "name": "Spheal",
+        "levels": "26-32",
+        "rate": "45%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 82,
+    "name": "Safari Zone North",
+    "encounters": [
+      {
+        "pokedex_id": 163,
+        "name": "Hoothoot",
+        "levels": "35",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 165,
+        "name": "Ledyba",
+        "levels": "33",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 190,
+        "name": "Aipom",
+        "levels": "33-35",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 191,
+        "name": "Sunkern",
+        "levels": "34",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 204,
+        "name": "Pineco",
+        "levels": "34",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 216,
+        "name": "Teddiursa",
+        "levels": "34-36",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 228,
+        "name": "Houndour",
+        "levels": "36-39",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 241,
+        "name": "Miltank",
+        "levels": "37-40",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 213,
+        "name": "Shuckle",
+        "levels": "20-40",
+        "rate": "100%",
+        "encounter_type": "rocksmash"
+      }
+    ]
+  },
+  {
+    "id": 83,
+    "name": "Safari Zone South",
+    "encounters": [
+      {
+        "pokedex_id": 163,
+        "name": "Hoothoot",
+        "levels": "35",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 167,
+        "name": "Spinarak",
+        "levels": "33",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 179,
+        "name": "Mareep",
+        "levels": "34-36",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 190,
+        "name": "Aipom",
+        "levels": "34",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 191,
+        "name": "Sunkern",
+        "levels": "33-35",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 207,
+        "name": "Gligar",
+        "levels": "37-40",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 209,
+        "name": "Snubbull",
+        "levels": "34",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 234,
+        "name": "Stantler",
+        "levels": "36-39",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 183,
+        "name": "Marill",
+        "levels": "25-35",
+        "rate": "39%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 194,
+        "name": "Wooper",
+        "levels": "25-30",
+        "rate": "60%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 195,
+        "name": "Quagsire",
+        "levels": "35-40",
+        "rate": "1%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "35-30",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "25-30",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 223,
+        "name": "Remoraid",
+        "levels": "30-35",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "25-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "25-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "25-30",
+        "rate": "40%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 223,
+        "name": "Remoraid",
+        "levels": "25-35",
+        "rate": "59%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 224,
+        "name": "Octillery",
+        "levels": "35-40",
+        "rate": "1%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 84,
+    "name": "Safari Zone NE Acro Bike",
+    "encounters": [
+      {
+        "pokedex_id": 43,
+        "name": "Oddish",
+        "levels": "27-29",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 44,
+        "name": "Gloom",
+        "levels": "29-31",
+        "rate": "15%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 177,
+        "name": "Natu",
+        "levels": "27-29",
+        "rate": "15%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 178,
+        "name": "Xatu",
+        "levels": "29-31",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 214,
+        "name": "Heracross",
+        "levels": "27-29",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 0,
+        "name": "Phanphy",
+        "levels": "27-29",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 74,
+        "name": "Geodude",
+        "levels": "5-30",
+        "rate": "100%",
+        "encounter_type": "rocksmash"
+      }
+    ]
+  },
+  {
+    "id": 85,
+    "name": "Safari Zone NW Mach Bike",
+    "encounters": [
+      {
+        "pokedex_id": 43,
+        "name": "Oddish",
+        "levels": "27-29",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 44,
+        "name": "Gloom",
+        "levels": "29-31",
+        "rate": "15%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 84,
+        "name": "Doduo",
+        "levels": "27-29",
+        "rate": "15%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 85,
+        "name": "Dodrio",
+        "levels": "29-31",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 111,
+        "name": "Rhyhorn",
+        "levels": "27-29",
+        "rate": "30%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 127,
+        "name": "Pinsir",
+        "levels": "27*29",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 54,
+        "name": "Psyduck",
+        "levels": "20-35",
+        "rate": "95%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 55,
+        "name": "Golduck",
+        "levels": "25-40",
+        "rate": "5%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "40%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "25-35",
+        "rate": "80%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 119,
+        "name": "Seaking",
+        "levels": "25-40",
+        "rate": "20%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 86,
+    "name": "Safari Zone SE",
+    "encounters": [
+      {
+        "pokedex_id": 25,
+        "name": "Pikachu",
+        "levels": "25-27",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 43,
+        "name": "Oddish",
+        "levels": "25-27",
+        "rate": "40%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 44,
+        "name": "Gloom",
+        "levels": "25",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 84,
+        "name": "Doduo",
+        "levels": "25",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 177,
+        "name": "Natu",
+        "levels": "25",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 202,
+        "name": "Wobbuffet",
+        "levels": "27-29",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 203,
+        "name": "Girafarig",
+        "levels": "25-27",
+        "rate": "20%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 87,
+    "name": "Safari Zone SW",
+    "encounters": [
+      {
+        "pokedex_id": 25,
+        "name": "Pikachu",
+        "levels": "25-27",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 43,
+        "name": "Oddish",
+        "levels": "25-27",
+        "rate": "40%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 44,
+        "name": "Gloom",
+        "levels": "25",
+        "rate": "5%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 84,
+        "name": "Doduo",
+        "levels": "27",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 177,
+        "name": "Natu",
+        "levels": "25",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 202,
+        "name": "Wobbuffet",
+        "levels": "27-29",
+        "rate": "10%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 203,
+        "name": "Girafarig",
+        "levels": "25-27",
+        "rate": "20%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 54,
+        "name": "Psyduck",
+        "levels": "20-35",
+        "rate": "100%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "40%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "25-35",
+        "rate": "80%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 119,
+        "name": "Seaking",
+        "levels": "25-40",
+        "rate": "20%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 88,
+    "name": "Ancient Tomb",
+    "encounters": [
+      {
+        "pokedex_id": 379,
+        "name": "Registeel",
+        "levels": "40",
+        "rate": "100%",
+        "encounter_type": "special"
+      }
+    ]
+  },
+  {
+    "id": 89,
+    "name": "Desert Underpass",
+    "encounters": [
+      {
+        "pokedex_id": 132,
+        "name": "Ditto",
+        "levels": "38-45",
+        "rate": "50%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 293,
+        "name": "Whismur",
+        "levels": "35-38",
+        "rate": "34%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 294,
+        "name": "Loudred",
+        "levels": "38-44",
+        "rate": "16%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 90,
+    "name": "Meteor Falls Back",
+    "encounters": [
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "33-40",
+        "rate": "65%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "33-39",
+        "rate": "35%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "30-35",
+        "rate": "90%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "5-35",
+        "rate": "10%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "25-35",
+        "rate": "80%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 340,
+        "name": "Whiscash",
+        "levels": "30-45",
+        "rate": "20%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 91,
+    "name": "Meteor Falls Back - Small Room",
+    "encounters": [
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "33-40",
+        "rate": "50%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "35-39",
+        "rate": "25%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 371,
+        "name": "Bagon",
+        "levels": "25-35",
+        "rate": "25%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "30-35",
+        "rate": "90%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "5-35",
+        "rate": "10%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "25-35",
+        "rate": "80%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 340,
+        "name": "Whiscash",
+        "levels": "30-45",
+        "rate": "20%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 92,
+    "name": "Meteor Falls B1F",
+    "encounters": [
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "33-40",
+        "rate": "65%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "35-39",
+        "rate": "35%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 42,
+        "name": "Golbat",
+        "levels": "30-35",
+        "rate": "90%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "5-35",
+        "rate": "10%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "25-35",
+        "rate": "80%",
+        "encounter_type": "fishing_super"
+      },
+      {
+        "pokedex_id": 340,
+        "name": "Whiscash",
+        "levels": "30-45",
+        "rate": "20%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 93,
+    "name": "Meteor Falls",
+    "encounters": [
+      {
+        "pokedex_id": 41,
+        "name": "Zubat",
+        "levels": "14-20",
+        "rate": "80%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "14-18",
+        "rate": "20%",
+        "encounter_type": "walking"
+      },
+      {
+        "pokedex_id": 41,
+        "name": "Zubat",
+        "levels": "30-35",
+        "rate": "90%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 338,
+        "name": "Solrock",
+        "levels": "5-35",
+        "rate": "10%",
+        "encounter_type": "surfing"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "5-10",
+        "rate": "30%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "5-10",
+        "rate": "70%",
+        "encounter_type": "fishing_old"
+      },
+      {
+        "pokedex_id": 118,
+        "name": "Goldeen",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 129,
+        "name": "Magikarp",
+        "levels": "10-30",
+        "rate": "60%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "10-30",
+        "rate": "20%",
+        "encounter_type": "fishing_good"
+      },
+      {
+        "pokedex_id": 339,
+        "name": "Barboach",
+        "levels": "20-45",
+        "rate": "100%",
+        "encounter_type": "fishing_super"
+      }
+    ]
+  },
+  {
+    "id": 94,
+    "name": "Island Cave",
+    "encounters": [
+      {
+        "pokedex_id": 378,
+        "name": "Regice",
+        "levels": "40",
+        "rate": "100%",
+        "encounter_type": "special"
+      }
+    ]
+  },
+  {
+    "id": 95,
+    "name": "Altering Cave A",
+    "encounters": [
+      {
+        "pokedex_id": 41,
+        "name": "Zubat",
+        "levels": "6-16",
+        "rate": "100%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 96,
+    "name": "Altering Cave B",
+    "encounters": [
+      {
+        "pokedex_id": 179,
+        "name": "Mareep",
+        "levels": "3-13",
+        "rate": "100%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 97,
+    "name": "Altering Cave C",
+    "encounters": [
+      {
+        "pokedex_id": 204,
+        "name": "Pineco",
+        "levels": "19-29",
+        "rate": "100%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 98,
+    "name": "Altering Cave D",
+    "encounters": [
+      {
+        "pokedex_id": 228,
+        "name": "Houndour",
+        "levels": "12-22",
+        "rate": "100%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 99,
+    "name": "Altering Cave E",
+    "encounters": [
+      {
+        "pokedex_id": 216,
+        "name": "Teddiursa",
+        "levels": "6-16",
+        "rate": "100%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 100,
+    "name": "Altering Cave F",
+    "encounters": [
+      {
+        "pokedex_id": 190,
+        "name": "Aipom",
+        "levels": "18-28",
+        "rate": "100%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 101,
+    "name": "Altering Cave G",
+    "encounters": [
+      {
+        "pokedex_id": 213,
+        "name": "Shuckle",
+        "levels": "18-28",
+        "rate": "100%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 102,
+    "name": "Altering Cave H",
+    "encounters": [
+      {
+        "pokedex_id": 234,
+        "name": "Stantler",
+        "levels": "18-28",
+        "rate": "100%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 103,
+    "name": "Altering Cave I",
+    "encounters": [
+      {
+        "pokedex_id": 235,
+        "name": "Smeargle",
+        "levels": "18-28",
+        "rate": "100%",
+        "encounter_type": "walking"
+      }
+    ]
+  },
+  {
+    "id": 104,
+    "name": "Desert Ruins",
+    "encounters": [
+      {
+        "pokedex_id": 377,
+        "name": "Regirock",
+        "levels": "40",
+        "rate": "100%",
+        "encounter_type": "special"
+      }
+    ]
+  },
+  {
+    "id": 105,
+    "name": "Weather Institute",
+    "encounters": [
+      {
+        "pokedex_id": 351,
+        "name": "Castform",
+        "levels": "25",
+        "rate": "100%",
+        "encounter_type": "gift"
+      }
+    ]
+  },
+  {
+    "id": 106,
+    "name": "Faraway Island",
+    "encounters": [
+      {
+        "pokedex_id": 151,
+        "name": "Mew",
+        "levels": "30",
+        "rate": "100%",
+        "encounter_type": "special"
+      }
+    ]
+  },
+  {
+    "id": 107,
+    "name": "Southern Island",
+    "encounters": [
+      {
+        "pokedex_id": 381,
+        "name": "Latios",
+        "levels": "50",
+        "rate": "100%",
+        "encounter_type": "special"
+      },
+      {
+        "pokedex_id": 380,
+        "name": "Latias",
+        "levels": "50",
+        "rate": "100%",
+        "encounter_type": "special"
+      }
+    ]
+  },
+  {
+    "id": 108,
+    "name": "Roaming",
+    "encounters": [
+      {
+        "pokedex_id": 381,
+        "name": "Latios",
+        "levels": "40",
+        "rate": "100%",
+        "encounter_type": "roam"
+      },
+      {
+        "pokedex_id": 380,
+        "name": "Latias",
+        "levels": "40",
+        "rate": "100%",
+        "encounter_type": "roam"
+      }
+    ]
+  },
+  {
+    "id": 109,
+    "name": "Terra Cave",
+    "encounters": [
+      {
+        "pokedex_id": 383,
+        "name": "Groudon",
+        "levels": "70",
+        "rate": "100%",
+        "encounter_type": "special"
+      }
+    ]
+  },
+  {
+    "id": 110,
+    "name": "Marine Cave",
+    "encounters": [
+      {
+        "pokedex_id": 382,
+        "name": "Kyogre",
+        "levels": "70",
+        "rate": "100%",
+        "encounter_type": "special"
+      }
+    ]
+  }
+]

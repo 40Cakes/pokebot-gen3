@@ -1,0 +1,14 @@
+*Thumbs.db*
+__pycache__
+backups/
+build/
+dist/
+logs/
+stats/
+stream/
+reports/
+roms/
+.venv
+.idea
+.vs
+bot.spec
