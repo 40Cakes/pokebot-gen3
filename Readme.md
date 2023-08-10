@@ -12,3 +12,9 @@ The bot is hard-coded to spin on the spot and exit once a shiny is encountered. 
 
 1. Run `requirements.py` to install required modules.
 2. Run `bot.py`, then click on an mGBA instance to attach the bot to it.
+
+This project uses symbols tables from the Pokémon decompilation projects:
+
+- [Pokémon Emerald](https://github.com/pret/pokeemerald) ([symbols](https://github.com/pret/pokeemerald/tree/symbols))
+- [Pokémon Ruby and Sapphire](https://github.com/pret/pokeruby) ([symbols](https://github.com/pret/pokeruby/tree/symbols))
+- [Pokémon FireRed and LeafGreen](https://github.com/pret/pokefirered) ([symbols](https://github.com/pret/pokefirered/tree/symbols))
