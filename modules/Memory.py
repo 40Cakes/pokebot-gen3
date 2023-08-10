@@ -25,6 +25,8 @@ pokemon_list = json.loads(ReadFile("./modules/data/pokemon.json"))
 location_list = json.loads(ReadFile("./modules/data/locations.json"))
 hidden_powers = json.loads(ReadFile("./modules/data/hidden-powers.json"))
 
+session_count = 0 # TODO temporary for testing
+
 def GetPointer(proc, base, offsets):
     addr = proc.read_longlong(base)
     for i in offsets:
@@ -222,7 +224,9 @@ def ParsePokemon(b_Pokemon: bytes):
     sv = int(tid ^ sid ^ struct.unpack('<H', b_Pokemon[0:2])[0] ^ struct.unpack('<H', b_Pokemon[2:4])[0])
     shiny = True if sv < 8 else False
 
-    print(f"SV: {sv} {SpeciesName(id)}")
+    global session_count
+    session_count += 1
+    log.info(f"#{session_count:,} - SV {sv} {SpeciesName(id)}")
 
     pokemon = {
         'name': SpeciesName(id),
