@@ -6,6 +6,8 @@ This is a *VERY early* release of this bot so minimal support will be provided i
 
 ⚠ Use this bot at your own risk! The bot directly writes to mGBA memory, there is a good chance mGBA may crash while using this version.
 
+Only Windows and mGBA 0.10.2 (64-bit) is supported at the moment, support for Mac and Linux will be added later.
+
 The bot is hard-coded to spin on the spot and exit once a shiny is encountered. You must ensure you are able to escape battle 100% of the time, otherwise the bot will get stuck. There is currently no UI, auto-catching, encounter logging etc. It is as bare-bones as it gets, these features will be added in due time.
 
 1. Run `requirements.py` to install required modules.
