@@ -226,7 +226,7 @@ def ParsePokemon(b_Pokemon: bytes):
 
     global session_count
     session_count += 1
-    log.info(f"#{session_count:,} - SV {sv} {SpeciesName(id)}")
+    log.info(f"#{session_count:,} - SV {sv:,} {SpeciesName(id)}")
 
     pokemon = {
         'name': SpeciesName(id),

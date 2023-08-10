@@ -1,11 +1,12 @@
 import os
 import json
+import time
 import struct
 import random
 import logging
 
 from modules.Inputs import PressButton
-from modules.Memory import GetParty, GetTrainer, GetOpponent, OpponentChanged, ReadSymbol
+from modules.Memory import GetParty, GetTrainer, GetOpponent, OpponentChanged, ReadSymbol, ParseString
 
 log = logging.getLogger(__name__)
 
@@ -17,9 +18,9 @@ def ModeSpin():
         #print(json.dumps(GetOpponent(), indent=2))
 
         while True:
-        #    if OpponentChanged(): EncounterPokemon()
+            #if OpponentChanged(): EncounterPokemon()
             if OpponentChanged():
-                while GetTrainer()['state'] != 3:
+                while "What will" not in ParseString(ReadSymbol("gDisplayedStringBattle")):
                     PressButton((["B"], 1))
                 if(GetOpponent()['shiny']):
                     os._exit(0)
