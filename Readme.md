@@ -6,7 +6,7 @@ This is a *VERY early* release of this bot so minimal support will be provided i
 
 ⚠ Use this bot at your own risk! The bot directly writes to mGBA memory, there is a good chance mGBA may crash while using this version.
 
-The bot is hard-coded to spin on the spot and exit once a shiny is encountered. You must ensure you are able to escape battle 100% of the time, otherwise the bot will get stuck.
+The bot is hard-coded to spin on the spot and exit once a shiny is encountered. You must ensure you are able to escape battle 100% of the time, otherwise the bot will get stuck. There is currently no UI, auto-catching, encounter logging etc. It is as bare-bones as it gets, these features will be added in due time.
 
 1. Run `requirements.py` to install required modules.
 2. Run `bot.py`, then click on an mGBA instance to attach the bot to it.
