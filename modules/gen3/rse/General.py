@@ -23,6 +23,8 @@ def ModeSpin():
                 while "What will" not in ParseString(ReadSymbol("gDisplayedStringBattle")):
                     PressButton((["B"], 1))
                 if(GetOpponent()['shiny']):
+                    log.info("Shiny found!")
+                    input("Press enter to continue...")
                     os._exit(0)
                 while struct.unpack('<I', ReadSymbol("gActionSelectionCursor"))[0] != 1:
                     PressButton((["Right"], 1))
