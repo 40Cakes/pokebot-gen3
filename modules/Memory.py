@@ -19,11 +19,11 @@ moves = json.loads(ReadFile('./modules/data/moves.json'))
 names = json.loads(ReadFile('./modules/data/names.json'))
 natures = json.loads(ReadFile('./modules/data/natures.json'))
 nat_ids = json.loads(ReadFile('./modules/data/nat-ids.json'))
-item_list = json.loads(ReadFile("./modules/data/items.json"))
+item_list = json.loads(ReadFile('./modules/data/items.json'))
 exp_groups = json.loads(ReadFile('./modules/data/exp-groups.json'))
-pokemon_list = json.loads(ReadFile("./modules/data/pokemon.json"))
-location_list = json.loads(ReadFile("./modules/data/locations.json"))
-hidden_powers = json.loads(ReadFile("./modules/data/hidden-powers.json"))
+pokemon_list = json.loads(ReadFile('./modules/data/pokemon.json'))
+location_list = json.loads(ReadFile('./modules/data/locations.json'))
+hidden_powers = json.loads(ReadFile('./modules/data/hidden-powers.json'))
 
 session_count = 0 # TODO temporary for testing
 
@@ -218,7 +218,7 @@ def ParsePokemon(b_Pokemon: bytes):
         'spAttack': int(iv_bitstring[20:25], 2),
         'spDefense': int(iv_bitstring[25:30], 2),
     }
-    iv_sum = (ivs["hp"] + ivs["attack"] + ivs["defense"] + ivs["speed"] + ivs["spAttack"] + ivs["spDefense"])
+    iv_sum = (ivs['hp'] + ivs['attack'] + ivs['defense'] + ivs['speed'] + ivs['spAttack'] + ivs['spDefense'])
 
     item_id = int(struct.unpack('<H', sections['G'][2:4])[0])
     sv = int(tid ^ sid ^ struct.unpack('<H', b_Pokemon[0:2])[0] ^ struct.unpack('<H', b_Pokemon[2:4])[0])
@@ -226,7 +226,7 @@ def ParsePokemon(b_Pokemon: bytes):
 
     global session_count
     session_count += 1
-    log.info(f"#{session_count:,} - SV {sv:,} {SpeciesName(id)}")
+    log.info(f'#{session_count:,} - SV {sv:,} {SpeciesName(id)}')
 
     pokemon = {
         'name': SpeciesName(id),

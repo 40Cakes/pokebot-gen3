@@ -13,7 +13,7 @@ def ReadFile(file: str):
     """
     try:
         if os.path.exists(file):
-            with open(file, mode="r", encoding="utf-8") as open_file:
+            with open(file, mode='r', encoding='utf-8') as open_file:
                 return open_file.read()
         else:
             return None
@@ -22,7 +22,7 @@ def ReadFile(file: str):
         return None
 
 
-def WriteFile(file: str, value: str, mode: str = "w"):
+def WriteFile(file: str, value: str, mode: str = 'w'):
     """
     Simple function to write data to a file, will create the file if doesn't exist
     :param file: File to write to
@@ -34,7 +34,7 @@ def WriteFile(file: str, value: str, mode: str = "w"):
         dirname = os.path.dirname(file)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
-        with open(file, mode=mode, encoding="utf-8") as save_file:
+        with open(file, mode=mode, encoding='utf-8') as save_file:
             save_file.write(value)
             return True
     except Exception as e:

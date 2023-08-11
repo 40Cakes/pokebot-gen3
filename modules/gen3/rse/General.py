@@ -30,7 +30,8 @@ def ModeSpin():
                     PressButton((["Right"], 1))
                 while struct.unpack('<I', ReadSymbol("gActionSelectionCursor"))[0] != 3:
                     PressButton((["Down"], 1))
-                PressButton((["A"], 1))
+                while "What will" in ParseString(ReadSymbol("gDisplayedStringBattle")):
+                    PressButton((["A"], 1))
                 while GetTrainer()['state'] != 80:
                     PressButton((["B"], 1))
             directions = ["Up", "Right", "Down", "Left"]

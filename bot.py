@@ -8,8 +8,8 @@ try:
     # Set up log handler
     LogFormatter = logging.Formatter('%(asctime)s %(levelname)s %(funcName)s(line:%(lineno)d) %(message)s')
     ConsoleFormatter = logging.Formatter('%(asctime)s - %(message)s')
-    LogPath = "logs"
-    LogFile = f"{LogPath}/debug.log"
+    LogPath = 'logs'
+    LogFile = f'{LogPath}/debug.log'
     os.makedirs(LogPath, exist_ok=True)  # Create logs directory if not exist
 
     # Set up log file rotation handler
@@ -34,5 +34,5 @@ try:
 
 except Exception as e:
     print(str(e))
-    input("Press enter to continue...")
+    input('Press enter to continue...')
     os._exit(1)

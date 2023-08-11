@@ -5,11 +5,11 @@ import json
 
 def GenerateDex():
     # Read the pokemon.json file
-    with open('pokemon.json', encoding="utf-8") as f:
+    with open('pokemon.json', encoding='utf-8') as f:
         pokemon_data = json.load(f)
 
     # Read the routes-rse.json file
-    with open('routes-emerald.json', encoding="utf-8") as f:
+    with open('routes-emerald.json', encoding='utf-8') as f:
         routes_data = json.load(f)
 
     # Initialize the pokedex list
@@ -24,15 +24,15 @@ def GenerateDex():
                 if pokedex_id == pokemon['number']:
                     # Create the pokedex entry
                     pokedex_entry = {
-                        "pokedex_id": pokedex_id,
-                        "name": pokemon_name,
-                        "type": pokemon['type'],
-                        "encounters": [
+                        'pokedex_id': pokedex_id,
+                        'name': pokemon_name,
+                        'type': pokemon['type'],
+                        'encounters': [
                             {
-                                "location": route['name'],
-                                "levels": encounter['levels'],
-                                "rate": encounter['rate'],
-                                "encounter_type": encounter['encounter_type']
+                                'location': route['name'],
+                                'levels': encounter['levels'],
+                                'rate': encounter['rate'],
+                                'encounter_type': encounter['encounter_type']
                             }
                         ]
                     }
@@ -51,15 +51,15 @@ def GenerateDex():
         pokedex_id = pokemon['number']
         if not any(entry['pokedex_id'] == pokedex_id for entry in pokedex):
             pokedex_entry = {
-                "pokedex_id": pokedex_id,
-                "name": pokemon_name,
-                "type": pokemon['type'],
-                "encounters": []
+                'pokedex_id': pokedex_id,
+                'name': pokemon_name,
+                'type': pokemon['type'],
+                'encounters': []
             }
             pokedex.append(pokedex_entry)
 
     # Save the pokedex as pokedex.json
-    with open('pokedex.json', "w", encoding="utf-8") as f:
+    with open('pokedex.json', 'w', encoding='utf-8') as f:
         json.dump(pokedex, f, indent=4, ensure_ascii=False)
 
 
