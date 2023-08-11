@@ -20,22 +20,22 @@ def ModeSpin():
         while True:
             #if OpponentChanged(): EncounterPokemon()
             if OpponentChanged():
-                while "What will" not in ParseString(ReadSymbol("gDisplayedStringBattle", size=9)):
-                    PressButton((["B"], 1))
+                while b'\xd1\xdc\xd5\xe8\x00\xeb\xdd\xe0\xe0' != ReadSymbol('gDisplayedStringBattle', size=9):
+                    PressButton((['B'], 1))
                 if(GetOpponent()['shiny']):
-                    log.info("Shiny found!")
-                    input("Press enter to continue...")
+                    log.info('Shiny found!')
+                    input('Press enter to continue...')
                     os._exit(0)
-                while struct.unpack('<I', ReadSymbol("gActionSelectionCursor"))[0] != 1:
-                    PressButton((["Right"], 1))
-                while struct.unpack('<I', ReadSymbol("gActionSelectionCursor"))[0] != 3:
-                    PressButton((["Down"], 1))
-                while "What will" in ParseString(ReadSymbol("gDisplayedStringBattle", size=9)):
-                    PressButton((["A"], 1))
+                while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 1:
+                    PressButton((['Right'], 1))
+                while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 3:
+                    PressButton((['Down'], 1))
+                while b'\xd1\xdc\xd5\xe8\x00\xeb\xdd\xe0\xe0' == ReadSymbol('gDisplayedStringBattle', size=9):
+                    PressButton((['A'], 1))
                 while GetTrainer()['state'] != 80:
-                    PressButton((["B"], 1))
-            directions = ["Up", "Right", "Down", "Left"]
-            directions.remove(GetTrainer()["facing"])
+                    PressButton((['B'], 1))
+            directions = ['Up', 'Right', 'Down', 'Left']
+            directions.remove(GetTrainer()['facing'])
             PressButton(([random.choice(directions)], 1))
     except Exception as e:
         log.exception(str(e))
