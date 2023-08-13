@@ -12,7 +12,41 @@ from modules.Files import ReadFile
 log = logging.getLogger(__name__)
 
 byteorder = 'little'
-chars = '0123456789!?.-         ,  ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+
+# https://bulbapedia.bulbagarden.net/wiki/Character_encoding_(Generation_III)#International
+charmap_i = ' ÀÁÂÇÈÉÊËÌ ÎÏÒÓÔ' \
+            'ŒÙÚÛÑßàá çèéêëì ' \
+            'îïòóôœùúûñºªᵉ&+ ' \
+            '    L=;         ' \
+            '                ' \
+            '▯¿¡       Í%()  ' \
+            '        â      í' \
+            '         ⬆⬇⬅➡***' \
+            '****ᵉ<>         ' \
+            ' 0123456789!?.-・' \
+            ' “”‘’♂♀$,×/ABCDE' \
+            'FGHIJKLMNOPQRSTU' \
+            'VWXYZabcdefghijk' \
+            'lmnopqrstuvwxyz▶' \
+            ':ÄÖÜäöü         '
+
+# https://bulbapedia.bulbagarden.net/wiki/Character_encoding_(Generation_III)#Japanese
+charmap_j = ' あいうえおかきくけこさしすせそ' \
+            'たちつてとなにぬねのはひふへほま' \
+            'みむめもやゆよらりるれろわをんぁ' \
+            'ぃぅぇぉゃゅょがぎぐげござじずぜ' \
+            'ぞだぢづでどばびぶべぼぱぴぷぺぽ' \
+            'っアイウエオカキクケコサシスセソ' \
+            'タチツテトナニヌネノハヒフヘホマ' \
+            'ミムメモヤユヨラリルレロワヲンァ' \
+            'ィゥェォャュョガギグゲゴザジズゼ' \
+            'ゾダヂヅデドバビブベボパピプペポ' \
+            'ッ0123456789！？。ー・' \
+            ' 『』「」♂♀円.×/ABCDE' \
+            'FGHIJKLMNOPQRSTU' \
+            'VWXYZabcdefghijk' \
+            'lmnopqrstuvwxyz▶' \
+            ':ÄÖÜäöü⬆⬇⬅      '
 substructs = ['GAEM', 'GAME', 'GEAM', 'GEMA', 'GMAE', 'GMEA', 'AGEM', 'AGME', 'AEGM', 'AEMG', 'AMGE', 'AMEG',
               'EGAM', 'EGMA', 'EAGM', 'EAMG', 'EMGA', 'EMAG', 'MGAE', 'MGEA', 'MAGE', 'MAEG', 'MEGA', 'MEAG']
 moves = json.loads(ReadFile('./modules/data/moves.json'))
@@ -36,19 +70,32 @@ def GetPointer(proc, base, offsets):
 
 class emulator:
     def __game(self):
-        match self.game_code:
-            case 'AXVE':
+        match self.game_code[0:3]: # Game release
+            case 'AXV':
                 self.game, self.sym_file = 'Pokémon Ruby', 'pokeruby.sym'
-            case 'AXPE':
+            case 'AXP':
                 self.game, self.sym_file = 'Pokémon Sapphire', 'pokesapphire.sym'
-            case 'BPEE':
+            case 'BPE':
                 self.game, self.sym_file = 'Pokémon Emerald', 'pokeemerald.sym'
-            case 'BPRE':
+            case 'BPR':
                 self.game, self.sym_file = 'Pokémon FireRed', 'pokefirered.sym'
-            case 'BPGE':
+            case 'BPG':
                 self.game, self.sym_file = 'Pokémon LeafGreen', 'pokeleafgreen.sym'
             case _:
                 self.game, self.sym_file = None, None
+        match self.game_code[3]: # Game language
+            case 'E':
+                self.charmap = charmap_i
+            case 'J':
+                self.charmap = charmap_j
+            case 'D':
+                self.charmap = charmap_i
+            case 'S':
+                self.charmap = charmap_i
+            case 'F':
+                self.charmap = charmap_i
+            case 'I':
+                self.charmap = charmap_i
 
     def __symbols(self):
         if self.sym_file:
@@ -131,11 +178,11 @@ else:
 def ParseString(text: bytes):
     string = ''
     for i in text:
-        c = int(i) - 161
-        if c < 0 or c > len(chars):
+        c = int(i) - 16
+        if c < 0 or c > len(mGBA.charmap):
             string = string + ' '
         else:
-            string = string + chars[c]
+            string = string + mGBA.charmap[c]
     return string.strip()
 
 # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
