@@ -17,10 +17,16 @@ def ModeSpin():
         #print(json.dumps(GetParty(), indent=2))
         #print(json.dumps(GetOpponent(), indent=2))
 
+        #while True:
+        #    print(ReadSymbol('gDisplayedStringBattle'))
+        #    print(ParseString(ReadSymbol('gDisplayedStringBattle')))
+        #    print(' ')
+        #    time.sleep(0.2)
+
         while True:
             #if OpponentChanged(): EncounterPokemon()
             if OpponentChanged():
-                while b'\xd1\xdc\xd5\xe8' != ReadSymbol('gDisplayedStringBattle', size=4):
+                while ReadSymbol('gDisplayedStringBattle', size=4) != b'\xd1\xdc\xd5\xe8':
                     PressButton((['B'], 1))
                 if(GetOpponent()['shiny']):
                     log.info('Shiny found!')
@@ -30,7 +36,7 @@ def ModeSpin():
                     PressButton((['Right'], 1))
                 while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 3:
                     PressButton((['Down'], 1))
-                while b'\xd1\xdc\xd5\xe8' == ReadSymbol('gDisplayedStringBattle', size=4):
+                while ReadSymbol('gDisplayedStringBattle', size=4) == b'\xd1\xdc\xd5\xe8':
                     PressButton((['A'], 1))
                 while GetTrainer()['state'] != 80:
                     PressButton((['B'], 1))
