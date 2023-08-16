@@ -161,8 +161,8 @@ def GetFrameCount():
 def WriteInputs(value: int):
     mGBA.proc.write_bytes(mGBA.p_Input, int.to_bytes(value, length=2, byteorder=byteorder), 2)
 
-def FacingDir(num: int):
-    match num:
+def FacingDir(dir: int):
+    match dir:
         case 34: return 'Up'
         case 68: return 'Right'
         case 17: return 'Down'
@@ -201,12 +201,12 @@ def GetTrainer():
     }
     return trainer
 
-def SpeciesName(id):
+def SpeciesName(id: int):
     if id > len(names):
         return ''
     return names[id - 1]
 
-def NationalDexID(id):
+def NationalDexID(id: int):
     if id <= 251:
         return id
     if id >= 413:
@@ -215,6 +215,55 @@ def NationalDexID(id):
     if ix < len(nat_ids):
         return nat_ids[ix]
     return 0
+
+def Language(value: int):
+    match value:
+        case 1: return 'Japanese'
+        case 2: return 'English'
+        case 3: return 'French'
+        case 4: return 'Italian'
+        case 5: return 'German'
+        case 7: return 'Spanish'
+    return None
+
+def Markings(value: int):
+    markings = {
+        'circle': False,
+        'square': False,
+        'triangle': False,
+        'heart': False
+    }
+    if value & (1 << 0): markings['circle'] = True
+    if value & (1 << 1): markings['square'] = True
+    if value & (1 << 2): markings['triangle'] = True
+    if value & (1 << 3): markings['heart'] = True
+    return markings
+
+def Status(value: int):
+    status = {
+        'sleep': value & 0x7,
+        'poison': False,
+        'burn': False,
+        'freeze': False,
+        'paralysis': False,
+        'badPoison': False
+    }
+    if value & (1 << 3): status['poison'] = True
+    if value & (1 << 4): status['burn'] = True
+    if value & (1 << 5): status['freeze'] = True
+    if value & (1 << 6): status['paralysis'] = True
+    if value & (1 << 7): status['badPoison'] = True
+    return status
+
+#def Origins(value: int):
+#    origins = {
+#        'metLevel': value & 0x7F,
+#        'hatched': False,
+#        'game': 'N/A',
+#        'ball': item_list[x]
+#    }
+#    if origins['metLevel'] == 0: origins['hatched'] = True
+#    return origins
 
 def DecryptSubSection(data: bytes, key: int):
     a = struct.unpack('<I', data[0:4])[0] ^ key
@@ -282,6 +331,7 @@ def ParsePokemon(b_Pokemon: bytes):
         'species': int(struct.unpack('<H', sections['G'][0:2])[0]),
         'personality': pid,
         'nature': natures[pid % 25],
+        'language': Language(int(b_Pokemon[18])),
         'shinyValue': sv,
         'shiny': shiny,
         'ot': {
@@ -292,7 +342,6 @@ def ParsePokemon(b_Pokemon: bytes):
         'isBadEgg': flags & 1,
         'hasSpecies': (flags >> 1) & 1,
         'isEgg': (flags >> 2) & 1,
-        'status': struct.unpack('<I', b_Pokemon[80:84])[0],
         'level': int(b_Pokemon[84]),
         'experience': int(struct.unpack('<I', sections['G'][4:8])[0]),
         'expGroup': exp_groups[id - 1],
@@ -303,6 +352,9 @@ def ParsePokemon(b_Pokemon: bytes):
         'friendship': int(sections['G'][9]),
         'moves': pokemon_moves,
         'pp': pokemon_pp,
+        'markings': Markings(b_Pokemon[27]),
+        #'origins': Origins(int(struct.unpack('<H', sections['M'][2:4])[0])),
+        'status': Status(int(struct.unpack('<I', b_Pokemon[80:84])[0])),
         'stats': {
             'hp': int(b_Pokemon[86]),
             'maxHP': int(b_Pokemon[88]),
@@ -322,14 +374,14 @@ def ParsePokemon(b_Pokemon: bytes):
             'spAttack': int(sections['E'][4]),
             'spDefense': int(sections['E'][5])
         },
-        #'condition': {
-        #    'cool': int(sections['E'][6]),
-        #    'beauty': int(sections['E'][7]),
-        #    'cute': int(sections['E'][8]),
-        #    'smart': int(sections['E'][9]),
-        #    'tough': int(sections['E'][10]),
-        #    'feel': int(sections['E'][11])
-        #}
+        'condition': {
+            'cool': int(sections['E'][6]),
+            'beauty': int(sections['E'][7]),
+            'cute': int(sections['E'][8]),
+            'smart': int(sections['E'][9]),
+            'tough': int(sections['E'][10]),
+            'feel': int(sections['E'][11])
+        }
     }
     return pokemon
 

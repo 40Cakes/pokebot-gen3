@@ -17,6 +17,9 @@ def ModeSpin():
         #print(json.dumps(GetParty(), indent=2))
         #print(json.dumps(GetOpponent(), indent=2))
 
+        #GetParty()
+        #os._exit(0)
+
         #while True:
         #    print(ReadSymbol('gDisplayedStringBattle'))
         #    print(ParseString(ReadSymbol('gDisplayedStringBattle')))
