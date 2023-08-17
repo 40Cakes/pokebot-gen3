@@ -226,6 +226,16 @@ def Language(value: int):
         case 7: return 'Spanish'
     return None
 
+def OriginGame(value: int):
+    match value:
+        case 1: return 'Sapphire'
+        case 2: return 'Ruby'
+        case 3: return 'Emerald'
+        case 4: return 'FireRed'
+        case 5: return 'LeafGreen'
+        case 15: return 'Colosseum/XD'
+    return None
+
 def Markings(value: int):
     markings = {
         'circle': False,
@@ -255,15 +265,22 @@ def Status(value: int):
     if value & (1 << 7): status['badPoison'] = True
     return status
 
-#def Origins(value: int):
-#    origins = {
-#        'metLevel': value & 0x7F,
-#        'hatched': False,
-#        'game': 'N/A',
-#        'ball': item_list[x]
-#    }
-#    if origins['metLevel'] == 0: origins['hatched'] = True
-#    return origins
+def Origins(value: int):
+    origins = {
+        'metLevel': value & 0x7F,
+        'hatched': False,
+        'game': OriginGame((value >> 7) & 0xF),
+        'ball': item_list[(value >> 11) & 0xF]
+    }
+    if origins['metLevel'] == 0: origins['hatched'] = True
+    return origins
+
+def Pokerus(value: int):
+    pokerus = {
+        'days': value & 0xF,
+        'strain': value >> 4,
+    }
+    return pokerus
 
 def DecryptSubSection(data: bytes, key: int):
     a = struct.unpack('<I', data[0:4])[0] ^ key
@@ -343,7 +360,6 @@ def ParsePokemon(b_Pokemon: bytes):
         'hasSpecies': (flags >> 1) & 1,
         'isEgg': (flags >> 2) & 1,
         'level': int(b_Pokemon[84]),
-        'experience': int(struct.unpack('<I', sections['G'][4:8])[0]),
         'expGroup': exp_groups[id - 1],
         'item': {
             'id': item_id,
@@ -353,7 +369,6 @@ def ParsePokemon(b_Pokemon: bytes):
         'moves': pokemon_moves,
         'pp': pokemon_pp,
         'markings': Markings(b_Pokemon[27]),
-        #'origins': Origins(int(struct.unpack('<H', sections['M'][2:4])[0])),
         'status': Status(int(struct.unpack('<I', b_Pokemon[80:84])[0])),
         'stats': {
             'hp': int(b_Pokemon[86]),
@@ -366,6 +381,13 @@ def ParsePokemon(b_Pokemon: bytes):
         },
         'IVs': ivs,
         'IVSum': iv_sum,
+
+        # Substruct G - Growth
+        'experience': int(struct.unpack('<I', sections['G'][4:8])[0]),
+
+        # Substruct A - Attacks
+
+        # Substruct E - EVs & Condition
         'EVs': {
             'hp': int(sections['E'][0]),
             'attack': int(sections['E'][1]),
@@ -381,7 +403,11 @@ def ParsePokemon(b_Pokemon: bytes):
             'smart': int(sections['E'][9]),
             'tough': int(sections['E'][10]),
             'feel': int(sections['E'][11])
-        }
+        },
+
+        # Substruct M - Miscellaneous
+        'origins': Origins(int(struct.unpack('<H', sections['M'][2:4])[0])),
+        'pokerus': Pokerus(int(sections['M'][1])),
     }
     return pokemon
 
