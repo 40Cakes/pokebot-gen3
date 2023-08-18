@@ -11,44 +11,10 @@ from modules.Files import ReadFile
 
 log = logging.getLogger(__name__)
 
-byteorder = 'little'
-
-# https://bulbapedia.bulbagarden.net/wiki/Character_encoding_(Generation_III)#International
-charmap_i = ' ÀÁÂÇÈÉÊËÌ ÎÏÒÓÔ' \
-            'ŒÙÚÛÑßàá çèéêëì ' \
-            'îïòóôœùúûñºªᵉ&+ ' \
-            '    L=;         ' \
-            '                ' \
-            '▯¿¡       Í%()  ' \
-            '        â      í' \
-            '         ⬆⬇⬅➡***' \
-            '****ᵉ<>         ' \
-            ' 0123456789!?.-・' \
-            ' “”‘’♂♀$,×/ABCDE' \
-            'FGHIJKLMNOPQRSTU' \
-            'VWXYZabcdefghijk' \
-            'lmnopqrstuvwxyz▶' \
-            ':ÄÖÜäöü         '
-
-# https://bulbapedia.bulbagarden.net/wiki/Character_encoding_(Generation_III)#Japanese
-charmap_j = ' あいうえおかきくけこさしすせそ' \
-            'たちつてとなにぬねのはひふへほま' \
-            'みむめもやゆよらりるれろわをんぁ' \
-            'ぃぅぇぉゃゅょがぎぐげござじずぜ' \
-            'ぞだぢづでどばびぶべぼぱぴぷぺぽ' \
-            'っアイウエオカキクケコサシスセソ' \
-            'タチツテトナニヌネノハヒフヘホマ' \
-            'ミムメモヤユヨラリルレロワヲンァ' \
-            'ィゥェォャュョガギグゲゴザジズゼ' \
-            'ゾダヂヅデドバビブベボパピプペポ' \
-            'ッ0123456789！？。ー・' \
-            ' 『』「」♂♀円.×/ABCDE' \
-            'FGHIJKLMNOPQRSTU' \
-            'VWXYZabcdefghijk' \
-            'lmnopqrstuvwxyz▶' \
-            ':ÄÖÜäöü⬆⬇⬅      '
+# https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Substructure_order
 substructs = ['GAEM', 'GAME', 'GEAM', 'GEMA', 'GMAE', 'GMEA', 'AGEM', 'AGME', 'AEGM', 'AEMG', 'AMGE', 'AMEG',
               'EGAM', 'EGMA', 'EAGM', 'EAMG', 'EMGA', 'EMAG', 'MGAE', 'MGEA', 'MAGE', 'MAEG', 'MEGA', 'MEAG']
+
 moves = json.loads(ReadFile('./modules/data/moves.json'))
 names = json.loads(ReadFile('./modules/data/names.json'))
 natures = json.loads(ReadFile('./modules/data/natures.json'))
@@ -59,9 +25,26 @@ pokemon_list = json.loads(ReadFile('./modules/data/pokemon.json'))
 location_list = json.loads(ReadFile('./modules/data/locations.json'))
 hidden_powers = json.loads(ReadFile('./modules/data/hidden-powers.json'))
 
+# https://bulbapedia.bulbagarden.net/wiki/Character_encoding_(Generation_III)
+char_maps = json.loads(ReadFile('./modules/data/char-maps.json'))
+char_map_i = char_maps['i']
+char_map_j = char_maps['j']
+
 session_count = 0 # TODO temporary for testing
 
 def GetPointer(proc, base, offsets):
+    """
+    This function will "follow a bouncing ball" of offsets and return a pointer to the desired memory location.
+    When mGBA is launched, the locations of the GBA memory domains will be in a random location, this ensures that
+    the same memory domain can be found reliably, every time.
+    For more information check out: https://www.youtube.com/watch?v=YaFlh2pIKAg
+
+    :param proc: an initialised Pymem class
+    :param base: base address
+    :param offsets: memory offsets to follow
+    :return: memory pointer to the desired address
+    """
+
     addr = proc.read_longlong(base)
     for i in offsets:
         if i != offsets[-1]:
@@ -85,17 +68,17 @@ class emulator:
                 self.game, self.sym_file = None, None
         match self.game_code[3]: # Game language
             case 'E':
-                self.charmap = charmap_i
+                self.charmap = char_map_i
             case 'J':
-                self.charmap = charmap_j
+                self.charmap = char_map_j
             case 'D':
-                self.charmap = charmap_i
+                self.charmap = char_map_i
             case 'S':
-                self.charmap = charmap_i
+                self.charmap = char_map_i
             case 'F':
-                self.charmap = charmap_i
+                self.charmap = char_map_i
             case 'I':
-                self.charmap = charmap_i
+                self.charmap = char_map_i
 
     def __symbols(self):
         if self.sym_file:
@@ -144,6 +127,28 @@ while True:
     time.sleep(0.5)
 
 def ReadSymbol(name: str, offset: int = 0, size: int = 0):
+    """
+    This function uses the symbol tables from the Pokémon decompilation projects found here: https://github.com/pret
+    Symbol tables are loaded and parsed as a dict in the `emulator` class, the .sym files for each game can be found
+    in `modules/data/symbols`.
+
+    Format of symbol tables:
+    `020244ec g 00000258 gPlayerParty`
+    020244ec     - memory address
+    g            - (l,g,,!) local, global, neither, both
+    00000258     - size in bytes (base 16) (0x258 = 600 bytes)
+    gPlayerParty - name of the symbol
+
+    GBA memory domains: https://corrupt.wiki/consoles/gameboy-advance/bizhawk-memory-domains
+    0x02000000 - 0x02030000 - 256 KB EWRAM (general purpose RAM external to the CPU)
+    0x03000000 - 0x03007FFF - 32 KB IWRAM (general purpose RAM internal to the CPU)
+    0x08000000 - 0x???????? - Game Pak ROM (0 to 32 MB)
+
+    :param name: name of the symbol to read
+    :param offset: (optional) add n bytes to the address of symbol
+    :param size: (optional) override the size to read n bytes
+    :return: byte data
+    """
     sym_addr = mGBA.symbols[name]['addr']
     match sym_addr >> 24:
         case 2: addr = mGBA.p_EWRAM + (sym_addr - mGBA.symbols['EWRAM_START']['addr'])
@@ -156,10 +161,12 @@ def ReadSymbol(name: str, offset: int = 0, size: int = 0):
         return mGBA.proc.read_bytes(addr + offset, mGBA.symbols[name]['size'])
 
 def GetFrameCount():
-    return int.from_bytes(mGBA.proc.read_bytes(mGBA.p_Framecount, length=4), byteorder)
+    """
+    Get the current mGBA frame count since the start of emulation.
 
-def WriteInputs(value: int):
-    mGBA.proc.write_bytes(mGBA.p_Input, int.to_bytes(value, length=2, byteorder=byteorder), 2)
+    :return: frame count (int)
+    """
+    return struct.unpack('<I', mGBA.proc.read_bytes(mGBA.p_Framecount, length=4))[0]
 
 def FacingDir(dir: int):
     match dir:
@@ -169,11 +176,16 @@ def FacingDir(dir: int):
         case 51: return 'Left'
     return None
 
-if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
-    p_Trainer = mGBA.p_EWRAM + (int.from_bytes(ReadSymbol('gSaveBlock2Ptr'), byteorder) - mGBA.symbols['EWRAM_START']['addr'])
-    b_Trainer = mGBA.proc.read_bytes(p_Trainer, length=14)
-else:
-    b_Trainer = ReadSymbol('gSaveBlock2', 14)
+try:
+    if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
+        gSaveBlock2Ptr = ReadSymbol('gSaveBlock2Ptr')
+        p_Trainer = mGBA.p_EWRAM + (struct.unpack('<I', ReadSymbol('gSaveBlock2Ptr'))[0] - mGBA.symbols['EWRAM_START']['addr'])
+        b_Trainer = mGBA.proc.read_bytes(p_Trainer, length=14)
+    else:
+        b_Trainer = ReadSymbol('gSaveBlock2', 14)
+except Exception as e:
+    log.exception(str(e))
+
 
 def ParseString(text: bytes):
     string = ''

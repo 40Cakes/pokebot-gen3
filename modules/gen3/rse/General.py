@@ -30,21 +30,21 @@ def ModeSpin():
             #if OpponentChanged(): EncounterPokemon()
             if OpponentChanged():
                 while ReadSymbol('gDisplayedStringBattle', size=4) != b'\xd1\xdc\xd5\xe8':
-                    PressButton((['B'], 1))
+                    PressButton(['B'])
                 if(GetOpponent()['shiny']):
                     log.info('Shiny found!')
                     input('Press enter to continue...')
                     os._exit(0)
                 while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 1:
-                    PressButton((['Right'], 1))
+                    PressButton(['Right'])
                 while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 3:
-                    PressButton((['Down'], 1))
+                    PressButton(['Down'])
                 while ReadSymbol('gDisplayedStringBattle', size=4) == b'\xd1\xdc\xd5\xe8':
-                    PressButton((['A'], 1))
+                    PressButton(['A'])
                 while GetTrainer()['state'] != 80:
-                    PressButton((['B'], 1))
+                    PressButton(['B'])
             directions = ['Up', 'Right', 'Down', 'Left']
             directions.remove(GetTrainer()['facing'])
-            PressButton(([random.choice(directions)], 1))
+            PressButton([random.choice(directions)])
     except Exception as e:
         log.exception(str(e))
