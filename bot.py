@@ -1,6 +1,7 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
+from modules.Config import config
 
 LogLevel = logging.INFO
 
@@ -28,9 +29,10 @@ try:
     log.addHandler(LogHandler)
     log.addHandler(ConsoleHandler)
 
-    from modules.Memory import mGBA
-    from modules.gen3.rse.General import ModeSpin
-    ModeSpin()
+    match config['bot_mode']:
+        case 'spin':
+            from modules.gen3.rse.General import ModeSpin
+            ModeSpin()
 
 except Exception as e:
     print(str(e))

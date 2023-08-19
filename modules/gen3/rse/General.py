@@ -1,36 +1,25 @@
 import os
-import json
-import time
 import struct
 import random
 import logging
-
 from modules.Inputs import PressButton
-from modules.Memory import GetParty, GetTrainer, GetOpponent, OpponentChanged, ReadSymbol, ParseString
+from modules.Memory import EncodeString, GetTrainer, GetOpponent, OpponentChanged, ReadSymbol
+from modules.Stats import LogEncounter
 
 log = logging.getLogger(__name__)
 
 
 def ModeSpin():
     try:
-        #print(json.dumps(GetTrainer(), indent=2))
-        #print(json.dumps(GetParty(), indent=2))
-        #print(json.dumps(GetOpponent(), indent=2))
-
-        #GetParty()
-        #os._exit(0)
-
-        #while True:
-        #    print(ReadSymbol('gDisplayedStringBattle'))
-        #    print(ParseString(ReadSymbol('gDisplayedStringBattle')))
-        #    print(' ')
-        #    time.sleep(0.2)
+        # Search for the text "What will (Pokémon) do?" in `gDisplayedStringBattle`
+        b_What = EncodeString("What")
 
         while True:
             #if OpponentChanged(): EncounterPokemon()
             if OpponentChanged():
-                while ReadSymbol('gDisplayedStringBattle', size=4) != b'\xd1\xdc\xd5\xe8':
+                while ReadSymbol('gDisplayedStringBattle', size=4) != b_What:
                     PressButton(['B'])
+                LogEncounter(GetOpponent())
                 if(GetOpponent()['shiny']):
                     log.info('Shiny found!')
                     input('Press enter to continue...')
@@ -39,7 +28,7 @@ def ModeSpin():
                     PressButton(['Right'])
                 while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 3:
                     PressButton(['Down'])
-                while ReadSymbol('gDisplayedStringBattle', size=4) == b'\xd1\xdc\xd5\xe8':
+                while ReadSymbol('gDisplayedStringBattle', size=4) == b_What:
                     PressButton(['A'])
                 while GetTrainer()['state'] != 80:
                     PressButton(['B'])

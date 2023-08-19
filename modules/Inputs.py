@@ -1,6 +1,6 @@
 import struct
+import atexit
 import logging
-
 from modules.Memory import mGBA, GetFrameCount
 
 log = logging.getLogger(__name__)
@@ -18,6 +18,7 @@ input_map = {
     'L': 0x200
 }
 
+
 def WriteInputs(value: int):
     """
     Writes inputs to mGBA input memory, 2 bytes, each bit controls a different button (see input_map).
@@ -34,6 +35,7 @@ def WriteInputs(value: int):
     :param value: inputs to write to mGBA memory
     """
     mGBA.proc.write_bytes(mGBA.p_Input, struct.pack('<H', value), 2)
+
 
 def PressButton(buttons: list, hold_frames: int = 1):
     """
@@ -58,6 +60,15 @@ def PressButton(buttons: list, hold_frames: int = 1):
             inputs |= input_map[button]
     WriteInputs(inputs)
     start = GetFrameCount()
-    while GetFrameCount() < start + hold_frames: pass
+    while GetFrameCount() < start + hold_frames:
+        pass
     WriteInputs(0)
-    while GetFrameCount() < start + hold_frames + 1: pass
+    while GetFrameCount() < start + hold_frames + 1:
+        pass
+
+
+def _exit():
+    WriteInputs(0)  # Clear inputs if bot is stopped
+
+
+atexit.register(_exit)

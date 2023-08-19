@@ -2,11 +2,9 @@ import os
 import json
 import time
 import struct
-import atexit
 import logging
 from pymem import Pymem
 import win32gui, win32process
-
 from modules.Files import ReadFile
 
 log = logging.getLogger(__name__)
@@ -30,7 +28,6 @@ char_maps = json.loads(ReadFile('./modules/data/char-maps.json'))
 char_map_i = char_maps['i']
 char_map_j = char_maps['j']
 
-session_count = 0 # TODO temporary for testing
 
 def GetPointer(proc, base, offsets):
     """
@@ -51,6 +48,7 @@ def GetPointer(proc, base, offsets):
             addr = proc.read_longlong(addr + i)
     return addr + offsets[-1]
 
+
 class emulator:
     def __game(self):
         match self.game_code[0:3]: # Game release
@@ -68,17 +66,17 @@ class emulator:
                 self.game, self.sym_file = None, None
         match self.game_code[3]: # Game language
             case 'E':
-                self.charmap = char_map_i
+                self.char_map = char_map_i
             case 'J':
-                self.charmap = char_map_j
+                self.char_map = char_map_j
             case 'D':
-                self.charmap = char_map_i
+                self.char_map = char_map_i
             case 'S':
-                self.charmap = char_map_i
+                self.char_map = char_map_i
             case 'F':
-                self.charmap = char_map_i
+                self.char_map = char_map_i
             case 'I':
-                self.charmap = char_map_i
+                self.char_map = char_map_i
 
     def __symbols(self):
         if self.sym_file:
@@ -108,6 +106,7 @@ class emulator:
         self.__game()
         self.__symbols()
 
+
 while True:
     log.info('Click on an mGBA instance to attach bot to...')
     fg = win32gui.GetForegroundWindow()
@@ -125,6 +124,7 @@ while True:
             input('Press enter to continue...')
             os._exit(1)
     time.sleep(0.5)
+
 
 def ReadSymbol(name: str, offset: int = 0, size: int = 0):
     """
@@ -160,6 +160,7 @@ def ReadSymbol(name: str, offset: int = 0, size: int = 0):
     else:
         return mGBA.proc.read_bytes(addr + offset, mGBA.symbols[name]['size'])
 
+
 def GetFrameCount():
     """
     Get the current mGBA frame count since the start of emulation.
@@ -168,6 +169,7 @@ def GetFrameCount():
     """
     return struct.unpack('<I', mGBA.proc.read_bytes(mGBA.p_Framecount, length=4))[0]
 
+
 def FacingDir(dir: int):
     match dir:
         case 34: return 'Up'
@@ -175,6 +177,7 @@ def FacingDir(dir: int):
         case 17: return 'Down'
         case 51: return 'Left'
     return None
+
 
 try:
     if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
@@ -187,22 +190,51 @@ except Exception as e:
     log.exception(str(e))
 
 
-def ParseString(text: bytes):
+def DecodeString(bytes: bytes):
+    """
+    Generation III Pokémon games use a proprietary character encoding to store text data.
+    The Generation III encoding is greatly different from the encodings used in previous generations, with characters
+    corresponding to different bytes.
+    See for more information:  https://bulbapedia.bulbagarden.net/wiki/Character_encoding_(Generation_III)
+
+    :param bytes: bytes to decode to string
+    :return: decoded string
+    """
     string = ''
-    for i in text:
+    for i in bytes:
         c = int(i) - 16
-        if c < 0 or c > len(mGBA.charmap):
+        if c < 0 or c > len(mGBA.char_map):
             string = string + ' '
         else:
-            string = string + mGBA.charmap[c]
+            string = string + mGBA.char_map[c]
     return string.strip()
+
+
+def EncodeString(text: str):
+    """
+    Generation III Pokémon games use a proprietary character encoding to store text data.
+    The Generation III encoding is greatly different from the encodings used in previous generations, with characters
+    corresponding to different bytes.
+    See for more information:  https://bulbapedia.bulbagarden.net/wiki/Character_encoding_(Generation_III)
+
+    :param text: text string to encode to bytes
+    :return: encoded bytes
+    """
+    byte_str = bytearray(b'')
+    for i in text:
+        try:
+            byte_str.append(mGBA.char_map.index(i) + 16)
+        except:
+            byte_str.append(0)
+    return bytes(byte_str)
+
 
 # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
 def GetTrainer():
     b_gTasks = ReadSymbol('gTasks')
     b_gObjectEvents = ReadSymbol('gObjectEvents')
     trainer = {
-        'name': ParseString(b_Trainer[0:7]),
+        'name': DecodeString(b_Trainer[0:7]),
         'gender': 'girl' if int(b_Trainer[8]) else 'boy',
         'tid': int(struct.unpack('<H', b_Trainer[10:12])[0]),
         'sid': int(struct.unpack('<H', b_Trainer[12:14])[0]),
@@ -213,10 +245,12 @@ def GetTrainer():
     }
     return trainer
 
+
 def SpeciesName(id: int):
     if id > len(names):
         return ''
     return names[id - 1]
+
 
 def NationalDexID(id: int):
     if id <= 251:
@@ -228,6 +262,7 @@ def NationalDexID(id: int):
         return nat_ids[ix]
     return 0
 
+
 def Language(value: int):
     match value:
         case 1: return 'Japanese'
@@ -238,6 +273,7 @@ def Language(value: int):
         case 7: return 'Spanish'
     return None
 
+
 def OriginGame(value: int):
     match value:
         case 1: return 'Sapphire'
@@ -247,6 +283,7 @@ def OriginGame(value: int):
         case 5: return 'LeafGreen'
         case 15: return 'Colosseum/XD'
     return None
+
 
 def Markings(value: int):
     markings = {
@@ -260,6 +297,7 @@ def Markings(value: int):
     if value & (1 << 2): markings['triangle'] = True
     if value & (1 << 3): markings['heart'] = True
     return markings
+
 
 def Status(value: int):
     status = {
@@ -277,6 +315,7 @@ def Status(value: int):
     if value & (1 << 7): status['badPoison'] = True
     return status
 
+
 def Origins(value: int):
     origins = {
         'metLevel': value & 0x7F,
@@ -287,6 +326,7 @@ def Origins(value: int):
     if origins['metLevel'] == 0: origins['hatched'] = True
     return origins
 
+
 def Pokerus(value: int):
     pokerus = {
         'days': value & 0xF,
@@ -294,11 +334,13 @@ def Pokerus(value: int):
     }
     return pokerus
 
+
 def DecryptSubSection(data: bytes, key: int):
     a = struct.unpack('<I', data[0:4])[0] ^ key
     b = struct.unpack('<I', data[4:8])[0] ^ key
     c = struct.unpack('<I', data[8:12])[0] ^ key
     return struct.pack('<III', a, b, c)
+
 
 # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
 def ParsePokemon(b_Pokemon: bytes):
@@ -346,12 +388,8 @@ def ParsePokemon(b_Pokemon: bytes):
     iv_sum = (ivs['hp'] + ivs['attack'] + ivs['defense'] + ivs['speed'] + ivs['spAttack'] + ivs['spDefense'])
 
     item_id = int(struct.unpack('<H', sections['G'][2:4])[0])
-    sv = int(tid ^ sid ^ struct.unpack('<H', b_Pokemon[0:2])[0] ^ struct.unpack('<H', b_Pokemon[2:4])[0])
-    shiny = True if sv < 8 else False
-
-    global session_count
-    session_count += 1
-    log.info(f'#{session_count:,} - SV {sv:,} {SpeciesName(id)}')
+    shiny_value = int(tid ^ sid ^ struct.unpack('<H', b_Pokemon[0:2])[0] ^ struct.unpack('<H', b_Pokemon[2:4])[0])
+    shiny = True if shiny_value < 8 else False
 
     pokemon = {
         'name': SpeciesName(id),
@@ -361,13 +399,12 @@ def ParsePokemon(b_Pokemon: bytes):
         'personality': pid,
         'nature': natures[pid % 25],
         'language': Language(int(b_Pokemon[18])),
-        'shinyValue': sv,
+        'shinyValue': shiny_value,
         'shiny': shiny,
         'ot': {
             'tid': tid,
             'sid': sid
         },
-        'nickname': ParseString(b_Pokemon[8:18]),
         'isBadEgg': flags & 1,
         'hasSpecies': (flags >> 1) & 1,
         'isEgg': (flags >> 2) & 1,
@@ -418,10 +455,12 @@ def ParsePokemon(b_Pokemon: bytes):
         },
 
         # Substruct M - Miscellaneous
-        'origins': Origins(int(struct.unpack('<H', sections['M'][2:4])[0])),
         'pokerus': Pokerus(int(sections['M'][1])),
+        'metLocation': location_list[int(sections['M'][1])],
+        'origins': Origins(int(struct.unpack('<H', sections['M'][2:4])[0])),
     }
     return pokemon
+
 
 def GetParty():
     party = {}
@@ -434,9 +473,11 @@ def GetParty():
         return party
     return None
 
+
 def GetOpponent():
     b_gEnemyParty = ReadSymbol('gEnemyParty')
     return ParsePokemon(b_gEnemyParty[:100])
+
 
 last_opid = ReadSymbol('gEnemyParty', size=4)
 def OpponentChanged():
@@ -447,7 +488,3 @@ def OpponentChanged():
         return True
     else:
         return False
-
-def _exit():
-    WriteInputs(0) # Clear inputs if bot is stopped
-atexit.register(_exit)

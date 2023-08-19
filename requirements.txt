@@ -10,5 +10,5 @@ Pymem~=1.12.0
 opencv-python~=4.8.0.74
 Pillow~=10.0.0
 psutil~=5.9.5
-fastjsonschema~=2.18.0
 WMI~=1.5.1
+jsonschema~=4.17.3

@@ -1,6 +1,9 @@
 [{
         "id": 0,
         "name": "None",
+        "effect": "None",
+        "type": "None",
+        "kind": "None",
         "power": 0,
         "accuracy": 0,
         "pp": 0

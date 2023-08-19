@@ -6,9 +6,7 @@ dist/
 logs/
 stats/
 stream/
-reports/
 roms/
 .venv
 .idea
 .vs
-bot.spec
