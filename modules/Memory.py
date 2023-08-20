@@ -1,9 +1,11 @@
 import os
 import json
 import time
+import numpy
 import struct
 import logging
 from pymem import Pymem
+from enum import IntEnum
 import win32gui, win32process
 from modules.Files import ReadFile
 
@@ -13,15 +15,15 @@ log = logging.getLogger(__name__)
 substructs = ['GAEM', 'GAME', 'GEAM', 'GEMA', 'GMAE', 'GMEA', 'AGEM', 'AGME', 'AEGM', 'AEMG', 'AMGE', 'AMEG',
               'EGAM', 'EGMA', 'EAGM', 'EAMG', 'EMGA', 'EMAG', 'MGAE', 'MGEA', 'MAGE', 'MAEG', 'MEGA', 'MEAG']
 
-moves = json.loads(ReadFile('./modules/data/moves.json'))
-names = json.loads(ReadFile('./modules/data/names.json'))
-natures = json.loads(ReadFile('./modules/data/natures.json'))
-nat_ids = json.loads(ReadFile('./modules/data/nat-ids.json'))
+moves_list = json.loads(ReadFile('./modules/data/moves.json'))
+names_list = json.loads(ReadFile('./modules/data/names.json'))
+natures_list = json.loads(ReadFile('./modules/data/natures.json'))
+nat_ids_list = json.loads(ReadFile('./modules/data/nat-ids.json'))
 item_list = json.loads(ReadFile('./modules/data/items.json'))
-exp_groups = json.loads(ReadFile('./modules/data/exp-groups.json'))
+exp_groups_list = json.loads(ReadFile('./modules/data/exp-groups.json'))
 pokemon_list = json.loads(ReadFile('./modules/data/pokemon.json'))
 location_list = json.loads(ReadFile('./modules/data/locations.json'))
-hidden_powers = json.loads(ReadFile('./modules/data/hidden-powers.json'))
+hidden_powers_list = json.loads(ReadFile('./modules/data/hidden-powers.json'))
 
 # https://bulbapedia.bulbagarden.net/wiki/Character_encoding_(Generation_III)
 char_maps = json.loads(ReadFile('./modules/data/char-maps.json'))
@@ -51,7 +53,7 @@ def GetPointer(proc, base, offsets):
 
 class emulator:
     def __game(self):
-        match self.game_code[0:3]: # Game release
+        match self.game_code[0:3]:  # Game release
             case 'AXV':
                 self.game, self.sym_file = 'Pokémon Ruby', 'pokeruby.sym'
             case 'AXP':
@@ -64,7 +66,7 @@ class emulator:
                 self.game, self.sym_file = 'Pokémon LeafGreen', 'pokeleafgreen.sym'
             case _:
                 self.game, self.sym_file = None, None
-        match self.game_code[3]: # Game language
+        match self.game_code[3]:  # Game language
             case 'E':
                 self.char_map = char_map_i
             case 'J':
@@ -151,10 +153,14 @@ def ReadSymbol(name: str, offset: int = 0, size: int = 0):
     """
     sym_addr = mGBA.symbols[name]['addr']
     match sym_addr >> 24:
-        case 2: addr = mGBA.p_EWRAM + (sym_addr - mGBA.symbols['EWRAM_START']['addr'])
-        case 3: addr = mGBA.p_IWRAM + (sym_addr - mGBA.symbols['IWRAM_START']['addr'])
-        case 8: addr = mGBA.p_ROM + (sym_addr - mGBA.symbols['Start']['addr'])
-        case _: return None
+        case 2:
+            addr = mGBA.p_EWRAM + (sym_addr - mGBA.symbols['EWRAM_START']['addr'])
+        case 3:
+            addr = mGBA.p_IWRAM + (sym_addr - mGBA.symbols['IWRAM_START']['addr'])
+        case 8:
+            addr = mGBA.p_ROM + (sym_addr - mGBA.symbols['Start']['addr'])
+        case _:
+            return None
     if size > 0:
         return mGBA.proc.read_bytes(addr + offset, size)
     else:
@@ -172,17 +178,22 @@ def GetFrameCount():
 
 def FacingDir(dir: int):
     match dir:
-        case 34: return 'Up'
-        case 68: return 'Right'
-        case 17: return 'Down'
-        case 51: return 'Left'
+        case 34:
+            return 'Up'
+        case 68:
+            return 'Right'
+        case 17:
+            return 'Down'
+        case 51:
+            return 'Left'
     return None
 
 
 try:
     if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
         gSaveBlock2Ptr = ReadSymbol('gSaveBlock2Ptr')
-        p_Trainer = mGBA.p_EWRAM + (struct.unpack('<I', ReadSymbol('gSaveBlock2Ptr'))[0] - mGBA.symbols['EWRAM_START']['addr'])
+        p_Trainer = mGBA.p_EWRAM + (
+                struct.unpack('<I', ReadSymbol('gSaveBlock2Ptr'))[0] - mGBA.symbols['EWRAM_START']['addr'])
         b_Trainer = mGBA.proc.read_bytes(p_Trainer, length=14)
     else:
         b_Trainer = ReadSymbol('gSaveBlock2', 14)
@@ -229,6 +240,16 @@ def EncodeString(text: str):
     return bytes(byte_str)
 
 
+class TrainerState(IntEnum):
+    # TODO Need further investigation; many values have multiple meanings
+    BAG_MENU = 0
+    BATTLE = 2
+    BATTLE_2 = 3
+    FOE_DEFEATED = 5
+    OVERWORLD = 80
+    MISC_MENU = 255
+
+
 # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
 def GetTrainer():
     b_gTasks = ReadSymbol('gTasks')
@@ -247,9 +268,9 @@ def GetTrainer():
 
 
 def SpeciesName(id: int):
-    if id > len(names):
+    if id > len(names_list):
         return ''
-    return names[id - 1]
+    return names_list[id - 1]
 
 
 def NationalDexID(id: int):
@@ -258,74 +279,110 @@ def NationalDexID(id: int):
     if id >= 413:
         return 201
     ix = id - 277
-    if ix < len(nat_ids):
-        return nat_ids[ix]
+    if ix < len(nat_ids_list):
+        return nat_ids_list[ix]
     return 0
 
 
 def Language(value: int):
     match value:
-        case 1: return 'Japanese'
-        case 2: return 'English'
-        case 3: return 'French'
-        case 4: return 'Italian'
-        case 5: return 'German'
-        case 7: return 'Spanish'
+        case 1:
+            return 'Japanese'
+        case 2:
+            return 'English'
+        case 3:
+            return 'French'
+        case 4:
+            return 'Italian'
+        case 5:
+            return 'German'
+        case 7:
+            return 'Spanish'
     return None
 
 
 def OriginGame(value: int):
     match value:
-        case 1: return 'Sapphire'
-        case 2: return 'Ruby'
-        case 3: return 'Emerald'
-        case 4: return 'FireRed'
-        case 5: return 'LeafGreen'
-        case 15: return 'Colosseum/XD'
+        case 1:
+            return 'Sapphire'
+        case 2:
+            return 'Ruby'
+        case 3:
+            return 'Emerald'
+        case 4:
+            return 'FireRed'
+        case 5:
+            return 'LeafGreen'
+        case 15:
+            return 'Colosseum/XD'
     return None
 
 
 def Markings(value: int):
     markings = {
-        'circle': False,
-        'square': False,
-        'triangle': False,
-        'heart': False
+        'circle': True if value & (1 << 0) else False,
+        'square': True if value & (1 << 1) else False,
+        'triangle': True if value & (1 << 2) else False,
+        'heart': True if value & (1 << 3) else False
     }
-    if value & (1 << 0): markings['circle'] = True
-    if value & (1 << 1): markings['square'] = True
-    if value & (1 << 2): markings['triangle'] = True
-    if value & (1 << 3): markings['heart'] = True
     return markings
 
 
 def Status(value: int):
     status = {
         'sleep': value & 0x7,
-        'poison': False,
-        'burn': False,
-        'freeze': False,
-        'paralysis': False,
-        'badPoison': False
+        'poison': True if value & (1 << 3) else False,
+        'burn': True if value & (1 << 4) else False,
+        'freeze': True if value & (1 << 5) else False,
+        'paralysis': True if value & (1 << 6) else False,
+        'badPoison': True if value & (1 << 7) else False
     }
-    if value & (1 << 3): status['poison'] = True
-    if value & (1 << 4): status['burn'] = True
-    if value & (1 << 5): status['freeze'] = True
-    if value & (1 << 6): status['paralysis'] = True
-    if value & (1 << 7): status['badPoison'] = True
     return status
 
 
 def Origins(value: int):
     origins = {
         'metLevel': value & 0x7F,
-        'hatched': False,
+        'hatched': False if value & 0x7F else True,
         'game': OriginGame((value >> 7) & 0xF),
         'ball': item_list[(value >> 11) & 0xF]
     }
-    if origins['metLevel'] == 0: origins['hatched'] = True
     return origins
 
+
+def IVs(value: int):
+    iv_bitstring = str(str(bin(value)[2:])[::-1] + '00000000000000000000000000000000')[0:32]
+    ivs = {
+        'hp': int(iv_bitstring[0:5], 2),
+        'attack': int(iv_bitstring[5:10], 2),
+        'defense': int(iv_bitstring[10:15], 2),
+        'speed': int(iv_bitstring[15:20], 2),
+        'spAttack': int(iv_bitstring[20:25], 2),
+        'spDefense': int(iv_bitstring[25:30], 2),
+    }
+    return ivs
+
+
+def Moves(value: bytes):
+    moves = []
+    pokemon_pp = []
+    for i in range(0, 4):
+        move_id = int(struct.unpack('<H', value[(i * 2):((i + 1) * 2)])[0])
+        if id == 0:
+            continue
+        moves.append(moves_list[move_id])
+        moves[i]['remaining_pp'] = int(value[(i + 8)])
+    return moves
+
+
+def HiddenPower(value: dict):
+    hidden_power = hidden_powers_list[int(numpy.floor((((value["hp"] % 2) +
+                                            (2 * (value["attack"] % 2)) +
+                                            (4 * (value["defense"] % 2)) +
+                                            (8 * (value["speed"] % 2)) +
+                                            (16 * (value["spAttack"] % 2)) +
+                                            (32 * (value["spDefense"] % 2))) * 15) / 63))]
+    return hidden_power
 
 def Pokerus(value: int):
     pokerus = {
@@ -335,11 +392,12 @@ def Pokerus(value: int):
     return pokerus
 
 
+# https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Encryption
 def DecryptSubSection(data: bytes, key: int):
-    a = struct.unpack('<I', data[0:4])[0] ^ key
-    b = struct.unpack('<I', data[4:8])[0] ^ key
-    c = struct.unpack('<I', data[8:12])[0] ^ key
-    return struct.pack('<III', a, b, c)
+    return struct.pack('<III',
+                       struct.unpack('<I', data[0:4])[0] ^ key,
+                       struct.unpack('<I', data[4:8])[0] ^ key,
+                       struct.unpack('<I', data[8:12])[0] ^ key)
 
 
 # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
@@ -363,41 +421,20 @@ def ParsePokemon(b_Pokemon: bytes):
         decr = DecryptSubSection(sectiondata, key)
         sections[section] = decr
     id = int(struct.unpack('<H', sections['G'][0:2])[0])
+    name = SpeciesName(id)
 
-    # Unpack moveset
-    pokemon_moves = []
-    pokemon_pp = []
-    for i in range(0, 4):
-        move_id = int(struct.unpack('<H', sections['A'][(i * 2):((i + 1) * 2)])[0])
-        if id == 0:
-            continue
-        pokemon_moves.append(moves[move_id])
-        pokemon_pp.append(int(sections['A'][(i + 8)]))
-
-    # Unpack IVs
-    b_ivs = int(struct.unpack('<I', sections['M'][4:8])[0])
-    iv_bitstring = str(str(bin(b_ivs)[2:])[::-1] + '00000000000000000000000000000000')[0:32]
-    ivs = {
-        'hp': int(iv_bitstring[0:5], 2),
-        'attack': int(iv_bitstring[5:10], 2),
-        'defense': int(iv_bitstring[10:15], 2),
-        'speed': int(iv_bitstring[15:20], 2),
-        'spAttack': int(iv_bitstring[20:25], 2),
-        'spDefense': int(iv_bitstring[25:30], 2),
-    }
-    iv_sum = (ivs['hp'] + ivs['attack'] + ivs['defense'] + ivs['speed'] + ivs['spAttack'] + ivs['spDefense'])
-
+    ivs = IVs(int(struct.unpack('<I', sections['M'][4:8])[0]))
     item_id = int(struct.unpack('<H', sections['G'][2:4])[0])
     shiny_value = int(tid ^ sid ^ struct.unpack('<H', b_Pokemon[0:2])[0] ^ struct.unpack('<H', b_Pokemon[2:4])[0])
     shiny = True if shiny_value < 8 else False
 
     pokemon = {
-        'name': SpeciesName(id),
+        'name': name,
         'id': id,
         'natID': NationalDexID(id),
         'species': int(struct.unpack('<H', sections['G'][0:2])[0]),
-        'personality': pid,
-        'nature': natures[pid % 25],
+        'pid': pid,
+        'nature': natures_list[pid % 25],
         'language': Language(int(b_Pokemon[18])),
         'shinyValue': shiny_value,
         'shiny': shiny,
@@ -409,14 +446,13 @@ def ParsePokemon(b_Pokemon: bytes):
         'hasSpecies': (flags >> 1) & 1,
         'isEgg': (flags >> 2) & 1,
         'level': int(b_Pokemon[84]),
-        'expGroup': exp_groups[id - 1],
+        'expGroup': exp_groups_list[id - 1],
         'item': {
             'id': item_id,
             'name': item_list[item_id]
         },
         'friendship': int(sections['G'][9]),
-        'moves': pokemon_moves,
-        'pp': pokemon_pp,
+        'moves': Moves(sections['A']),
         'markings': Markings(b_Pokemon[27]),
         'status': Status(int(struct.unpack('<I', b_Pokemon[80:84])[0])),
         'stats': {
@@ -429,7 +465,8 @@ def ParsePokemon(b_Pokemon: bytes):
             'spDefense': int(b_Pokemon[98])
         },
         'IVs': ivs,
-        'IVSum': iv_sum,
+        'IVSum': sum(ivs.values()),
+        'hiddenPower': HiddenPower(ivs),
 
         # Substruct G - Growth
         'experience': int(struct.unpack('<I', sections['G'][4:8])[0]),
@@ -455,9 +492,10 @@ def ParsePokemon(b_Pokemon: bytes):
         },
 
         # Substruct M - Miscellaneous
-        'pokerus': Pokerus(int(sections['M'][1])),
+        'pokerus': Pokerus(int(sections['M'][0])),
         'metLocation': location_list[int(sections['M'][1])],
         'origins': Origins(int(struct.unpack('<H', sections['M'][2:4])[0])),
+        'ability': pokemon_list[name]["ability"][int(struct.unpack('<I', sections['M'][4:8])[0] >> 31)]
     }
     return pokemon
 
@@ -468,8 +506,8 @@ def GetParty():
     party_count = int.from_bytes(ReadSymbol('gPlayerPartyCount'))
     if party_count:
         for p in range(party_count):
-            o = p*100
-            party[p] = ParsePokemon(b_gPlayerParty[o:o+100])
+            o = p * 100
+            party[p] = ParsePokemon(b_gPlayerParty[o:o + 100])
         return party
     return None
 
@@ -480,6 +518,8 @@ def GetOpponent():
 
 
 last_opid = ReadSymbol('gEnemyParty', size=4)
+
+
 def OpponentChanged():
     global last_opid
     opponent_pid = ReadSymbol('gEnemyParty', size=4)

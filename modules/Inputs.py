@@ -37,6 +37,18 @@ def WriteInputs(value: int):
     mGBA.proc.write_bytes(mGBA.p_Input, struct.pack('<H', value), 2)
 
 
+def WaitFrames(frames: int):
+    """
+    Waits for n frames to pass before continuing.
+
+    :param frames: number of frames to wait
+    :return: None
+    """
+    start = GetFrameCount()
+    while GetFrameCount() < start + frames:
+        pass
+
+
 def PressButton(buttons: list, hold_frames: int = 1):
     """
     Press a button or multiple buttons for 1 frame unless specified.
@@ -59,16 +71,19 @@ def PressButton(buttons: list, hold_frames: int = 1):
         if button in input_map:
             inputs |= input_map[button]
     WriteInputs(inputs)
-    start = GetFrameCount()
-    while GetFrameCount() < start + hold_frames:
-        pass
+    WaitFrames(hold_frames)
     WriteInputs(0)
-    while GetFrameCount() < start + hold_frames + 1:
-        pass
+    WaitFrames(1)
 
 
 def _exit():
-    WriteInputs(0)  # Clear inputs if bot is stopped
+    """
+    Called when the bot is manually stopped or crashes.
+    Clears the inputs register in the emulator so no buttons will be stuck down.
+
+    :return: None
+    """
+    WriteInputs(0)
 
 
 atexit.register(_exit)

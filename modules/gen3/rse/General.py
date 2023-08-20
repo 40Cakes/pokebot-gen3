@@ -1,3 +1,4 @@
+import json
 import os
 import struct
 import random
@@ -12,7 +13,7 @@ log = logging.getLogger(__name__)
 def ModeSpin():
     try:
         # Search for the text "What will (Pokémon) do?" in `gDisplayedStringBattle`
-        b_What = EncodeString("What")
+        b_What = EncodeString('What')
 
         while True:
             #if OpponentChanged(): EncounterPokemon()
