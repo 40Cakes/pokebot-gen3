@@ -3,6 +3,7 @@ import copy
 import json
 import math
 import time
+import struct
 import logging
 import pandas as pd
 import pydirectinput
@@ -10,6 +11,8 @@ from threading import Thread
 from datetime import datetime
 from modules.Config import config
 from modules.Files import BackupFolder, ReadFile, WriteFile
+from modules.Inputs import PressButton
+from modules.Memory import EncodeString, GetTrainer, GetOpponent, ReadSymbol, TrainerState
 
 
 log = logging.getLogger(__name__)
@@ -384,23 +387,46 @@ def LogEncounter(pokemon: dict):
         return False
 
 
-#def EncounterPokemon():
-#    """
-#    Call when a Pokémon is encountered, decides whether or not to battle, flee or catch.
-#    :return: returns once the encounter is over
-#    """
-#    legendary_hunt = config['bot_mode'] in ['manual', 'rayquaza', 'kyogre', 'groudon', 'southern island', 'regis',
-#                                            'deoxys resets', 'deoxys runaways', 'mew']
-#
-#    log.info('Identifying Pokemon...')
-#    ReleaseAllInputs()
-#
-#    if starter:
-#        WaitFrames(30)
-#
-#    if GetTrainer()['state'] == GameState.OVERWORLD:
-#        return False
-#
+def EncounterPokemon(pokemon: dict):
+    """
+    Call when a Pokémon is encountered, decides whether or not to battle, flee or catch.
+    Expects the trainer's state to be MISC_MENU (battle started, no longer in the overworld).
+
+    :return: returns once the encounter is over
+    """
+
+    LogEncounter(pokemon)
+
+    # TODO
+    #if config['bot_mode'] == 'starters':
+    #    if config['mem_hacks']['starters']:
+    #        pass
+
+    # TODO temporary until auto-catch is ready
+    if pokemon['shiny']:
+        log.info('Shiny found!')
+        input('Press enter to continue...')
+        os._exit(0)
+
+    if GetTrainer()['state'] == TrainerState.OVERWORLD:
+        return None
+
+    if GetTrainer()['state'] == TrainerState.MISC_MENU:
+        # Search for the text "What will (Pokémon) do?" in `gDisplayedStringBattle`
+        b_What = EncodeString('What')
+
+        while ReadSymbol('gDisplayedStringBattle', size=4) != b_What:
+            PressButton(['B'])
+        while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 1:
+            PressButton(['Right'])
+        while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 3:
+            PressButton(['Down'])
+        while ReadSymbol('gDisplayedStringBattle', size=4) == b_What:
+            PressButton(['A'])
+        while GetTrainer()['state'] != TrainerState.OVERWORLD:
+            PressButton(['B'])
+
+# TODO
 #    pokemon = GetParty()[0] if starter else GetOpponent()
 #    LogEncounter(pokemon)
 #

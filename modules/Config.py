@@ -164,7 +164,10 @@ properties:
         items:
             type: string
     mem_hacks:
-        type: boolean
+        type: object
+        properties:
+            starters:
+                type: boolean
 """
 
 file = 'config.yml'
