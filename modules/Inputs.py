@@ -1,9 +1,6 @@
 import struct
 import atexit
-import logging
 from modules.Memory import mGBA, GetFrameCount
-
-log = logging.getLogger(__name__)
 
 input_map = {
     'A': 0x1,

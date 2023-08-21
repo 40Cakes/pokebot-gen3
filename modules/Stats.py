@@ -4,18 +4,18 @@ import json
 import math
 import time
 import struct
-import logging
 import pandas as pd
 import pydirectinput
 from threading import Thread
 from datetime import datetime
+from rich.table import Table
 from modules.Config import config
+from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton
 from modules.Memory import EncodeString, GetTrainer, GetOpponent, ReadSymbol, TrainerState
 
 
-log = logging.getLogger(__name__)
 os.makedirs('stats', exist_ok=True)
 files = {
     'encounter_log': 'stats/encounter_log.json',
@@ -45,8 +45,8 @@ def GetStats():
         if totals:
             return json.loads(totals)
         return None
-    except Exception as e:
-        log.exception(str(e))
+    except Exception:
+        console.print_exception()
         return None
 
 
@@ -57,8 +57,8 @@ def GetEncounterLog():
         if encounter_log:
             return json.loads(encounter_log)
         return default
-    except Exception as e:
-        log.exception(str(e))
+    except Exception:
+        console.print_exception()
         return default
 
 
@@ -69,8 +69,8 @@ def GetShinyLog():
         if shiny_log:
             return json.loads(shiny_log)
         return default
-    except Exception as e:
-        log.exception(str(e))
+    except Exception:
+        console.print_exception()
         return default
 
 
@@ -80,8 +80,8 @@ def GetRNGStateHistory(tid: str, pokemon_name: str):
         file = ReadFile(f'stats/{tid}/{pokemon_name.lower()}.json')
         data = json.loads(file) if file else default
         return data
-    except Exception as e:
-        log.exception(str(e))
+    except Exception:
+        console.print_exception()
         return default
 
 
@@ -98,9 +98,70 @@ def GetEncounterRate():
                   ).total_seconds()) * (min(session_encounters, 250)))
             return encounter_rate
         return 0
-    except Exception as e:
-        log.exception(str(e))
+    except Exception:
+        console.print_exception()
         return 0
+
+
+def PrintStats(pokemon: dict, stats: dict):
+        console.rule(pokemon['name'])
+
+        iv_table = Table(title='{} IVs'.format(pokemon['name']))
+        iv_table.add_column('HP')
+        iv_table.add_column('ATK')
+        iv_table.add_column('DEF')
+        iv_table.add_column('SPATK')
+        iv_table.add_column('SPDEF')
+        iv_table.add_column('SPD')
+        iv_table.add_row(
+            '{:,}'.format(pokemon['IVs']['hp']),
+            '{:,}'.format(pokemon['IVs']['attack']),
+            '{:,}'.format(pokemon['IVs']['defense']),
+            '{:,}'.format(pokemon['IVs']['spAttack']),
+            '{:,}'.format(pokemon['IVs']['spDefense']),
+            '{:,}'.format(pokemon['IVs']['speed'])
+        )
+        console.print(iv_table)
+
+        stats_table = Table(title='Statistics')
+        stats_table.add_column('')
+        stats_table.add_column('Phase')
+        stats_table.add_column('Total')
+        stats_table.add_row(
+            pokemon['name'],
+            '{:,}'.format(stats['pokemon'][pokemon['name']]['phase_encounters']),
+            '{:,}'.format(stats['pokemon'][pokemon['name']]['encounters'])
+        )
+        console.print(stats_table)
+
+        console.print('{} encountered at {}'.format(
+            pokemon['name'],
+            pokemon['metLocation']))
+        console.print('Shiny Value (SV): {:,} (is {:,} < 8 = {})'.format(
+            pokemon['shinyValue'],
+            pokemon['shinyValue'],
+            pokemon['shiny']))
+        console.print('Phase encounters: {:,} | {} Phase Encounters: {:,}'.format(
+            stats['totals']['phase_encounters'],
+            pokemon['name'],
+            stats['pokemon'][pokemon['name']]['phase_encounters']))
+        console.print('{} Encounters: {:,} | Lowest {} SV seen this phase: {:,}'.format(
+            pokemon['name'],
+            stats['pokemon'][pokemon['name']]['encounters'],
+            pokemon['name'],
+            stats['pokemon'][pokemon['name']]['phase_lowest_sv']))
+        console.print('Shiny {} Encounters: {:,} | {} Shiny Average: {}'.format(
+            pokemon['name'],
+            stats['pokemon'][pokemon['name']].get('shiny_encounters', 0),
+            pokemon['name'],
+            stats['pokemon'][pokemon['name']].get('shiny_average', 0)))
+        console.print('Total Encounters: {:,} | Total Shiny Encounters: {:,} | Total Shiny Average: {}'.format(
+            stats['totals']['encounters'],
+            stats['totals'].get('shiny_encounters', 0),
+            stats['totals'].get('shiny_average', 0)))
+        console.print('Encounter rate: {:,}/h'.format(
+            GetEncounterRate()))
+        console.rule()
 
 
 stats = GetStats()  # Load stats
@@ -283,42 +344,7 @@ def LogEncounter(pokemon: dict):
             stats['pokemon'][pokemon['name']]['shiny_encounters'] = stats['pokemon'][pokemon['name']].get('shiny_encounters', 0) + 1
             stats['totals']['shiny_encounters'] = stats['totals'].get('shiny_encounters', 0) + 1
 
-        log.info(f'------------------ {pokemon["name"]} ------------------')
-        log.info('{} encountered at {}'.format(
-            pokemon['name'],
-            pokemon['metLocation']))
-        log.info('HP: {} | ATK: {} | DEF: {} | SPATK: {} | SPDEF: {} | SPE: {}'.format(
-            pokemon['IVs']['hp'],
-            pokemon['IVs']['attack'],
-            pokemon['IVs']['defense'],
-            pokemon['IVs']['spAttack'],
-            pokemon['IVs']['spDefense'],
-            pokemon['IVs']['speed']))
-        log.info('Shiny Value (SV): {:,} (is {:,} < 8 = {})'.format(
-            pokemon['shinyValue'],
-            pokemon['shinyValue'],
-            pokemon['shiny']))
-        log.info('Phase encounters: {:,} | {} Phase Encounters: {:,}'.format(
-            stats['totals']['phase_encounters'],
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']]['phase_encounters']))
-        log.info('{} Encounters: {:,} | Lowest {} SV seen this phase: {:,}'.format(
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']]['encounters'],
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']]['phase_lowest_sv']))
-        log.info('Shiny {} Encounters: {:,} | {} Shiny Average: {}'.format(
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']].get('shiny_encounters', 0),
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']].get('shiny_average', 0)))
-        log.info('Total Encounters: {:,} | Total Shiny Encounters: {:,} | Total Shiny Average: {}'.format(
-            stats['totals']['encounters'],
-            stats['totals'].get('shiny_encounters', 0),
-            stats['totals'].get('shiny_average', 0)))
-        log.info('Encounter rate: {:,}/h'.format(
-            GetEncounterRate()))
-        log.info(f'--------------------------------------------------')
+        PrintStats(pokemon, stats)
 
         # TODO
         #if pokemon['shiny']:
@@ -382,8 +408,8 @@ def LogEncounter(pokemon: dict):
         stats['totals']['encounters'] % config['backup_stats'] == 0:
             BackupFolder('./stats/', './backups/stats-{}.zip'.format(time.strftime('%Y%m%d-%H%M%S')))
 
-    except Exception as e:
-        log.exception(str(e))
+    except Exception:
+        console.print_exception()
         return False
 
 
@@ -404,8 +430,8 @@ def EncounterPokemon(pokemon: dict):
 
     # TODO temporary until auto-catch is ready
     if pokemon['shiny']:
-        log.info('Shiny found!')
-        input('Press enter to continue...')
+        console.print('Shiny found!')
+        input('Press enter to exit...')
         os._exit(0)
 
     if GetTrainer()['state'] == TrainerState.OVERWORLD:
@@ -437,7 +463,7 @@ def EncounterPokemon(pokemon: dict):
 #            blocked = GetBlockList()
 #            opponent = GetOpponent()
 #            if opponent['name'] in blocked['block_list']:
-#                log.info('---- Pokemon is in list of non-catpures. Fleeing battle ----')
+#                console.print('---- Pokemon is in list of non-catpures. Fleeing battle ----')
 #                if config['discord']['messages']:
 #                    try:
 #                        content = f'Encountered shiny {opponent['name']}... but catching this species is disabled. Fleeing battle!'
@@ -492,7 +518,7 @@ def EncounterPokemon(pokemon: dict):
 #
 #        if replace_battler:
 #            if not config['cycle_lead_pokemon']:
-#                log.info('Lead Pokemon can no longer battle. Ending the script!')
+#                console.print('Lead Pokemon can no longer battle. Ending the script!')
 #                FleeBattle()
 #                return False
 #            else:
@@ -513,12 +539,12 @@ def EncounterPokemon(pokemon: dict):
 #                lead_idx = party_pp.index(highest_pp)
 #
 #                if highest_pp == 0:
-#                    log.info('Ran out of Pokemon to battle with. Ending the script!')
+#                    console.print('Ran out of Pokemon to battle with. Ending the script!')
 #                    os._exit(1)
 #
 #                lead = GetParty()[lead_idx]
 #                if lead is not None:
-#                    log.info(f'Replacing lead battler with {lead['name']} (Party slot {lead_idx})')
+#                    console.print(f'Replacing lead battler with {lead['name']} (Party slot {lead_idx})')
 #
 #                PressButton('A')
 #                WaitFrames(60)
@@ -540,7 +566,7 @@ def EncounterPokemon(pokemon: dict):
 #                PressButton('A')
 #                WaitFrames(60)
 #
-#                log.info('Replaced lead Pokemon!')
+#                console.print('Replaced lead Pokemon!')
 #
 #                for _ in range(5):
 #                    PressButton('B')

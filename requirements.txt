@@ -12,3 +12,4 @@ Pillow~=10.0.0
 psutil~=5.9.5
 WMI~=1.5.1
 jsonschema~=4.17.3
+rich~=13.5.2

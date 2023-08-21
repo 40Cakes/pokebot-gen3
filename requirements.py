@@ -6,4 +6,4 @@ try:
 except Exception as e:
     print(str(e))
 
-input("Press enter to continue...")
+input("Press enter to exit...")

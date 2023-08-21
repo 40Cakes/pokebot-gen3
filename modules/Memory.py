@@ -3,13 +3,12 @@ import json
 import time
 import numpy
 import struct
-import logging
 from pymem import Pymem
 from enum import IntEnum
 import win32gui, win32process
+from modules.Console import console
 from modules.Files import ReadFile
 
-log = logging.getLogger(__name__)
 
 # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Substructure_order
 substructs = ['GAEM', 'GAME', 'GEAM', 'GEMA', 'GMAE', 'GMEA', 'AGEM', 'AGME', 'AEGM', 'AEMG', 'AMGE', 'AMEG',
@@ -110,7 +109,7 @@ class emulator:
 
 
 while True:
-    log.info('Click on an mGBA instance to attach bot to...')
+    console.print('Click on an mGBA instance to attach bot to...')
     fg = win32gui.GetForegroundWindow()
     title = win32gui.GetWindowText(fg)
     tid, pid = win32process.GetWindowThreadProcessId(fg)
@@ -118,12 +117,12 @@ while True:
     if 'mGBA' in title:
         mGBA = emulator(pid)
         if mGBA.game:
-            log.info(f'Bot successfully attached to mGBA PID {pid}!')
-            log.info(f'Detected game: {mGBA.game} ({mGBA.game_code})')
+            console.print(f'Bot successfully attached to mGBA PID {pid}!')
+            console.print(f'Detected game: {mGBA.game} ({mGBA.game_code})')
             break
         else:
-            log.error('Unsupported ROM detected!')
-            input('Press enter to continue...')
+            console.print('[bold red]Unsupported ROM detected![/]')
+            input('Press enter to exit...')
             os._exit(1)
     time.sleep(0.5)
 
@@ -197,8 +196,8 @@ try:
         b_Trainer = mGBA.proc.read_bytes(p_Trainer, length=14)
     else:
         b_Trainer = ReadSymbol('gSaveBlock2', 14)
-except Exception as e:
-    log.exception(str(e))
+except Exception:
+    console.print_exception()
 
 
 def DecodeString(bytes: bytes):

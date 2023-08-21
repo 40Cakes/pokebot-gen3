@@ -1,9 +1,8 @@
 import os
-import logging
 from jsonschema import validate
 from ruamel.yaml import YAML
+from modules.Console import console
 
-log = logging.getLogger(__name__)
 yaml = YAML()
 
 config_schema = """
@@ -177,9 +176,9 @@ try:
             config_yml = yaml.load(f)
             validate(config_yml, yaml.load(config_schema))
             config = config_yml
-            log.info('\nConfig file is valid!')
-except Exception as e:
-    log.error(str(e))
-    log.error('Config file is invalid!')
-    input('Press enter to continue...')
+            console.print('\nConfig file is valid!')
+except Exception:
+    console.print_exception()
+    console.print('[bold red]Config file is invalid![/]')
+    input('Press enter to exit...')
     os._exit(1)
