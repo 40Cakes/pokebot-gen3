@@ -4,18 +4,18 @@ import json
 import math
 import time
 import struct
-import logging
 import pandas as pd
 import pydirectinput
 from threading import Thread
 from datetime import datetime
+from rich.table import Table
 from modules.Config import config
+from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton
 from modules.Memory import EncodeString, GetTrainer, GetOpponent, ReadSymbol, TrainerState
 
 
-log = logging.getLogger(__name__)
 os.makedirs('stats', exist_ok=True)
 files = {
     'encounter_log': 'stats/encounter_log.json',
@@ -45,8 +45,8 @@ def GetStats():
         if totals:
             return json.loads(totals)
         return None
-    except Exception as e:
-        log.exception(str(e))
+    except Exception:
+        console.print_exception()
         return None
 
 
@@ -57,8 +57,8 @@ def GetEncounterLog():
         if encounter_log:
             return json.loads(encounter_log)
         return default
-    except Exception as e:
-        log.exception(str(e))
+    except Exception:
+        console.print_exception()
         return default
 
 
@@ -69,8 +69,8 @@ def GetShinyLog():
         if shiny_log:
             return json.loads(shiny_log)
         return default
-    except Exception as e:
-        log.exception(str(e))
+    except Exception:
+        console.print_exception()
         return default
 
 
@@ -80,8 +80,8 @@ def GetRNGStateHistory(tid: str, pokemon_name: str):
         file = ReadFile(f'stats/{tid}/{pokemon_name.lower()}.json')
         data = json.loads(file) if file else default
         return data
-    except Exception as e:
-        log.exception(str(e))
+    except Exception:
+        console.print_exception()
         return default
 
 
@@ -98,9 +98,145 @@ def GetEncounterRate():
                   ).total_seconds()) * (min(session_encounters, 250)))
             return encounter_rate
         return 0
-    except Exception as e:
-        log.exception(str(e))
+    except Exception:
+        console.print_exception()
         return 0
+
+# TODO TypeColour()
+def IVColour(value: int):
+    if value == 31:
+        return 'yellow'
+    if value == 0:
+        return 'purple'
+    if value >= 26:
+        return 'green'
+    if value <= 5:
+        return 'red'
+    return 'white'
+
+
+def IVSumColour(value: int):
+    if value == 186:
+        return 'yellow'
+    if value == 0:
+        return 'purple'
+    if value >= 140:
+        return 'green'
+    if value <= 50:
+        return 'red'
+    return 'white'
+
+
+def SVColour(value: int):
+    if value <= 7:
+        return 'yellow'
+    if value >= 65528:
+        return 'purple'
+    return 'red'
+
+
+def PrintStats(pokemon: dict, stats: dict):
+        console.rule(pokemon['name'], style=SVColour(pokemon['shinyValue']))
+
+        pokemon_table = Table()
+        pokemon_table.add_column('PID', justify='center', width=10)
+        pokemon_table.add_column('Level', justify='center')
+        pokemon_table.add_column('Item', justify='center', width=10)
+        pokemon_table.add_column('Nature', justify='center', width=10)
+        pokemon_table.add_column('Ability', justify='center', width=15)
+        pokemon_table.add_column('Hidden Power', justify='center', width=10)
+        pokemon_table.add_column('Shiny Value', justify='center', style=SVColour(pokemon['shinyValue']), width=10)
+        pokemon_table.add_row(
+            str(pokemon['pid']),
+            str(pokemon['level']),
+            pokemon['item']['name'],
+            pokemon['nature'],
+            pokemon['ability'],
+            pokemon['hiddenPower'],
+            '{:,}'.format(pokemon['shinyValue'])
+        )
+        console.print(pokemon_table)
+
+        iv_table = Table(title='{} IVs'.format(pokemon['name']))
+        iv_table.add_column('HP', justify='center', style=IVColour(pokemon['IVs']['hp']))
+        iv_table.add_column('ATK', justify='center', style=IVColour(pokemon['IVs']['attack']))
+        iv_table.add_column('DEF', justify='center', style=IVColour(pokemon['IVs']['defense']))
+        iv_table.add_column('SPATK', justify='center', style=IVColour(pokemon['IVs']['spAttack']))
+        iv_table.add_column('SPDEF', justify='center', style=IVColour(pokemon['IVs']['spDefense']))
+        iv_table.add_column('SPD', justify='center', style=IVColour(pokemon['IVs']['speed']))
+        iv_table.add_column('Total', justify='right', style=IVSumColour(pokemon['IVSum']))
+        iv_table.add_row(
+            '{:,}'.format(pokemon['IVs']['hp']),
+            '{:,}'.format(pokemon['IVs']['attack']),
+            '{:,}'.format(pokemon['IVs']['defense']),
+            '{:,}'.format(pokemon['IVs']['spAttack']),
+            '{:,}'.format(pokemon['IVs']['spDefense']),
+            '{:,}'.format(pokemon['IVs']['speed']),
+            '{:,}'.format(pokemon['IVSum'])
+        )
+        console.print(iv_table)
+
+        move_table = Table(title='{} Moves'.format(pokemon['name']))
+        move_table.add_column('Name', justify='left', width=20)
+        move_table.add_column('Kind', justify='center', width=10)
+        move_table.add_column('Type', justify='center', width=10)
+        move_table.add_column('Power', justify='center', width=10)
+        move_table.add_column('Accuracy', justify='center', width=10)
+        move_table.add_column('PP', justify='center', width=5)
+        for i in range(4):
+            move_table.add_row(
+                pokemon['moves'][i]['name'],
+                pokemon['moves'][i]['kind'],
+                pokemon['moves'][i]['type'],
+                str(pokemon['moves'][i]['power']),
+                str(pokemon['moves'][i]['accuracy']),
+                str(pokemon['moves'][i]['remaining_pp'])
+            )
+        console.print(move_table)
+
+        stats_table = Table(title='Statistics')
+        stats_table.add_column('', justify='left', width=10)
+        stats_table.add_column('Phase IV Records', justify='center', width=10)
+        stats_table.add_column('Phase SV Records', justify='center', width=15)
+        stats_table.add_column('Phase Encounters', justify='right', width=10)
+        stats_table.add_column('Phase %', justify='right', width=10)
+        stats_table.add_column('Shiny Encounters', justify='right', width=10)
+        stats_table.add_column('Total Encounters', justify='right', width=10)
+
+        recent_pokemon = []
+        for p in GetEncounterLog()['encounter_log']:
+            recent_pokemon.append(p['pokemon']['name'])
+
+        for p in sorted(set(recent_pokemon)):
+            stats_table.add_row(
+                p,
+                '[red]{:,}[/] / [green]{:,}'.format(
+                    stats['pokemon'][p]['phase_lowest_iv_sum'],
+                    stats['pokemon'][p]['phase_highest_iv_sum']),
+                '[green]{:,}[/] / [red]{:,}'.format(
+                    stats['pokemon'][p]['phase_lowest_sv'],
+                    stats['pokemon'][p]['phase_highest_sv']),
+                '{:,}'.format(stats['pokemon'][p]['phase_encounters']),
+                '{:0.2f}%'.format((stats['pokemon'][p]['phase_encounters']/stats['totals']['phase_encounters'])*100),
+                '{:,}'.format(stats['pokemon'][p].get('shiny_encounters', 0)),
+                '{:,}'.format(stats['pokemon'][p]['encounters'])
+            )
+        stats_table.add_row(
+            '[bold yellow]Total',
+            '[red]{:,}[/] / [green]{:,}'.format(
+                stats['totals']['phase_lowest_iv_sum'],
+                stats['totals']['phase_highest_iv_sum']),
+            '[green]{:,}[/] / [red]{:,}'.format(
+                stats['totals']['phase_lowest_sv'],
+                stats['totals']['phase_highest_sv']),
+            '[bold yellow]{:,}'.format(stats['totals']['phase_encounters']),
+            '[bold yellow]100%',
+            '[bold yellow]{:,}'.format(stats['totals'].get('shiny_encounters', 0)),
+            '[bold yellow]{:,}'.format(stats['totals']['encounters'])
+        )
+        console.print(stats_table)
+
+        console.print('Encounter rate: {:,}/h'.format(GetEncounterRate()))
 
 
 stats = GetStats()  # Load stats
@@ -252,7 +388,7 @@ def LogEncounter(pokemon: dict):
         # Log encounter to encounter_log
         log_obj = {
             'time_encountered': str(datetime.now()),
-            'pokemon_obj': pokemon,
+            'pokemon': pokemon,
             'snapshot_stats': {
                 'phase_encounters': stats['totals']['phase_encounters'],
                 'species_encounters': stats['pokemon'][pokemon['name']]['encounters'],
@@ -271,7 +407,7 @@ def LogEncounter(pokemon: dict):
 
         # Same Pokémon encounter streak records
         if len(encounter_log['encounter_log']) > 1 and \
-                encounter_log['encounter_log'][-2]['pokemon_obj']['name'] == pokemon['name']:
+                encounter_log['encounter_log'][-2]['pokemon']['name'] == pokemon['name']:
             stats['totals']['current_streak'] = stats['totals'].get('current_streak', 0) + 1
         else:
             stats['totals']['current_streak'] = 1
@@ -283,42 +419,7 @@ def LogEncounter(pokemon: dict):
             stats['pokemon'][pokemon['name']]['shiny_encounters'] = stats['pokemon'][pokemon['name']].get('shiny_encounters', 0) + 1
             stats['totals']['shiny_encounters'] = stats['totals'].get('shiny_encounters', 0) + 1
 
-        log.info(f'------------------ {pokemon["name"]} ------------------')
-        log.info('{} encountered at {}'.format(
-            pokemon['name'],
-            pokemon['metLocation']))
-        log.info('HP: {} | ATK: {} | DEF: {} | SPATK: {} | SPDEF: {} | SPE: {}'.format(
-            pokemon['IVs']['hp'],
-            pokemon['IVs']['attack'],
-            pokemon['IVs']['defense'],
-            pokemon['IVs']['spAttack'],
-            pokemon['IVs']['spDefense'],
-            pokemon['IVs']['speed']))
-        log.info('Shiny Value (SV): {:,} (is {:,} < 8 = {})'.format(
-            pokemon['shinyValue'],
-            pokemon['shinyValue'],
-            pokemon['shiny']))
-        log.info('Phase encounters: {:,} | {} Phase Encounters: {:,}'.format(
-            stats['totals']['phase_encounters'],
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']]['phase_encounters']))
-        log.info('{} Encounters: {:,} | Lowest {} SV seen this phase: {:,}'.format(
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']]['encounters'],
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']]['phase_lowest_sv']))
-        log.info('Shiny {} Encounters: {:,} | {} Shiny Average: {}'.format(
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']].get('shiny_encounters', 0),
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']].get('shiny_average', 0)))
-        log.info('Total Encounters: {:,} | Total Shiny Encounters: {:,} | Total Shiny Average: {}'.format(
-            stats['totals']['encounters'],
-            stats['totals'].get('shiny_encounters', 0),
-            stats['totals'].get('shiny_average', 0)))
-        log.info('Encounter rate: {:,}/h'.format(
-            GetEncounterRate()))
-        log.info(f'--------------------------------------------------')
+        PrintStats(pokemon, stats)
 
         # TODO
         #if pokemon['shiny']:
@@ -382,8 +483,8 @@ def LogEncounter(pokemon: dict):
         stats['totals']['encounters'] % config['backup_stats'] == 0:
             BackupFolder('./stats/', './backups/stats-{}.zip'.format(time.strftime('%Y%m%d-%H%M%S')))
 
-    except Exception as e:
-        log.exception(str(e))
+    except Exception:
+        console.print_exception()
         return False
 
 
@@ -404,8 +505,8 @@ def EncounterPokemon(pokemon: dict):
 
     # TODO temporary until auto-catch is ready
     if pokemon['shiny']:
-        log.info('Shiny found!')
-        input('Press enter to continue...')
+        console.print('Shiny found!')
+        input('Press enter to exit...')
         os._exit(0)
 
     if GetTrainer()['state'] == TrainerState.OVERWORLD:
@@ -437,7 +538,7 @@ def EncounterPokemon(pokemon: dict):
 #            blocked = GetBlockList()
 #            opponent = GetOpponent()
 #            if opponent['name'] in blocked['block_list']:
-#                log.info('---- Pokemon is in list of non-catpures. Fleeing battle ----')
+#                console.print('---- Pokemon is in list of non-catpures. Fleeing battle ----')
 #                if config['discord']['messages']:
 #                    try:
 #                        content = f'Encountered shiny {opponent['name']}... but catching this species is disabled. Fleeing battle!'
@@ -492,7 +593,7 @@ def EncounterPokemon(pokemon: dict):
 #
 #        if replace_battler:
 #            if not config['cycle_lead_pokemon']:
-#                log.info('Lead Pokemon can no longer battle. Ending the script!')
+#                console.print('Lead Pokemon can no longer battle. Ending the script!')
 #                FleeBattle()
 #                return False
 #            else:
@@ -513,12 +614,12 @@ def EncounterPokemon(pokemon: dict):
 #                lead_idx = party_pp.index(highest_pp)
 #
 #                if highest_pp == 0:
-#                    log.info('Ran out of Pokemon to battle with. Ending the script!')
+#                    console.print('Ran out of Pokemon to battle with. Ending the script!')
 #                    os._exit(1)
 #
 #                lead = GetParty()[lead_idx]
 #                if lead is not None:
-#                    log.info(f'Replacing lead battler with {lead['name']} (Party slot {lead_idx})')
+#                    console.print(f'Replacing lead battler with {lead['name']} (Party slot {lead_idx})')
 #
 #                PressButton('A')
 #                WaitFrames(60)
@@ -540,7 +641,7 @@ def EncounterPokemon(pokemon: dict):
 #                PressButton('A')
 #                WaitFrames(60)
 #
-#                log.info('Replaced lead Pokemon!')
+#                console.print('Replaced lead Pokemon!')
 #
 #                for _ in range(5):
 #                    PressButton('B')

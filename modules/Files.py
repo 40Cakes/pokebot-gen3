@@ -1,9 +1,6 @@
 import os
 import shutil
-import logging
-
-log = logging.getLogger(__name__)
-
+from modules.Console import console
 
 def ReadFile(file: str):
     """
@@ -17,8 +14,8 @@ def ReadFile(file: str):
                 return open_file.read()
         else:
             return None
-    except Exception as e:
-        log.exception(str(e))
+    except Exception:
+        console.print_exception()
         return None
 
 
@@ -37,8 +34,8 @@ def WriteFile(file: str, value: str, mode: str = 'w'):
         with open(file, mode=mode, encoding='utf-8') as save_file:
             save_file.write(value)
             return True
-    except Exception as e:
-        log.exception(str(e))
+    except Exception:
+        console.print_exception()
         return False
 
 def BackupFolder(source, destination):
