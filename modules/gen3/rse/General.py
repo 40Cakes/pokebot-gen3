@@ -1,10 +1,8 @@
 import random
-import logging
-from modules.Inputs import PressButton
+from modules.Console import console
+from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import GetTrainer, GetOpponent, OpponentChanged, TrainerState
 from modules.Stats import EncounterPokemon
-
-log = logging.getLogger(__name__)
 
 
 def ModeSpin():
@@ -17,5 +15,6 @@ def ModeSpin():
             directions = ['Up', 'Right', 'Down', 'Left']
             directions.remove(GetTrainer()['facing'])
             PressButton([random.choice(directions)])
-    except Exception as e:
-        log.exception(str(e))
+            WaitFrames(6)
+    except Exception:
+        console.print_exception()
