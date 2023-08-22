@@ -102,66 +102,141 @@ def GetEncounterRate():
         console.print_exception()
         return 0
 
+# TODO TypeColour()
+def IVColour(value: int):
+    if value == 31:
+        return 'yellow'
+    if value == 0:
+        return 'purple'
+    if value >= 26:
+        return 'green'
+    if value <= 5:
+        return 'red'
+    return 'white'
+
+
+def IVSumColour(value: int):
+    if value == 186:
+        return 'yellow'
+    if value == 0:
+        return 'purple'
+    if value >= 140:
+        return 'green'
+    if value <= 50:
+        return 'red'
+    return 'white'
+
+
+def SVColour(value: int):
+    if value <= 7:
+        return 'yellow'
+    if value >= 65528:
+        return 'purple'
+    return 'red'
+
 
 def PrintStats(pokemon: dict, stats: dict):
-        console.rule(pokemon['name'])
+        console.rule(pokemon['name'], style=SVColour(pokemon['shinyValue']))
+
+        pokemon_table = Table()
+        pokemon_table.add_column('PID', justify='center', width=10)
+        pokemon_table.add_column('Level', justify='center')
+        pokemon_table.add_column('Item', justify='center', width=10)
+        pokemon_table.add_column('Nature', justify='center', width=10)
+        pokemon_table.add_column('Ability', justify='center', width=15)
+        pokemon_table.add_column('Hidden Power', justify='center', width=10)
+        pokemon_table.add_column('Shiny Value', justify='center', style=SVColour(pokemon['shinyValue']), width=10)
+        pokemon_table.add_row(
+            str(pokemon['pid']),
+            str(pokemon['level']),
+            pokemon['item']['name'],
+            pokemon['nature'],
+            pokemon['ability'],
+            pokemon['hiddenPower'],
+            '{:,}'.format(pokemon['shinyValue'])
+        )
+        console.print(pokemon_table)
 
         iv_table = Table(title='{} IVs'.format(pokemon['name']))
-        iv_table.add_column('HP')
-        iv_table.add_column('ATK')
-        iv_table.add_column('DEF')
-        iv_table.add_column('SPATK')
-        iv_table.add_column('SPDEF')
-        iv_table.add_column('SPD')
+        iv_table.add_column('HP', justify='center', style=IVColour(pokemon['IVs']['hp']))
+        iv_table.add_column('ATK', justify='center', style=IVColour(pokemon['IVs']['attack']))
+        iv_table.add_column('DEF', justify='center', style=IVColour(pokemon['IVs']['defense']))
+        iv_table.add_column('SPATK', justify='center', style=IVColour(pokemon['IVs']['spAttack']))
+        iv_table.add_column('SPDEF', justify='center', style=IVColour(pokemon['IVs']['spDefense']))
+        iv_table.add_column('SPD', justify='center', style=IVColour(pokemon['IVs']['speed']))
+        iv_table.add_column('Total', justify='right', style=IVSumColour(pokemon['IVSum']))
         iv_table.add_row(
             '{:,}'.format(pokemon['IVs']['hp']),
             '{:,}'.format(pokemon['IVs']['attack']),
             '{:,}'.format(pokemon['IVs']['defense']),
             '{:,}'.format(pokemon['IVs']['spAttack']),
             '{:,}'.format(pokemon['IVs']['spDefense']),
-            '{:,}'.format(pokemon['IVs']['speed'])
+            '{:,}'.format(pokemon['IVs']['speed']),
+            '{:,}'.format(pokemon['IVSum'])
         )
         console.print(iv_table)
 
+        move_table = Table(title='{} Moves'.format(pokemon['name']))
+        move_table.add_column('Name', justify='left', width=20)
+        move_table.add_column('Kind', justify='center', width=10)
+        move_table.add_column('Type', justify='center', width=10)
+        move_table.add_column('Power', justify='center', width=10)
+        move_table.add_column('Accuracy', justify='center', width=10)
+        move_table.add_column('PP', justify='center', width=5)
+        for i in range(4):
+            move_table.add_row(
+                pokemon['moves'][i]['name'],
+                pokemon['moves'][i]['kind'],
+                pokemon['moves'][i]['type'],
+                str(pokemon['moves'][i]['power']),
+                str(pokemon['moves'][i]['accuracy']),
+                str(pokemon['moves'][i]['remaining_pp'])
+            )
+        console.print(move_table)
+
         stats_table = Table(title='Statistics')
-        stats_table.add_column('')
-        stats_table.add_column('Phase')
-        stats_table.add_column('Total')
+        stats_table.add_column('', justify='left', width=10)
+        stats_table.add_column('Phase IV Records', justify='center', width=10)
+        stats_table.add_column('Phase SV Records', justify='center', width=15)
+        stats_table.add_column('Phase Encounters', justify='right', width=10)
+        stats_table.add_column('Phase %', justify='right', width=10)
+        stats_table.add_column('Shiny Encounters', justify='right', width=10)
+        stats_table.add_column('Total Encounters', justify='right', width=10)
+
+        recent_pokemon = []
+        for p in GetEncounterLog()['encounter_log']:
+            recent_pokemon.append(p['pokemon']['name'])
+
+        for p in sorted(set(recent_pokemon)):
+            stats_table.add_row(
+                p,
+                '[red]{:,}[/] / [green]{:,}'.format(
+                    stats['pokemon'][p]['phase_lowest_iv_sum'],
+                    stats['pokemon'][p]['phase_highest_iv_sum']),
+                '[green]{:,}[/] / [red]{:,}'.format(
+                    stats['pokemon'][p]['phase_lowest_sv'],
+                    stats['pokemon'][p]['phase_highest_sv']),
+                '{:,}'.format(stats['pokemon'][p]['phase_encounters']),
+                '{:0.2f}%'.format((stats['pokemon'][p]['phase_encounters']/stats['totals']['phase_encounters'])*100),
+                '{:,}'.format(stats['pokemon'][p].get('shiny_encounters', 0)),
+                '{:,}'.format(stats['pokemon'][p]['encounters'])
+            )
         stats_table.add_row(
-            pokemon['name'],
-            '{:,}'.format(stats['pokemon'][pokemon['name']]['phase_encounters']),
-            '{:,}'.format(stats['pokemon'][pokemon['name']]['encounters'])
+            '[bold yellow]Total',
+            '[red]{:,}[/] / [green]{:,}'.format(
+                stats['totals']['phase_lowest_iv_sum'],
+                stats['totals']['phase_highest_iv_sum']),
+            '[green]{:,}[/] / [red]{:,}'.format(
+                stats['totals']['phase_lowest_sv'],
+                stats['totals']['phase_highest_sv']),
+            '[bold yellow]{:,}'.format(stats['totals']['phase_encounters']),
+            '[bold yellow]100%',
+            '[bold yellow]{:,}'.format(stats['totals'].get('shiny_encounters', 0)),
+            '[bold yellow]{:,}'.format(stats['totals']['encounters'])
         )
         console.print(stats_table)
 
-        console.print('{} encountered at {}'.format(
-            pokemon['name'],
-            pokemon['metLocation']))
-        console.print('Shiny Value (SV): {:,} (is {:,} < 8 = {})'.format(
-            pokemon['shinyValue'],
-            pokemon['shinyValue'],
-            pokemon['shiny']))
-        console.print('Phase encounters: {:,} | {} Phase Encounters: {:,}'.format(
-            stats['totals']['phase_encounters'],
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']]['phase_encounters']))
-        console.print('{} Encounters: {:,} | Lowest {} SV seen this phase: {:,}'.format(
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']]['encounters'],
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']]['phase_lowest_sv']))
-        console.print('Shiny {} Encounters: {:,} | {} Shiny Average: {}'.format(
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']].get('shiny_encounters', 0),
-            pokemon['name'],
-            stats['pokemon'][pokemon['name']].get('shiny_average', 0)))
-        console.print('Total Encounters: {:,} | Total Shiny Encounters: {:,} | Total Shiny Average: {}'.format(
-            stats['totals']['encounters'],
-            stats['totals'].get('shiny_encounters', 0),
-            stats['totals'].get('shiny_average', 0)))
-        console.print('Encounter rate: {:,}/h'.format(
-            GetEncounterRate()))
-        console.rule()
+        console.print('Encounter rate: {:,}/h'.format(GetEncounterRate()))
 
 
 stats = GetStats()  # Load stats
@@ -313,7 +388,7 @@ def LogEncounter(pokemon: dict):
         # Log encounter to encounter_log
         log_obj = {
             'time_encountered': str(datetime.now()),
-            'pokemon_obj': pokemon,
+            'pokemon': pokemon,
             'snapshot_stats': {
                 'phase_encounters': stats['totals']['phase_encounters'],
                 'species_encounters': stats['pokemon'][pokemon['name']]['encounters'],
@@ -332,7 +407,7 @@ def LogEncounter(pokemon: dict):
 
         # Same Pokémon encounter streak records
         if len(encounter_log['encounter_log']) > 1 and \
-                encounter_log['encounter_log'][-2]['pokemon_obj']['name'] == pokemon['name']:
+                encounter_log['encounter_log'][-2]['pokemon']['name'] == pokemon['name']:
             stats['totals']['current_streak'] = stats['totals'].get('current_streak', 0) + 1
         else:
             stats['totals']['current_streak'] = 1
