@@ -109,22 +109,22 @@ class emulator:
 
 
 while True:
-    console.print('Click on an mGBA instance to attach bot to...')
-    fg = win32gui.GetForegroundWindow()
-    title = win32gui.GetWindowText(fg)
-    tid, pid = win32process.GetWindowThreadProcessId(fg)
+    with console.status("[bold purple]Click on an mGBA instance to attach bot to..."):
+        fg = win32gui.GetForegroundWindow()
+        title = win32gui.GetWindowText(fg)
+        tid, pid = win32process.GetWindowThreadProcessId(fg)
 
-    if 'mGBA' in title:
-        mGBA = emulator(pid)
-        if mGBA.game:
-            console.print(f'Bot successfully attached to mGBA PID {pid}!')
-            console.print(f'Detected game: {mGBA.game} ({mGBA.game_code})')
-            break
-        else:
-            console.print('[bold red]Unsupported ROM detected![/]')
-            input('Press enter to exit...')
-            os._exit(1)
-    time.sleep(0.5)
+        if 'mGBA' in title:
+            mGBA = emulator(pid)
+            if mGBA.game:
+                console.print(f'Bot successfully attached to mGBA PID {pid}!')
+                console.print(f'Detected game: {mGBA.game} ({mGBA.game_code})')
+                break
+            else:
+                console.print('[bold red]Unsupported ROM detected![/]')
+                input('Press enter to exit...')
+                os._exit(1)
+        time.sleep(0.5)
 
 
 def ReadSymbol(name: str, offset: int = 0, size: int = 0):
