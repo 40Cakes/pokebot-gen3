@@ -56,5 +56,6 @@ def FleeBattle() -> NoReturn:
     """
     Readable function to select and execute the Run option from the battle menu.
     """
+    select_battle_option(3, cursor_type='gActionSelectionCursor')
     while GetTrainer()['state'] != GameState.OVERWORLD:
-        select_battle_option(3, cursor_type='gActionSelectionCursor')
+        PressButton("B")
