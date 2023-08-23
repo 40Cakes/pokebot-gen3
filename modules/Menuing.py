@@ -1,9 +1,11 @@
 from typing import NoReturn
+import os
 
 from modules.Config import config
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import ReadSymbol, GetTrainer, pokemon_list, type_list, GetParty, GetOpponent, DecodeString
 from modules.data.GameState import GameState
+from modules.Console import console
 
 
 def SelectBattleOption(desired_option: int, cursor_type: str = "gActionSelectionCursor") -> NoReturn:
@@ -140,7 +142,7 @@ def BattleOpponent() -> bool:
         best_move = FindEffectiveMove(GetParty()[0], GetOpponent())
 
         if best_move["power"] < 10:
-            log.info("Lead pokemon has no effective moves to battle the foe!")
+            console.print("Lead pokemon has no effective moves to battle the foe!")
             FleeBattle()
             os._exit(0)
             # For future use when auto lead rotation is on
@@ -148,14 +150,14 @@ def BattleOpponent() -> bool:
 
         # If effective moves are present, let's fight this thing!
         while "What will" in DecodeString(ReadSymbol("gDisplayedStringBattle")):
-            log.info("Navigating to the Fight button...")
-            select_battle_option(0, cursor_type="gActionSelectionCursor")
+            console.print("Navigating to the Fight button...")
+            SelectBattleOption(0, cursor_type="gActionSelectionCursor")
 
         WaitFrames(5)
 
-        log.info(f"Best move against foe is {best_move['name']} (Effective power is {best_move['power']})")
+        console.print(f"Best move against foe is {best_move['name']} (Effective power is {best_move['power']})")
 
-        select_battle_option(best_move["index"], cursor_type="gMoveSelectionCursor")
+        SelectBattleOption(best_move["index"], cursor_type="gMoveSelectionCursor")
 
         WaitFrames(5)
 
@@ -172,29 +174,23 @@ def BattleOpponent() -> bool:
         foe_fainted = GetOpponent()["stats"]["hp"] == 0
 
     if ally_fainted:
-        log.info("Lead Pokemon fainted!")
+        console.print("Lead Pokemon fainted!")
         FleeBattle()
         return False
     return True
 
 
 def handle_move_learning():
-    print(config["new_move_mode"])
     match config["new_move_mode"]:
         case "stop":
             os._exit(1)
         case "cancel":
             # TODO: figure out what gamestate corresponds to evolution and allow evolution as a config option maybe?
             while GetTrainer()["state"] != GameState.OVERWORLD:
-                print(GetTrainer()['state'])
-                print(DecodeString(ReadSymbol('gDisplayedStringBattle')))
                 if "Stop learning" not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
-                    print("Pressing B")
                     PressButton(["B"])
                 else:
-                    print("Pressing A")
                     PressButton(["A"])
-            print(GetTrainer()['state'])
         case "learn_best":
             # TODO: figure this out
 
@@ -250,4 +246,4 @@ def handle_move_learning():
             os._exit(0)
             """
         case _:
-            log.info("Config new_move_mode invalid.")
+            console.print("Config new_move_mode invalid.")
