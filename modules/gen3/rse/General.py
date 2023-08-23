@@ -72,13 +72,14 @@ def Starter(choice: str):
 
 def FRLGStarter(Choice):
     try:
-        ListOfRngSeeds = []
+        RNGStateHistory = GetRNGStateHistory(GetTrainer()['tid'], Choice)
         while True:
             Out = 0
-            RNG = ReadSymbol('gRngValue', size = 4)
-            while RNG in ListOfRngSeeds:
-                RNG = ReadSymbol('gRngValue', size = 4)
-            ListOfRngSeeds.append(RNG)
+            RNG = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
+            while RNG in RNGStateHistory['rng']:
+                RNG = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
+            RNGStateHistory['rng'].append(RNG)
+            SaveRNGStateHistory(GetTrainer()['tid'],Choice, RNGStateHistory)
             while ReadSymbol('gStringVar4', size = 4) != b'\xbe\xe3\x00\xed':
                 PressButton(['A'],10)
             while GetTrainer()['facing'] != 'Down':
