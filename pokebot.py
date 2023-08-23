@@ -12,7 +12,7 @@ try:
             ModeSpin()
         case 'Starter':
             from modules.gen3.rse.General import RSEstarters
-            RSEstarters(config[''])
+            RSEstarters(config['starter'])
 
 except Exception as e:
     print(str(e))
