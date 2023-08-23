@@ -23,6 +23,7 @@ def ModeSpin():
             WaitFrames(6)
             while CurrentFace == NewFace:
                 PressButton([random.choice(directions)])
+                NewFace = GetTrainer()['facing']
                 WaitFrames(6)
 
     except Exception:
