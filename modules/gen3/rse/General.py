@@ -21,7 +21,7 @@ def ModeSpin():
             PressButton([random.choice(directions)])
             NewFace = GetTrainer()['facing']
             WaitFrames(6)
-            while CurrentFace == NewFace:
+            if CurrentFace == NewFace:
                 PressButton([random.choice(directions)])
                 NewFace = GetTrainer()['facing']
                 WaitFrames(6)
