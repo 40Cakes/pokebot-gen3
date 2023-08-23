@@ -1,8 +1,11 @@
 import random
+import json
 from modules.Console import console
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import GetTrainer, GetOpponent, OpponentChanged, TrainerState, ReadSymbol, GetParty
 from modules.Stats import EncounterPokemon
+from modules.Files import ReadFile, WriteFile
+
 
 
 def ModeSpin():
@@ -21,7 +24,16 @@ def ModeSpin():
 
 def Starter(Choice):
     try:
-        ListOfRngSeeds = []
+        default = {"ListOfRngSeeds": []}
+        try:
+            tid = GetTrainer()['tid']
+            mon = Choice
+            file = ReadFile(f"stats/{tid}/{mon.lower()}.json")
+            ListOfRngSeeds = json.load(file) if file else default
+        except Exception:
+            console.print_exception()
+
+
         while True:
             x = 0
             # i = i + 1
@@ -44,7 +56,9 @@ def Starter(Choice):
                 RNG = ReadSymbol('gRngValue', size = 4)
                 if RNG not in ListOfRngSeeds:
                     PressButton(['A'], 1)
-                    ListOfRngSeeds.append(RNG)
+                    WriteFile(f"stats/{GetTrainer()['tid']}/{Choice}.json",
+                              json.dumps(ListOfRngSeeds, indent=4, sort_keys=True))
+                    #ListOfRngSeeds.append(RNG)
                     #log.info(ReadSymbol('gRngValue', size = 4))
 
                     while ReadSymbol('gTasks', size = 1) != b'\x0D':
@@ -59,15 +73,23 @@ def Starter(Choice):
     except Exception:
         console.print_exception()
 
-def FRLGStarter():
+def FRLGStarter(Choice):
     try:
-        ListOfRngSeeds = []
+        default = {"ListOfRngSeeds": []}
+        try:
+            tid = GetTrainer()['tid']
+            mon = Choice
+            file = ReadFile(f"stats/{tid}/{mon.lower()}.json")
+            ListOfRngSeeds = json.load(file) if file else default
+        except Exception:
+            console.print_exception()
         while True:
             Out = 0
             RNG = ReadSymbol('gRngValue', size = 4)
             while RNG in ListOfRngSeeds:
                 RNG = ReadSymbol('gRngValue', size = 4)
-            ListOfRngSeeds.append(RNG)
+            WriteFile(f"stats/{GetTrainer()['tid']}/{Choice}.json",
+                      json.dumps(ListOfRngSeeds, indent=4, sort_keys=True))
             while ReadSymbol('gStringVar4', size = 4) != b'\xbe\xe3\x00\xed':
                 PressButton(['A'],10)
             while GetTrainer()['facing'] != 'Down':

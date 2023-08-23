@@ -126,7 +126,8 @@ while True:
                 os._exit(1)
         time.sleep(0.5)
 
-
+def GetGame():
+    return mGBA.game
 def ReadSymbol(name: str, offset: int = 0, size: int = 0):
     """
     This function uses the symbol tables from the Pokémon decompilation projects found here: https://github.com/pret
