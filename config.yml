@@ -92,6 +92,15 @@ pickup_threshold: 3
 # Valid options: `true`, `false`
 log_encounters: true
 
+# Console output
+# Verbose options will provide stats in a formatted table, basic options will give a condensed, single line output
+# Valid options: `verbose`, `basic`, `disable`
+console:
+  encounter_data: basic
+  encounter_ivs: basic
+  encounter_moves: basic
+  statistics: basic
+
 # Pokeball overrides to catch certain Pokémon with specific balls
 # Balls at the top of the list are highest priority, bottom is least priority
 # The bot will fall back to `pokeball_priority` option if you have no balls specified in the list

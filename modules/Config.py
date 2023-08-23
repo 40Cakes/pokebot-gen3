@@ -77,6 +77,33 @@ properties:
         maximum: 6
     log_encounters:
         type: boolean
+    console:
+        type: object
+        properties:
+            encounter_data:
+                type: string
+                enum:
+                    - verbose
+                    - basic
+                    - disable
+            encounter_ivs:
+                type: string
+                enum:
+                    - verbose
+                    - basic
+                    - disable
+            encounter_moves:
+                type: string
+                enum:
+                    - verbose
+                    - basic
+                    - disable
+            total_stats:
+                type: string
+                enum:
+                    - verbose
+                    - basic
+                    - disable
     ball_priority:
         type: array
         uniqueItems: true

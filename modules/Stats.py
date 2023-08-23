@@ -136,108 +136,188 @@ def SVColour(value: int):
 
 
 def PrintStats(pokemon: dict, stats: dict):
+    try:
         console.rule(pokemon['name'], style=SVColour(pokemon['shinyValue']))
 
-        pokemon_table = Table()
-        pokemon_table.add_column('PID', justify='center', width=10)
-        pokemon_table.add_column('Level', justify='center')
-        pokemon_table.add_column('Item', justify='center', width=10)
-        pokemon_table.add_column('Nature', justify='center', width=10)
-        pokemon_table.add_column('Ability', justify='center', width=15)
-        pokemon_table.add_column('Hidden Power', justify='center', width=10)
-        pokemon_table.add_column('Shiny Value', justify='center', style=SVColour(pokemon['shinyValue']), width=10)
-        pokemon_table.add_row(
-            str(pokemon['pid']),
-            str(pokemon['level']),
-            pokemon['item']['name'],
-            pokemon['nature'],
-            pokemon['ability'],
-            pokemon['hiddenPower'],
-            '{:,}'.format(pokemon['shinyValue'])
-        )
-        console.print(pokemon_table)
+        match config['console']['encounter_data']:
+            case 'verbose':
+                pokemon_table = Table()
+                pokemon_table.add_column('PID', justify='center', width=10)
+                pokemon_table.add_column('Level', justify='center')
+                pokemon_table.add_column('Item', justify='center', width=10)
+                pokemon_table.add_column('Nature', justify='center', width=10)
+                pokemon_table.add_column('Ability', justify='center', width=15)
+                pokemon_table.add_column('Hidden Power', justify='center', width=10)
+                pokemon_table.add_column('Shiny Value', justify='center', style=SVColour(pokemon['shinyValue']), width=10)
+                pokemon_table.add_row(
+                    str(pokemon['pid']),
+                    str(pokemon['level']),
+                    pokemon['item']['name'],
+                    pokemon['nature'],
+                    pokemon['ability'],
+                    pokemon['hiddenPower'],
+                    '{:,}'.format(pokemon['shinyValue'])
+                )
+                console.print(pokemon_table)
+            case 'basic':
+                console.print('[purple]{}[/]: PID: {} | Lv.: {:,} | Item: {} | Nature: {} | Ability: {} | Shiny Value: {:,}'.format(
+                    pokemon['name'],
+                    pokemon['pid'],
+                    pokemon['level'],
+                    pokemon['item']['name'],
+                    pokemon['nature'],
+                    pokemon['ability'],
+                    pokemon['shinyValue']))
 
-        iv_table = Table(title='{} IVs'.format(pokemon['name']))
-        iv_table.add_column('HP', justify='center', style=IVColour(pokemon['IVs']['hp']))
-        iv_table.add_column('ATK', justify='center', style=IVColour(pokemon['IVs']['attack']))
-        iv_table.add_column('DEF', justify='center', style=IVColour(pokemon['IVs']['defense']))
-        iv_table.add_column('SPATK', justify='center', style=IVColour(pokemon['IVs']['spAttack']))
-        iv_table.add_column('SPDEF', justify='center', style=IVColour(pokemon['IVs']['spDefense']))
-        iv_table.add_column('SPD', justify='center', style=IVColour(pokemon['IVs']['speed']))
-        iv_table.add_column('Total', justify='right', style=IVSumColour(pokemon['IVSum']))
-        iv_table.add_row(
-            '{:,}'.format(pokemon['IVs']['hp']),
-            '{:,}'.format(pokemon['IVs']['attack']),
-            '{:,}'.format(pokemon['IVs']['defense']),
-            '{:,}'.format(pokemon['IVs']['spAttack']),
-            '{:,}'.format(pokemon['IVs']['spDefense']),
-            '{:,}'.format(pokemon['IVs']['speed']),
-            '{:,}'.format(pokemon['IVSum'])
-        )
-        console.print(iv_table)
+        match config['console']['encounter_ivs']:
+            case 'verbose':
+                iv_table = Table(title='{} IVs'.format(pokemon['name']))
+                iv_table.add_column('HP', justify='center', style=IVColour(pokemon['IVs']['hp']))
+                iv_table.add_column('ATK', justify='center', style=IVColour(pokemon['IVs']['attack']))
+                iv_table.add_column('DEF', justify='center', style=IVColour(pokemon['IVs']['defense']))
+                iv_table.add_column('SPATK', justify='center', style=IVColour(pokemon['IVs']['spAttack']))
+                iv_table.add_column('SPDEF', justify='center', style=IVColour(pokemon['IVs']['spDefense']))
+                iv_table.add_column('SPD', justify='center', style=IVColour(pokemon['IVs']['speed']))
+                iv_table.add_column('Total', justify='right', style=IVSumColour(pokemon['IVSum']))
+                iv_table.add_row(
+                    '{}'.format(pokemon['IVs']['hp']),
+                    '{}'.format(pokemon['IVs']['attack']),
+                    '{}'.format(pokemon['IVs']['defense']),
+                    '{}'.format(pokemon['IVs']['spAttack']),
+                    '{}'.format(pokemon['IVs']['spDefense']),
+                    '{}'.format(pokemon['IVs']['speed']),
+                    '{}'.format(pokemon['IVSum'])
+                )
+                console.print(iv_table)
+            case 'basic':
+                console.print('[purple]IVs[/]: HP: [{}]{}[/] | ATK: [{}]{}[/] | DEF: [{}]{}[/] | SPATK: [{}]{}[/] | SPDEF: [{}]{}[/] | SPD: [{}]{}[/] | Sum: [{}]{}[/]'.format(
+                    IVColour(pokemon['IVs']['hp']),
+                    pokemon['IVs']['hp'],
+                    IVColour(pokemon['IVs']['attack']),
+                    pokemon['IVs']['attack'],
+                    IVColour(pokemon['IVs']['defense']),
+                    pokemon['IVs']['defense'],
+                    IVColour(pokemon['IVs']['spAttack']),
+                    pokemon['IVs']['spAttack'],
+                    IVColour(pokemon['IVs']['spDefense']),
+                    pokemon['IVs']['spDefense'],
+                    IVColour(pokemon['IVs']['speed']),
+                    pokemon['IVs']['speed'],
+                    IVSumColour(pokemon['IVSum']),
+                    pokemon['IVSum']))
 
-        move_table = Table(title='{} Moves'.format(pokemon['name']))
-        move_table.add_column('Name', justify='left', width=20)
-        move_table.add_column('Kind', justify='center', width=10)
-        move_table.add_column('Type', justify='center', width=10)
-        move_table.add_column('Power', justify='center', width=10)
-        move_table.add_column('Accuracy', justify='center', width=10)
-        move_table.add_column('PP', justify='center', width=5)
-        for i in range(4):
-            move_table.add_row(
-                pokemon['moves'][i]['name'],
-                pokemon['moves'][i]['kind'],
-                pokemon['moves'][i]['type'],
-                str(pokemon['moves'][i]['power']),
-                str(pokemon['moves'][i]['accuracy']),
-                str(pokemon['moves'][i]['remaining_pp'])
-            )
-        console.print(move_table)
+        match config['console']['encounter_moves']:
+            case 'verbose':
+                move_table = Table(title='{} Moves'.format(pokemon['name']))
+                move_table.add_column('Name', justify='left', width=20)
+                move_table.add_column('Kind', justify='center', width=10)
+                move_table.add_column('Type', justify='center', width=10)
+                move_table.add_column('Power', justify='center', width=10)
+                move_table.add_column('Accuracy', justify='center', width=10)
+                move_table.add_column('PP', justify='center', width=5)
+                for i in range(4):
+                    if pokemon['moves'][i]['name'] != 'None':
+                        move_table.add_row(
+                            pokemon['moves'][i]['name'],
+                            pokemon['moves'][i]['kind'],
+                            pokemon['moves'][i]['type'],
+                            str(pokemon['moves'][i]['power']),
+                            str(pokemon['moves'][i]['accuracy']),
+                            str(pokemon['moves'][i]['remaining_pp'])
+                        )
+                console.print(move_table)
+            case 'basic':
+                for i in range(4):
+                    if pokemon['moves'][i]['name'] != 'None':
+                        console.print('[purple]Move {}[/]: {} | {} | {} | Pwr: {} | Acc: {} | PP: {}'.format(
+                            i + 1,
+                            pokemon['moves'][i]['name'],
+                            pokemon['moves'][i]['kind'],
+                            pokemon['moves'][i]['type'],
+                            pokemon['moves'][i]['power'],
+                            pokemon['moves'][i]['accuracy'],
+                            pokemon['moves'][i]['remaining_pp']
+                        ))
 
-        stats_table = Table(title='Statistics')
-        stats_table.add_column('', justify='left', width=10)
-        stats_table.add_column('Phase IV Records', justify='center', width=10)
-        stats_table.add_column('Phase SV Records', justify='center', width=15)
-        stats_table.add_column('Phase Encounters', justify='right', width=10)
-        stats_table.add_column('Phase %', justify='right', width=10)
-        stats_table.add_column('Shiny Encounters', justify='right', width=10)
-        stats_table.add_column('Total Encounters', justify='right', width=10)
+        match config['console']['encounter_moves']:
+            case 'verbose':
+                stats_table = Table(title='Statistics')
+                stats_table.add_column('', justify='left', width=10)
+                stats_table.add_column('Phase IV Records', justify='center', width=10)
+                stats_table.add_column('Phase SV Records', justify='center', width=15)
+                stats_table.add_column('Phase Encounters', justify='right', width=10)
+                stats_table.add_column('Phase %', justify='right', width=10)
+                stats_table.add_column('Shiny Encounters', justify='right', width=10)
+                stats_table.add_column('Total Encounters', justify='right', width=10)
 
-        recent_pokemon = []
-        for p in GetEncounterLog()['encounter_log']:
-            recent_pokemon.append(p['pokemon']['name'])
+                recent_pokemon = []
+                for p in GetEncounterLog()['encounter_log']:
+                    recent_pokemon.append(p['pokemon']['name'])
 
-        for p in sorted(set(recent_pokemon)):
-            stats_table.add_row(
-                p,
-                '[red]{:,}[/] / [green]{:,}'.format(
-                    stats['pokemon'][p]['phase_lowest_iv_sum'],
-                    stats['pokemon'][p]['phase_highest_iv_sum']),
-                '[green]{:,}[/] / [red]{:,}'.format(
-                    stats['pokemon'][p]['phase_lowest_sv'],
-                    stats['pokemon'][p]['phase_highest_sv']),
-                '{:,}'.format(stats['pokemon'][p]['phase_encounters']),
-                '{:0.2f}%'.format((stats['pokemon'][p]['phase_encounters']/stats['totals']['phase_encounters'])*100),
-                '{:,}'.format(stats['pokemon'][p].get('shiny_encounters', 0)),
-                '{:,}'.format(stats['pokemon'][p]['encounters'])
-            )
-        stats_table.add_row(
-            '[bold yellow]Total',
-            '[red]{:,}[/] / [green]{:,}'.format(
-                stats['totals']['phase_lowest_iv_sum'],
-                stats['totals']['phase_highest_iv_sum']),
-            '[green]{:,}[/] / [red]{:,}'.format(
-                stats['totals']['phase_lowest_sv'],
-                stats['totals']['phase_highest_sv']),
-            '[bold yellow]{:,}'.format(stats['totals']['phase_encounters']),
-            '[bold yellow]100%',
-            '[bold yellow]{:,}'.format(stats['totals'].get('shiny_encounters', 0)),
-            '[bold yellow]{:,}'.format(stats['totals']['encounters'])
-        )
-        console.print(stats_table)
+                for p in sorted(set(recent_pokemon)):
+                    stats_table.add_row(
+                        p,
+                        '[red]{}[/] / [green]{}'.format(
+                            stats['pokemon'][p].get('phase_lowest_iv_sum', -1),
+                            stats['pokemon'][p].get('phase_highest_iv_sum', -1)),
+                        '[green]{:,}[/] / [red]{:,}'.format(
+                            stats['pokemon'][p].get('phase_lowest_sv', -1),
+                            stats['pokemon'][p].get('phase_highest_sv', -1)),
+                        '{:,}'.format(stats['pokemon'][p].get('phase_encounters', 0)),
+                        '{:0.2f}%'.format(
+                            (stats['pokemon'][p].get('phase_encounters', 0) /
+                             stats['totals'].get('phase_encounters', 0)) * 100),
+                        '{:,}'.format(stats['pokemon'][p].get('shiny_encounters', 0)),
+                        '{:,}'.format(stats['pokemon'][p].get('encounters', 0))
+                    )
+                stats_table.add_row(
+                    '[bold yellow]Total',
+                    '[red]{}[/] / [green]{}'.format(
+                        stats['totals'].get('phase_lowest_iv_sum', -1),
+                        stats['totals'].get('phase_highest_iv_sum', -1)),
+                    '[green]{:,}[/] / [red]{:,}'.format(
+                        stats['totals'].get('phase_lowest_sv', -1),
+                        stats['totals'].get('phase_highest_sv', -1)),
+                    '[bold yellow]{}'.format(stats['totals'].get('phase_encounters', 0)),
+                    '[bold yellow]100%',
+                    '[bold yellow]{:,}'.format(stats['totals'].get('shiny_encounters', 0)),
+                    '[bold yellow]{:,}'.format(stats['totals'].get('encounters', 0))
+                )
+                console.print(stats_table)
+            case 'basic':
+                console.print('[purple]{}[/] Phase Encounters: {:,} | [purple]{}[/] Total Encounters: {:,} | [purple]{}[/] Shiny Encounters: {:,}'.format(
+                    pokemon['name'],
+                    stats['pokemon'][pokemon['name']].get('phase_encounters', 0),
+                    pokemon['name'],
+                    stats['pokemon'][pokemon['name']].get('encounters', 0),
+                    pokemon['name'],
+                    stats['pokemon'][pokemon['name']].get('shiny_encounters', 0),
+                ))
+                console.print('[purple]{}[/] Phase Encounters: {:,} | [purple]{}[/] Phase IV Records [red]{}[/]/[green]{}[/] | [purple]{}[/] Phase SV Records [green]{:,}[/]/[red]{:,}[/]'.format(
+                    pokemon['name'],
+                    stats['pokemon'][pokemon['name']].get('phase_encounters', 0),
+                    pokemon['name'],
+                    stats['pokemon'][pokemon['name']].get('phase_lowest_iv_sum', -1),
+                    stats['pokemon'][pokemon['name']].get('phase_highest_iv_sum', -1),
+                    pokemon['name'],
+                    stats['pokemon'][pokemon['name']].get('phase_lowest_sv', -1),
+                    stats['pokemon'][pokemon['name']].get('phase_highest_sv', -1)
+                ))
+                console.print('Phase Encounters: {:,} | Phase IV Records [red]{}[/]/[green]{}[/] | Phase SV Records [green]{:,}[/]/[red]{:,}[/]'.format(
+                    stats['totals'].get('phase_encounters', 0),
+                    stats['totals'].get('phase_lowest_iv_sum', -1),
+                    stats['totals'].get('phase_highest_iv_sum', -1),
+                    stats['totals'].get('phase_lowest_sv', -1),
+                    stats['totals'].get('phase_highest_sv', -1)
+                ))
+                console.print('Total Shinies: {:,} | Total Encounters: {:,}'.format(
+                    stats['totals'].get('shiny_encounters', 0),
+                    stats['totals'].get('encounters', 0)
+                ))
 
-        console.print('Encounter rate: {:,}/h'.format(GetEncounterRate()))
-
+        console.print('[purple]Encounter rate[/]: {:,}/h'.format(GetEncounterRate()))
+    except Exception:
+        console.print_exception()
 
 stats = GetStats()  # Load stats
 encounter_log = GetEncounterLog() # Load encounter log
