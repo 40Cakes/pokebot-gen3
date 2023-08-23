@@ -14,7 +14,7 @@ from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton
 from modules.Memory import EncodeString, GetTrainer, GetOpponent, ReadSymbol, TrainerState
-
+from modules.Menuing import FleeBattle
 
 os.makedirs('stats', exist_ok=True)
 files = {
@@ -518,14 +518,7 @@ def EncounterPokemon(pokemon: dict):
 
         while ReadSymbol('gDisplayedStringBattle', size=4) != b_What:
             PressButton(['B'])
-        while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 1:
-            PressButton(['Right'])
-        while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 3:
-            PressButton(['Down'])
-        while ReadSymbol('gDisplayedStringBattle', size=4) == b_What:
-            PressButton(['A'])
-        while GetTrainer()['state'] != TrainerState.OVERWORLD:
-            PressButton(['B'])
+        FleeBattle()
 
 # TODO
 #    pokemon = GetParty()[0] if starter else GetOpponent()
