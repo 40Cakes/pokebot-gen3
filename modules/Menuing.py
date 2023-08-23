@@ -1,29 +1,12 @@
-import json
-import logging
-import os
-from typing import *
+from typing import NoReturn
 
 from modules.Config import config
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import (
-    ReadSymbol,
-    GetTrainer,
-    GetParty,
-    GetOpponent,
-    DecodeString,
-    ParsePokemon,
-)
+from modules.Memory import ReadSymbol, GetTrainer, pokemon_list, type_list, GetParty, GetOpponent, DecodeString
 from modules.data.GameState import GameState
 
-log = logging.getLogger(__name__)
-print(os.getcwd())
-with open("./modules/data/types.json") as f:
-    type_list = json.load(f)
-with open("./modules/data/pokemon.json") as f:
-    pokemon_list = json.load(f)
 
-
-def select_battle_option(desired_option: int, cursor_type: str = "gActionSelectionCursor") -> NoReturn:
+def SelectBattleOption(desired_option: int, cursor_type: str = "gActionSelectionCursor") -> NoReturn:
     """
     Takes a desired battle menu option, navigates to it, and presses it.
 
@@ -33,27 +16,18 @@ def select_battle_option(desired_option: int, cursor_type: str = "gActionSelecti
      options.
     """
     while ReadSymbol(cursor_type)[0] != desired_option:
-        log.info(f"Current cursor position is {ReadSymbol(cursor_type)[0]}, and desired position is {desired_option}")
-        presses = []
         match (ReadSymbol(cursor_type)[0] % 2) - (desired_option % 2):
             case - 1:
                 PressButton(["Right"])
-                presses.append("right")
             case 1:
                 PressButton(["Left"])
-                presses.append("left")
         match (ReadSymbol(cursor_type)[0] // 2) - (desired_option // 2):
             case - 1:
                 PressButton(["Down"])
-                presses.append("down")
             case 1:
                 PressButton(["Up"])
-                presses.append("up")
             case 0:
                 pass
-            case _:
-                log.info(f"Value {desired_option} is out of bounds.")
-        log.info(f"Pressed buttons {' and '.join(presses)}.")
     if ReadSymbol(cursor_type)[0] == desired_option:
         # wait a few frames to ensure the press is received
         WaitFrames(10)
@@ -64,7 +38,7 @@ def FleeBattle() -> NoReturn:
     """
     Readable function to select and execute the Run option from the battle menu.
     """
-    select_battle_option(3, cursor_type='gActionSelectionCursor')
+    SelectBattleOption(3, cursor_type='gActionSelectionCursor')
     while GetTrainer()['state'] != GameState.OVERWORLD:
         PressButton(["B"])
 

@@ -71,7 +71,7 @@ battle: false
 # Toggle handling of new move learning
 # If stop is selected, the program will exit and let the user take control. If cancel is selected, all new moves will
 # not be learned. This will also cancel any evolutions that happen during run time.
-# Valid options: 'stop', 'cancel'
+# Valid options: `stop`, `cancel`
 new_move_mode: stop
 
 # Set true if the Deoxys puzzle is solved already and the last save is on the tile in front of the red triangle
