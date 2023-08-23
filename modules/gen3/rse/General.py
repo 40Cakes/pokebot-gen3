@@ -24,14 +24,7 @@ def ModeSpin():
 
 def Starter(Choice):
     try:
-        default = {"ListOfRngSeeds": []}
-        try:
-            tid = GetTrainer()['tid']
-            mon = Choice
-            file = ReadFile(f"stats/{tid}/{mon.lower()}.json")
-            ListOfRngSeeds = json.load(file) if file else default
-        except Exception:
-            console.print_exception()
+        ListOfRngSeeds = []
 
 
         while True:
@@ -56,9 +49,7 @@ def Starter(Choice):
                 RNG = ReadSymbol('gRngValue', size = 4)
                 if RNG not in ListOfRngSeeds:
                     PressButton(['A'], 1)
-                    WriteFile(f"stats/{GetTrainer()['tid']}/{Choice}.json",
-                              json.dumps(ListOfRngSeeds, indent=4, sort_keys=True))
-                    #ListOfRngSeeds.append(RNG)
+                    ListOfRngSeeds.append(RNG)
                     #log.info(ReadSymbol('gRngValue', size = 4))
 
                     while ReadSymbol('gTasks', size = 1) != b'\x0D':
@@ -75,21 +66,13 @@ def Starter(Choice):
 
 def FRLGStarter(Choice):
     try:
-        default = {"ListOfRngSeeds": []}
-        try:
-            tid = GetTrainer()['tid']
-            mon = Choice
-            file = ReadFile(f"stats/{tid}/{mon.lower()}.json")
-            ListOfRngSeeds = json.load(file) if file else default
-        except Exception:
-            console.print_exception()
+        ListOfRngSeeds = []
         while True:
             Out = 0
             RNG = ReadSymbol('gRngValue', size = 4)
             while RNG in ListOfRngSeeds:
                 RNG = ReadSymbol('gRngValue', size = 4)
-            WriteFile(f"stats/{GetTrainer()['tid']}/{Choice}.json",
-                      json.dumps(ListOfRngSeeds, indent=4, sort_keys=True))
+            ListOfRngSeeds.append(RNG)
             while ReadSymbol('gStringVar4', size = 4) != b'\xbe\xe3\x00\xed':
                 PressButton(['A'],10)
             while GetTrainer()['facing'] != 'Down':
