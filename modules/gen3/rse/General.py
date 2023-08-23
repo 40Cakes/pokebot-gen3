@@ -53,10 +53,6 @@ def Starter(Choice):
             while ReadSymbol('gDisplayedStringBattle', size=4) != b'\xd1\xdc\xd5\xe8':
                 PressButton(['B'], 1)
             EncounterPokemon(GetParty()[0])
-            # if(GetParty()[0]['shiny']):
-            #     #log.info('Shiny found!')
-            #     input('Press enter to continue...')
-            #     os._exit(0)
             EncounterPokemon(GetOpponent())
             while ReadSymbol('sStarterLabelWindowId') != b'\x00\x00':
                 PressButton(['A', 'B', 'Start', 'Select'], 1)
