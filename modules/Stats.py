@@ -514,6 +514,8 @@ def EncounterPokemon(pokemon: dict):
 
     if GetTrainer()['state'] == TrainerState.MISC_MENU:
         # Search for the text "What will (Pokémon) do?" in `gDisplayedStringBattle`
+        # TODO support all other language ROMs
+        # Some languages place Pokemon name at the start of `gDisplayedStringBattle`, need to add an offset
         b_What = EncodeString('What')
 
         while ReadSymbol("gDisplayedStringBattle", size=4) != b_What:

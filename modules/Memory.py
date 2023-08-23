@@ -21,6 +21,7 @@ nat_ids_list = json.loads(ReadFile('./modules/data/nat-ids.json'))
 item_list = json.loads(ReadFile('./modules/data/items.json'))
 exp_groups_list = json.loads(ReadFile('./modules/data/exp-groups.json'))
 pokemon_list = json.loads(ReadFile('./modules/data/pokemon.json'))
+type_list = json.loads(ReadFile('./modules/data/types.json'))
 location_list = json.loads(ReadFile('./modules/data/locations.json'))
 hidden_powers_list = json.loads(ReadFile('./modules/data/hidden-powers.json'))
 
