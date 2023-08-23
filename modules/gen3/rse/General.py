@@ -16,9 +16,15 @@ def ModeSpin():
                     continue
                 EncounterPokemon(GetOpponent())
             directions = ['Up', 'Right', 'Down', 'Left']
+            CurrentFace = GetTrainer()['facing']
             directions.remove(GetTrainer()['facing'])
             PressButton([random.choice(directions)])
+            NewFace = GetTrainer()['facing']
             WaitFrames(6)
+            while CurrentFace == NewFace:
+                PressButton([random.choice(directions)])
+                WaitFrames(6)
+
     except Exception:
         console.print_exception()
 
