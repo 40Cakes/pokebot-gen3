@@ -126,8 +126,7 @@ while True:
                 os._exit(1)
         time.sleep(0.5)
 
-def GetGame():
-    return mGBA.game
+
 def ReadSymbol(name: str, offset: int = 0, size: int = 0):
     """
     This function uses the symbol tables from the Pokémon decompilation projects found here: https://github.com/pret
@@ -503,7 +502,7 @@ def ParsePokemon(b_Pokemon: bytes):
 def GetParty():
     party = {}
     b_gPlayerParty = ReadSymbol('gPlayerParty')
-    party_count = int.from_bytes(ReadSymbol('gPlayerPartyCount'),'little')
+    party_count = int.from_bytes(ReadSymbol('gPlayerPartyCount'), 'little')
     if party_count:
         for p in range(party_count):
             o = p * 100

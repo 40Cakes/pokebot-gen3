@@ -4,11 +4,17 @@
 
 # Bot mode
 # See Readme.md for a list of what each mode does and how to set it up
-# Valid options: `spin`, `starter`
+# Valid options: `spin`, `starters`
 # TODO: `manual`, `sweet scent`, `bunny hop`, `coords`, `bonk`, `fishing`, `starters`, `lugia`, `ho-oh`,
 # TODO:  `petalburg loop`, `rayquaza`, `groudon`, `kyogre`, `southern island`, `mew`, `regis`, `deoxys runaways`
 # TODO: `deoxys reset`, `fossil`, `castform`, `beldum`, `johto starters`, `buy premier balls`
-bot_mode: spin
+bot_mode: starters
+
+# Starters - this config is used if `bot_mode` is set to `starters`
+# Choose a Pokémon to soft reset for, save the game with trainer facing the bag
+# TODO: add Johto + FRLG starters as options in `starter`
+# Valid options: `mudkip`, `treecko`, `torchic`, `bulbasaur`, `charmander`, `squirtle`
+starter: mudkip
 
 # Coords config - this config is used if `bot_mode` is set to `coords`
 # The bot will run between 2 different X,Y coordinates
@@ -26,12 +32,6 @@ coords:
 # Bonk mode will run left/right or up/down repeatedly until the trainer bonks a wall
 # Valid options: `horizontal`, `vertical`
 bonk_direction: horizontal
-
-# Starters - this config is used if `bot_mode` is set to `starters`
-# Choose a Pokémon to soft reset for, save the game with trainer facing the bag
-# TODO: add Johto + FRLG starters as options in `starter`
-# Valid options: `mudkip`, `treecko`, `torchic`, `bulbasaur`, `charmander`, `squirtle`
-starter: bulbasaur
 
 # Fossils - this config is used if `bot_mode` is set to `fossil`
 # Save with trainer facing the Fossil Scientist in Devon after handing over the fossil and re-entering the room

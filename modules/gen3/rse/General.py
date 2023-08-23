@@ -1,10 +1,10 @@
+import struct
 import random
-import json
 from modules.Console import console
 from modules.Inputs import PressButton, WaitFrames
+from modules.Files import WriteFile
 from modules.Memory import GetTrainer, GetOpponent, OpponentChanged, TrainerState, ReadSymbol, GetParty
-from modules.Stats import EncounterPokemon
-from modules.Files import ReadFile, WriteFile
+from modules.Stats import EncounterPokemon, GetRNGStateHistory, SaveRNGStateHistory
 
 
 
@@ -29,39 +29,38 @@ def ModeSpin():
     except Exception:
         console.print_exception()
 
-def Starter(Choice):
+def Starter(choice: str):
     try:
-        ListOfRngSeeds = []
-
+        RNGStateHistory = GetRNGStateHistory(GetTrainer()['tid'], choice)
 
         while True:
             x = 0
-            # i = i + 1
             while ReadSymbol('sStarterLabelWindowId') != b'\x01\x00':
-                PressButton(['A'],10)
+                PressButton(['A'], 10)
             while ReadSymbol('sStarterLabelWindowId') == b'\xFF\x00':
-                PressButton(['B'],10)
+                PressButton(['B'], 10)
             while ReadSymbol('sStarterLabelWindowId') == b'\x01\x00':
-                match Choice:
+                match choice:
                     case 'torchic':
                         None
                     case 'mudkip':
-                        PressButton(['Right'],10)
+                        PressButton(['Right'], 10)
                     case 'treecko':
-                        PressButton(['Left'],10)
-                PressButton(['A'],10)
-            while ReadSymbol('gTasks', size = 1) != b'\x01':
-                None
-            while x != 1:
-                RNG = ReadSymbol('gRngValue', size = 4)
-                if RNG not in ListOfRngSeeds:
+                        PressButton(['Left'], 10)
+                PressButton(['A'], 10)
+            while ReadSymbol('gTasks', size=1) != b'\x01':
+                pass
+            while True:
+                RNG = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
+                if RNG not in RNGStateHistory['rng']:
                     PressButton(['A'], 1)
-                    ListOfRngSeeds.append(RNG)
-                    #log.info(ReadSymbol('gRngValue', size = 4))
+                    RNGStateHistory['rng'].append(RNG)
 
-                    while ReadSymbol('gTasks', size = 1) != b'\x0D':
-                        PressButton(['A'],1)
-                        x = 1
+                    while ReadSymbol('gTasks', size=1) != b'\x0D':
+                        PressButton(['A'], 1)
+                        break
+                    SaveRNGStateHistory(GetTrainer()['tid'], choice, RNGStateHistory)
+                    break
             while ReadSymbol('gDisplayedStringBattle', size=4) != b'\xd1\xdc\xd5\xe8':
                 PressButton(['B'], 1)
             EncounterPokemon(GetParty()[0])

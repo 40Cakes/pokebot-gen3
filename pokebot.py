@@ -1,7 +1,7 @@
 import os
 from modules.Console import console
 from modules.Config import config
-from modules.Memory import GetGame
+from modules.Memory import mGBA
 
 
 console.print('Starting [cyan]PokéBot![/cyan]')
@@ -11,25 +11,24 @@ try:
         case 'spin':
             from modules.gen3.rse.General import ModeSpin
             ModeSpin()
-        case 'starter':
-            print(GetGame())
-            if GetGame() == 'Pokémon Emerald':
-                if (config['starter'] == 'mudkip'):
+        case 'starters':
+            if mGBA.game == 'Pokémon Emerald':
+                if config['starter'] == 'mudkip':
                     from modules.gen3.rse.General import Starter
                     Starter(config['starter'])
-                elif (config['starter'] == 'treecko'):
+                elif config['starter'] == 'treecko':
                     from modules.gen3.rse.General import Starter
                     Starter(config['starter'])
-                elif (config['starter'] == 'torchic'):
+                elif config['starter'] == 'torchic':
                     from modules.gen3.rse.General import Starter
                     Starter(config['starter'])
                 else:
-                    print('Incompatable starter')
+                    console.print('Incompatible starter')
                     input('Press enter to exit...')
                     os._exit(1)
                 from modules.gen3.rse.General import Starter
                 Starter(config['starter'])
-            elif GetGame() == 'Pokémon LeafGreen' or GetGame() == 'Pokémon FireRed':
+            elif mGBA.game == 'Pokémon LeafGreen' or mGBA.game == 'Pokémon FireRed':
                 if config['starter'] == 'bulbasaur':
                     from modules.gen3.rse.General import FRLGStarter
                     FRLGStarter(config['starter'])
@@ -40,13 +39,13 @@ try:
                     from modules.gen3.rse.General import FRLGStarter
                     FRLGStarter(config['starter'])
                 else:
-                    print('Incompatable starter')
+                    console.print('Incompatible starter')
                     input('Press enter to exit...')
                     os._exit(1)
                 from modules.gen3.rse.General import FRLGStarter
                 FRLGStarter(config['starter'])
             else:
-                print('INCOMPATTABLE ROM')
+                console.print('INCOMPATIBLE ROM')
                 input('Press enter to exit...')
                 os._exit(0)
 
