@@ -58,3 +58,40 @@ def Starter(Choice):
                 PressButton(['A', 'B', 'Start', 'Select'], 1)
     except Exception:
         console.print_exception()
+
+def FRLGStarter():
+    try:
+        ListOfRngSeeds = []
+        while True:
+            Out = 0
+            RNG = ReadSymbol('gRngValue', size = 4)
+            while RNG in ListOfRngSeeds:
+                RNG = ReadSymbol('gRngValue', size = 4)
+            ListOfRngSeeds.append(RNG)
+            while ReadSymbol('gStringVar4', size = 4) != b'\xbe\xe3\x00\xed':
+                PressButton(['A'],10)
+            while GetTrainer()['facing'] != 'Down':
+                PressButton(['B'],10)
+                PressButton(['Down'],10)
+            i = 0
+            while i < 5:
+                PressButton(['Down'],10)
+                i = i + 1
+            while Out == 0:
+                if ReadSymbol('gDisplayedStringBattle', size = 4) == b'\xc9\xbb\xc5\xf0':
+                    Out = 1
+                PressButton(['Left'],10)
+                PressButton(['Down'],10)
+                PressButton(['B'],10)
+
+
+                    #log.info(ReadSymbol('gSpriteCoordOffsetX', size = 1))
+            # while ReadSymbol('gDisplayedStringBattle', size = 4) != b'\xd1\xdc\xd5\xe8':
+            #     PressButton((['Down'],10))
+            #     PressButton((['B'],10))
+            EncounterPokemon(GetParty()[0])
+            while ReadSymbol('gDisplayedStringBattle', size = 4) != b'\x00\x00\x00\x00':
+                PressButton(['A','B','Start','Select'], 1)
+
+    except Exception:
+        console.print_exception()

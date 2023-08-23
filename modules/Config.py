@@ -13,6 +13,7 @@ properties:
         enum:
             - spin
             - Starter
+            - FRLGStarter
     coords:
         type: object
         properties:
