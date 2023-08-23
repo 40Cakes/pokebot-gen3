@@ -502,7 +502,7 @@ def ParsePokemon(b_Pokemon: bytes):
 def GetParty():
     party = {}
     b_gPlayerParty = ReadSymbol('gPlayerParty')
-    party_count = int.from_bytes(ReadSymbol('gPlayerPartyCount'), 'little')
+    party_count = int.from_bytes(ReadSymbol('gPlayerPartyCount'))
     if party_count:
         for p in range(party_count):
             o = p * 100
