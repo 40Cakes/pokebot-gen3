@@ -58,4 +58,4 @@ def FleeBattle() -> NoReturn:
     """
     select_battle_option(3, cursor_type='gActionSelectionCursor')
     while GetTrainer()['state'] != GameState.OVERWORLD:
-        PressButton("B")
+        PressButton(["B"])
