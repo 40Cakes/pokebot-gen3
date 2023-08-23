@@ -4,11 +4,11 @@
 
 # Bot mode
 # See Readme.md for a list of what each mode does and how to set it up
-# Valid options: `spin`
+# Valid options: `spin`, `Starter`
 # TODO: `manual`, `sweet scent`, `bunny hop`, `coords`, `bonk`, `fishing`, `starters`, `lugia`, `ho-oh`,
 # TODO:  `petalburg loop`, `rayquaza`, `groudon`, `kyogre`, `southern island`, `mew`, `regis`, `deoxys runaways`
 # TODO: `deoxys reset`, `fossil`, `castform`, `beldum`, `johto starters`, `buy premier balls`
-bot_mode: spin
+bot_mode: Starter
 
 # Coords config - this config is used if `bot_mode` is set to `coords`
 # The bot will run between 2 different X,Y coordinates

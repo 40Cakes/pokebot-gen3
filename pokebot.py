@@ -11,8 +11,8 @@ try:
             from modules.gen3.rse.General import ModeSpin
             ModeSpin()
         case 'Starter':
-            from modules.gen3.rse.General import RSEstarters
-            RSEstarters(config['starter'])
+            from modules.gen3.rse.General import Starter
+            Starter(config['starter'])
 
 except Exception as e:
     print(str(e))
