@@ -57,10 +57,7 @@ def Starter(Choice):
             #     #log.info('Shiny found!')
             #     input('Press enter to continue...')
             #     os._exit(0)
-            if(GetOpponent()['shiny']):
-                #log.info('LOL Shiny zoooooooon')
-                input('Sadly Press Enter to Continue........')
-                os._exit(0)
+            EncounterPokemon(GetOpponent())
             while ReadSymbol('sStarterLabelWindowId') != b'\x00\x00':
                 PressButton(['A', 'B', 'Start', 'Select'], 1)
     except Exception:
