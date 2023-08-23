@@ -14,14 +14,32 @@ try:
         case 'starter':
             print(GetGame())
             if GetGame() == 'Pokémon Emerald':
-                if config['starter'] != ('mudkip' or 'treecko' or 'torchic'):
+                if (config['starter'] == 'mudkip'):
+                    from modules.gen3.rse.General import Starter
+                    Starter(config['starter'])
+                elif (config['starter'] == 'treecko'):
+                    from modules.gen3.rse.General import Starter
+                    Starter(config['starter'])
+                elif (config['starter'] == 'torchic'):
+                    from modules.gen3.rse.General import Starter
+                    Starter(config['starter'])
+                else:
                     print('Incompatable starter')
                     input('Press enter to exit...')
                     os._exit(1)
                 from modules.gen3.rse.General import Starter
                 Starter(config['starter'])
             elif GetGame() == 'Pokémon LeafGreen' or GetGame() == 'Pokémon FireRed':
-                if config['starter'] != ('bulbasaur' or 'charmander' or 'squirtle'):
+                if config['starter'] == 'bulbasaur':
+                    from modules.gen3.rse.General import FRLGStarter
+                    FRLGStarter(config['starter'])
+                elif config['starter'] == 'charmander':
+                    from modules.gen3.rse.General import FRLGStarter
+                    FRLGStarter(config['starter'])
+                elif config['starter'] == 'squirtle':
+                    from modules.gen3.rse.General import FRLGStarter
+                    FRLGStarter(config['starter'])
+                else:
                     print('Incompatable starter')
                     input('Press enter to exit...')
                     os._exit(1)
