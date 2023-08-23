@@ -13,8 +13,8 @@ from modules.Config import config
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton
-from modules.Memory import EncodeString, GetTrainer, GetOpponent, ReadSymbol, TrainerState
-from modules.Menuing import FleeBattle
+from modules.Memory import EncodeString, GetTrainer, ReadSymbol, TrainerState
+from modules.Menuing import FleeBattle, BattleOpponent
 
 os.makedirs('stats', exist_ok=True)
 files = {
@@ -516,9 +516,14 @@ def EncounterPokemon(pokemon: dict):
         # Search for the text "What will (Pokémon) do?" in `gDisplayedStringBattle`
         b_What = EncodeString('What')
 
-        while ReadSymbol('gDisplayedStringBattle', size=4) != b_What:
-            PressButton(['B'])
-        FleeBattle()
+        while ReadSymbol("gDisplayedStringBattle", size=4) != b_What:
+            PressButton(["B"])
+        if config["battle"]:
+            battle_won = BattleOpponent()
+            # adding this in for lead rotation functionality down the line
+            replace_battler = not battle_won
+        else:
+            FleeBattle()
 
 # TODO
 #    pokemon = GetParty()[0] if starter else GetOpponent()
