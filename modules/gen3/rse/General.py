@@ -30,7 +30,13 @@ def Starter(Choice: str):
             while ReadSymbol('sStarterLabelWindowId') == b'\xFF\x00':
                 PressButton((['B'],10))
             while ReadSymbol('sStarterLabelWindowId') == b'\x01\x00':
-                PressButton((['Right'],10))
+                match Choice:
+                    case 'Torchic':
+                        None
+                    case 'Mudkip':
+                        PressButton((['Right'],10))
+                    case 'Treecko':
+                        PressButton((['Left'],10))
                 PressButton((['A'],10))
             while ReadSymbol('gTasks', size = 1) != b'\x01':
                 None
