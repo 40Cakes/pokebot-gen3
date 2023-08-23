@@ -22,7 +22,6 @@ try:
                 Starter(config['starter'])
             elif GetGame() == 'Pokémon LeafGreen' or GetGame() == 'Pokémon FireRed':
                 if config['starter'] != ('bulbasaur' or 'charmander' or 'squirtle'):
-
                     print('Incompatable starter')
                     input('Press enter to exit...')
                     os._exit(1)
