@@ -4,7 +4,7 @@
 
 # Bot mode
 # See Readme.md for a list of what each mode does and how to set it up
-# Valid options: `spin`, `Starter`
+# Valid options: `spin`, `starter`
 # TODO: `manual`, `sweet scent`, `bunny hop`, `coords`, `bonk`, `fishing`, `starters`, `lugia`, `ho-oh`,
 # TODO:  `petalburg loop`, `rayquaza`, `groudon`, `kyogre`, `southern island`, `mew`, `regis`, `deoxys runaways`
 # TODO: `deoxys reset`, `fossil`, `castform`, `beldum`, `johto starters`, `buy premier balls`
