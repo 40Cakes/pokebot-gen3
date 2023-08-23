@@ -31,9 +31,11 @@ def SelectBattleOption(desired_option: int, cursor_type: str = "gActionSelection
             case 0:
                 pass
     if ReadSymbol(cursor_type)[0] == desired_option:
-        # wait a few frames to ensure the press is received
-        WaitFrames(10)
-        PressButton(['A'])
+        # get current displayed string
+        current_string = DecodeString(ReadSymbol('gDisplayedStringBattle'))
+        # mash A until the string changes
+        while DecodeString(ReadSymbol('gDisplayedStringBattle')) == current_string:
+            PressButton(['A'])
 
 
 def FleeBattle() -> NoReturn:
