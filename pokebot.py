@@ -10,6 +10,9 @@ try:
         case 'spin':
             from modules.gen3.rse.General import ModeSpin
             ModeSpin()
+        case 'Starter':
+            from modules.gen3.rse.General import RSEstarters
+            RSEstarters(config[''])
 
 except Exception as e:
     print(str(e))
