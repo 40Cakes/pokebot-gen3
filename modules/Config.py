@@ -63,6 +63,11 @@ properties:
         type: boolean
     battle:
         type: boolean
+    new_move_mode:
+        type: string
+        enum:
+            - stop
+            - cancel
     deoxys_puzzle_solved:
         type: boolean
     auto_stop:
