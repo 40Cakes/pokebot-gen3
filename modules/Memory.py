@@ -494,7 +494,8 @@ def ParsePokemon(b_Pokemon: bytes):
         'pokerus': Pokerus(int(sections['M'][0])),
         'metLocation': location_list[int(sections['M'][1])],
         'origins': Origins(int(struct.unpack('<H', sections['M'][2:4])[0])),
-        'ability': pokemon_list[name]["ability"][int(struct.unpack('<I', sections['M'][4:8])[0] >> 31)]
+        'ability': pokemon_list[name]["ability"][int(struct.unpack('<I', sections['M'][4:8])[0] >> 31)],
+        'type': pokemon_list[name]["type"]
     }
     return pokemon
 

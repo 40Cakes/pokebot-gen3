@@ -98,7 +98,7 @@ properties:
                     - verbose
                     - basic
                     - disable
-            total_stats:
+            statistics:
                 type: string
                 enum:
                     - verbose
