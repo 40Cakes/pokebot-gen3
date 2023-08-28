@@ -23,7 +23,7 @@ def Starters(choice: str):
                 PressButton(['B', 'Down'])
 
             FollowPath([
-                (8, 7),
+                (GetTrainer()['coords'][0], 7),
                 (7, 7),
                 (7, 8)
             ])

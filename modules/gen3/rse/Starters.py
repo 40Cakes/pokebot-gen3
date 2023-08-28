@@ -29,7 +29,7 @@ def Starters(choice: str):
             while True:
                 RNG = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
                 if RNG not in rng_state_history['rng']:
-                    PressButton(['A'], 1)
+                    PressButton(['A'])
                     rng_state_history['rng'].append(RNG)
 
                     while ReadSymbol('gTasks', size=1) != b'\x0D':
@@ -42,6 +42,6 @@ def Starters(choice: str):
             EncounterPokemon(GetParty()[0])
             EncounterPokemon(GetOpponent())
             while ReadSymbol('sStarterLabelWindowId') != b'\x00\x00':
-                PressButton(['A', 'B', 'Start', 'Select'], 1)
+                PressButton(['A', 'B', 'Start', 'Select'], 5)
     except Exception:
         console.print_exception()
