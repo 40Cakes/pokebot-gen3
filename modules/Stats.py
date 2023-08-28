@@ -255,7 +255,7 @@ def PrintStats(pokemon: dict, stats: dict):
                     '[green]{:,}[/] / [red]{:,}'.format(
                         stats['totals'].get('phase_lowest_sv', -1),
                         stats['totals'].get('phase_highest_sv', -1)),
-                    '[bold yellow]{}'.format(stats['totals'].get('phase_encounters', 0)),
+                    '[bold yellow]{:,}'.format(stats['totals'].get('phase_encounters', 0)),
                     '[bold yellow]100%',
                     '[bold yellow]{:,}'.format(stats['totals'].get('shiny_encounters', 0)),
                     '[bold yellow]{:,}'.format(stats['totals'].get('encounters', 0))

@@ -1,5 +1,6 @@
 import struct
 import atexit
+from typing import NoReturn
 from modules.Memory import mGBA, GetFrameCount
 
 input_map = {
@@ -16,7 +17,11 @@ input_map = {
 }
 
 
-def WriteInputs(value: int):
+def GetInputs() -> int:
+    return struct.unpack('h', mGBA.proc.read_bytes(mGBA.p_Input, 2))[0]
+
+
+def WriteInputs(value: int) -> NoReturn:
     """
     Writes inputs to mGBA input memory, 2 bytes, each bit controls a different button (see input_map).
 
@@ -34,23 +39,22 @@ def WriteInputs(value: int):
     mGBA.proc.write_bytes(mGBA.p_Input, struct.pack('<H', value), 2)
 
 
-def WaitFrames(frames: int):
+def WaitFrames(frames: int) -> NoReturn:
     """
     Waits for n frames to pass before continuing.
 
     :param frames: number of frames to wait
-    :return: None
     """
     start = GetFrameCount()
     while GetFrameCount() < start + frames:
         pass
 
 
-def PressButton(buttons: list, hold_frames: int = 1):
+def PressButton(buttons: list, hold_frames: int = 1) -> NoReturn:
     """
     Press a button or multiple buttons for 1 frame unless specified.
-    This function requires at least 2 frames to run.
-    TODO: add functionality to allow a sequence of inputs without clearing inputs and wasting 1 frame.
+    If `hold_frames` is set to 0, the function will return and the buttons will be held down indefinitely.
+    Inputs are cumulative, any buttons being held down from previous calls will be preserved.
 
     Example:
     > Frame n
@@ -61,24 +65,25 @@ def PressButton(buttons: list, hold_frames: int = 1):
 
     :param buttons: list of buttons to press
     :param hold_frames: hold the buttons for n frames
-    :return:
     """
     inputs = 0
+    current_inputs = GetInputs()
     for button in buttons:
         if button in input_map:
             inputs |= input_map[button]
+    inputs |= current_inputs
     WriteInputs(inputs)
-    WaitFrames(hold_frames)
-    WriteInputs(0)
-    WaitFrames(1)
+
+    if hold_frames > 0:
+        WaitFrames(hold_frames)
+        WriteInputs(current_inputs)
+        WaitFrames(1)
 
 
-def _exit():
+def _exit() -> NoReturn:
     """
     Called when the bot is manually stopped or crashes.
     Clears the inputs register in the emulator so no buttons will be stuck down.
-
-    :return: None
     """
     WriteInputs(0)
 
