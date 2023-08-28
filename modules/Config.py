@@ -12,6 +12,7 @@ properties:
         type: string
         enum:
             - spin
+            - starters
     coords:
         type: object
         properties:

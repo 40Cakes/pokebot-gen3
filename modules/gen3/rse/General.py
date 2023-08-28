@@ -16,5 +16,6 @@ def ModeSpin():
             directions.remove(GetTrainer()['facing'])
             PressButton([random.choice(directions)])
             WaitFrames(6)
+
     except Exception:
         console.print_exception()

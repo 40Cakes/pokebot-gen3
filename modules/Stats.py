@@ -76,7 +76,7 @@ def GetShinyLog():
 
 
 def GetRNGStateHistory(tid: str, pokemon_name: str):
-    default = {'rngState': []}
+    default = {'rng': []}
     try:
         file = ReadFile(f'stats/{tid}/{pokemon_name.lower()}.json')
         data = json.loads(file) if file else default
@@ -85,6 +85,15 @@ def GetRNGStateHistory(tid: str, pokemon_name: str):
         console.print_exception()
         return default
 
+
+def SaveRNGStateHistory(tid: str, pokemon_name: str, data: dict):
+    try:
+        file = 'stats/{}/{}.json'.format(tid, pokemon_name.lower())
+        WriteFile(file, json.dumps(data))
+        return True
+    except Exception:
+        console.print_exception()
+        return False
 
 session_encounters = 0
 def GetEncounterRate():
