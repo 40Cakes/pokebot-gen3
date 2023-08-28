@@ -63,7 +63,7 @@ properties:
         type: boolean
     battle:
         type: boolean
-    new_move_mode:
+    new_move:
         type: string
         enum:
             - stop
