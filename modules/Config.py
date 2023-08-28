@@ -45,6 +45,9 @@ properties:
             - mudkip
             - treecko
             - torchic
+            - bulbasaur
+            - charmander
+            - squirtle
     fossil:
         type: string
         enum:
