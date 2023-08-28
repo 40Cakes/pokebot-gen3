@@ -13,11 +13,11 @@ try:
             ModeSpin()
 
         case 'starters':
-            if mGBA.game is 'Pokémon Emerald':
-                from modules.gen3.rse.General import Starters
+            if mGBA.game == 'Pokémon Emerald':
+                from modules.gen3.rse.Starters import Starters
                 Starters(config['starter'])
             elif mGBA.game in ['Pokémon LeafGreen', 'Pokémon FireRed']:
-                from modules.gen3.rse.General import Starters
+                from modules.gen3.frlg.Starters import Starters
             else:
                 console.print('Ruby/Sapphire starters are currently not supported, coming soon...')
                 input('Press enter to exit...')
