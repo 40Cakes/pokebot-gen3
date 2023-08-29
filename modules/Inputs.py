@@ -67,16 +67,17 @@ def PressButton(buttons: list, hold_frames: int = 1) -> NoReturn:
     :param hold_frames: hold the buttons for n frames
     """
     inputs = 0
-    current_inputs = GetInputs()
+    #current_inputs = GetInputs()
     for button in buttons:
         if button in input_map:
             inputs |= input_map[button]
-    inputs |= current_inputs
+    #inputs |= current_inputs
     WriteInputs(inputs)
 
     if hold_frames > 0:
         WaitFrames(hold_frames)
-        WriteInputs(current_inputs)
+        #WriteInputs(current_inputs)
+        WriteInputs(0) # TODO temp fix - this will break running to coords for now
         WaitFrames(1)
 
 
