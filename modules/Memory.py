@@ -98,7 +98,7 @@ class emulator:
         self.p_IWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
                                   offsets=[0x40, 0x58, 0x138, 0x240, 0x8, 0x30, 0x0])
         self.p_ROM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                offsets=[0x20, 0x58, 0x158, 0x240, 0x8, 0x38, 0x0])
+                                offsets=[0x40, 0x28, 0x58, 0x10, 0xB8, 0x38, 0x0])
         self.p_Input = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
                                   offsets=[0x20, 0x58, 0x6D8, 0x420, 0x168, 0x420, 0xDE4])
         self.p_Framecount = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
