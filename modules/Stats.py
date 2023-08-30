@@ -15,7 +15,7 @@ from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton
 from modules.Memory import EncodeString, GetTrainer, GetOpponent, ReadSymbol, TrainerState
-
+from modules.CatchBlockList import GetBlockList
 
 os.makedirs('stats', exist_ok=True)
 files = {
@@ -485,7 +485,7 @@ def LogEncounter(pokemon: dict):
         else:
             stats['totals']['current_streak'] = 1
         if stats['totals'].get('current_streak', 0) >= stats['totals'].get('phase_streak', 0):
-            stats['totals']['phase_streak'] = stats['totals'].get('current_streak', 0)
+            stats['totals']['phase_streak'] = stats[u'totals'].get('current_streak', 0)
             stats['totals']['phase_streak_pokemon'] = pokemon['name']
 
         if pokemon['shiny']:
@@ -579,8 +579,14 @@ def EncounterPokemon(pokemon: dict):
     # TODO temporary until auto-catch is ready
     if pokemon['shiny']:
         console.print('Shiny found!')
-        input('Press enter to exit...')
-        os._exit(0)
+        # Reload CatchBlockList and check if encounter is on there
+        blockList = GetBlockList()
+        if pokemon['name'] in blockList["block_list"] :
+            console.print('[bold yellow]Shiny is on the CatchBlockList, skipping encounter.')
+        else:
+            # Not on CatchBlockList, catch Pokémon
+            input('Press enter to exit...')
+            os._exit(0)
 
     if GetTrainer()['state'] == TrainerState.OVERWORLD:
         return None
