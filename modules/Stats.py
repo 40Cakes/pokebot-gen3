@@ -582,6 +582,8 @@ def EncounterPokemon(pokemon: dict):
         # Reload CatchBlockList and check if encounter is on there
         blockList = GetBlockList()
         if pokemon['name'] in blockList["block_list"] :
+            console.print('[bold red]DEBUG: Pokemon Name:' + pokemon['name'])
+            console.print('[bold red]DEBUG: ' + pokemon['name'] in blockList['block_list'])
             console.print('[bold yellow]Shiny is on the CatchBlockList, skipping encounter.')
             PressButton(['B'])
         else:
