@@ -13,9 +13,9 @@ from modules.Colours import IVColour, IVSumColour, SVColour
 from modules.Config import config
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
-from modules.Inputs import PressButton
+from modules.Inputs import PressButton, WriteInputs
 from modules.Memory import EncodeString, GetTrainer, GetOpponent, ReadSymbol, TrainerState
-
+from modules.CatchBlockList import GetBlockList
 
 os.makedirs('stats', exist_ok=True)
 files = {
@@ -453,7 +453,7 @@ def LogEncounter(pokemon: dict):
             avg = int(math.floor(stats['pokemon'][pokemon['name']]['encounters'] / stats['pokemon'][pokemon['name']]['shiny_encounters']))
             stats['pokemon'][pokemon['name']]['shiny_average'] = f'1/{avg:,}'
 
-        # Total shiny average
+        # Total shiny averagebat
         if stats['totals'].get('shiny_encounters'):
             avg = int(math.floor(stats['totals']['encounters'] / stats['totals']['shiny_encounters']))
             stats['totals']['shiny_average'] = f'1/{avg:,}'
@@ -473,6 +473,7 @@ def LogEncounter(pokemon: dict):
         encounter_log['encounter_log'].append(log_obj)
         encounter_log['encounter_log'] = encounter_log['encounter_log'][-250:]
         WriteFile(files['encounter_log'], json.dumps(encounter_log, indent=4, sort_keys=True))
+        
         if pokemon['shiny']:
             shiny_log = GetShinyLog()
             shiny_log['shiny_log'].append(log_obj)
@@ -511,7 +512,6 @@ def LogEncounter(pokemon: dict):
         # Run custom code in CustomHooks in a thread
         #hook = (copy.deepcopy(pokemon), copy.deepcopy(stats))
         #Thread(target=CustomHooks, args=(hook,)).start()
-
         if pokemon['shiny']:
             # Total longest phase
             if stats['totals']['phase_encounters'] > stats['totals'].get('longest_phase_encounters', 0):
@@ -539,17 +539,16 @@ def LogEncounter(pokemon: dict):
             stats['totals'].pop('phase_streak_pokemon', None)
 
             # Reset Pokémon phase stats
-            for pokemon['name'] in stats['pokemon']:
-                stats['pokemon'][pokemon['name']].pop('phase_encounters', None)
-                stats['pokemon'][pokemon['name']].pop('phase_highest_sv', None)
-                stats['pokemon'][pokemon['name']].pop('phase_lowest_sv', None)
-                stats['pokemon'][pokemon['name']].pop('phase_highest_iv_sum', None)
-                stats['pokemon'][pokemon['name']].pop('phase_lowest_iv_sum', None)
+            for n in stats['pokemon']:
+                stats['pokemon'][n].pop('phase_encounters', None)
+                stats['pokemon'][n].pop('phase_highest_sv', None)
+                stats['pokemon'][n].pop('phase_lowest_sv', None)
+                stats['pokemon'][n].pop('phase_highest_iv_sum', None)
+                stats['pokemon'][n].pop('phase_lowest_iv_sum', None)
 
         # Save stats file
         WriteFile(files['totals'], json.dumps(stats, indent=4, sort_keys=True))
         session_encounters += 1
-
         # Backup stats folder every n encounters
         if config['backup_stats'] > 0 and \
         stats['totals'].get('encounters', None) and \
@@ -579,16 +578,21 @@ def EncounterPokemon(pokemon: dict):
     # TODO temporary until auto-catch is ready
     if pokemon['shiny']:
         console.print('Shiny found!')
-        input('Press enter to exit...')
-        os._exit(0)
+        # Reload CatchBlockList and check if encounter is on there
+        blockList = GetBlockList()
+        if pokemon['name'] in blockList["block_list"]:
+            console.print('[bold yellow]' + pokemon['name'] + ' is on the CatchBlockList, skipping encounter.')
+        else:
+            # Not on CatchBlockList, catch Pokémon
+            input('Press enter to exit...')
+            os._exit(0)
 
-    if GetTrainer()['state'] == TrainerState.OVERWORLD:
+    while GetTrainer()['map'] != (0, 0):
         return None
 
     if GetTrainer()['state'] == TrainerState.MISC_MENU:
         # Search for the text "What will (Pokémon) do?" in `gDisplayedStringBattle`
         b_What = EncodeString('What')
-
         while ReadSymbol('gDisplayedStringBattle', size=4) != b_What:
             PressButton(['B'])
         while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 1:
@@ -597,7 +601,7 @@ def EncounterPokemon(pokemon: dict):
             PressButton(['Down'])
         while ReadSymbol('gDisplayedStringBattle', size=4) == b_What:
             PressButton(['A'])
-        while GetTrainer()['map'] != (0, 0):
+        while GetTrainer()['state'] != TrainerState.OVERWORLD:
             PressButton(['B'])
 
 # TODO
