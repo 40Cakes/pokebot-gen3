@@ -597,7 +597,7 @@ def EncounterPokemon(pokemon: dict):
             PressButton(['Down'])
         while ReadSymbol('gDisplayedStringBattle', size=4) == b_What:
             PressButton(['A'])
-        while GetTrainer()['state'] != TrainerState.OVERWORLD:
+        while GetTrainer()['map'] != (0, 0):
             PressButton(['B'])
 
 # TODO

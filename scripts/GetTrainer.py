@@ -5,4 +5,4 @@ from modules.Memory import mGBA, GetTrainer
 
 while True:
     print(GetTrainer())
-    time.sleep(0.5)
+    time.sleep(0.1)
