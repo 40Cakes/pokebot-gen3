@@ -99,7 +99,7 @@ class emulator:
         self.p_IWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
                                   offsets=[0x40, 0x58, 0x138, 0x240, 0x8, 0x30, 0x0])
         self.p_ROM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                offsets=[0x20, 0x58, 0x158, 0x240, 0x8, 0x38, 0x0])
+                                offsets=[0x40, 0x28, 0x58, 0x10, 0xB8, 0x38, 0x0])
         self.p_Input = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
                                   offsets=[0x20, 0x58, 0x6D8, 0x420, 0x168, 0x420, 0xDE4])
         self.p_Framecount = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
@@ -495,7 +495,8 @@ def ParsePokemon(b_Pokemon: bytes):
         'pokerus': Pokerus(int(sections['M'][0])),
         'metLocation': location_list[int(sections['M'][1])],
         'origins': Origins(int(struct.unpack('<H', sections['M'][2:4])[0])),
-        'ability': pokemon_list[name]["ability"][int(struct.unpack('<I', sections['M'][4:8])[0] >> 31)]
+        'ability': pokemon_list[name]["ability"][int(struct.unpack('<I', sections['M'][4:8])[0] >> 31)],
+        'type': pokemon_list[name]["type"]
     }
     return pokemon
 

@@ -12,6 +12,7 @@ properties:
         type: string
         enum:
             - spin
+            - starters
     coords:
         type: object
         properties:
@@ -44,6 +45,9 @@ properties:
             - mudkip
             - treecko
             - torchic
+            - bulbasaur
+            - charmander
+            - squirtle
     fossil:
         type: string
         enum:
@@ -82,6 +86,33 @@ properties:
         maximum: 6
     log_encounters:
         type: boolean
+    console:
+        type: object
+        properties:
+            encounter_data:
+                type: string
+                enum:
+                    - verbose
+                    - basic
+                    - disable
+            encounter_ivs:
+                type: string
+                enum:
+                    - verbose
+                    - basic
+                    - disable
+            encounter_moves:
+                type: string
+                enum:
+                    - verbose
+                    - basic
+                    - disable
+            statistics:
+                type: string
+                enum:
+                    - verbose
+                    - basic
+                    - disable
     ball_priority:
         type: array
         uniqueItems: true

@@ -9,12 +9,13 @@ def ModeSpin():
     try:
         while True:
             if OpponentChanged():
-                while GetTrainer()['state'] != TrainerState.MISC_MENU:
+                while GetTrainer()['map'] != (0, 0):
                     continue
                 EncounterPokemon(GetOpponent())
             directions = ['Up', 'Right', 'Down', 'Left']
             directions.remove(GetTrainer()['facing'])
             PressButton([random.choice(directions)])
             WaitFrames(6)
+
     except Exception:
         console.print_exception()

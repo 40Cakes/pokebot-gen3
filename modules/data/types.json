@@ -275,21 +275,5 @@
             "Rock",
             "Fairy"
         ]
-    },
-    "Fairy": {
-        "name": "Fairy",
-        "immunes": [
-
-        ],
-        "weaknesses": [
-            "Fire",
-            "Poison",
-            "Steel"
-        ],
-        "strengths": [
-            "Fighting",
-            "Dragon",
-            "Dark"
-        ]
     }
 }
