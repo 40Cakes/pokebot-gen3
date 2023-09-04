@@ -1,7 +1,6 @@
 from modules.data.MapData import mapRSE  #TODO mapFRLG
-from modules.Inputs import PressButton, WaitFrames, WriteInputs
-from modules.Memory import mGBA, GetOpponent, GetTrainer, OpponentChanged
-from modules.Stats import EncounterPokemon
+from modules.Inputs import PressButton, WaitFrames, ReleaseInputs
+from modules.Memory import mGBA, GetTrainer, OpponentChanged
 
 if mGBA.game in ['Pokémon Ruby', 'Pokémon Sapphire', 'Pokémon Emerald']:  # "Ruby", "Sapphire"
     MapDataEnum = mapRSE
@@ -9,7 +8,7 @@ if mGBA.game in ['Pokémon Ruby', 'Pokémon Sapphire', 'Pokémon Emerald']:  # "
 #    MapDataEnum = mapFRLG
 
 
-def FollowPath(coords: list, run: bool = True, encounter_opponent: bool = True):
+def FollowPath(coords: list, run: bool = True):
     for x, y, *map_data in coords:
         if run:
             PressButton(['B'], 0)
@@ -18,13 +17,13 @@ def FollowPath(coords: list, run: bool = True, encounter_opponent: bool = True):
         while True:
             trainer = GetTrainer()
 
-            if encounter_opponent and OpponentChanged():
-                EncounterPokemon(GetOpponent())
+            if OpponentChanged():
+                return False # TODO
 
             # Check if map changed to desired map
             if map_data:
                 if trainer['mapBank'] == map_data[0][0] and trainer['mapId'] == map_data[0][1]:
-                    WriteInputs(0)
+                    ReleaseInputs()
                     break
 
             if trainer['coords'][0] > x:
@@ -36,11 +35,11 @@ def FollowPath(coords: list, run: bool = True, encounter_opponent: bool = True):
             elif trainer['coords'][1] > y:
                 direction = 'Up'
             else:
-                WriteInputs(0)
+                ReleaseInputs()
                 break
 
             PressButton([direction], 0)
             WaitFrames(1)
 
-    WriteInputs(0)
+    ReleaseInputs()
     return True

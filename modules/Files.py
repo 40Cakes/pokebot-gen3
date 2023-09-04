@@ -14,8 +14,8 @@ def ReadFile(file: str):
                 return open_file.read()
         else:
             return None
-    except Exception:
-        console.print_exception()
+    except:
+        console.print_exception(show_locals=True)()
         return None
 
 
@@ -34,8 +34,8 @@ def WriteFile(file: str, value: str, mode: str = 'w'):
         with open(file, mode=mode, encoding='utf-8') as save_file:
             save_file.write(value)
             return True
-    except Exception:
-        console.print_exception()
+    except:
+        console.print_exception(show_locals=True)()
         return False
 
 def BackupFolder(source, destination):

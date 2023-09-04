@@ -3,19 +3,20 @@ import copy
 import json
 import math
 import time
-import struct
-import pandas as pd
 import pydirectinput
+import pandas as pd
 from threading import Thread
 from datetime import datetime
+
 from rich.table import Table
+from config.CustomCatchFilters import CustomCatchFilters
+from config.CustomHooks import CustomHooks
 from modules.Colours import IVColour, IVSumColour, SVColour
-from modules.Config import config
+from modules.Config import config_obs, config_logging
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
-from modules.Inputs import PressButton
-from modules.Memory import EncodeString, GetTrainer, GetOpponent, ReadSymbol, TrainerState
-
+from modules.Inputs import PressButton, WaitFrames
+from modules.Memory import GetTrainer, TrainerState
 
 os.makedirs('stats', exist_ok=True)
 files = {
@@ -46,8 +47,8 @@ def GetStats():
         if totals:
             return json.loads(totals)
         return None
-    except Exception:
-        console.print_exception()
+    except:
+        console.print_exception(show_locals=True)
         return None
 
 
@@ -58,8 +59,8 @@ def GetEncounterLog():
         if encounter_log:
             return json.loads(encounter_log)
         return default
-    except Exception:
-        console.print_exception()
+    except:
+        console.print_exception(show_locals=True)
         return default
 
 
@@ -70,19 +71,21 @@ def GetShinyLog():
         if shiny_log:
             return json.loads(shiny_log)
         return default
-    except Exception:
-        console.print_exception()
+    except:
+        console.print_exception(show_locals=True)
         return default
 
 
 def GetRNGStateHistory(tid: str, pokemon_name: str):
     default = {'rng': []}
     try:
-        file = ReadFile(f'stats/{tid}/{pokemon_name.lower()}.json')
+        file = ReadFile('stats/{}/{}.json'.format(
+            tid,
+            pokemon_name.lower()))
         data = json.loads(file) if file else default
         return data
-    except Exception:
-        console.print_exception()
+    except:
+        console.print_exception(show_locals=True)
         return default
 
 
@@ -91,8 +94,8 @@ def SaveRNGStateHistory(tid: str, pokemon_name: str, data: dict):
         file = 'stats/{}/{}.json'.format(tid, pokemon_name.lower())
         WriteFile(file, json.dumps(data))
         return True
-    except Exception:
-        console.print_exception()
+    except:
+        console.print_exception(show_locals=True)
         return False
 
 session_encounters = 0
@@ -108,8 +111,8 @@ def GetEncounterRate():
                   ).total_seconds()) * (min(session_encounters, 250)))
             return encounter_rate
         return 0
-    except Exception:
-        console.print_exception()
+    except:
+        console.print_exception(show_locals=True)
         return 0
 
 
@@ -122,7 +125,7 @@ def PrintStats(pokemon: dict, stats: dict):
             pokemon['metLocation']
         ), style=pokemon['type'][0].lower())
 
-        match config['console']['encounter_data']:
+        match config_logging['console']['encounter_data']:
             case 'verbose':
                 pokemon_table = Table()
                 pokemon_table.add_column('PID', justify='center', width=10)
@@ -153,7 +156,7 @@ def PrintStats(pokemon: dict, stats: dict):
                     pokemon['ability'],
                     pokemon['shinyValue']))
 
-        match config['console']['encounter_ivs']:
+        match config_logging['console']['encounter_ivs']:
             case 'verbose':
                 iv_table = Table(title='{} IVs'.format(pokemon['name']))
                 iv_table.add_column('HP', justify='center', style=IVColour(pokemon['IVs']['hp']))
@@ -190,7 +193,7 @@ def PrintStats(pokemon: dict, stats: dict):
                     IVSumColour(pokemon['IVSum']),
                     pokemon['IVSum']))
 
-        match config['console']['encounter_moves']:
+        match config_logging['console']['encounter_moves']:
             case 'verbose':
                 move_table = Table(title='{} Moves'.format(pokemon['name']))
                 move_table.add_column('Name', justify='left', width=20)
@@ -225,7 +228,7 @@ def PrintStats(pokemon: dict, stats: dict):
                             pokemon['moves'][i]['remaining_pp']
                         ))
 
-        match config['console']['statistics']:
+        match config_logging['console']['statistics']:
             case 'verbose':
                 stats_table = Table(title='Statistics')
                 stats_table.add_column('', justify='left', width=10)
@@ -309,8 +312,8 @@ def PrintStats(pokemon: dict, stats: dict):
                 ))
 
         console.print('[yellow]Encounter rate[/]: {:,}/h'.format(GetEncounterRate()))
-    except Exception:
-        console.print_exception()
+    except:
+        console.print_exception(show_locals=True)
 
 stats = GetStats()  # Load stats
 encounter_log = GetEncounterLog() # Load encounter log
@@ -410,7 +413,7 @@ def LogEncounter(pokemon: dict):
             stats['totals']['lowest_iv_sum'] = pokemon['IVSum']
             stats['totals']['lowest_iv_sum_pokemon'] = pokemon['name']
 
-        if config['log_encounters']:
+        if config_logging['log_encounters']:
             # Log all encounters to a CSV file per phase
             csvpath = 'stats/encounters/'
             csvfile = 'Phase {} Encounters.csv'.format(stats['totals'].get('shiny_encounters', 0))
@@ -445,18 +448,24 @@ def LogEncounter(pokemon: dict):
                 'condition_tough'],
                 errors='ignore').sort_index().transpose()
             os.makedirs(csvpath, exist_ok=True)
-            header = False if os.path.exists(f'{csvpath}{csvfile}') else True
-            pd_pokemon.to_csv(f'{csvpath}{csvfile}', mode='a', encoding='utf-8', index=False, header=header)
+            header = False if os.path.exists('{}{}'.format(
+                csvpath,
+                csvfile
+            )) else True
+            pd_pokemon.to_csv('{}{}'.format(
+                csvpath,
+                csvfile
+            ), mode='a', encoding='utf-8', index=False, header=header)
 
         # Pokémon shiny average
         if stats['pokemon'][pokemon['name']].get('shiny_encounters'):
             avg = int(math.floor(stats['pokemon'][pokemon['name']]['encounters'] / stats['pokemon'][pokemon['name']]['shiny_encounters']))
-            stats['pokemon'][pokemon['name']]['shiny_average'] = f'1/{avg:,}'
+            stats['pokemon'][pokemon['name']]['shiny_average'] = '1/{:,}'.format(avg)
 
         # Total shiny average
         if stats['totals'].get('shiny_encounters'):
             avg = int(math.floor(stats['totals']['encounters'] / stats['totals']['shiny_encounters']))
-            stats['totals']['shiny_average'] = f'1/{avg:,}'
+            stats['totals']['shiny_average'] = '1/{:,}'.format(avg)
 
         # Log encounter to encounter_log
         log_obj = {
@@ -494,23 +503,20 @@ def LogEncounter(pokemon: dict):
 
         PrintStats(pokemon, stats)
 
-        # TODO
-        #if pokemon['shiny']:
-        #    time.sleep(config['misc'].get('shiny_delay', 0))
-        #if config['misc']['obs'].get('enable_screenshot', None) and \
-        #pokemon['shiny']:
-        #    # Throw out Pokemon for screenshot
-        #    while GetTrainer()['state'] != GameState.BATTLE:
-        #        PressButton('B')
-        #    WaitFrames(180)
-        #    for key in config['misc']['obs']['hotkey_screenshot']:
-        #        pydirectinput.keyDown(key)
-        #    for key in reversed(config['misc']['obs']['hotkey_screenshot']):
-        #        pydirectinput.keyUp(key)
+        if pokemon['shiny']:
+            WaitFrames(config_obs.get('shiny_delay', 1))
+        if config_obs.get('enable_screenshot', None) and pokemon['shiny']:
+            while GetTrainer()['state'] != TrainerState.BATTLE:
+                PressButton(['B']) # Throw out Pokémon for screenshot
+            WaitFrames(180)
+            for key in config_obs['hotkey_screenshot']:
+                pydirectinput.keyDown(key)
+            for key in reversed(config_obs['hotkey_screenshot']):
+                pydirectinput.keyUp(key)
 
         # Run custom code in CustomHooks in a thread
-        #hook = (copy.deepcopy(pokemon), copy.deepcopy(stats))
-        #Thread(target=CustomHooks, args=(hook,)).start()
+        hook = (copy.deepcopy(pokemon), copy.deepcopy(stats))
+        Thread(target=CustomHooks, args=(hook,)).start()
 
         if pokemon['shiny']:
             # Total longest phase
@@ -551,19 +557,19 @@ def LogEncounter(pokemon: dict):
         session_encounters += 1
 
         # Backup stats folder every n encounters
-        if config['backup_stats'] > 0 and \
+        if config_logging['backup_stats'] > 0 and \
         stats['totals'].get('encounters', None) and \
-        stats['totals']['encounters'] % config['backup_stats'] == 0:
+        stats['totals']['encounters'] % config_logging['backup_stats'] == 0:
             BackupFolder('./stats/', './backups/stats-{}.zip'.format(time.strftime('%Y%m%d-%H%M%S')))
 
-    except Exception:
-        console.print_exception()
+    except:
+        console.print_exception(show_locals=True)
         return False
 
 
 def EncounterPokemon(pokemon: dict):
     """
-    Call when a Pokémon is encountered, decides whether or not to battle, flee or catch.
+    Call when a Pokémon is encountered, decides whether to battle, flee or catch.
     Expects the trainer's state to be MISC_MENU (battle started, no longer in the overworld).
 
     :return: returns once the encounter is over
@@ -572,151 +578,17 @@ def EncounterPokemon(pokemon: dict):
     LogEncounter(pokemon)
 
     # TODO
-    #if config['bot_mode'] == 'starters':
-    #    if config['mem_hacks']['starters']:
+    #if config_general['bot_mode'] == 'starters':
+    #    if config_general['mem_hacks']['starters']:
     #        pass
 
     # TODO temporary until auto-catch is ready
     if pokemon['shiny']:
-        console.print('Shiny found!')
+        console.print('[bold yellow]Shiny found!')
         input('Press enter to exit...')
         os._exit(0)
 
-    if GetTrainer()['state'] == TrainerState.OVERWORLD:
-        return None
-
-    if GetTrainer()['state'] == TrainerState.MISC_MENU:
-        # Search for the text "What will (Pokémon) do?" in `gDisplayedStringBattle`
-        b_What = EncodeString('What')
-
-        while ReadSymbol('gDisplayedStringBattle', size=4) != b_What:
-            PressButton(['B'])
-        while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 1:
-            PressButton(['Right'])
-        while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 3:
-            PressButton(['Down'])
-        while ReadSymbol('gDisplayedStringBattle', size=4) == b_What:
-            PressButton(['A'])
-        while GetTrainer()['state'] != TrainerState.OVERWORLD:
-            PressButton(['B'])
-
-# TODO
-#    pokemon = GetParty()[0] if starter else GetOpponent()
-#    LogEncounter(pokemon)
-#
-#    replace_battler = False
-#
-#    if pokemon['shiny']:
-#        if not starter and not legendary_hunt and config['catch_shinies']:
-#            blocked = GetBlockList()
-#            opponent = GetOpponent()
-#            if opponent['name'] in blocked['block_list']:
-#                console.print('---- Pokemon is in list of non-catpures. Fleeing battle ----')
-#                if config['discord']['messages']:
-#                    try:
-#                        content = f'Encountered shiny {opponent['name']}... but catching this species is disabled. Fleeing battle!'
-#                        webhook = DiscordWebhook(url=config['discord']['webhook_url'], content=content)
-#                        webhook.execute()
-#                    except Exception as e:
-#                        log.exception(str(e))
-#                        pass
-#                FleeBattle()
-#            else:
-#                CatchPokemon()
-#        elif legendary_hunt:
-#            input('Pausing bot for manual intervention. (Don't forget to pause the pokebot.lua script so you can '
-#                  'provide inputs). Press Enter to continue...')
-#        elif not config['catch_shinies']:
-#            FleeBattle()
-#        return True
-#    else:
-#        if config['bot_mode'] == 'manual':
-#            while GetTrainer()['state'] != GameState.OVERWORLD:
-#                WaitFrames(100)
-#        elif starter:
-#            return False
-#
-#        if CustomCatchConfig(pokemon):
-#            CatchPokemon()
-#
-#        if not legendary_hunt:
-#            if config['battle']:
-#                battle_won = BattleOpponent()
-#                replace_battler = not battle_won
-#            else:
-#                FleeBattle()
-#        elif config['bot_mode'] == 'deoxys resets':
-#            if not config['mem_hacks']:
-#                # Wait until sprite has appeared in battle before reset
-#                WaitFrames(240)
-#            ResetGame()
-#            return False
-#        else:
-#            FleeBattle()
-#
-#        if config['pickup'] and not legendary_hunt:
-#            PickupItems()
-#
-#        # If total encounters modulo config['save_every_x_encounters'] is 0, save the game
-#        # Save every x encounters to prevent data loss (pickup, levels etc)
-#        stats = GetStats()
-#        if config['autosave_encounters'] > 0 and stats['totals']['encounters'] > 0 and \
-#                stats['totals']['encounters'] % config['autosave_encounters'] == 0:
-#            SaveGame()
-#
-#        if replace_battler:
-#            if not config['cycle_lead_pokemon']:
-#                console.print('Lead Pokemon can no longer battle. Ending the script!')
-#                FleeBattle()
-#                return False
-#            else:
-#                StartMenu('pokemon')
-#
-#                # Find another healthy battler
-#                party_pp = [0, 0, 0, 0, 0, 0]
-#                for i, mon in enumerate(GetParty()):
-#                    if mon is None:
-#                        continue
-#
-#                    if mon['hp'] > 0 and i != 0:
-#                        for j, move in enumerate(mon['enrichedMoves']):
-#                            if IsValidMove(move) and mon['pp'][j] > 0:
-#                                party_pp[i] += move['pp']
-#
-#                highest_pp = max(party_pp)
-#                lead_idx = party_pp.index(highest_pp)
-#
-#                if highest_pp == 0:
-#                    console.print('Ran out of Pokemon to battle with. Ending the script!')
-#                    os._exit(1)
-#
-#                lead = GetParty()[lead_idx]
-#                if lead is not None:
-#                    console.print(f'Replacing lead battler with {lead['name']} (Party slot {lead_idx})')
-#
-#                PressButton('A')
-#                WaitFrames(60)
-#                PressButton('A')
-#                WaitFrames(15)
-#
-#                for _ in range(3):
-#                    PressButton('Up')
-#                    WaitFrames(15)
-#
-#                PressButton('A')
-#                WaitFrames(15)
-#
-#                for _ in range(lead_idx):
-#                    PressButton('Down')
-#                    WaitFrames(15)
-#
-#                # Select target Pokémon and close out menu
-#                PressButton('A')
-#                WaitFrames(60)
-#
-#                console.print('Replaced lead Pokemon!')
-#
-#                for _ in range(5):
-#                    PressButton('B')
-#                    WaitFrames(15)
-#        return False
+    if CustomCatchFilters(pokemon):
+        console.print('[bold green]Custom filter Pokemon found!')
+        input('Press enter to exit...')
+        os._exit(0)

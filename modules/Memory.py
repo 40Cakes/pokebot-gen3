@@ -82,7 +82,7 @@ class emulator:
     def __symbols(self):
         if self.sym_file:
             self.symbols = {}
-            for s in open(f'modules/data/symbols/{self.sym_file}').readlines():
+            for s in open('modules/data/symbols/{}'.format(self.sym_file)).readlines():
                 self.symbols[s.split(' ')[3].strip()] = {
                     'addr': int(s.split(' ')[0], 16),
                     'type': str(s.split(' ')[1]),
@@ -94,11 +94,11 @@ class emulator:
     def __init__(self, pid):
         self.proc = Pymem(pid)
         self.p_EWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                  offsets=[0x40, 0x58, 0x8, 0x28, 0x0])
+                                  offsets=[0x40, 0x58, 0x3D8, 0x10, 0x80, 0x28, 0x0])
         self.p_IWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                  offsets=[0x40, 0x58, 0x138, 0x240, 0x8, 0x30, 0x0])
+                                  offsets=[0x40, 0x28, 0x58, 0x10, 0xF0, 0x30, 0x0])
         self.p_ROM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                offsets=[0x20, 0x58, 0x158, 0x240, 0x8, 0x38, 0x0])
+                                offsets=[0x40, 0x28, 0x58, 0x10, 0xb8, 0x38, 0x0])
         self.p_Input = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
                                   offsets=[0x20, 0x58, 0x6D8, 0x420, 0x168, 0x420, 0xDE4])
         self.p_Framecount = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
@@ -109,7 +109,7 @@ class emulator:
 
 
 while True:
-    with console.status("[bold purple]Click on an mGBA instance to attach bot to..."):
+    with console.status('[bold purple]Click on an mGBA instance to attach bot to...'):
         fg = win32gui.GetForegroundWindow()
         title = win32gui.GetWindowText(fg)
         tid, pid = win32process.GetWindowThreadProcessId(fg)
@@ -117,8 +117,10 @@ while True:
         if 'mGBA' in title:
             mGBA = emulator(pid)
             if mGBA.game:
-                console.print(f'Bot successfully attached to mGBA PID {pid}!')
-                console.print(f'Detected game: {mGBA.game} ({mGBA.game_code})')
+                console.print('Bot successfully attached to mGBA PID {}!'.format(pid))
+                console.print('Detected game: {} ({})'.format(
+                    mGBA.game,
+                    mGBA.game_code))
                 break
             else:
                 console.print('[bold red]Unsupported ROM detected![/]')
@@ -196,8 +198,8 @@ try:
         b_Trainer = mGBA.proc.read_bytes(p_Trainer, length=14)
     else:
         b_Trainer = ReadSymbol('gSaveBlock2', 14)
-except Exception:
-    console.print_exception()
+except:
+    console.print_exception(show_locals=True)
 
 
 def DecodeString(bytes: bytes):
@@ -375,12 +377,12 @@ def Moves(value: bytes):
 
 
 def HiddenPower(value: dict):
-    hidden_power = hidden_powers_list[int(numpy.floor((((value["hp"] % 2) +
-                                            (2 * (value["attack"] % 2)) +
-                                            (4 * (value["defense"] % 2)) +
-                                            (8 * (value["speed"] % 2)) +
-                                            (16 * (value["spAttack"] % 2)) +
-                                            (32 * (value["spDefense"] % 2))) * 15) / 63))]
+    hidden_power = hidden_powers_list[int(numpy.floor((((value['hp'] % 2) +
+                                            (2 * (value['attack'] % 2)) +
+                                            (4 * (value['defense'] % 2)) +
+                                            (8 * (value['speed'] % 2)) +
+                                            (16 * (value['spAttack'] % 2)) +
+                                            (32 * (value['spDefense'] % 2))) * 15) / 63))]
     return hidden_power
 
 def Pokerus(value: int):
@@ -400,121 +402,133 @@ def DecryptSubSection(data: bytes, key: int):
 
 
 # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
-def ParsePokemon(b_Pokemon: bytes):
-    flags = int(b_Pokemon[19])
-    pid = struct.unpack('<I', b_Pokemon[0:4])[0]
-    ot = struct.unpack('<I', b_Pokemon[4:8])[0]
-    tid = int(struct.unpack('<H', b_Pokemon[4:6])[0])
-    sid = int(struct.unpack('<H', b_Pokemon[6:8])[0])
+def ParsePokemon(b_Pokemon: bytes) -> dict:
+    try:
+        flags = int(b_Pokemon[19])
+        pid = struct.unpack('<I', b_Pokemon[0:4])[0]
+        ot = struct.unpack('<I', b_Pokemon[4:8])[0]
+        tid = int(struct.unpack('<H', b_Pokemon[4:6])[0])
+        sid = int(struct.unpack('<H', b_Pokemon[6:8])[0])
 
-    # Unpack data substructures
-    # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
-    key = ot ^ pid
-    data = b_Pokemon[32:80]
-    order = pid % 24
-    order_string = substructs[order]
-    sections = {}
-    for i in range(0, 4):
-        section = order_string[i]
-        sectiondata = data[(i * 12):((i + 1) * 12)]
-        decr = DecryptSubSection(sectiondata, key)
-        sections[section] = decr
-    id = int(struct.unpack('<H', sections['G'][0:2])[0])
-    name = SpeciesName(id)
+        # Unpack data substructures
+        # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
+        key = ot ^ pid
+        data = b_Pokemon[32:80]
+        order = pid % 24
+        order_string = substructs[order]
+        sections = {}
+        for i in range(0, 4):
+            section = order_string[i]
+            section_data = data[(i * 12):((i + 1) * 12)]
+            decrypted = DecryptSubSection(section_data, key)
+            sections[section] = decrypted
+        id = int(struct.unpack('<H', sections['G'][0:2])[0])
+        name = SpeciesName(id)
 
-    ivs = IVs(int(struct.unpack('<I', sections['M'][4:8])[0]))
-    item_id = int(struct.unpack('<H', sections['G'][2:4])[0])
-    shiny_value = int(tid ^ sid ^ struct.unpack('<H', b_Pokemon[0:2])[0] ^ struct.unpack('<H', b_Pokemon[2:4])[0])
-    shiny = True if shiny_value < 8 else False
+        ivs = IVs(int(struct.unpack('<I', sections['M'][4:8])[0]))
+        item_id = int(struct.unpack('<H', sections['G'][2:4])[0])
+        shiny_value = int(tid ^ sid ^ struct.unpack('<H', b_Pokemon[0:2])[0] ^ struct.unpack('<H', b_Pokemon[2:4])[0])
+        shiny = True if shiny_value < 8 else False
 
-    pokemon = {
-        'name': name,
-        'id': id,
-        'natID': NationalDexID(id),
-        'species': int(struct.unpack('<H', sections['G'][0:2])[0]),
-        'pid': pid,
-        'nature': natures_list[pid % 25],
-        'language': Language(int(b_Pokemon[18])),
-        'shinyValue': shiny_value,
-        'shiny': shiny,
-        'ot': {
-            'tid': tid,
-            'sid': sid
-        },
-        'isBadEgg': flags & 1,
-        'hasSpecies': (flags >> 1) & 1,
-        'isEgg': (flags >> 2) & 1,
-        'level': int(b_Pokemon[84]),
-        'expGroup': exp_groups_list[id - 1],
-        'item': {
-            'id': item_id,
-            'name': item_list[item_id]
-        },
-        'friendship': int(sections['G'][9]),
-        'moves': Moves(sections['A']),
-        'markings': Markings(b_Pokemon[27]),
-        'status': Status(int(struct.unpack('<I', b_Pokemon[80:84])[0])),
-        'stats': {
-            'hp': int(b_Pokemon[86]),
-            'maxHP': int(b_Pokemon[88]),
-            'attack': int(b_Pokemon[90]),
-            'defense': int(b_Pokemon[92]),
-            'speed': int(b_Pokemon[94]),
-            'spAttack': int(b_Pokemon[96]),
-            'spDefense': int(b_Pokemon[98])
-        },
-        'IVs': ivs,
-        'IVSum': sum(ivs.values()),
-        'hiddenPower': HiddenPower(ivs),
+        pokemon = {
+            'name': name,
+            'id': id,
+            'natID': NationalDexID(id),
+            'species': int(struct.unpack('<H', sections['G'][0:2])[0]),
+            'pid': pid,
+            'nature': natures_list[pid % 25],
+            'language': Language(int(b_Pokemon[18])),
+            'shinyValue': shiny_value,
+            'shiny': shiny,
+            'ot': {
+                'tid': tid,
+                'sid': sid
+            },
+            'isBadEgg': flags & 1,
+            'hasSpecies': (flags >> 1) & 1,
+            'isEgg': (flags >> 2) & 1,
+            'level': int(b_Pokemon[84]),
+            'expGroup': exp_groups_list[id - 1],
+            'item': {
+                'id': item_id,
+                'name': item_list[item_id]
+            },
+            'friendship': int(sections['G'][9]),
+            'moves': Moves(sections['A']),
+            'markings': Markings(b_Pokemon[27]),
+            'status': Status(int(struct.unpack('<I', b_Pokemon[80:84])[0])),
+            'stats': {
+                'hp': int(b_Pokemon[86]),
+                'maxHP': int(b_Pokemon[88]),
+                'attack': int(b_Pokemon[90]),
+                'defense': int(b_Pokemon[92]),
+                'speed': int(b_Pokemon[94]),
+                'spAttack': int(b_Pokemon[96]),
+                'spDefense': int(b_Pokemon[98])
+            },
+            'IVs': ivs,
+            'IVSum': sum(ivs.values()),
+            'hiddenPower': HiddenPower(ivs),
 
-        # Substruct G - Growth
-        'experience': int(struct.unpack('<I', sections['G'][4:8])[0]),
+            # Substruct G - Growth
+            'experience': int(struct.unpack('<I', sections['G'][4:8])[0]),
 
-        # Substruct A - Attacks
+            # Substruct A - Attacks
 
-        # Substruct E - EVs & Condition
-        'EVs': {
-            'hp': int(sections['E'][0]),
-            'attack': int(sections['E'][1]),
-            'defence': int(sections['E'][2]),
-            'speed': int(sections['E'][3]),
-            'spAttack': int(sections['E'][4]),
-            'spDefense': int(sections['E'][5])
-        },
-        'condition': {
-            'cool': int(sections['E'][6]),
-            'beauty': int(sections['E'][7]),
-            'cute': int(sections['E'][8]),
-            'smart': int(sections['E'][9]),
-            'tough': int(sections['E'][10]),
-            'feel': int(sections['E'][11])
-        },
+            # Substruct E - EVs & Condition
+            'EVs': {
+                'hp': int(sections['E'][0]),
+                'attack': int(sections['E'][1]),
+                'defence': int(sections['E'][2]),
+                'speed': int(sections['E'][3]),
+                'spAttack': int(sections['E'][4]),
+                'spDefense': int(sections['E'][5])
+            },
+            'condition': {
+                'cool': int(sections['E'][6]),
+                'beauty': int(sections['E'][7]),
+                'cute': int(sections['E'][8]),
+                'smart': int(sections['E'][9]),
+                'tough': int(sections['E'][10]),
+                'feel': int(sections['E'][11])
+            },
 
-        # Substruct M - Miscellaneous
-        'pokerus': Pokerus(int(sections['M'][0])),
-        'metLocation': location_list[int(sections['M'][1])],
-        'origins': Origins(int(struct.unpack('<H', sections['M'][2:4])[0])),
-        'ability': pokemon_list[name]["ability"][int(struct.unpack('<I', sections['M'][4:8])[0] >> 31)],
-        'type': pokemon_list[name]["type"]
-    }
-    return pokemon
+            # Substruct M - Miscellaneous
+            'pokerus': Pokerus(int(sections['M'][0])),
+            'metLocation': location_list[int(sections['M'][1])],
+            'origins': Origins(int(struct.unpack('<H', sections['M'][2:4])[0])),
+            'ability': pokemon_list[name]['ability'][int(struct.unpack('<I', sections['M'][4:8])[0] >> 31)],
+            'type': pokemon_list[name]['type']
+        }
+        return pokemon
+
+    except:
+        return None
 
 
 def GetParty():
-    party = {}
-    b_gPlayerParty = ReadSymbol('gPlayerParty')
-    party_count = int.from_bytes(ReadSymbol('gPlayerPartyCount'))
-    if party_count:
-        for p in range(party_count):
-            o = p * 100
-            party[p] = ParsePokemon(b_gPlayerParty[o:o + 100])
-        return party
-    return None
+    try:
+        party = {}
+        party_count = int.from_bytes(ReadSymbol('gPlayerPartyCount'))
+        if party_count:
+            for p in range(party_count):
+                o = p * 100
+                while not (mon := ParsePokemon(ReadSymbol('gPlayerParty')[o:o + 100])):
+                    continue
+                else:
+                    party[p] = mon
+            return party
+        return None
+    except:
+        console.print_exception(show_locals=True)
+        return None
 
 
 def GetOpponent():
-    b_gEnemyParty = ReadSymbol('gEnemyParty')
-    return ParsePokemon(b_gEnemyParty[:100])
+    while not (opponent := ParsePokemon(ReadSymbol('gEnemyParty')[:100])):
+        continue
+    else:
+        return opponent
 
 
 last_opid = ReadSymbol('gEnemyParty', size=4)

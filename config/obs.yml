@@ -1,0 +1,38 @@
+# OBS settings
+
+# Shiny Pokémon delay
+# Delay catching a shiny encounter by n frames, useful to give viewers of a stream some time to react
+shiny_delay: 0
+
+# When enabled, the bot will !!! emulate the hotkey keystrokes !!! so only use this on dedicated stream PCs
+# TODO: use OBS webhooks instead
+# Take OBS screenshot after the `shiny_delay` to allow stream overlays to update
+screenshot: false
+
+# Save OBS replay buffer after `replay_buffer_delay`
+replay_buffer: false
+
+# After a shiny encounter, wait n seconds before saving the replay buffer
+# (runs in a separate thread and doesn't pause the bot)
+replay_buffer_delay: 0
+
+# OBS screenshot hotkey (bot expects .png file extension if posting to Discord)
+hotkey_screenshot: ["ctrl", "f11"]
+
+# OBS save replay buffer hotkey
+hotkey_replay_buffer: ["ctrl", "f12"]
+
+# OBS screenshot/replay buffer save directory (used to post stream screenshot to Discord)
+replay_dir: "./stream/replays/"
+
+# Webhook to post the OBS screenshot to Discord after encountering a shiny
+# Leave empty to disable posting
+webhook_url:
+
+# Web server for stream overlays
+# Makes data available via HTTP requests
+# TODO: add list of available GET endpoints
+server:
+  enable: true
+  ip: 127.0.0.1
+  port: 8888 # Server port must be unique for each instance of the bot you run

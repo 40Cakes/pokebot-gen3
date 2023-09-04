@@ -7,4 +7,4 @@ while True:
     while GetFrameCount() == start:
         #print(GetFrameCount())
         pass
-    if GetFrameCount() > start + 1: print("Missed a frame!")
+    if GetFrameCount() > start + 1: print('Missed a frame!')

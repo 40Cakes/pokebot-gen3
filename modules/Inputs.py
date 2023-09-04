@@ -1,8 +1,9 @@
 import struct
-import atexit
 from typing import NoReturn
 from modules.Memory import mGBA, GetFrameCount
 
+press = 0
+held = 0
 input_map = {
     'A': 0x1,
     'B': 0x2,
@@ -50,6 +51,13 @@ def WaitFrames(frames: int) -> NoReturn:
         pass
 
 
+def ReleaseInputs() -> NoReturn:
+    global press
+    global held
+    press, held = 0, 0
+    WriteInputs(0)
+
+
 def PressButton(buttons: list, hold_frames: int = 1) -> NoReturn:
     """
     Press a button or multiple buttons for 1 frame unless specified.
@@ -66,26 +74,16 @@ def PressButton(buttons: list, hold_frames: int = 1) -> NoReturn:
     :param buttons: list of buttons to press
     :param hold_frames: hold the buttons for n frames
     """
-    inputs = 0
-    current_inputs = GetInputs()
+    global press
+    global held
     for button in buttons:
         if button in input_map:
-            inputs |= input_map[button]
-    inputs |= current_inputs
-    WriteInputs(inputs)
+            press |= input_map[button]
+    press |= held
+    WriteInputs(press)
 
     if hold_frames > 0:
+        press = 0
         WaitFrames(hold_frames)
-        WriteInputs(current_inputs)
+        WriteInputs(held)
         WaitFrames(1)
-
-
-def _exit() -> NoReturn:
-    """
-    Called when the bot is manually stopped or crashes.
-    Clears the inputs register in the emulator so no buttons will be stuck down.
-    """
-    WriteInputs(0)
-
-
-atexit.register(_exit)

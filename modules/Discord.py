@@ -1,0 +1,86 @@
+import time
+
+from pypresence import Presence
+from discord_webhook import DiscordWebhook, DiscordEmbed
+from modules.Console import console
+from modules.Config import config_discord
+
+
+def DiscordMessage(webhook_url: str = None,
+                        content: str = None,
+                        image: str = None,
+                        embed: bool = False,
+                        embed_title: str = None,
+                        embed_description: str = None,
+                        embed_fields: object = None,
+                        embed_thumbnail: str = None,
+                        embed_image: str = None,
+                        embed_footer: str = None,
+                        embed_color: str = 'FFFFFF'):
+    try:
+        if not webhook_url:
+            webhook_url = config_discord['global_webhook_url']
+        webhook, embed_obj = DiscordWebhook(url=webhook_url, content=content), None
+        if image:
+            with open(image, 'rb') as f:
+                webhook.add_file(file=f.read(), filename='image.png')
+        if embed:
+            embed_obj = DiscordEmbed(title=embed_title, color=embed_color)
+            if embed_description:
+                embed_obj.description = embed_description
+            if embed_fields:
+                for key, value in embed_fields.items():
+                    embed_obj.add_embed_field(name=key, value=value, inline=False)
+            if embed_thumbnail:
+                with open(embed_thumbnail, 'rb') as f:
+                    webhook.add_file(file=f.read(), filename='thumb.png')
+                embed_obj.set_thumbnail(url='attachment://thumb.png')
+            if embed_image:
+                with open(embed_image, 'rb') as f:
+                    webhook.add_file(file=f.read(), filename='embed.png')
+                embed_obj.set_image(url='attachment://embed.png')
+            if embed_footer:
+                embed_obj.set_footer(text=embed_footer)
+            embed_obj.set_timestamp()
+            webhook.add_embed(embed_obj)
+        webhook.execute()
+    except:
+        console.print_exception(show_locals=True)
+        pass
+
+
+def DiscordRichPresence():
+    try:
+        from modules.Stats import GetEncounterLog, GetEncounterRate, GetStats
+        from modules.Memory import mGBA
+        from asyncio import (new_event_loop as new_loop, set_event_loop as set_loop)
+        set_loop(new_loop())
+        RPC = Presence('1125400717054713866')
+        RPC.connect()
+        start = time.time()
+
+        match mGBA.game:
+            case 'Pokémon Ruby': large_image = 'groudon'
+            case 'Pokémon Sapphire': large_image = 'kyogre'
+            case 'Pokémon Emerald': large_image = 'rayquaza'
+            case 'Pokémon FireRed': large_image = 'charizard'
+            case 'Pokémon LeafGreen': large_image = 'venusaur'
+
+        while True:
+            try:
+                RPC.update(
+                    state='{} | {}'.format(
+                            GetEncounterLog()['encounter_log'][-1]['pokemon']['metLocation'],
+                            mGBA.game),
+                    details='{:,} ({:,}✨) | {:,}/h'.format(
+                            GetStats()['totals'].get('encounters', 0),
+                            GetStats()['totals'].get('shiny_encounters', 0),
+                            GetEncounterRate()),
+                    large_image=large_image,
+                    start=start,
+                    buttons=[{'label': '⏬ Download Pokébot', 'url': 'https://github.com/40Cakes/pokebot-gen3'}])
+            except:
+                pass
+            time.sleep(15)
+    except:
+        console.print_exception(show_locals=True)
