@@ -78,7 +78,7 @@ def DiscordRichPresence():
                             GetEncounterRate()),
                     large_image=large_image,
                     start=start,
-                    buttons=[{'label': '⏬ Download Pokébot', 'url': 'https://github.com/40Cakes/pokebot-gen3'}])
+                    buttons=[{'label': '⏬ Download PokéBot', 'url': 'https://github.com/40Cakes/pokebot-gen3'}])
             except:
                 pass
             time.sleep(15)

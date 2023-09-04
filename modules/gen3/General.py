@@ -6,6 +6,7 @@ from modules.Memory import GetTrainer
 
 def ModeSpin():
     try:
+        # TODO home position, FollowPath() if trainer walks off
         directions = ['Up', 'Right', 'Down', 'Left']
         directions.remove(GetTrainer()['facing'])  # Remove currently facing direction from possible inputs
         PressButton([random.choice(directions)])

@@ -9,7 +9,8 @@ from modules.Inputs import PressButton, WaitFrames, WriteInputs
 from modules.Memory import mGBA, GetTrainer, EncodeString, ReadSymbol, GetOpponent, OpponentChanged, TrainerState
 from modules.Stats import EncounterPokemon
 
-console.print('Starting [bold cyan]PokéBot![/]')
+version = 'v0.0.1a'
+console.print('Starting [bold cyan]PokéBot {}![/]'.format(version))
 
 
 def _exit() -> NoReturn:

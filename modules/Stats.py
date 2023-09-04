@@ -16,13 +16,18 @@ from modules.Config import config_obs, config_logging
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import GetTrainer, TrainerState
+from modules.Memory import mGBA, GetTrainer, TrainerState
 
 os.makedirs('stats', exist_ok=True)
+stats_dir = 'stats/{}/{}-{}'.format(
+    mGBA.game_code,
+    GetTrainer()['tid'],
+    GetTrainer()['name']
+)
 files = {
-    'encounter_log': 'stats/encounter_log.json',
-    'shiny_log': 'stats/shiny_log.json',
-    'totals': 'stats/totals.json'
+    'encounter_log': '{}/encounter_log.json'.format(stats_dir),
+    'shiny_log': '{}/shiny_log.json'.format(stats_dir),
+    'totals': '{}/totals.json'.format(stats_dir)
 }
 
 def FlattenData(data: dict):
@@ -79,8 +84,8 @@ def GetShinyLog():
 def GetRNGStateHistory(tid: str, pokemon_name: str):
     default = {'rng': []}
     try:
-        file = ReadFile('stats/{}/{}.json'.format(
-            tid,
+        file = ReadFile('{}/rng/{}.json'.format(
+            stats_dir,
             pokemon_name.lower()))
         data = json.loads(file) if file else default
         return data
@@ -415,7 +420,7 @@ def LogEncounter(pokemon: dict):
 
         if config_logging['log_encounters']:
             # Log all encounters to a CSV file per phase
-            csvpath = 'stats/encounters/'
+            csvpath = '{}/encounters/'.format(stats_dir)
             csvfile = 'Phase {} Encounters.csv'.format(stats['totals'].get('shiny_encounters', 0))
             pd_pokemon = pd.DataFrame.from_dict(FlattenData(pokemon), orient='index').drop([
                 'EVs_attack',
@@ -560,7 +565,9 @@ def LogEncounter(pokemon: dict):
         if config_logging['backup_stats'] > 0 and \
         stats['totals'].get('encounters', None) and \
         stats['totals']['encounters'] % config_logging['backup_stats'] == 0:
-            BackupFolder('./stats/', './backups/stats-{}.zip'.format(time.strftime('%Y%m%d-%H%M%S')))
+            BackupFolder('./{}/', './backups/stats-{}.zip'.format(
+                stats_dir,
+                time.strftime('%Y%m%d-%H%M%S')))
 
     except:
         console.print_exception(show_locals=True)
