@@ -190,18 +190,6 @@ def FacingDir(dir: int):
     return None
 
 
-try:
-    if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
-        gSaveBlock2Ptr = ReadSymbol('gSaveBlock2Ptr')
-        p_Trainer = mGBA.p_EWRAM + (
-                struct.unpack('<I', ReadSymbol('gSaveBlock2Ptr'))[0] - mGBA.symbols['EWRAM_START']['addr'])
-        b_Trainer = mGBA.proc.read_bytes(p_Trainer, length=14)
-    else:
-        b_Trainer = ReadSymbol('gSaveBlock2', 14)
-except:
-    console.print_exception(show_locals=True)
-
-
 def DecodeString(bytes: bytes):
     """
     Generation III Pokémon games use a proprietary character encoding to store text data.
@@ -253,156 +241,156 @@ class TrainerState(IntEnum):
 
 # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
 def GetTrainer():
-    b_gTasks = ReadSymbol('gTasks')
-    b_gObjectEvents = ReadSymbol('gObjectEvents')
-    trainer = {
-        'name': DecodeString(b_Trainer[0:7]),
-        'gender': 'girl' if int(b_Trainer[8]) else 'boy',
-        'tid': int(struct.unpack('<H', b_Trainer[10:12])[0]),
-        'sid': int(struct.unpack('<H', b_Trainer[12:14])[0]),
-        'state': int(b_gTasks[87]),
-        'map': (int(b_gTasks[89]), int(b_gTasks[88])),
-        'coords': (int(b_gObjectEvents[16]) - 7, int(b_gObjectEvents[18]) - 7),
-        'facing': FacingDir(int(b_gObjectEvents[24]))
-    }
-    return trainer
+    try:
+        if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
+            p_Trainer = mGBA.p_EWRAM + (
+                    struct.unpack('<I', ReadSymbol('gSaveBlock2Ptr'))[0] - mGBA.symbols['EWRAM_START']['addr'])
+            b_Trainer = mGBA.proc.read_bytes(p_Trainer, 14)
+        else:
+            b_Trainer = ReadSymbol('gSaveBlock2', 14)
+
+        b_gTasks = ReadSymbol('gTasks')
+        b_gObjectEvents = ReadSymbol('gObjectEvents')
+        trainer = {
+            'name': DecodeString(b_Trainer[0:7]),
+            'gender': 'girl' if int(b_Trainer[8]) else 'boy',
+            'tid': int(struct.unpack('<H', b_Trainer[10:12])[0]),
+            'sid': int(struct.unpack('<H', b_Trainer[12:14])[0]),
+            'state': int(b_gTasks[87]),
+            'map': (int(b_gTasks[89]), int(b_gTasks[88])),
+            'coords': (int(b_gObjectEvents[16]) - 7, int(b_gObjectEvents[18]) - 7),
+            'facing': FacingDir(int(b_gObjectEvents[24]))
+        }
+        return trainer
+    except:
+        console.print_exception(show_locals=True)
+        return None
 
 
-def SpeciesName(id: int):
-    if id > len(names_list):
-        return ''
-    return names_list[id - 1]
-
-
-def NationalDexID(id: int):
-    if id <= 251:
-        return id
-    if id >= 413:
-        return 201
-    ix = id - 277
-    if ix < len(nat_ids_list):
-        return nat_ids_list[ix]
-    return 0
-
-
-def Language(value: int):
-    match value:
-        case 1:
-            return 'Japanese'
-        case 2:
-            return 'English'
-        case 3:
-            return 'French'
-        case 4:
-            return 'Italian'
-        case 5:
-            return 'German'
-        case 7:
-            return 'Spanish'
-    return None
-
-
-def OriginGame(value: int):
-    match value:
-        case 1:
-            return 'Sapphire'
-        case 2:
-            return 'Ruby'
-        case 3:
-            return 'Emerald'
-        case 4:
-            return 'FireRed'
-        case 5:
-            return 'LeafGreen'
-        case 15:
-            return 'Colosseum/XD'
-    return None
-
-
-def Markings(value: int):
-    markings = {
-        'circle': True if value & (1 << 0) else False,
-        'square': True if value & (1 << 1) else False,
-        'triangle': True if value & (1 << 2) else False,
-        'heart': True if value & (1 << 3) else False
-    }
-    return markings
-
-
-def Status(value: int):
-    status = {
-        'sleep': value & 0x7,
-        'poison': True if value & (1 << 3) else False,
-        'burn': True if value & (1 << 4) else False,
-        'freeze': True if value & (1 << 5) else False,
-        'paralysis': True if value & (1 << 6) else False,
-        'badPoison': True if value & (1 << 7) else False
-    }
-    return status
-
-
-def Origins(value: int):
-    origins = {
-        'metLevel': value & 0x7F,
-        'hatched': False if value & 0x7F else True,
-        'game': OriginGame((value >> 7) & 0xF),
-        'ball': item_list[(value >> 11) & 0xF]
-    }
-    return origins
-
-
-def IVs(value: int):
-    iv_bitstring = str(str(bin(value)[2:])[::-1] + '00000000000000000000000000000000')[0:32]
-    ivs = {
-        'hp': int(iv_bitstring[0:5], 2),
-        'attack': int(iv_bitstring[5:10], 2),
-        'defense': int(iv_bitstring[10:15], 2),
-        'speed': int(iv_bitstring[15:20], 2),
-        'spAttack': int(iv_bitstring[20:25], 2),
-        'spDefense': int(iv_bitstring[25:30], 2),
-    }
-    return ivs
-
-
-def Moves(value: bytes):
-    moves = []
-    pokemon_pp = []
-    for i in range(0, 4):
-        move_id = int(struct.unpack('<H', value[(i * 2):((i + 1) * 2)])[0])
-        if id == 0:
-            continue
-        moves.append(moves_list[move_id])
-        moves[i]['remaining_pp'] = int(value[(i + 8)])
-    return moves
-
-
-def HiddenPower(value: dict):
-    hidden_power = hidden_powers_list[int(numpy.floor((((value['hp'] % 2) +
-                                            (2 * (value['attack'] % 2)) +
-                                            (4 * (value['defense'] % 2)) +
-                                            (8 * (value['speed'] % 2)) +
-                                            (16 * (value['spAttack'] % 2)) +
-                                            (32 * (value['spDefense'] % 2))) * 15) / 63))]
-    return hidden_power
-
-def Pokerus(value: int):
-    pokerus = {
-        'days': value & 0xF,
-        'strain': value >> 4,
-    }
-    return pokerus
-
-
-# https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Encryption
-def DecryptSubSection(data: bytes, key: int):
-    return struct.pack('<III',
-                       struct.unpack('<I', data[0:4])[0] ^ key,
-                       struct.unpack('<I', data[4:8])[0] ^ key,
-                       struct.unpack('<I', data[8:12])[0] ^ key)
-
-
-# https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
 def ParsePokemon(b_Pokemon: bytes) -> dict:
+    def SpeciesName(value: int):
+        if value > len(names_list):
+            return ''
+        return names_list[value - 1]
+
+    def NationalDexID(value: int):
+        if value <= 251:
+            return value
+        if value >= 413:
+            return 201
+        ix = value - 277
+        if ix < len(nat_ids_list):
+            return nat_ids_list[ix]
+        return 0
+
+    def Language(value: int):
+        match value:
+            case 1:
+                return 'Japanese'
+            case 2:
+                return 'English'
+            case 3:
+                return 'French'
+            case 4:
+                return 'Italian'
+            case 5:
+                return 'German'
+            case 7:
+                return 'Spanish'
+        return None
+
+    def OriginGame(value: int):
+        match value:
+            case 1:
+                return 'Sapphire'
+            case 2:
+                return 'Ruby'
+            case 3:
+                return 'Emerald'
+            case 4:
+                return 'FireRed'
+            case 5:
+                return 'LeafGreen'
+            case 15:
+                return 'Colosseum/XD'
+        return None
+
+    def Markings(value: int):
+        markings = {
+            'circle': True if value & (1 << 0) else False,
+            'square': True if value & (1 << 1) else False,
+            'triangle': True if value & (1 << 2) else False,
+            'heart': True if value & (1 << 3) else False
+        }
+        return markings
+
+    def Status(value: int):
+        status = {
+            'sleep': value & 0x7,
+            'poison': True if value & (1 << 3) else False,
+            'burn': True if value & (1 << 4) else False,
+            'freeze': True if value & (1 << 5) else False,
+            'paralysis': True if value & (1 << 6) else False,
+            'badPoison': True if value & (1 << 7) else False
+        }
+        return status
+
+    def Origins(value: int):
+        origins = {
+            'metLevel': value & 0x7F,
+            'hatched': False if value & 0x7F else True,
+            'game': OriginGame((value >> 7) & 0xF),
+            'ball': item_list[(value >> 11) & 0xF]
+        }
+        return origins
+
+    def IVs(value: int):
+        iv_bitstring = str(str(bin(value)[2:])[::-1] + '00000000000000000000000000000000')[0:32]
+        ivs = {
+            'hp': int(iv_bitstring[0:5], 2),
+            'attack': int(iv_bitstring[5:10], 2),
+            'defense': int(iv_bitstring[10:15], 2),
+            'speed': int(iv_bitstring[15:20], 2),
+            'spAttack': int(iv_bitstring[20:25], 2),
+            'spDefense': int(iv_bitstring[25:30], 2),
+        }
+        return ivs
+
+    def Moves(value: bytes):
+        moves = []
+        for i in range(0, 4):
+            move_id = int(struct.unpack('<H', value[(i * 2):((i + 1) * 2)])[0])
+            if id == 0:
+                continue
+            moves.append(moves_list[move_id])
+            moves[i]['remaining_pp'] = int(value[(i + 8)])
+        return moves
+
+    # https://bulbapedia.bulbagarden.net/wiki/Hidden_Power_(move)/Calculation#Generation_III_onward
+    def HiddenPower(value: dict):
+        hidden_power = hidden_powers_list[int(numpy.floor((((value['hp'] % 2) +
+                                                            (2 * (value['attack'] % 2)) +
+                                                            (4 * (value['defense'] % 2)) +
+                                                            (8 * (value['speed'] % 2)) +
+                                                            (16 * (value['spAttack'] % 2)) +
+                                                            (32 * (value['spDefense'] % 2))) * 15) / 63))]
+        return hidden_power
+
+    # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
+    def Pokerus(value: int):
+        pokerus = {
+            'days': value & 0xF,
+            'strain': value >> 4,
+        }
+        return pokerus
+
+    # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Encryption
+    def DecryptSubSection(data: bytes, key: int):
+        return struct.pack('<III',
+                           struct.unpack('<I', data[0:4])[0] ^ key,
+                           struct.unpack('<I', data[4:8])[0] ^ key,
+                           struct.unpack('<I', data[8:12])[0] ^ key)
+
     try:
         flags = int(b_Pokemon[19])
         pid = struct.unpack('<I', b_Pokemon[0:4])[0]
@@ -525,20 +513,66 @@ def GetParty():
 
 
 def GetOpponent():
-    while not (opponent := ParsePokemon(ReadSymbol('gEnemyParty')[:100])):
-        continue
-    else:
-        return opponent
+    try:
+        while not (opponent := ParsePokemon(ReadSymbol('gEnemyParty')[:100])):
+            continue
+        else:
+            return opponent
+    except:
+        console.print_exception(show_locals=True)
+        return None
 
 
 last_opid = ReadSymbol('gEnemyParty', size=4)
 
 
 def OpponentChanged():
-    global last_opid
-    opponent_pid = ReadSymbol('gEnemyParty', size=4)
-    if opponent_pid != last_opid:
-        last_opid = opponent_pid
-        return True
-    else:
+    try:
+        global last_opid
+        opponent_pid = ReadSymbol('gEnemyParty', size=4)
+        if opponent_pid != last_opid:
+            last_opid = opponent_pid
+            return True
+        else:
+            return False
+    except:
+        console.print_exception(show_locals=True)
         return False
+
+
+def GetBag(): # TODO RS not working yet (FRLG and E are)
+    try:
+        # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Item_pockets
+        bag = {}
+        b_BagPockets = ReadSymbol('gBagPockets')
+        bag_types = ['Items', 'Poké Balls', 'TMs & HMs', 'Berries', 'Key Items']
+        for type in bag_types:
+            bag[type] = {}
+
+        # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Security_key
+        def GetKey(offset: int):
+            p_Trainer = mGBA.p_EWRAM + (
+                    struct.unpack('<I', ReadSymbol('gSaveBlock2Ptr'))[0] - mGBA.symbols['EWRAM_START']['addr'])
+            return struct.unpack('<H', mGBA.proc.read_bytes(p_Trainer + offset, 2))[0]
+        if mGBA.game in ['Pokémon FireRed', 'Pokémon LeafGreen']:
+            key = GetKey(0xF20)
+        elif mGBA.game is 'Pokémon Emerald':
+            key = GetKey(0xAC)
+        else:
+            key = 0
+
+        for i in range(5):
+            start_pocket = int(struct.unpack('<I', b_BagPockets[i*8:i*8+4])[0])
+            pocket_size = int(b_BagPockets[i*8+4])
+            b_Pocket = mGBA.proc.read_bytes(
+                mGBA.p_EWRAM + (start_pocket - mGBA.symbols['EWRAM_START']['addr']), pocket_size*4)
+            for j in range(0, pocket_size):
+                item = {
+                    'name': item_list[int(struct.unpack('<H', b_Pocket[j*4:j*4+2])[0])],
+                    'quantity': int(struct.unpack('<H', b_Pocket[j*4+2:j*4+4])[0] ^ key)
+                }
+                bag[bag_types[i]][j] = item
+        return bag
+    except:
+        console.print_exception(show_locals=True)
+        return None
