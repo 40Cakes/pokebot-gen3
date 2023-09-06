@@ -16,4 +16,4 @@ console:
 # HIGHLY recommended to backup stats/ folder regularly, totals.json is known to get corrupted during power outages
 # Make sure you regularly delete old backups (especially if your stats folder is large!)
 # Set to 0 to disable
-backup_stats: 5000
+backup_stats: 25000

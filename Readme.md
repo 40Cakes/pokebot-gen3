@@ -83,6 +83,48 @@ Start the bot anywhere you want, and it will mash random directions to spin on t
 
 ***
 
+## Other Features
+
+### Multi-Instance Botting
+Statistics are saved into subdirectories, per-game and trainer ID (`stats/<game_code>/<trainer_id>-<trainer_name>/`) so you can safely run as many instances as your PC can handle, from a single bot folder!
+
+The bot will first attempt to load independent `.yml` and `.py` config files from `config/<game_code>/<trainer_id>-<trainer_name>/` (automatically created), otherwise it will default to the root `config/` folder; this allows you to run separate instances with unique config.
+
+Example:
+```
+├── /config
+    │   battle.yml             <-- loaded for saves
+    │   cheats.yml             <-- loaded for saves
+    │   CustomCatchFilters.py  <-- loaded for saves
+    │   CustomHooks.py         <-- loaded for saves
+    │   discord.yml            <-- loaded for saves except Emerald (TID 52963)
+    │   general.yml            <-- loaded for saves except Emerald (TID 52963) and FireRed (TID 39167)
+    │   logging.yml            <-- loaded for saves
+    │   obs.yml                <-- loaded for saves
+    │
+    ├── /BPEE
+    │   └───/52963-MAY
+    |           discord.yml    <-- loaded for Emerald (TID 52963)
+    │           general.yml    <-- loaded for Emerald (TID 52963)
+    │
+    ├── /BPRE
+        └───/39167-RED
+                general.yml    <-- loaded for FireRed (TID 39167)
+```
+
+### Discord Webhooks
+TODO Readme
+
+### HTTP Server
+TODO Readme
+
+### OBS Webhooks
+TODO Readme
+
+### Cheats/MemHacks
+TODO Readme
+***
+
 # Attributions ❤
 
 This project would not be possible without the symbols tables from the Pokémon decompilation projects:

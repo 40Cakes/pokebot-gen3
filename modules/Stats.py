@@ -3,32 +3,53 @@ import copy
 import json
 import math
 import time
+import importlib
 import pydirectinput
 import pandas as pd
 from threading import Thread
 from datetime import datetime
 
 from rich.table import Table
-from config.CustomCatchFilters import CustomCatchFilters
-from config.CustomHooks import CustomHooks
 from modules.Colours import IVColour, IVSumColour, SVColour
 from modules.Config import config_obs, config_logging
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import mGBA, GetTrainer, TrainerState
+from modules.Memory import GetTrainer, TrainerState, mGBA
 
-os.makedirs('stats', exist_ok=True)
-stats_dir = 'stats/{}/{}-{}'.format(
+safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
+trainer_dir = '{}/{}-{}'.format(
     mGBA.game_code,
     GetTrainer()['tid'],
-    GetTrainer()['name']
+    safe_trainer_name
 )
+stats_dir = './stats/{}'.format(trainer_dir)
+os.makedirs(stats_dir, exist_ok=True)
 files = {
     'encounter_log': '{}/encounter_log.json'.format(stats_dir),
     'shiny_log': '{}/shiny_log.json'.format(stats_dir),
     'totals': '{}/totals.json'.format(stats_dir)
 }
+
+try:
+    if os.path.isfile('./config/{}/CustomCatchFilters.py'.format(trainer_dir)):
+        CustomCatchFilters = importlib.import_module('.CustomCatchFilters', 'config.{}.{}-{}'.format(
+            mGBA.game_code,
+            GetTrainer()['tid'],
+            safe_trainer_name)).CustomCatchFilters
+    else:
+        from config.CustomCatchFilters import CustomCatchFilters
+
+    if os.path.isfile('./config/{}/CustomHooks.py'.format(trainer_dir)):
+        CustomHooks = importlib.import_module('.CustomHooks', 'config.{}.{}-{}'.format(
+            mGBA.game_code,
+            GetTrainer()['tid'],
+            safe_trainer_name)).CustomHooks
+    else:
+        from config.CustomHooks import CustomHooks
+except:
+    console.print_exception(show_locals=True)
+    os._exit(1)
 
 def FlattenData(data: dict):
     out = {}

@@ -550,7 +550,7 @@ def GetBag(): # TODO RS not working yet (FRLG and E are)
         if mGBA.game in ['Pokémon FireRed', 'Pokémon LeafGreen']:
             pocket_order = ['Items', 'Key Items', 'Poké Balls',  'TMs & HMs', 'Berries']
             key = GetKey(0xF20)
-        elif mGBA.game is 'Pokémon Emerald':
+        elif mGBA.game == 'Pokémon Emerald':
             pocket_order = ['Items', 'Poké Balls', 'TMs & HMs', 'Berries', 'Key Items']
             key = GetKey(0xAC)
         else:
@@ -574,7 +574,6 @@ def GetBag(): # TODO RS not working yet (FRLG and E are)
                     'quantity': int(struct.unpack('<H', b_Pocket[j*4+2:j*4+4])[0] ^ key)
                 }
                 bag[pocket_order[i]][j] = item
-                console.log(item)
         return bag
     except:
         console.print_exception(show_locals=True)
