@@ -565,7 +565,7 @@ def LogEncounter(pokemon: dict):
         if config_logging['backup_stats'] > 0 and \
         stats['totals'].get('encounters', None) and \
         stats['totals']['encounters'] % config_logging['backup_stats'] == 0:
-            BackupFolder('./{}/', './backups/stats-{}.zip'.format(
+            BackupFolder('./{}/'.format(stats_dir), './backups/{}/{}.zip'.format(
                 stats_dir,
                 time.strftime('%Y%m%d-%H%M%S')))
 

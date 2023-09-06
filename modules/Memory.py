@@ -542,24 +542,26 @@ def OpponentChanged():
 
 def GetBag(): # TODO RS not working yet (FRLG and E are)
     try:
-        # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Item_pockets
-        bag = {}
-        b_BagPockets = ReadSymbol('gBagPockets')
-        bag_types = ['Items', 'Poké Balls', 'TMs & HMs', 'Berries', 'Key Items']
-        for type in bag_types:
-            bag[type] = {}
-
         # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Security_key
         def GetKey(offset: int):
             p_Trainer = mGBA.p_EWRAM + (
                     struct.unpack('<I', ReadSymbol('gSaveBlock2Ptr'))[0] - mGBA.symbols['EWRAM_START']['addr'])
             return struct.unpack('<H', mGBA.proc.read_bytes(p_Trainer + offset, 2))[0]
         if mGBA.game in ['Pokémon FireRed', 'Pokémon LeafGreen']:
+            pocket_order = ['Items', 'Key Items', 'Poké Balls',  'TMs & HMs', 'Berries']
             key = GetKey(0xF20)
         elif mGBA.game is 'Pokémon Emerald':
+            pocket_order = ['Items', 'Poké Balls', 'TMs & HMs', 'Berries', 'Key Items']
             key = GetKey(0xAC)
         else:
+            pocket_order = ['Items', 'Poké Balls', 'TMs & HMs', 'Berries', 'Key Items']  # TODO R/S needs testing
             key = 0
+
+        # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Item_pockets
+        bag = {}
+        b_BagPockets = ReadSymbol('gBagPockets')
+        for pocket in pocket_order:
+            bag[pocket] = {}
 
         for i in range(5):
             start_pocket = int(struct.unpack('<I', b_BagPockets[i*8:i*8+4])[0])
@@ -571,7 +573,8 @@ def GetBag(): # TODO RS not working yet (FRLG and E are)
                     'name': item_list[int(struct.unpack('<H', b_Pocket[j*4:j*4+2])[0])],
                     'quantity': int(struct.unpack('<H', b_Pocket[j*4+2:j*4+4])[0] ^ key)
                 }
-                bag[bag_types[i]][j] = item
+                bag[pocket_order[i]][j] = item
+                console.log(item)
         return bag
     except:
         console.print_exception(show_locals=True)

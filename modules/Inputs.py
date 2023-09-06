@@ -1,5 +1,7 @@
 import struct
 from typing import NoReturn
+
+from modules.Config import config_general
 from modules.Memory import mGBA, GetFrameCount
 
 press = 0
@@ -37,7 +39,8 @@ def WriteInputs(value: int) -> NoReturn:
 
     :param value: inputs to write to mGBA memory
     """
-    mGBA.proc.write_bytes(mGBA.p_Input, struct.pack('<H', value), 2)
+    if config_general['bot_mode'] != 'manual':
+        mGBA.proc.write_bytes(mGBA.p_Input, struct.pack('<H', value), 2)
 
 
 def WaitFrames(frames: int) -> NoReturn:

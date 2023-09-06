@@ -26,6 +26,11 @@ The bot will pause once a shiny is encountered. You must ensure you are able to 
 ## Bot Modes
 Modify the `bot_mode` paramater in `config/general.yml` to any of the following modes.
 ***
+### `manual`
+Manual mode simply disables all bot inputs, allowing you to track encounters and stats on your own shiny hunts as you play the game normally.
+
+***
+
 ### `spin`
 Start the bot anywhere you want, and it will mash random directions to spin on the tile (this mode is useful for Safari Zone and [repel tricking](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) as it doesn't use up steps!)
 

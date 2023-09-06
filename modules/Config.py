@@ -11,6 +11,7 @@ properties:
     bot_mode:
         type: string
         enum:
+            - manual
             - spin
             - starters
     coords:

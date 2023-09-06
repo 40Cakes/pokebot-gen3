@@ -37,20 +37,21 @@ except:
 # Main Loop
 while True:
     try:
-        if GetTrainer()['state'] == TrainerState.MISC_MENU | TrainerState.BATTLE | TrainerState.BATTLE_2:
-            # Search for the text "What will (Pokémon) do?" in `gDisplayedStringBattle`
-            b_What = EncodeString('What')
+        if config_general['bot_mode'] != 'manual':
+            if GetTrainer()['state'] == TrainerState.MISC_MENU | TrainerState.BATTLE | TrainerState.BATTLE_2:
+                # Search for the text "What will (Pokémon) do?" in `gDisplayedStringBattle`
+                b_What = EncodeString('What')  # TODO English only
 
-            while ReadSymbol('gDisplayedStringBattle', size=4) != b_What:
-                PressButton(['B'])
-            while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 1:
-                PressButton(['Right'])
-            while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 3:
-                PressButton(['Down'])
-            while ReadSymbol('gDisplayedStringBattle', size=4) == b_What:
-                PressButton(['A'])
-            while GetTrainer()['state'] != TrainerState.OVERWORLD:
-                PressButton(['B'])
+                while ReadSymbol('gDisplayedStringBattle', size=4) != b_What:
+                    PressButton(['B'])
+                while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 1:
+                    PressButton(['Right'])
+                while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 3:
+                    PressButton(['Down'])
+                while ReadSymbol('gDisplayedStringBattle', size=4) == b_What:
+                    PressButton(['A'])
+                while GetTrainer()['state'] != TrainerState.OVERWORLD:
+                    PressButton(['B'])
 
         if OpponentChanged():
             while GetTrainer()['state'] != TrainerState.MISC_MENU | TrainerState.BATTLE | TrainerState.BATTLE_2:
@@ -59,6 +60,9 @@ while True:
             EncounterPokemon(GetOpponent())
 
         match config_general['bot_mode']:
+            case 'manual':
+                WaitFrames(5)
+
             case 'spin':
                 from modules.gen3.General import ModeSpin
                 ModeSpin()
