@@ -129,7 +129,7 @@ while True:
         time.sleep(0.5)
 
 
-def ReadSymbol(name: str, offset: int = 0, size: int = 0):
+def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0):
     """
     This function uses the symbol tables from the Pokémon decompilation projects found here: https://github.com/pret
     Symbol tables are loaded and parsed as a dict in the `emulator` class, the .sym files for each game can be found
@@ -153,12 +153,12 @@ def ReadSymbol(name: str, offset: int = 0, size: int = 0):
     :return: byte data
     """
     sym_addr = mGBA.symbols[name]['addr']
-    match sym_addr >> 24:
-        case 2:
+    match sym_addr >> 0x18:
+        case 0x2:
             addr = mGBA.p_EWRAM + (sym_addr - mGBA.symbols['EWRAM_START']['addr'])
-        case 3:
+        case 0x3:
             addr = mGBA.p_IWRAM + (sym_addr - mGBA.symbols['IWRAM_START']['addr'])
-        case 8:
+        case 0x8:
             addr = mGBA.p_ROM + (sym_addr - mGBA.symbols['Start']['addr'])
         case _:
             return None
@@ -179,14 +179,14 @@ def GetFrameCount():
 
 def FacingDir(dir: int):
     match dir:
-        case 34:
-            return 'Up'
-        case 68:
-            return 'Right'
-        case 17:
+        case 0x11:
             return 'Down'
-        case 51:
+        case 0x22:
+            return 'Up'
+        case 0x33:
             return 'Left'
+        case 0x44:
+            return 'Right'
     return None
 
 
@@ -231,35 +231,39 @@ def EncodeString(text: str):
 
 class TrainerState(IntEnum):
     # TODO Need further investigation; many values have multiple meanings
-    BAG_MENU = 0
-    BATTLE = 2
-    BATTLE_2 = 3
-    FOE_DEFEATED = 5
-    OVERWORLD = 80
-    MISC_MENU = 255
+    BAG_MENU = 0x0
+    BATTLE = 0x2
+    BATTLE_2 = 0x3
+    FOE_DEFEATED = 0x5
+    OVERWORLD = 0x50
+    MISC_MENU = 0xFF
 
 
 # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
+try:
+    if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
+        p_Trainer = mGBA.p_EWRAM + (
+                struct.unpack('<I', ReadSymbol('gSaveBlock2Ptr'))[0] - mGBA.symbols['EWRAM_START']['addr'])
+        b_Trainer = mGBA.proc.read_bytes(p_Trainer, 0xE)
+    else:
+        b_Trainer = ReadSymbol('gSaveBlock2', size=0xE)
+except:
+    console.print_exception(show_locals=True)
+
+
 def GetTrainer():
     try:
-        if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
-            p_Trainer = mGBA.p_EWRAM + (
-                    struct.unpack('<I', ReadSymbol('gSaveBlock2Ptr'))[0] - mGBA.symbols['EWRAM_START']['addr'])
-            b_Trainer = mGBA.proc.read_bytes(p_Trainer, 14)
-        else:
-            b_Trainer = ReadSymbol('gSaveBlock2', 14)
-
-        b_gTasks = ReadSymbol('gTasks')
-        b_gObjectEvents = ReadSymbol('gObjectEvents')
+        b_gTasks = ReadSymbol('gTasks', 0x57, 0x3)
+        b_gObjectEvents = ReadSymbol('gObjectEvents', 0x10, 0x9)
         trainer = {
             'name': DecodeString(b_Trainer[0:7]),
             'gender': 'girl' if int(b_Trainer[8]) else 'boy',
             'tid': int(struct.unpack('<H', b_Trainer[10:12])[0]),
             'sid': int(struct.unpack('<H', b_Trainer[12:14])[0]),
-            'state': int(b_gTasks[87]),
-            'map': (int(b_gTasks[89]), int(b_gTasks[88])),
-            'coords': (int(b_gObjectEvents[16]) - 7, int(b_gObjectEvents[18]) - 7),
-            'facing': FacingDir(int(b_gObjectEvents[24]))
+            'state': int(b_gTasks[0]),
+            'map': (int(b_gTasks[2]), int(b_gTasks[1])),
+            'coords': (int(b_gObjectEvents[0]) - 7, int(b_gObjectEvents[2]) - 7),
+            'facing': FacingDir(int(b_gObjectEvents[8]))
         }
         return trainer
     except:
@@ -339,8 +343,8 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
         origins = {
             'metLevel': value & 0x7F,
             'hatched': False if value & 0x7F else True,
-            'game': OriginGame((value >> 7) & 0xF),
-            'ball': item_list[(value >> 11) & 0xF]
+            'game': OriginGame((value >> 0x7) & 0xF),
+            'ball': item_list[(value >> 0xB) & 0xF]
         }
         return origins
 
@@ -380,7 +384,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
     def Pokerus(value: int):
         pokerus = {
             'days': value & 0xF,
-            'strain': value >> 4,
+            'strain': value >> 0x4,
         }
         return pokerus
 
@@ -402,7 +406,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
         # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
         key = ot ^ pid
         data = b_Pokemon[32:80]
-        order = pid % 24
+        order = pid % 0x18
         order_string = substructs[order]
         sections = {}
         for i in range(0, 4):
@@ -424,7 +428,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
             'natID': NationalDexID(id),
             'species': int(struct.unpack('<H', sections['G'][0:2])[0]),
             'pid': pid,
-            'nature': natures_list[pid % 25],
+            'nature': natures_list[pid % 0x19],
             'language': Language(int(b_Pokemon[18])),
             'shinyValue': shiny_value,
             'shiny': shiny,
@@ -432,9 +436,9 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
                 'tid': tid,
                 'sid': sid
             },
-            'isBadEgg': flags & 1,
-            'hasSpecies': (flags >> 1) & 1,
-            'isEgg': (flags >> 2) & 1,
+            'isBadEgg': flags & 0x1,
+            'hasSpecies': (flags >> 0x1) & 0x1,
+            'isEgg': (flags >> 0x2) & 0x1,
             'level': int(b_Pokemon[84]),
             'expGroup': exp_groups_list[id - 1],
             'item': {
@@ -485,7 +489,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
             'pokerus': Pokerus(int(sections['M'][0])),
             'metLocation': location_list[int(sections['M'][1])],
             'origins': Origins(int(struct.unpack('<H', sections['M'][2:4])[0])),
-            'ability': pokemon_list[name]['ability'][int(struct.unpack('<I', sections['M'][4:8])[0] >> 31)],
+            'ability': pokemon_list[name]['ability'][int(struct.unpack('<I', sections['M'][4:8])[0] >> 0x1F)],
             'type': pokemon_list[name]['type']
         }
         return pokemon

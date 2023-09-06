@@ -88,7 +88,7 @@ Start the bot anywhere you want, and it will mash random directions to spin on t
 ### Multi-Instance Botting
 Statistics are saved into subdirectories, per-game and trainer ID (`stats/<game_code>/<trainer_id>-<trainer_name>/`) so you can safely run as many instances as your PC can handle, from a single bot folder!
 
-The bot will first attempt to load independent `.yml` and `.py` config files from `config/<game_code>/<trainer_id>-<trainer_name>/` (automatically created), otherwise it will default to the root `config/` folder; this allows you to run separate instances with unique config.
+The bot will first attempt to load independent `.yml` and `.py` config files from `config/<game_code>/<trainer_id>-<trainer_name>/` (automatically created), otherwise it will default to the files in the root `config/` folder; this allows you to run separate instances with unique config.
 
 Example:
 ```

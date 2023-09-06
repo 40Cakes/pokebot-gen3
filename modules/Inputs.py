@@ -59,6 +59,7 @@ def ReleaseInputs() -> NoReturn:
     global held
     press, held = 0, 0
     WriteInputs(0)
+    WaitFrames(1)
 
 
 def PressButton(buttons: list, hold_frames: int = 1) -> NoReturn:
