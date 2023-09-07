@@ -47,7 +47,7 @@ def FleeBattle() -> NoReturn:
         PressButton(["B"])
 
 
-def getMovePower(move, ally_types, foe_types) -> float:
+def getMovePower(move, ally_types, foe_types, ally_attacks, foe_defenses) -> float:
     """
     function to calculate effective power of a move
 
@@ -59,6 +59,7 @@ def getMovePower(move, ally_types, foe_types) -> float:
         return 0
 
     matchups = type_list[move["type"]]
+    category = matchups["category"]
 
     for foe_type in foe_types:
         if foe_type in matchups["immunes"]:
@@ -71,6 +72,11 @@ def getMovePower(move, ally_types, foe_types) -> float:
     # STAB (same-type attack bonus)
     if move["type"] in ally_types:
         power *= 1.5
+
+    # calculating attack/defense effect
+    stat_calc = ally_attacks[category] / foe_defenses[category]
+    power *= stat_calc
+
     return power
 
 
@@ -113,11 +119,19 @@ def FindEffectiveMove(ally: dict, foe: dict) -> dict:
     """
     move_power = []
     foe_types = pokemon_list[foe["name"]]["type"]
+    foe_defenses = {
+        'physical': foe['stats']['defense'],
+        'special': foe['stats']['spDefense'],
+    }
     ally_types = pokemon_list[ally["name"]]["type"]
+    ally_attacks = {
+        'physical': foe['stats']['attack'],
+        'special': foe['stats']['spAttack'],
+    }
 
     # calculate power of each possible move
     for i, move in enumerate(ally["moves"]):
-        move_power.append(getMovePower(move, ally_types, foe_types))
+        move_power.append(getMovePower(move, ally_types, foe_types, ally_attacks, foe_defenses))
 
     # calculate best move and return info
     best_move_index = move_power.index(max(move_power))
