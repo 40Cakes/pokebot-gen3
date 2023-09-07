@@ -33,6 +33,6 @@ webhook_url:
 # Makes data available via HTTP requests
 # TODO: add list of available GET endpoints
 server:
-  enable: true
+  enable: false
   ip: 127.0.0.1
   port: 8888 # Server port must be unique for each instance of the bot you run
