@@ -1,3 +1,4 @@
+import copy
 import os
 import json
 import time
@@ -370,7 +371,7 @@ def Moves(value: bytes):
         move_id = int(struct.unpack('<H', value[(i * 2):((i + 1) * 2)])[0])
         if id == 0:
             continue
-        moves.append(moves_list[move_id])
+        moves.append(copy.deepcopy(moves_list[move_id]))
         moves[i]['remaining_pp'] = int(value[(i + 8)])
     return moves
 
