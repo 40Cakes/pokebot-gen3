@@ -591,9 +591,9 @@ def EncounterPokemon(pokemon: dict):
         # Some languages place Pokemon name at the start of `gDisplayedStringBattle`, need to add an offset
         b_What = EncodeString('What')
 
-        while ReadSymbol("gDisplayedStringBattle", size=4) != b_What:
-            PressButton(["B"])
-        if config["battle"]:
+        while ReadSymbol('gDisplayedStringBattle', size=4) != b_What:
+            PressButton(['B'])
+        if config['battle']:
             battle_won = BattleOpponent()
             # adding this in for lead rotation functionality down the line
             replace_battler = not battle_won
@@ -604,124 +604,3 @@ def EncounterPokemon(pokemon: dict):
                 continue
             if GetTrainer()['state'] == TrainerState.OVERWORLD:
                     CheckForPickup()
-
-# TODO
-#    pokemon = GetParty()[0] if starter else GetOpponent()
-#    LogEncounter(pokemon)
-#
-#    replace_battler = False
-#
-#    if pokemon['shiny']:
-#        if not starter and not legendary_hunt and config['catch_shinies']:
-#            blocked = GetBlockList()
-#            opponent = GetOpponent()
-#            if opponent['name'] in blocked['block_list']:
-#                console.print('---- Pokemon is in list of non-catpures. Fleeing battle ----')
-#                if config['discord']['messages']:
-#                    try:
-#                        content = f'Encountered shiny {opponent['name']}... but catching this species is disabled. Fleeing battle!'
-#                        webhook = DiscordWebhook(url=config['discord']['webhook_url'], content=content)
-#                        webhook.execute()
-#                    except Exception as e:
-#                        log.exception(str(e))
-#                        pass
-#                FleeBattle()
-#            else:
-#                CatchPokemon()
-#        elif legendary_hunt:
-#            input('Pausing bot for manual intervention. (Don't forget to pause the pokebot.lua script so you can '
-#                  'provide inputs). Press Enter to continue...')
-#        elif not config['catch_shinies']:
-#            FleeBattle()
-#        return True
-#    else:
-#        if config['bot_mode'] == 'manual':
-#            while GetTrainer()['state'] != GameState.OVERWORLD:
-#                WaitFrames(100)
-#        elif starter:
-#            return False
-#
-#        if CustomCatchConfig(pokemon):
-#            CatchPokemon()
-#
-#        if not legendary_hunt:
-#            if config['battle']:
-#                battle_won = BattleOpponent()
-#                replace_battler = not battle_won
-#            else:
-#                FleeBattle()
-#        elif config['bot_mode'] == 'deoxys resets':
-#            if not config['mem_hacks']:
-#                # Wait until sprite has appeared in battle before reset
-#                WaitFrames(240)
-#            ResetGame()
-#            return False
-#        else:
-#            FleeBattle()
-#
-#        if config['pickup'] and not legendary_hunt:
-#            PickupItems()
-#
-#        # If total encounters modulo config['save_every_x_encounters'] is 0, save the game
-#        # Save every x encounters to prevent data loss (pickup, levels etc)
-#        stats = GetStats()
-#        if config['autosave_encounters'] > 0 and stats['totals']['encounters'] > 0 and \
-#                stats['totals']['encounters'] % config['autosave_encounters'] == 0:
-#            SaveGame()
-#
-#        if replace_battler:
-#            if not config['cycle_lead_pokemon']:
-#                console.print('Lead Pokemon can no longer battle. Ending the script!')
-#                FleeBattle()
-#                return False
-#            else:
-#                StartMenu('pokemon')
-#
-#                # Find another healthy battler
-#                party_pp = [0, 0, 0, 0, 0, 0]
-#                for i, mon in enumerate(GetParty()):
-#                    if mon is None:
-#                        continue
-#
-#                    if mon['hp'] > 0 and i != 0:
-#                        for j, move in enumerate(mon['enrichedMoves']):
-#                            if IsValidMove(move) and mon['pp'][j] > 0:
-#                                party_pp[i] += move['pp']
-#
-#                highest_pp = max(party_pp)
-#                lead_idx = party_pp.index(highest_pp)
-#
-#                if highest_pp == 0:
-#                    console.print('Ran out of Pokemon to battle with. Ending the script!')
-#                    os._exit(1)
-#
-#                lead = GetParty()[lead_idx]
-#                if lead is not None:
-#                    console.print(f'Replacing lead battler with {lead['name']} (Party slot {lead_idx})')
-#
-#                PressButton('A')
-#                WaitFrames(60)
-#                PressButton('A')
-#                WaitFrames(15)
-#
-#                for _ in range(3):
-#                    PressButton('Up')
-#                    WaitFrames(15)
-#
-#                PressButton('A')
-#                WaitFrames(15)
-#
-#                for _ in range(lead_idx):
-#                    PressButton('Down')
-#                    WaitFrames(15)
-#
-#                # Select target Pokémon and close out menu
-#                PressButton('A')
-#                WaitFrames(60)
-#
-#                console.print('Replaced lead Pokemon!')
-#
-#                for _ in range(5):
-#                    PressButton('B')
-#                    WaitFrames(15)
-#        return False

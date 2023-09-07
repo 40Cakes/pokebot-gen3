@@ -10,7 +10,7 @@ from modules.data.GameState import GameState
 from modules.Console import console
 
 
-def SelectBattleOption(desired_option: int, cursor_type: str = "gActionSelectionCursor") -> NoReturn:
+def SelectBattleOption(desired_option: int, cursor_type: str = 'gActionSelectionCursor') -> NoReturn:
     """
     Takes a desired battle menu option, navigates to it, and presses it.
 
@@ -22,14 +22,14 @@ def SelectBattleOption(desired_option: int, cursor_type: str = "gActionSelection
     while ReadSymbol(cursor_type)[0] != desired_option:
         match (ReadSymbol(cursor_type)[0] % 2) - (desired_option % 2):
             case - 1:
-                PressButton(["Right"])
+                PressButton(['Right'])
             case 1:
-                PressButton(["Left"])
+                PressButton(['Left'])
         match (ReadSymbol(cursor_type)[0] // 2) - (desired_option // 2):
             case - 1:
-                PressButton(["Down"])
+                PressButton(['Down'])
             case 1:
-                PressButton(["Up"])
+                PressButton(['Up'])
             case 0:
                 pass
     if ReadSymbol(cursor_type)[0] == desired_option:
@@ -46,7 +46,7 @@ def FleeBattle() -> NoReturn:
     """
     SelectBattleOption(3, cursor_type='gActionSelectionCursor')
     while GetTrainer()['state'] != GameState.OVERWORLD:
-        PressButton(["B"])
+        PressButton(['B'])
 
 
 def getMovePower(move, ally_types, foe_types, ally_attacks, foe_defenses) -> float:
@@ -54,25 +54,25 @@ def getMovePower(move, ally_types, foe_types, ally_attacks, foe_defenses) -> flo
     function to calculate effective power of a move
 
     """
-    power = move["power"]
+    power = move['power']
 
     # Ignore banned moves and those with 0 PP
-    if (not isValidMove(move)) or (move["remaining_pp"] == 0):
+    if (not isValidMove(move)) or (move['remaining_pp'] == 0):
         return 0
 
     matchups = type_list[move["type"]]
     category = matchups["category"]
 
     for foe_type in foe_types:
-        if foe_type in matchups["immunes"]:
+        if foe_type in matchups['immunes']:
             return 0
-        elif foe_type in matchups["weaknesses"]:
+        elif foe_type in matchups['weaknesses']:
             power *= 0.5
-        elif foe_type in matchups["strengths"]:
+        elif foe_type in matchups['strengths']:
             power *= 2
 
     # STAB (same-type attack bonus)
-    if move["type"] in ally_types:
+    if move['type'] in ally_types:
         power *= 1.5
 
     # calculating attack/defense effect
@@ -83,10 +83,10 @@ def getMovePower(move, ally_types, foe_types, ally_attacks, foe_defenses) -> flo
 
 
 def isValidMove(move: dict) -> bool:
-    return move["name"] not in config["banned_moves"] and move["power"] > 0
+    return move['name'] not in config['banned_moves'] and move['power'] > 0
 
 
-def calculate_new_move_viability(party: dict) -> bool:
+def CalculateNewMoveViability(party: dict) -> bool:
     """
     new_party = GetParty()
     for pkmn in new_party.values():
@@ -138,9 +138,9 @@ def FindEffectiveMove(ally: dict, foe: dict) -> dict:
     # calculate best move and return info
     best_move_index = move_power.index(max(move_power))
     return {
-        "name": ally["moves"][best_move_index]["name"],
-        "index": best_move_index,
-        "power": max(move_power),
+        'name': ally['moves'][best_move_index]['name'],
+        'index': best_move_index,
+        'power': max(move_power),
     }
 
 
@@ -153,14 +153,14 @@ def BattleOpponent() -> bool:
     ally_fainted = False
     foe_fainted = False
 
-    while not ally_fainted and not foe_fainted and GetTrainer()["state"] != GameState.OVERWORLD:
-        if GetTrainer()["state"] == GameState.OVERWORLD:
+    while not ally_fainted and not foe_fainted and GetTrainer()['state'] != GameState.OVERWORLD:
+        if GetTrainer()['state'] == GameState.OVERWORLD:
             return True
 
         best_move = FindEffectiveMove(GetParty()[0], GetOpponent())
 
-        if best_move["power"] < 10:
-            console.print("Lead pokemon has no effective moves to battle the foe!")
+        if best_move['power'] < 10:
+            console.print('Lead pokemon has no effective moves to battle the foe!')
             FleeBattle()
             os._exit(0)
             # For future use when auto lead rotation is on
@@ -172,42 +172,49 @@ def BattleOpponent() -> bool:
 
         WaitFrames(5)
 
-        console.print(f"Best move against foe is {best_move['name']} (Effective power is {best_move['power']})")
+        console.print('Best move against foe is {} (Effective power is {})'.format(
+            best_move['name'],
+            best_move['power']
+        ))
 
-        SelectBattleOption(best_move["index"], cursor_type="gMoveSelectionCursor")
+        SelectBattleOption(best_move['index'], cursor_type='gMoveSelectionCursor')
 
         WaitFrames(5)
 
         while GetTrainer()["state"] != GameState.OVERWORLD and "What will" not in DecodeString(
                 ReadSymbol("gDisplayedStringBattle")
         ):
-            if "Delete a move" not in DecodeString(ReadSymbol("gDisplayedStringBattle")):
-                PressButton(["B"])
+            if 'Delete a move' not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
+                PressButton(['B'])
                 WaitFrames(1)
-            if "Delete a move" in DecodeString(ReadSymbol("gDisplayedStringBattle")):
-                handle_move_learning()
+            if 'Delete a move' in DecodeString(ReadSymbol('gDisplayedStringBattle')):
+                HandleMoveLearn()
 
-        ally_fainted = GetParty()[0]["stats"]["hp"] == 0
-        foe_fainted = GetOpponent()["stats"]["hp"] == 0
+        ally_fainted = GetParty()[0]['stats']['hp'] == 0
+        foe_fainted = GetOpponent()['stats']['hp'] == 0
 
     if ally_fainted:
-        console.print("Lead Pokemon fainted!")
+        console.print('Lead Pokemon fainted!')
         FleeBattle()
         return False
     return True
 
 
-def handle_move_learning():
-    match config["new_move_mode"]:
-        case "stop":
-            os._exit(1)
-        case "cancel":
+def HandleMoveLearn():
+    match config['new_move']:
+        case 'stop':
+            console.print('New move trying to be learned, stopping bot...')
+            input('Press enter to exit...')
+            os._exit(0)
+        case 'cancel':
             # TODO: figure out what gamestate corresponds to evolution and allow evolution as a config option maybe?
-            while GetTrainer()["state"] != GameState.OVERWORLD:
-                if "Stop learning" not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
-                    PressButton(["B"])
+            while GetTrainer()['state'] != GameState.OVERWORLD:
+                if 'Stop learning' not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
+                    PressButton(['B'])
                 else:
-                    PressButton(["A"])
+                    PressButton(['A'])
+
+        # TODO: figure this out
         case "learn_best":
             # TODO: figure this out
             os._exit(0)
