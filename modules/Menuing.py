@@ -214,3 +214,142 @@ def handle_move_learning():
 
         case _:
             console.print("Config new_move_mode invalid.")
+
+
+def CheckForPickup() -> NoReturn:
+    """
+    Function that handles pickup farming.
+    """
+    try:
+        pickup_threshold = config["pickup_threshold"]
+    except:
+        pickup_threshold = 1
+    pokemon_with_pickup = 0
+    pokemon_with_pickup_and_item = []
+    party = GetParty()
+    for i in range(len(party)):
+        if party[i]['ability'] == "Pickup":
+            pokemon_with_pickup += 1
+            if party[i]['item']['name'] != 'None':
+                pokemon_with_pickup_and_item.append(i)
+    if pokemon_with_pickup < pickup_threshold:
+        console.print(
+            "The pickup threshold is higher than the number of pokemon in the party with pickup, so the latter number will be used.")
+        pickup_threshold = pokemon_with_pickup
+    if len(pokemon_with_pickup_and_item) >= pickup_threshold:
+        console.print("Pickup threshold is met! Gathering items.")
+        TakePickupItems(pokemon_with_pickup_and_item)
+
+
+def TakePickupItems(pokemon_indices: list):
+    """
+    Function that takes items from pokemon that have the Pickup ability.
+
+    :param pokemon_indices: The list of indices representing the pokemon to take items from.
+    """
+    current_menu = identifyMenu()
+    while current_menu != 'start_menu':
+        if current_menu == 'battle_action_menu':
+            FleeBattle()
+        PressButton(['B'])
+        WaitFrames(6)
+        PressButton(['Start'])
+        WaitFrames(6)
+        current_menu = identifyMenu()
+    # this bit mashes A until the party menu is active
+    while identifyMenu() != 'party_menu':
+        NavigateStartMenu(1)
+        PressButton(["A"])
+    for idx in pokemon_indices:
+        while ParsePartyMenu()['slot_id'] != idx:
+            if ParsePartyMenu()['slot_id'] > idx:
+                PressButton(["Up"])
+            else:
+                PressButton(["Down"])
+        while "Choose a" in DecodeString(ReadSymbol('gStringVar4')):
+            PressButton(["A"])
+        while "Do what with this" in DecodeString(ReadSymbol('gStringVar4')):
+            NavigateMenu(2)
+        while "Do what with an" in DecodeString(ReadSymbol('gStringVar4')):
+            NavigateMenu(1)
+        while "Received the" in DecodeString(ReadSymbol('gStringVar4')):
+            PressButton(['B'])
+    while identifyMenu() == 'party_menu':
+        PressButton(['B'])
+    while identifyMenu() == 'start_menu':
+        PressButton(['B'])
+
+
+def NavigateStartMenu(desired_index: int) -> NoReturn:
+    """
+    Opens the start menu and moves to the option with the desired index from the menu.
+
+    :param desired_index: The index of the option to select from the menu.
+    """
+    current_cursor_position = ParseStartMenuCursorPos()
+    while current_cursor_position != desired_index:
+        if current_cursor_position < desired_index:
+            PressButton(["Down"])
+        else:
+            PressButton(['Up'])
+        current_cursor_position = ParseStartMenuCursorPos()
+
+
+def GetStartMenuCursorPos():
+    """
+    Helper function to get the position of the start menu cursor in a readable way to clean up the code.
+    """
+    return int.from_bytes(ReadSymbol('sStartMenuCursorPos'), 'big')
+
+
+def NavigateMenu(desired_index: int) -> NoReturn:
+    """
+    Given an index, attempts to navigate to the index and press A.
+    """
+    if desired_index > ParseMenu()['maxCursorPos'] or desired_index < ParseMenu()['minCursorPos']:
+        console.print("Can't select this option.")
+        return
+    while ParseMenu()['cursorPos'] != desired_index:
+        if ParseMenu()['cursorPos'] > desired_index:
+            PressButton(["Up"])
+        else:
+            PressButton(["Down"])
+    PressButton(["A"])
+
+
+def identifyMenu() -> str:
+    current_cursor_states = GetCursorStates()
+    directions = ['Up', 'Right', 'Down', 'Left']
+    directions.remove(GetTrainer()['facing'])
+    PressButton([random.choice(directions)])
+    WaitFrames(6)
+    new_cursor_states = GetCursorStates()
+    changed_cursors = []
+    while new_cursor_states == current_cursor_states:
+        directions = ['Up', 'Right', 'Down', 'Left']
+        directions.remove(GetTrainer()['facing'])
+        PressButton([random.choice(directions)])
+        WaitFrames(6)
+        new_cursor_states = GetCursorStates()
+    for c in new_cursor_states.keys():
+        if new_cursor_states[c] != current_cursor_states[c]:
+            if c not in changed_cursors:
+                changed_cursors.append(c)
+    match changed_cursors[0]:
+        case 'start_menu_cursor':
+            return "start_menu"
+        case 'party_menu_cursor':
+            return "party_menu"
+        case 'menu_cursor':
+            return "misc_menu"
+        case 'battle_action_cursor':
+            return "battle_action_menu"
+        case 'battle_move_cursor':
+            return "battle_move_menu"
+        case 'trainer_facing':
+            return "overworld"
+        case 'trainer_coords':
+            return "overworld"
+        case _:
+            print("menu without match")
+            os._exit(69)
