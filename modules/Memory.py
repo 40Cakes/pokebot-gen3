@@ -83,7 +83,7 @@ class emulator:
         if self.sym_file:
             self.symbols = {}
             for s in open('modules/data/symbols/{}'.format(self.sym_file)).readlines():
-                self.symbols[s.split(' ')[3].strip()] = {
+                self.symbols[s.split(' ')[3].strip().upper()] = {
                     'addr': int(s.split(' ')[0], 16),
                     'type': str(s.split(' ')[1]),
                     'size': int(s.split(' ')[2], 16)
@@ -152,6 +152,7 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0):
     :param size: (optional) override the size to read n bytes
     :return: byte data
     """
+    name = name.upper()
     sym_addr = mGBA.symbols[name]['addr']
     match sym_addr >> 0x18:
         case 0x2:
@@ -239,27 +240,32 @@ class TrainerState(IntEnum):
     MISC_MENU = 0xFF
 
 
-# https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
-try:
-    if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
-        p_Trainer = mGBA.p_EWRAM + (
-                struct.unpack('<I', ReadSymbol('gSaveBlock2Ptr'))[0] - mGBA.symbols['EWRAM_START']['addr'])
-        b_Trainer = mGBA.proc.read_bytes(p_Trainer, 0xE)
-    else:
-        b_Trainer = ReadSymbol('gSaveBlock2', size=0xE)
-except:
-    console.print_exception(show_locals=True)
+def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
+    # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
+    try:
+        if not size:
+            size = mGBA.symbols['gSaveblock{}'.format(num)]['size']
+        if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
+            p_Trainer = mGBA.p_EWRAM + (
+                    struct.unpack('<I', ReadSymbol('gSaveBlock{}Ptr'.format(num)))[0] - mGBA.symbols['EWRAM_START']['addr'])
+            return mGBA.proc.read_bytes(p_Trainer + offset, size)
+        else:
+            return ReadSymbol('gSaveBlock{}'.format(num), offset=offset, size=size)
+    except:
+        console.print_exception(show_locals=True)
+        return None
 
 
 def GetTrainer():
     try:
+        b_Save = GetSaveBlock(2, size=0xE)
         b_gTasks = ReadSymbol('gTasks', 0x57, 0x3)
         b_gObjectEvents = ReadSymbol('gObjectEvents', 0x10, 0x9)
         trainer = {
-            'name': DecodeString(b_Trainer[0:7]),
-            'gender': 'girl' if int(b_Trainer[8]) else 'boy',
-            'tid': int(struct.unpack('<H', b_Trainer[10:12])[0]),
-            'sid': int(struct.unpack('<H', b_Trainer[12:14])[0]),
+            'name': DecodeString(b_Save[0:7]),
+            'gender': 'girl' if int(b_Save[8]) else 'boy',
+            'tid': int(struct.unpack('<H', b_Save[10:12])[0]),
+            'sid': int(struct.unpack('<H', b_Save[12:14])[0]),
             'state': int(b_gTasks[0]),
             'map': (int(b_gTasks[2]), int(b_gTasks[1])),
             'coords': (int(b_gObjectEvents[0]) - 7, int(b_gObjectEvents[2]) - 7),
@@ -272,6 +278,14 @@ def GetTrainer():
 
 
 def ParsePokemon(b_Pokemon: bytes) -> dict:
+    def ReverseBits(b, n):
+        r = 0
+        for _ in range(n):
+            r <<= 1
+            r |= b & 1
+            b >>= 1
+        return r
+
     def SpeciesName(value: int):
         if value > len(names_list):
             return ''
@@ -348,18 +362,6 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
         }
         return origins
 
-    def IVs(value: int):
-        iv_bitstring = str(str(bin(value)[2:])[::-1] + '00000000000000000000000000000000')[0:32]
-        ivs = {
-            'hp': int(iv_bitstring[0:5], 2),
-            'attack': int(iv_bitstring[5:10], 2),
-            'defense': int(iv_bitstring[10:15], 2),
-            'speed': int(iv_bitstring[15:20], 2),
-            'spAttack': int(iv_bitstring[20:25], 2),
-            'spDefense': int(iv_bitstring[25:30], 2),
-        }
-        return ivs
-
     def Moves(value: bytes):
         moves = []
         for i in range(0, 4):
@@ -416,8 +418,15 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
             sections[section] = decrypted
         id = int(struct.unpack('<H', sections['G'][0:2])[0])
         name = SpeciesName(id)
-
-        ivs = IVs(int(struct.unpack('<I', sections['M'][4:8])[0]))
+        rev_section_m = ReverseBits(int(struct.unpack('<I', sections['M'][4:8])[0]), 32)
+        ivs = {
+            'hp': int((rev_section_m >> 27) & 0x1F),
+            'attack': int((rev_section_m >> 22) & 0x1F),
+            'defense': int((rev_section_m >> 17) & 0x1F),
+            'speed': int((rev_section_m >> 12) & 0x1F),
+            'spAttack': int((rev_section_m >> 7) & 0x1F),
+            'spDefense': int((rev_section_m >> 2) & 0x1F),
+        }
         item_id = int(struct.unpack('<H', sections['G'][2:4])[0])
         shiny_value = int(tid ^ sid ^ struct.unpack('<H', b_Pokemon[0:2])[0] ^ struct.unpack('<H', b_Pokemon[2:4])[0])
         shiny = True if shiny_value < 8 else False
@@ -458,9 +467,6 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
                 'spAttack': int(b_Pokemon[96]),
                 'spDefense': int(b_Pokemon[98])
             },
-            'IVs': ivs,
-            'IVSum': sum(ivs.values()),
-            'hiddenPower': HiddenPower(ivs),
 
             # Substruct G - Growth
             'experience': int(struct.unpack('<I', sections['G'][4:8])[0]),
@@ -486,15 +492,19 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
             },
 
             # Substruct M - Miscellaneous
+            'IVs': ivs,
+            'IVSum': sum(ivs.values()),
+            'hiddenPower': HiddenPower(ivs),
             'pokerus': Pokerus(int(sections['M'][0])),
             'metLocation': location_list[int(sections['M'][1])],
             'origins': Origins(int(struct.unpack('<H', sections['M'][2:4])[0])),
-            'ability': pokemon_list[name]['ability'][int(struct.unpack('<I', sections['M'][4:8])[0] >> 0x1F)],
+            'ability': pokemon_list[name]['ability'][int(rev_section_m & 1)],
             'type': pokemon_list[name]['type']
         }
         return pokemon
 
     except:
+        console.print_exception(show_locals=True)
         return None
 
 
@@ -505,7 +515,7 @@ def GetParty():
         if party_count:
             for p in range(party_count):
                 o = p * 100
-                while not (mon := ParsePokemon(ReadSymbol('gPlayerParty')[o:o + 100])):
+                while not (mon := ParsePokemon(ReadSymbol('gPlayerParty', o, o+100))):
                     continue
                 else:
                     party[p] = mon
@@ -544,41 +554,36 @@ def OpponentChanged():
         return False
 
 
-def GetBag(): # TODO RS not working yet (FRLG and E are)
+def GetItems():
     try:
-        # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Security_key
-        def GetKey(offset: int):
-            p_Trainer = mGBA.p_EWRAM + (
-                    struct.unpack('<I', ReadSymbol('gSaveBlock2Ptr'))[0] - mGBA.symbols['EWRAM_START']['addr'])
-            return struct.unpack('<H', mGBA.proc.read_bytes(p_Trainer + offset, 2))[0]
+        items = {}
+        pockets = ['PC', 'Items', 'Key Items', 'Poké Balls', 'TMs & HMs', 'Berries']
+        for pocket in pockets:
+            items[pocket] = {}
+
         if mGBA.game in ['Pokémon FireRed', 'Pokémon LeafGreen']:
-            pocket_order = ['Items', 'Key Items', 'Poké Balls',  'TMs & HMs', 'Berries']
-            key = GetKey(0xF20)
+            offsets = [(0x298, 120), (0x310, 168), (0x3B8, 120), (0x430, 52), (0x464, 232), (0x54C, 172)]
+            key = struct.unpack('<H', GetSaveBlock(2, 0xF20, 2))[0]
         elif mGBA.game == 'Pokémon Emerald':
-            pocket_order = ['Items', 'Poké Balls', 'TMs & HMs', 'Berries', 'Key Items']
-            key = GetKey(0xAC)
+            offsets = [(0x498, 200), (0x560, 120), (0x5D8, 120), (0x650, 64), (0x690, 256), (0x790, 184)]
+            key = struct.unpack('<H', GetSaveBlock(2, 0xAC, 2))[0]
         else:
-            pocket_order = ['Items', 'Poké Balls', 'TMs & HMs', 'Berries', 'Key Items']  # TODO R/S needs testing
+            offsets = [(0x498, 200), (0x560, 80), (0x5B0, 80), (0x600, 64), (0x640, 256), (0x740, 184)]
             key = 0
 
-        # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Item_pockets
-        bag = {}
-        b_BagPockets = ReadSymbol('gBagPockets')
-        for pocket in pocket_order:
-            bag[pocket] = {}
+        b_Items = GetSaveBlock(1, offsets[0][0], offsets[4][0] + offsets[4][1])
 
-        for i in range(5):
-            start_pocket = int(struct.unpack('<I', b_BagPockets[i*8:i*8+4])[0])
-            pocket_size = int(b_BagPockets[i*8+4])
-            b_Pocket = mGBA.proc.read_bytes(
-                mGBA.p_EWRAM + (start_pocket - mGBA.symbols['EWRAM_START']['addr']), pocket_size*4)
-            for j in range(0, pocket_size):
+        for i in range(6):
+            p = offsets[i][0] - offsets[0][0]
+            for j in range(0, int(offsets[i][1] / 4)):
+                q = struct.unpack('<H', b_Items[p+(j*4+2):p+(j*4+4)])[0]
+                quantity = int(q ^ key) if i != 0 else q
                 item = {
-                    'name': item_list[int(struct.unpack('<H', b_Pocket[j*4:j*4+2])[0])],
-                    'quantity': int(struct.unpack('<H', b_Pocket[j*4+2:j*4+4])[0] ^ key)
+                    'name': item_list[int(struct.unpack('<H', b_Items[p+(j*4):p+(j*4+2)])[0])],
+                    'quantity': quantity
                 }
-                bag[pocket_order[i]][j] = item
-        return bag
+                items[pockets[i]][j] = item
+        return items
     except:
         console.print_exception(show_locals=True)
         return None

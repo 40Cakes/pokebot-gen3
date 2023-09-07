@@ -3,7 +3,7 @@ from flask_cors import CORS
 
 from modules.Config import config_obs
 from modules.Console import console
-from modules.Memory import GetTrainer, GetParty, GetBag
+from modules.Memory import GetTrainer, GetParty, GetItems
 from modules.Stats import GetEncounterLog, GetStats, GetEncounterRate, GetShinyLog
 
 
@@ -26,12 +26,12 @@ def WebServer():
                 console.print_exception(show_locals=True)
                 abort(503)
 
-        @server.route('/bag', methods=['GET'])
+        @server.route('/items', methods=['GET'])
         def Bag():
             try:
-                bag = GetBag()
-                if bag:
-                    return jsonify(bag)
+                items = GetItems()
+                if items:
+                    return jsonify(items)
                 abort(503)
             except:
                 console.print_exception(show_locals=True)

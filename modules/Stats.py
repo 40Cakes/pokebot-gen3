@@ -267,7 +267,8 @@ def PrintStats(pokemon: dict, stats: dict):
 
                 recent_pokemon = []
                 for p in GetEncounterLog()['encounter_log']:
-                    recent_pokemon.append(p['pokemon']['name'])
+                    if stats['pokemon'][p['pokemon']['name']].get('phase_encounters', 0) > 0:
+                        recent_pokemon.append(p['pokemon']['name'])
 
                 for p in sorted(set(recent_pokemon)):
                     stats_table.add_row(
