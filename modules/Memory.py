@@ -10,10 +10,6 @@ from modules.Console import console
 from modules.Files import ReadFile
 
 
-# https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Substructure_order
-substructs = ['GAEM', 'GAME', 'GEAM', 'GEMA', 'GMAE', 'GMEA', 'AGEM', 'AGME', 'AEGM', 'AEMG', 'AMGE', 'AMEG',
-              'EGAM', 'EGMA', 'EAGM', 'EAMG', 'EMGA', 'EMAG', 'MGAE', 'MGEA', 'MAGE', 'MAEG', 'MEGA', 'MEAG']
-
 moves_list = json.loads(ReadFile('./modules/data/moves.json'))
 names_list = json.loads(ReadFile('./modules/data/names.json'))
 natures_list = json.loads(ReadFile('./modules/data/natures.json'))
@@ -230,16 +226,6 @@ def EncodeString(text: str):
     return bytes(byte_str)
 
 
-class TrainerState(IntEnum):
-    # TODO Need further investigation; many values have multiple meanings
-    BAG_MENU = 0x0
-    BATTLE = 0x2
-    BATTLE_2 = 0x3
-    FOE_DEFEATED = 0x5
-    OVERWORLD = 0x50
-    MISC_MENU = 0xFF
-
-
 def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
     try:
@@ -254,6 +240,28 @@ def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     except:
         console.print_exception(show_locals=True)
         return None
+
+
+# Game specific offsets
+# Bag/Item offsets: https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Section_1_-_Team_.2F_Items
+if mGBA.game in ['Pokémon FireRed', 'Pokémon LeafGreen']:
+    setattr(mGBA, 'item_offsets', [(0x298, 120), (0x310, 168), (0x3B8, 120), (0x430, 52), (0x464, 232), (0x54C, 172)])
+    setattr(mGBA, 'item_key', struct.unpack('<H', GetSaveBlock(2, 0xF20, 2))[0])
+elif mGBA.game == 'Pokémon Emerald':
+    setattr(mGBA, 'item_offsets', [(0x498, 200), (0x560, 120), (0x5D8, 120), (0x650, 64), (0x690, 256), (0x790, 184)])
+    setattr(mGBA, 'item_key', struct.unpack('<H', GetSaveBlock(2, 0xAC, 2))[0])
+else:
+    setattr(mGBA, 'item_offsets', [(0x498, 200), (0x560, 80), (0x5B0, 80), (0x600, 64), (0x640, 256), (0x740, 184)])
+    setattr(mGBA, 'item_key', 0)
+
+class TrainerState(IntEnum):
+    # TODO Need further investigation; many values have multiple meanings
+    BAG_MENU = 0x0
+    BATTLE = 0x2
+    BATTLE_2 = 0x3
+    FOE_DEFEATED = 0x5
+    OVERWORLD = 0x50
+    MISC_MENU = 0xFF
 
 
 def GetTrainer():
@@ -278,13 +286,9 @@ def GetTrainer():
 
 
 def ParsePokemon(b_Pokemon: bytes) -> dict:
-    def ReverseBits(b, n):
-        r = 0
-        for _ in range(n):
-            r <<= 1
-            r |= b & 1
-            b >>= 1
-        return r
+    # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Substructure_order
+    substructs = ['GAEM', 'GAME', 'GEAM', 'GEMA', 'GMAE', 'GMEA', 'AGEM', 'AGME', 'AEGM', 'AEMG', 'AMGE', 'AMEG',
+                  'EGAM', 'EGMA', 'EAGM', 'EAMG', 'EMGA', 'EMAG', 'MGAE', 'MGEA', 'MAGE', 'MAEG', 'MEGA', 'MEAG']
 
     def SpeciesName(value: int):
         if value > len(names_list):
@@ -418,14 +422,14 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
             sections[section] = decrypted
         id = int(struct.unpack('<H', sections['G'][0:2])[0])
         name = SpeciesName(id)
-        rev_section_m = ReverseBits(int(struct.unpack('<I', sections['M'][4:8])[0]), 32)
+        section_m = int(struct.unpack('<I', sections['M'][4:8])[0])
         ivs = {
-            'hp': int((rev_section_m >> 27) & 0x1F),
-            'attack': int((rev_section_m >> 22) & 0x1F),
-            'defense': int((rev_section_m >> 17) & 0x1F),
-            'speed': int((rev_section_m >> 12) & 0x1F),
-            'spAttack': int((rev_section_m >> 7) & 0x1F),
-            'spDefense': int((rev_section_m >> 2) & 0x1F),
+            'hp': int(section_m & 0x1F),
+            'attack': int((section_m >> 5) & 0x1F),
+            'defense': int((section_m >> 10) & 0x1F),
+            'speed': int((section_m >> 15) & 0x1F),
+            'spAttack': int((section_m >> 20) & 0x1F),
+            'spDefense': int((section_m >> 25) & 0x1F)
         }
         item_id = int(struct.unpack('<H', sections['G'][2:4])[0])
         shiny_value = int(tid ^ sid ^ struct.unpack('<H', b_Pokemon[0:2])[0] ^ struct.unpack('<H', b_Pokemon[2:4])[0])
@@ -498,7 +502,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
             'pokerus': Pokerus(int(sections['M'][0])),
             'metLocation': location_list[int(sections['M'][1])],
             'origins': Origins(int(struct.unpack('<H', sections['M'][2:4])[0])),
-            'ability': pokemon_list[name]['ability'][int(rev_section_m & 1)],
+            'ability': pokemon_list[name]['ability'][min(int(section_m >> 31) & 1, len(pokemon_list[name]['ability']) - 1)],
             'type': pokemon_list[name]['type']
         }
         return pokemon
@@ -511,7 +515,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
 def GetParty():
     try:
         party = {}
-        party_count = int.from_bytes(ReadSymbol('gPlayerPartyCount'))
+        party_count = int.from_bytes(ReadSymbol('gPlayerPartyCount', size=1))
         if party_count:
             for p in range(party_count):
                 o = p * 100
@@ -561,23 +565,13 @@ def GetItems():
         for pocket in pockets:
             items[pocket] = {}
 
-        if mGBA.game in ['Pokémon FireRed', 'Pokémon LeafGreen']:
-            offsets = [(0x298, 120), (0x310, 168), (0x3B8, 120), (0x430, 52), (0x464, 232), (0x54C, 172)]
-            key = struct.unpack('<H', GetSaveBlock(2, 0xF20, 2))[0]
-        elif mGBA.game == 'Pokémon Emerald':
-            offsets = [(0x498, 200), (0x560, 120), (0x5D8, 120), (0x650, 64), (0x690, 256), (0x790, 184)]
-            key = struct.unpack('<H', GetSaveBlock(2, 0xAC, 2))[0]
-        else:
-            offsets = [(0x498, 200), (0x560, 80), (0x5B0, 80), (0x600, 64), (0x640, 256), (0x740, 184)]
-            key = 0
-
-        b_Items = GetSaveBlock(1, offsets[0][0], offsets[4][0] + offsets[4][1])
+        b_Items = GetSaveBlock(1, mGBA.item_offsets[0][0], mGBA.item_offsets[4][0] + mGBA.item_offsets[4][1])
 
         for i in range(6):
-            p = offsets[i][0] - offsets[0][0]
-            for j in range(0, int(offsets[i][1] / 4)):
+            p = mGBA.item_offsets[i][0] - mGBA.item_offsets[0][0]
+            for j in range(0, int(mGBA.item_offsets[i][1] / 4)):
                 q = struct.unpack('<H', b_Items[p+(j*4+2):p+(j*4+4)])[0]
-                quantity = int(q ^ key) if i != 0 else q
+                quantity = int(q ^ mGBA.item_key) if i != 0 else q
                 item = {
                     'name': item_list[int(struct.unpack('<H', b_Items[p+(j*4):p+(j*4+2)])[0])],
                     'quantity': quantity
