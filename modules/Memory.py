@@ -530,3 +530,86 @@ def OpponentChanged():
         return True
     else:
         return False
+
+
+def ParseStartMenuCursorPos() -> int:
+    """
+    Helper function that decodes the state of the start menu.
+    """
+    return struct.unpack('<B', ReadSymbol('sStartMenuCursorPos'))[0]
+
+
+def GetCursorStates() -> dict:
+    """
+    helper function that gets the current state of various cursor objects, as well as the coords and facing direction of
+    the trainer.
+
+    :return: a dict containing the states of the various cursors and trainer movement signifiers
+    """
+
+    return {
+        'start_menu_cursor': ParseStartMenuCursorPos(),
+        'party_menu_cursor': ParsePartyMenu()['slot_id'],
+        'battle_action_cursor': ReadSymbol('gActionSelectionCursor')[0],
+        'battle_move_cursor': ReadSymbol('gMoveSelectionCursor')[0],
+        'trainer_facing': GetTrainer()['facing'],
+        'menu_cursor': ParseMenu()['cursorPos'],
+    }
+
+
+def ParsePartyMenu() -> dict:
+    """
+    Function to parse the party menu data and return usable information
+    """
+    party_menu = ReadSymbol('gPartyMenu')
+    return {
+        "menu_type": struct.unpack('<B', party_menu[7:8])[0],
+        "layout": struct.unpack('<B', party_menu[8:9])[0],
+        "slot_id": struct.unpack('<b', party_menu[9:10])[0],
+        "slot_id_2": struct.unpack('<b', party_menu[10:11])[0],
+        "action": struct.unpack('<B', party_menu[11:12])[0],
+        "bag_item": struct.unpack('<h', party_menu[12:14])[0],
+        "data_1": struct.unpack('<H', party_menu[14:16])[0],
+        "learn_move_state": struct.unpack('<H', party_menu[16:18])[0],
+    }
+
+
+def ParseTasks() -> list:
+    """
+    Function to parse the party menu data and return usable information
+    """
+    tasks = ReadSymbol('gTasks')
+    task_views = []
+    for i in range(16):
+        current_task = tasks[i * 40:i * 40 + 40]
+        task_view = {
+            "task_func": struct.unpack('<i', current_task[0:4])[0],
+            "is_active": struct.unpack('<?', current_task[4:5])[0],
+            "prev": struct.unpack('<B', current_task[5:6])[0],
+            "next": struct.unpack('<B', current_task[6:7])[0],
+            "priority": struct.unpack('<B', current_task[7:8])[0],
+            "num_task_data": struct.unpack('<h', current_task[8:10])[0]
+        }
+        task_views.append(task_view)
+    return task_views
+
+
+def ParseMenu() -> dict:
+    """
+    Function to parse the currently displayed menu and return usable information.
+    """
+    menu = ReadSymbol("sMenu")
+    return {
+        "left": struct.unpack('<B', menu[0:1])[0],
+        "top": struct.unpack('<B', menu[1:2])[0],
+        "cursorPos": struct.unpack('<b', menu[2:3])[0],
+        "minCursorPos": struct.unpack('<b', menu[3:4])[0],
+        "maxCursorPos": struct.unpack('<b', menu[4:5])[0],
+        "windowId": struct.unpack('<B', menu[5:6])[0],
+        "fontId": struct.unpack('<B', menu[6:7])[0],
+        "optionWidth": struct.unpack('<B', menu[7:8])[0],
+        "optionHeight": struct.unpack('<B', menu[8:9])[0],
+        "columns": struct.unpack('<B', menu[9:10])[0],
+        "rows": struct.unpack('<B', menu[10:11])[0],
+        "APressMuted": struct.unpack('<?', menu[11:12])[0],
+    }
