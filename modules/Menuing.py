@@ -209,57 +209,7 @@ def handle_move_learning():
                     PressButton(["A"])
         case "learn_best":
             # TODO: figure this out
-
-            """
-            calculate_new_move_viability(party)
-            WaitFrames(240)
-            PressButton(["A"])
-            print(f"Move to learn: {ReadSymbol('gMoveToLearn')}")
-            print(
-                f"Current string: {DecodeString(ReadSymbol('gDisplayedStringBattle'))}"
-            )
-            print(f"Move to learn: {DecodeString(ReadSymbol('gMoveToLearn'))}")
-            print(
-                f"Leveled up in battle: {DecodeString(ReadSymbol('gLeveledUpInBattle'))}"
-            )
-            print(
-                f"Action Selection Cursor: {DecodeString(ReadSymbol('gActionSelectionCursor'))}"
-            )
-            print(
-                f"Move Selection Cursor: {DecodeString(ReadSymbol('gMoveSelectionCursor'))}"
-            )
-            print(f"G String Var 1: {DecodeString(ReadSymbol('gStringVar1'))}")
-            print(f"G String Var 2: {DecodeString(ReadSymbol('gStringVar2'))}")
-            print(f"G String Var 3: {DecodeString(ReadSymbol('gStringVar3'))}")
-            print(f"G String Var 4: {DecodeString(ReadSymbol('gStringVar4'))}")
-            print(
-                f"PlayerHandleGetRawMonData: {ParsePokemon(ReadSymbol('PlayerHandleGetRawMonData'))}"
-            )
-            for i in range(10):
-                WaitFrames(120)
-                print(
-                    f"Current string: {DecodeString(ReadSymbol('gDisplayedStringBattle'))}"
-                )
-                print(f"Move to learn: {ReadSymbol('gMoveToLearn')}")
-                print(f"Move to learn: {DecodeString(ReadSymbol('gMoveToLearn'))}")
-                print(
-                    f"Leveled up in battle: {DecodeString(ReadSymbol('gLeveledUpInBattle'))}"
-                )
-                print(
-                    f"Action Selection Cursor: {DecodeString(ReadSymbol('gActionSelectionCursor'))}"
-                )
-                print(
-                    f"Move Selection Cursor: {DecodeString(ReadSymbol('gMoveSelectionCursor'))}"
-                )
-                print(f"G String Var 1: {DecodeString(ReadSymbol('gStringVar1'))}")
-                print(f"G String Var 2: {DecodeString(ReadSymbol('gStringVar2'))}")
-                print(f"G String Var 3: {DecodeString(ReadSymbol('gStringVar3'))}")
-                print(f"G String Var 4: {DecodeString(ReadSymbol('gStringVar4'))}")
-                print(
-                    f"PlayerHandleGetRawMonData: {ParsePokemon(ReadSymbol('PlayerHandleGetRawMonData'))}"
-                )
-                PressButton(["Down"])
             os._exit(0)
-            """
+
         case _:
             console.print("Config new_move_mode invalid.")
