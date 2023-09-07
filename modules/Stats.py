@@ -15,7 +15,7 @@ from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton
 from modules.Memory import EncodeString, GetTrainer, ReadSymbol, TrainerState
-from modules.Menuing import FleeBattle, BattleOpponent
+from modules.Menuing import FleeBattle, BattleOpponent, CheckForPickup
 
 os.makedirs('stats', exist_ok=True)
 files = {
@@ -599,6 +599,11 @@ def EncounterPokemon(pokemon: dict):
             replace_battler = not battle_won
         else:
             FleeBattle()
+        if config["pickup"]:
+            while GetTrainer()['state'] != TrainerState.OVERWORLD:
+                continue
+            if GetTrainer()['state'] == TrainerState.OVERWORLD:
+                    CheckForPickup()
 
 # TODO
 #    pokemon = GetParty()[0] if starter else GetOpponent()
