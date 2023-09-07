@@ -10,7 +10,8 @@
         ],
         "strengths": [
 
-        ]
+        ],
+        "category": "physical"
     },
     "Fire": {
         "name": "Fire",
@@ -28,7 +29,8 @@
             "Ice",
             "Bug",
             "Steel"
-        ]
+        ],
+        "category": "special"
     },
     "Water": {
         "name": "Water",
@@ -44,7 +46,8 @@
             "Fire",
             "Ground",
             "Rock"
-        ]
+        ],
+        "category": "special"
     },
     "Electric": {
         "name": "Electric",
@@ -59,7 +62,8 @@
         "strengths": [
             "Water",
             "Flying"
-        ]
+        ],
+        "category": "special"
     },
     "Grass": {
         "name": "Grass",
@@ -79,7 +83,8 @@
             "Water",
             "Ground",
             "Rock"
-        ]
+        ],
+        "category": "special"
     },
     "Ice": {
         "name": "Ice",
@@ -97,7 +102,8 @@
             "Ground",
             "Flying",
             "Dragon"
-        ]
+        ],
+        "category": "special"
     },
     "Fighting": {
         "name": "Fighting",
@@ -117,7 +123,8 @@
             "Rock",
             "Dark",
             "Steel"
-        ]
+        ],
+        "category": "physical"
     },
     "Poison": {
         "name": "Poison",
@@ -133,7 +140,8 @@
         "strengths": [
             "Grass",
             "Fairy"
-        ]
+        ],
+        "category": "physical"
     },
     "Ground": {
         "name": "Ground",
@@ -150,7 +158,8 @@
             "Poison",
             "Rock",
             "Steel"
-        ]
+        ],
+        "category": "physical"
     },
     "Flying": {
         "name": "Flying",
@@ -166,7 +175,8 @@
             "Grass",
             "Fighting",
             "Bug"
-        ]
+        ],
+        "category": "physical"
     },
     "Psychic": {
         "name": "Psychic",
@@ -180,7 +190,8 @@
         "strengths": [
             "Fighting",
             "Poison"
-        ]
+        ],
+        "category": "special"
     },
     "Bug": {
         "name": "Bug",
@@ -200,7 +211,8 @@
             "Grass",
             "Psychic",
             "Dark"
-        ]
+        ],
+        "category": "physical"
     },
     "Rock": {
         "name": "Rock",
@@ -217,7 +229,8 @@
             "Ice",
             "Flying",
             "Bug"
-        ]
+        ],
+        "category": "physical"
     },
     "Ghost": {
         "name": "Ghost",
@@ -230,7 +243,8 @@
         "strengths": [
             "Psychic",
             "Ghost"
-        ]
+        ],
+        "category": "physical"
     },
     "Dragon": {
         "name": "Dragon",
@@ -242,7 +256,8 @@
         ],
         "strengths": [
             "Dragon"
-        ]
+        ],
+        "category": "special"
     },
     "Dark": {
         "name": "Dark",
@@ -257,7 +272,8 @@
         "strengths": [
             "Psychic",
             "Ghost"
-        ]
+        ],
+        "category": "special"
     },
     "Steel": {
         "name": "Steel",
@@ -274,6 +290,7 @@
             "Ice",
             "Rock",
             "Fairy"
-        ]
+        ],
+        "category": "physical"
     }
 }
