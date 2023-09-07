@@ -1,9 +1,11 @@
+import random
 from typing import NoReturn
 import os
 
 from modules.Config import config
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import ReadSymbol, GetTrainer, pokemon_list, type_list, GetParty, GetOpponent, DecodeString
+from modules.Memory import ReadSymbol, GetTrainer, pokemon_list, type_list, GetParty, GetOpponent, DecodeString, \
+    ParsePartyMenu, ParseStartMenuCursorPos, ParseMenu, GetCursorStates
 from modules.data.GameState import GameState
 from modules.Console import console
 
@@ -166,7 +168,6 @@ def BattleOpponent() -> bool:
 
         # If effective moves are present, let's fight this thing!
         while "What will" in DecodeString(ReadSymbol("gDisplayedStringBattle")):
-            console.print("Navigating to the Fight button...")
             SelectBattleOption(0, cursor_type="gActionSelectionCursor")
 
         WaitFrames(5)
@@ -178,7 +179,7 @@ def BattleOpponent() -> bool:
         WaitFrames(5)
 
         while GetTrainer()["state"] != GameState.OVERWORLD and "What will" not in DecodeString(
-            ReadSymbol("gDisplayedStringBattle")
+                ReadSymbol("gDisplayedStringBattle")
         ):
             if "Delete a move" not in DecodeString(ReadSymbol("gDisplayedStringBattle")):
                 PressButton(["B"])
