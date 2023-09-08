@@ -8,13 +8,13 @@ from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPoke
 
 def Starters(choice: str) -> NoReturn:
     try:
-        RNGStateHistory = GetRNGStateHistory(GetTrainer()['tid'], choice)
+        RNGStateHistory = GetRNGStateHistory(choice)
         Out = 0
         RNG = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
         while RNG in RNGStateHistory['rng']:
             RNG = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
         RNGStateHistory['rng'].append(RNG)
-        SaveRNGStateHistory(GetTrainer()['tid'], choice, RNGStateHistory)
+        SaveRNGStateHistory(choice, RNGStateHistory)
         while ReadSymbol('gStringVar4', size=4) != b'\xbe\xe3\x00\xed':
             PressButton(['A'], 10)
         while GetTrainer()['facing'] != 'Down':
