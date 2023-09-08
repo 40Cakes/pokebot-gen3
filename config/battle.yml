@@ -1,0 +1,57 @@
+# Toggle battling all other wild Pokémon
+# Catching shinies and Pokémon in CustomCatchFilters.py always takes priority over battling
+# Valid options: `true`, `false`
+battle: false
+
+# Enable pickup - https://bulbapedia.bulbagarden.net/wiki/Pickup_(Ability)#Generations_III_and_IV
+# Valid options: `true`, `false`
+pickup: true
+
+# Threshold of party members with items before collecting the items from them
+# Valid option: (integer 1-6)
+pickup_threshold: 3
+
+# Banned moves
+# Any moves in this list will not be used in battle
+banned_moves:
+- None
+  # 2-turn
+- Bounce
+- Dig
+- Dive
+- Fly
+- Sky Attack
+- Razor Wind
+- Doom Desire
+- Solar Beam
+  # Inconsistent
+- Fake Out
+- False Swipe
+- Nature Power
+- Present
+- Destiny Bond
+- Wrap
+- Snore
+- Spit Up
+- Bide
+- Bind
+- Counter
+- Future Sight
+- Mirror Coat
+- Grudge
+- Snatch
+- Spite
+- Curse
+- Endeavor
+- Revenge
+- Assist
+- Focus Punch
+- Eruption
+- Flail
+  # Ends battle
+- Roar
+- Whirlwind
+- Selfdestruct
+- Perish Song
+- Explosion
+- Memento

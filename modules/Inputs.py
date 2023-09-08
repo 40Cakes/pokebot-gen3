@@ -1,8 +1,11 @@
 import struct
-import atexit
 from typing import NoReturn
+
+from modules.Config import config_general
 from modules.Memory import mGBA, GetFrameCount
 
+press = 0
+held = 0
 input_map = {
     'A': 0x1,
     'B': 0x2,
@@ -36,7 +39,8 @@ def WriteInputs(value: int) -> NoReturn:
 
     :param value: inputs to write to mGBA memory
     """
-    mGBA.proc.write_bytes(mGBA.p_Input, struct.pack('<H', value), 2)
+    if config_general['bot_mode'] != 'manual':
+        mGBA.proc.write_bytes(mGBA.p_Input, struct.pack('<H', value), 2)
 
 
 def WaitFrames(frames: int) -> NoReturn:
@@ -48,6 +52,14 @@ def WaitFrames(frames: int) -> NoReturn:
     start = GetFrameCount()
     while GetFrameCount() < start + frames:
         pass
+
+
+def ReleaseInputs() -> NoReturn:
+    global press
+    global held
+    press, held = 0, 0
+    WriteInputs(0)
+    WaitFrames(1)
 
 
 def PressButton(buttons: list, hold_frames: int = 1) -> NoReturn:
@@ -66,27 +78,16 @@ def PressButton(buttons: list, hold_frames: int = 1) -> NoReturn:
     :param buttons: list of buttons to press
     :param hold_frames: hold the buttons for n frames
     """
-    inputs = 0
-    #current_inputs = GetInputs()
+    global press
+    global held
     for button in buttons:
         if button in input_map:
-            inputs |= input_map[button]
-    #inputs |= current_inputs
-    WriteInputs(inputs)
+            press |= input_map[button]
+    press |= held
+    WriteInputs(press)
 
     if hold_frames > 0:
+        press = 0
         WaitFrames(hold_frames)
-        #WriteInputs(current_inputs)
-        WriteInputs(0) # TODO temp fix - this will break running to coords for now
+        WriteInputs(held)
         WaitFrames(1)
-
-
-def _exit() -> NoReturn:
-    """
-    Called when the bot is manually stopped or crashes.
-    Clears the inputs register in the emulator so no buttons will be stuck down.
-    """
-    WriteInputs(0)
-
-
-atexit.register(_exit)
