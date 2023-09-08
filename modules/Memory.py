@@ -156,7 +156,6 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
     :param size: (optional) override the size to read n bytes
     :return: (bytes)
     """
-
     name = name.upper()
     sym_addr = mGBA.symbols[name][0]
     match sym_addr >> 0x18:
