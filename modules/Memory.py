@@ -624,7 +624,7 @@ def OpponentChanged() -> bool:
     try:
         global last_opid
         opponent_pid = ReadSymbol('gEnemyParty', size=4)
-        if opponent_pid != last_opid:
+        if opponent_pid != last_opid and opponent_pid != b'\x00\x00\x00\x00':
             last_opid = opponent_pid
             return True
         else:
