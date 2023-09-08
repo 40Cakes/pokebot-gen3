@@ -289,7 +289,7 @@ class TrainerState(IntEnum):
     MISC_MENU = 0xFF
 
 
-b_Save = GetSaveBlock(2, size=14)  # TODO temp fix, sometimes fails to read point if GetTrainer() called before game boots after a reset
+b_Save = GetSaveBlock(2, size=14)  # TODO temp fix, sometimes fails to read pointer if GetTrainer() called before game boots after a reset
 def GetTrainer() -> dict:
     """
     Reads trainer data from memory.

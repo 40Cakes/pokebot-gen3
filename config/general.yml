@@ -28,7 +28,7 @@ bonk_direction: horizontal
 # Starters - this config is used if `bot_mode` is set to `starters`
 # Choose a Pokémon to soft reset for, save the game with trainer facing the bag
 # TODO: add Johto + FRLG starters as options in `starter`
-# Valid options: `mudkip`, `treecko`, `torchic`
+# Valid options: `mudkip`, `treecko`, `torchic`, `bulbasaur`, `charmander`, `squirtle`
 starter: mudkip
 
 # Fossils - this config is used if `bot_mode` is set to `fossil`
