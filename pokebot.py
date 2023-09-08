@@ -68,7 +68,7 @@ while True:
                 ModeSpin()
 
             case 'starters':
-                if mGBA.game == 'Pokémon Emerald':
+                if mGBA.game in ['Pokémon Emerald']:
                     from modules.gen3.rse.Starters import Starters
                     Starters(config_general['starter'])
                 elif mGBA.game in ['Pokémon LeafGreen', 'Pokémon FireRed']:

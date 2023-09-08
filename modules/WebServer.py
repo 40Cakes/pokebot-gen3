@@ -1,15 +1,16 @@
-from flask import Flask, abort, jsonify
+from typing import NoReturn
 from flask_cors import CORS
+from flask import Flask, abort, jsonify
 
 from modules.Config import config_obs
 from modules.Console import console
 from modules.Memory import GetTrainer, GetParty, GetItems
-from modules.Stats import GetEncounterLog, GetStats, GetEncounterRate, GetShinyLog
+from modules.Stats import GetEncounterRate, encounter_log, stats, shiny_log
 
 
-def WebServer():
+def WebServer() -> NoReturn:
     """
-    Run Flask server to make bot data available via HTTP GET
+    Run Flask server to make bot data available via HTTP requests.
     """
     try:
         server = Flask(__name__)
@@ -48,25 +49,6 @@ def WebServer():
                 console.print_exception(show_locals=True)
                 abort(503)
 
-        @server.route('/encounter', methods=['GET'])
-        def Encounter():
-            try:
-                encounter_logs = GetEncounterLog()['encounter_log']
-                if len(encounter_logs) > 0 and encounter_logs[-1]['pokemon']:
-                    encounter = encounter_logs.pop()['pokemon']
-                    stats = GetStats()
-                    if stats:
-                        try:
-                            encounter['stats'] = stats['pokemon'][encounter['name']]
-                            return jsonify(encounter)
-                        except:
-                            abort(503)
-                    return jsonify(encounter)
-                abort(503)
-            except:
-                console.print_exception(show_locals=True)
-                abort(503)
-
         @server.route('/encounter_rate', methods=['GET'])
         def EncounterRate():
             try:
@@ -78,7 +60,6 @@ def WebServer():
         @server.route('/stats', methods=['GET'])
         def Stats():
             try:
-                stats = GetStats()
                 if stats:
                     return jsonify(stats)
                 abort(503)
@@ -86,13 +67,11 @@ def WebServer():
                 console.print_exception(show_locals=True)
                 abort(503)
 
-        @server.route('/encounter_log', methods=['GET'])
+        @server.route('/encounter_log', methods=['GET'])  # TODO add parameter to get encounter by list index
         def EncounterLog():
             try:
-                recent_encounter_log = GetEncounterLog()['encounter_log'][-25:]
-                if recent_encounter_log:
-                    encounter_log = {'encounter_log': recent_encounter_log}
-                    return jsonify(encounter_log)
+                if encounter_log:
+                    return jsonify(encounter_log['encounter_log'])
                 abort(503)
             except:
                 console.print_exception(show_locals=True)
@@ -101,9 +80,8 @@ def WebServer():
         @server.route('/shiny_log', methods=['GET'])
         def ShinyLog():
             try:
-                shiny_log = GetShinyLog()
                 if shiny_log:
-                    return jsonify(shiny_log)
+                    return jsonify(shiny_log['shiny_log'])
                 abort(503)
             except:
                 console.print_exception(show_locals=True)

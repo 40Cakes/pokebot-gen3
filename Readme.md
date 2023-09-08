@@ -2,23 +2,27 @@
 
 Re-write of [pokebot-bizhawk](https://github.com/40Cakes/pokebot-bizhawk) to work in mGBA using direct memory reads (no more image detection dependencies).
 
-This is a *VERY early* release of this bot so minimal support will be provided in Discord, if you do encounter any issues, use the channel [#mgba-testing🧪](https://discord.com/channels/1057088810950860850/1139190426834833528)
+This is an *alpha release*, the bot is subject to change, and minimal support will be provided in Discord. [#mgba-testing🧪](https://discord.com/channels/1057088810950860850/1139190426834833528)
 
-⚠ Use this bot at your own risk! The bot directly writes to mGBA memory, there is a good chance mGBA may crash while using this bot.
+⚠ This bot directly writes to the mGBA.exe process' memory, so there is a good chance that mGBA may crash.
 
 The bot will pause once a shiny is encountered. You must ensure you are able to escape battle 100% of the time, otherwise the bot will get stuck. Auto-catching and other features will be added in due time.
+
 # Requirements
 - Windows (support for Mac and Linux **_may_** be added later)
 - [Python 3.11](https://www.python.org/downloads/)
+- Run `requirements.py` or `python -m pip install -r requirements.txt` to install required Python modules
 - [mGBA 0.10.2 (64-bit)](https://mgba.io/downloads.html)
   - **Windows (*64-bit*, installer .exe)** or **Windows (*64-bit*, portable .7z archive)**
 - [Windows Terminal](https://github.com/microsoft/terminal/releases) (not **required**, but highly recommended for full 16-million <span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span> console output)
 
 # How to run
-1. Run `requirements.py` to install required modules
-2. Run `bot.py`, then click on an mGBA instance to attach the bot to it
+- Set the desired `bot_mode` in config file `config/general.yml`
+- Load a ROM and place the trainer where it needs to be for the `bot_mode` you've configured
+- Run `pokebot.py` or `python .\pokebot.py`, then click on any mGBA process to attach the bot
 
-# Supported Games and Language
+
+# Supported Games and Languages
 - ✅ Supported (tested)
 - 🟨 Supported (not tested)
 - ❌ Not supported
@@ -32,7 +36,8 @@ Manual mode simply disables all bot inputs, allowing you to track encounters and
 ***
 
 ### `spin`
-Start the bot anywhere you want, and it will mash random directions to spin on the tile (this mode is useful for Safari Zone and [repel tricking](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) as it doesn't use up steps!)
+Start the bot while in the overworld, in any patch of grass/water/cave.
+The bot will mash random directions to spin on a single tile (this mode is useful for Safari Zone and [repel tricking](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) as it doesn't use up steps!)
 
 <details>
 <summary>✅🟨❌ Click here for support information</summary>
@@ -83,9 +88,13 @@ Start the bot anywhere you want, and it will mash random directions to spin on t
 
 ***
 
-## Other Features
+# Config
 
-### Multi-Instance Botting
+## 🚧 Work in progress 🚧
+
+Much of the config at the moment is placeholder for future/planned features.
+
+## Multi-Instance Botting
 Statistics are saved into subdirectories, per-game and trainer ID (`stats/<game_code>/<trainer_id>-<trainer_name>/`) so you can safely run as many instances as your PC can handle, from a single bot folder!
 
 The bot will first attempt to load independent `.yml` and `.py` config files from `config/<game_code>/<trainer_id>-<trainer_name>/` (automatically created), otherwise it will default to the files in the root `config/` folder; this allows you to run separate instances with unique config.
@@ -112,19 +121,7 @@ Example:
                 general.yml    <-- loaded for FireRed (TID 39167)
 ```
 
-### Discord Webhooks
-TODO Readme
-
-### HTTP Server
-TODO Readme
-
-### OBS Webhooks
-TODO Readme
-
-### Cheats/MemHacks
-TODO Readme
 ***
-
 # Attributions ❤
 
 This project would not be possible without the symbols tables from the Pokémon decompilation projects:

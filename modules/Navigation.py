@@ -1,24 +1,25 @@
-from modules.data.MapData import mapRSE  #TODO mapFRLG
 from modules.Inputs import PressButton, WaitFrames, ReleaseInputs
-from modules.Memory import mGBA, GetTrainer, OpponentChanged
-
-if mGBA.game in ['Pokémon Ruby', 'Pokémon Sapphire', 'Pokémon Emerald']:  # "Ruby", "Sapphire"
-    MapDataEnum = mapRSE
-#else:
-#    MapDataEnum = mapFRLG
+from modules.Memory import GetTrainer, OpponentChanged
 
 
-def FollowPath(coords: list, run: bool = True):
+def FollowPath(coords: list, run: bool = True) -> bool:
+    """
+    Function to walk/run the trianer through a list of coords.
+    TODO check if trainer gets stuck, re-attempt previous tuple of coords in the list
+
+    :param coords: coords (tuple) (`posX`, `posY`)
+    :param run: Trainer will hold B (run) if True, otherwise trainer will walk
+    :return: True if trainer (`posX`, `posY`) = the final coord of the list, otherwise False (bool)
+    """
     for x, y, *map_data in coords:
         if run:
             PressButton(['B'], 0)
 
-        # TODO check if trainer gets stuck, re-attempt previous tuple of coords in the list
         while True:
             trainer = GetTrainer()
 
             if OpponentChanged():
-                return False # TODO
+                return False  # TODO check for encounter
 
             # Check if map changed to desired map
             if map_data:

@@ -1,11 +1,12 @@
 import struct
+from typing import NoReturn
 from modules.Console import console
 from modules.Inputs import PressButton
 from modules.Memory import GetTrainer, ReadSymbol, GetParty, GetOpponent
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
 
 
-def Starters(choice: str):
+def Starters(choice: str) -> NoReturn:
     try:
         rng_state_history = GetRNGStateHistory(GetTrainer()['tid'], choice)
 
@@ -37,8 +38,15 @@ def Starters(choice: str):
                 break
         while ReadSymbol('gDisplayedStringBattle', size=4) != b'\xd1\xdc\xd5\xe8':
             PressButton(['B'], 1)
+
         EncounterPokemon(GetParty()[0])
         EncounterPokemon(GetOpponent())
+
+        # TODO
+        # if config_general['bot_mode'] == 'starters':
+        #    if config_general['mem_hacks']['starters']:
+        #        pass
+
         while ReadSymbol('sStarterLabelWindowId') != b'\x00\x00':
             PressButton(['A', 'B', 'Start', 'Select'], 1)
     except:

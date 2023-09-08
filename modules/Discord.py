@@ -1,5 +1,5 @@
 import time
-
+from typing import NoReturn
 from pypresence import Presence
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from modules.Console import console
@@ -16,7 +16,7 @@ def DiscordMessage(webhook_url: str = None,
                         embed_thumbnail: str = None,
                         embed_image: str = None,
                         embed_footer: str = None,
-                        embed_color: str = 'FFFFFF'):
+                        embed_color: str = 'FFFFFF') -> NoReturn:
     try:
         if not webhook_url:
             webhook_url = config_discord['global_webhook_url']
@@ -46,12 +46,11 @@ def DiscordMessage(webhook_url: str = None,
         webhook.execute()
     except:
         console.print_exception(show_locals=True)
-        pass
 
 
-def DiscordRichPresence():
+def DiscordRichPresence() -> NoReturn:
     try:
-        from modules.Stats import GetEncounterLog, GetEncounterRate, GetStats
+        from modules.Stats import GetEncounterRate, encounter_log, stats
         from modules.Memory import mGBA
         from asyncio import (new_event_loop as new_loop, set_event_loop as set_loop)
         set_loop(new_loop())
@@ -70,11 +69,11 @@ def DiscordRichPresence():
             try:
                 RPC.update(
                     state='{} | {}'.format(
-                            GetEncounterLog()['encounter_log'][-1]['pokemon']['metLocation'],
+                            encounter_log['encounter_log'][-1]['pokemon']['metLocation'],
                             mGBA.game),
                     details='{:,} ({:,}✨) | {:,}/h'.format(
-                            GetStats()['totals'].get('encounters', 0),
-                            GetStats()['totals'].get('shiny_encounters', 0),
+                            stats['totals'].get('encounters', 0),
+                            stats['totals'].get('shiny_encounters', 0),
                             GetEncounterRate()),
                     large_image=large_image,
                     start=start,
