@@ -72,6 +72,9 @@ properties:
         enum:
             - stop
             - cancel
+            - learn_best
+    stop_evolution:
+        type: boolean
     deoxys_puzzle_solved:
         type: boolean
     auto_stop:
