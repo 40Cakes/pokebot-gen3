@@ -315,14 +315,16 @@ else:
 class TrainerState(IntEnum):
     # TODO Need further investigation; many values have multiple meanings
     BAG_MENU = 0x0
-    BATTLE = 0x2
-    BATTLE_2 = 0x3
-    FOE_DEFEATED = 0x5
+    CHOOSE_STARTER = 0x1
+    PARTY_MENU = 0x4
+    BATTLE = 0x21
+    BATTLE_STARTING = 0x22
+    BATTLE_ENDING = 0x23
     OVERWORLD = 0x50
-    MISC_MENU = 0xFF
-    UNKNOWN = 0xFA
+    CHANGE_MAP = 0x51
+    UNKNOWN = 0xFF
 
-def GetGameState():
+def GetGameState() -> TrainerState:
     callback2 = ReadSymbol('gMain', 4, 4)  #gMain.callback2
     addr = int(struct.unpack('<I', callback2)[0]) - 1
     state = GetSymbolName(addr)
@@ -331,6 +333,18 @@ def GetGameState():
         return TrainerState.OVERWORLD
     elif state in ['BATTLEMAINCB2']:
         return TrainerState.BATTLE
+    elif state in ['CB2_BAGMENURUN','SUB_80A3118']:
+        return TrainerState.BAG_MENU
+    elif state in ['CB2_UPDATEPARTYMENU','CB2_PARTYMENUMAIN']:
+        return TrainerState.PARTY_MENU
+    elif state in ['CB2_INITBATTLE','CB2_HANDLESTARTBATTLE']:
+        return TrainerState.BATTLE_STARTING
+    elif state in ['CB2_ENDWILDBATTLE']:
+        return TrainerState.BATTLE_ENDING
+    elif state in ['CB2_LOADMAP','CB2_LOADMAP2','CB2_DOCHANGEMAP','SUB_810CC80']:
+        return TrainerState.CHANGE_MAP
+    elif state in ['CB2_STARTERCHOOSE']:
+        return TrainerState.CHOOSE_STARTER
     else:
         return TrainerState.UNKNOWN
 
