@@ -289,6 +289,7 @@ class TrainerState(IntEnum):
     MISC_MENU = 0xFF
 
 
+b_Save = GetSaveBlock(2, size=14)  # TODO temp fix, sometimes fails to read point if GetTrainer() called before game boots after a reset
 def GetTrainer() -> dict:
     """
     Reads trainer data from memory.
@@ -305,9 +306,8 @@ def GetTrainer() -> dict:
     :return: Trainer (dict)
     """
     try:
-        b_Save = GetSaveBlock(2, size=0xE)
-        b_gTasks = ReadSymbol('gTasks', 0x57, 0x3)
-        b_gObjectEvents = ReadSymbol('gObjectEvents', 0x10, 0x9)
+        b_gTasks = ReadSymbol('gTasks', 0x57, 3)
+        b_gObjectEvents = ReadSymbol('gObjectEvents', 0x10, 9)
         trainer = {
             'name': DecodeString(b_Save[0:7]),
             'gender': 'girl' if int(b_Save[8]) else 'boy',
