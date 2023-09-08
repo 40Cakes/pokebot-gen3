@@ -1,12 +1,13 @@
 import os
 import shutil
+from typing import NoReturn
 from modules.Console import console
 
-def ReadFile(file: str):
+def ReadFile(file: str) -> str:
     """
     Simple function to read data from a file, return False if file doesn't exist
     :param file: File to read
-    :return: File's contents, if found. Otherwise None
+    :return: File's contents (str)
     """
     try:
         if os.path.exists(file):
@@ -14,18 +15,18 @@ def ReadFile(file: str):
                 return open_file.read()
         else:
             return None
-    except Exception:
-        console.print_exception()
+    except:
+        console.print_exception(show_locals=True)()
         return None
 
 
-def WriteFile(file: str, value: str, mode: str = 'w'):
+def WriteFile(file: str, value: str, mode: str = 'w') -> bool:
     """
     Simple function to write data to a file, will create the file if doesn't exist
     :param file: File to write to
     :param value: Value to write to file
     :param mode: Write mode
-    :return: Boolean value of whether file was written to successfully
+    :return: True if file was written to successfully, otherwise False (bool)
     """
     try:
         dirname = os.path.dirname(file)
@@ -34,11 +35,19 @@ def WriteFile(file: str, value: str, mode: str = 'w'):
         with open(file, mode=mode, encoding='utf-8') as save_file:
             save_file.write(value)
             return True
-    except Exception:
-        console.print_exception()
+    except:
+        console.print_exception(show_locals=True)()
         return False
 
-def BackupFolder(source, destination):
+
+def BackupFolder(source, destination) -> NoReturn:
+    """
+    Backup a folder, .zip up a source directory and write file to destination.
+
+    :param source: path to backup
+    :param destination: path to write .zip backup file
+    :return:
+    """
     basename = os.path.basename(destination)
     dst_dir = os.path.dirname(destination)
     if not os.path.exists(dst_dir):
