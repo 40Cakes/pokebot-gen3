@@ -39,8 +39,8 @@ def Starters(choice: str) -> NoReturn:
         while ReadSymbol('gDisplayedStringBattle', size=4) != b'\xd1\xdc\xd5\xe8':
             PressButton(['B'], 1)
 
-        EncounterPokemon(GetParty()[0])
         EncounterPokemon(GetOpponent())
+        EncounterPokemon(GetParty()[0])
 
         # TODO
         # if config_general['bot_mode'] == 'starters':
