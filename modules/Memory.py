@@ -83,23 +83,10 @@ class emulator:
         if self.sym_file:
             self.symbols = {}
             for s in open(f'modules/data/symbols/{self.sym_file}').readlines():
-                self.symbols[s.split(' ')[3].strip()] = {
-                    'addr': int(s.split(' ')[0], 16),
-                    'type': str(s.split(' ')[1]),
-                    'size': int(s.split(' ')[2], 16)
-                }
-        else:
-            self.symbols = None
-
-    def __addressymbolmap(self):
-        if self.sym_file:
-            self.addressymbolmap = {}
-            for s in open(f'modules/data/symbols/{self.sym_file}').readlines():
-                self.addressymbolmap[hex(int(s.split(' ')[0].strip(), 16))] = {
-                    'name': s.split(' ')[3].strip(),
-                    'type': str(s.split(' ')[1]),
-                    'size': int(s.split(' ')[2], 16)
-                }
+                self.symbols[s.split(' ')[3].strip()] = (
+                    int(s.split(' ')[0], 16),
+                    int(s.split(' ')[2], 16)
+                )
         else:
             self.symbols = None
 
@@ -118,7 +105,6 @@ class emulator:
         self.game_code = self.proc.read_bytes(self.p_ROM + 0xAC, 4).decode('utf-8')
         self.__game()
         self.__symbols()
-        self.__addressymbolmap()
 
 
 while True:
@@ -163,20 +149,20 @@ def ReadSymbol(name: str, offset: int = 0, size: int = 0):
     :param size: (optional) override the size to read n bytes
     :return: byte data
     """
-    sym_addr = mGBA.symbols[name]['addr']
+    sym_addr = mGBA.symbols[name][0]
     match sym_addr >> 24:
         case 2:
-            addr = mGBA.p_EWRAM + (sym_addr - mGBA.symbols['EWRAM_START']['addr'])
+            addr = mGBA.p_EWRAM + (sym_addr - mGBA.symbols['EWRAM_START'][0])
         case 3:
-            addr = mGBA.p_IWRAM + (sym_addr - mGBA.symbols['IWRAM_START']['addr'])
+            addr = mGBA.p_IWRAM + (sym_addr - mGBA.symbols['IWRAM_START'][0])
         case 8:
-            addr = mGBA.p_ROM + (sym_addr - mGBA.symbols['Start']['addr'])
+            addr = mGBA.p_ROM + (sym_addr - mGBA.symbols['Start'][0])
         case _:
             return None
     if size > 0:
         return mGBA.proc.read_bytes(addr + offset, size)
     else:
-        return mGBA.proc.read_bytes(addr + offset, mGBA.symbols[name]['size'])
+        return mGBA.proc.read_bytes(addr + offset, mGBA.symbols[name][1])
 
 
 def GetFrameCount():
@@ -205,7 +191,7 @@ try:
     if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
         gSaveBlock2Ptr = ReadSymbol('gSaveBlock2Ptr')
         p_Trainer = mGBA.p_EWRAM + (
-                struct.unpack('<I', ReadSymbol('gSaveBlock2Ptr'))[0] - mGBA.symbols['EWRAM_START']['addr'])
+                struct.unpack('<I', ReadSymbol('gSaveBlock2Ptr'))[0] - mGBA.symbols['EWRAM_START'][0])
         b_Trainer = mGBA.proc.read_bytes(p_Trainer, length=14)
     else:
         b_Trainer = ReadSymbol('gSaveBlock2', 14)
