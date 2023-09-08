@@ -3,7 +3,6 @@ from typing import NoReturn
 from modules.Console import console
 from modules.Inputs import PressButton
 from modules.Memory import GetTrainer, ReadSymbol, GetParty
-from modules.Navigation import FollowPath
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
 
 
