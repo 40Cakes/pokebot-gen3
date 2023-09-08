@@ -67,15 +67,35 @@ class Emulator:
     def __game(self):
         match self.game_code[0:3]:  # Game release
             case 'AXV':
-                self.game, self.sym_file = 'Pokémon Ruby', 'pokeruby.sym'
+                self.game = 'Pokémon Ruby'
+                if self.game_version == b'\x00':
+                    self.sym_file = 'pokeruby.sym'
+                elif self.game_version == b'\x01':
+                    self.sym_file = 'pokeruby_rev1.sym'
+                elif self.game_version == b'\x02':
+                    self.sym_file = 'pokeruby_rev2.sym'
             case 'AXP':
-                self.game, self.sym_file = 'Pokémon Sapphire', 'pokesapphire.sym'
+                self.game = 'Pokémon Sapphire'
+                if self.game_version == b'\x00':
+                    self.sym_file = 'pokesapphire.sym'
+                elif self.game_version == b'\x01':
+                    self.sym_file = 'pokesapphire_rev1.sym'
+                elif self.game_version == b'\x02':
+                    self.sym_file = 'pokesapphire_rev2.sym'
             case 'BPE':
                 self.game, self.sym_file = 'Pokémon Emerald', 'pokeemerald.sym'
             case 'BPR':
-                self.game, self.sym_file = 'Pokémon FireRed', 'pokefirered.sym'
+                self.game = 'Pokémon FireRed'
+                if self.game_version == b'\x00':
+                    self.sym_file = 'pokefirered.sym'
+                elif self.game_version == b'\x01':
+                    self.sym_file = 'pokefirered_rev1.sym'
             case 'BPG':
-                self.game, self.sym_file = 'Pokémon LeafGreen', 'pokeleafgreen.sym'
+                self.game = 'Pokémon LeafGreen'
+                if self.game_version == b'\x00':
+                    self.sym_file = 'pokeleafgreen.sym'
+                elif self.game_version == b'\x01':
+                    self.sym_file = 'pokeleafgreen_rev1.sym'
             case _:
                 self.game, self.sym_file = None, None
         match self.game_code[3]:  # Game language
@@ -108,6 +128,7 @@ class Emulator:
         self.p_Framecount = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
                                        offsets=[0x40, 0x58, 0x10, 0x1C0, 0x0, 0x90, 0xF0])
         self.game_code = self.proc.read_bytes(self.p_ROM + 0xAC, 4).decode('utf-8')
+        self.game_version = self.proc.read_bytes(self.p_ROM + 0xBC, 1)
         self.__game()
         self.__symbols()
 
