@@ -193,6 +193,18 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
     else:
         return mGBA.proc.read_bytes(addr + offset, mGBA.symbols[name][1])
 
+def GetSymbolName(address: int)-> str:
+    """
+    Get the name of a symbol based on the address
+
+    :param address: address of the symbol
+    
+    :return: name of the symbol (str)
+    """
+    for key, (value, _) in mGBA.symbols.items():
+        if value == address:
+            return key
+    return ''
 
 def GetFrameCount():
     """
@@ -308,7 +320,19 @@ class TrainerState(IntEnum):
     FOE_DEFEATED = 0x5
     OVERWORLD = 0x50
     MISC_MENU = 0xFF
+    UNKNOWN = 0xFA
 
+def GetGameState():
+    callback2 = ReadSymbol('gMain', 4, 4)  #gMain.callback2
+    addr = int(struct.unpack('<I', callback2)[0]) - 1
+    state = GetSymbolName(addr)
+    #console.print(state)
+    if state in ['CB2_OVERWORLD']:
+        return TrainerState.OVERWORLD
+    elif state in ['BATTLEMAINCB2']:
+        return TrainerState.BATTLE
+    else:
+        return TrainerState.UNKNOWN
 
 def GetTrainer() -> dict:
     """

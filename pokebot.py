@@ -6,7 +6,7 @@ from threading import Thread
 from modules.Console import console
 from modules.Config import config_general, config_discord, config_obs
 from modules.Inputs import PressButton, WaitFrames, WriteInputs
-from modules.Memory import mGBA, GetTrainer, EncodeString, ReadSymbol, GetOpponent, OpponentChanged, TrainerState
+from modules.Memory import GetGameState, mGBA, GetTrainer, EncodeString, ReadSymbol, GetOpponent, OpponentChanged, TrainerState
 from modules.Stats import EncounterPokemon
 
 version = 'v0.0.1a'
@@ -38,7 +38,7 @@ except:
 while True:
     try:
         if config_general['bot_mode'] != 'manual':
-            if GetTrainer()['state'] == TrainerState.MISC_MENU | TrainerState.BATTLE | TrainerState.BATTLE_2:
+            if GetGameState() == TrainerState.BATTLE:
                 # Search for the text "What will (Pokémon) do?" in `gDisplayedStringBattle`
                 b_What = EncodeString('What')  # TODO English only
 
@@ -54,7 +54,7 @@ while True:
                     PressButton(['B'])
 
         if OpponentChanged():
-            while GetTrainer()['state'] != TrainerState.MISC_MENU | TrainerState.BATTLE | TrainerState.BATTLE_2:
+            while GetGameState() != TrainerState.BATTLE:
                 WaitFrames(1)
                 continue
             EncounterPokemon(GetOpponent())
