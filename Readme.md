@@ -102,14 +102,14 @@ The bot will first attempt to load independent `.yml` and `.py` config files fro
 Example:
 ```
 ├── /config
-    │   battle.yml             <-- loaded for saves
-    │   cheats.yml             <-- loaded for saves
-    │   CustomCatchFilters.py  <-- loaded for saves
-    │   CustomHooks.py         <-- loaded for saves
-    │   discord.yml            <-- loaded for saves except Emerald (TID 52963)
-    │   general.yml            <-- loaded for saves except Emerald (TID 52963) and FireRed (TID 39167)
-    │   logging.yml            <-- loaded for saves
-    │   obs.yml                <-- loaded for saves
+    │   battle.yml             <-- loaded for all saves
+    │   cheats.yml             <-- loaded for all saves
+    │   CustomCatchFilters.py  <-- loaded for all saves
+    │   CustomHooks.py         <-- loaded for all saves
+    │   discord.yml            <-- loaded for all saves except Emerald (TID 52963)
+    │   general.yml            <-- loaded for all saves except Emerald (TID 52963) and FireRed (TID 39167)
+    │   logging.yml            <-- loaded for all saves
+    │   obs.yml                <-- loaded for all saves
     │
     ├── /BPEE
     │   └───/52963-MAY
