@@ -2,6 +2,7 @@
 __pycache__
 backups/
 build/
+config/*/
 dist/
 logs/
 stats/
