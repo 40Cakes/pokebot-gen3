@@ -57,6 +57,7 @@ while True:
             while GetTrainer()['state'] != TrainerState.MISC_MENU | TrainerState.BATTLE | TrainerState.BATTLE_2:
                 WaitFrames(1)
                 continue
+            WaitFrames(1)  # Wait 1 frame for the opponent data buffer to update
             EncounterPokemon(GetOpponent())
 
         match config_general['bot_mode']:

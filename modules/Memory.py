@@ -530,6 +530,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
 
     except:
         console.print_exception(show_locals=True)
+        return None
 
 
 def GetParty() -> dict:
@@ -560,10 +561,11 @@ def GetOpponent() -> dict:
 
     :return: opponent (dict)
     """
-    try:
-        return ParsePokemon(ReadSymbol('gEnemyParty')[:100])
-    except:
-        console.print_exception(show_locals=True)
+    while not (opponent := ParsePokemon(ReadSymbol('gEnemyParty')[:100])):
+        # TODO hacky loop in case opponent returns garbage data, should do legal/valid mon check instead
+        continue
+    else:
+        return opponent
 
 
 last_opid = ReadSymbol('gEnemyParty', size=4)
