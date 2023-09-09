@@ -699,24 +699,6 @@ def ParseStartMenu() -> dict:
     }
 
 
-def GetCursorStates() -> dict:
-    """
-    helper function that gets the current state of various cursor objects, as well as the coords and facing direction of
-    the trainer.
-
-    :return: a dict containing the states of the various cursors and trainer movement signifiers
-    """
-
-    return {
-        'start_menu_cursor': ParseStartMenuCursorPos(),
-        'party_menu_cursor': ParsePartyMenu()['slot_id'],
-        'battle_action_cursor': ReadSymbol('gActionSelectionCursor')[0],
-        'battle_move_cursor': ReadSymbol('gMoveSelectionCursor')[0],
-        'trainer_facing': GetTrainer()['facing'],
-        'menu_cursor': ParseMenu()['cursorPos'],
-    }
-
-
 def ParsePartyMenu() -> dict:
     """
     Function to parse the party menu data and return usable information
