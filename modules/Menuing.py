@@ -26,20 +26,20 @@ def SelectBattleOption(desired_option: int, cursor_type: str = 'gActionSelection
     :param cursor_type: The symbol to use for the cursor. This is different between selecting moves and selecting battle
      options.
     """
-    while ReadSymbol(cursor_type)[0] != desired_option:
-        match (ReadSymbol(cursor_type)[0] % 2) - (desired_option % 2):
+    while ParseBattleCursor(cursor_type) != desired_option:
+        match (ParseBattleCursor(cursor_type) % 2) - (desired_option % 2):
             case - 1:
                 PressButton(['Right'])
             case 1:
                 PressButton(['Left'])
-        match (ReadSymbol(cursor_type)[0] // 2) - (desired_option // 2):
+        match (ParseBattleCursor(cursor_type) // 2) - (desired_option // 2):
             case - 1:
                 PressButton(['Down'])
             case 1:
                 PressButton(['Up'])
             case 0:
                 pass
-    if ReadSymbol(cursor_type)[0] == desired_option:
+    if ParseBattleCursor(cursor_type) == desired_option:
         # get current displayed string
         current_string = DecodeString(ReadSymbol('gDisplayedStringBattle'))
         # mash A until the string changes
