@@ -99,6 +99,18 @@ class Emulator:
         else:
             self.symbols = None
 
+    def __addressymbolmap(self):
+        if self.sym_file:
+            self.addressymbolmap = {}
+            for s in open(f'modules/data/symbols/{self.sym_file}').readlines():
+                self.addressymbolmap[hex(int(s.split(' ')[0].strip(), 16))] = {
+                    'name': s.split(' ')[3].strip(),
+                    'type': str(s.split(' ')[1]),
+                    'size': int(s.split(' ')[2], 16)
+                }
+        else:
+            self.symbols = None
+
     def __init__(self, pid):
         self.proc = Pymem(pid)
         self.p_EWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
@@ -114,6 +126,7 @@ class Emulator:
         self.game_code = self.proc.read_bytes(self.p_ROM + 0xAC, 4).decode('utf-8')
         self.__game()
         self.__symbols()
+        self.__addressymbolmap()
 
 
 while True:
