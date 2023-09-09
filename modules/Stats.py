@@ -12,12 +12,13 @@ from datetime import datetime
 
 from rich.table import Table
 from modules.Colours import IVColour, IVSumColour, SVColour
-from modules.Config import config_obs, config_logging
+from modules.Config import config_obs, config_logging, config_battle
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import EncodeString, GetTrainer, ReadSymbol, TrainerState, mGBA
-from modules.Menuing import FleeBattle, BattleOpponent, CheckForPickup
+from modules.Menuing import FleeBattle, BattleOpponent, CheckForPickup, RotatePokemon
+from modules.data.GameState import GameState
 
 safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
 trainer_dir = '{}/{}-{}'.format(
@@ -599,6 +600,8 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
 
     :return:
     """
+    # initializing here so pycharm won't yell at me
+    replace_battler = False
 
     LogEncounter(pokemon)
 
@@ -614,10 +617,13 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
         input('Press enter to exit...')
         os._exit(0)
 
-    if GetTrainer()['state'] == TrainerState.OVERWORLD:
+    while GetTrainer()['state'] == GameState.GARBAGE_COLLECTION:
+        WaitFrames(1)
+
+    if GetTrainer()['state'] == GameState.OVERWORLD:
         return None
 
-    if GetTrainer()['state'] == TrainerState.MISC_MENU:
+    if GetTrainer()['state'] in (GameState.BATTLE, GameState.ENTERING_BATTLE, GameState.BATTLE_START):
         # Search for the text "What will (Pokémon) do?" in `gDisplayedStringBattle`
         # TODO support all other language ROMs
         # Some languages place Pokemon name at the start of `gDisplayedStringBattle`, need to add an offset
@@ -625,14 +631,16 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
 
         while ReadSymbol('gDisplayedStringBattle', size=4) != b_What:
             PressButton(['B'])
-        if config['battle']:
+        if config_battle['battle']:
             battle_won = BattleOpponent()
             # adding this in for lead rotation functionality down the line
             replace_battler = not battle_won
         else:
             FleeBattle()
-        if config["pickup"]:
-            while GetTrainer()['state'] != TrainerState.OVERWORLD:
+        if config_battle and config_battle["replace_lead_battler"] and replace_battler:
+            RotatePokemon()
+        if config_battle["pickup"]:
+            while GetTrainer()['state'] != GameState.OVERWORLD:
                 continue
-            if GetTrainer()['state'] == TrainerState.OVERWORLD:
+            if GetTrainer()['state'] == GameState.OVERWORLD:
                     CheckForPickup()
