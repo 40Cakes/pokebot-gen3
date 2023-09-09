@@ -220,6 +220,11 @@ def BattleOpponent() -> bool:
                 battle_text not in DecodeString(ReadSymbol('gDisplayedStringBattle')) and
                 "whited out!" not in DecodeString(ReadSymbol('gDisplayedStringBattle'))
         ):
+            while GetTrainer()["state"] == GameState.EVOLUTION:
+                if config_battle['stop_evolution']:
+                    PressButton(['B'])
+                else:
+                    PressButton(['A'])
             if 'Delete a move' not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
                 PressButton(['B'])
                 WaitFrames(1)
