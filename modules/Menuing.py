@@ -187,7 +187,9 @@ def BattleOpponent() -> bool:
     ally_fainted = False
     foe_fainted = False
 
-    while not ally_fainted and not foe_fainted and GetTrainer()['state'] != GameState.OVERWORLD:
+    while not ally_fainted and not foe_fainted and GetTrainer()['state'] not in (
+            GameState.OVERWORLD, GameState.WHITEOUT
+    ) and "scurried" not in DecodeString(ReadSymbol('gStringVar4')):
         if GetTrainer()['state'] == GameState.OVERWORLD:
             return True
 
