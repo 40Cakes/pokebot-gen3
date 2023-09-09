@@ -683,11 +683,20 @@ def GetItems() -> dict:
         console.print_exception(show_locals=True)
 
 
-def ParseStartMenuCursorPos() -> int:
+def ParseStartMenu() -> dict:
     """
     Helper function that decodes the state of the start menu.
     """
-    return struct.unpack('<B', ReadSymbol('sStartMenuCursorPos'))[0]
+    tasks = ParseTasks()
+    open = False
+    for task in tasks:
+        if task['task_func'] == TaskFunc.START_MENU and task['is_active']:
+            open = True
+            break
+    return {
+        "open": open,
+        "cursor_pos": struct.unpack('<B', ReadSymbol('sStartMenuCursorPos'))[0],
+    }
 
 
 def GetCursorStates() -> dict:
