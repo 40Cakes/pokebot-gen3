@@ -346,18 +346,8 @@ def TakePickupItems(pokemon_indices: list):
 
     :param pokemon_indices: The list of indices representing the pokemon to take items from.
     """
-    current_menu = identifyMenu()
-    while current_menu != 'start_menu':
-        if current_menu == 'battle_action_menu':
-            FleeBattle()
-        PressButton(['B'])
-        WaitFrames(6)
-        PressButton(['Start'])
-        WaitFrames(6)
-        current_menu = identifyMenu()
-    # this bit mashes A until the party menu is active
-    while identifyMenu() != 'party_menu':
-        NavigateStartMenu(1)
+    NavigateStartMenu(1)
+    while GetTrainer()['state'] != GameState.PARTY_MENU:
         PressButton(["A"])
     for idx in pokemon_indices:
         while ParsePartyMenu()['slot_id'] != idx:
