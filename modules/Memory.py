@@ -716,7 +716,68 @@ def ParsePartyMenu() -> dict:
     }
 
 
-def ParseTasks() -> list:
+def parse_func(data) -> str:
+    """
+    helper function for parsing function pointers
+    """
+    addr = hex(int(struct.unpack('<I', data)[0]) - 1)
+    if addr != '-0x1':
+        return mGBA.addressymbolmap[addr]['name']
+    return "_"
+
+
+def ParseMain() -> dict:
+    """
+    function to parse the data in gMain and return usable info
+    """
+    main = ReadSymbol('gMain')
+
+    # parse the bits and bobs in the main struct
+    callback1 = parse_func(main[0:4])
+    callback2 = parse_func(main[4:8])
+    saved_callback = parse_func(main[8:12])
+    vblank_callback = parse_func(main[12:16])
+    hblank_callback = parse_func(main[16:20])
+    vcount_callback = parse_func(main[20:24])
+    serial_callback = parse_func(main[24:28])
+    held_keys_raw = struct.unpack('<H', main[40:42])[0]
+    new_keys_raw = struct.unpack('<H', main[42:44])[0]
+    held_keys = struct.unpack('<H', main[44:46])[0]
+    new_keys = struct.unpack('<H', main[46:48])[0]
+    new_and_repeated_keys = struct.unpack('<H', main[48:50])[0]
+    key_repeat_counter = struct.unpack('<H', main[50:52])[0]
+    watched_keys_pressed = struct.unpack('<H', main[52:54])[0]
+    watched_keys_mask = struct.unpack('<H', main[54:56])[0]
+    obj_count = struct.unpack('<B', main[56:57])[0]
+    # oam_buffer = main[60:1084]
+    state = struct.unpack('<B', main[1084:1085])[0]
+    oam_load_disabled_or_in_battle = bin(int.from_bytes(main[1085:1086], 'little'))[2:]
+
+    main_dict = {
+        "callback_1": callback1,
+        "callback_2": callback2,
+        "saved_callback": saved_callback,
+        "vblank_callback": vblank_callback,
+        "hblank_callback": hblank_callback,
+        "vcount_callback": vcount_callback,
+        "serial_callback": serial_callback,
+        "held_keys_raw": held_keys_raw,
+        "new_keys_raw": new_keys_raw,
+        "held_keys": held_keys,
+        "new_keys": new_keys,
+        "new_and_repeated_keys": new_and_repeated_keys,
+        "key_repeat_counter": key_repeat_counter,
+        "watched_keys_pressed": watched_keys_pressed,
+        "watched_keys_mask": watched_keys_mask,
+        "obj_count": obj_count,
+        # "oam_buffer": oam_buffer,
+        "state": state,
+        "oam_load_disabled_or_in_battle": oam_load_disabled_or_in_battle
+    }
+    return main_dict
+
+
+def ParseTasks() -> List[dict]:
     """
     Function to parse the party menu data and return usable information
     """
