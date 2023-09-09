@@ -240,8 +240,7 @@ def BattleOpponent() -> bool:
         return False
     if (
             GetTrainer()['state'] == GameState.WHITEOUT or
-            'scurried' in DecodeString(ReadSymbol('gStringVar4')) or
-            "whited out!" in DecodeString(ReadSymbol('gDisplayedStringBattle'))):
+            'scurried' in DecodeString(ReadSymbol('gStringVar4'))):
         console.print("All pokemon have fainted.")
         os._exit(0)
     return True
