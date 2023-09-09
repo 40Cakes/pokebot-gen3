@@ -379,20 +379,15 @@ def NavigateStartMenu(desired_index: int) -> NoReturn:
 
     :param desired_index: The index of the option to select from the menu.
     """
-    current_cursor_position = ParseStartMenuCursorPos()
+    while not ParseStartMenu()['open']:
+        PressButton(['Start'])
+    current_cursor_position = ParseStartMenu()['cursor_pos']
     while current_cursor_position != desired_index:
         if current_cursor_position < desired_index:
             PressButton(["Down"])
         else:
             PressButton(['Up'])
-        current_cursor_position = ParseStartMenuCursorPos()
-
-
-def GetStartMenuCursorPos():
-    """
-    Helper function to get the position of the start menu cursor in a readable way to clean up the code.
-    """
-    return int.from_bytes(ReadSymbol('sStartMenuCursorPos'), 'big')
+        current_cursor_position = ParseStartMenu()['cursor_pos']
 
 
 def NavigateMenu(desired_index: int) -> NoReturn:
