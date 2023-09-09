@@ -201,7 +201,7 @@ def BattleOpponent() -> bool:
             return False
 
         # If effective moves are present, let's fight this thing!
-        while "What will" in DecodeString(ReadSymbol("gDisplayedStringBattle")):
+        while battle_text in DecodeString(ReadSymbol("gDisplayedStringBattle")):
             SelectBattleOption(0, cursor_type="gActionSelectionCursor")
 
         WaitFrames(5)
@@ -215,8 +215,10 @@ def BattleOpponent() -> bool:
 
         WaitFrames(5)
 
-        while GetTrainer()["state"] != GameState.OVERWORLD and "What will" not in DecodeString(
-                ReadSymbol("gDisplayedStringBattle")
+        while (
+                GetTrainer()["state"] != GameState.OVERWORLD and
+                battle_text not in DecodeString(ReadSymbol('gDisplayedStringBattle')) and
+                "whited out!" not in DecodeString(ReadSymbol('gDisplayedStringBattle'))
         ):
             if 'Delete a move' not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
                 PressButton(['B'])
