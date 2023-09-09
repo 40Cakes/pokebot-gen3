@@ -51,9 +51,13 @@ def FleeBattle() -> NoReturn:
     """
     Readable function to select and execute the Run option from the battle menu.
     """
-    SelectBattleOption(3, cursor_type='gActionSelectionCursor')
     while GetTrainer()['state'] != GameState.OVERWORLD:
-        PressButton(['B'])
+        if "Use next" in DecodeString(ReadSymbol('gDisplayedStringBattle')):
+            PressButton(["B"])
+        elif battle_text in DecodeString(ReadSymbol('gDisplayedStringBattle')):
+            SelectBattleOption(3, cursor_type='gActionSelectionCursor')
+        else:
+            PressButton(['B'])
 
 
 def getMovePower(move, ally_types, foe_types, ally_attacks, foe_defenses) -> float:
