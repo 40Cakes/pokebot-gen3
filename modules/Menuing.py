@@ -320,7 +320,7 @@ def CheckForPickup() -> NoReturn:
     Function that handles pickup farming.
     """
     try:
-        pickup_threshold = config["pickup_threshold"]
+        pickup_threshold = config_battle["pickup_threshold"]
     except:
         pickup_threshold = 1
     pokemon_with_pickup = 0
@@ -331,7 +331,7 @@ def CheckForPickup() -> NoReturn:
             pokemon_with_pickup += 1
             if party[i]['item']['name'] != 'None':
                 pokemon_with_pickup_and_item.append(i)
-    if pokemon_with_pickup < pickup_threshold:
+    if pickup_threshold > pokemon_with_pickup > 0:
         console.print(
             "The pickup threshold is higher than the number of pokemon in the party with pickup, so the latter number will be used.")
         pickup_threshold = pokemon_with_pickup
