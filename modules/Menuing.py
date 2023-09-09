@@ -97,29 +97,52 @@ def isValidMove(move: dict) -> bool:
     return move['name'] not in config_battle['banned_moves'] and move['power'] > 0
 
 
-def CalculateNewMoveViability(party: dict) -> bool:
+def CalculateNewMoveViability(mon: dict, new_move: dict) -> int:
     """
-    new_party = GetParty()
-    for pkmn in new_party.values():
-        for i in range(len(party)):
-            if party[i]["pid"] == pkmn["pid"]:
-                old_pkmn = party[i]
-                if old_pkmn["level"] < pkmn["level"]:
-                    print(
-                        f"{pkmn['name']} has grown {pkmn['level'] - old_pkmn['level']} level{'s'*((pkmn['level'] - old_pkmn['level']) > 1)}"
-                    )
-                    pkmn_name = pkmn["name"]
-                    print(f"Learnset: {ReadSymbol(f's{pkmn_name}LevelUpLearnset')}")
-                    print(f"Text flags: {DecodeString(ReadSymbol('gTextFlags'))}")
-                    print(f"Text: {DecodeString(ReadSymbol('.text'))}")
-                    print(f"G String Var 1: {DecodeString(ReadSymbol('gStringVar1'))}")
-                    print(f"G String Var 2: {DecodeString(ReadSymbol('gStringVar2'))}")
-                    print(f"G String Var 3: {DecodeString(ReadSymbol('gStringVar3'))}")
-                    print(f"G String Var 4: {DecodeString(ReadSymbol('gStringVar4'))}")
-                    print(f"G String Var 4: {DecodeString(ReadSymbol('gStringVar4'))}")
-                    print(f"PlayerHandleGetRawMonData: {ParsePokemon(ReadSymbol('PlayerHandleGetRawMonData'))}")
+    Function that judges the move a Pokemon is trying to learn against its moveset and returns the index of the worst
+    move of the bunch.
+
+    :param mon: The dict containing the Pokemon's info.
+    :param new_move: The move that the mon is trying to learn
+    :return: The index of the move to select.
     """
-    return False
+    # determine how the damage formula will be affected by the mon's current stats
+    attack_stat = {
+        'Physical': mon['stats']['attack'],
+        'Special': mon['stats']['spAttack'],
+        'a-': 0,
+        'a+': 0
+    }
+    # get the effective power of each move
+    move_power = []
+    full_moveset = list(mon['moves'])
+    full_moveset.append(new_move)
+    for move in full_moveset:
+        power = new_move['power'] * attack_stat[move['kind']]
+        if move['type'] in mon['type']:
+            power *= 1.5
+        if move['name'] in config_battle['banned_moves']:
+            power = 0
+        move_power.append(power)
+    # find the weakest move of the bunch
+    weakest_move_power = min(move_power)
+    weakest_move = move_power.index(weakest_move_power)
+    # try and aim for good coverage- it's generally better to have a wide array of move types than 4 moves of the same
+    # type
+    if new_move['type'] in [m['type'] for m in mon['moves']] and min(move_power) > 0:
+        weakest_move_power = None
+        for i in range(len(full_moveset)):
+            if full_moveset[i]['type'] == new_move['type']:
+                if weakest_move_power is None:
+                    weakest_move = i
+                    weakest_move_power = move_power[i]
+                else:
+                    if move_power[i] < weakest_move_power:
+                        weakest_move = i
+                        weakest_move_power = move_power[i]
+    console.print(f"Move to replace is {full_moveset[weakest_move]['name']} with a calculated power of {weakest_move_power}")
+
+    return weakest_move
 
 
 def FindEffectiveMove(ally: dict, foe: dict) -> dict:
