@@ -190,6 +190,45 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
         return mGBA.proc.read_bytes(addr + offset, mGBA.symbols[name][1])
 
 
+def ReadAddress(addr: int, offset: int = 0, size: int = 1):
+    """
+    This function uses the symbol tables from the Pokémon decompilation projects found here: https://github.com/pret
+    Symbol tables are loaded and parsed as a dict in the `emulator` class, the .sym files for each game can be found
+    in `modules/data/symbols`.
+
+    Format of symbol tables:
+    `020244ec g 00000258 gPlayerParty`
+    020244ec     - memory address
+    g            - (l,g,,!) local, global, neither, both
+    00000258     - size in bytes (base 16) (0x258 = 600 bytes)
+    gPlayerParty - name of the symbol
+
+    GBA memory domains: https://corrupt.wiki/consoles/gameboy-advance/bizhawk-memory-domains
+    0x02000000 - 0x02030000 - 256 KB EWRAM (general purpose RAM external to the CPU)
+    0x03000000 - 0x03007FFF - 32 KB IWRAM (general purpose RAM internal to the CPU)
+    0x08000000 - 0x???????? - Game Pak ROM (0 to 32 MB)
+
+    :param offset: (optional) add n bytes to the address of symbol
+    :param size: (optional) override the size to read n bytes
+    :return: byte data
+    """
+    data = ReadByte(addr)
+    return mGBA.proc.read_bytes(data + offset, size)
+
+
+def ReadByte(addr: int) -> Union[int, None]:
+    match addr >> 24:
+        case 2:
+            addr = mGBA.p_EWRAM + (addr - mGBA.symbols['EWRAM_START'][0])
+        case 3:
+            addr = mGBA.p_IWRAM + (addr - mGBA.symbols['IWRAM_START'][0])
+        case 8:
+            addr = mGBA.p_ROM + (addr - mGBA.symbols['Start'][0])
+        case _:
+            addr = None
+    return addr
+
+
 def GetFrameCount():
     """
     Get the current mGBA frame count since the start of emulation.
