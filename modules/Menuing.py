@@ -291,6 +291,30 @@ def HandleMoveLearn():
             console.print("Config new_move_mode invalid.")
 
 
+def GetLearningMon() -> dict:
+    idx = int.from_bytes(ReadAddress(int.from_bytes(ReadSymbol('sMonSummaryScreen'), 'little'), offset=16574, size=1),
+                         'little')
+    return GetParty()[idx]
+
+
+def GetLearningMove() -> dict:
+    """
+    helper function that returns the move trying to be learned
+    """
+    return moves_list[
+        int.from_bytes(ReadAddress(int.from_bytes(ReadSymbol('sMonSummaryScreen'), 'little'), offset=16580, size=2),
+                       'little')]
+
+
+def GetMoveLearningCursorPos() -> int:
+    """
+    helper function that returns the position of the move learning cursor
+    """
+    return int.from_bytes(
+        ReadAddress(int.from_bytes(ReadSymbol('sMonSummaryScreen'), 'little'), offset=16582), 'little'
+    )
+
+
 def CheckForPickup() -> NoReturn:
     """
     Function that handles pickup farming.
