@@ -363,9 +363,13 @@ def TakePickupItems(pokemon_indices: list):
             NavigateMenu(1)
         while "Received the" in DecodeString(ReadSymbol('gStringVar4')):
             PressButton(['B'])
-    while identifyMenu() == 'party_menu':
+    while GetTrainer()['state'] != GameState.OVERWORLD or ParseStartMenu()['open']:
         PressButton(['B'])
-    while identifyMenu() == 'start_menu':
+    for i in range(30):
+        if GetTrainer()['state'] != GameState.OVERWORLD or ParseStartMenu()['open']:
+            break
+        PressButton(['B'])
+    while GetTrainer()['state'] != GameState.OVERWORLD or ParseStartMenu()['open']:
         PressButton(['B'])
 
 
