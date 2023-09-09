@@ -64,14 +64,6 @@ properties:
         type: boolean
     catch_shinies:
         type: boolean
-    new_move:
-        type: string
-        enum:
-            - stop
-            - cancel
-            - learn_best
-    stop_evolution:
-        type: boolean
     deoxys_puzzle_solved:
         type: boolean
     auto_stop:
@@ -141,6 +133,16 @@ battle_schema = """
         type: integer
         minimum: 1
         maximum: 6
+    new_move:
+        type: string
+        enum:
+            - stop
+            - cancel
+            - learn_best
+    stop_evolution:
+        type: boolean
+    replace_lead_battler:
+        type: boolean
     banned_moves:
         type: array
         uniqueItems: true
