@@ -2,12 +2,19 @@ import random
 from typing import NoReturn
 import os
 
-from modules.Config import config
+from modules.Config import config_battle
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import ReadSymbol, GetTrainer, pokemon_list, type_list, GetParty, GetOpponent, DecodeString, \
-    ParsePartyMenu, ParseStartMenuCursorPos, ParseMenu, GetCursorStates
+    ParsePartyMenu, ParseStartMenu, ParseMenu, ParseBattleCursor, mGBA, ParseTasks, ReadAddress, \
+    moves_list
 from modules.data.GameState import GameState
 from modules.Console import console
+from modules.data.TaskFunc import TaskFunc
+
+if mGBA.game in ['Pokémon Ruby', 'Pokémon Sapphire']:
+    battle_text = "What should"
+else:
+    battle_text = "What will"
 
 
 def SelectBattleOption(desired_option: int, cursor_type: str = 'gActionSelectionCursor') -> NoReturn:
