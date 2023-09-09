@@ -405,39 +405,53 @@ def NavigateMenu(desired_index: int) -> NoReturn:
     PressButton(["A"])
 
 
-def identifyMenu() -> str:
-    current_cursor_states = GetCursorStates()
-    directions = ['Up', 'Right', 'Down', 'Left']
-    directions.remove(GetTrainer()['facing'])
-    PressButton([random.choice(directions)])
-    WaitFrames(6)
-    new_cursor_states = GetCursorStates()
-    changed_cursors = []
-    while new_cursor_states == current_cursor_states:
-        directions = ['Up', 'Right', 'Down', 'Left']
-        directions.remove(GetTrainer()['facing'])
-        PressButton([random.choice(directions)])
-        WaitFrames(6)
-        new_cursor_states = GetCursorStates()
-    for c in new_cursor_states.keys():
-        if new_cursor_states[c] != current_cursor_states[c]:
-            if c not in changed_cursors:
-                changed_cursors.append(c)
-    match changed_cursors[0]:
-        case 'start_menu_cursor':
-            return "start_menu"
-        case 'party_menu_cursor':
-            return "party_menu"
-        case 'menu_cursor':
-            return "misc_menu"
-        case 'battle_action_cursor':
-            return "battle_action_menu"
-        case 'battle_move_cursor':
-            return "battle_move_menu"
-        case 'trainer_facing':
-            return "overworld"
-        case 'trainer_coords':
-            return "overworld"
-        case _:
-            print("menu without match")
-            os._exit(69)
+def RotatePokemon():
+    """
+    function to swap out lead battler if PP or HP get too low
+    """
+    NavigateStartMenu(1)
+    while GetTrainer()['state'] != GameState.PARTY_MENU:
+        PressButton(["A"])
+    party = GetParty()
+    new_lead_idx = 0
+    for i in range(len(party)):
+        if party[i]['stats']['hp'] > 0:
+            print(f"Pokemon {party[i]['name']} has hp!")
+            for move in party[i]['moves']:
+                if move['power'] > 0 and move['remaining_pp'] > 0:
+                    print(f"Pokemon {party[i]['name']} has usable moves!")
+                    new_lead_idx = i
+                    break
+            if new_lead_idx > 0:
+                break
+    if new_lead_idx > 0:
+
+        while ParsePartyMenu()['slot_id'] != new_lead_idx:
+            if ParsePartyMenu()['slot_id'] > new_lead_idx:
+                PressButton(["Up"])
+            else:
+                PressButton(["Down"])
+
+        while "Choose" in DecodeString(ReadSymbol('gStringVar4')):
+            PressButton(["A"])
+        while "Do what with this" in DecodeString(ReadSymbol('gStringVar4')):
+            NavigateMenu(1)
+        while "Move to" in DecodeString(ReadSymbol('gStringVar4')):
+            if ParsePartyMenu()['slot_id_2'] != 0:
+                PressButton(['Up'])
+            else:
+
+                PressButton(['A'])
+        while "Choose" in DecodeString(ReadSymbol('gStringVar4')):
+            PressButton(['B'])
+        while GetTrainer()['state'] != GameState.OVERWORLD or ParseStartMenu()['open']:
+            PressButton(['B'])
+        for i in range(30):
+            if GetTrainer()['state'] != GameState.OVERWORLD or ParseStartMenu()['open']:
+                break
+            PressButton(['B'])
+        while GetTrainer()['state'] != GameState.OVERWORLD or ParseStartMenu()['open']:
+            PressButton(['B'])
+    else:
+        console.print("No pokemon are fit for battle.")
+        os._exit
