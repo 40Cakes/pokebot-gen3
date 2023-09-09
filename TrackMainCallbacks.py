@@ -1,7 +1,7 @@
 # Parse the function pointer in gMain.callback1 and gMain.callback2 to the functionnames from the game symbols 
 import struct
 from modules.Console import console
-from modules.Memory import ReadSymbol, mGBA
+from modules.Memory import GetGameState, ReadSymbol, mGBA
 
 
 def AddrName(address: int):
@@ -21,11 +21,11 @@ with console.status('', refresh_per_second=100) as status:
         callback2 = ReadSymbol('gMain', 4, 4)  #gMain.callback2
         if callback1 != previous1:
             addr = int(struct.unpack('<I', callback1)[0]) - 1
-            if addr != '-0x1':
-                console.print('callback1: ' + AddrName(addr))
+            if addr != -1:
+                console.print('callback1: {} State: {} '.format(AddrName(addr),GetGameState().name))
             previous1 = callback1
         if callback2 != previous2:
             addr = int(struct.unpack('<I', callback2)[0]) - 1
-            if addr != '-0x1':
-                console.print('callback2: ' + AddrName(addr))
+            if addr != -1:
+                console.print('callback2: {} State: {} '.format(AddrName(addr),GetGameState().name))
             previous2 = callback2
