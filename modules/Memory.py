@@ -822,3 +822,7 @@ def ParseMenu() -> dict:
         "rows": struct.unpack('<B', menu[10:11])[0],
         "APressMuted": struct.unpack('<?', menu[11:12])[0],
     }
+
+
+def ParseBattleCursor(cursor_type: str) -> int:
+    return int.from_bytes(ReadSymbol(cursor_type, 0, 4), 'little')
