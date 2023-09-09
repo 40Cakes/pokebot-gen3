@@ -234,10 +234,16 @@ def BattleOpponent() -> bool:
         ally_fainted = GetParty()[0]['stats']['hp'] == 0
         foe_fainted = GetOpponent()['stats']['hp'] == 0
 
-    if ally_fainted:
+    if ally_fainted and "whited out!" not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
         console.print('Lead Pokemon fainted!')
         FleeBattle()
         return False
+    if (
+            GetTrainer()['state'] == GameState.WHITEOUT or
+            'scurried' in DecodeString(ReadSymbol('gStringVar4')) or
+            "whited out!" in DecodeString(ReadSymbol('gDisplayedStringBattle'))):
+        console.print("All pokemon have fainted.")
+        os._exit(0)
     return True
 
 
