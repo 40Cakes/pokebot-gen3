@@ -248,23 +248,44 @@ def BattleOpponent() -> bool:
 
 
 def HandleMoveLearn():
-    match config['new_move']:
+    match config_battle['new_move']:
         case 'stop':
             console.print('New move trying to be learned, stopping bot...')
             input('Press enter to exit...')
             os._exit(0)
         case 'cancel':
-            # TODO: figure out what gamestate corresponds to evolution and allow evolution as a config option maybe?
             while GetTrainer()['state'] != GameState.OVERWORLD:
+                while GetTrainer()['state'] == GameState.EVOLUTION:
+                    if config_battle['stop_evolution']:
+                        PressButton(['B'])
+                    else:
+                        PressButton(['A'])
                 if 'Stop learning' not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
                     PressButton(['B'])
                 else:
                     PressButton(['A'])
+        case 'learn_best':
+            on_learn_screen = False
+            while not on_learn_screen:
+                for task in ParseTasks():
+                    if task['task_func'] == TaskFunc.LEARN_MOVE:
+                        if task['is_active']:
+                            on_learn_screen = True
+                            break
+                    PressButton(['A'])
 
-        # TODO: figure this out
-        case "learn_best":
-            # TODO: figure this out
-            os._exit(0)
+            learning_mon = GetLearningMon()
+            learning_move = GetLearningMove()
+            worst_move = CalculateNewMoveViability(learning_mon, learning_move)
+            while GetMoveLearningCursorPos() != worst_move:
+                if GetMoveLearningCursorPos() > worst_move:
+                    PressButton(['Up'])
+                else:
+                    PressButton(['Down'])
+            while GetTrainer()['state'] != GameState.BATTLE:
+                PressButton(['A'])
+            while "Stop learning" in DecodeString(ReadSymbol('gDisplayedStringBattle')):
+                PressButton(['A'])
 
         case _:
             console.print("Config new_move_mode invalid.")
