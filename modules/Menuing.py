@@ -94,7 +94,7 @@ def getMovePower(move, ally_types, foe_types, ally_attacks, foe_defenses) -> flo
 
 
 def isValidMove(move: dict) -> bool:
-    return move['name'] not in config['banned_moves'] and move['power'] > 0
+    return move['name'] not in config_battle['banned_moves'] and move['power'] > 0
 
 
 def CalculateNewMoveViability(party: dict) -> bool:
