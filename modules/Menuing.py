@@ -198,9 +198,7 @@ def BattleOpponent() -> bool:
         if best_move['power'] < 10:
             console.print('Lead pokemon has no effective moves to battle the foe!')
             FleeBattle()
-            os._exit(0)
-            # For future use when auto lead rotation is on
-            # return False
+            return False
 
         # If effective moves are present, let's fight this thing!
         while "What will" in DecodeString(ReadSymbol("gDisplayedStringBattle")):
