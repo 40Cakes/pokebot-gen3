@@ -256,8 +256,9 @@ def PrintStats(pokemon: dict) -> NoReturn:
                         '[red]{}[/] / [green]{}'.format(
                             stats['pokemon'][p].get('phase_lowest_iv_sum', -1),
                             stats['pokemon'][p].get('phase_highest_iv_sum', -1)),
-                        '[green]{:,}[/] / [red]{:,}'.format(
+                        '[green]{:,}[/] / [{}]{:,}'.format(
                             stats['pokemon'][p].get('phase_lowest_sv', -1),
+                            SVColour(stats['pokemon'][p].get('phase_highest_sv', -1)),
                             stats['pokemon'][p].get('phase_highest_sv', -1)),
                         '{:,}'.format(stats['pokemon'][p].get('phase_encounters', 0)),
                         '{:0.2f}%'.format(
@@ -272,8 +273,9 @@ def PrintStats(pokemon: dict) -> NoReturn:
                     '[red]{}[/] / [green]{}'.format(
                         stats['totals'].get('phase_lowest_iv_sum', -1),
                         stats['totals'].get('phase_highest_iv_sum', -1)),
-                    '[green]{:,}[/] / [red]{:,}'.format(
+                    '[green]{:,}[/] / [{}]{:,}'.format(
                         stats['totals'].get('phase_lowest_sv', -1),
+                        SVColour(stats['totals'].get('phase_highest_sv', -1)),
                         stats['totals'].get('phase_highest_sv', -1)),
                     '[bold yellow]{:,}'.format(stats['totals'].get('phase_encounters', 0)),
                     '[bold yellow]100%',
@@ -296,7 +298,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
                         stats['pokemon'][pokemon['name']].get('shiny_encounters', 0),
                     ))
                 console.print(
-                    '[{}]{}[/] Phase IV Records [red]{}[/]/[green]{}[/] | [{}]{}[/] Phase SV Records [green]{:,}[/]/[red]{:,}[/] | [{}]{}[/] Shiny Average: {}'.format(
+                    '[{}]{}[/] Phase IV Records [red]{}[/]/[green]{}[/] | [{}]{}[/] Phase SV Records [green]{:,}[/]/[{}]{:,}[/] | [{}]{}[/] Shiny Average: {}'.format(
                         pokemon['type'][0].lower(),
                         pokemon['name'],
                         stats['pokemon'][pokemon['name']].get('phase_lowest_iv_sum', -1),
@@ -304,17 +306,19 @@ def PrintStats(pokemon: dict) -> NoReturn:
                         pokemon['type'][0].lower(),
                         pokemon['name'],
                         stats['pokemon'][pokemon['name']].get('phase_lowest_sv', -1),
+                        SVColour(stats['pokemon'][pokemon['name']].get('phase_highest_sv', -1)),
                         stats['pokemon'][pokemon['name']].get('phase_highest_sv', -1),
                         pokemon['type'][0].lower(),
                         pokemon['name'],
                         stats['pokemon'][pokemon['name']].get('shiny_average', 'N/A')
                     ))
                 console.print(
-                    'Phase Encounters: {:,} | Phase IV Records [red]{}[/]/[green]{}[/] | Phase SV Records [green]{:,}[/]/[red]{:,}[/]'.format(
+                    'Phase Encounters: {:,} | Phase IV Records [red]{}[/]/[green]{}[/] | Phase SV Records [green]{:,}[/]/[{}]{:,}[/]'.format(
                         stats['totals'].get('phase_encounters', 0),
                         stats['totals'].get('phase_lowest_iv_sum', -1),
                         stats['totals'].get('phase_highest_iv_sum', -1),
                         stats['totals'].get('phase_lowest_sv', -1),
+                        SVColour(stats['totals'].get('phase_highest_sv', -1)),
                         stats['totals'].get('phase_highest_sv', -1)
                     ))
                 console.print('Total Shinies: {:,} | Total Encounters: {:,} | Total Shiny Average: {}'.format(
