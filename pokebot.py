@@ -50,7 +50,7 @@ while True:
                     PressButton(['Down'])
                 while ReadSymbol('gDisplayedStringBattle', size=4) == b_What:
                     PressButton(['A'])
-                while GetTrainer()['state'] != TrainerState.OVERWORLD:
+                while GetGameState() != TrainerState.OVERWORLD:
                     PressButton(['B'])
 
         if OpponentChanged():
