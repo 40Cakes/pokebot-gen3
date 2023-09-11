@@ -8,7 +8,7 @@ from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPoke
 
 def Starters(choice: str) -> NoReturn:
     try:
-        rng_state_history = GetRNGStateHistory(GetTrainer()['tid'], choice)
+        rng_state_history = GetRNGStateHistory(choice)
 
         while ReadSymbol('sStarterLabelWindowId') != b'\x01\x00':
             PressButton(['A'], 10)
@@ -34,13 +34,13 @@ def Starters(choice: str) -> NoReturn:
                 while ReadSymbol('gTasks', size=1) != b'\x0D':
                     PressButton(['A'], 1)
                     break
-                SaveRNGStateHistory(GetTrainer()['tid'], choice, rng_state_history)
+                SaveRNGStateHistory(choice, rng_state_history)
                 break
         while ReadSymbol('gDisplayedStringBattle', size=4) != b'\xd1\xdc\xd5\xe8':
             PressButton(['B'], 1)
 
-        EncounterPokemon(GetParty()[0])
         EncounterPokemon(GetOpponent())
+        EncounterPokemon(GetParty()[0])
 
         # TODO
         # if config_general['bot_mode'] == 'starters':

@@ -348,6 +348,7 @@ def GetGameState() -> TrainerState:
     else:
         return TrainerState.UNKNOWN
 
+b_Save = GetSaveBlock(2, size=14)  # TODO temp fix, sometimes fails to read pointer if GetTrainer() called before game boots after a reset
 def GetTrainer() -> dict:
     """
     Reads trainer data from memory.
@@ -364,9 +365,8 @@ def GetTrainer() -> dict:
     :return: Trainer (dict)
     """
     try:
-        b_Save = GetSaveBlock(2, size=0xE)
-        b_gTasks = ReadSymbol('gTasks', 0x57, 0x3)
-        b_gObjectEvents = ReadSymbol('gObjectEvents', 0x10, 0x9)
+        b_gTasks = ReadSymbol('gTasks', 0x57, 3)
+        b_gObjectEvents = ReadSymbol('gObjectEvents', 0x10, 9)
         trainer = {
             'name': DecodeString(b_Save[0:7]),
             'gender': 'girl' if int(b_Save[8]) else 'boy',
@@ -589,6 +589,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
 
     except:
         console.print_exception(show_locals=True)
+        return None
 
 
 def GetParty() -> dict:
@@ -619,10 +620,11 @@ def GetOpponent() -> dict:
 
     :return: opponent (dict)
     """
-    try:
-        return ParsePokemon(ReadSymbol('gEnemyParty')[:100])
-    except:
-        console.print_exception(show_locals=True)
+    while not (opponent := ParsePokemon(ReadSymbol('gEnemyParty')[:100])):
+        # TODO hacky loop in case opponent returns garbage data, should do legal/valid mon check instead
+        continue
+    else:
+        return opponent
 
 
 last_opid = ReadSymbol('gEnemyParty', size=4)
