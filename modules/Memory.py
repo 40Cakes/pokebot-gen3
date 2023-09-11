@@ -69,33 +69,33 @@ class Emulator:
             case 'AXV':
                 self.game = 'Pokémon Ruby'
                 if self.game_version == b'\x00':
-                    self.sym_file = 'pokeruby.sym'
+                    self.sym_file, self.sym_over_file = 'pokeruby.sym', 'pokeruby_overwrite.sym'
                 elif self.game_version == b'\x01':
-                    self.sym_file = 'pokeruby_rev1.sym'
+                    self.sym_file, self.sym_over_file = 'pokeruby_rev1.sym', 'pokeruby_rev1_overwrite.sym'
                 elif self.game_version == b'\x02':
-                    self.sym_file = 'pokeruby_rev2.sym'
+                    self.sym_file, self.sym_over_file = 'pokeruby_rev2.sym', 'pokeruby_rev2_overwrite.sym'
             case 'AXP':
                 self.game = 'Pokémon Sapphire'
                 if self.game_version == b'\x00':
-                    self.sym_file = 'pokesapphire.sym'
+                    self.sym_file, self.sym_over_file = 'pokesapphire.sym', 'pokesapphire_overwrite.sym'
                 elif self.game_version == b'\x01':
-                    self.sym_file = 'pokesapphire_rev1.sym'
+                    self.sym_file, self.sym_over_file = 'pokesapphire_rev1.sym', 'pokesapphire_rev1_overwrite.sym'
                 elif self.game_version == b'\x02':
-                    self.sym_file = 'pokesapphire_rev2.sym'
+                    self.sym_file, self.sym_over_file = 'pokesapphire_rev2.sym', 'pokesapphire_rev2_overwrite.sym'
             case 'BPE':
-                self.game, self.sym_file = 'Pokémon Emerald', 'pokeemerald.sym'
+                self.game, self.sym_file, self.sym_file,self.sym_over_file  = 'Pokémon Emerald', 'pokeemerald.sym', 'pokeemerald_overwrite.sym'
             case 'BPR':
                 self.game = 'Pokémon FireRed'
                 if self.game_version == b'\x00':
-                    self.sym_file = 'pokefirered.sym'
+                    self.sym_file, self.sym_over_file = 'pokefirered.sym', 'pokefirered_overwrite.sym'
                 elif self.game_version == b'\x01':
-                    self.sym_file = 'pokefirered_rev1.sym'
+                    self.sym_file, self.sym_over_file = 'pokefirered_rev1.sym', 'pokefirered_rev1_overwrite.sym'
             case 'BPG':
                 self.game = 'Pokémon LeafGreen'
                 if self.game_version == b'\x00':
-                    self.sym_file = 'pokeleafgreen.sym'
+                    self.sym_file, self.sym_over_file = 'pokeleafgreen.sym', 'pokeleafgreen_overwrite.sym'
                 elif self.game_version == b'\x01':
-                    self.sym_file = 'pokeleafgreen_rev1.sym'
+                    self.sym_file, self.sym_over_file = 'pokeleafgreen_rev1.sym', 'pokeleafgreen_overwrite.sym'
             case _:
                 self.game, self.sym_file = None, None
         match self.game_code[3]:  # Game language
@@ -112,6 +112,12 @@ class Emulator:
                     int(s.split(' ')[0], 16),
                     int(s.split(' ')[2], 16)
                 )
+            if os.path.exists('modules/data/symbols/{}'.format(self.sym_over_file)):
+                for s in open('modules/data/symbols/{}'.format(self.sym_over_file)).readlines():
+                    self.symbols[s.split(' ')[3].strip().upper()] = (
+                        int(s.split(' ')[0], 16),
+                        int(s.split(' ')[2], 16)
+                    )
         else:
             self.symbols = None
 
