@@ -619,3 +619,16 @@ def GetItems() -> dict:
         return items
     except:
         console.print_exception(show_locals=True)
+
+def GetTask(taskToSearch: int) ->bytes:
+    taskSzie = 40
+    taskArr = ReadSymbol("gTasks")
+    tasksArrSize = 16
+    for i in range(tasksArrSize):
+        if struct.unpack("<I",taskArr[i * taskSzie : i * taskSzie + 4])[0] == taskToSearch + 1: # +1 because the func pointer is +1 from symbol
+            return taskArr[i * taskSzie : i * taskSzie + taskSzie]
+    
+    return None
+
+def GetAddress(symbol: str) -> int:
+    return mGBA.symbols[symbol.upper()][0]
