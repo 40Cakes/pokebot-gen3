@@ -79,6 +79,9 @@ while True:
                     input('Press enter to exit...')
                     os._exit(1)
                 Starters(config_general['starter'])
+            case 'fishing':
+                from modules.gen3.General import ModeFishing
+                ModeFishing()
 
     except:
         console.print_exception(show_locals=True)

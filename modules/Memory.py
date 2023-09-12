@@ -201,6 +201,7 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
     else:
         return mGBA.proc.read_bytes(addr + offset, mGBA.symbols[name][1])
 
+
 def GetSymbolName(address: int)-> str:
     """
     Get the name of a symbol based on the address
@@ -213,6 +214,21 @@ def GetSymbolName(address: int)-> str:
         if value == address:
             return key
     return ''
+
+
+def GetAddress(symbol: str) -> int:
+    return mGBA.symbols[symbol.upper()][0]
+
+
+def GetTask(taskToSearch: int) -> bytes:
+    task_size = 40
+    task_arr = ReadSymbol("gTasks")
+    task_arr_size = 16
+    for i in range(task_arr_size):
+        if struct.unpack("<I",task_arr[i * task_size : i * task_size + 4])[0] == taskToSearch + 1:  # +1 because the func pointer is +1 from symbol
+            return task_arr[i * task_size : i * task_size + task_size]
+    return None
+
 
 def GetFrameCount():
     """

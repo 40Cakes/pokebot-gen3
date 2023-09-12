@@ -15,6 +15,7 @@ properties:
             - manual
             - spin
             - starters
+            - fishing
     coords:
         type: object
         properties:
