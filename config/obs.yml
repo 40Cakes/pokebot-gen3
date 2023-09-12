@@ -6,7 +6,7 @@ shiny_delay: 0
 
 # Discord webhook delay
 # Delay Discord webhooks by n frames, prevents any spoilers if there is a stream delay
-discord_delay: 150000
+discord_delay: 0
 
 # When enabled, the bot will !!! emulate the hotkey keystrokes !!! so only use this on dedicated stream PCs
 # TODO: use OBS webhooks instead
