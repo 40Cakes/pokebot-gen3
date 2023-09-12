@@ -68,34 +68,41 @@ class Emulator:
         match self.game_code[0:3]:  # Game release
             case 'AXV':
                 self.game = 'Pokémon Ruby'
-                if self.game_version == b'\x00':
-                    self.sym_file, self.sym_over_file = 'pokeruby.sym', 'pokeruby_overwrite.sym'
-                elif self.game_version == b'\x01':
-                    self.sym_file, self.sym_over_file = 'pokeruby_rev1.sym', 'pokeruby_rev1_overwrite.sym'
-                elif self.game_version == b'\x02':
-                    self.sym_file, self.sym_over_file = 'pokeruby_rev2.sym', 'pokeruby_rev2_overwrite.sym'
+                match self.game_version:
+                    case 0:
+                        self.sym_file = 'pokeruby.sym'
+                    case 1:
+                        self.sym_file = 'pokeruby_rev1.sym'
+                    case 2:
+                        self.sym_file = 'pokeruby_rev2.sym'
+
             case 'AXP':
                 self.game = 'Pokémon Sapphire'
-                if self.game_version == b'\x00':
-                    self.sym_file, self.sym_over_file = 'pokesapphire.sym', 'pokesapphire_overwrite.sym'
-                elif self.game_version == b'\x01':
-                    self.sym_file, self.sym_over_file = 'pokesapphire_rev1.sym', 'pokesapphire_rev1_overwrite.sym'
-                elif self.game_version == b'\x02':
-                    self.sym_file, self.sym_over_file = 'pokesapphire_rev2.sym', 'pokesapphire_rev2_overwrite.sym'
+                match self.game_version:
+                    case 0:
+                        self.sym_file = 'pokesapphire.sym'
+                    case 1:
+                        self.sym_file = 'pokesapphire_rev1.sym'
+                    case 2:
+                        self.sym_file = 'pokesapphire_rev2.sym'
             case 'BPE':
-                self.game, self.sym_file, self.sym_file,self.sym_over_file  = 'Pokémon Emerald', 'pokeemerald.sym', 'pokeemerald_overwrite.sym'
+                self.game, self.sym_file = 'Pokémon Emerald', 'pokeemerald.sym'
+
             case 'BPR':
                 self.game = 'Pokémon FireRed'
-                if self.game_version == b'\x00':
-                    self.sym_file, self.sym_over_file = 'pokefirered.sym', 'pokefirered_overwrite.sym'
-                elif self.game_version == b'\x01':
-                    self.sym_file, self.sym_over_file = 'pokefirered_rev1.sym', 'pokefirered_rev1_overwrite.sym'
+                match self.game_version:
+                    case 0:
+                        self.sym_file = 'pokefirered.sym'
+                    case 1:
+                        self.sym_file = 'pokefirered_rev1.sym'
+
             case 'BPG':
                 self.game = 'Pokémon LeafGreen'
-                if self.game_version == b'\x00':
-                    self.sym_file, self.sym_over_file = 'pokeleafgreen.sym', 'pokeleafgreen_overwrite.sym'
-                elif self.game_version == b'\x01':
-                    self.sym_file, self.sym_over_file = 'pokeleafgreen_rev1.sym', 'pokeleafgreen_overwrite.sym'
+                match self.game_version:
+                    case 0:
+                        self.sym_file = 'pokeleafgreen.sym'
+                    case 1:
+                        self.sym_file = 'pokeleafgreen_rev1.sym'
             case _:
                 self.game, self.sym_file = None, None
         match self.game_code[3]:  # Game language
@@ -107,13 +114,8 @@ class Emulator:
     def __symbols(self):
         if self.sym_file:
             self.symbols = {}
-            for s in open('modules/data/symbols/{}'.format(self.sym_file)).readlines():
-                self.symbols[s.split(' ')[3].strip().upper()] = (
-                    int(s.split(' ')[0], 16),
-                    int(s.split(' ')[2], 16)
-                )
-            if os.path.exists('modules/data/symbols/{}'.format(self.sym_over_file)):
-                for s in open('modules/data/symbols/{}'.format(self.sym_over_file)).readlines():
+            for d in ['modules/data/symbols/', 'modules/data/symbols/patches/']:
+                for s in open('{}{}'.format(d, self.sym_file)).readlines():
                     self.symbols[s.split(' ')[3].strip().upper()] = (
                         int(s.split(' ')[0], 16),
                         int(s.split(' ')[2], 16)
@@ -134,7 +136,7 @@ class Emulator:
         self.p_Framecount = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
                                        offsets=[0x40, 0x58, 0x10, 0x1C0, 0x0, 0x90, 0xF0])
         self.game_code = self.proc.read_bytes(self.p_ROM + 0xAC, 4).decode('utf-8')
-        self.game_version = self.proc.read_bytes(self.p_ROM + 0xBC, 1)
+        self.game_version = int.from_bytes(self.proc.read_bytes(self.p_ROM + 0xBC, 1))
         self.__game()
         self.__symbols()
 
@@ -318,7 +320,7 @@ else:
     setattr(mGBA, 'item_key', 0)
 
 
-class TrainerState(IntEnum):
+class GameState(IntEnum):
     # TODO Need further investigation; many values have multiple meanings
     BAG_MENU = 0x0
     CHOOSE_STARTER = 0x1
@@ -330,29 +332,29 @@ class TrainerState(IntEnum):
     CHANGE_MAP = 0x51
     UNKNOWN = 0xFF
 
-def GetGameState() -> TrainerState:
+def GetGameState() -> GameState:
     callback2 = ReadSymbol('gMain', 4, 4)  #gMain.callback2
     addr = int(struct.unpack('<I', callback2)[0]) - 1
     state = GetSymbolName(addr)
     #console.print(state)
     if state in ['CB2_OVERWORLD']:
-        return TrainerState.OVERWORLD
+        return GameState.OVERWORLD
     elif state in ['BATTLEMAINCB2']:
-        return TrainerState.BATTLE
-    elif state in ['CB2_BAGMENURUN','SUB_80A3118']:
-        return TrainerState.BAG_MENU
-    elif state in ['CB2_UPDATEPARTYMENU','CB2_PARTYMENUMAIN']:
-        return TrainerState.PARTY_MENU
-    elif state in ['CB2_INITBATTLE','CB2_HANDLESTARTBATTLE']:
-        return TrainerState.BATTLE_STARTING
+        return GameState.BATTLE
+    elif state in ['CB2_BAGMENURUN', 'SUB_80A3118']:
+        return GameState.BAG_MENU
+    elif state in ['CB2_UPDATEPARTYMENU', 'CB2_PARTYMENUMAIN']:
+        return GameState.PARTY_MENU
+    elif state in ['CB2_INITBATTLE', 'CB2_HANDLESTARTBATTLE']:
+        return GameState.BATTLE_STARTING
     elif state in ['CB2_ENDWILDBATTLE']:
-        return TrainerState.BATTLE_ENDING
-    elif state in ['CB2_LOADMAP','CB2_LOADMAP2','CB2_DOCHANGEMAP','SUB_810CC80']:
-        return TrainerState.CHANGE_MAP
+        return GameState.BATTLE_ENDING
+    elif state in ['CB2_LOADMAP', 'CB2_LOADMAP2', 'CB2_DOCHANGEMAP', 'SUB_810CC80']:
+        return GameState.CHANGE_MAP
     elif state in ['CB2_STARTERCHOOSE']:
-        return TrainerState.CHOOSE_STARTER
+        return GameState.CHOOSE_STARTER
     else:
-        return TrainerState.UNKNOWN
+        return GameState.UNKNOWN
 
 b_Save = GetSaveBlock(2, size=14)  # TODO temp fix, sometimes fails to read pointer if GetTrainer() called before game boots after a reset
 def GetTrainer() -> dict:
@@ -378,7 +380,6 @@ def GetTrainer() -> dict:
             'gender': 'girl' if int(b_Save[8]) else 'boy',
             'tid': int(struct.unpack('<H', b_Save[10:12])[0]),
             'sid': int(struct.unpack('<H', b_Save[12:14])[0]),
-            'state': int(b_gTasks[0]),
             'map': (int(b_gTasks[2]), int(b_gTasks[1])),
             'coords': (int(b_gObjectEvents[0]) - 7, int(b_gObjectEvents[2]) - 7),
             'facing': FacingDir(int(b_gObjectEvents[8]))

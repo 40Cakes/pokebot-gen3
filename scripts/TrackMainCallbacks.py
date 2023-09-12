@@ -1,4 +1,5 @@
-# Parse the function pointer in gMain.callback1 and gMain.callback2 to the functionnames from the game symbols 
+# Parse the function pointer in gMain.callback1 and gMain.callback2 to the function names from the game symbols
+# Move this script to the root directory to ensure all imports work correctly
 import struct
 from modules.Console import console
 from modules.Memory import GetGameState, ReadSymbol, mGBA
