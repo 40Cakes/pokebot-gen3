@@ -23,14 +23,6 @@ def _exit() -> NoReturn:
 
 atexit.register(_exit)
 
-#from modules.Navigation import FollowPath
-#while True:
-#    FollowPath([
-#        (8, 15),
-#        (27, 15),
-#        (27, 16),
-#        (8, 16),
-#    ])
 
 try:
     if config_discord['rich_presence']:
