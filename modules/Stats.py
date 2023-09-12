@@ -16,7 +16,7 @@ from modules.Config import config_obs, config_logging
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import GetTrainer, TrainerState, mGBA
+from modules.Memory import GetTrainer, GetGameState, GameState, mGBA
 
 safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
 trainer_dir = '{}/{}-{}'.format(
@@ -533,7 +533,7 @@ def LogEncounter(pokemon: dict) -> NoReturn:
         if pokemon['shiny']:
             WaitFrames(config_obs.get('shiny_delay', 1))
         if config_obs.get('enable_screenshot', None) and pokemon['shiny']:
-            while GetTrainer()['state'] != TrainerState.BATTLE:
+            while GetGameState() != GameState.BATTLE:
                 PressButton(['B'])  # Throw out Pokémon for screenshot
             WaitFrames(180)
             for key in config_obs['hotkey_screenshot']:
