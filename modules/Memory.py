@@ -193,7 +193,7 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
         case 0x3:
             addr = mGBA.p_IWRAM + (sym_addr - mGBA.symbols['IWRAM_START'][0])
         case 0x8:
-            addr = mGBA.p_ROM + (sym_addr - mGBA.symbols['Start'][0])
+            addr = mGBA.p_ROM + (sym_addr - mGBA.symbols['START'][0])
         case _:
             return None
     if size > 0:
@@ -312,7 +312,7 @@ def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
     try:
         if not size:
-            size = mGBA.symbols['gSaveblock{}'.format(num)][1]
+            size = mGBA.symbols['GSAVEBLOCK{}'.format(num)][1]
         if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
             p_Trainer = mGBA.p_EWRAM + (
                     struct.unpack('<I', ReadSymbol('gSaveBlock{}Ptr'.format(num)))[0] - mGBA.symbols['EWRAM_START'][0])
