@@ -315,7 +315,7 @@ def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
             size = mGBA.symbols['gSaveblock{}'.format(num)][1]
         if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
             p_Trainer = mGBA.p_EWRAM + (
-                    struct.unpack('<I', ReadSymbol('gSaveBlock{}Ptr'.format(num)))[0] - mGBA.symbols['EWRAM_START'][0])
+                    struct.unpack('<I', ReadSymbol('GSAVEBLOCK{}Ptr'.format(num)))[0] - mGBA.symbols['EWRAM_START'][0])
             return mGBA.proc.read_bytes(p_Trainer + offset, size)
         else:
             return ReadSymbol('gSaveBlock{}'.format(num), offset=offset, size=size)
