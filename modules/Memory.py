@@ -449,7 +449,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
             'isBadEgg': flags & 0x1,
             'hasSpecies': (flags >> 0x1) & 0x1,
             'isEgg': (flags >> 0x2) & 0x1,
-            'level': int(b_Pokemon[84]) if len(b_Pokemon) > 80 else False,
+            'level': int(b_Pokemon[84]) if len(b_Pokemon) > 80 else 0,
             'expGroup': exp_groups_list[id - 1],
             'item': {
                 'id': item_id,
@@ -470,7 +470,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
                 'freeze': True if int(struct.unpack('<I', b_Pokemon[80:84])[0]) & (1 << 5) else False,
                 'paralysis': True if int(struct.unpack('<I', b_Pokemon[80:84])[0]) & (1 << 6) else False,
                 'badPoison': True if int(struct.unpack('<I', b_Pokemon[80:84])[0]) & (1 << 7) else False
-            } if len(b_Pokemon) > 80 else False,
+            } if len(b_Pokemon) > 80 else None,
             'stats': {
                 'hp': int(b_Pokemon[86]),
                 'maxHP': int(b_Pokemon[88]),
@@ -479,7 +479,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
                 'speed': int(b_Pokemon[94]),
                 'spAttack': int(b_Pokemon[96]),
                 'spDefense': int(b_Pokemon[98])
-            } if len(b_Pokemon) > 80 else False,
+            } if len(b_Pokemon) > 80 else None,
 
             # Substruct G - Growth
             'experience': int(struct.unpack('<I', sections['G'][4:8])[0]),
@@ -517,7 +517,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
                 'days': int(sections['M'][0]) & 0xF,
                 'strain': int(sections['M'][0]) >> 0x4,
             },
-            'metLocation': location_list[met_location] if met_location < len(location_list) else "obtained in a trade",
+            'metLocation': location_list[met_location] if met_location < len(location_list) else 'Traded',
             'origins': {
                 'metLevel': int(struct.unpack('<H', sections['M'][2:4])[0]) & 0x7F,
                 'hatched': False if int(struct.unpack('<H', sections['M'][2:4])[0]) & 0x7F else True,
