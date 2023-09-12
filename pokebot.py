@@ -72,14 +72,14 @@ while True:
             case 'starters':
                 if mGBA.game in ['Pokémon Emerald']:
                     from modules.gen3.rse.Starters import Starters
-                    Starters(config_general['starter'])
+                    Starters()
                 elif mGBA.game in ['Pokémon LeafGreen', 'Pokémon FireRed']:
                     from modules.gen3.frlg.Starters import Starters
                 else:
                     console.print('Ruby/Sapphire starters are currently not supported, coming soon...')
                     input('Press enter to exit...')
                     os._exit(1)
-                Starters(config_general['starter'])
+                Starters()
             case 'fishing':
                 from modules.gen3.General import ModeFishing
                 ModeFishing()

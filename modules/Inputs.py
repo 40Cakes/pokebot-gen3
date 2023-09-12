@@ -2,7 +2,7 @@ import struct
 from typing import NoReturn
 
 from modules.Config import config_general
-from modules.Memory import mGBA, GetFrameCount
+from modules.Memory import mGBA, GetFrameCount, GetGameState, GameState
 
 press = 0
 held = 0
@@ -91,3 +91,8 @@ def PressButton(buttons: list, hold_frames: int = 1) -> NoReturn:
         WaitFrames(hold_frames)
         WriteInputs(held)
         WaitFrames(1)
+
+
+def ResetGame() -> NoReturn:
+    while GetGameState() != GameState.TITLE_SCREEN:
+        PressButton(['A', 'B', 'Start', 'Select'], 1)

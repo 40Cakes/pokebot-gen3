@@ -1,44 +1,46 @@
 import struct
 from typing import NoReturn
+
+from modules.Config import config_cheats, config_general
 from modules.Console import console
-from modules.Inputs import PressButton
-from modules.Memory import GetTrainer, ReadSymbol, GetParty
+from modules.Inputs import PressButton, WaitFrames, ResetGame
+from modules.Memory import GetTrainer, ReadSymbol, GetParty, GameState, GetGameState
+from modules.Navigation import FollowPath
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
 
 
-def Starters(choice: str) -> NoReturn:
+rng_history = GetRNGStateHistory(config_general['starter'])
+def Starters() -> NoReturn:
     try:
-        RNGStateHistory = GetRNGStateHistory(choice)
-        Out = 0
-        RNG = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
-        while RNG in RNGStateHistory['rng']:
-            RNG = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
-        RNGStateHistory['rng'].append(RNG)
-        SaveRNGStateHistory(choice, RNGStateHistory)
-        while ReadSymbol('gStringVar4', size=4) != b'\xbe\xe3\x00\xed':
-            PressButton(['A'], 10)
-        while GetTrainer()['facing'] != 'Down':
-            PressButton(['B'], 10)
-            PressButton(['Down'], 10)
-        i = 0
-        while i < 5:
-            PressButton(['Down'],10)
-            i = i + 1
-        while Out == 0:
-            if ReadSymbol('gDisplayedStringBattle', size=4) == b'\xc9\xbb\xc5\xf0':
-                Out = 1
-            PressButton(['Left'],10)
-            PressButton(['Down'],10)
-            PressButton(['B'],10)
+        while GetGameState() != GameState.OVERWORLD:
+            PressButton(['A'])
+
+        rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
+        while rng in rng_history['rng']:
+            rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
+
+        while ReadSymbol('gStringVar4', size=4) != b'\xbe\xe3\x00\xed':  # 'Do y' TODO English only
+            PressButton(['A'])
+
+        if config_cheats['starters']:
+            while GetParty() == {}:
+                PressButton(['B'])
+        else:
+            while GetTrainer()['facing'] != 'Down':
+                PressButton(['B', 'Down'])
+
+            FollowPath([
+                (GetTrainer()['coords'][0], 7),
+                (7, 7),
+                (7, 8)
+            ])
+
+            while ReadSymbol('gDisplayedStringBattle', size=4) != b'\xc9\xbb\xc5\xf0':  # 'OAK:' TODO English only
+                PressButton(['B'])
 
         EncounterPokemon(GetParty()[0])
-
-        # TODO
-        # if config_general['bot_mode'] == 'starters':
-        #    if config_general['mem_hacks']['starters']:
-        #        pass
-
-        while ReadSymbol('gDisplayedStringBattle', size=4) != b'\x00\x00\x00\x00':
-            PressButton(['A', 'B', 'Start', 'Select'], 1)
+        rng_history['rng'].append(rng)
+        SaveRNGStateHistory(config_general['starter'], rng_history)
+        ResetGame()
     except:
         console.print_exception(show_locals=True)

@@ -3,7 +3,7 @@
 # Valid options: `manual`, `spin`, `starters`, `fishing`
 # TODO: `sweet scent`, `bunny hop`, `coords`, `bonk`, `starters`, `lugia`, `ho-oh`,
 # TODO:  `petalburg loop`, `rayquaza`, `groudon`, `kyogre`, `southern island`, `mew`, `regis`, `deoxys runaways`
-# TODO: `deoxys reset`, `fossil`, `castform`, `beldum`, `johto starters`, `buy premier balls`
+# TODO: `deoxys reset`, `fossil`, `castform`, `beldum`, `buy premier balls`
 bot_mode: spin
 
 # Coords config - this config is used if `bot_mode` is set to `coords`
