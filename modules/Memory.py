@@ -429,7 +429,6 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
         }
         item_id = int(struct.unpack('<H', sections['G'][2:4])[0])
         shiny_value = int(tid ^ sid ^ struct.unpack('<H', b_Pokemon[0:2])[0] ^ struct.unpack('<H', b_Pokemon[2:4])[0])
-        shiny = True if shiny_value < 8 else False
         met_location = int(sections['M'][1])
 
         pokemon = {
@@ -441,7 +440,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
             'nature': natures_list[pid % 0x19],
             'language': Language(int(b_Pokemon[18])),
             'shinyValue': shiny_value,
-            'shiny': shiny,
+            'shiny': True if shiny_value < 8 else False,
             'ot': {
                 'tid': tid,
                 'sid': sid
