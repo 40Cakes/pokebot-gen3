@@ -193,7 +193,7 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
         case 0x3:
             addr = mGBA.p_IWRAM + (sym_addr - mGBA.symbols['IWRAM_START'][0])
         case 0x8:
-            addr = mGBA.p_ROM + (sym_addr - mGBA.symbols['Start'][0])
+            addr = mGBA.p_ROM + (sym_addr - mGBA.symbols['START'][0])
         case _:
             return None
     if size > 0:
