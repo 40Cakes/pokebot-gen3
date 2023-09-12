@@ -1,8 +1,13 @@
-# Prints trainer data on a loop, good for finding X,Y coords
+# Prints trainer data if it changes, on a loop (good for finding X,Y coords)
 # Move this script to the root directory to ensure all imports work correctly
-import time
+
+from modules.Inputs import WaitFrames
 from modules.Memory import GetTrainer
 
+prev_trainer = {}
 while True:
-    print(GetTrainer())
-    time.sleep(0.1)
+    current_trainer = GetTrainer()
+    if current_trainer != prev_trainer:
+        prev_trainer = current_trainer
+        print(prev_trainer)
+    WaitFrames(1)

@@ -3,7 +3,8 @@ from typing import NoReturn
 from pypresence import Presence
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from modules.Console import console
-from modules.Config import config_discord
+from modules.Config import config_discord, config_obs
+from modules.Inputs import WaitFrames
 
 
 def DiscordMessage(webhook_url: str = None,
@@ -43,6 +44,7 @@ def DiscordMessage(webhook_url: str = None,
                 embed_obj.set_footer(text=embed_footer)
             embed_obj.set_timestamp()
             webhook.add_embed(embed_obj)
+        WaitFrames(config_obs['discord_delay'])
         webhook.execute()
     except:
         console.print_exception(show_locals=True)

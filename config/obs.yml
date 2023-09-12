@@ -4,6 +4,10 @@
 # Delay catching a shiny encounter by n frames, useful to give viewers of a stream some time to react
 shiny_delay: 0
 
+# Discord webhook delay
+# Delay Discord webhooks by n frames, prevents any spoilers if there is a stream delay
+discord_delay: 150000
+
 # When enabled, the bot will !!! emulate the hotkey keystrokes !!! so only use this on dedicated stream PCs
 # TODO: use OBS webhooks instead
 # Take OBS screenshot after the `shiny_delay` to allow stream overlays to update

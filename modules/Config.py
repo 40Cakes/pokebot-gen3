@@ -225,6 +225,9 @@ properties:
     shiny_delay:
         type: integer
         minimum: 0
+    discord_delay:
+        type: integer
+        minimum: 0
     screenshot:
         type: boolean
     replay_buffer:
