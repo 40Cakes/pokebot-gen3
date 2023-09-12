@@ -1,21 +1,23 @@
 import struct
 from typing import NoReturn
+
+from modules.Config import config_general
 from modules.Console import console
 from modules.Inputs import PressButton
 from modules.Memory import GetTrainer, ReadSymbol, GetParty, GetOpponent
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
 
 
-def Starters(choice: str) -> NoReturn:
+def Starters() -> NoReturn:
     try:
-        rng_state_history = GetRNGStateHistory(choice)
+        rng_state_history = GetRNGStateHistory(config_general['starter'])
 
         while ReadSymbol('sStarterLabelWindowId') != b'\x01\x00':
             PressButton(['A'], 10)
         while ReadSymbol('sStarterLabelWindowId') == b'\xFF\x00':
             PressButton(['B'], 10)
         while ReadSymbol('sStarterLabelWindowId') == b'\x01\x00':
-            match choice:
+            match config_general['starter']:
                 case 'torchic':
                     None
                 case 'mudkip':
@@ -34,7 +36,7 @@ def Starters(choice: str) -> NoReturn:
                 while ReadSymbol('gTasks', size=1) != b'\x0D':
                     PressButton(['A'], 1)
                     break
-                SaveRNGStateHistory(choice, rng_state_history)
+                SaveRNGStateHistory(config_general['starter'], rng_state_history)
                 break
         while ReadSymbol('gDisplayedStringBattle', size=4) != b'\xd1\xdc\xd5\xe8':
             PressButton(['B'], 1)
