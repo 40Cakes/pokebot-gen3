@@ -388,9 +388,22 @@ def GetMoveLearningCursorPos() -> int:
     """
     helper function that returns the position of the move learning cursor
     """
-    return int.from_bytes(
-        ReadAddress(int.from_bytes(ReadSymbol('sMonSummaryScreen'), 'little'), offset=16582), 'little'
-    )
+    match mGBA.game:
+        case 'Pokémon Emerald':
+            return int.from_bytes(
+                ReadAddress(int.from_bytes(ReadSymbol('sMonSummaryScreen'), 'little'), offset=16582), 'little'
+            )
+        case 'Pokémon FireRed':
+            return int.from_bytes(ReadSymbol('sMoveSelectionCursorPos'), 'little')
+        case 'Pokémon LeafGreen':
+            return int.from_bytes(ReadSymbol('sMoveSelectionCursorPos'), 'little')
+        case 'Pokémon Ruby':
+            return int.from_bytes(ReadSymbol('gSharedMem', offset=int("0x18079", 16), size=1), 'little')
+        case 'Pokémon Sapphire':
+            return int.from_bytes(ReadSymbol('gSharedMem', offset=int("0x18079", 16), size=1), 'little')
+        case _:
+            console.print("Not implemented yet.")
+            os._exit(0)
 
 
 def CheckForPickup() -> NoReturn:
