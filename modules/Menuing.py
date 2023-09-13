@@ -423,8 +423,6 @@ def CheckForPickup() -> NoReturn:
             if party[i]['item']['name'] != 'None':
                 pokemon_with_pickup_and_item.append(i)
     if pickup_threshold > pokemon_with_pickup > 0:
-        console.print(
-            "The pickup threshold is higher than the number of pokemon in the party with pickup, so the latter number will be used.")
         pickup_threshold = pokemon_with_pickup
     if len(pokemon_with_pickup_and_item) >= pickup_threshold:
         console.print("Pickup threshold is met! Gathering items.")
