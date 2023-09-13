@@ -768,9 +768,6 @@ def ParseMain() -> dict:
     watched_keys_pressed = struct.unpack('<H', main[52:54])[0]
     watched_keys_mask = struct.unpack('<H', main[54:56])[0]
     obj_count = struct.unpack('<B', main[56:57])[0]
-    # oam_buffer = main[60:1084]
-    state = struct.unpack('<B', main[1084:1085])[0]
-    oam_load_disabled_or_in_battle = bin(int.from_bytes(main[1085:1086], 'little'))[2:]
 
     main_dict = {
         "callback_1": callback1,
@@ -789,9 +786,6 @@ def ParseMain() -> dict:
         "watched_keys_pressed": watched_keys_pressed,
         "watched_keys_mask": watched_keys_mask,
         "obj_count": obj_count,
-        # "oam_buffer": oam_buffer,
-        "state": state,
-        "oam_load_disabled_or_in_battle": oam_load_disabled_or_in_battle
     }
     return main_dict
 
