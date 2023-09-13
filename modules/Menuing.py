@@ -310,11 +310,11 @@ def HandleMoveLearn():
             on_learn_screen = False
             while not on_learn_screen:
                 for task in ParseTasks():
-                    if task['task_func'] == TaskFunc.LEARN_MOVE:
+                    if task['task_func'] in [TaskFunc.LEARN_MOVE_RS, TaskFunc.LEARN_MOVE_E, TaskFunc.LEARN_MOVE_FRLG]:
                         if task['is_active']:
                             on_learn_screen = True
                             break
-                    PressButton(['A'])
+                PressButton(['A'])
 
             learning_mon = GetLearningMon()
             learning_move = GetLearningMove()
