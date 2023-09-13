@@ -95,4 +95,4 @@ def PressButton(buttons: list, hold_frames: int = 1) -> NoReturn:
 
 def ResetGame() -> NoReturn:
     while GetGameState() != GameState.TITLE_SCREEN:
-        PressButton(['A', 'B', 'Start', 'Select'], 1)
+        PressButton(['A', 'B', 'Start', 'Select'], 5)
