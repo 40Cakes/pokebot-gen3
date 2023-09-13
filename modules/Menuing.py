@@ -255,24 +255,37 @@ def BattleOpponent() -> bool:
                     PressButton(['B'])
                 else:
                     PressButton(['A'])
-            if 'Delete a move' not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
+                if 'elete a move' in DecodeString(ReadSymbol('gDisplayedStringBattle')):
+                    break
+            if 'elete a move' not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
                 PressButton(['B'])
                 WaitFrames(1)
-            if 'Delete a move' in DecodeString(ReadSymbol('gDisplayedStringBattle')):
+            if 'elete a move' in DecodeString(ReadSymbol('gDisplayedStringBattle')):
                 HandleMoveLearn()
 
         ally_fainted = GetParty()[0]['stats']['hp'] == 0
         foe_fainted = GetOpponent()['stats']['hp'] == 0
 
-    if ally_fainted and "whited out!" not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
+    if ally_fainted:
         console.print('Lead Pokemon fainted!')
+        party = GetParty()
+        if sum([party[key]['stats']['hp'] for key in party.keys()]) == 0:
+            console.print("All pokemon have fainted.")
+            os._exit(0)
         FleeBattle()
         return False
-    if (
-            GetTrainer()['state'] == GameState.WHITEOUT or
-            'scurried' in DecodeString(ReadSymbol('gStringVar4'))):
-        console.print("All pokemon have fainted.")
-        os._exit(0)
+    else:
+        while GetTrainer()["state"] != GameState.OVERWORLD:
+            while GetTrainer()["state"] == GameState.EVOLUTION:
+                if config_battle['stop_evolution']:
+                    PressButton(['B'])
+                else:
+                    PressButton(['A'])
+            if 'Delete a move' not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
+                PressButton(['B'])
+                WaitFrames(1)
+            if 'Delete a move' in DecodeString(ReadSymbol('gDisplayedStringBattle')):
+                HandleMoveLearn()
     return True
 
 
