@@ -355,8 +355,8 @@ def GetGameState() -> GameState:
     callback2 = ReadSymbol('gMain', 4, 4)  #gMain.callback2
     addr = int(struct.unpack('<I', callback2)[0]) - 1
     state = GetSymbolName(addr)
-    match state:
 
+    match state:
         case 'CB2_OVERWORLD':
             return GameState.OVERWORLD
         case 'BATTLEMAINCB2':
@@ -371,7 +371,7 @@ def GetGameState() -> GameState:
             return GameState.BATTLE_ENDING
         case 'CB2_LOADMAP' | 'CB2_LOADMAP2' | 'CB2_DOCHANGEMAP' | 'SUB_810CC80':
             return GameState.CHANGE_MAP
-        case 'CB2_STARTERCHOOSE':
+        case 'CB2_STARTERCHOOSE' | 'CB2_CHOOSESTARTER':
             return GameState.CHOOSE_STARTER
         case 'CB2_INITCOPYRIGHTSCREENAFTERBOOTUP' | 'CB2_WAITFADEBEFORESETUPINTRO' | 'CB2_SETUPINTRO' | 'CB2_INTRO' | \
              'CB2_INITTITLESCREEN' | 'CB2_TITLESCREENRUN' | 'CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN' | \
@@ -411,6 +411,36 @@ def GetTrainer() -> dict:
         return trainer
     except:
         console.print_exception(show_locals=True)
+
+
+num_tasks = 16
+def ParseTasks() -> list:
+    try:
+        gTasks = ReadSymbol('gTasks')
+        tasks = []
+        for x in range(num_tasks):
+            name = GetSymbolName(int(struct.unpack('<I', gTasks[(x*40):(x*40+4)])[0]) - 1)
+            if name == '':
+                name = str(gTasks[(x*40):(x*40+4)])
+            tasks.append({
+                'func': name,
+                'isActive': bool(gTasks[(x*40+4)]),
+                'prev': gTasks[(x*40+5)],
+                'next': gTasks[(x*40+6)],
+                'priority': gTasks[(x*40+7)],
+                'data': gTasks[(x*40+8):(x*40+40)]
+            })
+        return tasks
+    except:
+        console.print_exception(show_locals=True)
+
+
+def GetTask(func: str) -> dict:
+    tasks = ParseTasks()
+    for task in tasks:
+        if task['func'] == func:
+            return task
+    return {}
 
 
 def ParsePokemon(b_Pokemon: bytes) -> dict:

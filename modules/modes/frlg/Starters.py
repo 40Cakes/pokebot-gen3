@@ -3,8 +3,8 @@ from typing import NoReturn
 
 from modules.Config import config_cheats, config_general
 from modules.Console import console
-from modules.Inputs import PressButton, WaitFrames, ResetGame
-from modules.Memory import GetTrainer, ReadSymbol, GetParty, GameState, GetGameState
+from modules.Inputs import PressButton, ResetGame
+from modules.Memory import GetTrainer, ReadSymbol, GetParty, GameState, GetGameState, GetTask
 from modules.Navigation import FollowPath
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
 
@@ -19,8 +19,14 @@ def Starters() -> NoReturn:
         while rng in rng_history['rng']:
             rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
 
-        while ReadSymbol('gStringVar4', size=4) != b'\xbe\xe3\x00\xed':  # 'Do y' TODO English only
+        while GetTask('TASK_SCRIPTSHOWMONPIC') == {}:
             PressButton(['A'])
+
+        while GetTask('TASK_SCRIPTSHOWMONPIC') != {}:
+            PressButton(['A'])
+
+        while GetTask('TASK_FANFARE') == {}:
+            PressButton(['B'])
 
         if config_cheats['starters']:
             while GetParty() == {}:
@@ -35,7 +41,7 @@ def Starters() -> NoReturn:
                 (7, 8)
             ])
 
-            while ReadSymbol('gDisplayedStringBattle', size=4) != b'\xc9\xbb\xc5\xf0':  # 'OAK:' TODO English only
+            while GetTask('TASK_PLAYERCONTROLLER_RESTOREBGMAFTERCRY') == {}:
                 PressButton(['B'])
 
         EncounterPokemon(GetParty()[0])
