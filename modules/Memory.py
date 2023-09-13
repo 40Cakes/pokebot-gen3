@@ -11,8 +11,6 @@ from modules.Console import console
 from modules.Files import ReadFile
 from typing import List, Union
 
-from modules.data.TaskFunc import TaskFunc
-
 moves_list = json.loads(ReadFile('./modules/data/moves.json'))
 names_list = json.loads(ReadFile('./modules/data/names.json'))
 natures_list = json.loads(ReadFile('./modules/data/natures.json'))
@@ -406,6 +404,9 @@ class GameState(IntEnum):
     CHANGE_MAP = 901
     TITLE_SCREEN = 902
     UNKNOWN = 999
+    WHITEOUT = 903
+    GARBAGE_COLLECTION = 904
+    EVOLUTION = 905
 
 def GetGameState() -> GameState:
     callback2 = ReadSymbol('gMain', 4, 4)  #gMain.callback2
@@ -433,8 +434,37 @@ def GetGameState() -> GameState:
              'CB2_INITTITLESCREEN' | 'CB2_TITLESCREENRUN' | 'CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN' | \
              'CB2_INITMAINMENU' | 'CB2_MAINMENU':
             return GameState.TITLE_SCREEN
+        case "CB2_WHITEOUT":
+            return GameState.WHITEOUT
+        case "CB2_EVOLUTIONSCENEUPDATE":
+            return GameState.EVOLUTION
+        case ".gcc2_compiled.":
+            return GameState.GARBAGE_COLLECTION
         case _:
             return GameState.UNKNOWN
+
+
+class TaskFunc(IntEnum):
+    # Menus
+    LEARN_MOVE = 1
+    START_MENU = 2
+    PARTY_MENU = 3
+    # Misc
+    DUMMY_TASK = 0
+
+
+def GetTaskFunc(func: str) -> TaskFunc:
+
+    match func:
+        case 'HANDLEDEFAULTPARTYMENU' | "HANDLEPARTYMENUSWITCHPOKEMONINPUT":
+            return TaskFunc.PARTY_MENU
+        case "SUB_809E260" | "TASK_HANDLEREPLACEMOVEINPUT" | "TASK_INPUTHANDLER_SELECTORFORGETMOVE":
+            return TaskFunc.LEARN_MOVE
+        case "SUB_80712B4" | 'TASK_SHOWSTARTMENU' | 'TASK_STARTMENUHANDLEINPUT':
+            return TaskFunc.START_MENU
+        case _:
+            return TaskFunc.DUMMY_TASK
+
 
 b_Save = GetSaveBlock(2, size=14)  # TODO temp fix, sometimes fails to read pointer if GetTrainer() called before game boots after a reset
 def GetTrainer() -> dict:
