@@ -8,6 +8,10 @@ Re-write of [pokebot-bizhawk](https://github.com/40Cakes/pokebot-bizhawk) to wor
 
 At the moment, the bot will pause once a shiny is encountered. You must ensure you are able to escape battle 100% of the time, otherwise the bot will get stuck. Auto-catching and other features will be added in due time.
 
+
+https://github.com/40Cakes/pokebot-gen3/assets/16377135/a3eed994-e960-4181-9f76-3b36bc9f0619
+
+
 ***
 # ⚠ Photosensitivity Warning ⚠
 - This page may contain videos of mGBA running at unbounded speeds (nearly 3,000 FPS, which obviously causes **very fast and bright flashing**)!
@@ -181,7 +185,8 @@ For privacy reasons, rich presence and webhooks are **disabled** by default.
 ### Discord rich presence
 `rich_presence` - Rich presence will display information on your Discord profile such as game, route, total encounters, total shinies and encounter rate.
 
-<img src="https://play.pokemonshowdown.com/sprites/itemicons/master-ball.png" />
+![Discord_tC7ni4A9L4](https://github.com/40Cakes/pokebot-gen3/assets/16377135/ece7cc12-b97a-45cc-a06e-afd679860ce1)
+
 
 ### Discord webhooks
 `webhooks` - toggle **all** webhooks on/off (individual messages can be toggled, below)
@@ -209,27 +214,27 @@ For privacy reasons, rich presence and webhooks are **disabled** by default.
 #### Webhook types
 `shiny_pokemon_encounter` - Shiny Pokémon encounters
 
-<img src="https://play.pokemonshowdown.com/sprites/itemicons/master-ball.png" />
+![Discord_c0jrjiKGRE](https://github.com/40Cakes/pokebot-gen3/assets/16377135/e1706b41-5f89-40b4-918d-30d6e8fa92c2)
 
 `pokemon_encounter_milestones` - Pokémon encounter milestones messages every `interval` encounters
 
-<img src="https://play.pokemonshowdown.com/sprites/itemicons/master-ball.png" />
+![Discord_ObO28tVrPk](https://github.com/40Cakes/pokebot-gen3/assets/16377135/5c4698f0-07cf-4289-aa4e-6398f56422e0)
 
 `shiny_pokemon_encounter_milestones` - Shiny Pokémon encounter milestones every `interval` encounters
 
-<img src="https://play.pokemonshowdown.com/sprites/itemicons/master-ball.png" />
+![Discord_w7UfnPxlJZ](https://github.com/40Cakes/pokebot-gen3/assets/16377135/6d6e9b85-c8b4-4c15-8970-eb86e3b712ab)
 
 `total_encounter_milestones` - Total encounter milestones every `interval` encounters
 
-<img src="https://play.pokemonshowdown.com/sprites/itemicons/master-ball.png" />
+![Discord_ual6ZrsLNm](https://github.com/40Cakes/pokebot-gen3/assets/16377135/f6a82866-fbb3-4192-a771-f0b298bc12ec)
 
 `phase_summary` - Phase summary, first summary at `first_interval`, then every `consequent_interval` after that
 
-<img src="https://play.pokemonshowdown.com/sprites/itemicons/master-ball.png" />
+![Discord_plUyXtjnQt](https://github.com/40Cakes/pokebot-gen3/assets/16377135/573a638b-fe4e-4f16-95dd-31f0f750a517)
 
 `anti_shiny_pokemon_encounter` - Anti-shiny Pokémon encounters, these are just a bit of fun. Anti-shiny Pokémon are mathematically, the complete opposite of a shiny. An [SV](https://bulbapedia.bulbagarden.net/wiki/Personality_value#Shininess) of `65,528 - 65,535` is considered anti-shiny.
 
-<img src="https://play.pokemonshowdown.com/sprites/itemicons/master-ball.png" />
+![Discord_G2hvTZG21a](https://github.com/40Cakes/pokebot-gen3/assets/16377135/3f04d1cf-4040-4163-80d2-13cac84eed1f)
 
 #### Webhook parameters
 `enable` - toggle the webhook on/off
