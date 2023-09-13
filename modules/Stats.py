@@ -16,9 +16,8 @@ from modules.Config import config_obs, config_logging, config_battle
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import GetTrainer, GetGameState, GameState, mGBA, ReadSymbol, mGBA
+from modules.Memory import GetTrainer, GetGameState, GameState, EncodeString, ReadSymbol, mGBA
 from modules.Menuing import FleeBattle, BattleOpponent, CheckForPickup, RotatePokemon
-from modules.data.GameState import GameState
 
 safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
 trainer_dir = '{}/{}-{}'.format(
@@ -621,13 +620,13 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
         input('Press enter to exit...')
         os._exit(0)
 
-    while GetTrainer()['state'] == GameState.GARBAGE_COLLECTION:
+    while GetGameState() == GameState.GARBAGE_COLLECTION:
         WaitFrames(1)
 
-    if GetTrainer()['state'] == GameState.OVERWORLD:
+    if GetGameState() == GameState.OVERWORLD:
         return None
 
-    if GetTrainer()['state'] in (GameState.BATTLE, GameState.ENTERING_BATTLE, GameState.BATTLE_START):
+    if GetGameState() in (GameState.BATTLE, GameState.BATTLE_STARTING):
         # Search for the text "What will (Pokémon) do?" in `gDisplayedStringBattle`
         # TODO support all other language ROMs
         # Some languages place Pokemon name at the start of `gDisplayedStringBattle`, need to add an offset
@@ -641,10 +640,10 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
             replace_battler = not battle_won
         else:
             FleeBattle()
-        if config_battle and config_battle["replace_lead_battler"] and replace_battler:
+        if config_battle['battle'] and config_battle["replace_lead_battler"] and replace_battler:
             RotatePokemon()
         if config_battle["pickup"]:
-            while GetTrainer()['state'] != GameState.OVERWORLD:
+            while GetGameState() != GameState.OVERWORLD:
                 continue
-            if GetTrainer()['state'] == GameState.OVERWORLD:
+            if GetGameState() == GameState.OVERWORLD:
                     CheckForPickup()
