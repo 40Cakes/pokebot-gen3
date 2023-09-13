@@ -88,6 +88,24 @@ The bot will mash random directions to spin on a single tile (this mode is usefu
 
 ***
 
+### `fishing`
+Start the bot facing the water, with the desired fishing rod registered.
+
+<details>
+<summary>✅🟨❌ Click here for support information</summary>
+
+|          | Ruby | Sapphire | Emerald | FireRed | LeafGreen | 
+|:---------|:----:|:--------:|:-------:|:-------:|:---------:|
+| English  |  ✅   |    ✅     |    ✅    |    ✅    |     ✅     |
+| Japanese |  -   |    -     |    -    |    -    |     -     |
+| German   |  -   |    -     |    -    |    -    |     -     |
+| Spanish  |  -   |    -     |    -    |    -    |     -     |
+| French   |  -   |    -     |    -    |    -    |     -     |
+| Italian  |  -   |    -     |    -    |    -    |     -     |
+</details>
+
+***
+
 # Config
 
 ## 🚧 Work in progress 🚧

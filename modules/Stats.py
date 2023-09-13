@@ -16,7 +16,7 @@ from modules.Config import config_obs, config_logging, config_battle
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import EncodeString, GetTrainer, ReadSymbol, TrainerState, mGBA
+from modules.Memory import GetTrainer, GetGameState, GameState, mGBA, ReadSymbol, mGBA
 from modules.Menuing import FleeBattle, BattleOpponent, CheckForPickup, RotatePokemon
 from modules.data.GameState import GameState
 
@@ -258,8 +258,9 @@ def PrintStats(pokemon: dict) -> NoReturn:
                         '[red]{}[/] / [green]{}'.format(
                             stats['pokemon'][p].get('phase_lowest_iv_sum', -1),
                             stats['pokemon'][p].get('phase_highest_iv_sum', -1)),
-                        '[green]{:,}[/] / [red]{:,}'.format(
+                        '[green]{:,}[/] / [{}]{:,}'.format(
                             stats['pokemon'][p].get('phase_lowest_sv', -1),
+                            SVColour(stats['pokemon'][p].get('phase_highest_sv', -1)),
                             stats['pokemon'][p].get('phase_highest_sv', -1)),
                         '{:,}'.format(stats['pokemon'][p].get('phase_encounters', 0)),
                         '{:0.2f}%'.format(
@@ -274,8 +275,9 @@ def PrintStats(pokemon: dict) -> NoReturn:
                     '[red]{}[/] / [green]{}'.format(
                         stats['totals'].get('phase_lowest_iv_sum', -1),
                         stats['totals'].get('phase_highest_iv_sum', -1)),
-                    '[green]{:,}[/] / [red]{:,}'.format(
+                    '[green]{:,}[/] / [{}]{:,}'.format(
                         stats['totals'].get('phase_lowest_sv', -1),
+                        SVColour(stats['totals'].get('phase_highest_sv', -1)),
                         stats['totals'].get('phase_highest_sv', -1)),
                     '[bold yellow]{:,}'.format(stats['totals'].get('phase_encounters', 0)),
                     '[bold yellow]100%',
@@ -298,7 +300,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
                         stats['pokemon'][pokemon['name']].get('shiny_encounters', 0),
                     ))
                 console.print(
-                    '[{}]{}[/] Phase IV Records [red]{}[/]/[green]{}[/] | [{}]{}[/] Phase SV Records [green]{:,}[/]/[red]{:,}[/] | [{}]{}[/] Shiny Average: {}'.format(
+                    '[{}]{}[/] Phase IV Records [red]{}[/]/[green]{}[/] | [{}]{}[/] Phase SV Records [green]{:,}[/]/[{}]{:,}[/] | [{}]{}[/] Shiny Average: {}'.format(
                         pokemon['type'][0].lower(),
                         pokemon['name'],
                         stats['pokemon'][pokemon['name']].get('phase_lowest_iv_sum', -1),
@@ -306,17 +308,19 @@ def PrintStats(pokemon: dict) -> NoReturn:
                         pokemon['type'][0].lower(),
                         pokemon['name'],
                         stats['pokemon'][pokemon['name']].get('phase_lowest_sv', -1),
+                        SVColour(stats['pokemon'][pokemon['name']].get('phase_highest_sv', -1)),
                         stats['pokemon'][pokemon['name']].get('phase_highest_sv', -1),
                         pokemon['type'][0].lower(),
                         pokemon['name'],
                         stats['pokemon'][pokemon['name']].get('shiny_average', 'N/A')
                     ))
                 console.print(
-                    'Phase Encounters: {:,} | Phase IV Records [red]{}[/]/[green]{}[/] | Phase SV Records [green]{:,}[/]/[red]{:,}[/]'.format(
+                    'Phase Encounters: {:,} | Phase IV Records [red]{}[/]/[green]{}[/] | Phase SV Records [green]{:,}[/]/[{}]{:,}[/]'.format(
                         stats['totals'].get('phase_encounters', 0),
                         stats['totals'].get('phase_lowest_iv_sum', -1),
                         stats['totals'].get('phase_highest_iv_sum', -1),
                         stats['totals'].get('phase_lowest_sv', -1),
+                        SVColour(stats['totals'].get('phase_highest_sv', -1)),
                         stats['totals'].get('phase_highest_sv', -1)
                     ))
                 console.print('Total Shinies: {:,} | Total Encounters: {:,} | Total Shiny Average: {}'.format(
@@ -531,7 +535,7 @@ def LogEncounter(pokemon: dict) -> NoReturn:
         if pokemon['shiny']:
             WaitFrames(config_obs.get('shiny_delay', 1))
         if config_obs.get('enable_screenshot', None) and pokemon['shiny']:
-            while GetTrainer()['state'] != TrainerState.BATTLE:
+            while GetGameState() != GameState.BATTLE:
                 PressButton(['B'])  # Throw out Pokémon for screenshot
             WaitFrames(180)
             for key in config_obs['hotkey_screenshot']:

@@ -15,6 +15,7 @@ properties:
             - manual
             - spin
             - starters
+            - fishing
     coords:
         type: object
         properties:
@@ -232,6 +233,9 @@ obs_schema = """
 type: object
 properties:
     shiny_delay:
+        type: integer
+        minimum: 0
+    discord_delay:
         type: integer
         minimum: 0
     screenshot:

@@ -2,12 +2,12 @@
 # Move this script to the root directory to ensure all imports work correctly
 
 from modules.Inputs import WaitFrames
-from modules.Memory import GetTrainer
+from modules.Memory import GetParty
 
-prev_trainer = {}
+prev_party = {}
 while True:
-    current_trainer = GetTrainer()
-    if current_trainer != prev_trainer:
-        prev_trainer = current_trainer
-        print(prev_trainer)
+    current_party = GetParty()
+    if current_party != prev_party:
+        prev_party = current_party
+        print(prev_party)
     WaitFrames(1)

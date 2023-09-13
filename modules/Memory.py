@@ -71,15 +71,42 @@ class Emulator:
     def __game(self):
         match self.game_code[0:3]:  # Game release
             case 'AXV':
-                self.game, self.sym_file = 'Pokémon Ruby', 'pokeruby.sym'
+                self.game = 'Pokémon Ruby'
+                match self.game_version:
+                    case 0:
+                        self.sym_file = 'pokeruby.sym'
+                    case 1:
+                        self.sym_file = 'pokeruby_rev1.sym'
+                    case 2:
+                        self.sym_file = 'pokeruby_rev2.sym'
+
             case 'AXP':
-                self.game, self.sym_file = 'Pokémon Sapphire', 'pokesapphire.sym'
+                self.game = 'Pokémon Sapphire'
+                match self.game_version:
+                    case 0:
+                        self.sym_file = 'pokesapphire.sym'
+                    case 1:
+                        self.sym_file = 'pokesapphire_rev1.sym'
+                    case 2:
+                        self.sym_file = 'pokesapphire_rev2.sym'
             case 'BPE':
                 self.game, self.sym_file = 'Pokémon Emerald', 'pokeemerald.sym'
+
             case 'BPR':
-                self.game, self.sym_file = 'Pokémon FireRed', 'pokefirered.sym'
+                self.game = 'Pokémon FireRed'
+                match self.game_version:
+                    case 0:
+                        self.sym_file = 'pokefirered.sym'
+                    case 1:
+                        self.sym_file = 'pokefirered_rev1.sym'
+
             case 'BPG':
-                self.game, self.sym_file = 'Pokémon LeafGreen', 'pokeleafgreen.sym'
+                self.game = 'Pokémon LeafGreen'
+                match self.game_version:
+                    case 0:
+                        self.sym_file = 'pokeleafgreen.sym'
+                    case 1:
+                        self.sym_file = 'pokeleafgreen_rev1.sym'
             case _:
                 self.game, self.sym_file = None, None
         match self.game_code[3]:  # Game language
@@ -91,11 +118,12 @@ class Emulator:
     def __symbols(self):
         if self.sym_file:
             self.symbols = {}
-            for s in open('modules/data/symbols/{}'.format(self.sym_file)).readlines():
-                self.symbols[s.split(' ')[3].strip().upper()] = (
-                    int(s.split(' ')[0], 16),
-                    int(s.split(' ')[2], 16)
-                )
+            for d in ['modules/data/symbols/', 'modules/data/symbols/patches/']:
+                for s in open('{}{}'.format(d, self.sym_file)).readlines():
+                    self.symbols[s.split(' ')[3].strip().upper()] = (
+                        int(s.split(' ')[0], 16),
+                        int(s.split(' ')[2], 16)
+                    )
         else:
             self.symbols = None
 
@@ -124,6 +152,7 @@ class Emulator:
         self.p_Framecount = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
                                        offsets=[0x40, 0x58, 0x10, 0x1C0, 0x0, 0x90, 0xF0])
         self.game_code = self.proc.read_bytes(self.p_ROM + 0xAC, 4).decode('utf-8')
+        self.game_version = int.from_bytes(self.proc.read_bytes(self.p_ROM + 0xBC, 1))
         self.__game()
         self.__symbols()
         self.__addressymbolmap()
@@ -181,13 +210,41 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
         case 0x3:
             addr = mGBA.p_IWRAM + (sym_addr - mGBA.symbols['IWRAM_START'][0])
         case 0x8:
-            addr = mGBA.p_ROM + (sym_addr - mGBA.symbols['Start'][0])
+            addr = mGBA.p_ROM + (sym_addr - mGBA.symbols['START'][0])
         case _:
             return None
     if size > 0:
         return mGBA.proc.read_bytes(addr + offset, size)
     else:
         return mGBA.proc.read_bytes(addr + offset, mGBA.symbols[name][1])
+
+
+def GetSymbolName(address: int)-> str:
+    """
+    Get the name of a symbol based on the address
+
+    :param address: address of the symbol
+
+    :return: name of the symbol (str)
+    """
+    for key, (value, _) in mGBA.symbols.items():
+        if value == address:
+            return key
+    return ''
+
+
+def GetAddress(symbol: str) -> int:
+    return mGBA.symbols[symbol.upper()][0]
+
+
+def GetTask(taskToSearch: int) -> bytes:
+    task_size = 40
+    task_arr = ReadSymbol("gTasks")
+    task_arr_size = 16
+    for i in range(task_arr_size):
+        if struct.unpack("<I",task_arr[i * task_size : i * task_size + 4])[0] == taskToSearch + 1:  # +1 because the func pointer is +1 from symbol
+            return task_arr[i * task_size : i * task_size + task_size]
+    return None
 
 
 def ReadAddress(addr: int, offset: int = 0, size: int = 1):
@@ -311,7 +368,7 @@ def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
     try:
         if not size:
-            size = mGBA.symbols['gSaveblock{}'.format(num)][1]
+            size = mGBA.symbols['GSAVEBLOCK{}'.format(num)][1]
         if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
             p_Trainer = mGBA.p_EWRAM + (
                     struct.unpack('<I', ReadSymbol('gSaveBlock{}Ptr'.format(num)))[0] - mGBA.symbols['EWRAM_START'][0])
@@ -335,15 +392,49 @@ else:
     setattr(mGBA, 'item_key', 0)
 
 
-class TrainerState(IntEnum):
-    # TODO Need further investigation; many values have multiple meanings
-    BAG_MENU = 0x0
-    BATTLE = 0x2
-    BATTLE_2 = 0x3
-    FOE_DEFEATED = 0x5
-    OVERWORLD = 0x50
-    MISC_MENU = 0xFF
+class GameState(IntEnum):
+    # Menus
+    BAG_MENU = 100
+    CHOOSE_STARTER = 101
+    PARTY_MENU = 102
+    # Battle related
+    BATTLE = 200
+    BATTLE_STARTING = 201
+    BATTLE_ENDING = 202
+    # Misc
+    OVERWORLD = 900
+    CHANGE_MAP = 901
+    TITLE_SCREEN = 902
+    UNKNOWN = 999
 
+def GetGameState() -> GameState:
+    callback2 = ReadSymbol('gMain', 4, 4)  #gMain.callback2
+    addr = int(struct.unpack('<I', callback2)[0]) - 1
+    state = GetSymbolName(addr)
+
+    match state:
+        case 'CB2_OVERWORLD':
+            return GameState.OVERWORLD
+        case 'BATTLEMAINCB2':
+            return GameState.BATTLE
+        case 'CB2_BAGMENURUN' | 'SUB_80A3118':
+            return GameState.BAG_MENU
+        case 'CB2_UPDATEPARTYMENU' | 'CB2_PARTYMENUMAIN':
+            return GameState.PARTY_MENU
+        case 'CB2_INITBATTLE' | 'CB2_HANDLESTARTBATTLE':
+            return GameState.BATTLE_STARTING
+        case 'CB2_ENDWILDBATTLE':
+            return GameState.BATTLE_ENDING
+        case 'CB2_LOADMAP' | 'CB2_LOADMAP2' | 'CB2_DOCHANGEMAP' | 'SUB_810CC80':
+            return GameState.CHANGE_MAP
+        case 'CB2_STARTERCHOOSE' | 'CB2_CHOOSESTARTER':
+            return GameState.CHOOSE_STARTER
+        case 'CB2_INITCOPYRIGHTSCREENAFTERBOOTUP' | 'CB2_WAITFADEBEFORESETUPINTRO' | 'CB2_SETUPINTRO' | 'CB2_INTRO' | \
+             'CB2_INITTITLESCREEN' | 'CB2_TITLESCREENRUN' | 'CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN' | \
+             'CB2_INITMAINMENU' | 'CB2_MAINMENU':
+            return GameState.TITLE_SCREEN
+        case _:
+            return GameState.UNKNOWN
 
 b_Save = GetSaveBlock(2, size=14)  # TODO temp fix, sometimes fails to read pointer if GetTrainer() called before game boots after a reset
 def GetTrainer() -> dict:
@@ -383,6 +474,36 @@ def GetTrainer() -> dict:
         return trainer
     except:
         console.print_exception(show_locals=True)
+
+
+num_tasks = 16
+def ParseTasks() -> list:
+    try:
+        gTasks = ReadSymbol('gTasks')
+        tasks = []
+        for x in range(num_tasks):
+            name = GetSymbolName(int(struct.unpack('<I', gTasks[(x*40):(x*40+4)])[0]) - 1)
+            if name == '':
+                name = str(gTasks[(x*40):(x*40+4)])
+            tasks.append({
+                'func': name,
+                'isActive': bool(gTasks[(x*40+4)]),
+                'prev': gTasks[(x*40+5)],
+                'next': gTasks[(x*40+6)],
+                'priority': gTasks[(x*40+7)],
+                'data': gTasks[(x*40+8):(x*40+40)]
+            })
+        return tasks
+    except:
+        console.print_exception(show_locals=True)
+
+
+def GetTask(func: str) -> dict:
+    tasks = ParseTasks()
+    for task in tasks:
+        if task['func'] == func:
+            return task
+    return {}
 
 
 def ParsePokemon(b_Pokemon: bytes) -> dict:
@@ -491,7 +612,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
         }
         item_id = int(struct.unpack('<H', sections['G'][2:4])[0])
         shiny_value = int(tid ^ sid ^ struct.unpack('<H', b_Pokemon[0:2])[0] ^ struct.unpack('<H', b_Pokemon[2:4])[0])
-        shiny = True if shiny_value < 8 else False
+        met_location = int(sections['M'][1])
 
         pokemon = {
             'name': name,
@@ -502,7 +623,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
             'nature': natures_list[pid % 0x19],
             'language': Language(int(b_Pokemon[18])),
             'shinyValue': shiny_value,
-            'shiny': shiny,
+            'shiny': True if shiny_value < 8 else False,
             'ot': {
                 'tid': tid,
                 'sid': sid
@@ -510,7 +631,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
             'isBadEgg': flags & 0x1,
             'hasSpecies': (flags >> 0x1) & 0x1,
             'isEgg': (flags >> 0x2) & 0x1,
-            'level': int(b_Pokemon[84]),
+            'level': int(b_Pokemon[84]) if len(b_Pokemon) > 80 else 0,
             'expGroup': exp_groups_list[id - 1],
             'item': {
                 'id': item_id,
@@ -531,7 +652,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
                 'freeze': True if int(struct.unpack('<I', b_Pokemon[80:84])[0]) & (1 << 5) else False,
                 'paralysis': True if int(struct.unpack('<I', b_Pokemon[80:84])[0]) & (1 << 6) else False,
                 'badPoison': True if int(struct.unpack('<I', b_Pokemon[80:84])[0]) & (1 << 7) else False
-            },
+            } if len(b_Pokemon) > 80 else None,
             'stats': {
                 'hp': int(b_Pokemon[86]),
                 'maxHP': int(b_Pokemon[88]),
@@ -540,7 +661,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
                 'speed': int(b_Pokemon[94]),
                 'spAttack': int(b_Pokemon[96]),
                 'spDefense': int(b_Pokemon[98])
-            },
+            } if len(b_Pokemon) > 80 else None,
 
             # Substruct G - Growth
             'experience': int(struct.unpack('<I', sections['G'][4:8])[0]),
@@ -578,7 +699,7 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
                 'days': int(sections['M'][0]) & 0xF,
                 'strain': int(sections['M'][0]) >> 0x4,
             },
-            'metLocation': location_list[int(sections['M'][1])],
+            'metLocation': location_list[met_location] if met_location < len(location_list) else 'Traded',
             'origins': {
                 'metLevel': int(struct.unpack('<H', sections['M'][2:4])[0]) & 0x7F,
                 'hatched': False if int(struct.unpack('<H', sections['M'][2:4])[0]) & 0x7F else True,
@@ -643,7 +764,7 @@ def OpponentChanged() -> bool:
     try:
         global last_opid
         opponent_pid = ReadSymbol('gEnemyParty', size=4)
-        if opponent_pid != last_opid:
+        if opponent_pid != last_opid and opponent_pid != b'\x00\x00\x00\x00':
             last_opid = opponent_pid
             return True
         else:
