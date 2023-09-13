@@ -88,6 +88,7 @@ def getMovePower(move, ally_types, foe_types, ally_attacks, foe_defenses) -> flo
 
     # calculating attack/defense effect
     stat_calc = ally_attacks[category] / foe_defenses[category]
+    # console.print(f"Move {move['name']} has base power of {power} and stat bonus of {stat_calc}")
     power *= stat_calc
 
     return power
@@ -106,19 +107,29 @@ def CalculateNewMoveViability(mon: dict, new_move: dict) -> int:
     :param new_move: The move that the mon is trying to learn
     :return: The index of the move to select.
     """
+    # exit learning move if new move is banned or has 0 power
+    if new_move['power'] == 0 or new_move['name'] in config_battle['banned_moves']:
+        console.print(f"New move has base power of 0, so {mon['name']} will skip learning it.")
+        return 4
     # determine how the damage formula will be affected by the mon's current stats
     attack_stat = {
         'Physical': mon['stats']['attack'],
         'Special': mon['stats']['spAttack'],
-        'a-': 0,
-        'a+': 0
     }
     # get the effective power of each move
     move_power = []
     full_moveset = list(mon['moves'])
     full_moveset.append(new_move)
     for move in full_moveset:
-        power = new_move['power'] * attack_stat[move['kind']]
+        attack_type = move['kind']
+        match attack_type:
+            case "Physical":
+                attack_bonus = mon['stats']['attack']
+            case "Special":
+                attack_bonus = mon['stats']['spAttack']
+            case _:
+                attack_bonus = 0
+        power = move['power'] * attack_bonus
         if move['type'] in mon['type']:
             power *= 1.5
         if move['name'] in config_battle['banned_moves']:
@@ -129,19 +140,38 @@ def CalculateNewMoveViability(mon: dict, new_move: dict) -> int:
     weakest_move = move_power.index(weakest_move_power)
     # try and aim for good coverage- it's generally better to have a wide array of move types than 4 moves of the same
     # type
-    if new_move['type'] in [m['type'] for m in mon['moves']] and min(move_power) > 0:
-        weakest_move_power = None
-        for i in range(len(full_moveset)):
-            if full_moveset[i]['type'] == new_move['type']:
-                if weakest_move_power is None:
-                    weakest_move = i
-                    weakest_move_power = move_power[i]
-                else:
-                    if move_power[i] < weakest_move_power:
-                        weakest_move = i
-                        weakest_move_power = move_power[i]
+    redundant_type_moves = []
+    existing_move_types = {}
+    for move in full_moveset:
+        if move['power'] == 0:
+            continue
+        if move['type'] not in existing_move_types:
+            existing_move_types[move['type']] = move
+        else:
+            if not redundant_type_moves:
+                redundant_type_moves.append(existing_move_types[move['type']])
+            redundant_type_moves.append(move)
+    if weakest_move_power > 0 and redundant_type_moves:
+        redundant_move_power = []
+        for move in redundant_type_moves:
+            attack_type = move['kind']
+            match attack_type:
+                case "Physical":
+                    attack_bonus = mon['stats']['attack']
+                case "Special":
+                    attack_bonus = mon['stats']['spAttack']
+                case _:
+                    attack_bonus = 0
+            power = move['power'] * attack_bonus
+            if move['type'] in mon['type']:
+                power *= 1.5
+            if move['name'] in config_battle['banned_moves']:
+                power = 0
+            redundant_move_power.append(power)
+        weakest_move_power = min(redundant_move_power)
+        weakest_move = full_moveset.index(redundant_type_moves[redundant_move_power.index(weakest_move_power)])
+        console.print("Opting to replace a move that has a redundant type so as to maximize coverage.")
     console.print(f"Move to replace is {full_moveset[weakest_move]['name']} with a calculated power of {weakest_move_power}")
-
     return weakest_move
 
 
