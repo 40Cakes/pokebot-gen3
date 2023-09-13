@@ -334,8 +334,29 @@ def HandleMoveLearn():
 
 
 def GetLearningMon() -> dict:
-    idx = int.from_bytes(ReadAddress(int.from_bytes(ReadSymbol('sMonSummaryScreen'), 'little'), offset=16574, size=1),
-                         'little')
+    match mGBA.game:
+        case "Pokémon Emerald":
+            idx = int.from_bytes(ReadAddress(int.from_bytes(ReadSymbol('sMonSummaryScreen'), 'little'), offset=16574, size=1),
+                             'little')
+        case "Pokémon FireRed":
+            if ParseMain()['callback_1'] == 'BattleMainCB1':
+                idx = int.from_bytes(ReadAddress(int.from_bytes(ReadSymbol('gBattleStruct'), 'little'), 16, 1), 'little')
+            else:
+                console.print("Not yet implemented")
+                os.exit(-1)
+        case 'Pokémon LeafGreen':
+            if ParseMain()['callback_1'] == 'BattleMainCB1':
+                idx = int.from_bytes(ReadAddress(int.from_bytes(ReadSymbol('gBattleStruct'), 'little'), 16, 1), 'little')
+            else:
+                console.print("Not yet implemented")
+                os.exit(-1)
+        case 'Pokémon Ruby':
+            idx = int.from_bytes(ReadSymbol('gSharedMem', offset=int("0x18009", 16), size=1), 'little')
+        case 'Pokémon Sapphire':
+            idx = int.from_bytes(ReadSymbol('gSharedMem', offset=int("0x18009", 16), size=1), 'little')
+        case _:
+            console.print("Not yet implemented.")
+            os._exit(-1)
     return GetParty()[idx]
 
 
@@ -343,9 +364,19 @@ def GetLearningMove() -> dict:
     """
     helper function that returns the move trying to be learned
     """
-    return moves_list[
-        int.from_bytes(ReadAddress(int.from_bytes(ReadSymbol('sMonSummaryScreen'), 'little'), offset=16580, size=2),
-                       'little')]
+    match mGBA.game:
+        case 'Pokémon Emerald':
+            return moves_list[
+                int.from_bytes(ReadAddress(int.from_bytes(ReadSymbol('sMonSummaryScreen'), 'little'), offset=16580, size=2),
+                               'little')]
+        case 'Pokémon FireRed':
+            return moves_list[int.from_bytes(ReadSymbol('gMoveToLearn'), 'little')]
+        case 'Pokémon LeafGreen':
+            return moves_list[int.from_bytes(ReadSymbol('gMoveToLearn'), 'little')]
+        case 'Pokémon Ruby':
+            return moves_list[int.from_bytes(ReadSymbol('gMoveToLearn', size=1), 'little')]
+        case 'Pokémon Sapphire':
+            return moves_list[int.from_bytes(ReadSymbol('gMoveToLearn', size=1), 'little')]
 
 
 def GetMoveLearningCursorPos() -> int:
