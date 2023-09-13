@@ -839,10 +839,9 @@ def ParseStartMenu() -> dict:
     Helper function that decodes the state of the start menu.
     """
     tasks = ParseTasks()
-    start_menu_tasks = [TaskFunc.START_MENU_FRLG, TaskFunc.START_MENU_E, TaskFunc.START_MENU_RS]
     open = False
     for task in tasks:
-        if task['task_func'] in start_menu_tasks and task['is_active']:
+        if GetTaskFunc(task['func']) == TaskFunc.START_MENU and task['isActive']:
             open = True
             break
     return {
@@ -939,35 +938,6 @@ def ParseMain() -> dict:
         "obj_count": obj_count,
     }
     return main_dict
-
-
-def ParseTasks() -> List[dict]:
-    """
-    Function to parse the party menu data and return usable information
-    """
-    tasks = ReadSymbol('gTasks')
-    task_views = []
-    for i in range(len(tasks) // 40):
-        current_task = tasks[i * 40:i * 40 + 40]
-        task_func_addr = hex(int(struct.unpack('<i', current_task[0:4])[0]) - 1)
-        if task_func_addr != '-0x1':
-            task_func = mGBA.addressymbolmap[task_func_addr]['name']
-        else:
-            task_func = "None"
-        task_view = {
-            "task_func": task_func,
-            "is_active": struct.unpack('<?', current_task[4:5])[0],
-            "prev": struct.unpack('<B', current_task[5:6])[0],
-            "next": struct.unpack('<B', current_task[6:7])[0],
-            "priority": struct.unpack('<B', current_task[7:8])[0],
-        }
-        for j in range(8, 24):
-            task_view[f"task_data_{(j-8)//2+1}"] = struct.unpack('<h', current_task[j:j + 2])[0]
-
-
-
-        task_views.append(task_view)
-    return task_views
 
 
 def ParseMenu() -> dict:

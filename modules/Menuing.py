@@ -4,12 +4,10 @@ import os
 
 from modules.Config import config_battle
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import ReadSymbol, GetTrainer, pokemon_list, type_list, GetParty, GetOpponent, DecodeString, \
+from modules.Memory import ReadSymbol, GetGameState, pokemon_list, type_list, GetParty, GetOpponent, DecodeString, \
     GetPartyMenuCursorPos, ParseStartMenu, ParseMenu, ParseBattleCursor, mGBA, ParseTasks, ReadAddress, \
-    moves_list, ParseMain
-from modules.data.GameState import GameState
+    moves_list, ParseMain, GameState, TaskFunc, GetTaskFunc
 from modules.Console import console
-from modules.data.TaskFunc import TaskFunc
 
 if mGBA.game in ['Pokémon Ruby', 'Pokémon Sapphire']:
     battle_text = "What should"
@@ -51,7 +49,7 @@ def FleeBattle() -> NoReturn:
     """
     Readable function to select and execute the Run option from the battle menu.
     """
-    while GetTrainer()['state'] != GameState.OVERWORLD:
+    while GetGameState() != GameState.OVERWORLD:
         if "Use next" in DecodeString(ReadSymbol('gDisplayedStringBattle')):
             PressButton(["B"])
         elif battle_text in DecodeString(ReadSymbol('gDisplayedStringBattle')):
@@ -217,10 +215,13 @@ def BattleOpponent() -> bool:
     ally_fainted = False
     foe_fainted = False
 
-    while not ally_fainted and not foe_fainted and GetTrainer()['state'] not in (
-            GameState.OVERWORLD, GameState.WHITEOUT
-    ) and "scurried" not in DecodeString(ReadSymbol('gStringVar4')):
-        if GetTrainer()['state'] == GameState.OVERWORLD:
+    while (
+            not ally_fainted and
+            not foe_fainted and
+            GetGameState() != GameState.OVERWORLD and
+            "scurried" not in DecodeString(ReadSymbol('gStringVar4'))
+    ):
+        if GetGameState() == GameState.OVERWORLD:
             return True
 
         best_move = FindEffectiveMove(GetParty()[0], GetOpponent())
@@ -246,11 +247,11 @@ def BattleOpponent() -> bool:
         WaitFrames(5)
 
         while (
-                GetTrainer()["state"] != GameState.OVERWORLD and
+                GetGameState() != GameState.OVERWORLD and
                 battle_text not in DecodeString(ReadSymbol('gDisplayedStringBattle')) and
                 "whited out!" not in DecodeString(ReadSymbol('gDisplayedStringBattle'))
         ):
-            while GetTrainer()["state"] == GameState.EVOLUTION:
+            while GetGameState() == GameState.EVOLUTION:
                 if config_battle['stop_evolution']:
                     PressButton(['B'])
                 else:
@@ -275,8 +276,8 @@ def BattleOpponent() -> bool:
         FleeBattle()
         return False
     else:
-        while GetTrainer()["state"] != GameState.OVERWORLD:
-            while GetTrainer()["state"] == GameState.EVOLUTION:
+        while GetGameState() != GameState.OVERWORLD:
+            while GetGameState() == GameState.EVOLUTION:
                 if config_battle['stop_evolution']:
                     PressButton(['B'])
                 else:
@@ -296,8 +297,8 @@ def HandleMoveLearn():
             input('Press enter to exit...')
             os._exit(0)
         case 'cancel':
-            while GetTrainer()['state'] != GameState.OVERWORLD:
-                while GetTrainer()['state'] == GameState.EVOLUTION:
+            while GetGameState() != GameState.OVERWORLD:
+                while GetGameState() == GameState.EVOLUTION:
                     if config_battle['stop_evolution']:
                         PressButton(['B'])
                     else:
@@ -310,8 +311,8 @@ def HandleMoveLearn():
             on_learn_screen = False
             while not on_learn_screen:
                 for task in ParseTasks():
-                    if task['task_func'] in [TaskFunc.LEARN_MOVE_RS, TaskFunc.LEARN_MOVE_E, TaskFunc.LEARN_MOVE_FRLG]:
-                        if task['is_active']:
+                    if GetTaskFunc(task['func']) == TaskFunc.LEARN_MOVE:
+                        if task['isActive']:
                             on_learn_screen = True
                             break
                 PressButton(['A'])
@@ -324,7 +325,7 @@ def HandleMoveLearn():
                     PressButton(['Up'])
                 else:
                     PressButton(['Down'])
-            while GetTrainer()['state'] != GameState.BATTLE:
+            while GetGameState() != GameState.BATTLE:
                 PressButton(['A'])
             for i in range(30):
                 if "Stop learning" not in DecodeString(ReadSymbol('gDisplayedStringBattle')) and "Poof!" not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
@@ -463,16 +464,16 @@ def TakePickupItems(pokemon_indices: list):
             while "sub_808A060" in [task['task_func'] for task in ParseTasks()]:
                 NavigateMenu(1)
                 WaitFrames(1)
-            while "HandleDefaultPartyMenu" not in [task['task_func'] for task in ParseTasks()]:
+            while TaskFunc.PARTY_MENU not in [GetTaskFunc(task['func']) for task in ParseTasks()]:
                 PressButton(['B'])
                 WaitFrames(1)
-    while GetTrainer()['state'] != GameState.OVERWORLD or ParseStartMenu()['open']:
+    while GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
         PressButton(['B'])
     for i in range(30):
-        if GetTrainer()['state'] != GameState.OVERWORLD or ParseStartMenu()['open']:
+        if GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
             break
         PressButton(['B'])
-    while GetTrainer()['state'] != GameState.OVERWORLD or ParseStartMenu()['open']:
+    while GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
         PressButton(['B'])
 
 
@@ -510,9 +511,9 @@ def NavigateMenu(desired_index: int) -> NoReturn:
 
 def PartyMenuIsOpen() -> bool:
     if mGBA.game in ["Pokémon Emerald", "Pokémon FireRed", "Pokémon LeafGreen"]:
-        return GetTrainer()['state'] == GameState.PARTY_MENU
+        return GetGameState() == GameState.PARTY_MENU
     else:
-        return GetTrainer()['state'] == GameState.GARBAGE_COLLECTION and "HandleDefaultPartyMenu" in [task['task_func'] for task in ParseTasks()]
+        return TaskFunc.PARTY_MENU in [GetTaskFunc(task['func']) for task in ParseTasks()]
 
 
 def RotatePokemon():
@@ -567,17 +568,17 @@ def RotatePokemon():
                 else:
                     PressButton(['A'])
                 WaitFrames(1)
-            while "HandleDefaultPartyMenu" not in [task['task_func'] for task in ParseTasks()]:
+            while TaskFunc.PARTY_MENU not in [GetTaskFunc(task['func']) for task in ParseTasks()]:
                 PressButton(['B'])
                 WaitFrames(1)
 
-        while GetTrainer()['state'] != GameState.OVERWORLD or ParseStartMenu()['open']:
+        while GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
             PressButton(['B'])
         for i in range(30):
-            if GetTrainer()['state'] != GameState.OVERWORLD or ParseStartMenu()['open']:
+            if GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
                 break
             PressButton(['B'])
-        while GetTrainer()['state'] != GameState.OVERWORLD or ParseStartMenu()['open']:
+        while GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
             PressButton(['B'])
     else:
         console.print("No pokemon are fit for battle.")
