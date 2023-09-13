@@ -520,7 +520,7 @@ def RotatePokemon():
     function to swap out lead battler if PP or HP get too low
     """
     NavigateStartMenu(1)
-    while GetTrainer()['state'] != GameState.PARTY_MENU:
+    while not PartyMenuIsOpen():
         PressButton(["A"])
     party = GetParty()
     new_lead_idx = 0
@@ -536,24 +536,41 @@ def RotatePokemon():
                 break
     if new_lead_idx > 0:
 
-        while ParsePartyMenu()['slot_id'] != new_lead_idx:
-            if ParsePartyMenu()['slot_id'] > new_lead_idx:
+        while GetPartyMenuCursorPos()['slot_id'] != new_lead_idx:
+            if GetPartyMenuCursorPos()['slot_id'] > new_lead_idx:
                 PressButton(["Up"])
             else:
                 PressButton(["Down"])
 
-        while "Choose" in DecodeString(ReadSymbol('gStringVar4')):
-            PressButton(["A"])
-        while "Do what with this" in DecodeString(ReadSymbol('gStringVar4')):
-            NavigateMenu(1)
-        while "Move to" in DecodeString(ReadSymbol('gStringVar4')):
-            if ParsePartyMenu()['slot_id_2'] != 0:
-                PressButton(['Up'])
-            else:
+        if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
+            while "Choose" in DecodeString(ReadSymbol('gStringVar4')):
+                PressButton(["A"])
+            while "Do what with" in DecodeString(ReadSymbol('gStringVar4')):
+                NavigateMenu(1)
+            while "Move to" in DecodeString(ReadSymbol('gStringVar4')):
+                if GetPartyMenuCursorPos()['slot_id_2'] != 0:
+                    PressButton(['Up'])
+                else:
+                    PressButton(['A'])
+            while "Choose" in DecodeString(ReadSymbol('gStringVar4')):
+                PressButton(['B'])
+        else:
+            while "sub_8089D94" not in [task['task_func'] for task in ParseTasks()]:
+                PressButton(["A"])
+                WaitFrames(1)
+            while "sub_8089D94" in [task['task_func'] for task in ParseTasks()] and not 'sub_808A060' in [task['task_func'] for task in ParseTasks()]:
+                NavigateMenu(1)
+                WaitFrames(1)
+            while SwitchPokemonActive():
+                if GetPartyMenuCursorPos()['slot_id_2'] != 0:
+                    PressButton(['Up'])
+                else:
+                    PressButton(['A'])
+                WaitFrames(1)
+            while "HandleDefaultPartyMenu" not in [task['task_func'] for task in ParseTasks()]:
+                PressButton(['B'])
+                WaitFrames(1)
 
-                PressButton(['A'])
-        while "Choose" in DecodeString(ReadSymbol('gStringVar4')):
-            PressButton(['B'])
         while GetTrainer()['state'] != GameState.OVERWORLD or ParseStartMenu()['open']:
             PressButton(['B'])
         for i in range(30):
@@ -565,3 +582,14 @@ def RotatePokemon():
     else:
         console.print("No pokemon are fit for battle.")
         os._exit
+
+
+def SwitchPokemonActive() -> bool:
+    """
+    helper function to determine if the switch pokemon menu is active
+    """
+    tasks = ParseTasks()
+    for task in tasks:
+        if task['task_func'] == 'HandlePartyMenuSwitchPokemonInput' and task["is_active"]:
+            return True
+    return False
