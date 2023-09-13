@@ -326,6 +326,11 @@ def HandleMoveLearn():
                     PressButton(['Down'])
             while GetTrainer()['state'] != GameState.BATTLE:
                 PressButton(['A'])
+            for i in range(30):
+                if "Stop learning" not in DecodeString(ReadSymbol('gDisplayedStringBattle')) and "Poof!" not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
+                    WaitFrames(1)
+                    continue
+                break
             while "Stop learning" in DecodeString(ReadSymbol('gDisplayedStringBattle')):
                 PressButton(['A'])
 
