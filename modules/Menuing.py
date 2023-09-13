@@ -436,22 +436,36 @@ def TakePickupItems(pokemon_indices: list):
     :param pokemon_indices: The list of indices representing the pokemon to take items from.
     """
     NavigateStartMenu(1)
-    while GetTrainer()['state'] != GameState.PARTY_MENU:
+    while not PartyMenuIsOpen():
         PressButton(["A"])
     for idx in pokemon_indices:
-        while ParsePartyMenu()['slot_id'] != idx:
-            if ParsePartyMenu()['slot_id'] > idx:
+        while GetPartyMenuCursorPos()['slot_id'] != idx:
+            if GetPartyMenuCursorPos()['slot_id'] > idx:
                 PressButton(["Up"])
             else:
                 PressButton(["Down"])
-        while "Choose a" in DecodeString(ReadSymbol('gStringVar4')):
-            PressButton(["A"])
-        while "Do what with this" in DecodeString(ReadSymbol('gStringVar4')):
-            NavigateMenu(2)
-        while "Do what with an" in DecodeString(ReadSymbol('gStringVar4')):
-            NavigateMenu(1)
-        while "Received the" in DecodeString(ReadSymbol('gStringVar4')):
-            PressButton(['B'])
+        if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
+            while "Choose a" in DecodeString(ReadSymbol('gStringVar4')):
+                PressButton(["A"])
+            while "Do what with" in DecodeString(ReadSymbol('gStringVar4')) and not "an item?" in DecodeString(ReadSymbol('gStringVar4')):
+                NavigateMenu(2)
+            while "Do what with an" in DecodeString(ReadSymbol('gStringVar4')):
+                NavigateMenu(1)
+            while "Received the" in DecodeString(ReadSymbol('gStringVar4')):
+                PressButton(['B'])
+        else:
+            while "sub_8089D94" not in [task['task_func'] for task in ParseTasks()]:
+                PressButton(["A"])
+                WaitFrames(1)
+            while "sub_8089D94" in [task['task_func'] for task in ParseTasks()] and not 'sub_808A060' in [task['task_func'] for task in ParseTasks()]:
+                NavigateMenu(2)
+                WaitFrames(1)
+            while "sub_808A060" in [task['task_func'] for task in ParseTasks()]:
+                NavigateMenu(1)
+                WaitFrames(1)
+            while "HandleDefaultPartyMenu" not in [task['task_func'] for task in ParseTasks()]:
+                PressButton(['B'])
+                WaitFrames(1)
     while GetTrainer()['state'] != GameState.OVERWORLD or ParseStartMenu()['open']:
         PressButton(['B'])
     for i in range(30):
