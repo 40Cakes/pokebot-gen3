@@ -455,13 +455,13 @@ def TakePickupItems(pokemon_indices: list):
             while "Received the" in DecodeString(ReadSymbol('gStringVar4')):
                 PressButton(['B'])
         else:
-            while "sub_8089D94" not in [task['task_func'] for task in ParseTasks()]:
+            while "SUB_8089D94" not in [task['func'] for task in ParseTasks()]:
                 PressButton(["A"])
                 WaitFrames(1)
-            while "sub_8089D94" in [task['task_func'] for task in ParseTasks()] and not 'sub_808A060' in [task['task_func'] for task in ParseTasks()]:
+            while "SUB_8089D94" in [task['func'] for task in ParseTasks()] and not 'SUB_808A060' in [task['func'] for task in ParseTasks()]:
                 NavigateMenu(2)
                 WaitFrames(1)
-            while "sub_808A060" in [task['task_func'] for task in ParseTasks()]:
+            while "SUB_808A060" in [task['func'] for task in ParseTasks()]:
                 NavigateMenu(1)
                 WaitFrames(1)
             while TaskFunc.PARTY_MENU not in [GetTaskFunc(task['func']) for task in ParseTasks()]:
@@ -556,10 +556,15 @@ def RotatePokemon():
             while "Choose" in DecodeString(ReadSymbol('gStringVar4')):
                 PressButton(['B'])
         else:
-            while "sub_8089D94" not in [task['task_func'] for task in ParseTasks()]:
+            while "SUB_8089D94" not in [task['func'] for task in ParseTasks()]:
                 PressButton(["A"])
                 WaitFrames(1)
-            while "sub_8089D94" in [task['task_func'] for task in ParseTasks()] and not 'sub_808A060' in [task['task_func'] for task in ParseTasks()]:
+            while (
+                    "SUB_8089D94" in [task['func'] for task in ParseTasks()]
+            ) and not (
+                    'SUB_808A060' in [task['func'] for task in ParseTasks()] or
+                    "HANDLEPARTYMENUSWITCHPOKEMONINPUT" in [task['func'] for task in ParseTasks()]
+            ):
                 NavigateMenu(1)
                 WaitFrames(1)
             while SwitchPokemonActive():
@@ -582,7 +587,7 @@ def RotatePokemon():
             PressButton(['B'])
     else:
         console.print("No pokemon are fit for battle.")
-        os._exit
+        os._exit(0)
 
 
 def SwitchPokemonActive() -> bool:
@@ -591,6 +596,6 @@ def SwitchPokemonActive() -> bool:
     """
     tasks = ParseTasks()
     for task in tasks:
-        if task['task_func'] == 'HandlePartyMenuSwitchPokemonInput' and task["is_active"]:
+        if task['func'] == 'HANDLEPARTYMENUSWITCHPOKEMONINPUT' and task["isActive"]:
             return True
     return False
