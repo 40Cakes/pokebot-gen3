@@ -48,25 +48,6 @@ def WebServer() -> NoReturn:
             except:
                 console.print_exception(show_locals=True)
                 abort(503)
-
-        @server.route('/encounter_rate', methods=['GET'])
-        def EncounterRate():
-            try:
-                return jsonify({'encounter_rate': GetEncounterRate()})
-            except:
-                console.print_exception(show_locals=True)
-                return jsonify({'encounter_rate': 0})
-
-        @server.route('/stats', methods=['GET'])
-        def Stats():
-            try:
-                if stats:
-                    return jsonify(stats)
-                abort(503)
-            except:
-                console.print_exception(show_locals=True)
-                abort(503)
-
         @server.route('/encounter_log', methods=['GET'])  # TODO add parameter to get encounter by list index
         def EncounterLog():
             try:
@@ -82,6 +63,24 @@ def WebServer() -> NoReturn:
             try:
                 if shiny_log:
                     return jsonify(shiny_log['shiny_log'])
+                abort(503)
+            except:
+                console.print_exception(show_locals=True)
+                abort(503)
+
+        @server.route('/encounter_rate', methods=['GET'])
+        def EncounterRate():
+            try:
+                return jsonify({'encounter_rate': GetEncounterRate()})
+            except:
+                console.print_exception(show_locals=True)
+                return jsonify({'encounter_rate': 0})
+
+        @server.route('/stats', methods=['GET'])
+        def Stats():
+            try:
+                if stats:
+                    return jsonify(stats)
                 abort(503)
             except:
                 console.print_exception(show_locals=True)

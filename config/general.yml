@@ -1,15 +1,23 @@
+# General settings
+# See readme for documentation
+
 # Bot mode
-# See Readme.md for a list of what each mode does and how to set it up
-# Valid options: `manual`, `spin`, `starters`, `fishing`
+# `manual`, `spin`, `starters`, `fishing`
 # TODO: `sweet scent`, `bunny hop`, `coords`, `bonk`, `starters`, `lugia`, `ho-oh`,
-# TODO:  `petalburg loop`, `rayquaza`, `groudon`, `kyogre`, `southern island`, `mew`, `regis`, `deoxys runaways`
+# TODO: `petalburg loop`, `rayquaza`, `groudon`, `kyogre`, `southern island`, `mew`, `regis`, `deoxys runaways`
 # TODO: `deoxys reset`, `fossil`, `castform`, `beldum`, `buy premier balls`
 bot_mode: spin
 
-# Coords config - this config is used if `bot_mode` is set to `coords`
-# The bot will run between 2 different X,Y coordinates
-# Use Advance Map to find coords: https://www.hackromtools.info/advance-map/
-# Valid options: (integer)
+# Starter - used when `bot_mode` is set to `starters`
+# TODO: add Johto starters
+# `treecko`, `torchic`, `mudkip`, `bulbasaur`, `charmander`, `squirtle`
+starter: mudkip
+
+# -----------------------------------------
+# Everything below is not implemented, yet™
+# -----------------------------------------
+
+# Coords config - used when `bot_mode` is set to `coords`
 # TODO not implemented
 coords:
   pos1:
@@ -21,64 +29,51 @@ coords:
 
 # Bonk direction - this config is used if `bot_mode` is set to `bonk`
 # Bonk mode will run left/right or up/down repeatedly until the trainer bonks a wall
-# Valid options: `horizontal`, `vertical`
 # TODO not implemented
-bonk_direction: horizontal
-
-# Starters - this config is used if `bot_mode` is set to `starters`
-# Choose a Pokémon to soft reset for, save the game with trainer facing the bag
-# TODO: add Johto + FRLG starters as options in `starter`
-# Valid options: `mudkip`, `treecko`, `torchic`, `bulbasaur`, `charmander`, `squirtle`
-starter: mudkip
+bonk_direction: horizontal # `horizontal`, `vertical`
 
 # Fossils - this config is used if `bot_mode` is set to `fossil`
 # Save with trainer facing the Fossil Scientist in Devon after handing over the fossil and re-entering the room
-# Valid options: `anorith`, `lileep`
 # TODO not implemented
-fossil: anorith
+fossil: anorith # `anorith`, `lileep`
 
 # Autosaves
 # Autosave every n encounters, set to `0` to disable
+# TODO not implemented
 autosave_encounters: 1000
 
 # Auto catch
 # (if disabled the bot will pause and wait for you to manually catch)
-# Valid options: `true`, `false`
 # TODO not implemented
-auto_catch: true
+auto_catch: true # `true`, `false`
 
 # Enable party leader to use Spore to sleep the wild Pokémon
-# Valid options: `true`, `false`
 # TODO not implemented
-use_spore: true
+use_spore: true # `true`, `false`
 
 # Toggle catching shinies on/off
 # CustomCatchFilters.py allows you to configure filters to catch specific non-shiny Pokémon
-# Valid options: `true`, `false`
 # TODO not implemented
-catch_shinies: true
+catch_shinies: true # `true`, `false`
 
 # Set true if the Deoxys puzzle is solved already and the last save is on the tile in front of the red triangle
-# Valid options: `true`, `false`
 # TODO not implemented
-deoxys_puzzle_solved: false
+deoxys_puzzle_solved: false # `true`, `false`
 
 # Toggle auto stop when you are run out of balls
 # Otherwise, if you want to continue without balls, this option needs to be false
-# Valid options: `true`, `false`
 # TODO not implemented
-auto_stop: true
+auto_stop: true # `true`, `false`
 
-# Save the game any catch
-# Valid options: `true`, `false`
+# Save the game after catch
 # TODO not implemented
-save_game_after_catch: true
+save_game_after_catch: true # `true`, `false`
 
 # Pokeball overrides to catch certain Pokémon with specific balls
 # Balls at the top of the list are highest priority, bottom is least priority
 # The bot will fall back to `pokeball_priority` option if you have no balls specified in the list
 # Examples are provided below (make sure to uncomment), note: `ball_override` is not validated by the config schema
-# Valid options: Exact Pokémon name + `Dive Ball`, `Great Ball`, `Luxury Ball`, `Master Ball`,
+# Exact Pokémon name + `Dive Ball`, `Great Ball`, `Luxury Ball`, `Master Ball`,
 # `Nest Ball`, `Poké Ball`, `Premier Ball`, `Repeat Ball`, `Timer Ball`, `Ultra Ball`
 # TODO not implemented
 ball_override:

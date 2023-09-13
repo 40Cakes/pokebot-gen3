@@ -8,6 +8,7 @@ from threading import Thread
 from modules.Config import config_discord, config_obs
 from modules.Console import console
 from modules.Discord import DiscordMessage
+from modules.Inputs import WaitFrames
 from modules.Memory import mGBA
 
 
@@ -343,7 +344,7 @@ def CustomHooks(hook) -> NoReturn:
         # Save OBS replay buffer n seconds after encountering a shiny
         if config_obs.get('enable_replay_buffer', None) and pokemon['shiny']:
             def ReplayBuffer():
-                time.sleep(config_obs.get('replay_buffer_delay', 0))
+                WaitFrames(config_obs.get('replay_buffer_delay', 0))
                 for key in config_obs['hotkey_replay_buffer']:
                     pydirectinput.keyDown(key)
                 for key in reversed(config_obs['hotkey_replay_buffer']):
