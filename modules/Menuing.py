@@ -508,6 +508,13 @@ def NavigateMenu(desired_index: int) -> NoReturn:
     PressButton(["A"])
 
 
+def PartyMenuIsOpen() -> bool:
+    if mGBA.game in ["Pokémon Emerald", "Pokémon FireRed", "Pokémon LeafGreen"]:
+        return GetTrainer()['state'] == GameState.PARTY_MENU
+    else:
+        return GetTrainer()['state'] == GameState.GARBAGE_COLLECTION and "HandleDefaultPartyMenu" in [task['task_func'] for task in ParseTasks()]
+
+
 def RotatePokemon():
     """
     function to swap out lead battler if PP or HP get too low
