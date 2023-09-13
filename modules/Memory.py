@@ -823,20 +823,37 @@ def ParseMenu() -> dict:
     """
     Function to parse the currently displayed menu and return usable information.
     """
-    menu = ReadSymbol("sMenu")
+    match mGBA.game:
+        case "Pokémon Emerald":
+            menu = ReadSymbol("sMenu")
+            cursor_pos = struct.unpack('<b', menu[2:3])[0]
+            min_cursor_pos = struct.unpack('<b', menu[3:4])[0]
+            max_cursor_pos = struct.unpack('<b', menu[4:5])[0]
+        case "Pokémon FireRed":
+            menu = ReadSymbol("sMenu")
+            cursor_pos = struct.unpack('<b', menu[2:3])[0]
+            min_cursor_pos = struct.unpack('<b', menu[3:4])[0]
+            max_cursor_pos = struct.unpack('<b', menu[4:5])[0]
+        case "Pokémon LeafGreen":
+            menu = ReadSymbol("sMenu")
+            cursor_pos = struct.unpack('<b', menu[2:3])[0]
+            min_cursor_pos = struct.unpack('<b', menu[3:4])[0]
+            max_cursor_pos = struct.unpack('<b', menu[4:5])[0]
+        case "Pokémon Ruby":
+            cursor_pos = int.from_bytes(ReadSymbol('sPokeMenuCursorPos', 0, 1), 'little')
+            min_cursor_pos = 0
+            max_cursor_pos = 6
+        case "Pokémon Sapphire":
+            cursor_pos = int.from_bytes(ReadSymbol('sPokeMenuCursorPos', 0, 1), 'little')
+            min_cursor_pos = 0
+            max_cursor_pos = 6
+        case _:
+            print("Not implemented yet.")
+            os._exit(-1)
     return {
-        "left": struct.unpack('<B', menu[0:1])[0],
-        "top": struct.unpack('<B', menu[1:2])[0],
-        "cursorPos": struct.unpack('<b', menu[2:3])[0],
-        "minCursorPos": struct.unpack('<b', menu[3:4])[0],
-        "maxCursorPos": struct.unpack('<b', menu[4:5])[0],
-        "windowId": struct.unpack('<B', menu[5:6])[0],
-        "fontId": struct.unpack('<B', menu[6:7])[0],
-        "optionWidth": struct.unpack('<B', menu[7:8])[0],
-        "optionHeight": struct.unpack('<B', menu[8:9])[0],
-        "columns": struct.unpack('<B', menu[9:10])[0],
-        "rows": struct.unpack('<B', menu[10:11])[0],
-        "APressMuted": struct.unpack('<?', menu[11:12])[0],
+        "minCursorPos": min_cursor_pos,
+        "maxCursorPos": max_cursor_pos,
+        "cursorPos": cursor_pos,
     }
 
 
