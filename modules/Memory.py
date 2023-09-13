@@ -700,21 +700,39 @@ def ParseStartMenu() -> dict:
     }
 
 
-def ParsePartyMenu() -> dict:
+def GetPartyMenuCursorPos() -> dict:
     """
     Function to parse the party menu data and return usable information
     """
-    party_menu = ReadSymbol('gPartyMenu')
-    return {
-        "menu_type": struct.unpack('<B', party_menu[7:8])[0],
-        "layout": struct.unpack('<B', party_menu[8:9])[0],
-        "slot_id": struct.unpack('<b', party_menu[9:10])[0],
-        "slot_id_2": struct.unpack('<b', party_menu[10:11])[0],
-        "action": struct.unpack('<B', party_menu[11:12])[0],
-        "bag_item": struct.unpack('<h', party_menu[12:14])[0],
-        "data_1": struct.unpack('<H', party_menu[14:16])[0],
-        "learn_move_state": struct.unpack('<H', party_menu[16:18])[0],
+    slot_id = -1
+    slot_id_2 = -1
+    match mGBA.game:
+        case "Pokémon Ruby":
+            slot_id = int.from_bytes(ReadAddress(int('0202002F', 16), offset=len(GetParty()) * 136 + 3, size=1), 'little')
+            slot_id_2 = slot_id
+        case "Pokémon Sapphire":
+            slot_id = int.from_bytes(ReadAddress(int('0202002F', 16), offset=len(GetParty()) * 136 + 3, size=1), 'little')
+            slot_id_2 = slot_id
+        case "Pokémon Emerald":
+            party_menu = ReadSymbol('gPartyMenu')
+            slot_id = struct.unpack('<b', party_menu[9:10])[0]
+            slot_id_2 = struct.unpack('<b', party_menu[10:11])[0]
+        case "Pokémon FireRed":
+            party_menu = ReadSymbol('gPartyMenu')
+            slot_id = struct.unpack('<b', party_menu[9:10])[0]
+            slot_id_2 = struct.unpack('<b', party_menu[10:11])[0]
+        case "Pokémon LeafGreen":
+            party_menu = ReadSymbol('gPartyMenu')
+            slot_id = struct.unpack('<b', party_menu[9:10])[0]
+            slot_id_2 = struct.unpack('<b', party_menu[10:11])[0]
+    cursors = {
+        "slot_id": slot_id,
+        "slot_id_2": slot_id_2,
     }
+    if slot_id == -1:
+        console.print("Error detecting cursor position.")
+        os._exit(-1)
+    return cursors
 
 
 def parse_func(data) -> str:
