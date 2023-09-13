@@ -688,9 +688,10 @@ def ParseStartMenu() -> dict:
     Helper function that decodes the state of the start menu.
     """
     tasks = ParseTasks()
+    start_menu_tasks = [TaskFunc.START_MENU_FRLG, TaskFunc.START_MENU_E, TaskFunc.START_MENU_RS]
     open = False
     for task in tasks:
-        if task['task_func'] == TaskFunc.START_MENU and task['is_active']:
+        if task['task_func'] in start_menu_tasks and task['is_active']:
             open = True
             break
     return {
