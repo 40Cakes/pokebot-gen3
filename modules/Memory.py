@@ -803,15 +803,18 @@ def ParseTasks() -> List[dict]:
             task_func = mGBA.addressymbolmap[task_func_addr]['name']
         else:
             task_func = "None"
-
         task_view = {
             "task_func": task_func,
             "is_active": struct.unpack('<?', current_task[4:5])[0],
             "prev": struct.unpack('<B', current_task[5:6])[0],
             "next": struct.unpack('<B', current_task[6:7])[0],
             "priority": struct.unpack('<B', current_task[7:8])[0],
-            "num_task_data": (struct.unpack('<h', current_task[8:10])[0]),
         }
+        for j in range(8, 24):
+            task_view[f"task_data_{(j-8)//2+1}"] = struct.unpack('<h', current_task[j:j + 2])[0]
+
+
+
         task_views.append(task_view)
     return task_views
 
