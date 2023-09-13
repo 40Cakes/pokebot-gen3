@@ -5,8 +5,8 @@ import os
 from modules.Config import config_battle
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import ReadSymbol, GetTrainer, pokemon_list, type_list, GetParty, GetOpponent, DecodeString, \
-    ParsePartyMenu, ParseStartMenu, ParseMenu, ParseBattleCursor, mGBA, ParseTasks, ReadAddress, \
-    moves_list
+    GetPartyMenuCursorPos, ParseStartMenu, ParseMenu, ParseBattleCursor, mGBA, ParseTasks, ReadAddress, \
+    moves_list, ParseMain
 from modules.data.GameState import GameState
 from modules.Console import console
 from modules.data.TaskFunc import TaskFunc
