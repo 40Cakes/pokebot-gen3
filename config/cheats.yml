@@ -2,6 +2,7 @@
 # See readme for documentation
 
 starters: false # `true`, `false`
+starters_rng: false # `true`, `false`
 
 # -----------------------------------------
 # Everything below is not implemented, yet™

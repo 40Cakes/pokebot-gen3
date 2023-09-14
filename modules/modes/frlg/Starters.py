@@ -1,23 +1,29 @@
+import random
 import struct
 from typing import NoReturn
 
 from modules.Config import config_cheats, config_general
 from modules.Console import console
 from modules.Inputs import PressButton, ResetGame
-from modules.Memory import GetTrainer, ReadSymbol, GetParty, GameState, GetGameState, GetTask
+from modules.Memory import GetTrainer, ReadSymbol, GetParty, GameState, GetGameState, GetTask, WriteSymbol
 from modules.Navigation import FollowPath
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
 
+if not config_cheats['starters_rng']:
+    rng_history = GetRNGStateHistory(config_general['starter'])
 
-rng_history = GetRNGStateHistory(config_general['starter'])
+
 def Starters() -> NoReturn:
     try:
         while GetGameState() != GameState.OVERWORLD:
             PressButton(['A'])
 
-        rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
-        while rng in rng_history['rng']:
+        if config_cheats['starters_rng']:
+            WriteSymbol('gRngValue', struct.pack('<I', random.randint(0, 2 ** 32 - 1)))
+        else:
             rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
+            while rng in rng_history['rng']:
+                rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
 
         while GetTask('TASK_SCRIPTSHOWMONPIC') == {}:
             PressButton(['A'])
@@ -45,8 +51,9 @@ def Starters() -> NoReturn:
                 PressButton(['B'])
 
         EncounterPokemon(GetParty()[0])
-        rng_history['rng'].append(rng)
-        SaveRNGStateHistory(config_general['starter'], rng_history)
+        if not config_cheats['starters_rng']:
+            rng_history['rng'].append(rng)
+            SaveRNGStateHistory(config_general['starter'], rng_history)
         ResetGame()
     except:
         console.print_exception(show_locals=True)

@@ -162,6 +162,22 @@ while True:
         time.sleep(0.5)
 
 
+def SymbolOffset(addr: int) -> int:
+    """
+    Calculate and return mGBA process memory offset + GBA memory domain offset
+
+    :param addr: GBA memory offset
+    :return: mGBA process offset
+    """
+    match addr >> 0x18:
+        case 0x2:
+            return mGBA.p_EWRAM + (addr - mGBA.symbols['EWRAM_START'][0])
+        case 0x3:
+            return mGBA.p_IWRAM + (addr - mGBA.symbols['IWRAM_START'][0])
+        case 0x8:
+            return mGBA.p_ROM + (addr - mGBA.symbols['START'][0])
+
+
 def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
     """
     This function uses the symbol tables from the Pokémon decompilation projects found here: https://github.com/pret
@@ -185,24 +201,36 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
     :param size: (optional) override the size to read n bytes
     :return: (bytes)
     """
-    name = name.upper()
-    sym_addr = mGBA.symbols[name][0]
-    match sym_addr >> 0x18:
-        case 0x2:
-            addr = mGBA.p_EWRAM + (sym_addr - mGBA.symbols['EWRAM_START'][0])
-        case 0x3:
-            addr = mGBA.p_IWRAM + (sym_addr - mGBA.symbols['IWRAM_START'][0])
-        case 0x8:
-            addr = mGBA.p_ROM + (sym_addr - mGBA.symbols['START'][0])
-        case _:
-            return None
-    if size > 0:
-        return mGBA.proc.read_bytes(addr + offset, size)
-    else:
-        return mGBA.proc.read_bytes(addr + offset, mGBA.symbols[name][1])
+    try:
+        name = name.upper()
+        addr = SymbolOffset(mGBA.symbols[name][0])
+        if size > 0:
+            return mGBA.proc.read_bytes(addr + offset, size)
+        else:
+            return mGBA.proc.read_bytes(addr + offset, mGBA.symbols[name][1])
+    except:
+        console.print_exception(show_locals=True)
 
 
-def GetSymbolName(address: int)-> str:
+def WriteSymbol(name: str, data: bytes, offset: int = 0x0) -> bool:
+    try:
+        name = name.upper()
+        addr = SymbolOffset(mGBA.symbols[name][0])
+        if (len(data) + offset) > mGBA.symbols[name][1]:
+            raise Exception('{} bytes of data provided, is too large for symbol {} ({} bytes)!'.format(
+                (len(data) + offset),
+                mGBA.symbols[name][0],
+                mGBA.symbols[name][1]
+            ))
+        else:
+            mGBA.proc.write_bytes(addr + offset, data, len(data))
+            return True
+    except:
+        console.print_exception(show_locals=True)
+        os._exit(1)
+
+
+def GetSymbolName(address: int) -> str:
     """
     Get the name of a symbol based on the address
 
@@ -214,10 +242,6 @@ def GetSymbolName(address: int)-> str:
         if value == address:
             return key
     return ''
-
-
-def GetAddress(symbol: str) -> int:
-    return mGBA.symbols[symbol.upper()][0]
 
 
 def ParseTasks() -> list:

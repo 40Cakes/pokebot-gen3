@@ -1,10 +1,11 @@
+import random
 import struct
 from typing import NoReturn
 
 from modules.Config import config_general, config_cheats
 from modules.Console import console
 from modules.Inputs import PressButton, ResetGame, WaitFrames
-from modules.Memory import ReadSymbol, GetParty, GetOpponent, GetGameState, GameState, GetTask, mGBA
+from modules.Memory import ReadSymbol, GetParty, GetOpponent, GetGameState, GameState, GetTask, mGBA, WriteSymbol
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
 
 
@@ -18,7 +19,9 @@ else:
     t_ball_throw = 'SUB_81414BC'
 
 
-rng_history = GetRNGStateHistory(config_general['starter'])
+if not config_cheats['starters_rng']:
+    rng_history = GetRNGStateHistory(config_general['starter'])
+
 def Starters() -> NoReturn:
     try:
         while GetGameState() != GameState.CHOOSE_STARTER:
@@ -35,9 +38,12 @@ def Starters() -> NoReturn:
         while not GetTask(t_confirm).get('isActive', False):
             PressButton(['A'], 1)
 
-        rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
-        while rng in rng_history['rng']:
+        if config_cheats['starters_rng']:
+            WriteSymbol('gRngValue', struct.pack('<I', random.randint(0, 2**32 - 1)))
+        else:
             rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
+            while rng in rng_history['rng']:
+                rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
 
         PressButton(['A'])
 
@@ -56,8 +62,9 @@ def Starters() -> NoReturn:
 
         EncounterPokemon(GetParty()[0])
 
-        rng_history['rng'].append(rng)
-        SaveRNGStateHistory(config_general['starter'], rng_history)
+        if not config_cheats['starters_rng']:
+            rng_history['rng'].append(rng)
+            SaveRNGStateHistory(config_general['starter'], rng_history)
         ResetGame()
     except:
         console.print_exception(show_locals=True)

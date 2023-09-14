@@ -257,6 +257,8 @@ type: object
 properties:
     starters:
         type: boolean
+    starters_rng:
+        type: boolean
 """
 
 def LoadConfig(file: str, schema: str) -> dict:
