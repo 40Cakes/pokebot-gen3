@@ -21,7 +21,7 @@ def generate_table() -> Table:
             str(last_data[x]['prev']),
             str(last_data[x]['next']),
             str(last_data[x]['priority']),
-            str(last_data[x]['data'][0]))
+            str(last_data[x]['data']))
     return table
 
 last_data = ParseTasks()
