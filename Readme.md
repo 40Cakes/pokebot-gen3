@@ -373,7 +373,7 @@ All HTTP responses are in JSON format.
 - **Settings** > **Emulation** > **Idle loops** > **Detect and remove**
   - **Massively** increases unbounded frame rate
   - Decreases emulation accuracy (if you care about that)
-  - ⚠ Warning: don't use this for `starters` or any other mode that uses soft resets, you may get many repeated, identical PIDs!
+  - ⚠ Warning: don't use this for `starters` mode (unless you are using the [cheat config](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config) `starters_rng`) or any other mode that uses soft resets, you may get many repeated, identical PIDs!
 
 
 - **Settings** > **Emulation** > **Rewind history** > Untick **Enable rewind**
