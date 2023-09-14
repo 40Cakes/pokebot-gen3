@@ -78,7 +78,7 @@ def Starters() -> NoReturn:
         else:
             if OpponentChanged():
                 EncounterPokemon(GetOpponent())
-            EncounterPokemon(GetParty()[0])
+            EncounterPokemon(pokemon)
             session_pids.append(pokemon['pid'])
 
         if not config_cheats['starters_rng']:

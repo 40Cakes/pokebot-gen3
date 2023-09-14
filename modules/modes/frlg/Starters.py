@@ -69,9 +69,7 @@ def Starters() -> NoReturn:
                 (dupes/seen)*100))
             console.print('[red]If you notice too many dupes or resets taking too long, consider enabling `starters_rng` in `config/cheats.yml`. Ctrl + click [link=https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config]here[/link] for more information on this cheat.\n')
         else:
-            if OpponentChanged():
-                EncounterPokemon(GetOpponent())
-            EncounterPokemon(GetParty()[0])
+            EncounterPokemon(pokemon)
             session_pids.append(pokemon['pid'])
 
         if not config_cheats['starters_rng']:
