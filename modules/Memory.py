@@ -337,40 +337,48 @@ else:
 
 
 class GameState(IntEnum):
-    # TODO Need further investigation; many values have multiple meanings
-    BAG_MENU = 0x0
-    CHOOSE_STARTER = 0x1
-    PARTY_MENU = 0x4
-    BATTLE = 0x21
-    BATTLE_STARTING = 0x22
-    BATTLE_ENDING = 0x23
-    OVERWORLD = 0x50
-    CHANGE_MAP = 0x51
-    UNKNOWN = 0xFF
+    # Menus
+    BAG_MENU = 100
+    CHOOSE_STARTER = 101
+    PARTY_MENU = 102
+    # Battle related
+    BATTLE = 200
+    BATTLE_STARTING = 201
+    BATTLE_ENDING = 202
+    # Misc
+    OVERWORLD = 900
+    CHANGE_MAP = 901
+    TITLE_SCREEN = 902
+    UNKNOWN = 999
 
 def GetGameState() -> GameState:
     callback2 = ReadSymbol('gMain', 4, 4)  #gMain.callback2
     addr = int(struct.unpack('<I', callback2)[0]) - 1
     state = GetSymbolName(addr)
-    #console.print(state)
-    if state in ['CB2_OVERWORLD']:
-        return GameState.OVERWORLD
-    elif state in ['BATTLEMAINCB2']:
-        return GameState.BATTLE
-    elif state in ['CB2_BAGMENURUN', 'SUB_80A3118']:
-        return GameState.BAG_MENU
-    elif state in ['CB2_UPDATEPARTYMENU', 'CB2_PARTYMENUMAIN']:
-        return GameState.PARTY_MENU
-    elif state in ['CB2_INITBATTLE', 'CB2_HANDLESTARTBATTLE']:
-        return GameState.BATTLE_STARTING
-    elif state in ['CB2_ENDWILDBATTLE']:
-        return GameState.BATTLE_ENDING
-    elif state in ['CB2_LOADMAP', 'CB2_LOADMAP2', 'CB2_DOCHANGEMAP', 'SUB_810CC80']:
-        return GameState.CHANGE_MAP
-    elif state in ['CB2_STARTERCHOOSE']:
-        return GameState.CHOOSE_STARTER
-    else:
-        return GameState.UNKNOWN
+
+    match state:
+        case 'CB2_OVERWORLD':
+            return GameState.OVERWORLD
+        case 'BATTLEMAINCB2':
+            return GameState.BATTLE
+        case 'CB2_BAGMENURUN' | 'SUB_80A3118':
+            return GameState.BAG_MENU
+        case 'CB2_UPDATEPARTYMENU' | 'CB2_PARTYMENUMAIN':
+            return GameState.PARTY_MENU
+        case 'CB2_INITBATTLE' | 'CB2_HANDLESTARTBATTLE':
+            return GameState.BATTLE_STARTING
+        case 'CB2_ENDWILDBATTLE':
+            return GameState.BATTLE_ENDING
+        case 'CB2_LOADMAP' | 'CB2_LOADMAP2' | 'CB2_DOCHANGEMAP' | 'SUB_810CC80':
+            return GameState.CHANGE_MAP
+        case 'CB2_STARTERCHOOSE' | 'CB2_CHOOSESTARTER':
+            return GameState.CHOOSE_STARTER
+        case 'CB2_INITCOPYRIGHTSCREENAFTERBOOTUP' | 'CB2_WAITFADEBEFORESETUPINTRO' | 'CB2_SETUPINTRO' | 'CB2_INTRO' | \
+             'CB2_INITTITLESCREEN' | 'CB2_TITLESCREENRUN' | 'CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN' | \
+             'CB2_INITMAINMENU' | 'CB2_MAINMENU':
+            return GameState.TITLE_SCREEN
+        case _:
+            return GameState.UNKNOWN
 
 b_Save = GetSaveBlock(2, size=14)  # TODO temp fix, sometimes fails to read pointer if GetTrainer() called before game boots after a reset
 def GetTrainer() -> dict:
@@ -403,6 +411,36 @@ def GetTrainer() -> dict:
         return trainer
     except:
         console.print_exception(show_locals=True)
+
+
+num_tasks = 16
+def ParseTasks() -> list:
+    try:
+        gTasks = ReadSymbol('gTasks')
+        tasks = []
+        for x in range(num_tasks):
+            name = GetSymbolName(int(struct.unpack('<I', gTasks[(x*40):(x*40+4)])[0]) - 1)
+            if name == '':
+                name = str(gTasks[(x*40):(x*40+4)])
+            tasks.append({
+                'func': name,
+                'isActive': bool(gTasks[(x*40+4)]),
+                'prev': gTasks[(x*40+5)],
+                'next': gTasks[(x*40+6)],
+                'priority': gTasks[(x*40+7)],
+                'data': gTasks[(x*40+8):(x*40+40)]
+            })
+        return tasks
+    except:
+        console.print_exception(show_locals=True)
+
+
+def GetTask(func: str) -> dict:
+    tasks = ParseTasks()
+    for task in tasks:
+        if task['func'] == func:
+            return task
+    return {}
 
 
 def ParsePokemon(b_Pokemon: bytes) -> dict:

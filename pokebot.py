@@ -66,22 +66,18 @@ while True:
                 WaitFrames(5)
 
             case 'spin':
-                from modules.gen3.General import ModeSpin
+                from modules.modes.General import ModeSpin
                 ModeSpin()
 
             case 'starters':
-                if mGBA.game in ['Pokémon Emerald']:
-                    from modules.gen3.rse.Starters import Starters
-                    Starters(config_general['starter'])
-                elif mGBA.game in ['Pokémon LeafGreen', 'Pokémon FireRed']:
-                    from modules.gen3.frlg.Starters import Starters
+                if mGBA.game in ['Pokémon LeafGreen', 'Pokémon FireRed']:
+                    from modules.modes.frlg.Starters import Starters
                 else:
-                    console.print('Ruby/Sapphire starters are currently not supported, coming soon...')
-                    input('Press enter to exit...')
-                    os._exit(1)
-                Starters(config_general['starter'])
+                    from modules.modes.rse.Starters import Starters
+                Starters()
+
             case 'fishing':
-                from modules.gen3.General import ModeFishing
+                from modules.modes.General import ModeFishing
                 ModeFishing()
 
     except:

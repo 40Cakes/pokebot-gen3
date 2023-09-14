@@ -1,12 +1,11 @@
-# Cheats
-# Perform "cheaty" actions such as peeking into eggs to check shininess, knowing instantly which route a roamer is on,
-# instantly locate Feebas tiles etc.
+# Cheats config
+# See readme for documentation
 
-# Starters - enabling this will soft reset a few frames after selecting the starter Pokémon, bypassing throwing
-# the Pokémon out into battle animation, saving a lot of time
-# Valid options: `true`, `false`
-# TODO not implemented
-starters: false
+starters: false # `true`, `false`
+
+# -----------------------------------------
+# Everything below is not implemented, yet™
+# -----------------------------------------
 
 # TODO RNG manipulation
 # TODO egg resets
