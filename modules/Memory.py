@@ -124,21 +124,26 @@ class Emulator:
             self.symbols = None
 
     def __init__(self, pid):
-        self.proc = Pymem(pid)
-        self.p_EWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                  offsets=[0x40, 0x58, 0x3D8, 0x10, 0x80, 0x28, 0x0])
-        self.p_IWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                  offsets=[0x40, 0x28, 0x58, 0x10, 0xF0, 0x30, 0x0])
-        self.p_ROM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                offsets=[0x40, 0x28, 0x58, 0x10, 0xb8, 0x38, 0x0])
-        self.p_Input = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                  offsets=[0x20, 0x58, 0x6D8, 0x420, 0x168, 0x420, 0xDE4])
-        self.p_Framecount = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                       offsets=[0x40, 0x58, 0x10, 0x1C0, 0x0, 0x90, 0xF0])
-        self.game_code = self.proc.read_bytes(self.p_ROM + 0xAC, 4).decode('utf-8')
-        self.game_version = int.from_bytes(self.proc.read_bytes(self.p_ROM + 0xBC, 1))
-        self.__game()
-        self.__symbols()
+        try:
+            self.proc = Pymem(pid)
+            self.p_EWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                      offsets=[0x40, 0x58, 0x3D8, 0x10, 0x80, 0x28, 0x0])
+            self.p_IWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                      offsets=[0x40, 0x28, 0x58, 0x10, 0xF0, 0x30, 0x0])
+            self.p_ROM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                    offsets=[0x40, 0x28, 0x58, 0x10, 0xb8, 0x38, 0x0])
+            self.p_Input = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                      offsets=[0x20, 0x58, 0x6D8, 0x420, 0x168, 0x420, 0xDE4])
+            self.p_Framecount = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                           offsets=[0x40, 0x58, 0x10, 0x1C0, 0x0, 0x90, 0xF0])
+            self.game_code = self.proc.read_bytes(self.p_ROM + 0xAC, 4).decode('utf-8')
+            self.game_version = int.from_bytes(self.proc.read_bytes(self.p_ROM + 0xBC, 1))
+            self.__game()
+            self.__symbols()
+        except:
+            console.print_exception(show_locals=True)
+            console.print('[red]Ensure you are using mGBA 0.10.2 [bold]64-bit[/], not [bold]32-bit[/]!')
+            os._exit(1)
 
 
 while True:
