@@ -55,7 +55,7 @@ Manual mode simply disables all bot inputs, allowing you to track encounters and
 ## 🔄 `spin`
 Start the bot while in the overworld, in any patch of grass/water/cave.
 The bot will mash random directions to spin on a single tile.
-- `spin` mode is useful for Safari Zone and [repel tricking](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) as it doesn't use up steps!)
+- `spin` mode is useful for Safari Zone and [repel tricking](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) as it doesn't count steps!
 
 <details>
 <summary>✅🟨❌ Click here for support information</summary>
@@ -155,12 +155,23 @@ Example:
         └───/39167-RED
                 general.yml    <-- loaded for FireRed (TID 39167)
 ```
-## `general.yml` General config
-`bot_mode` - set to desired mode (see 🤖 Bot Modes)
+## `general.yml` - General config
 
-`starter` - used when `bot_mode` set to `starters` (see 💼 starters)
+<details>
+<summary>Click to expand</summary>
 
-## `logging.yml` Logging and console output
+### General
+`bot_mode` - set to desired mode (see [🤖 Bot Modes](https://github.com/40Cakes/pokebot-gen3#-bot-modes))
+
+`starter` - used when `bot_mode` set to `starters` (see [💼 starters](https://github.com/40Cakes/pokebot-gen3#-starters))
+
+</details>
+
+## `logging.yml` - Logging and console output config
+
+<details>
+<summary>Click to expand</summary>
+
 ### Logging
 `log_encounters` - Log all encounters to .csv (`stats/encounters/` folder), each phase is logged to a separate file
 
@@ -178,8 +189,14 @@ The following `console` options will control how much data is displayed in the P
 - Make sure you regularly delete old backups (especially if your stats folder is large!)
 - Set to `0` to disable
 
+</details>
 
-## `discord.yml` Discord integration
+## `discord.yml` - Discord integration config
+
+<details>
+<summary>Click to expand</summary>
+
+### Discord
 For privacy reasons, rich presence and webhooks are **disabled** by default.
 
 ### Discord rich presence
@@ -190,7 +207,6 @@ For privacy reasons, rich presence and webhooks are **disabled** by default.
 ![Discord_tC7ni4A9L4](https://github.com/40Cakes/pokebot-gen3/assets/16377135/ece7cc12-b97a-45cc-a06e-afd679860ce1)
 
 </details>
-
 
 ### Discord webhooks
 `webhooks` - toggle **all** webhooks on/off (individual messages can be toggled, below)
@@ -261,7 +277,7 @@ For privacy reasons, rich presence and webhooks are **disabled** by default.
 
 </details>
 
-`anti_shiny_pokemon_encounter` - Anti-shiny Pokémon encounters, these are just a bit of fun. Anti-shiny Pokémon are mathematically, the complete opposite of a shiny. An [SV](https://bulbapedia.bulbagarden.net/wiki/Personality_value#Shininess) of `65,528 - 65,535` is considered anti-shiny.
+`anti_shiny_pokemon_encounter` - Anti-shiny Pokémon encounters, these are just a bit of fun. Anti-shiny Pokémon are mathematically, the complete opposite of a shiny. An [SV](https://bulbapedia.bulbagarden.net/wiki/Personality_value#Shininess) of `65,528 - 65,535` is considered anti-shiny
 
 <details>
 <summary>Click here for an example</summary>
@@ -285,14 +301,29 @@ Each webhook type also supports pinging @users or @roles.
 - **Settings** > **Advanced** > Enable **Developer Mode** to enable Discord developer mode
 - Right click **user/role** > **Copy ID**
 
-## 😏 `cheats.yml` Cheats config
+</details>
+
+## `cheats.yml` - Cheats config
+
+<details>
+<summary>Click to expand</summary>
+
+### Cheats
 Perform actions not possible by a human, such as peeking into eggs to check shininess, knowing instantly which route a roamer is on, instantly locate Feebas tiles etc.
 
 RNG manipulation options may be added to the bot in the future, all cheats are disabled by default.
 
 `starters` - soft reset as soon as possible after receiving the starter Pokémon, this will bypass slow battle animations, saving time
 
-## 🎥 `obs.yml` OBS config
+</details>
+
+## `obs.yml` - OBS config
+
+<details>
+<summary>Click to expand</summary>
+
+### OBS
+
 `shiny_delay` - delay catching a shiny encounter by `n` frames, useful to give you viewers some time to react before saving a replay
 
 `discord_delay` - delay Discord webhooks by `n` frames, prevent spoilers if there is a stream delay
@@ -347,6 +378,8 @@ All HTTP responses are in JSON format.
 
 `GET /stats` returns the phase and total statistics (`totals.json`)
 
+</details>
+
 ***
 
 # ⏩ Tips/Tricks
@@ -355,8 +388,8 @@ All HTTP responses are in JSON format.
 - Set **TEXT SPEED** to **FAST**
 - Set **BATTLE SCENE** to **OFF**
 - Utilise [repel tricks](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) to boost encounter rates of target Pokémon
-- Using `bot_mode` `spin` or `bunny_hop` and repels will become effectively infinite, and steps won't be counted in Safari Zone
-- Use a lead Pokémon with encounter rate boosting [abilities](https://bulbapedia.bulbagarden.net/wiki/Category:Abilities_that_affect_appearance_of_wild_Pok%C3%A9mon), such as **[Illuminate](https://bulbapedia.bulbagarden.net/wiki/Illuminate_(Ability))** (can usually be fainted)
+- Using `bot_mode` `spin` or `bunny_hop` and repels will become effectively infinite + steps won't be counted in Safari Zone
+- Use a lead Pokémon with encounter rate boosting [abilities](https://bulbapedia.bulbagarden.net/wiki/Category:Abilities_that_affect_appearance_of_wild_Pok%C3%A9mon), such as **[Illuminate](https://bulbapedia.bulbagarden.net/wiki/Illuminate_(Ability))**
 - Use a lead Pokémon with a short cry
 - Use a lead Pokémon with a single character nickname
 - Use a non-shiny lead Pokémon (shiny animation takes a few frames)
