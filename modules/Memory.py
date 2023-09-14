@@ -220,14 +220,33 @@ def GetAddress(symbol: str) -> int:
     return mGBA.symbols[symbol.upper()][0]
 
 
-def GetTask(taskToSearch: int) -> bytes:
-    task_size = 40
-    task_arr = ReadSymbol("gTasks")
-    task_arr_size = 16
-    for i in range(task_arr_size):
-        if struct.unpack("<I",task_arr[i * task_size : i * task_size + 4])[0] == taskToSearch + 1:  # +1 because the func pointer is +1 from symbol
-            return task_arr[i * task_size : i * task_size + task_size]
-    return None
+def ParseTasks() -> list:
+    try:
+        gTasks = ReadSymbol('gTasks')
+        tasks = []
+        for x in range(16):
+            name = GetSymbolName(int(struct.unpack('<I', gTasks[(x*40):(x*40+4)])[0]) - 1)
+            if name == '':
+                name = str(gTasks[(x*40):(x*40+4)])
+            tasks.append({
+                'func': name,
+                'isActive': bool(gTasks[(x*40+4)]),
+                'prev': gTasks[(x*40+5)],
+                'next': gTasks[(x*40+6)],
+                'priority': gTasks[(x*40+7)],
+                'data': gTasks[(x*40+8):(x*40+40)]
+            })
+        return tasks
+    except:
+        console.print_exception(show_locals=True)
+
+
+def GetTask(func: str) -> dict:
+    tasks = ParseTasks()
+    for task in tasks:
+        if task['func'] == func:
+            return task
+    return {}
 
 
 def GetFrameCount():
@@ -411,36 +430,6 @@ def GetTrainer() -> dict:
         return trainer
     except:
         console.print_exception(show_locals=True)
-
-
-num_tasks = 16
-def ParseTasks() -> list:
-    try:
-        gTasks = ReadSymbol('gTasks')
-        tasks = []
-        for x in range(num_tasks):
-            name = GetSymbolName(int(struct.unpack('<I', gTasks[(x*40):(x*40+4)])[0]) - 1)
-            if name == '':
-                name = str(gTasks[(x*40):(x*40+4)])
-            tasks.append({
-                'func': name,
-                'isActive': bool(gTasks[(x*40+4)]),
-                'prev': gTasks[(x*40+5)],
-                'next': gTasks[(x*40+6)],
-                'priority': gTasks[(x*40+7)],
-                'data': gTasks[(x*40+8):(x*40+40)]
-            })
-        return tasks
-    except:
-        console.print_exception(show_locals=True)
-
-
-def GetTask(func: str) -> dict:
-    tasks = ParseTasks()
-    for task in tasks:
-        if task['func'] == func:
-            return task
-    return {}
 
 
 def ParsePokemon(b_Pokemon: bytes) -> dict:
