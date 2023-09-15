@@ -125,18 +125,6 @@ class Emulator:
         else:
             self.symbols = None
 
-    def __addressymbolmap(self):
-        if self.sym_file:
-            self.addressymbolmap = {}
-            for s in open(f'modules/data/symbols/{self.sym_file}').readlines():
-                self.addressymbolmap[hex(int(s.split(' ')[0].strip(), 16))] = {
-                    'name': s.split(' ')[3].strip(),
-                    'type': str(s.split(' ')[1]),
-                    'size': int(s.split(' ')[2], 16)
-                }
-        else:
-            self.symbols = None
-
     def __init__(self, pid):
         self.proc = Pymem(pid)
         self.p_EWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
@@ -153,7 +141,6 @@ class Emulator:
         self.game_version = int.from_bytes(self.proc.read_bytes(self.p_ROM + 0xBC, 1))
         self.__game()
         self.__symbols()
-        self.__addressymbolmap()
 
 
 while True:
@@ -485,18 +472,11 @@ def GetTrainer() -> dict:
     try:
         b_gTasks = ReadSymbol('gTasks', 0x57, 3)
         b_gObjectEvents = ReadSymbol('gObjectEvents', 0x10, 9)
-        cb2 = ReadSymbol('gMain', 4, 4)
-        state_address = hex(int(struct.unpack('<I', cb2)[0]) - 1)
-        if state_address == '-0x1':
-            state = '_'
-        else:
-            state = mGBA.addressymbolmap[state_address]['name']
         trainer = {
             'name': DecodeString(b_Save[0:7]),
             'gender': 'girl' if int(b_Save[8]) else 'boy',
             'tid': int(struct.unpack('<H', b_Save[10:12])[0]),
             'sid': int(struct.unpack('<H', b_Save[12:14])[0]),
-            'state': state,
             'map': (int(b_gTasks[2]), int(b_gTasks[1])),
             'coords': (int(b_gObjectEvents[0]) - 7, int(b_gObjectEvents[2]) - 7),
             'facing': FacingDir(int(b_gObjectEvents[8]))
