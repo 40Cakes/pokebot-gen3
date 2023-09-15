@@ -237,7 +237,7 @@ def BattleOpponent() -> bool:
 
         WaitFrames(5)
 
-        console.print('Best move against foe is {} (Effective power is {})'.format(
+        console.print('Best move against foe is {} (Effective power is {:.2f})'.format(
             best_move['name'],
             best_move['power']
         ))
