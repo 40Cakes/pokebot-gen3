@@ -1,86 +1,55 @@
-# Discord Webhook settings
+# Discord settings
+# See readme for documentation
 
-# Discord rich presence, display current location + total stats and encounters/h on your profile
-# Valid options: `true`, `false`
-rich_presence: false
-
-# Toggle ALL webhooks on/off
-# Valid options: `true`, `false`
-webhooks: false
-
-# Your default Discord webhook URL,
-# WARNING: this webhook is SENSITIVE! If you leak your webhook, anyone will be able to post in your channel!
+rich_presence: false # `true`, `false`
+webhooks: false # `true`, `false`
 global_webhook_url: https://discord.com/api/webhooks/<your_webhook_here>
+iv_format: formatted # `basic`, `formatted`
+bot_id: PokéBot # Any string of text
 
-# Choose how the IVs will display, either basic layout on one line or formatted for readability
-# Valid options: `basic`, `formatted`
-iv_format: formatted
-
-# Bot ID is added to the footer of all Discord messages, useful if multiple bots are set to post in the same channel
-bot_id: PokéBot
-
-# Ping modes (a ping is a @<ping_id> in Discord, it adds a +1 badge to the channel)
-# Leave ping_mode blank for messages you don't want to be @ pinged for
-
-# Discord message: Shiny Pokémon encounters
-# Example: "Shiny Seedot encountered at Route 102! (plus a summary of phase stats)"
+# Shiny Pokémon encounters
 shiny_pokemon_encounter:
   enable: true
   ping_mode:
   ping_id:
-  # Optional webhook (uncomment) to post this notification to a different channel (defaults to `global_webhook_url` if not set)
   #webhook_url:
 
-# Discord messages: Pokémon encounter milestones messages every n encounters
-# Example: "Achieved 10,000 total Seedot encounters!", "Achieved 20,000 total Seedot encounters!" etc.
+# Pokémon encounter milestones
 pokemon_encounter_milestones:
   enable: true
   interval: 10000
   ping_mode:
   ping_id:
-  # Optional webhook (uncomment) to post this notification to a different channel (defaults to `webhook_url` if not set)
   #webhook_url:
 
-# Discord messages: Shiny Pokémon encounter milestones every n encounters
-# Example: "Achieved 5 total shiny ✨Seedot✨ encounters!", "Achieved 10 total ✨Seedot✨ encounters!" etc.
+# Shiny Pokémon encounter milestones
 shiny_pokemon_encounter_milestones:
   enable: true
   interval: 5
   ping_mode:
   ping_id:
-  # Optional webhook (uncomment) to post this notification to a different channel (defaults to `global_webhook_url` if not set)
   #webhook_url:
 
-# Discord messages: Total encounter milestones every n encounters
-# Example: "Achieved 25,000 total encounters!", "Achieved 50,000 total encounters!" etc.
+# Total encounter milestones
 total_encounter_milestones:
   enable: true
   interval: 25000
   ping_mode:
   ping_id:
-  # Optional webhook (uncomment) to post this notification to a different channel (defaults to `global_webhook_url` if not set)
   #webhook_url:
 
-# Discord messages: Phase summary
-# Example: "Current phase has reached 8,192 encounters!" + a bunch of stats about the current phase
-# Default config: first notification will be at 8,192 encounters, then at 10,000, 15,000, 20,000, 25,000 etc.
-# Stats include phase IV sum records, phase SV records, same Pokémon streak, current total encounters and shinies
+# Phase summary
 phase_summary:
   enable: true
   first_interval: 8192
-  consequent_interval: 10000
+  consequent_interval: 5000
   ping_mode:
   ping_id:
-  # Optional webhook (uncomment) to post this notification to a different channel (defaults to `global_webhook_url` if not set)
   #webhook_url:
 
-# Discord message: Anti-Shiny Pokémon encounters
-# Anti-Shinies are just a bit of fun - these are Pokémon are mathematically, the complete opposite of a shiny.
-# Anything with an SV of 65,528 - 65,535 is considered an anti-shiny.
-# Example: "Anti-Shiny Seedot encountered at Route 102! (plus a summary of phase stats)"
+# Anti-Shiny Pokémon encounters
 anti_shiny_pokemon_encounter:
   enable: false
   ping_mode:
   ping_id:
-  # Optional webhook (uncomment) to post this notification to a different channel (defaults to `global_webhook_url` if not set)
   #webhook_url:

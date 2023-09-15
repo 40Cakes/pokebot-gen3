@@ -126,21 +126,26 @@ class Emulator:
             self.symbols = None
 
     def __init__(self, pid):
-        self.proc = Pymem(pid)
-        self.p_EWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                  offsets=[0x40, 0x58, 0x3D8, 0x10, 0x80, 0x28, 0x0])
-        self.p_IWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                  offsets=[0x40, 0x28, 0x58, 0x10, 0xF0, 0x30, 0x0])
-        self.p_ROM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                offsets=[0x40, 0x28, 0x58, 0x10, 0xb8, 0x38, 0x0])
-        self.p_Input = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                  offsets=[0x20, 0x58, 0x6D8, 0x420, 0x168, 0x420, 0xDE4])
-        self.p_Framecount = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                       offsets=[0x40, 0x58, 0x10, 0x1C0, 0x0, 0x90, 0xF0])
-        self.game_code = self.proc.read_bytes(self.p_ROM + 0xAC, 4).decode('utf-8')
-        self.game_version = int.from_bytes(self.proc.read_bytes(self.p_ROM + 0xBC, 1))
-        self.__game()
-        self.__symbols()
+        try:
+            self.proc = Pymem(pid)
+            self.p_EWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                      offsets=[0x40, 0x58, 0x3D8, 0x10, 0x80, 0x28, 0x0])
+            self.p_IWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                      offsets=[0x40, 0x28, 0x58, 0x10, 0xF0, 0x30, 0x0])
+            self.p_ROM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                    offsets=[0x40, 0x28, 0x58, 0x10, 0xb8, 0x38, 0x0])
+            self.p_Input = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                      offsets=[0x20, 0x58, 0x6D8, 0x420, 0x168, 0x420, 0xDE4])
+            self.p_Framecount = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                           offsets=[0x40, 0x58, 0x10, 0x1C0, 0x0, 0x90, 0xF0])
+            self.game_code = self.proc.read_bytes(self.p_ROM + 0xAC, 4).decode('utf-8')
+            self.game_version = int.from_bytes(self.proc.read_bytes(self.p_ROM + 0xBC, 1))
+            self.__game()
+            self.__symbols()
+        except:
+            console.print_exception(show_locals=True)
+            console.print('[red]Ensure you are using mGBA 0.10.2 [bold]64-bit[/], not [bold]32-bit[/]!')
+            os._exit(1)
 
 
 while True:
@@ -162,6 +167,22 @@ while True:
                 input('Press enter to exit...')
                 os._exit(1)
         time.sleep(0.5)
+
+
+def SymbolOffset(addr: int) -> int:
+    """
+    Calculate and return mGBA process memory offset + GBA memory domain offset
+
+    :param addr: GBA memory offset
+    :return: mGBA process offset
+    """
+    match addr >> 0x18:
+        case 0x2:
+            return mGBA.p_EWRAM + (addr - mGBA.symbols['EWRAM_START'][0])
+        case 0x3:
+            return mGBA.p_IWRAM + (addr - mGBA.symbols['IWRAM_START'][0])
+        case 0x8:
+            return mGBA.p_ROM + (addr - mGBA.symbols['START'][0])
 
 
 def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
@@ -187,24 +208,36 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
     :param size: (optional) override the size to read n bytes
     :return: (bytes)
     """
-    name = name.upper()
-    sym_addr = mGBA.symbols[name][0]
-    match sym_addr >> 0x18:
-        case 0x2:
-            addr = mGBA.p_EWRAM + (sym_addr - mGBA.symbols['EWRAM_START'][0])
-        case 0x3:
-            addr = mGBA.p_IWRAM + (sym_addr - mGBA.symbols['IWRAM_START'][0])
-        case 0x8:
-            addr = mGBA.p_ROM + (sym_addr - mGBA.symbols['START'][0])
-        case _:
-            return None
-    if size > 0:
-        return mGBA.proc.read_bytes(addr + offset, size)
-    else:
-        return mGBA.proc.read_bytes(addr + offset, mGBA.symbols[name][1])
+    try:
+        name = name.upper()
+        addr = SymbolOffset(mGBA.symbols[name][0])
+        if size > 0:
+            return mGBA.proc.read_bytes(addr + offset, size)
+        else:
+            return mGBA.proc.read_bytes(addr + offset, mGBA.symbols[name][1])
+    except:
+        console.print_exception(show_locals=True)
 
 
-def GetSymbolName(address: int)-> str:
+def WriteSymbol(name: str, data: bytes, offset: int = 0x0) -> bool:
+    try:
+        name = name.upper()
+        addr = SymbolOffset(mGBA.symbols[name][0])
+        if (len(data) + offset) > mGBA.symbols[name][1]:
+            raise Exception('{} bytes of data provided, is too large for symbol {} ({} bytes)!'.format(
+                (len(data) + offset),
+                mGBA.symbols[name][0],
+                mGBA.symbols[name][1]
+            ))
+        else:
+            mGBA.proc.write_bytes(addr + offset, data, len(data))
+            return True
+    except:
+        console.print_exception(show_locals=True)
+        os._exit(1)
+
+
+def GetSymbolName(address: int) -> str:
     """
     Get the name of a symbol based on the address
 
@@ -218,18 +251,33 @@ def GetSymbolName(address: int)-> str:
     return ''
 
 
-def GetAddress(symbol: str) -> int:
-    return mGBA.symbols[symbol.upper()][0]
+def ParseTasks() -> list:
+    try:
+        gTasks = ReadSymbol('gTasks')
+        tasks = []
+        for x in range(16):
+            name = GetSymbolName(int(struct.unpack('<I', gTasks[(x*40):(x*40+4)])[0]) - 1)
+            if name == '':
+                name = str(gTasks[(x*40):(x*40+4)])
+            tasks.append({
+                'func': name,
+                'isActive': bool(gTasks[(x*40+4)]),
+                'prev': gTasks[(x*40+5)],
+                'next': gTasks[(x*40+6)],
+                'priority': gTasks[(x*40+7)],
+                'data': gTasks[(x*40+8):(x*40+40)]
+            })
+        return tasks
+    except:
+        console.print_exception(show_locals=True)
 
 
-def GetTask(taskToSearch: int) -> bytes:
-    task_size = 40
-    task_arr = ReadSymbol("gTasks")
-    task_arr_size = 16
-    for i in range(task_arr_size):
-        if struct.unpack("<I",task_arr[i * task_size : i * task_size + 4])[0] == taskToSearch + 1:  # +1 because the func pointer is +1 from symbol
-            return task_arr[i * task_size : i * task_size + task_size]
-    return None
+def GetTask(func: str) -> dict:
+    tasks = ParseTasks()
+    for task in tasks:
+        if task['func'] == func:
+            return task
+    return {}
 
 
 def ReadAddress(addr: int, offset: int = 0, size: int = 1):
@@ -484,36 +532,6 @@ def GetTrainer() -> dict:
         return trainer
     except:
         console.print_exception(show_locals=True)
-
-
-num_tasks = 16
-def ParseTasks() -> list:
-    try:
-        gTasks = ReadSymbol('gTasks')
-        tasks = []
-        for x in range(num_tasks):
-            name = GetSymbolName(int(struct.unpack('<I', gTasks[(x*40):(x*40+4)])[0]) - 1)
-            if name == '':
-                name = str(gTasks[(x*40):(x*40+4)])
-            tasks.append({
-                'func': name,
-                'isActive': bool(gTasks[(x*40+4)]),
-                'prev': gTasks[(x*40+5)],
-                'next': gTasks[(x*40+6)],
-                'priority': gTasks[(x*40+7)],
-                'data': gTasks[(x*40+8):(x*40+40)]
-            })
-        return tasks
-    except:
-        console.print_exception(show_locals=True)
-
-
-def GetTask(func: str) -> dict:
-    tasks = ParseTasks()
-    for task in tasks:
-        if task['func'] == func:
-            return task
-    return {}
 
 
 def ParsePokemon(b_Pokemon: bytes) -> dict:

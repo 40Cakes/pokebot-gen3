@@ -1,3 +1,7 @@
+# -----------------------------------------
+# Everything below is not implemented, yet™
+# -----------------------------------------
+
 # Toggle battling all other wild Pokémon
 # Catching shinies and Pokémon in CustomCatchFilters.py always takes priority over battling
 # Valid options: `true`, `false`
