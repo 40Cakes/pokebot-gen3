@@ -120,6 +120,14 @@ class Emulator:
                         int(s.split(' ')[0], 16),
                         int(s.split(' ')[2], 16)
                     )
+            if self.game_code[3] in ['D','I','S','F','J']:
+                lang_patches = json.loads(ReadFile('modules/data/symbols/patches/language/{}'.format(self.sym_file.replace('.sym','.json'))))
+                for item in lang_patches:
+                    if self.game_code[3] in lang_patches[item]:
+                        self.symbols[item.upper()] = (
+                                int(lang_patches[item][self.game_code[3]],16),
+                                self.symbols[item.upper()][1]
+                            )
         else:
             self.symbols = None
 
@@ -256,7 +264,7 @@ def ParseTasks() -> list:
         for x in range(16):
             name = GetSymbolName(int(struct.unpack('<I', gTasks[(x*40):(x*40+4)])[0]) - 1)
             if name == '':
-                name = str(gTasks[(x*40):(x*40+4)])
+                name = hex(int(struct.unpack('<I', gTasks[(x*40):(x*40+4)])[0]) - 1)
             tasks.append({
                 'func': name,
                 'isActive': bool(gTasks[(x*40+4)]),
@@ -415,7 +423,7 @@ def GetGameState() -> GameState:
             return GameState.PARTY_MENU
         case 'CB2_INITBATTLE' | 'CB2_HANDLESTARTBATTLE':
             return GameState.BATTLE_STARTING
-        case 'CB2_ENDWILDBATTLE':
+        case 'CB2_ENDWILDBATTLE' | 'CB2_RETURNTOFIELD' | 'CB2_RETURNTOFIELDLOCAL':
             return GameState.BATTLE_ENDING
         case 'CB2_LOADMAP' | 'CB2_LOADMAP2' | 'CB2_DOCHANGEMAP' | 'SUB_810CC80':
             return GameState.CHANGE_MAP

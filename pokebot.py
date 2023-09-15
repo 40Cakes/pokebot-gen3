@@ -6,7 +6,7 @@ from threading import Thread
 from modules.Console import console
 from modules.Config import config_general, config_discord, config_obs
 from modules.Inputs import PressButton, WaitFrames, WriteInputs
-from modules.Memory import GetGameState, GameState, mGBA, EncodeString, ReadSymbol, GetOpponent, OpponentChanged
+from modules.Memory import GetGameState, GameState, GetTask, mGBA, ReadSymbol, GetOpponent, OpponentChanged
 from modules.Stats import EncounterPokemon
 
 version = 'v0.0.1a'
@@ -40,16 +40,13 @@ while True:
     try:
         if config_general['bot_mode'] != 'manual':
             if GetGameState() == GameState.BATTLE:
-                # Search for the text "What will (Pokémon) do?" in `gDisplayedStringBattle`
-                b_What = EncodeString('What')  # TODO English only
-
-                while ReadSymbol('gDisplayedStringBattle', size=4) != b_What:
+                while GetTask('TASK_HANDLEMONANIMATION').get('data', b'0x00000000')[8] != 0: #define tBattlerId data[4]
                     PressButton(['B'])
                 while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 1:
                     PressButton(['Right'])
                 while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 3:
                     PressButton(['Down'])
-                while ReadSymbol('gDisplayedStringBattle', size=4) == b_What:
+                while GetGameState() == GameState.BATTLE:
                     PressButton(['A'])
                 while GetGameState() != GameState.OVERWORLD:
                     PressButton(['B'])
