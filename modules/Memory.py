@@ -1,3 +1,4 @@
+from genericpath import exists
 import os
 import json
 import time
@@ -120,7 +121,7 @@ class Emulator:
                         int(s.split(' ')[0], 16),
                         int(s.split(' ')[2], 16)
                     )
-            if self.game_code[3] in ['D','I','S','F','J']:
+            if self.game_code[3] in ['D','I','S','F','J'] and exists('modules/data/symbols/patches/language/{}'.format(self.sym_file.replace('.sym','.json'))):
                 lang_patches = json.loads(ReadFile('modules/data/symbols/patches/language/{}'.format(self.sym_file.replace('.sym','.json'))))
                 for item in lang_patches:
                     if self.game_code[3] in lang_patches[item]:
