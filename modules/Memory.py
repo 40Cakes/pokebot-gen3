@@ -28,7 +28,7 @@ char_map_i = char_maps['i']
 char_map_j = char_maps['j']
 
 
-def GetPointer(proc, base, offsets) -> int:
+def GetProcPointer(proc, base, offsets) -> int:
     """
     This function will "follow a bouncing ball" of offsets and return a pointer to the desired memory location.
     When mGBA is launched, the locations of the GBA memory domains will be in a random location, this ensures that
@@ -128,15 +128,15 @@ class Emulator:
     def __init__(self, pid):
         try:
             self.proc = Pymem(pid)
-            self.p_EWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+            self.p_EWRAM = GetProcPointer(self.proc, self.proc.base_address + 0x02849A28,
                                       offsets=[0x40, 0x58, 0x3D8, 0x10, 0x80, 0x28, 0x0])
-            self.p_IWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+            self.p_IWRAM = GetProcPointer(self.proc, self.proc.base_address + 0x02849A28,
                                       offsets=[0x40, 0x28, 0x58, 0x10, 0xF0, 0x30, 0x0])
-            self.p_ROM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+            self.p_ROM = GetProcPointer(self.proc, self.proc.base_address + 0x02849A28,
                                     offsets=[0x40, 0x28, 0x58, 0x10, 0xb8, 0x38, 0x0])
-            self.p_Input = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+            self.p_Input = GetProcPointer(self.proc, self.proc.base_address + 0x02849A28,
                                       offsets=[0x20, 0x58, 0x6D8, 0x420, 0x168, 0x420, 0xDE4])
-            self.p_Framecount = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+            self.p_Framecount = GetProcPointer(self.proc, self.proc.base_address + 0x02849A28,
                                            offsets=[0x40, 0x58, 0x10, 0x1C0, 0x0, 0x90, 0xF0])
             self.game_code = self.proc.read_bytes(self.p_ROM + 0xAC, 4).decode('utf-8')
             self.game_version = int.from_bytes(self.proc.read_bytes(self.p_ROM + 0xBC, 1))
@@ -169,23 +169,28 @@ while True:
         time.sleep(0.5)
 
 
-def SymbolOffset(addr: int) -> int:
+def RelativeMemoryOffset(addr: int) -> int:
     """
     Calculate and return mGBA process memory offset + GBA memory domain offset
 
     :param addr: GBA memory offset
     :return: mGBA process offset
     """
-    match addr >> 0x18:
-        case 0x2:
+    match addr >> 24:
+        case 2:
             return mGBA.p_EWRAM + (addr - mGBA.symbols['EWRAM_START'][0])
-        case 0x3:
+        case 3:
             return mGBA.p_IWRAM + (addr - mGBA.symbols['IWRAM_START'][0])
-        case 0x8:
+        case 8:
             return mGBA.p_ROM + (addr - mGBA.symbols['START'][0])
 
 
-def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
+def ReadMemory(addr: int, offset: int = 0, size: int = 1):
+    data = RelativeMemoryOffset(addr)
+    return mGBA.proc.read_bytes(data + offset, size)
+
+
+def ReadSymbol(name: str, offset: int = 0x0, size: int = 0) -> bytes:
     """
     This function uses the symbol tables from the Pokémon decompilation projects found here: https://github.com/pret
     Symbol tables are loaded and parsed as a dict in the `Emulator` class, the .sym files for each game can be found
@@ -210,7 +215,7 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
     """
     try:
         name = name.upper()
-        addr = SymbolOffset(mGBA.symbols[name][0])
+        addr = RelativeMemoryOffset(mGBA.symbols[name][0])
         if size > 0:
             return mGBA.proc.read_bytes(addr + offset, size)
         else:
@@ -222,7 +227,7 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
 def WriteSymbol(name: str, data: bytes, offset: int = 0x0) -> bool:
     try:
         name = name.upper()
-        addr = SymbolOffset(mGBA.symbols[name][0])
+        addr = RelativeMemoryOffset(mGBA.symbols[name][0])
         if (len(data) + offset) > mGBA.symbols[name][1]:
             raise Exception('{} bytes of data provided, is too large for symbol {} ({} bytes)!'.format(
                 (len(data) + offset),
@@ -242,7 +247,6 @@ def GetSymbolName(address: int) -> str:
     Get the name of a symbol based on the address
 
     :param address: address of the symbol
-
     :return: name of the symbol (str)
     """
     for key, (value, _) in mGBA.symbols.items():
@@ -278,45 +282,6 @@ def GetTask(func: str) -> dict:
         if task['func'] == func:
             return task
     return {}
-
-
-def ReadAddress(addr: int, offset: int = 0, size: int = 1):
-    """
-    This function uses the symbol tables from the Pokémon decompilation projects found here: https://github.com/pret
-    Symbol tables are loaded and parsed as a dict in the `emulator` class, the .sym files for each game can be found
-    in `modules/data/symbols`.
-
-    Format of symbol tables:
-    `020244ec g 00000258 gPlayerParty`
-    020244ec     - memory address
-    g            - (l,g,,!) local, global, neither, both
-    00000258     - size in bytes (base 16) (0x258 = 600 bytes)
-    gPlayerParty - name of the symbol
-
-    GBA memory domains: https://corrupt.wiki/consoles/gameboy-advance/bizhawk-memory-domains
-    0x02000000 - 0x02030000 - 256 KB EWRAM (general purpose RAM external to the CPU)
-    0x03000000 - 0x03007FFF - 32 KB IWRAM (general purpose RAM internal to the CPU)
-    0x08000000 - 0x???????? - Game Pak ROM (0 to 32 MB)
-
-    :param offset: (optional) add n bytes to the address of symbol
-    :param size: (optional) override the size to read n bytes
-    :return: byte data
-    """
-    data = ReadByte(addr)
-    return mGBA.proc.read_bytes(data + offset, size)
-
-
-def ReadByte(addr: int) -> Union[int, None]:
-    match addr >> 24:
-        case 2:
-            addr = mGBA.p_EWRAM + (addr - mGBA.symbols['EWRAM_START'][0])
-        case 3:
-            addr = mGBA.p_IWRAM + (addr - mGBA.symbols['IWRAM_START'][0])
-        case 8:
-            addr = mGBA.p_ROM + (addr - mGBA.symbols['Start'][0])
-        case _:
-            addr = None
-    return addr
 
 
 def GetFrameCount():
@@ -855,42 +820,31 @@ def GetPartyMenuCursorPos() -> dict:
     slot_id = -1
     slot_id_2 = -1
     match mGBA.game:
-        case "Pokémon Ruby":
-            slot_id = int.from_bytes(ReadAddress(int('0202002F', 16), offset=len(GetParty()) * 136 + 3, size=1), 'little')
+        case 'Pokémon Ruby' | 'Pokémon Sapphire':
+            slot_id = int.from_bytes(ReadMemory(0x0202002F, offset=len(GetParty()) * 136 + 3, size=1), 'little')
             slot_id_2 = slot_id
-        case "Pokémon Sapphire":
-            slot_id = int.from_bytes(ReadAddress(int('0202002F', 16), offset=len(GetParty()) * 136 + 3, size=1), 'little')
-            slot_id_2 = slot_id
-        case "Pokémon Emerald":
-            party_menu = ReadSymbol('gPartyMenu')
-            slot_id = struct.unpack('<b', party_menu[9:10])[0]
-            slot_id_2 = struct.unpack('<b', party_menu[10:11])[0]
-        case "Pokémon FireRed":
-            party_menu = ReadSymbol('gPartyMenu')
-            slot_id = struct.unpack('<b', party_menu[9:10])[0]
-            slot_id_2 = struct.unpack('<b', party_menu[10:11])[0]
-        case "Pokémon LeafGreen":
+        case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
             party_menu = ReadSymbol('gPartyMenu')
             slot_id = struct.unpack('<b', party_menu[9:10])[0]
             slot_id_2 = struct.unpack('<b', party_menu[10:11])[0]
     cursors = {
-        "slot_id": slot_id,
-        "slot_id_2": slot_id_2,
+        'slot_id': slot_id,
+        'slot_id_2': slot_id_2,
     }
     if slot_id == -1:
-        console.print("Error detecting cursor position.")
-        os._exit(-1)
+        console.print('Error detecting cursor position.')
+        os._exit(1)
     return cursors
 
 
-def parse_func(data) -> str:
+def ParseFunc(data) -> str:
     """
     helper function for parsing function pointers
     """
-    addr = hex(int(struct.unpack('<I', data)[0]) - 1)
+    addr = int(struct.unpack('<I', data)[0]) - 1
     if addr != '-0x1':
-        return mGBA.addressymbolmap[addr]['name']
-    return "_"
+        return GetSymbolName(addr)
+    return '_'
 
 
 def ParseMain() -> dict:
@@ -900,13 +854,13 @@ def ParseMain() -> dict:
     main = ReadSymbol('gMain')
 
     # parse the bits and bobs in the main struct
-    callback1 = parse_func(main[0:4])
-    callback2 = parse_func(main[4:8])
-    saved_callback = parse_func(main[8:12])
-    vblank_callback = parse_func(main[12:16])
-    hblank_callback = parse_func(main[16:20])
-    vcount_callback = parse_func(main[20:24])
-    serial_callback = parse_func(main[24:28])
+    callback1 = ParseFunc(main[0:4])
+    callback2 = ParseFunc(main[4:8])
+    saved_callback = ParseFunc(main[8:12])
+    vblank_callback = ParseFunc(main[12:16])
+    hblank_callback = ParseFunc(main[16:20])
+    vcount_callback = ParseFunc(main[20:24])
+    serial_callback = ParseFunc(main[24:28])
     held_keys_raw = struct.unpack('<H', main[40:42])[0]
     new_keys_raw = struct.unpack('<H', main[42:44])[0]
     held_keys = struct.unpack('<H', main[44:46])[0]
@@ -918,22 +872,22 @@ def ParseMain() -> dict:
     obj_count = struct.unpack('<B', main[56:57])[0]
 
     main_dict = {
-        "callback_1": callback1,
-        "callback_2": callback2,
-        "saved_callback": saved_callback,
-        "vblank_callback": vblank_callback,
-        "hblank_callback": hblank_callback,
-        "vcount_callback": vcount_callback,
-        "serial_callback": serial_callback,
-        "held_keys_raw": held_keys_raw,
-        "new_keys_raw": new_keys_raw,
-        "held_keys": held_keys,
-        "new_keys": new_keys,
-        "new_and_repeated_keys": new_and_repeated_keys,
-        "key_repeat_counter": key_repeat_counter,
-        "watched_keys_pressed": watched_keys_pressed,
-        "watched_keys_mask": watched_keys_mask,
-        "obj_count": obj_count,
+        'callback_1': callback1,
+        'callback_2': callback2,
+        'saved_callback': saved_callback,
+        'vblank_callback': vblank_callback,
+        'hblank_callback': hblank_callback,
+        'vcount_callback': vcount_callback,
+        'serial_callback': serial_callback,
+        'held_keys_raw': held_keys_raw,
+        'new_keys_raw': new_keys_raw,
+        'held_keys': held_keys,
+        'new_keys': new_keys,
+        'new_and_repeated_keys': new_and_repeated_keys,
+        'key_repeat_counter': key_repeat_counter,
+        'watched_keys_pressed': watched_keys_pressed,
+        'watched_keys_mask': watched_keys_mask,
+        'obj_count': obj_count,
     }
     return main_dict
 
@@ -943,36 +897,22 @@ def ParseMenu() -> dict:
     Function to parse the currently displayed menu and return usable information.
     """
     match mGBA.game:
-        case "Pokémon Emerald":
-            menu = ReadSymbol("sMenu")
+        case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
+            menu = ReadSymbol('sMenu')
             cursor_pos = struct.unpack('<b', menu[2:3])[0]
             min_cursor_pos = struct.unpack('<b', menu[3:4])[0]
             max_cursor_pos = struct.unpack('<b', menu[4:5])[0]
-        case "Pokémon FireRed":
-            menu = ReadSymbol("sMenu")
-            cursor_pos = struct.unpack('<b', menu[2:3])[0]
-            min_cursor_pos = struct.unpack('<b', menu[3:4])[0]
-            max_cursor_pos = struct.unpack('<b', menu[4:5])[0]
-        case "Pokémon LeafGreen":
-            menu = ReadSymbol("sMenu")
-            cursor_pos = struct.unpack('<b', menu[2:3])[0]
-            min_cursor_pos = struct.unpack('<b', menu[3:4])[0]
-            max_cursor_pos = struct.unpack('<b', menu[4:5])[0]
-        case "Pokémon Ruby":
-            cursor_pos = int.from_bytes(ReadSymbol('sPokeMenuCursorPos', 0, 1), 'little')
-            min_cursor_pos = 0
-            max_cursor_pos = 6
-        case "Pokémon Sapphire":
-            cursor_pos = int.from_bytes(ReadSymbol('sPokeMenuCursorPos', 0, 1), 'little')
+        case 'Pokémon Ruby' | 'Pokémon Sapphire':
+            cursor_pos = int.from_bytes(ReadSymbol('sPokeMenuCursorPos', 0, 1))
             min_cursor_pos = 0
             max_cursor_pos = 6
         case _:
-            print("Not implemented yet.")
-            os._exit(-1)
+            print('Not implemented yet.')
+            os._exit(1)
     return {
-        "minCursorPos": min_cursor_pos,
-        "maxCursorPos": max_cursor_pos,
-        "cursorPos": cursor_pos,
+        'minCursorPos': min_cursor_pos,
+        'maxCursorPos': max_cursor_pos,
+        'cursorPos': cursor_pos,
     }
 
 
