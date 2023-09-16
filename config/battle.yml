@@ -1,7 +1,19 @@
+# -----------------------------------------
+# Everything below is not implemented, yet™
+# -----------------------------------------
+
 # Toggle battling all other wild Pokémon
 # Catching shinies and Pokémon in CustomCatchFilters.py always takes priority over battling
 # Valid options: `true`, `false`
 battle: true
+
+# Enable pickup - https://bulbapedia.bulbagarden.net/wiki/Pickup_(Ability)#Generations_III_and_IV
+# Valid options: `true`, `false`
+pickup: true
+
+# Threshold of party members with items before collecting the items from them
+# Valid option: (integer 1-6)
+pickup_threshold: 3
 
 # Toggle handling of new move learning
 # If stop is selected, the bot will exit and let you control. If cancel is selected, all new moves will
@@ -17,8 +29,9 @@ stop_evolution: false
 # Toggle battler rotation
 # If true, the bot will replace the lead battler when the lead battler's health drops below 20%.
 # Valid options: `true`, `false`
-replace_lead_battler: true# Banned moves
+replace_lead_battler: true
 
+# Banned moves
 # Any moves in this list will not be used in battle
 banned_moves:
 - None
@@ -62,16 +75,3 @@ banned_moves:
 - Perish Song
 - Explosion
 - Memento
-
-
-# -----------------------------------------
-# Everything below is not implemented, yet™
-# -----------------------------------------
-
-# Enable pickup - https://bulbapedia.bulbagarden.net/wiki/Pickup_(Ability)#Generations_III_and_IV
-# Valid options: `true`, `false`
-pickup: true
-
-# Threshold of party members with items before collecting the items from them
-# Valid option: (integer 1-6)
-pickup_threshold: 3
