@@ -9,7 +9,6 @@ from enum import IntEnum
 import win32gui, win32process
 from modules.Console import console
 from modules.Files import ReadFile
-from typing import List, Union
 
 moves_list = json.loads(ReadFile('./modules/data/moves.json'))
 names_list = json.loads(ReadFile('./modules/data/names.json'))
