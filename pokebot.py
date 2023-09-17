@@ -6,7 +6,8 @@ from threading import Thread
 from modules.Console import console
 from modules.Config import config_general, config_discord, config_obs
 from modules.Inputs import PressButton, WaitFrames, WriteInputs
-from modules.Memory import GetGameState, GameState, mGBA, EncodeString, ReadSymbol, GetOpponent, OpponentChanged
+from modules.Memory import GetGameState, GameState, mGBA, EncodeString, ReadSymbol
+from modules.Pokemon import OpponentChanged, GetOpponent
 from modules.Stats import EncounterPokemon
 
 version = 'v0.0.1a'
