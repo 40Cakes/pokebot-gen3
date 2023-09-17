@@ -1,5 +1,6 @@
 from modules.Inputs import PressButton, WaitFrames, ReleaseInputs
-from modules.Memory import GetTrainer, OpponentChanged
+from modules.Pokemon import OpponentChanged
+from modules.Trainer import GetTrainer
 
 
 def FollowPath(coords: list, run: bool = True) -> bool:
