@@ -66,7 +66,7 @@ def Starters() -> NoReturn:
             dupes += 1
             console.print('[red]Duplicate detected! {} [{}] has already been seen during this bot session, and will not be logged ({:.2f}% dupes this session).'.format(
                 pokemon['name'],
-                hex(pokemon['pid']),
+                hex(pokemon['pid'])[2:],
                 (dupes/seen)*100))
             console.print('[red]If you notice too many dupes or resets taking too long, consider enabling `starters_rng` in `config/cheats.yml`. Ctrl + click [link=https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config]here[/link] for more information on this cheat.\n')
         else:
