@@ -251,6 +251,7 @@ def GetParty(retry: int = 10) -> dict:
                     o = p * 100
                     mon = ParsePokemon(ReadSymbol('gPlayerParty', o, o+100))
                     if not mon['legal']:
+                        console.print('[red]Pokémon has invalid checksum! Waiting 1 frame and checking again...')
                         WaitFrames(1)
                         continue
                     else:
@@ -271,6 +272,7 @@ def GetOpponent() -> dict:
         while True:
             opponent = ParsePokemon(ReadSymbol('gEnemyParty')[:100])
             if not opponent['legal']:
+                console.print('[red]Pokémon has invalid checksum! Waiting 1 frame and checking again...')
                 WaitFrames(1)
                 continue
             else:
