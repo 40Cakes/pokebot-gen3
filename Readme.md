@@ -28,7 +28,7 @@ This project is the result of a bored holiday, I am by no means a professional P
 # 🔒 Requirements
 - Windows (support for Mac and Linux **_may_** be added later)
 - [Python 3.11](https://www.python.org/downloads/)
-- Double click `requirements.py` or `python -m pip install -r requirements.txt` in a terminal to install required Python modules
+- Double click `requirements.py` or run `python -m pip install -r requirements.txt` in a terminal to install required Python modules
 - [mGBA 0.10.2 (64-bit)](https://mgba.io/downloads.html)
   - **Windows (*64-bit*, installer .exe)** or **Windows (*64-bit*, portable .7z archive)**
 - [Windows Terminal](https://github.com/microsoft/terminal/releases) (not **required**, but highly recommended for full 16-million <span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span> console output)
