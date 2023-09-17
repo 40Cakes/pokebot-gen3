@@ -5,8 +5,8 @@ from typing import NoReturn
 from modules.Config import config_general, config_cheats
 from modules.Console import console
 from modules.Inputs import PressButton, ResetGame, WaitFrames
-from modules.Memory import ReadSymbol, GetParty, GetOpponent, GetGameState, GameState, GetTask, mGBA, WriteSymbol, \
-    OpponentChanged
+from modules.Memory import ReadSymbol, GetGameState, GameState, GetTask, mGBA, WriteSymbol
+from modules.Pokemon import GetParty, OpponentChanged, GetOpponent
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
 
 if mGBA.game == 'Pokémon Emerald':

@@ -2,7 +2,8 @@ import os
 from jsonschema import validate
 from ruamel.yaml import YAML
 from modules.Console import console
-from modules.Memory import mGBA, GetTrainer
+from modules.Memory import mGBA
+from modules.Trainer import GetTrainer
 
 yaml = YAML()
 

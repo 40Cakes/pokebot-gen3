@@ -1,7 +1,8 @@
 import random
 from modules.Console import console
 from modules.Inputs import PressButton, WaitFrames, ReleaseInputs
-from modules.Memory import GetTrainer, GetTask
+from modules.Memory import GetTask
+from modules.Trainer import GetTrainer
 
 
 def ModeSpin():
