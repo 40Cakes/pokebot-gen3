@@ -10,7 +10,7 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/a3eed994-e960-4181-9f76-
 
 # 📖 Preamble
 
-Although the bot is essentially frame perfect, it will attempt to perform most actions as if a human were playing to make shiny hunts as representative as possible, for example:
+Although the bot is essentially frame perfect, (by default) it will attempt to perform most actions, as if a human were playing to make shiny hunts as representative as possible, some examples:
 - Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible
 - It's possible to peek inside un-hatched eggs to view stats and shininess as soon as they're received from the daycare, the bot will wait until the eggs are fully hatched before checking and logging
 - These are intentional design decisions, bot [cheats](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config) can be used to bypass them (in most cases)
@@ -28,7 +28,7 @@ This project is the result of a bored holiday, I am by no means a professional P
 # 🔒 Requirements
 - Windows (support for Mac and Linux **_may_** be added later)
 - [Python 3.11](https://www.python.org/downloads/)
-- Run `requirements.py` or `python -m pip install -r requirements.txt` to install required Python modules
+- Double click `requirements.py` or `python -m pip install -r requirements.txt` in a terminal to install required Python modules
 - [mGBA 0.10.2 (64-bit)](https://mgba.io/downloads.html)
   - **Windows (*64-bit*, installer .exe)** or **Windows (*64-bit*, portable .7z archive)**
 - [Windows Terminal](https://github.com/microsoft/terminal/releases) (not **required**, but highly recommended for full 16-million <span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span> console output)
@@ -40,7 +40,7 @@ This project is the result of a bored holiday, I am by no means a professional P
 
 - Set the desired `bot_mode` in config file `config/general.yml`
 - Load a ROM and place the trainer where it needs to be for the `bot_mode` you've configured
-- Run `pokebot.py` or `python .\pokebot.py`, then click on any mGBA process to attach the bot
+- Double click `pokebot.py` or run `python .\pokebot.py` in a terminal, then click on any mGBA process to attach the bot
 
 At the moment, the bot will pause once a shiny is encountered. You **must** ensure you are able to escape battle **100% of the time**, otherwise the bot will get stuck. Auto-catching and other features will be added in due time.
 
