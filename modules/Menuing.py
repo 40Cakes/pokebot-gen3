@@ -232,7 +232,7 @@ def BattleOpponent() -> bool:
 
         best_move = FindEffectiveMove(GetParty()[0], GetOpponent())
 
-        if best_move['power'] < 10:
+        if best_move['power'] == 0:
             console.print('Lead Pokémon has no effective moves to battle the foe!')
             FleeBattle()
             return False
