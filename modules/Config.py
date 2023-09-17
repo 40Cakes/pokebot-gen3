@@ -46,12 +46,15 @@ properties:
     starter:
         type: string
         enum:
-            - mudkip
             - treecko
             - torchic
+            - mudkip
             - bulbasaur
             - charmander
             - squirtle
+            - chikorita
+            - totodile
+            - cyndaquil
     fossil:
         type: string
         enum:
