@@ -41,8 +41,6 @@ while True:
         if GetGameState() == GameState.BATTLE:
             if OpponentChanged():
                 EncounterPokemon(GetOpponent())
-            if config_general['bot_mode'] != 'manual':
-                temp_RunFromBattle()
 
         match config_general['bot_mode']:
             case 'manual':

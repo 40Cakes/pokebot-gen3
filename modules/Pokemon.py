@@ -16,6 +16,7 @@ exp_groups_list = json.loads(ReadFile('./modules/data/exp-groups.json'))
 pokemon_list = json.loads(ReadFile('./modules/data/pokemon.json'))
 location_list = json.loads(ReadFile('./modules/data/locations.json'))
 hidden_powers_list = json.loads(ReadFile('./modules/data/hidden-powers.json'))
+type_list = json.loads(ReadFile('./modules/data/types.json'))
 
 
 def ParsePokemon(b_Pokemon: bytes) -> dict:
