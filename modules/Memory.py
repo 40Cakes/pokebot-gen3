@@ -1,24 +1,12 @@
 import os
 import json
 import time
-import numpy
 import struct
 from pymem import Pymem
 from enum import IntEnum
 import win32gui, win32process
 from modules.Console import console
 from modules.Files import ReadFile
-
-
-moves_list = json.loads(ReadFile('./modules/data/moves.json'))
-names_list = json.loads(ReadFile('./modules/data/names.json'))
-natures_list = json.loads(ReadFile('./modules/data/natures.json'))
-nat_ids_list = json.loads(ReadFile('./modules/data/nat-ids.json'))
-item_list = json.loads(ReadFile('./modules/data/items.json'))
-exp_groups_list = json.loads(ReadFile('./modules/data/exp-groups.json'))
-pokemon_list = json.loads(ReadFile('./modules/data/pokemon.json'))
-location_list = json.loads(ReadFile('./modules/data/locations.json'))
-hidden_powers_list = json.loads(ReadFile('./modules/data/hidden-powers.json'))
 
 # https://bulbapedia.bulbagarden.net/wiki/Character_encoding_(Generation_III)
 char_maps = json.loads(ReadFile('./modules/data/char-maps.json'))
@@ -124,21 +112,26 @@ class Emulator:
             self.symbols = None
 
     def __init__(self, pid):
-        self.proc = Pymem(pid)
-        self.p_EWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                  offsets=[0x40, 0x58, 0x3D8, 0x10, 0x80, 0x28, 0x0])
-        self.p_IWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                  offsets=[0x40, 0x28, 0x58, 0x10, 0xF0, 0x30, 0x0])
-        self.p_ROM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                offsets=[0x40, 0x28, 0x58, 0x10, 0xb8, 0x38, 0x0])
-        self.p_Input = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                  offsets=[0x20, 0x58, 0x6D8, 0x420, 0x168, 0x420, 0xDE4])
-        self.p_Framecount = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
-                                       offsets=[0x40, 0x58, 0x10, 0x1C0, 0x0, 0x90, 0xF0])
-        self.game_code = self.proc.read_bytes(self.p_ROM + 0xAC, 4).decode('utf-8')
-        self.game_version = int.from_bytes(self.proc.read_bytes(self.p_ROM + 0xBC, 1))
-        self.__game()
-        self.__symbols()
+        try:
+            self.proc = Pymem(pid)
+            self.p_EWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                      offsets=[0x40, 0x58, 0x3D8, 0x10, 0x80, 0x28, 0x0])
+            self.p_IWRAM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                      offsets=[0x40, 0x28, 0x58, 0x10, 0xF0, 0x30, 0x0])
+            self.p_ROM = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                    offsets=[0x40, 0x28, 0x58, 0x10, 0xb8, 0x38, 0x0])
+            self.p_Input = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                      offsets=[0x20, 0x58, 0x6D8, 0x420, 0x168, 0x420, 0xDE4])
+            self.p_Framecount = GetPointer(self.proc, self.proc.base_address + 0x02849A28,
+                                           offsets=[0x40, 0x58, 0x10, 0x1C0, 0x0, 0x90, 0xF0])
+            self.game_code = self.proc.read_bytes(self.p_ROM + 0xAC, 4).decode('utf-8')
+            self.game_version = int.from_bytes(self.proc.read_bytes(self.p_ROM + 0xBC, 1))
+            self.__game()
+            self.__symbols()
+        except:
+            console.print_exception(show_locals=True)
+            console.print('[red]Ensure you are using mGBA 0.10.2 [bold]64-bit[/], not [bold]32-bit[/]!')
+            os._exit(1)
 
 
 while True:
@@ -160,6 +153,22 @@ while True:
                 input('Press enter to exit...')
                 os._exit(1)
         time.sleep(0.5)
+
+
+def SymbolOffset(addr: int) -> int:
+    """
+    Calculate and return mGBA process memory offset + GBA memory domain offset
+
+    :param addr: GBA memory offset
+    :return: mGBA process offset
+    """
+    match addr >> 0x18:
+        case 0x2:
+            return mGBA.p_EWRAM + (addr - mGBA.symbols['EWRAM_START'][0])
+        case 0x3:
+            return mGBA.p_IWRAM + (addr - mGBA.symbols['IWRAM_START'][0])
+        case 0x8:
+            return mGBA.p_ROM + (addr - mGBA.symbols['START'][0])
 
 
 def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
@@ -185,24 +194,36 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
     :param size: (optional) override the size to read n bytes
     :return: (bytes)
     """
-    name = name.upper()
-    sym_addr = mGBA.symbols[name][0]
-    match sym_addr >> 0x18:
-        case 0x2:
-            addr = mGBA.p_EWRAM + (sym_addr - mGBA.symbols['EWRAM_START'][0])
-        case 0x3:
-            addr = mGBA.p_IWRAM + (sym_addr - mGBA.symbols['IWRAM_START'][0])
-        case 0x8:
-            addr = mGBA.p_ROM + (sym_addr - mGBA.symbols['START'][0])
-        case _:
-            return None
-    if size > 0:
-        return mGBA.proc.read_bytes(addr + offset, size)
-    else:
-        return mGBA.proc.read_bytes(addr + offset, mGBA.symbols[name][1])
+    try:
+        name = name.upper()
+        addr = SymbolOffset(mGBA.symbols[name][0])
+        if size > 0:
+            return mGBA.proc.read_bytes(addr + offset, size)
+        else:
+            return mGBA.proc.read_bytes(addr + offset, mGBA.symbols[name][1])
+    except:
+        console.print_exception(show_locals=True)
 
 
-def GetSymbolName(address: int)-> str:
+def WriteSymbol(name: str, data: bytes, offset: int = 0x0) -> bool:
+    try:
+        name = name.upper()
+        addr = SymbolOffset(mGBA.symbols[name][0])
+        if (len(data) + offset) > mGBA.symbols[name][1]:
+            raise Exception('{} bytes of data provided, is too large for symbol {} ({} bytes)!'.format(
+                (len(data) + offset),
+                mGBA.symbols[name][0],
+                mGBA.symbols[name][1]
+            ))
+        else:
+            mGBA.proc.write_bytes(addr + offset, data, len(data))
+            return True
+    except:
+        console.print_exception(show_locals=True)
+        os._exit(1)
+
+
+def GetSymbolName(address: int) -> str:
     """
     Get the name of a symbol based on the address
 
@@ -216,18 +237,33 @@ def GetSymbolName(address: int)-> str:
     return ''
 
 
-def GetAddress(symbol: str) -> int:
-    return mGBA.symbols[symbol.upper()][0]
+def ParseTasks() -> list:
+    try:
+        gTasks = ReadSymbol('gTasks')
+        tasks = []
+        for x in range(16):
+            name = GetSymbolName(int(struct.unpack('<I', gTasks[(x*40):(x*40+4)])[0]) - 1)
+            if name == '':
+                name = str(gTasks[(x*40):(x*40+4)])
+            tasks.append({
+                'func': name,
+                'isActive': bool(gTasks[(x*40+4)]),
+                'prev': gTasks[(x*40+5)],
+                'next': gTasks[(x*40+6)],
+                'priority': gTasks[(x*40+7)],
+                'data': gTasks[(x*40+8):(x*40+40)]
+            })
+        return tasks
+    except:
+        console.print_exception(show_locals=True)
 
 
-def GetTask(taskToSearch: int) -> bytes:
-    task_size = 40
-    task_arr = ReadSymbol("gTasks")
-    task_arr_size = 16
-    for i in range(task_arr_size):
-        if struct.unpack("<I",task_arr[i * task_size : i * task_size + 4])[0] == taskToSearch + 1:  # +1 because the func pointer is +1 from symbol
-            return task_arr[i * task_size : i * task_size + task_size]
-    return None
+def GetTask(func: str) -> dict:
+    tasks = ParseTasks()
+    for task in tasks:
+        if task['func'] == func:
+            return task
+    return {}
 
 
 def GetFrameCount():
@@ -237,24 +273,6 @@ def GetFrameCount():
     :return: framecount (int)
     """
     return struct.unpack('<I', mGBA.proc.read_bytes(mGBA.p_Framecount, length=4))[0]
-
-
-def FacingDir(direction: int) -> str:
-    """
-    Returns the direction the trainer is currently facing.
-
-    :param direction: int
-    :return: trainer facing direction (str)
-    """
-    match direction:
-        case 0x11:
-            return 'Down'
-        case 0x22:
-            return 'Up'
-        case 0x33:
-            return 'Left'
-        case 0x44:
-            return 'Right'
 
 
 def DecodeString(b: bytes) -> str:
@@ -355,8 +373,8 @@ def GetGameState() -> GameState:
     callback2 = ReadSymbol('gMain', 4, 4)  #gMain.callback2
     addr = int(struct.unpack('<I', callback2)[0]) - 1
     state = GetSymbolName(addr)
-    match state:
 
+    match state:
         case 'CB2_OVERWORLD':
             return GameState.OVERWORLD
         case 'BATTLEMAINCB2':
@@ -371,7 +389,7 @@ def GetGameState() -> GameState:
             return GameState.BATTLE_ENDING
         case 'CB2_LOADMAP' | 'CB2_LOADMAP2' | 'CB2_DOCHANGEMAP' | 'SUB_810CC80':
             return GameState.CHANGE_MAP
-        case 'CB2_STARTERCHOOSE':
+        case 'CB2_STARTERCHOOSE' | 'CB2_CHOOSESTARTER':
             return GameState.CHOOSE_STARTER
         case 'CB2_INITCOPYRIGHTSCREENAFTERBOOTUP' | 'CB2_WAITFADEBEFORESETUPINTRO' | 'CB2_SETUPINTRO' | 'CB2_INTRO' | \
              'CB2_INITTITLESCREEN' | 'CB2_TITLESCREENRUN' | 'CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN' | \
@@ -379,333 +397,3 @@ def GetGameState() -> GameState:
             return GameState.TITLE_SCREEN
         case _:
             return GameState.UNKNOWN
-
-b_Save = GetSaveBlock(2, size=14)  # TODO temp fix, sometimes fails to read pointer if GetTrainer() called before game boots after a reset
-def GetTrainer() -> dict:
-    """
-    Reads trainer data from memory.
-    See: https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Section_0_-_Trainer_Info
-
-    name: Trainer's (decoded) name
-    gender: boy/girl
-    tid: Trainer ID
-    sid: Secret ID
-    state: ??
-    map: tuple (`MapBank`, `MapID`)
-    coords: tuple (`xPos`, `yPos`)
-    facing: trainer facing direction `Left`/`Right`/`Down`/`Up`
-    :return: Trainer (dict)
-    """
-    try:
-        b_gTasks = ReadSymbol('gTasks', 0x57, 3)
-        b_gObjectEvents = ReadSymbol('gObjectEvents', 0x10, 9)
-        trainer = {
-            'name': DecodeString(b_Save[0:7]),
-            'gender': 'girl' if int(b_Save[8]) else 'boy',
-            'tid': int(struct.unpack('<H', b_Save[10:12])[0]),
-            'sid': int(struct.unpack('<H', b_Save[12:14])[0]),
-            'map': (int(b_gTasks[2]), int(b_gTasks[1])),
-            'coords': (int(b_gObjectEvents[0]) - 7, int(b_gObjectEvents[2]) - 7),
-            'facing': FacingDir(int(b_gObjectEvents[8]))
-        }
-        return trainer
-    except:
-        console.print_exception(show_locals=True)
-
-
-def ParsePokemon(b_Pokemon: bytes) -> dict:
-    """
-    Parses raw Pokémon byte data.
-    See: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
-
-    :param b_Pokemon: Pokémon bytes (100 bytes) !TODO - PC mons are only 80 bytes
-    :return: Pokémon (dict)
-    """
-    # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Substructure_order
-    substructs = ['GAEM', 'GAME', 'GEAM', 'GEMA', 'GMAE', 'GMEA', 'AGEM', 'AGME', 'AEGM', 'AEMG', 'AMGE', 'AMEG',
-                  'EGAM', 'EGMA', 'EAGM', 'EAMG', 'EMGA', 'EMAG', 'MGAE', 'MGEA', 'MAGE', 'MAEG', 'MEGA', 'MEAG']
-
-    def SpeciesName(value: int) -> str:
-        if value > len(names_list):
-            return ''
-        return names_list[value - 1]
-
-    def NationalDexID(value: int) -> int:
-        if value <= 251:
-            return value
-        if value >= 413:
-            return 201
-        ix = value - 277
-        if ix < len(nat_ids_list):
-            return nat_ids_list[ix]
-
-    def Language(value: int) -> str:
-        match value:
-            case 1:
-                return 'J'
-            case 2:
-                return 'E'
-            case 3:
-                return 'F'
-            case 4:
-                return 'I'
-            case 5:
-                return 'D'
-            case 7:
-                return 'S'
-
-    def OriginGame(value: int) -> str:
-        match value:
-            case 1:
-                return 'Sapphire'
-            case 2:
-                return 'Ruby'
-            case 3:
-                return 'Emerald'
-            case 4:
-                return 'FireRed'
-            case 5:
-                return 'LeafGreen'
-            case 15:
-                return 'Colosseum/XD'
-
-    def Moves(value: bytes) -> list:
-        moves = []
-        for i in range(0, 4):
-            move_id = int(struct.unpack('<H', value[(i * 2):((i + 1) * 2)])[0])
-            if id == 0:
-                continue
-            moves.append(moves_list[move_id])
-            moves[i]['remaining_pp'] = int(value[(i + 8)])
-        return moves
-
-    # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Encryption
-    def DecryptSubSection(data: bytes, key: int):
-        return struct.pack('<III',
-                           struct.unpack('<I', data[0:4])[0] ^ key,
-                           struct.unpack('<I', data[4:8])[0] ^ key,
-                           struct.unpack('<I', data[8:12])[0] ^ key)
-
-    try:
-        flags = int(b_Pokemon[19])
-        pid = struct.unpack('<I', b_Pokemon[0:4])[0]
-        ot = struct.unpack('<I', b_Pokemon[4:8])[0]
-        tid = int(struct.unpack('<H', b_Pokemon[4:6])[0])
-        sid = int(struct.unpack('<H', b_Pokemon[6:8])[0])
-
-        # Unpack data substructures
-        # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
-        # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
-        key = ot ^ pid
-        data = b_Pokemon[32:80]
-        order = pid % 0x18
-        order_string = substructs[order]
-        sections = {}
-        for i in range(0, 4):
-            section = order_string[i]
-            section_data = data[(i * 12):((i + 1) * 12)]
-            decrypted = DecryptSubSection(section_data, key)
-            sections[section] = decrypted
-        id = int(struct.unpack('<H', sections['G'][0:2])[0])
-        name = SpeciesName(id)
-        section_m = int(struct.unpack('<I', sections['M'][4:8])[0])
-        ivs = {
-            'hp': int(section_m & 0x1F),
-            'attack': int((section_m >> 5) & 0x1F),
-            'defense': int((section_m >> 10) & 0x1F),
-            'speed': int((section_m >> 15) & 0x1F),
-            'spAttack': int((section_m >> 20) & 0x1F),
-            'spDefense': int((section_m >> 25) & 0x1F)
-        }
-        item_id = int(struct.unpack('<H', sections['G'][2:4])[0])
-        shiny_value = int(tid ^ sid ^ struct.unpack('<H', b_Pokemon[0:2])[0] ^ struct.unpack('<H', b_Pokemon[2:4])[0])
-        met_location = int(sections['M'][1])
-
-        pokemon = {
-            'name': name,
-            'id': id,
-            'natID': NationalDexID(id),
-            'species': int(struct.unpack('<H', sections['G'][0:2])[0]),
-            'pid': pid,
-            'nature': natures_list[pid % 0x19],
-            'language': Language(int(b_Pokemon[18])),
-            'shinyValue': shiny_value,
-            'shiny': True if shiny_value < 8 else False,
-            'ot': {
-                'tid': tid,
-                'sid': sid
-            },
-            'isBadEgg': flags & 0x1,
-            'hasSpecies': (flags >> 0x1) & 0x1,
-            'isEgg': (flags >> 0x2) & 0x1,
-            'level': int(b_Pokemon[84]) if len(b_Pokemon) > 80 else 0,
-            'expGroup': exp_groups_list[id - 1],
-            'item': {
-                'id': item_id,
-                'name': item_list[item_id]
-            },
-            'friendship': int(sections['G'][9]),
-            'moves': Moves(sections['A']),
-            'markings': {
-                'circle': True if b_Pokemon[27] & (1 << 0) else False,
-                'square': True if b_Pokemon[27] & (1 << 1) else False,
-                'triangle': True if b_Pokemon[27] & (1 << 2) else False,
-                'heart': True if b_Pokemon[27] & (1 << 3) else False
-            },
-            'status': {
-                'sleep': int(struct.unpack('<I', b_Pokemon[80:84])[0]) & 0x7,
-                'poison': True if int(struct.unpack('<I', b_Pokemon[80:84])[0]) & (1 << 3) else False,
-                'burn': True if int(struct.unpack('<I', b_Pokemon[80:84])[0]) & (1 << 4) else False,
-                'freeze': True if int(struct.unpack('<I', b_Pokemon[80:84])[0]) & (1 << 5) else False,
-                'paralysis': True if int(struct.unpack('<I', b_Pokemon[80:84])[0]) & (1 << 6) else False,
-                'badPoison': True if int(struct.unpack('<I', b_Pokemon[80:84])[0]) & (1 << 7) else False
-            } if len(b_Pokemon) > 80 else None,
-            'stats': {
-                'hp': int(b_Pokemon[86]),
-                'maxHP': int(b_Pokemon[88]),
-                'attack': int(b_Pokemon[90]),
-                'defense': int(b_Pokemon[92]),
-                'speed': int(b_Pokemon[94]),
-                'spAttack': int(b_Pokemon[96]),
-                'spDefense': int(b_Pokemon[98])
-            } if len(b_Pokemon) > 80 else None,
-
-            # Substruct G - Growth
-            'experience': int(struct.unpack('<I', sections['G'][4:8])[0]),
-
-            # Substruct A - Attacks
-
-            # Substruct E - EVs & Condition
-            'EVs': {
-                'hp': int(sections['E'][0]),
-                'attack': int(sections['E'][1]),
-                'defence': int(sections['E'][2]),
-                'speed': int(sections['E'][3]),
-                'spAttack': int(sections['E'][4]),
-                'spDefense': int(sections['E'][5])
-            },
-            'condition': {
-                'cool': int(sections['E'][6]),
-                'beauty': int(sections['E'][7]),
-                'cute': int(sections['E'][8]),
-                'smart': int(sections['E'][9]),
-                'tough': int(sections['E'][10]),
-                'feel': int(sections['E'][11])
-            },
-
-            # Substruct M - Miscellaneous
-            'IVs': ivs,
-            'IVSum': sum(ivs.values()),
-            'hiddenPower': hidden_powers_list[int(numpy.floor((((ivs['hp'] % 2) +
-                                                           (2 * (ivs['attack'] % 2)) +
-                                                           (4 * (ivs['defense'] % 2)) +
-                                                           (8 * (ivs['speed'] % 2)) +
-                                                           (16 * (ivs['spAttack'] % 2)) +
-                                                           (32 * (ivs['spDefense'] % 2))) * 15) / 63))],
-            'pokerus': {
-                'days': int(sections['M'][0]) & 0xF,
-                'strain': int(sections['M'][0]) >> 0x4,
-            },
-            'metLocation': location_list[met_location] if met_location < len(location_list) else 'Traded',
-            'origins': {
-                'metLevel': int(struct.unpack('<H', sections['M'][2:4])[0]) & 0x7F,
-                'hatched': False if int(struct.unpack('<H', sections['M'][2:4])[0]) & 0x7F else True,
-                'game': OriginGame((int(struct.unpack('<H', sections['M'][2:4])[0]) >> 0x7) & 0xF),
-                'ball': item_list[(int(struct.unpack('<H', sections['M'][2:4])[0]) >> 0xB) & 0xF]
-            },
-            'ability': pokemon_list[name]['ability'][min(int(section_m >> 31) & 1, len(pokemon_list[name]['ability']) - 1)],
-            'type': pokemon_list[name]['type']
-        }
-        return pokemon
-
-    except:
-        console.print_exception(show_locals=True)
-        return None
-
-
-def GetParty() -> dict:
-    """
-    Checks how many Pokémon are in the trainer's party, decodes and returns them all.
-
-    :return: party (dict)
-    """
-    try:
-        party = {}
-        party_count = int.from_bytes(ReadSymbol('gPlayerPartyCount', size=1))
-        if party_count:
-            for p in range(party_count):
-                o = p * 100
-                while not (mon := ParsePokemon(ReadSymbol('gPlayerParty', o, o+100))):
-                    continue
-                else:
-                    party[p] = mon
-            return party
-        return {}
-    except:
-        console.print_exception(show_locals=True)
-
-
-def GetOpponent() -> dict:
-    """
-    Gets the current opponent/encounter from `gEnemyParty`, decodes and returns.
-
-    :return: opponent (dict)
-    """
-    while not (opponent := ParsePokemon(ReadSymbol('gEnemyParty')[:100])):
-        # TODO hacky loop in case opponent returns garbage data, should do legal/valid mon check instead
-        continue
-    else:
-        return opponent
-
-
-last_opid = ReadSymbol('gEnemyParty', size=4)
-
-
-def OpponentChanged() -> bool:
-    """
-    Checks if the current opponent/encounter from `gEnemyParty` has changed since the function was last called.
-    Very fast way to check as this only reads the first 4 bytes (PID) and does not decode the Pokémon data.
-
-    :return: True if opponent changed, otherwise False (bool)
-    """
-    try:
-        global last_opid
-        opponent_pid = ReadSymbol('gEnemyParty', size=4)
-        if opponent_pid != last_opid and opponent_pid != b'\x00\x00\x00\x00':
-            last_opid = opponent_pid
-            return True
-        else:
-            return False
-    except:
-        console.print_exception(show_locals=True)
-        return False
-
-
-def GetItems() -> dict:
-    """
-    Get all items and their quantities from the PC, Items pocket, Key Items pocket, Poké Balls pocket, TMs & HMs pocket,
-    Berries pocket.
-
-    :return: trainer's items (dict)
-    """
-    try:
-        items = {}
-        pockets = ['PC', 'Items', 'Key Items', 'Poké Balls', 'TMs & HMs', 'Berries']
-        for pocket in pockets:
-            items[pocket] = {}
-
-        b_Items = GetSaveBlock(1, mGBA.item_offsets[0][0], mGBA.item_offsets[4][0] + mGBA.item_offsets[4][1])
-
-        for i in range(6):
-            p = mGBA.item_offsets[i][0] - mGBA.item_offsets[0][0]
-            for j in range(0, int(mGBA.item_offsets[i][1] / 4)):
-                q = struct.unpack('<H', b_Items[p+(j*4+2):p+(j*4+4)])[0]
-                quantity = int(q ^ mGBA.item_key) if i != 0 else q
-                item = {
-                    'name': item_list[int(struct.unpack('<H', b_Items[p+(j*4):p+(j*4+2)])[0])],
-                    'quantity': quantity
-                }
-                items[pockets[i]][j] = item
-        return items
-    except:
-        console.print_exception(show_locals=True)

@@ -58,7 +58,7 @@ def CustomCatchFilters(pokemon: dict) -> bool:
                 pass  # ❌ disabled
 
             # Catch all Poochyena with a Pecha Berry
-            if pokemon['name'] == 'Poochyena' and pokemon['itemName'] == 'Pecha Berry':
+            if pokemon['name'] == 'Poochyena' and pokemon['item']['name'] == 'Pecha Berry':
                 pass  # ❌ disable
 
             # Catch any Pokémon with perfect attack, spAttack and speed

@@ -2,7 +2,7 @@
 # Move this script to the root directory to ensure all imports work correctly
 
 from modules.Inputs import WaitFrames
-from modules.Memory import GetParty
+from modules.Pokemon import GetParty
 
 prev_party = {}
 while True:

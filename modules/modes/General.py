@@ -1,7 +1,8 @@
 import random
 from modules.Console import console
 from modules.Inputs import PressButton, WaitFrames, ReleaseInputs
-from modules.Memory import GetTask, GetTrainer, GetAddress
+from modules.Memory import GetTask
+from modules.Trainer import GetTrainer
 
 
 def ModeSpin():
@@ -18,13 +19,11 @@ def ModeSpin():
 
 
 def ModeFishing():
-    PressButton(["Select"], 3)
-    fishing_task = GetAddress("Task_Fishing")
-    active_task_offset = 4
-    sub_task_offset = 8
-    task = GetTask(fishing_task)
-    while task != None and task[active_task_offset] == 1:
+    PressButton(['Select'], 3)
+    task = GetTask('TASK_FISHING')
+    while task != {} and task['isActive']:
         # Check if in `Fishing_WaitForA` or `Fishing_StartEncounter` or `Fishing_EndNoMon`
-        if task[sub_task_offset] == 7 or task[sub_task_offset] == 10 or task[sub_task_offset] == 15:
+        if task['data'][0] == 7 or task['data'][0] == 10 or \
+                task['data'][0] == 15:
             PressButton(["A"])
-        task = GetTask(fishing_task)
+        task = GetTask('TASK_FISHING')

@@ -4,8 +4,10 @@ from flask import Flask, abort, jsonify
 
 from modules.Config import config_obs
 from modules.Console import console
-from modules.Memory import GetTrainer, GetParty, GetItems
+from modules.Items import GetItems
+from modules.Pokemon import GetParty
 from modules.Stats import GetEncounterRate, encounter_log, stats, shiny_log
+from modules.Trainer import GetTrainer
 
 
 def WebServer() -> NoReturn:
@@ -48,25 +50,6 @@ def WebServer() -> NoReturn:
             except:
                 console.print_exception(show_locals=True)
                 abort(503)
-
-        @server.route('/encounter_rate', methods=['GET'])
-        def EncounterRate():
-            try:
-                return jsonify({'encounter_rate': GetEncounterRate()})
-            except:
-                console.print_exception(show_locals=True)
-                return jsonify({'encounter_rate': 0})
-
-        @server.route('/stats', methods=['GET'])
-        def Stats():
-            try:
-                if stats:
-                    return jsonify(stats)
-                abort(503)
-            except:
-                console.print_exception(show_locals=True)
-                abort(503)
-
         @server.route('/encounter_log', methods=['GET'])  # TODO add parameter to get encounter by list index
         def EncounterLog():
             try:
@@ -82,6 +65,24 @@ def WebServer() -> NoReturn:
             try:
                 if shiny_log:
                     return jsonify(shiny_log['shiny_log'])
+                abort(503)
+            except:
+                console.print_exception(show_locals=True)
+                abort(503)
+
+        @server.route('/encounter_rate', methods=['GET'])
+        def EncounterRate():
+            try:
+                return jsonify({'encounter_rate': GetEncounterRate()})
+            except:
+                console.print_exception(show_locals=True)
+                return jsonify({'encounter_rate': 0})
+
+        @server.route('/stats', methods=['GET'])
+        def Stats():
+            try:
+                if stats:
+                    return jsonify(stats)
                 abort(503)
             except:
                 console.print_exception(show_locals=True)

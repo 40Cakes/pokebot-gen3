@@ -6,7 +6,8 @@ from threading import Thread
 from modules.Console import console
 from modules.Config import config_general, config_discord, config_obs
 from modules.Inputs import PressButton, WaitFrames, WriteInputs
-from modules.Memory import GetGameState, GameState, mGBA, EncodeString, ReadSymbol, GetOpponent, OpponentChanged
+from modules.Memory import GetGameState, GameState, mGBA, EncodeString, ReadSymbol
+from modules.Pokemon import OpponentChanged, GetOpponent
 from modules.Stats import EncounterPokemon
 
 version = 'v0.0.1a'
@@ -66,22 +67,18 @@ while True:
                 WaitFrames(5)
 
             case 'spin':
-                from modules.gen3.General import ModeSpin
+                from modules.modes.General import ModeSpin
                 ModeSpin()
 
             case 'starters':
-                if mGBA.game in ['Pokémon Emerald']:
-                    from modules.gen3.rse.Starters import Starters
-                    Starters()
-                elif mGBA.game in ['Pokémon LeafGreen', 'Pokémon FireRed']:
-                    from modules.gen3.frlg.Starters import Starters
+                if mGBA.game in ['Pokémon LeafGreen', 'Pokémon FireRed']:
+                    from modules.modes.frlg.Starters import Starters
                 else:
-                    console.print('Ruby/Sapphire starters are currently not supported, coming soon...')
-                    input('Press enter to exit...')
-                    os._exit(1)
+                    from modules.modes.rse.Starters import Starters
                 Starters()
+
             case 'fishing':
-                from modules.gen3.General import ModeFishing
+                from modules.modes.General import ModeFishing
                 ModeFishing()
 
     except:

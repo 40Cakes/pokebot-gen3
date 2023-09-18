@@ -1,10 +1,11 @@
-# Log Pokémon encounters to .csv files (logs to `stats/encounters/` folder)
-# Valid options: `true`, `false`
-log_encounters: true
+# Logging/console output options
+# See readme for documentation
+
+# Log encounters to .csv files
+log_encounters: true # `true`, `false`
 
 # Console output
-# Verbose options will provide stats in a formatted table, basic options will give a condensed, single line output
-# Valid options: `verbose`, `basic`, `disable`
+# `verbose`, `basic`, `disable`
 console:
   encounter_data: verbose
   encounter_ivs: verbose
@@ -12,8 +13,4 @@ console:
   statistics: verbose
 
 # Backups
-# Backup PokéBot stats/ folder every n encounters
-# HIGHLY recommended to backup stats/ folder regularly, totals.json is known to get corrupted during power outages
-# Make sure you regularly delete old backups (especially if your stats folder is large!)
-# Set to 0 to disable
 backup_stats: 25000

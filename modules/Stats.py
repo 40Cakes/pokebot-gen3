@@ -16,7 +16,8 @@ from modules.Config import config_obs, config_logging
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import GetTrainer, GetGameState, GameState, mGBA
+from modules.Memory import GetGameState, GameState, mGBA
+from modules.Trainer import GetTrainer
 
 safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
 trainer_dir = '{}/{}-{}'.format(

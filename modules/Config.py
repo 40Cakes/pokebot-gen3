@@ -2,7 +2,8 @@ import os
 from jsonschema import validate
 from ruamel.yaml import YAML
 from modules.Console import console
-from modules.Memory import mGBA, GetTrainer
+from modules.Memory import mGBA
+from modules.Trainer import GetTrainer
 
 yaml = YAML()
 
@@ -45,12 +46,15 @@ properties:
     starter:
         type: string
         enum:
-            - mudkip
             - treecko
             - torchic
+            - mudkip
             - bulbasaur
             - charmander
             - squirtle
+            - chikorita
+            - totodile
+            - cyndaquil
     fossil:
         type: string
         enum:
@@ -256,6 +260,8 @@ cheats_schema = """
 type: object
 properties:
     starters:
+        type: boolean
+    starters_rng:
         type: boolean
 """
 
