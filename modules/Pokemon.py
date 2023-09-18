@@ -92,11 +92,8 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
                            struct.unpack('<I', data[8:12])[0] ^ key)
 
     try:
-        flags = int(b_Pokemon[19])
         pid = struct.unpack('<I', b_Pokemon[0:4])[0]
         ot = struct.unpack('<I', b_Pokemon[4:8])[0]
-        tid = int(struct.unpack('<H', b_Pokemon[4:6])[0])
-        sid = int(struct.unpack('<H', b_Pokemon[6:8])[0])
 
         # Unpack data substructures
         # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
@@ -117,8 +114,15 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
                 checksum += struct.unpack('<H', decrypted[c*2:(c*2)+2])[0]
                 checksum &= 0xFFFF
 
+        valid = True if not (struct.unpack('<H', b_Pokemon[28:30])[0] ^ checksum) else False
+        if not valid:
+            return None
+
+        tid = int(struct.unpack('<H', b_Pokemon[4:6])[0])
+        sid = int(struct.unpack('<H', b_Pokemon[6:8])[0])
         id = int(struct.unpack('<H', sections['G'][0:2])[0])
         name = SpeciesName(id)
+        flags = int(b_Pokemon[19])
         section_m = int(struct.unpack('<I', sections['M'][4:8])[0])
         ivs = {
             'hp': int(section_m & 0x1F),
@@ -148,7 +152,6 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
             },
             'checksum': struct.unpack('<H', b_Pokemon[28:30])[0],
             'calculatedChecksum': checksum,
-            'valid': True if not (struct.unpack('<H', b_Pokemon[28:30])[0] ^ checksum) else False,
             'hasSpecies': (flags >> 0x1) & 0x1,
             'isEgg': (flags >> 0x2) & 0x1,
             'level': int(b_Pokemon[84]) if len(b_Pokemon) > 80 else 0,
@@ -251,7 +254,7 @@ def GetParty(retry: int = 10) -> dict:
                 for p in range(party_count):
                     o = p * 100
                     mon = ParsePokemon(ReadSymbol('gPlayerParty', o, o+100))
-                    if not mon or not mon['valid']:
+                    if not mon:
                         console.print('[red]Pokémon has invalid checksum! Waiting 1 frame and checking again...')
                         WaitFrames(1)
                         continue
@@ -271,13 +274,13 @@ def GetOpponent() -> dict:
     """
     try:
         while True:
-            opponent = ParsePokemon(ReadSymbol('gEnemyParty')[:100])
-            if not opponent or not opponent['valid']:
+            mon = ParsePokemon(ReadSymbol('gEnemyParty')[:100])
+            if not mon:
                 console.print('[red]Pokémon has invalid checksum! Waiting 1 frame and checking again...')
                 WaitFrames(1)
                 continue
             else:
-                return opponent
+                return mon
     except:
         console.print_exception(show_locals=True)
 
