@@ -4,7 +4,10 @@
 import struct
 from rich.table import Table
 from rich.live import Live
-from modules.Memory import GetSaveBlock, ParsePokemon, pokemon_list
+
+from modules.Memory import GetSaveBlock
+from modules.Pokemon import ParsePokemon, pokemon_list
+
 
 # https://github.com/pret/pokeemerald/blob/master/src/daycare.c
 
@@ -12,6 +15,10 @@ from modules.Memory import GetSaveBlock, ParsePokemon, pokemon_list
 def ParseDayCare():
     b_DayCare = GetSaveBlock(1, 0x3030, 0x120)
     mons = [ParsePokemon(b_DayCare[0x0:0x50]), ParsePokemon(b_DayCare[0x8C:0xDC])]
+
+    if not mons[0] or not mons[1]:
+        return None
+
     DayCare = {
         'mons': [
             {
@@ -172,6 +179,6 @@ last_data = ParseDayCare()
 with Live(generate_table(), refresh_per_second=4) as live:
     while True:
         data = ParseDayCare()
-        if data != last_data:
+        if data and data != last_data:
             last_data = data
             live.update(generate_table())
