@@ -15,7 +15,12 @@
         },
         "ability": [
             "Overgrow"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "plant"
+        ],
+        "gender_rate": 31
     },
     "Ivysaur": {
         "number": 2,
@@ -33,7 +38,12 @@
         },
         "ability": [
             "Overgrow"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "plant"
+        ],
+        "gender_rate": 31
     },
     "Venusaur": {
         "number": 3,
@@ -51,7 +61,12 @@
         },
         "ability": [
             "Overgrow"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "plant"
+        ],
+        "gender_rate": 31
     },
     "Charmander": {
         "number": 4,
@@ -68,7 +83,12 @@
         },
         "ability": [
             "Blaze"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "dragon"
+        ],
+        "gender_rate": 31
     },
     "Charmeleon": {
         "number": 5,
@@ -85,7 +105,12 @@
         },
         "ability": [
             "Blaze"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "dragon"
+        ],
+        "gender_rate": 31
     },
     "Charizard": {
         "number": 6,
@@ -103,7 +128,12 @@
         },
         "ability": [
             "Blaze"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "dragon"
+        ],
+        "gender_rate": 31
     },
     "Squirtle": {
         "number": 7,
@@ -120,7 +150,12 @@
         },
         "ability": [
             "Torrent"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "water1"
+        ],
+        "gender_rate": 31
     },
     "Wartortle": {
         "number": 8,
@@ -137,7 +172,12 @@
         },
         "ability": [
             "Torrent"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "water1"
+        ],
+        "gender_rate": 31
     },
     "Blastoise": {
         "number": 9,
@@ -154,7 +194,12 @@
         },
         "ability": [
             "Torrent"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "water1"
+        ],
+        "gender_rate": 31
     },
     "Caterpie": {
         "number": 10,
@@ -171,7 +216,12 @@
         },
         "ability": [
             "Shield Dust"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Metapod": {
         "number": 11,
@@ -188,7 +238,12 @@
         },
         "ability": [
             "Shed Skin"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Butterfree": {
         "number": 12,
@@ -206,7 +261,12 @@
         },
         "ability": [
             "Compound Eyes"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Weedle": {
         "number": 13,
@@ -224,7 +284,12 @@
         },
         "ability": [
             "Shield Dust"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Kakuna": {
         "number": 14,
@@ -242,7 +307,12 @@
         },
         "ability": [
             "Shed Skin"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Beedrill": {
         "number": 15,
@@ -260,7 +330,12 @@
         },
         "ability": [
             "Swarm"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Pidgey": {
         "number": 16,
@@ -278,7 +353,12 @@
         },
         "ability": [
             "Keen Eye"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Pidgeotto": {
         "number": 17,
@@ -296,7 +376,12 @@
         },
         "ability": [
             "Keen Eye"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Pidgeot": {
         "number": 18,
@@ -314,7 +399,12 @@
         },
         "ability": [
             "Keen Eye"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Rattata": {
         "number": 19,
@@ -332,7 +422,12 @@
         "ability": [
             "Run Away",
             "Guts"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Raticate": {
         "number": 20,
@@ -350,7 +445,12 @@
         "ability": [
             "Run Away",
             "Guts"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Spearow": {
         "number": 21,
@@ -368,7 +468,12 @@
         },
         "ability": [
             "Keen Eye"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Fearow": {
         "number": 22,
@@ -386,7 +491,12 @@
         },
         "ability": [
             "Keen Eye"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Ekans": {
         "number": 23,
@@ -404,7 +514,12 @@
         "ability": [
             "Intimidate",
             "Shed Skin"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Arbok": {
         "number": 24,
@@ -422,7 +537,12 @@
         "ability": [
             "Intimidate",
             "Shed Skin"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Pikachu": {
         "number": 25,
@@ -439,7 +559,12 @@
         },
         "ability": [
             "Static"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "fairy"
+        ],
+        "gender_rate": 127
     },
     "Raichu": {
         "number": 26,
@@ -456,7 +581,12 @@
         },
         "ability": [
             "Static"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "fairy"
+        ],
+        "gender_rate": 127
     },
     "Sandshrew": {
         "number": 27,
@@ -473,7 +603,12 @@
         },
         "ability": [
             "Sand Veil"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Sandslash": {
         "number": 28,
@@ -490,9 +625,14 @@
         },
         "ability": [
             "Sand Veil"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
-    "Nidoran♀": {
+    "Nidoran\u2640": {
         "number": 29,
         "type": [
             "Poison"
@@ -507,7 +647,12 @@
         },
         "ability": [
             "Poison Point"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "ground"
+        ],
+        "gender_rate": 254
     },
     "Nidorina": {
         "number": 30,
@@ -524,7 +669,12 @@
         },
         "ability": [
             "Poison Point"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 254
     },
     "Nidoqueen": {
         "number": 31,
@@ -542,9 +692,14 @@
         },
         "ability": [
             "Poison Point"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 254
     },
-    "Nidoran♂": {
+    "Nidoran\u2642": {
         "number": 32,
         "type": [
             "Poison"
@@ -559,7 +714,12 @@
         },
         "ability": [
             "Poison Point"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "ground"
+        ],
+        "gender_rate": 0
     },
     "Nidorino": {
         "number": 33,
@@ -576,7 +736,12 @@
         },
         "ability": [
             "Poison Point"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "ground"
+        ],
+        "gender_rate": 0
     },
     "Nidoking": {
         "number": 34,
@@ -594,7 +759,12 @@
         },
         "ability": [
             "Poison Point"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "ground"
+        ],
+        "gender_rate": 0
     },
     "Clefairy": {
         "number": 35,
@@ -611,7 +781,12 @@
         },
         "ability": [
             "Cute Charm"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "fairy"
+        ],
+        "gender_rate": 191
     },
     "Clefable": {
         "number": 36,
@@ -628,7 +803,12 @@
         },
         "ability": [
             "Cute Charm"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "fairy"
+        ],
+        "gender_rate": 191
     },
     "Vulpix": {
         "number": 37,
@@ -645,7 +825,12 @@
         },
         "ability": [
             "Flash Fire"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 191
     },
     "Ninetales": {
         "number": 38,
@@ -662,7 +847,12 @@
         },
         "ability": [
             "Flash Fire"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 191
     },
     "Jigglypuff": {
         "number": 39,
@@ -680,7 +870,12 @@
         "ability": [
             "Cute Charm",
             "Competitive"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "fairy"
+        ],
+        "gender_rate": 191
     },
     "Wigglytuff": {
         "number": 40,
@@ -698,7 +893,12 @@
         "ability": [
             "Cute Charm",
             "Competitive"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "fairy"
+        ],
+        "gender_rate": 191
     },
     "Zubat": {
         "number": 41,
@@ -716,7 +916,12 @@
         },
         "ability": [
             "Inner Focus"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Golbat": {
         "number": 42,
@@ -734,7 +939,12 @@
         },
         "ability": [
             "Inner Focus"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Oddish": {
         "number": 43,
@@ -752,7 +962,12 @@
         },
         "ability": [
             "Chlorophyll"
-        ]
+        ],
+        "egg_groups": [
+            "plant",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Gloom": {
         "number": 44,
@@ -770,7 +985,12 @@
         },
         "ability": [
             "Chlorophyll"
-        ]
+        ],
+        "egg_groups": [
+            "plant",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Vileplume": {
         "number": 45,
@@ -788,7 +1008,12 @@
         },
         "ability": [
             "Chlorophyll"
-        ]
+        ],
+        "egg_groups": [
+            "plant",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Paras": {
         "number": 46,
@@ -806,7 +1031,12 @@
         },
         "ability": [
             "Effect Spore"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Parasect": {
         "number": 47,
@@ -824,7 +1054,12 @@
         },
         "ability": [
             "Effect Spore"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Venonat": {
         "number": 48,
@@ -842,7 +1077,12 @@
         },
         "ability": [
             "Compound Eyes"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Venomoth": {
         "number": 49,
@@ -860,7 +1100,12 @@
         },
         "ability": [
             "Shield Dust"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Diglett": {
         "number": 50,
@@ -878,7 +1123,12 @@
         "ability": [
             "Sand Veil",
             "Arena Trap"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Dugtrio": {
         "number": 51,
@@ -896,7 +1146,12 @@
         "ability": [
             "Sand Veil",
             "Arena Trap"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Meowth": {
         "number": 52,
@@ -914,7 +1169,12 @@
         "ability": [
             "Pickup",
             "Technician"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Persian": {
         "number": 53,
@@ -932,7 +1192,12 @@
         "ability": [
             "Limber",
             "Technician"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Psyduck": {
         "number": 54,
@@ -950,7 +1215,12 @@
         "ability": [
             "Damp",
             "Cloud Nine"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Golduck": {
         "number": 55,
@@ -968,7 +1238,12 @@
         "ability": [
             "Damp",
             "Cloud Nine"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Mankey": {
         "number": 56,
@@ -985,7 +1260,12 @@
         },
         "ability": [
             "Vital Spirit"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Primeape": {
         "number": 57,
@@ -1002,7 +1282,12 @@
         },
         "ability": [
             "Vital Spirit"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Growlithe": {
         "number": 58,
@@ -1020,7 +1305,12 @@
         "ability": [
             "Intimidate",
             "Flash Fire"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 63
     },
     "Arcanine": {
         "number": 59,
@@ -1038,7 +1328,12 @@
         "ability": [
             "Intimidate",
             "Flash Fire"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 63
     },
     "Poliwag": {
         "number": 60,
@@ -1056,7 +1351,12 @@
         "ability": [
             "Water Absorb",
             "Damp"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water1"
+        ],
+        "gender_rate": 127
     },
     "Poliwhirl": {
         "number": 61,
@@ -1074,7 +1374,12 @@
         "ability": [
             "Water Absorb",
             "Damp"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water1"
+        ],
+        "gender_rate": 127
     },
     "Poliwrath": {
         "number": 62,
@@ -1093,7 +1398,12 @@
         "ability": [
             "Water Absorb",
             "Damp"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water1"
+        ],
+        "gender_rate": 127
     },
     "Abra": {
         "number": 63,
@@ -1111,7 +1421,12 @@
         "ability": [
             "Synchronize",
             "Inner Focus"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 63
     },
     "Kadabra": {
         "number": 64,
@@ -1129,7 +1444,12 @@
         "ability": [
             "Synchronize",
             "Inner Focus"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 63
     },
     "Alakazam": {
         "number": 65,
@@ -1147,7 +1467,12 @@
         "ability": [
             "Synchronize",
             "Inner Focus"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 63
     },
     "Machop": {
         "number": 66,
@@ -1165,7 +1490,12 @@
         "ability": [
             "Guts",
             "No Guard"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 63
     },
     "Machoke": {
         "number": 67,
@@ -1183,7 +1513,12 @@
         "ability": [
             "Guts",
             "No Guard"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 63
     },
     "Machamp": {
         "number": 68,
@@ -1201,7 +1536,12 @@
         "ability": [
             "Guts",
             "No Guard"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 63
     },
     "Bellsprout": {
         "number": 69,
@@ -1219,7 +1559,12 @@
         },
         "ability": [
             "Chlorophyll"
-        ]
+        ],
+        "egg_groups": [
+            "plant",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Weepinbell": {
         "number": 70,
@@ -1237,7 +1582,12 @@
         },
         "ability": [
             "Chlorophyll"
-        ]
+        ],
+        "egg_groups": [
+            "plant",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Victreebel": {
         "number": 71,
@@ -1255,7 +1605,12 @@
         },
         "ability": [
             "Chlorophyll"
-        ]
+        ],
+        "egg_groups": [
+            "plant",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Tentacool": {
         "number": 72,
@@ -1274,7 +1629,12 @@
         "ability": [
             "Clear Body",
             "Liquid Ooze"
-        ]
+        ],
+        "egg_groups": [
+            "water3",
+            "water3"
+        ],
+        "gender_rate": 127
     },
     "Tentacruel": {
         "number": 73,
@@ -1293,7 +1653,12 @@
         "ability": [
             "Clear Body",
             "Liquid Ooze"
-        ]
+        ],
+        "egg_groups": [
+            "water3",
+            "water3"
+        ],
+        "gender_rate": 127
     },
     "Geodude": {
         "number": 74,
@@ -1312,7 +1677,12 @@
         "ability": [
             "Rock Head",
             "Sturdy"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 127
     },
     "Graveler": {
         "number": 75,
@@ -1331,7 +1701,12 @@
         "ability": [
             "Rock Head",
             "Sturdy"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 127
     },
     "Golem": {
         "number": 76,
@@ -1350,7 +1725,12 @@
         "ability": [
             "Rock Head",
             "Sturdy"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 127
     },
     "Ponyta": {
         "number": 77,
@@ -1368,7 +1748,12 @@
         "ability": [
             "Run Away",
             "Flash Fire"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Rapidash": {
         "number": 78,
@@ -1386,7 +1771,12 @@
         "ability": [
             "Run Away",
             "Flash Fire"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Slowpoke": {
         "number": 79,
@@ -1405,7 +1795,12 @@
         "ability": [
             "Oblivious",
             "Own Tempo"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "water1"
+        ],
+        "gender_rate": 127
     },
     "Slowbro": {
         "number": 80,
@@ -1424,7 +1819,12 @@
         "ability": [
             "Oblivious",
             "Own Tempo"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "water1"
+        ],
+        "gender_rate": 127
     },
     "Magnemite": {
         "number": 81,
@@ -1443,7 +1843,12 @@
         "ability": [
             "Magnet Pull",
             "Sturdy"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 255
     },
     "Magneton": {
         "number": 82,
@@ -1462,7 +1867,12 @@
         "ability": [
             "Magnet Pull",
             "Sturdy"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 255
     },
     "Farfetch'd": {
         "number": 83,
@@ -1481,7 +1891,12 @@
         "ability": [
             "Keen Eye",
             "Inner Focus"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Doduo": {
         "number": 84,
@@ -1500,7 +1915,12 @@
         "ability": [
             "Run Away",
             "Early Bird"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Dodrio": {
         "number": 85,
@@ -1519,7 +1939,12 @@
         "ability": [
             "Run Away",
             "Early Bird"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Seel": {
         "number": 86,
@@ -1537,7 +1962,12 @@
         "ability": [
             "Thick Fat",
             "Hydration"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Dewgong": {
         "number": 87,
@@ -1556,7 +1986,12 @@
         "ability": [
             "Thick Fat",
             "Hydration"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Grimer": {
         "number": 88,
@@ -1574,7 +2009,12 @@
         "ability": [
             "Stench",
             "Sticky Hold"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Muk": {
         "number": 89,
@@ -1592,7 +2032,12 @@
         "ability": [
             "Stench",
             "Sticky Hold"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Shellder": {
         "number": 90,
@@ -1610,7 +2055,12 @@
         "ability": [
             "Shell Armor",
             "Skill Link"
-        ]
+        ],
+        "egg_groups": [
+            "water3",
+            "water3"
+        ],
+        "gender_rate": 127
     },
     "Cloyster": {
         "number": 91,
@@ -1629,7 +2079,12 @@
         "ability": [
             "Shell Armor",
             "Skill Link"
-        ]
+        ],
+        "egg_groups": [
+            "water3",
+            "water3"
+        ],
+        "gender_rate": 127
     },
     "Gastly": {
         "number": 92,
@@ -1647,7 +2102,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Haunter": {
         "number": 93,
@@ -1665,7 +2125,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Gengar": {
         "number": 94,
@@ -1683,7 +2148,12 @@
         },
         "ability": [
             "Cursed Body"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Onix": {
         "number": 95,
@@ -1702,7 +2172,12 @@
         "ability": [
             "Rock Head",
             "Sturdy"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 127
     },
     "Drowzee": {
         "number": 96,
@@ -1720,7 +2195,12 @@
         "ability": [
             "Insomnia",
             "Forewarn"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 127
     },
     "Hypno": {
         "number": 97,
@@ -1738,7 +2218,12 @@
         "ability": [
             "Insomnia",
             "Forewarn"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 127
     },
     "Krabby": {
         "number": 98,
@@ -1756,7 +2241,12 @@
         "ability": [
             "Hyper Cutter",
             "Shell Armor"
-        ]
+        ],
+        "egg_groups": [
+            "water3",
+            "water3"
+        ],
+        "gender_rate": 127
     },
     "Kingler": {
         "number": 99,
@@ -1774,7 +2264,12 @@
         "ability": [
             "Hyper Cutter",
             "Shell Armor"
-        ]
+        ],
+        "egg_groups": [
+            "water3",
+            "water3"
+        ],
+        "gender_rate": 127
     },
     "Voltorb": {
         "number": 100,
@@ -1792,7 +2287,12 @@
         "ability": [
             "Soundproof",
             "Static"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 255
     },
     "Electrode": {
         "number": 101,
@@ -1810,7 +2310,12 @@
         "ability": [
             "Soundproof",
             "Static"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 255
     },
     "Exeggcute": {
         "number": 102,
@@ -1828,7 +2333,12 @@
         },
         "ability": [
             "Chlorophyll"
-        ]
+        ],
+        "egg_groups": [
+            "plant",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Exeggutor": {
         "number": 103,
@@ -1846,7 +2356,12 @@
         },
         "ability": [
             "Chlorophyll"
-        ]
+        ],
+        "egg_groups": [
+            "plant",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Cubone": {
         "number": 104,
@@ -1864,7 +2379,12 @@
         "ability": [
             "Rock Head",
             "Lightning Rod"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "monster"
+        ],
+        "gender_rate": 127
     },
     "Marowak": {
         "number": 105,
@@ -1882,7 +2402,12 @@
         "ability": [
             "Rock Head",
             "Lightning Rod"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "monster"
+        ],
+        "gender_rate": 127
     },
     "Hitmonlee": {
         "number": 106,
@@ -1900,7 +2425,12 @@
         "ability": [
             "Limber",
             "Reckless"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 0
     },
     "Hitmonchan": {
         "number": 107,
@@ -1918,7 +2448,12 @@
         "ability": [
             "Keen Eye",
             "Iron Fist"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 0
     },
     "Lickitung": {
         "number": 108,
@@ -1936,7 +2471,12 @@
         "ability": [
             "Own Tempo",
             "Oblivious"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "monster"
+        ],
+        "gender_rate": 127
     },
     "Koffing": {
         "number": 109,
@@ -1953,7 +2493,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Weezing": {
         "number": 110,
@@ -1970,7 +2515,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Rhyhorn": {
         "number": 111,
@@ -1989,7 +2539,12 @@
         "ability": [
             "Lightning Rod",
             "Rock Head"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Rhydon": {
         "number": 112,
@@ -2008,7 +2563,12 @@
         "ability": [
             "Lightning Rod",
             "Rock Head"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Chansey": {
         "number": 113,
@@ -2026,7 +2586,12 @@
         "ability": [
             "Natural Cure",
             "Serene Grace"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "fairy"
+        ],
+        "gender_rate": 254
     },
     "Tangela": {
         "number": 114,
@@ -2044,7 +2609,12 @@
         "ability": [
             "Chlorophyll",
             "Leaf Guard"
-        ]
+        ],
+        "egg_groups": [
+            "plant",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Kangaskhan": {
         "number": 115,
@@ -2062,7 +2632,12 @@
         "ability": [
             "Early Bird",
             "Scrappy"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "monster"
+        ],
+        "gender_rate": 254
     },
     "Horsea": {
         "number": 116,
@@ -2080,7 +2655,12 @@
         "ability": [
             "Swift Swim",
             "Sniper"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Seadra": {
         "number": 117,
@@ -2098,7 +2678,12 @@
         "ability": [
             "Poison Point",
             "Sniper"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Goldeen": {
         "number": 118,
@@ -2116,7 +2701,12 @@
         "ability": [
             "Swift Swim",
             "Water Veil"
-        ]
+        ],
+        "egg_groups": [
+            "water2",
+            "water2"
+        ],
+        "gender_rate": 127
     },
     "Seaking": {
         "number": 119,
@@ -2134,7 +2724,12 @@
         "ability": [
             "Swift Swim",
             "Water Veil"
-        ]
+        ],
+        "egg_groups": [
+            "water2",
+            "water2"
+        ],
+        "gender_rate": 127
     },
     "Staryu": {
         "number": 120,
@@ -2152,7 +2747,12 @@
         "ability": [
             "Illuminate",
             "Natural Cure"
-        ]
+        ],
+        "egg_groups": [
+            "water3",
+            "water3"
+        ],
+        "gender_rate": 255
     },
     "Starmie": {
         "number": 121,
@@ -2171,7 +2771,12 @@
         "ability": [
             "Illuminate",
             "Natural Cure"
-        ]
+        ],
+        "egg_groups": [
+            "water3",
+            "water3"
+        ],
+        "gender_rate": 255
     },
     "Mr. Mime": {
         "number": 122,
@@ -2189,7 +2794,12 @@
         "ability": [
             "Soundproof",
             "Filter"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 127
     },
     "Scyther": {
         "number": 123,
@@ -2208,7 +2818,12 @@
         "ability": [
             "Swarm",
             "Technician"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Jynx": {
         "number": 124,
@@ -2227,7 +2842,12 @@
         "ability": [
             "Oblivious",
             "Forewarn"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 254
     },
     "Electabuzz": {
         "number": 125,
@@ -2244,7 +2864,12 @@
         },
         "ability": [
             "Static"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 63
     },
     "Magmar": {
         "number": 126,
@@ -2261,7 +2886,12 @@
         },
         "ability": [
             "Flame Body"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 63
     },
     "Pinsir": {
         "number": 127,
@@ -2279,7 +2909,12 @@
         "ability": [
             "Hyper Cutter",
             "Mold Breaker"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Tauros": {
         "number": 128,
@@ -2297,7 +2932,12 @@
         "ability": [
             "Intimidate",
             "Anger Point"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 0
     },
     "Magikarp": {
         "number": 129,
@@ -2314,7 +2954,12 @@
         },
         "ability": [
             "Swift Swim"
-        ]
+        ],
+        "egg_groups": [
+            "water2",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Gyarados": {
         "number": 130,
@@ -2332,7 +2977,12 @@
         },
         "ability": [
             "Intimidate"
-        ]
+        ],
+        "egg_groups": [
+            "water2",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Lapras": {
         "number": 131,
@@ -2351,7 +3001,12 @@
         "ability": [
             "Water Absorb",
             "Shell Armor"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "water1"
+        ],
+        "gender_rate": 127
     },
     "Ditto": {
         "number": 132,
@@ -2368,7 +3023,12 @@
         },
         "ability": [
             "Limber"
-        ]
+        ],
+        "egg_groups": [
+            "ditto",
+            "ditto"
+        ],
+        "gender_rate": 255
     },
     "Eevee": {
         "number": 133,
@@ -2386,7 +3046,12 @@
         "ability": [
             "Run Away",
             "Adaptability"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 31
     },
     "Vaporeon": {
         "number": 134,
@@ -2403,7 +3068,12 @@
         },
         "ability": [
             "Water Absorb"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 31
     },
     "Jolteon": {
         "number": 135,
@@ -2420,7 +3090,12 @@
         },
         "ability": [
             "Volt Absorb"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 31
     },
     "Flareon": {
         "number": 136,
@@ -2437,7 +3112,12 @@
         },
         "ability": [
             "Flash Fire"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 31
     },
     "Porygon": {
         "number": 137,
@@ -2455,7 +3135,12 @@
         "ability": [
             "Trace",
             "Download"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 255
     },
     "Omanyte": {
         "number": 138,
@@ -2474,7 +3159,12 @@
         "ability": [
             "Swift Swim",
             "Shell Armor"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water3"
+        ],
+        "gender_rate": 31
     },
     "Omastar": {
         "number": 139,
@@ -2493,7 +3183,12 @@
         "ability": [
             "Swift Swim",
             "Shell Armor"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water3"
+        ],
+        "gender_rate": 31
     },
     "Kabuto": {
         "number": 140,
@@ -2512,7 +3207,12 @@
         "ability": [
             "Swift Swim",
             "Battle Armor"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water3"
+        ],
+        "gender_rate": 31
     },
     "Kabutops": {
         "number": 141,
@@ -2531,7 +3231,12 @@
         "ability": [
             "Swift Swim",
             "Battle Armor"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water3"
+        ],
+        "gender_rate": 31
     },
     "Aerodactyl": {
         "number": 142,
@@ -2550,7 +3255,12 @@
         "ability": [
             "Rock Head",
             "Pressure"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 31
     },
     "Snorlax": {
         "number": 143,
@@ -2568,7 +3278,12 @@
         "ability": [
             "Immunity",
             "Thick Fat"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "monster"
+        ],
+        "gender_rate": 31
     },
     "Articuno": {
         "number": 144,
@@ -2586,7 +3301,12 @@
         },
         "ability": [
             "Pressure"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Zapdos": {
         "number": 145,
@@ -2604,7 +3324,12 @@
         },
         "ability": [
             "Pressure"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Moltres": {
         "number": 146,
@@ -2622,7 +3347,12 @@
         },
         "ability": [
             "Pressure"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Dratini": {
         "number": 147,
@@ -2639,7 +3369,12 @@
         },
         "ability": [
             "Shed Skin"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Dragonair": {
         "number": 148,
@@ -2656,7 +3391,12 @@
         },
         "ability": [
             "Shed Skin"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Dragonite": {
         "number": 149,
@@ -2674,7 +3414,12 @@
         },
         "ability": [
             "Inner Focus"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Mewtwo": {
         "number": 150,
@@ -2691,7 +3436,12 @@
         },
         "ability": [
             "Pressure"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Mew": {
         "number": 151,
@@ -2708,7 +3458,12 @@
         },
         "ability": [
             "Synchronize"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Chikorita": {
         "number": 152,
@@ -2725,7 +3480,12 @@
         },
         "ability": [
             "Overgrow"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "plant"
+        ],
+        "gender_rate": 31
     },
     "Bayleef": {
         "number": 153,
@@ -2742,7 +3502,12 @@
         },
         "ability": [
             "Overgrow"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "plant"
+        ],
+        "gender_rate": 31
     },
     "Meganium": {
         "number": 154,
@@ -2759,7 +3524,12 @@
         },
         "ability": [
             "Overgrow"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "plant"
+        ],
+        "gender_rate": 31
     },
     "Cyndaquil": {
         "number": 155,
@@ -2776,7 +3546,12 @@
         },
         "ability": [
             "Blaze"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 31
     },
     "Quilava": {
         "number": 156,
@@ -2793,7 +3568,12 @@
         },
         "ability": [
             "Blaze"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 31
     },
     "Typhlosion": {
         "number": 157,
@@ -2810,7 +3590,12 @@
         },
         "ability": [
             "Blaze"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 31
     },
     "Totodile": {
         "number": 158,
@@ -2827,7 +3612,12 @@
         },
         "ability": [
             "Torrent"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "water1"
+        ],
+        "gender_rate": 31
     },
     "Croconaw": {
         "number": 159,
@@ -2844,7 +3634,12 @@
         },
         "ability": [
             "Torrent"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "water1"
+        ],
+        "gender_rate": 31
     },
     "Feraligatr": {
         "number": 160,
@@ -2861,7 +3656,12 @@
         },
         "ability": [
             "Torrent"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "water1"
+        ],
+        "gender_rate": 31
     },
     "Sentret": {
         "number": 161,
@@ -2879,7 +3679,12 @@
         "ability": [
             "Run Away",
             "Keen Eye"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Furret": {
         "number": 162,
@@ -2897,7 +3702,12 @@
         "ability": [
             "Run Away",
             "Keen Eye"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Hoothoot": {
         "number": 163,
@@ -2916,7 +3726,12 @@
         "ability": [
             "Insomnia",
             "Keen Eye"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Noctowl": {
         "number": 164,
@@ -2935,7 +3750,12 @@
         "ability": [
             "Insomnia",
             "Keen Eye"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Ledyba": {
         "number": 165,
@@ -2954,7 +3774,12 @@
         "ability": [
             "Swarm",
             "Early Bird"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Ledian": {
         "number": 166,
@@ -2973,7 +3798,12 @@
         "ability": [
             "Swarm",
             "Early Bird"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Spinarak": {
         "number": 167,
@@ -2992,7 +3822,12 @@
         "ability": [
             "Swarm",
             "Insomnia"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Ariados": {
         "number": 168,
@@ -3011,7 +3846,12 @@
         "ability": [
             "Swarm",
             "Insomnia"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Crobat": {
         "number": 169,
@@ -3029,7 +3869,12 @@
         },
         "ability": [
             "Inner Focus"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Chinchou": {
         "number": 170,
@@ -3048,7 +3893,12 @@
         "ability": [
             "Volt Absorb",
             "Illuminate"
-        ]
+        ],
+        "egg_groups": [
+            "water2",
+            "water2"
+        ],
+        "gender_rate": 127
     },
     "Lanturn": {
         "number": 171,
@@ -3067,7 +3917,12 @@
         "ability": [
             "Volt Absorb",
             "Illuminate"
-        ]
+        ],
+        "egg_groups": [
+            "water2",
+            "water2"
+        ],
+        "gender_rate": 127
     },
     "Pichu": {
         "number": 172,
@@ -3084,7 +3939,12 @@
         },
         "ability": [
             "Static"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 127
     },
     "Cleffa": {
         "number": 173,
@@ -3101,7 +3961,12 @@
         },
         "ability": [
             "Cute Charm"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 191
     },
     "Igglybuff": {
         "number": 174,
@@ -3119,7 +3984,12 @@
         "ability": [
             "Cute Charm",
             "Competitive"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 191
     },
     "Togepi": {
         "number": 175,
@@ -3137,7 +4007,12 @@
         "ability": [
             "Hustle",
             "Serene Grace"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 31
     },
     "Togetic": {
         "number": 176,
@@ -3156,7 +4031,12 @@
         "ability": [
             "Hustle",
             "Serene Grace"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "fairy"
+        ],
+        "gender_rate": 31
     },
     "Natu": {
         "number": 177,
@@ -3175,7 +4055,12 @@
         "ability": [
             "Synchronize",
             "Early Bird"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Xatu": {
         "number": 178,
@@ -3194,7 +4079,12 @@
         "ability": [
             "Synchronize",
             "Early Bird"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Mareep": {
         "number": 179,
@@ -3211,7 +4101,12 @@
         },
         "ability": [
             "Static"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Flaaffy": {
         "number": 180,
@@ -3228,7 +4123,12 @@
         },
         "ability": [
             "Static"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Ampharos": {
         "number": 181,
@@ -3245,7 +4145,12 @@
         },
         "ability": [
             "Static"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Bellossom": {
         "number": 182,
@@ -3262,7 +4167,12 @@
         },
         "ability": [
             "Chlorophyll"
-        ]
+        ],
+        "egg_groups": [
+            "plant",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Marill": {
         "number": 183,
@@ -3280,7 +4190,12 @@
         "ability": [
             "Thick Fat",
             "Huge Power"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "fairy"
+        ],
+        "gender_rate": 127
     },
     "Azumarill": {
         "number": 184,
@@ -3298,7 +4213,12 @@
         "ability": [
             "Thick Fat",
             "Huge Power"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "fairy"
+        ],
+        "gender_rate": 127
     },
     "Sudowoodo": {
         "number": 185,
@@ -3316,7 +4236,12 @@
         "ability": [
             "Sturdy",
             "Rock Head"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 127
     },
     "Politoed": {
         "number": 186,
@@ -3334,7 +4259,12 @@
         "ability": [
             "Water Absorb",
             "Damp"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water1"
+        ],
+        "gender_rate": 127
     },
     "Hoppip": {
         "number": 187,
@@ -3353,7 +4283,12 @@
         "ability": [
             "Chlorophyll",
             "Leaf Guard"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Skiploom": {
         "number": 188,
@@ -3372,7 +4307,12 @@
         "ability": [
             "Chlorophyll",
             "Leaf Guard"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Jumpluff": {
         "number": 189,
@@ -3391,7 +4331,12 @@
         "ability": [
             "Chlorophyll",
             "Leaf Guard"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Aipom": {
         "number": 190,
@@ -3409,7 +4354,12 @@
         "ability": [
             "Run Away",
             "Pickup"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Sunkern": {
         "number": 191,
@@ -3427,7 +4377,12 @@
         "ability": [
             "Chlorophyll",
             "Solar Power"
-        ]
+        ],
+        "egg_groups": [
+            "plant",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Sunflora": {
         "number": 192,
@@ -3445,7 +4400,12 @@
         "ability": [
             "Chlorophyll",
             "Solar Power"
-        ]
+        ],
+        "egg_groups": [
+            "plant",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Yanma": {
         "number": 193,
@@ -3464,7 +4424,12 @@
         "ability": [
             "Speed Boost",
             "Compound Eyes"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Wooper": {
         "number": 194,
@@ -3483,7 +4448,12 @@
         "ability": [
             "Damp",
             "Water Absorb"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Quagsire": {
         "number": 195,
@@ -3502,7 +4472,12 @@
         "ability": [
             "Damp",
             "Water Absorb"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Espeon": {
         "number": 196,
@@ -3519,7 +4494,12 @@
         },
         "ability": [
             "Synchronize"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 31
     },
     "Umbreon": {
         "number": 197,
@@ -3536,7 +4516,12 @@
         },
         "ability": [
             "Synchronize"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 31
     },
     "Murkrow": {
         "number": 198,
@@ -3555,7 +4540,12 @@
         "ability": [
             "Insomnia",
             "Super Luck"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Slowking": {
         "number": 199,
@@ -3574,7 +4564,12 @@
         "ability": [
             "Oblivious",
             "Own Tempo"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "water1"
+        ],
+        "gender_rate": 127
     },
     "Misdreavus": {
         "number": 200,
@@ -3591,7 +4586,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Unown": {
         "number": 201,
@@ -3608,7 +4608,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Wobbuffet": {
         "number": 202,
@@ -3625,7 +4630,12 @@
         },
         "ability": [
             "Shadow Tag"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Girafarig": {
         "number": 203,
@@ -3644,7 +4654,12 @@
         "ability": [
             "Inner Focus",
             "Early Bird"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Pineco": {
         "number": 204,
@@ -3661,7 +4676,12 @@
         },
         "ability": [
             "Sturdy"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Forretress": {
         "number": 205,
@@ -3679,7 +4699,12 @@
         },
         "ability": [
             "Sturdy"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Dunsparce": {
         "number": 206,
@@ -3697,7 +4722,12 @@
         "ability": [
             "Serene Grace",
             "Run Away"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Gligar": {
         "number": 207,
@@ -3716,7 +4746,12 @@
         "ability": [
             "Hyper Cutter",
             "Sand Veil"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Steelix": {
         "number": 208,
@@ -3735,7 +4770,12 @@
         "ability": [
             "Rock Head",
             "Sturdy"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 127
     },
     "Snubbull": {
         "number": 209,
@@ -3753,7 +4793,12 @@
         "ability": [
             "Intimidate",
             "Run Away"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "fairy"
+        ],
+        "gender_rate": 191
     },
     "Granbull": {
         "number": 210,
@@ -3771,7 +4816,12 @@
         "ability": [
             "Intimidate",
             "Quick Feet"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "fairy"
+        ],
+        "gender_rate": 191
     },
     "Qwilfish": {
         "number": 211,
@@ -3790,7 +4840,12 @@
         "ability": [
             "Poison Point",
             "Swift Swim"
-        ]
+        ],
+        "egg_groups": [
+            "water2",
+            "water2"
+        ],
+        "gender_rate": 127
     },
     "Scizor": {
         "number": 212,
@@ -3809,7 +4864,12 @@
         "ability": [
             "Swarm",
             "Technician"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Shuckle": {
         "number": 213,
@@ -3828,7 +4888,12 @@
         "ability": [
             "Sturdy",
             "Gluttony"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Heracross": {
         "number": 214,
@@ -3847,7 +4912,12 @@
         "ability": [
             "Swarm",
             "Guts"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Sneasel": {
         "number": 215,
@@ -3866,7 +4936,12 @@
         "ability": [
             "Inner Focus",
             "Keen Eye"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Teddiursa": {
         "number": 216,
@@ -3884,7 +4959,12 @@
         "ability": [
             "Pickup",
             "Quick Feet"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Ursaring": {
         "number": 217,
@@ -3902,7 +4982,12 @@
         "ability": [
             "Guts",
             "Quick Feet"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Slugma": {
         "number": 218,
@@ -3920,7 +5005,12 @@
         "ability": [
             "Magma Armor",
             "Flame Body"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Magcargo": {
         "number": 219,
@@ -3939,7 +5029,12 @@
         "ability": [
             "Magma Armor",
             "Flame Body"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Swinub": {
         "number": 220,
@@ -3958,7 +5053,12 @@
         "ability": [
             "Oblivious",
             "Snow Cloak"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Piloswine": {
         "number": 221,
@@ -3977,7 +5077,12 @@
         "ability": [
             "Oblivious",
             "Snow Cloak"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Corsola": {
         "number": 222,
@@ -3996,7 +5101,12 @@
         "ability": [
             "Hustle",
             "Natural Cure"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water3"
+        ],
+        "gender_rate": 191
     },
     "Remoraid": {
         "number": 223,
@@ -4014,7 +5124,12 @@
         "ability": [
             "Hustle",
             "Sniper"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water2"
+        ],
+        "gender_rate": 127
     },
     "Octillery": {
         "number": 224,
@@ -4032,7 +5147,12 @@
         "ability": [
             "Suction Cups",
             "Sniper"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water2"
+        ],
+        "gender_rate": 127
     },
     "Delibird": {
         "number": 225,
@@ -4051,7 +5171,12 @@
         "ability": [
             "Vital Spirit",
             "Hustle"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Mantine": {
         "number": 226,
@@ -4070,7 +5195,12 @@
         "ability": [
             "Swift Swim",
             "Water Absorb"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water1"
+        ],
+        "gender_rate": 127
     },
     "Skarmory": {
         "number": 227,
@@ -4089,7 +5219,12 @@
         "ability": [
             "Keen Eye",
             "Sturdy"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Houndour": {
         "number": 228,
@@ -4108,7 +5243,12 @@
         "ability": [
             "Early Bird",
             "Flash Fire"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Houndoom": {
         "number": 229,
@@ -4127,7 +5267,12 @@
         "ability": [
             "Early Bird",
             "Flash Fire"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Kingdra": {
         "number": 230,
@@ -4146,7 +5291,12 @@
         "ability": [
             "Swift Swim",
             "Sniper"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Phanpy": {
         "number": 231,
@@ -4163,7 +5313,12 @@
         },
         "ability": [
             "Pickup"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Donphan": {
         "number": 232,
@@ -4180,7 +5335,12 @@
         },
         "ability": [
             "Sturdy"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Porygon2": {
         "number": 233,
@@ -4198,7 +5358,12 @@
         "ability": [
             "Trace",
             "Download"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 255
     },
     "Stantler": {
         "number": 234,
@@ -4216,7 +5381,12 @@
         "ability": [
             "Intimidate",
             "Frisk"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Smeargle": {
         "number": 235,
@@ -4234,7 +5404,12 @@
         "ability": [
             "Own Tempo",
             "Technician"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Tyrogue": {
         "number": 236,
@@ -4252,7 +5427,12 @@
         "ability": [
             "Guts",
             "Steadfast"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 0
     },
     "Hitmontop": {
         "number": 237,
@@ -4270,7 +5450,12 @@
         "ability": [
             "Intimidate",
             "Technician"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 0
     },
     "Smoochum": {
         "number": 238,
@@ -4289,7 +5474,12 @@
         "ability": [
             "Oblivious",
             "Forewarn"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 254
     },
     "Elekid": {
         "number": 239,
@@ -4306,7 +5496,12 @@
         },
         "ability": [
             "Static"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 63
     },
     "Magby": {
         "number": 240,
@@ -4323,7 +5518,12 @@
         },
         "ability": [
             "Flame Body"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 63
     },
     "Miltank": {
         "number": 241,
@@ -4341,7 +5541,12 @@
         "ability": [
             "Thick Fat",
             "Scrappy"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 254
     },
     "Blissey": {
         "number": 242,
@@ -4359,7 +5564,12 @@
         "ability": [
             "Natural Cure",
             "Serene Grace"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "fairy"
+        ],
+        "gender_rate": 254
     },
     "Raikou": {
         "number": 243,
@@ -4376,7 +5586,12 @@
         },
         "ability": [
             "Pressure"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Entei": {
         "number": 244,
@@ -4393,7 +5608,12 @@
         },
         "ability": [
             "Pressure"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Suicune": {
         "number": 245,
@@ -4410,7 +5630,12 @@
         },
         "ability": [
             "Pressure"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Larvitar": {
         "number": 246,
@@ -4428,7 +5653,12 @@
         },
         "ability": [
             "Guts"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "monster"
+        ],
+        "gender_rate": 127
     },
     "Pupitar": {
         "number": 247,
@@ -4446,7 +5676,12 @@
         },
         "ability": [
             "Shed Skin"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "monster"
+        ],
+        "gender_rate": 127
     },
     "Tyranitar": {
         "number": 248,
@@ -4464,7 +5699,12 @@
         },
         "ability": [
             "Sand Stream"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "monster"
+        ],
+        "gender_rate": 127
     },
     "Lugia": {
         "number": 249,
@@ -4482,7 +5722,12 @@
         },
         "ability": [
             "Pressure"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Ho-Oh": {
         "number": 250,
@@ -4500,7 +5745,12 @@
         },
         "ability": [
             "Pressure"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Celebi": {
         "number": 251,
@@ -4518,7 +5768,12 @@
         },
         "ability": [
             "Natural Cure"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Treecko": {
         "number": 252,
@@ -4535,7 +5790,12 @@
         },
         "ability": [
             "Overgrow"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "dragon"
+        ],
+        "gender_rate": 31
     },
     "Grovyle": {
         "number": 253,
@@ -4552,7 +5812,12 @@
         },
         "ability": [
             "Overgrow"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "dragon"
+        ],
+        "gender_rate": 31
     },
     "Sceptile": {
         "number": 254,
@@ -4569,7 +5834,12 @@
         },
         "ability": [
             "Overgrow"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "dragon"
+        ],
+        "gender_rate": 31
     },
     "Torchic": {
         "number": 255,
@@ -4586,7 +5856,12 @@
         },
         "ability": [
             "Blaze"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 31
     },
     "Combusken": {
         "number": 256,
@@ -4604,7 +5879,12 @@
         },
         "ability": [
             "Blaze"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 31
     },
     "Blaziken": {
         "number": 257,
@@ -4622,7 +5902,12 @@
         },
         "ability": [
             "Blaze"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 31
     },
     "Mudkip": {
         "number": 258,
@@ -4639,7 +5924,12 @@
         },
         "ability": [
             "Torrent"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "water1"
+        ],
+        "gender_rate": 31
     },
     "Marshtomp": {
         "number": 259,
@@ -4657,7 +5947,12 @@
         },
         "ability": [
             "Torrent"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "water1"
+        ],
+        "gender_rate": 31
     },
     "Swampert": {
         "number": 260,
@@ -4675,7 +5970,12 @@
         },
         "ability": [
             "Torrent"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "water1"
+        ],
+        "gender_rate": 31
     },
     "Poochyena": {
         "number": 261,
@@ -4693,7 +5993,12 @@
         "ability": [
             "Run Away",
             "Quick Feet"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Mightyena": {
         "number": 262,
@@ -4711,7 +6016,12 @@
         "ability": [
             "Intimidate",
             "Quick Feet"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Zigzagoon": {
         "number": 263,
@@ -4729,7 +6039,12 @@
         "ability": [
             "Pickup",
             "Gluttony"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Linoone": {
         "number": 264,
@@ -4747,7 +6062,12 @@
         "ability": [
             "Pickup",
             "Gluttony"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Wurmple": {
         "number": 265,
@@ -4764,7 +6084,12 @@
         },
         "ability": [
             "Shield Dust"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Silcoon": {
         "number": 266,
@@ -4781,7 +6106,12 @@
         },
         "ability": [
             "Shed Skin"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Beautifly": {
         "number": 267,
@@ -4799,7 +6129,12 @@
         },
         "ability": [
             "Swarm"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Cascoon": {
         "number": 268,
@@ -4816,7 +6151,12 @@
         },
         "ability": [
             "Shed Skin"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Dustox": {
         "number": 269,
@@ -4834,7 +6174,12 @@
         },
         "ability": [
             "Shield Dust"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Lotad": {
         "number": 270,
@@ -4853,7 +6198,12 @@
         "ability": [
             "Swift Swim",
             "Rain Dish"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Lombre": {
         "number": 271,
@@ -4872,7 +6222,12 @@
         "ability": [
             "Swift Swim",
             "Rain Dish"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Ludicolo": {
         "number": 272,
@@ -4891,7 +6246,12 @@
         "ability": [
             "Swift Swim",
             "Rain Dish"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Seedot": {
         "number": 273,
@@ -4909,7 +6269,12 @@
         "ability": [
             "Chlorophyll",
             "Early Bird"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Nuzleaf": {
         "number": 274,
@@ -4928,7 +6293,12 @@
         "ability": [
             "Chlorophyll",
             "Early Bird"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Shiftry": {
         "number": 275,
@@ -4947,7 +6317,12 @@
         "ability": [
             "Chlorophyll",
             "Early Bird"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Taillow": {
         "number": 276,
@@ -4965,7 +6340,12 @@
         },
         "ability": [
             "Guts"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Swellow": {
         "number": 277,
@@ -4983,7 +6363,12 @@
         },
         "ability": [
             "Guts"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Wingull": {
         "number": 278,
@@ -5002,7 +6387,12 @@
         "ability": [
             "Keen Eye",
             "Hydration"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Pelipper": {
         "number": 279,
@@ -5021,7 +6411,12 @@
         "ability": [
             "Keen Eye",
             "Drizzle"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "flying"
+        ],
+        "gender_rate": 127
     },
     "Ralts": {
         "number": 280,
@@ -5039,7 +6434,12 @@
         "ability": [
             "Synchronize",
             "Trace"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Kirlia": {
         "number": 281,
@@ -5057,7 +6457,12 @@
         "ability": [
             "Synchronize",
             "Trace"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Gardevoir": {
         "number": 282,
@@ -5075,7 +6480,12 @@
         "ability": [
             "Synchronize",
             "Trace"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Surskit": {
         "number": 283,
@@ -5093,7 +6503,12 @@
         },
         "ability": [
             "Swift Swim"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Masquerain": {
         "number": 284,
@@ -5111,7 +6526,12 @@
         },
         "ability": [
             "Intimidate"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Shroomish": {
         "number": 285,
@@ -5129,7 +6549,12 @@
         "ability": [
             "Effect Spore",
             "Poison Heal"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Breloom": {
         "number": 286,
@@ -5148,7 +6573,12 @@
         "ability": [
             "Effect Spore",
             "Poison Heal"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Slakoth": {
         "number": 287,
@@ -5165,7 +6595,12 @@
         },
         "ability": [
             "Truant"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Vigoroth": {
         "number": 288,
@@ -5182,7 +6617,12 @@
         },
         "ability": [
             "Vital Spirit"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Slaking": {
         "number": 289,
@@ -5199,7 +6639,12 @@
         },
         "ability": [
             "Truant"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Nincada": {
         "number": 290,
@@ -5217,7 +6662,12 @@
         },
         "ability": [
             "Compound Eyes"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Ninjask": {
         "number": 291,
@@ -5235,7 +6685,12 @@
         },
         "ability": [
             "Speed Boost"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "bug"
+        ],
+        "gender_rate": 127
     },
     "Shedinja": {
         "number": 292,
@@ -5253,7 +6708,12 @@
         },
         "ability": [
             "Wonder Guard"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 255
     },
     "Whismur": {
         "number": 293,
@@ -5270,7 +6730,12 @@
         },
         "ability": [
             "Soundproof"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Loudred": {
         "number": 294,
@@ -5287,7 +6752,12 @@
         },
         "ability": [
             "Soundproof"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Exploud": {
         "number": 295,
@@ -5304,7 +6774,12 @@
         },
         "ability": [
             "Soundproof"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Makuhita": {
         "number": 296,
@@ -5322,7 +6797,12 @@
         "ability": [
             "Thick Fat",
             "Guts"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 63
     },
     "Hariyama": {
         "number": 297,
@@ -5340,7 +6820,12 @@
         "ability": [
             "Thick Fat",
             "Guts"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 63
     },
     "Azurill": {
         "number": 298,
@@ -5358,7 +6843,12 @@
         "ability": [
             "Thick Fat",
             "Huge Power"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 191
     },
     "Nosepass": {
         "number": 299,
@@ -5376,7 +6866,12 @@
         "ability": [
             "Sturdy",
             "Magnet Pull"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 127
     },
     "Skitty": {
         "number": 300,
@@ -5394,7 +6889,12 @@
         "ability": [
             "Cute Charm",
             "Normalize"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "fairy"
+        ],
+        "gender_rate": 191
     },
     "Delcatty": {
         "number": 301,
@@ -5412,7 +6912,12 @@
         "ability": [
             "Cute Charm",
             "Normalize"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "fairy"
+        ],
+        "gender_rate": 191
     },
     "Sableye": {
         "number": 302,
@@ -5431,7 +6936,12 @@
         "ability": [
             "Keen Eye",
             "Stall"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 127
     },
     "Mawile": {
         "number": 303,
@@ -5449,7 +6959,12 @@
         "ability": [
             "Hyper Cutter",
             "Intimidate"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "fairy"
+        ],
+        "gender_rate": 127
     },
     "Aron": {
         "number": 304,
@@ -5468,7 +6983,12 @@
         "ability": [
             "Sturdy",
             "Rock Head"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "monster"
+        ],
+        "gender_rate": 127
     },
     "Lairon": {
         "number": 305,
@@ -5487,7 +7007,12 @@
         "ability": [
             "Sturdy",
             "Rock Head"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "monster"
+        ],
+        "gender_rate": 127
     },
     "Aggron": {
         "number": 306,
@@ -5506,7 +7031,12 @@
         "ability": [
             "Sturdy",
             "Rock Head"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "monster"
+        ],
+        "gender_rate": 127
     },
     "Meditite": {
         "number": 307,
@@ -5524,7 +7054,12 @@
         },
         "ability": [
             "Pure Power"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 127
     },
     "Medicham": {
         "number": 308,
@@ -5542,7 +7077,12 @@
         },
         "ability": [
             "Pure Power"
-        ]
+        ],
+        "egg_groups": [
+            "humanshape",
+            "humanshape"
+        ],
+        "gender_rate": 127
     },
     "Electrike": {
         "number": 309,
@@ -5560,7 +7100,12 @@
         "ability": [
             "Static",
             "Lightning Rod"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Manectric": {
         "number": 310,
@@ -5578,7 +7123,12 @@
         "ability": [
             "Static",
             "Lightning Rod"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Plusle": {
         "number": 311,
@@ -5595,7 +7145,12 @@
         },
         "ability": [
             "Plus"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "fairy"
+        ],
+        "gender_rate": 127
     },
     "Minun": {
         "number": 312,
@@ -5612,7 +7167,12 @@
         },
         "ability": [
             "Minus"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "fairy"
+        ],
+        "gender_rate": 127
     },
     "Volbeat": {
         "number": 313,
@@ -5630,7 +7190,12 @@
         "ability": [
             "Illuminate",
             "Swarm"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "humanshape"
+        ],
+        "gender_rate": 0
     },
     "Illumise": {
         "number": 314,
@@ -5648,7 +7213,12 @@
         "ability": [
             "Oblivious",
             "Tinted Lens"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "humanshape"
+        ],
+        "gender_rate": 254
     },
     "Roselia": {
         "number": 315,
@@ -5667,7 +7237,12 @@
         "ability": [
             "Natural Cure",
             "Poison Point"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Gulpin": {
         "number": 316,
@@ -5685,7 +7260,12 @@
         "ability": [
             "Liquid Ooze",
             "Sticky Hold"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Swalot": {
         "number": 317,
@@ -5703,7 +7283,12 @@
         "ability": [
             "Liquid Ooze",
             "Sticky Hold"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Carvanha": {
         "number": 318,
@@ -5721,7 +7306,12 @@
         },
         "ability": [
             "Rough Skin"
-        ]
+        ],
+        "egg_groups": [
+            "water2",
+            "water2"
+        ],
+        "gender_rate": 127
     },
     "Sharpedo": {
         "number": 319,
@@ -5739,7 +7329,12 @@
         },
         "ability": [
             "Rough Skin"
-        ]
+        ],
+        "egg_groups": [
+            "water2",
+            "water2"
+        ],
+        "gender_rate": 127
     },
     "Wailmer": {
         "number": 320,
@@ -5757,7 +7352,12 @@
         "ability": [
             "Water Veil",
             "Oblivious"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "water2"
+        ],
+        "gender_rate": 127
     },
     "Wailord": {
         "number": 321,
@@ -5775,7 +7375,12 @@
         "ability": [
             "Water Veil",
             "Oblivious"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "water2"
+        ],
+        "gender_rate": 127
     },
     "Numel": {
         "number": 322,
@@ -5794,7 +7399,12 @@
         "ability": [
             "Oblivious",
             "Simple"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Camerupt": {
         "number": 323,
@@ -5813,7 +7423,12 @@
         "ability": [
             "Magma Armor",
             "Solid Rock"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Torkoal": {
         "number": 324,
@@ -5831,7 +7446,12 @@
         "ability": [
             "White Smoke",
             "Drought"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Spoink": {
         "number": 325,
@@ -5849,7 +7469,12 @@
         "ability": [
             "Thick Fat",
             "Own Tempo"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Grumpig": {
         "number": 326,
@@ -5867,7 +7492,12 @@
         "ability": [
             "Thick Fat",
             "Own Tempo"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Spinda": {
         "number": 327,
@@ -5885,7 +7515,12 @@
         "ability": [
             "Own Tempo",
             "Tangled Feet"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "humanshape"
+        ],
+        "gender_rate": 127
     },
     "Trapinch": {
         "number": 328,
@@ -5903,7 +7538,12 @@
         "ability": [
             "Hyper Cutter",
             "Arena Trap"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Vibrava": {
         "number": 329,
@@ -5921,7 +7561,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Flygon": {
         "number": 330,
@@ -5939,7 +7584,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "bug",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Cacnea": {
         "number": 331,
@@ -5956,7 +7606,12 @@
         },
         "ability": [
             "Sand Veil"
-        ]
+        ],
+        "egg_groups": [
+            "plant",
+            "humanshape"
+        ],
+        "gender_rate": 127
     },
     "Cacturne": {
         "number": 332,
@@ -5974,7 +7629,12 @@
         },
         "ability": [
             "Sand Veil"
-        ]
+        ],
+        "egg_groups": [
+            "plant",
+            "humanshape"
+        ],
+        "gender_rate": 127
     },
     "Swablu": {
         "number": 333,
@@ -5992,7 +7652,12 @@
         },
         "ability": [
             "Natural Cure"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Altaria": {
         "number": 334,
@@ -6010,7 +7675,12 @@
         },
         "ability": [
             "Natural Cure"
-        ]
+        ],
+        "egg_groups": [
+            "flying",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Zangoose": {
         "number": 335,
@@ -6027,7 +7697,12 @@
         },
         "ability": [
             "Immunity"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Seviper": {
         "number": 336,
@@ -6044,7 +7719,12 @@
         },
         "ability": [
             "Shed Skin"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Lunatone": {
         "number": 337,
@@ -6062,7 +7742,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 255
     },
     "Solrock": {
         "number": 338,
@@ -6080,7 +7765,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 255
     },
     "Barboach": {
         "number": 339,
@@ -6099,7 +7789,12 @@
         "ability": [
             "Oblivious",
             "Anticipation"
-        ]
+        ],
+        "egg_groups": [
+            "water2",
+            "water2"
+        ],
+        "gender_rate": 127
     },
     "Whiscash": {
         "number": 340,
@@ -6118,7 +7813,12 @@
         "ability": [
             "Oblivious",
             "Anticipation"
-        ]
+        ],
+        "egg_groups": [
+            "water2",
+            "water2"
+        ],
+        "gender_rate": 127
     },
     "Corphish": {
         "number": 341,
@@ -6136,7 +7836,12 @@
         "ability": [
             "Hyper Cutter",
             "Shell Armor"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water3"
+        ],
+        "gender_rate": 127
     },
     "Crawdaunt": {
         "number": 342,
@@ -6155,7 +7860,12 @@
         "ability": [
             "Hyper Cutter",
             "Shell Armor"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water3"
+        ],
+        "gender_rate": 127
     },
     "Baltoy": {
         "number": 343,
@@ -6173,7 +7883,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 255
     },
     "Claydol": {
         "number": 344,
@@ -6191,7 +7906,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 255
     },
     "Lileep": {
         "number": 345,
@@ -6209,7 +7929,12 @@
         },
         "ability": [
             "Suction Cups"
-        ]
+        ],
+        "egg_groups": [
+            "water3",
+            "water3"
+        ],
+        "gender_rate": 31
     },
     "Cradily": {
         "number": 346,
@@ -6227,7 +7952,12 @@
         },
         "ability": [
             "Suction Cups"
-        ]
+        ],
+        "egg_groups": [
+            "water3",
+            "water3"
+        ],
+        "gender_rate": 31
     },
     "Anorith": {
         "number": 347,
@@ -6245,7 +7975,12 @@
         },
         "ability": [
             "Battle Armor"
-        ]
+        ],
+        "egg_groups": [
+            "water3",
+            "water3"
+        ],
+        "gender_rate": 31
     },
     "Armaldo": {
         "number": 348,
@@ -6263,7 +7998,12 @@
         },
         "ability": [
             "Battle Armor"
-        ]
+        ],
+        "egg_groups": [
+            "water3",
+            "water3"
+        ],
+        "gender_rate": 31
     },
     "Feebas": {
         "number": 349,
@@ -6281,7 +8021,12 @@
         "ability": [
             "Swift Swim",
             "Oblivious"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Milotic": {
         "number": 350,
@@ -6299,7 +8044,12 @@
         "ability": [
             "Marvel Scale",
             "Competitive"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Castform": {
         "number": 351,
@@ -6316,7 +8066,12 @@
         },
         "ability": [
             "Forecast"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Kecleon": {
         "number": 352,
@@ -6333,7 +8088,12 @@
         },
         "ability": [
             "Color Change"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Shuppet": {
         "number": 353,
@@ -6351,7 +8111,12 @@
         "ability": [
             "Insomnia",
             "Frisk"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Banette": {
         "number": 354,
@@ -6369,7 +8134,12 @@
         "ability": [
             "Insomnia",
             "Frisk"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Duskull": {
         "number": 355,
@@ -6386,7 +8156,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Dusclops": {
         "number": 356,
@@ -6403,7 +8178,12 @@
         },
         "ability": [
             "Pressure"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Tropius": {
         "number": 357,
@@ -6422,7 +8202,12 @@
         "ability": [
             "Chlorophyll",
             "Solar Power"
-        ]
+        ],
+        "egg_groups": [
+            "monster",
+            "plant"
+        ],
+        "gender_rate": 127
     },
     "Chimecho": {
         "number": 358,
@@ -6439,7 +8224,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "indeterminate",
+            "indeterminate"
+        ],
+        "gender_rate": 127
     },
     "Absol": {
         "number": 359,
@@ -6457,7 +8247,12 @@
         "ability": [
             "Pressure",
             "Super Luck"
-        ]
+        ],
+        "egg_groups": [
+            "ground",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Wynaut": {
         "number": 360,
@@ -6474,7 +8269,12 @@
         },
         "ability": [
             "Shadow Tag"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 127
     },
     "Snorunt": {
         "number": 361,
@@ -6492,7 +8292,12 @@
         "ability": [
             "Inner Focus",
             "Ice Body"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "mineral"
+        ],
+        "gender_rate": 127
     },
     "Glalie": {
         "number": 362,
@@ -6510,7 +8315,12 @@
         "ability": [
             "Inner Focus",
             "Ice Body"
-        ]
+        ],
+        "egg_groups": [
+            "fairy",
+            "mineral"
+        ],
+        "gender_rate": 127
     },
     "Spheal": {
         "number": 363,
@@ -6529,7 +8339,12 @@
         "ability": [
             "Thick Fat",
             "Ice Body"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Sealeo": {
         "number": 364,
@@ -6548,7 +8363,12 @@
         "ability": [
             "Thick Fat",
             "Ice Body"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Walrein": {
         "number": 365,
@@ -6567,7 +8387,12 @@
         "ability": [
             "Thick Fat",
             "Ice Body"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "ground"
+        ],
+        "gender_rate": 127
     },
     "Clamperl": {
         "number": 366,
@@ -6584,7 +8409,12 @@
         },
         "ability": [
             "Shell Armor"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water1"
+        ],
+        "gender_rate": 127
     },
     "Huntail": {
         "number": 367,
@@ -6601,7 +8431,12 @@
         },
         "ability": [
             "Swift Swim"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water1"
+        ],
+        "gender_rate": 127
     },
     "Gorebyss": {
         "number": 368,
@@ -6618,7 +8453,12 @@
         },
         "ability": [
             "Swift Swim"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water1"
+        ],
+        "gender_rate": 127
     },
     "Relicanth": {
         "number": 369,
@@ -6637,7 +8477,12 @@
         "ability": [
             "Swift Swim",
             "Rock Head"
-        ]
+        ],
+        "egg_groups": [
+            "water1",
+            "water2"
+        ],
+        "gender_rate": 31
     },
     "Luvdisc": {
         "number": 370,
@@ -6654,7 +8499,12 @@
         },
         "ability": [
             "Swift Swim"
-        ]
+        ],
+        "egg_groups": [
+            "water2",
+            "water2"
+        ],
+        "gender_rate": 191
     },
     "Bagon": {
         "number": 371,
@@ -6671,7 +8521,12 @@
         },
         "ability": [
             "Rock Head"
-        ]
+        ],
+        "egg_groups": [
+            "dragon",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Shelgon": {
         "number": 372,
@@ -6688,7 +8543,12 @@
         },
         "ability": [
             "Rock Head"
-        ]
+        ],
+        "egg_groups": [
+            "dragon",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Salamence": {
         "number": 373,
@@ -6706,7 +8566,12 @@
         },
         "ability": [
             "Intimidate"
-        ]
+        ],
+        "egg_groups": [
+            "dragon",
+            "dragon"
+        ],
+        "gender_rate": 127
     },
     "Beldum": {
         "number": 374,
@@ -6724,7 +8589,12 @@
         },
         "ability": [
             "Clear Body"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 255
     },
     "Metang": {
         "number": 375,
@@ -6742,7 +8612,12 @@
         },
         "ability": [
             "Clear Body"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 255
     },
     "Metagross": {
         "number": 376,
@@ -6760,7 +8635,12 @@
         },
         "ability": [
             "Clear Body"
-        ]
+        ],
+        "egg_groups": [
+            "mineral",
+            "mineral"
+        ],
+        "gender_rate": 255
     },
     "Regirock": {
         "number": 377,
@@ -6777,7 +8657,12 @@
         },
         "ability": [
             "Clear Body"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Regice": {
         "number": 378,
@@ -6794,7 +8679,12 @@
         },
         "ability": [
             "Clear Body"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Registeel": {
         "number": 379,
@@ -6811,7 +8701,12 @@
         },
         "ability": [
             "Clear Body"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Latias": {
         "number": 380,
@@ -6829,7 +8724,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 254
     },
     "Latios": {
         "number": 381,
@@ -6847,7 +8747,12 @@
         },
         "ability": [
             "Levitate"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 0
     },
     "Kyogre": {
         "number": 382,
@@ -6864,7 +8769,12 @@
         },
         "ability": [
             "Drizzle"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Groudon": {
         "number": 383,
@@ -6881,7 +8791,12 @@
         },
         "ability": [
             "Drought"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Rayquaza": {
         "number": 384,
@@ -6899,7 +8814,12 @@
         },
         "ability": [
             "Air Lock"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Jirachi": {
         "number": 385,
@@ -6917,7 +8837,12 @@
         },
         "ability": [
             "Serene Grace"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     },
     "Deoxys": {
         "number": 386,
@@ -6934,6 +8859,11 @@
         },
         "ability": [
             "Pressure"
-        ]
+        ],
+        "egg_groups": [
+            "no-eggs",
+            "no-eggs"
+        ],
+        "gender_rate": 255
     }
 }

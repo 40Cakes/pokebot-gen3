@@ -1,12 +1,13 @@
 import os
-import struct
 import atexit
 from typing import NoReturn
 from threading import Thread
 from modules.Console import console
 from modules.Config import config_general, config_discord, config_obs
-from modules.Inputs import PressButton, WaitFrames, WriteInputs
-from modules.Memory import GetGameState, GameState, GetTask, mGBA, ReadSymbol, GetOpponent, OpponentChanged
+from modules.Inputs import WriteInputs, WaitFrames
+from modules.Memory import GetGameState, GameState, mGBA
+from modules.Temp import temp_RunFromBattle
+from modules.Pokemon import OpponentChanged, GetOpponent
 from modules.Stats import EncounterPokemon
 
 version = 'v0.0.1a'
@@ -23,7 +24,6 @@ def _exit() -> NoReturn:
 
 atexit.register(_exit)
 
-
 try:
     if config_discord['rich_presence']:
         from modules.Discord import DiscordRichPresence
@@ -38,25 +38,11 @@ except:
 # Main Loop
 while True:
     try:
-        if config_general['bot_mode'] != 'manual':
-            if GetGameState() == GameState.BATTLE:
-                while GetTask('TASK_PLAYCRYWHENRELEASEDFROMBALL').get('data', b'0x0000000')[6]!= 0 and GetTask('SUB_8046AD0').get('data', b'0x0000000')[6]!= 0: #define tCryTaskBattler data[3]
-                    PressButton(['B'])
-                while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 1:
-                    PressButton(['Right'])
-                while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 3:
-                    PressButton(['Down'])
-                while GetGameState() == GameState.BATTLE:
-                    PressButton(['A'])
-                while GetGameState() != GameState.OVERWORLD:
-                    PressButton(['B'])
-
-        if OpponentChanged():
-            while GetGameState() != GameState.BATTLE:
-                WaitFrames(1)
-                continue
-            WaitFrames(1)  # Wait 1 frame for the opponent data buffer to update
-            EncounterPokemon(GetOpponent())
+        if GetGameState() == GameState.BATTLE:
+            if OpponentChanged():
+                EncounterPokemon(GetOpponent())
+            if config_general['bot_mode'] != 'manual':
+                temp_RunFromBattle()
 
         match config_general['bot_mode']:
             case 'manual':
