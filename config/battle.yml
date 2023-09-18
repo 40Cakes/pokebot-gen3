@@ -11,6 +11,10 @@ pickup: true
 # Valid option: (integer 1-6)
 pickup_threshold: 3
 
+# How many encounters should take place before checking for a pickup item
+# Valid option: (positive integer)
+pickup_check_frequency: 5
+
 # Toggle handling of new move learning
 # If stop is selected, the bot will exit and let you control. If cancel is selected, all new moves will
 # not be learned. This will also cancel any evolutions that happen during run time.

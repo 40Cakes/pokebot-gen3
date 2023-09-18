@@ -134,6 +134,9 @@ battle_schema = """
         type: integer
         minimum: 1
         maximum: 6
+    pickup_check_frequency:
+        type: integer
+        minimum: 1
     new_move:
         type: string
         enum:
