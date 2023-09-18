@@ -1,5 +1,9 @@
 from modules.Inputs import PressButton, WaitFrames, ReleaseInputs
-from modules.Memory import GetTrainer, OpponentChanged
+from modules.Memory import GetGameState, GameState
+from modules.Temp import temp_RunFromBattle
+from modules.Pokemon import OpponentChanged, GetOpponent
+from modules.Stats import EncounterPokemon
+from modules.Trainer import GetTrainer
 
 
 def FollowPath(coords: list, run: bool = True) -> bool:
@@ -18,8 +22,10 @@ def FollowPath(coords: list, run: bool = True) -> bool:
         while True:
             trainer = GetTrainer()
 
-            if OpponentChanged():
-                return False  # TODO check for encounter
+            if GetGameState() == GameState.BATTLE:
+                if OpponentChanged():
+                    EncounterPokemon(GetOpponent())
+                temp_RunFromBattle()
 
             # Check if map changed to desired map
             if map_data:

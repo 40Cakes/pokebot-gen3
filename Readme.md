@@ -1,28 +1,34 @@
 # PokéBot Gen3 for mGBA
 
-Re-write of [pokebot-bizhawk](https://github.com/40Cakes/pokebot-bizhawk) to work on [mGBA](https://mgba.io/), using direct memory reads (no more image detection dependencies).
+**PokéBot Gen3 for mGBA** is a Python script, written to automatically shiny hunt in Pokémon Ruby, Sapphire, Emerald, FireRed and LeafGreen.
 
-- The bot is still in *early* days, as such it will be subject to change. Minimal support will be provided in Discord [#mgba-testing🧪](https://discord.com/channels/1057088810950860850/1139190426834833528).
+Initially created to complete a Prof. Oak and Living ✨Shiny✨ Dex Challenge in Pokémon Emerald, a 🔴24/7 livestream of the challenge can be found ongoing [here](https://www.youtube.com/watch?v=W6OOnrx8g58).
 
-- ⚠ This will directly write to the `mGBA.exe` process' memory, so there is a good chance that mGBA may crash.
-
-At the moment, the bot will pause once a shiny is encountered. You must ensure you are able to escape battle 100% of the time, otherwise the bot will get stuck. Auto-catching and other features will be added in due time.
-
+[![🔴24/7✨Shiny✨Hunting Bot](https://img.youtube.com/vi/W6OOnrx8g58/0.jpg)](https://www.youtube.com/watch?v=W6OOnrx8g58)
 
 https://github.com/40Cakes/pokebot-gen3/assets/16377135/a3eed994-e960-4181-9f76-3b36bc9f0619
 
+# 📖 Preamble
+
+Although the bot is essentially frame perfect, (by default) it will attempt to perform most actions, as if a human were playing to make shiny hunts as representative as possible, some examples:
+- Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible
+- It's possible to peek inside un-hatched eggs to view stats and shininess as soon as they're received from the daycare, the bot will wait until the eggs are fully hatched before checking and logging
+- These are intentional design decisions, bot [cheats](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config) can be used to bypass them (in most cases)
+
+This project is the result of a bored holiday, I am by no means a professional Python developer, so I apologise for the very scuffed code you have just stumbled upon. This was a huge learning experience, and it goes without saying that this code comes with no warranty™.
 
 ***
 # ⚠ Photosensitivity Warning ⚠
-- This page may contain videos of mGBA running at unbounded speeds (nearly 3,000 FPS, which obviously causes **very fast and bright flashing**)!
-- Unbounded video examples will be hidden by default, and marked with a **⚠ photosensetivity warning ⚠**.
+- Running mGBA at unbounded speeds, will cause **very fast and bright flashing**!
+- mGBA can run well over 3,000 FPS on fast enough PCs
+- Any unbounded video examples on this page will be hidden by default, and marked with **⚠ photosensetivity warning ⚠**
 
 ***
 
 # 🔒 Requirements
 - Windows (support for Mac and Linux **_may_** be added later)
 - [Python 3.11](https://www.python.org/downloads/)
-- Run `requirements.py` or `python -m pip install -r requirements.txt` to install required Python modules
+- Double click `requirements.py` or run `python -m pip install -r requirements.txt` in a terminal to install required Python modules
 - [mGBA 0.10.2 (64-bit)](https://mgba.io/downloads.html)
   - **Windows (*64-bit*, installer .exe)** or **Windows (*64-bit*, portable .7z archive)**
 - [Windows Terminal](https://github.com/microsoft/terminal/releases) (not **required**, but highly recommended for full 16-million <span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span> console output)
@@ -30,9 +36,16 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/a3eed994-e960-4181-9f76-
 ***
 
 # ❓ How To Run
+⚠ **Warning**: The bot will write directly to the running `mGBA.exe` process' memory, so there is a good chance that mGBA may crash, be sure to save regularly and run at your own risk!
+
 - Set the desired `bot_mode` in config file `config/general.yml`
 - Load a ROM and place the trainer where it needs to be for the `bot_mode` you've configured
-- Run `pokebot.py` or `python .\pokebot.py`, then click on any mGBA process to attach the bot
+- Double click `pokebot.py` or run `python .\pokebot.py` in a terminal, then click on any mGBA process to attach the bot
+
+At the moment, the bot will pause once a shiny is encountered. You **must** ensure you are able to escape battle **100% of the time**, otherwise the bot will get stuck. Auto-catching and other features will be added in due time.
+
+- This is still in *early* development, as such, stats/config format and general functionality will be subject to change, without warning - make sure you back up your `stats/` and `config/` before updating your bot local version!
+- Reach out in Discord [#mgba-testing🧪](https://discord.com/channels/1057088810950860850/1139190426834833528) if you have any issues
 
 ***
 
@@ -43,6 +56,8 @@ Variations of games, languages and revisions may have different memory offsets, 
 - ✅ Supported (tested)
 - 🟨 Supported (not tested)
 - ❌ Not supported
+
+ROM hacks will not work, and are ❌ **not supported** or planned to be supported!
 
 ***
 
@@ -73,8 +88,10 @@ The bot will mash random directions to spin on a single tile.
 ## 💼 `starters`
 Soft reset for starter Pokémon.
 
-For modes that use soft resets such as starters, the bot attempts to hit a unique frames to reduce the amount of repeated, identical Pokémon, this may cause soft resets to take progressively longer. If resets begin to take too long, it is recommended to start a new save file with a different TID to reset this delay.
+For modes that use soft resets such as starters, the bot attempts to hit a unique frames to reduce the amount of repeated, identical Pokémon, this may cause soft resets to take progressively longer.
 
+- If resets begin to take too long, it is recommended to start a new save file with a different TID to reset this delay
+- If you notice too many dupes or resets taking too long, consider enabling `starters_rng` in [`config/cheats.yml`](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config)
 
 ### R/S/E
 1. Select the `starter` in `config/general.yml` - `treecko`, `torchic` or `mudkip`
@@ -84,12 +101,17 @@ For modes that use soft resets such as starters, the bot attempts to hit a uniqu
 ### FR/LG
 1. Select the `starter` in `config/general.yml` - `bulbasaur`, `charmander` or `squirtle`
 2. Face the desired PokéBall in Oak's lab, save the game (**in-game, not a save state**)
-4. Start the bot
+3. Start the bot
 
-- **Note**: Even though you set the trainer to face the desired PokéBall, it is still important to set `starter` in the config! This option is used by the bot to track frame IDs to ensure a unique starter is generated every time
+- **Note**: Even though you set the trainer to face the desired PokéBall, it is still important to set `starter` in the config! This option is used by the bot to track frames to ensure a unique starter is generated every time
 
-### Johto
-🚧 Coming soon
+### Johto (Emerald)
+1. Select the `starter` in `config/general.yml` - `chikorita`, `cyndaquil` or `totodile`
+2. Face the desired PokéBall in Birch's lab, save the game (**in-game, not a save state**)
+3. Start the bot
+
+- **Note**: Even though you set the trainer to face the desired PokéBall, it is still important to set `starter` in the config! This option is used by the bot to track frames to ensure a unique starter is generated every time
+- **Note**: For the time being, Johto starters will automatically enable the `starters` option in [`config/cheats.yml`](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config), the shininess of the starter is checked via memhacks as start menu navigation is WIP (in future, shininess will be checked via the party summary menu)
 
 <details>
 <summary>✅🟨❌ Click here for support information</summary>
@@ -208,7 +230,7 @@ For privacy reasons, rich presence and webhooks are **disabled** by default.
 `webhooks` - toggle **all** webhooks on/off (individual messages can be toggled, below)
 
 `global_webhook_url` - global Discord webhook URL, default webhook for all Discord webhooks unless specified otherwise
-- ⚠ Warning: this webhook is considered sensitive! If you leak your webhook, anyone will be able to post in your channel
+- ⚠ **Warning**: this webhook is considered sensitive! If you leak your webhook, anyone will be able to post in your channel
 - **Edit Channel** > **Integrations** > **Webhooks** > **New Webhook** > **Copy Webhook URL** to generate a new webhook
 
 `iv_format` - changes IV formatting displayed in messages, set to `basic` or `formatted`
@@ -281,7 +303,7 @@ Perform actions not possible by a human, such as peeking into eggs to check shin
 
 RNG manipulation options may be added to the bot in the future, all cheats are disabled by default.
 
-`starters` - soft reset as soon as possible after receiving the starter Pokémon, this will bypass slow battle animations, saving time
+`starters` - soft reset as soon as possible after receiving the starter Pokémon, this will bypass slow battle/menu animations, saving time
 
 `starters_rng` - inject a random value into `gRngValue` before selecting a starter Pokémon
 - Removes all delays before selecting a starter Pokémon, preventing resets from progressively slowing down over time as the bot waits for unique frames
@@ -303,7 +325,7 @@ RNG manipulation options may be added to the bot in the future, all cheats are d
 
 `screenshot` - take OBS screenshot of shiny encounter
 - Screenshot is taken after `shiny_delay` to allow stream overlays to update
-- ⚠ Warning: this option will emulate the hotkey keystrokes
+- ⚠ **Warning**: this option will emulate the hotkey keystrokes
 - OBS webhooks are planned for the future to remove keystroke presses
 
 `replay_buffer` - save OBS replay buffer after `replay_buffer_delay`
@@ -316,7 +338,7 @@ RNG manipulation options may be added to the bot in the future, all cheats are d
 - The bot expects .png file format if posting to Discord
 
 `hotkey_replay_buffer` - list of keys for OBS save replay buffer hotkey combo
-- ⚠ Warning: this option will emulate the hotkey keystrokes
+- ⚠ **Warning**: this option will emulate the hotkey keystrokes
 - OBS webhooks are planned for the future to remove keystroke presses
 
 `replay_dir` - OBS screenshot/replay buffer directory
@@ -373,7 +395,7 @@ All HTTP responses are in JSON format.
 - **Settings** > **Emulation** > **Idle loops** > **Detect and remove**
   - **Massively** increases unbounded frame rate
   - Decreases emulation accuracy (if you care about that)
-  - ⚠ Warning: don't use this for `starters` mode (unless you are using the [cheat config](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config) `starters_rng`) or any other mode that uses soft resets, you may get many repeated, identical PIDs!
+  - ⚠ **Warning**: don't use this for `starters` mode (unless you are using the [cheat config](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config) `starters_rng`) or any other mode that uses soft resets, you may get many repeated, identical PIDs!
 
 
 - **Settings** > **Emulation** > **Rewind history** > Untick **Enable rewind**

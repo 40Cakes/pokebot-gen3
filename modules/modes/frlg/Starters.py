@@ -5,10 +5,11 @@ from typing import NoReturn
 from modules.Config import config_cheats, config_general
 from modules.Console import console
 from modules.Inputs import PressButton, ResetGame, WaitFrames
-from modules.Memory import GetTrainer, ReadSymbol, GetParty, GameState, GetGameState, GetTask, WriteSymbol, \
-    OpponentChanged, GetOpponent
+from modules.Memory import ReadSymbol, GameState, GetGameState, GetTask, WriteSymbol
 from modules.Navigation import FollowPath
+from modules.Pokemon import GetParty
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
+from modules.Trainer import GetTrainer
 
 session_pids = []
 seen = 0
@@ -65,7 +66,7 @@ def Starters() -> NoReturn:
             dupes += 1
             console.print('[red]Duplicate detected! {} [{}] has already been seen during this bot session, and will not be logged ({:.2f}% dupes this session).'.format(
                 pokemon['name'],
-                hex(pokemon['pid']),
+                hex(pokemon['pid'])[2:],
                 (dupes/seen)*100))
             console.print('[red]If you notice too many dupes or resets taking too long, consider enabling `starters_rng` in `config/cheats.yml`. Ctrl + click [link=https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config]here[/link] for more information on this cheat.\n')
         else:

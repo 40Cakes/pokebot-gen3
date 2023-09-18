@@ -9,8 +9,7 @@
 bot_mode: spin
 
 # Starter - used when `bot_mode` is set to `starters`
-# TODO: add Johto starters
-# `treecko`, `torchic`, `mudkip`, `bulbasaur`, `charmander`, `squirtle`
+# `treecko`, `torchic`, `mudkip`, `bulbasaur`, `charmander`, `squirtle`, `chikorita`, `cyndaquil`, `totodile`
 starter: mudkip
 
 # -----------------------------------------

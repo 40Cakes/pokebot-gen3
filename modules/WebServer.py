@@ -4,8 +4,10 @@ from flask import Flask, abort, jsonify
 
 from modules.Config import config_obs
 from modules.Console import console
-from modules.Memory import GetTrainer, GetParty, GetItems
+from modules.Items import GetItems
+from modules.Pokemon import GetParty
 from modules.Stats import GetEncounterRate, encounter_log, stats, shiny_log
+from modules.Trainer import GetTrainer
 
 
 def WebServer() -> NoReturn:
