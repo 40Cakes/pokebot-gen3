@@ -40,7 +40,7 @@ while True:
     try:
         if config_general['bot_mode'] != 'manual':
             if GetGameState() == GameState.BATTLE:
-                while GetTask('TASK_HANDLEMONANIMATION').get('data', b'0x00000000')[8] != 0: #define tBattlerId data[4]
+                while GetTask('TASK_PLAYCRYWHENRELEASEDFROMBALL').get('data', b'0x0000000')[6]!= 0 and GetTask('SUB_8046AD0').get('data', b'0x0000000')[6]!= 0: #define tCryTaskBattler data[3]
                     PressButton(['B'])
                 while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 1:
                     PressButton(['Right'])

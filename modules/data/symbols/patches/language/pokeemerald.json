@@ -20,6 +20,12 @@
       "J":"817F344",
       "S":"817f088"
     },
+    "TASK_PLAYCRYWHENRELEASEDFROMBALL":{
+      "F":"8075ab8",
+      "I":"8075abc",
+      "J":"80754c4",
+      "S":"8075ab8"
+    },
     "Task_Fishing":{
       "D":"808c8dc",
       "F":"808c8d0",
