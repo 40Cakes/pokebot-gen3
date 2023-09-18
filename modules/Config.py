@@ -272,6 +272,8 @@ properties:
         type: boolean
     starters_rng:
         type: boolean
+    pickup:
+        type: boolean
 """
 
 def LoadConfig(file: str, schema: str) -> dict:
