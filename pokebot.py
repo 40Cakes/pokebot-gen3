@@ -3,7 +3,7 @@ import atexit
 from typing import NoReturn
 from threading import Thread
 from modules.Console import console
-from modules.Config import config_general, config_discord, config_obs
+from modules.Config import config_general, config_discord, config_obs, config_battle
 from modules.Inputs import WriteInputs, WaitFrames
 from modules.Memory import GetGameState, GameState, mGBA
 from modules.Temp import temp_RunFromBattle

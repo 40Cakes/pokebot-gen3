@@ -4,9 +4,10 @@ from typing import NoReturn
 from modules.Config import config_battle
 from modules.Console import console
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import GetGameState, DecodeString, ReadSymbol, mGBA, type_list, pokemon_list, GetParty, GetOpponent, \
-    ParseBattleCursor, ParseTasks, GetTaskFunc, GetLearningMon, GetLearningMove, GetMoveLearningCursorPos
+from modules.Memory import GetGameState, DecodeString, ReadSymbol, mGBA,  ParseTasks, GetTaskFunc
 from modules.Enums import GameState, TaskFunc
+from modules.MenuParsers import ParseBattleCursor, GetLearningMon, GetLearningMove, GetMoveLearningCursorPos
+from modules.Pokemon import pokemon_list, type_list, GetParty, GetOpponent
 
 if mGBA.game in ['Pokémon Ruby', 'Pokémon Sapphire']:
     battle_text = 'What should'  # TODO English only
@@ -42,6 +43,7 @@ def SelectBattleOption(desired_option: int, cursor_type: str = 'gActionSelection
         # mash A until the string changes
         while DecodeString(ReadSymbol('gDisplayedStringBattle')) == current_string:  # TODO English only (Eli's note: same as above)
             PressButton(['A'])
+
 
 def FleeBattle() -> NoReturn:
     """

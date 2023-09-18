@@ -16,7 +16,7 @@ from modules.Config import config_obs, config_logging, config_battle
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import GetGameState, GameState, mGBA
+from modules.Memory import GetGameState, GameState, mGBA, EncodeString, ReadSymbol
 from modules.Trainer import GetTrainer
 from modules.Menuing import CheckForPickup, RotatePokemon
 from modules.Battle import FleeBattle, BattleOpponent

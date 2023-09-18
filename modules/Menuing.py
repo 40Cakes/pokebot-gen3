@@ -3,11 +3,11 @@ from typing import NoReturn
 
 from modules.Config import config_battle, config_cheats
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import ReadSymbol, GetGameState, GetParty, DecodeString, \
-    GetPartyMenuCursorPos, ParseStartMenu, ParseMenu, mGBA, ParseTasks,  GetTaskFunc, \
-    ParsePartyMenuInternal, GetCursorOptions
+from modules.Memory import ReadSymbol, GetGameState, DecodeString, mGBA, GetCursorOptions, ParseTasks, GetTaskFunc
 from modules.Console import console
 from modules.Enums import GameState, TaskFunc
+from modules.MenuParsers import GetPartyMenuCursorPos, ParseStartMenu, ParsePartyMenuInternal, ParseMenu
+from modules.Pokemon import GetParty
 
 
 def CheckForPickup(encounter_total: int) -> NoReturn:
