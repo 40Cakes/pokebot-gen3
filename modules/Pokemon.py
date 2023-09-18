@@ -146,8 +146,9 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
                 'tid': tid,
                 'sid': sid
             },
-            'checksum': checksum,
-            'legal': True if not (struct.unpack('<H', b_Pokemon[28:30])[0] ^ checksum) else False,
+            'checksum': struct.unpack('<H', b_Pokemon[28:30])[0],
+            'calculatedChecksum': checksum,
+            'valid': True if not (struct.unpack('<H', b_Pokemon[28:30])[0] ^ checksum) else False,
             'hasSpecies': (flags >> 0x1) & 0x1,
             'isEgg': (flags >> 0x2) & 0x1,
             'level': int(b_Pokemon[84]) if len(b_Pokemon) > 80 else 0,
@@ -250,7 +251,7 @@ def GetParty(retry: int = 10) -> dict:
                 for p in range(party_count):
                     o = p * 100
                     mon = ParsePokemon(ReadSymbol('gPlayerParty', o, o+100))
-                    if not mon['legal']:
+                    if not mon or not mon['valid']:
                         console.print('[red]Pokémon has invalid checksum! Waiting 1 frame and checking again...')
                         WaitFrames(1)
                         continue
@@ -271,7 +272,7 @@ def GetOpponent() -> dict:
     try:
         while True:
             opponent = ParsePokemon(ReadSymbol('gEnemyParty')[:100])
-            if not opponent['legal']:
+            if not opponent or not opponent['valid']:
                 console.print('[red]Pokémon has invalid checksum! Waiting 1 frame and checking again...')
                 WaitFrames(1)
                 continue
