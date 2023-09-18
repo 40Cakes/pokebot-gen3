@@ -5,10 +5,11 @@ import time
 import numpy
 import struct
 from pymem import Pymem
-from enum import IntEnum
 import win32gui, win32process
 from modules.Console import console
 from modules.Files import ReadFile
+from modules.Enums import GameState, TaskFunc, CursorOptionEFRLG, CursorOptionRS, StartMenuOptionHoenn, \
+    StartMenuOptionKanto
 
 moves_list = json.loads(ReadFile('./modules/data/moves.json'))
 names_list = json.loads(ReadFile('./modules/data/names.json'))
@@ -388,25 +389,6 @@ else:
     setattr(mGBA, 'item_offsets', [(0x498, 200), (0x560, 80), (0x5B0, 80), (0x600, 64), (0x640, 256), (0x740, 184)])
     setattr(mGBA, 'item_key', 0)
 
-
-class GameState(IntEnum):
-    # Menus
-    BAG_MENU = 100
-    CHOOSE_STARTER = 101
-    PARTY_MENU = 102
-    # Battle related
-    BATTLE = 200
-    BATTLE_STARTING = 201
-    BATTLE_ENDING = 202
-    # Misc
-    OVERWORLD = 900
-    CHANGE_MAP = 901
-    TITLE_SCREEN = 902
-    UNKNOWN = 999
-    WHITEOUT = 903
-    GARBAGE_COLLECTION = 904
-    EVOLUTION = 905
-
 def GetGameState() -> GameState:
     callback2 = ReadSymbol('gMain', 4, 4)  #gMain.callback2
     addr = int(struct.unpack('<I', callback2)[0]) - 1
@@ -443,15 +425,6 @@ def GetGameState() -> GameState:
             return GameState.UNKNOWN
 
 
-class TaskFunc(IntEnum):
-    # Menus
-    LEARN_MOVE = 1
-    START_MENU = 2
-    PARTY_MENU = 3
-    # Misc
-    DUMMY_TASK = 0
-
-
 def GetTaskFunc(func: str) -> TaskFunc:
 
     match func:
@@ -463,6 +436,15 @@ def GetTaskFunc(func: str) -> TaskFunc:
             return TaskFunc.START_MENU
         case _:
             return TaskFunc.DUMMY_TASK
+
+
+def GetCursorOptions(idx: int) -> str:
+
+    match mGBA.game:
+        case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
+            return CursorOptionEFRLG(idx).name
+        case _:
+            return CursorOptionRS(idx).name
 
 
 b_Save = GetSaveBlock(2, size=14)  # TODO temp fix, sometimes fails to read pointer if GetTrainer() called before game boots after a reset
@@ -802,6 +784,19 @@ def ParseStartMenu() -> dict:
     """
     tasks = ParseTasks()
     open = False
+    match mGBA.game:
+        case 'Pokémon Ruby' | 'Pokémon Sapphire' | 'Pokémon Emerald':
+            start_menu_options_symbol = 'sCurrentStartMenuActions'
+            num_actions_symbol = 'sNumStartMenuActions'
+            start_menu_enum = StartMenuOptionHoenn
+        case _:
+            start_menu_options_symbol = 'sStartMenuOrder'
+            num_actions_symbol = 'sNumStartMenuItems'
+            start_menu_enum = StartMenuOptionKanto
+    item_indices = [i for i in ReadSymbol(start_menu_options_symbol)]
+    actions = []
+    for i in range(int.from_bytes(ReadSymbol(num_actions_symbol), 'little')):
+        actions.append(start_menu_enum(item_indices[i]).name)
     for task in tasks:
         if GetTaskFunc(task['func']) == TaskFunc.START_MENU and task['isActive']:
             open = True
@@ -809,6 +804,7 @@ def ParseStartMenu() -> dict:
     return {
         "open": open,
         "cursor_pos": struct.unpack('<B', ReadSymbol('sStartMenuCursorPos'))[0],
+        "actions": actions,
     }
 
 
@@ -816,24 +812,29 @@ def GetPartyMenuCursorPos() -> dict:
     """
     Function to parse the party menu data and return usable information
     """
-    slot_id = -1
-    slot_id_2 = -1
+    party_menu = {
+        'slot_id': -1,
+        'slot_id_2': -1,
+    }
     match mGBA.game:
         case 'Pokémon Ruby' | 'Pokémon Sapphire':
-            slot_id = int.from_bytes(ReadMemory(0x0202002F, offset=len(GetParty()) * 136 + 3, size=1), 'little')
-            slot_id_2 = slot_id
+            party_menu['slot_id'] = int.from_bytes(ReadMemory(0x0202002F, offset=len(GetParty()) * 136 + 3, size=1), 'little')
+            party_menu['slot_id_2'] = party_menu['slot_id']
         case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
-            party_menu = ReadSymbol('gPartyMenu')
-            slot_id = struct.unpack('<b', party_menu[9:10])[0]
-            slot_id_2 = struct.unpack('<b', party_menu[10:11])[0]
-    cursors = {
-        'slot_id': slot_id,
-        'slot_id_2': slot_id_2,
-    }
-    if slot_id == -1:
+            pMenu = ReadSymbol('gPartyMenu')
+            party_menu['main_cb'] = GetSymbolName(int(struct.unpack('<I', pMenu[0:4])[0]) - 1)
+            party_menu['taskfunc'] = GetSymbolName(int(struct.unpack('<I', pMenu[4:8])[0]) - 1)
+            party_menu['menu_type_and_layout'] = struct.unpack('<B', pMenu[8:9])[0]
+            party_menu['slot_id'] = struct.unpack('<b', pMenu[9:10])[0]
+            party_menu['slot_id_2'] = struct.unpack('<b', pMenu[10:11])[0]
+            party_menu['action'] = struct.unpack('<B', pMenu[11:12])[0]
+            party_menu['bagItem'] = struct.unpack('<H', pMenu[12:14])[0]
+            party_menu['data1'] = struct.unpack('<h', pMenu[14:16])[0]
+            party_menu['learn_move_state'] = struct.unpack('<h', pMenu[16:18])[0]
+    if party_menu['slot_id'] == -1:
         console.print('Error detecting cursor position.')
         os._exit(1)
-    return cursors
+    return party_menu
 
 
 def ParseFunc(data) -> str:
@@ -902,9 +903,9 @@ def ParseMenu() -> dict:
             min_cursor_pos = struct.unpack('<b', menu[3:4])[0]
             max_cursor_pos = struct.unpack('<b', menu[4:5])[0]
         case 'Pokémon Ruby' | 'Pokémon Sapphire':
-            cursor_pos = int.from_bytes(ReadSymbol('sPokeMenuCursorPos', 0, 1))
+            cursor_pos = int.from_bytes(ReadSymbol('sPokeMenuCursorPos', 0, 1), 'little')
             min_cursor_pos = 0
-            max_cursor_pos = 6
+            max_cursor_pos = int.from_bytes(ReadSymbol('sPokeMenuOptionsNo'), 'little') - 1
         case _:
             print('Not implemented yet.')
             os._exit(1)
@@ -915,5 +916,83 @@ def ParseMenu() -> dict:
     }
 
 
+def ParsePartyMenuInternal() -> dict:
+    """
+    Function to parse info about the party menu
+    """
+    party_menu_info = {}
+    match mGBA.game:
+        case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
+            pmi_pointer = ReadSymbol('sPartyMenuInternal')
+            addr = int(struct.unpack('<I', pmi_pointer)[0]) - 1
+            party_menu_internal = ReadMemory(addr, 0, int(30))
+            party_menu_info = {
+                "actions": [struct.unpack('<B', party_menu_internal[16 + i:17 + i])[0] for i in range(8)],
+                "numActions": struct.unpack('<B', party_menu_internal[24:25])[0],
+            }
+        case "Pokémon Ruby" | "Pokémon Sapphire":
+            actions = []
+            num_actions = int.from_bytes(ReadSymbol('sPokeMenuOptionsNo'), 'little')
+            for i in range(num_actions):
+                actions.append(ReadSymbol('sPokeMenuOptionsOrder')[i])
+            party_menu_info = {
+                "actions": actions,
+                "numActions": num_actions
+            }
+        case _:
+            print('Not implemented yet.')
+            os._exit(1)
+    return party_menu_info
+
+
 def ParseBattleCursor(cursor_type: str) -> int:
     return int.from_bytes(ReadSymbol(cursor_type, 0, 4), 'little')
+
+
+def GetLearningMon() -> dict:
+    idx = 0
+    match mGBA.game:
+        case 'Pokémon FireRed' | 'Pokémon LeafGreen':
+            if ParseMain()['callback_1'] == 'BATTLEMAINCB1':
+                idx = int.from_bytes(ReadMemory(
+                    struct.unpack('<I', ReadSymbol('gBattleStruct'))[0], offset=0x10, size=1), 'little')
+            else:
+                console.print('Not yet implemented...')
+                os._exit(1)
+        case 'Pokémon Emerald':
+            idx = int.from_bytes(ReadMemory(
+                struct.unpack('<I', ReadSymbol('sMonSummaryScreen'))[0], offset=0x40BE, size=1), 'little')
+        case 'Pokémon Ruby' | 'Pokémon Sapphire':
+            idx = int.from_bytes(ReadSymbol('gSharedMem', offset=0x18009, size=1), 'little')
+        case _:
+            console.print('Not yet implemented...')
+            os._exit(1)
+    return GetParty()[idx]
+
+
+def GetLearningMove() -> dict:
+    """
+    helper function that returns the move trying to be learned
+    """
+    match mGBA.game:
+        case 'Pokémon Emerald':
+            return moves_list[struct.unpack('<H', ReadMemory(
+                struct.unpack('<I', ReadSymbol('sMonSummaryScreen'))[0], offset=0x40C4, size=2))[0]]
+        case 'Pokémon FireRed' | 'Pokémon LeafGreen':
+            return moves_list[struct.unpack('<H', ReadSymbol('gMoveToLearn'))[0]]
+        case 'Pokémon Ruby' | 'Pokémon Sapphire':
+            return moves_list[int.from_bytes(ReadSymbol('gMoveToLearn', size=1), 'little')]
+
+
+def GetMoveLearningCursorPos() -> int:
+    """
+    helper function that returns the position of the move learning cursor
+    """
+    match mGBA.game:
+        case 'Pokémon Emerald':
+            return int.from_bytes(ReadMemory(
+                struct.unpack('<I', ReadSymbol('sMonSummaryScreen'))[0], offset=0x40C6, size=1), 'little')
+        case 'Pokémon FireRed' | 'Pokémon LeafGreen':
+            return int.from_bytes(ReadSymbol('sMoveSelectionCursorPos'), 'little')
+        case 'Pokémon Ruby' | 'Pokémon Sapphire':
+            return int.from_bytes(ReadSymbol('gSharedMem', offset=0x18079, size=1), 'little')
