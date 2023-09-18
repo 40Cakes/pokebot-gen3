@@ -57,6 +57,8 @@ Variations of games, languages and revisions may have different memory offsets, 
 - 🟨 Supported (not tested)
 - ❌ Not supported
 
+ROM hacks will not work, and are ❌ **not supported** or planned to be supported!
+
 ***
 
 # 🤖 Bot Modes
