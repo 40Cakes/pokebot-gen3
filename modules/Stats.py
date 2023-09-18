@@ -17,7 +17,8 @@ from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import GetTrainer, GetGameState, GameState, EncodeString, ReadSymbol, mGBA
-from modules.Menuing import FleeBattle, BattleOpponent, CheckForPickup, RotatePokemon
+from modules.Menuing import CheckForPickup, RotatePokemon
+from modules.Battle import FleeBattle, BattleOpponent
 
 safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
 trainer_dir = '{}/{}-{}'.format(
@@ -646,4 +647,4 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
             while GetGameState() != GameState.OVERWORLD:
                 continue
             if GetGameState() == GameState.OVERWORLD:
-                    CheckForPickup()
+                CheckForPickup(stats['totals'].get('encounters', 0))
