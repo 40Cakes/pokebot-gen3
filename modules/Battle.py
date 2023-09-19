@@ -232,7 +232,8 @@ def HandleMoveLearn():
                         if task['isActive']:
                             on_learn_screen = True
                             break
-                PressButton(['A'])
+                if not on_learn_screen:
+                    PressButton(['A'])
 
             learning_mon = GetLearningMon()
             learning_move = GetLearningMove()
