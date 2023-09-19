@@ -141,6 +141,12 @@ battle_schema = """
     pickup_check_frequency:
         type: integer
         minimum: 1
+    faint_action:
+        type: string
+        enum:
+            - stop
+            - flee
+            - rotate
     new_move:
         type: string
         enum:

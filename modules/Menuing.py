@@ -146,17 +146,11 @@ def NavigateMenu(desired_option: str) -> NoReturn:
             desired_index = i
             break
     if desired_index == -1:
-        console.print("Desired option not found.")
+        console.print(f"Desired option {desired_option} not found in {[GetCursorOptions(party_menu_internal['actions'][i]) for i in range(party_menu_internal['numActions'])]}.")
         os._exit(-1)
     if ParseMenu()['cursorPos'] > ParseMenu()['maxCursorPos'] or desired_index < ParseMenu()['minCursorPos']:
         console.print('Can\'t select this option.')
         return
-    while ParseMenu()['cursorPos'] != desired_index:
-
-        if ParseMenu()['cursorPos'] > desired_index:
-            PressButton(['Up'])
-        else:
-            PressButton(['Down'])
 
     while ParseMenu()['cursorPos'] != desired_index:
         if ParseMenu()['cursorPos'] < desired_index:

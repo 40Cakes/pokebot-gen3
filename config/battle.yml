@@ -15,6 +15,10 @@ pickup_threshold: 3
 # Valid option: (positive integer)
 pickup_check_frequency: 5
 
+# What to do if the lead pokemon faints.
+# Valid option: `stop`, `flee`, `rotate`
+faint_action: rotate
+
 # Toggle handling of new move learning
 # If stop is selected, the bot will exit and let you control. If cancel is selected, all new moves will
 # not be learned. This will also cancel any evolutions that happen during run time.
