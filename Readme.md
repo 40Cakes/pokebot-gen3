@@ -249,6 +249,21 @@ For privacy reasons, rich presence and webhooks are **disabled** by default.
 
 `bot_id` - set to any string you want, this string is added to the footer of all Discord messages, it can be useful to identify bots if multiple are set to post in the same channel
 
+#### Webhook parameters
+`enable` - toggle the webhook on/off
+
+`webhook_url` - set to post specific message types to different channels, defaults to `global_webhook_url` if not set
+- Commented out in config file by default, remove the leading `#` to uncomment
+
+Each webhook type also supports pinging @users or @roles.
+
+`ping_mode` - set to `user` or `role`
+- Leave blank to disable pings
+
+`ping_id` - set to user/role ID 
+- **Settings** > **Advanced** > Enable **Developer Mode** to enable Discord developer mode
+- Right click **user/role** > **Copy ID**
+
 #### Webhook types
 `shiny_pokemon_encounter` - Shiny Pokémon encounters
  
@@ -275,21 +290,6 @@ For privacy reasons, rich presence and webhooks are **disabled** by default.
 - An [SV](https://bulbapedia.bulbagarden.net/wiki/Personality_value#Shininess) of `65,528 - 65,535` is considered anti-shiny
 
 ![Discord_G2hvTZG21a](https://github.com/40Cakes/pokebot-gen3/assets/16377135/3f04d1cf-4040-4163-80d2-13cac84eed1f)
-
-#### Webhook parameters
-`enable` - toggle the webhook on/off
-
-`webhook_url` - set to post specific message types to different channels, defaults to `global_webhook_url` if not set
-- Commented out in config file by default, remove the leading `#` to uncomment
-
-Each webhook type also supports pinging @users or @roles.
-
-`ping_mode` - set to `user` or `role`
-- Leave blank to disable pings
-
-`ping_id` - set to user/role ID 
-- **Settings** > **Advanced** > Enable **Developer Mode** to enable Discord developer mode
-- Right click **user/role** > **Copy ID**
 
 </details>
 
