@@ -255,12 +255,16 @@ def GetParty(retry: int = 10) -> dict:
                 for p in range(party_count):
                     o = p * 100
                     mon = ParsePokemon(ReadSymbol('gPlayerParty', o, o+100))
+                    for i in range(retry):
+                        if not mon:
+                            console.print('[red]Pokémon has invalid checksum! Waiting 1 frame and checking again...')
+                            WaitFrames(1)
+                            mon = ParsePokemon(ReadSymbol('gPlayerParty', o, o + 100))
+                        else:
+                            party[p] = mon
+                            break
                     if not mon:
-                        console.print('[red]Pokémon has invalid checksum! Waiting 1 frame and checking again...')
-                        WaitFrames(1)
-                        continue
-                    else:
-                        party[p] = mon
+                        console.print("Error parsing party pokemon!")
                 return party
             return {}
     except:
@@ -276,12 +280,15 @@ def GetOpponent() -> dict:
     try:
         while True:
             mon = ParsePokemon(ReadSymbol('gEnemyParty')[:100])
-            if not mon:
-                console.print('[red]Pokémon has invalid checksum! Waiting 1 frame and checking again...')
-                WaitFrames(1)
-                continue
-            else:
-                return mon
+            # try
+            for i in range(30):
+                if not mon:
+                    console.print('[red]Pokémon has invalid checksum! Waiting 1 frame and checking again...')
+                    WaitFrames(1)
+                    mon = ParsePokemon(ReadSymbol('gEnemyParty')[:100])
+                else:
+                    return mon
+            console.print("Error parsing pokemon!")
     except:
         console.print_exception(show_locals=True)
 
