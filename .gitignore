@@ -9,6 +9,7 @@ build/
 config/*/
 dist/
 logs/
+mgba/
 mGBA*win64/
 stats/
 stream/

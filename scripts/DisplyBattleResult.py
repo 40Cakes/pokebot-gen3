@@ -3,7 +3,8 @@
 import struct
 from rich.table import Table
 from rich.live import Live
-from modules.Memory import ReadSymbol, DecodeString
+from modules.Game import DecodeString
+from modules.Memory import ReadSymbol
 from modules.Pokemon import names_list
 
 

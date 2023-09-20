@@ -4,6 +4,7 @@ from pypresence import Presence
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from modules.Console import console
 from modules.Config import config_discord, config_obs
+from modules.Game import game
 from modules.Inputs import WaitFrames
 
 
@@ -53,14 +54,13 @@ def DiscordMessage(webhook_url: str = None,
 def DiscordRichPresence() -> NoReturn:
     try:
         from modules.Stats import GetEncounterRate, encounter_log, stats
-        from modules.Memory import mGBA
         from asyncio import (new_event_loop as new_loop, set_event_loop as set_loop)
         set_loop(new_loop())
         RPC = Presence('1125400717054713866')
         RPC.connect()
         start = time.time()
 
-        match mGBA.game:
+        match game.name:
             case 'Pokémon Ruby': large_image = 'groudon'
             case 'Pokémon Sapphire': large_image = 'kyogre'
             case 'Pokémon Emerald': large_image = 'rayquaza'
@@ -72,7 +72,7 @@ def DiscordRichPresence() -> NoReturn:
                 RPC.update(
                     state='{} | {}'.format(
                             encounter_log['encounter_log'][-1]['pokemon']['metLocation'],
-                            mGBA.game),
+                        game.name),
                     details='{:,} ({:,}✨) | {:,}/h'.format(
                             stats['totals'].get('encounters', 0),
                             stats['totals'].get('shiny_encounters', 0),

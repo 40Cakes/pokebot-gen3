@@ -1,7 +1,8 @@
 import struct
 
 from modules.Console import console
-from modules.Memory import GetSaveBlock, ReadSymbol, DecodeString
+from modules.Game import DecodeString
+from modules.Memory import GetSaveBlock, ReadSymbol
 
 
 def FacingDir(direction: int) -> str:

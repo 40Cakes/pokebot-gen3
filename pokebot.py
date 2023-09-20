@@ -4,8 +4,9 @@ from typing import NoReturn
 from threading import Thread
 from modules.Console import console
 from modules.Config import config_general, config_discord, config_obs
+from modules.Game import game
 from modules.Inputs import WriteInputs, WaitFrames
-from modules.Memory import GetGameState, GameState, mGBA
+from modules.Memory import GetGameState, GameState
 from modules.Temp import temp_RunFromBattle
 from modules.Pokemon import OpponentChanged, GetOpponent
 from modules.Stats import EncounterPokemon
@@ -53,7 +54,7 @@ while True:
                 ModeSpin()
 
             case 'starters':
-                if mGBA.game in ['Pokémon LeafGreen', 'Pokémon FireRed']:
+                if game.name in ['Pokémon LeafGreen', 'Pokémon FireRed']:
                     from modules.modes.frlg.Starters import Starters
                 else:
                     from modules.modes.rse.Starters import Starters

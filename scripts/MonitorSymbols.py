@@ -5,7 +5,8 @@ import time
 from rich.live import Live
 from rich.table import Table
 
-from modules.Memory import DecodeString, ReadSymbol
+from modules.Game import DecodeString
+from modules.Memory import ReadSymbol
 
 symbols = ['sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4']
 

@@ -5,12 +5,13 @@ from typing import NoReturn
 
 from modules.Config import config_general, config_cheats
 from modules.Console import console
+from modules.Game import game
 from modules.Inputs import PressButton, ResetGame, WaitFrames
-from modules.Memory import ReadSymbol, GetGameState, GameState, GetTask, mGBA, WriteSymbol
+from modules.Memory import ReadSymbol, GetGameState, GameState, GetTask, WriteSymbol
 from modules.Pokemon import GetParty, OpponentChanged, GetOpponent
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
 
-if mGBA.game == 'Pokémon Emerald':
+if game.name == 'Pokémon Emerald':
     t_bag_cursor = 'TASK_HANDLESTARTERCHOOSEINPUT'
     t_confirm = 'TASK_HANDLECONFIRMSTARTERINPUT'
     t_ball_throw = 'TASK_PLAYCRYWHENRELEASEDFROMBALL'
@@ -85,7 +86,7 @@ def Starters() -> NoReturn:
                 session_pids.append(pokemon['pid'])
 
         # Johto starters (Emerald only)
-        elif mGBA.game == 'Pokémon Emerald' and config_general['starter'] in ['chikorita', 'totodile', 'cyndaquil']:
+        elif game.name == 'Pokémon Emerald' and config_general['starter'] in ['chikorita', 'totodile', 'cyndaquil']:
             config_cheats['starters'] = True  # TODO temporary until menu navigation is ready
             console.print('[red]Note: Johto starters enables the fast `starters` check option in `config/cheats.yml`, the shininess of the starter is checked via memhacks while start menu navigation is WIP (in future, shininess will be checked via the party summary menu).')
 
@@ -138,7 +139,7 @@ def Starters() -> NoReturn:
 
         else:
             console.print('[red]Invalid `starter` config for {} ({})!'.format(
-                mGBA.game,
+                game.name,
                 config_general['starter']))
             input('Press enter to exit...')
             os._exit(1)

@@ -2,7 +2,7 @@ import os
 from jsonschema import validate
 from ruamel.yaml import YAML
 from modules.Console import console
-from modules.Memory import mGBA
+from modules.Game import game
 from modules.Trainer import GetTrainer
 
 yaml = YAML()
@@ -10,6 +10,11 @@ yaml = YAML()
 general_schema = """
 type: object
 properties:
+    emulator_mode:
+        type: string
+        enum:
+            - libmgba
+            - pymem_mgba
     bot_mode:
         type: string
         enum:
@@ -292,7 +297,7 @@ def LoadConfig(file: str, schema: str) -> dict:
 
 safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
 trainer_dir = '{}/{}-{}'.format(
-    mGBA.game_code,
+    game.code,
     GetTrainer()['tid'],
     safe_trainer_name
 )

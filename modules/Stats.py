@@ -14,13 +14,14 @@ from modules.Colours import IVColour, IVSumColour, SVColour
 from modules.Config import config_obs, config_logging
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
+from modules.Game import game
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import GetGameState, GameState, mGBA
+from modules.Memory import GetGameState, GameState
 from modules.Trainer import GetTrainer
 
 safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
 trainer_dir = '{}/{}-{}'.format(
-    mGBA.game_code,
+    game.code,
     GetTrainer()['tid'],
     safe_trainer_name
 )
@@ -35,7 +36,7 @@ files = {
 try:
     if os.path.isfile('./config/{}/CustomCatchFilters.py'.format(trainer_dir)):
         CustomCatchFilters = importlib.import_module('.CustomCatchFilters', 'config.{}.{}-{}'.format(
-            mGBA.game_code,
+            game.code,
             GetTrainer()['tid'],
             safe_trainer_name)).CustomCatchFilters
     else:
@@ -43,7 +44,7 @@ try:
 
     if os.path.isfile('./config/{}/CustomHooks.py'.format(trainer_dir)):
         CustomHooks = importlib.import_module('.CustomHooks', 'config.{}.{}-{}'.format(
-            mGBA.game_code,
+            game.code,
             GetTrainer()['tid'],
             safe_trainer_name)).CustomHooks
     else:
