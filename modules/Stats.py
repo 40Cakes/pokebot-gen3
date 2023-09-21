@@ -18,6 +18,7 @@ from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import GetGameState, GameState, mGBA
 from modules.Trainer import GetTrainer
+from modules.CatchBlockList import GetBlockList
 
 safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
 trainer_dir = '{}/{}-{}'.format(
@@ -573,12 +574,12 @@ def LogEncounter(pokemon: dict) -> NoReturn:
             stats['totals'].pop('phase_streak_pokemon', None)
 
             # Reset Pokémon phase stats
-            for pokemon['name'] in stats['pokemon']:
-                stats['pokemon'][pokemon['name']].pop('phase_encounters', None)
-                stats['pokemon'][pokemon['name']].pop('phase_highest_sv', None)
-                stats['pokemon'][pokemon['name']].pop('phase_lowest_sv', None)
-                stats['pokemon'][pokemon['name']].pop('phase_highest_iv_sum', None)
-                stats['pokemon'][pokemon['name']].pop('phase_lowest_iv_sum', None)
+            for n in stats['pokemon']:
+                stats['pokemon'][n].pop('phase_encounters', None)
+                stats['pokemon'][n].pop('phase_highest_sv', None)
+                stats['pokemon'][n].pop('phase_lowest_sv', None)
+                stats['pokemon'][n].pop('phase_highest_iv_sum', None)
+                stats['pokemon'][n].pop('phase_lowest_iv_sum', None)
 
         # Save stats file
         WriteFile(files['totals'], json.dumps(stats, indent=4, sort_keys=True))
@@ -608,9 +609,16 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
 
     # TODO temporary until auto-catch is ready
     if pokemon['shiny']:
-        console.print('[bold yellow]Shiny found!')
-        input('Press enter to exit...')
-        os._exit(0)
+        console.print('Shiny found!')
+        # Reload CatchBlockList and check if encounter is on there
+        blockList = GetBlockList()
+        if pokemon['name'] in blockList["block_list"]:
+            console.print('[bold yellow]' + pokemon['name'] + ' is on the CatchBlockList, skipping encounter.')
+
+        else:
+            # Not on CatchBlockList, catch Pokémon
+            input('Press enter to exit...')
+            os._exit(0)
 
     if CustomCatchFilters(pokemon):
         console.print('[bold green]Custom filter Pokemon found!')
