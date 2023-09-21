@@ -2,23 +2,17 @@ import random
 from modules.Console import console
 from modules.Inputs import PressButton, WaitFrames, ReleaseInputs
 from modules.Memory import GetTask
-from modules.Navigation import FollowPath
 from modules.Trainer import GetTrainer
+from modules.CatchBlockList import GetBlockList
 
 
-home = GetTrainer()['coords']
-
-
+blockList = GetBlockList()
 def ModeSpin():
     try:
-        if GetTrainer()['coords'] != home:
-            console.print('[red]Trainer has moved off the home tile! Attempting to walk back to {}...'.format(home))
-            FollowPath([(home[0], GetTrainer()['coords'][1])])
-            FollowPath([(GetTrainer()['coords'][0], home[1])])
-
+        # TODO home position, FollowPath() if trainer walks off
         ReleaseInputs()
         directions = ['Up', 'Right', 'Down', 'Left']
-        directions.remove(GetTrainer()['facing'])
+        directions.remove(GetTrainer()['facing'])  # Remove currently facing direction from possible inputs
         PressButton([random.choice(directions)])
         WaitFrames(5)
 
