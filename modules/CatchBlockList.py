@@ -13,7 +13,7 @@ properties:
         type: array
         uniqueItems: true"""
 
-file = "stats\CatchBlockList.yml"
+file = "config\CatchBlockList.yml"
 
 def GetBlockList():
     try:
