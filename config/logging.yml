@@ -1,5 +1,5 @@
 # Logging/console output options
-# See readme for documentation
+# See readme for documentation: https://github.com/40Cakes/pokebot-gen3#-configuration
 
 # Log encounters to .csv files
 log_encounters: true # `true`, `false`
