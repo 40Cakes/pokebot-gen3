@@ -18,7 +18,6 @@ from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import GetGameState, GameState, mGBA
 from modules.Trainer import GetTrainer
-from modules.CatchBlockList import GetBlockList
 
 safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
 trainer_dir = '{}/{}-{}'.format(
@@ -609,14 +608,20 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
 
     # TODO temporary until auto-catch is ready
     if pokemon['shiny']:
-        console.print('Shiny found!')
-        # Reload CatchBlockList and check if encounter is on there
-        blockList = GetBlockList()
-        if pokemon['name'] in blockList["block_list"]:
-            console.print('[bold yellow]' + pokemon['name'] + ' is on the CatchBlockList, skipping encounter.')
+        console.print('[bold yellow]Shiny found!')
 
+        # Load catch block config
+        from modules.Config import config_dir, catch_block_schema, LoadConfig
+        if os.path.isfile('{}/catch_block.yml'.format(config_dir)):
+            config_catch_block = LoadConfig('{}/catch_block.yml'.format(config_dir), catch_block_schema)
         else:
-            # Not on CatchBlockList, catch Pokémon
+            config_catch_block = LoadConfig('config/catch_block.yml', catch_block_schema)
+
+        console.print(config_catch_block['block_list'])
+
+        if pokemon['name'] in config_catch_block['block_list']:
+            console.print('[bold yellow]' + pokemon['name'] + ' is on the catch block list, skipping encounter...')
+        else:
             input('Press enter to exit...')
             os._exit(0)
 

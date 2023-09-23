@@ -265,6 +265,15 @@ properties:
         type: boolean
 """
 
+catch_block_schema = """
+type: object
+properties:
+    block_list:
+        type: array
+        uniqueItems: true
+"""
+
+
 def LoadConfig(file: str, schema: str) -> dict:
     try:
         if os.path.exists(file):
