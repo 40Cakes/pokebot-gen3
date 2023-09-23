@@ -42,7 +42,6 @@
 16777216, fe1558a3dcb0360ab558969e09b690888b846dd9, ./roms/BPE/S/0/Pokemon - Edicion Esmeralda (Spain).gba
 
 16777216, 0802d1fb185ee3ed48d9a22afb25e66424076dac, ./roms/BPG/D/0/Pokemon - Blattgruene Edition (Germany).gba
-16777216, 574fa542ffebb14be69902d1d36f1ec0a4afd71e, ./roms/BPG/E/0/Pokemon - Leaf Green Version (USA).gba
 16777216, 574fa542ffebb14be69902d1d36f1ec0a4afd71e, ./roms/BPG/E/0/Pokemon - LeafGreen Version (USA).gba
 16777216, 7862c67bdecbe21d1d69ce082ce34327e1c6ed5e, ./roms/BPG/E/1/Pokemon - LeafGreen Version (USA, Europe) (Rev 1).gba
 16777216, 4b5758c14d0a07b70ef3ef0bd7fa5e7ce6978672, ./roms/BPG/F/0/Pokemon - Version Vert Feuille (France).gba
