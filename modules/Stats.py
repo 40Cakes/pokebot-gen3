@@ -617,8 +617,6 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
         else:
             config_catch_block = LoadConfig('config/catch_block.yml', catch_block_schema)
 
-        console.print(config_catch_block['block_list'])
-
         if pokemon['name'] in config_catch_block['block_list']:
             console.print('[bold yellow]' + pokemon['name'] + ' is on the catch block list, skipping encounter...')
         else:
