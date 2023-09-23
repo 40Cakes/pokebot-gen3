@@ -573,12 +573,12 @@ def LogEncounter(pokemon: dict) -> NoReturn:
             stats['totals'].pop('phase_streak_pokemon', None)
 
             # Reset Pokémon phase stats
-            for pokemon['name'] in stats['pokemon']:
-                stats['pokemon'][pokemon['name']].pop('phase_encounters', None)
-                stats['pokemon'][pokemon['name']].pop('phase_highest_sv', None)
-                stats['pokemon'][pokemon['name']].pop('phase_lowest_sv', None)
-                stats['pokemon'][pokemon['name']].pop('phase_highest_iv_sum', None)
-                stats['pokemon'][pokemon['name']].pop('phase_lowest_iv_sum', None)
+            for n in stats['pokemon']:
+                stats['pokemon'][n].pop('phase_encounters', None)
+                stats['pokemon'][n].pop('phase_highest_sv', None)
+                stats['pokemon'][n].pop('phase_lowest_sv', None)
+                stats['pokemon'][n].pop('phase_highest_iv_sum', None)
+                stats['pokemon'][n].pop('phase_lowest_iv_sum', None)
 
         # Save stats file
         WriteFile(files['totals'], json.dumps(stats, indent=4, sort_keys=True))
@@ -609,8 +609,21 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
     # TODO temporary until auto-catch is ready
     if pokemon['shiny']:
         console.print('[bold yellow]Shiny found!')
-        input('Press enter to exit...')
-        os._exit(0)
+
+        # Load catch block config
+        from modules.Config import config_dir, catch_block_schema, LoadConfig
+        if os.path.isfile('{}/catch_block.yml'.format(config_dir)):
+            config_catch_block = LoadConfig('{}/catch_block.yml'.format(config_dir), catch_block_schema)
+        else:
+            config_catch_block = LoadConfig('config/catch_block.yml', catch_block_schema)
+
+        console.print(config_catch_block['block_list'])
+
+        if pokemon['name'] in config_catch_block['block_list']:
+            console.print('[bold yellow]' + pokemon['name'] + ' is on the catch block list, skipping encounter...')
+        else:
+            input('Press enter to exit...')
+            os._exit(0)
 
     if CustomCatchFilters(pokemon):
         console.print('[bold green]Custom filter Pokemon found!')
