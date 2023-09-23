@@ -310,8 +310,8 @@ block_list:
   - Rattata
 ```
 
-- **Note**: phase stats will still be reset after encountering a shiny.
-- The list is reloaded by the bot after every shiny encounter, so you can modify this file while the bot is running!
+- **Note**: phase stats will still be reset after encountering a shiny on the block list.
+- The block list is reloaded by the bot after every shiny encounter, so you can modify this file while the bot is running!
 
 </details>
 
