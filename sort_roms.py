@@ -3,7 +3,7 @@ import hashlib
 import shutil
 from pathlib import Path
 
-print('\nPlace all of your .gba Pokémon ROMS into the same folder as this script.')
+print('\nPlace all of your .gba Pokémon ROMs into the same folder as this script.')
 print('ROMs will be verified and sorted into directories in the following format: `./roms/<GAME_CODE>/<LANGUAGE>/<REVISION>/`.')
 print('For example, `Pokemon - Sapphire Version (USA, Europe) (Rev 2).gba` will be moved to `./roms/AXP/E/2/`.')
 input('\nPress enter when ready...')
@@ -59,8 +59,10 @@ hashes = {
     "ab8f6bfe0ccdaf41188cd015c8c74c314d02296a": "./roms/BPR/S/0/"
 }
 
+n = 0
 files = Path('.').glob('*.gba')
 for file in files:
+    n += 1
     sha1 = hashlib.sha1()
     print('\nChecking file `{}`...'.format(file))
     with open(file, 'rb') as f:
@@ -85,3 +87,8 @@ for file in files:
         print('Unrecognised ROM! Ignoring `{}`...'.format(
             file
         ))
+if n > 0:
+    print('\nSorted {:,} ROMs!'.format(n))
+else:
+    print('\nNo .gba ROMs found!')
+input('\nPress enter to exit...')
