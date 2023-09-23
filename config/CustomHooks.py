@@ -67,10 +67,22 @@ def CustomHooks(hook) -> NoReturn:
                             discord_ping = '📢 <@&{}>'.format(config_discord['shiny_pokemon_encounter']['ping_id'])
                         case 'user':
                             discord_ping = '📢 <@{}>'.format(config_discord['shiny_pokemon_encounter']['ping_id'])
+
+                    # Load catch block config
+                    from modules.Config import config_dir, catch_block_schema, LoadConfig
+                    if os.path.isfile('{}/catch_block.yml'.format(config_dir)):
+                        config_catch_block = LoadConfig('{}/catch_block.yml'.format(config_dir), catch_block_schema)
+                    else:
+                        config_catch_block = LoadConfig('config/catch_block.yml', catch_block_schema)
+
+                    block = '\n❌Skipping catching shiny (on catch block list)!' \
+                        if pokemon['name'] in config_catch_block['block_list'] else ''
+
                     DiscordMessage(
                         webhook_url=config_discord['shiny_pokemon_encounter'].get('webhook_url', None),
-                        content='Encountered a shiny ✨ {} ✨!\n{}'.format(
+                        content='Encountered a shiny ✨ {} ✨! {}\n{}'.format(
                                 pokemon['name'],
+                                block,
                                 discord_ping
                         ),
                         embed=True,
