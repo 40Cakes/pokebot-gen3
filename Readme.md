@@ -160,6 +160,7 @@ Example:
 ```
 ├── /config
     │   battle.yml             <-- loaded for all saves
+    │   catch_block.yml        <-- loaded for all saves
     │   cheats.yml             <-- loaded for all saves
     │   CustomCatchFilters.py  <-- loaded for all saves
     │   CustomHooks.py         <-- loaded for all saves
@@ -195,7 +196,7 @@ Example:
 <summary>Click to expand</summary>
 
 ### Logging
-`log_encounters` - Log all encounters to .csv (`stats/encounters/` folder), each phase is logged to a separate file
+`log_encounters` - log all encounters to .csv (`stats/encounters/` folder), each phase is logged to a separate file
 
 ### Console output
 The following `console` options will control how much data is displayed in the Python terminal/console, valid options are `verbose`, `basic` or `disable`
@@ -205,7 +206,7 @@ The following `console` options will control how much data is displayed in the P
 - `statistics`
 
 ### Backups
-`backup_stats` - Zips up and backup `stats/` folder every `n` total encounters
+`backup_stats` - zips up and backup `stats/` folder every `n` total encounters
 - Files in `stats/` are known to get corrupted during power outages
 - Backups are stored in `backups/`
 - Make sure you regularly delete old backups (especially if your stats folder is large!)
@@ -292,6 +293,28 @@ Each webhook type also supports pinging @users or @roles.
 ![Discord_G2hvTZG21a](https://github.com/40Cakes/pokebot-gen3/assets/16377135/3f04d1cf-4040-4163-80d2-13cac84eed1f)
 
 </details>
+
+## `catch_block.yml` - Catch block config
+
+<details>
+<summary>Click to expand</summary>
+
+### Block list
+A list of shinies to skip catching, useful if you don't want to fill up your PC with very common encounters.
+
+`block_list` - list of Pokémon to skip catching, example:
+```
+block_list:
+  - Poochyena
+  - Pidgey
+  - Rattata
+```
+
+- **Note**: phase stats will still be reset after encountering a shiny.
+- The list is reloaded by the bot after every shiny encounter, so you can modify this file while the bot is running!
+
+</details>
+
 
 ## `cheats.yml` - Cheats config
 
