@@ -350,7 +350,7 @@ Enable WebSockets in **OBS** > **Tools** > **Websocket Server Settings** > **Ena
 
 `port` - TCP port OBS WebSockets is listening on
 
-`password` - 
+`password` - password to authenticate to WebSocket server (**required**)
 
 #### OBS WebSocket Parameters
 
@@ -368,14 +368,14 @@ Enable WebSockets in **OBS** > **Tools** > **Websocket Server Settings** > **Ena
 - The bot does **not** emulate keystrokes, it simply sends a `TriggerHotkeyByKeySequence` (**Ctrl + F12**) WebSocket command 
 
 `replay_buffer_delay` - delay saving OBS replay buffer by `n` frames
-- If your buffer is long enough, you can use this to capture some encounters after the shiny encounter
 - Runs in a separate thread and will not pause main bot thread
+- If the replay buffer is long enough, it will also capture some encounters after the shiny encounter
+
+`discord_webhook_url` - Discord webhook URL to post OBS `screenshot`, after a shiny encounter
 
 `replay_dir` - OBS screenshot/replay buffer directory
 - **OBS** > **Settings** > **Output** > **Recording** > **Recording Path**
 - Relative directory to `pokebot.py`, this is used to post stream `screenshot` to Discord if `discord_webhook_url` is set
-
-`discord_webhook_url` - Discord webhook URL to post OBS `screenshot`, after a shiny encounter
 
 ### Web server
 The `http_server` config will enable a Flask HTTP server, which can be used to retrieve data and drive stream overlays.
