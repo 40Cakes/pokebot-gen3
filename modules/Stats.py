@@ -4,7 +4,6 @@ import json
 import math
 import time
 import importlib
-import pydirectinput
 import pandas as pd
 from typing import NoReturn
 from threading import Thread
@@ -533,14 +532,13 @@ def LogEncounter(pokemon: dict) -> NoReturn:
 
         if pokemon['shiny']:
             WaitFrames(config_obs.get('shiny_delay', 1))
-        if config_obs.get('enable_screenshot', None) and pokemon['shiny']:
+
+        if config_obs['screenshot'] and pokemon['shiny']:
+            from modules.OBS import OBSHotKey
             while GetGameState() != GameState.BATTLE:
                 PressButton(['B'])  # Throw out Pokémon for screenshot
             WaitFrames(180)
-            for key in config_obs['hotkey_screenshot']:
-                pydirectinput.keyDown(key)
-            for key in reversed(config_obs['hotkey_screenshot']):
-                pydirectinput.keyUp(key)
+            OBSHotKey('OBS_KEY_F11', pressCtrl=True)
 
         # Run custom code in CustomHooks in a thread
         hook = (copy.deepcopy(pokemon), copy.deepcopy(stats))

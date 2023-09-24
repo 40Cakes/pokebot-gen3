@@ -2,7 +2,6 @@ import os
 import glob
 import time
 import random
-import pydirectinput
 from typing import NoReturn
 from threading import Thread
 from modules.Config import config_discord, config_obs
@@ -338,29 +337,27 @@ def CustomHooks(hook) -> NoReturn:
     try:
         # Post the most recent OBS stream screenshot to Discord
         # (screenshot is taken in Stats.py before phase resets)
-        if config_obs.get('webhook_url', None) and pokemon['shiny']:
-            def DiscordScreenshot():
+        if config_obs['discord_webhook_url'] and pokemon['shiny']:
+            def OBSDiscordScreenshot():
                 time.sleep(3) # Give the screenshot some time to save to disk
                 images = glob.glob('{}*.png'.format(config_obs['replay_dir']))
                 image = max(images, key=os.path.getctime)
                 DiscordMessage(
-                    webhook_url=config_obs.get('webhook_url', None),
+                    webhook_url=config_obs.get('discord_webhook_url', None),
                     image=image)
             # Run in a thread to not hold up other hooks
-            Thread(target=DiscordScreenshot).start()
+            Thread(target=OBSDiscordScreenshot).start()
     except:
         console.print_exception(show_locals=True)
 
     try:
-        # Save OBS replay buffer n seconds after encountering a shiny
-        if config_obs.get('enable_replay_buffer', None) and pokemon['shiny']:
-            def ReplayBuffer():
+        # Save OBS replay buffer n frames after encountering a shiny
+        if config_obs['replay_buffer'] and pokemon['shiny']:
+            def OBSReplayBuffer():
+                from modules.OBS import OBSHotKey
                 WaitFrames(config_obs.get('replay_buffer_delay', 0))
-                for key in config_obs['hotkey_replay_buffer']:
-                    pydirectinput.keyDown(key)
-                for key in reversed(config_obs['hotkey_replay_buffer']):
-                    pydirectinput.keyUp(key)
+                OBSHotKey('OBS_KEY_F12', pressCtrl=True)
             # Run in a thread to not hold up other hooks
-            Thread(target=ReplayBuffer).start()
+            Thread(target=OBSReplayBuffer).start()
     except:
         console.print_exception(show_locals=True)

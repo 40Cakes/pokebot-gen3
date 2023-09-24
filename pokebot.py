@@ -29,7 +29,7 @@ try:
         from modules.Discord import DiscordRichPresence
         Thread(target=DiscordRichPresence).start()
 
-    if config_obs['server']['enable']:
+    if config_obs['http_server']['enable']:
         from modules.WebServer import WebServer
         Thread(target=WebServer).start()
 except:

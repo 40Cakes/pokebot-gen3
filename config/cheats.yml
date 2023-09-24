@@ -1,5 +1,5 @@
 # Cheats config
-# See readme for documentation: https://github.com/40Cakes/pokebot-gen3#-configuration
+# See readme for documentation: https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config
 
 starters: false # `true`, `false`
 starters_rng: false # `true`, `false`
