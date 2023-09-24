@@ -273,7 +273,6 @@ type: object
 properties:
     block_list:
         type: array
-        uniqueItems: true
 """
 
 
