@@ -11,11 +11,11 @@ discord_delay: 0
 screenshot: false # `true`, `false`
 replay_buffer: false # `true`, `false`
 replay_buffer_delay: 0
-replay_dir: "./stream/replays/"
 discord_webhook_url:
+replay_dir: "./stream/replays/"
 
 # Web server
 http_server:
-  enable: false # `true`, `false`
+  enable: true # `true`, `false`
   ip: 127.0.0.1
   port: 8888
