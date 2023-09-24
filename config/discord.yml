@@ -1,6 +1,5 @@
 # Discord settings
-# See readme for documentation: https://github.com/40Cakes/pokebot-gen3#-configuration
-# See readme for webhook examples: https://github.com/40Cakes/pokebot-gen3#obsyml---obs-config
+# See readme for documentation: https://github.com/40Cakes/pokebot-gen3#discordyml---discord-integration-config
 
 rich_presence: false # `true`, `false`
 global_webhook_url: https://discord.com/api/webhooks/<your_webhook_here>
