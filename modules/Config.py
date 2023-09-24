@@ -150,8 +150,6 @@ type: object
 properties:
     rich_presence:
         type: boolean
-    webhooks:
-        type: boolean
     iv_format:
         type: string
         enum:

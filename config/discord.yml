@@ -1,22 +1,22 @@
 # Discord settings
 # See readme for documentation: https://github.com/40Cakes/pokebot-gen3#-configuration
+# See readme for webhook examples: https://github.com/40Cakes/pokebot-gen3#obsyml---obs-config
 
 rich_presence: false # `true`, `false`
-webhooks: false # `true`, `false`
 global_webhook_url: https://discord.com/api/webhooks/<your_webhook_here>
 iv_format: formatted # `basic`, `formatted`
 bot_id: PokéBot # Any string of text
 
 # Shiny Pokémon encounters
 shiny_pokemon_encounter:
-  enable: true
+  enable: false
   ping_mode:
   ping_id:
   #webhook_url:
 
 # Pokémon encounter milestones
 pokemon_encounter_milestones:
-  enable: true
+  enable: false
   interval: 10000
   ping_mode:
   ping_id:
@@ -24,7 +24,7 @@ pokemon_encounter_milestones:
 
 # Shiny Pokémon encounter milestones
 shiny_pokemon_encounter_milestones:
-  enable: true
+  enable: false
   interval: 5
   ping_mode:
   ping_id:
@@ -32,7 +32,7 @@ shiny_pokemon_encounter_milestones:
 
 # Total encounter milestones
 total_encounter_milestones:
-  enable: true
+  enable: false
   interval: 25000
   ping_mode:
   ping_id:
@@ -40,7 +40,7 @@ total_encounter_milestones:
 
 # Phase summary
 phase_summary:
-  enable: true
+  enable: false
   first_interval: 8192
   consequent_interval: 5000
   ping_mode:
