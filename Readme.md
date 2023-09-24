@@ -13,12 +13,12 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/a3eed994-e960-4181-9f76-
 Although the bot is essentially frame perfect, (by default) it will attempt to perform most actions, as if a human were playing to make shiny hunts as representative as possible, some examples:
 - Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible
 - It's possible to peek inside un-hatched eggs to view stats and shininess as soon as they're received from the daycare, the bot will wait until the eggs are fully hatched before checking and logging
-- These are intentional design decisions, bot [cheats](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config) can be used to bypass them (in most cases)
+- These are intentional design decisions, bot [cheats](#cheatsyml---cheats-config) can be used to bypass them (in most cases)
 
 This project is the result of a bored holiday, I am by no means a professional Python developer, so I apologise for the very scuffed code you have just stumbled upon. This was a huge learning experience, and it goes without saying that this code comes with no warranty™.
 
 ***
-# ⚠ Photosensitivity Warning ⚠
+# ⚠ Photosensitivity Warning
 - Running mGBA at unbounded speeds, will cause **very fast and bright flashing**!
 - mGBA can run well over 3,000 FPS on fast enough PCs
 - Any unbounded video examples on this page will be hidden by default, and marked with **⚠ photosensetivity warning ⚠**
@@ -91,7 +91,7 @@ Soft reset for starter Pokémon.
 For modes that use soft resets such as starters, the bot attempts to hit a unique frames to reduce the amount of repeated, identical Pokémon, this may cause soft resets to take progressively longer.
 
 - If resets begin to take too long, it is recommended to start a new save file with a different TID to reset this delay
-- If you notice too many dupes or resets taking too long, consider enabling `starters_rng` in [`config/cheats.yml`](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config)
+- If you notice too many dupes or resets taking too long, consider enabling `starters_rng` in [`config/cheats.yml`](#cheatsyml---cheats-config)
 
 ### R/S/E
 1. Select the `starter` in `config/general.yml` - `treecko`, `torchic` or `mudkip`
@@ -111,7 +111,7 @@ For modes that use soft resets such as starters, the bot attempts to hit a uniqu
 3. Start the bot
 
 - **Note**: Even though you set the trainer to face the desired PokéBall, it is still important to set `starter` in the config! This option is used by the bot to track frames to ensure a unique starter is generated every time
-- **Note**: For the time being, Johto starters will automatically enable the `starters` option in [`config/cheats.yml`](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config), the shininess of the starter is checked via memhacks as start menu navigation is WIP (in future, shininess will be checked via the party summary menu)
+- **Note**: For the time being, Johto starters will automatically enable the `starters` option in [`config/cheats.yml`](#cheatsyml---cheats-config), the shininess of the starter is checked via memhacks as start menu navigation is WIP (in future, shininess will be checked via the party summary menu)
 
 <details>
 <summary>✅🟨❌ Click here for support information</summary>
@@ -184,9 +184,9 @@ Example:
 <summary>Click to expand</summary>
 
 ### General
-`bot_mode` - set to desired mode (see [🤖 Bot Modes](https://github.com/40Cakes/pokebot-gen3#-bot-modes))
+`bot_mode` - set to desired mode (see [🤖 Bot Modes](#-bot-modes))
 
-`starter` - used when `bot_mode` set to `starters` (see [💼 starters](https://github.com/40Cakes/pokebot-gen3#-starters))
+`starter` - used when `bot_mode` set to `starters` (see [💼 starters](#-starters))
 
 </details>
 
@@ -228,8 +228,6 @@ For privacy reasons, rich presence and webhooks are **disabled** by default.
 ![Discord_tC7ni4A9L4](https://github.com/40Cakes/pokebot-gen3/assets/16377135/ece7cc12-b97a-45cc-a06e-afd679860ce1)
 
 ### Discord webhooks
-`webhooks` - toggle **all** webhooks on/off (individual messages can be toggled, below)
-
 `global_webhook_url` - global Discord webhook URL, default webhook for all Discord webhooks unless specified otherwise
 - ⚠ **Warning**: this webhook is considered sensitive! If you leak your webhook, anyone will be able to post in your channel
 - **Edit Channel** > **Integrations** > **Webhooks** > **New Webhook** > **Copy Webhook URL** to generate a new webhook
@@ -418,7 +416,7 @@ All HTTP responses are in JSON format.
 - **Settings** > **Emulation** > **Idle loops** > **Detect and remove**
   - **Massively** increases unbounded frame rate
   - Decreases emulation accuracy (if you care about that)
-  - ⚠ **Warning**: don't use this for `starters` mode (unless you are using the [cheat config](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config) `starters_rng`) or any other mode that uses soft resets, you may get many repeated, identical PIDs!
+  - ⚠ **Warning**: don't use this for `starters` mode (unless you are using the [cheat config](#cheatsyml---cheats-config) `starters_rng`) or any other mode that uses soft resets, you may get many repeated, identical PIDs!
 
 
 - **Settings** > **Emulation** > **Rewind history** > Untick **Enable rewind**
