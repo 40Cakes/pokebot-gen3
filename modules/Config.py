@@ -224,6 +224,15 @@ properties:
 obs_schema = """
 type: object
 properties:
+    obs_websocket:
+        type: object
+        properties:
+            host:
+                type: string
+            port: 
+                type: integer
+            password:
+                type: string
     shiny_delay:
         type: integer
         minimum: 0
@@ -237,17 +246,13 @@ properties:
     replay_buffer_delay:
         type: integer
         minimum: 0
-    hotkey_screenshot:
-        type: array
-    hotkey_replay_buffer:
-        type: array
     replay_dir:
         type: string
-    phase_summary:
+    http_server:
         type: object
         properties:
-            server:
-                type: string
+            enable:
+                type: boolean
             ip: 
                 type: string
             port:

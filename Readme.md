@@ -340,35 +340,45 @@ RNG manipulation options may be added to the bot in the future, all cheats are d
 
 ### OBS
 
+#### OBS WebSocket Server Settings
+The `obs_websocket` config will allow the bot to send commands to OBS via WebSockets, 
+see [here](https://github.com/obsproject/obs-websocket) for more information on OBS WebSockets.
+
+Enable WebSockets in **OBS** > **Tools** > **Websocket Server Settings** > **Enable WebSocket Server**
+
+`host` - hostname/IP address OBS WebSockets is listening on
+
+`port` - TCP port OBS WebSockets is listening on
+
+`password` - 
+
+#### OBS WebSocket Parameters
+
 `shiny_delay` - delay catching a shiny encounter by `n` frames, useful to give you viewers some time to react before saving a replay
 
 `discord_delay` - delay Discord webhooks by `n` frames, prevent spoilers if there is a stream delay
 
 `screenshot` - take OBS screenshot of shiny encounter
+- **Note**: **OBS** > **Settings** > **Hotkeys** > **Screenshot Output** must be set to **Ctrl + F11**
+- The bot does **not** emulate keystrokes, it simply sends a `TriggerHotkeyByKeySequence` (**Ctrl + F11**) WebSocket command 
 - Screenshot is taken after `shiny_delay` to allow stream overlays to update
-- ⚠ **Warning**: this option will emulate the hotkey keystrokes
-- OBS webhooks are planned for the future to remove keystroke presses
 
 `replay_buffer` - save OBS replay buffer after `replay_buffer_delay`
+- **Note**: **OBS** > **Settings** > **Hotkeys** > **Replay Buffer** > **Save Replay** must set to **Ctrl + F12**
+- The bot does **not** emulate keystrokes, it simply sends a `TriggerHotkeyByKeySequence` (**Ctrl + F12**) WebSocket command 
 
 `replay_buffer_delay` - delay saving OBS replay buffer by `n` frames
 - If your buffer is long enough, you can use this to capture some encounters after the shiny encounter
 - Runs in a separate thread and will not pause main bot thread
 
-`hotkey_screenshot` - list of keys for OBS screenshot hotkey combo
-- The bot expects .png file format if posting to Discord
-
-`hotkey_replay_buffer` - list of keys for OBS save replay buffer hotkey combo
-- ⚠ **Warning**: this option will emulate the hotkey keystrokes
-- OBS webhooks are planned for the future to remove keystroke presses
-
 `replay_dir` - OBS screenshot/replay buffer directory
-- Relative directory, used to post stream screenshots to Discord if `webhook_url` is set
+- **OBS** > **Settings** > **Output** > **Recording** > **Recording Path**
+- Relative directory to `pokebot.py`, this is used to post stream `screenshot` to Discord if `discord_webhook_url` is set
 
-`webhook_url` - Discord webhook URL to post OBS screenshots, after a shiny encounter
+`discord_webhook_url` - Discord webhook URL to post OBS `screenshot`, after a shiny encounter
 
 ### Web server
-The `server` config will enable a Flask HTTP server, which can be used to retrieve data and drive stream overlays.
+The `http_server` config will enable a Flask HTTP server, which can be used to retrieve data and drive stream overlays.
 
 `enable` - toggle web server on/off
 
