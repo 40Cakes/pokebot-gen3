@@ -31,9 +31,23 @@ new_move: learn_best
 stop_evolution: false
 
 # Toggle battler rotation
-# If true, the bot will replace the lead battler when the lead battler's health drops below 20%.
+# If true, the bot will replace the lead battler when the lead battler's health drops below 20% or the lead battler has
+# no effective moves.
 # Valid options: `true`, `false`
 replace_lead_battler: true
+
+# Rotation strategy:
+# If set to `first_available`, the bot will switch to the first pokemon that has more than 20% hp and at least 1 pp of a
+# damaging move. Future support will be added for a smarter switching option that takes into account how much damage the
+# switch in will take, and how much damage the switch in can do.
+# Valid options: `first_available`
+switch_strategy: first_available
+
+# Battle method:
+# If set to strongest, bot will choose the most powerful move to use against the current foe. Future support to battle
+# more intelligently is planned.
+# Valid options: `strongest`
+battle_method: strongest
 
 # Banned moves
 # Any moves in this list will not be used in battle

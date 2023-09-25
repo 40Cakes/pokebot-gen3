@@ -18,8 +18,8 @@ from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import GetGameState, GameState, mGBA, EncodeString, ReadSymbol
 from modules.Trainer import GetTrainer
-from modules.Menuing import CheckForPickup, RotatePokemon
-from modules.Battle import FleeBattle, BattleOpponent
+from modules.Menuing import CheckForPickup
+from modules.Battle import FleeBattle, BattleOpponent, CheckLeadCanBattle, RotatePokemon
 
 safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
 trainer_dir = '{}/{}-{}'.format(
@@ -642,6 +642,7 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
             replace_battler = not battle_won
         else:
             FleeBattle()
+        replace_battler = replace_battler or not CheckLeadCanBattle()
         if config_battle['battle'] and config_battle["replace_lead_battler"] and replace_battler:
             RotatePokemon()
         if config_battle["pickup"]:

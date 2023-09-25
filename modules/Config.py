@@ -132,6 +132,10 @@ logging_schema = """
 battle_schema = """
     battle:
         type: boolean
+    battle_method:
+        type: string
+        enum:
+            - strongest
     pickup:
         type: boolean
     pickup_threshold:
@@ -157,6 +161,10 @@ battle_schema = """
         type: boolean
     replace_lead_battler:
         type: boolean
+    switch_strategy:
+        type: string
+        enum:
+            - first_available
     banned_moves:
         type: array
         uniqueItems: true

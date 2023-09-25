@@ -1,1 +1,4 @@
 030022c0 g 0000043e gMain
+08057588 l 00000266 HandleInputChooseActionBattle
+080591b8 l 00000178 Task_GiveExpToMonBattle
+03005d54 g 00000001 gLeveledUpInBattle

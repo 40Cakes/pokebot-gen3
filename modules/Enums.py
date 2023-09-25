@@ -116,3 +116,19 @@ class StartMenuOptionKanto(IntEnum):
     RETIRE = 7
     PLAYER2 = 8
     MAX_STARTMENU_ITEMS = 8
+
+
+class BattleState(IntEnum):
+    # out-of-battle states
+    OVERWORLD = 0
+    EVOLVING = 1
+
+    # battle states
+    ACTION_SELECTION = 10
+    MOVE_SELECTION = 11
+    PARTY_MENU = 12
+    SWITCH_POKEMON = 13
+    LEARNING = 14
+
+    # misc undetected state (move animations, buffering, etc)
+    OTHER = 20

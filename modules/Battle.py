@@ -1,23 +1,20 @@
 import os
+import struct
+import sys
 from typing import NoReturn
 
 from modules.Config import config_battle
 from modules.Console import console
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import GetGameState, DecodeString, ReadSymbol, mGBA,  ParseTasks, GetTaskFunc
-from modules.Enums import GameState, TaskFunc
+from modules.Memory import GetGameState, DecodeString, ReadSymbol, mGBA, ParseTasks, GetTaskFunc, GetSymbolName, GetTask
+from modules.Enums import GameState, TaskFunc, BattleState
 from modules.MenuParsers import ParseBattleCursor, GetLearningMon, GetLearningMove, GetMoveLearningCursorPos, \
-    GetPartyMenuCursorPos
-from modules.Menuing import PartyMenuIsOpen, NavigateMenu
+    GetPartyMenuCursorPos, ParseStartMenu
+from modules.Menuing import PartyMenuIsOpen, NavigateMenu, NavigateStartMenu, SwitchPokemonActive
 from modules.Pokemon import pokemon_list, type_list, GetParty, GetOpponent
 
-if mGBA.game in ['Pokémon Ruby', 'Pokémon Sapphire']:
-    battle_text = 'What should'  # TODO English only
-else:
-    battle_text = 'What will'  # TODO English only
 
-
-def SelectBattleOption(desired_option: int, cursor_type: str = 'gActionSelectionCursor') -> NoReturn:
+def SelectBattleOption(desired_option: int) -> NoReturn:
     """
     Takes a desired battle menu option, navigates to it, and presses it.
 
@@ -26,6 +23,14 @@ def SelectBattleOption(desired_option: int, cursor_type: str = 'gActionSelection
     :param cursor_type: The symbol to use for the cursor. This is different between selecting moves and selecting battle
      options.
     """
+    battle_state = GetBattleState()
+    match battle_state:
+        case BattleState.ACTION_SELECTION:
+            cursor_type = 'gActionSelectionCursor'
+        case BattleState.MOVE_SELECTION:
+            cursor_type = 'gMoveSelectionCursor'
+        case _:
+            return
     while ParseBattleCursor(cursor_type) != desired_option:
         match (ParseBattleCursor(cursor_type) % 2) - (desired_option % 2):
             case - 1:
@@ -40,10 +45,7 @@ def SelectBattleOption(desired_option: int, cursor_type: str = 'gActionSelection
             case 0:
                 pass
     if ParseBattleCursor(cursor_type) == desired_option:
-        # get current displayed string
-        current_string = DecodeString(ReadSymbol('gDisplayedStringBattle'))  # TODO English only (Eli's note: this checks for changes, not for a value. is this english only?)
-        # mash A until the string changes
-        while DecodeString(ReadSymbol('gDisplayedStringBattle')) == current_string:  # TODO English only (Eli's note: same as above)
+        while GetBattleState() == battle_state:
             PressButton(['A'])
 
 
@@ -52,8 +54,8 @@ def FleeBattle() -> NoReturn:
     Readable function to select and execute the Run option from the battle menu.
     """
     while GetGameState() != GameState.OVERWORLD:
-        if battle_text in DecodeString(ReadSymbol('gDisplayedStringBattle')):  # TODO English only
-            SelectBattleOption(3, cursor_type='gActionSelectionCursor')
+        if GetBattleState() == BattleState.ACTION_SELECTION:
+            SelectBattleOption(3)
         else:
             PressButton(['B'])
 
@@ -207,7 +209,28 @@ def FindEffectiveMove(ally: dict, foe: dict) -> dict:
     }
 
 
-def HandleMoveLearn():
+def NavigateMoveLearnMenu(idx):
+    """
+    Function that handles navigation of the move learning menu
+
+    :param idx: the move to select (usually for forgetting a move)
+    """
+    while GetLearnMoveState() == "MOVE_MENU":
+        if GetMoveLearningCursorPos() < idx:
+            up_presses = GetMoveLearningCursorPos() + 5 - idx
+            down_presses = idx - GetMoveLearningCursorPos()
+        else:
+            up_presses = GetMoveLearningCursorPos() - idx
+            down_presses = idx - GetMoveLearningCursorPos() + 5
+        if down_presses > up_presses:
+            PressButton(['Up'])
+        else:
+            PressButton(['Down'])
+        if GetMoveLearningCursorPos() == idx:
+            PressButton(['A'])
+
+
+def HandleMoveLearn(leveled_mon: int):
     match config_battle['new_move']:
         case 'stop':
             console.print('New move trying to be learned, stopping bot...')
@@ -220,198 +243,592 @@ def HandleMoveLearn():
                         PressButton(['B'])
                     else:
                         PressButton(['A'])
-                if 'Stop learning' not in DecodeString(ReadSymbol('gDisplayedStringBattle')):  # TODO English only
+                if GetLearnMoveState() != "STOP_LEARNING":
                     PressButton(['B'])
                 else:
                     PressButton(['A'])
         case 'learn_best':
-            on_learn_screen = False
-            while not on_learn_screen:
-                for task in ParseTasks():
-                    if GetTaskFunc(task['func']) == TaskFunc.LEARN_MOVE:
-                        if task['isActive']:
-                            on_learn_screen = True
-                            break
-                if not on_learn_screen:
-                    PressButton(['A'])
-
-            learning_mon = GetLearningMon()
+            if GetGameState() == GameState.BATTLE:
+                learning_mon = GetParty()[leveled_mon]
+            else:
+                learning_mon = GetLearningMon()
             learning_move = GetLearningMove()
             worst_move = CalculateNewMoveViability(learning_mon, learning_move)
-            while GetMoveLearningCursorPos() != worst_move:
-                if GetMoveLearningCursorPos() < worst_move:
-                    up_presses = GetMoveLearningCursorPos() + 5 - worst_move
-                    down_presses = worst_move - GetMoveLearningCursorPos()
-                else:
-                    up_presses = GetMoveLearningCursorPos() - worst_move
-                    down_presses = worst_move - GetMoveLearningCursorPos() + 5
-                if down_presses > up_presses:
-                    PressButton(['Up'])
-                else:
-                    PressButton(['Down'])
-            while GetGameState() != GameState.BATTLE:
-                PressButton(['A'])
-            for i in range(30):
-                if 'Stop learning' not in DecodeString(ReadSymbol('gDisplayedStringBattle')) and 'Poof!' not in \
-                        DecodeString(ReadSymbol('gDisplayedStringBattle')):  # TODO English only
-                    WaitFrames(1)
+            if worst_move == 4:
+                while GetLearnMoveState() == "LEARN_YN":
+                    PressButton(['B'])
+                for i in range(60):
+                    if GetLearnMoveState() != "STOP_LEARNING":
+                        WaitFrames(1)
+                    else:
+                        break
+                while GetLearnMoveState() == "STOP_LEARNING":
+                    PressButton(['A'])
+            else:
+                while GetLearnMoveState() == "LEARN_YN":
+                    PressButton(['A'])
+                for i in range(60):
+                    if not GetLearnMoveState() == "MOVE_MENU":
+                        WaitFrames(1)
+                    else:
+                        break
+                NavigateMoveLearnMenu(worst_move)
+                while GetLearnMoveState() == "STOP_LEARNING":
+                    PressButton(["B"])
+            while GetBattleState() == BattleState.LEARNING and GetLearnMoveState() not in ["MOVE_MENU", "LEARN_YN", "STOP_LEARNING"]:
+                PressButton(["B"])
+
+
+def SwitchRequested() -> bool:
+    """
+    determines whether the prompt to use another pokemon is on the screen
+    """
+    match mGBA.game:
+        case 'Pokémon Ruby' | 'Pokémon Sapphire':
+            return GetSymbolName(struct.unpack('<I', ReadSymbol('gBattleScriptCurrInstr', size=4))[0] - 51) == "BATTLESCRIPT_HANDLEFAINTEDMON"
+        case _:
+            return DecodeString(ReadSymbol('sText_UseNextPkmn')) in DecodeString(ReadSymbol('gDisplayedStringBattle'))
+
+
+def GetBattleState() -> BattleState:
+    """
+    Determines the state of the battle so the battle loop can figure out the right choice to make.
+    """
+    match GetGameState():
+        case GameState.OVERWORLD:
+            return BattleState.OVERWORLD
+        case GameState.EVOLUTION:
+            match GetLearnMoveState():
+                case "LEARN_YN" | "MOVEMENU" | "STOP_LEARNING":
+                    return BattleState.LEARNING
+                case _:
+                    return BattleState.EVOLVING
+        case GameState.PARTY_MENU:
+            return BattleState.PARTY_MENU
+        case _:
+            match GetLearnMoveState():
+                case "LEARN_YN" | "MOVEMENU" | "STOP_LEARNING":
+                    return BattleState.LEARNING
+                case _:
+                    match GetBattleMenu():
+                        case "ACTION":
+                            return BattleState.ACTION_SELECTION
+                        case "MOVE":
+                            return BattleState.MOVE_SELECTION
+                        case _:
+                            if SwitchRequested():
+                                return BattleState.SWITCH_POKEMON
+                            else:
+                                return BattleState.OTHER
+
+
+def GetBattleMenu() -> str:
+    """
+    determines whether we're on the action selection menu, move selection menu, or neither
+    """
+    match mGBA.game:
+        case 'Pokémon Ruby' | 'Pokémon Sapphire':
+            battle_funcs = ParseBattleController()['battler_controller_funcs']
+            if 'SUB_802C098' in battle_funcs:
+                return "ACTION"
+            elif 'HANDLEACTION_CHOOSEMOVE' in battle_funcs:
+                return "MOVE"
+            else:
+                return "NO"
+        case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
+            battle_funcs = ParseBattleController()['battler_controller_funcs']
+            if 'HANDLEINPUTCHOOSEACTIONBATTLE' in battle_funcs:
+                return "ACTION"
+            elif 'HANDLEINPUTCHOOSEMOVE' in battle_funcs:
+                return "MOVE"
+            else:
+                return "NO"
+
+
+
+def ParseBattleController():
+    active_battler = int.from_bytes(ReadSymbol('gActiveBattler', size=1), 'little')
+    battler_controller_funcs = [GetSymbolName(struct.unpack('<I', ReadSymbol('gBattlerControllerFuncs')[i*4:i*4+4])[0] - 1) for i in range(4)]
+    active_battler_func = battler_controller_funcs[active_battler]
+    return {
+        "active_battler": active_battler,
+        "battler_controller_funcs": battler_controller_funcs,
+        "active_battler_func": active_battler_func,
+    }
+
+
+def GetLearnMoveState() -> str:
+    """
+    Determines what step of the move_learning process we're on.
+    """
+    learn_move_yes_no = False
+    stop_learn_move_yes_no = False
+    match GetGameState():
+        case GameState.BATTLE:
+            learn_move_yes_no = GetSymbolName(struct.unpack('<I', ReadSymbol('gBattleScriptCurrInstr', size=4))[0]-17) == "BATTLESCRIPT_ASKTOLEARNMOVE"
+            stop_learn_move_yes_no = GetSymbolName(struct.unpack('<I', ReadSymbol('gBattleScriptCurrInstr', size=4))[0]-32) == "BATTLESCRIPT_ASKTOLEARNMOVE"
+
+        case GameState.EVOLUTION:
+
+            match mGBA.game:
+                case 'Pokémon Ruby' | 'Pokémon Sapphire':
+                    learn_move_yes_no = (
+                            int.from_bytes(GetTask("TASK_EVOLUTIONSCENE")['data'][0:2], 'little') == 21 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][16:18], 'little') == 4 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][18:20], 'little') == 5 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][20:22], 'little') == 9
+                    )
+                    stop_learn_move_yes_no = (
+                            int.from_bytes(GetTask("TASK_EVOLUTIONSCENE")['data'][0:2], 'little') == 21 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][16:18], 'little') == 4 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][18:20], 'little') == 10 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][20:22], 'little') == 0
+                    )
+                case 'Pokémon Emerald':
+                    learn_move_yes_no = (
+                            int.from_bytes(GetTask("TASK_EVOLUTIONSCENE")['data'][0:2], 'little') == 22 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][12:14], 'little') in [3, 4] and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][14:16], 'little') == 5 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][16:18], 'little') == 10
+                    )
+                    stop_learn_move_yes_no = (
+                            int.from_bytes(GetTask("TASK_EVOLUTIONSCENE")['data'][0:2], 'little') == 22 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][12:14], 'little') == [3, 4] and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][14:16], 'little') == 11 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][16:18], 'little') == 0
+                    )
+
+                case 'Pokémon FireRed' | 'Pokémon LeafGreen':
+                    learn_move_yes_no = (
+                            int.from_bytes(GetTask("TASK_EVOLUTIONSCENE")['data'][0:2], 'little') == 24 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][12:14], 'little') == 4 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][14:16], 'little') == 5 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][16:18], 'little') == 10
+                    )
+                    stop_learn_move_yes_no = (
+                            int.from_bytes(GetTask("TASK_EVOLUTIONSCENE")['data'][0:2], 'little') == 24 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][12:14], 'little') == 4 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][14:16], 'little') == 11 and
+                            int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][16:18], 'little') == 0
+                    )
+    match mGBA.game:
+        case 'Pokémon Ruby' | 'Pokémon Sapphire':
+            move_menu_task = GetTask("SUB_809E260")
+        case 'Pokémon Emerald':
+            move_menu_task = GetTask("TASK_HANDLEREPLACEMOVEINPUT")
+        case 'Pokémon FireRed' | 'Pokémon LeafGreen':
+            move_menu_task = GetTask("TASK_INPUTHANDLER_SELECTORFORGETMOVE")
+        case _:
+            move_menu_task = None
+    move_menu = (move_menu_task != {} and move_menu_task['isActive'])
+
+
+    if move_menu:
+        return "MOVE_MENU"
+    elif stop_learn_move_yes_no:
+        return "STOP_LEARNING"
+    elif learn_move_yes_no:
+        return "LEARN_YN"
+    else:
+        return "NO"
+
+
+def HandleEvolutionScene():
+    """
+    Stops evolution if configured to do so, otherwise mashes A
+    """
+    if config_battle['stop_evolution']:
+        PressButton(['B'])
+    else:
+        PressButton(['A'])
+
+
+def GetCurrentBattler() -> list:
+    """
+    Determines which pokemon is battling
+    """
+    match mGBA.game:
+        case 'Pokémon Ruby' | 'Pokémon Sapphire':
+            # this tells us which pokemon from our party are battling. 0 represents a pokemon in the party who isn't battling, and also the pokemon at index 0 :(
+            battler_indices = [int.from_bytes(ReadSymbol('gBattlerPartyIndexes', size=12)[2*i:2*i+2], 'little') for i in range(len(GetParty()))]
+            # this tells us how many pokemon are battling (2 for single battle, 4 for double) which allows us to get the pokemon info for the party members currently participating in the battle
+            num_battlers = ReadSymbol('gBattlersCount', size=1)[0]
+            # If we only have one party member, it's obviously the current battler so don't do the calcs for who's in battle
+            if len(GetParty()) == 1:
+                return GetParty()
+            current_battlers = [GetParty()[battler_indices[i]] for i in range(len(battler_indices)//num_battlers)]
+            return current_battlers
+        case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
+            # this tells us which pokemon from our party are battling. 0 represents a pokemon in the party who isn't battling, and also the pokemon at index 0 :(
+            battler_indices = [int.from_bytes(ReadSymbol('gBattlerPartyIndexes', size=12)[2*i:2*i+2], 'little') for i in range(len(GetParty()))]
+            # this tells us how many pokemon are battling (2 for single battle, 4 for double) which allows us to get the pokemon info for the party members currently participating in the battle
+            num_battlers = ReadSymbol('gBattlersCount', size=1)[0]
+            # If we only have one party member, it's obviously the current battler so don't do the calcs for who's in battle
+            if len(GetParty()) == 1:
+                return GetParty()
+            current_battlers = [GetParty()[battler_indices[i]] for i in range(len(battler_indices)//num_battlers)]
+            return current_battlers
+
+
+def GetStrongestMove() -> int:
+    """
+    Function that determines the strongest move to use given the current battler and the current
+    """
+    current_battlers = GetCurrentBattler()
+    if len(current_battlers) > 1:
+        console.print("Double battle detected, feature not yet implemented.")
+        os._exit(2)
+    else:
+        current_battler = current_battlers[0]
+        move = FindEffectiveMove(current_battler, GetOpponent())
+        if move['power'] == 0:
+            console.print('Lead Pokémon has no effective moves to battle the foe!')
+            return -1
+
+        console.print('Best move against foe is {} (Effective power is {:.2f})'.format(
+            move['name'],
+            move['power']
+        ))
+        return move['index']
+
+
+def GetMonToSwitch(active_mon: int) -> int:
+    """
+    Figures out which pokemon should be switched out for the current active pokemon.
+
+    :param active_mon: the party index of the pokemon that is being replaced.
+    :return: the index of the pokemon to switch with the active pokemon
+    """
+    party = GetParty()
+    match config_battle['switch_strategy']:
+        case "first_available":
+            for i in range(len(party)):
+                if party[i] == active_mon:
                     continue
-                break
-            while 'Stop learning' in DecodeString(ReadSymbol('gDisplayedStringBattle')):  # TODO English only
+                # check to see that the party member has enough HP to be subbed out
+                elif party[i]['stats']['hp'] / party[i]['stats']['maxHP'] > .2:
+                    console.print('Pokémon {} has more than 20% hp!'.format(party[i]['name']))
+                    for move in party[i]['moves']:
+                        if (
+                                move['power'] > 0 and
+                                move['remaining_pp'] > 0 and
+                                move['name'] not in config_battle['banned_moves']
+                                and move['kind'] in ['Physical', 'Special']):
+                            console.print('Pokémon {} has usable moves!'.format(party[i]['name']))
+                            return i
+            console.print("Error finding new battler- party seems to be out of PP/HP. Stopping...")
+            os._exit(6)
+
+
+def ShouldRotateLead() -> bool:
+    """
+    Determines whether the battle engine should swap out the lead pokemon.
+    """
+    battler = GetCurrentBattler()[0]
+    battler_health_percentage = battler['stats']['hp'] / battler['stats']['maxHP']
+    return battler_health_percentage < .2
+
+
+def DetermineAction() -> tuple:
+    """
+    Determines which action to select from the action menu
+
+    :return: a tuple containing 1. the action to take, 2. the move to use if so desired, 3. the index of the pokemon to
+    switch to if so desired.
+    """
+    if not config_battle['battle']:
+        return "RUN", -1, -1
+    elif config_battle['replace_lead_battler'] and ShouldRotateLead():
+        mon_to_switch = GetMonToSwitch(GetCurrentBattler()[0])
+        return "SWITCH", -1, mon_to_switch
+    else:
+        match config_battle['battle_method']:
+            case "strongest":
+                move = GetStrongestMove()
+                if move == -1:
+                    if config_battle['replace_lead_battler']:
+                        mon_to_switch = GetMonToSwitch(GetCurrentBattler()[0])
+                        return "SWITCH", -1, mon_to_switch
+                    action = "RUN"
+                else:
+                    action = "FIGHT"
+                return action, move, -1
+            case _:
+                console.print("Not yet implemented")
+                return "RUN", -1, -1
+
+
+def SendOutPokemon(idx):
+    """
+    Navigates from the party menu to the index of the desired pokemon
+    """
+    # options are the entire length of the party plus a cancel option
+    cursor_positions = len(GetParty()) + 1
+
+    # navigate to the desired index as quickly as possible
+    while GetPartyMenuCursorPos()['slot_id'] != idx:
+        if GetPartyMenuCursorPos()['slot_id'] > idx:
+            up_presses = GetPartyMenuCursorPos()['slot_id'] - idx
+            down_presses = idx + cursor_positions - GetPartyMenuCursorPos()['slot_id']
+        else:
+            up_presses = GetPartyMenuCursorPos()['slot_id'] + cursor_positions - idx
+            down_presses = idx - GetPartyMenuCursorPos()['slot_id']
+        if down_presses > up_presses:
+            PressButton(['Up'])
+        else:
+            PressButton(['Down'])
+    match mGBA.game:
+        case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
+            for i in range(60):
+                if "TASK_HANDLESELECTIONMENUINPUT" not in [task['func'] for task in ParseTasks()]:
+                    PressButton(['A'])
+                    WaitFrames(1)
+                else:
+                    break
+            while "TASK_HANDLESELECTIONMENUINPUT" in [task['func'] for task in ParseTasks()]:
+                NavigateMenu("SHIFT")
+        case _:
+            for i in range(60):
+                if "TASK_HANDLEPOPUPMENUINPUT" not in [task['func'] for task in ParseTasks()]:
+                    PressButton(['A'])
+                    WaitFrames(1)
+            while "TASK_HANDLEPOPUPMENUINPUT" in [task['func'] for task in ParseTasks()]:
                 PressButton(['A'])
+                WaitFrames(1)
+
+
+def SwitchOutPokemon(idx):
+    """
+    Navigates from the party menu to the index of the desired pokemon
+    """
+    cursor_positions = len(GetParty()) + 1
+
+    while not PartyMenuIsOpen():
+        PressButton(['A'])
+
+    while GetPartyMenuCursorPos()['slot_id'] != idx:
+
+        if GetPartyMenuCursorPos()['slot_id'] > idx:
+            up_presses = GetPartyMenuCursorPos()['slot_id'] - idx
+            down_presses = idx + cursor_positions - GetPartyMenuCursorPos()['slot_id']
+        else:
+            up_presses = GetPartyMenuCursorPos()['slot_id'] + cursor_positions - idx
+            down_presses = idx - GetPartyMenuCursorPos()['slot_id']
+
+        if down_presses > up_presses:
+            PressButton(['Up'])
+        else:
+            PressButton(['Down'])
+
+    if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
+        while not (GetTask("TASK_HANDLESELECTIONMENUINPUT") != {} and GetTask("TASK_HANDLESELECTIONMENUINPUT")['isActive']):
+            PressButton(['A'])
+        while GetTask("TASK_HANDLESELECTIONMENUINPUT") != {} and GetTask("TASK_HANDLESELECTIONMENUINPUT")['isActive']:
+            NavigateMenu("SWITCH")
+        while GetPartyMenuCursorPos()['action'] != 8:
+            PressButton(['A'])
+        while GetPartyMenuCursorPos()['action'] == 8:
+            if GetPartyMenuCursorPos()['slot_id_2'] == 7:
+                PressButton(['Down'])
+            elif GetPartyMenuCursorPos()['slot_id_2'] != 0:
+                PressButton(['Left'])
+            else:
+                PressButton(['A'])
+        while GetGameState() == GameState.PARTY_MENU:
+            PressButton(['B'])
+    else:
+        while 'SUB_8089D94' not in [task['func'] for task in ParseTasks()]:
+            PressButton(['A'])
+            WaitFrames(1)
+        while (
+                'SUB_8089D94' in [task['func'] for task in ParseTasks()]
+        ) and not (
+                'SUB_808A060' in [task['func'] for task in ParseTasks()] or
+                'HANDLEPARTYMENUSWITCHPOKEMONINPUT' in [task['func'] for task in ParseTasks()]
+        ):
+            NavigateMenu("SWITCH")
+            WaitFrames(1)
+        while SwitchPokemonActive():
+            if GetPartyMenuCursorPos()['slot_id_2'] != 0:
+                PressButton(['Up'])
+            else:
+                PressButton(['A'])
+            WaitFrames(1)
+        while TaskFunc.PARTY_MENU not in [GetTaskFunc(task['func']) for task in ParseTasks()]:
+            PressButton(['B'])
+            WaitFrames(1)
+
+    while GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
+        PressButton(['B'])
+    for i in range(30):
+        if GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
+            break
+        PressButton(['B'])
+    while GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
+        PressButton(['B'])
+
+
+def RotatePokemon():
+    new_lead = GetMonToSwitch(0)
+    NavigateStartMenu("POKEMON")
+    for i in range(30):
+        if GetGameState() != GameState.PARTY_MENU:
+            PressButton(['A'])
+    SwitchOutPokemon(new_lead)
+
+
+def CheckLeadCanBattle():
+    """
+    Determines whether the lead pokemon is fit to fight
+    """
+    lead = GetParty()[0]
+    lead_has_moves = False
+    for move in lead['moves']:
+        if (
+            move['power'] > 0 and
+            move['name'] not in config_battle['banned_moves'] and
+            move['remaining_pp'] > 0
+        ):
+            lead_has_moves = True
+            break
+    lead_has_hp = lead['stats']['hp'] > .2 * lead['stats']['maxHP']
+    return lead_has_hp and lead_has_moves
+
+
+def ExecuteAction(decision: tuple):
+    """
+    Given a decision made by the battle engine, executes the desired action.
+
+    :param decision: The output of DetermineAction, containing an action, move index, and pokemon index.
+    """
+    action, move, pokemon = decision
+    match action:
+        case "RUN":
+            FleeBattle()
+            return
+        case "FIGHT":
+            if 0 > move or move > 3:
+                console.print("Invalid move selection. Stopping...")
+                os._exit(move)
+            move_executed = False
+            while not move_executed:
+                match GetBattleState():
+                    case BattleState.ACTION_SELECTION:
+                        SelectBattleOption(0)
+                    case BattleState.MOVE_SELECTION:
+                        SelectBattleOption(move)
+                        if GetBattleState() != BattleState.MOVE_SELECTION:
+                            move_executed = True
+                    case _:
+                        PressButton(['B'])
+        case "BAG":
+            console.print("Bag not yet implemented. Stopping...")
+            os._exit(3)
+        case "SWITCH":
+            if 0 > pokemon or pokemon > 6:
+                console.print("Invalid Pokemon selection. Stopping...")
+                os._exit(pokemon)
+            else:
+                while not GetBattleState() == BattleState.PARTY_MENU:
+                    SelectBattleOption(2)
+                SendOutPokemon(pokemon)
+            return
+
+
+def HandleBattlerFaint():
+    """
+    function that handles lead battler fainting
+    """
+    console.print('Lead Pokémon fainted!')
+    match config_battle['faint_action']:
+        case 'stop':
+            console.print("Stopping...")
+            os._exit(-1)
+        case 'flee':
+            while GetBattleState() not in [BattleState.OVERWORLD, BattleState.PARTY_MENU]:
+                PressButton(['B'])
+            if GetBattleState() == BattleState.PARTY_MENU:
+                console.print("Couldn't flee. Stopping...")
+                os._exit(-2)
+            else:
+                while not GetGameState() == GameState.OVERWORLD:
+                    PressButton(['B'])
+                return False
+        case 'rotate':
+            party = GetParty()
+            if sum([party[key]['stats']['hp'] for key in party.keys()]) == 0:
+                console.print('All Pokémon have fainted.')
+                os._exit(0)
+            while GetBattleState() != BattleState.PARTY_MENU:
+                PressButton(['A'])
+            new_lead = GetMonToSwitch(GetCurrentBattler()[0])
+            SendOutPokemon(new_lead)
+            while GetBattleState() in (BattleState.SWITCH_POKEMON, BattleState.PARTY_MENU):
+                PressButton(['A'])
+        case _:
+            console.print("Invalid faint_action option. Stopping.")
+            os._exit(-3)
+
+
+def CheckForLevelUp(old_party: dict, new_party: dict, leveled_mon) -> int:
+    """
+    Compares the previous party state to the most recently gathered party state, and returns the index of the first
+    pokemon whose level is higher in the new party state.
+
+    :param old_party: The previous party state
+    :param new_party: The most recent party state
+    :param leveled_mon: The index of the pokemon that was most recently leveled before this call.
+    :return: The first index where a pokemon's level is higher in the new party than the old one.
+    """
+    if old_party.keys() != new_party.keys():
+        console.print("Party length has changed. Assuming a pokemon was just caught.")
+    for i in range(len(old_party)):
+        if old_party[i]['level'] < new_party[i]['level']:
+            return i
+    return leveled_mon
 
 
 def BattleOpponent() -> bool:
     """
     Function to battle wild Pokémon. This will only battle with the lead Pokémon of the party, and will run if it dies
     or runs out of PP.
+
     :return: Boolean value of whether the battle was won.
     """
-    ally_fainted = False
-    foe_fainted = False
 
-    current_battler = 0
-    while (
-            not ally_fainted and
-            not foe_fainted and
-            GetGameState() != GameState.OVERWORLD and
-            'scurried' not in DecodeString(ReadSymbol('gStringVar4'))  # TODO English only
-    ):
-        if GetGameState() == GameState.OVERWORLD:
-            return True
+    battle_ended = False
+    foe_fainted = GetOpponent()['stats']['hp'] == 0
+    prev_battle_state = GetBattleState()
+    previous_party = GetParty()
+    most_recent_leveled_mon_index = -1
+    while not battle_ended:
+        battle_state = GetBattleState()
+        if battle_state != prev_battle_state:
+            # print(f"Battle state: {BattleState(GetBattleState()).name}")
+            prev_battle_state = battle_state
 
-        best_move = FindEffectiveMove(GetParty()[current_battler], GetOpponent())
+        # check for level ups
+        party = GetParty()
+        if previous_party != party:
+            most_recent_leveled_mon_index = CheckForLevelUp(previous_party, party, most_recent_leveled_mon_index)
+            previous_party = party
 
-        if best_move['power'] == 0:
-            console.print('Lead Pokémon has no effective moves to battle the foe!')
-            FleeBattle()
-            return False
+        foe_fainted = GetOpponent()['stats']['hp'] == 0
 
-        # If effective moves are present, let's fight this thing!
-        while battle_text in DecodeString(ReadSymbol('gDisplayedStringBattle')):  # TODO English only
-            SelectBattleOption(0, cursor_type='gActionSelectionCursor')
-
-        WaitFrames(5)
-
-        console.print('Best move against foe is {} (Effective power is {:.2f})'.format(
-            best_move['name'],
-            best_move['power']
-        ))
-
-        SelectBattleOption(best_move['index'], cursor_type='gMoveSelectionCursor')
-
-        WaitFrames(5)
-
-        while (
-                GetGameState() != GameState.OVERWORLD and
-                battle_text not in DecodeString(ReadSymbol('gDisplayedStringBattle')) and
-                not ally_fainted  # TODO English only
-        ):
-
-            ally_fainted = GetParty()[current_battler]['stats']['hp'] == 0
-            foe_fainted = GetOpponent()['stats']['hp'] == 0
-            while GetGameState() == GameState.EVOLUTION:
-                if config_battle['stop_evolution']:
-                    PressButton(['B'])
-                else:
-                    PressButton(['A'])
-                if 'elete a move' in DecodeString(ReadSymbol('gDisplayedStringBattle')):  # TODO English only
-                    break
-            if 'elete a move' not in DecodeString(ReadSymbol('gDisplayedStringBattle')):  # TODO English only
-                PressButton(['B'])
-                WaitFrames(1)
-            if 'elete a move' in DecodeString(ReadSymbol('gDisplayedStringBattle')):  # TODO English only
-                HandleMoveLearn()
-
-        if ally_fainted:
-            console.print('Lead Pokémon fainted!')
-            match config_battle['faint_action']:
-                case 'stop':
-                    console.print("Stopping...")
-                    os._exit(-1)
-                case 'flee':
-                    while 'Use next' not in DecodeString(ReadSymbol('gDisplayedStringBattle')):  # TODO English only
-                        PressButton(['B'])
-                    while 'Use next' in DecodeString(ReadSymbol('gDisplayedStringBattle')):  # TODO English only
-                        PressButton(['B'])
-                    if "escape" in DecodeString(ReadSymbol('gDisplayedStringBattle')):  # TODO English only
-                        console.print("Couldn't flee. Stopping...")
-                        os._exit(-2)
-                    else:
-                        while not GetGameState() == GameState.OVERWORLD:
-                            PressButton(['B'])
-                        return False
-                case 'rotate':
-                    current_battler = RotateBattler()
-                    ally_fainted = False
-                case _:
-                    console.print("Invalid faint_action option. Stopping.")
-                    os._exit(-3)
-            party = GetParty()
-            if sum([party[key]['stats']['hp'] for key in party.keys()]) == 0:
-                console.print('All Pokémon have fainted.')
-                os._exit(0)
-        elif foe_fainted:
-            while GetGameState() != GameState.OVERWORLD:
-                while GetGameState() == GameState.EVOLUTION:
-                    if config_battle['stop_evolution']:
-                        PressButton(['B'])
-                    else:
-                        PressButton(['A'])
-                if 'Delete a move' not in DecodeString(ReadSymbol('gDisplayedStringBattle')):  # TODO English only
-                    PressButton(['B'])
-                    WaitFrames(1)
-                if 'Delete a move' in DecodeString(ReadSymbol('gDisplayedStringBattle')):  # TODO English only
-                    HandleMoveLearn()
-            if GetParty()[0]['stats']['hp'] == 0:
-                return False
-    return True
-
-
-def RotateBattler() -> int:
-    """
-    function to swap out lead battler if PP or HP get too low
-
-    return: the index of the pokemon that is battling
-    """
-    while not PartyMenuIsOpen():
-        PressButton(['A'])
-    party = GetParty()
-    new_lead_idx = 0
-    for i in range(len(party)):
-        if party[i]['stats']['hp'] > 0:
-            console.print('Pokémon {} has hp!'.format(party[i]['name']))
-            for move in party[i]['moves']:
-                if move['power'] > 0 and move['remaining_pp'] > 0 and move['name'] not in config_battle['banned_moves']:
-                    console.print('Pokémon {} has usable moves!'.format(party[i]['name']))
-                    new_lead_idx = i
-                    break
-            if new_lead_idx > 0:
-                break
-    if new_lead_idx > 0:
-
-        while GetPartyMenuCursorPos()['slot_id'] != new_lead_idx:
-            if GetPartyMenuCursorPos()['slot_id'] > new_lead_idx:
-                PressButton(['Up'])
-            else:
-                PressButton(['Down'])
-
-        match mGBA.game:
-            case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
-                while "TASK_HANDLESELECTIONMENUINPUT" not in [task['func'] for task in ParseTasks()]:
-                    PressButton(['A'])
-                while "TASK_HANDLESELECTIONMENUINPUT" in [task['func'] for task in ParseTasks()]:
-                    NavigateMenu("SEND_OUT")
+        match battle_state:
+            case BattleState.OVERWORLD:
+                battle_ended = True
+            case BattleState.EVOLVING:
+                HandleEvolutionScene()
+            case BattleState.LEARNING:
+                HandleMoveLearn(most_recent_leveled_mon_index)
+            case BattleState.ACTION_SELECTION:
+                ExecuteAction(DetermineAction())
+            case BattleState.SWITCH_POKEMON:
+                HandleBattlerFaint()
             case _:
-                while "TASK_HANDLEPOPUPMENUINPUT" not in [task['func'] for task in ParseTasks()]:
-                    PressButton(['A'])
-                    WaitFrames(1)
-                while "TASK_HANDLEPOPUPMENUINPUT" in [task['func'] for task in ParseTasks()]:
-                    PressButton(['A'])
-                    WaitFrames(1)
-        while battle_text not in DecodeString(ReadSymbol('gDisplayedStringBattle')):
-            WaitFrames(1)
-    else:
-        console.print("Error finding new battler.")
-        os._exit(3)
-    return new_lead_idx
+                PressButton(['B'])
+
+    if foe_fainted:
+        return True
+    return False

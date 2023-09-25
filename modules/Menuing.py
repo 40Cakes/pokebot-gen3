@@ -3,7 +3,8 @@ from typing import NoReturn
 
 from modules.Config import config_battle, config_cheats
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import ReadSymbol, GetGameState, DecodeString, mGBA, GetCursorOptions, ParseTasks, GetTaskFunc
+from modules.Memory import ReadSymbol, GetGameState, DecodeString, mGBA, GetCursorOptions, ParseTasks, GetTaskFunc, \
+    GetTask
 from modules.Console import console
 from modules.Enums import GameState, TaskFunc
 from modules.MenuParsers import GetPartyMenuCursorPos, ParseStartMenu, ParsePartyMenuInternal, ParseMenu
@@ -61,14 +62,13 @@ def TakePickupItems(pokemon_indices: list):
             else:
                 PressButton(["Down"])
         if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
-            while 'Choose a' in DecodeString(ReadSymbol('gStringVar4')):  # TODO English only
+            while GetTask('TASK_HANDLESELECTIONMENUINPUT') == {}:
                 PressButton(['A'])
-            while 'Do what with' in DecodeString(ReadSymbol('gStringVar4')) and 'an item?' not in \
-                    DecodeString(ReadSymbol('gStringVar4')):  # TODO English only
+            while ParsePartyMenuInternal()['numActions'] > 3:
                 NavigateMenu("ITEM")
-            while 'Do what with an' in DecodeString(ReadSymbol('gStringVar4')):  # TODO English only
+            while GetParty()[idx]['item']['name'] != 'None':
                 NavigateMenu("TAKE_ITEM")
-            while 'Received the' in DecodeString(ReadSymbol('gStringVar4')):  # TODO English only
+            while GetTask('TASK_UPDATEHELDITEMSPRITE') != {}:
                 PressButton(['B'])
         else:
             while 'SUB_8089D94' not in [task['func'] for task in ParseTasks()]:
@@ -142,7 +142,9 @@ def NavigateMenu(desired_option: str) -> NoReturn:
         os._exit(-1)
     desired_index = -1
     for i in range(party_menu_internal['numActions']):
-        if GetCursorOptions(party_menu_internal['actions'][i]) == desired_option:
+        if GetCursorOptions(party_menu_internal['actions'][i]) == desired_option or (
+                desired_option == "SHIFT" and GetCursorOptions(party_menu_internal['actions'][i]) == "SEND_OUT"
+        ):
             desired_index = i
             break
     if desired_index == -1:
@@ -199,80 +201,6 @@ def PartyMenuIsOpen() -> bool:
         return GetGameState() == GameState.PARTY_MENU
     else:
         return TaskFunc.PARTY_MENU in [GetTaskFunc(task['func']) for task in ParseTasks()]
-
-
-def RotatePokemon():
-    """
-    function to swap out lead battler if PP or HP get too low
-    """
-    NavigateStartMenu("POKEMON")
-    while not PartyMenuIsOpen():
-        PressButton(['A'])
-    party = GetParty()
-    new_lead_idx = 0
-    for i in range(len(party)):
-        if party[i]['stats']['hp'] > 0:
-            console.print('Pokémon {} has hp!'.format(party[i]['name']))
-            for move in party[i]['moves']:
-                if move['power'] > 0 and move['remaining_pp'] > 0 and move['name'] not in config_battle['banned_moves']:
-                    console.print('Pokémon {} has usable moves!'.format(party[i]['name']))
-                    new_lead_idx = i
-                    break
-            if new_lead_idx > 0:
-                break
-    if new_lead_idx > 0:
-
-        while GetPartyMenuCursorPos()['slot_id'] != new_lead_idx:
-            if GetPartyMenuCursorPos()['slot_id'] > new_lead_idx:
-                PressButton(['Up'])
-            else:
-                PressButton(['Down'])
-
-        if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
-            while 'Choose' in DecodeString(ReadSymbol('gStringVar4')):  # TODO English only
-                PressButton(['A'])
-            while 'Do what with' in DecodeString(ReadSymbol('gStringVar4')):  # TODO English only
-                NavigateMenu("SWITCH")
-            while 'Move to' in DecodeString(ReadSymbol('gStringVar4')):  # TODO English only
-                if GetPartyMenuCursorPos()['slot_id_2'] != 0:
-                    PressButton(['Up'])
-                else:
-                    PressButton(['A'])
-            while 'Choose' in DecodeString(ReadSymbol('gStringVar4')):  # TODO English only
-                PressButton(['B'])
-        else:
-            while 'SUB_8089D94' not in [task['func'] for task in ParseTasks()]:
-                PressButton(['A'])
-                WaitFrames(1)
-            while (
-                    'SUB_8089D94' in [task['func'] for task in ParseTasks()]
-            ) and not (
-                    'SUB_808A060' in [task['func'] for task in ParseTasks()] or
-                    'HANDLEPARTYMENUSWITCHPOKEMONINPUT' in [task['func'] for task in ParseTasks()]
-            ):
-                NavigateMenu("SWITCH")
-                WaitFrames(1)
-            while SwitchPokemonActive():
-                if GetPartyMenuCursorPos()['slot_id_2'] != 0:
-                    PressButton(['Up'])
-                else:
-                    PressButton(['A'])
-                WaitFrames(1)
-            while TaskFunc.PARTY_MENU not in [GetTaskFunc(task['func']) for task in ParseTasks()]:
-                PressButton(['B'])
-                WaitFrames(1)
-
-        while GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
-            PressButton(['B'])
-        for i in range(30):
-            if GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
-                break
-            PressButton(['B'])
-        while GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
-            PressButton(['B'])
-    else:
-        console.print('No Pokémon are fit for battle.')
-        os._exit(0)
 
 
 def SwitchPokemonActive() -> bool:

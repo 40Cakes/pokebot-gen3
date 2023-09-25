@@ -2,9 +2,9 @@ import os
 import struct
 
 from modules.Console import console
-from modules.Memory import mGBA, ReadMemory, GetSymbolName, ReadSymbol, GetTaskFunc, ParseTasks
-from modules.Enums import TaskFunc, StartMenuOptionHoenn, StartMenuOptionKanto
-from modules.Pokemon import GetParty, moves_list
+from modules.Memory import mGBA, ReadMemory, GetSymbolName, ReadSymbol, GetTaskFunc, ParseTasks, GetGameState, GetTask
+from modules.Enums import TaskFunc, StartMenuOptionHoenn, StartMenuOptionKanto, GameState
+from modules.Pokemon import GetParty, moves_list, ParsePokemon
 
 
 def GetPartyMenuCursorPos() -> dict:
@@ -44,51 +44,6 @@ def ParseFunc(data) -> str:
     if addr != '-0x1':
         return GetSymbolName(addr)
     return '_'
-
-
-def ParseMain() -> dict:
-    """
-    function to parse the data in gMain and return usable info
-    """
-    main = ReadSymbol('gMain')
-
-    # parse the bits and bobs in the main struct
-    callback1 = ParseFunc(main[0:4])
-    callback2 = ParseFunc(main[4:8])
-    saved_callback = ParseFunc(main[8:12])
-    vblank_callback = ParseFunc(main[12:16])
-    hblank_callback = ParseFunc(main[16:20])
-    vcount_callback = ParseFunc(main[20:24])
-    serial_callback = ParseFunc(main[24:28])
-    held_keys_raw = struct.unpack('<H', main[40:42])[0]
-    new_keys_raw = struct.unpack('<H', main[42:44])[0]
-    held_keys = struct.unpack('<H', main[44:46])[0]
-    new_keys = struct.unpack('<H', main[46:48])[0]
-    new_and_repeated_keys = struct.unpack('<H', main[48:50])[0]
-    key_repeat_counter = struct.unpack('<H', main[50:52])[0]
-    watched_keys_pressed = struct.unpack('<H', main[52:54])[0]
-    watched_keys_mask = struct.unpack('<H', main[54:56])[0]
-    obj_count = struct.unpack('<B', main[56:57])[0]
-
-    main_dict = {
-        'callback_1': callback1,
-        'callback_2': callback2,
-        'saved_callback': saved_callback,
-        'vblank_callback': vblank_callback,
-        'hblank_callback': hblank_callback,
-        'vcount_callback': vcount_callback,
-        'serial_callback': serial_callback,
-        'held_keys_raw': held_keys_raw,
-        'new_keys_raw': new_keys_raw,
-        'held_keys': held_keys,
-        'new_keys': new_keys,
-        'new_and_repeated_keys': new_and_repeated_keys,
-        'key_repeat_counter': key_repeat_counter,
-        'watched_keys_pressed': watched_keys_pressed,
-        'watched_keys_mask': watched_keys_mask,
-        'obj_count': obj_count,
-    }
-    return main_dict
 
 
 def ParseMenu() -> dict:
@@ -149,20 +104,22 @@ def ParseBattleCursor(cursor_type: str) -> int:
 
 
 def GetLearningMon() -> dict:
+    """
+    If the learning state is entered through evolution, returns the pokemon that is learning the move.
+
+    :return: The pokemon trying to learn a move after evolution.
+    """
     idx = 0
     match mGBA.game:
-        case 'Pokémon FireRed' | 'Pokémon LeafGreen':
-            if ParseMain()['callback_1'] == 'BATTLEMAINCB1':
-                idx = int.from_bytes(ReadMemory(
-                    struct.unpack('<I', ReadSymbol('gBattleStruct'))[0], offset=0x10, size=1), 'little')
-            else:
-                console.print('Not yet implemented...')
-                os._exit(1)
-        case 'Pokémon Emerald':
-            idx = int.from_bytes(ReadMemory(
-                struct.unpack('<I', ReadSymbol('sMonSummaryScreen'))[0], offset=0x40BE, size=1), 'little')
+        case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
+            idx = int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][20:22], 'little')
         case 'Pokémon Ruby' | 'Pokémon Sapphire':
-            idx = int.from_bytes(ReadSymbol('gSharedMem', offset=0x18009, size=1), 'little')
+            for i, member in GetParty().items():
+                if member == ParsePokemon(ReadMemory(
+                        int.from_bytes(GetTask("TASK_EVOLUTIONSCENE")['data'][2:4], 'little') | (
+                                int.from_bytes(GetTask("TASK_EVOLUTIONSCENE")['data'][4:6], 'little') << 0x10),
+                        size=100)):
+                    idx = i
         case _:
             console.print('Not yet implemented...')
             os._exit(1)
@@ -173,14 +130,7 @@ def GetLearningMove() -> dict:
     """
     helper function that returns the move trying to be learned
     """
-    match mGBA.game:
-        case 'Pokémon Emerald':
-            return moves_list[struct.unpack('<H', ReadMemory(
-                struct.unpack('<I', ReadSymbol('sMonSummaryScreen'))[0], offset=0x40C4, size=2))[0]]
-        case 'Pokémon FireRed' | 'Pokémon LeafGreen':
-            return moves_list[struct.unpack('<H', ReadSymbol('gMoveToLearn'))[0]]
-        case 'Pokémon Ruby' | 'Pokémon Sapphire':
-            return moves_list[int.from_bytes(ReadSymbol('gMoveToLearn', size=1), 'little')]
+    return moves_list[int.from_bytes(ReadSymbol('gMoveToLearn', size=2), 'little')]
 
 
 def GetMoveLearningCursorPos() -> int:
