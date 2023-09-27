@@ -13,3 +13,6 @@ mgba/
 mGBA*win64/
 stats/
 stream/
+
+roms/*
+!roms/.gitkeep

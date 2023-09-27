@@ -42,6 +42,18 @@ def GetTrainer() -> dict:
     try:
         b_gTasks = ReadSymbol('gTasks', 0x57, 3)
         b_gObjectEvents = ReadSymbol('gObjectEvents', 0x10, 9)
+
+        if b_Save is None:
+            return {
+                'name': '',
+                'gender': '',
+                'tid': 0,
+                'sid': 0,
+                'map': (0, 0),
+                'coords': (0, 0),
+                'facing': None
+            }
+
         trainer = {
             'name': DecodeString(b_Save[0:7]),
             'gender': 'girl' if int(b_Save[8]) else 'boy',

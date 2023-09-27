@@ -6,9 +6,9 @@ pypresence~=4.3.0
 obsws-python~=1.6.0
 pandas~=2.0.3
 discord-webhook~=1.2.1
-Pymem~=1.12.0
+Pymem~=1.12.0; sys_platform == 'windows'
 psutil~=5.9.5
-WMI~=1.5.1
+WMI~=1.5.1; sys_platform == 'windows'
 jsonschema~=4.17.3
 rich~=13.5.2
 cffi~=1.15.1

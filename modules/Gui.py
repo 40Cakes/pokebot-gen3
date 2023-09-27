@@ -1,8 +1,11 @@
+import datetime
 import os
 import tkinter
 
 import PIL.Image
 import PIL.ImageTk
+
+from modules.Game import game
 
 input_map = {
     'A': 0x1,
@@ -27,7 +30,8 @@ class Gui:
         self.height = dimensions[1]
 
         self.window = tkinter.Tk()
-        self.window.title('libmgba dancing queen')
+        self.window.title('pokebot/libmgba')
+        self.window.protocol('WM_DELETE_WINDOW', self.CloseWindow)
         self.window.bind('<KeyPress>', self.HandleKeyDownEvent)
         self.window.bind('<KeyRelease>', self.HandleKeyUpEvent)
         self.canvas = tkinter.Canvas(self.window, width=self.width, height=self.height, bg="#000000")
@@ -51,11 +55,20 @@ class Gui:
         input = self.emulator.GetInputs() & ~input_map[key]
         self.emulator.SetInputs(input)
 
+    def _DisplayTime(self):
+        sRtc = self.emulator.ReadBus(0x03000dc0, 0xc).hex()
+        gLocalTime = self.emulator.ReadBus(0x03005cf8, 0x5).hex()
+        print(f"sRtc = {sRtc}  ||  gLocalTime = {gLocalTime}")
+
+    def CloseWindow(self):
+        print("Exit requested. Bye!")
+        self.emulator.Shutdown()
+        os._exit(1)
+
     def HandleKeyDownEvent(self, event):
         match event.keysym:
             case 'Escape':
-                self.emulator.SaveState()
-                os._exit(1)
+                self.CloseWindow()
 
             case 'Tab':
                 self.emulator.SetThrottle(not self.emulator.GetThrottle())
@@ -123,8 +136,11 @@ class Gui:
                 self._KeyUp('Select')
 
     def UpdateImage(self, image: PIL.Image) -> None:
+        if not self.window:
+            return
+
         if self.emulator._performance_tracker.current_fps:
-            self.window.title(f"libmgba dancing queen ({self.emulator._performance_tracker.current_fps} fps)")
+            self.window.title(f"{game.name} ({self.emulator._performance_tracker.current_fps} fps)")
 
         photo_image = PIL.ImageTk.PhotoImage(image=image.resize((self.width * self.scale, self.height * self.scale), resample=False))
         self.canvas.create_image(self.center_of_canvas, image=photo_image, state="normal")

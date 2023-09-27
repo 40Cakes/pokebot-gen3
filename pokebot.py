@@ -14,7 +14,6 @@ from modules.Stats import EncounterPokemon
 version = 'v0.0.1a'
 console.print('Starting [bold cyan]PokéBot {}![/]'.format(version))
 
-
 def _exit() -> NoReturn:
     """
     Called when the bot is manually stopped or crashes.

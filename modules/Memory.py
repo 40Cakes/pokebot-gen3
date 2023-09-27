@@ -2,6 +2,7 @@ import os
 import platform
 import time
 import struct
+import sys
 from enum import IntEnum
 from ruamel.yaml import YAML
 from modules.Console import console
@@ -46,12 +47,25 @@ if config_general['emulator_mode'] == 'pymem_mgba':
             time.sleep(0.5)
 else:
     from modules.emulator.LibmgbaEmulator import LibMgbaEmulator
+    from modules.Profiles import ListAvailableProfiles, LoadProfileByName, CreateNewProfileConsoleHelper, SelectProfileConsoleHelper
 
-    if not os.path.isfile("emerald.gba"):
-        console.print("ROM is missing: There should be a file called `emerald.gba` in the pokebot root directory.")
-        os._exit(1)
+    available_profiles = ListAvailableProfiles()
+    profile = None
+    if len(sys.argv) > 1:
+        try:
+            profile = LoadProfileByName(sys.argv[1])
+        except:
+            pass
 
-    emulator = LibMgbaEmulator("emerald.gba")
+    if len(available_profiles) == 0:
+        print("There are no available profiles.")
+        print("Creating a new one...")
+        print("")
+        profile = CreateNewProfileConsoleHelper()
+    elif profile is None:
+        profile = SelectProfileConsoleHelper(available_profiles)
+
+    emulator = LibMgbaEmulator(profile)
     SetGame(emulator.GetGameCode(), emulator.ReadROM(0xBC, 1)[0])
 
 
@@ -153,6 +167,8 @@ def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
             size = GetSymbol('GSAVEBLOCK{}'.format(num))[1]
         if game.name in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
             p_Trainer = struct.unpack('<I', ReadSymbol('gSaveBlock{}Ptr'.format(num)))[0]
+            if p_Trainer == 0:
+                return None
             return emulator.ReadBus(p_Trainer + offset, size)
         else:
             return ReadSymbol('gSaveBlock{}'.format(num), offset=offset, size=size)
@@ -196,12 +212,14 @@ class GameState(IntEnum):
     UNKNOWN = 999
 
 
-def GetGameState() -> GameState:
+def GetGameStateSymbol() -> str:
     callback2 = ReadSymbol('gMain', 4, 4)  # gMain.callback2
     addr = int(struct.unpack('<I', callback2)[0]) - 1
-    state = GetSymbolName(addr)
+    return GetSymbolName(addr)
 
-    match state:
+
+def GetGameState() -> GameState:
+    match GetGameStateSymbol():
         case 'CB2_OVERWORLD':
             return GameState.OVERWORLD
         case 'BATTLEMAINCB2':
