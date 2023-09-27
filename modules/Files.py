@@ -22,19 +22,25 @@ def ReadFile(file: str) -> str:
 
 def WriteFile(file: str, value: str, mode: str = 'w') -> bool:
     """
-    Simple function to write data to a file, will create the file if doesn't exist
+    Simple function to write data to a file, will create the file if doesn't exist.
+    Writes to a temp file, then performs os.remove + os.rename to prevent corruption of files (atomic operations).
+
     :param file: File to write to
     :param value: Value to write to file
     :param mode: Write mode
     :return: True if file was written to successfully, otherwise False (bool)
     """
     try:
-        dirname = os.path.dirname(file)
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
-        with open(file, mode=mode, encoding='utf-8') as save_file:
+        tmp_file = file + '.tmp'
+        directory = os.path.dirname(tmp_file)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        with open(tmp_file, mode=mode, encoding='utf-8') as save_file:
             save_file.write(value)
-            return True
+        if os.path.exists(file):
+            os.remove(file)
+        os.rename(tmp_file, file)
+        return True
     except:
         console.print_exception(show_locals=True)()
         return False
