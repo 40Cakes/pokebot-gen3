@@ -516,8 +516,7 @@ def GetMonToSwitch(active_mon: int) -> int:
                                 and move['kind'] in ['Physical', 'Special']):
                             console.print('Pokémon {} has usable moves!'.format(party[i]['name']))
                             return i
-            console.print("Error finding new battler- party seems to be out of PP/HP. Stopping...")
-            os._exit(6)
+            config_battle['battle'] = False
 
 
 def ShouldRotateLead() -> bool:
@@ -548,7 +547,8 @@ def DetermineAction() -> tuple:
                 if move == -1:
                     if config_battle['replace_lead_battler']:
                         mon_to_switch = GetMonToSwitch(GetCurrentBattler()[0])
-                        return "SWITCH", -1, mon_to_switch
+                        if mon_to_switch is not None:
+                            return "SWITCH", -1, mon_to_switch
                     action = "RUN"
                 else:
                     action = "FIGHT"
@@ -670,11 +670,12 @@ def SwitchOutPokemon(idx):
 
 def RotatePokemon():
     new_lead = GetMonToSwitch(0)
-    NavigateStartMenu("POKEMON")
-    for i in range(30):
-        if GetGameState() != GameState.PARTY_MENU:
-            PressButton(['A'])
-    SwitchOutPokemon(new_lead)
+    if new_lead is not None:
+        NavigateStartMenu("POKEMON")
+        for i in range(30):
+            if GetGameState() != GameState.PARTY_MENU:
+                PressButton(['A'])
+        SwitchOutPokemon(new_lead)
 
 
 def CheckLeadCanBattle():
