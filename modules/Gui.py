@@ -213,7 +213,15 @@ class PokebotGui:
 
         frame = ttk.Frame(self.window, padding=10)
         frame.grid(sticky="ew")
-        frame.columnconfigure(0, weight=1)
+
+        available_roms = ListAvailableRoms()
+        if len(available_roms) == 0:
+            error_message = "There aren't any ROMs in the roms/ directory. Please put some in there."
+            ttk.Label(frame, text=error_message, foreground="red", wraplength=300).grid(column=0, row=0, pady=20, padx=20)
+            ttk.Button(frame, text="Try again", command=self.ShowCreateProfile).grid(column=0, row=1, pady=20, padx=20)
+            self.frame = frame
+            return
+
         tkinter.Button(frame, text="Back", command=self.ShowProfileSelection, cursor="hand2").grid(column=0, row=0, sticky="E")
 
         group = ttk.LabelFrame(frame, text="Create a new game config", padding=10)
@@ -245,7 +253,6 @@ class PokebotGui:
         entry.grid(column=1, row=0, sticky="ew")
 
         rom_names = []
-        available_roms = ListAvailableRoms()
         for rom in available_roms:
             rom_names.append(rom.game_name)
 
