@@ -1,12 +1,16 @@
 # TODO add list of available fields to filter on
 # TODO add option for a Discord webhook when a custom is caught
+import math
+
 from modules.Config import config_general
 from modules.Console import console
 
 def CustomCatchFilters(pokemon: dict) -> bool:
     """
-    Check the current encounter, catch if it matches any of the following criteria
-    Some examples are provided (most are disabled by default)
+    Check the current encounter, catch if it matches any of the following criteria.
+    Some examples are provided (most are disabled by default).
+    These filters are checked *after* catch block list, so if Wurmple is on your catch block list, the Wurmple evolution
+    examples below will still be checked.
 
     `return True` will command the bot to catch the current encounter
     `pass` - will skip the check, and continue to check other criteria further down this file
@@ -32,6 +36,15 @@ def CustomCatchFilters(pokemon: dict) -> bool:
                       'Kabuto', 'Hitmonlee', 'Hitmonchan']
 
         if pokemon['name'] not in exceptions and config_general['bot_mode'] != 'starters':
+
+            # Catch shiny Wurmple based on evolution
+            if pokemon['shiny'] and pokemon['name'] == 'Wurmple':
+                evolution = 'Silcoon/Beautifly' if math.floor(pokemon['pid'] / 65536) % 10 <= 4 else 'Cascoon/Dustox'
+                if evolution == 'Silcoon/Beautifly':
+                    pass  # ❌ disabled
+                if evolution == 'Cascoon/Dustox':
+                    pass  # ❌ disabled
+
             # Catch perfect IV Pokémon
             if pokemon['IVSum'] == 186:
                 return True  # ✅ enabled
