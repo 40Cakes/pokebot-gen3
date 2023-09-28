@@ -4,6 +4,14 @@ from pathlib import Path
 
 ROMS_DIRECTORY = Path(__file__).parent.parent / "roms"
 
+GAME_NAME_MAP = {
+    "POKEMON EMER": "Pokémon Emerald",
+    "POKEMON SAPP": "Pokémon Sapphire",
+    "POKEMON RUBY": "Pokémon Ruby",
+    "POKEMON FIRE": "Pokémon Fire Red",
+    "POKEMON LEAF": "Pokémon Leaf Green"
+}
+
 
 class ROMLanguage(StrEnum):
     English = "E"
@@ -18,6 +26,7 @@ class ROMLanguage(StrEnum):
 @dataclass
 class ROM:
     file: Path
+    game_name: str
     game_title: str
     game_code: str
     language: ROMLanguage
@@ -70,4 +79,10 @@ def LoadROMData(file) -> ROM:
         handle.seek(0xBC)
         software_version = int.from_bytes(handle.read(1))
 
-        return ROM(file, game_title, game_code[:3], ROMLanguage(game_code[3]), maker_code, software_version)
+        game_name = game_title
+        if game_title in GAME_NAME_MAP:
+            game_name = GAME_NAME_MAP[game_title]
+
+        game_name += f' ({game_code[3]})'
+
+        return ROM(file, game_name, game_title, game_code[:3], ROMLanguage(game_code[3]), maker_code, software_version)

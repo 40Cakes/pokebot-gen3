@@ -1,14 +1,6 @@
 # General settings
 # See readme for documentation: https://github.com/40Cakes/pokebot-gen3#generalyml---general-config
 
-# Emulator mode - How to run the emulator
-# - `libmgba`: Frame-accurate and will work on Windows and Linux,
-#              but is newer and less tested.
-# - `pymem_mgba`: Attaches to an existing instance of mGBA (needs
-#                 to be started before running the bot), can 'miss'
-#                 frames. Older and therefore better tested.
-emulator_mode: pymem_mgba
-
 # Bot mode
 # `manual`, `spin`, `starters`, `fishing`
 # TODO: `sweet scent`, `bunny hop`, `coords`, `bonk`, `starters`, `lugia`, `ho-oh`,

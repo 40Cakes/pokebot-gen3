@@ -1,72 +1,10 @@
-import os
-import platform
-import time
 import struct
 import sys
 from enum import IntEnum
-from ruamel.yaml import YAML
+
 from modules.Console import console
-from modules.Game import game, SetGame, GetSymbol, GetSymbolName
-from modules.emulator.BaseEmulator import Emulator
-
-emulator: Emulator
-
-# Importing `modules.Config` is not possible at this point as it would lead to a circular import.
-# But we need the config to figure out the emulator mode.
-with open('config/general.yml') as file:
-    config_general = YAML().load(file)
-
-if config_general['emulator_mode'] == 'pymem_mgba':
-    if platform.system() != "Windows":
-        raise RuntimeError('Emulator mode `pymem_mgba` is only supported on Windows, not on ' + platform.system())
-
-    from modules.emulator.PymemMgbaEmulator import PymemMgbaEmulator
-    import win32gui, win32process
-    from pymem import Pymem
-
-    while True:
-        with console.status('[bold purple]Click on an mGBA instance to attach bot to...'):
-            fg = win32gui.GetForegroundWindow()
-            title = win32gui.GetWindowText(fg)
-            tid, pid = win32process.GetWindowThreadProcessId(fg)
-
-            if 'mGBA' in title:
-                proc = Pymem(pid)
-                emulator = PymemMgbaEmulator(proc)
-                SetGame(emulator.GetGameCode(), emulator.ReadROM(0xBC, 1)[0])
-                if game.name:
-                    console.print('Bot successfully attached to mGBA PID {}!'.format(pid))
-                    console.print('Detected game: {} ({})'.format(
-                        game.name,
-                        emulator.GetGameCode()))
-                    break
-                else:
-                    console.print('[bold red]Unsupported ROM detected![/]')
-                    input('Press enter to exit...')
-                    os._exit(1)
-            time.sleep(0.5)
-else:
-    from modules.emulator.LibmgbaEmulator import LibMgbaEmulator
-    from modules.Profiles import ListAvailableProfiles, LoadProfileByName, CreateNewProfileConsoleHelper, SelectProfileConsoleHelper
-
-    available_profiles = ListAvailableProfiles()
-    profile = None
-    if len(sys.argv) > 1:
-        try:
-            profile = LoadProfileByName(sys.argv[1])
-        except:
-            pass
-
-    if len(available_profiles) == 0:
-        print("There are no available profiles.")
-        print("Creating a new one...")
-        print("")
-        profile = CreateNewProfileConsoleHelper()
-    elif profile is None:
-        profile = SelectProfileConsoleHelper(available_profiles)
-
-    emulator = LibMgbaEmulator(profile)
-    SetGame(emulator.GetGameCode(), emulator.ReadROM(0xBC, 1)[0])
+from modules.Game import GetSymbol, GetSymbolName
+from modules.Gui import GetEmulator, GetROM
 
 
 def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
@@ -97,7 +35,9 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
         if size <= 0:
             size = length
 
-        return emulator.ReadBus(addr + offset, size)
+        return GetEmulator().ReadBus(addr + offset, size)
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
 
@@ -112,11 +52,13 @@ def WriteSymbol(name: str, data: bytes, offset: int = 0x0) -> bool:
                 length
             ))
 
-        emulator.WriteBus(addr + offset, data)
+        GetEmulator().WriteBus(addr + offset, data)
         return True
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
-        os._exit(1)
+        sys.exit(1)
 
 
 def ParseTasks() -> list:
@@ -136,6 +78,8 @@ def ParseTasks() -> list:
                 'data': gTasks[(x * 40 + 8):(x * 40 + 40)]
             })
         return tasks
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
 
@@ -165,13 +109,15 @@ def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     try:
         if not size:
             size = GetSymbol('GSAVEBLOCK{}'.format(num))[1]
-        if game.name in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
+        if GetROM().game_title in ['POKEMON EMER', 'POKEMON FIRE', 'POKEMON LEAF']:
             p_Trainer = struct.unpack('<I', ReadSymbol('gSaveBlock{}Ptr'.format(num)))[0]
             if p_Trainer == 0:
                 return None
-            return emulator.ReadBus(p_Trainer + offset, size)
+            return GetEmulator().ReadBus(p_Trainer + offset, size)
         else:
             return ReadSymbol('gSaveBlock{}'.format(num), offset=offset, size=size)
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
 
@@ -179,18 +125,20 @@ def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
 def GetItemOffsets() -> list[tuple[int, int]]:
     # Game specific offsets
     # Source: https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Section_1_-_Team_.2F_Items
-    if game.name in ['Pokémon FireRed', 'Pokémon LeafGreen']:
+    game_title = GetROM().game_title
+    if game_title in ['POKEMON FIRE', 'POKEMON LEAF']:
         return [(0x298, 120), (0x310, 168), (0x3B8, 120), (0x430, 52), (0x464, 232), (0x54C, 172)]
-    elif game.name == 'Pokémon Emerald':
+    elif game_title == 'POKEMON EMER':
         return [(0x498, 200), (0x560, 120), (0x5D8, 120), (0x650, 64), (0x690, 256), (0x790, 184)]
     else:
         return [(0x498, 200), (0x560, 80), (0x5B0, 80), (0x600, 64), (0x640, 256), (0x740, 184)]
 
 
 def GetItemKey() -> int:
-    if game.name in ['Pokémon FireRed', 'Pokémon LeafGreen']:
+    game_title = GetROM().game_title
+    if game_title in ['POKEMON FIRE', 'POKEMON LEAF']:
         return struct.unpack('<H', GetSaveBlock(2, 0xF20, 2))[0]
-    elif game.name == 'Pokémon Emerald':
+    elif game_title == 'POKEMON EMER':
         return struct.unpack('<H', GetSaveBlock(2, 0xAC, 2))[0]
     else:
         return 0
@@ -243,3 +191,11 @@ def GetGameState() -> GameState:
         case _:
             # print(f"Unknown state: {state}")
             return GameState.UNKNOWN
+
+
+def GameHasStarted() -> bool:
+    """
+    Reports whether the game has progressed past the main menu (save loaded
+    or new game started.)
+    """
+    return 0 != int.from_bytes(ReadSymbol('gObjectEvents', 0x10, 9))

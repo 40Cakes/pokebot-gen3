@@ -77,5 +77,7 @@ def Starters() -> NoReturn:
             rng_history['rng'].append(rng)
             SaveRNGStateHistory(config_general['starter'], rng_history)
         ResetGame()
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)

@@ -7,7 +7,7 @@ from threading import Thread
 from modules.Config import config_discord, config_obs
 from modules.Console import console
 from modules.Discord import DiscordMessage
-from modules.Game import game
+from modules.Gui import GetROM
 from modules.Inputs import WaitFrames
 
 
@@ -123,7 +123,7 @@ def CustomHooks(hook) -> NoReturn:
                                         pokemon['name']),
                     embed_footer='PokéBot ID: {} | {}'.format(
                         config_discord['bot_id'],
-                        game.name),
+                        GetROM().game_name),
                     embed_color='ffd242')
         except:
             console.print_exception(show_locals=True)
@@ -150,7 +150,7 @@ def CustomHooks(hook) -> NoReturn:
                                     pokemon['name']),
                     embed_footer='PokéBot ID: {} | {}'.format(
                         config_discord['bot_id'],
-                        game.name),
+                        GetROM().game_name),
                     embed_color='50C878')
         except:
             console.print_exception(show_locals=True)
@@ -178,7 +178,7 @@ def CustomHooks(hook) -> NoReturn:
                                         pokemon['name']),
                     embed_footer='PokéBot ID: {} | {}'.format(
                         config_discord['bot_id'],
-                        game.name),
+                        GetROM().game_name),
                     embed_color='ffd242')
         except:
             console.print_exception(show_locals=True)
@@ -218,7 +218,7 @@ def CustomHooks(hook) -> NoReturn:
                             'Ultra Ball'])),
                     embed_footer='PokéBot ID: {} | {}'.format(
                         config_discord['bot_id'],
-                        game.name),
+                        GetROM().game_name),
                     embed_color='50C878')
         except:
             console.print_exception(show_locals=True)
@@ -265,7 +265,7 @@ def CustomHooks(hook) -> NoReturn:
                                                 stats['totals'].get('shiny_encounters', 0))},
                     embed_footer='PokéBot ID: {} | {}'.format(
                         config_discord['bot_id'],
-                        game.name),
+                        GetROM().game_name),
                     embed_color='D70040')
         except:
             console.print_exception(show_locals=True)
@@ -326,7 +326,7 @@ def CustomHooks(hook) -> NoReturn:
                                         pokemon['name']),
                     embed_footer='PokéBot ID: {} | {}'.format(
                         config_discord['bot_id'],
-                        game.name),
+                        GetROM().game_name),
                     embed_color='000000')
         except:
             console.print_exception(show_locals=True)

@@ -4,7 +4,7 @@ from pypresence import Presence
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from modules.Console import console
 from modules.Config import config_discord, config_obs
-from modules.Game import game
+from modules.Gui import GetROM
 from modules.Inputs import WaitFrames
 
 
@@ -60,19 +60,19 @@ def DiscordRichPresence() -> NoReturn:
         RPC.connect()
         start = time.time()
 
-        match game.name:
-            case 'Pokémon Ruby': large_image = 'groudon'
-            case 'Pokémon Sapphire': large_image = 'kyogre'
-            case 'Pokémon Emerald': large_image = 'rayquaza'
-            case 'Pokémon FireRed': large_image = 'charizard'
-            case 'Pokémon LeafGreen': large_image = 'venusaur'
+        match GetROM().game_title:
+            case 'POKEMON RUBY': large_image = 'groudon'
+            case 'POKEMON SAPP': large_image = 'kyogre'
+            case 'POKEMON EMER': large_image = 'rayquaza'
+            case 'POKEMON FIRE': large_image = 'charizard'
+            case 'POKEMON LEAF': large_image = 'venusaur'
 
         while True:
             try:
                 RPC.update(
                     state='{} | {}'.format(
                             encounter_log['encounter_log'][-1]['pokemon']['metLocation'],
-                        game.name),
+                        GetROM().game_name),
                     details='{:,} ({:,}✨) | {:,}/h'.format(
                             stats['totals'].get('encounters', 0),
                             stats['totals'].get('shiny_encounters', 0),

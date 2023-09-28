@@ -23,7 +23,6 @@ def FacingDir(direction: int) -> str:
             return 'Right'
 
 
-b_Save = GetSaveBlock(2, size=14)  # TODO temp fix, sometimes fails to read pointer if GetTrainer() called before game boots after a reset
 def GetTrainer() -> dict:
     """
     Reads trainer data from memory.
@@ -40,6 +39,7 @@ def GetTrainer() -> dict:
     :return: Trainer (dict)
     """
     try:
+        b_Save = GetSaveBlock(2, size=14)
         b_gTasks = ReadSymbol('gTasks', 0x57, 3)
         b_gObjectEvents = ReadSymbol('gObjectEvents', 0x10, 9)
 
@@ -64,5 +64,7 @@ def GetTrainer() -> dict:
             'facing': FacingDir(int(b_gObjectEvents[8]))
         }
         return trainer
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)

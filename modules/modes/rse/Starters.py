@@ -5,13 +5,13 @@ from typing import NoReturn
 
 from modules.Config import config_general, config_cheats
 from modules.Console import console
-from modules.Game import game
+from modules.Gui import GetROM
 from modules.Inputs import PressButton, ResetGame, WaitFrames
 from modules.Memory import ReadSymbol, GetGameState, GameState, GetTask, WriteSymbol
 from modules.Pokemon import GetParty, OpponentChanged, GetOpponent
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
 
-if game.name == 'Pokémon Emerald':
+if GetROM().game_title == 'POKEMON EMER':
     t_bag_cursor = 'TASK_HANDLESTARTERCHOOSEINPUT'
     t_confirm = 'TASK_HANDLECONFIRMSTARTERINPUT'
     t_ball_throw = 'TASK_PLAYCRYWHENRELEASEDFROMBALL'
@@ -86,14 +86,13 @@ def Starters() -> NoReturn:
                 session_pids.append(pokemon['pid'])
 
         # Johto starters (Emerald only)
-        elif game.name == 'Pokémon Emerald' and config_general['starter'] in ['chikorita', 'totodile', 'cyndaquil']:
+        elif GetROM().game_title == 'POKEMON EMER' and config_general['starter'] in ['chikorita', 'totodile', 'cyndaquil']:
             config_cheats['starters'] = True  # TODO temporary until menu navigation is ready
             console.print('[red]Note: Johto starters enables the fast `starters` check option in `config/cheats.yml`, the shininess of the starter is checked via memhacks while start menu navigation is WIP (in future, shininess will be checked via the party summary menu).')
 
             if len(GetParty()) > 1:
                 console.print('[red]Pokémon detected in party slot 2, deposit all party members (except lead) before using this bot mode!')
-                input('Press enter to exit...')
-                os._exit(1)
+                exit(1)
             else:
                 while GetGameState() != GameState.OVERWORLD:
                     PressButton(['A'])
@@ -139,14 +138,15 @@ def Starters() -> NoReturn:
 
         else:
             console.print('[red]Invalid `starter` config for {} ({})!'.format(
-                game.name,
+                GetROM().game_name,
                 config_general['starter']))
-            input('Press enter to exit...')
-            os._exit(1)
+            exit(1)
 
         if not config_cheats['starters_rng']:
             rng_history['rng'].append(rng)
             SaveRNGStateHistory(config_general['starter'], rng_history)
         ResetGame()
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)

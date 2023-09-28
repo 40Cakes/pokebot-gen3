@@ -1,20 +1,15 @@
 import os
+import sys
+
 from jsonschema import validate
 from ruamel.yaml import YAML
 from modules.Console import console
-from modules.Game import game
-from modules.Trainer import GetTrainer
 
 yaml = YAML()
 
 general_schema = """
 type: object
 properties:
-    emulator_mode:
-        type: string
-        enum:
-            - libmgba
-            - pymem_mgba
     bot_mode:
         type: string
         enum:
@@ -291,53 +286,22 @@ def LoadConfig(file: str, schema: str) -> dict:
     except:
         console.print_exception(show_locals=True)
         console.print('[bold red]Config file {} is invalid![/]'.format(file))
-        input('Press enter to exit...')
-        os._exit(1)
-
-
-safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
-trainer_dir = '{}/{}-{}'.format(
-    game.code,
-    GetTrainer()['tid'],
-    safe_trainer_name
-)
-config_dir = './config/{}'.format(trainer_dir)
-
-if not os.path.exists(config_dir):
-    os.makedirs(config_dir)
+        sys.exit(1)
 
 # Load general config
-if os.path.isfile('{}/general.yml'.format(config_dir)):
-    config_general = LoadConfig('{}/general.yml'.format(config_dir), general_schema)
-else:
-    config_general = LoadConfig('config/general.yml', general_schema)
+config_general = LoadConfig('config/general.yml', general_schema)
 
 # Load logging config
-if os.path.isfile('{}/logging.yml'.format(config_dir)):
-    config_logging = LoadConfig('{}/logging.yml'.format(config_dir), logging_schema)
-else:
-    config_logging = LoadConfig('config/logging.yml', logging_schema)
+config_logging = LoadConfig('config/logging.yml', logging_schema)
 
 # Load battle config
-if os.path.isfile('{}/battle.yml'.format(config_dir)):
-    config_battle = LoadConfig('{}/battle.yml'.format(config_dir), battle_schema)
-else:
-    config_battle = LoadConfig('config/battle.yml', battle_schema)
+config_battle = LoadConfig('config/battle.yml', battle_schema)
 
 # Load Discord config
-if os.path.isfile('{}/discord.yml'.format(config_dir)):
-    config_discord = LoadConfig('{}/discord.yml'.format(config_dir), discord_schema)
-else:
-    config_discord = LoadConfig('config/discord.yml', discord_schema)
+config_discord = LoadConfig('config/discord.yml', discord_schema)
 
 # Load OBS config
-if os.path.isfile('{}/obs.yml'.format(config_dir)):
-    config_obs = LoadConfig('{}/obs.yml'.format(config_dir), obs_schema)
-else:
-    config_obs = LoadConfig('config/obs.yml', obs_schema)
+config_obs = LoadConfig('config/obs.yml', obs_schema)
 
 # Load cheat config
-if os.path.isfile('{}/cheats.yml'.format(config_dir)):
-    config_cheats = LoadConfig('{}/cheats.yml'.format(config_dir), cheats_schema)
-else:
-    config_cheats = LoadConfig('config/cheats.yml', cheats_schema)
+config_cheats = LoadConfig('config/cheats.yml', cheats_schema)

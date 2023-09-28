@@ -1,24 +1,14 @@
 import json
 import os.path
-from dataclasses import dataclass
 
 from modules.Files import ReadFile
-
-
-@dataclass
-class GameInfo:
-    code: str = ""
-    version: int = 0
-    name: str = ""
-
-
-game = GameInfo()
+from modules.Roms import ROM, ROMLanguage
 
 _symbols: dict[str, tuple[int, int]] = {}
 _char_map: str = ""
 
 
-def _LoadSymbols(symbols_file: str) -> None:
+def _LoadSymbols(symbols_file: str, language: ROMLanguage) -> None:
     global _symbols
 
     _symbols.clear()
@@ -29,7 +19,7 @@ def _LoadSymbols(symbols_file: str) -> None:
                 int(s.split(' ')[2], 16)
             )
 
-    language_code = game.code[3]
+    language_code = str(language)
     language_patch_file = symbols_file.replace('.sym', '.json')
     language_patch_path = f'modules/data/symbols/patches/language/{language_patch_file}'
     if language_code in ['D', 'I', 'S', 'F', 'J'] and os.path.exists(language_patch_path):
@@ -50,58 +40,46 @@ def _LoadCharmap(charmap_index: str) -> None:
     _char_map = char_maps[charmap_index]
 
 
-def SetGame(game_code: str, game_version: int) -> None:
-    """
-    :param game_code: Short game code as reported by the ROM (without the `AGB-` prefix)
-    :param game_version: Game version as reported by the ROM
-    """
+def SetROM(rom: ROM) -> None:
     global _symbols, _char_map
 
-    game.code = game_code
-    game.version = game_version
-
-    match game_code[0:3]:
+    match rom.game_code:
         case 'AXV':
-            game.name = 'Pokémon Ruby'
-            match game_version:
+            match rom.software_version:
                 case 0:
-                    _LoadSymbols('pokeruby.sym')
+                    _LoadSymbols('pokeruby.sym', rom.language)
                 case 1:
-                    _LoadSymbols('pokeruby_rev1.sym')
+                    _LoadSymbols('pokeruby_rev1.sym', rom.language)
                 case 2:
-                    _LoadSymbols('pokeruby_rev2.sym')
+                    _LoadSymbols('pokeruby_rev2.sym', rom.language)
 
         case 'AXP':
-            game.name = 'Pokémon Sapphire'
-            match game_version:
+            match rom.software_version:
                 case 0:
-                    _LoadSymbols('pokesapphire.sym')
+                    _LoadSymbols('pokesapphire.sym', rom.language)
                 case 1:
-                    _LoadSymbols('pokesapphire_rev1.sym')
+                    _LoadSymbols('pokesapphire_rev1.sym', rom.language)
                 case 2:
-                    _LoadSymbols('pokesapphire_rev2.sym')
+                    _LoadSymbols('pokesapphire_rev2.sym', rom.language)
 
         case 'BPE':
-            game.name = 'Pokémon Emerald'
-            _LoadSymbols('pokeemerald.sym')
+            _LoadSymbols('pokeemerald.sym', rom.language)
 
         case 'BPR':
-            game.name = 'Pokémon FireRed'
-            match game_version:
+            match rom.software_version:
                 case 0:
-                    _LoadSymbols('pokefirered.sym')
+                    _LoadSymbols('pokefirered.sym', rom.language)
                 case 1:
-                    _LoadSymbols('pokefirered_rev1.sym')
+                    _LoadSymbols('pokefirered_rev1.sym', rom.language)
 
         case 'BPG':
-            game.name = 'Pokémon LeafGreen'
-            match game_version:
+            match rom.software_version:
                 case 0:
-                    _LoadSymbols('pokeleafgreen.sym')
+                    _LoadSymbols('pokeleafgreen.sym', rom.language)
                 case 1:
-                    _LoadSymbols('pokeleafgreen_rev1.sym')
+                    _LoadSymbols('pokeleafgreen_rev1.sym', rom.language)
 
-    match game_code[3]:
+    match str(rom.language):
         case 'E' | 'D' | 'S' | 'F' | 'I':
             _LoadCharmap('i')
         case 'J':

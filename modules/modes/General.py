@@ -22,6 +22,8 @@ def ModeSpin():
         PressButton([random.choice(directions)])
         WaitFrames(5)
 
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
 

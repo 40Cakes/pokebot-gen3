@@ -235,6 +235,8 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
         }
         return pokemon
 
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
         return None
@@ -262,6 +264,8 @@ def GetParty(retry: int = 10) -> dict:
                         party[p] = mon
                 return party
             return {}
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
 
@@ -281,11 +285,13 @@ def GetOpponent() -> dict:
                 continue
             else:
                 return mon
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
 
 
-last_opid = ReadSymbol('gEnemyParty', size=4)
+last_opid = b'\x00\x00\x00\x00' # ReadSymbol('gEnemyParty', size=4)
 
 
 def OpponentChanged() -> bool:
@@ -303,6 +309,8 @@ def OpponentChanged() -> bool:
             return True
         else:
             return False
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
         return False

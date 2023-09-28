@@ -1,5 +1,4 @@
 import atexit
-import os.path
 import time
 
 import mgba.core
@@ -10,8 +9,6 @@ import mgba.png
 import mgba.vfs
 
 from mgba import libmgba_version_string
-from modules.emulator.BaseEmulator import Emulator
-from modules.Gui import Gui
 from modules.Profiles import Profile
 
 
@@ -43,8 +40,8 @@ class PerformanceTracker:
         return time.time() - self.last_frame_time
 
 
-class LibMgbaEmulator(Emulator):
-    def __init__(self, profile: Profile):
+class LibmgbaEmulator:
+    def __init__(self, profile: Profile, gui):
         print(f"Running {libmgba_version_string()}")
 
         # Prevents relentless spamming to stdout by libmgba
@@ -72,7 +69,7 @@ class LibMgbaEmulator(Emulator):
 
         self._memory: mgba.gba.GBAMemory = self._core.memory
 
-        self._gui = Gui(self, self._core.desired_video_dimensions())
+        self._gui = gui
 
         self._performance_tracker = PerformanceTracker()
         self._throttled = False
@@ -119,6 +116,12 @@ class LibMgbaEmulator(Emulator):
     def GetGameCode(self) -> str:
         # The [4:8] range strips off the `AGB-` prefix that every game has.
         return self._core.game_code[4:8]
+
+    def GetImageDimensions(self) -> tuple[int, int]:
+        return self._core.desired_video_dimensions()
+
+    def GetCurrentFPS(self) -> int:
+        return self._performance_tracker.current_fps
 
     def GetThrottle(self) -> bool:
         return self._throttled
@@ -186,6 +189,9 @@ class LibMgbaEmulator(Emulator):
             self._screen.to_pil().convert("RGB").save(file, format="PNG")
 
     def RunSingleFrame(self) -> None:
+        if not self._gui.is_running:
+            exit()
+
         self._core.run_frame()
 
         if self._performance_tracker.TimeSinceLastRender() >= self._target_seconds_per_render:

@@ -2,7 +2,8 @@ import struct
 from typing import NoReturn
 
 from modules.Config import config_general
-from modules.Memory import emulator, GetGameState, GameState
+from modules.Gui import GetEmulator
+from modules.Memory import GetGameState, GameState
 
 
 press = 0
@@ -22,7 +23,7 @@ input_map = {
 
 
 def GetInputs() -> int:
-    return emulator.GetInputs()
+    return GetEmulator().GetInputs()
 
 
 def WriteInputs(value: int) -> None:
@@ -41,7 +42,7 @@ def WriteInputs(value: int) -> None:
     :param value: inputs to write to mGBA memory
     """
     if config_general['bot_mode'] != 'manual':
-        emulator.SetInputs(value)
+        GetEmulator().SetInputs(value)
 
 
 def WaitFrames(frames: int) -> None:
@@ -51,7 +52,7 @@ def WaitFrames(frames: int) -> None:
     :param frames: number of frames to wait
     """
     for i in range(frames):
-        emulator.RunSingleFrame()
+        GetEmulator().RunSingleFrame()
 
 
 def ReleaseInputs() -> None:
