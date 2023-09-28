@@ -456,7 +456,7 @@ def GetCurrentBattler() -> list:
             # If we only have one party member, it's obviously the current battler so don't do the calcs for who's in battle
             if len(GetParty()) == 1:
                 return GetParty()
-            current_battlers = [GetParty()[battler_indices[i]] for i in range(len(battler_indices)//num_battlers)]
+            current_battlers = [GetParty()[battler_indices[i*2]] for i in range(num_battlers//2)]
             return current_battlers
         case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
             # this tells us which pokemon from our party are battling. 0 represents a pokemon in the party who isn't battling, and also the pokemon at index 0 :(
@@ -466,7 +466,7 @@ def GetCurrentBattler() -> list:
             # If we only have one party member, it's obviously the current battler so don't do the calcs for who's in battle
             if len(GetParty()) == 1:
                 return GetParty()
-            current_battlers = [GetParty()[battler_indices[i]] for i in range(len(battler_indices)//num_battlers)]
+            current_battlers = [GetParty()[battler_indices[i*2]] for i in range(num_battlers//2)]
             return current_battlers
 
 
