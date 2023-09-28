@@ -68,7 +68,7 @@ def TakePickupItems(pokemon_indices: list):
                 NavigateMenu("ITEM")
             while GetParty()[idx]['item']['name'] != 'None':
                 NavigateMenu("TAKE_ITEM")
-            while GetTask('TASK_UPDATEHELDITEMSPRITE') != {}:
+            while GetTask('TASK_PRINTANDWAITFORTEXT') != {} and GetTask("TASK_PRINTANDWAITFORTEXT")['isActive']:
                 PressButton(['B'])
         else:
             while 'SUB_8089D94' not in [task['func'] for task in ParseTasks()]:
