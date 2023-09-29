@@ -26,7 +26,7 @@ properties:
                 type: string
             game_code:
                 type: string
-            software_version:
+            revision:
                 type: integer
             language:
                 type: string
@@ -95,7 +95,7 @@ def LoadProfile(path) -> Profile:
     else:
         for rom in ListAvailableRoms():
             if rom.game_code == metadata['rom']['game_code'] \
-                    and rom.software_version == metadata['rom']['software_version'] \
+                    and rom.revision == metadata['rom']['revision'] \
                     and rom.language == metadata['rom']['language']:
                 return Profile(rom, path, last_played)
 
@@ -118,7 +118,7 @@ def CreateProfile(name: str, rom: ROM) -> Profile:
         "rom": {
             "file_name": rom.file.name,
             "game_code": rom.game_code,
-            "software_version": rom.software_version,
+            "revision": rom.revision,
             "language": str(rom.language)
         }
     }, profile_directory / "metadata.yml")

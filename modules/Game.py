@@ -45,7 +45,7 @@ def SetROM(rom: ROM) -> None:
 
     match rom.game_code:
         case 'AXV':
-            match rom.software_version:
+            match rom.revision:
                 case 0:
                     _LoadSymbols('pokeruby.sym', rom.language)
                 case 1:
@@ -54,7 +54,7 @@ def SetROM(rom: ROM) -> None:
                     _LoadSymbols('pokeruby_rev2.sym', rom.language)
 
         case 'AXP':
-            match rom.software_version:
+            match rom.revision:
                 case 0:
                     _LoadSymbols('pokesapphire.sym', rom.language)
                 case 1:
@@ -66,14 +66,14 @@ def SetROM(rom: ROM) -> None:
             _LoadSymbols('pokeemerald.sym', rom.language)
 
         case 'BPR':
-            match rom.software_version:
+            match rom.revision:
                 case 0:
                     _LoadSymbols('pokefirered.sym', rom.language)
                 case 1:
                     _LoadSymbols('pokefirered_rev1.sym', rom.language)
 
         case 'BPG':
-            match rom.software_version:
+            match rom.revision:
                 case 0:
                     _LoadSymbols('pokeleafgreen.sym', rom.language)
                 case 1:
