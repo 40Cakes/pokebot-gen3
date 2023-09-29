@@ -257,7 +257,7 @@ class PokebotGui:
             rom_names.append(rom.game_name)
 
         ttk.Label(group, text="Game:").grid(column=0, row=1, sticky="W", padx=5)
-        rom_input = ttk.Combobox(group, values=rom_names, width=24, state="readonly")
+        rom_input = ttk.Combobox(group, values=sorted(rom_names), width=28, state="readonly")
         rom_input.current(0)
         rom_input.grid(column=1, row=1)
 
