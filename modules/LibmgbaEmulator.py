@@ -189,9 +189,6 @@ class LibmgbaEmulator:
             self._screen.to_pil().convert("RGB").save(file, format="PNG")
 
     def RunSingleFrame(self) -> None:
-        if not self._gui.is_running:
-            exit()
-
         self._core.run_frame()
 
         if self._performance_tracker.TimeSinceLastRender() >= self._target_seconds_per_render:

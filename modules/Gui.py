@@ -51,7 +51,6 @@ class PokebotGui:
     height: int = 160
     scale: int = 1
     center_of_canvas: tuple[int, int] = (0, 0)
-    is_running = True
 
     def __init__(self, main_loop: callable, preselected_profile: Profile = None):
         self.window = tkinter.Tk()
@@ -76,6 +75,7 @@ class PokebotGui:
     def CloseWindow(self) -> None:
         if emulator:
             setattr(emulator, "RunSingleFrame", lambda: sys.exit())
+        self.window.withdraw()
         sys.exit()
 
     def HandleKeyDownEvent(self, event) -> None:
