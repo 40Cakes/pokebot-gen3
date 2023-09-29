@@ -160,6 +160,11 @@ class PokebotGui:
         if self.frame:
             self.frame.destroy()
 
+        available_profiles = ListAvailableProfiles()
+        if len(available_profiles) == 0:
+            self.ShowCreateProfile()
+            return
+
         frame = ttk.Frame(self.window, padding=10, width=300)
         frame.grid()
         ttk.Label(frame, text="Select a game you would like to run:").grid(column=0, row=0, sticky="W")
@@ -181,7 +186,6 @@ class PokebotGui:
         treeview.column('last_played', width=150)
         treeview.heading("last_played", text="Last Played")
 
-        available_profiles = ListAvailableProfiles()
         available_profiles.sort(reverse=True, key=lambda p: p.last_played)
         for profile in available_profiles:
             if profile.last_played:
@@ -211,28 +215,38 @@ class PokebotGui:
         if self.frame:
             self.frame.destroy()
 
-        frame = ttk.Frame(self.window, padding=10)
-        frame.grid(sticky="ew")
+        frame = ttk.Frame(self.window, padding=10, width=320)
+        frame.pack(fill='both', expand=True)
+        frame.grid_rowconfigure(1, weight=1)
+        frame.grid_columnconfigure(0, weight=1)
 
         available_roms = ListAvailableRoms()
         if len(available_roms) == 0:
-            error_message = "There aren't any ROMs in the roms/ directory. Please put some in there."
-            ttk.Label(frame, text=error_message, foreground="red", wraplength=300).grid(column=0, row=0, pady=20, padx=20)
-            ttk.Button(frame, text="Try again", command=self.ShowCreateProfile).grid(column=0, row=1, pady=20, padx=20)
+            error_message = "There aren't any ROMs in the 'roms/' directory. Please put some in there."
+            ttk.Label(frame, text=error_message, foreground="red", wraplength=300).grid(column=0, row=0, pady=20, padx=20, sticky="S")
+            ttk.Button(frame, text="Try again", command=self.ShowCreateProfile, cursor="hand2").grid(column=0, row=1, pady=20, padx=20, sticky="N")
+            frame.grid_rowconfigure(1, weight=1)
             self.frame = frame
             return
 
-        tkinter.Button(frame, text="Back", command=self.ShowProfileSelection, cursor="hand2").grid(column=0, row=0, sticky="E")
+        if len(ListAvailableProfiles()) > 0:
+            tkinter.Button(frame, text="Back", command=self.ShowProfileSelection, cursor="hand2").grid(column=0, row=0, sticky="E")
+        else:
+            welcome_message = f"Hey! Seems like this is your first run of {pokebot_name}.\n" +\
+                "In order to use the bot, you need to first create a config profile.\n\n" +\
+                "You can think of a profile like a save game, but it also contains additional configuration, " +\
+                "statistics, screenshots etc."
+            ttk.Label(frame, text=welcome_message, wraplength=450, justify="center").grid(column=0, row=0, columnspan=2)
 
         group = ttk.LabelFrame(frame, text="Create a new game config", padding=10)
-        group.grid(sticky="W")
+        group.grid()
 
         ttk.Label(group, text="Name:").grid(column=0, row=0, sticky="W", padx=5)
 
         button = None
         message_label = None
         sv_name = tkinter.StringVar()
-        name_check = re.compile('^[-_a-zA-Z0-9]+$')
+        name_check = re.compile('^[-_a-zA-Z0-9 ]+$')
         def HandleNameInputChange(name, index, mode, sv=sv_name):
             value = sv.get()
             if value == "":
@@ -240,10 +254,11 @@ class PokebotGui:
                 message_label.config(text="")
             elif not name_check.match(value):
                 button.config(state="disabled")
-                message_label.config(text="The profile name may only consist of letters, digits, underscore and hyphen.")
+                message_label.config(text="The profile name may only consist of letters, digits, _ and -.",
+                                     foreground="red")
             elif ProfileDirectoryExists(value):
                 button.config(state="disabled")
-                message_label.config(text="A profile called '"+value+"' already exists.")
+                message_label.config(text="A profile called '"+value+"' already exists.", foreground="red")
             else:
                 button.config(state="normal")
                 message_label.config(text="")
@@ -259,7 +274,7 @@ class PokebotGui:
         ttk.Label(group, text="Game:").grid(column=0, row=1, sticky="W", padx=5)
         rom_input = ttk.Combobox(group, values=sorted(rom_names), width=28, state="readonly")
         rom_input.current(0)
-        rom_input.grid(column=1, row=1)
+        rom_input.grid(column=1, row=1, pady=5)
 
         def HandleButtonPress():
             name = sv_name.get()
@@ -269,9 +284,9 @@ class PokebotGui:
                     self.RunProfile(CreateProfile(name, rom))
 
         button = ttk.Button(group, text="Create", cursor="hand2", state="disabled", command=HandleButtonPress)
-        button.grid(column=1, row=2, sticky="W", pady=10)
+        button.grid(column=0, columnspan=2, row=2, pady=10)
 
-        message_label = ttk.Label(frame, text="", wraplength=300, foreground="red")
+        message_label = ttk.Label(frame, text="", wraplength=480)
         message_label.grid(column=0, row=2, pady=10)
 
         self.frame = frame
