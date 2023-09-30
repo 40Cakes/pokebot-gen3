@@ -68,13 +68,14 @@ def CustomHooks(hook) -> NoReturn:
 
                 # Load catch block config
                 from modules.Config import config_dir, catch_block_schema, LoadConfig
+                # Named `config_catch_block_t` to prevent thread overwriting variable if main thread loads it
                 if os.path.isfile('{}/catch_block.yml'.format(config_dir)):
-                    config_catch_block = LoadConfig('{}/catch_block.yml'.format(config_dir), catch_block_schema)
+                    config_catch_block_t = LoadConfig('{}/catch_block.yml'.format(config_dir), catch_block_schema)
                 else:
-                    config_catch_block = LoadConfig('config/catch_block.yml', catch_block_schema)
+                    config_catch_block_t = LoadConfig('config/catch_block.yml', catch_block_schema)
 
                 block = '\n❌Skipping catching shiny (on catch block list)!' \
-                    if pokemon['name'] in config_catch_block['block_list'] else ''
+                    if pokemon['name'] in config_catch_block_t['block_list'] else ''
 
                 DiscordMessage(
                     webhook_url=config_discord['shiny_pokemon_encounter'].get('webhook_url', None),
