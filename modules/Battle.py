@@ -516,6 +516,7 @@ def GetMonToSwitch(active_mon: int) -> int:
                                 and move['kind'] in ['Physical', 'Special']):
                             console.print('Pokémon {} has usable moves!'.format(party[i]['name']))
                             return i
+            console.print("Can't find suitable replacement battler. Turning off auto battling.")
             config_battle['battle'] = False
 
 
@@ -547,8 +548,7 @@ def DetermineAction() -> tuple:
                 if move == -1:
                     if config_battle['replace_lead_battler']:
                         mon_to_switch = GetMonToSwitch(GetCurrentBattler()[0])
-                        if mon_to_switch is not None:
-                            return "SWITCH", -1, mon_to_switch
+                        return "SWITCH", -1, mon_to_switch
                     action = "RUN"
                 else:
                     action = "FIGHT"
@@ -726,7 +726,9 @@ def ExecuteAction(decision: tuple):
             console.print("Bag not yet implemented. Stopping...")
             os._exit(3)
         case "SWITCH":
-            if 0 > pokemon or pokemon > 6:
+            if pokemon is None:
+                ExecuteAction(("RUN", -1, -1))
+            elif  0 > pokemon or pokemon > 6 :
                 console.print("Invalid Pokemon selection. Stopping...")
                 os._exit(pokemon)
             else:
@@ -763,6 +765,13 @@ def HandleBattlerFaint():
             while GetBattleState() != BattleState.PARTY_MENU:
                 PressButton(['A'])
             new_lead = GetMonToSwitch(GetCurrentBattler()[0])
+            if new_lead is None:
+                console.print("No viable pokemon to switch in!")
+                faint_action_default = str(config_battle['faint_action'])
+                config_battle['faint_action'] = "flee"
+                HandleBattlerFaint()
+                config_battle['faint_action'] = faint_action_default
+                return False
             SendOutPokemon(new_lead)
             while GetBattleState() in (BattleState.SWITCH_POKEMON, BattleState.PARTY_MENU):
                 PressButton(['A'])
