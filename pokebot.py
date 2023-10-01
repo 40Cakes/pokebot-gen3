@@ -17,7 +17,7 @@ from version import pokebot_name, pokebot_version
 
 def MainLoop(profile: Profile):
     LoadConfigFromDirectory(profile.path / "config", allow_missing_files=True)
-    InitStats()
+    InitStats(profile)
 
     try:
         if config['discord']['rich_presence']:

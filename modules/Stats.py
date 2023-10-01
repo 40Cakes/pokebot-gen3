@@ -15,10 +15,9 @@ from modules.Colours import IVColour, IVSumColour, SVColour
 from modules.Config import config
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
-from modules.Gui import GetROM
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import GetGameState, GameState
-from modules.Trainer import GetTrainer
+from modules.Profiles import Profile
 
 CustomCatchFilters = None
 CustomHooks = None
@@ -29,37 +28,29 @@ shiny_log = None
 stats_dir = None
 files = None
 
-def InitStats():
+def InitStats(profile: Profile):
     global CustomCatchFilters, CustomHooks, session_encounters, stats, encounter_log, shiny_log, stats_dir, files
 
-    safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
-    trainer_dir = '{}/{}-{}'.format(
-        GetROM().game_code,
-        GetTrainer()['tid'],
-        safe_trainer_name
-    )
-    stats_dir = './stats/{}'.format(trainer_dir)
-    os.makedirs(stats_dir, exist_ok=True)
+    config_dir_path = profile.path / 'config'
+    stats_dir_path = profile.path / 'stats'
+    if not stats_dir_path.exists():
+        stats_dir_path.mkdir()
+    stats_dir = str(stats_dir_path)
+
     files = {
-        'encounter_log': '{}/encounter_log.json'.format(stats_dir),
-        'shiny_log': '{}/shiny_log.json'.format(stats_dir),
-        'totals': '{}/totals.json'.format(stats_dir)
+        'encounter_log': str(stats_dir_path / 'encounter_log.json'),
+        'shiny_log': str(stats_dir_path / 'shiny_log.json'),
+        'totals': str(stats_dir_path / 'totals.json')
     }
 
     try:
-        if os.path.isfile('./config/{}/CustomCatchFilters.py'.format(trainer_dir)):
-            CustomCatchFilters = importlib.import_module('.CustomCatchFilters', 'config.{}.{}-{}'.format(
-                GetROM().game_code,
-                GetTrainer()['tid'],
-                safe_trainer_name)).CustomCatchFilters
+        if (config_dir_path / 'CustomCatchFilters.py').is_file():
+            CustomCatchFilters = importlib.import_module('.CustomCatchFilters', 'config.{}'.format(profile.path.name)).CustomCatchFilters
         else:
             from config.CustomCatchFilters import CustomCatchFilters
 
-        if os.path.isfile('./config/{}/CustomHooks.py'.format(trainer_dir)):
-            CustomHooks = importlib.import_module('.CustomHooks', 'config.{}.{}-{}'.format(
-                GetROM().game_code,
-                GetTrainer()['tid'],
-                safe_trainer_name)).CustomHooks
+        if (config_dir_path / 'CustomHooks.py').is_file():
+            CustomHooks = importlib.import_module('.CustomHooks', 'config.{}'.format(profile.path.name)).CustomHooks
         else:
             from config.CustomHooks import CustomHooks
 
