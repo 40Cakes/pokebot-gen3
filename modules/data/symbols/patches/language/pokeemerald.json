@@ -82,6 +82,12 @@
     "gPlayerPartyCount":{
       "J":"202418d"
     },
+    "gPlayerParty":{
+      "J":"2024190"
+    },
+    "gRngValue":{
+      "J":"3005ae0"
+    },
     "ITEMSTORAGE_HANDLEREMOVEITEM":{
       "I":"0"
     }
