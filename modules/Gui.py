@@ -7,9 +7,11 @@ import PIL.Image
 import PIL.ImageTk
 
 import modules.Game
+from modules.Config import config, LoadConfig, keys_schema
+from modules.Console import console
+from modules.LibmgbaEmulator import LibmgbaEmulator
 from modules.Profiles import Profile, ListAvailableProfiles, ProfileDirectoryExists, CreateProfile
 from modules.Roms import ROM, ListAvailableRoms
-from modules.LibmgbaEmulator import LibmgbaEmulator
 from version import pokebot_name, pokebot_version
 
 input_map = {
@@ -47,10 +49,13 @@ class PokebotGui:
     window: tkinter.Tk = None
     frame: tkinter.Widget = None
     canvas: tkinter.Canvas = None
+    gba_keys: dict[str, int] = {}
+    emulator_keys: dict[str, str] = {}
     width: int = 240
     height: int = 160
     scale: int = 1
     center_of_canvas: tuple[int, int] = (0, 0)
+    previous_bot_mode: str = ''
 
     def __init__(self, main_loop: callable, preselected_profile: Profile = None):
         self.window = tkinter.Tk()
@@ -59,6 +64,12 @@ class PokebotGui:
         self.window.protocol('WM_DELETE_WINDOW', self.CloseWindow)
         self.window.bind('<KeyPress>', self.HandleKeyDownEvent)
         self.window.bind('<KeyRelease>', self.HandleKeyUpEvent)
+
+        key_config = LoadConfig('keys.yml', keys_schema)
+        for key in input_map:
+            self.gba_keys[key_config['gba'][key]] = input_map[key]
+        for action in key_config['emulator']:
+            self.emulator_keys[key_config['emulator'][action]] = action
 
         self.main_loop = main_loop
 
@@ -83,78 +94,31 @@ class PokebotGui:
             self.CloseWindow()
 
         if emulator:
-            match event.keysym:
-                case 'Tab':
-                    emulator.SetThrottle(not emulator.GetThrottle())
-
-                case '1':
-                    emulator.SetTargetSecondsPerFrame(1 / 60)
-
-                case '2':
-                    emulator.SetTargetSecondsPerFrame(1 / 120)
-
-                case '3':
-                    emulator.SetTargetSecondsPerFrame(1 / 180)
-
-                case '4':
-                    emulator.SetTargetSecondsPerFrame(1 / 240)
-
-                case 'KP_Add':
-                    self.SetScale(min(5, self.scale + 1))
-
-                case 'KP_Subtract':
-                    self.SetScale(max(1, self.scale - 1))
-
-                case 'Up' | 'Down' | 'Left' | 'Right':
-                    self._KeyDown(event.keysym)
-
-                case 'z':
-                    self._KeyDown('B')
-
-                case 'x':
-                    self._KeyDown('A')
-
-                case 'a':
-                    self._KeyDown('L')
-
-                case 's':
-                    self._KeyDown('R')
-
-                case 'space':
-                    self._KeyDown('Start')
-
-                case 'Control_L':
-                    self._KeyDown('Select')
+            if event.keysym in self.gba_keys and config['general']['bot_mode'] == 'manual':
+                emulator.SetInputs(emulator.GetInputs() | self.gba_keys[event.keysym])
+            elif event.keysym in self.emulator_keys:
+                match self.emulator_keys[event.keysym]:
+                    case 'zoom_in':
+                        self.SetScale(min(5, self.scale + 1))
+                    case 'zoom_out':
+                        self.SetScale(max(1, self.scale - 1))
+                    case 'toggle_unthrottled':
+                        emulator.SetThrottle(not emulator.GetThrottle())
+                    case 'toggle_manual':
+                        if config['general']['bot_mode'] == 'manual' and self.previous_bot_mode != '':
+                            config['general']['bot_mode'] = self.previous_bot_mode
+                            console.print('Now in [cyan]{}[/] mode'.format(self.previous_bot_mode))
+                            self.previous_bot_mode = ''
+                        else:
+                            self.previous_bot_mode = config['general']['bot_mode']
+                            config['general']['bot_mode'] = 'manual'
+                            console.print('Now in [cyan]manual[/] mode')
+                        emulator.SetInputs(0)
 
     def HandleKeyUpEvent(self, event) -> None:
         if emulator:
-            match event.keysym:
-                case 'Up' | 'Down' | 'Left' | 'Right':
-                    self._KeyUp(event.keysym)
-
-                case 'z':
-                    self._KeyUp('B')
-
-                case 'x':
-                    self._KeyUp('A')
-
-                case 'a':
-                    self._KeyUp('L')
-
-                case 's':
-                    self._KeyUp('R')
-
-                case 'space':
-                    self._KeyUp('Start')
-
-                case 'Control_L':
-                    self._KeyUp('Select')
-
-    def _KeyDown(self, key: str) -> None:
-        emulator.SetInputs(emulator.GetInputs() | input_map[key])
-
-    def _KeyUp(self, key: str) -> None:
-        emulator.SetInputs(emulator.GetInputs() & ~input_map[key])
+            if event.keysym in self.gba_keys and config['general']['bot_mode'] == 'manual':
+                emulator.SetInputs(emulator.GetInputs() & ~self.gba_keys[event.keysym])
 
     def ShowProfileSelection(self):
         if self.frame:
@@ -223,19 +187,23 @@ class PokebotGui:
         available_roms = ListAvailableRoms()
         if len(available_roms) == 0:
             error_message = "There aren't any ROMs in the 'roms/' directory. Please put some in there."
-            ttk.Label(frame, text=error_message, foreground="red", wraplength=300).grid(column=0, row=0, pady=20, padx=20, sticky="S")
-            ttk.Button(frame, text="Try again", command=self.ShowCreateProfile, cursor="hand2").grid(column=0, row=1, pady=20, padx=20, sticky="N")
+            ttk.Label(frame, text=error_message, foreground="red", wraplength=300).grid(column=0, row=0, pady=20,
+                                                                                        padx=20, sticky="S")
+            ttk.Button(frame, text="Try again", command=self.ShowCreateProfile, cursor="hand2").grid(column=0, row=1,
+                                                                                                     pady=20, padx=20,
+                                                                                                     sticky="N")
             frame.grid_rowconfigure(1, weight=1)
             self.frame = frame
             return
 
         if len(ListAvailableProfiles()) > 0:
-            tkinter.Button(frame, text="Back", command=self.ShowProfileSelection, cursor="hand2").grid(column=0, row=0, sticky="E")
+            tkinter.Button(frame, text="Back", command=self.ShowProfileSelection, cursor="hand2").grid(column=0, row=0,
+                                                                                                       sticky="E")
         else:
-            welcome_message = f"Hey! Seems like this is your first run of {pokebot_name}.\n" +\
-                "In order to use the bot, you need to first create a config profile.\n\n" +\
-                "You can think of a profile like a save game, but it also contains additional configuration, " +\
-                "statistics, screenshots etc."
+            welcome_message = f"Hey! Seems like this is your first run of {pokebot_name}.\n" + \
+                              "In order to use the bot, you need to first create a config profile.\n\n" + \
+                              "You can think of a profile like a save game, but it also contains additional configuration, " + \
+                              "statistics, screenshots etc."
             ttk.Label(frame, text=welcome_message, wraplength=450, justify="center").grid(column=0, row=0, columnspan=2)
 
         group = ttk.LabelFrame(frame, text="Create a new game config", padding=10)
@@ -247,6 +215,7 @@ class PokebotGui:
         message_label = None
         sv_name = tkinter.StringVar()
         name_check = re.compile('^[-_a-zA-Z0-9 ]+$')
+
         def HandleNameInputChange(name, index, mode, sv=sv_name):
             value = sv.get()
             if value == "":
@@ -258,7 +227,7 @@ class PokebotGui:
                                      foreground="red")
             elif ProfileDirectoryExists(value):
                 button.config(state="disabled")
-                message_label.config(text="A profile called '"+value+"' already exists.", foreground="red")
+                message_label.config(text="A profile called '" + value + "' already exists.", foreground="red")
             else:
                 button.config(state="normal")
                 message_label.config(text="")
@@ -310,7 +279,7 @@ class PokebotGui:
         self.canvas.pack()
         self.SetScale(2)
 
-        self.main_loop()
+        self.main_loop(profile)
 
     def SetScale(self, scale: int) -> None:
         self.scale = scale

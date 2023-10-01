@@ -1,8 +1,9 @@
-import os
 import sys
+from pathlib import Path
 
 from jsonschema import validate
 from ruamel.yaml import YAML
+
 from modules.Console import console
 
 yaml = YAML()
@@ -276,32 +277,87 @@ properties:
 """
 
 
-def LoadConfig(file: str, schema: str) -> dict:
-    try:
-        if os.path.exists(file):
-            with open(file, mode='r', encoding='utf-8') as f:
-                config = yaml.load(f)
-                validate(config, yaml.load(schema))
-                return config
-    except:
-        console.print_exception(show_locals=True)
-        console.print('[bold red]Config file {} is invalid![/]'.format(file))
+keys_schema = """
+type: object
+properties:
+    gba:
+        type: object
+        properties:
+            Up: {type: string}
+            Down: {type: string}
+            Left: {type: string}
+            Right: {type: string}
+            A: {type: string}
+            B: {type: string}
+            L: {type: string}
+            R: {type: string}
+            Start: {type: string}
+            Select: {type: string}
+
+    emulator:
+        type: object
+        properties:
+            zoom_in: {type: string}
+            zoom_out: {type: string}
+            toggle_unthrottled: {type: string}
+            toggle_manual: {type: string}
+"""
+
+schemas = {
+    'general': general_schema,
+    'logging': logging_schema,
+    'battle': battle_schema,
+    'discord': discord_schema,
+    'obs': obs_schema,
+    'cheats': cheats_schema
+}
+
+config = {
+    'general': {},
+    'logging': {},
+    'battle': {},
+    'discord': {},
+    'obs': {},
+    'cheats': {}
+}
+config_dir_stack = []
+
+
+def LoadConfig(file_name: str, schema: str) -> dict:
+    result = None
+    for config_dir in config_dir_stack:
+        file_path = config_dir / file_name
+        if file_path.is_file():
+            result = LoadConfigFile(file_path, schema)
+
+    if result is None:
+        console.print('[bold red]Could not find any config file named {}.[/]'.format(file_name))
         sys.exit(1)
 
-# Load general config
-config_general = LoadConfig('config/general.yml', general_schema)
+    return result
 
-# Load logging config
-config_logging = LoadConfig('config/logging.yml', logging_schema)
 
-# Load battle config
-config_battle = LoadConfig('config/battle.yml', battle_schema)
+def LoadConfigFile(file_path: Path, schema: str) -> dict:
+    try:
+        with open(file_path, mode='r', encoding='utf-8') as f:
+            config = yaml.load(f)
+            validate(config, yaml.load(schema))
+            return config
+    except:
+        console.print_exception(show_locals=True)
+        console.print('[bold red]Config file {} is invalid![/]'.format(str(file_path)))
+        sys.exit(1)
 
-# Load Discord config
-config_discord = LoadConfig('config/discord.yml', discord_schema)
 
-# Load OBS config
-config_obs = LoadConfig('config/obs.yml', obs_schema)
+def LoadConfigFromDirectory(path: Path, allow_missing_files=False) -> None:
+    global config_dir_stack, config
 
-# Load cheat config
-config_cheats = LoadConfig('config/cheats.yml', cheats_schema)
+    config_dir_stack.append(path)
+
+    for key in config:
+        file_path = path / (key + '.yml')
+        if file_path.is_file():
+            config[key] = LoadConfigFile(file_path, schemas[key])
+        elif not allow_missing_files:
+            console.print('[bold red]Expected a config file {} could not be found.[/]'.format(str(file_path)))
+            sys.exit(1)

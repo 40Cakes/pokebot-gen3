@@ -2,7 +2,7 @@ from typing import NoReturn
 from flask_cors import CORS
 from flask import Flask, abort, jsonify
 
-from modules.Config import config_obs
+from modules.Config import config
 from modules.Console import console
 from modules.Items import GetItems
 from modules.Pokemon import GetParty
@@ -88,6 +88,6 @@ def WebServer() -> NoReturn:
                 console.print_exception(show_locals=True)
                 abort(503)
 
-        server.run(debug=False, threaded=True, host=config_obs['http_server']['ip'], port=config_obs['http_server']['port'])
+        server.run(debug=False, threaded=True, host=config['obs']['http_server']['ip'], port=config['obs']['http_server']['port'])
     except:
         console.print_exception(show_locals=True)

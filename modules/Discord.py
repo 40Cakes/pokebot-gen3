@@ -3,7 +3,7 @@ from typing import NoReturn
 from pypresence import Presence
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from modules.Console import console
-from modules.Config import config_discord, config_obs
+from modules.Config import config
 from modules.Gui import GetROM
 from modules.Inputs import WaitFrames
 
@@ -21,7 +21,7 @@ def DiscordMessage(webhook_url: str = None,
                         embed_color: str = 'FFFFFF') -> NoReturn:
     try:
         if not webhook_url:
-            webhook_url = config_discord['global_webhook_url']
+            webhook_url = config['discord']['global_webhook_url']
         webhook, embed_obj = DiscordWebhook(url=webhook_url, content=content), None
         if image:
             with open(image, 'rb') as f:
@@ -45,7 +45,7 @@ def DiscordMessage(webhook_url: str = None,
                 embed_obj.set_footer(text=embed_footer)
             embed_obj.set_timestamp()
             webhook.add_embed(embed_obj)
-        WaitFrames(config_obs['discord_delay'])
+        WaitFrames(config['obs']['discord_delay'])
         webhook.execute()
     except:
         console.print_exception(show_locals=True)

@@ -1,7 +1,7 @@
 import struct
 from typing import NoReturn
 
-from modules.Config import config_general
+from modules.Config import config
 from modules.Gui import GetEmulator
 from modules.Memory import GetGameState, GameState
 
@@ -41,7 +41,7 @@ def WriteInputs(value: int) -> None:
 
     :param value: inputs to write to mGBA memory
     """
-    if config_general['bot_mode'] != 'manual':
+    if config['general']['bot_mode'] != 'manual':
         GetEmulator().SetInputs(value)
 
 

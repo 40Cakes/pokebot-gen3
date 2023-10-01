@@ -1,0 +1,38 @@
+# Key binding settings
+#
+# This defines the keys you can use in the emulator GUI
+#
+# For a full list of available key codes, see this page:
+# > https://www.tcl.tk/man/tcl8.4/TkCmd/keysyms.html
+#
+# A list with better explanations can be found here (column '.keysym'):
+# > https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/key-names.html
+
+
+# Keys on the GBA
+gba:
+  Up: 'Up'
+  Down: 'Down'
+  Left: 'Left'
+  Right: 'Right'
+  A: 'x'
+  B: 'z'
+  L: 'a'
+  R: 's'
+  Start: 'space'
+  Select: 'Control_L'
+
+# Keys that trigger emulator features
+emulator:
+  # Increases the zoom level by 1
+  zoom_in: 'KP_Add'
+
+  # Decreases the zoom level by 1
+  zoom_out: 'KP_Subtract'
+
+  # Switches between 1× speed and unthrottled
+  toggle_unthrottled: 'Tab'
+
+  # Switches between the 'manual' bot mode and whatever is configured
+  # in `general.yml`
+  toggle_manual: 'm'

@@ -12,7 +12,7 @@ from datetime import datetime
 
 from rich.table import Table
 from modules.Colours import IVColour, IVSumColour, SVColour
-from modules.Config import config_obs, config_logging
+from modules.Config import config
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Gui import GetROM
@@ -148,7 +148,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
             pokemon['metLocation']
         ), style=pokemon['type'][0].lower())
 
-        match config_logging['console']['encounter_data']:
+        match config['logging']['console']['encounter_data']:
             case 'verbose':
                 pokemon_table = Table()
                 pokemon_table.add_column('PID', justify='center', width=10)
@@ -182,7 +182,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
                         pokemon['ability'],
                         pokemon['shinyValue']))
 
-        match config_logging['console']['encounter_ivs']:
+        match config['logging']['console']['encounter_ivs']:
             case 'verbose':
                 iv_table = Table(title='{} IVs'.format(pokemon['name']))
                 iv_table.add_column('HP', justify='center', style=IVColour(pokemon['IVs']['hp']))
@@ -220,7 +220,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
                         IVSumColour(pokemon['IVSum']),
                         pokemon['IVSum']))
 
-        match config_logging['console']['encounter_moves']:
+        match config['logging']['console']['encounter_moves']:
             case 'verbose':
                 move_table = Table(title='{} Moves'.format(pokemon['name']))
                 move_table.add_column('Name', justify='left', width=20)
@@ -255,7 +255,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
                             pokemon['moves'][i]['remaining_pp']
                         ))
 
-        match config_logging['console']['statistics']:
+        match config['logging']['console']['statistics']:
             case 'verbose':
                 stats_table = Table(title='Statistics')
                 stats_table.add_column('', justify='left', width=10)
@@ -463,7 +463,7 @@ def LogEncounter(pokemon: dict) -> NoReturn:
             stats['totals']['lowest_iv_sum'] = pokemon['IVSum']
             stats['totals']['lowest_iv_sum_pokemon'] = pokemon['name']
 
-        if config_logging['log_encounters']:
+        if config['logging']['log_encounters']:
             # Log all encounters to a CSV file per phase
             csvpath = '{}/encounters/'.format(stats_dir)
             csvfile = 'Phase {} Encounters.csv'.format(stats['totals'].get('shiny_encounters', 0))
@@ -555,9 +555,9 @@ def LogEncounter(pokemon: dict) -> NoReturn:
         PrintStats(pokemon)
 
         if pokemon['shiny']:
-            WaitFrames(config_obs.get('shiny_delay', 1))
+            WaitFrames(config['obs'].get('shiny_delay', 1))
 
-        if config_obs['screenshot'] and pokemon['shiny']:
+        if config['obs']['screenshot'] and pokemon['shiny']:
             from modules.OBS import OBSHotKey
             while GetGameState() != GameState.BATTLE:
                 PressButton(['B'])  # Throw out Pokémon for screenshot
@@ -607,9 +607,9 @@ def LogEncounter(pokemon: dict) -> NoReturn:
         session_encounters += 1
 
         # Backup stats folder every n encounters
-        if config_logging['backup_stats'] > 0 and \
+        if config['logging']['backup_stats'] > 0 and \
                 stats['totals'].get('encounters', None) and \
-                stats['totals']['encounters'] % config_logging['backup_stats'] == 0:
+                stats['totals']['encounters'] % config['logging']['backup_stats'] == 0:
             BackupFolder('./{}/'.format(stats_dir), './backups/{}/{}.zip'.format(
                 stats_dir,
                 time.strftime('%Y%m%d-%H%M%S')))
@@ -635,11 +635,8 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
         console.print('[bold yellow]Shiny found!')
 
         # Load catch block config
-        from modules.Config import config_dir, catch_block_schema, LoadConfig
-        if os.path.isfile('{}/catch_block.yml'.format(config_dir)):
-            config_catch_block = LoadConfig('{}/catch_block.yml'.format(config_dir), catch_block_schema)
-        else:
-            config_catch_block = LoadConfig('config/catch_block.yml', catch_block_schema)
+        from modules.Config import catch_block_schema, LoadConfig
+        config_catch_block = LoadConfig('catch_block.yml', catch_block_schema)
 
         if pokemon['name'] in config_catch_block['block_list']:
             console.print('[bold yellow]' + pokemon['name'] + ' is on the catch block list, skipping encounter...')
