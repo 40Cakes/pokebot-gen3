@@ -1,5 +1,7 @@
 # PokéBot Gen3 for mGBA
 
+[![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://www.python.org/) [![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/UtxR3cazUa) [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/channel/UCl5dLxULvf6ynUiqRSchrzA) [![Twitter](https://img.shields.io/badge/Twitter-%231DA1F2.svg?style=for-the-badge&logo=Twitter&logoColor=white)](https://twitter.com/40_Cakes)
+
 **PokéBot Gen3 for mGBA** is a Python script, written to automatically shiny hunt in Pokémon Ruby, Sapphire, Emerald, FireRed and LeafGreen.
 
 Initially created to complete a Prof. Oak and Living ✨Shiny✨ Dex Challenge in Pokémon Emerald, a 🔴24/7 livestream of the challenge can be found ongoing [here](https://www.youtube.com/watch?v=W6OOnrx8g58).
@@ -13,12 +15,12 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/a3eed994-e960-4181-9f76-
 Although the bot is essentially frame perfect, (by default) it will attempt to perform most actions, as if a human were playing to make shiny hunts as representative as possible, some examples:
 - Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible
 - It's possible to peek inside un-hatched eggs to view stats and shininess as soon as they're received from the daycare, the bot will wait until the eggs are fully hatched before checking and logging
-- These are intentional design decisions, bot [cheats](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config) can be used to bypass them (in most cases)
+- These are intentional design decisions, bot [cheats](#cheatsyml---cheats-config) can be used to bypass them (in most cases)
 
 This project is the result of a bored holiday, I am by no means a professional Python developer, so I apologise for the very scuffed code you have just stumbled upon. This was a huge learning experience, and it goes without saying that this code comes with no warranty™.
 
 ***
-# ⚠ Photosensitivity Warning ⚠
+# ⚠ Photosensitivity Warning
 - Running mGBA at unbounded speeds, will cause **very fast and bright flashing**!
 - mGBA can run well over 3,000 FPS on fast enough PCs
 - Any unbounded video examples on this page will be hidden by default, and marked with **⚠ photosensetivity warning ⚠**
@@ -91,7 +93,7 @@ Soft reset for starter Pokémon.
 For modes that use soft resets such as starters, the bot attempts to hit a unique frames to reduce the amount of repeated, identical Pokémon, this may cause soft resets to take progressively longer.
 
 - If resets begin to take too long, it is recommended to start a new save file with a different TID to reset this delay
-- If you notice too many dupes or resets taking too long, consider enabling `starters_rng` in [`config/cheats.yml`](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config)
+- If you notice too many dupes or resets taking too long, consider enabling `starters_rng` in [`config/cheats.yml`](#cheatsyml---cheats-config)
 
 ### R/S/E
 1. Select the `starter` in `config/general.yml` - `treecko`, `torchic` or `mudkip`
@@ -111,7 +113,7 @@ For modes that use soft resets such as starters, the bot attempts to hit a uniqu
 3. Start the bot
 
 - **Note**: Even though you set the trainer to face the desired PokéBall, it is still important to set `starter` in the config! This option is used by the bot to track frames to ensure a unique starter is generated every time
-- **Note**: For the time being, Johto starters will automatically enable the `starters` option in [`config/cheats.yml`](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config), the shininess of the starter is checked via memhacks as start menu navigation is WIP (in future, shininess will be checked via the party summary menu)
+- **Note**: For the time being, Johto starters will automatically enable the `starters` option in [`config/cheats.yml`](#cheatsyml---cheats-config), the shininess of the starter is checked via memhacks as start menu navigation is WIP (in future, shininess will be checked via the party summary menu)
 
 <details>
 <summary>✅🟨❌ Click here for support information</summary>
@@ -160,6 +162,7 @@ Example:
 ```
 ├── /config
     │   battle.yml             <-- loaded for all saves
+    │   catch_block.yml        <-- loaded for all saves
     │   cheats.yml             <-- loaded for all saves
     │   CustomCatchFilters.py  <-- loaded for all saves
     │   CustomHooks.py         <-- loaded for all saves
@@ -183,9 +186,9 @@ Example:
 <summary>Click to expand</summary>
 
 ### General
-`bot_mode` - set to desired mode (see [🤖 Bot Modes](https://github.com/40Cakes/pokebot-gen3#-bot-modes))
+`bot_mode` - set to desired mode (see [🤖 Bot Modes](#-bot-modes))
 
-`starter` - used when `bot_mode` set to `starters` (see [💼 starters](https://github.com/40Cakes/pokebot-gen3#-starters))
+`starter` - used when `bot_mode` set to `starters` (see [💼 starters](#-starters))
 
 </details>
 
@@ -195,7 +198,7 @@ Example:
 <summary>Click to expand</summary>
 
 ### Logging
-`log_encounters` - Log all encounters to .csv (`stats/encounters/` folder), each phase is logged to a separate file
+`log_encounters` - log all encounters to .csv (`stats/encounters/` folder), each phase is logged to a separate file
 
 ### Console output
 The following `console` options will control how much data is displayed in the Python terminal/console, valid options are `verbose`, `basic` or `disable`
@@ -205,7 +208,7 @@ The following `console` options will control how much data is displayed in the P
 - `statistics`
 
 ### Backups
-`backup_stats` - Zips up and backup `stats/` folder every `n` total encounters
+`backup_stats` - zips up and backup `stats/` folder every `n` total encounters
 - Files in `stats/` are known to get corrupted during power outages
 - Backups are stored in `backups/`
 - Make sure you regularly delete old backups (especially if your stats folder is large!)
@@ -227,8 +230,6 @@ For privacy reasons, rich presence and webhooks are **disabled** by default.
 ![Discord_tC7ni4A9L4](https://github.com/40Cakes/pokebot-gen3/assets/16377135/ece7cc12-b97a-45cc-a06e-afd679860ce1)
 
 ### Discord webhooks
-`webhooks` - toggle **all** webhooks on/off (individual messages can be toggled, below)
-
 `global_webhook_url` - global Discord webhook URL, default webhook for all Discord webhooks unless specified otherwise
 - ⚠ **Warning**: this webhook is considered sensitive! If you leak your webhook, anyone will be able to post in your channel
 - **Edit Channel** > **Integrations** > **Webhooks** > **New Webhook** > **Copy Webhook URL** to generate a new webhook
@@ -248,6 +249,21 @@ For privacy reasons, rich presence and webhooks are **disabled** by default.
   ```
 
 `bot_id` - set to any string you want, this string is added to the footer of all Discord messages, it can be useful to identify bots if multiple are set to post in the same channel
+
+#### Webhook parameters
+`enable` - toggle the webhook on/off
+
+`webhook_url` - set to post specific message types to different channels, defaults to `global_webhook_url` if not set
+- Commented out in config file by default, remove the leading `#` to uncomment
+
+Each webhook type also supports pinging @users or @roles.
+
+`ping_mode` - set to `user` or `role`
+- Leave blank to disable pings
+
+`ping_id` - set to user/role ID 
+- **Settings** > **Advanced** > Enable **Developer Mode** to enable Discord developer mode
+- Right click **user/role** > **Copy ID**
 
 #### Webhook types
 `shiny_pokemon_encounter` - Shiny Pokémon encounters
@@ -276,22 +292,29 @@ For privacy reasons, rich presence and webhooks are **disabled** by default.
 
 ![Discord_G2hvTZG21a](https://github.com/40Cakes/pokebot-gen3/assets/16377135/3f04d1cf-4040-4163-80d2-13cac84eed1f)
 
-#### Webhook parameters
-`enable` - toggle the webhook on/off
+</details>
 
-`webhook_url` - set to post specific message types to different channels, defaults to `global_webhook_url` if not set
-- Commented out in config file by default, remove the leading `#` to uncomment
+## `catch_block.yml` - Catch block config
 
-Each webhook type also supports pinging @users or @roles.
+<details>
+<summary>Click to expand</summary>
 
-`ping_mode` - set to `user` or `role`
-- Leave blank to disable pings
+### Block list
+A list of shinies to skip catching, useful if you don't want to fill up your PC with very common encounters.
 
-`ping_id` - set to user/role ID 
-- **Settings** > **Advanced** > Enable **Developer Mode** to enable Discord developer mode
-- Right click **user/role** > **Copy ID**
+`block_list` - list of Pokémon to skip catching, example:
+```
+block_list:
+  - Poochyena
+  - Pidgey
+  - Rattata
+```
+
+- **Note**: phase stats will still be reset after encountering a shiny on the block list.
+- The block list is reloaded by the bot after every shiny encounter, so you can modify this file while the bot is running!
 
 </details>
+
 
 ## `cheats.yml` - Cheats config
 
@@ -319,35 +342,45 @@ RNG manipulation options may be added to the bot in the future, all cheats are d
 
 ### OBS
 
+#### OBS WebSocket Server Settings
+The `obs_websocket` config will allow the bot to send commands to OBS via WebSockets, 
+see [here](https://github.com/obsproject/obs-websocket) for more information on OBS WebSockets.
+
+Enable WebSockets in **OBS** > **Tools** > **Websocket Server Settings** > **Enable WebSocket Server**
+
+`host` - hostname/IP address OBS WebSockets is listening on
+
+`port` - TCP port OBS WebSockets is listening on
+
+`password` - password to authenticate to WebSocket server (**required**)
+
+#### OBS WebSocket Parameters
+
 `shiny_delay` - delay catching a shiny encounter by `n` frames, useful to give you viewers some time to react before saving a replay
 
 `discord_delay` - delay Discord webhooks by `n` frames, prevent spoilers if there is a stream delay
 
 `screenshot` - take OBS screenshot of shiny encounter
+- **Note**: **OBS** > **Settings** > **Hotkeys** > **Screenshot Output** must be set to **Ctrl + F11**
+- The bot does **not** emulate keystrokes, it simply sends a `TriggerHotkeyByKeySequence` (**Ctrl + F11**) WebSocket command 
 - Screenshot is taken after `shiny_delay` to allow stream overlays to update
-- ⚠ **Warning**: this option will emulate the hotkey keystrokes
-- OBS webhooks are planned for the future to remove keystroke presses
 
 `replay_buffer` - save OBS replay buffer after `replay_buffer_delay`
+- **Note**: **OBS** > **Settings** > **Hotkeys** > **Replay Buffer** > **Save Replay** must set to **Ctrl + F12**
+- The bot does **not** emulate keystrokes, it simply sends a `TriggerHotkeyByKeySequence` (**Ctrl + F12**) WebSocket command 
 
 `replay_buffer_delay` - delay saving OBS replay buffer by `n` frames
-- If your buffer is long enough, you can use this to capture some encounters after the shiny encounter
 - Runs in a separate thread and will not pause main bot thread
+- If the replay buffer is long enough, it will also capture some encounters after the shiny encounter
 
-`hotkey_screenshot` - list of keys for OBS screenshot hotkey combo
-- The bot expects .png file format if posting to Discord
-
-`hotkey_replay_buffer` - list of keys for OBS save replay buffer hotkey combo
-- ⚠ **Warning**: this option will emulate the hotkey keystrokes
-- OBS webhooks are planned for the future to remove keystroke presses
+`discord_webhook_url` - Discord webhook URL to post OBS `screenshot`, after a shiny encounter
 
 `replay_dir` - OBS screenshot/replay buffer directory
-- Relative directory, used to post stream screenshots to Discord if `webhook_url` is set
-
-`webhook_url` - Discord webhook URL to post OBS screenshots, after a shiny encounter
+- **OBS** > **Settings** > **Output** > **Recording** > **Recording Path**
+- Relative directory to `pokebot.py`, this is used to post stream `screenshot` to Discord if `discord_webhook_url` is set
 
 ### Web server
-The `server` config will enable a Flask HTTP server, which can be used to retrieve data and drive stream overlays.
+The `http_server` config will enable a Flask HTTP server, which can be used to retrieve data and drive stream overlays.
 
 `enable` - toggle web server on/off
 
@@ -395,7 +428,7 @@ All HTTP responses are in JSON format.
 - **Settings** > **Emulation** > **Idle loops** > **Detect and remove**
   - **Massively** increases unbounded frame rate
   - Decreases emulation accuracy (if you care about that)
-  - ⚠ **Warning**: don't use this for `starters` mode (unless you are using the [cheat config](https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config) `starters_rng`) or any other mode that uses soft resets, you may get many repeated, identical PIDs!
+  - ⚠ **Warning**: don't use this for `starters` mode (unless you are using the [cheat config](#cheatsyml---cheats-config) `starters_rng`) or any other mode that uses soft resets, you may get many repeated, identical PIDs!
 
 
 - **Settings** > **Emulation** > **Rewind history** > Untick **Enable rewind**

@@ -4,7 +4,6 @@ import json
 import math
 import time
 import importlib
-import pydirectinput
 import pandas as pd
 from typing import NoReturn
 from threading import Thread
@@ -535,14 +534,13 @@ def LogEncounter(pokemon: dict) -> NoReturn:
 
         if pokemon['shiny']:
             WaitFrames(config_obs.get('shiny_delay', 1))
-        if config_obs.get('enable_screenshot', None) and pokemon['shiny']:
+
+        if config_obs['screenshot'] and pokemon['shiny']:
+            from modules.OBS import OBSHotKey
             while GetGameState() != GameState.BATTLE:
                 PressButton(['B'])  # Throw out Pokémon for screenshot
             WaitFrames(180)
-            for key in config_obs['hotkey_screenshot']:
-                pydirectinput.keyDown(key)
-            for key in reversed(config_obs['hotkey_screenshot']):
-                pydirectinput.keyUp(key)
+            OBSHotKey('OBS_KEY_F11', pressCtrl=True)
 
         # Run custom code in CustomHooks in a thread
         hook = (copy.deepcopy(pokemon), copy.deepcopy(stats))
@@ -575,12 +573,12 @@ def LogEncounter(pokemon: dict) -> NoReturn:
             stats['totals'].pop('phase_streak_pokemon', None)
 
             # Reset Pokémon phase stats
-            for pokemon['name'] in stats['pokemon']:
-                stats['pokemon'][pokemon['name']].pop('phase_encounters', None)
-                stats['pokemon'][pokemon['name']].pop('phase_highest_sv', None)
-                stats['pokemon'][pokemon['name']].pop('phase_lowest_sv', None)
-                stats['pokemon'][pokemon['name']].pop('phase_highest_iv_sum', None)
-                stats['pokemon'][pokemon['name']].pop('phase_lowest_iv_sum', None)
+            for n in stats['pokemon']:
+                stats['pokemon'][n].pop('phase_encounters', None)
+                stats['pokemon'][n].pop('phase_highest_sv', None)
+                stats['pokemon'][n].pop('phase_lowest_sv', None)
+                stats['pokemon'][n].pop('phase_highest_iv_sum', None)
+                stats['pokemon'][n].pop('phase_lowest_iv_sum', None)
 
         # Save stats file
         WriteFile(files['totals'], json.dumps(stats, indent=4, sort_keys=True))
@@ -613,8 +611,19 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
     # TODO temporary until auto-catch is ready
     if pokemon['shiny']:
         console.print('[bold yellow]Shiny found!')
-        input('Press enter to exit...')
-        os._exit(0)
+
+        # Load catch block config
+        from modules.Config import config_dir, catch_block_schema, LoadConfig
+        if os.path.isfile('{}/catch_block.yml'.format(config_dir)):
+            config_catch_block = LoadConfig('{}/catch_block.yml'.format(config_dir), catch_block_schema)
+        else:
+            config_catch_block = LoadConfig('config/catch_block.yml', catch_block_schema)
+
+        if pokemon['name'] in config_catch_block['block_list']:
+            console.print('[bold yellow]' + pokemon['name'] + ' is on the catch block list, skipping encounter...')
+        else:
+            input('Press enter to exit...')
+            os._exit(0)
 
 
     if CustomCatchFilters(pokemon):

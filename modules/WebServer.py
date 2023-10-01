@@ -88,6 +88,6 @@ def WebServer() -> NoReturn:
                 console.print_exception(show_locals=True)
                 abort(503)
 
-        server.run(debug=False, threaded=True, host=config_obs['server']['ip'], port=config_obs['server']['port'])
+        server.run(debug=False, threaded=True, host=config_obs['http_server']['ip'], port=config_obs['http_server']['port'])
     except:
         console.print_exception(show_locals=True)
