@@ -28,26 +28,39 @@ This project is the result of a bored holiday, I am by no means a professional P
 ***
 
 # 🔒 Requirements
-- Windows (support for Mac and Linux **_may_** be added later)
-- [Python 3.11](https://www.python.org/downloads/)
-- Double click `requirements.py` or run `python -m pip install -r requirements.txt` in a terminal to install required Python modules
-- [mGBA 0.10.2 (64-bit)](https://mgba.io/downloads.html)
-  - **Windows (*64-bit*, installer .exe)** or **Windows (*64-bit*, portable .7z archive)**
+
+The bot can run on Windows or Ubuntu Linux 23.04 (support for Mac and other Linux distributions **_may_** be added later.)
+
+- **On Windows**: Install [Python 3.11](https://www.python.org/downloads/)
+- **On Ubuntu 23.04**: Run `sudo apt install libmgba`
+- Double click `requirements.py` or run `python requirements.py` in a terminal to install required Python modules
+- Place some Pokémon GBA ROMs into the `roms/` directory
 - [Windows Terminal](https://github.com/microsoft/terminal/releases) (not **required**, but highly recommended for full 16-million <span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span> console output)
 
 ***
 
 # ❓ How To Run
-⚠ **Warning**: The bot will write directly to the running `mGBA.exe` process' memory, so there is a good chance that mGBA may crash, be sure to save regularly and run at your own risk!
 
 - Set the desired `bot_mode` in config file `config/general.yml`
-- Load a ROM and place the trainer where it needs to be for the `bot_mode` you've configured
-- Double click `pokebot.py` or run `python .\pokebot.py` in a terminal, then click on any mGBA process to attach the bot
+- Double click `pokebot.py` or run `python pokebot.py` in a terminal and follow the on-screen steps to create and/or select a profile
+
+If you are in `manual` mode, or the game has not been started yet, you can control the game yourself with the keys listed below. You can also edit `config/keys.yml` to configure different keys.
 
 At the moment, the bot will pause once a shiny is encountered. You **must** ensure you are able to escape battle **100% of the time**, otherwise the bot will get stuck. Auto-catching and other features will be added in due time.
 
-- This is still in *early* development, as such, stats/config format and general functionality will be subject to change, without warning - make sure you back up your `stats/` and `config/` before updating your bot local version!
+- This is still in *early* development, as such, stats/config format and general functionality will be subject to change, without warning - make sure you back up your `config/<profile name>/` directory before updating your bot local version!
 - Reach out in Discord [#mgba-testing🧪](https://discord.com/channels/1057088810950860850/1139190426834833528) if you have any issues
+
+### Default Keyboard Mapping
+
+- **Arrow keys** for moving around
+- **Z** for the GBA's **B** key
+- **X** for the GBA's **A** key
+- **Space** for the GBA's **Start** key
+- **Left Ctrl** for the GBA's **Select** key
+- **Tab** to toggle between 1× speed and unthrottled
+- **M** to toggle between manual and bot-controlled mode
+- **Escape** to quit the bot and emulator
 
 ***
 
@@ -154,9 +167,13 @@ Configuration files are loaded and validated against a schema, once at bot launc
 A lot of the config in `.yml` files is is placeholder for future/planned features.
 
 ## Multi-instance botting
-Statistics are saved into subdirectories, per-game and trainer ID (`stats/<game_code>/<trainer_id>-<trainer_name>/`) so you can run as many instances as you want, from a single folder!
+The bot stores all game-related information, such as save games, screenshots, statistics, etc. in the profile directory (`config/<profile name>/`), which is automatically created once you create a new profile in the GUI.
 
-The bot will first attempt to load config files from `config/<game_code>/<trainer_id>-<trainer_name>/` (automatically created), otherwise it will default to the config files in the root `config/` folder; this allows you to run separate bot instances with different config.
+So running multiple instances of the bot is as easy as starting it multiple times and loading a different profile each time. You should **not** run multiple instances of the bot with the same profile at the same time!
+
+Statistics are saved into a subdirectory of your profile (`config/<profile name>/stats/`.)
+
+The bot will first attempt to load config files from your profile directory (`config/<profile name>/config/`.) If that directory does not exist or one of the configuration files is missing, it will load the default config files in the `config/` directory. This allows you to selectively override specific config files in your profile, while otherwise using the global config files.
 
 Example:
 ```
@@ -171,14 +188,14 @@ Example:
     │   logging.yml            <-- loaded for all saves
     │   obs.yml                <-- loaded for all saves
     │
-    ├── /BPEE
-    │   └───/52963-MAY
-    |           discord.yml    <-- loaded for Emerald (TID 52963)
-    │           general.yml    <-- loaded for Emerald (TID 52963)
+    ├── /my-pokemon-emerald-profile
+    │   └───/config
+    |           discord.yml    <-- loaded for Emerald
+    │           general.yml    <-- loaded for Emerald
     │
-    ├── /BPRE
-        └───/39167-RED
-                general.yml    <-- loaded for FireRed (TID 39167)
+    ├── /my-firered-profile
+        └───/config
+                general.yml    <-- loaded for FireRed
 ```
 ## `general.yml` - General config
 
@@ -408,6 +425,10 @@ All HTTP responses are in JSON format.
 
 </details>
 
+## `keys.yml` - Emulator keyboard controls config
+
+Configures the keys that the emulator can be controlled with.
+
 ***
 
 # ⏩ Tips/Tricks
@@ -422,30 +443,6 @@ All HTTP responses are in JSON format.
 - Use a lead Pokémon with a single character nickname
 - Use a non-shiny lead Pokémon (shiny animation takes a few frames)
 
-
-## Optimal mGBA settings
-
-- **Settings** > **Emulation** > **Idle loops** > **Detect and remove**
-  - **Massively** increases unbounded frame rate
-  - Decreases emulation accuracy (if you care about that)
-  - ⚠ **Warning**: don't use this for `starters` mode (unless you are using the [cheat config](#cheatsyml---cheats-config) `starters_rng`) or any other mode that uses soft resets, you may get many repeated, identical PIDs!
-
-
-- **Settings** > **Emulation** > **Rewind history** > Untick **Enable rewind**
-  - Slightly increases unbounded frame rate
-
-
-- **Settings** > **Emulation** > Tick **Preload entire ROM into memory**
-  - Mostly only relevant if you have a hard drive and not an SSD, not a hugely relevant option for most
-
-
-- **Audio/Video** > **Mute**
-- **Audio/Video** > **Audio channels** > **Disable all**
-  - Slightly increases unbound frame rate
-
-
-- **Audio/Video** > **Video layers** > **Disable all**
-  - Slightly increases unbound frame rate (at the cost of not being able to see anything!)
 
 ***
 # ❤ Attributions
