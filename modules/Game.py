@@ -79,11 +79,10 @@ def SetROM(rom: ROM) -> None:
                 case 1:
                     _LoadSymbols('pokeleafgreen_rev1.sym', rom.language)
 
-    match str(rom.language):
-        case 'E' | 'D' | 'S' | 'F' | 'I':
-            _LoadCharmap('i')
-        case 'J':
-            _LoadCharmap('j')
+    if rom.language == ROMLanguage.Japanese:
+        _LoadCharmap('j')
+    else:
+        _LoadCharmap('i')
 
 
 def GetSymbol(symbol_name: str) -> tuple[int, int]:

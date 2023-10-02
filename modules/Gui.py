@@ -1,5 +1,6 @@
 import re
 import sys
+import typing
 import tkinter
 from tkinter import ttk
 
@@ -84,9 +85,26 @@ class PokebotGui:
         self.window.destroy()
 
     def CloseWindow(self) -> None:
+        """
+        This is called when the user tries to close the emulator window using the 'X' button,
+        or presses the Escape key.
+        """
         if emulator:
-            setattr(emulator, "RunSingleFrame", lambda: sys.exit())
+            # This function might be called from a different thread, in which case calling `sys.exit()` does
+            # not actually quit the bot.
+            #
+            # While calling `os._exit()` would work, that would prevent Python's exit handlers to be called --
+            # one of which is responsible for storing the current emulator state to disk. Which we reaaally
+            # want to happen.
+            #
+            # As a lazy workaround for this (until someone comes up with a better solution) we override the
+            # emulator's per-frame method. So the next time it tries to emulate, it triggers the exit from the
+            # main thread.
+            setattr(emulator, 'RunSingleFrame', lambda: sys.exit())
+
+        # Close/hide the window
         self.window.withdraw()
+
         sys.exit()
 
     def HandleKeyDownEvent(self, event) -> None:

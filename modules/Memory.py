@@ -35,7 +35,7 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
         if size <= 0:
             size = length
 
-        return GetEmulator().ReadBus(addr + offset, size)
+        return GetEmulator().ReadBytes(addr + offset, size)
     except SystemExit:
         raise
     except:
@@ -52,7 +52,7 @@ def WriteSymbol(name: str, data: bytes, offset: int = 0x0) -> bool:
                 length
             ))
 
-        GetEmulator().WriteBus(addr + offset, data)
+        GetEmulator().WriteBytes(addr + offset, data)
         return True
     except SystemExit:
         raise
@@ -113,7 +113,7 @@ def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
             p_Trainer = struct.unpack('<I', ReadSymbol('gSaveBlock{}Ptr'.format(num)))[0]
             if p_Trainer == 0:
                 return None
-            return GetEmulator().ReadBus(p_Trainer + offset, size)
+            return GetEmulator().ReadBytes(p_Trainer + offset, size)
         else:
             return ReadSymbol('gSaveBlock{}'.format(num), offset=offset, size=size)
     except SystemExit:

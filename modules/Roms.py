@@ -3,14 +3,14 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 
-ROMS_DIRECTORY = Path(__file__).parent.parent / "roms"
+ROMS_DIRECTORY = Path(__file__).parent.parent / 'roms'
 
 GAME_NAME_MAP = {
-    "POKEMON EMER": "Pokémon Emerald",
-    "POKEMON SAPP": "Pokémon Sapphire",
-    "POKEMON RUBY": "Pokémon Ruby",
-    "POKEMON FIRE": "Pokémon FireRed",
-    "POKEMON LEAF": "Pokémon LeafGreen"
+    'POKEMON EMER': 'Pokémon Emerald',
+    'POKEMON SAPP': 'Pokémon Sapphire',
+    'POKEMON RUBY': 'Pokémon Ruby',
+    'POKEMON FIRE': 'Pokémon FireRed',
+    'POKEMON LEAF': 'Pokémon LeafGreen'
 }
 
 ROM_HASHES = [
@@ -64,13 +64,14 @@ ROM_HASHES = [
     'ab8f6bfe0ccdaf41188cd015c8c74c314d02296a'
 ]
 
+
 class ROMLanguage(StrEnum):
-    English = "E"
-    French = "F"
-    German = "D"
-    Italian = "I"
-    Japanese = "J"
-    Spanish = "S"
+    English = 'E'
+    French = 'F'
+    German = 'D'
+    Italian = 'I'
+    Japanese = 'J'
+    Spanish = 'S'
 
 
 @dataclass
@@ -82,6 +83,10 @@ class ROM:
     language: ROMLanguage
     maker_code: str
     revision: int
+
+
+class InvalidROMError(Exception):
+    pass
 
 
 def ListAvailableRoms() -> list[ROM]:
@@ -96,36 +101,36 @@ def ListAvailableRoms() -> list[ROM]:
     :return: List of all the valid ROMS that have been found
     """
     if not ROMS_DIRECTORY.is_dir():
-        raise RuntimeError(f"Directory {str(ROMS_DIRECTORY)} does not exist!")
+        raise RuntimeError(f'Directory {str(ROMS_DIRECTORY)} does not exist!')
 
     roms = []
     for file in ROMS_DIRECTORY.iterdir():
         if file.is_file():
             try:
                 roms.append(LoadROMData(file))
-            except RuntimeError:
+            except InvalidROMError:
                 pass
 
     return roms
 
 
-def LoadROMData(file) -> ROM:
+def LoadROMData(file: Path) -> ROM:
     # GBA cartridge headers are 0xC0 bytes long, so any files smaller than that cannot be a ROM
     if file.stat().st_size < 0xC0:
-        raise RuntimeError("This does not seem to be a valid ROM.")
+        raise InvalidROMError('This does not seem to be a valid ROM (file size too small.)')
 
-    with open(file, "rb") as handle:
+    with open(file, 'rb') as handle:
         # The byte at location 0xB2 must have value 0x96 in valid GBA ROMs
         handle.seek(0xB2)
         magic_number = int.from_bytes(handle.read(1))
         if magic_number != 0x96:
-            raise RuntimeError("This does not seem to be a valid ROM.")
+            raise InvalidROMError('This does not seem to be a valid ROM (magic number missing.)')
 
         handle.seek(0x0)
         sha1 = hashlib.sha1()
         sha1.update(handle.read())
         if sha1.hexdigest() not in ROM_HASHES:
-            raise RuntimeError("ROM not supported.")
+            raise InvalidROMError('ROM not supported.')
 
         handle.seek(0xA0)
         game_title = handle.read(12).decode('ascii')

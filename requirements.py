@@ -9,7 +9,7 @@ import zipfile
 if platform.system() == 'Windows':
     import atexit, os, psutil
 
-    atexit.register(lambda: psutil.Process(os.getppid()).name() == "py.exe" and input('Press enter to exit...'))
+    atexit.register(lambda: psutil.Process(os.getppid()).name() == 'py.exe' and input('Press enter to exit...'))
 
     libmgba_url = 'https://github.com/hanzi/libmgba-py/releases/download/0.2.0/libmgba-py_0.2.0_win64.zip'
 elif platform.system() == 'Linux':
@@ -33,7 +33,7 @@ if platform.architecture()[0] != '64bit':
     sys.exit(1)
 
 this_directory = pathlib.Path(__file__).parent
-libmgba_directory = this_directory / "mgba"
+libmgba_directory = this_directory / 'mgba'
 if not libmgba_directory.exists():
     response = requests.get(libmgba_url)
     if response.status_code == 200:

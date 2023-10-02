@@ -276,7 +276,6 @@ properties:
         type: array
 """
 
-
 keys_schema = """
 type: object
 properties:
@@ -320,10 +319,24 @@ config = {
     'obs': {},
     'cheats': {}
 }
-config_dir_stack = []
+
+# Keeps a list of all configuration directories that should be searched whenever we are looking
+# for a particular config file.
+# In practice, this will contain the global `config/` directory, and the profile-specific config
+# directory (`config/<profile name>/config/`) once a profile has been selected by the user.
+config_dir_stack: list[Path] = []
 
 
 def LoadConfig(file_name: str, schema: str) -> dict:
+    """
+    Looks for and loads a single config file and returns its parsed contents.
+
+    If the config file cannot be found, it stops the bot.
+
+    :param file_name: File name (without path) of the config file
+    :param schema: JSON Schema string to validate the configuration dict against
+    :return: Parsed and validated contents of the configuration file
+    """
     result = None
     for config_dir in config_dir_stack:
         file_path = config_dir / file_name
@@ -338,6 +351,16 @@ def LoadConfig(file_name: str, schema: str) -> dict:
 
 
 def LoadConfigFile(file_path: Path, schema: str) -> dict:
+    """
+    Loads and validates a single config file. This requires an exact path and therefore will not
+    fall back to the global config directory if the file could not be found.
+
+    It will stop the bot if the file does not exist or contains invalid data.
+
+    :param file_path: Path to the config file
+    :param schema: JSON Schema string to validate the configuration dict against
+    :return: Parsed and validated contents of the configuration file
+    """
     try:
         with open(file_path, mode='r', encoding='utf-8') as f:
             config = yaml.load(f)
@@ -350,6 +373,15 @@ def LoadConfigFile(file_path: Path, schema: str) -> dict:
 
 
 def LoadConfigFromDirectory(path: Path, allow_missing_files=False) -> None:
+    """
+    Loads all the 'default' configuration files into the `config` variable that can be accessed by other modules.
+
+    :param path: Path to the config directory.
+    :param allow_missing_files: If this is False, the function will stop the bot if it cannot find a config file.
+                                This should be used when loading the global configuration directory, but not when
+                                loading the profile-specific config directory (so that we use the profile-specific
+                                config if it exists, but keep using the global one if it doesn't.)
+    """
     global config_dir_stack, config
 
     config_dir_stack.append(path)

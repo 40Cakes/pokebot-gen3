@@ -15,8 +15,12 @@ from modules.Temp import temp_RunFromBattle
 from version import pokebot_name, pokebot_version
 
 
-def MainLoop(profile: Profile):
-    LoadConfigFromDirectory(profile.path / "config", allow_missing_files=True)
+def MainLoop(profile: Profile) -> None:
+    """
+    This function is run after the user has selected a profile and the emulator has been started.
+    :param profile: The profile selected by the user
+    """
+    LoadConfigFromDirectory(profile.path / 'config', allow_missing_files=True)
     InitStats(profile)
 
     try:
@@ -40,6 +44,9 @@ def MainLoop(profile: Profile):
                 if config['general']['bot_mode'] != 'manual':
                     temp_RunFromBattle()
 
+            # If the game is still somewhere within the title screen (including the 'New Game' content
+            # with Prof. Birch) there is nothing the bot can do, so in that case we force the bot into
+            # manual mode until a game has been loaded.
             if not verified_that_game_has_started:
                 WaitFrames(1)
                 if GameHasStarted():
@@ -73,16 +80,16 @@ def MainLoop(profile: Profile):
             sys.exit(1)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     console.print(f'Starting [bold cyan]{pokebot_name} {pokebot_version}![/]')
-    LoadConfigFromDirectory(Path(__file__).parent / "config")
+    LoadConfigFromDirectory(Path(__file__).parent / 'config')
 
     # On Windows, the bot can be started by clicking this Python file. In that case, the terminal
     # window is only open for as long as the bot runs, which would make it impossible to see error
     # messages during a crash.
     # For those cases, we register an `atexit` handler that will wait for user input before closing
     # the terminal window.
-    if platform.system() == "Windows":
+    if platform.system() == 'Windows':
         import atexit
         import os
         import psutil
@@ -90,8 +97,8 @@ if __name__ == "__main__":
 
         def PromptBeforeExit() -> None:
             parent_process_name = psutil.Process(os.getppid()).name()
-            if parent_process_name == "py.exe":
-                input('Press Enter to continue...')
+            if parent_process_name == 'py.exe':
+                input('Press Enter to close...')
 
 
         atexit.register(PromptBeforeExit)
