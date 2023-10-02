@@ -60,7 +60,7 @@ class LibmgbaEmulator:
     # How often a frame should be drawn to the screen (can be less frequent than the emulation rate)
     _target_seconds_per_render = 1 / 60
 
-    def __init__(self, profile: Profile, gui: PokebotGui):
+    def __init__(self, profile: Profile, gui: 'PokebotGui'):
         console.print(f'Running [cyan]{libmgba_version_string()}[/]')
 
         # Prevents relentless spamming to stdout by libmgba.
@@ -198,8 +198,8 @@ class LibmgbaEmulator:
         :param state: The raw save state data
         """
         vfile = mgba.vfs.VFile.fromEmpty()
-        vfile.write(state)
-        vfile.seek(0)
+        vfile.write(state, len(state))
+        vfile.seek(0, whence=0)
         self._core.load_state(vfile)
 
     def ReadBytes(self, address: int, length: int = 1) -> bytes:
