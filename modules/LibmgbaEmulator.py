@@ -8,7 +8,7 @@ import mgba.image
 import mgba.log
 import mgba.png
 import mgba.vfs
-from mgba import libmgba_version_string
+from mgba import ffi, libmgba_version_string
 from modules.Console import console
 from modules.Profiles import Profile
 
@@ -217,17 +217,23 @@ class LibmgbaEmulator:
         :return: Data read from that memory location
         """
         bank = address >> 0x18
+        result = bytearray(length)
         if bank == 0x2:
             offset = address & 0x3FFFF
-            return self._memory.wram[offset:offset + length]
+            if offset + length > 0x3FFFF:
+                raise RuntimeError('Illegal range: EWRAM only extends from 0x02000000 to 0x0203FFFF')
+            ffi.memmove(result, ffi.cast('char*', self._core._native.memory.wram) + offset, length)
         elif bank == 0x3:
             offset = address & 0x7FFF
-            return self._memory.iwram[offset:offset + length]
+            if offset + length > 0x7FFF:
+                raise RuntimeError('Illegal range: IWRAM only extends from 0x03000000 to 0x03007FFF')
+            ffi.memmove(result, ffi.cast('char*', self._core._native.memory.iwram) + offset, length)
         elif bank >= 0x8:
             offset = address - 0x08000000
-            return self._memory.rom[offset:offset + length]
+            ffi.memmove(result, ffi.cast('char*', self._core._native.memory.rom) + offset, length)
         else:
             raise RuntimeError(f'Invalid memory address for reading: {hex(address)}')
+        return result
 
     def WriteBytes(self, address: int, data: bytes) -> None:
         """
