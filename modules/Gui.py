@@ -1,6 +1,5 @@
 import re
 import sys
-import typing
 import tkinter
 from tkinter import ttk
 
@@ -120,8 +119,6 @@ class PokebotGui:
                         self.SetScale(min(5, self.scale + 1))
                     case 'zoom_out':
                         self.SetScale(max(1, self.scale - 1))
-                    case 'toggle_unthrottled':
-                        emulator.SetThrottle(not emulator.GetThrottle())
                     case 'toggle_manual':
                         if config['general']['bot_mode'] == 'manual' and self.previous_bot_mode != '':
                             config['general']['bot_mode'] = self.previous_bot_mode
@@ -132,6 +129,24 @@ class PokebotGui:
                             config['general']['bot_mode'] = 'manual'
                             console.print('Now in [cyan]manual[/] mode')
                         emulator.SetInputs(0)
+                    case 'toggle_video':
+                        emulator.SetVideoEnabled(not emulator.GetVideoEnabled())
+                    case 'toggle_audio':
+                        emulator.SetAudioEnabled(not emulator.GetAudioEnabled())
+                    case 'set_speed_1x':
+                        emulator.SetThrottle(True)
+                        emulator.SetSpeedFactor(1)
+                    case 'set_speed_2x':
+                        emulator.SetThrottle(True)
+                        emulator.SetSpeedFactor(2)
+                    case 'set_speed_3x':
+                        emulator.SetThrottle(True)
+                        emulator.SetSpeedFactor(3)
+                    case 'set_speed_4x':
+                        emulator.SetThrottle(True)
+                        emulator.SetSpeedFactor(4)
+                    case 'set_speed_unthrottled':
+                        emulator.SetThrottle(False)
 
     def HandleKeyUpEvent(self, event) -> None:
         if emulator:
@@ -309,13 +324,16 @@ class PokebotGui:
         if not self.window:
             return
 
-        current_fps = emulator.GetCurrentFPS()
-        if current_fps:
-            self.window.title(f"{profile.rom.game_name} ({current_fps} fps)")
-
         photo_image = PIL.ImageTk.PhotoImage(
             image=image.resize((self.width * self.scale, self.height * self.scale), resample=False))
         self.canvas.create_image(self.center_of_canvas, image=photo_image, state="normal")
+
+        self.UpdateWindow()
+
+    def UpdateWindow(self):
+        current_fps = emulator.GetCurrentFPS()
+        if current_fps:
+            self.window.title(f"{profile.rom.game_name} ({current_fps} fps)")
 
         self.window.update_idletasks()
         self.window.update()

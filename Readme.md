@@ -32,7 +32,7 @@ This project is the result of a bored holiday, I am by no means a professional P
 The bot can run on Windows or Ubuntu Linux 23.04 (support for Mac and other Linux distributions **_may_** be added later.)
 
 - **On Windows**: Install [Python 3.11](https://www.python.org/downloads/)
-- **On Ubuntu 23.04**: Run `sudo apt install libmgba`
+- **On Ubuntu 23.04**: Run `sudo apt install libmgba portaudio19-dev`
 - Double click `requirements.py` or run `python requirements.py` in a terminal to install required Python modules
 - Place some Pokémon GBA ROMs into the `roms/` directory
 - [Windows Terminal](https://github.com/microsoft/terminal/releases) (not **required**, but highly recommended for full 16-million <span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span> console output)
@@ -58,8 +58,11 @@ At the moment, the bot will pause once a shiny is encountered. You **must** ensu
 - **X** for the GBA's **A** key
 - **Space** for the GBA's **Start** key
 - **Left Ctrl** for the GBA's **Select** key
-- **Tab** to toggle between 1× speed and unthrottled
-- **M** to toggle between manual and bot-controlled mode
+- **1**, **2**, **3** and **4** to set the emulator to 1×/2×/3×/4× speed, respectively
+- **0** to set the emulator to unthrottled (runs as fast as possible)
+- **Tab** to toggle between manual and bot-controlled mode
+- **V** to toggle video on/off
+- **B** to toggle audio on/off (it's always off in unthrottled mode)
 - **Escape** to quit the bot and emulator
 
 ***

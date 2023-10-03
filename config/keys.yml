@@ -30,9 +30,22 @@ emulator:
   # Decreases the zoom level by 1
   zoom_out: 'KP_Subtract'
 
-  # Switches between 1× speed and unthrottled
-  toggle_unthrottled: 'Tab'
-
   # Switches between the 'manual' bot mode and whatever is configured
   # in `general.yml`
-  toggle_manual: 'm'
+  toggle_manual: 'Tab'
+
+  # Disables or enables video output (disabling speeds up emulation)
+  toggle_video: 'v'
+
+  # Turns sound on or off
+  toggle_audio: 'b'
+
+  # Sets the emulation speed to 1×/2×/3×/4×
+  set_speed_1x: '1'
+  set_speed_2x: '2'
+  set_speed_3x: '3'
+  set_speed_4x: '4'
+
+  # Disables throttling entirely, i.e. the emulator now runs as fast as
+  # your CPU allows
+  set_speed_unthrottled: '0'

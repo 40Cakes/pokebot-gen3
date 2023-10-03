@@ -10,3 +10,4 @@ jsonschema~=4.17.3
 rich~=13.5.2
 cffi~=1.15.1
 Pillow~=10.0.1
+sounddevice~=0.4.6

@@ -2,6 +2,9 @@ import atexit
 import time
 from typing import TYPE_CHECKING
 
+import sounddevice
+
+import mgba.audio
 import mgba.core
 import mgba.gba
 import mgba.image
@@ -48,13 +51,19 @@ class PerformanceTracker:
         return time.time() - self.last_frame_time
 
 
+GBA_AUDIO_SAMPLE_RATE = 32768
+
+
 class LibmgbaEmulator:
     """
     This class wraps libmgba and handles the actual emulation of a game, and exposes some of the
     emulator's functions (such as memory access and I/O)
     """
 
+    _video_enabled: bool = True
+    _audio_enabled: bool = True
     _throttled: bool = False
+    _speed_factor: float = 1
     # How often a frame should be emulated
     _target_seconds_per_frame = 1 / 60
     # How often a frame should be drawn to the screen (can be less frequent than the emulation rate)
@@ -96,6 +105,13 @@ class LibmgbaEmulator:
         self._gui = gui
         self._performance_tracker = PerformanceTracker()
 
+        self._audio_stream = sounddevice.RawOutputStream(channels=2, samplerate=GBA_AUDIO_SAMPLE_RATE, dtype='int16')
+        self._gba_audio = self._core.get_audio_channels()
+        self._gba_audio.set_rate(GBA_AUDIO_SAMPLE_RATE)
+
+        if not self._throttled:
+            self._audio_stream.start()
+
         atexit.register(self.Shutdown)
         self._core._callbacks.savedata_updated.append(self.BackupCurrentSaveGame)
 
@@ -136,7 +152,7 @@ class LibmgbaEmulator:
         `saves/` directory.
         """
         with open(self._current_save_path, 'rb') as save_file:
-            saves_directory = profile.path / 'saves'
+            saves_directory = self._profile.path / 'saves'
             if not saves_directory.exists():
                 saves_directory.mkdir()
             with open(saves_directory / time.strftime('%Y-%m-%d_%H-%M-%S.sav'), 'wb') as backup_file:
@@ -160,6 +176,18 @@ class LibmgbaEmulator:
         """
         return self._performance_tracker.current_fps
 
+    def GetVideoEnabled(self) -> bool:
+        return self._video_enabled
+
+    def SetVideoEnabled(self, video_enabled: bool) -> None:
+        self._video_enabled = video_enabled
+
+    def GetAudioEnabled(self) -> bool:
+        return self._audio_enabled
+
+    def SetAudioEnabled(self, audio_enabled) -> None:
+        self._audio_enabled = audio_enabled
+
     def GetThrottle(self) -> bool:
         """
         :return: Whether the emulator currently runs at 1× speed (True) or unthrottled (False)
@@ -170,11 +198,25 @@ class LibmgbaEmulator:
         """
         :param is_throttled: True for 1× speed, False for unthrottled
         """
+        was_throttled = self._throttled
         self._throttled = is_throttled
+
+        if is_throttled and not was_throttled:
+            self._audio_stream.start()
+        elif not is_throttled and was_throttled:
+            self._audio_stream.stop()
+
         if is_throttled:
             self._target_seconds_per_render = 1 / 60
         else:
             self._target_seconds_per_render = 1 / 20
+
+    def GetSpeedFactor(self) -> float:
+        return self._speed_factor
+
+    def SetSpeedFactor(self, speed_factor: float) -> None:
+        self._speed_factor = speed_factor
+        self._gba_audio.set_rate(GBA_AUDIO_SAMPLE_RATE // speed_factor)
 
     def SetTargetFPS(self, target_fps: int) -> None:
         """
@@ -286,10 +328,20 @@ class LibmgbaEmulator:
         self._core.run_frame()
 
         if self._performance_tracker.TimeSinceLastRender() >= self._target_seconds_per_render:
-            self._gui.UpdateImage(self._screen.to_pil())
+            if self._video_enabled:
+                self._gui.UpdateImage(self._screen.to_pil())
+            else:
+                self._gui.UpdateWindow()
             self._performance_tracker.TrackRender()
 
-        if self._throttled and self._performance_tracker.TimeSinceLastFrame() < self._target_seconds_per_frame:
-            time.sleep(max(0.0, self._target_seconds_per_frame - self._performance_tracker.TimeSinceLastFrame()))
+        if self._throttled:
+            samples_available = self._gba_audio.available
+            audio_data = bytearray(samples_available * 4)
+            if self._audio_enabled:
+                ffi.memmove(audio_data, self._gba_audio.read(samples_available), len(audio_data))
+                self._audio_stream.write(audio_data)
+            else:
+                self._gba_audio.clear()
+                self._audio_stream.write(audio_data)
 
         self._performance_tracker.TrackFrame()
