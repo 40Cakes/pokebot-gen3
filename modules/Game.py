@@ -5,19 +5,26 @@ from modules.Files import ReadFile
 from modules.Roms import ROM, ROMLanguage
 
 _symbols: dict[str, tuple[int, int]] = {}
+_reverse_symbols: dict[int, tuple[str, int]] = {}
 _char_map: str = ""
 
 
 def _LoadSymbols(symbols_file: str, language: ROMLanguage) -> None:
-    global _symbols
+    global _symbols, _reverse_symbols
 
     _symbols.clear()
+    _reverse_symbols.clear()
     for d in ['modules/data/symbols/', 'modules/data/symbols/patches/']:
         for s in open('{}{}'.format(d, symbols_file)).readlines():
-            _symbols[s.split(' ')[3].strip().upper()] = (
-                int(s.split(' ')[0], 16),
-                int(s.split(' ')[2], 16)
-            )
+            address, _, length, label = s.split(' ')
+
+            address = int(address, 16)
+            length = int(length, 16)
+            label = label.strip().upper()
+
+            _symbols[label] = (address, length)
+            if address not in _reverse_symbols or _reverse_symbols[address][1] == 0 and length > 0:
+                _reverse_symbols[address] = (label, length)
 
     language_code = str(language)
     language_patch_file = symbols_file.replace('.sym', '.json')
@@ -101,10 +108,7 @@ def GetSymbolName(address: int) -> str:
 
     :return: name of the symbol (str)
     """
-    for key, (value, _) in _symbols.items():
-        if value == address:
-            return key
-    return ''
+    return _reverse_symbols.get(address, ('',))[0]
 
 
 def DecodeString(encoded_string: bytes) -> str:
