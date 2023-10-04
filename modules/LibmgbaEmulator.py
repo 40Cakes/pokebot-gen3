@@ -1,5 +1,6 @@
 import atexit
 import time
+from collections import deque
 from typing import TYPE_CHECKING, Union
 
 import sounddevice
@@ -27,11 +28,11 @@ class PerformanceTracker:
     last_render_time: int = 0
     last_frame_time: int = 0
 
-    current_fps: int = 0
+    fps_history: deque[int] = deque([0], maxlen=60)
     frame_counter: int = 0
     frame_counter_time: int = 0
 
-    current_time_spent_in_bot_fraction: float = 0.0
+    time_spent_in_bot_fraction_history: deque[float] = deque([0.0], maxlen=60)
     time_spent_emulating: int = 0
     time_spent_total: int = 0
 
@@ -47,13 +48,13 @@ class PerformanceTracker:
         self.last_frame_time = now
         current_second = int(time.time())
         if self.frame_counter_time != current_second:
-            self.current_fps = self.frame_counter
+            self.fps_history.append(self.frame_counter)
             self.frame_counter = 0
             self.frame_counter_time = current_second
 
             if self.time_spent_total > 0:
                 time_spent_in_bot = self.time_spent_total - self.time_spent_emulating
-                self.current_time_spent_in_bot_fraction = time_spent_in_bot / self.time_spent_total
+                self.time_spent_in_bot_fraction_history.append(time_spent_in_bot / self.time_spent_total)
 
             self.time_spent_total = 0
             self.time_spent_emulating = 0
@@ -201,7 +202,7 @@ class LibmgbaEmulator:
         """
         :return: Number of frames emulated in the last second
         """
-        return self._performance_tracker.current_fps
+        return self._performance_tracker.fps_history[-1]
 
     def GetCurrentTimeSpentInBotFraction(self) -> float:
         """
@@ -218,7 +219,7 @@ class LibmgbaEmulator:
 
         :return: Fraction of time spent in bot processing code in the last second compared to emulation
         """
-        return self._performance_tracker.current_time_spent_in_bot_fraction
+        return self._performance_tracker.time_spent_in_bot_fraction_history[-1]
 
     def GetVideoEnabled(self) -> bool:
         return self._video_enabled
@@ -267,7 +268,7 @@ class LibmgbaEmulator:
         Returns the current serialised emulator state (i.e. a save state in mGBA parlance)
         :return: The raw save state data
         """
-        return self._core.save_state(1)
+        return self._core.save_state()
 
     def LoadSaveState(self, state: bytes) -> None:
         """
