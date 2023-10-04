@@ -4,7 +4,7 @@ from pypresence import Presence
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from modules.Console import console
 from modules.Config import config
-from modules.Gui import GetROM
+from modules.GUI import GetROM
 from modules.Inputs import WaitFrames
 
 

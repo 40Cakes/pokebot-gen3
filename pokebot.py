@@ -5,7 +5,7 @@ from threading import Thread
 
 from modules.Config import config, LoadConfigFromDirectory
 from modules.Console import console
-from modules.Gui import PokebotGui, GetROM
+from modules.GUI import PokebotGui, GetROM
 from modules.Inputs import WaitFrames
 from modules.Memory import GetGameState, GameState, GameHasStarted
 from modules.Pokemon import OpponentChanged, GetOpponent
