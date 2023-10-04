@@ -279,10 +279,10 @@ class LibmgbaEmulator:
         bank = address >> 0x18
         if bank == 0x2:
             offset = address & 0x3FFFF
-            self._memory.wram[offset:len(data)] = data
+            self._memory.wram.u8[offset:len(data)] = data
         elif bank == 0x3:
             offset = address & 0x7FFF
-            self._memory.iwram[offset:len(data)] = data
+            self._memory.iwram.u8[offset:len(data)] = data
         else:
             raise RuntimeError(f'Invalid memory address for writing: {hex(address)}')
 
