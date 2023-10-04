@@ -31,19 +31,37 @@ class PerformanceTracker:
     frame_counter: int = 0
     frame_counter_time: int = 0
 
+    current_time_spent_in_bot_fraction: float = 0.0
+    time_spent_emulating: float = 0.0
+    time_spent_total: float = 0.0
+
     def TrackRender(self) -> None:
         self.last_render_time = time.time()
 
     def TimeSinceLastRender(self) -> float:
         return time.time() - self.last_render_time
 
+    def TrackEmulationTime(self, emulation_callback: callable):
+        before = time.time()
+        emulation_callback()
+        self.time_spent_emulating += time.time() - before
+
     def TrackFrame(self) -> None:
-        self.last_frame_time = time.time()
-        current_second = int(time.time())
+        now = time.time()
+        self.time_spent_total += now - self.last_frame_time
+        self.last_frame_time = now
+        current_second = int(now)
         if self.frame_counter_time != current_second:
             self.current_fps = self.frame_counter
             self.frame_counter = 0
             self.frame_counter_time = current_second
+
+            if self.time_spent_total > 0:
+                time_spent_in_bot = self.time_spent_total - self.time_spent_emulating
+                self.current_time_spent_in_bot_fraction = time_spent_in_bot / self.time_spent_total
+
+            self.time_spent_total = 0
+            self.time_spent_emulating = 0
 
         self.frame_counter += 1
 
@@ -189,6 +207,12 @@ class LibmgbaEmulator:
         """
         return self._performance_tracker.current_fps
 
+    def GetCurrentTimeSpentInBotFraction(self) -> float:
+        """
+        :return: The fraction of time spent in bot processing code (as opposed to mGBA's emulation) in the last second
+        """
+        return self._performance_tracker.current_time_spent_in_bot_fraction
+
     def GetVideoEnabled(self) -> bool:
         return self._video_enabled
 
@@ -329,7 +353,7 @@ class LibmgbaEmulator:
         """
         Runs the emulation for a single frame, and then waits if necessary to hit the target FPS rate.
         """
-        self._core.run_frame()
+        self._performance_tracker.TrackEmulationTime(self._core.run_frame)
 
         if self._performance_tracker.TimeSinceLastRender() >= self._target_seconds_per_render:
             if self._video_enabled:
