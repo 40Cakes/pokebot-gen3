@@ -23,7 +23,7 @@ This project is the result of a bored holiday, I am by no means a professional P
 # ⚠ Photosensitivity Warning
 - Running mGBA at unbounded speeds, will cause **very fast and bright flashing**!
 - mGBA can run well over 3,000 FPS on fast enough PCs
-- Any unbounded video examples on this page will be hidden by default, and marked with **⚠ photosensetivity warning ⚠**
+- Any unbounded video examples on this page will be hidden by default, and marked with **⚠ photosensetivity warning**
 
 ***
 
@@ -31,39 +31,25 @@ This project is the result of a bored holiday, I am by no means a professional P
 
 The bot can run on Windows or Ubuntu Linux 23.04 (support for Mac and other Linux distributions **_may_** be added later.)
 
-- **On Windows**: Install [Python 3.11](https://www.python.org/downloads/)
-- **On Ubuntu 23.04**: Run `sudo apt install libmgba portaudio19-dev`
+- [Python 3.11](https://www.python.org/downloads/)
 - Double click `requirements.py` or run `python requirements.py` in a terminal to install required Python modules
-- Place some Pokémon GBA ROMs into the `roms/` directory
-- [Windows Terminal](https://github.com/microsoft/terminal/releases) (not **required**, but highly recommended for full 16-million <span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span> console output)
+  - **(Ubuntu Linux 23.04** only): Run `sudo apt install libmgba portaudio19-dev`
+- Place some Pokémon GBA ROMs into the `roms/` folder
+- [Windows Terminal](https://github.com/microsoft/terminal/releases) (not **required**, but highly recommended for full 🌈<span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span>🌈 and emoji support 😀 in the console output)
 
 ***
 
 # ❓ How To Run
 
-- Set the desired `bot_mode` in config file `config/general.yml`
+- Set the desired `bot_mode` in config file [`config/general.yml`](#generalyml---general-config)
 - Double click `pokebot.py` or run `python pokebot.py` in a terminal and follow the on-screen steps to create and/or select a profile
 
-If you are in `manual` mode, or the game has not been started yet, you can control the game yourself with the keys listed below. You can also edit `config/keys.yml` to configure different keys.
+The bot ships with the default mGBA input mapping, see [`config/keys.yml`](#keysyml---emulator-input-mapping) to view the default mapping, or customise them to your preference.
 
 At the moment, the bot will pause once a shiny is encountered. You **must** ensure you are able to escape battle **100% of the time**, otherwise the bot will get stuck. Auto-catching and other features will be added in due time.
 
-- This is still in *early* development, as such, stats/config format and general functionality will be subject to change, without warning - make sure you back up your `config/<profile name>/` directory before updating your bot local version!
+- This is still in *early* development, as such, stats/config format and general functionality is subject to change, without warning - make sure you back up your `config/<profile name>/` folder before updating your bot!
 - Reach out in Discord [#mgba-testing🧪](https://discord.com/channels/1057088810950860850/1139190426834833528) if you have any issues
-
-### Default Keyboard Mapping
-
-- **Arrow keys** for moving around
-- **Z** for the GBA's **B** key
-- **X** for the GBA's **A** key
-- **Space** for the GBA's **Start** key
-- **Left Ctrl** for the GBA's **Select** key
-- **1**, **2**, **3** and **4** to set the emulator to 1×/2×/3×/4× speed, respectively
-- **0** to set the emulator to unthrottled (runs as fast as possible)
-- **Tab** to toggle between manual and bot-controlled mode
-- **V** to toggle video on/off
-- **B** to toggle audio on/off (it's always off in unthrottled mode)
-- **Escape** to quit the bot and emulator
 
 ***
 
@@ -75,12 +61,14 @@ Variations of games, languages and revisions may have different memory offsets, 
 - 🟨 Supported (not tested)
 - ❌ Not supported
 
-ROM hacks will not work, and are ❌ **not supported** or planned to be supported!
+ROM hacks will likely not work, and are ❌ **not supported** or planned to be supported!
+
+The ROMs in the `roms/` folder are checked and verified against a list of official game hashes. If you **really** want to test a ROM hack with the bot, you must add the SHA1 hash of the ROM to `modules/ROMs.py`. Please do not seek support or complain if you find that your ROM hack does not work with the bot.
 
 ***
 
 # 🤖 Bot Modes
-Modify the `bot_mode` paramater in `config/general.yml` to any of the following modes.
+Modify the `bot_mode` parameter in `config/general.yml` to any of the following modes.
 ***
 ## 🔧 `manual`
 Manual mode simply disables all bot inputs, allowing you to track encounters and stats on your own shiny hunts as you play the game normally.
@@ -170,36 +158,61 @@ Configuration files are loaded and validated against a schema, once at bot launc
 A lot of the config in `.yml` files is is placeholder for future/planned features.
 
 ## Multi-instance botting
-The bot stores all game-related information, such as save games, screenshots, statistics, etc. in the profile directory (`config/<profile name>/`), which is automatically created once you create a new profile in the GUI.
+The bot stores all profile information, such as save games, screenshots, statistics, etc. in the profile `config/<profile name>/`) folder, which is automatically created once you create a new profile in the GUI.
 
-So running multiple instances of the bot is as easy as starting it multiple times and loading a different profile each time. You should **not** run multiple instances of the bot with the same profile at the same time!
+Running multiple instances of the bot is as easy as starting the bot multiple times and loading a different profile each time. You should **not** run multiple instances of the bot with the same profile simultaneously!
 
-Statistics are saved into a subdirectory of your profile (`config/<profile name>/stats/`.)
+Statistics are saved into a subfolder of your profile `config/<profile name>/stats/`.
 
-The bot will first attempt to load config files from your profile directory (`config/<profile name>/config/`.) If that directory does not exist or one of the configuration files is missing, it will load the default config files in the `config/` directory. This allows you to selectively override specific config files in your profile, while otherwise using the global config files.
+The bot will first attempt to load individual config files from your profile folder (`config/<profile name>/config/`), if that folder does not exist or any of the configuration files are missing, it will load the default config file in the `config/` folder. This allows you to selectively override specific config files on a per profile basis.
 
 Example:
 ```
 ├── /config
-    │   battle.yml             <-- loaded for all saves
-    │   catch_block.yml        <-- loaded for all saves
-    │   cheats.yml             <-- loaded for all saves
-    │   CustomCatchFilters.py  <-- loaded for all saves
-    │   CustomHooks.py         <-- loaded for all saves
-    │   discord.yml            <-- loaded for all saves except Emerald (TID 52963)
-    │   general.yml            <-- loaded for all saves except Emerald (TID 52963) and FireRed (TID 39167)
-    │   logging.yml            <-- loaded for all saves
-    │   obs.yml                <-- loaded for all saves
+    │   battle.yml             <-- loaded for all profiles
+    │   catch_block.yml        <-- loaded for all profiles
+    │   cheats.yml             <-- loaded for all profiles
+    │   CustomCatchFilters.py  <-- loaded for all profiles
+    │   CustomHooks.py         <-- loaded for all profiles
+    │   discord.yml            <-- loaded for all profiles except my-pokemon-emerald-profile
+    │   general.yml            <-- loaded for all profiles except my-pokemon-emerald-profile and my-firered-profile
+    │   logging.yml            <-- loaded for all profiles
+    │   obs.yml                <-- loaded for all profiles
     │
     ├── /my-pokemon-emerald-profile
     │   └───/config
-    |           discord.yml    <-- loaded for Emerald
-    │           general.yml    <-- loaded for Emerald
+    |           discord.yml    <-- loaded for my-pokemon-emerald-profile
+    │           general.yml    <-- loaded for my-pokemon-emerald-profile
     │
     ├── /my-firered-profile
         └───/config
-                general.yml    <-- loaded for FireRed
+                general.yml    <-- loaded for my-firered-profile
 ```
+
+## `keys.yml` - Emulator input mapping
+
+This file controls keyboard to GBA button mappings.
+
+- For a full list of available key codes, see [here](https://www.tcl.tk/man/tcl8.4/TkCmd/keysyms.html) or [here](https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/key-names.html) (column `.keysym`)
+
+### Default Input Mapping
+
+- D-Pad: Arrow keys (`Up`, `Down`, `Left`, `Right`)
+- B button: `Z`
+- A button: `X`
+- Start button: `Enter`
+- Select button: `Backspace`
+- Toggle manual bot mode on/off: `Tab`
+- Toggle video output on/off: `V`
+- Toggle audio output on/off: `B`
+- Exit the bot and emulator: `End`
+- Emulator speed:
+  - 1x speed: `1`
+  - 2x speed: `2`
+  - 3x speed: `3`
+  - 4x speed: `4`
+  - Unbound: `0` - **⚠ Photosensetivity warning**: this will run the emulator as fast as possible!
+
 ## `general.yml` - General config
 
 <details>
@@ -395,9 +408,9 @@ Enable WebSockets in **OBS** > **Tools** > **Websocket Server Settings** > **Ena
 
 `discord_webhook_url` - Discord webhook URL to post OBS `screenshot`, after a shiny encounter
 
-`replay_dir` - OBS screenshot/replay buffer directory
+`replay_dir` - OBS screenshot/replay buffer folder
 - **OBS** > **Settings** > **Output** > **Recording** > **Recording Path**
-- Relative directory to `pokebot.py`, this is used to post stream `screenshot` to Discord if `discord_webhook_url` is set
+- Relative folder to `pokebot.py`, this is used to post stream `screenshot` to Discord if `discord_webhook_url` is set
 
 ### Web server
 The `http_server` config will enable a Flask HTTP server, which can be used to retrieve data and drive stream overlays.
@@ -427,10 +440,6 @@ All HTTP responses are in JSON format.
 `GET /stats` returns the phase and total statistics (`totals.json`)
 
 </details>
-
-## `keys.yml` - Emulator keyboard controls config
-
-Configures the keys that the emulator can be controlled with.
 
 ***
 

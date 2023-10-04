@@ -1,15 +1,7 @@
-# Key binding settings
-#
-# This defines the keys you can use in the emulator GUI
-#
-# For a full list of available key codes, see this page:
-# > https://www.tcl.tk/man/tcl8.4/TkCmd/keysyms.html
-#
-# A list with better explanations can be found here (column '.keysym'):
-# > https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/key-names.html
+# Emulator input mapping settings
+# See readme for documentation: https://github.com/40Cakes/pokebot-gen3#keysyml---emulator-input-mapping
 
-
-# Keys on the GBA
+# Default mGBA mapping
 gba:
   Up: 'Up'
   Down: 'Down'
@@ -19,8 +11,8 @@ gba:
   B: 'z'
   L: 'a'
   R: 's'
-  Start: 'space'
-  Select: 'Control_L'
+  Start: 'Return'
+  Select: 'BackSpace'
 
 # Keys that trigger emulator features
 emulator:
@@ -30,8 +22,7 @@ emulator:
   # Decreases the zoom level by 1
   zoom_out: 'KP_Subtract'
 
-  # Switches between the 'manual' bot mode and whatever is configured
-  # in `general.yml`
+  # Switches between the 'manual' bot mode and whatever is configured in `general.yml`
   toggle_manual: 'Tab'
 
   # Disables or enables video output (disabling speeds up emulation)
@@ -46,6 +37,8 @@ emulator:
   set_speed_3x: '3'
   set_speed_4x: '4'
 
-  # Disables throttling entirely, i.e. the emulator now runs as fast as
-  # your CPU allows
+  # Disables throttling entirely, i.e. the emulator now runs as fast as your CPU allows
   set_speed_unthrottled: '0'
+
+  # Exit emulator and bot
+  exit: 'End'
