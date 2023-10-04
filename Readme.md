@@ -12,12 +12,10 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/a3eed994-e960-4181-9f76-
 
 # 📖 Preamble
 
-Although the bot is essentially frame perfect, (by default) it will attempt to perform most actions, as if a human were playing to make shiny hunts as representative as possible, some examples:
-- Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible
+The bot is frame perfect and can cheat by reading data from any point in memory. By default it will attempt to perform most actions, as if a human were playing to make gameplay as representative as possible, some examples:
+- Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible before resetting
 - It's possible to peek inside un-hatched eggs to view stats and shininess as soon as they're received from the daycare, the bot will wait until the eggs are fully hatched before checking and logging
 - These are intentional design decisions, bot [cheats](#cheatsyml---cheats-config) can be used to bypass them (in most cases)
-
-This project is the result of a bored holiday, I am by no means a professional Python developer, so I apologise for the very scuffed code you have just stumbled upon. This was a huge learning experience, and it goes without saying that this code comes with no warranty™.
 
 ***
 # ⚠ Photosensitivity Warning
@@ -63,7 +61,7 @@ Variations of games, languages and revisions may have different memory offsets, 
 
 ROM hacks will likely not work, and are ❌ **not supported** or planned to be supported!
 
-The ROMs in the `roms/` folder are checked and verified against a list of official game hashes. If you **really** want to test a ROM hack with the bot, you must add the SHA1 hash of the ROM to `modules/ROMs.py`. Please do not seek support or complain if you find that your ROM hack does not work with the bot.
+The ROMs in the `roms/` folder are checked and verified against a list of official game hashes. If you **really** want to test a ROM hack with the bot, you must add the SHA1 hash of the ROM to `modules/Roms.py`. Please do not seek support or complain if you find that your ROM hack does not work with the bot.
 
 ***
 
@@ -458,6 +456,10 @@ All HTTP responses are in JSON format.
 
 ***
 # ❤ Attributions
+
+Other awesome PokéBot projects:
+
+- [PokéBot NDS](https://github.com/wyanido/pokebot-nds/)
 
 This project would not be possible without the symbols tables from the Pokémon decompilation projects:
 
