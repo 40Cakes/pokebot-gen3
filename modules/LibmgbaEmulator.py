@@ -1,6 +1,6 @@
 import atexit
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 import sounddevice
 
@@ -67,6 +67,8 @@ class LibmgbaEmulator:
     # How often a frame should be drawn to the screen (can be less frequent than the emulation rate)
     _target_seconds_per_render = 1 / 60
 
+    _audio_stream: Union[sounddevice.RawOutputStream, None] = None
+
     def __init__(self, profile: Profile, gui: 'PokebotGui'):
         console.print(f'Running [cyan]{libmgba_version_string()}[/]')
 
@@ -103,7 +105,7 @@ class LibmgbaEmulator:
         self._gui = gui
         self._performance_tracker = PerformanceTracker()
 
-        self._audio_stream = sounddevice.RawOutputStream(channels=2, samplerate=GBA_AUDIO_SAMPLE_RATE, dtype='int16')
+        self._ResetAudio()
         self._gba_audio = self._core.get_audio_channels()
         self._gba_audio.set_rate(GBA_AUDIO_SAMPLE_RATE)
 
@@ -112,6 +114,19 @@ class LibmgbaEmulator:
 
         atexit.register(self.Shutdown)
         self._core._callbacks.savedata_updated.append(self.BackupCurrentSaveGame)
+
+    def _ResetAudio(self) -> None:
+        if self._audio_stream is not None:
+            self._audio_stream.close(ignore_errors=True)
+
+        try:
+            self._audio_stream = sounddevice.RawOutputStream(
+                channels=2,
+                samplerate=GBA_AUDIO_SAMPLE_RATE,
+                dtype='int16'
+            )
+        except sounddevice.PortAudioError:
+            self._audio_stream = None
 
     def Shutdown(self) -> None:
         """
@@ -323,14 +338,36 @@ class LibmgbaEmulator:
                 self._gui.UpdateWindow()
             self._performance_tracker.TrackRender()
 
+        # Limiting FPS is achieved by using a blocking API for audio playback -- meaning we give it
+        # the audio data for one frame and the `write()` call will only return once it processed the
+        # data, effectively halting the bot until it's time for a new frame.
+        #
+        # Using speeds other than 1× is achieved by changing the GBA's sample rate. If the GBA only
+        # produces half the amount of samples per frame, then the audio system will play them in half
+        # the time of a frame, effectively giving us a 2× speed.
+        #
+        # This all depends on audio actually _working_, though. So in case audio could, for whatever
+        # reason, not be initialised, we fall back to a sleep-based throttling mechanism. This is less
+        # reliable, though, as the OS does not guarantee `sleep()` to return after the specified amount
+        # of time. It just will sleep for _at least_ that time.
         if self._throttled:
-            samples_available = self._gba_audio.available
-            audio_data = bytearray(samples_available * 4)
-            if self._audio_enabled:
-                ffi.memmove(audio_data, self._gba_audio.read(samples_available), len(audio_data))
-                self._audio_stream.write(audio_data)
+            if self._audio_stream:
+                samples_available = self._gba_audio.available
+                audio_data = bytearray(samples_available * 4)
+                if self._audio_enabled:
+                    ffi.memmove(audio_data, self._gba_audio.read(samples_available), len(audio_data))
+                    self._audio_stream.write(audio_data)
+                else:
+                    self._gba_audio.clear()
+                    try:
+                        self._audio_stream.write(audio_data)
+                    except sounddevice.PortAudioError as error:
+                        console.print(f'[bold red]Error while playing audio:[/] [red]{str(error)}[/]')
+                        self._ResetAudio()
             else:
-                self._gba_audio.clear()
-                self._audio_stream.write(audio_data)
+                target_frame_duration = (1 / 60) / self._speed_factor
+                time_since_last_frame = self._performance_tracker.TimeSinceLastFrame()
+                if time_since_last_frame < target_frame_duration:
+                    time.sleep(target_frame_duration - time_since_last_frame)
 
         self._performance_tracker.TrackFrame()
