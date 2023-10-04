@@ -36,7 +36,6 @@ properties:
                     - D
                     - I
                     - J
-                    - P
                     - S
 """
 
