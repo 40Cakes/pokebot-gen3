@@ -7,7 +7,7 @@ from threading import Thread
 from modules.Config import config
 from modules.Console import console
 from modules.Discord import DiscordMessage
-from modules.GUI import GetROM
+from modules.Gui import GetROM
 from modules.Inputs import WaitFrames
 
 

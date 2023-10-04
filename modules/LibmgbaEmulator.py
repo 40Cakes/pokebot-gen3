@@ -16,7 +16,7 @@ from modules.Console import console
 from modules.Profiles import Profile
 
 if TYPE_CHECKING:
-    from modules.GUI import PokebotGui
+    from modules.Gui import PokebotGui
 
 
 class PerformanceTracker:

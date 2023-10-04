@@ -5,7 +5,7 @@ from typing import NoReturn
 
 from modules.Config import config
 from modules.Console import console
-from modules.GUI import GetROM
+from modules.Gui import GetROM
 from modules.Inputs import PressButton, ResetGame, WaitFrames
 from modules.Memory import ReadSymbol, GetGameState, GameState, GetTask, WriteSymbol
 from modules.Pokemon import GetParty, OpponentChanged, GetOpponent

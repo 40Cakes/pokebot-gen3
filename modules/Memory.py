@@ -4,7 +4,7 @@ from enum import IntEnum
 
 from modules.Console import console
 from modules.Game import GetSymbol, GetSymbolName
-from modules.GUI import GetEmulator, GetROM
+from modules.Gui import GetEmulator, GetROM
 
 
 def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
