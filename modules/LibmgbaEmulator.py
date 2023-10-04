@@ -24,33 +24,28 @@ class PerformanceTracker:
     This is a little helper utility used for measuring the FPS rate and allowing
     the emulator to calculate how long it needs to wait to hit a targeted FPS rate.
     """
-    last_render_time: float = 0.0
-    last_frame_time: float = 0.0
+    last_render_time: int = 0
+    last_frame_time: int = 0
 
     current_fps: int = 0
     frame_counter: int = 0
     frame_counter_time: int = 0
 
     current_time_spent_in_bot_fraction: float = 0.0
-    time_spent_emulating: float = 0.0
-    time_spent_total: float = 0.0
+    time_spent_emulating: int = 0
+    time_spent_total: int = 0
 
     def TrackRender(self) -> None:
-        self.last_render_time = time.time()
+        self.last_render_time = time.time_ns()
 
-    def TimeSinceLastRender(self) -> float:
-        return time.time() - self.last_render_time
-
-    def TrackEmulationTime(self, emulation_callback: callable):
-        before = time.time()
-        emulation_callback()
-        self.time_spent_emulating += time.time() - before
+    def TimeSinceLastRender(self) -> int:
+        return time.time_ns() - self.last_render_time
 
     def TrackFrame(self) -> None:
-        now = time.time()
+        now = time.time_ns()
         self.time_spent_total += now - self.last_frame_time
         self.last_frame_time = now
-        current_second = int(now)
+        current_second = int(time.time())
         if self.frame_counter_time != current_second:
             self.current_fps = self.frame_counter
             self.frame_counter = 0
@@ -65,8 +60,8 @@ class PerformanceTracker:
 
         self.frame_counter += 1
 
-    def TimeSinceLastFrame(self) -> float:
-        return time.time() - self.last_frame_time
+    def TimeSinceLastFrame(self) -> int:
+        return time.time_ns() - self.last_frame_time
 
 
 GBA_AUDIO_SAMPLE_RATE = 32768
@@ -123,19 +118,18 @@ class LibmgbaEmulator:
         self._gui = gui
         self._performance_tracker = PerformanceTracker()
 
-        self._ResetAudio()
         self._gba_audio = self._core.get_audio_channels()
         self._gba_audio.set_rate(GBA_AUDIO_SAMPLE_RATE)
-
-        if not self._throttled:
-            self._audio_stream.start()
+        self._ResetAudio()
 
         atexit.register(self.Shutdown)
         self._core._callbacks.savedata_updated.append(self.BackupCurrentSaveGame)
 
     def _ResetAudio(self) -> None:
         if self._audio_stream is not None:
+            self._audio_stream.stop(ignore_errors=True)
             self._audio_stream.close(ignore_errors=True)
+            del self._audio_stream
 
         try:
             self._audio_stream = sounddevice.RawOutputStream(
@@ -143,6 +137,8 @@ class LibmgbaEmulator:
                 samplerate=GBA_AUDIO_SAMPLE_RATE,
                 dtype='int16'
             )
+            if not self._throttled:
+                self._audio_stream.start()
         except sounddevice.PortAudioError:
             self._audio_stream = None
 
@@ -209,7 +205,18 @@ class LibmgbaEmulator:
 
     def GetCurrentTimeSpentInBotFraction(self) -> float:
         """
-        :return: The fraction of time spent in bot processing code (as opposed to mGBA's emulation) in the last second
+        This indicates what fraction of time per frame has been spent in bot processing code (i.e. outside of this
+        class) compared
+
+        Note that this only compares bot processing time to emulation time, while entirely ignoring video rendering
+        and audio output. This is so the number stays consistent whether or not throttling is enabled and video is
+        turned on or off.
+
+        But it means that this number does not necessarily reflect how much _actual_ time is being spent in bot code,
+        just how it compares to mGBA's processing time. It is meant to serve as an indicator whether bot processing
+        performance improved or worsened during development, rather than the absolute number being meaningful.
+
+        :return: Fraction of time spent in bot processing code in the last second compared to emulation
         """
         return self._performance_tracker.current_time_spent_in_bot_fraction
 
@@ -353,9 +360,12 @@ class LibmgbaEmulator:
         """
         Runs the emulation for a single frame, and then waits if necessary to hit the target FPS rate.
         """
-        self._performance_tracker.TrackEmulationTime(self._core.run_frame)
+        begin = time.time_ns()
+        self._core.run_frame()
+        self._performance_tracker.time_spent_emulating += time.time_ns() - begin
 
-        if self._performance_tracker.TimeSinceLastRender() >= self._target_seconds_per_render:
+        begin = time.time_ns()
+        if self._performance_tracker.TimeSinceLastRender() >= self._target_seconds_per_render * 1_000_000_000:
             if self._video_enabled:
                 self._gui.UpdateImage(self._screen.to_pil())
             else:
@@ -390,8 +400,9 @@ class LibmgbaEmulator:
                     self._ResetAudio()
             else:
                 target_frame_duration = (1 / 60) / self._speed_factor
-                time_since_last_frame = self._performance_tracker.TimeSinceLastFrame()
+                time_since_last_frame = self._performance_tracker.TimeSinceLastFrame() / 1_000_000_000
                 if time_since_last_frame < target_frame_duration:
                     time.sleep(target_frame_duration - time_since_last_frame)
 
+        self._performance_tracker.time_spent_total -= time.time_ns() - begin
         self._performance_tracker.TrackFrame()
