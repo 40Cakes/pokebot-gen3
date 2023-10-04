@@ -64,8 +64,6 @@ class LibmgbaEmulator:
     _audio_enabled: bool = True
     _throttled: bool = False
     _speed_factor: float = 1
-    # How often a frame should be emulated
-    _target_seconds_per_frame = 1 / 60
     # How often a frame should be drawn to the screen (can be less frequent than the emulation rate)
     _target_seconds_per_render = 1 / 60
 
@@ -217,15 +215,6 @@ class LibmgbaEmulator:
     def SetSpeedFactor(self, speed_factor: float) -> None:
         self._speed_factor = speed_factor
         self._gba_audio.set_rate(GBA_AUDIO_SAMPLE_RATE // speed_factor)
-
-    def SetTargetFPS(self, target_fps: int) -> None:
-        """
-        Configures the targeted FPS rate. If the emulator is set to throttled mode, this configures
-        the speed of the emulation. A value of 60 means 1× speed, a value of 120 would mean 2× speed,
-        for example.
-        :param target_fps: Number of frames that the emulator should try to emulate per second.
-        """
-        self._target_seconds_per_frame = 1 / target_fps
 
     def GetSaveState(self) -> bytes:
         """

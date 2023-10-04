@@ -164,31 +164,31 @@ class PokebotGui:
 
         frame = ttk.Frame(self.window, padding=10, width=300)
         frame.grid()
-        ttk.Label(frame, text="Select a game you would like to run:").grid(column=0, row=0, sticky="W")
-        tkinter.Button(frame, text="+ Create new game config", command=self.ShowCreateProfile, fg='white',
-                       bg='green', cursor="hand2").grid(column=1, row=0, sticky="E")
+        ttk.Label(frame, text='Select a game you would like to run:').grid(column=0, row=0, sticky="W")
+        tkinter.Button(frame, text='+ Create new game config', command=self.ShowCreateProfile, fg='white',
+                       bg='green', cursor='hand2').grid(column=1, row=0, sticky="E")
 
         treeview = ttk.Treeview(
             frame,
-            columns=("profile_name", "game", "last_played"),
-            show="headings",
+            columns=('profile_name', 'game', 'last_played'),
+            show='headings',
             height=10,
-            selectmode="browse"
+            selectmode='browse'
         )
 
         treeview.column('profile_name', width=150)
-        treeview.heading("profile_name", text="Profile Name")
+        treeview.heading('profile_name', text='Profile Name')
         treeview.column('game', width=160)
-        treeview.heading("game", text="Game")
+        treeview.heading('game', text='Game')
         treeview.column('last_played', width=150)
-        treeview.heading("last_played", text="Last Played")
+        treeview.heading("last_played", text='Last Played')
 
         available_profiles.sort(reverse=True, key=lambda p: p.last_played)
         for profile in available_profiles:
             if profile.last_played:
-                last_played = profile.last_played.strftime("%Y-%m-%d, %H:%M:%S")
+                last_played = profile.last_played.strftime('%Y-%m-%d, %H:%M:%S')
             else:
-                last_played = "never"
+                last_played = 'never'
 
             data = (profile.path.name, profile.rom.game_name, last_played)
             treeview.insert('', tkinter.END, text=profile.path.name, values=data)
@@ -204,7 +204,7 @@ class PokebotGui:
         treeview.bind('<Double-1>', OnDoubleClick)
         treeview.grid(row=1, column=0, columnspan=2, pady=10)
 
-        ttk.Label(frame, text="(Double click a game to run it.)").grid(row=2, column=0, columnspan=2)
+        ttk.Label(frame, text='(Double click a game to run it.)').grid(row=2, column=0, columnspan=2)
 
         self.frame = frame
 
@@ -220,26 +220,26 @@ class PokebotGui:
         available_roms = ListAvailableRoms()
         if len(available_roms) == 0:
             error_message = "There aren't any ROMs in the 'roms/' directory. Please put some in there."
-            ttk.Label(frame, text=error_message, foreground="red", wraplength=300).grid(column=0, row=0, pady=20,
-                                                                                        padx=20, sticky="S")
-            ttk.Button(frame, text="Try again", command=self.ShowCreateProfile, cursor="hand2").grid(column=0, row=1,
+            ttk.Label(frame, text=error_message, foreground='red', wraplength=300).grid(column=0, row=0, pady=20,
+                                                                                        padx=20, sticky='S')
+            ttk.Button(frame, text='Try again', command=self.ShowCreateProfile, cursor='hand2').grid(column=0, row=1,
                                                                                                      pady=20, padx=20,
-                                                                                                     sticky="N")
+                                                                                                     sticky='N')
             frame.grid_rowconfigure(1, weight=1)
             self.frame = frame
             return
 
         if len(ListAvailableProfiles()) > 0:
-            tkinter.Button(frame, text="Back", command=self.ShowProfileSelection, cursor="hand2").grid(column=0, row=0,
-                                                                                                       sticky="E")
+            tkinter.Button(frame, text='Back', command=self.ShowProfileSelection, cursor='hand2').grid(column=0, row=0,
+                                                                                                       sticky='E')
         else:
             welcome_message = f"Hey! Seems like this is your first run of {pokebot_name}.\n" + \
                               "In order to use the bot, you need to first create a config profile.\n\n" + \
                               "You can think of a profile like a save game, but it also contains additional configuration, " + \
                               "statistics, screenshots etc."
-            ttk.Label(frame, text=welcome_message, wraplength=450, justify="center").grid(column=0, row=0, columnspan=2)
+            ttk.Label(frame, text=welcome_message, wraplength=450, justify='center').grid(column=0, row=0, columnspan=2)
 
-        group = ttk.LabelFrame(frame, text="Create a new game config", padding=10)
+        group = ttk.LabelFrame(frame, text='Create a new game config', padding=10)
         group.grid()
 
         ttk.Label(group, text="Name:").grid(column=0, row=0, sticky="W", padx=5)
@@ -251,30 +251,30 @@ class PokebotGui:
 
         def HandleNameInputChange(name, index, mode, sv=sv_name):
             value = sv.get()
-            if value == "":
-                button.config(state="disabled")
-                message_label.config(text="")
+            if value == '':
+                button.config(state='disabled')
+                message_label.config(text='')
             elif not name_check.match(value):
-                button.config(state="disabled")
-                message_label.config(text="The profile name may only consist of letters, digits, _ and -.",
-                                     foreground="red")
+                button.config(state='disabled')
+                message_label.config(text='The profile name may only consist of letters, digits, _ and -.',
+                                     foreground='red')
             elif ProfileDirectoryExists(value):
-                button.config(state="disabled")
-                message_label.config(text="A profile called '" + value + "' already exists.", foreground="red")
+                button.config(state='disabled')
+                message_label.config(text=f'A profile called "{value}" already exists.', foreground='red')
             else:
-                button.config(state="normal")
-                message_label.config(text="")
+                button.config(state='normal')
+                message_label.config(text='')
 
-        sv_name.trace("w", HandleNameInputChange)
+        sv_name.trace('w', HandleNameInputChange)
         entry = ttk.Entry(group, textvariable=sv_name)
-        entry.grid(column=1, row=0, sticky="ew")
+        entry.grid(column=1, row=0, sticky='ew')
 
         rom_names = []
         for rom in available_roms:
             rom_names.append(rom.game_name)
 
-        ttk.Label(group, text="Game:").grid(column=0, row=1, sticky="W", padx=5)
-        rom_input = ttk.Combobox(group, values=sorted(rom_names), width=28, state="readonly")
+        ttk.Label(group, text='Game:').grid(column=0, row=1, sticky='W', padx=5)
+        rom_input = ttk.Combobox(group, values=sorted(rom_names), width=28, state='readonly')
         rom_input.current(0)
         rom_input.grid(column=1, row=1, pady=5)
 
@@ -285,10 +285,10 @@ class PokebotGui:
                 if rom.game_name == rom_name:
                     self.RunProfile(CreateProfile(name, rom))
 
-        button = ttk.Button(group, text="Create", cursor="hand2", state="disabled", command=HandleButtonPress)
+        button = ttk.Button(group, text='Create', cursor='hand2', state='disabled', command=HandleButtonPress)
         button.grid(column=0, columnspan=2, row=2, pady=10)
 
-        message_label = ttk.Label(frame, text="", wraplength=480)
+        message_label = ttk.Label(frame, text='', wraplength=480)
         message_label.grid(column=0, row=2, pady=10)
 
         self.frame = frame
@@ -316,7 +316,7 @@ class PokebotGui:
 
     def SetScale(self, scale: int) -> None:
         self.scale = scale
-        self.window.geometry(f"{self.width * self.scale}x{self.height * self.scale}")
+        self.window.geometry(f'{self.width * self.scale}x{self.height * self.scale}')
         self.canvas.config(width=self.width * self.scale, height=self.height * self.scale)
         self.center_of_canvas = (self.scale * self.width // 2, self.scale * self.height // 2)
 
@@ -326,14 +326,14 @@ class PokebotGui:
 
         photo_image = PIL.ImageTk.PhotoImage(
             image=image.resize((self.width * self.scale, self.height * self.scale), resample=False))
-        self.canvas.create_image(self.center_of_canvas, image=photo_image, state="normal")
+        self.canvas.create_image(self.center_of_canvas, image=photo_image, state='normal')
 
         self.UpdateWindow()
 
     def UpdateWindow(self):
         current_fps = emulator.GetCurrentFPS()
         if current_fps:
-            self.window.title(f"{profile.rom.game_name} ({current_fps} fps)")
+            self.window.title(f'{profile.rom.game_name} ({current_fps} fps)')
 
         self.window.update_idletasks()
         self.window.update()
