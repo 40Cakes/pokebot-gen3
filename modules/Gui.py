@@ -107,14 +107,13 @@ class PokebotGui:
         sys.exit()
 
     def HandleKeyDownEvent(self, event) -> None:
-        if self.emulator_keys[event.keysym] == 'exit':
-            self.CloseWindow()
-
         if emulator:
             if event.keysym in self.gba_keys and config['general']['bot_mode'] == 'manual':
                 emulator.SetInputs(emulator.GetInputs() | self.gba_keys[event.keysym])
             elif event.keysym in self.emulator_keys:
                 match self.emulator_keys[event.keysym]:
+                    case 'exit':
+                        self.CloseWindow()
                     case 'zoom_in':
                         self.SetScale(min(5, self.scale + 1))
                     case 'zoom_out':
