@@ -354,16 +354,16 @@ class LibmgbaEmulator:
             if self._audio_stream:
                 samples_available = self._gba_audio.available
                 audio_data = bytearray(samples_available * 4)
-                if self._audio_enabled:
-                    ffi.memmove(audio_data, self._gba_audio.read(samples_available), len(audio_data))
-                    self._audio_stream.write(audio_data)
-                else:
-                    self._gba_audio.clear()
-                    try:
+                try:
+                    if self._audio_enabled:
+                        ffi.memmove(audio_data, self._gba_audio.read(samples_available), len(audio_data))
                         self._audio_stream.write(audio_data)
-                    except sounddevice.PortAudioError as error:
-                        console.print(f'[bold red]Error while playing audio:[/] [red]{str(error)}[/]')
-                        self._ResetAudio()
+                    else:
+                        self._gba_audio.clear()
+                        self._audio_stream.write(audio_data)
+                except sounddevice.PortAudioError as error:
+                    console.print(f'[bold red]Error while playing audio:[/] [red]{str(error)}[/]')
+                    self._ResetAudio()
             else:
                 target_frame_duration = (1 / 60) / self._speed_factor
                 time_since_last_frame = self._performance_tracker.TimeSinceLastFrame()
