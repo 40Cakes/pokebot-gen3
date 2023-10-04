@@ -626,13 +626,13 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
         console.print('[bold yellow]Shiny found!')
 
         # Load catch block config
-        from modules.Config import catch_block_schema, LoadConfig
+        from modules.Config import catch_block_schema, LoadConfig, ForceManualMode
         config_catch_block = LoadConfig('catch_block.yml', catch_block_schema)
 
         if pokemon['name'] in config_catch_block['block_list']:
             console.print('[bold yellow]' + pokemon['name'] + ' is on the catch block list, skipping encounter...')
         else:
-            sys.exit()
+            ForceManualMode()
 
     if CustomCatchFilters(pokemon):
         console.print('[bold green]Custom filter Pokemon found!')

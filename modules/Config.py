@@ -393,3 +393,33 @@ def LoadConfigFromDirectory(path: Path, allow_missing_files=False) -> None:
         elif not allow_missing_files:
             console.print('[bold red]Expected a config file {} could not be found.[/]'.format(str(file_path)))
             sys.exit(1)
+
+
+previous_bot_mode: str = ''
+
+def ToggleManualMode() -> None:
+    """
+    Toggles between manual mode and the bot mode configured in `general.yml`.
+    If the configured bot mode is already `manual`, this has no effect.
+    """
+    global previous_bot_mode
+
+    if config['general']['bot_mode'] == 'manual' and previous_bot_mode != '':
+        config['general']['bot_mode'] = previous_bot_mode
+        previous_bot_mode = ''
+    else:
+        previous_bot_mode = config['general']['bot_mode']
+        config['general']['bot_mode'] = 'manual'
+
+
+def ForceManualMode() -> None:
+    """
+    Ensures that the bot is running in manual mode, to give control back to
+    the user. If the bot is already in manual mode, this has no effect.
+    """
+    global previous_bot_mode
+
+    if config['general']['bot_mode'] != 'manual':
+        previous_bot_mode = config['general']['bot_mode']
+
+    config['general']['bot_mode'] = 'manual'

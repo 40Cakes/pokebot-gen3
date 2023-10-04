@@ -7,7 +7,7 @@ import PIL.Image
 import PIL.ImageTk
 
 import modules.Game
-from modules.Config import config, LoadConfig, keys_schema
+from modules.Config import config, LoadConfig, keys_schema, ToggleManualMode
 from modules.Console import console
 from modules.LibmgbaEmulator import LibmgbaEmulator
 from modules.Profiles import Profile, ListAvailableProfiles, ProfileDirectoryExists, CreateProfile
@@ -120,14 +120,8 @@ class PokebotGui:
                     case 'zoom_out':
                         self.SetScale(max(1, self.scale - 1))
                     case 'toggle_manual':
-                        if config['general']['bot_mode'] == 'manual' and self.previous_bot_mode != '':
-                            config['general']['bot_mode'] = self.previous_bot_mode
-                            console.print('Now in [cyan]{}[/] mode'.format(self.previous_bot_mode))
-                            self.previous_bot_mode = ''
-                        else:
-                            self.previous_bot_mode = config['general']['bot_mode']
-                            config['general']['bot_mode'] = 'manual'
-                            console.print('Now in [cyan]manual[/] mode')
+                        ToggleManualMode()
+                        console.print(f"Now in [cyan]{config['general']['bot_mode']}[/] mode")
                         emulator.SetInputs(0)
                     case 'toggle_video':
                         emulator.SetVideoEnabled(not emulator.GetVideoEnabled())
