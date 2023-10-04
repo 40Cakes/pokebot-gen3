@@ -11,3 +11,5 @@ rich~=13.5.2
 cffi~=1.15.1
 Pillow~=10.0.1
 sounddevice~=0.4.6
+requests~=2.31.0
+psutil~=5.9.5
