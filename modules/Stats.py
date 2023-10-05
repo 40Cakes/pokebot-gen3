@@ -459,6 +459,8 @@ def LogEncounter(pokemon: dict) -> NoReturn:
             # Log all encounters to a CSV file per phase
             csvpath = '{}/encounters/'.format(stats_dir)
             csvfile = 'Phase {} Encounters.csv'.format(stats['totals'].get('shiny_encounters', 0))
+            if len(pokemon['type']) < 2:
+                pokemon['type'].append('')  # Add blank 2nd type to monotype Pokémon to preserve .csv column alignment
             pd_pokemon = pd.DataFrame.from_dict(FlattenData(pokemon), orient='index').drop([
                 'EVs_attack',
                 'EVs_defence',
