@@ -17,10 +17,10 @@ gba:
 # Keys that trigger emulator features
 emulator:
   # Increases the zoom level by 1
-  zoom_in: 'KP_Add'
+  zoom_in: 'plus'
 
   # Decreases the zoom level by 1
-  zoom_out: 'KP_Subtract'
+  zoom_out: 'minus'
 
   # Switches between the 'manual' bot mode and whatever is configured in `general.yml`
   toggle_manual: 'Tab'
