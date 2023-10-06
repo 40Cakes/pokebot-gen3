@@ -195,14 +195,15 @@ This file controls keyboard to GBA button mappings.
 
 ### Default Input Mapping
 
-- D-Pad: Arrow keys (`Up`, `Down`, `Left`, `Right`)
-- B button: `Z`
 - A button: `X`
+- B button: `Z`
+- D-Pad: Arrow keys (`Up`, `Down`, `Left`, `Right`)
 - Start button: `Enter`
 - Select button: `Backspace`
 - Toggle manual bot mode on/off: `Tab`
 - Toggle video output on/off: `V`
 - Toggle audio output on/off: `B`
+- Zoom window scaling in/out: `+`, `-`
 - Exit the bot and emulator: `End`
 - Emulator speed:
   - 1x speed: `1`
