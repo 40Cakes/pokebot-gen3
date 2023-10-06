@@ -33,6 +33,7 @@ def Starters() -> NoReturn:
         else:
             rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
             while rng in rng_history['rng']:
+                WaitFrames(1)
                 rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
 
         while GetTask('TASK_SCRIPTSHOWMONPIC') == {}:

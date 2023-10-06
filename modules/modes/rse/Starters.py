@@ -56,6 +56,7 @@ def Starters() -> NoReturn:
             if not config['cheats']['starters_rng']:
                 rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
                 while rng in rng_history['rng']:
+                    WaitFrames(1)
                     rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
 
             if config['cheats']['starters']:
@@ -108,6 +109,7 @@ def Starters() -> NoReturn:
 
                     rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
                     while rng in rng_history['rng']:
+                        WaitFrames(1)
                         rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
 
                 while GetTask('TASK_FANFARE') == {}:

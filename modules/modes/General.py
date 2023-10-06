@@ -26,4 +26,6 @@ def ModeFishing():
         if task['data'][0] == 7 or task['data'][0] == 10 or \
                 task['data'][0] == 15:
             PressButton(["A"])
+        else:
+            WaitFrames(1)
         task = GetTask('TASK_FISHING')
