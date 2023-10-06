@@ -25,15 +25,19 @@ The bot is frame perfect and can cheat by reading data from any point in memory.
 
 ***
 
-# 🔒 Requirements
+# 🔒 Prerequisites
 
 The bot can run on Windows or Ubuntu Linux 23.04 (support for Mac and other Linux distributions **_may_** be added later.)
 
-- [Python 3.11](https://www.python.org/downloads/)
-- Double click `requirements.py` or run `python requirements.py` in a terminal to install required Python modules
-  - **(Ubuntu Linux 23.04** only): Run `sudo apt install libmgba portaudio19-dev`
-- Place some Pokémon GBA ROMs into the `roms/` folder
-- [Windows Terminal](https://github.com/microsoft/terminal/releases) (not **required**, but highly recommended for full 🌈<span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span>🌈 and emoji support 😀 in the console output)
+### Requirements
+- [Python 3.11](https://www.python.org/downloads/release/python-3110/)
+- Double click `requirements.py` or run `python requirements.py` in a terminal to install Python modules and [libmgba](https://github.com/hanzi/libmgba-py)
+  - **(Ubuntu Linux 23.04** only) `sudo apt install libmgba portaudio19-dev`
+- Place some Pokémon .gba ROMs into the `roms/` folder
+
+### Optional
+- [Windows Terminal](https://github.com/microsoft/terminal/releases) - recommended for full 🌈<span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span>🌈 and  ✨emoji support✨ in the console output
+- [Notepad++](https://notepad-plus-plus.org/) - recommended for syntax highlighting while editing `.yml` config files
 
 ***
 
