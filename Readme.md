@@ -20,7 +20,7 @@ The bot is frame perfect and can cheat by reading data from any point in memory.
 # ⚠ Photosensitivity Warning
 - Running mGBA at unbounded speeds, will cause **very fast and bright flashing**!
 - mGBA can run well over 3,000 FPS on fast enough PCs
-- Any unbounded video examples on this page will be hidden by default, and marked with **⚠ photosensetivity warning**
+- Any unbounded video examples on this page will be hidden by default, and marked with **⚠ photosensitivity warning**
 
 ***
 
@@ -219,7 +219,7 @@ This file controls keyboard to GBA button mappings.
   - 2x speed: `2`
   - 3x speed: `3`
   - 4x speed: `4`
-  - Unbound: `0` - **⚠ Photosensetivity warning**: this will run the emulator as fast as possible!
+  - Unbound: `0` - **⚠ Photosensitivity warning**: this will run the emulator as fast as possible!
 
 ## `general.yml` - General config
 <details>
