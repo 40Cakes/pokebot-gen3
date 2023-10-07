@@ -92,8 +92,3 @@ def PressButton(buttons: list, hold_frames: int = 1) -> None:
         WaitFrames(hold_frames)
         WriteInputs(held)
         WaitFrames(1)
-
-
-def ResetGame() -> None:
-    while GetGameState() != GameState.TITLE_SCREEN:
-        PressButton(['A', 'B', 'Start', 'Select'], 5)

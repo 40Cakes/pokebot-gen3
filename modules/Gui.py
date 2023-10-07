@@ -112,6 +112,8 @@ class PokebotGui:
                 emulator.SetInputs(emulator.GetInputs() | self.gba_keys[event.keysym])
             elif event.keysym in self.emulator_keys:
                 match self.emulator_keys[event.keysym]:
+                    case 'reset':
+                        emulator.Reset()
                     case 'exit':
                         self.CloseWindow()
                     case 'zoom_in':

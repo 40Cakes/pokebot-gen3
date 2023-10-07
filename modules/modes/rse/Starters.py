@@ -5,8 +5,8 @@ from typing import NoReturn
 
 from modules.Config import config
 from modules.Console import console
-from modules.Gui import GetROM
-from modules.Inputs import PressButton, ResetGame, WaitFrames
+from modules.Gui import GetROM, GetEmulator
+from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import ReadSymbol, GetGameState, GameState, GetTask, WriteSymbol
 from modules.Pokemon import GetParty, OpponentChanged, GetOpponent
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
@@ -147,7 +147,7 @@ def Starters() -> NoReturn:
         if not config['cheats']['starters_rng']:
             rng_history['rng'].append(rng)
             SaveRNGStateHistory(config['general']['starter'], rng_history)
-        ResetGame()
+        GetEmulator().Reset()
     except SystemExit:
         raise
     except:

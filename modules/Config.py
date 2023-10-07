@@ -298,8 +298,16 @@ properties:
         properties:
             zoom_in: {type: string}
             zoom_out: {type: string}
-            toggle_unthrottled: {type: string}
             toggle_manual: {type: string}
+            toggle_video: {type: string}
+            toggle_audio: {type: string}
+            set_speed_1x: {type: string}
+            set_speed_2x: {type: string}
+            set_speed_3x: {type: string}
+            set_speed_4x: {type: string}
+            toggle_unthrottled: {type: string}
+            reset: {type: string}
+            exit: {type: string}
 """
 
 schemas = {

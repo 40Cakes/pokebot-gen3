@@ -40,5 +40,8 @@ emulator:
   # Disables throttling entirely, i.e. the emulator now runs as fast as your CPU allows
   set_speed_unthrottled: '0'
 
+  # Reset emulator core/reboot game
+  reset: 'r'
+
   # Exit emulator and bot
   exit: 'End'

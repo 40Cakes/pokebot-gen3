@@ -143,6 +143,9 @@ class LibmgbaEmulator:
         except sounddevice.PortAudioError:
             self._audio_stream = None
 
+    def Reset(self) -> None:
+        self._core.reset()
+
     def Shutdown(self) -> None:
         """
         This method is called whenever the bot shuts down, either because and error occurred or because
