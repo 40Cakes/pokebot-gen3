@@ -628,29 +628,28 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
     LogEncounter(pokemon)
 
     # TODO temporary until auto-catch is ready
-    if pokemon['shiny']:
-        console.print('[bold yellow]Shiny found!')
+    custom_found = CustomCatchFilters(pokemon)
+    if pokemon['shiny'] or custom_found:
+        if pokemon['shiny']:
+            state_tag = 'shiny'
+            console.print('[bold yellow]Shiny found!')
+        elif custom_found:
+            state_tag = 'customfilter'
+            console.print('[bold green]Custom filter Pokemon found!')
 
         # Load catch block config
         from modules.Config import catch_block_schema, LoadConfig, ForceManualMode
         config_catch_block = LoadConfig('catch_block.yml', catch_block_schema)
 
-        if pokemon['name'] in config_catch_block['block_list']:
+        if not custom_found and pokemon['name'] in config_catch_block['block_list']:
             console.print('[bold yellow]' + pokemon['name'] + ' is on the catch block list, skipping encounter...')
         else:
-            state_filename = f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_shiny_{pokemon['name']}.ss1"
+            state_filename = f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_{state_tag}_{pokemon['name']}.ss1"
             state_filename = ''.join(c for c in state_filename if c in dirsafe_chars)
-            state_filepath = GetProfile().path / 'states' / state_filename
+            states_directory = GetProfile().path / 'states'
+            if not states_directory.exists():
+                states_directory.mkdir()
+            state_filepath = states_directory / state_filename
             with open(state_filepath, 'wb') as file:
                 file.write(GetEmulator().GetSaveState())
             ForceManualMode()
-
-    if CustomCatchFilters(pokemon):
-        console.print('[bold green]Custom filter Pokemon found!')
-
-        state_filename = f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_customfilter_{pokemon['name']}.ss1"
-        state_filename = ''.join(c for c in state_filename if c in dirsafe_chars)
-        state_filepath = GetProfile().path / 'states' / state_filename
-        with open(state_filepath, 'wb') as file:
-            file.write(GetEmulator().GetSaveState())
-        ForceManualMode()
