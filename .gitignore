@@ -3,6 +3,7 @@ __pycache__
 .venv
 .idea
 .vs
+
 *.gba
 backups/
 build/
@@ -10,7 +11,6 @@ config/*/
 dist/
 logs/
 mgba/
-mGBA*win64/
 stats/
 stream/
 
