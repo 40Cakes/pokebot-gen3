@@ -454,7 +454,7 @@ All HTTP responses are in JSON format.
 - Utilise [repel tricks](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) to boost encounter rates of target Pokémon
 - Using `bot_mode` `spin` or `bunny_hop` and repels will become effectively infinite + steps won't be counted in Safari Zone
 - Use a lead Pokémon with encounter rate boosting [abilities](https://bulbapedia.bulbagarden.net/wiki/Category:Abilities_that_affect_appearance_of_wild_Pok%C3%A9mon), such as **[Illuminate](https://bulbapedia.bulbagarden.net/wiki/Illuminate_(Ability))**
-- Use a lead Pokémon with a short cry
+- Use a lead Pokémon with a [short cry](https://docs.google.com/spreadsheets/d/1rmtNdlIXiif1Sz20i-9mfhFdoqb1VnAOIntlr3tnPeU)
 - Use a lead Pokémon with a single character nickname
 - Use a non-shiny lead Pokémon (shiny animation takes a few frames)
 
