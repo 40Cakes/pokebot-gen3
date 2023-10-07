@@ -1,3 +1,4 @@
+import os
 import re
 import sys
 import tkinter
@@ -105,7 +106,8 @@ class PokebotGui:
         # Close/hide the window
         self.window.withdraw()
 
-        sys.exit()
+        emulator.Shutdown()
+        os._exit(0)
 
     def HandleKeyDownEvent(self, event) -> None:
         if emulator:
