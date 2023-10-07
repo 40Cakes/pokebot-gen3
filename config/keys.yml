@@ -41,7 +41,7 @@ emulator:
   set_speed_unthrottled: '0'
 
   # Reset emulator core/reboot game
-  reset: 'r'
+  reset: 'asciitilde'
 
   # Exit emulator and bot
-  exit: 'End'
+  exit: 'asterisk'
