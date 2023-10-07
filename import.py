@@ -47,7 +47,7 @@ def MigrateSaveState(file: IO) -> Profile:
             matching_rom = rom
             break
     if matching_rom is None:
-        raise MigrationError('Could not find any fitting ROM')
+        raise MigrationError('Could not find a compatible ROM for this save state... Please place your .gba ROMs in the "roms/" folder.')
     SetROM(matching_rom)
 
     # Figure out the trainer name so we can use it as the name for the newly imported profile.
