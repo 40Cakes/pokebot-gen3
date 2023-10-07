@@ -1,5 +1,4 @@
 # PokéBot Gen3 for mGBA
-
 [![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://www.python.org/) [![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/UtxR3cazUa) [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/channel/UCl5dLxULvf6ynUiqRSchrzA) [![Twitter](https://img.shields.io/badge/Twitter-%231DA1F2.svg?style=for-the-badge&logo=Twitter&logoColor=white)](https://twitter.com/40_Cakes)
 
 **PokéBot Gen3 for mGBA** is a Python script, written to automatically shiny hunt in Pokémon Ruby, Sapphire, Emerald, FireRed and LeafGreen.
@@ -11,60 +10,75 @@ Initially created to complete a Prof. Oak and Living ✨Shiny✨ Dex Challenge i
 https://github.com/40Cakes/pokebot-gen3/assets/16377135/a3eed994-e960-4181-9f76-3b36bc9f0619
 
 # 📖 Preamble
-
-Although the bot is essentially frame perfect, (by default) it will attempt to perform most actions, as if a human were playing to make shiny hunts as representative as possible, some examples:
-- Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible
+The bot is frame perfect and can cheat by reading data from any point in memory. By default it will attempt to perform most actions, as if a human were playing to make gameplay as representative as possible, some examples:
+- Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible before resetting
 - It's possible to peek inside un-hatched eggs to view stats and shininess as soon as they're received from the daycare, the bot will wait until the eggs are fully hatched before checking and logging
 - These are intentional design decisions, bot [cheats](#cheatsyml---cheats-config) can be used to bypass them (in most cases)
 
-This project is the result of a bored holiday, I am by no means a professional Python developer, so I apologise for the very scuffed code you have just stumbled upon. This was a huge learning experience, and it goes without saying that this code comes with no warranty™.
-
 ***
+
 # ⚠ Photosensitivity Warning
 - Running mGBA at unbounded speeds, will cause **very fast and bright flashing**!
 - mGBA can run well over 3,000 FPS on fast enough PCs
-- Any unbounded video examples on this page will be hidden by default, and marked with **⚠ photosensetivity warning ⚠**
+- Any unbounded video examples on this page will be hidden by default, and marked with **⚠ photosensetivity warning**
 
 ***
 
-# 🔒 Requirements
-- Windows (support for Mac and Linux **_may_** be added later)
-- [Python 3.11](https://www.python.org/downloads/)
-- Double click `requirements.py` or run `python -m pip install -r requirements.txt` in a terminal to install required Python modules
-- [mGBA 0.10.2 (64-bit)](https://mgba.io/downloads.html)
-  - **Windows (*64-bit*, installer .exe)** or **Windows (*64-bit*, portable .7z archive)**
-- [Windows Terminal](https://github.com/microsoft/terminal/releases) (not **required**, but highly recommended for full 16-million <span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span> console output)
+# 🔒 Prerequisites
+The bot can run on Windows or Ubuntu Linux 23.04 (support for Mac and other Linux distributions **_may_** be added later.)
+
+### Requirements
+- [Python 3.11](https://www.python.org/downloads/release/python-3110/)
+- Double click `requirements.py` or run `python requirements.py` in a terminal to install Python modules and [libmgba](https://github.com/hanzi/libmgba-py)
+  - **(Ubuntu Linux 23.04** only) `sudo apt install libmgba portaudio19-dev`
+- Place some Pokémon .gba ROMs into the `roms/` folder
+
+### Optional
+- [Windows Terminal](https://github.com/microsoft/terminal/releases) - recommended for full 🌈<span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span>🌈 and  ✨emoji support✨ in the console output
+- [Notepad++](https://notepad-plus-plus.org/) - recommended for syntax highlighting while editing `.yml` config files
 
 ***
 
 # ❓ How To Run
-⚠ **Warning**: The bot will write directly to the running `mGBA.exe` process' memory, so there is a good chance that mGBA may crash, be sure to save regularly and run at your own risk!
+- Set the desired `bot_mode` in config file [`config/general.yml`](#generalyml---general-config)
+- Double click `pokebot.py` or run `python pokebot.py` in a terminal and follow the on-screen steps to create and/or select a profile
 
-- Set the desired `bot_mode` in config file `config/general.yml`
-- Load a ROM and place the trainer where it needs to be for the `bot_mode` you've configured
-- Double click `pokebot.py` or run `python .\pokebot.py` in a terminal, then click on any mGBA process to attach the bot
+The bot ships with the default mGBA input mapping, see [`config/keys.yml`](#keysyml---emulator-input-mapping) to view the default mapping, or customise them to your preference.
 
 At the moment, the bot will pause once a shiny is encountered. You **must** ensure you are able to escape battle **100% of the time**, otherwise the bot will get stuck. Auto-catching and other features will be added in due time.
 
-- This is still in *early* development, as such, stats/config format and general functionality will be subject to change, without warning - make sure you back up your `stats/` and `config/` before updating your bot local version!
+- This is still in *early* development, as such, stats/config format and general functionality is subject to change, without warning - make sure you back up your `config/<profile name>/` folder before updating your bot!
 - Reach out in Discord [#mgba-testing🧪](https://discord.com/channels/1057088810950860850/1139190426834833528) if you have any issues
 
 ***
 
-#  🌍 Supported Games and Languages
+# 💾 Import a Save
+If you have a save from mGBA that you'd like to import and use with the bot, then you will need to import the save state.
 
+- In mGBA, run a game and load into the save file
+- **File** > **Save State File...** > **Save**
+- Double click `import.py` or run `python import.py` in a terminal to launch the save importer tool
+- Open the save state file you just saved
+- A new bot profile will be created in the `config/` folder and set up all required files
+- If the importer tool detects files in the `stats/` or `config/` folders from old versions of the bot (from commit `ec5d702`, 7th October, 2023 or earlier), then they will be copied into your new profile
+
+***
+
+#  🌍 Supported Games and Languages
 Variations of games, languages and revisions may have different memory offsets, there will be a table of supported/tested variations under each bot mode listed below.
 
 - ✅ Supported (tested)
 - 🟨 Supported (not tested)
 - ❌ Not supported
 
-ROM hacks will not work, and are ❌ **not supported** or planned to be supported!
+ROM hacks will likely not work, and are ❌ **not supported** or planned to be supported!
+
+The ROMs in the `roms/` folder are checked and verified against a list of official game hashes. If you **really** want to test a ROM hack with the bot, you must add the SHA1 hash of the ROM to `modules/Roms.py`. Please do not seek support or complain if you find that your ROM hack does not work with the bot.
 
 ***
 
 # 🤖 Bot Modes
-Modify the `bot_mode` paramater in `config/general.yml` to any of the following modes.
+Modify the `bot_mode` parameter in `config/general.yml` to any of the following modes.
 ***
 ## 🔧 `manual`
 Manual mode simply disables all bot inputs, allowing you to track encounters and stats on your own shiny hunts as you play the game normally.
@@ -150,38 +164,64 @@ Start the bot facing the water, with any fishing rod registered.
 Configuration files are loaded and validated against a schema, once at bot launch. Any changes made while the bot is running will not take effect until the bot is stopped and restarted.
 
 ## 🚧 Work in progress 🚧
-
 A lot of the config in `.yml` files is is placeholder for future/planned features.
 
 ## Multi-instance botting
-Statistics are saved into subdirectories, per-game and trainer ID (`stats/<game_code>/<trainer_id>-<trainer_name>/`) so you can run as many instances as you want, from a single folder!
+The bot stores all profile information, such as save games, screenshots, statistics, etc. in the profile `config/<profile name>/`) folder, which is automatically created once you create a new profile in the GUI.
 
-The bot will first attempt to load config files from `config/<game_code>/<trainer_id>-<trainer_name>/` (automatically created), otherwise it will default to the config files in the root `config/` folder; this allows you to run separate bot instances with different config.
+Running multiple instances of the bot is as easy as starting the bot multiple times and loading a different profile each time. You should **not** run multiple instances of the bot with the same profile simultaneously!
+
+Statistics are saved into a subfolder of your profile `config/<profile name>/stats/`.
+
+The bot will first attempt to load individual config files from your profile folder (`config/<profile name>/config/`), if that folder does not exist or any of the configuration files are missing, it will load the default config file in the `config/` folder. This allows you to selectively override specific config files on a per profile basis.
 
 Example:
 ```
 ├── /config
-    │   battle.yml             <-- loaded for all saves
-    │   catch_block.yml        <-- loaded for all saves
-    │   cheats.yml             <-- loaded for all saves
-    │   CustomCatchFilters.py  <-- loaded for all saves
-    │   CustomHooks.py         <-- loaded for all saves
-    │   discord.yml            <-- loaded for all saves except Emerald (TID 52963)
-    │   general.yml            <-- loaded for all saves except Emerald (TID 52963) and FireRed (TID 39167)
-    │   logging.yml            <-- loaded for all saves
-    │   obs.yml                <-- loaded for all saves
+    │   battle.yml             <-- loaded for all profiles
+    │   catch_block.yml        <-- loaded for all profiles
+    │   cheats.yml             <-- loaded for all profiles
+    │   CustomCatchFilters.py  <-- loaded for all profiles
+    │   CustomHooks.py         <-- loaded for all profiles
+    │   discord.yml            <-- loaded for all profiles except my-pokemon-emerald-profile
+    │   general.yml            <-- loaded for all profiles except my-pokemon-emerald-profile and my-firered-profile
+    │   logging.yml            <-- loaded for all profiles
+    │   obs.yml                <-- loaded for all profiles
     │
-    ├── /BPEE
-    │   └───/52963-MAY
-    |           discord.yml    <-- loaded for Emerald (TID 52963)
-    │           general.yml    <-- loaded for Emerald (TID 52963)
+    ├── /my-pokemon-emerald-profile
+    │   └───/config
+    |           discord.yml    <-- loaded for my-pokemon-emerald-profile
+    │           general.yml    <-- loaded for my-pokemon-emerald-profile
     │
-    ├── /BPRE
-        └───/39167-RED
-                general.yml    <-- loaded for FireRed (TID 39167)
+    ├── /my-firered-profile
+        └───/config
+                general.yml    <-- loaded for my-firered-profile
 ```
-## `general.yml` - General config
 
+## `keys.yml` - Emulator input mapping
+This file controls keyboard to GBA button mappings.
+
+- For a full list of available key codes, see [here](https://www.tcl.tk/man/tcl8.4/TkCmd/keysyms.html) or [here](https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/key-names.html) (column `.keysym`)
+
+### Default Input Mapping
+- A button: `X`
+- B button: `Z`
+- D-Pad: Arrow keys (`Up`, `Down`, `Left`, `Right`)
+- Start button: `Enter`
+- Select button: `Backspace`
+- Toggle manual bot mode on/off: `Tab`
+- Toggle video output on/off: `V`
+- Toggle audio output on/off: `B`
+- Zoom window scaling in/out: `+`, `-`
+- Exit the bot and emulator: `End`
+- Emulator speed:
+  - 1x speed: `1`
+  - 2x speed: `2`
+  - 3x speed: `3`
+  - 4x speed: `4`
+  - Unbound: `0` - **⚠ Photosensetivity warning**: this will run the emulator as fast as possible!
+
+## `general.yml` - General config
 <details>
 <summary>Click to expand</summary>
 
@@ -193,7 +233,6 @@ Example:
 </details>
 
 ## `logging.yml` - Logging and console output config
-
 <details>
 <summary>Click to expand</summary>
 
@@ -215,7 +254,6 @@ The following `console` options will control how much data is displayed in the P
 - Set to `0` to disable
 
 </details>
-
 ## `discord.yml` - Discord integration config
 
 <details>
@@ -295,7 +333,6 @@ Each webhook type also supports pinging @users or @roles.
 </details>
 
 ## `catch_block.yml` - Catch block config
-
 <details>
 <summary>Click to expand</summary>
 
@@ -315,9 +352,7 @@ block_list:
 
 </details>
 
-
 ## `cheats.yml` - Cheats config
-
 <details>
 <summary>Click to expand</summary>
 
@@ -341,7 +376,6 @@ RNG manipulation options may be added to the bot in the future, all cheats are d
 <summary>Click to expand</summary>
 
 ### OBS
-
 #### OBS WebSocket Server Settings
 The `obs_websocket` config will allow the bot to send commands to OBS via WebSockets, 
 see [here](https://github.com/obsproject/obs-websocket) for more information on OBS WebSockets.
@@ -355,7 +389,6 @@ Enable WebSockets in **OBS** > **Tools** > **Websocket Server Settings** > **Ena
 `password` - password to authenticate to WebSocket server (**required**)
 
 #### OBS WebSocket Parameters
-
 `shiny_delay` - delay catching a shiny encounter by `n` frames, useful to give you viewers some time to react before saving a replay
 
 `discord_delay` - delay Discord webhooks by `n` frames, prevent spoilers if there is a stream delay
@@ -375,9 +408,9 @@ Enable WebSockets in **OBS** > **Tools** > **Websocket Server Settings** > **Ena
 
 `discord_webhook_url` - Discord webhook URL to post OBS `screenshot`, after a shiny encounter
 
-`replay_dir` - OBS screenshot/replay buffer directory
+`replay_dir` - OBS screenshot/replay buffer folder
 - **OBS** > **Settings** > **Output** > **Recording** > **Recording Path**
-- Relative directory to `pokebot.py`, this is used to post stream `screenshot` to Discord if `discord_webhook_url` is set
+- Relative folder to `pokebot.py`, this is used to post stream `screenshot` to Discord if `discord_webhook_url` is set
 
 ### Web server
 The `http_server` config will enable a Flask HTTP server, which can be used to retrieve data and drive stream overlays.
@@ -418,37 +451,19 @@ All HTTP responses are in JSON format.
 - Utilise [repel tricks](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) to boost encounter rates of target Pokémon
 - Using `bot_mode` `spin` or `bunny_hop` and repels will become effectively infinite + steps won't be counted in Safari Zone
 - Use a lead Pokémon with encounter rate boosting [abilities](https://bulbapedia.bulbagarden.net/wiki/Category:Abilities_that_affect_appearance_of_wild_Pok%C3%A9mon), such as **[Illuminate](https://bulbapedia.bulbagarden.net/wiki/Illuminate_(Ability))**
-- Use a lead Pokémon with a short cry
+- Use a lead Pokémon with a [short cry](https://docs.google.com/spreadsheets/d/1rmtNdlIXiif1Sz20i-9mfhFdoqb1VnAOIntlr3tnPeU)
 - Use a lead Pokémon with a single character nickname
 - Use a non-shiny lead Pokémon (shiny animation takes a few frames)
 
-
-## Optimal mGBA settings
-
-- **Settings** > **Emulation** > **Idle loops** > **Detect and remove**
-  - **Massively** increases unbounded frame rate
-  - Decreases emulation accuracy (if you care about that)
-  - ⚠ **Warning**: don't use this for `starters` mode (unless you are using the [cheat config](#cheatsyml---cheats-config) `starters_rng`) or any other mode that uses soft resets, you may get many repeated, identical PIDs!
-
-
-- **Settings** > **Emulation** > **Rewind history** > Untick **Enable rewind**
-  - Slightly increases unbounded frame rate
-
-
-- **Settings** > **Emulation** > Tick **Preload entire ROM into memory**
-  - Mostly only relevant if you have a hard drive and not an SSD, not a hugely relevant option for most
-
-
-- **Audio/Video** > **Mute**
-- **Audio/Video** > **Audio channels** > **Disable all**
-  - Slightly increases unbound frame rate
-
-
-- **Audio/Video** > **Video layers** > **Disable all**
-  - Slightly increases unbound frame rate (at the cost of not being able to see anything!)
-
 ***
+
 # ❤ Attributions
+
+- [mGBA](https://github.com/mgba-emu/mgba)
+
+Other awesome PokéBot projects:
+
+- [PokéBot NDS](https://github.com/wyanido/pokebot-nds/)
 
 This project would not be possible without the symbols tables from the Pokémon decompilation projects:
 

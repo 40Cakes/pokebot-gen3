@@ -1,8 +1,10 @@
 import struct
 from typing import NoReturn
 
-from modules.Config import config_general
-from modules.Memory import mGBA, GetFrameCount, GetGameState, GameState
+from modules.Config import config
+from modules.Gui import GetEmulator
+from modules.Memory import GetGameState, GameState
+
 
 press = 0
 held = 0
@@ -21,10 +23,10 @@ input_map = {
 
 
 def GetInputs() -> int:
-    return struct.unpack('h', mGBA.proc.read_bytes(mGBA.p_Input, 2))[0]
+    return GetEmulator().GetInputs()
 
 
-def WriteInputs(value: int) -> NoReturn:
+def WriteInputs(value: int) -> None:
     """
     Writes inputs to mGBA input memory, 2 bytes, each bit controls a different button (see input_map).
 
@@ -39,22 +41,21 @@ def WriteInputs(value: int) -> NoReturn:
 
     :param value: inputs to write to mGBA memory
     """
-    if config_general['bot_mode'] != 'manual':
-        mGBA.proc.write_bytes(mGBA.p_Input, struct.pack('<H', value), 2)
+    if config['general']['bot_mode'] != 'manual':
+        GetEmulator().SetInputs(value)
 
 
-def WaitFrames(frames: int) -> NoReturn:
+def WaitFrames(frames: int) -> None:
     """
     Waits for n frames to pass before continuing.
 
     :param frames: number of frames to wait
     """
-    start = GetFrameCount()
-    while GetFrameCount() < start + frames:
-        pass
+    for i in range(frames):
+        GetEmulator().RunSingleFrame()
 
 
-def ReleaseInputs() -> NoReturn:
+def ReleaseInputs() -> None:
     global press
     global held
     press, held = 0, 0
@@ -62,7 +63,7 @@ def ReleaseInputs() -> NoReturn:
     WaitFrames(1)
 
 
-def PressButton(buttons: list, hold_frames: int = 1) -> NoReturn:
+def PressButton(buttons: list, hold_frames: int = 1) -> None:
     """
     Press a button or multiple buttons for 1 frame unless specified.
     If `hold_frames` is set to 0, the function will return and the buttons will be held down indefinitely.
@@ -93,6 +94,6 @@ def PressButton(buttons: list, hold_frames: int = 1) -> NoReturn:
         WaitFrames(1)
 
 
-def ResetGame() -> NoReturn:
+def ResetGame() -> None:
     while GetGameState() != GameState.TITLE_SCREEN:
         PressButton(['A', 'B', 'Start', 'Select'], 5)

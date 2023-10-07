@@ -2,7 +2,7 @@
 # TODO add option for a Discord webhook when a custom is caught
 import math
 
-from modules.Config import config_general
+from modules.Config import config
 from modules.Console import console
 
 def CustomCatchFilters(pokemon: dict) -> bool:
@@ -35,7 +35,7 @@ def CustomCatchFilters(pokemon: dict) -> bool:
                       'Suicine', 'Castform', 'Lileep', 'Anorith', 'Wynaut', 'Beldum', 'Togepi', 'Eevee', 'Omanyte',
                       'Kabuto', 'Hitmonlee', 'Hitmonchan']
 
-        if pokemon['name'] not in exceptions and config_general['bot_mode'] != 'starters':
+        if pokemon['name'] not in exceptions and config['general']['bot_mode'] != 'starters':
 
             # Catch shiny Wurmple based on evolution
             if pokemon['shiny'] and pokemon['name'] == 'Wurmple':

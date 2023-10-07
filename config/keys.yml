@@ -1,0 +1,44 @@
+# Emulator input mapping settings
+# See readme for documentation: https://github.com/40Cakes/pokebot-gen3#keysyml---emulator-input-mapping
+
+# Default mGBA mapping
+gba:
+  Up: 'Up'
+  Down: 'Down'
+  Left: 'Left'
+  Right: 'Right'
+  A: 'x'
+  B: 'z'
+  L: 'a'
+  R: 's'
+  Start: 'Return'
+  Select: 'BackSpace'
+
+# Keys that trigger emulator features
+emulator:
+  # Increases the zoom level by 1
+  zoom_in: 'plus'
+
+  # Decreases the zoom level by 1
+  zoom_out: 'minus'
+
+  # Switches between the 'manual' bot mode and whatever is configured in `general.yml`
+  toggle_manual: 'Tab'
+
+  # Disables or enables video output (disabling speeds up emulation)
+  toggle_video: 'v'
+
+  # Turns sound on or off
+  toggle_audio: 'b'
+
+  # Sets the emulation speed to 1×/2×/3×/4×
+  set_speed_1x: '1'
+  set_speed_2x: '2'
+  set_speed_3x: '3'
+  set_speed_4x: '4'
+
+  # Disables throttling entirely, i.e. the emulator now runs as fast as your CPU allows
+  set_speed_unthrottled: '0'
+
+  # Exit emulator and bot
+  exit: 'End'

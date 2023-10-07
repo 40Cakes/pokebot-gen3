@@ -2,11 +2,12 @@
 # Move this script to the root directory to ensure all imports work correctly
 import struct
 from modules.Console import console
-from modules.Memory import GetGameState, ReadSymbol, mGBA
+from modules.Game import _symbols
+from modules.Memory import GetGameState, ReadSymbol
 
 
 def AddrName(address: int):
-    for key, (value, _) in mGBA.symbols.items():
+    for key, (value, _) in _symbols.items():
         if value == address:
             return '{}: {}'.format(
                 hex(address),

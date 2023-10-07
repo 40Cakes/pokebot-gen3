@@ -1,7 +1,8 @@
 import struct
 
+from modules.Game import EncodeString
 from modules.Inputs import PressButton
-from modules.Memory import GetTask, ReadSymbol, GameState, GetGameState, EncodeString
+from modules.Memory import GetTask, ReadSymbol, GameState, GetGameState
 
 b_What = EncodeString('What')  # TODO temporary fix (English only) for fishing in Safari Zone
 def temp_RunFromBattle():  # TODO temporary until auto-battle is fleshed out

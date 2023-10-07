@@ -3,14 +3,15 @@ import random
 import struct
 from typing import NoReturn
 
-from modules.Config import config_general, config_cheats
+from modules.Config import config
 from modules.Console import console
+from modules.Gui import GetROM
 from modules.Inputs import PressButton, ResetGame, WaitFrames
-from modules.Memory import ReadSymbol, GetGameState, GameState, GetTask, mGBA, WriteSymbol
+from modules.Memory import ReadSymbol, GetGameState, GameState, GetTask, WriteSymbol
 from modules.Pokemon import GetParty, OpponentChanged, GetOpponent
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
 
-if mGBA.game == 'Pokémon Emerald':
+if GetROM().game_title == 'POKEMON EMER':
     t_bag_cursor = 'TASK_HANDLESTARTERCHOOSEINPUT'
     t_confirm = 'TASK_HANDLECONFIRMSTARTERINPUT'
     t_ball_throw = 'TASK_PLAYCRYWHENRELEASEDFROMBALL'
@@ -23,8 +24,8 @@ session_pids = []
 seen = 0
 dupes = 0
 
-if not config_cheats['starters_rng']:
-    rng_history = GetRNGStateHistory(config_general['starter'])
+if not config['cheats']['starters_rng']:
+    rng_history = GetRNGStateHistory(config['general']['starter'])
 
 
 def Starters() -> NoReturn:
@@ -33,15 +34,15 @@ def Starters() -> NoReturn:
         global seen
 
         # Bag starters
-        if config_general['starter'] in ['treecko', 'torchic', 'mudkip']:
+        if config['general']['starter'] in ['treecko', 'torchic', 'mudkip']:
             while GetGameState() != GameState.CHOOSE_STARTER:
                 PressButton(['A'])
 
-            if config_cheats['starters_rng']:
+            if config['cheats']['starters_rng']:
                 WriteSymbol('gRngValue', struct.pack('<I', random.randint(0, 2**32 - 1)))
                 WaitFrames(1)
 
-            match config_general['starter']:
+            match config['general']['starter']:
                 case 'treecko':
                     while GetTask(t_bag_cursor).get('data', ' ')[0] != 0:
                         PressButton(['Left'])
@@ -52,12 +53,13 @@ def Starters() -> NoReturn:
             while not GetTask(t_confirm).get('isActive', False):
                 PressButton(['A'], 1)
 
-            if not config_cheats['starters_rng']:
+            if not config['cheats']['starters_rng']:
                 rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
                 while rng in rng_history['rng']:
+                    WaitFrames(1)
                     rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
 
-            if config_cheats['starters']:
+            if config['cheats']['starters']:
                 while GetParty() == {}:
                     PressButton(['A'])
             else:
@@ -85,19 +87,18 @@ def Starters() -> NoReturn:
                 session_pids.append(pokemon['pid'])
 
         # Johto starters (Emerald only)
-        elif mGBA.game == 'Pokémon Emerald' and config_general['starter'] in ['chikorita', 'totodile', 'cyndaquil']:
-            config_cheats['starters'] = True  # TODO temporary until menu navigation is ready
+        elif GetROM().game_title == 'POKEMON EMER' and config['general']['starter'] in ['chikorita', 'totodile', 'cyndaquil']:
+            config['cheats']['starters'] = True  # TODO temporary until menu navigation is ready
             console.print('[red]Note: Johto starters enables the fast `starters` check option in `config/cheats.yml`, the shininess of the starter is checked via memhacks while start menu navigation is WIP (in future, shininess will be checked via the party summary menu).')
 
             if len(GetParty()) > 1:
                 console.print('[red]Pokémon detected in party slot 2, deposit all party members (except lead) before using this bot mode!')
-                input('Press enter to exit...')
-                os._exit(1)
+                exit(1)
             else:
                 while GetGameState() != GameState.OVERWORLD:
                     PressButton(['A'])
 
-                if config_cheats['starters_rng']:
+                if config['cheats']['starters_rng']:
                     WriteSymbol('gRngValue', struct.pack('<I', random.randint(0, 2 ** 32 - 1)))
                     WaitFrames(1)
                 else:
@@ -108,12 +109,13 @@ def Starters() -> NoReturn:
 
                     rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
                     while rng in rng_history['rng']:
+                        WaitFrames(1)
                         rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
 
                 while GetTask('TASK_FANFARE') == {}:
                     PressButton(['A'])
 
-                if config_cheats['starters']:
+                if config['cheats']['starters']:
                     while len(GetParty()) == 1:
                         PressButton(['B'])
                 #else:
@@ -138,14 +140,15 @@ def Starters() -> NoReturn:
 
         else:
             console.print('[red]Invalid `starter` config for {} ({})!'.format(
-                mGBA.game,
-                config_general['starter']))
-            input('Press enter to exit...')
-            os._exit(1)
+                GetROM().game_name,
+                config['general']['starter']))
+            exit(1)
 
-        if not config_cheats['starters_rng']:
+        if not config['cheats']['starters_rng']:
             rng_history['rng'].append(rng)
-            SaveRNGStateHistory(config_general['starter'], rng_history)
+            SaveRNGStateHistory(config['general']['starter'], rng_history)
         ResetGame()
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)

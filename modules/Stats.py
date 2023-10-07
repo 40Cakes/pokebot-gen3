@@ -2,6 +2,8 @@ import os
 import copy
 import json
 import math
+import string
+import sys
 import time
 import importlib
 import pandas as pd
@@ -11,54 +13,61 @@ from datetime import datetime
 
 from rich.table import Table
 from modules.Colours import IVColour, IVSumColour, SVColour
-from modules.Config import config_obs, config_logging
+from modules.Config import config
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
+from modules.Gui import GetEmulator, GetProfile
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import GetGameState, GameState, mGBA
-from modules.Trainer import GetTrainer
+from modules.Memory import GetGameState, GameState
+from modules.Profiles import Profile
 
-safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
-trainer_dir = '{}/{}-{}'.format(
-    mGBA.game_code,
-    GetTrainer()['tid'],
-    safe_trainer_name
-)
-stats_dir = './stats/{}'.format(trainer_dir)
-os.makedirs(stats_dir, exist_ok=True)
-files = {
-    'encounter_log': '{}/encounter_log.json'.format(stats_dir),
-    'shiny_log': '{}/shiny_log.json'.format(stats_dir),
-    'totals': '{}/totals.json'.format(stats_dir)
-}
+CustomCatchFilters = None
+CustomHooks = None
+session_encounters = None
+stats = None
+encounter_log = None
+shiny_log = None
+stats_dir = None
+files = None
 
-try:
-    if os.path.isfile('./config/{}/CustomCatchFilters.py'.format(trainer_dir)):
-        CustomCatchFilters = importlib.import_module('.CustomCatchFilters', 'config.{}.{}-{}'.format(
-            mGBA.game_code,
-            GetTrainer()['tid'],
-            safe_trainer_name)).CustomCatchFilters
-    else:
-        from config.CustomCatchFilters import CustomCatchFilters
+def InitStats(profile: Profile):
+    global CustomCatchFilters, CustomHooks, session_encounters, stats, encounter_log, shiny_log, stats_dir, files
 
-    if os.path.isfile('./config/{}/CustomHooks.py'.format(trainer_dir)):
-        CustomHooks = importlib.import_module('.CustomHooks', 'config.{}.{}-{}'.format(
-            mGBA.game_code,
-            GetTrainer()['tid'],
-            safe_trainer_name)).CustomHooks
-    else:
-        from config.CustomHooks import CustomHooks
+    config_dir_path = profile.path / 'config'
+    stats_dir_path = profile.path / 'stats'
+    if not stats_dir_path.exists():
+        stats_dir_path.mkdir()
+    stats_dir = str(stats_dir_path)
 
-    session_encounters = 0
-    f_stats = ReadFile(files['totals'])
-    stats = json.loads(f_stats) if f_stats else None
-    f_encounter_log = ReadFile(files['encounter_log'])
-    encounter_log = json.loads(f_encounter_log) if f_encounter_log else {'encounter_log': []}
-    f_shiny_log = ReadFile(files['shiny_log'])
-    shiny_log = json.loads(f_shiny_log) if f_shiny_log else {'shiny_log': []}
-except:
-    console.print_exception(show_locals=True)
-    os._exit(1)
+    files = {
+        'encounter_log': str(stats_dir_path / 'encounter_log.json'),
+        'shiny_log': str(stats_dir_path / 'shiny_log.json'),
+        'totals': str(stats_dir_path / 'totals.json')
+    }
+
+    try:
+        if (config_dir_path / 'CustomCatchFilters.py').is_file():
+            CustomCatchFilters = importlib.import_module('.CustomCatchFilters', 'config.{}'.format(profile.path.name)).CustomCatchFilters
+        else:
+            from config.CustomCatchFilters import CustomCatchFilters
+
+        if (config_dir_path / 'CustomHooks.py').is_file():
+            CustomHooks = importlib.import_module('.CustomHooks', 'config.{}'.format(profile.path.name)).CustomHooks
+        else:
+            from config.CustomHooks import CustomHooks
+
+        session_encounters = 0
+        f_stats = ReadFile(files['totals'])
+        stats = json.loads(f_stats) if f_stats else None
+        f_encounter_log = ReadFile(files['encounter_log'])
+        encounter_log = json.loads(f_encounter_log) if f_encounter_log else {'encounter_log': []}
+        f_shiny_log = ReadFile(files['shiny_log'])
+        shiny_log = json.loads(f_shiny_log) if f_shiny_log else {'shiny_log': []}
+    except SystemExit:
+        raise
+    except:
+        console.print_exception(show_locals=True)
+        sys.exit(1)
 
 
 def GetRNGStateHistory(pokemon_name: str) -> dict:
@@ -69,6 +78,8 @@ def GetRNGStateHistory(pokemon_name: str) -> dict:
             pokemon_name.lower()))
         data = json.loads(file) if file else default
         return data
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
         return default
@@ -79,6 +90,8 @@ def SaveRNGStateHistory(pokemon_name: str, data: dict) -> NoReturn:
         WriteFile('{}/rng/{}.json'.format(
             stats_dir,
             pokemon_name.lower()), json.dumps(data))
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
 
@@ -93,6 +106,8 @@ def GetEncounterRate() -> int:
                             * 1000)) * (min(session_encounters, 250)))
             return encounter_rate
         return 0
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
         return 0
@@ -126,7 +141,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
             pokemon['metLocation']
         ), style=pokemon['type'][0].lower())
 
-        match config_logging['console']['encounter_data']:
+        match config['logging']['console']['encounter_data']:
             case 'verbose':
                 pokemon_table = Table()
                 pokemon_table.add_column('PID', justify='center', width=10)
@@ -160,7 +175,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
                         pokemon['ability'],
                         pokemon['shinyValue']))
 
-        match config_logging['console']['encounter_ivs']:
+        match config['logging']['console']['encounter_ivs']:
             case 'verbose':
                 iv_table = Table(title='{} IVs'.format(pokemon['name']))
                 iv_table.add_column('HP', justify='center', style=IVColour(pokemon['IVs']['hp']))
@@ -198,7 +213,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
                         IVSumColour(pokemon['IVSum']),
                         pokemon['IVSum']))
 
-        match config_logging['console']['encounter_moves']:
+        match config['logging']['console']['encounter_moves']:
             case 'verbose':
                 move_table = Table(title='{} Moves'.format(pokemon['name']))
                 move_table.add_column('Name', justify='left', width=20)
@@ -233,7 +248,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
                             pokemon['moves'][i]['remaining_pp']
                         ))
 
-        match config_logging['console']['statistics']:
+        match config['logging']['console']['statistics']:
             case 'verbose':
                 stats_table = Table(title='Statistics')
                 stats_table.add_column('', justify='left', width=10)
@@ -328,6 +343,8 @@ def PrintStats(pokemon: dict) -> NoReturn:
                 ))
 
         console.print('[yellow]Encounter rate[/]: ~{:,}/h'.format(GetEncounterRate()))
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
 
@@ -439,10 +456,12 @@ def LogEncounter(pokemon: dict) -> NoReturn:
             stats['totals']['lowest_iv_sum'] = pokemon['IVSum']
             stats['totals']['lowest_iv_sum_pokemon'] = pokemon['name']
 
-        if config_logging['log_encounters']:
+        if config['logging']['log_encounters']:
             # Log all encounters to a CSV file per phase
             csvpath = '{}/encounters/'.format(stats_dir)
             csvfile = 'Phase {} Encounters.csv'.format(stats['totals'].get('shiny_encounters', 0))
+            if len(pokemon['type']) < 2:
+                pokemon['type'].append('')  # Add blank 2nd type to monotype Pokémon to preserve .csv column alignment
             pd_pokemon = pd.DataFrame.from_dict(FlattenData(pokemon), orient='index').drop([
                 'EVs_attack',
                 'EVs_defence',
@@ -531,9 +550,9 @@ def LogEncounter(pokemon: dict) -> NoReturn:
         PrintStats(pokemon)
 
         if pokemon['shiny']:
-            WaitFrames(config_obs.get('shiny_delay', 1))
+            WaitFrames(config['obs'].get('shiny_delay', 1))
 
-        if config_obs['screenshot'] and pokemon['shiny']:
+        if config['obs']['screenshot'] and pokemon['shiny']:
             from modules.OBS import OBSHotKey
             while GetGameState() != GameState.BATTLE:
                 PressButton(['B'])  # Throw out Pokémon for screenshot
@@ -583,16 +602,20 @@ def LogEncounter(pokemon: dict) -> NoReturn:
         session_encounters += 1
 
         # Backup stats folder every n encounters
-        if config_logging['backup_stats'] > 0 and \
+        if config['logging']['backup_stats'] > 0 and \
                 stats['totals'].get('encounters', None) and \
-                stats['totals']['encounters'] % config_logging['backup_stats'] == 0:
+                stats['totals']['encounters'] % config['logging']['backup_stats'] == 0:
             BackupFolder('./{}/'.format(stats_dir), './backups/{}/{}.zip'.format(
                 stats_dir,
                 time.strftime('%Y%m%d-%H%M%S')))
 
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
 
+
+dirsafe_chars = f'-_.() {string.ascii_letters}{string.digits}'
 
 def EncounterPokemon(pokemon: dict) -> NoReturn:
     """
@@ -605,23 +628,28 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
     LogEncounter(pokemon)
 
     # TODO temporary until auto-catch is ready
-    if pokemon['shiny']:
-        console.print('[bold yellow]Shiny found!')
+    custom_found = CustomCatchFilters(pokemon)
+    if pokemon['shiny'] or custom_found:
+        if pokemon['shiny']:
+            state_tag = 'shiny'
+            console.print('[bold yellow]Shiny found!')
+        elif custom_found:
+            state_tag = 'customfilter'
+            console.print('[bold green]Custom filter Pokemon found!')
 
         # Load catch block config
-        from modules.Config import config_dir, catch_block_schema, LoadConfig
-        if os.path.isfile('{}/catch_block.yml'.format(config_dir)):
-            config_catch_block = LoadConfig('{}/catch_block.yml'.format(config_dir), catch_block_schema)
-        else:
-            config_catch_block = LoadConfig('config/catch_block.yml', catch_block_schema)
+        from modules.Config import catch_block_schema, LoadConfig, ForceManualMode
+        config_catch_block = LoadConfig('catch_block.yml', catch_block_schema)
 
-        if pokemon['name'] in config_catch_block['block_list']:
+        if not custom_found and pokemon['name'] in config_catch_block['block_list']:
             console.print('[bold yellow]' + pokemon['name'] + ' is on the catch block list, skipping encounter...')
         else:
-            input('Press enter to exit...')
-            os._exit(0)
-
-    if CustomCatchFilters(pokemon):
-        console.print('[bold green]Custom filter Pokemon found!')
-        input('Press enter to exit...')
-        os._exit(0)
+            state_filename = f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_{state_tag}_{pokemon['name']}.ss1"
+            state_filename = ''.join(c for c in state_filename if c in dirsafe_chars)
+            states_directory = GetProfile().path / 'states'
+            if not states_directory.exists():
+                states_directory.mkdir()
+            state_filepath = states_directory / state_filename
+            with open(state_filepath, 'wb') as file:
+                file.write(GetEmulator().GetSaveState())
+            ForceManualMode()

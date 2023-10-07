@@ -1,9 +1,10 @@
-import os
+import sys
+from pathlib import Path
+
 from jsonschema import validate
 from ruamel.yaml import YAML
+
 from modules.Console import console
-from modules.Memory import mGBA
-from modules.Trainer import GetTrainer
 
 yaml = YAML()
 
@@ -275,64 +276,150 @@ properties:
         type: array
 """
 
+keys_schema = """
+type: object
+properties:
+    gba:
+        type: object
+        properties:
+            Up: {type: string}
+            Down: {type: string}
+            Left: {type: string}
+            Right: {type: string}
+            A: {type: string}
+            B: {type: string}
+            L: {type: string}
+            R: {type: string}
+            Start: {type: string}
+            Select: {type: string}
 
-def LoadConfig(file: str, schema: str) -> dict:
+    emulator:
+        type: object
+        properties:
+            zoom_in: {type: string}
+            zoom_out: {type: string}
+            toggle_unthrottled: {type: string}
+            toggle_manual: {type: string}
+"""
+
+schemas = {
+    'general': general_schema,
+    'logging': logging_schema,
+    'battle': battle_schema,
+    'discord': discord_schema,
+    'obs': obs_schema,
+    'cheats': cheats_schema
+}
+
+config = {
+    'general': {},
+    'logging': {},
+    'battle': {},
+    'discord': {},
+    'obs': {},
+    'cheats': {}
+}
+
+# Keeps a list of all configuration directories that should be searched whenever we are looking
+# for a particular config file.
+# In practice, this will contain the global `config/` directory, and the profile-specific config
+# directory (`config/<profile name>/config/`) once a profile has been selected by the user.
+config_dir_stack: list[Path] = []
+
+
+def LoadConfig(file_name: str, schema: str) -> dict:
+    """
+    Looks for and loads a single config file and returns its parsed contents.
+
+    If the config file cannot be found, it stops the bot.
+
+    :param file_name: File name (without path) of the config file
+    :param schema: JSON Schema string to validate the configuration dict against
+    :return: Parsed and validated contents of the configuration file
+    """
+    result = None
+    for config_dir in config_dir_stack:
+        file_path = config_dir / file_name
+        if file_path.is_file():
+            result = LoadConfigFile(file_path, schema)
+
+    if result is None:
+        console.print('[bold red]Could not find any config file named {}.[/]'.format(file_name))
+        sys.exit(1)
+
+    return result
+
+
+def LoadConfigFile(file_path: Path, schema: str) -> dict:
+    """
+    Loads and validates a single config file. This requires an exact path and therefore will not
+    fall back to the global config directory if the file could not be found.
+
+    It will stop the bot if the file does not exist or contains invalid data.
+
+    :param file_path: Path to the config file
+    :param schema: JSON Schema string to validate the configuration dict against
+    :return: Parsed and validated contents of the configuration file
+    """
     try:
-        if os.path.exists(file):
-            with open(file, mode='r', encoding='utf-8') as f:
-                config = yaml.load(f)
-                validate(config, yaml.load(schema))
-                return config
+        with open(file_path, mode='r', encoding='utf-8') as f:
+            config = yaml.load(f)
+            validate(config, yaml.load(schema))
+            return config
     except:
         console.print_exception(show_locals=True)
-        console.print('[bold red]Config file {} is invalid![/]'.format(file))
-        input('Press enter to exit...')
-        os._exit(1)
+        console.print('[bold red]Config file {} is invalid![/]'.format(str(file_path)))
+        sys.exit(1)
 
 
-safe_trainer_name = ''.join([c for c in GetTrainer()['name'] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
-trainer_dir = '{}/{}-{}'.format(
-    mGBA.game_code,
-    GetTrainer()['tid'],
-    safe_trainer_name
-)
-config_dir = './config/{}'.format(trainer_dir)
+def LoadConfigFromDirectory(path: Path, allow_missing_files=False) -> None:
+    """
+    Loads all the 'default' configuration files into the `config` variable that can be accessed by other modules.
 
-if not os.path.exists(config_dir):
-    os.makedirs(config_dir)
+    :param path: Path to the config directory.
+    :param allow_missing_files: If this is False, the function will stop the bot if it cannot find a config file.
+                                This should be used when loading the global configuration directory, but not when
+                                loading the profile-specific config directory (so that we use the profile-specific
+                                config if it exists, but keep using the global one if it doesn't.)
+    """
+    global config_dir_stack, config
 
-# Load general config
-if os.path.isfile('{}/general.yml'.format(config_dir)):
-    config_general = LoadConfig('{}/general.yml'.format(config_dir), general_schema)
-else:
-    config_general = LoadConfig('config/general.yml', general_schema)
+    config_dir_stack.append(path)
 
-# Load logging config
-if os.path.isfile('{}/logging.yml'.format(config_dir)):
-    config_logging = LoadConfig('{}/logging.yml'.format(config_dir), logging_schema)
-else:
-    config_logging = LoadConfig('config/logging.yml', logging_schema)
+    for key in config:
+        file_path = path / (key + '.yml')
+        if file_path.is_file():
+            config[key] = LoadConfigFile(file_path, schemas[key])
+        elif not allow_missing_files:
+            console.print('[bold red]Expected a config file {} could not be found.[/]'.format(str(file_path)))
+            sys.exit(1)
 
-# Load battle config
-if os.path.isfile('{}/battle.yml'.format(config_dir)):
-    config_battle = LoadConfig('{}/battle.yml'.format(config_dir), battle_schema)
-else:
-    config_battle = LoadConfig('config/battle.yml', battle_schema)
 
-# Load Discord config
-if os.path.isfile('{}/discord.yml'.format(config_dir)):
-    config_discord = LoadConfig('{}/discord.yml'.format(config_dir), discord_schema)
-else:
-    config_discord = LoadConfig('config/discord.yml', discord_schema)
+previous_bot_mode: str = ''
 
-# Load OBS config
-if os.path.isfile('{}/obs.yml'.format(config_dir)):
-    config_obs = LoadConfig('{}/obs.yml'.format(config_dir), obs_schema)
-else:
-    config_obs = LoadConfig('config/obs.yml', obs_schema)
+def ToggleManualMode() -> None:
+    """
+    Toggles between manual mode and the bot mode configured in `general.yml`.
+    If the configured bot mode is already `manual`, this has no effect.
+    """
+    global previous_bot_mode
 
-# Load cheat config
-if os.path.isfile('{}/cheats.yml'.format(config_dir)):
-    config_cheats = LoadConfig('{}/cheats.yml'.format(config_dir), cheats_schema)
-else:
-    config_cheats = LoadConfig('config/cheats.yml', cheats_schema)
+    if config['general']['bot_mode'] == 'manual' and previous_bot_mode != '':
+        config['general']['bot_mode'] = previous_bot_mode
+        previous_bot_mode = ''
+    else:
+        previous_bot_mode = config['general']['bot_mode']
+        config['general']['bot_mode'] = 'manual'
+
+
+def ForceManualMode() -> None:
+    """
+    Ensures that the bot is running in manual mode, to give control back to
+    the user. If the bot is already in manual mode, this has no effect.
+    """
+    global previous_bot_mode
+
+    if config['general']['bot_mode'] != 'manual':
+        previous_bot_mode = config['general']['bot_mode']
+
+    config['general']['bot_mode'] = 'manual'
