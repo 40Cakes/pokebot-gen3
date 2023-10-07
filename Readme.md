@@ -75,7 +75,14 @@ Variations of games, languages and revisions may have different memory offsets, 
 
 ROM hacks will likely not work, and are ❌ **not supported** or planned to be supported!
 
-The ROMs in the `roms/` folder are checked and verified against a list of official game hashes. If you **really** want to test a ROM hack with the bot, you must add the SHA1 hash of the ROM to `modules/Roms.py`. Please do not seek support or complain if you find that your ROM hack does not work with the bot.
+The ROMs in the `roms/` folder are checked and verified against a list of official game hashes. If you **really** want to test a ROM hack with the bot, you must add the SHA1 hash of the ROM to `modules/Roms.py`.
+
+The SHA1 hash of a ROM can be calculated with any of the following methods:
+- [ROM Hasher](https://www.romhacking.net/utilities/1002/)
+- Windows Powershell: `Get-FileHash 'rom_name.gba' -Algorithm SHA1`
+- Linux: `sha1sum 'rom_name.gba'`
+
+Please do not seek support or complain if you find that your ROM hack does not work with the bot.
 
 ***
 
