@@ -6,6 +6,20 @@
       "J":"80857C4",
       "S":"8085e70"
     },
+    "CB2_STARTERCHOOSE":{
+      "D":"8133e04",
+      "F":"8133e24",
+      "I":"8133df0",
+      "J":"8134198",
+      "S":"8133df8"
+    },
+    "CB2_INITCOPYRIGHTSCREENAFTERBOOTUP":{
+      "D":"816cb14",
+      "F":"816cc3c",
+      "I":"816cb04",
+      "J":"816cc90",
+      "S":"816cc14"
+    },
     "BATTLEMAINCB2":{
       "D":"8038424",
       "F":"8038420",
@@ -33,6 +47,20 @@
       "J":"808c224",
       "S":"808c8d4"
     },
+    "TASK_HANDLESTARTERCHOOSEINPUT":{
+      "D":"8133e80",
+      "F":"8133ea0",
+      "I":"8133e6c",
+      "J":"8134214",
+      "S":"8133e74"
+    },
+    "TASK_HANDLECONFIRMSTARTERINPUT":{
+      "D":"8134024",
+      "F":"8134044",
+      "I":"8134010",
+      "J":"81343b8",
+      "S":"8134018"
+    },
     "GMAIN":{
       "J":"3002360"
     },
@@ -50,5 +78,17 @@
     },
     "gActionSelectionCursor":{
       "J":"2024150"
+    },
+    "gPlayerPartyCount":{
+      "J":"202418d"
+    },
+    "gPlayerParty":{
+      "J":"2024190"
+    },
+    "gRngValue":{
+      "J":"3005ae0"
+    },
+    "ITEMSTORAGE_HANDLEREMOVEITEM":{
+      "I":"0"
     }
   }

@@ -1,9 +1,10 @@
 import os
 from typing import NoReturn
 
-from modules.Config import config_battle, config_cheats
+from modules.Config import config
+from modules.Gui import GetROM
 from modules.Inputs import PressButton, WaitFrames
-from modules.Memory import ReadSymbol, GetGameState, DecodeString, mGBA, GetCursorOptions, ParseTasks, GetTaskFunc, \
+from modules.Memory import GetGameState, GetCursorOptions, ParseTasks, GetTaskFunc, \
     GetTask
 from modules.Console import console
 from modules.Enums import GameState, TaskFunc
@@ -23,8 +24,8 @@ def CheckForPickup(encounter_total: int) -> NoReturn:
             pokemon_with_pickup += 1
             if party[i]['item']['name'] != 'None':
                 pokemon_with_pickup_and_item.append(i)
-    if not config_cheats['pickup']:
-        encounter_threshold_met = encounter_total % config_battle['pickup_check_frequency'] == 0
+    if not config['cheats']['pickup']:
+        encounter_threshold_met = encounter_total % config['battle']['pickup_check_frequency'] == 0
         if encounter_threshold_met and pokemon_with_pickup > 0:
             NavigateStartMenu("POKEMON")
             while not PartyMenuIsOpen():
@@ -32,7 +33,7 @@ def CheckForPickup(encounter_total: int) -> NoReturn:
     else:
         encounter_threshold_met = True
     try:
-        pickup_threshold = config_battle['pickup_threshold']
+        pickup_threshold = config['battle']['pickup_threshold']
     except:
         pickup_threshold = 1
 
@@ -61,7 +62,7 @@ def TakePickupItems(pokemon_indices: list):
                 PressButton(['Up'])
             else:
                 PressButton(["Down"])
-        if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
+        if GetROM().game_title in ['POKEMON EMER', 'POKEMON FIRE', 'POKEMON LEAF']:
             while GetTask('TASK_HANDLESELECTIONMENUINPUT') == {}:
                 PressButton(['A'])
             while ParsePartyMenuInternal()['numActions'] > 3:
@@ -197,7 +198,7 @@ def NavigateMenuByIndex(desired_index: int) -> NoReturn:
 
 
 def PartyMenuIsOpen() -> bool:
-    if mGBA.game in ['Pokémon Emerald', 'Pokémon FireRed', 'Pokémon LeafGreen']:
+    if GetROM().game_title in ['POKEMON EMER', 'POKEMON FIRE', 'POKEMON LEAF']:
         return GetGameState() == GameState.PARTY_MENU
     else:
         return TaskFunc.PARTY_MENU in [GetTaskFunc(task['func']) for task in ParseTasks()]

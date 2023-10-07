@@ -2,8 +2,9 @@ import os
 import struct
 
 from modules.Console import console
-from modules.Memory import mGBA, ReadMemory, GetSymbolName, ReadSymbol, GetTaskFunc, ParseTasks, GetGameState, GetTask
-from modules.Enums import TaskFunc, StartMenuOptionHoenn, StartMenuOptionKanto, GameState
+from modules.Gui import GetROM, emulator
+from modules.Memory import GetSymbolName, ReadSymbol, GetTaskFunc, ParseTasks, GetTask
+from modules.Enums import TaskFunc, StartMenuOptionHoenn, StartMenuOptionKanto
 from modules.Pokemon import GetParty, moves_list, ParsePokemon
 
 
@@ -15,11 +16,11 @@ def GetPartyMenuCursorPos() -> dict:
         'slot_id': -1,
         'slot_id_2': -1,
     }
-    match mGBA.game:
-        case 'Pokémon Ruby' | 'Pokémon Sapphire':
-            party_menu['slot_id'] = int.from_bytes(ReadMemory(0x0202002F, offset=len(GetParty()) * 136 + 3, size=1), 'little')
+    match GetROM().game_title:
+        case 'POKEMON RUBY' | 'POKEMON SAPP':
+            party_menu['slot_id'] = int.from_bytes(emulator.ReadBytes(0x0202002F + len(GetParty()) * 136 + 3, length=1), 'little')
             party_menu['slot_id_2'] = party_menu['slot_id']
-        case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
+        case 'POKEMON EMER' | 'POKEMON FIRE' | 'POKEMON LEAF':
             pMenu = ReadSymbol('gPartyMenu')
             party_menu['main_cb'] = GetSymbolName(int(struct.unpack('<I', pMenu[0:4])[0]) - 1)
             party_menu['taskfunc'] = GetSymbolName(int(struct.unpack('<I', pMenu[4:8])[0]) - 1)
@@ -50,13 +51,13 @@ def ParseMenu() -> dict:
     """
     Function to parse the currently displayed menu and return usable information.
     """
-    match mGBA.game:
-        case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
+    match GetROM().game_title:
+        case 'POKEMON EMER' | 'POKEMON FIRE' | 'POKEMON LEAF':
             menu = ReadSymbol('sMenu')
             cursor_pos = struct.unpack('<b', menu[2:3])[0]
             min_cursor_pos = struct.unpack('<b', menu[3:4])[0]
             max_cursor_pos = struct.unpack('<b', menu[4:5])[0]
-        case 'Pokémon Ruby' | 'Pokémon Sapphire':
+        case 'POKEMON RUBY' | 'POKEMON SAPP':
             cursor_pos = int.from_bytes(ReadSymbol('sPokeMenuCursorPos', 0, 1), 'little')
             min_cursor_pos = 0
             max_cursor_pos = int.from_bytes(ReadSymbol('sPokeMenuOptionsNo'), 'little') - 1
@@ -75,16 +76,16 @@ def ParsePartyMenuInternal() -> dict:
     Function to parse info about the party menu
     """
     party_menu_info = {}
-    match mGBA.game:
-        case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
+    match GetROM().game_title:
+        case 'POKEMON EMER' | 'POKEMON FIRE' | 'POKEMON LEAF':
             pmi_pointer = ReadSymbol('sPartyMenuInternal')
             addr = int(struct.unpack('<I', pmi_pointer)[0]) - 1
-            party_menu_internal = ReadMemory(addr, 0, int(30))
+            party_menu_internal = emulator.ReadBytes(addr, length=30)
             party_menu_info = {
                 "actions": [struct.unpack('<B', party_menu_internal[16 + i:17 + i])[0] for i in range(8)],
                 "numActions": struct.unpack('<B', party_menu_internal[24:25])[0],
             }
-        case "Pokémon Ruby" | "Pokémon Sapphire":
+        case "POKEMON RUBY" | "POKEMON SAPP":
             actions = []
             num_actions = int.from_bytes(ReadSymbol('sPokeMenuOptionsNo'), 'little')
             for i in range(num_actions):
@@ -110,15 +111,15 @@ def GetLearningMon() -> dict:
     :return: The pokemon trying to learn a move after evolution.
     """
     idx = 0
-    match mGBA.game:
-        case 'Pokémon Emerald' | 'Pokémon FireRed' | 'Pokémon LeafGreen':
+    match GetROM().game_title:
+        case 'POKEMON EMER' | 'POKEMON FIRE' | 'POKEMON LEAF':
             idx = int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][20:22], 'little')
-        case 'Pokémon Ruby' | 'Pokémon Sapphire':
+        case 'POKEMON RUBY' | 'POKEMON SAPP':
             for i, member in GetParty().items():
-                if member == ParsePokemon(ReadMemory(
+                if member == ParsePokemon(emulator.ReadBytes(
                         int.from_bytes(GetTask("TASK_EVOLUTIONSCENE")['data'][2:4], 'little') | (
                                 int.from_bytes(GetTask("TASK_EVOLUTIONSCENE")['data'][4:6], 'little') << 0x10),
-                        size=100)):
+                        length=100)):
                     idx = i
         case _:
             console.print('Not yet implemented...')
@@ -137,13 +138,13 @@ def GetMoveLearningCursorPos() -> int:
     """
     helper function that returns the position of the move learning cursor
     """
-    match mGBA.game:
-        case 'Pokémon Emerald':
-            return int.from_bytes(ReadMemory(
-                struct.unpack('<I', ReadSymbol('sMonSummaryScreen'))[0], offset=0x40C6, size=1), 'little')
-        case 'Pokémon FireRed' | 'Pokémon LeafGreen':
+    match GetROM().game_title:
+        case 'POKEMON EMER':
+            return int.from_bytes(emulator.ReadBytes(
+                struct.unpack('<I', ReadSymbol('sMonSummaryScreen'))[0] + 0x40C6, length=1), 'little')
+        case 'POKEMON FIRE' | 'POKEMON LEAF':
             return int.from_bytes(ReadSymbol('sMoveSelectionCursorPos'), 'little')
-        case 'Pokémon Ruby' | 'Pokémon Sapphire':
+        case 'POKEMON RUBY' | 'POKEMON SAPP':
             return int.from_bytes(ReadSymbol('gSharedMem', offset=0x18079, size=1), 'little')
 
 
@@ -153,8 +154,8 @@ def ParseStartMenu() -> dict:
     """
     tasks = ParseTasks()
     open = False
-    match mGBA.game:
-        case 'Pokémon Ruby' | 'Pokémon Sapphire' | 'Pokémon Emerald':
+    match GetROM().game_title:
+        case 'POKEMON RUBY' | 'POKEMON SAPP' | 'POKEMON EMER':
             start_menu_options_symbol = 'sCurrentStartMenuActions'
             num_actions_symbol = 'sNumStartMenuActions'
             start_menu_enum = StartMenuOptionHoenn

@@ -3,12 +3,16 @@ __pycache__
 .venv
 .idea
 .vs
+
 *.gba
 backups/
 build/
 config/*/
 dist/
 logs/
-mGBA*win64/
+mgba/
 stats/
 stream/
+
+roms/*
+!roms/.gitkeep

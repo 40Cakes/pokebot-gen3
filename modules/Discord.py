@@ -3,7 +3,8 @@ from typing import NoReturn
 from pypresence import Presence
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from modules.Console import console
-from modules.Config import config_discord, config_obs
+from modules.Config import config
+from modules.Gui import GetROM
 from modules.Inputs import WaitFrames
 
 
@@ -20,7 +21,7 @@ def DiscordMessage(webhook_url: str = None,
                         embed_color: str = 'FFFFFF') -> NoReturn:
     try:
         if not webhook_url:
-            webhook_url = config_discord['global_webhook_url']
+            webhook_url = config['discord']['global_webhook_url']
         webhook, embed_obj = DiscordWebhook(url=webhook_url, content=content), None
         if image:
             with open(image, 'rb') as f:
@@ -44,7 +45,7 @@ def DiscordMessage(webhook_url: str = None,
                 embed_obj.set_footer(text=embed_footer)
             embed_obj.set_timestamp()
             webhook.add_embed(embed_obj)
-        WaitFrames(config_obs['discord_delay'])
+        WaitFrames(config['obs']['discord_delay'])
         webhook.execute()
     except:
         console.print_exception(show_locals=True)
@@ -53,26 +54,25 @@ def DiscordMessage(webhook_url: str = None,
 def DiscordRichPresence() -> NoReturn:
     try:
         from modules.Stats import GetEncounterRate, encounter_log, stats
-        from modules.Memory import mGBA
         from asyncio import (new_event_loop as new_loop, set_event_loop as set_loop)
         set_loop(new_loop())
         RPC = Presence('1125400717054713866')
         RPC.connect()
         start = time.time()
 
-        match mGBA.game:
-            case 'Pokémon Ruby': large_image = 'groudon'
-            case 'Pokémon Sapphire': large_image = 'kyogre'
-            case 'Pokémon Emerald': large_image = 'rayquaza'
-            case 'Pokémon FireRed': large_image = 'charizard'
-            case 'Pokémon LeafGreen': large_image = 'venusaur'
+        match GetROM().game_title:
+            case 'POKEMON RUBY': large_image = 'groudon'
+            case 'POKEMON SAPP': large_image = 'kyogre'
+            case 'POKEMON EMER': large_image = 'rayquaza'
+            case 'POKEMON FIRE': large_image = 'charizard'
+            case 'POKEMON LEAF': large_image = 'venusaur'
 
         while True:
             try:
                 RPC.update(
                     state='{} | {}'.format(
                             encounter_log['encounter_log'][-1]['pokemon']['metLocation'],
-                            mGBA.game),
+                        GetROM().game_name),
                     details='{:,} ({:,}✨) | {:,}/h'.format(
                             stats['totals'].get('encounters', 0),
                             stats['totals'].get('shiny_encounters', 0),
