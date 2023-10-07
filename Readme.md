@@ -48,7 +48,7 @@ The bot ships with the default mGBA input mapping, see [`config/keys.yml`](#keys
 At the moment, the bot will pause once a shiny is encountered. You **must** ensure you are able to escape battle **100% of the time**, otherwise the bot will get stuck. Auto-catching and other features will be added in due time.
 
 - This is still in *early* development, as such, stats/config format and general functionality is subject to change, without warning - make sure you back up your `config/<profile name>/` folder before updating your bot!
-- Reach out in Discord [#mgba-testing🧪](https://discord.com/channels/1057088810950860850/1139190426834833528) if you have any issues
+- Reach out in Discord [#bot-support-mgba❔](https://discord.com/channels/1057088810950860850/1139190426834833528) if you have any issues
 
 ***
 
