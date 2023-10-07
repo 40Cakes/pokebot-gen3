@@ -147,7 +147,9 @@ def Starters() -> NoReturn:
         if not config['cheats']['starters_rng']:
             rng_history['rng'].append(rng)
             SaveRNGStateHistory(config['general']['starter'], rng_history)
-        GetEmulator().Reset()
+
+        if config['general']['bot_mode'] != 'manual':
+            GetEmulator().Reset()
     except SystemExit:
         raise
     except:
