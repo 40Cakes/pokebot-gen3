@@ -2,6 +2,7 @@ import os
 import copy
 import json
 import math
+import string
 import sys
 import time
 import importlib
@@ -614,20 +615,7 @@ def LogEncounter(pokemon: dict) -> NoReturn:
         console.print_exception(show_locals=True)
 
 
-def VeryTemporaryFunction_SafePokemonName(regular_name: str) -> str:
-    """
-    :param regular_name: Entry from `names.json`
-    :return: Pokemon name that is suitable for filenames
-    """
-    if regular_name == 'Nidoran♀':
-        return 'Nidoran_f'
-    elif regular_name == 'Nidoran♂':
-        return 'Nidoran_m'
-    elif regular_name == 'Pokémon Egg':
-        return 'Pokemon_Egg'
-    else:
-        return regular_name
-
+dirsafe_chars = f'-_.() {string.ascii_letters}{string.digits}'
 
 def EncounterPokemon(pokemon: dict) -> NoReturn:
     """
@@ -650,7 +638,8 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
         if pokemon['name'] in config_catch_block['block_list']:
             console.print('[bold yellow]' + pokemon['name'] + ' is on the catch block list, skipping encounter...')
         else:
-            state_filename = f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_shiny_{VeryTemporaryFunction_SafePokemonName(pokemon['name'])}.ss1"
+            state_filename = f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_shiny_{pokemon['name']}.ss1"
+            state_filename = ''.join(c for c in state_filename if c in dirsafe_chars)
             state_filepath = GetProfile().path / 'states' / state_filename
             with open(state_filepath, 'wb') as file:
                 file.write(GetEmulator().GetSaveState())
@@ -659,7 +648,8 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
     if CustomCatchFilters(pokemon):
         console.print('[bold green]Custom filter Pokemon found!')
 
-        state_filename = f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_customfilter_{VeryTemporaryFunction_SafePokemonName(pokemon['name'])}.ss1"
+        state_filename = f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_customfilter_{pokemon['name']}.ss1"
+        state_filename = ''.join(c for c in state_filename if c in dirsafe_chars)
         state_filepath = GetProfile().path / 'states' / state_filename
         with open(state_filepath, 'wb') as file:
             file.write(GetEmulator().GetSaveState())
