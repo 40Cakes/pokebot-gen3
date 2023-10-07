@@ -10,6 +10,9 @@ Initially created to complete a Prof. Oak and Living ✨Shiny✨ Dex Challenge i
 https://github.com/40Cakes/pokebot-gen3/assets/16377135/a3eed994-e960-4181-9f76-3b36bc9f0619
 
 # 📖 Preamble
+- This is still in *early* development, as such, stats/config format and general functionality is subject to change, without warning - make sure you back up your `config/<profile name>/` folder before updating your bot!
+- Reach out in Discord [#bot-support-mgba❔](https://discord.com/channels/1057088810950860850/1139190426834833528) if you have any issues
+
 The bot is frame perfect and can cheat by reading data from any point in memory. By default it will attempt to perform most actions, as if a human were playing to make gameplay as representative as possible, some examples:
 - Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible before resetting
 - It's possible to peek inside un-hatched eggs to view stats and shininess as soon as they're received from the daycare, the bot will wait until the eggs are fully hatched before checking and logging
@@ -18,8 +21,8 @@ The bot is frame perfect and can cheat by reading data from any point in memory.
 ***
 
 # ⚠ Photosensitivity Warning
-- Running mGBA at unbounded speeds, will cause **very fast and bright flashing**!
-- mGBA can run well over 3,000 FPS on fast enough PCs
+- The bot launches mGBA at unbound speed by default, see [`config/keys.yml`](#keysyml---emulator-input-mapping) for a list of keys to set emulation to slower speeds and even disable video/sound output
+- Running mGBA at unbound speeds, will cause **very fast and bright flashing**!
 - Any unbounded video examples on this page will be hidden by default, and marked with **⚠ photosensitivity warning**
 
 ***
@@ -43,12 +46,11 @@ The bot can run on Windows or Ubuntu Linux 23.04 (support for Mac and other Linu
 - Set the desired `bot_mode` in config file [`config/general.yml`](#generalyml---general-config)
 - Double click `pokebot.py` or run `python pokebot.py` in a terminal and follow the on-screen steps to create and/or select a profile
 
+While running, the bot will ignore your button presses, if you need to take control of the emulator, press `Tab` to toggle manual bot mode on/off.
+
 The bot ships with the default mGBA input mapping, see [`config/keys.yml`](#keysyml---emulator-input-mapping) to view the default mapping, or customise them to your preference.
 
-At the moment, the bot will pause once a shiny is encountered. You **must** ensure you are able to escape battle **100% of the time**, otherwise the bot will get stuck. Auto-catching and other features will be added in due time.
-
-- This is still in *early* development, as such, stats/config format and general functionality is subject to change, without warning - make sure you back up your `config/<profile name>/` folder before updating your bot!
-- Reach out in Discord [#bot-support-mgba❔](https://discord.com/channels/1057088810950860850/1139190426834833528) if you have any issues
+The bot will pause once a shiny is encountered. You **must** ensure you are able to escape battle **100% of the time**, otherwise the bot will get stuck. Auto-catching and other features will be added in due time.
 
 ***
 
