@@ -68,7 +68,7 @@ ROM_HASHES = [
     '7c7107b87c3ccf6e3dbceb9cf80ceeffb25a1857',  # Pocket Monsters - FireRed (Japan) (Rev 1).gba
     'ab8f6bfe0ccdaf41188cd015c8c74c314d02296a'   # Pokémon - Edicion Rojo Fuego (Spain).gba
 ]
-
+ROM_HASHES = list(map(lambda x: x.lower(), ROM_HASHES))
 
 class ROMLanguage(StrEnum):
     English = 'E'
