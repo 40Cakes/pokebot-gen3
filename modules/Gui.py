@@ -1,6 +1,7 @@
 import re
 import sys
 import tkinter
+from datetime import datetime
 from tkinter import ttk
 
 import PIL.Image
@@ -178,7 +179,7 @@ class PokebotGui:
         treeview.column('last_played', width=150)
         treeview.heading('last_played', text='Last Played')
 
-        available_profiles.sort(reverse=True, key=lambda p: p.last_played)
+        available_profiles.sort(reverse=True, key=lambda p: p.last_played or datetime(1, 1, 1, 0, 0, 0))
         for profile in available_profiles:
             if profile.last_played:
                 last_played = profile.last_played.strftime('%Y-%m-%d, %H:%M:%S')
@@ -228,11 +229,11 @@ class PokebotGui:
             tkinter.Button(frame, text='Back', command=self.ShowProfileSelection, cursor='hand2').grid(column=0, row=0,
                                                                                                        sticky='E')
         else:
-            welcome_message = f'Hey! This seems to be your first launch of {pokebot_name}, '\
-                              'to get started you first need to create a profile.\n\n'\
-                              'A profile stores your save game, save states, bot config, '\
-                              'bot statistics, screenshots etc. Profiles are stored in the "config/" folder.\n\n'\
-                              'You can create and run as many profiles as your PC can handle, '\
+            welcome_message = f'Hey! This seems to be your first launch of {pokebot_name}, ' \
+                              'to get started you first need to create a profile.\n\n' \
+                              'A profile stores your save game, save states, bot config, ' \
+                              'bot statistics, screenshots etc. Profiles are stored in the "config/" folder.\n\n' \
+                              'You can create and run as many profiles as your PC can handle, ' \
                               'simply launch another instance of the bot with a different profile.\n'
             ttk.Label(frame, text=welcome_message, wraplength=450, justify='left').grid(column=0, row=0, columnspan=2)
 
