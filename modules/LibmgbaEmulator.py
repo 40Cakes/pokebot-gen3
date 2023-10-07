@@ -12,7 +12,7 @@ import mgba.image
 import mgba.log
 import mgba.png
 import mgba.vfs
-from mgba import ffi, libmgba_version_string
+from mgba import ffi, lib, libmgba_version_string
 from modules.Console import console
 from modules.Profiles import Profile
 
@@ -123,10 +123,22 @@ class LibmgbaEmulator:
         self._gba_audio.set_rate(GBA_AUDIO_SAMPLE_RATE)
         self._ResetAudio()
 
+        self._gba_video_renderer = self._core._native.video.renderer
+        self._gba_dummy_renderer = ffi.new("struct GBAVideoRenderer*")
+        lib.GBAVideoDummyRendererCreate(self._gba_dummy_renderer)
+
         atexit.register(self.Shutdown)
         self._core._callbacks.savedata_updated.append(self.BackupCurrentSaveGame)
 
     def _ResetAudio(self) -> None:
+        """
+        This is called at the start of the emulation, as well as when there has been
+        an error during playback. The latter can happen if the audio device suddenly
+        disappears (e.g. a USB headset being unplugged.)
+
+        In that case, we will attempt to re-start the audio stream (which should then
+        use the new default device) or, if that fails, disable audio playback entirely.
+        """
         if self._audio_stream is not None:
             self._audio_stream.stop(ignore_errors=True)
             self._audio_stream.close(ignore_errors=True)
@@ -228,7 +240,22 @@ class LibmgbaEmulator:
         return self._video_enabled
 
     def SetVideoEnabled(self, video_enabled: bool) -> None:
+        """
+        Enable or disable video.
+
+        Apart from preventing the image from being rendered to the GUI, this will also toggle between
+        the 'real' and the dummy renderer inside libmgba. The latter will just ignore any command that
+        has to do with rendering, vastly speeding up the emulation.
+
+        This also means that taking screenshots is not possible while video is disabled.
+
+        :param video_enabled: Whether video output is enabled or not.
+        """
         self._video_enabled = video_enabled
+        if video_enabled:
+            self._core._native.video.renderer = self._gba_video_renderer
+        else:
+            self._core._native.video.renderer = self._gba_dummy_renderer
 
     def GetAudioEnabled(self) -> bool:
         return self._audio_enabled
@@ -353,6 +380,9 @@ class LibmgbaEmulator:
         Saves the currently displayed image as a screenshot inside the profile's `screenshots/`
         directory.
         """
+        if not self._video_enabled:
+            raise RuntimeError('Cannot take a screenshot while video is disabled.')
+
         png_directory = self._profile.path / "screenshots"
         if not png_directory.exists():
             png_directory.mkdir()
