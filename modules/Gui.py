@@ -330,7 +330,8 @@ class PokebotGui:
         current_fps = emulator.GetCurrentFPS()
         current_load = emulator.GetCurrentTimeSpentInBotFraction()
         if current_fps:
-            self.window.title(f'{pokebot_name} {pokebot_version} ({current_fps} fps / bot: {round(current_load * 100, 1)}%) - {profile.rom.game_name}')
+            self.window.title(f'{pokebot_name} {pokebot_version} ({current_fps} fps / bot: '
+                              f'{round(current_load * 100, 1)}%) | {profile.path.name} - {profile.rom.game_name}')
 
         self.window.update_idletasks()
         self.window.update()
