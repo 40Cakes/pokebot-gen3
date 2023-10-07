@@ -354,12 +354,17 @@ class LibmgbaEmulator:
         :param data: Data to write
         """
         bank = address >> 0x18
+        length = len(data)
         if bank == 0x2:
             offset = address & 0x3FFFF
-            self._memory.wram.u8[offset:len(data)] = data
+            if offset + length > 0x3FFFF:
+                raise RuntimeError('Illegal range: EWRAM only extends from 0x02000000 to 0x0203FFFF')
+            ffi.memmove(ffi.cast('char*', self._core._native.memory.wram) + offset, data, length)
         elif bank == 0x3:
             offset = address & 0x7FFF
-            self._memory.iwram.u8[offset:len(data)] = data
+            if offset + length > 0x7FFF:
+                raise RuntimeError('Illegal range: IWRAM only extends from 0x03000000 to 0x03007FFF')
+            ffi.memmove(ffi.cast('char*', self._core._native.memory.iwram) + offset, data, length)
         else:
             raise RuntimeError(f'Invalid memory address for writing: {hex(address)}')
 
