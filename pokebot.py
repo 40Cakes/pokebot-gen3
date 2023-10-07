@@ -1,4 +1,3 @@
-import platform
 import sys
 from pathlib import Path
 from threading import Thread
@@ -83,25 +82,6 @@ def MainLoop(profile: Profile) -> None:
 if __name__ == '__main__':
     console.print(f'Starting [bold cyan]{pokebot_name} {pokebot_version}![/]')
     LoadConfigFromDirectory(Path(__file__).parent / 'config')
-
-    # On Windows, the bot can be started by clicking this Python file. In that case, the terminal
-    # window is only open for as long as the bot runs, which would make it impossible to see error
-    # messages during a crash.
-    # For those cases, we register an `atexit` handler that will wait for user input before closing
-    # the terminal window.
-    if platform.system() == 'Windows':
-        import atexit
-        import os
-        import psutil
-
-
-        def PromptBeforeExit() -> None:
-            parent_process_name = psutil.Process(os.getppid()).name()
-            if parent_process_name == 'py.exe':
-                input('Press Enter to close...')
-
-
-        atexit.register(PromptBeforeExit)
 
     # Allow auto-starting a profile by running the bot like `python pokebot.py profile-name`.
     preselected_profile = None

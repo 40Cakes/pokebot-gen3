@@ -1,6 +1,6 @@
 import os
+import platform
 import re
-import sys
 import tkinter
 from datetime import datetime
 from tkinter import ttk
@@ -47,6 +47,22 @@ def GetROM() -> ROM:
     return profile.rom
 
 
+# On Windows, the bot can be started by clicking this Python file. In that case, the terminal
+# window is only open for as long as the bot runs, which would make it impossible to see error
+# messages during a crash.
+# For those cases, we register an `atexit` handler that will wait for user input before closing
+# the terminal window.
+if platform.system() == 'Windows':
+    import atexit
+    import psutil
+
+
+    def PromptBeforeExit() -> None:
+        parent_process_name = psutil.Process(os.getppid()).name()
+        if parent_process_name == 'py.exe':
+            input('Press Enter to close...')
+
+
 class PokebotGui:
     window: tkinter.Tk = None
     frame: tkinter.Widget = None
@@ -75,6 +91,9 @@ class PokebotGui:
 
         self.main_loop = main_loop
 
+        if platform.system() == 'Windows':
+            atexit.register(PromptBeforeExit)
+
         if preselected_profile:
             self.RunProfile(preselected_profile)
         else:
@@ -89,24 +108,19 @@ class PokebotGui:
         """
         This is called when the user tries to close the emulator window using the 'X' button,
         or presses the End key.
+
+        This function might be called from a different thread, in which case calling `sys.exit()`
+        would not actually terminate the bot and thus the atexit handlers would not be called.
+
+        As a lazy workaround, this function calls the shutdown callbacks directly and then calls
+        `os._exit()` which will definitely terminate the process.
         """
         if emulator:
-            # This function might be called from a different thread, in which case calling `sys.exit()` does
-            # not actually quit the bot.
-            #
-            # While calling `os._exit()` would work, that would prevent Python's exit handlers to be called --
-            # one of which is responsible for storing the current emulator state to disk. Which we reaaally
-            # want to happen.
-            #
-            # As a lazy workaround for this (until someone comes up with a better solution) we override the
-            # emulator's per-frame method. So the next time it tries to emulate, it triggers the exit from the
-            # main thread.
-            setattr(emulator, 'RunSingleFrame', lambda: sys.exit())
+            emulator.Shutdown()
 
-        # Close/hide the window
-        self.window.withdraw()
+        if platform.system() == 'Windows':
+            PromptBeforeExit()
 
-        emulator.Shutdown()
         os._exit(0)
 
     def HandleKeyDownEvent(self, event) -> None:
