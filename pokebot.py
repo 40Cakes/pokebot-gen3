@@ -1,6 +1,8 @@
 import os
 import atexit
 from typing import NoReturn
+import sys
+from pathlib import Path
 from threading import Thread
 from modules.Console import console
 from modules.Config import config_general, config_discord, config_obs, config_battle
@@ -61,7 +63,20 @@ while True:
                 from modules.modes.General import ModeFishing
                 ModeFishing()
 
-    except:
-        console.print_exception(show_locals=True)
-        input('Press enter to exit...')
-        os._exit(1)
+        except SystemExit:
+            raise
+        except:
+            console.print_exception(show_locals=True)
+            sys.exit(1)
+
+
+if __name__ == '__main__':
+    console.print(f'Starting [bold cyan]{pokebot_name} {pokebot_version}![/]')
+    LoadConfigFromDirectory(Path(__file__).parent / 'config')
+
+    # Allow auto-starting a profile by running the bot like `python pokebot.py profile-name`.
+    preselected_profile = None
+    if len(sys.argv) > 1 and ProfileDirectoryExists(sys.argv[1]):
+        preselected_profile = LoadProfileByName(sys.argv[1])
+
+    PokebotGui(MainLoop, preselected_profile)

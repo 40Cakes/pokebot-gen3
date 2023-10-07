@@ -67,7 +67,7 @@ def CustomHooks(hook) -> NoReturn:
                         discord_ping = '📢 <@{}>'.format(config['discord']['shiny_pokemon_encounter']['ping_id'])
 
                 # Load catch block config
-                from modules.Config import config_dir, catch_block_schema, LoadConfig
+                from modules.Config import catch_block_schema, LoadConfig
                 # Named `config_catch_block_t` to prevent thread overwriting variable if main thread loads it
                 config_catch_block_t = LoadConfig('catch_block.yml', catch_block_schema)
 
