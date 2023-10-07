@@ -254,6 +254,7 @@ The following `console` options will control how much data is displayed in the P
 - Set to `0` to disable
 
 </details>
+
 ## `discord.yml` - Discord integration config
 
 <details>
@@ -273,9 +274,7 @@ For privacy reasons, rich presence and webhooks are **disabled** by default.
 - **Edit Channel** > **Integrations** > **Webhooks** > **New Webhook** > **Copy Webhook URL** to generate a new webhook
 
 `iv_format` - changes IV formatting displayed in messages, set to `basic` or `formatted`
-
 - `basic`: <br>`HP: 31 | ATK: 31 | DEF: 31  | SPA: 31  | SPD: 31  | SPE: 31`
-
 
 - `formatted`:
   ```
