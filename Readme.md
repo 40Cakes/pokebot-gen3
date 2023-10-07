@@ -1,5 +1,4 @@
 # PokéBot Gen3 for mGBA
-
 [![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://www.python.org/) [![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/UtxR3cazUa) [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/channel/UCl5dLxULvf6ynUiqRSchrzA) [![Twitter](https://img.shields.io/badge/Twitter-%231DA1F2.svg?style=for-the-badge&logo=Twitter&logoColor=white)](https://twitter.com/40_Cakes)
 
 **PokéBot Gen3 for mGBA** is a Python script, written to automatically shiny hunt in Pokémon Ruby, Sapphire, Emerald, FireRed and LeafGreen.
@@ -11,13 +10,13 @@ Initially created to complete a Prof. Oak and Living ✨Shiny✨ Dex Challenge i
 https://github.com/40Cakes/pokebot-gen3/assets/16377135/a3eed994-e960-4181-9f76-3b36bc9f0619
 
 # 📖 Preamble
-
 The bot is frame perfect and can cheat by reading data from any point in memory. By default it will attempt to perform most actions, as if a human were playing to make gameplay as representative as possible, some examples:
 - Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible before resetting
 - It's possible to peek inside un-hatched eggs to view stats and shininess as soon as they're received from the daycare, the bot will wait until the eggs are fully hatched before checking and logging
 - These are intentional design decisions, bot [cheats](#cheatsyml---cheats-config) can be used to bypass them (in most cases)
 
 ***
+
 # ⚠ Photosensitivity Warning
 - Running mGBA at unbounded speeds, will cause **very fast and bright flashing**!
 - mGBA can run well over 3,000 FPS on fast enough PCs
@@ -26,7 +25,6 @@ The bot is frame perfect and can cheat by reading data from any point in memory.
 ***
 
 # 🔒 Prerequisites
-
 The bot can run on Windows or Ubuntu Linux 23.04 (support for Mac and other Linux distributions **_may_** be added later.)
 
 ### Requirements
@@ -42,7 +40,6 @@ The bot can run on Windows or Ubuntu Linux 23.04 (support for Mac and other Linu
 ***
 
 # ❓ How To Run
-
 - Set the desired `bot_mode` in config file [`config/general.yml`](#generalyml---general-config)
 - Double click `pokebot.py` or run `python pokebot.py` in a terminal and follow the on-screen steps to create and/or select a profile
 
@@ -55,8 +52,19 @@ At the moment, the bot will pause once a shiny is encountered. You **must** ensu
 
 ***
 
-#  🌍 Supported Games and Languages
+# 💾 Import a Save
+If you have a save from mGBA that you'd like to import and use with the bot, then you will need to import the save state.
 
+- In mGBA, run a game and load into the save file
+- **File** > **Save State File...** > **Save**
+- Double click `import.py` or run `python import.py` in a terminal to launch the save importer tool
+- Open the save state file you just saved
+- A new bot profile will be created in the `config/` folder and set up all required files
+- If the importer tool detects files in the `stats/` or `config/` folders from old versions of the bot (from commit `ec5d702`, 7th October, 2023 or earlier), then they will be copied into your new profile
+
+***
+
+#  🌍 Supported Games and Languages
 Variations of games, languages and revisions may have different memory offsets, there will be a table of supported/tested variations under each bot mode listed below.
 
 - ✅ Supported (tested)
@@ -156,7 +164,6 @@ Start the bot facing the water, with any fishing rod registered.
 Configuration files are loaded and validated against a schema, once at bot launch. Any changes made while the bot is running will not take effect until the bot is stopped and restarted.
 
 ## 🚧 Work in progress 🚧
-
 A lot of the config in `.yml` files is is placeholder for future/planned features.
 
 ## Multi-instance botting
@@ -192,13 +199,11 @@ Example:
 ```
 
 ## `keys.yml` - Emulator input mapping
-
 This file controls keyboard to GBA button mappings.
 
 - For a full list of available key codes, see [here](https://www.tcl.tk/man/tcl8.4/TkCmd/keysyms.html) or [here](https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/key-names.html) (column `.keysym`)
 
 ### Default Input Mapping
-
 - A button: `X`
 - B button: `Z`
 - D-Pad: Arrow keys (`Up`, `Down`, `Left`, `Right`)
@@ -217,7 +222,6 @@ This file controls keyboard to GBA button mappings.
   - Unbound: `0` - **⚠ Photosensetivity warning**: this will run the emulator as fast as possible!
 
 ## `general.yml` - General config
-
 <details>
 <summary>Click to expand</summary>
 
@@ -229,7 +233,6 @@ This file controls keyboard to GBA button mappings.
 </details>
 
 ## `logging.yml` - Logging and console output config
-
 <details>
 <summary>Click to expand</summary>
 
@@ -251,7 +254,6 @@ The following `console` options will control how much data is displayed in the P
 - Set to `0` to disable
 
 </details>
-
 ## `discord.yml` - Discord integration config
 
 <details>
@@ -331,7 +333,6 @@ Each webhook type also supports pinging @users or @roles.
 </details>
 
 ## `catch_block.yml` - Catch block config
-
 <details>
 <summary>Click to expand</summary>
 
@@ -351,9 +352,7 @@ block_list:
 
 </details>
 
-
 ## `cheats.yml` - Cheats config
-
 <details>
 <summary>Click to expand</summary>
 
@@ -377,7 +376,6 @@ RNG manipulation options may be added to the bot in the future, all cheats are d
 <summary>Click to expand</summary>
 
 ### OBS
-
 #### OBS WebSocket Server Settings
 The `obs_websocket` config will allow the bot to send commands to OBS via WebSockets, 
 see [here](https://github.com/obsproject/obs-websocket) for more information on OBS WebSockets.
@@ -391,7 +389,6 @@ Enable WebSockets in **OBS** > **Tools** > **Websocket Server Settings** > **Ena
 `password` - password to authenticate to WebSocket server (**required**)
 
 #### OBS WebSocket Parameters
-
 `shiny_delay` - delay catching a shiny encounter by `n` frames, useful to give you viewers some time to react before saving a replay
 
 `discord_delay` - delay Discord webhooks by `n` frames, prevent spoilers if there is a stream delay
@@ -458,9 +455,11 @@ All HTTP responses are in JSON format.
 - Use a lead Pokémon with a single character nickname
 - Use a non-shiny lead Pokémon (shiny animation takes a few frames)
 
-
 ***
+
 # ❤ Attributions
+
+- [mGBA](https://github.com/mgba-emu/mgba)
 
 Other awesome PokéBot projects:
 

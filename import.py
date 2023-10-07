@@ -226,9 +226,9 @@ if __name__ == '__main__':
     label_font = font.Font(weight='bold')
     ttk.Label(frame, text='Import mGBA Save State', font=label_font).grid(column=0, row=0, pady=10)
 
-    help_message = """This tool allows you to import an existing game save into the bot.
+    help_message = """This tool creates new bot profiles from imported mGBA save state files.
     
-    Note that you can only import save _states_ (.ss1, .ss2, ...) and not a save game file (.sav)"""
+    Note: you can only import save states (.ss1, .ss2, ...) and NOT save game files (.sav)!"""
     ttk.Label(frame, text=help_message, wraplength=360, justify='center').grid(column=0, row=1)
     ttk.Button(frame, text='Select file', command=HandleButtonClick, cursor='hand2').grid(column=0, row=2, pady=20)
 
