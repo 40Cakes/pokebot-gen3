@@ -125,7 +125,8 @@ class PokebotGui:
 
     def HandleKeyDownEvent(self, event) -> None:
         if emulator:
-            if event.keysym in self.gba_keys and config['general']['bot_mode'] == 'manual':
+            if event.keysym in self.gba_keys and \
+                    (config['general']['bot_mode'] == 'manual' or 'debug_' in config['general']['bot_mode']):
                 emulator.SetInputs(emulator.GetInputs() | self.gba_keys[event.keysym])
             elif event.keysym in self.emulator_keys:
                 match self.emulator_keys[event.keysym]:
@@ -162,7 +163,8 @@ class PokebotGui:
 
     def HandleKeyUpEvent(self, event) -> None:
         if emulator:
-            if event.keysym in self.gba_keys and config['general']['bot_mode'] == 'manual':
+            if event.keysym in self.gba_keys and \
+                    (config['general']['bot_mode'] == 'manual' or 'debug_' in config['general']['bot_mode']):
                 emulator.SetInputs(emulator.GetInputs() & ~self.gba_keys[event.keysym])
 
     def ShowProfileSelection(self):

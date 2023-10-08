@@ -296,7 +296,7 @@ def GetOpponent() -> dict:
         console.print_exception(show_locals=True)
 
 
-last_opid = ReadSymbol('gEnemyParty', size=4)
+last_opid = b'\x00\x00\x00\x00' # ReadSymbol('gEnemyParty', size=4)
 
 
 def OpponentChanged() -> bool:
