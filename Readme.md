@@ -33,8 +33,7 @@ The bot can run on Windows, Ubuntu 23.04, and Debian 12 (support for Mac and oth
 ### Requirements
 - [Python 3.11](https://www.python.org/downloads/release/python-3110/)
 - Double click `requirements.py` or run `python requirements.py` in a terminal to install Python modules and [libmgba](https://github.com/hanzi/libmgba-py)
-  - (**Ubuntu Linux 23.04** only) `sudo apt install libmgba portaudio19-dev`
-  - (**Debian 12** only) `sudo apt install libmgba0.10 portaudio19-dev`
+  - (**Ubuntu Linux 23.04** and **Debian 12** only) `sudo apt install libmgba portaudio19-dev`
 - Place some Pokémon .gba ROMs into the `roms/` folder
 
 ### Optional
