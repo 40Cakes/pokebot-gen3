@@ -101,6 +101,7 @@ class EmulatorControls:
     def AddToWindow(self):
         self.frame = tkinter.Frame(self.window, padx=10, pady=5)
         self.frame.pack(side='right', fill='both', expand=True)
+        self.frame.columnconfigure(0, weight=1)
 
         self._AddBotModeControls(0)
         self._AddSpeedControls(2)
@@ -190,10 +191,10 @@ class EmulatorControls:
     def _AddMessageArea(self, row: int):
         self.frame.rowconfigure(row, weight=1)
 
-        group = tkinter.LabelFrame(self.frame, text='Message:', padx=5, pady=0, width=200)
+        group = tkinter.LabelFrame(self.frame, text='Message:', padx=5, pady=0)
         group.grid(row=row, sticky='NSWE', pady=10)
 
-        self.bot_message = tkinter.Label(group, wraplength=155, justify='left')
+        self.bot_message = tkinter.Label(group, wraplength=self.GetAdditionalWidth() - 45, justify='left')
         self.bot_message.grid(row=0, sticky='W')
 
     def _AddVersionNotice(self, row: int):
