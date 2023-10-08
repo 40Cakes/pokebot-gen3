@@ -185,7 +185,7 @@ def HandleButtonClick() -> None:
             profile = MigrateSaveState(file)
             ShowSuccessMessage(profile.path.name, profile.rom.game_name)
         except MigrationError as error:
-            error_label.config(text=str(error))
+            error_label.config(text=str(error), wraplength=360, justify='center')
 
 
 def ShowSuccessMessage(profile_name, game_name) -> None:
