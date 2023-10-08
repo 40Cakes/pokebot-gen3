@@ -43,45 +43,42 @@ def BattleResult():
     return battleResult
 
 
-def generate_table() -> Table:
+def generate_table(data: dict) -> Table:
     br_table = Table()
     br_table.add_column("Name", justify="left", no_wrap=True)
     br_table.add_column("Value", justify="left", width=10)
-    br_table.add_row("Player Faint Counter", str(last_br["playerFaintCounter"]))
-    br_table.add_row("Opponent Faint Counter", str(last_br["opponentFaintCounter"]))
-    br_table.add_row("Player Switch Counter", str(last_br["playerSwitchesCounter"]))
-    br_table.add_row("Count Healing Items used", str(last_br["numHealingItemsUsed"]))
-    br_table.add_row("Player Mon Damaged", str(last_br["playerMonWasDamaged"]))
-    br_table.add_row("Master Ball used", str(last_br["usedMasterBall"]))
-    br_table.add_row("Caught Mon Ball used", str(last_br["caughtMonBall"]))
-    br_table.add_row("Wild Mon was Shiny", str(last_br["shinyWildMon"]))
-    br_table.add_row("Count Revives used", str(last_br["numRevivesUsed"]))
-    br_table.add_row("Player Mon 1 Species", str(last_br["playerMon1Species"]))
-    br_table.add_row("Player Mon 1 Name", DecodeString(last_br["playerMon1Name"]))
-    br_table.add_row("Battle turn Counter", str(last_br["battleTurnCounter"]))
-    br_table.add_row("Player Mon 2 Species", str(last_br["playerMon2Species"]))
-    br_table.add_row("Player Mon 2 Name", DecodeString(last_br["playerMon2Name"]))
-    br_table.add_row("PokeBall Throws", str(last_br["pokeblockThrows"]))
-    br_table.add_row("Last Opponent Species", str(last_br["lastOpponentSpecies"]))
-    br_table.add_row("Last Opponent Name", SpeciesName(last_br["lastOpponentSpecies"]))
-    br_table.add_row("Last used Move Player", str(last_br["lastUsedMovePlayer"]))
-    br_table.add_row("Last used Move Opponent", str(last_br["lastUsedMoveOpponent"]))
-    br_table.add_row("Cought Mon Species", str(last_br["caughtMonSpecies"]))
-    br_table.add_row("Cought Mon Name", DecodeString(last_br["caughtMonNick"]))
-    br_table.add_row("Catch Attempts", str(last_br["catchAttempts"]))
+    br_table.add_row("Player Faint Counter", str(data["playerFaintCounter"]))
+    br_table.add_row("Opponent Faint Counter", str(data["opponentFaintCounter"]))
+    br_table.add_row("Player Switch Counter", str(data["playerSwitchesCounter"]))
+    br_table.add_row("Count Healing Items used", str(data["numHealingItemsUsed"]))
+    br_table.add_row("Player Mon Damaged", str(data["playerMonWasDamaged"]))
+    br_table.add_row("Master Ball used", str(data["usedMasterBall"]))
+    br_table.add_row("Caught Mon Ball used", str(data["caughtMonBall"]))
+    br_table.add_row("Wild Mon was Shiny", str(data["shinyWildMon"]))
+    br_table.add_row("Count Revives used", str(data["numRevivesUsed"]))
+    br_table.add_row("Player Mon 1 Species", str(data["playerMon1Species"]))
+    br_table.add_row("Player Mon 1 Name", DecodeString(data["playerMon1Name"]))
+    br_table.add_row("Battle turn Counter", str(data["battleTurnCounter"]))
+    br_table.add_row("Player Mon 2 Species", str(data["playerMon2Species"]))
+    br_table.add_row("Player Mon 2 Name", DecodeString(data["playerMon2Name"]))
+    br_table.add_row("PokeBall Throws", str(data["pokeblockThrows"]))
+    br_table.add_row("Last Opponent Species", str(data["lastOpponentSpecies"]))
+    br_table.add_row("Last Opponent Name", SpeciesName(data["lastOpponentSpecies"]))
+    br_table.add_row("Last used Move Player", str(data["lastUsedMovePlayer"]))
+    br_table.add_row("Last used Move Opponent", str(data["lastUsedMoveOpponent"]))
+    br_table.add_row("Cought Mon Species", str(data["caughtMonSpecies"]))
+    br_table.add_row("Cought Mon Name", DecodeString(data["caughtMonNick"]))
+    br_table.add_row("Catch Attempts", str(data["catchAttempts"]))
     return br_table
 
 
-last_br = BattleResult()
-
-
 def ModeDebugBattle():
-    global last_br
-    with Live(generate_table(), refresh_per_second=60) as live:
+    last_br = BattleResult()
+    with Live(generate_table(last_br), refresh_per_second=60) as live:
         while True:
             br = BattleResult()
             if last_br != br:
                 last_br = br
                 if br["playerMon1Species"] > 0:
-                    live.update(generate_table())
+                    live.update(generate_table(last_br))
             emulator.RunSingleFrame()
