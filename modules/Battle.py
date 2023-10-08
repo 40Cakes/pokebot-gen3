@@ -519,8 +519,9 @@ def GetMonToSwitch(active_mon: int) -> int:
                                 and move['kind'] in ['Physical', 'Special']):
                             console.print('Pokémon {} has usable moves!'.format(party[i]['name']))
                             return i
-            console.print("Can't find suitable replacement battler. Turning off auto battling.")
+            console.print("Can't find suitable replacement battler. Turning off auto battling and pickup.")
             config['battle']['battle'] = False
+            config['battle']['pickup'] = False
 
 
 def ShouldRotateLead() -> bool:
