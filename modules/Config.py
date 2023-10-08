@@ -18,6 +18,12 @@ properties:
             - spin
             - starters
             - fishing
+            - debug_battle
+            - debug_daycare
+            - debug_main_callbacks
+            - debug_symbols
+            - debug_tasks
+            - debug_trainer
     coords:
         type: object
         properties:

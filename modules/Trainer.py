@@ -40,8 +40,8 @@ def GetTrainer() -> dict:
     """
     try:
         b_Save = GetSaveBlock(2, size=14)
-        b_gTasks = ReadSymbol('gTasks', 0x57, 3)
-        b_gObjectEvents = ReadSymbol('gObjectEvents', 0x10, 9)
+        b_gTasks = ReadSymbol('gTasks', offset=0x57, size=3)
+        b_gObjectEvents = ReadSymbol('gObjectEvents', size=25)
 
         if b_Save is None:
             return {
@@ -51,6 +51,7 @@ def GetTrainer() -> dict:
                 'sid': 0,
                 'map': (0, 0),
                 'coords': (0, 0),
+                'on_bike': False,
                 'facing': None
             }
 
@@ -60,8 +61,9 @@ def GetTrainer() -> dict:
             'tid': int(struct.unpack('<H', b_Save[10:12])[0]),
             'sid': int(struct.unpack('<H', b_Save[12:14])[0]),
             'map': (int(b_gTasks[2]), int(b_gTasks[1])),
-            'coords': (int(b_gObjectEvents[0]) - 7, int(b_gObjectEvents[2]) - 7),
-            'facing': FacingDir(int(b_gObjectEvents[8]))
+            'coords': (int(b_gObjectEvents[16]) - 7, int(b_gObjectEvents[18]) - 7),
+            'on_bike': True if int(b_gObjectEvents[5]) == 1 else False,
+            'facing': FacingDir(int(b_gObjectEvents[24]))
         }
         return trainer
     except SystemExit:
