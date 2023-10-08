@@ -3,7 +3,8 @@ import platform
 import re
 import tkinter
 from datetime import datetime
-from tkinter import ttk
+from tkinter import ttk, font
+
 
 import PIL.Image
 import PIL.ImageTk
@@ -363,6 +364,7 @@ class PokebotGui:
             bot_mode_selection.current(available_bot_modes.index(new_bot_mode))
 
         def HandleBotModeSelection(event):
+            self.window.focus()
             SetBotMode(bot_mode_selection.get())
 
         UpdateBotModeCombobox(config['general']['bot_mode'])
@@ -376,20 +378,20 @@ class PokebotGui:
         speed_button_group = ttk.Frame(frame)
         speed_button_group.grid(row=3, sticky='W')
 
-        speed_button_1x = ttk.Button(speed_button_group, text='1×', width=3, command=lambda: self.SetEmulationSpeed(1))
+        speed_button_1x = ttk.Button(speed_button_group, text='1×', width=3, command=lambda: self.SetEmulationSpeed(1) and self.window.focus())
         speed_button_1x.grid(row=0, column=0)
 
-        speed_button_2x = ttk.Button(speed_button_group, text='2×', width=3, command=lambda: self.SetEmulationSpeed(2))
+        speed_button_2x = ttk.Button(speed_button_group, text='2×', width=3, command=lambda: self.SetEmulationSpeed(2) and self.window.focus())
         speed_button_2x.grid(row=0, column=1)
 
-        speed_button_3x = ttk.Button(speed_button_group, text='3×', width=3, command=lambda: self.SetEmulationSpeed(3))
+        speed_button_3x = ttk.Button(speed_button_group, text='3×', width=3, command=lambda: self.SetEmulationSpeed(3) and self.window.focus())
         speed_button_3x.grid(row=0, column=2)
 
-        speed_button_4x = ttk.Button(speed_button_group, text='4×', width=3, command=lambda: self.SetEmulationSpeed(4))
+        speed_button_4x = ttk.Button(speed_button_group, text='4×', width=3, command=lambda: self.SetEmulationSpeed(4) and self.window.focus())
         speed_button_4x.grid(row=0, column=3)
 
         speed_button_unthrottled = ttk.Button(speed_button_group, text='∞', width=3,
-                                              command=lambda: self.SetEmulationSpeed(0))
+                                              command=lambda: self.SetEmulationSpeed(0) and self.window.focus())
         speed_button_unthrottled.grid(row=0, column=4)
 
         style = ttk.Style()
@@ -422,10 +424,10 @@ class PokebotGui:
         stuff_group = ttk.Frame(frame)
         stuff_group.grid(row=5, sticky='W')
 
-        toggle_video_button = ttk.Button(stuff_group, text='Video', width=7, command=self.ToggleVideo)
+        toggle_video_button = ttk.Button(stuff_group, text='Video', width=7, command=lambda: self.ToggleVideo() and self.window.focus())
         toggle_video_button.grid(row=0, column=0)
 
-        toggle_audio_button = ttk.Button(stuff_group, text='Audio', width=7, command=self.ToggleAudio)
+        toggle_audio_button = ttk.Button(stuff_group, text='Audio', width=7, command=lambda: self.ToggleAudio() and self.window.focus())
         toggle_audio_button.grid(row=0, column=1)
 
         def UpdateVideoButtonState():
@@ -444,6 +446,13 @@ class PokebotGui:
         UpdateAudioButtonState()
         self.on_toggle_video = UpdateVideoButtonState
         self.on_toggle_audio = UpdateAudioButtonState
+
+        frame.rowconfigure(6, weight=1)
+        ttk.Label(frame, text='').grid(row=6)
+
+        from version import pokebot_name, pokebot_version
+        ttk.Label(frame, text=f'{pokebot_name} {pokebot_version}', font=tkinter.font.Font(size=9),
+                  foreground='grey').grid(row=7, sticky='E')
 
         self.main_loop(profile)
 
@@ -467,8 +476,8 @@ class PokebotGui:
         current_fps = emulator.GetCurrentFPS()
         current_load = emulator.GetCurrentTimeSpentInBotFraction()
         if current_fps:
-            self.window.title(f'{pokebot_name} {pokebot_version} ({current_fps} fps / bot: '
-                              f'{round(current_load * 100, 1)}%) | {profile.path.name} - {profile.rom.game_name}')
+            self.window.title(f'{profile.path.name} - {profile.rom.game_name} ({current_fps} fps / bot: '
+                              f'{round(current_load * 100, 1)}%)')
 
         self.window.update_idletasks()
         self.window.update()
