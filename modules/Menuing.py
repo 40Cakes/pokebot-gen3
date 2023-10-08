@@ -102,7 +102,7 @@ def ExitToOverworldFromPartyMenu():
         PressButton(['B'])
 
 
-def NavigateStartMenu(desired_option: str) -> NoReturn:
+def NavigateStartMenu(desired_option: str) -> None:
     """
     Opens the start menu and moves to the option with the desired index from the menu.
 

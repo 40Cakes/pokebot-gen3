@@ -21,7 +21,6 @@ def SelectBattleOption(desired_option: int) -> NoReturn:
 
     :param desired_option: The desired index for the selection. For the base battle menu, 0 will be FIGHT, 1 will be
     BAG, 2 will be PKMN, and 3 will be RUN.
-    :param cursor_type: The symbol to use for the cursor. This is different between selecting moves and selecting battle
      options.
     """
     battle_state = GetBattleState()
@@ -31,6 +30,7 @@ def SelectBattleOption(desired_option: int) -> NoReturn:
         case BattleState.MOVE_SELECTION:
             cursor_type = 'gMoveSelectionCursor'
         case _:
+            WaitFrames(1)
             return
     while ParseBattleCursor(cursor_type) != desired_option:
         match (ParseBattleCursor(cursor_type) % 2) - (desired_option % 2):
@@ -48,6 +48,7 @@ def SelectBattleOption(desired_option: int) -> NoReturn:
     if ParseBattleCursor(cursor_type) == desired_option:
         while GetBattleState() == battle_state:
             PressButton(['A'])
+            WaitFrames(1)
 
 
 def FleeBattle() -> NoReturn:
@@ -227,6 +228,7 @@ def NavigateMoveLearnMenu(idx):
             PressButton(['Up'])
         else:
             PressButton(['Down'])
+        WaitFrames(1)
         if GetMoveLearningCursorPos() == idx:
             PressButton(['A'])
 
@@ -338,7 +340,7 @@ def GetBattleMenu() -> str:
                 return "NO"
         case 'POKEMON EMER' | 'POKEMON FIRE' | 'POKEMON LEAF':
             battle_funcs = ParseBattleController()['battler_controller_funcs']
-            if 'HANDLEINPUTCHOOSEACTIONBATTLE' in battle_funcs:
+            if 'HANDLEINPUTCHOOSEACTION' in battle_funcs:
                 return "ACTION"
             elif 'HANDLEINPUTCHOOSEMOVE' in battle_funcs:
                 return "MOVE"
@@ -578,6 +580,7 @@ def SendOutPokemon(idx):
             PressButton(['Up'])
         else:
             PressButton(['Down'])
+        WaitFrames(1)
     match GetROM().game_title:
         case 'POKEMON EMER' | 'POKEMON FIRE' | 'POKEMON LEAF':
             for i in range(60):
@@ -729,7 +732,7 @@ def ExecuteAction(decision: tuple):
         case "SWITCH":
             if pokemon is None:
                 ExecuteAction(("RUN", -1, -1))
-            elif  0 > pokemon or pokemon > 6 :
+            elif 0 > pokemon or pokemon > 6 :
                 console.print("Invalid Pokemon selection. Stopping...")
                 os._exit(pokemon)
             else:

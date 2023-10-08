@@ -2,7 +2,7 @@ import os
 import struct
 
 from modules.Console import console
-from modules.Gui import GetROM, emulator
+from modules.Gui import GetROM, emulator, GetEmulator
 from modules.Memory import GetSymbolName, ReadSymbol, GetTaskFunc, ParseTasks, GetTask
 from modules.Enums import TaskFunc, StartMenuOptionHoenn, StartMenuOptionKanto
 from modules.Pokemon import GetParty, moves_list, ParsePokemon
@@ -18,7 +18,7 @@ def GetPartyMenuCursorPos() -> dict:
     }
     match GetROM().game_title:
         case 'POKEMON RUBY' | 'POKEMON SAPP':
-            party_menu['slot_id'] = int.from_bytes(emulator.ReadBytes(0x0202002F + len(GetParty()) * 136 + 3, length=1), 'little')
+            party_menu['slot_id'] = int.from_bytes(GetEmulator().ReadBytes(0x0202002F + len(GetParty()) * 136 + 3, length=1), 'little')
             party_menu['slot_id_2'] = party_menu['slot_id']
         case 'POKEMON EMER' | 'POKEMON FIRE' | 'POKEMON LEAF':
             pMenu = ReadSymbol('gPartyMenu')
@@ -80,7 +80,7 @@ def ParsePartyMenuInternal() -> dict:
         case 'POKEMON EMER' | 'POKEMON FIRE' | 'POKEMON LEAF':
             pmi_pointer = ReadSymbol('sPartyMenuInternal')
             addr = int(struct.unpack('<I', pmi_pointer)[0]) - 1
-            party_menu_internal = emulator.ReadBytes(addr, length=30)
+            party_menu_internal = GetEmulator().ReadBytes(addr, length=30)
             party_menu_info = {
                 "actions": [struct.unpack('<B', party_menu_internal[16 + i:17 + i])[0] for i in range(8)],
                 "numActions": struct.unpack('<B', party_menu_internal[24:25])[0],
@@ -116,7 +116,7 @@ def GetLearningMon() -> dict:
             idx = int.from_bytes(GetTask('TASK_EVOLUTIONSCENE')['data'][20:22], 'little')
         case 'POKEMON RUBY' | 'POKEMON SAPP':
             for i, member in GetParty().items():
-                if member == ParsePokemon(emulator.ReadBytes(
+                if member == ParsePokemon(GetEmulator().ReadBytes(
                         int.from_bytes(GetTask("TASK_EVOLUTIONSCENE")['data'][2:4], 'little') | (
                                 int.from_bytes(GetTask("TASK_EVOLUTIONSCENE")['data'][4:6], 'little') << 0x10),
                         length=100)):
@@ -140,7 +140,7 @@ def GetMoveLearningCursorPos() -> int:
     """
     match GetROM().game_title:
         case 'POKEMON EMER':
-            return int.from_bytes(emulator.ReadBytes(
+            return int.from_bytes(GetEmulator().ReadBytes(
                 struct.unpack('<I', ReadSymbol('sMonSummaryScreen'))[0] + 0x40C6, length=1), 'little')
         case 'POKEMON FIRE' | 'POKEMON LEAF':
             return int.from_bytes(ReadSymbol('sMoveSelectionCursorPos'), 'little')

@@ -237,6 +237,8 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
         }
         return pokemon
 
+    except SystemExit:
+        raise
     except:
         console.print_exception(show_locals=True)
         return None
