@@ -281,11 +281,6 @@ class LibmgbaEmulator:
         elif not is_throttled and was_throttled:
             self._audio_stream.stop()
 
-        if is_throttled:
-            self._target_seconds_per_render = 1 / 60
-        else:
-            self._target_seconds_per_render = 1 / 20
-
     def GetSpeedFactor(self) -> float:
         return self._speed_factor
 

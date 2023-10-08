@@ -16,7 +16,7 @@ from modules.Colours import IVColour, IVSumColour, SVColour
 from modules.Config import config
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
-from modules.Gui import GetEmulator, GetProfile
+from modules.Gui import GetEmulator, GetProfile, GetGUI
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import GetGameState, GameState
 from modules.Profiles import Profile
@@ -626,6 +626,7 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
     """
 
     LogEncounter(pokemon)
+    GetGUI().SetMessage(f"Encountered a {pokemon['name']} with a shiny value of {pokemon['shinyValue']}!")
 
     # TODO temporary until auto-catch is ready
     custom_found = CustomCatchFilters(pokemon)
@@ -633,9 +634,11 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
         if pokemon['shiny']:
             state_tag = 'shiny'
             console.print('[bold yellow]Shiny found!')
+            GetGUI().SetMessage('Shiny found! Bot has been switched to manual mode so you can catch it.')
         elif custom_found:
             state_tag = 'customfilter'
             console.print('[bold green]Custom filter Pokemon found!')
+            GetGUI().SetMessage('Custom filter triggered! Bot has been switched to manual mode so you can catch it.')
 
         # Load catch block config
         from modules.Config import catch_block_schema, LoadConfig, ForceManualMode
