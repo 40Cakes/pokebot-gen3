@@ -8,6 +8,8 @@ from modules.Console import console
 
 yaml = YAML()
 
+available_bot_modes = ['manual', 'spin', 'starters', 'fishing']
+
 general_schema = """
 type: object
 properties:
@@ -410,6 +412,7 @@ def LoadConfigFromDirectory(path: Path, allow_missing_files=False) -> None:
 
 
 previous_bot_mode: str = ''
+on_bot_mode_change_callbacks: list[callable] = []
 
 def ToggleManualMode() -> None:
     """
@@ -425,6 +428,15 @@ def ToggleManualMode() -> None:
         previous_bot_mode = config['general']['bot_mode']
         config['general']['bot_mode'] = 'manual'
 
+    for callback in on_bot_mode_change_callbacks:
+        callback(config['general']['bot_mode'])
+
+
+def SetBotMode(new_bot_mode) -> None:
+    global previous_bot_mode
+    config['general']['bot_mode'] = new_bot_mode
+    previous_bot_mode = ''
+
 
 def ForceManualMode() -> None:
     """
@@ -437,3 +449,6 @@ def ForceManualMode() -> None:
         previous_bot_mode = config['general']['bot_mode']
 
     config['general']['bot_mode'] = 'manual'
+
+    for callback in on_bot_mode_change_callbacks:
+        callback(config['general']['bot_mode'])
