@@ -23,15 +23,19 @@ try:
 
         case 'Linux':
             linux_release = platform.freedesktop_os_release()
-            if linux_release['ID'] != 'ubuntu' or linux_release['VERSION_ID'] != '23.04':
-                raise Exception('Currently, only Ubuntu 23.04 is supported by this bot. '
-                                f'You are running {linux_release["PRETTY_NAME"]}...')
+            if linux_release['ID'] == 'ubuntu' and linux_release['VERSION_ID'] == '23.04':
+                print("You are running Ubuntu 23.04.")
+            elif linux_release['ID'] == 'debian' and linux_release['VERSION_ID'] == '12':
+                print("You are running Debian 12.")
+            else:
+                raise Exception('Currently, only Ubuntu 23.04 and Debian 12 are supported by this bot. '
+                                f'You are running {linux_release["PRETTY_NAME"]}.')
 
             libmgba_url = f'https://github.com/hanzi/libmgba-py/releases/download/{libmgba_tag}/'\
                           f'libmgba-py_{libmgba_ver}_ubuntu-lunar.zip'
 
         case _:
-            raise Exception(f'Currently, only Windows and Ubuntu 23.04 are supported by this bot. '
+            raise Exception(f'Currently, only Windows, Ubuntu 23.04, and Debian 12 are supported by this bot. '
                             'You are running {platform.system()}!')
 
     if platform.architecture()[0] != '64bit':
