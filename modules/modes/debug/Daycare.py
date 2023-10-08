@@ -130,48 +130,45 @@ def GetDaycareCompatibilityScore(mons):
             return PARENTS_LOW_COMPATIBILITY  # different species, same trainer
 
 
-def generate_table() -> Table:
+def generate_table(data: dict) -> Table:
     table = Table()
     table.add_column("Name", justify="left", no_wrap=True)
     table.add_column("Value", justify="left", width=10)
-    if last_data["mons"][0]["mon"]:
-        table.add_row("Mon 1 Name", str(last_data["mons"][0]["mon"]["name"]))
+    if data["mons"][0]["mon"]:
+        table.add_row("Mon 1 Name", str(data["mons"][0]["mon"]["name"]))
         table.add_row(
             "Mon 1 Gender",
             str(
                 GetGenderFromSpeciesAndPersonality(
-                    last_data["mons"][0]["mon"]["name"],
-                    last_data["mons"][0]["mon"]["pid"],
+                    data["mons"][0]["mon"]["name"],
+                    data["mons"][0]["mon"]["pid"],
                 )
             ),
         )
-        table.add_row("Mon 1 Steps", str(last_data["mons"][0]["steps"]))
-    if last_data["mons"][1]["mon"]:
-        table.add_row("Mon 2 Name", str(last_data["mons"][1]["mon"]["name"]))
+        table.add_row("Mon 1 Steps", str(data["mons"][0]["steps"]))
+    if data["mons"][1]["mon"]:
+        table.add_row("Mon 2 Name", str(data["mons"][1]["mon"]["name"]))
         table.add_row(
             "Mon 2 Gender",
             str(
                 GetGenderFromSpeciesAndPersonality(
-                    last_data["mons"][1]["mon"]["name"], last_data["mons"][1]["mon"]["pid"]
+                    data["mons"][1]["mon"]["name"], data["mons"][1]["mon"]["pid"]
                 )
             ),
         )
-        table.add_row("Mon 2 Steps", str(last_data["mons"][1]["steps"]))
-    table.add_row("Daycare Compatibility Score", str(last_data["DaycareCompatibilityScore"]))
-    table.add_row("Offspring Personality", str(last_data["offspringPersonality"]))
-    table.add_row("Daycare Step Counter", str(last_data["stepCounter"]))
+        table.add_row("Mon 2 Steps", str(data["mons"][1]["steps"]))
+    table.add_row("Daycare Compatibility Score", str(data["DaycareCompatibilityScore"]))
+    table.add_row("Offspring Personality", str(data["offspringPersonality"]))
+    table.add_row("Daycare Step Counter", str(data["stepCounter"]))
     return table
 
 
-last_data = ParseDayCare()
-
-
 def ModeDebugDaycare():
-    global last_data
-    with Live(generate_table(), refresh_per_second=60) as live:
+    last_data = ParseDayCare()
+    with Live(generate_table(last_data), refresh_per_second=60) as live:
         while True:
             data = ParseDayCare()
             if data and data != last_data:
                 last_data = data
-                live.update(generate_table())
+                live.update(generate_table(last_data))
             emulator.RunSingleFrame()

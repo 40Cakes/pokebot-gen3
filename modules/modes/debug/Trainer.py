@@ -17,11 +17,8 @@ def generic_table(data: dict) -> Table:
     return table
 
 
-prev_trainer = GetTrainer()
-
-
 def ModeDebugTrainer():
-    global prev_trainer
+    prev_trainer = GetTrainer()
     with Live(generic_table(prev_trainer), refresh_per_second=60) as live:
         while True:
             trainer = GetTrainer()
