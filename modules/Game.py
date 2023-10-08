@@ -37,6 +37,10 @@ def _LoadSymbols(symbols_file: str, language: ROMLanguage) -> None:
                     int(language_patches[item][language_code], 16),
                     _symbols[item.upper()][1]
                 )
+                _reverse_symbols[int(language_patches[item][language_code], 16)] = (
+                    item.upper(),
+                    _symbols[item.upper()][1]
+                )
 
 
 def _LoadCharmap(charmap_index: str) -> None:
