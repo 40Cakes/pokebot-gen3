@@ -216,11 +216,6 @@ class PokebotGui:
     center_of_canvas: tuple[int, int] = (0, 0)
     previous_bot_mode: str = ''
 
-    # Callbacks used by the settings GUI
-    on_speed_factor_change: callable = None
-    on_toggle_video: callable = None
-    on_toggle_audio: callable = None
-
     def __init__(self, main_loop: callable, preselected_profile: Profile = None):
         global gui
         gui = self
