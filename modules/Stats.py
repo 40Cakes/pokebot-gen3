@@ -47,12 +47,12 @@ def InitStats(profile: Profile):
 
     try:
         if (config_dir_path / 'CustomCatchFilters.py').is_file():
-            CustomCatchFilters = importlib.import_module('.CustomCatchFilters', 'config.{}'.format(profile.path.name)).CustomCatchFilters
+            CustomCatchFilters = importlib.import_module('.CustomCatchFilters', 'config.{}.config'.format(profile.path.name)).CustomCatchFilters
         else:
             from config.CustomCatchFilters import CustomCatchFilters
 
-        if (config_dir_path / 'CustomHooks.py').is_file():
-            CustomHooks = importlib.import_module('.CustomHooks', 'config.{}'.format(profile.path.name)).CustomHooks
+        if (config_dir_path / 'CustomCatchFilters.py').is_file():
+            CustomHooks = importlib.import_module('.CustomHooks', 'config.{}.config'.format(profile.path.name)).CustomHooks
         else:
             from config.CustomHooks import CustomHooks
 
