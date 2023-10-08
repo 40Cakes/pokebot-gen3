@@ -1,10 +1,10 @@
 # Displays Data of the Daycare
-# Move this script to the root directory to ensure all imports work correctly
 
 import struct
 from rich.table import Table
 from rich.live import Live
 
+from modules.Gui import emulator
 from modules.Memory import GetSaveBlock
 from modules.Pokemon import ParsePokemon, pokemon_list
 
@@ -20,19 +20,19 @@ def ParseDayCare():
         return None
 
     DayCare = {
-        'mons': [
+        "mons": [
             {
-                'mon': mons[0],
-                'steps': struct.unpack('<I', b_DayCare[0x88:0x8C])[0],
+                "mon": mons[0],
+                "steps": struct.unpack("<I", b_DayCare[0x88:0x8C])[0],
             },
             {
-                'mon': mons[1],
-                'steps': struct.unpack('<I', b_DayCare[0x114:0x118])[0],
+                "mon": mons[1],
+                "steps": struct.unpack("<I", b_DayCare[0x114:0x118])[0],
             },
         ],
-        'offspringPersonality': struct.unpack('<I', b_DayCare[0x118:0x11C])[0],
-        'stepCounter': int(b_DayCare[0x11C]),
-        'DaycareCompatibilityScore': GetDaycareCompatibilityScore(mons)
+        "offspringPersonality": struct.unpack("<I", b_DayCare[0x118:0x11C])[0],
+        "stepCounter": int(b_DayCare[0x11C]),
+        "DaycareCompatibilityScore": GetDaycareCompatibilityScore(mons)
         if (mons[0] and mons[1])
         else PARENTS_INCOMPATIBLE,
     }
@@ -45,12 +45,8 @@ MON_GENDERLESS = 0xFF
 
 
 def GetGenderFromSpeciesAndPersonality(name: int, personality: int):
-    gender_ratio = pokemon_list[name]['gender_rate']
-    if (
-        gender_ratio == MON_MALE
-        or gender_ratio == MON_FEMALE
-        or gender_ratio == MON_GENDERLESS
-    ):
+    gender_ratio = pokemon_list[name]["gender_rate"]
+    if gender_ratio == MON_MALE or gender_ratio == MON_FEMALE or gender_ratio == MON_GENDERLESS:
         return gender_ratio
     if gender_ratio > (personality & 0xFF):
         return MON_FEMALE
@@ -97,17 +93,14 @@ def GetDaycareCompatibilityScore(mons):
     trainer_ids = [0, 0]
     genders = [0, 0]
     for i in range(2):
-        species[i] = mons[i]['natID']
-        trainer_ids[i] = mons[i]['ot']['tid']
-        personality = mons[i]['pid']
-        genders[i] = GetGenderFromSpeciesAndPersonality(mons[i]['name'], personality)
-        egg_groups[i] = pokemon_list[mons[i]['name']]['egg_groups']
+        species[i] = mons[i]["natID"]
+        trainer_ids[i] = mons[i]["ot"]["tid"]
+        personality = mons[i]["pid"]
+        genders[i] = GetGenderFromSpeciesAndPersonality(mons[i]["name"], personality)
+        egg_groups[i] = pokemon_list[mons[i]["name"]]["egg_groups"]
 
     # check unbreedable egg group
-    if (
-        egg_groups[0][0] == EGG_GROUP_UNDISCOVERED
-        or egg_groups[1][0] == EGG_GROUP_UNDISCOVERED
-    ):
+    if egg_groups[0][0] == EGG_GROUP_UNDISCOVERED or egg_groups[1][0] == EGG_GROUP_UNDISCOVERED:
         return PARENTS_INCOMPATIBLE
     # two Ditto can't breed
     if egg_groups[0][0] == EGG_GROUP_DITTO and egg_groups[1][0] == EGG_GROUP_DITTO:
@@ -133,52 +126,52 @@ def GetDaycareCompatibilityScore(mons):
             return PARENTS_MAX_COMPATIBILITY  # same species, different trainers
         else:
             if trainer_ids[0] != trainer_ids[1]:
-                return (
-                    PARENTS_MED_COMPATIBILITY  # different species, different trainers
-                )
+                return PARENTS_MED_COMPATIBILITY  # different species, different trainers
             return PARENTS_LOW_COMPATIBILITY  # different species, same trainer
 
 
 def generate_table() -> Table:
     table = Table()
-    table.add_column('Name', justify='left', no_wrap=True)
-    table.add_column('Value', justify='left', width=10)
-    if last_data['mons'][0]['mon']:
-        table.add_row('Mon 1 Name', str(last_data['mons'][0]['mon']['name']))
+    table.add_column("Name", justify="left", no_wrap=True)
+    table.add_column("Value", justify="left", width=10)
+    if last_data["mons"][0]["mon"]:
+        table.add_row("Mon 1 Name", str(last_data["mons"][0]["mon"]["name"]))
         table.add_row(
-            'Mon 1 Gender',
+            "Mon 1 Gender",
             str(
                 GetGenderFromSpeciesAndPersonality(
-                    last_data['mons'][0]['mon']['name'],
-                    last_data['mons'][0]['mon']['pid'],
+                    last_data["mons"][0]["mon"]["name"],
+                    last_data["mons"][0]["mon"]["pid"],
                 )
             ),
         )
-        table.add_row('Mon 1 Steps', str(last_data['mons'][0]['steps']))
-    if last_data['mons'][1]['mon']:
-        table.add_row('Mon 2 Name', str(last_data['mons'][1]['mon']['name']))
+        table.add_row("Mon 1 Steps", str(last_data["mons"][0]["steps"]))
+    if last_data["mons"][1]["mon"]:
+        table.add_row("Mon 2 Name", str(last_data["mons"][1]["mon"]["name"]))
         table.add_row(
-            'Mon 2 Gender',
+            "Mon 2 Gender",
             str(
                 GetGenderFromSpeciesAndPersonality(
-                    last_data['mons'][1]['mon']['name'],
-                    last_data['mons'][1]['mon']['pid']
+                    last_data["mons"][1]["mon"]["name"], last_data["mons"][1]["mon"]["pid"]
                 )
             ),
         )
-        table.add_row('Mon 2 Steps', str(last_data['mons'][1]['steps']))
-    table.add_row(
-        'Daycare Compatibility Score', str(last_data['DaycareCompatibilityScore'])
-    )
-    table.add_row('Offspring Personality', str(last_data['offspringPersonality']))
-    table.add_row('Daycare Step Counter', str(last_data['stepCounter']))
+        table.add_row("Mon 2 Steps", str(last_data["mons"][1]["steps"]))
+    table.add_row("Daycare Compatibility Score", str(last_data["DaycareCompatibilityScore"]))
+    table.add_row("Offspring Personality", str(last_data["offspringPersonality"]))
+    table.add_row("Daycare Step Counter", str(last_data["stepCounter"]))
     return table
 
 
 last_data = ParseDayCare()
-with Live(generate_table(), refresh_per_second=4) as live:
-    while True:
-        data = ParseDayCare()
-        if data and data != last_data:
-            last_data = data
-            live.update(generate_table())
+
+
+def ModeDebugDaycare():
+    global last_data
+    with Live(generate_table(), refresh_per_second=60) as live:
+        while True:
+            data = ParseDayCare()
+            if data and data != last_data:
+                last_data = data
+                live.update(generate_table())
+            emulator.RunSingleFrame()

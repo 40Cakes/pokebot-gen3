@@ -26,25 +26,6 @@ def GetInputs() -> int:
     return GetEmulator().GetInputs()
 
 
-def WriteInputs(value: int) -> None:
-    """
-    Writes inputs to mGBA input memory, 2 bytes, each bit controls a different button (see input_map).
-
-    Examples:
-    0000 0000 0000 0001 = A press
-    0000 0000 0000 0010 = B press
-    0000 0000 0000 0011 = A+B press
-    0000 0001 0000 0000 = R press
-    0000 0010 0000 0000 = L press
-    0000 0011 0000 0011 = A+B+R+L press
-    etc.
-
-    :param value: inputs to write to mGBA memory
-    """
-    if config['general']['bot_mode'] != 'manual':
-        GetEmulator().SetInputs(value)
-
-
 def WaitFrames(frames: int) -> None:
     """
     Waits for n frames to pass before continuing.
@@ -59,7 +40,7 @@ def ReleaseInputs() -> None:
     global press
     global held
     press, held = 0, 0
-    WriteInputs(0)
+    GetEmulator().SetInputs(0)
     WaitFrames(1)
 
 
@@ -85,10 +66,10 @@ def PressButton(buttons: list, hold_frames: int = 1) -> None:
         if button in input_map:
             press |= input_map[button]
     press |= held
-    WriteInputs(press)
+    GetEmulator().SetInputs(press)
 
     if hold_frames > 0:
         press = 0
         WaitFrames(hold_frames)
-        WriteInputs(held)
+        GetEmulator().SetInputs(held)
         WaitFrames(1)

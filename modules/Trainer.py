@@ -40,7 +40,7 @@ def GetTrainer() -> dict:
     """
     try:
         b_Save = GetSaveBlock(2, size=14)
-        b_gTasks = ReadSymbol('gTasks', 0x57, 3)
+        b_gTasks = ReadSymbol('gTasks', offset=0x57, size=3)
         b_gObjectEvents = ReadSymbol('gObjectEvents', size=25)
 
         if b_Save is None:
