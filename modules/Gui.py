@@ -4,6 +4,7 @@ import re
 import tkinter
 import tkinter.font
 from datetime import datetime
+from pathlib import Path
 from tkinter import ttk
 from typing import Union
 
@@ -252,6 +253,9 @@ class PokebotGui:
             self.RunProfile(preselected_profile)
         else:
             self.ShowProfileSelection()
+
+        self.window.iconphoto(False,
+                              tkinter.PhotoImage(file=str(Path(__file__).parent.parent / "sprites" / "app_icon.png")))
 
         self.window.mainloop()
 
