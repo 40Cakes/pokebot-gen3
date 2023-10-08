@@ -72,16 +72,19 @@ if platform.system() == 'Windows':
 
 
 class EmulatorControls:
-    frame: Union[ttk.Frame, None] = None
+    frame: Union[tkinter.Frame, None] = None
     bot_mode_combobox: ttk.Combobox
-    speed_1x_button: ttk.Button
-    speed_2x_button: ttk.Button
-    speed_3x_button: ttk.Button
-    speed_4x_button: ttk.Button
-    unthrottled_button: ttk.Button
-    toggle_video_button: ttk.Button
-    toggle_audio_button: ttk.Button
-    bot_message: ttk.Label
+    speed_1x_button: tkinter.Button
+    speed_2x_button: tkinter.Button
+    speed_3x_button: tkinter.Button
+    speed_4x_button: tkinter.Button
+    unthrottled_button: tkinter.Button
+    toggle_video_button: tkinter.Button
+    toggle_audio_button: tkinter.Button
+    bot_message: tkinter.Label
+
+    default_button_background = None
+    default_button_foreground = None
 
     def __init__(self, gui: 'PokebotGui', window: tkinter.Tk):
         self.gui = gui
@@ -95,12 +98,8 @@ class EmulatorControls:
         return 0
 
     def AddToWindow(self):
-        self.frame = ttk.Frame(self.window, padding=(10, 5))
+        self.frame = tkinter.Frame(self.window, padx=10, pady=5)
         self.frame.pack(side='right', fill='both', expand=True)
-
-        style = ttk.Style()
-        style.configure('EnabledSetting.TButton', background='green', foreground='white')
-        style.map('EnabledSetting.TButton', background=[('active', 'green')], foreground=[('active', 'white')])
 
         self._AddBotModeControls(0)
         self._AddSpeedControls(2)
@@ -127,22 +126,16 @@ class EmulatorControls:
 
         self.bot_mode_combobox.current(available_bot_modes.index(config['general']['bot_mode']))
 
-        self.speed_1x_button.config(
-            style='EnabledSetting.TButton' if emulator.GetThrottle() and emulator.GetSpeedFactor() == 1 else 'TButton')
-        self.speed_2x_button.config(
-            style='EnabledSetting.TButton' if emulator.GetThrottle() and emulator.GetSpeedFactor() == 2 else 'TButton')
-        self.speed_3x_button.config(
-            style='EnabledSetting.TButton' if emulator.GetThrottle() and emulator.GetSpeedFactor() == 3 else 'TButton')
-        self.speed_4x_button.config(
-            style='EnabledSetting.TButton' if emulator.GetThrottle() and emulator.GetSpeedFactor() == 4 else 'TButton')
-        self.unthrottled_button.config(style='EnabledSetting.TButton' if not emulator.GetThrottle() else 'TButton')
+        self._SetButtonColour(self.speed_1x_button, emulator.GetThrottle() and emulator.GetSpeedFactor() == 1)
+        self._SetButtonColour(self.speed_2x_button, emulator.GetThrottle() and emulator.GetSpeedFactor() == 2)
+        self._SetButtonColour(self.speed_3x_button, emulator.GetThrottle() and emulator.GetSpeedFactor() == 3)
+        self._SetButtonColour(self.speed_4x_button, emulator.GetThrottle() and emulator.GetSpeedFactor() == 4)
+        self._SetButtonColour(self.unthrottled_button, not emulator.GetThrottle())
 
-        self.toggle_video_button.config(style='EnabledSetting.TButton' if emulator.GetVideoEnabled() else 'TButton')
-
-        if emulator.GetThrottle():
-            self.toggle_audio_button.config(style='EnabledSetting.TButton' if emulator.GetAudioEnabled() else 'TButton')
-        else:
-            self.toggle_audio_button.config(style='TButton', state='disabled')
+        self._SetButtonColour(self.toggle_video_button, emulator.GetVideoEnabled())
+        self._SetButtonColour(self.toggle_audio_button,
+                              active_condition=emulator.GetAudioEnabled(),
+                              disabled_condition=not emulator.GetThrottle())
 
     def SetMessage(self, message: str):
         if self.frame:
@@ -152,9 +145,7 @@ class EmulatorControls:
         ttk.Label(self.frame, text='Bot Mode:', justify='left').grid(row=row, sticky='W')
         self.bot_mode_combobox = ttk.Combobox(self.frame, values=available_bot_modes, width=20, state='readonly')
         self.bot_mode_combobox.bind('<<ComboboxSelected>>',
-                                    lambda: self.gui.SetBotMode(
-                                        available_bot_modes.index(self.bot_mode_combobox.get())
-                                    ))
+                                    lambda e: self.gui.SetBotMode(self.bot_mode_combobox.get()))
         self.bot_mode_combobox.grid(row=row + 1, sticky='W')
 
     def _AddSpeedControls(self, row: int):
@@ -162,16 +153,19 @@ class EmulatorControls:
         speed_button_group = ttk.Frame(self.frame)
         speed_button_group.grid(row=row + 1, sticky='W')
 
-        self.speed_1x_button = ttk.Button(speed_button_group, text='1×', width=3,
-                                          command=lambda: self.gui.SetEmulationSpeed(1))
-        self.speed_2x_button = ttk.Button(speed_button_group, text='2×', width=3,
-                                          command=lambda: self.gui.SetEmulationSpeed(2))
-        self.speed_3x_button = ttk.Button(speed_button_group, text='3×', width=3,
-                                          command=lambda: self.gui.SetEmulationSpeed(3))
-        self.speed_4x_button = ttk.Button(speed_button_group, text='4×', width=3,
-                                          command=lambda: self.gui.SetEmulationSpeed(4))
-        self.unthrottled_button = ttk.Button(speed_button_group, text='∞', width=3,
-                                             command=lambda: self.gui.SetEmulationSpeed(0))
+        self.speed_1x_button = tkinter.Button(speed_button_group, text='1×', width=3, padx=0,
+                                              command=lambda: self.gui.SetEmulationSpeed(1))
+        self.speed_2x_button = tkinter.Button(speed_button_group, text='2×', width=3, padx=0,
+                                              command=lambda: self.gui.SetEmulationSpeed(2))
+        self.speed_3x_button = tkinter.Button(speed_button_group, text='3×', width=3, padx=0,
+                                              command=lambda: self.gui.SetEmulationSpeed(3))
+        self.speed_4x_button = tkinter.Button(speed_button_group, text='4×', width=3, padx=0,
+                                              command=lambda: self.gui.SetEmulationSpeed(4))
+        self.unthrottled_button = tkinter.Button(speed_button_group, text='∞', width=3, padx=0,
+                                                 command=lambda: self.gui.SetEmulationSpeed(0))
+
+        self.default_button_background = self.speed_1x_button.cget('background')
+        self.default_button_foreground = self.speed_1x_button.cget('foreground')
 
         self.speed_1x_button.grid(row=0, column=0)
         self.speed_2x_button.grid(row=0, column=1)
@@ -180,12 +174,14 @@ class EmulatorControls:
         self.unthrottled_button.grid(row=0, column=4)
 
     def _AddSettingsControls(self, row: int):
-        ttk.Label(self.frame, text='Other Settings:').grid(row=row, sticky='W', pady=(15, 0))
-        settings_group = ttk.Frame(self.frame)
+        tkinter.Label(self.frame, text='Other Settings:').grid(row=row, sticky='W', pady=(15, 0))
+        settings_group = tkinter.Frame(self.frame)
         settings_group.grid(row=row + 1, sticky='W')
 
-        self.toggle_video_button = ttk.Button(settings_group, text='Video', width=6, command=self.gui.ToggleVideo)
-        self.toggle_audio_button = ttk.Button(settings_group, text='Audio', width=6, command=self.gui.ToggleAudio)
+        self.toggle_video_button = tkinter.Button(settings_group, text='Video', width=6, padx=0,
+                                                  command=self.gui.ToggleVideo)
+        self.toggle_audio_button = tkinter.Button(settings_group, text='Audio', width=6, padx=0,
+                                                  command=self.gui.ToggleAudio)
 
         self.toggle_video_button.grid(row=0, column=0)
         self.toggle_audio_button.grid(row=0, column=1)
@@ -193,15 +189,26 @@ class EmulatorControls:
     def _AddMessageArea(self, row: int):
         self.frame.rowconfigure(row, weight=1)
 
-        group = ttk.LabelFrame(self.frame, text='Message:', padding=5)
+        group = tkinter.LabelFrame(self.frame, text='Message:', padx=5, pady=0, width=200)
         group.grid(row=row, sticky='NSWE', pady=10)
 
-        self.bot_message = ttk.Label(group, wraplength=155, justify='left')
+        self.bot_message = tkinter.Label(group, wraplength=155, justify='left')
         self.bot_message.grid(row=0, sticky='W')
 
     def _AddVersionNotice(self, row: int):
-        ttk.Label(self.frame, text=f'{pokebot_name} {pokebot_version}', foreground='grey',
-                  font=tkinter.font.Font(size=9)).grid(row=row, sticky='E')
+        tkinter.Label(self.frame, text=f'{pokebot_name} {pokebot_version}', foreground='grey',
+                      font=tkinter.font.Font(size=9)).grid(row=row, sticky='E')
+
+    def _SetButtonColour(self, button: tkinter.Button, active_condition: bool,
+                         disabled_condition: bool = False) -> None:
+        if disabled_condition:
+            button.config(background=self.default_button_background, foreground=self.default_button_foreground,
+                          state='disabled')
+        elif active_condition:
+            button.config(background='green', foreground='white', state='normal')
+        else:
+            button.config(background=self.default_button_background, foreground=self.default_button_foreground,
+                          state='normal')
 
 
 class PokebotGui:
