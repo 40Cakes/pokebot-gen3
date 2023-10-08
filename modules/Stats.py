@@ -664,7 +664,7 @@ def EncounterPokemon(pokemon: dict) -> None:
     if GetGameState() == GameState.OVERWORLD:
         return None
 
-    if GetGameState() in (GameState.BATTLE, GameState.BATTLE_STARTING):
+    if GetGameState() in (GameState.BATTLE, GameState.BATTLE_STARTING) and config['general']['bot_mode'] != 'manual':
         if config['battle']['battle']:
             battle_won = BattleOpponent()
             # adding this in for lead rotation functionality down the line

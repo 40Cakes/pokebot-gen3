@@ -570,18 +570,24 @@ def SendOutPokemon(idx):
     cursor_positions = len(GetParty()) + 1
 
     # navigate to the desired index as quickly as possible
-    while GetPartyMenuCursorPos()['slot_id'] != idx:
-        if GetPartyMenuCursorPos()['slot_id'] > idx:
-            up_presses = GetPartyMenuCursorPos()['slot_id'] - idx
-            down_presses = idx + cursor_positions - GetPartyMenuCursorPos()['slot_id']
+    party_menu_index = GetPartyMenuCursorPos()['slot_id']
+    if party_menu_index >= cursor_positions:
+        party_menu_index = cursor_positions - 1
+    while party_menu_index != idx:
+        if party_menu_index > idx:
+            up_presses = party_menu_index - idx
+            down_presses = idx + cursor_positions - party_menu_index
         else:
-            up_presses = GetPartyMenuCursorPos()['slot_id'] + cursor_positions - idx
-            down_presses = idx - GetPartyMenuCursorPos()['slot_id']
+            up_presses = party_menu_index + cursor_positions - idx
+            down_presses = idx - party_menu_index
         if down_presses > up_presses:
             PressButton(['Up'])
         else:
             PressButton(['Down'])
         WaitFrames(1)
+        party_menu_index = GetPartyMenuCursorPos()['slot_id']
+        if party_menu_index >= cursor_positions:
+            party_menu_index = cursor_positions - 1
     match GetROM().game_title:
         case 'POKEMON EMER' | 'POKEMON FIRE' | 'POKEMON LEAF':
             for i in range(60):
@@ -610,20 +616,28 @@ def SwitchOutPokemon(idx):
 
     while not PartyMenuIsOpen():
         PressButton(['A'])
+        
+    party_menu_index = GetPartyMenuCursorPos()['slot_id']
+    if party_menu_index >= cursor_positions:
+        party_menu_index = cursor_positions - 1
 
-    while GetPartyMenuCursorPos()['slot_id'] != idx:
+    while party_menu_index != idx:
 
-        if GetPartyMenuCursorPos()['slot_id'] > idx:
-            up_presses = GetPartyMenuCursorPos()['slot_id'] - idx
-            down_presses = idx + cursor_positions - GetPartyMenuCursorPos()['slot_id']
+        if party_menu_index > idx:
+            up_presses = party_menu_index - idx
+            down_presses = idx + cursor_positions - party_menu_index
         else:
-            up_presses = GetPartyMenuCursorPos()['slot_id'] + cursor_positions - idx
-            down_presses = idx - GetPartyMenuCursorPos()['slot_id']
+            up_presses = party_menu_index + cursor_positions - idx
+            down_presses = idx - party_menu_index
 
         if down_presses > up_presses:
             PressButton(['Up'])
         else:
             PressButton(['Down'])
+        WaitFrames(1)
+        party_menu_index = GetPartyMenuCursorPos()['slot_id']
+        if party_menu_index >= cursor_positions:
+            party_menu_index = cursor_positions - 1
 
     if GetROM().game_title in ['POKEMON EMER', 'POKEMON FIRE', 'POKEMON LEAF']:
         while not (GetTask("TASK_HANDLESELECTIONMENUINPUT") != {} and GetTask("TASK_HANDLESELECTIONMENUINPUT")['isActive']):
