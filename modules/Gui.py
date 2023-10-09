@@ -148,6 +148,7 @@ class EmulatorControls:
 
     def OnFrameRender(self):
         if config['general']['bot_mode'] != self.last_known_bot_mode:
+            self.last_known_bot_mode = config['general']['bot_mode']
             self.Update()
 
     def _AddBotModeControls(self, row: int, column: int):
@@ -277,6 +278,7 @@ class DebugEmulatorControls(EmulatorControls):
             tab.Draw(self.debug_notebook)
 
     def OnFrameRender(self):
+        super().OnFrameRender()
         index = self.debug_notebook.index('current')
         self.debug_tabs[index].Update(emulator)
 
