@@ -13,7 +13,7 @@ from datetime import datetime
 
 from rich.table import Table
 from modules.Colours import IVColour, IVSumColour, SVColour
-from modules.Config import config
+from modules.Config import config, ForceManualMode
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Gui import GetEmulator, GetProfile
@@ -99,11 +99,10 @@ def SaveRNGStateHistory(pokemon_name: str, data: dict) -> NoReturn:
 
 def GetEncounterRate() -> int:
     try:
-        encounter_logs = encounter_log['encounter_log']
-        if len(encounter_logs) > 1 and session_encounters > 1:
+        if len(encounter_log['encounter_log']) > 1 and session_encounters > 1:
             encounter_rate = int(
-                (3600000 / ((encounter_logs[-1]['time_encountered'] -
-                             encounter_logs[-min(session_encounters, 250)]['time_encountered'])
+                (3600000 / ((encounter_log['encounter_log'][-1]['time_encountered'] -
+                             encounter_log['encounter_log'][-min(session_encounters, 250)]['time_encountered'])
                             * 1000)) * (min(session_encounters, 250)))
             return encounter_rate
         return 0
@@ -629,7 +628,7 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
     global block_list
     if pokemon['shiny'] or block_list == []:
         # Load catch block config file - allows for editing while bot is running
-        from modules.Config import catch_block_schema, LoadConfig, ForceManualMode
+        from modules.Config import catch_block_schema, LoadConfig
         config_catch_block = LoadConfig('catch_block.yml', catch_block_schema)
         block_list = config_catch_block['block_list']
 
