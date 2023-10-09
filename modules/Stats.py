@@ -24,7 +24,7 @@ from modules.Profiles import Profile
 CustomCatchFilters = None
 CustomHooks = None
 block_list: list = []
-session_encounters = None
+session_encounters: int = 0
 stats = None
 encounter_log = None
 shiny_log = None
@@ -32,7 +32,7 @@ stats_dir = None
 files = None
 
 def InitStats(profile: Profile):
-    global CustomCatchFilters, CustomHooks, session_encounters, stats, encounter_log, shiny_log, stats_dir, files
+    global CustomCatchFilters, CustomHooks, stats, encounter_log, shiny_log, stats_dir, files
 
     config_dir_path = profile.path / 'config'
     stats_dir_path = profile.path / 'stats'
@@ -57,7 +57,6 @@ def InitStats(profile: Profile):
         else:
             from config.CustomHooks import CustomHooks
 
-        session_encounters = 0
         f_stats = ReadFile(files['totals'])
         stats = json.loads(f_stats) if f_stats else None
         f_encounter_log = ReadFile(files['encounter_log'])
@@ -99,10 +98,11 @@ def SaveRNGStateHistory(pokemon_name: str, data: dict) -> NoReturn:
 
 def GetEncounterRate() -> int:
     try:
-        if len(encounter_log['encounter_log']) > 1 and session_encounters > 1:
+        encounter_logs = encounter_log['encounter_log']
+        if len(encounter_logs) > 1 and session_encounters > 1:
             encounter_rate = int(
-                (3600000 / ((encounter_log['encounter_log'][-1]['time_encountered'] -
-                             encounter_log['encounter_log'][-min(session_encounters, 250)]['time_encountered'])
+                (3600000 / ((encounter_logs[-1]['time_encountered'] -
+                             encounter_logs[-min(session_encounters, 250)]['time_encountered'])
                             * 1000)) * (min(session_encounters, 250)))
             return encounter_rate
         return 0
