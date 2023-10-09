@@ -279,6 +279,7 @@ class PokebotGui:
             emulator.Shutdown()
 
         if platform.system() == 'Windows':
+            self.window.withdraw()
             PromptBeforeExit()
 
         os._exit(0)
