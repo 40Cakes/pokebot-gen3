@@ -12,9 +12,9 @@ symbols = ["gObjectEvents", "sChat", "gStringVar1", "gStringVar2", "gStringVar3"
 
 def symbol_table(data: dict) -> Table:
     table = Table()
-    table.add_column("Symbol", justify="left", no_wrap=True)
-    table.add_column("Data", justify="left", no_wrap=True)
-    table.add_column("DecodedString", justify="left", no_wrap=True)
+    table.add_column("Symbol", justify="left", no_wrap=False)
+    table.add_column("Data", justify="left", no_wrap=False)
+    table.add_column("DecodedString", justify="left", no_wrap=False)
     for key, value in data.items():
         table.add_row(str(key), str(value), DecodeString(value))
     return table
