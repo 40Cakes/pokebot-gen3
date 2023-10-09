@@ -22,6 +22,7 @@ def CustomHooks(hook) -> NoReturn:
         # Deep copy of Pokémon and stats dictionaries when the thread was called to avoid main thread overwriting vars
         pokemon = hook[0]
         stats = hook[1]
+        block_list = hook[2]
 
         ### Your custom code goes here ###
 
@@ -66,13 +67,7 @@ def CustomHooks(hook) -> NoReturn:
                     case 'user':
                         discord_ping = '📢 <@{}>'.format(config['discord']['shiny_pokemon_encounter']['ping_id'])
 
-                # Load catch block config
-                from modules.Config import catch_block_schema, LoadConfig
-                # Named `config_catch_block_t` to prevent thread overwriting variable if main thread loads it
-                config_catch_block_t = LoadConfig('catch_block.yml', catch_block_schema)
-
-                block = '\n❌Skipping catching shiny (on catch block list)!' \
-                    if pokemon['name'] in config_catch_block_t['block_list'] else ''
+                block = '\n❌Skipping catching shiny (on catch block list)!' if pokemon['name'] in block_list else ''
 
                 DiscordMessage(
                     webhook_url=config['discord']['shiny_pokemon_encounter'].get('webhook_url', None),

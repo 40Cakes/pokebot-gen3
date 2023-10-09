@@ -19,12 +19,11 @@ from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Gui import GetEmulator, GetProfile
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import GetGameState, GameState
-from modules.Menuing import CheckForPickup
 from modules.Profiles import Profile
-from modules.Battle import BattleOpponent, CheckLeadCanBattle, FleeBattle, RotatePokemon
 
 CustomCatchFilters = None
 CustomHooks = None
+block_list: list = []
 session_encounters = None
 stats = None
 encounter_log = None
@@ -87,7 +86,7 @@ def GetRNGStateHistory(pokemon_name: str) -> dict:
         return default
 
 
-def SaveRNGStateHistory(pokemon_name: str, data: dict) -> None:
+def SaveRNGStateHistory(pokemon_name: str, data: dict) -> NoReturn:
     try:
         WriteFile('{}/rng/{}.json'.format(
             stats_dir,
@@ -134,7 +133,7 @@ def FlattenData(data: dict) -> dict:
     return out
 
 
-def PrintStats(pokemon: dict) -> None:
+def PrintStats(pokemon: dict) -> NoReturn:
     try:
         console.print('\n')
         console.rule('[{}]{}[/] encountered at {}'.format(
@@ -351,7 +350,7 @@ def PrintStats(pokemon: dict) -> None:
         console.print_exception(show_locals=True)
 
 
-def LogEncounter(pokemon: dict) -> None:
+def LogEncounter(pokemon: dict, block_list: list) -> NoReturn:
     global stats
     global encounter_log
     global session_encounters
@@ -562,7 +561,7 @@ def LogEncounter(pokemon: dict) -> None:
             OBSHotKey('OBS_KEY_F11', pressCtrl=True)
 
         # Run custom code in CustomHooks in a thread
-        hook = (copy.deepcopy(pokemon), copy.deepcopy(stats))
+        hook = (copy.deepcopy(pokemon), copy.deepcopy(stats), copy.deepcopy(block_list))
         Thread(target=CustomHooks, args=(hook,)).start()
 
         if pokemon['shiny']:
@@ -619,17 +618,22 @@ def LogEncounter(pokemon: dict) -> None:
 
 dirsafe_chars = f'-_.() {string.ascii_letters}{string.digits}'
 
-def EncounterPokemon(pokemon: dict) -> None:
+def EncounterPokemon(pokemon: dict) -> NoReturn:
     """
     Call when a Pokémon is encountered, decides whether to battle, flee or catch.
     Expects the trainer's state to be MISC_MENU (battle started, no longer in the overworld).
 
     :return:
     """
-    # initializing here so pycharm won't yell at me
-    replace_battler = False
 
-    LogEncounter(pokemon)
+    global block_list
+    if pokemon['shiny'] or block_list == []:
+        # Load catch block config file - allows for editing while bot is running
+        from modules.Config import catch_block_schema, LoadConfig, ForceManualMode
+        config_catch_block = LoadConfig('catch_block.yml', catch_block_schema)
+        block_list = config_catch_block['block_list']
+
+    LogEncounter(pokemon, block_list)
 
     # TODO temporary until auto-catch is ready
     custom_found = CustomCatchFilters(pokemon)
@@ -641,11 +645,7 @@ def EncounterPokemon(pokemon: dict) -> None:
             state_tag = 'customfilter'
             console.print('[bold green]Custom filter Pokemon found!')
 
-        # Load catch block config
-        from modules.Config import catch_block_schema, LoadConfig, ForceManualMode
-        config_catch_block = LoadConfig('catch_block.yml', catch_block_schema)
-
-        if not custom_found and pokemon['name'] in config_catch_block['block_list']:
+        if not custom_found and pokemon['name'] in block_list:
             console.print('[bold yellow]' + pokemon['name'] + ' is on the catch block list, skipping encounter...')
         else:
             state_filename = f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_{state_tag}_{pokemon['name']}.ss1"
@@ -657,25 +657,3 @@ def EncounterPokemon(pokemon: dict) -> None:
             with open(state_filepath, 'wb') as file:
                 file.write(GetEmulator().GetSaveState())
             ForceManualMode()
-
-    while GetGameState() == GameState.GARBAGE_COLLECTION:
-        WaitFrames(1)
-
-    if GetGameState() == GameState.OVERWORLD:
-        return None
-
-    if GetGameState() in (GameState.BATTLE, GameState.BATTLE_STARTING) and config['general']['bot_mode'] != 'manual':
-        if config['battle']['battle']:
-            battle_won = BattleOpponent()
-            # adding this in for lead rotation functionality down the line
-            replace_battler = not battle_won
-        else:
-            FleeBattle()
-        replace_battler = replace_battler or not CheckLeadCanBattle()
-        if config['battle']['battle'] and config['battle']["replace_lead_battler"] and replace_battler:
-            RotatePokemon()
-        if config['battle']["pickup"]:
-            while GetGameState() != GameState.OVERWORLD:
-                continue
-            if GetGameState() == GameState.OVERWORLD:
-                CheckForPickup(stats['totals'].get('encounters', 0))
