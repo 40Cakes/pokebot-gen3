@@ -126,7 +126,8 @@ class EmulatorControls:
         # dropdown menu.
         self.window.focus()
 
-        self.bot_mode_combobox.current(available_bot_modes.index(config['general']['bot_mode']))
+        if self.bot_mode_combobox.get() != config['general']['bot_mode']:
+            self.bot_mode_combobox.current(available_bot_modes.index(config['general']['bot_mode']))
 
         self._SetButtonColour(self.speed_1x_button, emulator.GetThrottle() and emulator.GetSpeedFactor() == 1)
         self._SetButtonColour(self.speed_2x_button, emulator.GetThrottle() and emulator.GetSpeedFactor() == 2)
