@@ -123,10 +123,6 @@ class LibmgbaEmulator:
         self._gba_audio.set_rate(GBA_AUDIO_SAMPLE_RATE)
         self._ResetAudio()
 
-        self._gba_video_renderer = self._core._native.video.renderer
-        self._gba_dummy_renderer = ffi.new("struct GBAVideoRenderer*")
-        lib.GBAVideoDummyRendererCreate(self._gba_dummy_renderer)
-
         atexit.register(self.Shutdown)
         self._core._callbacks.savedata_updated.append(self.BackupCurrentSaveGame)
 
@@ -252,10 +248,16 @@ class LibmgbaEmulator:
         :param video_enabled: Whether video output is enabled or not.
         """
         self._video_enabled = video_enabled
-        if video_enabled:
-            self._core._native.video.renderer = self._gba_video_renderer
-        else:
-            self._core._native.video.renderer = self._gba_dummy_renderer
+
+        self._core._native.video.renderer.disableBG[0] = not video_enabled
+        self._core._native.video.renderer.disableBG[1] = not video_enabled
+        self._core._native.video.renderer.disableBG[2] = not video_enabled
+        self._core._native.video.renderer.disableBG[3] = not video_enabled
+        self._core._native.video.renderer.disableOBJ = not video_enabled
+
+        self._core._native.video.renderer.disableWIN[0] = not video_enabled
+        self._core._native.video.renderer.disableWIN[1] = not video_enabled
+        self._core._native.video.renderer.disableOBJWIN = not video_enabled
 
     def GetAudioEnabled(self) -> bool:
         return self._audio_enabled
