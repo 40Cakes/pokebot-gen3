@@ -123,7 +123,9 @@ def CreateProfile(name: str, rom: ROM) -> Profile:
         raise RuntimeError(f'There already is a profile called "{name}", cannot create a new one with that name.')
 
     profile_directory.mkdir()
-    YAML().dump({
+    yaml = YAML()
+    yaml.allow_unicode = False
+    yaml.dump({
         'version': 1,
         'rom': {
             'file_name': rom.file.name,
