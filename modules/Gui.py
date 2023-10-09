@@ -68,6 +68,7 @@ if platform.system() == 'Windows':
     def PromptBeforeExit() -> None:
         parent_process_name = psutil.Process(os.getppid()).name()
         if parent_process_name == 'py.exe':
+            GetGUI().window.withdraw()
             input('Press Enter to close...')
 
 
