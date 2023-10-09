@@ -7,15 +7,16 @@ from modules.Game import DecodeString
 from modules.Gui import emulator
 from modules.Memory import ReadSymbol
 
-symbols = ["sChat", "gStringVar1", "gStringVar2", "gStringVar3", "gStringVar4"]
+symbols = ["gObjectEvents", "sChat", "gStringVar1", "gStringVar2", "gStringVar3", "gStringVar4"]
 
 
 def symbol_table(data: dict) -> Table:
     table = Table()
     table.add_column("Symbol", justify="left", no_wrap=True)
     table.add_column("Data", justify="left", no_wrap=True)
+    table.add_column("DecodedString", justify="left", no_wrap=True)
     for key, value in data.items():
-        table.add_row(str(key), DecodeString(value))
+        table.add_row(str(key), str(value), DecodeString(value))
     return table
 
 

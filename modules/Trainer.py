@@ -62,7 +62,7 @@ def GetTrainer() -> dict:
             'sid': int(struct.unpack('<H', b_Save[12:14])[0]),
             'map': (int(b_gTasks[2]), int(b_gTasks[1])),
             'coords': (int(b_gObjectEvents[16]) - 7, int(b_gObjectEvents[18]) - 7),
-            'on_bike': True if int(b_gObjectEvents[5]) == 1 else False,
+            'on_bike': True if int(b_gObjectEvents[5]) != 0 else False,
             'facing': FacingDir(int(b_gObjectEvents[24]))
         }
         return trainer
