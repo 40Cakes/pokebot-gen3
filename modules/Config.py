@@ -8,7 +8,8 @@ from modules.Console import console
 
 yaml = YAML()
 
-available_bot_modes = ['manual', 'spin', 'starters', 'fishing']
+available_bot_modes = ['manual', 'spin', 'starters', 'fishing', 'debug_battle', 'debug_daycare',
+                       'debug_main_callbacks', 'debug_symbols', 'debug_tasks', 'debug_trainer']
 
 general_schema = """
 type: object
