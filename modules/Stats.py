@@ -23,6 +23,7 @@ from modules.Profiles import Profile
 
 CustomCatchFilters = None
 CustomHooks = None
+block_list: list = []
 session_encounters = None
 stats = None
 encounter_log = None
@@ -349,7 +350,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
         console.print_exception(show_locals=True)
 
 
-def LogEncounter(pokemon: dict) -> NoReturn:
+def LogEncounter(pokemon: dict, block_list: list) -> NoReturn:
     global stats
     global encounter_log
     global session_encounters
@@ -560,7 +561,7 @@ def LogEncounter(pokemon: dict) -> NoReturn:
             OBSHotKey('OBS_KEY_F11', pressCtrl=True)
 
         # Run custom code in CustomHooks in a thread
-        hook = (copy.deepcopy(pokemon), copy.deepcopy(stats))
+        hook = (copy.deepcopy(pokemon), copy.deepcopy(stats), copy.deepcopy(block_list))
         Thread(target=CustomHooks, args=(hook,)).start()
 
         if pokemon['shiny']:
@@ -625,7 +626,14 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
     :return:
     """
 
-    LogEncounter(pokemon)
+    global block_list
+    if pokemon['shiny'] or block_list == []:
+        # Load catch block config file - allows for editing while bot is running
+        from modules.Config import catch_block_schema, LoadConfig, ForceManualMode
+        config_catch_block = LoadConfig('catch_block.yml', catch_block_schema)
+        block_list = config_catch_block['block_list']
+
+    LogEncounter(pokemon, block_list)
 
     # TODO temporary until auto-catch is ready
     custom_found = CustomCatchFilters(pokemon)
@@ -637,11 +645,7 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
             state_tag = 'customfilter'
             console.print('[bold green]Custom filter Pokemon found!')
 
-        # Load catch block config
-        from modules.Config import catch_block_schema, LoadConfig, ForceManualMode
-        config_catch_block = LoadConfig('catch_block.yml', catch_block_schema)
-
-        if not custom_found and pokemon['name'] in config_catch_block['block_list']:
+        if not custom_found and pokemon['name'] in block_list:
             console.print('[bold yellow]' + pokemon['name'] + ' is on the catch block list, skipping encounter...')
         else:
             state_filename = f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_{state_tag}_{pokemon['name']}.ss1"
