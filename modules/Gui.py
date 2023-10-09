@@ -12,8 +12,7 @@ import PIL.Image
 import PIL.ImageTk
 
 import modules.Game
-from modules.Config import available_bot_modes, config, LoadConfig, keys_schema, SetBotMode, ToggleManualMode, \
-    on_bot_mode_change_callbacks
+from modules.Config import available_bot_modes, config, LoadConfig, keys_schema, SetBotMode, ToggleManualMode
 from modules.Console import console
 from modules.LibmgbaEmulator import LibmgbaEmulator
 from modules.Profiles import Profile, ListAvailableProfiles, ProfileDirectoryExists, CreateProfile
@@ -90,7 +89,7 @@ class EmulatorControls:
     def __init__(self, gui: 'PokebotGui', window: tkinter.Tk):
         self.gui = gui
         self.window = window
-        on_bot_mode_change_callbacks.append(lambda n: self.Update())
+        self.last_known_bot_mode = config['general']['bot_mode']
 
     def GetAdditionalWidth(self):
         return 200
@@ -100,14 +99,15 @@ class EmulatorControls:
 
     def AddToWindow(self):
         self.frame = tkinter.Frame(self.window, padx=10, pady=5)
-        self.frame.pack(side='right', fill='both', expand=True)
+        self.frame.grid(row=0, column=1, sticky='NWES')
         self.frame.columnconfigure(0, weight=1)
+        self.frame.rowconfigure(3, weight=1)
 
-        self._AddBotModeControls(0)
-        self._AddSpeedControls(2)
-        self._AddSettingsControls(4)
-        self._AddMessageArea(6)
-        self._AddVersionNotice(8)
+        self._AddBotModeControls(row=0, column=0)
+        self._AddSpeedControls(row=1, column=0)
+        self._AddSettingsControls(row=2, column=0)
+        self._AddMessageArea(row=3, column=0)
+        self._AddVersionNotice(row=4, column=0)
 
         self.Update()
 
@@ -128,6 +128,7 @@ class EmulatorControls:
 
         if self.bot_mode_combobox.get() != config['general']['bot_mode']:
             self.bot_mode_combobox.current(available_bot_modes.index(config['general']['bot_mode']))
+            self.last_known_bot_mode = config['general']['bot_mode']
 
         self._SetButtonColour(self.speed_1x_button, emulator.GetThrottle() and emulator.GetSpeedFactor() == 1)
         self._SetButtonColour(self.speed_2x_button, emulator.GetThrottle() and emulator.GetSpeedFactor() == 2)
@@ -144,63 +145,71 @@ class EmulatorControls:
         if self.frame:
             self.bot_message.config(text=message)
 
-    def _AddBotModeControls(self, row: int):
-        ttk.Label(self.frame, text='Bot Mode:', justify='left').grid(row=row, sticky='W')
-        self.bot_mode_combobox = ttk.Combobox(self.frame, values=available_bot_modes, width=20, state='readonly')
+    def OnFrameRender(self):
+        if config['general']['bot_mode'] != self.last_known_bot_mode:
+            self.Update()
+
+    def _AddBotModeControls(self, row: int, column: int):
+        group = tkinter.Frame(self.frame)
+        group.grid(row=row, column=column, sticky='W')
+
+        tkinter.Label(group, text='Bot Mode:', justify='left').grid(row=0, sticky='W')
+        self.bot_mode_combobox = ttk.Combobox(group, values=available_bot_modes, width=20, state='readonly')
         self.bot_mode_combobox.bind('<<ComboboxSelected>>',
                                     lambda e: self.gui.SetBotMode(self.bot_mode_combobox.get()))
-        self.bot_mode_combobox.grid(row=row + 1, sticky='W')
+        self.bot_mode_combobox.grid(row=1, sticky='W')
 
-    def _AddSpeedControls(self, row: int):
-        ttk.Label(self.frame, text='Emulation Speed:', justify='left').grid(row=row, sticky='W', pady=(15, 0))
-        speed_button_group = ttk.Frame(self.frame)
-        speed_button_group.grid(row=row + 1, sticky='W')
+    def _AddSpeedControls(self, row: int, column: int, sticky: str = 'W'):
+        group = tkinter.Frame(self.frame)
+        group.grid(row=row, column=column, sticky=sticky)
 
-        self.speed_1x_button = tkinter.Button(speed_button_group, text='1×', width=3, padx=0,
+        tkinter.Label(group, text='Emulation Speed:', justify='left').grid(row=0, columnspan=5, sticky='W',
+                                                                           pady=(10, 0))
+
+        self.speed_1x_button = tkinter.Button(group, text='1×', width=3, padx=0,
                                               command=lambda: self.gui.SetEmulationSpeed(1))
-        self.speed_2x_button = tkinter.Button(speed_button_group, text='2×', width=3, padx=0,
+        self.speed_2x_button = tkinter.Button(group, text='2×', width=3, padx=0,
                                               command=lambda: self.gui.SetEmulationSpeed(2))
-        self.speed_3x_button = tkinter.Button(speed_button_group, text='3×', width=3, padx=0,
+        self.speed_3x_button = tkinter.Button(group, text='3×', width=3, padx=0,
                                               command=lambda: self.gui.SetEmulationSpeed(3))
-        self.speed_4x_button = tkinter.Button(speed_button_group, text='4×', width=3, padx=0,
+        self.speed_4x_button = tkinter.Button(group, text='4×', width=3, padx=0,
                                               command=lambda: self.gui.SetEmulationSpeed(4))
-        self.unthrottled_button = tkinter.Button(speed_button_group, text='∞', width=3, padx=0,
+        self.unthrottled_button = tkinter.Button(group, text='∞', width=3, padx=0,
                                                  command=lambda: self.gui.SetEmulationSpeed(0))
 
         self.default_button_background = self.speed_1x_button.cget('background')
         self.default_button_foreground = self.speed_1x_button.cget('foreground')
 
-        self.speed_1x_button.grid(row=0, column=0)
-        self.speed_2x_button.grid(row=0, column=1)
-        self.speed_3x_button.grid(row=0, column=2)
-        self.speed_4x_button.grid(row=0, column=3)
-        self.unthrottled_button.grid(row=0, column=4)
+        self.speed_1x_button.grid(row=1, column=0)
+        self.speed_2x_button.grid(row=1, column=1)
+        self.speed_3x_button.grid(row=1, column=2)
+        self.speed_4x_button.grid(row=1, column=3)
+        self.unthrottled_button.grid(row=1, column=4)
 
-    def _AddSettingsControls(self, row: int):
-        tkinter.Label(self.frame, text='Other Settings:').grid(row=row, sticky='W', pady=(15, 0))
-        settings_group = tkinter.Frame(self.frame)
-        settings_group.grid(row=row + 1, sticky='W')
+    def _AddSettingsControls(self, row: int, column: int):
+        group = tkinter.Frame(self.frame)
+        group.grid(row=row, column=column, sticky='W')
 
-        self.toggle_video_button = tkinter.Button(settings_group, text='Video', width=6, padx=0,
+        tkinter.Label(group, text='Other Settings:').grid(row=0, columnspan=2, sticky='W', pady=(10, 0))
+
+        self.toggle_video_button = tkinter.Button(group, text='Video', width=6, padx=0,
                                                   command=self.gui.ToggleVideo)
-        self.toggle_audio_button = tkinter.Button(settings_group, text='Audio', width=6, padx=0,
+        self.toggle_audio_button = tkinter.Button(group, text='Audio', width=6, padx=0,
                                                   command=self.gui.ToggleAudio)
 
-        self.toggle_video_button.grid(row=0, column=0)
-        self.toggle_audio_button.grid(row=0, column=1)
+        self.toggle_video_button.grid(row=1, column=0)
+        self.toggle_audio_button.grid(row=1, column=1)
 
-    def _AddMessageArea(self, row: int):
-        self.frame.rowconfigure(row, weight=1)
-
+    def _AddMessageArea(self, row: int, column: int, columnspan: int = 1):
         group = tkinter.LabelFrame(self.frame, text='Message:', padx=5, pady=0)
-        group.grid(row=row, sticky='NSWE', pady=10)
+        group.grid(row=row, column=column, columnspan=columnspan, sticky='NSWE', pady=10)
 
         self.bot_message = tkinter.Label(group, wraplength=self.GetAdditionalWidth() - 45, justify='left')
         self.bot_message.grid(row=0, sticky='W')
 
-    def _AddVersionNotice(self, row: int):
+    def _AddVersionNotice(self, row: int, column: int):
         tkinter.Label(self.frame, text=f'{pokebot_name} {pokebot_version}', foreground='grey',
-                      font=tkinter.font.Font(size=9)).grid(row=row, sticky='E')
+                      font=tkinter.font.Font(size=9)).grid(row=row, column=column, sticky='E')
 
     def _SetButtonColour(self, button: tkinter.Button, active_condition: bool,
                          disabled_condition: bool = False) -> None:
@@ -212,6 +221,70 @@ class EmulatorControls:
         else:
             button.config(background=self.default_button_background, foreground=self.default_button_foreground,
                           state='normal')
+
+
+class DebugTab:
+    def Draw(self, root: ttk.Notebook):
+        pass
+
+    def Update(self, emulator: LibmgbaEmulator):
+        pass
+
+
+class DebugEmulatorControls(EmulatorControls):
+    debug_frame: Union[tkinter.Frame, None] = None
+    debug_notebook: ttk.Notebook
+    debug_tabs: list[DebugTab] = []
+
+    def GetAdditionalWidth(self):
+        return 480
+
+    def GetAdditionalHeight(self):
+        return 155
+
+    def AddToWindow(self):
+        self.window.columnconfigure(0, weight=0)
+        self.window.columnconfigure(1, weight=1)
+
+        self.debug_frame = tkinter.Frame(self.window, padx=10, pady=5)
+        self.debug_frame.rowconfigure(0, weight=1)
+        self.debug_frame.columnconfigure(0, weight=1)
+        self.debug_frame.grid(row=0, column=1, rowspan=2, sticky='NWES')
+
+        self.debug_notebook = ttk.Notebook(self.debug_frame)
+        for tab in self.debug_tabs:
+            tab.Draw(self.debug_notebook)
+        self.debug_notebook.grid(sticky='NWES')
+
+        self.frame = tkinter.Frame(self.window, padx=5, pady=5)
+        self.frame.grid(row=1, sticky='WE')
+        self.frame.columnconfigure(1, weight=1)
+        self.frame.rowconfigure(1, weight=1)
+
+        self._AddBotModeControls(row=0, column=0)
+        self._AddSpeedControls(row=0, column=1, sticky='N')
+        self._AddSettingsControls(row=0, column=2)
+
+        self._AddMessageArea(row=1, column=0, columnspan=3)
+        self._AddVersionNotice(row=2, column=2)
+
+        self.Update()
+
+    def AddTab(self, tab: DebugTab):
+        self.debug_tabs.append(tab)
+        if self.debug_frame is not None:
+            tab.Draw(self.debug_notebook)
+
+    def OnFrameRender(self):
+        index = self.debug_notebook.index('current')
+        self.debug_tabs[index].Update(emulator)
+
+    def RemoveFromWindow(self):
+        super().RemoveFromWindow()
+
+        if self.debug_frame:
+            self.debug_frame.destroy()
+        self.debug_frame = None
 
 
 class PokebotGui:
@@ -226,7 +299,7 @@ class PokebotGui:
     center_of_canvas: tuple[int, int] = (0, 0)
     previous_bot_mode: str = ''
 
-    def __init__(self, main_loop: callable, preselected_profile: Profile = None):
+    def __init__(self, main_loop: callable):
         global gui
         gui = self
 
@@ -237,6 +310,8 @@ class PokebotGui:
         self.window.protocol('WM_DELETE_WINDOW', self.CloseWindow)
         self.window.bind('<KeyPress>', self.HandleKeyDownEvent)
         self.window.bind('<KeyRelease>', self.HandleKeyUpEvent)
+        self.window.rowconfigure(0, weight=1)
+        self.window.columnconfigure(0, weight=1)
 
         key_config = LoadConfig('keys.yml', keys_schema)
         for key in input_map:
@@ -251,18 +326,19 @@ class PokebotGui:
 
         self.controls = EmulatorControls(self, self.window)
 
-        if preselected_profile:
+        self.window.iconphoto(False,
+                              tkinter.PhotoImage(file=str(Path(__file__).parent.parent / 'sprites' / 'app_icon.png')))
+
+    def __del__(self):
+        self.window.destroy()
+
+    def Run(self, preselected_profile: Profile = None):
+        if preselected_profile is not None:
             self.RunProfile(preselected_profile)
         else:
             self.ShowProfileSelection()
 
-        self.window.iconphoto(False,
-                              tkinter.PhotoImage(file=str(Path(__file__).parent.parent / 'sprites' / 'app_icon.png')))
-
         self.window.mainloop()
-
-    def __del__(self):
-        self.window.destroy()
 
     def CloseWindow(self) -> None:
         """
@@ -419,7 +495,7 @@ class PokebotGui:
             self.frame.destroy()
 
         frame = ttk.Frame(self.window, padding=10, width=320)
-        frame.pack(fill='both', expand=True)
+        frame.grid()
         frame.grid_rowconfigure(1, weight=1)
         frame.grid_columnconfigure(0, weight=1)
 
@@ -518,7 +594,7 @@ class PokebotGui:
         self.window.title(profile.rom.game_name)
         self.canvas = tkinter.Canvas(self.window, width=self.window.winfo_width(), height=self.window.winfo_height(),
                                      bg='#000000')
-        self.canvas.pack(side='left')
+        self.canvas.grid(sticky='NW')
         self.SetScale(2)
 
         self.main_loop(profile)
@@ -549,6 +625,8 @@ class PokebotGui:
         self.UpdateWindow()
 
     def UpdateWindow(self):
+        self.controls.OnFrameRender()
+
         current_fps = emulator.GetCurrentFPS()
         current_load = emulator.GetCurrentTimeSpentInBotFraction()
         if current_fps:

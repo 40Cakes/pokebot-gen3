@@ -106,9 +106,31 @@ if __name__ == '__main__':
     console.print(f'Starting [bold cyan]{pokebot_name} {pokebot_version}![/]')
     LoadConfigFromDirectory(Path(__file__).parent / 'config')
 
-    # Allow auto-starting a profile by running the bot like `python pokebot.py profile-name`.
+    # Allows auto-starting a profile by passing its name as an argument.
+    # It also supports the `--debug` flag to enable the debug GUI controls.
+    #
+    # Examples:
+    #     `python pokebot.py my-profile`          starts the 'my-profile' profile
+    #     `python pokebot.py my-profile --debug`  starts the 'my-profile' profile in debug mode
+    #     `python pokebot.py --debug`             starts the profile selection screen in debug mode
     preselected_profile = None
-    if len(sys.argv) > 1 and ProfileDirectoryExists(sys.argv[1]):
-        preselected_profile = LoadProfileByName(sys.argv[1])
+    debug_mode = False
+    for arg in sys.argv[1:]:
+        if arg == '--debug':
+            debug_mode = True
+        elif ProfileDirectoryExists(arg):
+            preselected_profile = LoadProfileByName(arg)
 
-    PokebotGui(MainLoop, preselected_profile)
+    gui = PokebotGui(MainLoop)
+    if debug_mode:
+        from modules.Gui import DebugEmulatorControls
+        from modules.GuiDebug import TasksTab, BattleTab, StringsTab
+
+        controls = DebugEmulatorControls(gui, gui.window)
+        controls.AddTab(TasksTab())
+        controls.AddTab(BattleTab())
+        controls.AddTab(StringsTab())
+
+        gui.controls = controls
+
+    gui.Run(preselected_profile)

@@ -5,7 +5,7 @@ from modules.Files import ReadFile
 from modules.Roms import ROM, ROMLanguage
 
 _symbols: dict[str, tuple[int, int]] = {}
-_reverse_symbols: dict[int, tuple[str, int]] = {}
+_reverse_symbols: dict[int, tuple[str, str, int]] = {}
 _char_map: str = ""
 
 
@@ -20,11 +20,11 @@ def _LoadSymbols(symbols_file: str, language: ROMLanguage) -> None:
 
             address = int(address, 16)
             length = int(length, 16)
-            label = label.strip().upper()
+            label = label.strip()
 
-            _symbols[label] = (address, length)
+            _symbols[label.upper()] = (address, length)
             if address not in _reverse_symbols or _reverse_symbols[address][1] == 0 and length > 0:
-                _reverse_symbols[address] = (label, length)
+                _reverse_symbols[address] = (label.upper(), label, length)
 
     language_code = str(language)
     language_patch_file = symbols_file.replace('.sym', '.json')
@@ -39,6 +39,7 @@ def _LoadSymbols(symbols_file: str, language: ROMLanguage) -> None:
                 )
                 _reverse_symbols[int(language_patches[item][language_code], 16)] = (
                     item.upper(),
+                    item,
                     _symbols[item.upper()][1]
                 )
 
@@ -104,7 +105,7 @@ def GetSymbol(symbol_name: str) -> tuple[int, int]:
     return _symbols[canonical_name]
 
 
-def GetSymbolName(address: int) -> str:
+def GetSymbolName(address: int, pretty_name: bool = False) -> str:
     """
     Get the name of a symbol based on the address
 
@@ -112,7 +113,7 @@ def GetSymbolName(address: int) -> str:
 
     :return: name of the symbol (str)
     """
-    return _reverse_symbols.get(address, ('',))[0]
+    return _reverse_symbols.get(address, ('','',))[0 if not pretty_name else 1]
 
 
 def DecodeString(encoded_string: bytes) -> str:
