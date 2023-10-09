@@ -222,8 +222,8 @@ This file controls keyboard to GBA button mappings.
 - Toggle video output on/off: `V`
 - Toggle audio output on/off: `B`
 - Zoom window scaling in/out: `+`, `-`
-- Reset emulator/reboot game: `~`
-- Exit the bot and emulator: `*`
+- Reset emulator/reboot game: `Ctrl + R`
+- Exit the bot and emulator: `Ctrl + Q`
 - Emulator speed:
   - 1x speed: `1`
   - 2x speed: `2`

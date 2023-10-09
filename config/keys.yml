@@ -15,6 +15,9 @@ gba:
   Select: 'BackSpace'
 
 # Keys that trigger emulator features
+#
+# You can optionally prefix a key code with 'Ctrl+' so that it only works if the Ctrl
+# modifier key is held at the same time.
 emulator:
   # Increases the zoom level by 1
   zoom_in: 'plus'
@@ -41,7 +44,7 @@ emulator:
   set_speed_unthrottled: '0'
 
   # Reset emulator core/reboot game
-  reset: 'asciitilde'
+  reset: 'Ctrl+R'
 
   # Exit emulator and bot
-  exit: 'asterisk'
+  exit: 'Ctrl+Q'

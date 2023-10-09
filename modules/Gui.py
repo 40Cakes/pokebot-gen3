@@ -242,7 +242,7 @@ class PokebotGui:
         for key in input_map:
             self.gba_keys[key_config['gba'][key]] = input_map[key]
         for action in key_config['emulator']:
-            self.emulator_keys[key_config['emulator'][action]] = action
+            self.emulator_keys[key_config['emulator'][action].lower()] = action
 
         self.main_loop = main_loop
 
@@ -257,7 +257,7 @@ class PokebotGui:
             self.ShowProfileSelection()
 
         self.window.iconphoto(False,
-                              tkinter.PhotoImage(file=str(Path(__file__).parent.parent / "sprites" / "app_icon.png")))
+                              tkinter.PhotoImage(file=str(Path(__file__).parent.parent / 'sprites' / 'app_icon.png')))
 
         self.window.mainloop()
 
@@ -309,16 +309,22 @@ class PokebotGui:
         self.controls.Update()
 
     def HandleKeyDownEvent(self, event) -> str:
+        keysym_with_modifier = ('ctrl+' if event.state & 4 else '') + event.keysym.lower()
+
+        # This is checked here so that the key binding also works when the emulator is not running,
+        # i.e. during the profile selection/creation screens.
+        if keysym_with_modifier in self.emulator_keys and self.emulator_keys[keysym_with_modifier] == 'exit':
+            self.CloseWindow()
+
+        # These key bindings will only be applied if the emulation has started.
         if emulator:
             if event.keysym in self.gba_keys and \
                     (config['general']['bot_mode'] == 'manual' or 'debug_' in config['general']['bot_mode']):
                 emulator.SetInputs(emulator.GetInputs() | self.gba_keys[event.keysym])
-            elif event.keysym in self.emulator_keys:
-                match self.emulator_keys[event.keysym]:
+            elif keysym_with_modifier in self.emulator_keys:
+                match self.emulator_keys[keysym_with_modifier]:
                     case 'reset':
                         emulator.Reset()
-                    case 'exit':
-                        self.CloseWindow()
                     case 'zoom_in':
                         self.SetScale(min(5, self.scale + 1))
                     case 'zoom_out':
@@ -342,6 +348,9 @@ class PokebotGui:
                         self.SetEmulationSpeed(4)
                     case 'set_speed_unthrottled':
                         self.SetEmulationSpeed(0)
+
+        # This prevents the default action for that key to be executed, which is important for
+        # the Tab key (which normally moves focus to the next GUI element.)
         return 'break'
 
     def HandleKeyUpEvent(self, event) -> None:
