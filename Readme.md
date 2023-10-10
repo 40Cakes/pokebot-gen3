@@ -28,12 +28,16 @@ The bot is frame perfect and can cheat by reading data from any point in memory.
 ***
 
 # 🔒 Prerequisites
-The bot can run on Windows, Ubuntu 23.04, and Debian 12 (support for Mac and other Linux distributions **_may_** be added later).
+### Operating Systems
+
+- Windows (**64-bit**)
+- Linux (**64-bit**)
+  - Note: only tested and confirmed working on **Ubuntu 23.04** and **Debian 12**
 
 ### Requirements
 - [Python 3.11](https://www.python.org/downloads/release/python-3110/)
 - Double click `requirements.py` or run `python requirements.py` in a terminal to install Python modules and [libmgba](https://github.com/hanzi/libmgba-py)
-  - **Ubuntu Linux 23.04** and **Debian 12** only: Install the following packages: `sudo apt install python3-tk libmgba0.10 portaudio19-dev`
+  - **Linux** only: Install the following packages with `apt` or appropriate package manager: `sudo apt install python3-tk libmgba0.10 portaudio19-dev`
 - Place some Pokémon .gba ROMs into the `roms/` folder
 
 ### Optional
