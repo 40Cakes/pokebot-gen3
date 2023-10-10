@@ -1,6 +1,6 @@
-import io
 import os
 import platform
+import random
 import re
 import time
 import tkinter
@@ -336,7 +336,13 @@ class PokebotGui:
 
         self.controls = EmulatorControls(self, self.window)
 
-        self.SetSpriteAsAppIcon(Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'shiny' / 'Seedot.png')
+        if random.randint(0, 9) == 0:
+            icon_dir = Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'shiny'
+        else:
+            icon_dir = Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'normal'
+
+        files = [x for x in icon_dir.glob('*.png') if x.is_file()]
+        self.SetSpriteAsAppIcon(random.choice(files))
 
     def __del__(self):
         self.window.destroy()
