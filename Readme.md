@@ -28,12 +28,16 @@ The bot is frame perfect and can cheat by reading data from any point in memory.
 ***
 
 # 🔒 Prerequisites
-The bot can run on Windows or Ubuntu Linux 23.04 (support for Mac and other Linux distributions **_may_** be added later.)
+### Operating Systems
+
+- Windows (**64-bit**)
+- Linux (**64-bit**)
+  - Note: only tested and confirmed working on **Ubuntu 23.04** and **Debian 12**
 
 ### Requirements
 - [Python 3.11](https://www.python.org/downloads/release/python-3110/)
 - Double click `requirements.py` or run `python requirements.py` in a terminal to install Python modules and [libmgba](https://github.com/hanzi/libmgba-py)
-  - **(Ubuntu Linux 23.04** only) `sudo apt install libmgba portaudio19-dev`
+  - **Linux** only: Install the following packages with `apt` or appropriate package manager: `sudo apt install python3-tk libmgba0.10 portaudio19-dev`
 - Place some Pokémon .gba ROMs into the `roms/` folder
 
 ### Optional
@@ -100,7 +104,7 @@ The bot will mash random directions to spin on a single tile.
 <details>
 <summary>✅🟨❌ Click here for support information</summary>
 
-|          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen | 
+|          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:----:|:--------:|:-------:|:-------:|:---------:|
 | English  |  ✅   |    ✅     |    ✅    |    ✅    |     ✅     |
 | Japanese |  -   |    -     |    -    |    -    |     -     |
@@ -141,7 +145,7 @@ For modes that use soft resets such as starters, the bot attempts to hit a uniqu
 <details>
 <summary>✅🟨❌ Click here for support information</summary>
 
-|          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen | 
+|          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
 | Japanese |    -    |      -      |     -      |     -      |      -       |
@@ -308,17 +312,17 @@ Each webhook type also supports pinging @users or @roles.
 `ping_mode` - set to `user` or `role`
 - Leave blank to disable pings
 
-`ping_id` - set to user/role ID 
+`ping_id` - set to user/role ID
 - **Settings** > **Advanced** > Enable **Developer Mode** to enable Discord developer mode
 - Right click **user/role** > **Copy ID**
 
 #### Webhook types
 `shiny_pokemon_encounter` - Shiny Pokémon encounters
- 
+
 ![Discord_c0jrjiKGRE](https://github.com/40Cakes/pokebot-gen3/assets/16377135/e1706b41-5f89-40b4-918d-30d6e8fa92c2)
 
 `pokemon_encounter_milestones` - Pokémon encounter milestones messages every `interval` encounters
- 
+
 ![Discord_ObO28tVrPk](https://github.com/40Cakes/pokebot-gen3/assets/16377135/5c4698f0-07cf-4289-aa4e-6398f56422e0)
 
 `shiny_pokemon_encounter_milestones` - Shiny Pokémon encounter milestones every `interval` encounters
@@ -386,7 +390,7 @@ RNG manipulation options may be added to the bot in the future, all cheats are d
 
 ### OBS
 #### OBS WebSocket Server Settings
-The `obs_websocket` config will allow the bot to send commands to OBS via WebSockets, 
+The `obs_websocket` config will allow the bot to send commands to OBS via WebSockets,
 see [here](https://github.com/obsproject/obs-websocket) for more information on OBS WebSockets.
 
 Enable WebSockets in **OBS** > **Tools** > **Websocket Server Settings** > **Enable WebSocket Server**
@@ -404,12 +408,12 @@ Enable WebSockets in **OBS** > **Tools** > **Websocket Server Settings** > **Ena
 
 `screenshot` - take OBS screenshot of shiny encounter
 - **Note**: **OBS** > **Settings** > **Hotkeys** > **Screenshot Output** must be set to **Ctrl + F11**
-- The bot does **not** emulate keystrokes, it simply sends a `TriggerHotkeyByKeySequence` (**Ctrl + F11**) WebSocket command 
+- The bot does **not** emulate keystrokes, it simply sends a `TriggerHotkeyByKeySequence` (**Ctrl + F11**) WebSocket command
 - Screenshot is taken after `shiny_delay` to allow stream overlays to update
 
 `replay_buffer` - save OBS replay buffer after `replay_buffer_delay`
 - **Note**: **OBS** > **Settings** > **Hotkeys** > **Replay Buffer** > **Save Replay** must set to **Ctrl + F12**
-- The bot does **not** emulate keystrokes, it simply sends a `TriggerHotkeyByKeySequence` (**Ctrl + F12**) WebSocket command 
+- The bot does **not** emulate keystrokes, it simply sends a `TriggerHotkeyByKeySequence` (**Ctrl + F12**) WebSocket command
 
 `replay_buffer_delay` - delay saving OBS replay buffer by `n` frames
 - Runs in a separate thread and will not pause main bot thread

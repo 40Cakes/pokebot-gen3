@@ -1,10 +1,11 @@
+import platform
 import sys
 from pathlib import Path
 from threading import Thread
 
 from modules.Config import config, LoadConfigFromDirectory
 from modules.Console import console
-from modules.Gui import PokebotGui, GetROM
+from modules.Gui import PokebotGui, GetROM, GetEmulator
 from modules.Inputs import WaitFrames
 from modules.Memory import GetGameState, GameState, GameHasStarted
 from modules.Pokemon import OpponentChanged, GetOpponent
@@ -105,6 +106,20 @@ def MainLoop(profile: Profile) -> None:
 if __name__ == '__main__':
     console.print(f'Starting [bold cyan]{pokebot_name} {pokebot_version}![/]')
     LoadConfigFromDirectory(Path(__file__).parent / 'config')
+
+    # This catches the signal Windows emits when the underlying console window is closed
+    # by the user. We still want to save the emulator state in that case, which would not
+    # happen by default!
+    if platform.system() == 'Windows':
+        import win32api
+
+        def Win32SignalHandler(signal_type):
+            if signal_type == 2:
+                emulator = GetEmulator()
+                if emulator is not None:
+                    emulator.Shutdown()
+
+        win32api.SetConsoleCtrlHandler(Win32SignalHandler, True)
 
     # Allows auto-starting a profile by passing its name as an argument.
     # It also supports the `--debug` flag to enable the debug GUI controls.
