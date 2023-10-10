@@ -55,7 +55,7 @@ try:
 
         case "Linux":
             linux_release = platform.freedesktop_os_release()
-            if not (linux_release["ID"] == "ubuntu" and linux_release["VERSION_ID"] == "23.04") or not (
+            if not (linux_release["ID"] == "ubuntu" and linux_release["VERSION_ID"] == "23.04") and not (
                 linux_release["ID"] == "debian" and linux_release["VERSION_ID"] == "12"
             ):
                 print(
