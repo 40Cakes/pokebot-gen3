@@ -164,6 +164,7 @@ class EmulatorControls:
         self.bot_mode_combobox = ttk.Combobox(group, values=available_bot_modes, width=20, state='readonly')
         self.bot_mode_combobox.bind('<<ComboboxSelected>>',
                                     lambda e: self.gui.SetBotMode(self.bot_mode_combobox.get()))
+        self.bot_mode_combobox.bind('<FocusIn>', lambda e: self.window.focus())
         self.bot_mode_combobox.grid(row=1, sticky='W')
 
     def _AddSpeedControls(self, row: int, column: int, sticky: str = 'W'):

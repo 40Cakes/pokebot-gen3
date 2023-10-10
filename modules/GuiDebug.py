@@ -6,19 +6,116 @@ from typing import TYPE_CHECKING
 from modules.Daycare import GetDaycareData, PokemonGender
 from modules.Game import DecodeString, _reverse_symbols
 from modules.Gui import DebugTab, GetROM
-from modules.Memory import ReadSymbol, ParseTasks, GetSymbolName
-from modules.Pokemon import names_list
+from modules.Memory import GetSymbol, ReadSymbol, ParseTasks, GetSymbolName
+from modules.Pokemon import names_list, GetParty
 from modules.Trainer import GetTrainer
 
 if TYPE_CHECKING:
     from modules.LibmgbaEmulator import LibmgbaEmulator
 
 
+class FancyTreeview:
+    def __init__(self, root: ttk.Widget, height=20, row=0, column=0, columnspan=1,
+                 additional_context_actions: dict[str, callable] = {}):
+        treeview_scrollbar_combo = ttk.Frame(root)
+        treeview_scrollbar_combo.columnconfigure(0, weight=1)
+        treeview_scrollbar_combo.grid(row=row, column=column, columnspan=columnspan)
+
+        self._items = {}
+        self._tv = ttk.Treeview(treeview_scrollbar_combo, columns=('value'), show='tree headings',
+                                selectmode='browse', height=height)
+
+        self._tv.column('value', width=220)
+
+        scrollbar = ttk.Scrollbar(treeview_scrollbar_combo, orient=tkinter.VERTICAL, command=self._tv.yview)
+        scrollbar.grid(row=0, column=1, sticky='NWS')
+        self._tv.configure(yscrollcommand=scrollbar.set)
+        self._tv.grid(row=0, column=0, sticky='E')
+
+        self._context_menu = tkinter.Menu(self._tv, tearoff=0)
+        self._context_menu.add_command(label='Copy Value', command=self._HandleCopy)
+        for action in additional_context_actions:
+            self._context_menu.add_command(label=action,
+                                           command=lambda: self._HandleAction(additional_context_actions[action]))
+
+        self._tv.bind('<Button-3>', self._HandleRightClick)
+
+    def UpdateData(self, data: dict) -> None:
+        found_items = self._UpdateDict(data, '', '')
+        missing_items = set(self._items.keys()) - set(found_items)
+        for key in missing_items:
+            try:
+                self._tv.delete(self._items[key])
+            except tkinter.TclError:
+                pass
+            del self._items[key]
+
+    def _UpdateDict(self, data: any, key_prefix: str, parent: str) -> list[str]:
+        found_items = []
+
+        for key in data:
+            item_key = f'{key_prefix}{key}'
+            if key == '__value':
+                pass
+            elif type(data[key]) == dict:
+                if item_key in self._items:
+                    item = self._items[item_key]
+                    self._tv.item(item, values=(data[key].get('__value', ''),))
+                else:
+                    item = self._tv.insert(parent, tkinter.END, text=key, values=(data[key].get('__value', ''),))
+                    self._items[item_key] = item
+                found_items.append(item_key)
+                found_items.extend(self._UpdateDict(data[key], f'{key_prefix}{key}.', item))
+            elif type(data[key]) == list or type(data[key]) == set:
+                if item_key in self._items:
+                    item = self._items[item_key]
+                else:
+                    item = self._tv.insert(parent, tkinter.END, text=key, values=('',))
+                    self._items[item_key] = item
+                found_items.append(item_key)
+
+                d = {}
+                for i in range(0, len(data[key])):
+                    d[str(i)] = data[key][i]
+
+                found_items.extend(self._UpdateDict(d, f'{key_prefix}{key}.', item))
+            else:
+                if item_key in self._items:
+                    item = self._items[item_key]
+                    self._tv.item(item, values=(data[key],))
+                else:
+                    item = self._tv.insert(parent, tkinter.END, text=key, values=(data[key],))
+                    self._items[item_key] = item
+                found_items.append(item_key)
+
+        return found_items
+
+    def _HandleRightClick(self, event) -> None:
+        item = self._tv.identify_row(event.y)
+        if item:
+            self._tv.selection_set(item)
+            self._context_menu.tk_popup(event.x_root, event.y_root)
+
+    def _HandleCopy(self) -> None:
+        selection = self._tv.selection()
+        if len(selection) < 1:
+            return
+
+        print(self._tv.item(selection[0])['values'][0])
+
+    def _HandleAction(self, callback: callable) -> None:
+        selection = self._tv.selection()
+        print(selection, callback)
+        if len(selection) < 1:
+            return
+
+        callback(self._tv.item(selection[0])['text'])
+
+
 class TasksTab(DebugTab):
     _cb1_label: ttk.Label
     _cb2_label: ttk.Label
-    _tv: ttk.Treeview
-    _items: list = []
+    _tv: FancyTreeview
 
     def Draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
@@ -32,28 +129,7 @@ class TasksTab(DebugTab):
         self._cb2_label = ttk.Label(frame, text='', padding=(10, 10))
         self._cb2_label.grid(row=1, column=1, sticky='W')
 
-        treeview_scrollbar_combo = ttk.Frame(frame, padding=(0, 10))
-        treeview_scrollbar_combo.columnconfigure(0, weight=1)
-        treeview_scrollbar_combo.grid(row=2, columnspan=2)
-
-        self._tv = ttk.Treeview(treeview_scrollbar_combo, columns=('func', 'priority', 'data'),
-                                show='headings', selectmode='browse', height=16)
-
-        self._tv.column('func', width=300)
-        self._tv.column('priority', width=40)
-
-        self._tv.heading('func', text='Function')
-        self._tv.heading('priority', text='Prio')
-        self._tv.heading('data', text='Data')
-
-        scrollbar = ttk.Scrollbar(treeview_scrollbar_combo, orient=tkinter.VERTICAL, command=self._tv.yview)
-        scrollbar.grid(row=0, column=1, sticky='NWS')
-        self._tv.configure(yscrollcommand=scrollbar.set)
-
-        for i in range(0, 16):
-            self._items.append(self._tv.insert('', tkinter.END, text=str(i), values=('', '', '')))
-
-        self._tv.grid(row=0, column=0, sticky='E')
+        self._tv = FancyTreeview(frame, height=16, row=2, columnspan=2)
 
         root.add(frame, text='Tasks')
 
@@ -67,60 +143,34 @@ class TasksTab(DebugTab):
         self._cb1_label.config(text=GetSymbolName(cb1_addr, pretty_name=True))
         self._cb2_label.config(text=GetSymbolName(cb2_addr, pretty_name=True))
 
+        data = {}
         index = 0
         for task in ParseTasks(pretty_names=True):
-            if task['func'].upper() == 'TASKDUMMY' or not task['isActive'] or task['func'] == b'\x00\x00\x00\x00':
-                self._tv.item(self._items[index], values=('', '', '', ''))
+            if task['func'].upper() == 'TASKDUMMY' or task['func'] == b'\x00\x00\x00\x00' or not task['isActive']:
                 continue
 
-            data = []
-            for byte in task['data']:
-                data.append(struct.pack('B', byte).hex())
-            while len(data) > 0 and data[-1] == '00':
-                data.pop()
-
-            self._tv.item(self._items[index],
-                          values=(task['func'], task['priority'], data))
+            data[task['func']] = {
+                '__value': task['data'].rstrip(b'\00').hex(' ', 1),
+                'function': task['func'],
+                'active': task['isActive'],
+                'priority': task['priority'],
+                'data': task['data'].hex(' ', 1)
+            }
             index += 1
+
+        self._tv.UpdateData(data)
 
 
 class BattleTab(DebugTab):
-    _tv: ttk.Treeview
-    _items: dict = {}
+    _tv: FancyTreeview
 
     def Draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
-
-        treeview_scrollbar_combo = ttk.Frame(frame)
-        treeview_scrollbar_combo.columnconfigure(0, weight=1)
-        treeview_scrollbar_combo.grid()
-
-        self._tv = ttk.Treeview(treeview_scrollbar_combo, columns=('name', 'value'), show='headings',
-                                selectmode='browse', height=20)
-
-        self._tv.column('name', width=210)
-        self._tv.heading('name', text='Name')
-
-        self._tv.column('value', width=210)
-        self._tv.heading('value', text='Value')
-
-        scrollbar = ttk.Scrollbar(treeview_scrollbar_combo, orient=tkinter.VERTICAL, command=self._tv.yview)
-        scrollbar.grid(row=0, column=1, sticky='NWS')
-        self._tv.configure(yscrollcommand=scrollbar.set)
-
-        data = self._GetData()
-        for key in data:
-            item = self._tv.insert('', tkinter.END, text=key, values=(key, data[key]))
-            self._items[key] = item
-
-        self._tv.grid(row=0, column=0, sticky='E')
-
+        self._tv = FancyTreeview(frame)
         root.add(frame, text='Battle')
 
     def Update(self, emulator: 'LibmgbaEmulator'):
-        data = self._GetData()
-        for key in data:
-            self._tv.item(self._items[key], values=(key, data[key]))
+        self._tv.UpdateData(self._GetData())
 
     def _GetData(self):
         data = ReadSymbol('gBattleResults')
@@ -156,96 +206,80 @@ class BattleTab(DebugTab):
         }
 
 
-class StringsTab(DebugTab):
-    SYMBOLS_TO_DISPLAY = ['gObjectEvents', 'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4']
-
-    _tv: ttk.Treeview
-    _items: dict = {}
+class SymbolsTab(DebugTab):
+    SYMBOLS_TO_DISPLAY = {'gObjectEvents', 'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4'}
+    DISPLAY_AS_STRING = {'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4'}
+    _tv: FancyTreeview
 
     def Draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
 
-        treeview_scrollbar_combo = ttk.Frame(frame)
-        treeview_scrollbar_combo.columnconfigure(0, weight=1)
-        treeview_scrollbar_combo.grid()
+        available_symbols = []
+        for key in _reverse_symbols:
+            symbol = _reverse_symbols[key]
+            if symbol[2] > 0 and \
+                    (symbol[1].startswith('s') or symbol[1].startswith('l') or symbol[1].startswith('g')) and \
+                    symbol[1][1] == symbol[1][1].upper():
+                available_symbols.append(symbol[1])
 
-        self._tv = ttk.Treeview(treeview_scrollbar_combo, columns=('name', 'decoded_value'), show='headings',
-                                selectmode='browse', height=20)
+        self._combobox = ttk.Combobox(frame, values=available_symbols)
+        self._combobox.grid(row=0, column=0)
+        self._combobox.bind('<<ComboboxSelected>>', self._HandleNewSymbol)
 
-        self._tv.column('name', width=120)
-        self._tv.heading('name', text='Symbol')
+        context_actions = {
+            'Remove from List': self._HandleRemoveSymbol,
+            'Toggle String Decoding': self._HandleToggleSymbol
+        }
 
-        self._tv.column('decoded_value', width=300)
-        self._tv.heading('decoded_value', text='String Data')
+        self._tv = FancyTreeview(frame, row=1, height=18, additional_context_actions=context_actions)
 
-        scrollbar = ttk.Scrollbar(treeview_scrollbar_combo, orient=tkinter.VERTICAL, command=self._tv.yview)
-        scrollbar.grid(row=0, column=1, sticky='NWS')
-        self._tv.configure(yscrollcommand=scrollbar.set)
-
-        data = self._GetData()
-        for key in data:
-            item = self._tv.insert('', tkinter.END, text=key, values=data[key])
-            self._items[key] = item
-
-        self._tv.grid(row=0, column=0, sticky='E')
-
-        root.add(frame, text='Strings')
+        root.add(frame, text='Symbols')
 
     def Update(self, emulator: 'LibmgbaEmulator'):
-        data = self._GetData()
-        for key in data:
-            self._tv.item(self._items[key], values=data[key])
-
-    def _GetData(self):
-        result = {}
+        data = {}
 
         for symbol in self.SYMBOLS_TO_DISPLAY:
             value = ReadSymbol(symbol.upper())
-            result[symbol] = (symbol, DecodeString(value))
+            if symbol in self.DISPLAY_AS_STRING:
+                data[symbol] = DecodeString(value)
+            else:
+                data[symbol] = value.hex(' ', 1)
 
-        return result
+        self._tv.UpdateData(data)
+
+    def _HandleNewSymbol(self, event):
+        new_symbol = self._combobox.get()
+        try:
+            GetSymbol(new_symbol)
+            self.SYMBOLS_TO_DISPLAY.add(new_symbol)
+        except RuntimeError:
+            pass
+
+    def _HandleRemoveSymbol(self, symbol: str):
+        self.SYMBOLS_TO_DISPLAY.remove(symbol)
+        self.DISPLAY_AS_STRING.remove(symbol)
+
+    def _HandleToggleSymbol(self, symbol: str):
+        if symbol in self.DISPLAY_AS_STRING:
+            self.DISPLAY_AS_STRING.remove(symbol)
+        else:
+            self.DISPLAY_AS_STRING.add(symbol)
 
 
 class TrainerTab(DebugTab):
-    _tv: ttk.Treeview
-    _items: dict = {}
+    _tv: FancyTreeview
 
     def Draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
-
-        treeview_scrollbar_combo = ttk.Frame(frame)
-        treeview_scrollbar_combo.columnconfigure(0, weight=1)
-        treeview_scrollbar_combo.grid()
-
-        self._tv = ttk.Treeview(treeview_scrollbar_combo, columns=('name', 'value'), show='headings',
-                                selectmode='browse', height=20)
-
-        self._tv.column('name', width=210)
-        self._tv.heading('name', text='Name')
-
-        self._tv.column('value', width=210)
-        self._tv.heading('value', text='Value')
-
-        scrollbar = ttk.Scrollbar(treeview_scrollbar_combo, orient=tkinter.VERTICAL, command=self._tv.yview)
-        scrollbar.grid(row=0, column=1, sticky='NWS')
-        self._tv.configure(yscrollcommand=scrollbar.set)
-
-        data = self._GetData()
-        for key in data:
-            item = self._tv.insert('', tkinter.END, text=key, values=(key, data[key]))
-            self._items[key] = item
-
-        self._tv.grid(row=0, column=0, sticky='E')
-
+        self._tv = FancyTreeview(frame)
         root.add(frame, text='Trainer')
 
     def Update(self, emulator: 'LibmgbaEmulator'):
-        data = self._GetData()
-        for key in data:
-            self._tv.item(self._items[key], values=(key, data[key]))
+        self._tv.UpdateData(self._GetData())
 
     def _GetData(self):
         data = GetTrainer()
+        party = GetParty()
 
         map_name = ''
         if GetROM().game_title in ['POKEMON EMER', 'POKEMON RUBY', 'POKEMON SAPP']:
@@ -255,7 +289,7 @@ class TrainerTab(DebugTab):
             except ValueError:
                 pass
 
-        return {
+        result = {
             'Name': data['name'],
             'Gender': data['gender'],
             'Trainer ID': data['tid'],
@@ -264,68 +298,68 @@ class TrainerTab(DebugTab):
             'Map Name': map_name,
             'Local Coordinates': data['coords'],
             'Facing Direction': data['facing'],
-            'On Bike': data['on_bike']
+            'On Bike': data['on_bike'],
         }
+
+        for i in range(0, 6):
+            key = f'Party Pokémon #{i + 1}'
+            if len(party) <= i:
+                result[key] = {'__value': 'n/a'}
+                continue
+
+            result[key] = party[i]
+
+            if party[i]['isEgg']:
+                result[key]['__value'] = 'Egg'
+            else:
+                result[key]['__value'] = f"{party[i]['name']} (lvl. {party[i]['level']})"
+
+        return result
 
 
 class DaycareTab(DebugTab):
-    _tv: ttk.Treeview
-    _items: dict = {}
+    _tv: FancyTreeview
 
     def Draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
-
-        treeview_scrollbar_combo = ttk.Frame(frame)
-        treeview_scrollbar_combo.columnconfigure(0, weight=1)
-        treeview_scrollbar_combo.grid()
-
-        self._tv = ttk.Treeview(treeview_scrollbar_combo, columns=('name', 'value'), show='headings',
-                                selectmode='browse', height=20)
-
-        self._tv.column('name', width=180)
-        self._tv.heading('name', text='Name')
-
-        self._tv.column('value', width=240)
-        self._tv.heading('value', text='Value')
-
-        scrollbar = ttk.Scrollbar(treeview_scrollbar_combo, orient=tkinter.VERTICAL, command=self._tv.yview)
-        scrollbar.grid(row=0, column=1, sticky='NWS')
-        self._tv.configure(yscrollcommand=scrollbar.set)
-
-        data = self._GetData()
-        for key in data:
-            item = self._tv.insert('', tkinter.END, text=key, values=(key, data[key]))
-            self._items[key] = item
-
-        self._tv.grid(row=0, column=0, sticky='E')
-
+        self._tv = FancyTreeview(frame)
         root.add(frame, text='Daycare')
 
     def Update(self, emulator: 'LibmgbaEmulator'):
-        data = self._GetData()
-        for key in data:
-            self._tv.item(self._items[key], values=(key, data[key]))
+        self._tv.UpdateData(self._GetData())
 
     def _GetData(self):
         data = GetDaycareData()
 
         pokemon1 = 'n/a'
         if data.pokemon1 is not None:
-            gender = PokemonGender.GetFromPokemonData(data.pokemon1).name
-            pokemon1 = f"{data.pokemon1['name']} ({gender})"
+            gender = f'({PokemonGender.GetFromPokemonData(data.pokemon1).name})'
+            if gender == PokemonGender.Genderless:
+                gender = ''
+
+            pokemon1 = {
+                '__value': f"{data.pokemon2['name']}{gender}; {data.pokemon1_steps:,} steps",
+                'pokemon': data.pokemon1,
+                'steps': data.pokemon1_steps,
+                'egg_groups': ', '.join(set(data.pokemon1_egg_groups))
+            }
 
         pokemon2 = 'n/a'
         if data.pokemon2 is not None:
-            gender = PokemonGender.GetFromPokemonData(data.pokemon2).name
-            pokemon2 = f"{data.pokemon2['name']} ({gender})"
+            gender = f'({PokemonGender.GetFromPokemonData(data.pokemon2).name})'
+            if gender == PokemonGender.Genderless:
+                gender = ''
+
+            pokemon2 = {
+                '__value': f"{data.pokemon2['name']}{gender}; {data.pokemon1_steps:,} steps",
+                'pokemon': data.pokemon2,
+                'steps': data.pokemon2_steps,
+                'egg_groups': ', '.join(set(data.pokemon2_egg_groups))
+            }
 
         return {
-            'Pokemon 1': pokemon1,
-            'Pokemon 1 Egg Groups': ', '.join(set(data.pokemon1_egg_groups)),
-            'Pokemon 1 Steps': data.pokemon1_steps,
-            'Pokemon 2': pokemon2,
-            'Pokemon 2 Egg Groups': ', '.join(set(data.pokemon2_egg_groups)),
-            'Pokemon 2 Steps': data.pokemon2_steps,
+            'Patient #1': pokemon1,
+            'Patient #2': pokemon2,
             'Offspring Personality': data.offspring_personality,
             'Step Counter': data.step_counter,
             'Compatibility': data.compatibility[0].name,
