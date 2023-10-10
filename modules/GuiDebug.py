@@ -3,7 +3,8 @@ import tkinter
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-from modules.Game import DecodeString
+from modules.Daycare import GetDaycareData, PokemonGender
+from modules.Game import DecodeString, _reverse_symbols
 from modules.Gui import DebugTab, GetROM
 from modules.Memory import ReadSymbol, ParseTasks, GetSymbolName
 from modules.Pokemon import names_list
@@ -264,4 +265,69 @@ class TrainerTab(DebugTab):
             'Local Coordinates': data['coords'],
             'Facing Direction': data['facing'],
             'On Bike': data['on_bike']
+        }
+
+
+class DaycareTab(DebugTab):
+    _tv: ttk.Treeview
+    _items: dict = {}
+
+    def Draw(self, root: ttk.Notebook):
+        frame = ttk.Frame(root, padding=10)
+
+        treeview_scrollbar_combo = ttk.Frame(frame)
+        treeview_scrollbar_combo.columnconfigure(0, weight=1)
+        treeview_scrollbar_combo.grid()
+
+        self._tv = ttk.Treeview(treeview_scrollbar_combo, columns=('name', 'value'), show='headings',
+                                selectmode='browse', height=20)
+
+        self._tv.column('name', width=180)
+        self._tv.heading('name', text='Name')
+
+        self._tv.column('value', width=240)
+        self._tv.heading('value', text='Value')
+
+        scrollbar = ttk.Scrollbar(treeview_scrollbar_combo, orient=tkinter.VERTICAL, command=self._tv.yview)
+        scrollbar.grid(row=0, column=1, sticky='NWS')
+        self._tv.configure(yscrollcommand=scrollbar.set)
+
+        data = self._GetData()
+        for key in data:
+            item = self._tv.insert('', tkinter.END, text=key, values=(key, data[key]))
+            self._items[key] = item
+
+        self._tv.grid(row=0, column=0, sticky='E')
+
+        root.add(frame, text='Daycare')
+
+    def Update(self, emulator: 'LibmgbaEmulator'):
+        data = self._GetData()
+        for key in data:
+            self._tv.item(self._items[key], values=(key, data[key]))
+
+    def _GetData(self):
+        data = GetDaycareData()
+
+        pokemon1 = 'n/a'
+        if data.pokemon1 is not None:
+            gender = PokemonGender.GetFromPokemonData(data.pokemon1).name
+            pokemon1 = f"{data.pokemon1['name']} ({gender})"
+
+        pokemon2 = 'n/a'
+        if data.pokemon2 is not None:
+            gender = PokemonGender.GetFromPokemonData(data.pokemon2).name
+            pokemon2 = f"{data.pokemon2['name']} ({gender})"
+
+        return {
+            'Pokemon 1': pokemon1,
+            'Pokemon 1 Egg Groups': ', '.join(set(data.pokemon1_egg_groups)),
+            'Pokemon 1 Steps': data.pokemon1_steps,
+            'Pokemon 2': pokemon2,
+            'Pokemon 2 Egg Groups': ', '.join(set(data.pokemon2_egg_groups)),
+            'Pokemon 2 Steps': data.pokemon2_steps,
+            'Offspring Personality': data.offspring_personality,
+            'Step Counter': data.step_counter,
+            'Compatibility': data.compatibility[0].name,
+            'Compatibility Reason': data.compatibility[1],
         }
