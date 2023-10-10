@@ -11,6 +11,8 @@ from tkinter import ttk
 from typing import Union
 
 import PIL.Image
+import PIL.ImageDraw
+import PIL.ImageFont
 import PIL.ImageTk
 
 import modules.Game
@@ -95,22 +97,23 @@ class EmulatorControls:
         self.last_known_bot_mode = config['general']['bot_mode']
 
     def GetAdditionalWidth(self):
-        return 200
-
-    def GetAdditionalHeight(self):
         return 0
 
+    def GetAdditionalHeight(self):
+        return 165
+
     def AddToWindow(self):
-        self.frame = tkinter.Frame(self.window, padx=10, pady=5)
-        self.frame.grid(row=0, column=1, sticky='NWES')
-        self.frame.columnconfigure(0, weight=1)
-        self.frame.rowconfigure(3, weight=1)
+        self.frame = tkinter.Frame(self.window, padx=5, pady=5)
+        self.frame.grid(row=1, sticky='WE')
+        self.frame.columnconfigure(1, weight=1)
+        self.frame.rowconfigure(1, weight=1)
 
         self._AddBotModeControls(row=0, column=0)
-        self._AddSpeedControls(row=1, column=0)
-        self._AddSettingsControls(row=2, column=0)
-        self._AddMessageArea(row=3, column=0)
-        self._AddVersionNotice(row=4, column=0)
+        self._AddSpeedControls(row=0, column=1, sticky='N')
+        self._AddSettingsControls(row=0, column=2)
+
+        self._AddMessageArea(row=1, column=0, columnspan=3)
+        self._AddVersionNotice(row=2, column=2)
 
         self.Update()
 
@@ -208,8 +211,8 @@ class EmulatorControls:
         group = tkinter.LabelFrame(self.frame, text='Message:', padx=5, pady=0)
         group.grid(row=row, column=column, columnspan=columnspan, sticky='NSWE', pady=10)
 
-        self.bot_message = tkinter.Label(group, wraplength=self.GetAdditionalWidth() - 45, justify='left')
-        self.bot_message.grid(row=0, sticky='W')
+        self.bot_message = tkinter.Label(group, wraplength=self.GetAdditionalWidth() - 45, justify='left', height=2)
+        self.bot_message.grid(row=0, sticky='NW')
 
     def _AddVersionNotice(self, row: int, column: int):
         tkinter.Label(self.frame, text=f'{pokebot_name} {pokebot_version}', foreground='grey',
@@ -243,9 +246,6 @@ class DebugEmulatorControls(EmulatorControls):
     def GetAdditionalWidth(self):
         return 480
 
-    def GetAdditionalHeight(self):
-        return 155
-
     def AddToWindow(self):
         self.window.columnconfigure(0, weight=0)
         self.window.columnconfigure(1, weight=1)
@@ -260,19 +260,7 @@ class DebugEmulatorControls(EmulatorControls):
             tab.Draw(self.debug_notebook)
         self.debug_notebook.grid(sticky='NWES')
 
-        self.frame = tkinter.Frame(self.window, padx=5, pady=5)
-        self.frame.grid(row=1, sticky='WE')
-        self.frame.columnconfigure(1, weight=1)
-        self.frame.rowconfigure(1, weight=1)
-
-        self._AddBotModeControls(row=0, column=0)
-        self._AddSpeedControls(row=0, column=1, sticky='N')
-        self._AddSettingsControls(row=0, column=2)
-
-        self._AddMessageArea(row=1, column=0, columnspan=3)
-        self._AddVersionNotice(row=2, column=2)
-
-        self.Update()
+        super().AddToWindow()
 
     def AddTab(self, tab: DebugTab):
         self.debug_tabs.append(tab)
@@ -336,13 +324,7 @@ class PokebotGui:
 
         self.controls = EmulatorControls(self, self.window)
 
-        if random.randint(0, 9) == 0:
-            icon_dir = Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'shiny'
-        else:
-            icon_dir = Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'normal'
-
-        files = [x for x in icon_dir.glob('*.png') if x.is_file()]
-        self.SetSpriteAsAppIcon(random.choice(files))
+        self.SetSpriteAsAppIcon(self.ChooseRandomSprite())
 
     def __del__(self):
         self.window.destroy()
@@ -354,6 +336,16 @@ class PokebotGui:
             self.ShowProfileSelection()
 
         self.window.mainloop()
+
+    def ChooseRandomSprite(self):
+        if random.randint(0, 9) == 0:
+            icon_dir = Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'shiny'
+        else:
+            icon_dir = Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'normal'
+
+        files = [x for x in icon_dir.glob('*.png') if x.is_file()]
+
+        return random.choice(files)
 
     def SetSpriteAsAppIcon(self, path: Path):
         image: PIL.Image = PIL.Image.open(path)
@@ -431,6 +423,21 @@ class PokebotGui:
     def ToggleVideo(self) -> None:
         emulator.SetVideoEnabled(not emulator.GetVideoEnabled())
         self.controls.Update()
+        if not emulator.GetVideoEnabled():
+            # Create a fancy placeholder image.
+            placeholder = PIL.Image.new(mode='RGBA', size=(self.width * self.scale, self.height * self.scale))
+            draw = PIL.ImageDraw.Draw(placeholder)
+
+            # Black background
+            draw.rectangle(xy=[(0, 0), (placeholder.width, placeholder.height)], fill='#000000FF')
+
+            # Paste a random sprite on top
+            sprite = PIL.Image.open(self.ChooseRandomSprite())
+            sprite_position = (placeholder.width // 2 - sprite.width // 2, placeholder.height // 2 - sprite.height // 2)
+            placeholder.paste(sprite, sprite_position, sprite)
+
+            self.canvas_current_image = PIL.ImageTk.PhotoImage(placeholder)
+            self.canvas.create_image(self.center_of_canvas, image=self.canvas_current_image, state='normal')
 
     def SetBotMode(self, new_bot_mode: str) -> None:
         SetBotMode(new_bot_mode)
@@ -660,8 +667,7 @@ class PokebotGui:
         self.height = dimensions[1]
 
         self.window.title(profile.rom.game_name)
-        self.canvas = tkinter.Canvas(self.window, width=self.window.winfo_width(), height=self.window.winfo_height(),
-                                     bg='#000000')
+        self.canvas = tkinter.Canvas(self.window, width=self.window.winfo_width(), height=self.window.winfo_height())
         self.canvas.grid(sticky='NW')
         self.SetScale(2)
 
