@@ -23,7 +23,7 @@ def _LoadSymbols(symbols_file: str, language: ROMLanguage) -> None:
             label = label.strip()
 
             _symbols[label.upper()] = (address, length)
-            if address not in _reverse_symbols or _reverse_symbols[address][1] == 0 and length > 0:
+            if address not in _reverse_symbols or _reverse_symbols[address][2] == 0 and length > 0:
                 _reverse_symbols[address] = (label.upper(), label, length)
 
     language_code = str(language)

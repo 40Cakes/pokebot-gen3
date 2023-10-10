@@ -1,6 +1,7 @@
 import os
 import platform
 import re
+import time
 import tkinter
 import tkinter.font
 from datetime import datetime
@@ -294,6 +295,7 @@ class PokebotGui:
     window: tkinter.Tk = None
     frame: tkinter.Widget = None
     canvas: tkinter.Canvas = None
+    canvas_current_image: tkinter.PhotoImage
     gba_keys: dict[str, int] = {}
     emulator_keys: dict[str, str] = {}
     width: int = 240
@@ -301,6 +303,10 @@ class PokebotGui:
     scale: int = 1
     center_of_canvas: tuple[int, int] = (0, 0)
     previous_bot_mode: str = ''
+
+    stepping_mode: bool = False
+    stepping_button: tkinter.Button
+    current_step: int = 0
 
     def __init__(self, main_loop: callable):
         global gui
@@ -387,6 +393,19 @@ class PokebotGui:
         SetBotMode(new_bot_mode)
         self.controls.Update()
 
+    def ToggleSteppingMode(self) -> None:
+        self.stepping_mode = not self.stepping_mode
+        if self.stepping_mode:
+            def NextStep():
+                self.current_step += 1
+
+            self.stepping_button = tkinter.Button(self.window, text='⮞', padx=8, background='red',
+                                                  foreground='white', command=NextStep)
+            self.stepping_button.place(x=0, y=0)
+            self.current_step = 0
+        else:
+            self.stepping_button.destroy()
+
     def HandleKeyDownEvent(self, event) -> str:
         keysym_with_modifier = ('ctrl+' if event.state & 4 else '') + event.keysym.lower()
 
@@ -397,13 +416,15 @@ class PokebotGui:
 
         # These key bindings will only be applied if the emulation has started.
         if emulator:
-            if event.keysym in self.gba_keys and \
+            if keysym_with_modifier in self.gba_keys and \
                     (config['general']['bot_mode'] == 'manual' or 'debug_' in config['general']['bot_mode']):
-                emulator.SetInputs(emulator.GetInputs() | self.gba_keys[event.keysym])
+                emulator.SetInputs(emulator.GetInputs() | self.gba_keys[keysym_with_modifier])
             elif keysym_with_modifier in self.emulator_keys:
                 match self.emulator_keys[keysym_with_modifier]:
                     case 'reset':
                         emulator.Reset()
+                    case 'toggle_stepping_mode':
+                        self.ToggleSteppingMode()
                     case 'zoom_in':
                         self.SetScale(min(5, self.scale + 1))
                     case 'zoom_out':
@@ -587,7 +608,7 @@ class PokebotGui:
 
         global emulator, profile
         profile = profile_to_run
-        emulator = LibmgbaEmulator(profile, self)
+        emulator = LibmgbaEmulator(profile, self.HandleFrame)
         modules.Game.SetROM(profile.rom)
 
         dimensions = emulator.GetImageDimensions()
@@ -617,13 +638,27 @@ class PokebotGui:
         if scale > 1:
             self.controls.AddToWindow()
 
+    def HandleFrame(self) -> None:
+        if emulator._performance_tracker.TimeSinceLastRender() >= (1 / 60) * 1_000_000_000:
+            if emulator.GetVideoEnabled():
+                self.UpdateImage(emulator.GetCurrentScreenImage())
+            else:
+                self.UpdateWindow()
+            emulator._performance_tracker.TrackRender()
+
+        previous_step = self.current_step
+        while self.stepping_mode and previous_step == self.current_step:
+            self.window.update_idletasks()
+            self.window.update()
+            time.sleep(1 / 60)
+
     def UpdateImage(self, image: PIL.Image) -> None:
         if not self.window:
             return
 
-        photo_image = PIL.ImageTk.PhotoImage(
+        self.canvas_current_image = PIL.ImageTk.PhotoImage(
             image=image.resize((self.width * self.scale, self.height * self.scale), resample=False))
-        self.canvas.create_image(self.center_of_canvas, image=photo_image, state='normal')
+        self.canvas.create_image(self.center_of_canvas, image=self.canvas_current_image, state='normal')
 
         self.UpdateWindow()
 
