@@ -246,7 +246,7 @@ class SymbolsTab(DebugTab):
 
         search_input = ttk.Entry(self._mini_window)
         search_input.grid(row=0, column=0, sticky='NWE')
-        search_input.focus_set()
+        search_input.focus_force()
 
         tv_frame = ttk.Frame(self._mini_window)
         tv_frame.columnconfigure(0, weight=1)
