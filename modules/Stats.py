@@ -337,8 +337,8 @@ def PrintStats(pokemon: dict) -> NoReturn:
                         stats['totals'].get('phase_highest_sv', -1)
                     ))
                 console.print('Total Shinies: {:,} | Total Encounters: {:,} | Total Shiny Average: {}'.format(
-                    stats['totals'].get('encounters', 0),
                     stats['totals'].get('shiny_encounters', 0),
+                    stats['totals'].get('encounters', 0),
                     stats['totals'].get('shiny_average', 'N/A')
                 ))
 
