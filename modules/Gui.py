@@ -41,8 +41,9 @@ emulator: LibmgbaEmulator = None
 profile: Profile = None
 
 
-def GetGUI() -> 'PokebotGui':
-    return gui
+def SetMessage(message: str) -> None:
+    if gui is not None:
+        gui.SetMessage(message)
 
 
 def GetEmulator() -> LibmgbaEmulator:
@@ -71,8 +72,8 @@ if platform.system() == 'Windows':
 
     def PromptBeforeExit() -> None:
         parent_process_name = psutil.Process(os.getppid()).name()
-        if parent_process_name == 'py.exe':
-            GetGUI().window.withdraw()
+        if parent_process_name == 'py.exe' and gui is not None:
+            gui.window.withdraw()
             input('Press Enter to close...')
 
 
