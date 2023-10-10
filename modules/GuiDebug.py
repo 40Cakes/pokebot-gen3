@@ -274,6 +274,8 @@ class SymbolsTab(DebugTab):
                 continue
             if symbol[1] != symbol[1].upper():
                 continue
+            if symbol in self.SYMBOLS_TO_DISPLAY:
+                continue
 
             if symbol not in items:
                 items[symbol] = tv.insert('', tkinter.END, text=symbol,
