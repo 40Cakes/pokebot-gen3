@@ -36,7 +36,7 @@ class FancyTreeview:
         self._context_menu.add_command(label='Copy Value', command=self._HandleCopy)
         for action in additional_context_actions:
             self._context_menu.add_command(label=action,
-                                           command=lambda: self._HandleAction(additional_context_actions[action]))
+                                           command=lambda a=action: self._HandleAction(additional_context_actions[a]))
 
         self._tv.bind('<Button-3>', self._HandleRightClick)
 
