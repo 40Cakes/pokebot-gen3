@@ -274,7 +274,7 @@ def GetParty(retry: int = 10) -> dict:
         console.print_exception(show_locals=True)
 
 
-def GetOpponent() -> dict:
+def GetOpponent(retry: int = 10) -> dict:
     """
     Gets the current opponent/encounter from `gEnemyParty`, decodes and returns.
 
@@ -284,7 +284,7 @@ def GetOpponent() -> dict:
         while True:
             mon = ParsePokemon(ReadSymbol('gEnemyParty')[:100])
             # try
-            for i in range(30):
+            for i in range(retry):
                 if not mon:
                     console.print('[red]Pokémon has invalid checksum! Waiting 1 frame and checking again...')
                     WaitFrames(1)
@@ -296,7 +296,7 @@ def GetOpponent() -> dict:
         console.print_exception(show_locals=True)
 
 
-last_opid = b'\x00\x00\x00\x00' # ReadSymbol('gEnemyParty', size=4)
+last_opid = b'\x00\x00\x00\x00'  # ReadSymbol('gEnemyParty', size=4)
 
 
 def OpponentChanged() -> bool:
