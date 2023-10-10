@@ -631,7 +631,7 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
         block_list = config_catch_block['block_list']
 
     LogEncounter(pokemon, block_list)
-    GetGUI().SetMessage(f"Encountered a {pokemon['name']} with a shiny value of {pokemon['shinyValue']}!")
+    GetGUI().SetMessage(f"Encountered a {pokemon['name']} with a shiny value of {pokemon['shinyValue']:,}!")
 
 # TODO temporary until auto-catch is ready
     custom_found = CustomCatchFilters(pokemon)
