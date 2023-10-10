@@ -55,12 +55,11 @@ try:
 
         case "Linux":
             linux_release = platform.freedesktop_os_release()
-            if not (linux_release["ID"] == "ubuntu" and linux_release["VERSION_ID"] == "23.04") or not (
-                linux_release["ID"] == "debian" and linux_release["VERSION_ID"] == "12"
-            ):
+            supported_linux_releases = [("ubuntu", "23.04"), ("debian", "12")]
+            if (linux_release["ID"], linux_release["VERSION_ID"]) not in supported_linux_releases:
                 print(
                     f'You are running an untested version of Linux ({linux_release["PRETTY_NAME"]}). '
-                    "Currently, only Ubuntu 23.04 and Debian 12 have been tested and confirmed working."
+                    f"Currently, only {supported_linux_releases} have been tested and confirmed working."
                 )
                 input("Press enter to install libmgba anyway...")
             libmgba_url = (
