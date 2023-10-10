@@ -1,3 +1,4 @@
+import io
 import os
 import platform
 import re
@@ -335,8 +336,7 @@ class PokebotGui:
 
         self.controls = EmulatorControls(self, self.window)
 
-        self.window.iconphoto(False,
-                              tkinter.PhotoImage(file=str(Path(__file__).parent.parent / 'sprites' / 'app_icon.png')))
+        self.SetSpriteAsAppIcon(Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'shiny' / 'Seedot.png')
 
     def __del__(self):
         self.window.destroy()
@@ -348,6 +348,43 @@ class PokebotGui:
             self.ShowProfileSelection()
 
         self.window.mainloop()
+
+    def SetSpriteAsAppIcon(self, path: Path):
+        image: PIL.Image = PIL.Image.open(path)
+
+        bbox = list(image.getbbox())
+        bbox_width = bbox[2] - bbox[0]
+        bbox_height = bbox[3] - bbox[1]
+
+        # Make sure the image is sqare (width == height)
+        if bbox_width - bbox_height:
+            # Wider than high
+            missing_height = bbox_width - bbox_height
+            bbox[1] -= missing_height // 2
+            bbox[3] += missing_height // 2 + (missing_height % 2)
+        else:
+            # Higher than wide (or equal sizes)
+            missing_width = bbox_height - bbox_width
+            bbox[0] -= missing_width // 2
+            bbox[2] += missing_width // 2 + (missing_width % 2)
+
+        # Make sure we didn't move the bounding box out of scope
+        if bbox[0] < 0:
+            bbox[2] -= bbox[0]
+            bbox[0] = 0
+        if bbox[1] < 0:
+            bbox[3] -= bbox[1]
+            bbox[1] = 0
+        if bbox[2] > image.width:
+            bbox[0] -= bbox[2] - image.width
+            bbox[2] = image.width
+        if bbox[3] > image.height:
+            bbox[1] -= bbox[3] - image.height
+            bbox[3] = image.height
+
+        cropped_image = image.crop(bbox)
+        icon = PIL.ImageTk.PhotoImage(cropped_image)
+        self.window.iconphoto(False, icon)
 
     def CloseWindow(self) -> None:
         """
