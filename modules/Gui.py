@@ -324,6 +324,14 @@ class PokebotGui:
 
         self.controls = EmulatorControls(self, self.window)
 
+        # This forces the app icon to be used in the task bar on Windows
+        if platform.system() == 'Windows':
+            try:
+                from win32com.shell import shell
+                shell.SetCurrentProcessExplicitAppUserModelID('40cakes.pokebot-gen3')
+            except ImportError:
+                pass
+
         self.SetSpriteAsAppIcon(self.ChooseRandomSprite())
 
     def __del__(self):
