@@ -1,4 +1,5 @@
 import struct
+import time
 import tkinter
 from tkinter import ttk
 from typing import TYPE_CHECKING
@@ -210,21 +211,13 @@ class SymbolsTab(DebugTab):
     SYMBOLS_TO_DISPLAY = {'gObjectEvents', 'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4'}
     DISPLAY_AS_STRING = {'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4'}
     _tv: FancyTreeview
+    _mini_window: tkinter.Tk = None
 
     def Draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
 
-        available_symbols = []
-        for key in _reverse_symbols:
-            symbol = _reverse_symbols[key]
-            if symbol[2] > 0 and \
-                    (symbol[1].startswith('s') or symbol[1].startswith('l') or symbol[1].startswith('g')) and \
-                    symbol[1][1] == symbol[1][1].upper():
-                available_symbols.append(symbol[1])
-
-        self._combobox = ttk.Combobox(frame, values=available_symbols, state='readonly')
-        self._combobox.grid(row=0, column=0)
-        self._combobox.bind('<<ComboboxSelected>>', self._HandleNewSymbol)
+        button = ttk.Button(frame, text='Add Symbol to Watch', command=self._AddNewSymbol)
+        button.grid(row=0, column=0, sticky='NE')
 
         context_actions = {
             'Remove from List': self._HandleRemoveSymbol,
@@ -234,6 +227,96 @@ class SymbolsTab(DebugTab):
         self._tv = FancyTreeview(frame, row=1, height=18, additional_context_actions=context_actions)
 
         root.add(frame, text='Symbols')
+
+    def _AddNewSymbol(self):
+        if self._mini_window is not None:
+            return
+
+        self._mini_window = tkinter.Tk()
+        self._mini_window.title('Add a symbol to list')
+        self._mini_window.geometry('480x480')
+
+        def RemoveWindow(event=None):
+            self._mini_window.destroy()
+            self._mini_window = None
+
+        self._mini_window.protocol('WM_DELETE_WINDOW', RemoveWindow)
+        self._mini_window.rowconfigure(1, weight=1)
+        self._mini_window.columnconfigure(0, weight=1)
+
+        search_input = ttk.Entry(self._mini_window)
+        search_input.grid(row=0, column=0, sticky='NWE')
+        search_input.focus_set()
+
+        tv_frame = ttk.Frame(self._mini_window)
+        tv_frame.columnconfigure(0, weight=1)
+        tv_frame.grid(row=1, column=0, sticky='NWSE')
+
+        tv = ttk.Treeview(tv_frame, columns=('name', 'address', 'length'), show='headings', selectmode='browse',
+                          height=22)
+
+        tv.column('name', width=300)
+        tv.heading('name', text='Symbol Name')
+
+        tv.column('address', width=90)
+        tv.heading('address', text='Address')
+
+        tv.column('length', width=90)
+        tv.heading('length', text='Length')
+
+        items: dict[str, str] = {}
+        detached_items = set()
+        for address in _reverse_symbols:
+            _, symbol, length = _reverse_symbols[address]
+            if length == 0:
+                continue
+            if not (symbol.startswith('s') or symbol.startswith('l') or symbol.startswith('g')):
+                continue
+            if symbol[1] != symbol[1].upper():
+                continue
+
+            if symbol not in items:
+                items[symbol] = tv.insert('', tkinter.END, text=symbol,
+                                          values=(symbol, hex(address), hex(length)))
+
+        def HandleInput(event=None):
+            search_term = search_input.get().strip().lower()
+            for key in items:
+                if search_term in key.lower() and key in detached_items:
+                    tv.reattach(items[key], '', 0)
+                    detached_items.remove(key)
+                elif search_term not in key.lower() and key not in detached_items:
+                    tv.detach(items[key])
+                    detached_items.add(key)
+
+        search_input.bind('<KeyRelease>', HandleInput)
+
+        def HandleDoubleClick(event):
+            if self._mini_window is not None:
+                item = tv.identify_row(event.y)
+                if item:
+                    self.SYMBOLS_TO_DISPLAY.add(tv.item(item)['text'])
+                    tv.after(50, RemoveWindow)
+
+        tv.bind('<Double-Button-1>', HandleDoubleClick)
+
+        scrollbar = ttk.Scrollbar(tv_frame, orient=tkinter.VERTICAL, command=tv.yview)
+        scrollbar.grid(row=0, column=1, sticky='NWS')
+        tv.configure(yscrollcommand=scrollbar.set)
+        tv.grid(row=0, column=0, sticky='E')
+
+        def HandleFocusOut(event=None):
+            if self._mini_window.focus_get() is None:
+                RemoveWindow()
+
+        self._mini_window.bind('<FocusOut>', HandleFocusOut)
+        self._mini_window.bind('<Escape>', RemoveWindow)
+        self._mini_window.bind('<Control-q>', RemoveWindow)
+
+        while self._mini_window is not None and self._mini_window.state() != 'destroyed':
+            self._mini_window.update_idletasks()
+            self._mini_window.update()
+            time.sleep(1 / 60)
 
     def Update(self, emulator: 'LibmgbaEmulator'):
         data = {}
