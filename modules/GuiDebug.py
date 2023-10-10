@@ -101,11 +101,11 @@ class FancyTreeview:
         if len(selection) < 1:
             return
 
-        print(self._tv.item(selection[0])['values'][0])
+        import pyperclip
+        pyperclip.copy(self._tv.item(selection[0])['values'][0])
 
     def _HandleAction(self, callback: callable) -> None:
         selection = self._tv.selection()
-        print(selection, callback)
         if len(selection) < 1:
             return
 
@@ -222,7 +222,7 @@ class SymbolsTab(DebugTab):
                     symbol[1][1] == symbol[1][1].upper():
                 available_symbols.append(symbol[1])
 
-        self._combobox = ttk.Combobox(frame, values=available_symbols)
+        self._combobox = ttk.Combobox(frame, values=available_symbols, state='readonly')
         self._combobox.grid(row=0, column=0)
         self._combobox.bind('<<ComboboxSelected>>', self._HandleNewSymbol)
 

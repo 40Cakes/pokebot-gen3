@@ -22,7 +22,8 @@ modules_all = [
     "cffi~=1.15.1",
     "Pillow~=10.0.1",
     "sounddevice~=0.4.6",
-    "requests~=2.31.0"
+    "requests~=2.31.0",
+    "pyperclip~=1.8.2"
 ]
 
 modules_win = [
