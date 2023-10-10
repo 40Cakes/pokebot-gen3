@@ -1,6 +1,7 @@
 import os
 import struct
 
+from modules.Config import ForceManualMode
 from modules.Console import console
 from modules.Gui import GetROM, emulator, GetEmulator
 from modules.Memory import GetSymbolName, ReadSymbol, GetTaskFunc, ParseTasks, GetTask
@@ -32,8 +33,8 @@ def GetPartyMenuCursorPos() -> dict:
             party_menu['data1'] = struct.unpack('<h', pMenu[14:16])[0]
             party_menu['learn_move_state'] = struct.unpack('<h', pMenu[16:18])[0]
     if party_menu['slot_id'] == -1:
-        console.print('Error detecting cursor position.')
-        os._exit(1)
+        console.print('Error detecting cursor position. Switching to manual mode...')
+        ForceManualMode()
     return party_menu
 
 
@@ -62,8 +63,8 @@ def ParseMenu() -> dict:
             min_cursor_pos = 0
             max_cursor_pos = int.from_bytes(ReadSymbol('sPokeMenuOptionsNo'), 'little') - 1
         case _:
-            print('Not implemented yet.')
-            os._exit(1)
+            print('Not yet implemented. Switching to manual mode...')
+            ForceManualMode()
     return {
         'minCursorPos': min_cursor_pos,
         'maxCursorPos': max_cursor_pos,
@@ -95,8 +96,8 @@ def ParsePartyMenuInternal() -> dict:
                 "numActions": num_actions
             }
         case _:
-            print('Not implemented yet.')
-            os._exit(1)
+            print('Not yet implemented. Switching to manual mode...')
+            ForceManualMode()
     return party_menu_info
 
 
@@ -122,8 +123,8 @@ def GetLearningMon() -> dict:
                         length=100)):
                     idx = i
         case _:
-            console.print('Not yet implemented...')
-            os._exit(1)
+            console.print('Not yet implemented. Switching to manual mode...')
+            ForceManualMode()
     return GetParty()[idx]
 
 

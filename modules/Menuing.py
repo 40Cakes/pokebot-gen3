@@ -1,7 +1,7 @@
 import os
 from typing import NoReturn
 
-from modules.Config import config
+from modules.Config import config, ForceManualMode
 from modules.Gui import GetROM
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import GetGameState, GetCursorOptions, ParseTasks, GetTaskFunc, \
@@ -139,8 +139,8 @@ def NavigateMenu(desired_option: str) -> NoReturn:
         WaitFrames(1)
         party_menu_internal = ParsePartyMenuInternal()
     if party_menu_internal['numActions'] > 8:
-        console.print("Error navigating menu.")
-        os._exit(-1)
+        console.print("Error navigating menu. Switching to manual mode...")
+        ForceManualMode()
     desired_index = -1
     for i in range(party_menu_internal['numActions']):
         if GetCursorOptions(party_menu_internal['actions'][i]) == desired_option or (
@@ -150,7 +150,8 @@ def NavigateMenu(desired_option: str) -> NoReturn:
             break
     if desired_index == -1:
         console.print(f"Desired option {desired_option} not found in {[GetCursorOptions(party_menu_internal['actions'][i]) for i in range(party_menu_internal['numActions'])]}.")
-        os._exit(-1)
+        console.print("Switching to manual mode...")
+        ForceManualMode()
     if ParseMenu()['cursorPos'] > ParseMenu()['maxCursorPos'] or desired_index < ParseMenu()['minCursorPos']:
         console.print('Can\'t select this option.')
         return
@@ -177,8 +178,8 @@ def NavigateMenuByIndex(desired_index: int) -> NoReturn:
     :param desired_index: the index to navigate to
     """
     if desired_index == -1:
-        console.print("Desired option not found.")
-        os._exit(-1)
+        console.print("Desired option not found. Switching to manual mode...")
+        ForceManualMode()
     if ParseMenu()['cursorPos'] > ParseMenu()['maxCursorPos'] or desired_index < ParseMenu()['minCursorPos']:
         console.print('Can\'t select this option.')
         return

@@ -2,7 +2,7 @@ import os
 import struct
 from typing import NoReturn
 
-from modules.Config import config
+from modules.Config import config, ForceManualMode
 from modules.Console import console
 from modules.Game import DecodeString
 from modules.Gui import GetROM
@@ -236,9 +236,8 @@ def NavigateMoveLearnMenu(idx):
 def HandleMoveLearn(leveled_mon: int):
     match config['battle']['new_move']:
         case 'stop':
-            console.print('New move trying to be learned, stopping bot...')
-            input('Press enter to exit...')
-            os._exit(0)
+            console.print('New move trying to be learned, switching to manual mode...')
+            ForceManualMode()
         case 'cancel':
             while GetGameState() != GameState.OVERWORLD:
                 while GetGameState() == GameState.EVOLUTION:
@@ -479,8 +478,8 @@ def GetStrongestMove() -> int:
     """
     current_battlers = GetCurrentBattler()
     if len(current_battlers) > 1:
-        console.print("Double battle detected, feature not yet implemented.")
-        os._exit(2)
+        console.print("Double battle detected, not yet implemented. Switching to manual mode...")
+        ForceManualMode()
     else:
         current_battler = current_battlers[0]
         move = FindEffectiveMove(current_battler, GetOpponent())
@@ -728,8 +727,8 @@ def ExecuteAction(decision: tuple):
             return
         case "FIGHT":
             if 0 > move or move > 3:
-                console.print("Invalid move selection. Stopping...")
-                os._exit(move)
+                console.print("Invalid move selection. Switching to manual mode...")
+                ForceManualMode()
             move_executed = False
             while not move_executed:
                 match GetBattleState():
@@ -742,14 +741,14 @@ def ExecuteAction(decision: tuple):
                     case _:
                         PressButton(['B'])
         case "BAG":
-            console.print("Bag not yet implemented. Stopping...")
-            os._exit(3)
+            console.print("Bag not yet implemented. Switching to manual mode...")
+            ForceManualMode()
         case "SWITCH":
             if pokemon is None:
                 ExecuteAction(("RUN", -1, -1))
             elif 0 > pokemon or pokemon > 6 :
-                console.print("Invalid Pokemon selection. Stopping...")
-                os._exit(pokemon)
+                console.print("Invalid Pokemon selection. Switching to manual mode...")
+                ForceManualMode()
             else:
                 while not GetBattleState() == BattleState.PARTY_MENU:
                     SelectBattleOption(2)
@@ -764,14 +763,14 @@ def HandleBattlerFaint():
     console.print('Lead Pokémon fainted!')
     match config['battle']['faint_action']:
         case 'stop':
-            console.print("Stopping...")
-            os._exit(-1)
+            console.print("Switching to manual mode...")
+            ForceManualMode()
         case 'flee':
             while GetBattleState() not in [BattleState.OVERWORLD, BattleState.PARTY_MENU]:
                 PressButton(['B'])
             if GetBattleState() == BattleState.PARTY_MENU:
-                console.print("Couldn't flee. Stopping...")
-                os._exit(-2)
+                console.print("Couldn't flee. Switching to manual mode...")
+                ForceManualMode()
             else:
                 while not GetGameState() == GameState.OVERWORLD:
                     PressButton(['B'])
@@ -779,8 +778,8 @@ def HandleBattlerFaint():
         case 'rotate':
             party = GetParty()
             if sum([party[key]['stats']['hp'] for key in party.keys()]) == 0:
-                console.print('All Pokémon have fainted.')
-                os._exit(0)
+                console.print('All Pokémon have fainted. Switching to manual mode...')
+                ForceManualMode()
             while GetBattleState() != BattleState.PARTY_MENU:
                 PressButton(['A'])
             new_lead = GetMonToSwitch(GetCurrentBattler()[0])
@@ -795,8 +794,8 @@ def HandleBattlerFaint():
             while GetBattleState() in (BattleState.SWITCH_POKEMON, BattleState.PARTY_MENU):
                 PressButton(['A'])
         case _:
-            console.print("Invalid faint_action option. Stopping.")
-            os._exit(-3)
+            console.print("Invalid faint_action option. Switching to manual mode...")
+            ForceManualMode()
 
 
 def CheckForLevelUp(old_party: dict, new_party: dict, leveled_mon) -> int:
