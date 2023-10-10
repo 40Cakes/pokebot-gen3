@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from modules.Daycare import GetDaycareData, PokemonGender
 from modules.Game import DecodeString, _reverse_symbols
-from modules.Gui import DebugTab, GetROM
+from modules.Gui import DebugTab, GetROM, GetEmulator
 from modules.Memory import GetSymbol, ReadSymbol, ParseTasks, GetSymbolName
 from modules.Pokemon import names_list, GetParty
 from modules.Trainer import GetTrainer
@@ -298,6 +298,7 @@ class SymbolsTab(DebugTab):
                 item = tv.identify_row(event.y)
                 if item:
                     self.SYMBOLS_TO_DISPLAY.add(tv.item(item)['text'])
+                    self.Update(GetEmulator())
                     tv.after(50, RemoveWindow)
 
         tv.bind('<Double-Button-1>', HandleDoubleClick)

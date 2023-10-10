@@ -261,6 +261,7 @@ class DebugEmulatorControls(EmulatorControls):
         for tab in self.debug_tabs:
             tab.Draw(self.debug_notebook)
         self.debug_notebook.grid(sticky='NWES')
+        self.debug_notebook.bind('<<NotebookTabChanged>>', self.OnTabChange)
 
         super().AddToWindow()
 
@@ -271,6 +272,10 @@ class DebugEmulatorControls(EmulatorControls):
 
     def OnFrameRender(self):
         super().OnFrameRender()
+        index = self.debug_notebook.index('current')
+        self.debug_tabs[index].Update(emulator)
+
+    def OnTabChange(self, event):
         index = self.debug_notebook.index('current')
         self.debug_tabs[index].Update(emulator)
 
