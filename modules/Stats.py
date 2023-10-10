@@ -605,9 +605,7 @@ def LogEncounter(pokemon: dict, block_list: list) -> NoReturn:
         if config['logging']['backup_stats'] > 0 and \
                 stats['totals'].get('encounters', None) and \
                 stats['totals']['encounters'] % config['logging']['backup_stats'] == 0:
-            BackupFolder('./{}/'.format(stats_dir), './backups/{}/{}.zip'.format(
-                stats_dir,
-                time.strftime('%Y%m%d-%H%M%S')))
+            BackupFolder(f'./{stats_dir}/', f'./{stats_dir}/backups/{time.strftime("%Y%m%d-%H%M%S")}.zip')
 
     except SystemExit:
         raise
