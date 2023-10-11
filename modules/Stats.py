@@ -26,6 +26,7 @@ CustomHooks = None
 block_list: list = []
 session_encounters: int = 0
 stats = None
+encounter_timestamps: list = []
 encounter_log = None
 shiny_log = None
 stats_dir = None
@@ -98,12 +99,11 @@ def SaveRNGStateHistory(pokemon_name: str, data: dict) -> NoReturn:
 
 def GetEncounterRate() -> int:
     try:
-        encounter_logs = encounter_log['encounter_log']
-        if len(encounter_logs) > 1 and session_encounters > 1:
+        if len(encounter_timestamps) > 1 and session_encounters > 1:
             encounter_rate = int(
-                (3600000 / ((encounter_logs[-1]['time_encountered'] -
-                             encounter_logs[-min(session_encounters, 250)]['time_encountered'])
-                            * 1000)) * (min(session_encounters, 250)))
+                (3600000 / ((encounter_timestamps[-1] -
+                             encounter_timestamps[-min(session_encounters, len(encounter_timestamps))])
+                            * 1000)) * (min(session_encounters, len(encounter_timestamps))))
             return encounter_rate
         return 0
     except SystemExit:
@@ -352,6 +352,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
 def LogEncounter(pokemon: dict, block_list: list) -> NoReturn:
     global stats
     global encounter_log
+    global encounter_timestamps
     global session_encounters
 
     try:
@@ -525,9 +526,15 @@ def LogEncounter(pokemon: dict, block_list: list) -> NoReturn:
                 'total_shiny_encounters': stats['totals'].get('shiny_encounters', 0),
             }
         }
+
+        encounter_timestamps.append(time.time())
+        if len(encounter_timestamps) > 100:
+            encounter_timestamps = encounter_timestamps[-100:]
+
         encounter_log['encounter_log'].append(log_obj)
-        encounter_log['encounter_log'] = encounter_log['encounter_log'][-250:]
-        WriteFile(files['encounter_log'], json.dumps(encounter_log, indent=4, sort_keys=True))
+        if len(encounter_log['encounter_log']) > 10:
+            encounter_log['encounter_log'] = encounter_log['encounter_log'][-10:]
+
         if pokemon['shiny']:
             shiny_log['shiny_log'].append(log_obj)
             WriteFile(files['shiny_log'], json.dumps(shiny_log, indent=4, sort_keys=True))
