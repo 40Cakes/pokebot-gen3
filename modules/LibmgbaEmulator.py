@@ -152,6 +152,29 @@ class LibmgbaEmulator:
     def Reset(self) -> None:
         self._core.reset()
 
+    def CreateSaveState(self, filename: str = time.strftime('%Y-%m-%d_%H-%M-%S')) -> None:
+        state = self._core.save_state()
+        states_directory = self._profile.path / 'states'
+        if not states_directory.exists():
+            states_directory.mkdir()
+
+        # First, we store the current state as a new file inside the `states/` directory -- so that in case
+        # anything goes wrong here (full disk or whatever) we catch it before overriding the current state.
+        # This also serves as a backup directory -- in case the bot does something dumb, the user can just
+        # restore one of the states from this directory.
+        backup_path = states_directory / f'{filename}.ss1'
+        with open(backup_path, 'wb') as state_file:
+            state_file.write(state)
+
+        console.print(f'Save state {backup_path} created!')
+
+        # Once that succeeds, override `current_state.ss1` (which is what the bot loads on startup.)
+        if backup_path.stat().st_size > 0:
+            with open(self._current_state_path, 'wb') as state_file:
+                state_file.write(state)
+
+        console.print(f'Updated `current_state.ss1`!')
+
     def Shutdown(self) -> None:
         """
         This method is called whenever the bot shuts down, either because and error occurred or because
@@ -162,23 +185,7 @@ class LibmgbaEmulator:
         """
         console.print('[yellow]Shutting down...[/]')
 
-        state = self._core.save_state()
-        states_directory = self._profile.path / 'states'
-        if not states_directory.exists():
-            states_directory.mkdir()
-
-        # First, we store the current state as a new file inside the `states/` directory -- so that in case
-        # anything goes wrong here (full disk or whatever) we catch it before overriding the current state.
-        # This also serves as a backup directory -- in case the bot does something dumb, the user can just
-        # restore one of the states from this directory.
-        backup_path = states_directory / (time.strftime('%Y-%m-%d_%H-%M-%S') + '.ss1')
-        with open(backup_path, 'wb') as state_file:
-            state_file.write(state)
-
-        # Once that succeeds, override `current_state.ss1` (which is what the bot loads on startup.)
-        if backup_path.stat().st_size > 0:
-            with open(self._current_state_path, 'wb') as state_file:
-                state_file.write(state)
+        self.CreateSaveState()
 
     def BackupCurrentSaveGame(self) -> None:
         """
