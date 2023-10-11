@@ -486,7 +486,7 @@ class PokebotGui:
         # These key bindings will only be applied if the emulation has started.
         if emulator:
             if keysym_with_modifier in self.gba_keys and \
-                    (config['general']['bot_mode'] == 'manual' or 'debug_' in config['general']['bot_mode']):
+                    (config['general']['bot_mode'] == 'manual'):
                 emulator.SetInputs(emulator.GetInputs() | self.gba_keys[keysym_with_modifier])
             elif keysym_with_modifier in self.emulator_keys:
                 match self.emulator_keys[keysym_with_modifier]:
@@ -526,7 +526,7 @@ class PokebotGui:
         keysym_with_modifier = ('ctrl+' if event.state & 4 else '') + event.keysym.lower()
         if emulator:
             if keysym_with_modifier in self.gba_keys and \
-                    (config['general']['bot_mode'] == 'manual' or 'debug_' in config['general']['bot_mode']):
+                    (config['general']['bot_mode'] == 'manual'):
                 emulator.SetInputs(emulator.GetInputs() & ~self.gba_keys[keysym_with_modifier])
 
     def ShowProfileSelection(self):

@@ -8,19 +8,14 @@ from modules.Console import console
 
 yaml = YAML()
 
-available_bot_modes = ['manual', 'spin', 'starters', 'fishing', 'debug_battle', 'debug_daycare',
-                       'debug_main_callbacks', 'debug_symbols', 'debug_tasks', 'debug_trainer']
+available_bot_modes = ['manual', 'spin', 'starters', 'fishing']
 
-general_schema = """
+general_schema = f"""
 type: object
 properties:
     bot_mode:
         type: string
-        enum:
-            - manual
-            - spin
-            - starters
-            - fishing
+        enum: {available_bot_modes}
     coords:
         type: object
         properties:
