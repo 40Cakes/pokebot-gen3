@@ -393,6 +393,10 @@ class TrainerTab(DebugTab):
                 result[key] = {'__value': 'n/a'}
                 continue
 
+            if i not in party or type(party[i]) != dict:
+                result[key] = {'__value': 'Invalid Checksum'}
+                continue
+
             result[key] = party[i]
 
             if party[i]['isEgg']:
