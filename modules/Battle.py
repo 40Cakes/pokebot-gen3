@@ -505,7 +505,7 @@ def GetMonToSwitch(active_mon: int) -> int:
     match config['battle']['switch_strategy']:
         case "first_available":
             for i in range(len(party)):
-                if party[i] == active_mon:
+                if party[i] == active_mon or party[i]['isEgg']:
                     continue
                 # check to see that the party member has enough HP to be subbed out
                 elif party[i]['stats']['hp'] / party[i]['stats']['maxHP'] > .2:

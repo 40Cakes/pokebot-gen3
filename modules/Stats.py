@@ -672,9 +672,10 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
             replace_battler = not battle_won
         else:
             FleeBattle()
-        replace_battler = replace_battler or not CheckLeadCanBattle()
-        if config['battle']['battle'] and config['battle']["replace_lead_battler"] and replace_battler:
-            RotatePokemon()
+        if config['battle']['battle']:
+            replace_battler = replace_battler or not CheckLeadCanBattle()
+            if config['battle']["replace_lead_battler"] and replace_battler:
+                RotatePokemon()
         if config['battle']["pickup"]:
             while GetGameState() != GameState.OVERWORLD:
                 continue
