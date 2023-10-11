@@ -1,6 +1,8 @@
 import atexit
 import PIL.Image
+import PIL.PngImagePlugin
 import time
+import zlib
 from collections import deque
 from typing import Union
 
@@ -153,10 +155,13 @@ class LibmgbaEmulator:
         self._core.reset()
 
     def CreateSaveState(self, suffix: str = '') -> None:
-        state = self._core.save_state()
         states_directory = self._profile.path / 'states'
         if not states_directory.exists():
             states_directory.mkdir()
+
+        screenshot = self.GetScreenshot()
+        extra_chunks = PIL.PngImagePlugin.PngInfo()
+        extra_chunks.add(b'gbAs', zlib.compress(self.GetSaveState()))
 
         # First, we store the current state as a new file inside the `states/` directory -- so that in case
         # anything goes wrong here (full disk or whatever) we catch it before overriding the current state.
@@ -168,14 +173,14 @@ class LibmgbaEmulator:
         filename += '.ss1'
         backup_path = states_directory / filename
         with open(backup_path, 'wb') as state_file:
-            state_file.write(state)
+            screenshot.save(state_file, format='PNG', pnginfo=extra_chunks)
 
         console.print(f'Save state {backup_path} created!')
 
         # Once that succeeds, override `current_state.ss1` (which is what the bot loads on startup.)
         if backup_path.stat().st_size > 0:
             with open(self._current_state_path, 'wb') as state_file:
-                state_file.write(state)
+                screenshot.save(state_file, format='PNG', pnginfo=extra_chunks)
 
         console.print(f'Updated `current_state.ss1`!')
 
@@ -386,10 +391,10 @@ class LibmgbaEmulator:
         """
         self._core._core.setKeys(self._core._core, inputs)
 
-    def GetCurrentScreenImage(self) -> PIL.Image:
+    def GetCurrentScreenImage(self) -> PIL.Image.Image:
         return self._screen.to_pil()
 
-    def GetScreenshot(self) -> PIL.Image:
+    def GetScreenshot(self) -> PIL.Image.Image:
         current_state = None
         if not self._video_enabled:
             # If video has been disabled, it's not possible to receive the current screen content
