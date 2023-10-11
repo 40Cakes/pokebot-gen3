@@ -1,9 +1,26 @@
 import struct
+from enum import IntEnum
 
 from modules.Console import console
 from modules.Game import DecodeString
 from modules.Memory import GetSaveBlock, ReadSymbol
 
+class AvatarFlag(IntEnum):
+    """
+    The various states of the trainer pertaning to movement
+
+    Reference: https://github.com/pret/pokeemerald/blob/104e81b359d287668cee613f6604020a6e7228a3/include/global.fieldmap.h
+    """
+    PLAYER_AVATAR_FLAG_ON_FOOT      = 1 << 0
+    PLAYER_AVATAR_FLAG_MACH_BIKE    = 1 << 1
+    PLAYER_AVATAR_FLAG_ACRO_BIKE    = 1 << 2
+    PLAYER_AVATAR_FLAG_SURFING      = 1 << 3
+    PLAYER_AVATAR_FLAG_UNDERWATER   = 1 << 4
+    PLAYER_AVATAR_FLAG_CONTROLLABLE = 1 << 5
+    PLAYER_AVATAR_FLAG_FORCED_MOVE  = 1 << 6
+    PLAYER_AVATAR_FLAG_DASH         = 1 << 7
+
+ON_BIKE = AvatarFlag.PLAYER_AVATAR_FLAG_MACH_BIKE | AvatarFlag.PLAYER_AVATAR_FLAG_ACRO_BIKE
 
 def FacingDir(direction: int) -> str:
     """
@@ -42,6 +59,7 @@ def GetTrainer() -> dict:
         b_Save = GetSaveBlock(2, size=14)
         b_gTasks = ReadSymbol('gTasks', offset=0x57, size=3)
         b_gObjectEvents = ReadSymbol('gObjectEvents', size=25)
+        b_gPlayerAvatar = ReadSymbol('gPlayerAvatar')
 
         if b_Save is None:
             return {
@@ -62,7 +80,7 @@ def GetTrainer() -> dict:
             'sid': int(struct.unpack('<H', b_Save[12:14])[0]),
             'map': (int(b_gTasks[2]), int(b_gTasks[1])),
             'coords': (int(b_gObjectEvents[16]) - 7, int(b_gObjectEvents[18]) - 7),
-            'on_bike': True if int(b_gObjectEvents[5]) != 0 else False,
+            'on_bike': (int(b_gPlayerAvatar[0]) & ON_BIKE) != 0,
             'facing': FacingDir(int(b_gObjectEvents[24]))
         }
         return trainer
