@@ -16,7 +16,7 @@ from modules.Colours import IVColour, IVSumColour, SVColour
 from modules.Config import config, ForceManualMode
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
-from modules.Gui import SetMessage, emulator
+from modules.Gui import SetMessage, GetEmulator
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import GetGameState, GameState
 from modules.Profiles import Profile
@@ -652,6 +652,6 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
         else:
             filename_suffix = f"{state_tag}_{pokemon['name']}"
             filename_suffix = ''.join(c for c in filename_suffix if c in dirsafe_chars)
-            emulator.CreateSaveState(suffix=filename_suffix)
+            GetEmulator().CreateSaveState(suffix=filename_suffix)
 
             ForceManualMode()
