@@ -4,6 +4,7 @@ import numpy
 
 from modules.Console import console
 from modules.Files import ReadFile
+from modules.Gui import GetEmulator
 from modules.Inputs import WaitFrames
 from modules.Items import item_list
 from modules.Memory import ReadSymbol
@@ -242,32 +243,31 @@ def ParsePokemon(b_Pokemon: bytes) -> dict:
         return None
 
 
-def GetParty(retry: int = 10) -> dict:
+def GetParty() -> list[dict]:
     """
     Checks how many Pokémon are in the trainer's party, decodes and returns them all.
 
-    :return: party (dict)
+    :return: party (list)
     """
-    try:
-        while True:
-            party = {}
-            party_count = int.from_bytes(ReadSymbol('gPlayerPartyCount', size=1))
-            if party_count:
-                for p in range(party_count):
-                    o = p * 100
-                    mon = ParsePokemon(ReadSymbol('gPlayerParty', o, o+100))
-                    if not mon:
-                        console.print('[red]Pokémon has invalid checksum! Waiting 1 frame and checking again...')
-                        WaitFrames(1)
-                        continue
-                    else:
-                        party[p] = mon
-                return party
-            return {}
-    except SystemExit:
-        raise
-    except:
-        console.print_exception(show_locals=True)
+    party = []
+    party_count = int.from_bytes(ReadSymbol('gPlayerPartyCount', size=1))
+    for p in range(party_count):
+        o = p * 100
+        mon = ParsePokemon(ReadSymbol('gPlayerParty', o, o+100))
+
+        # It's possible for party data to be written while we are trying to read it, in which case
+        # the checksum would be wrong and `ParsePokemon()` returns `None`.
+        #
+        # In order to still get a valid result, we will 'peek' into next frame's memory by
+        # (1) advancing the emulation by one frame, (2) reading the memory, (3) restoring the previous
+        # frame's state so we don't mess with frame accuracy.
+        if mon is None:
+            mon = GetEmulator().PeekFrame(lambda: ParsePokemon(ReadSymbol('gPlayerParty', o, o+100)))
+            if mon is None:
+                raise RuntimeError(f'Party Pokemon #{p+1} was invalid for two frames in a row.')
+
+        party.append(mon)
+    return party
 
 
 def GetOpponent() -> dict:

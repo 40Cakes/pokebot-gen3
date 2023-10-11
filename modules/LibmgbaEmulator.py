@@ -431,6 +431,25 @@ class LibmgbaEmulator:
         with open(png_path, 'wb') as file:
             self.GetScreenshot().save(file, format='PNG')
 
+    def PeekFrame(self, callback: callable, frames_to_advance: int = 1) -> any:
+        """
+        Runs the emulation for a number of frames and then runs {callback()}, after which it restores
+        the original emulator state.
+
+        This can be used to check the emulator state in a given number of frames without actually
+        advancing the emulation.
+
+        :param callback: A function to run after the emulation has progressed
+        :param frames_to_advance: Optional number of frames to advance (defaults to 1)
+        :return: The return value of the callback function
+        """
+        original_emulator_state = self.GetSaveState()
+        for i in range(frames_to_advance):
+            self._core.run_frame()
+        result = callback()
+        self.LoadSaveState(original_emulator_state)
+        return result
+
     def RunSingleFrame(self) -> None:
         """
         Runs the emulation for a single frame, and then waits if necessary to hit the target FPS rate.
