@@ -69,14 +69,10 @@ def DiscordRichPresence() -> NoReturn:
 
         while True:
             try:
+                location = encounter_log[-1]['pokemon']['metLocation'] if len(encounter_log) > 0 else 'N/A'
                 RPC.update(
-                    state='{} | {}'.format(
-                            encounter_log['encounter_log'][-1]['pokemon']['metLocation'],
-                        GetROM().game_name),
-                    details='{:,} ({:,}✨) | {:,}/h'.format(
-                            stats['totals'].get('encounters', 0),
-                            stats['totals'].get('shiny_encounters', 0),
-                            GetEncounterRate()),
+                    state=f'{location} | {GetROM().game_name}',
+                    details=f'{stats["totals"].get("encounters", 0):,} ({stats["totals"].get("shiny_encounters", 0):,}✨) | {GetEncounterRate():,}/h',
                     large_image=large_image,
                     start=start,
                     buttons=[{'label': '⏬ Download PokéBot', 'url': 'https://github.com/40Cakes/pokebot-gen3'}])

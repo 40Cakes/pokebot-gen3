@@ -25,8 +25,10 @@ CustomCatchFilters = None
 CustomHooks = None
 block_list: list = []
 session_encounters: int = 0
+session_pokemon: list = []
 stats = None
-encounter_log = None
+encounter_timestamps: list = []
+encounter_log: list = []
 shiny_log = None
 stats_dir = None
 files = None
@@ -41,7 +43,6 @@ def InitStats(profile: Profile):
     stats_dir = str(stats_dir_path)
 
     files = {
-        'encounter_log': str(stats_dir_path / 'encounter_log.json'),
         'shiny_log': str(stats_dir_path / 'shiny_log.json'),
         'totals': str(stats_dir_path / 'totals.json')
     }
@@ -59,8 +60,6 @@ def InitStats(profile: Profile):
 
         f_stats = ReadFile(files['totals'])
         stats = json.loads(f_stats) if f_stats else None
-        f_encounter_log = ReadFile(files['encounter_log'])
-        encounter_log = json.loads(f_encounter_log) if f_encounter_log else {'encounter_log': []}
         f_shiny_log = ReadFile(files['shiny_log'])
         shiny_log = json.loads(f_shiny_log) if f_shiny_log else {'shiny_log': []}
     except SystemExit:
@@ -98,12 +97,11 @@ def SaveRNGStateHistory(pokemon_name: str, data: dict) -> NoReturn:
 
 def GetEncounterRate() -> int:
     try:
-        encounter_logs = encounter_log['encounter_log']
-        if len(encounter_logs) > 1 and session_encounters > 1:
+        if len(encounter_timestamps) > 1 and session_encounters > 1:
             encounter_rate = int(
-                (3600000 / ((encounter_logs[-1]['time_encountered'] -
-                             encounter_logs[-min(session_encounters, 250)]['time_encountered'])
-                            * 1000)) * (min(session_encounters, 250)))
+                (3600000 / ((encounter_timestamps[-1] -
+                             encounter_timestamps[-min(session_encounters, len(encounter_timestamps))])
+                            * 1000)) * (min(session_encounters, len(encounter_timestamps))))
             return encounter_rate
         return 0
     except SystemExit:
@@ -260,12 +258,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
                 stats_table.add_column('Total Encounters', justify='right', width=10)
                 stats_table.add_column('Shiny Average', justify='right', width=10)
 
-                recent_pokemon = []
-                for p in encounter_log['encounter_log']:
-                    if stats['pokemon'][p['pokemon']['name']].get('phase_encounters', 0) > 0:
-                        recent_pokemon.append(p['pokemon']['name'])
-
-                for p in sorted(set(recent_pokemon)):
+                for p in sorted(set(session_pokemon)):
                     stats_table.add_row(
                         p,
                         '[red]{}[/] / [green]{}'.format(
@@ -350,9 +343,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
 
 
 def LogEncounter(pokemon: dict, block_list: list) -> NoReturn:
-    global stats
-    global encounter_log
-    global session_encounters
+    global stats, encounter_log, encounter_timestamps, session_pokemon, session_encounters
 
     try:
         if not stats:  # Set up stats file if it doesn't exist
@@ -366,6 +357,8 @@ def LogEncounter(pokemon: dict, block_list: list) -> NoReturn:
             stats['pokemon'].update({pokemon['name']: {}})
 
         # Increment encounters stats
+        session_pokemon.append(pokemon['name'])
+        session_pokemon = list(set(session_pokemon))
         stats['totals']['encounters'] = stats['totals'].get('encounters', 0) + 1
         stats['totals']['phase_encounters'] = stats['totals'].get('phase_encounters', 0) + 1
 
@@ -525,16 +518,22 @@ def LogEncounter(pokemon: dict, block_list: list) -> NoReturn:
                 'total_shiny_encounters': stats['totals'].get('shiny_encounters', 0),
             }
         }
-        encounter_log['encounter_log'].append(log_obj)
-        encounter_log['encounter_log'] = encounter_log['encounter_log'][-250:]
-        WriteFile(files['encounter_log'], json.dumps(encounter_log, indent=4, sort_keys=True))
+
+        encounter_timestamps.append(time.time())
+        if len(encounter_timestamps) > 100:
+            encounter_timestamps = encounter_timestamps[-100:]
+
+        encounter_log.append(log_obj)
+        if len(encounter_log) > 10:
+            encounter_log = encounter_log[-10:]
+
         if pokemon['shiny']:
             shiny_log['shiny_log'].append(log_obj)
             WriteFile(files['shiny_log'], json.dumps(shiny_log, indent=4, sort_keys=True))
 
         # Same Pokémon encounter streak records
-        if len(encounter_log['encounter_log']) > 1 and \
-                encounter_log['encounter_log'][-2]['pokemon']['name'] == pokemon['name']:
+        if len(encounter_log) > 1 and \
+                encounter_log[-2]['pokemon']['name'] == pokemon['name']:
             stats['totals']['current_streak'] = stats['totals'].get('current_streak', 0) + 1
         else:
             stats['totals']['current_streak'] = 1
@@ -576,6 +575,7 @@ def LogEncounter(pokemon: dict, block_list: list) -> NoReturn:
                 stats['totals']['shortest_phase_pokemon'] = pokemon['name']
 
             # Reset phase stats
+            session_pokemon = []
             stats['totals'].pop('phase_encounters', None)
             stats['totals'].pop('phase_highest_sv', None)
             stats['totals'].pop('phase_highest_sv_pokemon', None)
