@@ -353,10 +353,14 @@ class PokebotGui:
         self.window.mainloop()
 
     def ChooseRandomSprite(self):
-        if random.randint(0, 9) == 0:
-            icon_dir = Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'shiny'
-        else:
-            icon_dir = Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'normal'
+        rand = random.randint(0, 99)
+        match rand:
+            case _ if rand < 10:
+                icon_dir = Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'shiny'
+            case _ if rand < 99:
+                icon_dir = Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'normal'
+            case _:
+                icon_dir = Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'anti-shiny'
 
         files = [x for x in icon_dir.glob('*.png') if x.is_file()]
 
