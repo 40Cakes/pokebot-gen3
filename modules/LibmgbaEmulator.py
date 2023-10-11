@@ -1,7 +1,8 @@
 import atexit
+import PIL.Image
 import time
 from collections import deque
-from typing import TYPE_CHECKING, Union
+from typing import Union
 
 import sounddevice
 
@@ -15,9 +16,6 @@ import mgba.vfs
 from mgba import ffi, lib, libmgba_version_string
 from modules.Console import console
 from modules.Profiles import Profile
-
-if TYPE_CHECKING:
-    from modules.Gui import PokebotGui
 
 
 class PerformanceTracker:
@@ -83,7 +81,7 @@ class LibmgbaEmulator:
 
     _audio_stream: Union[sounddevice.RawOutputStream, None] = None
 
-    def __init__(self, profile: Profile, gui: 'PokebotGui'):
+    def __init__(self, profile: Profile, on_frame_callback: callable):
         console.print(f'Running [cyan]{libmgba_version_string()}[/]')
 
         # Prevents relentless spamming to stdout by libmgba.
@@ -116,7 +114,7 @@ class LibmgbaEmulator:
                 self.LoadSaveState(state_file.read())
 
         self._memory: mgba.gba.GBAMemory = self._core.memory
-        self._gui = gui
+        self._on_frame_callback = on_frame_callback
         self._performance_tracker = PerformanceTracker()
 
         self._gba_audio = self._core.get_audio_channels()
@@ -154,6 +152,29 @@ class LibmgbaEmulator:
     def Reset(self) -> None:
         self._core.reset()
 
+    def CreateSaveState(self, filename: str = time.strftime('%Y-%m-%d_%H-%M-%S')) -> None:
+        state = self._core.save_state()
+        states_directory = self._profile.path / 'states'
+        if not states_directory.exists():
+            states_directory.mkdir()
+
+        # First, we store the current state as a new file inside the `states/` directory -- so that in case
+        # anything goes wrong here (full disk or whatever) we catch it before overriding the current state.
+        # This also serves as a backup directory -- in case the bot does something dumb, the user can just
+        # restore one of the states from this directory.
+        backup_path = states_directory / f'{filename}.ss1'
+        with open(backup_path, 'wb') as state_file:
+            state_file.write(state)
+
+        console.print(f'Save state {backup_path} created!')
+
+        # Once that succeeds, override `current_state.ss1` (which is what the bot loads on startup.)
+        if backup_path.stat().st_size > 0:
+            with open(self._current_state_path, 'wb') as state_file:
+                state_file.write(state)
+
+        console.print(f'Updated `current_state.ss1`!')
+
     def Shutdown(self) -> None:
         """
         This method is called whenever the bot shuts down, either because and error occurred or because
@@ -164,23 +185,7 @@ class LibmgbaEmulator:
         """
         console.print('[yellow]Shutting down...[/]')
 
-        state = self._core.save_state()
-        states_directory = self._profile.path / 'states'
-        if not states_directory.exists():
-            states_directory.mkdir()
-
-        # First, we store the current state as a new file inside the `states/` directory -- so that in case
-        # anything goes wrong here (full disk or whatever) we catch it before overriding the current state.
-        # This also serves as a backup directory -- in case the bot does something dumb, the user can just
-        # restore one of the states from this directory.
-        backup_path = states_directory / (time.strftime('%Y-%m-%d_%H-%M-%S') + '.ss1')
-        with open(backup_path, 'wb') as state_file:
-            state_file.write(state)
-
-        # Once that succeeds, override `current_state.ss1` (which is what the bot loads on startup.)
-        if backup_path.stat().st_size > 0:
-            with open(self._current_state_path, 'wb') as state_file:
-                state_file.write(state)
+        self.CreateSaveState()
 
     def BackupCurrentSaveGame(self) -> None:
         """
@@ -282,11 +287,6 @@ class LibmgbaEmulator:
             self._audio_stream.start()
         elif not is_throttled and was_throttled:
             self._audio_stream.stop()
-
-        if is_throttled:
-            self._target_seconds_per_render = 1 / 60
-        else:
-            self._target_seconds_per_render = 1 / 20
 
     def GetSpeedFactor(self) -> float:
         return self._speed_factor
@@ -397,6 +397,9 @@ class LibmgbaEmulator:
         with open(png_path, "wb") as file:
             self._screen.to_pil().convert("RGB").save(file, format="PNG")
 
+    def GetCurrentScreenImage(self) -> PIL.Image:
+        return self._screen.to_pil()
+
     def RunSingleFrame(self) -> None:
         """
         Runs the emulation for a single frame, and then waits if necessary to hit the target FPS rate.
@@ -406,12 +409,7 @@ class LibmgbaEmulator:
         self._performance_tracker.time_spent_emulating += time.time_ns() - begin
 
         begin = time.time_ns()
-        if self._performance_tracker.TimeSinceLastRender() >= self._target_seconds_per_render * 1_000_000_000:
-            if self._video_enabled:
-                self._gui.UpdateImage(self._screen.to_pil())
-            else:
-                self._gui.UpdateWindow()
-            self._performance_tracker.TrackRender()
+        self._on_frame_callback()
 
         # Limiting FPS is achieved by using a blocking API for audio playback -- meaning we give it
         # the audio data for one frame and the `write()` call will only return once it processed the
