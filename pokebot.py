@@ -73,29 +73,6 @@ def MainLoop(profile: Profile) -> None:
                     from modules.modes.General import ModeFishing
                     ModeFishing()
 
-                case 'debug_battle':
-                    from modules.modes.debug.Battle import ModeDebugBattle
-                    ModeDebugBattle()
-
-                case 'debug_daycare':
-                    from modules.modes.debug.Daycare import ModeDebugDaycare
-                    ModeDebugDaycare()
-
-                case 'debug_main_callbacks':
-                    from modules.modes.debug.MainCallbacks import ModeDebugMainCallbacks
-                    ModeDebugMainCallbacks()
-
-                case 'debug_symbols':
-                    from modules.modes.debug.Symbols import ModeDebugSymbols
-                    ModeDebugSymbols()
-
-                case 'debug_tasks':
-                    from modules.modes.debug.Tasks import ModeDebugTasks
-                    ModeDebugTasks()
-
-                case 'debug_trainer':
-                    from modules.modes.debug.Trainer import ModeDebugTrainer
-                    ModeDebugTrainer()
         except SystemExit:
             raise
         except:
