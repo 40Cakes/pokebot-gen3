@@ -368,6 +368,8 @@ class PokebotGui:
 
     def SetSpriteAsAppIcon(self, path: Path):
         image: PIL.Image = PIL.Image.open(path)
+        if image.mode != 'RGBA':
+            image = image.convert('RGBA')
 
         bbox = list(image.getbbox())
         bbox_width = bbox[2] - bbox[0]
@@ -452,6 +454,8 @@ class PokebotGui:
 
             # Paste a random sprite on top
             sprite = PIL.Image.open(self.ChooseRandomSprite())
+            if sprite.mode != 'RGBA':
+                sprite = sprite.convert('RGBA')
             sprite_position = (placeholder.width // 2 - sprite.width // 2, placeholder.height // 2 - sprite.height // 2)
             placeholder.paste(sprite, sprite_position, sprite)
 
