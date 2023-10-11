@@ -306,6 +306,8 @@ properties:
             toggle_unthrottled: {type: string}
             reset: {type: string}
             exit: {type: string}
+            save_state: {type: string}
+            toggle_stepping_mode: {type: string}
 """
 
 schemas = {

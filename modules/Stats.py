@@ -16,7 +16,7 @@ from modules.Colours import IVColour, IVSumColour, SVColour
 from modules.Config import config, ForceManualMode
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
-from modules.Gui import GetEmulator, GetProfile, SetMessage
+from modules.Gui import SetMessage, emulator
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import GetGameState, GameState
 from modules.Profiles import Profile
@@ -644,16 +644,14 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
             state_tag = 'customfilter'
             console.print('[bold green]Custom filter Pokemon found!')
             SetMessage('Custom filter triggered! Bot has been switched to manual mode so you can catch it.')
+        else:
+            state_tag = ''
 
         if not custom_found and pokemon['name'] in block_list:
             console.print('[bold yellow]' + pokemon['name'] + ' is on the catch block list, skipping encounter...')
         else:
-            state_filename = f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_{state_tag}_{pokemon['name']}.ss1"
+            state_filename = f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_{state_tag}_{pokemon['name']}"
             state_filename = ''.join(c for c in state_filename if c in dirsafe_chars)
-            states_directory = GetProfile().path / 'states'
-            if not states_directory.exists():
-                states_directory.mkdir()
-            state_filepath = states_directory / state_filename
-            with open(state_filepath, 'wb') as file:
-                file.write(GetEmulator().GetSaveState())
+            emulator.CreateSaveState(state_filename)
+
             ForceManualMode()
