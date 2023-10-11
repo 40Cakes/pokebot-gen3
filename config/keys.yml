@@ -49,7 +49,10 @@ emulator:
   # Exit emulator and bot
   exit: 'Ctrl+Q'
 
+  # Create a save state
+  save_state: 'Ctrl+S'
+
   # -- Ignore this unless you want to do programming on the bot code --
   # Allows you to put the emulator into 'stepping mode', where frames need to be advanced
   # manually using a button. Useful for analysing memory values.
-  toggle_stepping_mode: 'Ctrl+S'
+  toggle_stepping_mode: 'Ctrl+P'

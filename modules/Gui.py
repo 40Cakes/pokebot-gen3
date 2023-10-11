@@ -492,6 +492,8 @@ class PokebotGui:
                 match self.emulator_keys[keysym_with_modifier]:
                     case 'reset':
                         emulator.Reset()
+                    case 'save_state':
+                        emulator.CreateSaveState()
                     case 'toggle_stepping_mode':
                         self.ToggleSteppingMode()
                     case 'zoom_in':
