@@ -276,19 +276,15 @@ def GetOpponent() -> dict:
 
     :return: opponent (dict)
     """
-    try:
-        while True:
-            mon = ParsePokemon(ReadSymbol('gEnemyParty')[:100])
-            if not mon:
-                console.print('[red]Pokémon has invalid checksum! Waiting 1 frame and checking again...')
-                WaitFrames(1)
-                continue
-            else:
-                return mon
-    except SystemExit:
-        raise
-    except:
-        console.print_exception(show_locals=True)
+    mon = ParsePokemon(ReadSymbol('gEnemyParty')[:100])
+
+    # See comment in `GetParty()`
+    if mon is None:
+        mon = GetEmulator().PeekFrame(lambda: ParsePokemon(ReadSymbol('gEnemyParty')[:100]))
+        if mon is None:
+            raise RuntimeError(f'Opponent Pokemon was invalid for two frames in a row.')
+
+    return mon
 
 
 last_opid = b'\x00\x00\x00\x00' # ReadSymbol('gEnemyParty', size=4)
