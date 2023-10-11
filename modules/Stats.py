@@ -650,8 +650,8 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
         if not custom_found and pokemon['name'] in block_list:
             console.print('[bold yellow]' + pokemon['name'] + ' is on the catch block list, skipping encounter...')
         else:
-            state_filename = f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_{state_tag}_{pokemon['name']}"
-            state_filename = ''.join(c for c in state_filename if c in dirsafe_chars)
-            emulator.CreateSaveState(state_filename)
+            filename_suffix = f"{state_tag}_{pokemon['name']}"
+            filename_suffix = ''.join(c for c in filename_suffix if c in dirsafe_chars)
+            emulator.CreateSaveState(suffix=filename_suffix)
 
             ForceManualMode()
