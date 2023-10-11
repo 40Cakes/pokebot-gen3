@@ -8,7 +8,7 @@ from modules.Console import console
 from modules.Gui import GetROM, GetEmulator
 from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import ReadSymbol, GetGameState, GameState, GetTask, WriteSymbol
-from modules.Pokemon import GetParty, OpponentChanged, GetOpponent
+from modules.Pokemon import GetParty
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
 
 if GetROM().game_title == 'POKEMON EMER':
@@ -81,8 +81,6 @@ def Starters() -> NoReturn:
                     (dupes/seen)*100))
                 console.print('[red]If you notice too many dupes or resets taking too long, consider enabling `starters_rng` in `config/cheats.yml`. Ctrl + click [link=https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config]here[/link] for more information on this cheat.\n')
             else:
-                if OpponentChanged():
-                    EncounterPokemon(GetOpponent())
                 EncounterPokemon(pokemon)
                 session_pids.append(pokemon['pid'])
 
