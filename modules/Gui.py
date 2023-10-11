@@ -497,7 +497,7 @@ class PokebotGui:
                     case 'reset':
                         emulator.Reset()
                     case 'save_state':
-                        emulator.CreateSaveState()
+                        emulator.CreateSaveState('manual')
                     case 'toggle_stepping_mode':
                         self.ToggleSteppingMode()
                     case 'zoom_in':
