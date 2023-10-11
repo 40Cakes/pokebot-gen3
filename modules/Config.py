@@ -8,22 +8,14 @@ from modules.Console import console
 
 yaml = YAML()
 
-general_schema = """
+available_bot_modes = ['manual', 'spin', 'starters', 'fishing']
+
+general_schema = f"""
 type: object
 properties:
     bot_mode:
         type: string
-        enum:
-            - manual
-            - spin
-            - starters
-            - fishing
-            - debug_battle
-            - debug_daycare
-            - debug_main_callbacks
-            - debug_symbols
-            - debug_tasks
-            - debug_trainer
+        enum: {available_bot_modes}
     coords:
         type: object
         properties:
@@ -314,6 +306,8 @@ properties:
             toggle_unthrottled: {type: string}
             reset: {type: string}
             exit: {type: string}
+            save_state: {type: string}
+            toggle_stepping_mode: {type: string}
 """
 
 schemas = {
@@ -411,6 +405,7 @@ def LoadConfigFromDirectory(path: Path, allow_missing_files=False) -> None:
 
 previous_bot_mode: str = ''
 
+
 def ToggleManualMode() -> None:
     """
     Toggles between manual mode and the bot mode configured in `general.yml`.
@@ -424,6 +419,12 @@ def ToggleManualMode() -> None:
     else:
         previous_bot_mode = config['general']['bot_mode']
         config['general']['bot_mode'] = 'manual'
+
+
+def SetBotMode(new_bot_mode) -> None:
+    global previous_bot_mode
+    config['general']['bot_mode'] = new_bot_mode
+    previous_bot_mode = ''
 
 
 def ForceManualMode() -> None:

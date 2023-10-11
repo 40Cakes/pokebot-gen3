@@ -61,12 +61,12 @@ def WriteSymbol(name: str, data: bytes, offset: int = 0x0) -> bool:
         sys.exit(1)
 
 
-def ParseTasks() -> list:
+def ParseTasks(pretty_names: bool = False) -> list:
     try:
         gTasks = ReadSymbol('gTasks')
         tasks = []
         for x in range(16):
-            name = GetSymbolName(int(struct.unpack('<I', gTasks[(x * 40):(x * 40 + 4)])[0]) - 1)
+            name = GetSymbolName(int(struct.unpack('<I', gTasks[(x * 40):(x * 40 + 4)])[0]) - 1, pretty_names)
             if name == '':
                 name = str(gTasks[(x * 40):(x * 40 + 4)])
             tasks.append({

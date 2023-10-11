@@ -73,29 +73,6 @@ def MainLoop(profile: Profile) -> None:
                     from modules.modes.General import ModeFishing
                     ModeFishing()
 
-                case 'debug_battle':
-                    from modules.modes.debug.Battle import ModeDebugBattle
-                    ModeDebugBattle()
-
-                case 'debug_daycare':
-                    from modules.modes.debug.Daycare import ModeDebugDaycare
-                    ModeDebugDaycare()
-
-                case 'debug_main_callbacks':
-                    from modules.modes.debug.MainCallbacks import ModeDebugMainCallbacks
-                    ModeDebugMainCallbacks()
-
-                case 'debug_symbols':
-                    from modules.modes.debug.Symbols import ModeDebugSymbols
-                    ModeDebugSymbols()
-
-                case 'debug_tasks':
-                    from modules.modes.debug.Tasks import ModeDebugTasks
-                    ModeDebugTasks()
-
-                case 'debug_trainer':
-                    from modules.modes.debug.Trainer import ModeDebugTrainer
-                    ModeDebugTrainer()
         except SystemExit:
             raise
         except:
@@ -121,9 +98,33 @@ if __name__ == '__main__':
 
         win32api.SetConsoleCtrlHandler(Win32SignalHandler, True)
 
-    # Allow auto-starting a profile by running the bot like `python pokebot.py profile-name`.
+    # Allows auto-starting a profile by passing its name as an argument.
+    # It also supports the `--debug` flag to enable the debug GUI controls.
+    #
+    # Examples:
+    #     `python pokebot.py my-profile`          starts the 'my-profile' profile
+    #     `python pokebot.py my-profile --debug`  starts the 'my-profile' profile in debug mode
+    #     `python pokebot.py --debug`             starts the profile selection screen in debug mode
     preselected_profile = None
-    if len(sys.argv) > 1 and ProfileDirectoryExists(sys.argv[1]):
-        preselected_profile = LoadProfileByName(sys.argv[1])
+    debug_mode = False
+    for arg in sys.argv[1:]:
+        if arg == '--debug':
+            debug_mode = True
+        elif ProfileDirectoryExists(arg):
+            preselected_profile = LoadProfileByName(arg)
 
-    PokebotGui(MainLoop, preselected_profile)
+    gui = PokebotGui(MainLoop)
+    if debug_mode:
+        from modules.Gui import DebugEmulatorControls
+        from modules.GuiDebug import TasksTab, BattleTab, TrainerTab, DaycareTab, SymbolsTab
+
+        controls = DebugEmulatorControls(gui, gui.window)
+        controls.AddTab(TasksTab())
+        controls.AddTab(BattleTab())
+        controls.AddTab(TrainerTab())
+        controls.AddTab(DaycareTab())
+        controls.AddTab(SymbolsTab())
+
+        gui.controls = controls
+
+    gui.Run(preselected_profile)
