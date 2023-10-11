@@ -42,7 +42,6 @@ def InitStats(profile: Profile):
     stats_dir = str(stats_dir_path)
 
     files = {
-        'encounter_log': str(stats_dir_path / 'encounter_log.json'),
         'shiny_log': str(stats_dir_path / 'shiny_log.json'),
         'totals': str(stats_dir_path / 'totals.json')
     }

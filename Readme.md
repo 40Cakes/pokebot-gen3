@@ -445,7 +445,7 @@ All HTTP responses are in JSON format.
 
 `GET /party` - returns a detailed list of all Pokémon in the party
 
-`GET /encounter_log` returns a detailed list of the recent 10 Pokémon encounters (`encounter_log.json`)
+`GET /encounter_log` returns a detailed list of the recent 10 Pokémon encounters
 
 `GET /shiny_log` returns a detailed list of all shiny Pokémon encounters (`shiny_log.json`)
 
