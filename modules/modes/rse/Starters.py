@@ -1,4 +1,3 @@
-import os
 import random
 import struct
 from typing import NoReturn
