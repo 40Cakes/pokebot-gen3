@@ -59,7 +59,7 @@ def Starters() -> NoReturn:
                     rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
 
             if config['cheats']['starters']:
-                while GetParty() == {}:
+                while not GetParty():
                     PressButton(['A'])
             else:
                 while GetGameState() != GameState.BATTLE:
