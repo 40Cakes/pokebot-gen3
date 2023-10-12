@@ -217,7 +217,7 @@ class EmulatorControls:
         self.bot_message.grid(row=0, sticky='NW')
 
     def _AddVersionNotice(self, row: int, column: int):
-        tkinter.Label(self.frame, text=f'{profile.rom.game_name} - {pokebot_name} {pokebot_version}', foreground='grey',
+        tkinter.Label(self.frame, text=f'{pokebot_name} {pokebot_version}', foreground='grey',
                       font=tkinter.font.Font(size=9)).grid(row=row, column=column, sticky='E')
 
     def _SetButtonColour(self, button: tkinter.Button, active_condition: bool,
@@ -745,7 +745,7 @@ class PokebotGui:
         current_load = emulator.GetCurrentTimeSpentInBotFraction()
         if current_fps:
             self.window.title(f'{profile.path.name} | {GetEncounterRate():,}/h | {current_fps:,}fps '
-                              f'({current_fps / 60:0.2f}x) | {round(current_load * 100, 1)}%')
+                              f'({current_fps / 60:0.2f}x) | {round(current_load * 100, 1)}% | {profile.rom.game_name}')
 
         self.window.update_idletasks()
         self.window.update()
