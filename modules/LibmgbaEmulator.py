@@ -140,7 +140,7 @@ class LibmgbaEmulator:
             default_sound_device = sounddevice.query_devices(device=sounddevice.default.device, kind='output')
             sample_rate = int(default_sound_device['default_samplerate'])
 
-            if default_sound_device['max_output_channels'] < 2000:
+            if default_sound_device['max_output_channels'] < 2:
                 raise sounddevice.PortAudioError('Your audio device does not support stereo. '
                                                  'What on earth are you using, a yoghurt pot telephone?!')
 
