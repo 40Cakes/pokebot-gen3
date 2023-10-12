@@ -27,14 +27,14 @@ if not config['cheats']['starters_rng']:
     rng_history = GetRNGStateHistory(config['general']['starter'])
 
 
-def Starters() -> NoReturn:
+def Starters() -> NoReturn:  # TODO `and config['general']['bot_mode'] != 'manual'` temporary until mode step refactor
     try:
         global dupes
         global seen
 
         # Bag starters
         if config['general']['starter'] in ['treecko', 'torchic', 'mudkip']:
-            while GetGameState() != GameState.CHOOSE_STARTER:
+            while GetGameState() != GameState.CHOOSE_STARTER and config['general']['bot_mode'] != 'manual':
                 PressButton(['A'])
 
             if config['cheats']['starters_rng']:
@@ -43,29 +43,29 @@ def Starters() -> NoReturn:
 
             match config['general']['starter']:
                 case 'treecko':
-                    while GetTask(t_bag_cursor).get('data', ' ')[0] != 0:
+                    while GetTask(t_bag_cursor).get('data', ' ')[0] != 0 and config['general']['bot_mode'] != 'manual':
                         PressButton(['Left'])
                 case 'mudkip':
-                    while GetTask(t_bag_cursor).get('data', ' ')[0] != 2:
+                    while GetTask(t_bag_cursor).get('data', ' ')[0] != 2 and config['general']['bot_mode'] != 'manual':
                         PressButton(['Right'])
 
-            while not GetTask(t_confirm).get('isActive', False):
+            while not GetTask(t_confirm).get('isActive', False) and config['general']['bot_mode'] != 'manual':
                 PressButton(['A'], 1)
 
             if not config['cheats']['starters_rng']:
                 rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
-                while rng in rng_history['rng']:
+                while rng in rng_history['rng'] and config['general']['bot_mode'] != 'manual':
                     WaitFrames(1)
                     rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
 
             if config['cheats']['starters']:
-                while not GetParty():
+                while not GetParty() and config['general']['bot_mode'] != 'manual':
                     PressButton(['A'])
             else:
-                while GetGameState() != GameState.BATTLE:
+                while GetGameState() != GameState.BATTLE and config['general']['bot_mode'] != 'manual':
                     PressButton(['A'])
 
-                while GetTask(t_ball_throw) == {}:
+                while GetTask(t_ball_throw) == {} and config['general']['bot_mode'] != 'manual':
                     PressButton(['B'])
 
                 WaitFrames(60)
@@ -92,28 +92,28 @@ def Starters() -> NoReturn:
                 console.print('[red]Pokémon detected in party slot 2, deposit all party members (except lead) before using this bot mode!')
                 exit(1)
             else:
-                while GetGameState() != GameState.OVERWORLD:
+                while GetGameState() != GameState.OVERWORLD and config['general']['bot_mode'] != 'manual':
                     PressButton(['A'])
 
                 if config['cheats']['starters_rng']:
                     WriteSymbol('gRngValue', struct.pack('<I', random.randint(0, 2 ** 32 - 1)))
                     WaitFrames(1)
                 else:
-                    while GetTask('TASK_DRAWFIELDMESSAGE') == {}:
+                    while GetTask('TASK_DRAWFIELDMESSAGE') == {} and config['general']['bot_mode'] != 'manual':
                         PressButton(['A'])
-                    while GetTask('TASK_HANDLEYESNOINPUT') == {}:
+                    while GetTask('TASK_HANDLEYESNOINPUT') == {} and config['general']['bot_mode'] != 'manual':
                         PressButton(['B'])
 
                     rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
-                    while rng in rng_history['rng']:
+                    while rng in rng_history['rng'] and config['general']['bot_mode'] != 'manual':
                         WaitFrames(1)
                         rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
 
-                while GetTask('TASK_FANFARE') == {}:
+                while GetTask('TASK_FANFARE') == {} and config['general']['bot_mode'] != 'manual':
                     PressButton(['A'])
 
                 if config['cheats']['starters']:
-                    while len(GetParty()) == 1:
+                    while len(GetParty()) == 1 and config['general']['bot_mode'] != 'manual':
                         PressButton(['B'])
                 #else:
                     # TODO check Pokémon summary screen once menu navigation merged

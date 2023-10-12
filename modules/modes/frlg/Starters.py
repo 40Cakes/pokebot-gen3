@@ -20,12 +20,12 @@ if not config['cheats']['starters_rng']:
     rng_history = GetRNGStateHistory(config['general']['starter'])
 
 
-def Starters() -> NoReturn:
+def Starters() -> NoReturn:  # TODO `and config['general']['bot_mode'] != 'manual'` temporary until mode step refactor
     try:
         global dupes
         global seen
 
-        while GetGameState() != GameState.OVERWORLD:
+        while GetGameState() != GameState.OVERWORLD and config['general']['bot_mode'] != 'manual':
             PressButton(['A'])
 
         if config['cheats']['starters_rng']:
@@ -33,24 +33,24 @@ def Starters() -> NoReturn:
             WaitFrames(1)
         else:
             rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
-            while rng in rng_history['rng']:
+            while rng in rng_history['rng'] and config['general']['bot_mode'] != 'manual':
                 WaitFrames(1)
                 rng = int(struct.unpack('<I', ReadSymbol('gRngValue', size=4))[0])
 
-        while GetTask('TASK_SCRIPTSHOWMONPIC') == {}:
+        while GetTask('TASK_SCRIPTSHOWMONPIC') == {} and config['general']['bot_mode'] != 'manual':
             PressButton(['A'])
 
-        while GetTask('TASK_SCRIPTSHOWMONPIC') != {}:
+        while GetTask('TASK_SCRIPTSHOWMONPIC') != {} and config['general']['bot_mode'] != 'manual':
             PressButton(['A'])
 
-        while GetTask('TASK_FANFARE') == {}:
+        while GetTask('TASK_FANFARE') == {} and config['general']['bot_mode'] != 'manual':
             PressButton(['B'])
 
         if config['cheats']['starters']:
-            while not GetParty():
+            while not GetParty() and config['general']['bot_mode'] != 'manual':
                 PressButton(['B'])
         else:
-            while GetTrainer()['facing'] != 'Down':
+            while GetTrainer()['facing'] != 'Down' and config['general']['bot_mode'] != 'manual':
                 PressButton(['B', 'Down'])
 
             FollowPath([
@@ -59,7 +59,7 @@ def Starters() -> NoReturn:
                 (7, 8)
             ])
 
-            while GetTask('TASK_PLAYERCONTROLLER_RESTOREBGMAFTERCRY') == {}:
+            while GetTask('TASK_PLAYERCONTROLLER_RESTOREBGMAFTERCRY') == {} and config['general']['bot_mode'] != 'manual':
                 PressButton(['B'])
 
         pokemon = GetParty()[0]
