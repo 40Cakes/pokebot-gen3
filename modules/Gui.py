@@ -114,7 +114,7 @@ class EmulatorControls:
         self._AddSettingsControls(row=0, column=2)
 
         self._AddMessageArea(row=1, column=0, columnspan=3)
-        self._AddVersionNotice(row=2, column=2)
+        self._AddVersionNotice(row=2, column=0, columnspan=3)
 
         self.Update()
 
@@ -216,9 +216,9 @@ class EmulatorControls:
         self.bot_message = tkinter.Label(group, wraplength=self.GetAdditionalWidth() - 45, justify='left', height=2)
         self.bot_message.grid(row=0, sticky='NW')
 
-    def _AddVersionNotice(self, row: int, column: int):
-        tkinter.Label(self.frame, text=f'{pokebot_name} {pokebot_version}', foreground='grey',
-                      font=tkinter.font.Font(size=9)).grid(row=row, column=column, sticky='E')
+    def _AddVersionNotice(self, row: int, column: int, columnspan: int = 1):
+        tkinter.Label(self.frame, text=f'{profile.rom.game_name} - {pokebot_name} {pokebot_version}', foreground='grey',
+                      font=tkinter.font.Font(size=9)).grid(row=row, column=column, columnspan=columnspan, sticky='E')
 
     def _SetButtonColour(self, button: tkinter.Button, active_condition: bool,
                          disabled_condition: bool = False) -> None:
