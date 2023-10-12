@@ -28,6 +28,8 @@ session_encounters: int = 0
 session_pokemon: list = []
 stats = None
 encounter_timestamps: list = []
+cached_encounter_rate: int = 0
+cached_timestamp: str = ''
 encounter_log: list = []
 shiny_log = None
 stats_dir = None
@@ -96,13 +98,21 @@ def SaveRNGStateHistory(pokemon_name: str, data: dict) -> NoReturn:
 
 
 def GetEncounterRate() -> int:
+    global cached_encounter_rate
+    global cached_timestamp
+
     try:
         if len(encounter_timestamps) > 1 and session_encounters > 1:
-            encounter_rate = int(
-                (3600000 / ((encounter_timestamps[-1] -
-                             encounter_timestamps[-min(session_encounters, len(encounter_timestamps))])
-                            * 1000)) * (min(session_encounters, len(encounter_timestamps))))
-            return encounter_rate
+            if cached_timestamp != encounter_timestamps[-1]:
+                cached_timestamp = encounter_timestamps[-1]
+                encounter_rate = int(
+                    (3600000 / ((encounter_timestamps[-1] -
+                                 encounter_timestamps[-min(session_encounters, len(encounter_timestamps))])
+                                * 1000)) * (min(session_encounters, len(encounter_timestamps))))
+                cached_encounter_rate = encounter_rate
+                return encounter_rate
+            else:
+                return cached_encounter_rate
         return 0
     except SystemExit:
         raise
