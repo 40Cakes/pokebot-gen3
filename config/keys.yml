@@ -52,6 +52,9 @@ emulator:
   # Create a save state
   save_state: 'Ctrl+S'
 
+  # Open the load state selection screen
+  load_state: 'Ctrl+L'
+
   # -- Ignore this unless you want to do programming on the bot code --
   # Allows you to put the emulator into 'stepping mode', where frames need to be advanced
   # manually using a button. Useful for analysing memory values.
