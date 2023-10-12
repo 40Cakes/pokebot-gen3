@@ -548,6 +548,8 @@ class PokebotGui:
             return
 
         state_files: list[Path] = [file for file in state_directory.glob('*.ss1')]
+        if (profile.path / 'current_state.ss1').is_file():
+            state_files.append(profile.path / 'current_state.ss1')
         if len(state_files) < 1:
             return
 
@@ -586,11 +588,23 @@ class PokebotGui:
         frame.columnconfigure(1, weight=1)
         canvas.create_window((0, 0), window=frame, anchor='nw')
 
+        def FilterStateFiles(files: list[Path]):
+            maximum_number_of_autosave_files = 3
+
+            autosaves_already_included = 0
+            autosave_pattern = re.compile('^\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}\\.ss1$')
+            files.sort(reverse=True, key=lambda file: file.stat().st_mtime)
+            for file in files:
+                if file.name == 'current_state.ss1' or autosave_pattern.match(file.name):
+                    if autosaves_already_included >= maximum_number_of_autosave_files:
+                        continue
+                    autosaves_already_included += 1
+                yield file
+
         photo_buffer = []
-        state_files.sort(reverse=True, key=lambda file: file.stat().st_mtime)
         column = 0
         row = 0
-        for state in state_files:
+        for state in FilterStateFiles(state_files):
             with open(state, 'rb') as file:
                 is_png = file.read(4) == b'\x89PNG'
 
