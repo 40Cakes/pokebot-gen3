@@ -497,7 +497,7 @@ class PokebotGui:
                     case 'reset':
                         emulator.Reset()
                     case 'save_state':
-                        emulator.CreateSaveState()
+                        emulator.CreateSaveState('manual')
                     case 'toggle_stepping_mode':
                         self.ToggleSteppingMode()
                     case 'zoom_in':
@@ -738,13 +738,14 @@ class PokebotGui:
         self.UpdateWindow()
 
     def UpdateWindow(self):
+        from modules.Stats import GetEncounterRate
         self.controls.OnFrameRender()
 
         current_fps = emulator.GetCurrentFPS()
         current_load = emulator.GetCurrentTimeSpentInBotFraction()
         if current_fps:
-            self.window.title(f'{profile.path.name} - {profile.rom.game_name} ({current_fps} fps / bot: '
-                              f'{round(current_load * 100, 1)}%)')
+            self.window.title(f'{profile.path.name} | {GetEncounterRate():,}/h | {current_fps:,}fps '
+                              f'({current_fps / 60:0.2f}x) | {round(current_load * 100, 1)}% | {profile.rom.game_name}')
 
         self.window.update_idletasks()
         self.window.update()

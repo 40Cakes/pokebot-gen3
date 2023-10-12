@@ -54,7 +54,7 @@ def WebServer() -> NoReturn:
         def EncounterLog():
             try:
                 if encounter_log:
-                    return jsonify(encounter_log['encounter_log'])
+                    return jsonify(encounter_log)
                 abort(503)
             except:
                 console.print_exception(show_locals=True)

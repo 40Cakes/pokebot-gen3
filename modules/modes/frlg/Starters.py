@@ -47,7 +47,7 @@ def Starters() -> NoReturn:
             PressButton(['B'])
 
         if config['cheats']['starters']:
-            while GetParty() == {}:
+            while not GetParty():
                 PressButton(['B'])
         else:
             while GetTrainer()['facing'] != 'Down':

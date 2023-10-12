@@ -1,6 +1,8 @@
 import atexit
 import PIL.Image
+import PIL.PngImagePlugin
 import time
+import zlib
 from collections import deque
 from typing import Union
 
@@ -152,26 +154,33 @@ class LibmgbaEmulator:
     def Reset(self) -> None:
         self._core.reset()
 
-    def CreateSaveState(self, filename: str = time.strftime('%Y-%m-%d_%H-%M-%S')) -> None:
-        state = self._core.save_state()
+    def CreateSaveState(self, suffix: str = '') -> None:
         states_directory = self._profile.path / 'states'
         if not states_directory.exists():
             states_directory.mkdir()
+
+        screenshot = self.GetScreenshot()
+        extra_chunks = PIL.PngImagePlugin.PngInfo()
+        extra_chunks.add(b'gbAs', zlib.compress(self.GetSaveState()))
 
         # First, we store the current state as a new file inside the `states/` directory -- so that in case
         # anything goes wrong here (full disk or whatever) we catch it before overriding the current state.
         # This also serves as a backup directory -- in case the bot does something dumb, the user can just
         # restore one of the states from this directory.
-        backup_path = states_directory / f'{filename}.ss1'
+        filename = time.strftime('%Y-%m-%d_%H-%M-%S')
+        if suffix:
+            filename += f'_{suffix}'
+        filename += '.ss1'
+        backup_path = states_directory / filename
         with open(backup_path, 'wb') as state_file:
-            state_file.write(state)
+            screenshot.save(state_file, format='PNG', pnginfo=extra_chunks)
 
         console.print(f'Save state {backup_path} created!')
 
         # Once that succeeds, override `current_state.ss1` (which is what the bot loads on startup.)
         if backup_path.stat().st_size > 0:
             with open(self._current_state_path, 'wb') as state_file:
-                state_file.write(state)
+                screenshot.save(state_file, format='PNG', pnginfo=extra_chunks)
 
         console.print(f'Updated `current_state.ss1`!')
 
@@ -382,23 +391,64 @@ class LibmgbaEmulator:
         """
         self._core._core.setKeys(self._core._core, inputs)
 
-    def TakeScreenshot(self) -> None:
+    def GetCurrentScreenImage(self) -> PIL.Image.Image:
+        return self._screen.to_pil()
+
+    def GetScreenshot(self) -> PIL.Image.Image:
+        current_state = None
+        if not self._video_enabled:
+            # If video has been disabled, it's not possible to receive the current screen content
+            # because mGBA never rendered it at all.
+            # So as a workaround, we enable video and then emulate a single frame (this is necessary
+            # for mGBA to update the screen.) In order to not mess up emulation and frame timing,
+            # we take a save state before and then restore it afterwards.
+            # So the screenshot will be 1 frame late, but the emulation will resume from the same
+            # state.
+            self.SetVideoEnabled(True)
+            current_state = self.GetSaveState()
+            self._core.run_frame()
+
+        screenshot = self.GetCurrentScreenImage().convert('RGB')
+
+        if current_state is not None:
+            self.LoadSaveState(current_state)
+            self.SetVideoEnabled(False)
+
+        return screenshot
+
+    def TakeScreenshot(self, suffix: str = '') -> None:
         """
         Saves the currently displayed image as a screenshot inside the profile's `screenshots/`
         directory.
         """
-        if not self._video_enabled:
-            raise RuntimeError('Cannot take a screenshot while video is disabled.')
-
-        png_directory = self._profile.path / "screenshots"
+        png_directory = self._profile.path / 'screenshots'
         if not png_directory.exists():
             png_directory.mkdir()
-        png_path = png_directory / (time.strftime("%Y-%m-%d_%H-%M-%S") + "_" + str(self.GetFrameCount()) + ".png")
-        with open(png_path, "wb") as file:
-            self._screen.to_pil().convert("RGB").save(file, format="PNG")
+        current_timestamp = time.strftime('%Y-%m-%d_%H-%M-%S')
+        if suffix != '':
+            suffix = f'_{suffix}'
+        png_path = png_directory / f'{current_timestamp}_{str(self.GetFrameCount())}{suffix}.png'
+        with open(png_path, 'wb') as file:
+            self.GetScreenshot().save(file, format='PNG')
 
-    def GetCurrentScreenImage(self) -> PIL.Image:
-        return self._screen.to_pil()
+    def PeekFrame(self, callback: callable, frames_to_advance: int = 1) -> any:
+        """
+        Runs the emulation for a number of frames and then runs {callback()}, after which it restores
+        the original emulator state.
+
+        This can be used to check the emulator state in a given number of frames without actually
+        advancing the emulation.
+
+        :param callback: A function to run after the emulation has progressed
+        :param frames_to_advance: Optional number of frames to advance (defaults to 1)
+        :return: The return value of the callback function
+        """
+        original_emulator_state = self.GetSaveState()
+        for i in range(frames_to_advance):
+            self._core.run_frame()
+        result = callback()
+        self.LoadSaveState(original_emulator_state)
+        return result
 
     def RunSingleFrame(self) -> None:
         """

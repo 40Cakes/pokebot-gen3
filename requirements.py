@@ -42,12 +42,13 @@ try:
 
     match platform.system():
         case "Windows":
+            install(modules_win)
+
             import os
             import atexit
             import psutil
 
             atexit.register(lambda: psutil.Process(os.getppid()).name() == "py.exe" and input("Press enter to exit..."))
-            install(modules_win)
             libmgba_url = (
                 f"https://github.com/hanzi/libmgba-py/releases/download/{libmgba_tag}/"
                 f"libmgba-py_{libmgba_ver}_win64.zip"
