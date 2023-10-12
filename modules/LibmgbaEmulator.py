@@ -146,7 +146,7 @@ class LibmgbaEmulator:
                 samplerate=GBA_AUDIO_SAMPLE_RATE,
                 dtype='int16'
             )
-            if not self._throttled:
+            if self._throttled:
                 self._audio_stream.start()
         except sounddevice.PortAudioError:
             self._audio_stream = None
