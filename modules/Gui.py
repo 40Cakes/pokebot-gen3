@@ -607,9 +607,14 @@ class PokebotGui:
             with open(state, 'rb') as file:
                 is_png = file.read(4) == b'\x89PNG'
 
+            photo = None
             if is_png:
-                photo = tkinter.PhotoImage(master=canvas, file=state)
-            else:
+                try:
+                    photo = tkinter.PhotoImage(master=canvas, file=state)
+                except tkinter.TclError:
+                    photo = None
+
+            if photo is None:
                 placeholder = PIL.Image.new(mode='RGBA', size=(self.width, self.height))
                 draw = PIL.ImageDraw.Draw(placeholder)
                 draw.rectangle(xy=[(0, 0), (placeholder.width, placeholder.height)], fill='#000000FF')
