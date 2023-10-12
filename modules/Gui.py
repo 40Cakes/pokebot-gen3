@@ -739,7 +739,8 @@ class PokebotGui:
 
     def UpdateWindow(self):
         from modules.Stats import GetEncounterRate
-        self.controls.OnFrameRender()
+        if self.scale > 1:
+            self.controls.OnFrameRender()
 
         current_fps = emulator.GetCurrentFPS()
         current_load = emulator.GetCurrentTimeSpentInBotFraction()
