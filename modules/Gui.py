@@ -541,6 +541,7 @@ class PokebotGui:
 
     def _ShowLoadSaveScreen(self):
         if self._load_save_window is not None:
+            self._load_save_window.focus_force()
             return
 
         state_directory = profile.path / 'states'
@@ -548,8 +549,6 @@ class PokebotGui:
             return
 
         state_files: list[Path] = [file for file in state_directory.glob('*.ss1')]
-        if (profile.path / 'current_state.ss1').is_file():
-            state_files.append(profile.path / 'current_state.ss1')
         if len(state_files) < 1:
             return
 
