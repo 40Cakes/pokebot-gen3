@@ -52,7 +52,7 @@ emulator:
   # Create a save state
   save_state: 'Ctrl+S'
 
-  # Open the load state selection screen
+  # Open the load save state selection menu
   load_state: 'Ctrl+L'
 
   # -- Ignore this unless you want to do programming on the bot code --
