@@ -65,9 +65,6 @@ class PerformanceTracker:
         return time.time_ns() - self.last_frame_time
 
 
-GBA_AUDIO_SAMPLE_RATE = 32768
-
-
 class LibmgbaEmulator:
     """
     This class wraps libmgba and handles the actual emulation of a game, and exposes some of the
@@ -120,7 +117,6 @@ class LibmgbaEmulator:
         self._performance_tracker = PerformanceTracker()
 
         self._gba_audio = self._core.get_audio_channels()
-        self._gba_audio.set_rate(GBA_AUDIO_SAMPLE_RATE)
         self._ResetAudio()
 
         atexit.register(self.Shutdown)
@@ -141,14 +137,20 @@ class LibmgbaEmulator:
             del self._audio_stream
 
         try:
-            self._audio_stream = sounddevice.RawOutputStream(
-                channels=2,
-                samplerate=GBA_AUDIO_SAMPLE_RATE,
-                dtype='int16'
-            )
+            default_sound_device = sounddevice.query_devices(device=sounddevice.default.device, kind='output')
+            sample_rate = int(default_sound_device['default_samplerate'])
+
+            if default_sound_device['max_output_channels'] < 2:
+                raise sounddevice.PortAudioError('Your audio device does not support stereo. '
+                                                 'What on earth are you using, a yoghurt pot telephone?!')
+
+            self._gba_audio.set_rate(sample_rate)
+            self._audio_stream = sounddevice.RawOutputStream(channels=2, samplerate=sample_rate, dtype='int16')
             if self._throttled:
                 self._audio_stream.start()
-        except sounddevice.PortAudioError:
+        except sounddevice.PortAudioError as error:
+            console.print(f'[red]{str(error)}[/]')
+            console.print('[red bold]Failed to initialise sound![/] [red]Sound will be disabled.[/]')
             self._audio_stream = None
 
     def Reset(self) -> None:
@@ -292,17 +294,20 @@ class LibmgbaEmulator:
         was_throttled = self._throttled
         self._throttled = is_throttled
 
-        if is_throttled and not was_throttled:
-            self._audio_stream.start()
-        elif not is_throttled and was_throttled:
-            self._audio_stream.stop()
+        if self._audio_stream is not None:
+            if is_throttled and not was_throttled:
+                self._audio_stream.start()
+            elif not is_throttled and was_throttled:
+                self._audio_stream.stop()
 
     def GetSpeedFactor(self) -> float:
         return self._speed_factor
 
     def SetSpeedFactor(self, speed_factor: float) -> None:
         self._speed_factor = speed_factor
-        self._gba_audio.set_rate(GBA_AUDIO_SAMPLE_RATE // speed_factor)
+
+        if self._audio_stream is not None:
+            self._gba_audio.set_rate(self._audio_stream.samplerate // speed_factor)
 
     def GetSaveState(self) -> bytes:
         """
