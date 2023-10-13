@@ -13,7 +13,7 @@ from datetime import datetime
 
 from rich.table import Table
 
-from modules.Battle import BattleOpponent, FleeBattle, CheckLeadCanBattle, RotatePokemon
+from modules.Battle import BattleOpponent, FleeBattle, CheckLeadCanBattle, RotatePokemon, CheckBattleCanHappen
 from modules.Colours import IVColour, IVSumColour, SVColour
 from modules.Config import config, ForceManualMode
 from modules.Console import console
@@ -665,17 +665,18 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
         return None
 
     if GetGameState() in (GameState.BATTLE, GameState.BATTLE_STARTING) and config['general']['bot_mode'] != 'manual':
-        if config['battle']['battle']:
+        battle_can_happen = CheckBattleCanHappen()
+        if config['battle']['battle'] and battle_can_happen:
             battle_won = BattleOpponent()
             # adding this in for lead rotation functionality down the line
             replace_battler = not battle_won
         else:
             FleeBattle()
-        if config['battle']['battle']:
+        if config['battle']['battle'] and battle_can_happen:
             replace_battler = replace_battler or not CheckLeadCanBattle()
             if config['battle']["replace_lead_battler"] and replace_battler:
                 RotatePokemon()
-        if config['battle']["pickup"]:
+        if config['battle']["pickup"] and battle_can_happen:
             while GetGameState() != GameState.OVERWORLD:
                 continue
             if GetGameState() == GameState.OVERWORLD:

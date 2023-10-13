@@ -494,11 +494,13 @@ def GetStrongestMove() -> int:
         return move['index']
 
 
-def GetMonToSwitch(active_mon: int) -> int:
+def GetMonToSwitch(active_mon: int, show_messages=False) -> int:
     """
     Figures out which pokemon should be switched out for the current active pokemon.
 
     :param active_mon: the party index of the pokemon that is being replaced.
+    :param show_messages: Whether to display the message that pokemon have usable moves or hit points, and whether
+    pokemon seem to be fit to fight.
     :return: the index of the pokemon to switch with the active pokemon
     """
     party = GetParty()
@@ -509,18 +511,19 @@ def GetMonToSwitch(active_mon: int) -> int:
                     continue
                 # check to see that the party member has enough HP to be subbed out
                 elif party[i]['stats']['hp'] / party[i]['stats']['maxHP'] > .2:
-                    console.print('Pokémon {} has more than 20% hp!'.format(party[i]['name']))
+                    if show_messages:
+                        console.print('Pokémon {} has more than 20% hp!'.format(party[i]['name']))
                     for move in party[i]['moves']:
                         if (
                                 move['power'] > 0 and
                                 move['remaining_pp'] > 0 and
                                 move['name'] not in config['battle']['banned_moves']
                                 and move['kind'] in ['Physical', 'Special']):
-                            console.print('Pokémon {} has usable moves!'.format(party[i]['name']))
+                            if show_messages:
+                                console.print('Pokémon {} has usable moves!'.format(party[i]['name']))
                             return i
-            console.print("Can't find suitable replacement battler. Turning off auto battling and pickup.")
-            config['battle']['battle'] = False
-            config['battle']['pickup'] = False
+            if show_messages:
+                console.print("No Pokémon seem to be fit to fight.")
 
 
 def ShouldRotateLead() -> bool:
@@ -539,10 +542,12 @@ def DetermineAction() -> tuple:
     :return: a tuple containing 1. the action to take, 2. the move to use if so desired, 3. the index of the pokemon to
     switch to if so desired.
     """
-    if not config['battle']['battle']:
+    if not config['battle']['battle'] or not CheckBattleCanHappen():
         return "RUN", -1, -1
     elif config['battle']['replace_lead_battler'] and ShouldRotateLead():
         mon_to_switch = GetMonToSwitch(GetCurrentBattler()[0])
+        if mon_to_switch is None:
+            return "RUN", -1, -1
         return "SWITCH", -1, mon_to_switch
     else:
         match config['battle']['battle_method']:
@@ -551,6 +556,8 @@ def DetermineAction() -> tuple:
                 if move == -1:
                     if config['battle']['replace_lead_battler']:
                         mon_to_switch = GetMonToSwitch(GetCurrentBattler()[0])
+                        if mon_to_switch is None:
+                            return "RUN", -1, -1
                         return "SWITCH", -1, mon_to_switch
                     action = "RUN"
                 else:
@@ -860,3 +867,14 @@ def BattleOpponent() -> bool:
     if foe_fainted:
         return True
     return False
+
+
+def CheckBattleCanHappen() -> bool:
+    """
+    Determines whether the bot can battle with the state of the current party
+    :return: True if the party is capable of having a battle, False otherwise
+    """
+    first_suitable_battler = GetMonToSwitch(-1)
+    if first_suitable_battler is None:
+        return False
+    return True
