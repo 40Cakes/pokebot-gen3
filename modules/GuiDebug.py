@@ -208,7 +208,7 @@ class BattleTab(DebugTab):
 
 
 class SymbolsTab(DebugTab):
-    SYMBOLS_TO_DISPLAY = {'gObjectEvents', 'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4'}
+    SYMBOLS_TO_DISPLAY = {'gObjectEvents', 'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4', 'gDisplayedStringBattle'}
     DISPLAY_AS_STRING = {'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4', 'gDisplayedStringBattle'}
     _tv: FancyTreeview
     _mini_window: tkinter.Tk = None
