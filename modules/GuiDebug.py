@@ -209,7 +209,7 @@ class BattleTab(DebugTab):
 
 class SymbolsTab(DebugTab):
     SYMBOLS_TO_DISPLAY = {'gObjectEvents', 'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4'}
-    DISPLAY_AS_STRING = {'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4'}
+    DISPLAY_AS_STRING = {'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4', 'gDisplayedStringBattle'}
     _tv: FancyTreeview
     _mini_window: tkinter.Tk = None
 
@@ -299,7 +299,6 @@ class SymbolsTab(DebugTab):
                 if item:
                     self.SYMBOLS_TO_DISPLAY.add(tv.item(item)['text'])
                     self.Update(GetEmulator())
-                    tv.after(50, RemoveWindow)
 
         tv.bind('<Double-Button-1>', HandleDoubleClick)
 
