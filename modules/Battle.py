@@ -784,7 +784,7 @@ def HandleBattlerFaint():
                 return False
         case 'rotate':
             party = GetParty()
-            if sum([party[key]['stats']['hp'] for key in party.keys()]) == 0:
+            if sum([mon['stats']['hp'] for mon in party]) == 0:
                 console.print('All Pokémon have fainted. Switching to manual mode...')
                 ForceManualMode()
             while GetBattleState() != BattleState.PARTY_MENU:
@@ -815,7 +815,7 @@ def CheckForLevelUp(old_party: dict, new_party: dict, leveled_mon) -> int:
     :param leveled_mon: The index of the pokemon that was most recently leveled before this call.
     :return: The first index where a pokemon's level is higher in the new party than the old one.
     """
-    if old_party.keys() != new_party.keys():
+    if len(old_party) != len(new_party):
         console.print("Party length has changed. Assuming a pokemon was just caught.")
     for i in range(len(old_party)):
         if old_party[i]['level'] < new_party[i]['level']:

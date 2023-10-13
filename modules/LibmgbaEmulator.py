@@ -1,7 +1,10 @@
 import atexit
+import PIL.Image
+import PIL.PngImagePlugin
 import time
+import zlib
 from collections import deque
-from typing import TYPE_CHECKING, Union
+from typing import Union
 
 import sounddevice
 
@@ -15,9 +18,6 @@ import mgba.vfs
 from mgba import ffi, lib, libmgba_version_string
 from modules.Console import console
 from modules.Profiles import Profile
-
-if TYPE_CHECKING:
-    from modules.Gui import PokebotGui
 
 
 class PerformanceTracker:
@@ -83,7 +83,7 @@ class LibmgbaEmulator:
 
     _audio_stream: Union[sounddevice.RawOutputStream, None] = None
 
-    def __init__(self, profile: Profile, gui: 'PokebotGui'):
+    def __init__(self, profile: Profile, on_frame_callback: callable):
         console.print(f'Running [cyan]{libmgba_version_string()}[/]')
 
         # Prevents relentless spamming to stdout by libmgba.
@@ -116,7 +116,7 @@ class LibmgbaEmulator:
                 self.LoadSaveState(state_file.read())
 
         self._memory: mgba.gba.GBAMemory = self._core.memory
-        self._gui = gui
+        self._on_frame_callback = on_frame_callback
         self._performance_tracker = PerformanceTracker()
 
         self._gba_audio = self._core.get_audio_channels()
@@ -154,6 +154,36 @@ class LibmgbaEmulator:
     def Reset(self) -> None:
         self._core.reset()
 
+    def CreateSaveState(self, suffix: str = '') -> None:
+        states_directory = self._profile.path / 'states'
+        if not states_directory.exists():
+            states_directory.mkdir()
+
+        screenshot = self.GetScreenshot()
+        extra_chunks = PIL.PngImagePlugin.PngInfo()
+        extra_chunks.add(b'gbAs', zlib.compress(self.GetSaveState()))
+
+        # First, we store the current state as a new file inside the `states/` directory -- so that in case
+        # anything goes wrong here (full disk or whatever) we catch it before overriding the current state.
+        # This also serves as a backup directory -- in case the bot does something dumb, the user can just
+        # restore one of the states from this directory.
+        filename = time.strftime('%Y-%m-%d_%H-%M-%S')
+        if suffix:
+            filename += f'_{suffix}'
+        filename += '.ss1'
+        backup_path = states_directory / filename
+        with open(backup_path, 'wb') as state_file:
+            screenshot.save(state_file, format='PNG', pnginfo=extra_chunks)
+
+        console.print(f'Save state {backup_path} created!')
+
+        # Once that succeeds, override `current_state.ss1` (which is what the bot loads on startup.)
+        if backup_path.stat().st_size > 0:
+            with open(self._current_state_path, 'wb') as state_file:
+                screenshot.save(state_file, format='PNG', pnginfo=extra_chunks)
+
+        console.print(f'Updated `current_state.ss1`!')
+
     def Shutdown(self) -> None:
         """
         This method is called whenever the bot shuts down, either because and error occurred or because
@@ -164,23 +194,7 @@ class LibmgbaEmulator:
         """
         console.print('[yellow]Shutting down...[/]')
 
-        state = self._core.save_state()
-        states_directory = self._profile.path / 'states'
-        if not states_directory.exists():
-            states_directory.mkdir()
-
-        # First, we store the current state as a new file inside the `states/` directory -- so that in case
-        # anything goes wrong here (full disk or whatever) we catch it before overriding the current state.
-        # This also serves as a backup directory -- in case the bot does something dumb, the user can just
-        # restore one of the states from this directory.
-        backup_path = states_directory / (time.strftime('%Y-%m-%d_%H-%M-%S') + '.ss1')
-        with open(backup_path, 'wb') as state_file:
-            state_file.write(state)
-
-        # Once that succeeds, override `current_state.ss1` (which is what the bot loads on startup.)
-        if backup_path.stat().st_size > 0:
-            with open(self._current_state_path, 'wb') as state_file:
-                state_file.write(state)
+        self.CreateSaveState()
 
     def BackupCurrentSaveGame(self) -> None:
         """
@@ -283,11 +297,6 @@ class LibmgbaEmulator:
         elif not is_throttled and was_throttled:
             self._audio_stream.stop()
 
-        if is_throttled:
-            self._target_seconds_per_render = 1 / 60
-        else:
-            self._target_seconds_per_render = 1 / 20
-
     def GetSpeedFactor(self) -> float:
         return self._speed_factor
 
@@ -382,20 +391,64 @@ class LibmgbaEmulator:
         """
         self._core._core.setKeys(self._core._core, inputs)
 
-    def TakeScreenshot(self) -> None:
+    def GetCurrentScreenImage(self) -> PIL.Image.Image:
+        return self._screen.to_pil()
+
+    def GetScreenshot(self) -> PIL.Image.Image:
+        current_state = None
+        if not self._video_enabled:
+            # If video has been disabled, it's not possible to receive the current screen content
+            # because mGBA never rendered it at all.
+            # So as a workaround, we enable video and then emulate a single frame (this is necessary
+            # for mGBA to update the screen.) In order to not mess up emulation and frame timing,
+            # we take a save state before and then restore it afterwards.
+            # So the screenshot will be 1 frame late, but the emulation will resume from the same
+            # state.
+            self.SetVideoEnabled(True)
+            current_state = self.GetSaveState()
+            self._core.run_frame()
+
+        screenshot = self.GetCurrentScreenImage().convert('RGB')
+
+        if current_state is not None:
+            self.LoadSaveState(current_state)
+            self.SetVideoEnabled(False)
+
+        return screenshot
+
+    def TakeScreenshot(self, suffix: str = '') -> None:
         """
         Saves the currently displayed image as a screenshot inside the profile's `screenshots/`
         directory.
         """
-        if not self._video_enabled:
-            raise RuntimeError('Cannot take a screenshot while video is disabled.')
-
-        png_directory = self._profile.path / "screenshots"
+        png_directory = self._profile.path / 'screenshots'
         if not png_directory.exists():
             png_directory.mkdir()
-        png_path = png_directory / (time.strftime("%Y-%m-%d_%H-%M-%S") + "_" + str(self.GetFrameCount()) + ".png")
-        with open(png_path, "wb") as file:
-            self._screen.to_pil().convert("RGB").save(file, format="PNG")
+        current_timestamp = time.strftime('%Y-%m-%d_%H-%M-%S')
+        if suffix != '':
+            suffix = f'_{suffix}'
+        png_path = png_directory / f'{current_timestamp}_{str(self.GetFrameCount())}{suffix}.png'
+        with open(png_path, 'wb') as file:
+            self.GetScreenshot().save(file, format='PNG')
+
+    def PeekFrame(self, callback: callable, frames_to_advance: int = 1) -> any:
+        """
+        Runs the emulation for a number of frames and then runs {callback()}, after which it restores
+        the original emulator state.
+
+        This can be used to check the emulator state in a given number of frames without actually
+        advancing the emulation.
+
+        :param callback: A function to run after the emulation has progressed
+        :param frames_to_advance: Optional number of frames to advance (defaults to 1)
+        :return: The return value of the callback function
+        """
+        original_emulator_state = self.GetSaveState()
+        for i in range(frames_to_advance):
+            self._core.run_frame()
+        result = callback()
+        self.LoadSaveState(original_emulator_state)
+        return result
 
     def RunSingleFrame(self) -> None:
         """
@@ -406,12 +459,7 @@ class LibmgbaEmulator:
         self._performance_tracker.time_spent_emulating += time.time_ns() - begin
 
         begin = time.time_ns()
-        if self._performance_tracker.TimeSinceLastRender() >= self._target_seconds_per_render * 1_000_000_000:
-            if self._video_enabled:
-                self._gui.UpdateImage(self._screen.to_pil())
-            else:
-                self._gui.UpdateWindow()
-            self._performance_tracker.TrackRender()
+        self._on_frame_callback()
 
         # Limiting FPS is achieved by using a blocking API for audio playback -- meaning we give it
         # the audio data for one frame and the `write()` call will only return once it processed the

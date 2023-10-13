@@ -1,15 +1,22 @@
 import os
 import platform
+import random
 import re
+import time
 import tkinter
+import tkinter.font
 from datetime import datetime
+from pathlib import Path
 from tkinter import ttk
+from typing import Union
 
 import PIL.Image
+import PIL.ImageDraw
+import PIL.ImageFont
 import PIL.ImageTk
 
 import modules.Game
-from modules.Config import config, LoadConfig, keys_schema, ToggleManualMode
+from modules.Config import available_bot_modes, config, LoadConfig, keys_schema, SetBotMode, ToggleManualMode
 from modules.Console import console
 from modules.LibmgbaEmulator import LibmgbaEmulator
 from modules.Profiles import Profile, ListAvailableProfiles, ProfileDirectoryExists, CreateProfile
@@ -29,8 +36,14 @@ input_map = {
     'L': 0x200
 }
 
+gui: 'PokebotGui' = None
 emulator: LibmgbaEmulator = None
 profile: Profile = None
+
+
+def SetMessage(message: str) -> None:
+    if gui is not None:
+        gui.SetMessage(message)
 
 
 def GetEmulator() -> LibmgbaEmulator:
@@ -59,14 +72,226 @@ if platform.system() == 'Windows':
 
     def PromptBeforeExit() -> None:
         parent_process_name = psutil.Process(os.getppid()).name()
-        if parent_process_name == 'py.exe':
+        if parent_process_name == 'py.exe' and gui is not None:
+            gui.window.withdraw()
             input('Press Enter to close...')
+
+
+class EmulatorControls:
+    frame: Union[tkinter.Frame, None] = None
+    bot_mode_combobox: ttk.Combobox
+    speed_1x_button: tkinter.Button
+    speed_2x_button: tkinter.Button
+    speed_3x_button: tkinter.Button
+    speed_4x_button: tkinter.Button
+    unthrottled_button: tkinter.Button
+    toggle_video_button: tkinter.Button
+    toggle_audio_button: tkinter.Button
+    bot_message: tkinter.Label
+
+    default_button_background = None
+    default_button_foreground = None
+
+    def __init__(self, gui: 'PokebotGui', window: tkinter.Tk):
+        self.gui = gui
+        self.window = window
+        self.last_known_bot_mode = config['general']['bot_mode']
+
+    def GetAdditionalWidth(self):
+        return 0
+
+    def GetAdditionalHeight(self):
+        return 165
+
+    def AddToWindow(self):
+        self.frame = tkinter.Frame(self.window, padx=5, pady=5)
+        self.frame.grid(row=1, sticky='WE')
+        self.frame.columnconfigure(1, weight=1)
+        self.frame.rowconfigure(1, weight=1)
+
+        self._AddBotModeControls(row=0, column=0)
+        self._AddSpeedControls(row=0, column=1, sticky='N')
+        self._AddSettingsControls(row=0, column=2)
+
+        self._AddMessageArea(row=1, column=0, columnspan=3)
+        self._AddVersionNotice(row=2, column=2)
+
+        self.Update()
+
+    def RemoveFromWindow(self):
+        if self.frame:
+            self.frame.destroy()
+
+        self.frame = None
+
+    def Update(self):
+        if self.frame is None:
+            return
+
+        # This avoids any other GUI element from having the focus. We don't want that because
+        # for example if the bot mode combobox is focussed, pressing Down might open the
+        # dropdown menu.
+        self.window.focus()
+
+        if self.bot_mode_combobox.get() != config['general']['bot_mode']:
+            self.bot_mode_combobox.current(available_bot_modes.index(config['general']['bot_mode']))
+            self.last_known_bot_mode = config['general']['bot_mode']
+
+        self._SetButtonColour(self.speed_1x_button, emulator.GetThrottle() and emulator.GetSpeedFactor() == 1)
+        self._SetButtonColour(self.speed_2x_button, emulator.GetThrottle() and emulator.GetSpeedFactor() == 2)
+        self._SetButtonColour(self.speed_3x_button, emulator.GetThrottle() and emulator.GetSpeedFactor() == 3)
+        self._SetButtonColour(self.speed_4x_button, emulator.GetThrottle() and emulator.GetSpeedFactor() == 4)
+        self._SetButtonColour(self.unthrottled_button, not emulator.GetThrottle())
+
+        self._SetButtonColour(self.toggle_video_button, emulator.GetVideoEnabled())
+        self._SetButtonColour(self.toggle_audio_button,
+                              active_condition=emulator.GetAudioEnabled(),
+                              disabled_condition=not emulator.GetThrottle())
+
+    def SetMessage(self, message: str):
+        if self.frame:
+            self.bot_message.config(text=message)
+
+    def OnFrameRender(self):
+        if config['general']['bot_mode'] != self.last_known_bot_mode:
+            self.last_known_bot_mode = config['general']['bot_mode']
+            self.Update()
+
+    def _AddBotModeControls(self, row: int, column: int):
+        group = tkinter.Frame(self.frame)
+        group.grid(row=row, column=column, sticky='W')
+
+        tkinter.Label(group, text='Bot Mode:', justify='left').grid(row=0, sticky='W')
+        self.bot_mode_combobox = ttk.Combobox(group, values=available_bot_modes, width=20, state='readonly')
+        self.bot_mode_combobox.bind('<<ComboboxSelected>>',
+                                    lambda e: self.gui.SetBotMode(self.bot_mode_combobox.get()))
+        self.bot_mode_combobox.bind('<FocusIn>', lambda e: self.window.focus())
+        self.bot_mode_combobox.grid(row=1, sticky='W')
+
+    def _AddSpeedControls(self, row: int, column: int, sticky: str = 'W'):
+        group = tkinter.Frame(self.frame)
+        group.grid(row=row, column=column, sticky=sticky)
+
+        tkinter.Label(group, text='Emulation Speed:', justify='left').grid(row=0, columnspan=5, sticky='W',
+                                                                           pady=(10, 0))
+
+        self.speed_1x_button = tkinter.Button(group, text='1×', width=3, padx=0,
+                                              command=lambda: self.gui.SetEmulationSpeed(1))
+        self.speed_2x_button = tkinter.Button(group, text='2×', width=3, padx=0,
+                                              command=lambda: self.gui.SetEmulationSpeed(2))
+        self.speed_3x_button = tkinter.Button(group, text='3×', width=3, padx=0,
+                                              command=lambda: self.gui.SetEmulationSpeed(3))
+        self.speed_4x_button = tkinter.Button(group, text='4×', width=3, padx=0,
+                                              command=lambda: self.gui.SetEmulationSpeed(4))
+        self.unthrottled_button = tkinter.Button(group, text='∞', width=3, padx=0,
+                                                 command=lambda: self.gui.SetEmulationSpeed(0))
+
+        self.default_button_background = self.speed_1x_button.cget('background')
+        self.default_button_foreground = self.speed_1x_button.cget('foreground')
+
+        self.speed_1x_button.grid(row=1, column=0)
+        self.speed_2x_button.grid(row=1, column=1)
+        self.speed_3x_button.grid(row=1, column=2)
+        self.speed_4x_button.grid(row=1, column=3)
+        self.unthrottled_button.grid(row=1, column=4)
+
+    def _AddSettingsControls(self, row: int, column: int):
+        group = tkinter.Frame(self.frame)
+        group.grid(row=row, column=column, sticky='W')
+
+        tkinter.Label(group, text='Other Settings:').grid(row=0, columnspan=2, sticky='W', pady=(10, 0))
+
+        self.toggle_video_button = tkinter.Button(group, text='Video', width=6, padx=0,
+                                                  command=self.gui.ToggleVideo)
+        self.toggle_audio_button = tkinter.Button(group, text='Audio', width=6, padx=0,
+                                                  command=self.gui.ToggleAudio)
+
+        self.toggle_video_button.grid(row=1, column=0)
+        self.toggle_audio_button.grid(row=1, column=1)
+
+    def _AddMessageArea(self, row: int, column: int, columnspan: int = 1):
+        group = tkinter.LabelFrame(self.frame, text='Message:', padx=5, pady=0)
+        group.grid(row=row, column=column, columnspan=columnspan, sticky='NSWE', pady=10)
+
+        self.bot_message = tkinter.Label(group, wraplength=self.GetAdditionalWidth() - 45, justify='left', height=2)
+        self.bot_message.grid(row=0, sticky='NW')
+
+    def _AddVersionNotice(self, row: int, column: int):
+        tkinter.Label(self.frame, text=f'{pokebot_name} {pokebot_version}', foreground='grey',
+                      font=tkinter.font.Font(size=9)).grid(row=row, column=column, sticky='E')
+
+    def _SetButtonColour(self, button: tkinter.Button, active_condition: bool,
+                         disabled_condition: bool = False) -> None:
+        if disabled_condition:
+            button.config(background=self.default_button_background, foreground=self.default_button_foreground,
+                          state='disabled')
+        elif active_condition:
+            button.config(background='green', foreground='white', state='normal')
+        else:
+            button.config(background=self.default_button_background, foreground=self.default_button_foreground,
+                          state='normal')
+
+
+class DebugTab:
+    def Draw(self, root: ttk.Notebook):
+        pass
+
+    def Update(self, emulator: LibmgbaEmulator):
+        pass
+
+
+class DebugEmulatorControls(EmulatorControls):
+    debug_frame: Union[tkinter.Frame, None] = None
+    debug_notebook: ttk.Notebook
+    debug_tabs: list[DebugTab] = []
+
+    def GetAdditionalWidth(self):
+        return 480
+
+    def AddToWindow(self):
+        self.window.columnconfigure(0, weight=0)
+        self.window.columnconfigure(1, weight=1)
+
+        self.debug_frame = tkinter.Frame(self.window, padx=10, pady=5)
+        self.debug_frame.rowconfigure(0, weight=1)
+        self.debug_frame.columnconfigure(0, weight=1)
+        self.debug_frame.grid(row=0, column=1, rowspan=2, sticky='NWES')
+
+        self.debug_notebook = ttk.Notebook(self.debug_frame)
+        for tab in self.debug_tabs:
+            tab.Draw(self.debug_notebook)
+        self.debug_notebook.grid(sticky='NWES')
+        self.debug_notebook.bind('<<NotebookTabChanged>>', self.OnTabChange)
+
+        super().AddToWindow()
+
+    def AddTab(self, tab: DebugTab):
+        self.debug_tabs.append(tab)
+        if self.debug_frame is not None:
+            tab.Draw(self.debug_notebook)
+
+    def OnFrameRender(self):
+        super().OnFrameRender()
+        index = self.debug_notebook.index('current')
+        self.debug_tabs[index].Update(emulator)
+
+    def OnTabChange(self, event):
+        index = self.debug_notebook.index('current')
+        self.debug_tabs[index].Update(emulator)
+
+    def RemoveFromWindow(self):
+        super().RemoveFromWindow()
+
+        if self.debug_frame:
+            self.debug_frame.destroy()
+        self.debug_frame = None
 
 
 class PokebotGui:
     window: tkinter.Tk = None
     frame: tkinter.Widget = None
     canvas: tkinter.Canvas = None
+    canvas_current_image: tkinter.PhotoImage
     gba_keys: dict[str, int] = {}
     emulator_keys: dict[str, str] = {}
     width: int = 240
@@ -75,34 +300,110 @@ class PokebotGui:
     center_of_canvas: tuple[int, int] = (0, 0)
     previous_bot_mode: str = ''
 
-    def __init__(self, main_loop: callable, preselected_profile: Profile = None):
+    stepping_mode: bool = False
+    stepping_button: tkinter.Button
+    current_step: int = 0
+
+    def __init__(self, main_loop: callable):
+        global gui
+        gui = self
+
         self.window = tkinter.Tk()
         self.window.title(f'{pokebot_name} {pokebot_version}')
         self.window.geometry('480x320')
+        self.window.resizable(False, False)
         self.window.protocol('WM_DELETE_WINDOW', self.CloseWindow)
         self.window.bind('<KeyPress>', self.HandleKeyDownEvent)
         self.window.bind('<KeyRelease>', self.HandleKeyUpEvent)
+        self.window.rowconfigure(0, weight=1)
+        self.window.columnconfigure(0, weight=1)
 
         key_config = LoadConfig('keys.yml', keys_schema)
         for key in input_map:
-            self.gba_keys[key_config['gba'][key]] = input_map[key]
+            self.gba_keys[key_config['gba'][key].lower()] = input_map[key]
         for action in key_config['emulator']:
-            self.emulator_keys[key_config['emulator'][action]] = action
+            self.emulator_keys[key_config['emulator'][action].lower()] = action
 
         self.main_loop = main_loop
 
         if platform.system() == 'Windows':
             atexit.register(PromptBeforeExit)
 
-        if preselected_profile:
+        self.controls = EmulatorControls(self, self.window)
+
+        # This forces the app icon to be used in the task bar on Windows
+        if platform.system() == 'Windows':
+            try:
+                from win32com.shell import shell
+                shell.SetCurrentProcessExplicitAppUserModelID('40cakes.pokebot-gen3')
+            except ImportError:
+                pass
+
+        self.SetSpriteAsAppIcon(self.ChooseRandomSprite())
+
+    def __del__(self):
+        self.window.destroy()
+
+    def Run(self, preselected_profile: Profile = None):
+        if preselected_profile is not None:
             self.RunProfile(preselected_profile)
         else:
             self.ShowProfileSelection()
 
         self.window.mainloop()
 
-    def __del__(self):
-        self.window.destroy()
+    def ChooseRandomSprite(self):
+        rand = random.randint(0, 99)
+        match rand:
+            case _ if rand < 10:
+                icon_dir = Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'shiny'
+            case _ if rand < 99:
+                icon_dir = Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'normal'
+            case _:
+                icon_dir = Path(__file__).parent.parent / 'sprites' / 'pokemon' / 'anti-shiny'
+
+        files = [x for x in icon_dir.glob('*.png') if x.is_file()]
+
+        return random.choice(files)
+
+    def SetSpriteAsAppIcon(self, path: Path):
+        image: PIL.Image = PIL.Image.open(path)
+        if image.mode != 'RGBA':
+            image = image.convert('RGBA')
+
+        bbox = list(image.getbbox())
+        bbox_width = bbox[2] - bbox[0]
+        bbox_height = bbox[3] - bbox[1]
+
+        # Make sure the image is sqare (width == height)
+        if bbox_width - bbox_height:
+            # Wider than high
+            missing_height = bbox_width - bbox_height
+            bbox[1] -= missing_height // 2
+            bbox[3] += missing_height // 2 + (missing_height % 2)
+        else:
+            # Higher than wide (or equal sizes)
+            missing_width = bbox_height - bbox_width
+            bbox[0] -= missing_width // 2
+            bbox[2] += missing_width // 2 + (missing_width % 2)
+
+        # Make sure we didn't move the bounding box out of scope
+        if bbox[0] < 0:
+            bbox[2] -= bbox[0]
+            bbox[0] = 0
+        if bbox[1] < 0:
+            bbox[3] -= bbox[1]
+            bbox[1] = 0
+        if bbox[2] > image.width:
+            bbox[0] -= bbox[2] - image.width
+            bbox[2] = image.width
+        if bbox[3] > image.height:
+            bbox[1] -= bbox[3] - image.height
+            bbox[3] = image.height
+
+        cropped_image = image.crop(bbox)
+        icon = PIL.ImageTk.PhotoImage(cropped_image)
+        self.window.iconphoto(False, icon)
 
     def CloseWindow(self) -> None:
         """
@@ -119,21 +420,86 @@ class PokebotGui:
             emulator.Shutdown()
 
         if platform.system() == 'Windows':
+            self.window.withdraw()
             PromptBeforeExit()
 
         os._exit(0)
 
-    def HandleKeyDownEvent(self, event) -> None:
+    def SetMessage(self, message) -> None:
+        self.controls.SetMessage(message)
+
+    def SetEmulationSpeed(self, new_speed: float) -> None:
+        if new_speed == 0:
+            emulator.SetThrottle(False)
+        else:
+            emulator.SetThrottle(True)
+            emulator.SetSpeedFactor(new_speed)
+
+        self.controls.Update()
+
+    def ToggleAudio(self) -> None:
+        emulator.SetAudioEnabled(not emulator.GetAudioEnabled())
+        self.controls.Update()
+
+    def ToggleVideo(self) -> None:
+        emulator.SetVideoEnabled(not emulator.GetVideoEnabled())
+        self.controls.Update()
+        if not emulator.GetVideoEnabled():
+            # Create a fancy placeholder image.
+            placeholder = PIL.Image.new(mode='RGBA', size=(self.width * self.scale, self.height * self.scale))
+            draw = PIL.ImageDraw.Draw(placeholder)
+
+            # Black background
+            draw.rectangle(xy=[(0, 0), (placeholder.width, placeholder.height)], fill='#000000FF')
+
+            # Paste a random sprite on top
+            sprite = PIL.Image.open(self.ChooseRandomSprite())
+            if sprite.mode != 'RGBA':
+                sprite = sprite.convert('RGBA')
+            sprite_position = (placeholder.width // 2 - sprite.width // 2, placeholder.height // 2 - sprite.height // 2)
+            placeholder.paste(sprite, sprite_position, sprite)
+
+            self.canvas_current_image = PIL.ImageTk.PhotoImage(placeholder)
+            self.canvas.create_image(self.center_of_canvas, image=self.canvas_current_image, state='normal')
+
+    def SetBotMode(self, new_bot_mode: str) -> None:
+        SetBotMode(new_bot_mode)
+        self.controls.Update()
+
+    def ToggleSteppingMode(self) -> None:
+        self.stepping_mode = not self.stepping_mode
+        if self.stepping_mode:
+            def NextStep():
+                self.current_step += 1
+
+            self.stepping_button = tkinter.Button(self.window, text='⮞', padx=8, background='red',
+                                                  foreground='white', command=NextStep)
+            self.stepping_button.place(x=0, y=0)
+            self.current_step = 0
+        else:
+            self.stepping_button.destroy()
+
+    def HandleKeyDownEvent(self, event) -> str:
+        keysym_with_modifier = ('ctrl+' if event.state & 4 else '') + event.keysym.lower()
+
+        # This is checked here so that the key binding also works when the emulator is not running,
+        # i.e. during the profile selection/creation screens.
+        if keysym_with_modifier in self.emulator_keys and self.emulator_keys[keysym_with_modifier] == 'exit':
+            self.CloseWindow()
+
+        # These key bindings will only be applied if the emulation has started.
         if emulator:
-            if event.keysym in self.gba_keys and \
-                    (config['general']['bot_mode'] == 'manual' or 'debug_' in config['general']['bot_mode']):
-                emulator.SetInputs(emulator.GetInputs() | self.gba_keys[event.keysym])
-            elif event.keysym in self.emulator_keys:
-                match self.emulator_keys[event.keysym]:
+            if keysym_with_modifier in self.gba_keys and \
+                    (config['general']['bot_mode'] == 'manual'):
+                emulator.SetInputs(emulator.GetInputs() | self.gba_keys[keysym_with_modifier])
+            elif keysym_with_modifier in self.emulator_keys:
+                match self.emulator_keys[keysym_with_modifier]:
                     case 'reset':
                         emulator.Reset()
-                    case 'exit':
-                        self.CloseWindow()
+                    case 'save_state':
+                        emulator.CreateSaveState('manual')
+                    case 'toggle_stepping_mode':
+                        self.ToggleSteppingMode()
                     case 'zoom_in':
                         self.SetScale(min(5, self.scale + 1))
                     case 'zoom_out':
@@ -142,30 +508,32 @@ class PokebotGui:
                         ToggleManualMode()
                         console.print(f'Now in [cyan]{config["general"]["bot_mode"]}[/] mode')
                         emulator.SetInputs(0)
+                        self.controls.Update()
                     case 'toggle_video':
-                        emulator.SetVideoEnabled(not emulator.GetVideoEnabled())
+                        self.ToggleVideo()
                     case 'toggle_audio':
-                        emulator.SetAudioEnabled(not emulator.GetAudioEnabled())
+                        self.ToggleAudio()
                     case 'set_speed_1x':
-                        emulator.SetThrottle(True)
-                        emulator.SetSpeedFactor(1)
+                        self.SetEmulationSpeed(1)
                     case 'set_speed_2x':
-                        emulator.SetThrottle(True)
-                        emulator.SetSpeedFactor(2)
+                        self.SetEmulationSpeed(2)
                     case 'set_speed_3x':
-                        emulator.SetThrottle(True)
-                        emulator.SetSpeedFactor(3)
+                        self.SetEmulationSpeed(3)
                     case 'set_speed_4x':
-                        emulator.SetThrottle(True)
-                        emulator.SetSpeedFactor(4)
+                        self.SetEmulationSpeed(4)
                     case 'set_speed_unthrottled':
-                        emulator.SetThrottle(False)
+                        self.SetEmulationSpeed(0)
+
+        # This prevents the default action for that key to be executed, which is important for
+        # the Tab key (which normally moves focus to the next GUI element.)
+        return 'break'
 
     def HandleKeyUpEvent(self, event) -> None:
+        keysym_with_modifier = ('ctrl+' if event.state & 4 else '') + event.keysym.lower()
         if emulator:
-            if event.keysym in self.gba_keys and \
-                    (config['general']['bot_mode'] == 'manual' or 'debug_' in config['general']['bot_mode']):
-                emulator.SetInputs(emulator.GetInputs() & ~self.gba_keys[event.keysym])
+            if keysym_with_modifier in self.gba_keys and \
+                    (config['general']['bot_mode'] == 'manual'):
+                emulator.SetInputs(emulator.GetInputs() & ~self.gba_keys[keysym_with_modifier])
 
     def ShowProfileSelection(self):
         if self.frame:
@@ -227,7 +595,7 @@ class PokebotGui:
             self.frame.destroy()
 
         frame = ttk.Frame(self.window, padding=10, width=320)
-        frame.pack(fill='both', expand=True)
+        frame.grid()
         frame.grid_rowconfigure(1, weight=1)
         frame.grid_columnconfigure(0, weight=1)
 
@@ -316,7 +684,7 @@ class PokebotGui:
 
         global emulator, profile
         profile = profile_to_run
-        emulator = LibmgbaEmulator(profile, self)
+        emulator = LibmgbaEmulator(profile, self.HandleFrame)
         modules.Game.SetROM(profile.rom)
 
         dimensions = emulator.GetImageDimensions()
@@ -324,35 +692,60 @@ class PokebotGui:
         self.height = dimensions[1]
 
         self.window.title(profile.rom.game_name)
-        self.canvas = tkinter.Canvas(self.window, width=self.window.winfo_width(), height=self.window.winfo_height(),
-                                     bg='#000000')
-        self.canvas.pack()
+        self.canvas = tkinter.Canvas(self.window, width=self.window.winfo_width(), height=self.window.winfo_height())
+        self.canvas.grid(sticky='NW')
         self.SetScale(2)
 
         self.main_loop(profile)
 
     def SetScale(self, scale: int) -> None:
         self.scale = scale
-        self.window.geometry(f'{self.width * self.scale}x{self.height * self.scale}')
+        if scale > 1:
+            self.window.geometry('%dx%d' % (
+                self.width * self.scale + self.controls.GetAdditionalWidth(),
+                self.height * self.scale + self.controls.GetAdditionalHeight()))
+        else:
+            self.window.geometry(f'{self.width}x{self.height}')
         self.canvas.config(width=self.width * self.scale, height=self.height * self.scale)
         self.center_of_canvas = (self.scale * self.width // 2, self.scale * self.height // 2)
+
+        self.controls.RemoveFromWindow()
+        if scale > 1:
+            self.controls.AddToWindow()
+
+    def HandleFrame(self) -> None:
+        if emulator._performance_tracker.TimeSinceLastRender() >= (1 / 60) * 1_000_000_000:
+            if emulator.GetVideoEnabled():
+                self.UpdateImage(emulator.GetCurrentScreenImage())
+            else:
+                self.UpdateWindow()
+            emulator._performance_tracker.TrackRender()
+
+        previous_step = self.current_step
+        while self.stepping_mode and previous_step == self.current_step:
+            self.window.update_idletasks()
+            self.window.update()
+            time.sleep(1 / 60)
 
     def UpdateImage(self, image: PIL.Image) -> None:
         if not self.window:
             return
 
-        photo_image = PIL.ImageTk.PhotoImage(
+        self.canvas_current_image = PIL.ImageTk.PhotoImage(
             image=image.resize((self.width * self.scale, self.height * self.scale), resample=False))
-        self.canvas.create_image(self.center_of_canvas, image=photo_image, state='normal')
+        self.canvas.create_image(self.center_of_canvas, image=self.canvas_current_image, state='normal')
 
         self.UpdateWindow()
 
     def UpdateWindow(self):
+        from modules.Stats import GetEncounterRate
+        self.controls.OnFrameRender()
+
         current_fps = emulator.GetCurrentFPS()
         current_load = emulator.GetCurrentTimeSpentInBotFraction()
         if current_fps:
-            self.window.title(f'{pokebot_name} {pokebot_version} ({current_fps} fps / bot: '
-                              f'{round(current_load * 100, 1)}%) | {profile.path.name} - {profile.rom.game_name}')
+            self.window.title(f'{profile.path.name} | {GetEncounterRate():,}/h | {current_fps:,}fps '
+                              f'({current_fps / 60:0.2f}x) | {round(current_load * 100, 1)}% | {profile.rom.game_name}')
 
         self.window.update_idletasks()
         self.window.update()

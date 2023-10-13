@@ -1,4 +1,3 @@
-import os
 from typing import NoReturn
 
 from modules.Config import config, ForceManualMode
@@ -16,14 +15,16 @@ def CheckForPickup(encounter_total: int) -> NoReturn:
     """
     Function that handles pickup farming.
     """
+    n = 0
     pokemon_with_pickup = 0
     pokemon_with_pickup_and_item = []
     party = GetParty()
-    for i in range(len(party)):
-        if party[i]['ability'] == 'Pickup':
+    for mon in party:
+        if mon['ability'] == 'Pickup':
             pokemon_with_pickup += 1
-            if party[i]['item']['name'] != 'None':
-                pokemon_with_pickup_and_item.append(i)
+            if mon['item']['name'] != 'None':
+                pokemon_with_pickup_and_item.append(n)
+        n += 1
     if not config['cheats']['pickup']:
         encounter_threshold_met = encounter_total % config['battle']['pickup_check_frequency'] == 0
         if encounter_threshold_met and pokemon_with_pickup > 0:

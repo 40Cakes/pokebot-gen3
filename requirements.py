@@ -1,18 +1,49 @@
 import io
+import pip
 import pathlib
 import platform
-import subprocess
 import sys
 import zipfile
 
 libmgba_tag = "0.2.0-2"
 libmgba_ver = "0.2.0"
 
+modules_all = [
+    "numpy~=1.25.2",
+    "Flask~=2.3.2",
+    "Flask-Cors~=4.0.0",
+    "ruamel.yaml~=0.17.32",
+    "pypresence~=4.3.0",
+    "obsws-python~=1.6.0",
+    "pandas~=2.0.3",
+    "discord-webhook~=1.2.1",
+    "jsonschema~=4.17.3",
+    "rich~=13.5.2",
+    "cffi~=1.15.1",
+    "Pillow~=10.0.1",
+    "sounddevice~=0.4.6",
+    "requests~=2.31.0"
+]
+
+modules_win = [
+    "pywin32>=306",
+    "psutil~=5.9.5"
+]
+
+
+def install(packages: list):
+    for package in packages:
+        print(f"\nInstalling package: {package}...")
+        pip.main(["install", package, "--disable-pip-version-check"])
+
+
 try:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "./requirements.txt"])
+    install(modules_all)
 
     match platform.system():
         case "Windows":
+            install(modules_win)
+
             import os
             import atexit
             import psutil
@@ -25,12 +56,11 @@ try:
 
         case "Linux":
             linux_release = platform.freedesktop_os_release()
-            if not (linux_release["ID"] == "ubuntu" and linux_release["VERSION_ID"] == "23.04") or not (
-                linux_release["ID"] == "debian" and linux_release["VERSION_ID"] == "12"
-            ):
+            supported_linux_releases = [("ubuntu", "23.04"), ("debian", "12")]
+            if (linux_release["ID"], linux_release["VERSION_ID"]) not in supported_linux_releases:
                 print(
                     f'You are running an untested version of Linux ({linux_release["PRETTY_NAME"]}). '
-                    "Currently, only Ubuntu 23.04 and Debian 12 have been tested and confirmed working."
+                    f"Currently, only {supported_linux_releases} have been tested and confirmed working."
                 )
                 input("Press enter to install libmgba anyway...")
             libmgba_url = (
