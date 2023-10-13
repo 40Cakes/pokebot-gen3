@@ -304,6 +304,8 @@ class PokebotGui:
     stepping_button: tkinter.Button
     current_step: int = 0
 
+    _load_save_window: Union[tkinter.Tk, None] = None
+
     def __init__(self, main_loop: callable):
         global gui
         gui = self
@@ -498,6 +500,8 @@ class PokebotGui:
                         emulator.Reset()
                     case 'save_state':
                         emulator.CreateSaveState('manual')
+                    case 'load_state':
+                        self._ShowLoadSaveScreen()
                     case 'toggle_stepping_mode':
                         self.ToggleSteppingMode()
                     case 'zoom_in':
@@ -534,6 +538,112 @@ class PokebotGui:
             if keysym_with_modifier in self.gba_keys and \
                     (config['general']['bot_mode'] == 'manual'):
                 emulator.SetInputs(emulator.GetInputs() & ~self.gba_keys[keysym_with_modifier])
+
+    def _ShowLoadSaveScreen(self):
+        if self._load_save_window is not None:
+            self._load_save_window.focus_force()
+            return
+
+        state_directory = profile.path / 'states'
+        if not state_directory.is_dir():
+            return
+
+        state_files: list[Path] = [file for file in state_directory.glob('*.ss1')]
+        if len(state_files) < 1:
+            return
+
+        def RemoveWindow(event=None):
+            self._load_save_window.destroy()
+            self._load_save_window = None
+
+        def LoadState(state: Path):
+            emulator.LoadSaveState(state.read_bytes())
+            self._load_save_window.after(50, RemoveWindow)
+
+        self._load_save_window = tkinter.Tk()
+        self._load_save_window.title('Load a Save State')
+        self._load_save_window.geometry('520x500')
+        self._load_save_window.protocol('WM_DELETE_WINDOW', RemoveWindow)
+        self._load_save_window.bind('<Escape>', RemoveWindow)
+        self._load_save_window.rowconfigure(0, weight=1)
+        self._load_save_window.columnconfigure(0, weight=1)
+
+        # Stole-, uh, I mean heavily inspired from:
+        # https://stackoverflow.com/a/71682458/3163142
+        scrollable_frame = ttk.Frame(self._load_save_window)
+        scrollable_frame.pack(fill=tkinter.BOTH, expand=True)
+
+        canvas = tkinter.Canvas(scrollable_frame)
+        canvas.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
+
+        scrollbar = ttk.Scrollbar(scrollable_frame, orient=tkinter.VERTICAL, command=canvas.yview)
+        scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
+
+        frame = ttk.Frame(canvas, width=500)
+        frame.columnconfigure(0, weight=1)
+        frame.columnconfigure(1, weight=1)
+        canvas.create_window((0, 0), window=frame, anchor='nw')
+
+        def FilterStateFiles(files: list[Path]):
+            maximum_number_of_autosave_files = 3
+
+            autosaves_already_included = 0
+            autosave_pattern = re.compile('^\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}\\.ss1$')
+            files.sort(reverse=True, key=lambda file: file.stat().st_mtime)
+            for file in files:
+                if file.name == 'current_state.ss1' or autosave_pattern.match(file.name):
+                    if autosaves_already_included >= maximum_number_of_autosave_files:
+                        continue
+                    autosaves_already_included += 1
+                yield file
+
+        photo_buffer = []
+        column = 0
+        row = 0
+        for state in FilterStateFiles(state_files):
+            with open(state, 'rb') as file:
+                is_png = file.read(4) == b'\x89PNG'
+
+            photo = None
+            if is_png:
+                try:
+                    photo = tkinter.PhotoImage(master=canvas, file=state)
+                except tkinter.TclError:
+                    photo = None
+
+            if photo is None:
+                placeholder = PIL.Image.new(mode='RGBA', size=(self.width, self.height))
+                draw = PIL.ImageDraw.Draw(placeholder)
+                draw.rectangle(xy=[(0, 0), (placeholder.width, placeholder.height)], fill='#000000FF')
+                possible_sprites = ['TM01.png', 'TM26.png', 'TM44.png', 'TM Dark.png', 'TM Dragon.png',
+                                    'TM Electric.png',
+                                    'TM Fire.png', 'TM Flying.png', 'TM Ghost.png', 'TM Grass.png', 'TM Ice.png',
+                                    'TM Normal.png', 'TM Poison.png', 'TM Rock.png', 'TM Steel.png', 'TM Water.png']
+                sprite = PIL.Image.open(
+                    Path(__file__).parent.parent / 'sprites' / 'items' / random.choice(possible_sprites))
+                if sprite.mode != 'RGBA':
+                    sprite = sprite.convert('RGBA')
+                sprite = sprite.resize((sprite.width * 3, sprite.height * 3), resample=False)
+                sprite_position = (
+                    placeholder.width // 2 - sprite.width // 2, placeholder.height // 2 - sprite.height // 2)
+                placeholder.paste(sprite, sprite_position, sprite)
+                photo_buffer.append(placeholder)
+                photo = PIL.ImageTk.PhotoImage(master=canvas, image=placeholder)
+
+            photo_buffer.append(photo)
+            button = tkinter.Button(frame, text=state.name, image=photo, compound=tkinter.TOP, padx=0, pady=0,
+                                    wraplength=250, command=lambda s=state: LoadState(s))
+            button.grid(row=int(row), column=column, sticky='NSWE')
+            column = 1 if column == 0 else 0
+            row += 0.5
+
+        while self._load_save_window is not None:
+            self._load_save_window.update_idletasks()
+            self._load_save_window.update()
+            time.sleep(1 / 60)
 
     def ShowProfileSelection(self):
         if self.frame:
