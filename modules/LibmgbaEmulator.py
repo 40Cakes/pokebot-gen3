@@ -76,7 +76,7 @@ class LibmgbaEmulator:
 
     _video_enabled: bool = True
     _audio_enabled: bool = True
-    _throttled: bool = False
+    _throttled: bool = True
     _speed_factor: float = 1
     # How often a frame should be drawn to the screen (can be less frequent than the emulation rate)
     _target_seconds_per_render = 1 / 60
