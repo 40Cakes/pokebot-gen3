@@ -416,6 +416,8 @@ class DaycareTab(DebugTab):
 
     def _GetData(self):
         data = GetDaycareData()
+        if data is None:
+            return {}
 
         pokemon1 = 'n/a'
         if data.pokemon1 is not None:
