@@ -38,10 +38,10 @@ class Trainer:
     def __init__(self):
         if GetROM().game_title in ["POKEMON EMER", "POKEMON RUBY", "POKEMON SAPP"]:
             self.map_data = MapRSE
-            self.map_offset = (1, 0)
+            self.map_offset = 0
         else:
             self.map_data = MapFRLG
-            self.map_offset = (2, 1)
+            self.map_offset = 1
 
     def GetName(self) -> str:
         return DecodeString(GetSaveBlock(2, 8)[0:7])
@@ -57,13 +57,13 @@ class Trainer:
 
     def GetMap(self) -> tuple:
         b_gTasks = ReadSymbol("gTasks", 0x58, 4)
-        return (int(b_gTasks[self.map_offset[0]]), int(b_gTasks[self.map_offset[1]]))
+        return (int(b_gTasks[self.map_offset + 1]), int(b_gTasks[self.map_offset]))
 
     def GetMapName(self) -> str:
         try:
             return self.map_data(self.GetMap()).name
         except ValueError:
-            return 'UNKNOWN'
+            return "UNKNOWN"
 
     def GetCoords(self) -> tuple:
         b_gObjectEvents = ReadSymbol("gObjectEvents", 16, 3)
