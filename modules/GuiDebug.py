@@ -324,9 +324,19 @@ class SymbolsTab(DebugTab):
         data = {}
 
         for symbol in self.SYMBOLS_TO_DISPLAY:
-            value = ReadSymbol(symbol.upper())
+            try:
+                address, length = GetSymbol(symbol.upper())
+            except RuntimeError:
+                self.SYMBOLS_TO_DISPLAY.remove(symbol)
+                self.DISPLAY_AS_STRING.remove(symbol)
+                break
+
+            value = emulator.ReadBytes(address, length)
             if symbol in self.DISPLAY_AS_STRING:
                 data[symbol] = DecodeString(value)
+            elif length == 4 or length == 2:
+                n = int.from_bytes(value, byteorder='little')
+                data[symbol] = f"{value.hex(' ', 1)} ({n})"
             else:
                 data[symbol] = value.hex(' ', 1)
 
@@ -417,7 +427,7 @@ class DaycareTab(DebugTab):
                 gender = ''
 
             pokemon1 = {
-                '__value': f"{data.pokemon2['name']}{gender}; {data.pokemon1_steps:,} steps",
+                '__value': f"{data.pokemon1['name']}{gender}; {data.pokemon1_steps:,} steps",
                 'pokemon': data.pokemon1,
                 'steps': data.pokemon1_steps,
                 'egg_groups': ', '.join(set(data.pokemon1_egg_groups))

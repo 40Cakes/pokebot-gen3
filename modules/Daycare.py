@@ -1,4 +1,3 @@
-import struct
 from dataclasses import dataclass
 from enum import IntEnum
 from typing import Union
@@ -131,17 +130,24 @@ def GetDaycareData() -> Union[DaycareData, None]:
     pokemon1 = ParsePokemon(data[0x00:0x50])
     pokemon2 = ParsePokemon(data[0x8C:0xDC])
 
-    egg_groups1 = pokemon_list[pokemon1['name']]['egg_groups']
-    egg_groups2 = pokemon_list[pokemon2['name']]['egg_groups']
+    if pokemon1 is None:
+        egg_groups1 = []
+    else:
+        egg_groups1 = pokemon_list[pokemon1['name']]['egg_groups']
+
+    if pokemon2 is None:
+        egg_groups2 = []
+    else:
+        egg_groups2 = pokemon_list[pokemon2['name']]['egg_groups']
 
     return DaycareData(
         pokemon1=pokemon1,
         pokemon1_egg_groups=egg_groups1,
-        pokemon1_steps=struct.unpack('<I', data[0x88:0x8C])[0],
+        pokemon1_steps=int.from_bytes(data[0x88:0x8C], byteorder='little'),
         pokemon2=pokemon2,
         pokemon2_egg_groups=egg_groups2,
-        pokemon2_steps=struct.unpack('<I', data[0x114:0x118])[0],
-        offspring_personality=struct.unpack('<I', data[0x118:0x11C])[0],
+        pokemon2_steps=int.from_bytes(data[0x114:0x118], byteorder='little'),
+        offspring_personality=int.from_bytes(data[0x118:0x11C], byteorder='little'),
         step_counter=int(data[0x11C]),
         compatibility=DaycareCompatibility.CalculateFor(pokemon1, pokemon2)
     )
