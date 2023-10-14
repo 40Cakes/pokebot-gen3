@@ -405,7 +405,7 @@ Enable WebSockets in **OBS** > **Tools** > **Websocket Server Settings** > **Ena
 #### OBS WebSocket Parameters
 `shiny_delay` - delay catching a shiny encounter by `n` frames, useful to give you viewers some time to react before saving a replay
 
-`discord_delay` - delay Discord webhooks by `n` frames, prevent spoilers if there is a stream delay
+`discord_delay` - delay Discord webhooks by `n` seconds, prevent spoilers if there is a stream delay
 
 `screenshot` - take OBS screenshot of shiny encounter
 - **Note**: **OBS** > **Settings** > **Hotkeys** > **Screenshot Output** must be set to **Ctrl + F11**
@@ -416,7 +416,7 @@ Enable WebSockets in **OBS** > **Tools** > **Websocket Server Settings** > **Ena
 - **Note**: **OBS** > **Settings** > **Hotkeys** > **Replay Buffer** > **Save Replay** must set to **Ctrl + F12**
 - The bot does **not** emulate keystrokes, it simply sends a `TriggerHotkeyByKeySequence` (**Ctrl + F12**) WebSocket command
 
-`replay_buffer_delay` - delay saving OBS replay buffer by `n` frames
+`replay_buffer_delay` - delay saving OBS replay buffer by `n` seconds
 - Runs in a separate thread and will not pause main bot thread
 - If the replay buffer is long enough, it will also capture some encounters after the shiny encounter
 
@@ -467,13 +467,14 @@ All HTTP responses are in JSON format.
 - Use a lead Pokémon with encounter rate boosting [abilities](https://bulbapedia.bulbagarden.net/wiki/Category:Abilities_that_affect_appearance_of_wild_Pok%C3%A9mon), such as **[Illuminate](https://bulbapedia.bulbagarden.net/wiki/Illuminate_(Ability))**
 - Use a lead Pokémon with a [short cry](https://docs.google.com/spreadsheets/d/1rmtNdlIXiif1Sz20i-9mfhFdoqb1VnAOIntlr3tnPeU)
 - Use a lead Pokémon with a single character nickname
-- Use a non-shiny lead Pokémon (shiny animation takes a few frames)
+- Don't use a shiny lead Pokémon (shiny animation takes a few frames at the start of every battle)
 
 ***
 
 # ❤ Attributions
 
 - [mGBA](https://github.com/mgba-emu/mgba)
+- [libmgba-py](https://github.com/hanzi/libmgba-py/)
 
 Other awesome PokéBot projects:
 
