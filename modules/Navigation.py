@@ -1,4 +1,5 @@
-from modules.Inputs import PressButton, WaitFrames, ReleaseInputs
+from modules.Config import config
+from modules.Gui import GetEmulator
 from modules.Memory import GetGameState, GameState
 from modules.Temp import temp_RunFromBattle
 from modules.Pokemon import OpponentChanged, GetOpponent
@@ -17,36 +18,37 @@ def FollowPath(coords: list, run: bool = True) -> bool:
     """
     for x, y, *map_data in coords:
         if run:
-            PressButton(['B'], 0)
+            GetEmulator().HoldButton("B")
 
-        while True:
+        while True and config["general"]["bot_mode"] != "manual":
             trainer = GetTrainer()
 
             if GetGameState() == GameState.BATTLE:
                 if OpponentChanged():
                     EncounterPokemon(GetOpponent())
+                GetEmulator().ReleaseButton("B")
                 temp_RunFromBattle()
 
             # Check if map changed to desired map
             if map_data:
-                if trainer['mapBank'] == map_data[0][0] and trainer['mapId'] == map_data[0][1]:
-                    ReleaseInputs()
+                if trainer["mapBank"] == map_data[0][0] and trainer["mapId"] == map_data[0][1]:
+                    GetEmulator().ReleaseButton("B")
                     break
 
-            if trainer['coords'][0] > x:
-                direction = 'Left'
-            elif trainer['coords'][0] < x:
-                direction = 'Right'
-            elif trainer['coords'][1] < y:
-                direction = 'Down'
-            elif trainer['coords'][1] > y:
-                direction = 'Up'
+            if trainer["coords"][0] > x:
+                direction = "Left"
+            elif trainer["coords"][0] < x:
+                direction = "Right"
+            elif trainer["coords"][1] < y:
+                direction = "Down"
+            elif trainer["coords"][1] > y:
+                direction = "Up"
             else:
-                ReleaseInputs()
+                GetEmulator().ReleaseButton("B")
                 break
 
-            PressButton([direction], 0)
-            WaitFrames(1)
+            GetEmulator().PressButton(direction)
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
-    ReleaseInputs()
     return True
