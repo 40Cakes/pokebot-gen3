@@ -123,8 +123,10 @@ class DaycareData:
     compatibility: tuple[DaycareCompatibility, str]
 
 
-def GetDaycareData():
+def GetDaycareData() -> Union[DaycareData, None]:
     data = GetSaveBlock(1, 0x3030, 0x120)
+    if data is None:
+        return None
 
     pokemon1 = ParsePokemon(data[0x00:0x50])
     pokemon2 = ParsePokemon(data[0x8C:0xDC])
