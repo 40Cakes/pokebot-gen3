@@ -18,23 +18,11 @@ import PIL.ImageTk
 import modules.Game
 from modules.Config import available_bot_modes, config, LoadConfig, keys_schema, SetBotMode, ToggleManualMode
 from modules.Console import console
-from modules.LibmgbaEmulator import LibmgbaEmulator
+from modules.LibmgbaEmulator import LibmgbaEmulator, input_map
 from modules.Profiles import Profile, ListAvailableProfiles, ProfileDirectoryExists, CreateProfile
 from modules.Roms import ROM, ListAvailableRoms
 from version import pokebot_name, pokebot_version
 
-input_map = {
-    'A': 0x1,
-    'B': 0x2,
-    'Select': 0x4,
-    'Start': 0x8,
-    'Right': 0x10,
-    'Left': 0x20,
-    'Up': 0x40,
-    'Down': 0x80,
-    'R': 0x100,
-    'L': 0x200
-}
 
 gui: 'PokebotGui' = None
 emulator: LibmgbaEmulator = None
@@ -491,7 +479,7 @@ class PokebotGui:
         if emulator:
             if keysym_with_modifier in self.gba_keys and \
                     (config['general']['bot_mode'] == 'manual'):
-                emulator.SetInputs(emulator.GetInputs() | self.gba_keys[keysym_with_modifier])
+                emulator.HoldButton(inputs=self.gba_keys[keysym_with_modifier])
             elif keysym_with_modifier in self.emulator_keys:
                 match self.emulator_keys[keysym_with_modifier]:
                     case 'reset':
@@ -533,7 +521,7 @@ class PokebotGui:
         if emulator:
             if keysym_with_modifier in self.gba_keys and \
                     (config['general']['bot_mode'] == 'manual'):
-                emulator.SetInputs(emulator.GetInputs() & ~self.gba_keys[keysym_with_modifier])
+                emulator.ReleaseButton(inputs=self.gba_keys[keysym_with_modifier])
 
     def ShowProfileSelection(self):
         if self.frame:
