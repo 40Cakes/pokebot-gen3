@@ -457,3 +457,26 @@ class DaycareTab(DebugTab):
             'Compatibility': data.compatibility[0].name,
             'Compatibility Reason': data.compatibility[1],
         }
+
+
+class InputTab(DebugTab):
+    _tv: FancyTreeview
+
+    def Draw(self, root: ttk.Notebook):
+        frame = ttk.Frame(root, padding=10)
+        self._tv = FancyTreeview(frame)
+        root.add(frame, text='Inputs')
+
+    def Update(self, emulator: 'LibmgbaEmulator'):
+        self._tv.UpdateData(self._GetData())
+
+    def _GetData(self):
+        from modules.LibmgbaEmulator import input_map
+
+        result = {}
+        inputs = GetEmulator().GetInputs()
+
+        for input in input_map:
+            result[input] = True if input_map[input] & inputs else False
+
+        return result
