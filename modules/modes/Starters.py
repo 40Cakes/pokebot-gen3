@@ -9,7 +9,7 @@ from modules.Memory import ReadSymbol, GetGameState, GameState, GetTask, WriteSy
 from modules.Navigation import FollowPath
 from modules.Pokemon import GetParty
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
-from modules.Trainer import GetTrainer
+from modules.Trainer import trainer
 
 
 class Regions(Enum):
@@ -175,7 +175,7 @@ class ModeStarters:
                     case StarterStates.EXIT_MENUS:
                         if not config["cheats"]["starters"]:
                             while True:
-                                if GetTrainer()["facing"] != "Down":
+                                if trainer.GetFacingDirection() != "Down":
                                     GetEmulator().PressButton("B")
                                     GetEmulator().HoldButton("Down")
                                 else:
@@ -188,7 +188,7 @@ class ModeStarters:
                             yield
 
                     case StarterStates.FOLLOW_PATH:
-                        FollowPath([(GetTrainer()["coords"][0], 7), (7, 7), (7, 8)])  # TODO Revisit FollowPath rework
+                        FollowPath([(trainer.GetCoords()[0], 7), (7, 7), (7, 8)])  # TODO Revisit FollowPath rework
                         self.update_state(StarterStates.CHECK_STARTER)
 
                     case StarterStates.CHECK_STARTER:
@@ -390,7 +390,7 @@ class ModeStarters:
                     # Check for ball being thrown
                     case StarterStates.THROW_BALL:
                         while True:
-                            if GetTask(self.task_ball_throw).get("isActive", False):
+                            if not GetTask(self.task_ball_throw).get("isActive", False):
                                 GetEmulator().PressButton("B")
                             else:
                                 self.update_state(StarterStates.STARTER_CRY)

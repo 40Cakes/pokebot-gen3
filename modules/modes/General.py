@@ -3,7 +3,7 @@ from enum import Enum
 
 from modules.Gui import GetEmulator
 from modules.Memory import GetTask, GetGameState, GameState
-from modules.Trainer import GetTrainer
+from modules.Trainer import trainer
 
 
 class SpinStates(Enum):
@@ -29,7 +29,7 @@ class ModeSpin:
     def step(self):
         match self.state:
             case SpinStates.IDLE:
-                self.directions.remove(GetTrainer()["facing"])
+                self.directions.remove(trainer.GetFacingDirection())
                 GetEmulator().PressButton(random.choice(self.directions))
                 self.update_state(SpinStates.CHANGING_DIRECTION)
 
