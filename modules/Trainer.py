@@ -44,7 +44,7 @@ class Trainer:
             self.map_offset = 1
 
     def GetName(self) -> str:
-        return DecodeString(GetSaveBlock(2, 8)[0:7])
+        return DecodeString(GetSaveBlock(2, size=8))
 
     def GetGender(self) -> str:
         return "girl" if int.from_bytes(GetSaveBlock(2, 0x8, 1)) else "boy"
