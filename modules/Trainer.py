@@ -3,6 +3,7 @@ from enum import IntEnum
 
 from modules.Console import console
 from modules.Game import DecodeString
+from modules.Gui import GetROM
 from modules.Memory import GetSaveBlock, ReadSymbol
 
 class AvatarFlag(IntEnum):
@@ -68,6 +69,7 @@ def GetTrainer() -> dict:
                 'tid': 0,
                 'sid': 0,
                 'map': (0, 0),
+                'map_name': '',
                 'coords': (0, 0),
                 'on_bike': False,
                 'facing': None
@@ -79,10 +81,19 @@ def GetTrainer() -> dict:
             'tid': int(struct.unpack('<H', b_Save[10:12])[0]),
             'sid': int(struct.unpack('<H', b_Save[12:14])[0]),
             'map': (int(b_gTasks[2]), int(b_gTasks[1])),
+            'map_name': '',
             'coords': (int(b_gObjectEvents[16]) - 7, int(b_gObjectEvents[18]) - 7),
             'on_bike': (int(b_gPlayerAvatar[0]) & ON_BIKE) != 0,
             'facing': FacingDir(int(b_gObjectEvents[24]))
         }
+
+        if GetROM().game_title in ['POKEMON EMER', 'POKEMON RUBY', 'POKEMON SAPP']:  # TODO add FRLG map enum
+            from modules.data.MapData import mapRSE
+            try:
+                trainer['map_name'] = mapRSE(trainer['map']).name
+            except ValueError:
+                pass
+
         return trainer
     except SystemExit:
         raise

@@ -367,21 +367,13 @@ class TrainerTab(DebugTab):
         data = GetTrainer()
         party = GetParty()
 
-        map_name = ''
-        if GetROM().game_title in ['POKEMON EMER', 'POKEMON RUBY', 'POKEMON SAPP']:
-            from modules.data.MapData import mapRSE
-            try:
-                map_name = mapRSE(data['map']).name
-            except ValueError:
-                pass
-
         result = {
             'Name': data['name'],
             'Gender': data['gender'],
             'Trainer ID': data['tid'],
             'Secret ID': data['sid'],
             'Map': data['map'],
-            'Map Name': map_name,
+            'Map Name': data['map_name'],
             'Local Coordinates': data['coords'],
             'Facing Direction': data['facing'],
             'On Bike': data['on_bike'],
