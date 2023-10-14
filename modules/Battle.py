@@ -494,7 +494,7 @@ def GetStrongestMove() -> int:
         return move['index']
 
 
-def GetMonToSwitch(active_mon: int, show_messages=False) -> int:
+def GetMonToSwitch(active_mon: int, show_messages=True) -> int:
     """
     Figures out which pokemon should be switched out for the current active pokemon.
 
@@ -874,7 +874,7 @@ def CheckBattleCanHappen() -> bool:
     Determines whether the bot can battle with the state of the current party
     :return: True if the party is capable of having a battle, False otherwise
     """
-    first_suitable_battler = GetMonToSwitch(-1)
+    first_suitable_battler = GetMonToSwitch(-1, show_messages=False)
     if first_suitable_battler is None:
         return False
     return True
