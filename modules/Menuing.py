@@ -109,7 +109,7 @@ def NavigateStartMenu(desired_option: str) -> None:
 
     :param desired_option: The option to select from the menu.
     """
-    while not ParseStartMenu()['open']:
+    while not ParseStartMenu()['open'] and not config['general']['bot_mode'] == 'manual':
         PressButton(['Start'])
     current_cursor_position = ParseStartMenu()['cursor_pos']
     desired_index = ParseStartMenu()['actions'].index(desired_option)

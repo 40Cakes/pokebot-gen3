@@ -677,7 +677,7 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
 
     if GetGameState() in (GameState.BATTLE, GameState.BATTLE_STARTING) and config['general']['bot_mode'] != 'manual':
         battle_can_happen = CheckBattleCanHappen()
-        if config['battle']['battle'] and battle_can_happen:
+        if config['battle']['battle'] and battle_can_happen and not config['general']['bot_mode'] == 'manual':
             battle_won = BattleOpponent()
             # adding this in for lead rotation functionality down the line
             replace_battler = not battle_won
@@ -688,7 +688,7 @@ def EncounterPokemon(pokemon: dict) -> NoReturn:
             if config['battle']["replace_lead_battler"] and replace_battler:
                 RotatePokemon()
         if config['battle']["pickup"] and battle_can_happen:
-            while GetGameState() != GameState.OVERWORLD:
+            while GetGameState() != GameState.OVERWORLD and not config['general']['bot_mode'] == 'manual':
                 continue
             if GetGameState() == GameState.OVERWORLD:
                 CheckForPickup(stats['totals'].get('encounters', 0))

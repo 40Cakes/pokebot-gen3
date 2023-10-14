@@ -32,7 +32,7 @@ def SelectBattleOption(desired_option: int) -> NoReturn:
         case _:
             WaitFrames(1)
             return
-    while ParseBattleCursor(cursor_type) != desired_option:
+    while ParseBattleCursor(cursor_type) != desired_option and not config['general']['bot_mode'] == 'manual':
         match (ParseBattleCursor(cursor_type) % 2) - (desired_option % 2):
             case - 1:
                 PressButton(['Right'])
@@ -46,7 +46,7 @@ def SelectBattleOption(desired_option: int) -> NoReturn:
             case 0:
                 pass
     if ParseBattleCursor(cursor_type) == desired_option:
-        while GetBattleState() == battle_state:
+        while GetBattleState() == battle_state and not config['general']['bot_mode'] == 'manual':
             PressButton(['A'])
             WaitFrames(1)
 
@@ -55,7 +55,7 @@ def FleeBattle() -> NoReturn:
     """
     Readable function to select and execute the Run option from the battle menu.
     """
-    while GetGameState() != GameState.OVERWORLD:
+    while GetGameState() != GameState.OVERWORLD and not config['general']['bot_mode'] == 'manual':
         if GetBattleState() == BattleState.ACTION_SELECTION:
             SelectBattleOption(3)
         else:
@@ -217,7 +217,7 @@ def NavigateMoveLearnMenu(idx):
 
     :param idx: the move to select (usually for forgetting a move)
     """
-    while GetLearnMoveState() == "MOVE_MENU":
+    while GetLearnMoveState() == "MOVE_MENU" and not config['general']['bot_mode'] == 'manual':
         if GetMoveLearningCursorPos() < idx:
             up_presses = GetMoveLearningCursorPos() + 5 - idx
             down_presses = idx - GetMoveLearningCursorPos()
@@ -239,8 +239,8 @@ def HandleMoveLearn(leveled_mon: int):
             console.print('New move trying to be learned, switching to manual mode...')
             ForceManualMode()
         case 'cancel':
-            while GetGameState() != GameState.OVERWORLD:
-                while GetGameState() == GameState.EVOLUTION:
+            while GetGameState() != GameState.OVERWORLD and not config['general']['bot_mode'] == 'manual':
+                while GetGameState() == GameState.EVOLUTION and not config['general']['bot_mode'] == 'manual':
                     if config['battle']['stop_evolution']:
                         PressButton(['B'])
                     else:
@@ -257,17 +257,17 @@ def HandleMoveLearn(leveled_mon: int):
             learning_move = GetLearningMove()
             worst_move = CalculateNewMoveViability(learning_mon, learning_move)
             if worst_move == 4:
-                while GetLearnMoveState() == "LEARN_YN":
+                while GetLearnMoveState() == "LEARN_YN" and not config['general']['bot_mode'] == 'manual':
                     PressButton(['B'])
                 for i in range(60):
                     if GetLearnMoveState() != "STOP_LEARNING":
                         WaitFrames(1)
                     else:
                         break
-                while GetLearnMoveState() == "STOP_LEARNING":
+                while GetLearnMoveState() == "STOP_LEARNING" and not config['general']['bot_mode'] == 'manual':
                     PressButton(['A'])
             else:
-                while GetLearnMoveState() == "LEARN_YN":
+                while GetLearnMoveState() == "LEARN_YN" and not config['general']['bot_mode'] == 'manual':
                     PressButton(['A'])
                 for i in range(60):
                     if not GetLearnMoveState() == "MOVE_MENU":
@@ -275,9 +275,9 @@ def HandleMoveLearn(leveled_mon: int):
                     else:
                         break
                 NavigateMoveLearnMenu(worst_move)
-                while GetLearnMoveState() == "STOP_LEARNING":
+                while GetLearnMoveState() == "STOP_LEARNING" and not config['general']['bot_mode'] == 'manual':
                     PressButton(["B"])
-            while GetBattleState() == BattleState.LEARNING and GetLearnMoveState() not in ["MOVE_MENU", "LEARN_YN", "STOP_LEARNING"]:
+            while (GetBattleState() == BattleState.LEARNING and GetLearnMoveState() not in ["MOVE_MENU", "LEARN_YN", "STOP_LEARNING"]) and not config['general']['bot_mode'] == 'manual':
                 PressButton(["B"])
 
 
@@ -579,7 +579,7 @@ def SendOutPokemon(idx):
     party_menu_index = GetPartyMenuCursorPos()['slot_id']
     if party_menu_index >= cursor_positions:
         party_menu_index = cursor_positions - 1
-    while party_menu_index != idx:
+    while party_menu_index != idx and not config['general']['bot_mode'] == 'manual':
         if party_menu_index > idx:
             up_presses = party_menu_index - idx
             down_presses = idx + cursor_positions - party_menu_index
@@ -602,14 +602,14 @@ def SendOutPokemon(idx):
                     WaitFrames(1)
                 else:
                     break
-            while "TASK_HANDLESELECTIONMENUINPUT" in [task['func'] for task in ParseTasks()]:
+            while "TASK_HANDLESELECTIONMENUINPUT" in [task['func'] for task in ParseTasks()] and not config['general']['bot_mode'] == 'manual':
                 NavigateMenu("SHIFT")
         case _:
             for i in range(60):
                 if "TASK_HANDLEPOPUPMENUINPUT" not in [task['func'] for task in ParseTasks()]:
                     PressButton(['A'])
                     WaitFrames(1)
-            while "TASK_HANDLEPOPUPMENUINPUT" in [task['func'] for task in ParseTasks()]:
+            while "TASK_HANDLEPOPUPMENUINPUT" in [task['func'] for task in ParseTasks()] and not config['general']['bot_mode'] == 'manual':
                 PressButton(['A'])
                 WaitFrames(1)
 
@@ -620,14 +620,14 @@ def SwitchOutPokemon(idx):
     """
     cursor_positions = len(GetParty()) + 1
 
-    while not PartyMenuIsOpen():
+    while not PartyMenuIsOpen() and not config['general']['bot_mode'] == 'manual':
         PressButton(['A'])
         
     party_menu_index = GetPartyMenuCursorPos()['slot_id']
     if party_menu_index >= cursor_positions:
         party_menu_index = cursor_positions - 1
 
-    while party_menu_index != idx:
+    while party_menu_index != idx and not config['general']['bot_mode'] == 'manual':
 
         if party_menu_index > idx:
             up_presses = party_menu_index - idx
@@ -646,23 +646,23 @@ def SwitchOutPokemon(idx):
             party_menu_index = cursor_positions - 1
 
     if GetROM().game_title in ['POKEMON EMER', 'POKEMON FIRE', 'POKEMON LEAF']:
-        while not (GetTask("TASK_HANDLESELECTIONMENUINPUT") != {} and GetTask("TASK_HANDLESELECTIONMENUINPUT")['isActive']):
+        while not (GetTask("TASK_HANDLESELECTIONMENUINPUT") != {} and GetTask("TASK_HANDLESELECTIONMENUINPUT")['isActive']) and not config['general']['bot_mode'] == 'manual':
             PressButton(['A'])
-        while GetTask("TASK_HANDLESELECTIONMENUINPUT") != {} and GetTask("TASK_HANDLESELECTIONMENUINPUT")['isActive']:
+        while GetTask("TASK_HANDLESELECTIONMENUINPUT") != {} and GetTask("TASK_HANDLESELECTIONMENUINPUT")['isActive'] and not config['general']['bot_mode'] == 'manual':
             NavigateMenu("SWITCH")
-        while GetPartyMenuCursorPos()['action'] != 8:
+        while GetPartyMenuCursorPos()['action'] != 8 and not config['general']['bot_mode'] == 'manual':
             PressButton(['A'])
-        while GetPartyMenuCursorPos()['action'] == 8:
+        while GetPartyMenuCursorPos()['action'] == 8 and not config['general']['bot_mode'] == 'manual':
             if GetPartyMenuCursorPos()['slot_id_2'] == 7:
                 PressButton(['Down'])
             elif GetPartyMenuCursorPos()['slot_id_2'] != 0:
                 PressButton(['Left'])
             else:
                 PressButton(['A'])
-        while GetGameState() == GameState.PARTY_MENU:
+        while GetGameState() == GameState.PARTY_MENU and not config['general']['bot_mode'] == 'manual':
             PressButton(['B'])
     else:
-        while 'SUB_8089D94' not in [task['func'] for task in ParseTasks()]:
+        while 'SUB_8089D94' not in [task['func'] for task in ParseTasks()] and not config['general']['bot_mode'] == 'manual':
             PressButton(['A'])
             WaitFrames(1)
         while (
@@ -670,26 +670,26 @@ def SwitchOutPokemon(idx):
         ) and not (
                 'SUB_808A060' in [task['func'] for task in ParseTasks()] or
                 'HANDLEPARTYMENUSWITCHPOKEMONINPUT' in [task['func'] for task in ParseTasks()]
-        ):
+        ) and not config['general']['bot_mode'] == 'manual':
             NavigateMenu("SWITCH")
             WaitFrames(1)
-        while SwitchPokemonActive():
+        while SwitchPokemonActive() and not config['general']['bot_mode'] == 'manual':
             if GetPartyMenuCursorPos()['slot_id_2'] != 0:
                 PressButton(['Up'])
             else:
                 PressButton(['A'])
             WaitFrames(1)
-        while TaskFunc.PARTY_MENU not in [GetTaskFunc(task['func']) for task in ParseTasks()]:
+        while TaskFunc.PARTY_MENU not in [GetTaskFunc(task['func']) for task in ParseTasks()] and not config['general']['bot_mode'] == 'manual':
             PressButton(['B'])
             WaitFrames(1)
 
-    while GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
+    while (GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']) and not config['general']['bot_mode'] == 'manual':
         PressButton(['B'])
     for i in range(30):
         if GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
             break
         PressButton(['B'])
-    while GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
+    while (GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']) and not config['general']['bot_mode'] == 'manual':
         PressButton(['B'])
 
 
@@ -737,7 +737,7 @@ def ExecuteAction(decision: tuple):
                 console.print("Invalid move selection. Switching to manual mode...")
                 ForceManualMode()
             move_executed = False
-            while not move_executed:
+            while not move_executed and not config['general']['bot_mode'] == 'manual':
                 match GetBattleState():
                     case BattleState.ACTION_SELECTION:
                         SelectBattleOption(0)
@@ -757,7 +757,7 @@ def ExecuteAction(decision: tuple):
                 console.print("Invalid Pokemon selection. Switching to manual mode...")
                 ForceManualMode()
             else:
-                while not GetBattleState() == BattleState.PARTY_MENU:
+                while not GetBattleState() == BattleState.PARTY_MENU and not config['general']['bot_mode'] == 'manual':
                     SelectBattleOption(2)
                 SendOutPokemon(pokemon)
             return
@@ -773,13 +773,13 @@ def HandleBattlerFaint():
             console.print("Switching to manual mode...")
             ForceManualMode()
         case 'flee':
-            while GetBattleState() not in [BattleState.OVERWORLD, BattleState.PARTY_MENU]:
+            while GetBattleState() not in [BattleState.OVERWORLD, BattleState.PARTY_MENU] and not config['general']['bot_mode'] == 'manual':
                 PressButton(['B'])
             if GetBattleState() == BattleState.PARTY_MENU:
                 console.print("Couldn't flee. Switching to manual mode...")
                 ForceManualMode()
             else:
-                while not GetGameState() == GameState.OVERWORLD:
+                while not GetGameState() == GameState.OVERWORLD and not config['general']['bot_mode'] == 'manual':
                     PressButton(['B'])
                 return False
         case 'rotate':
@@ -787,7 +787,7 @@ def HandleBattlerFaint():
             if sum([mon['stats']['hp'] for mon in party]) == 0:
                 console.print('All Pokémon have fainted. Switching to manual mode...')
                 ForceManualMode()
-            while GetBattleState() != BattleState.PARTY_MENU:
+            while GetBattleState() != BattleState.PARTY_MENU and not config['general']['bot_mode'] == 'manual':
                 PressButton(['A'])
             new_lead = GetMonToSwitch(GetCurrentBattler()[0])
             if new_lead is None:
@@ -798,7 +798,7 @@ def HandleBattlerFaint():
                 config['battle']['faint_action'] = faint_action_default
                 return False
             SendOutPokemon(new_lead)
-            while GetBattleState() in (BattleState.SWITCH_POKEMON, BattleState.PARTY_MENU):
+            while GetBattleState() in (BattleState.SWITCH_POKEMON, BattleState.PARTY_MENU) and not config['general']['bot_mode'] == 'manual':
                 PressButton(['A'])
         case _:
             console.print("Invalid faint_action option. Switching to manual mode...")
@@ -836,7 +836,7 @@ def BattleOpponent() -> bool:
     prev_battle_state = GetBattleState()
     previous_party = GetParty()
     most_recent_leveled_mon_index = -1
-    while not battle_ended:
+    while not battle_ended and not config['general']['bot_mode'] == 'manual':
         battle_state = GetBattleState()
         if battle_state != prev_battle_state:
             # print(f"Battle state: {BattleState(GetBattleState()).name}")
