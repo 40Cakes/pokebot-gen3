@@ -34,6 +34,16 @@ The bot is frame perfect and can cheat by reading data from any point in memory.
 - Linux (**64-bit**)
   - Note: only tested and confirmed working on **Ubuntu 23.04** and **Debian 12**
 
+### Download the Bot
+To download the latest bot from GitHub, go to the top of the page > click **Code** > **Download ZIP**.
+
+Alternatively, if you'd like to be able to easily pull the latest updates:
+- Install [GitHub Desktop](https://desktop.github.com/) (you don't need an account)
+- Click **Clone a repository from the Internet...**
+- Use repository URL `https://github.com/40Cakes/pokebot-gen3.git` and choose a save location
+- Click **Clone**
+- To check for updates click **Fetch origin**
+
 ### Requirements
 - [Python 3.11](https://www.python.org/downloads/release/python-3110/)
 - Double click `requirements.py` or run `python requirements.py` in a terminal to install Python modules and [libmgba](https://github.com/hanzi/libmgba-py)
@@ -47,7 +57,6 @@ The bot is frame perfect and can cheat by reading data from any point in memory.
 ***
 
 # ❓ How To Run
-- Set the desired `bot_mode` in config file [`config/general.yml`](#generalyml---general-config)
 - Double click `pokebot.py` or run `python pokebot.py` in a terminal and follow the on-screen steps to create and/or select a profile
 
 While running, the bot will ignore your button presses, if you need to take control of the emulator, press `Tab` to toggle manual bot mode on/off.
