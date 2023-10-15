@@ -413,24 +413,24 @@ class LibmgbaEmulator:
         """
         self._core._core.setKeys(self._core._core, inputs)
 
-    def PressButton(self, button: str = "", inputs: int = 0):
+    def PressButton(self, button: str = None, inputs: int = 0):
         """
         :param button: A GBA button to be pressed, if pressed on previous frame it will be released
-        :param inputs: Alternate raw input number
+        :param inputs: Alternate raw input bitfield
         """
         self._pressed_inputs |= (input_map[button] ^ self._prev_pressed_inputs) if not inputs else inputs
 
-    def HoldButton(self, button: str = "", inputs: int = 0):
+    def HoldButton(self, button: str = None, inputs: int = 0):
         """
         :param button: A GBA button to be held, will be held until ReleaseInput called
-        :param inputs: Alternate raw input number
+        :param inputs: Alternate raw input bitfield
         """
         self._held_inputs |= input_map[button] if not inputs else inputs
 
-    def ReleaseButton(self, button: str = "", inputs: int = 0):
+    def ReleaseButton(self, button: str = None, inputs: int = 0):
         """
         :param button: A GBA button to be release if held
-        :param inputs: Alternate raw input number
+        :param inputs: Alternate raw input bitfield
         """
         self._held_inputs ^= input_map[button] if not inputs else inputs
 
