@@ -17,7 +17,7 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/e6cea062-895e-411a-86fb-
 
 # 📖 Preamble
 - This is still in development, as such, functionality is subject to change without warning - always make sure you back up your `config/<profile name>/` folder before updating your bot!
-- Reach out in Discord [#bot-support-mgba❔](https://discord.com/channels/1057088810950860850/1139190426834833528) if you have any issues
+- Reach out in Discord [#bot-support-libmgba❔](https://discord.com/channels/1057088810950860850/1139190426834833528) if you have any issues
 
 The bot is frame perfect and can cheat by reading data from any point in memory. By default it will attempt to perform most actions as if a human were playing to make gameplay as representative as possible, some examples:
 - Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible before resetting
