@@ -121,7 +121,7 @@ if __name__ == "__main__":
     gui = PokebotGui(MainLoop)
     if debug_mode:
         from modules.Gui import DebugEmulatorControls
-        from modules.GuiDebug import TasksTab, BattleTab, TrainerTab, DaycareTab, SymbolsTab, InputTab
+        from modules.GuiDebug import TasksTab, BattleTab, TrainerTab, DaycareTab, SymbolsTab, InputsTab
 
         controls = DebugEmulatorControls(gui, gui.window)
         controls.AddTab(TasksTab())
@@ -129,7 +129,7 @@ if __name__ == "__main__":
         controls.AddTab(TrainerTab())
         controls.AddTab(DaycareTab())
         controls.AddTab(SymbolsTab())
-        controls.AddTab(InputTab())
+        controls.AddTab(InputsTab())
 
         gui.controls = controls
 

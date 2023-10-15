@@ -459,7 +459,7 @@ class DaycareTab(DebugTab):
         }
 
 
-class InputTab(DebugTab):
+class InputsTab(DebugTab):
     _tv: FancyTreeview
 
     def Draw(self, root: ttk.Notebook):
