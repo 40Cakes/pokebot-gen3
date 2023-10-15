@@ -24,3 +24,5 @@ def temp_RunFromBattle():  # TODO temporary until auto-battle is fleshed out
             config['general']['bot_mode'] != 'manual':
         GetEmulator().PressButton('B')
         GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+    for _ in range(10):  # Wait for the battle fade transition # TODO check when trainer becomes controllable instead
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
