@@ -1,9 +1,8 @@
-import random
 from enum import Enum
 
 from modules.Gui import GetEmulator
 from modules.Memory import GetTask, GetGameState, GameState
-from modules.Trainer import trainer
+from modules.Trainer import trainer, RunningStates
 
 
 class SpinStates(Enum):
@@ -20,8 +19,12 @@ class FishingStates(Enum):
 class ModeSpin:
     def __init__(self):
         self.state: SpinStates = SpinStates.IDLE
-        self.directions = ["Up", "Right", "Down", "Left"]
-        self.turn_wait = 0
+        self.clockwise = ["Up", "Right", "Down", "Left"]
+
+    def get_next_direction(self, current_direction):
+        current_index = self.clockwise.index(current_direction)
+        next_index = (current_index + 1) % 4
+        return self.clockwise[next_index]
 
     def update_state(self, state: SpinStates):
         self.state = state
@@ -29,13 +32,13 @@ class ModeSpin:
     def step(self):
         match self.state:
             case SpinStates.IDLE:
-                self.directions.remove(trainer.GetFacingDirection())
-                GetEmulator().PressButton(random.choice(self.directions))
-                self.update_state(SpinStates.CHANGING_DIRECTION)
+                if trainer.GetRunningState() == RunningStates.NOT_MOVING:
+                    GetEmulator().PressButton(self.get_next_direction(trainer.GetFacingDirection()))
+                else:
+                    self.update_state(SpinStates.CHANGING_DIRECTION)
 
             case SpinStates.CHANGING_DIRECTION:
-                while self.turn_wait < 7:
-                    self.turn_wait += 1
+                while trainer.GetRunningState() == RunningStates.TURN_DIRECTION and GetGameState() != GameState.BATTLE:
                     yield
                 else:
                     return
