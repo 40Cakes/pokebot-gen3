@@ -8,7 +8,6 @@ from modules.Config import config
 from modules.Console import console
 from modules.Discord import DiscordMessage
 from modules.Gui import GetROM
-from modules.Inputs import WaitFrames
 
 
 def CustomHooks(hook) -> NoReturn:
@@ -348,7 +347,7 @@ def CustomHooks(hook) -> NoReturn:
         if config['obs']['replay_buffer'] and pokemon['shiny']:
             def OBSReplayBuffer():
                 from modules.OBS import OBSHotKey
-                WaitFrames(config['obs'].get('replay_buffer_delay', 0))
+                time.sleep(config['obs'].get('replay_buffer_delay', 0))
                 OBSHotKey('OBS_KEY_F12', pressCtrl=True)
             # Run in a thread to not hold up other hooks
             Thread(target=OBSReplayBuffer).start()

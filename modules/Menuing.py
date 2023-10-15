@@ -1,8 +1,7 @@
 from typing import NoReturn
 
 from modules.Config import config, ForceManualMode
-from modules.Gui import GetROM
-from modules.Inputs import PressButton, WaitFrames
+from modules.Gui import GetROM, GetEmulator
 from modules.Memory import GetGameState, GetCursorOptions, ParseTasks, GetTaskFunc, \
     GetTask
 from modules.Console import console
@@ -30,7 +29,8 @@ def CheckForPickup(encounter_total: int) -> NoReturn:
         if encounter_threshold_met and pokemon_with_pickup > 0:
             NavigateStartMenu("POKEMON")
             while not PartyMenuIsOpen():
-                PressButton(['A'])
+                GetEmulator().PressButton('A')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
     else:
         encounter_threshold_met = True
     try:
@@ -45,7 +45,8 @@ def CheckForPickup(encounter_total: int) -> NoReturn:
         if not PartyMenuIsOpen():
             NavigateStartMenu("POKEMON")
             while not PartyMenuIsOpen():
-                PressButton(['A'])
+                GetEmulator().PressButton('A')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         TakePickupItems(pokemon_with_pickup_and_item)
     else:
         ExitToOverworldFromPartyMenu()
@@ -60,32 +61,38 @@ def TakePickupItems(pokemon_indices: list):
     for idx in pokemon_indices:
         while GetPartyMenuCursorPos()['slot_id'] != idx:
             if GetPartyMenuCursorPos()['slot_id'] > idx:
-                PressButton(['Up'])
+                GetEmulator().PressButton('Up')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             else:
-                PressButton(["Down"])
+                GetEmulator().PressButton('Down')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         if GetROM().game_title in ['POKEMON EMER', 'POKEMON FIRE', 'POKEMON LEAF']:
             while GetTask('TASK_HANDLESELECTIONMENUINPUT') == {}:
-                PressButton(['A'])
+                GetEmulator().PressButton('A')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             while ParsePartyMenuInternal()['numActions'] > 3:
                 NavigateMenu("ITEM")
             while GetParty()[idx]['item']['name'] != 'None':
                 NavigateMenu("TAKE_ITEM")
             while GetTask('TASK_PRINTANDWAITFORTEXT') != {} and GetTask("TASK_PRINTANDWAITFORTEXT")['isActive']:
-                PressButton(['B'])
+                GetEmulator().PressButton('B')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         else:
             while 'SUB_8089D94' not in [task['func'] for task in ParseTasks()]:
-                PressButton(['A'])
-                WaitFrames(1)
+                GetEmulator().PressButton('A')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             while 'SUB_8089D94' in [task['func'] for task in ParseTasks()] and \
                     'SUB_808A060' not in [task['func'] for task in ParseTasks()]:
                 NavigateMenu("ITEM")
-                WaitFrames(1)
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             while 'SUB_808A060' in [task['func'] for task in ParseTasks()]:
                 NavigateMenuByIndex(1)
-                WaitFrames(1)
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             while TaskFunc.PARTY_MENU not in [GetTaskFunc(task['func']) for task in ParseTasks()]:
-                PressButton(['B'])
-                WaitFrames(1)
+                GetEmulator().PressButton('B')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
     ExitToOverworldFromPartyMenu()
 
 
@@ -94,13 +101,16 @@ def ExitToOverworldFromPartyMenu():
     helper func to leave party menu and return to overworld
     """
     while GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
-        PressButton(['B'])
+        GetEmulator().PressButton('B')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
     for i in range(30):
         if GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
             break
-        PressButton(['B'])
+        GetEmulator().PressButton('B')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
     while GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
-        PressButton(['B'])
+        GetEmulator().PressButton('B')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
 
 def NavigateStartMenu(desired_option: str) -> None:
@@ -110,7 +120,8 @@ def NavigateStartMenu(desired_option: str) -> None:
     :param desired_option: The option to select from the menu.
     """
     while not ParseStartMenu()['open'] and not config['general']['bot_mode'] == 'manual':
-        PressButton(['Start'])
+        GetEmulator().PressButton('Start')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
     current_cursor_position = ParseStartMenu()['cursor_pos']
     desired_index = ParseStartMenu()['actions'].index(desired_option)
     num_actions = len(ParseStartMenu()['actions'])
@@ -123,9 +134,11 @@ def NavigateStartMenu(desired_option: str) -> None:
             up_presses = current_cursor_position - desired_index
             down_presses = desired_index - current_cursor_position + num_actions
         if down_presses > up_presses:
-            PressButton(['Up'])
+            GetEmulator().PressButton('Up')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         else:
-            PressButton(['Down'])
+            GetEmulator().PressButton('Down')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         current_cursor_position = ParseStartMenu()['cursor_pos']
 
 
@@ -137,7 +150,7 @@ def NavigateMenu(desired_option: str) -> NoReturn:
     for i in range(30):
         if party_menu_internal['numActions'] <= 8:
             break
-        WaitFrames(1)
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         party_menu_internal = ParsePartyMenuInternal()
     if party_menu_internal['numActions'] > 8:
         console.print("Error navigating menu. Switching to manual mode...")
@@ -165,11 +178,14 @@ def NavigateMenu(desired_option: str) -> NoReturn:
             up_presses = ParseMenu()['cursorPos'] - desired_index
             down_presses = desired_index - ParseMenu()['cursorPos'] + party_menu_internal['numActions']
         if down_presses > up_presses:
-            PressButton(['Up'])
+            GetEmulator().PressButton('Up')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         else:
-            PressButton(['Down'])
+            GetEmulator().PressButton('Down')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
-    PressButton(['A'])
+    GetEmulator().PressButton('A')
+    GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
 
 def NavigateMenuByIndex(desired_index: int) -> NoReturn:
@@ -193,10 +209,14 @@ def NavigateMenuByIndex(desired_index: int) -> NoReturn:
             up_presses = ParseMenu()['cursorPos'] - desired_index
             down_presses = desired_index - ParseMenu()['cursorPos'] + num_options
         if down_presses > up_presses:
-            PressButton(['Up'])
+            GetEmulator().PressButton('Up')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         else:
-            PressButton(['Down'])
-    PressButton(['A'])
+            GetEmulator().PressButton('Down')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+
+    GetEmulator().PressButton('A')
+    GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
 
 def PartyMenuIsOpen() -> bool:

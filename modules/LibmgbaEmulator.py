@@ -19,6 +19,19 @@ from mgba import ffi, lib, libmgba_version_string
 from modules.Console import console
 from modules.Profiles import Profile
 
+input_map = {
+    'A': 0x1,
+    'B': 0x2,
+    'Select': 0x4,
+    'Start': 0x8,
+    'Right': 0x10,
+    'Left': 0x20,
+    'Up': 0x40,
+    'Down': 0x80,
+    'R': 0x100,
+    'L': 0x200
+}
+
 
 class PerformanceTracker:
     """
@@ -65,9 +78,6 @@ class PerformanceTracker:
         return time.time_ns() - self.last_frame_time
 
 
-GBA_AUDIO_SAMPLE_RATE = 32768
-
-
 class LibmgbaEmulator:
     """
     This class wraps libmgba and handles the actual emulation of a game, and exposes some of the
@@ -76,7 +86,7 @@ class LibmgbaEmulator:
 
     _video_enabled: bool = True
     _audio_enabled: bool = True
-    _throttled: bool = False
+    _throttled: bool = True
     _speed_factor: float = 1
     # How often a frame should be drawn to the screen (can be less frequent than the emulation rate)
     _target_seconds_per_render = 1 / 60
@@ -120,8 +130,11 @@ class LibmgbaEmulator:
         self._performance_tracker = PerformanceTracker()
 
         self._gba_audio = self._core.get_audio_channels()
-        self._gba_audio.set_rate(GBA_AUDIO_SAMPLE_RATE)
         self._ResetAudio()
+
+        self._prev_pressed_inputs: int = 0
+        self._pressed_inputs: int = 0
+        self._held_inputs: int = 0
 
         atexit.register(self.Shutdown)
         self._core._callbacks.savedata_updated.append(self.BackupCurrentSaveGame)
@@ -141,14 +154,20 @@ class LibmgbaEmulator:
             del self._audio_stream
 
         try:
-            self._audio_stream = sounddevice.RawOutputStream(
-                channels=2,
-                samplerate=GBA_AUDIO_SAMPLE_RATE,
-                dtype='int16'
-            )
-            if not self._throttled:
+            default_sound_device = sounddevice.query_devices(device=sounddevice.default.device, kind='output')
+            sample_rate = int(default_sound_device['default_samplerate'])
+
+            if default_sound_device['max_output_channels'] < 2:
+                raise sounddevice.PortAudioError('Your audio device does not support stereo. '
+                                                 'What on earth are you using, a yoghurt pot telephone?!')
+
+            self._gba_audio.set_rate(sample_rate)
+            self._audio_stream = sounddevice.RawOutputStream(channels=2, samplerate=sample_rate, dtype='int16')
+            if self._throttled:
                 self._audio_stream.start()
-        except sounddevice.PortAudioError:
+        except sounddevice.PortAudioError as error:
+            console.print(f'[red]{str(error)}[/]')
+            console.print('[red bold]Failed to initialise sound![/] [red]Sound will be disabled.[/]')
             self._audio_stream = None
 
     def Reset(self) -> None:
@@ -292,17 +311,20 @@ class LibmgbaEmulator:
         was_throttled = self._throttled
         self._throttled = is_throttled
 
-        if is_throttled and not was_throttled:
-            self._audio_stream.start()
-        elif not is_throttled and was_throttled:
-            self._audio_stream.stop()
+        if self._audio_stream is not None:
+            if is_throttled and not was_throttled:
+                self._audio_stream.start()
+            elif not is_throttled and was_throttled:
+                self._audio_stream.stop()
 
     def GetSpeedFactor(self) -> float:
         return self._speed_factor
 
     def SetSpeedFactor(self, speed_factor: float) -> None:
         self._speed_factor = speed_factor
-        self._gba_audio.set_rate(GBA_AUDIO_SAMPLE_RATE // speed_factor)
+
+        if self._audio_stream is not None:
+            self._gba_audio.set_rate(self._audio_stream.samplerate // speed_factor)
 
     def GetSaveState(self) -> bytes:
         """
@@ -391,6 +413,27 @@ class LibmgbaEmulator:
         """
         self._core._core.setKeys(self._core._core, inputs)
 
+    def PressButton(self, button: str = None, inputs: int = 0):
+        """
+        :param button: A GBA button to be pressed, if pressed on previous frame it will be released
+        :param inputs: Alternate raw input bitfield
+        """
+        self._pressed_inputs |= (input_map[button] ^ self._prev_pressed_inputs) if not inputs else inputs
+
+    def HoldButton(self, button: str = None, inputs: int = 0):
+        """
+        :param button: A GBA button to be held, will be held until ReleaseInput called
+        :param inputs: Alternate raw input bitfield
+        """
+        self._held_inputs |= input_map[button] if not inputs else inputs
+
+    def ReleaseButton(self, button: str = None, inputs: int = 0):
+        """
+        :param button: A GBA button to be release if held
+        :param inputs: Alternate raw input bitfield
+        """
+        self._held_inputs ^= input_map[button] if not inputs else inputs
+
     def GetCurrentScreenImage(self) -> PIL.Image.Image:
         return self._screen.to_pil()
 
@@ -454,11 +497,15 @@ class LibmgbaEmulator:
         """
         Runs the emulation for a single frame, and then waits if necessary to hit the target FPS rate.
         """
+        self.SetInputs(self._pressed_inputs | self._held_inputs)
+
         begin = time.time_ns()
         self._core.run_frame()
         self._performance_tracker.time_spent_emulating += time.time_ns() - begin
 
         begin = time.time_ns()
+        self._prev_pressed_inputs = self._pressed_inputs
+        self._pressed_inputs = 0
         self._on_frame_callback()
 
         # Limiting FPS is achieved by using a blocking API for audio playback -- meaning we give it

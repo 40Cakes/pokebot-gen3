@@ -170,10 +170,12 @@ def GetGameState() -> GameState:
             return GameState.CHOOSE_STARTER
         case 'CB2_INITCOPYRIGHTSCREENAFTERBOOTUP' | 'CB2_WAITFADEBEFORESETUPINTRO' | 'CB2_SETUPINTRO' | 'CB2_INTRO' | \
              'CB2_INITTITLESCREEN' | 'CB2_TITLESCREENRUN' | 'CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN' | \
-             'CB2_INITMAINMENU' | 'CB2_MAINMENU':
+             'CB2_INITMAINMENU' | 'MAINCB2' | 'MAINCB2_INTRO':
             return GameState.TITLE_SCREEN
         case 'CB2_EVOLUTIONSCENEUPDATE':
             return GameState.EVOLUTION
+        case 'CB2_MAINMENU':
+            return GameState.MAIN_MENU
         case _:
             # print(f"Unknown state: {state}")
             return GameState.UNKNOWN

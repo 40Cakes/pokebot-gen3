@@ -7,7 +7,6 @@ from modules.Console import console
 from modules.Items import GetItems
 from modules.Pokemon import GetParty
 from modules.Stats import GetEncounterRate, encounter_log, stats, shiny_log
-from modules.Trainer import GetTrainer
 
 
 def WebServer() -> NoReturn:
@@ -20,8 +19,19 @@ def WebServer() -> NoReturn:
 
         @server.route('/trainer', methods=['GET'])
         def Trainer():
+            from modules.Trainer import trainer
             try:
-                trainer = GetTrainer()
+                trainer = {
+                    "name": trainer.GetName(),
+                    "gender": trainer.GetGender(),
+                    "tid": trainer.GetTID(),
+                    "sid": trainer.GetSID(),
+                    "map": trainer.GetMap(),
+                    "map_name": trainer.GetMapName(),
+                    "coords": trainer.GetCoords(),
+                    "on_bike": trainer.GetOnBike(),
+                    "facing": trainer.GetFacingDirection()
+                }
                 if trainer:
                     return jsonify(trainer)
                 abort(503)

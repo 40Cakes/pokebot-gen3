@@ -14,10 +14,11 @@ class GameState(IntEnum):
     OVERWORLD = 900
     CHANGE_MAP = 901
     TITLE_SCREEN = 902
+    MAIN_MENU = 903
+    WHITEOUT = 904
+    GARBAGE_COLLECTION = 905
+    EVOLUTION = 906
     UNKNOWN = 999
-    WHITEOUT = 903
-    GARBAGE_COLLECTION = 904
-    EVOLUTION = 905
 
 
 class TaskFunc(IntEnum):

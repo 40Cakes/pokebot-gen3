@@ -5,8 +5,7 @@ from typing import NoReturn
 from modules.Config import config, ForceManualMode
 from modules.Console import console
 from modules.Game import DecodeString
-from modules.Gui import GetROM
-from modules.Inputs import PressButton, WaitFrames
+from modules.Gui import GetROM, GetEmulator
 from modules.Memory import GetGameState, ReadSymbol, ParseTasks, GetTaskFunc, GetSymbolName, GetTask
 from modules.Enums import GameState, TaskFunc, BattleState
 from modules.MenuParsers import ParseBattleCursor, GetLearningMon, GetLearningMove, GetMoveLearningCursorPos, \
@@ -30,25 +29,30 @@ def SelectBattleOption(desired_option: int) -> NoReturn:
         case BattleState.MOVE_SELECTION:
             cursor_type = 'gMoveSelectionCursor'
         case _:
-            WaitFrames(1)
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             return
     while ParseBattleCursor(cursor_type) != desired_option and not config['general']['bot_mode'] == 'manual':
         match (ParseBattleCursor(cursor_type) % 2) - (desired_option % 2):
             case - 1:
-                PressButton(['Right'])
+                GetEmulator().PressButton('Right')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             case 1:
-                PressButton(['Left'])
+                GetEmulator().PressButton('Left')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         match (ParseBattleCursor(cursor_type) // 2) - (desired_option // 2):
             case - 1:
-                PressButton(['Down'])
+                GetEmulator().PressButton('Down')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             case 1:
-                PressButton(['Up'])
+                GetEmulator().PressButton('Up')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             case 0:
                 pass
     if ParseBattleCursor(cursor_type) == desired_option:
         while GetBattleState() == battle_state and not config['general']['bot_mode'] == 'manual':
-            PressButton(['A'])
-            WaitFrames(1)
+            GetEmulator().PressButton('A')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
 
 def FleeBattle() -> NoReturn:
@@ -59,7 +63,8 @@ def FleeBattle() -> NoReturn:
         if GetBattleState() == BattleState.ACTION_SELECTION:
             SelectBattleOption(3)
         else:
-            PressButton(['B'])
+            GetEmulator().PressButton('B')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
 
 def getMovePower(move, ally_types, foe_types, ally_attacks, foe_defenses) -> float:
@@ -225,12 +230,15 @@ def NavigateMoveLearnMenu(idx):
             up_presses = GetMoveLearningCursorPos() - idx
             down_presses = idx - GetMoveLearningCursorPos() + 5
         if down_presses > up_presses:
-            PressButton(['Up'])
+            GetEmulator().PressButton('Up')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         else:
-            PressButton(['Down'])
-        WaitFrames(1)
+            GetEmulator().PressButton('Down')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         if GetMoveLearningCursorPos() == idx:
-            PressButton(['A'])
+            GetEmulator().PressButton('A')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
 
 def HandleMoveLearn(leveled_mon: int):
@@ -242,13 +250,17 @@ def HandleMoveLearn(leveled_mon: int):
             while GetGameState() != GameState.OVERWORLD and not config['general']['bot_mode'] == 'manual':
                 while GetGameState() == GameState.EVOLUTION and not config['general']['bot_mode'] == 'manual':
                     if config['battle']['stop_evolution']:
-                        PressButton(['B'])
+                        GetEmulator().PressButton('B')
+                        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
                     else:
-                        PressButton(['A'])
+                        GetEmulator().PressButton('A')
+                        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
                 if GetLearnMoveState() != "STOP_LEARNING":
-                    PressButton(['B'])
+                    GetEmulator().PressButton('B')
+                    GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
                 else:
-                    PressButton(['A'])
+                    GetEmulator().PressButton('A')
+                    GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         case 'learn_best':
             if GetGameState() == GameState.BATTLE:
                 learning_mon = GetParty()[leveled_mon]
@@ -258,27 +270,32 @@ def HandleMoveLearn(leveled_mon: int):
             worst_move = CalculateNewMoveViability(learning_mon, learning_move)
             if worst_move == 4:
                 while GetLearnMoveState() == "LEARN_YN" and not config['general']['bot_mode'] == 'manual':
-                    PressButton(['B'])
+                    GetEmulator().PressButton('B')
+                    GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
                 for i in range(60):
                     if GetLearnMoveState() != "STOP_LEARNING":
-                        WaitFrames(1)
+                        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
                     else:
                         break
                 while GetLearnMoveState() == "STOP_LEARNING" and not config['general']['bot_mode'] == 'manual':
-                    PressButton(['A'])
+                    GetEmulator().PressButton('A')
+                    GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             else:
                 while GetLearnMoveState() == "LEARN_YN" and not config['general']['bot_mode'] == 'manual':
-                    PressButton(['A'])
+                    GetEmulator().PressButton('A')
+                    GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
                 for i in range(60):
                     if not GetLearnMoveState() == "MOVE_MENU":
-                        WaitFrames(1)
+                        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
                     else:
                         break
                 NavigateMoveLearnMenu(worst_move)
                 while GetLearnMoveState() == "STOP_LEARNING" and not config['general']['bot_mode'] == 'manual':
-                    PressButton(["B"])
+                    GetEmulator().PressButton('B')
+                    GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             while (GetBattleState() == BattleState.LEARNING and GetLearnMoveState() not in ["MOVE_MENU", "LEARN_YN", "STOP_LEARNING"]) and not config['general']['bot_mode'] == 'manual':
-                PressButton(["B"])
+                GetEmulator().PressButton('B')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
 
 def SwitchRequested() -> bool:
@@ -440,9 +457,11 @@ def HandleEvolutionScene():
     Stops evolution if configured to do so, otherwise mashes A
     """
     if config['battle']['stop_evolution']:
-        PressButton(['B'])
+        GetEmulator().PressButton('B')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
     else:
-        PressButton(['A'])
+        GetEmulator().PressButton('A')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
 
 def GetCurrentBattler() -> list:
@@ -587,10 +606,12 @@ def SendOutPokemon(idx):
             up_presses = party_menu_index + cursor_positions - idx
             down_presses = idx - party_menu_index
         if down_presses > up_presses:
-            PressButton(['Up'])
+            GetEmulator().PressButton('Up')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         else:
-            PressButton(['Down'])
-        WaitFrames(1)
+            GetEmulator().PressButton('Down')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         party_menu_index = GetPartyMenuCursorPos()['slot_id']
         if party_menu_index >= cursor_positions:
             party_menu_index = cursor_positions - 1
@@ -598,8 +619,9 @@ def SendOutPokemon(idx):
         case 'POKEMON EMER' | 'POKEMON FIRE' | 'POKEMON LEAF':
             for i in range(60):
                 if "TASK_HANDLESELECTIONMENUINPUT" not in [task['func'] for task in ParseTasks()]:
-                    PressButton(['A'])
-                    WaitFrames(1)
+                    GetEmulator().PressButton('A')
+                    GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+                    GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
                 else:
                     break
             while "TASK_HANDLESELECTIONMENUINPUT" in [task['func'] for task in ParseTasks()] and not config['general']['bot_mode'] == 'manual':
@@ -607,11 +629,13 @@ def SendOutPokemon(idx):
         case _:
             for i in range(60):
                 if "TASK_HANDLEPOPUPMENUINPUT" not in [task['func'] for task in ParseTasks()]:
-                    PressButton(['A'])
-                    WaitFrames(1)
+                    GetEmulator().PressButton('A')
+                    GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+                    GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             while "TASK_HANDLEPOPUPMENUINPUT" in [task['func'] for task in ParseTasks()] and not config['general']['bot_mode'] == 'manual':
-                PressButton(['A'])
-                WaitFrames(1)
+                GetEmulator().PressButton('A')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
 
 def SwitchOutPokemon(idx):
@@ -621,7 +645,8 @@ def SwitchOutPokemon(idx):
     cursor_positions = len(GetParty()) + 1
 
     while not PartyMenuIsOpen() and not config['general']['bot_mode'] == 'manual':
-        PressButton(['A'])
+        GetEmulator().PressButton('A')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         
     party_menu_index = GetPartyMenuCursorPos()['slot_id']
     if party_menu_index >= cursor_positions:
@@ -637,34 +662,43 @@ def SwitchOutPokemon(idx):
             down_presses = idx - party_menu_index
 
         if down_presses > up_presses:
-            PressButton(['Up'])
+            GetEmulator().PressButton('Up')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         else:
-            PressButton(['Down'])
-        WaitFrames(1)
+            GetEmulator().PressButton('Down')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         party_menu_index = GetPartyMenuCursorPos()['slot_id']
         if party_menu_index >= cursor_positions:
             party_menu_index = cursor_positions - 1
 
     if GetROM().game_title in ['POKEMON EMER', 'POKEMON FIRE', 'POKEMON LEAF']:
         while not (GetTask("TASK_HANDLESELECTIONMENUINPUT") != {} and GetTask("TASK_HANDLESELECTIONMENUINPUT")['isActive']) and not config['general']['bot_mode'] == 'manual':
-            PressButton(['A'])
+            GetEmulator().PressButton('A')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         while GetTask("TASK_HANDLESELECTIONMENUINPUT") != {} and GetTask("TASK_HANDLESELECTIONMENUINPUT")['isActive'] and not config['general']['bot_mode'] == 'manual':
             NavigateMenu("SWITCH")
         while GetPartyMenuCursorPos()['action'] != 8 and not config['general']['bot_mode'] == 'manual':
-            PressButton(['A'])
+            GetEmulator().PressButton('A')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         while GetPartyMenuCursorPos()['action'] == 8 and not config['general']['bot_mode'] == 'manual':
             if GetPartyMenuCursorPos()['slot_id_2'] == 7:
-                PressButton(['Down'])
+                GetEmulator().PressButton('Down')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             elif GetPartyMenuCursorPos()['slot_id_2'] != 0:
-                PressButton(['Left'])
+                GetEmulator().PressButton('Left')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             else:
-                PressButton(['A'])
+                GetEmulator().PressButton('A')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         while GetGameState() == GameState.PARTY_MENU and not config['general']['bot_mode'] == 'manual':
-            PressButton(['B'])
+            GetEmulator().PressButton('B')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
     else:
         while 'SUB_8089D94' not in [task['func'] for task in ParseTasks()] and not config['general']['bot_mode'] == 'manual':
-            PressButton(['A'])
-            WaitFrames(1)
+            GetEmulator().PressButton('A')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         while (
                 'SUB_8089D94' in [task['func'] for task in ParseTasks()]
         ) and not (
@@ -672,25 +706,31 @@ def SwitchOutPokemon(idx):
                 'HANDLEPARTYMENUSWITCHPOKEMONINPUT' in [task['func'] for task in ParseTasks()]
         ) and not config['general']['bot_mode'] == 'manual':
             NavigateMenu("SWITCH")
-            WaitFrames(1)
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         while SwitchPokemonActive() and not config['general']['bot_mode'] == 'manual':
             if GetPartyMenuCursorPos()['slot_id_2'] != 0:
-                PressButton(['Up'])
+                GetEmulator().PressButton('Up')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             else:
-                PressButton(['A'])
-            WaitFrames(1)
+                GetEmulator().PressButton('A')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         while TaskFunc.PARTY_MENU not in [GetTaskFunc(task['func']) for task in ParseTasks()] and not config['general']['bot_mode'] == 'manual':
-            PressButton(['B'])
-            WaitFrames(1)
+            GetEmulator().PressButton('B')
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+            GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
     while (GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']) and not config['general']['bot_mode'] == 'manual':
-        PressButton(['B'])
+        GetEmulator().PressButton('B')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
     for i in range(30):
         if GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']:
             break
-        PressButton(['B'])
+        GetEmulator().PressButton('B')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
     while (GetGameState() != GameState.OVERWORLD or ParseStartMenu()['open']) and not config['general']['bot_mode'] == 'manual':
-        PressButton(['B'])
+        GetEmulator().PressButton('B')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
 
 def RotatePokemon():
@@ -699,7 +739,8 @@ def RotatePokemon():
         NavigateStartMenu("POKEMON")
         for i in range(30):
             if GetGameState() != GameState.PARTY_MENU:
-                PressButton(['A'])
+                GetEmulator().PressButton('A')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         SwitchOutPokemon(new_lead)
 
 
@@ -746,7 +787,8 @@ def ExecuteAction(decision: tuple):
                         if GetBattleState() != BattleState.MOVE_SELECTION:
                             move_executed = True
                     case _:
-                        PressButton(['B'])
+                        GetEmulator().PressButton('B')
+                        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         case "BAG":
             console.print("Bag not yet implemented. Switching to manual mode...")
             ForceManualMode()
@@ -774,13 +816,15 @@ def HandleBattlerFaint():
             ForceManualMode()
         case 'flee':
             while GetBattleState() not in [BattleState.OVERWORLD, BattleState.PARTY_MENU] and not config['general']['bot_mode'] == 'manual':
-                PressButton(['B'])
+                GetEmulator().PressButton('B')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             if GetBattleState() == BattleState.PARTY_MENU:
                 console.print("Couldn't flee. Switching to manual mode...")
                 ForceManualMode()
             else:
                 while not GetGameState() == GameState.OVERWORLD and not config['general']['bot_mode'] == 'manual':
-                    PressButton(['B'])
+                    GetEmulator().PressButton('B')
+                    GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
                 return False
         case 'rotate':
             party = GetParty()
@@ -788,7 +832,8 @@ def HandleBattlerFaint():
                 console.print('All Pokémon have fainted. Switching to manual mode...')
                 ForceManualMode()
             while GetBattleState() != BattleState.PARTY_MENU and not config['general']['bot_mode'] == 'manual':
-                PressButton(['A'])
+                GetEmulator().PressButton('A')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             new_lead = GetMonToSwitch(GetCurrentBattler()[0])
             if new_lead is None:
                 console.print("No viable pokemon to switch in!")
@@ -799,7 +844,8 @@ def HandleBattlerFaint():
                 return False
             SendOutPokemon(new_lead)
             while GetBattleState() in (BattleState.SWITCH_POKEMON, BattleState.PARTY_MENU) and not config['general']['bot_mode'] == 'manual':
-                PressButton(['A'])
+                GetEmulator().PressButton('A')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
         case _:
             console.print("Invalid faint_action option. Switching to manual mode...")
             ForceManualMode()
@@ -862,7 +908,8 @@ def BattleOpponent() -> bool:
             case BattleState.SWITCH_POKEMON:
                 HandleBattlerFaint()
             case _:
-                PressButton(['B'])
+                GetEmulator().PressButton('B')
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
     if foe_fainted:
         return True

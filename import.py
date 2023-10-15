@@ -170,7 +170,7 @@ def HandleButtonClick() -> None:
     global error_label
 
     filetypes = [
-        ('mGBA Save States', ('*.ss1', '*.ss2', '*.ss3', '*.ss4', '*.ss5', '*.ss6', '*.ss7', '*.ss8', '*.ss9'))
+        ('mGBA Save States', ('*.ss0', '*.ss1', '*.ss2', '*.ss3', '*.ss4', '*.ss5', '*.ss6', '*.ss7', '*.ss8', '*.ss9'))
     ]
 
     file = filedialog.askopenfile(

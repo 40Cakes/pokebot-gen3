@@ -6,10 +6,9 @@ from typing import TYPE_CHECKING
 
 from modules.Daycare import GetDaycareData, PokemonGender
 from modules.Game import DecodeString, _reverse_symbols
-from modules.Gui import DebugTab, GetROM, GetEmulator
-from modules.Memory import GetSymbol, ReadSymbol, ParseTasks, GetSymbolName
+from modules.Gui import DebugTab, GetEmulator
+from modules.Memory import GetSymbol, ReadSymbol, ParseTasks, GetSymbolName, GameHasStarted
 from modules.Pokemon import names_list, GetParty
-from modules.Trainer import GetTrainer
 
 if TYPE_CHECKING:
     from modules.LibmgbaEmulator import LibmgbaEmulator
@@ -208,8 +207,8 @@ class BattleTab(DebugTab):
 
 
 class SymbolsTab(DebugTab):
-    SYMBOLS_TO_DISPLAY = {'gObjectEvents', 'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4'}
-    DISPLAY_AS_STRING = {'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4'}
+    SYMBOLS_TO_DISPLAY = {'gObjectEvents', 'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4', 'gDisplayedStringBattle'}
+    DISPLAY_AS_STRING = {'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4', 'gDisplayedStringBattle'}
     _tv: FancyTreeview
     _mini_window: tkinter.Tk = None
 
@@ -299,7 +298,6 @@ class SymbolsTab(DebugTab):
                 if item:
                     self.SYMBOLS_TO_DISPLAY.add(tv.item(item)['text'])
                     self.Update(GetEmulator())
-                    tv.after(50, RemoveWindow)
 
         tv.bind('<Double-Button-1>', HandleDoubleClick)
 
@@ -325,9 +323,19 @@ class SymbolsTab(DebugTab):
         data = {}
 
         for symbol in self.SYMBOLS_TO_DISPLAY:
-            value = ReadSymbol(symbol.upper())
+            try:
+                address, length = GetSymbol(symbol.upper())
+            except RuntimeError:
+                self.SYMBOLS_TO_DISPLAY.remove(symbol)
+                self.DISPLAY_AS_STRING.remove(symbol)
+                break
+
+            value = emulator.ReadBytes(address, length)
             if symbol in self.DISPLAY_AS_STRING:
                 data[symbol] = DecodeString(value)
+            elif length == 4 or length == 2:
+                n = int.from_bytes(value, byteorder='little')
+                data[symbol] = f"{value.hex(' ', 1)} ({n})"
             else:
                 data[symbol] = value.hex(' ', 1)
 
@@ -361,31 +369,27 @@ class TrainerTab(DebugTab):
         root.add(frame, text='Trainer')
 
     def Update(self, emulator: 'LibmgbaEmulator'):
-        self._tv.UpdateData(self._GetData())
+        if GameHasStarted():
+            self._tv.UpdateData(self._GetData())
+        else:
+            self._tv.UpdateData({})
+
 
     def _GetData(self):
-        data = GetTrainer()
+        from modules.Trainer import trainer
         party = GetParty()
 
-        map_name = ''
-        if GetROM().game_title in ['POKEMON EMER', 'POKEMON RUBY', 'POKEMON SAPP']:
-            from modules.data.MapData import mapRSE
-            try:
-                map_name = mapRSE(data['map']).name
-            except ValueError:
-                pass
-
         result = {
-            'Name': data['name'],
-            'Gender': data['gender'],
-            'Trainer ID': data['tid'],
-            'Secret ID': data['sid'],
-            'Map': data['map'],
-            'Map Name': map_name,
-            'Local Coordinates': data['coords'],
-            'Facing Direction': data['facing'],
-            'On Bike': data['on_bike'],
-        }
+                "Name": trainer.GetName(),
+                "Gender": trainer.GetGender(),
+                "Trainer ID": trainer.GetTID(),
+                "Secret ID": trainer.GetSID(),
+                "Map": trainer.GetMap(),
+                "Map Name": trainer.GetMapName(),
+                "Local Coordinates": trainer.GetCoords(),
+                "On Bike": trainer.GetOnBike(),
+                "Facing Direction": trainer.GetFacingDirection()
+            }
 
         for i in range(0, 6):
             key = f'Party Pokémon #{i + 1}'
@@ -416,6 +420,8 @@ class DaycareTab(DebugTab):
 
     def _GetData(self):
         data = GetDaycareData()
+        if data is None:
+            return {}
 
         pokemon1 = 'n/a'
         if data.pokemon1 is not None:
@@ -424,7 +430,7 @@ class DaycareTab(DebugTab):
                 gender = ''
 
             pokemon1 = {
-                '__value': f"{data.pokemon2['name']}{gender}; {data.pokemon1_steps:,} steps",
+                '__value': f"{data.pokemon1['name']}{gender}; {data.pokemon1_steps:,} steps",
                 'pokemon': data.pokemon1,
                 'steps': data.pokemon1_steps,
                 'egg_groups': ', '.join(set(data.pokemon1_egg_groups))
@@ -451,3 +457,26 @@ class DaycareTab(DebugTab):
             'Compatibility': data.compatibility[0].name,
             'Compatibility Reason': data.compatibility[1],
         }
+
+
+class InputsTab(DebugTab):
+    _tv: FancyTreeview
+
+    def Draw(self, root: ttk.Notebook):
+        frame = ttk.Frame(root, padding=10)
+        self._tv = FancyTreeview(frame)
+        root.add(frame, text='Inputs')
+
+    def Update(self, emulator: 'LibmgbaEmulator'):
+        self._tv.UpdateData(self._GetData())
+
+    def _GetData(self):
+        from modules.LibmgbaEmulator import input_map
+
+        result = {}
+        inputs = GetEmulator().GetInputs()
+
+        for input in input_map:
+            result[input] = True if input_map[input] & inputs else False
+
+        return result
