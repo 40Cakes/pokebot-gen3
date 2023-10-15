@@ -27,7 +27,6 @@ The bot is frame perfect and can cheat by reading data from any point in memory.
 ***
 
 # ⚠ Photosensitivity Warning
-- The bot launches mGBA at unbound speed by default, see [`config/keys.yml`](#keysyml---emulator-input-mapping) for a list of keys to set emulation to slower speeds and even disable video/sound output
 - Running mGBA at unbound speeds, will cause **very fast and bright flashing**!
 - Any unbounded video examples on this page will be hidden by default, and marked with **⚠ photosensitivity warning**
 
