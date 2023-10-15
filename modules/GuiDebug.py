@@ -6,10 +6,9 @@ from typing import TYPE_CHECKING
 
 from modules.Daycare import GetDaycareData, PokemonGender
 from modules.Game import DecodeString, _reverse_symbols
-from modules.Gui import DebugTab, GetROM, GetEmulator
-from modules.Memory import GetSymbol, ReadSymbol, ParseTasks, GetSymbolName
+from modules.Gui import DebugTab, GetEmulator
+from modules.Memory import GetSymbol, ReadSymbol, ParseTasks, GetSymbolName, GameHasStarted
 from modules.Pokemon import names_list, GetParty
-from modules.Trainer import GetTrainer
 
 if TYPE_CHECKING:
     from modules.LibmgbaEmulator import LibmgbaEmulator
@@ -370,31 +369,27 @@ class TrainerTab(DebugTab):
         root.add(frame, text='Trainer')
 
     def Update(self, emulator: 'LibmgbaEmulator'):
-        self._tv.UpdateData(self._GetData())
+        if GameHasStarted():
+            self._tv.UpdateData(self._GetData())
+        else:
+            self._tv.UpdateData({})
+
 
     def _GetData(self):
-        data = GetTrainer()
+        from modules.Trainer import trainer
         party = GetParty()
 
-        map_name = ''
-        if GetROM().game_title in ['POKEMON EMER', 'POKEMON RUBY', 'POKEMON SAPP']:
-            from modules.data.MapData import mapRSE
-            try:
-                map_name = mapRSE(data['map']).name
-            except ValueError:
-                pass
-
         result = {
-            'Name': data['name'],
-            'Gender': data['gender'],
-            'Trainer ID': data['tid'],
-            'Secret ID': data['sid'],
-            'Map': data['map'],
-            'Map Name': map_name,
-            'Local Coordinates': data['coords'],
-            'Facing Direction': data['facing'],
-            'On Bike': data['on_bike'],
-        }
+                "Name": trainer.GetName(),
+                "Gender": trainer.GetGender(),
+                "Trainer ID": trainer.GetTID(),
+                "Secret ID": trainer.GetSID(),
+                "Map": trainer.GetMap(),
+                "Map Name": trainer.GetMapName(),
+                "Local Coordinates": trainer.GetCoords(),
+                "On Bike": trainer.GetOnBike(),
+                "Facing Direction": trainer.GetFacingDirection()
+            }
 
         for i in range(0, 6):
             key = f'Party Pokémon #{i + 1}'
@@ -462,3 +457,26 @@ class DaycareTab(DebugTab):
             'Compatibility': data.compatibility[0].name,
             'Compatibility Reason': data.compatibility[1],
         }
+
+
+class InputsTab(DebugTab):
+    _tv: FancyTreeview
+
+    def Draw(self, root: ttk.Notebook):
+        frame = ttk.Frame(root, padding=10)
+        self._tv = FancyTreeview(frame)
+        root.add(frame, text='Inputs')
+
+    def Update(self, emulator: 'LibmgbaEmulator'):
+        self._tv.UpdateData(self._GetData())
+
+    def _GetData(self):
+        from modules.LibmgbaEmulator import input_map
+
+        result = {}
+        inputs = GetEmulator().GetInputs()
+
+        for input in input_map:
+            result[input] = True if input_map[input] & inputs else False
+
+        return result

@@ -1,14 +1,21 @@
 import struct
 
-from modules.Inputs import PressButton
+from modules.Gui import GetEmulator
 from modules.Memory import ReadSymbol, GameState, GetGameState
+
 
 def temp_RunFromBattle():  # TODO temporary until auto-battle is fleshed out
     while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 1:
-        PressButton(['B', 'Right'])
+        GetEmulator().PressButton('B')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+        GetEmulator().PressButton('Right')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
     while struct.unpack('<I', ReadSymbol('gActionSelectionCursor'))[0] != 3:
-        PressButton(['Down'])
+        GetEmulator().PressButton('Down')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
     while GetGameState() == GameState.BATTLE:
-        PressButton(['A'])
+        GetEmulator().PressButton('A')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
     while GetGameState() != GameState.OVERWORLD:
-        PressButton(['B'])
+        GetEmulator().PressButton('B')
+        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)

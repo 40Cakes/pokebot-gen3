@@ -6,8 +6,8 @@
 bot_mode: manual
 
 # Starter - used when `bot_mode` is set to `starters`
-# `treecko`, `torchic`, `mudkip`, `bulbasaur`, `charmander`, `squirtle`, `chikorita`, `cyndaquil`, `totodile`
-starter: mudkip
+# `Treecko`, `Torchic`, `Mudkip`, `Bulbasaur`, `Charmander`, `Squirtle`, `Chikorita`, `Cyndaquil`, `Totodile`
+starter: Mudkip
 
 # -----------------------------------------
 # Everything below is not implemented, yet™

@@ -17,7 +17,6 @@ from modules.Config import config, ForceManualMode
 from modules.Console import console
 from modules.Files import BackupFolder, ReadFile, WriteFile
 from modules.Gui import SetMessage, GetEmulator
-from modules.Inputs import PressButton, WaitFrames
 from modules.Memory import GetGameState, GameState
 from modules.Profiles import Profile
 
@@ -71,12 +70,10 @@ def InitStats(profile: Profile):
         sys.exit(1)
 
 
-def GetRNGStateHistory(pokemon_name: str) -> dict:
+def GetRNGStateHistory(name: str) -> list:
     try:
-        default = {'rng': []}
-        file = ReadFile('{}/rng/{}.json'.format(
-            stats_dir,
-            pokemon_name.lower()))
+        default = []
+        file = ReadFile(f'{stats_dir}/rng/{name}.json')
         data = json.loads(file) if file else default
         return data
     except SystemExit:
@@ -86,15 +83,17 @@ def GetRNGStateHistory(pokemon_name: str) -> dict:
         return default
 
 
-def SaveRNGStateHistory(pokemon_name: str, data: dict) -> NoReturn:
+def SaveRNGStateHistory(name: str, data: list) -> bool:
     try:
-        WriteFile('{}/rng/{}.json'.format(
-            stats_dir,
-            pokemon_name.lower()), json.dumps(data))
+        if WriteFile(f'{stats_dir}/rng/{name}.json', json.dumps(data)):
+            return True
+        else:
+            return False
     except SystemExit:
         raise
     except:
         console.print_exception(show_locals=True)
+        return False
 
 
 def GetEncounterRate() -> int:
@@ -559,13 +558,17 @@ def LogEncounter(pokemon: dict, block_list: list) -> NoReturn:
         PrintStats(pokemon)
 
         if pokemon['shiny']:
-            WaitFrames(config['obs'].get('shiny_delay', 1))
+            #  TODO fix all this OBS crap
+            for i in range(config['obs'].get('shiny_delay', 1)):
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
 
         if config['obs']['screenshot'] and pokemon['shiny']:
             from modules.OBS import OBSHotKey
             while GetGameState() != GameState.BATTLE:
-                PressButton(['B'])  # Throw out Pokémon for screenshot
-            WaitFrames(180)
+                GetEmulator().PressButton('B')  # Throw out Pokémon for screenshot
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
+            for i in range(180):
+                GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             OBSHotKey('OBS_KEY_F11', pressCtrl=True)
 
         # Run custom code in CustomHooks in a thread

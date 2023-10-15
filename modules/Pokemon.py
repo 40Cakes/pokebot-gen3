@@ -5,7 +5,6 @@ import numpy
 from modules.Console import console
 from modules.Files import ReadFile
 from modules.Gui import GetEmulator
-from modules.Inputs import WaitFrames
 from modules.Items import item_list
 from modules.Memory import ReadSymbol
 

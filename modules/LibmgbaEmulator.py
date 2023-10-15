@@ -19,6 +19,19 @@ from mgba import ffi, lib, libmgba_version_string
 from modules.Console import console
 from modules.Profiles import Profile
 
+input_map = {
+    'A': 0x1,
+    'B': 0x2,
+    'Select': 0x4,
+    'Start': 0x8,
+    'Right': 0x10,
+    'Left': 0x20,
+    'Up': 0x40,
+    'Down': 0x80,
+    'R': 0x100,
+    'L': 0x200
+}
+
 
 class PerformanceTracker:
     """
@@ -118,6 +131,10 @@ class LibmgbaEmulator:
 
         self._gba_audio = self._core.get_audio_channels()
         self._ResetAudio()
+
+        self._prev_pressed_inputs: int = 0
+        self._pressed_inputs: int = 0
+        self._held_inputs: int = 0
 
         atexit.register(self.Shutdown)
         self._core._callbacks.savedata_updated.append(self.BackupCurrentSaveGame)
@@ -396,6 +413,27 @@ class LibmgbaEmulator:
         """
         self._core._core.setKeys(self._core._core, inputs)
 
+    def PressButton(self, button: str = None, inputs: int = 0):
+        """
+        :param button: A GBA button to be pressed, if pressed on previous frame it will be released
+        :param inputs: Alternate raw input bitfield
+        """
+        self._pressed_inputs |= (input_map[button] ^ self._prev_pressed_inputs) if not inputs else inputs
+
+    def HoldButton(self, button: str = None, inputs: int = 0):
+        """
+        :param button: A GBA button to be held, will be held until ReleaseInput called
+        :param inputs: Alternate raw input bitfield
+        """
+        self._held_inputs |= input_map[button] if not inputs else inputs
+
+    def ReleaseButton(self, button: str = None, inputs: int = 0):
+        """
+        :param button: A GBA button to be release if held
+        :param inputs: Alternate raw input bitfield
+        """
+        self._held_inputs ^= input_map[button] if not inputs else inputs
+
     def GetCurrentScreenImage(self) -> PIL.Image.Image:
         return self._screen.to_pil()
 
@@ -459,11 +497,15 @@ class LibmgbaEmulator:
         """
         Runs the emulation for a single frame, and then waits if necessary to hit the target FPS rate.
         """
+        self.SetInputs(self._pressed_inputs | self._held_inputs)
+
         begin = time.time_ns()
         self._core.run_frame()
         self._performance_tracker.time_spent_emulating += time.time_ns() - begin
 
         begin = time.time_ns()
+        self._prev_pressed_inputs = self._pressed_inputs
+        self._pressed_inputs = 0
         self._on_frame_callback()
 
         # Limiting FPS is achieved by using a blocking API for audio playback -- meaning we give it
