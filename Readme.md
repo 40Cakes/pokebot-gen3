@@ -34,21 +34,21 @@ The bot is frame perfect and can cheat by reading data from any point in memory.
 - Linux (**64-bit**)
   - Note: only tested and confirmed working on **Ubuntu 23.04** and **Debian 12**
 
-### Download the Bot
-To download the latest bot from GitHub, go to the top of the page > click **Code** > **Download ZIP**.
-
-Alternatively, if you'd like to be able to easily pull the latest updates:
-- Install [GitHub Desktop](https://desktop.github.com/) (you don't need an account)
-- Click **Clone a repository from the Internet...**
-- Use repository URL `https://github.com/40Cakes/pokebot-gen3.git` and choose a save location
-- Click **Clone**
-- To check for updates click **Fetch origin**
-
 ### Requirements
 - [Python 3.11](https://www.python.org/downloads/release/python-3110/)
 - Double click `requirements.py` or run `python requirements.py` in a terminal to install Python modules and [libmgba](https://github.com/hanzi/libmgba-py)
   - **Linux** only: Install the following packages with `apt` or appropriate package manager: `sudo apt install python3-tk libmgba0.10 portaudio19-dev`
 - Place some Pokémon .gba ROMs into the `roms/` folder
+
+### Download the Bot
+To download the latest bot from GitHub, go to the top of the page > click the green **Code** button > **Download ZIP**.
+
+Alternatively, if you'd like to be able to easily pull the latest updates without re-downloading the entire ZIP:
+- Install [GitHub Desktop](https://desktop.github.com/) (you don't need an account)
+- Click **Clone a repository from the Internet...**
+- Use repository URL `https://github.com/40Cakes/pokebot-gen3.git` and choose a save location on your PC
+- Click **Clone**
+- Any time there's a new update, you can pull the latest changes by clicking **Fetch origin** > **Pull origin**
 
 ### Optional
 - [Windows Terminal](https://github.com/microsoft/terminal/releases) - recommended for full 🌈<span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span>🌈 and  ✨emoji support✨ in the console output
