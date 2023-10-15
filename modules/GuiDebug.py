@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from modules.Daycare import GetDaycareData, PokemonGender
 from modules.Game import DecodeString, _reverse_symbols
 from modules.Gui import DebugTab, GetEmulator
+from modules.Items import GetItems
 from modules.Memory import GetSymbol, ReadSymbol, ParseTasks, GetSymbolName, GameHasStarted
 from modules.Pokemon import names_list, GetParty
 
@@ -376,7 +377,7 @@ class TrainerTab(DebugTab):
 
 
     def _GetData(self):
-        from modules.Trainer import trainer
+        from modules.Trainer import trainer, AcroBikeStates, RunningStates, TileTransitionStates
         party = GetParty()
 
         result = {
@@ -388,6 +389,9 @@ class TrainerTab(DebugTab):
                 "Map Name": trainer.GetMapName(),
                 "Local Coordinates": trainer.GetCoords(),
                 "On Bike": trainer.GetOnBike(),
+                "Running State": RunningStates(trainer.GetRunningState()).name,
+                "Acro Bike State": AcroBikeStates(trainer.GetAcroBikeState()).name,
+                "Tile Transition State": TileTransitionStates(trainer.GetTileTransitionState()).name,
                 "Facing Direction": trainer.GetFacingDirection()
             }
 
@@ -403,6 +407,8 @@ class TrainerTab(DebugTab):
                 result[key]['__value'] = 'Egg'
             else:
                 result[key]['__value'] = f"{party[i]['name']} (lvl. {party[i]['level']})"
+
+        result['Items'] = GetItems()
 
         return result
 
