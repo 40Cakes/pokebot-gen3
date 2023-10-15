@@ -194,7 +194,7 @@ class ModeStarters:
 
                     case StarterStates.CHECK_STARTER:
                         while True:
-                            if GetTask("TASK_PLAYERCONTROLLER_RESTOREBGMAFTERCRY").get("isActive", False):
+                            if not GetTask("TASK_PLAYERCONTROLLER_RESTOREBGMAFTERCRY").get("isActive", False):
                                 GetEmulator().PressButton("B")
                             else:
                                 self.update_state(StarterStates.LOG_STARTER)
