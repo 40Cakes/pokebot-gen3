@@ -49,9 +49,9 @@ class StarterStates(Enum):
 class ModeStarters:
     def __init__(self) -> None:
         self.state: StarterStates = StarterStates.RESET
-        self.kanto_starters: list = ["bulbasaur", "charmander", "squirtle"]
-        self.johto_starters: list = ["chikorita", "totodile", "cyndaquil"]
-        self.hoenn_starters: list = ["treecko", "torchic", "mudkip"]
+        self.kanto_starters: list = ["Bulbasaur", "Charmander", "Squirtle"]
+        self.johto_starters: list = ["Chikorita", "Totodile", "Cyndaquil"]
+        self.hoenn_starters: list = ["Treecko", "Torchic", "Mudkip"]
 
         if config["general"]["starter"] in self.kanto_starters and GetROM().game_title in [
             "POKEMON LEAF",
@@ -99,7 +99,8 @@ class ModeStarters:
     def step(self):
         if self.state == StarterStates.INCOMPATIBLE:
             console.print(
-                f"[red bold]Starter `{config['general']['starter']}` is incompatible with {GetROM().game_name}!"
+                f"[red bold]Starter `{config['general']['starter']}` is incompatible, update `starter` in config "
+                f"file `general.yml` to a valid starter for {GetROM().game_name} and restart the bot!"
             )
             ForceManualMode()
             return
