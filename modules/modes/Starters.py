@@ -338,17 +338,17 @@ class ModeStarters:
                                     continue
 
                         case ModeStarterStates.CONFIRM_STARTER:
-                                if config["cheats"]["starters"]:
-                                    if len(GetParty()) > 0:
-                                        self.update_state(ModeStarterStates.LOG_STARTER)
+                            if config["cheats"]["starters"]:
+                                if len(GetParty()) > 0:
+                                    self.update_state(ModeStarterStates.LOG_STARTER)
+                                GetEmulator().PressButton("A")
+                            else:
+                                confirm = GetTask(self.task_confirm).get("isActive", False)
+                                if confirm and GetGameState() != GameState.BATTLE:
                                     GetEmulator().PressButton("A")
                                 else:
-                                    confirm = GetTask(self.task_confirm).get("isActive", False)
-                                    if confirm and GetGameState() != GameState.BATTLE:
-                                        GetEmulator().PressButton("A")
-                                    else:
-                                        self.update_state(ModeStarterStates.THROW_BALL)
-                                        continue
+                                    self.update_state(ModeStarterStates.THROW_BALL)
+                                    continue
 
                         # Check for ball being thrown
                         case ModeStarterStates.THROW_BALL:
