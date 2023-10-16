@@ -11,6 +11,3 @@ console:
   encounter_ivs: verbose
   encounter_moves: disable
   statistics: verbose
-
-# Backups
-backup_stats: 25000

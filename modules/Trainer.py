@@ -7,13 +7,8 @@ from modules.Memory import GetSaveBlock, ReadSymbol
 from modules.data.MapData import MapRSE, MapFRLG
 
 
-class AvatarFlag(IntEnum):
-    """
-    The various states of the trainer pertaining to movement
-
-    Reference: https://github.com/pret/pokeemerald/blob/104e81b359d287668cee613f6604020a6e7228a3/include/global.fieldmap.h
-    """
-
+# https://github.com/pret/pokeemerald/blob/104e81b359d287668cee613f6604020a6e7228a3/include/global.fieldmap.h
+class AvatarFlags(IntEnum):
     PLAYER_AVATAR_FLAG_ON_FOOT = 1 << 0
     PLAYER_AVATAR_FLAG_MACH_BIKE = 1 << 1
     PLAYER_AVATAR_FLAG_ACRO_BIKE = 1 << 2
@@ -24,7 +19,24 @@ class AvatarFlag(IntEnum):
     PLAYER_AVATAR_FLAG_DASH = 1 << 7
 
 
-ON_BIKE = AvatarFlag.PLAYER_AVATAR_FLAG_MACH_BIKE | AvatarFlag.PLAYER_AVATAR_FLAG_ACRO_BIKE
+class RunningStates(IntEnum):
+    NOT_MOVING = 0
+    TURN_DIRECTION = 1
+    MOVING = 2
+
+
+class TileTransitionStates(IntEnum):
+    NOT_MOVING = 0
+    TRANSITIONING = 1  # transition between tiles
+    CENTERING = 2  # on the frame in which you have centered on a tile but are about to keep moving,
+                   # even if changing directions. Used for a ledge hop, since you are transitioning
+
+class AcroBikeStates(IntEnum):
+    NORMAL = 0
+    TURNING = 1
+    STANDING_WHEELIE = 2
+    HOPPING_WHEELIE = 3
+    MOVING_WHEELIE = 4
 
 
 class FacingDirection(Enum):
@@ -70,8 +82,23 @@ class Trainer:
         return (int(b_gObjectEvents[0]) - 7, int(b_gObjectEvents[2]) - 7)
 
     def GetOnBike(self) -> bool:
-        b_gPlayerAvatar = ReadSymbol("gPlayerAvatar", 1)
-        return (int(b_gPlayerAvatar[0]) & ON_BIKE) != 0
+        b_gPlayerAvatar = ReadSymbol("gPlayerAvatar", size=1)
+        return (
+            int(b_gPlayerAvatar[0])
+            & (AvatarFlags.PLAYER_AVATAR_FLAG_MACH_BIKE | AvatarFlags.PLAYER_AVATAR_FLAG_ACRO_BIKE)
+        ) != 0
+
+    def GetRunningState(self) -> int:
+        b_gPlayerAvatar = ReadSymbol("gPlayerAvatar", offset=2, size=1)
+        return int(b_gPlayerAvatar[0])
+
+    def GetTileTransitionState(self) -> int:
+        b_gPlayerAvatar = ReadSymbol("gPlayerAvatar", offset=3, size=1)
+        return int(b_gPlayerAvatar[0])
+
+    def GetAcroBikeState(self) -> int:
+        b_gPlayerAvatar = ReadSymbol("gPlayerAvatar", offset=8, size=1)
+        return int(b_gPlayerAvatar[0])
 
     def GetFacingDirection(self) -> str:
         b_gObjectEvents = ReadSymbol("gObjectEvents", 24, 1)

@@ -1,4 +1,4 @@
-# PokéBot Gen3 for mGBA
+# PokéBot Gen3 (libmgba)
 [![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://www.python.org/) [![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/UtxR3cazUa) [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/channel/UCl5dLxULvf6ynUiqRSchrzA) [![Twitter](https://img.shields.io/badge/Twitter-%231DA1F2.svg?style=for-the-badge&logo=Twitter&logoColor=white)](https://twitter.com/40_Cakes)
 
 **PokéBot Gen3 for mGBA** is a Python script, written to automatically shiny hunt in Pokémon Ruby, Sapphire, Emerald, FireRed and LeafGreen.
@@ -7,13 +7,19 @@ Initially created to complete a Prof. Oak and Living ✨Shiny✨ Dex Challenge i
 
 [![🔴24/7✨Shiny✨Hunting Bot](https://img.youtube.com/vi/W6OOnrx8g58/0.jpg)](https://www.youtube.com/watch?v=W6OOnrx8g58)
 
-https://github.com/40Cakes/pokebot-gen3/assets/16377135/a3eed994-e960-4181-9f76-3b36bc9f0619
+https://github.com/40Cakes/pokebot-gen3/assets/16377135/e6cea062-895e-411a-86fb-fe0e6e22c34d
+
+| Main Interface | Load Save State | Debugger |
+|:-:|:-:|:-:|
+|![image](https://github.com/40Cakes/pokebot-gen3/assets/16377135/75c88c35-83c4-4a26-b907-429b02fda564)|![image](https://github.com/40Cakes/pokebot-gen3/assets/16377135/52afa39a-c674-47a7-90ed-3e25e82050f5)|![image](https://github.com/40Cakes/pokebot-gen3/assets/16377135/d017651d-96f1-41cc-a03a-5462c96e027a)|
+| Shiny Notifications | Phase Stats | Milestones |
+|![image](https://github.com/40Cakes/pokebot-gen3/assets/16377135/69230b70-24f2-46b3-bb7e-54241785a932)|![image](https://github.com/40Cakes/pokebot-gen3/assets/16377135/613e73b8-bc20-46aa-92c1-168d566f4e66)|![image](https://github.com/40Cakes/pokebot-gen3/assets/16377135/a8c0f5be-9b81-4be6-8a71-cdf909ef0df0)|
 
 # 📖 Preamble
-- This is still in *early* development, as such, stats/config format and general functionality is subject to change, without warning - make sure you back up your `config/<profile name>/` folder before updating your bot!
-- Reach out in Discord [#bot-support-mgba❔](https://discord.com/channels/1057088810950860850/1139190426834833528) if you have any issues
+- This is still in development, as such, functionality is subject to change without warning - always make sure you back up your `config/<profile name>/` folder before updating your bot!
+- Reach out in Discord [#bot-support-libmgba❔](https://discord.com/channels/1057088810950860850/1139190426834833528) if you have any issues
 
-The bot is frame perfect and can cheat by reading data from any point in memory. By default it will attempt to perform most actions, as if a human were playing to make gameplay as representative as possible, some examples:
+The bot is frame perfect and can cheat by reading data from any point in memory. By default it will attempt to perform most actions as if a human were playing to make gameplay as representative as possible, some examples:
 - Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible before resetting
 - It's possible to peek inside un-hatched eggs to view stats and shininess as soon as they're received from the daycare, the bot will wait until the eggs are fully hatched before checking and logging
 - These are intentional design decisions, bot [cheats](#cheatsyml---cheats-config) can be used to bypass them (in most cases)
@@ -21,7 +27,6 @@ The bot is frame perfect and can cheat by reading data from any point in memory.
 ***
 
 # ⚠ Photosensitivity Warning
-- The bot launches mGBA at unbound speed by default, see [`config/keys.yml`](#keysyml---emulator-input-mapping) for a list of keys to set emulation to slower speeds and even disable video/sound output
 - Running mGBA at unbound speeds, will cause **very fast and bright flashing**!
 - Any unbounded video examples on this page will be hidden by default, and marked with **⚠ photosensitivity warning**
 
@@ -34,11 +39,20 @@ The bot is frame perfect and can cheat by reading data from any point in memory.
 - Linux (**64-bit**)
   - Note: only tested and confirmed working on **Ubuntu 23.04** and **Debian 12**
 
+### Download the Bot
+To download the latest bot from GitHub, go to the top of the page > click the green **Code** button > **Download ZIP**.
+
+Alternatively, if you'd like to be able to easily pull the latest updates without re-downloading the entire ZIP:
+- Install [GitHub Desktop](https://desktop.github.com/) (you don't need an account)
+- Click **Clone a repository from the Internet...**
+- Use repository URL `https://github.com/40Cakes/pokebot-gen3.git` and choose a save location on your PC
+- Click **Clone**
+- Any time there's a new update, you can pull the latest changes by clicking **Fetch origin**, then **Pull origin**
+
 ### Requirements
 - [Python 3.11](https://www.python.org/downloads/release/python-3110/)
-- Double click `requirements.py` or run `python requirements.py` in a terminal to install Python modules and [libmgba](https://github.com/hanzi/libmgba-py)
+- Double click `requirements.py` or run `python requirements.py` in a terminal to install required Python modules and download [libmgba](https://github.com/hanzi/libmgba-py) automatically
   - **Linux** only: Install the following packages with `apt` or appropriate package manager: `sudo apt install python3-tk libmgba0.10 portaudio19-dev`
-- Place some Pokémon .gba ROMs into the `roms/` folder
 
 ### Optional
 - [Windows Terminal](https://github.com/microsoft/terminal/releases) - recommended for full 🌈<span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span>🌈 and  ✨emoji support✨ in the console output
@@ -47,10 +61,8 @@ The bot is frame perfect and can cheat by reading data from any point in memory.
 ***
 
 # ❓ How To Run
-- Set the desired `bot_mode` in config file [`config/general.yml`](#generalyml---general-config)
+- Place some **official** Pokémon .gba ROMs into the `roms/` folder
 - Double click `pokebot.py` or run `python pokebot.py` in a terminal and follow the on-screen steps to create and/or select a profile
-
-While running, the bot will ignore your button presses, if you need to take control of the emulator, press `Tab` to toggle manual bot mode on/off.
 
 The bot ships with the default mGBA input mapping, see [`config/keys.yml`](#keysyml---emulator-input-mapping) to view the default mapping, or customise them to your preference.
 
@@ -79,7 +91,7 @@ Variations of games, languages and revisions may have different memory offsets, 
 
 ROM hacks will likely not work, and are ❌ **not supported** or planned to be supported!
 
-The ROMs in the `roms/` folder are checked and verified against a list of official game hashes. If you **really** want to test a ROM hack with the bot, you must add the SHA1 hash of the ROM to `modules/Roms.py`.
+The ROMs in the `roms/` folder are checked and verified against a list of all known official gen3 game hashes. If you **really** want to test a ROM hack with the bot, you must add the SHA1 hash of the ROM to `modules/Roms.py`.
 
 The SHA1 hash of a ROM can be calculated with any of the following methods:
 - [ROM Hasher](https://www.romhacking.net/utilities/1002/)
@@ -123,19 +135,19 @@ For modes that use soft resets such as starters, the bot attempts to hit a uniqu
 - If you notice too many dupes or resets taking too long, consider enabling `starters_rng` in [`config/cheats.yml`](#cheatsyml---cheats-config)
 
 ### R/S/E
-1. Select the `starter` in `config/general.yml` - `treecko`, `torchic` or `mudkip`
+1. Select the `starter` in `config/general.yml` - `Treecko`, `Torchic` or `Mudkip`
 2. Face the starters bag, and save the game (**in-game, not a save state**)
 3. Start the bot
 
 ### FR/LG
-1. Select the `starter` in `config/general.yml` - `bulbasaur`, `charmander` or `squirtle`
+1. Select the `starter` in `config/general.yml` - `Bulbasaur`, `Charmander` or `Squirtle`
 2. Face the desired PokéBall in Oak's lab, save the game (**in-game, not a save state**)
 3. Start the bot
 
 - **Note**: Even though you set the trainer to face the desired PokéBall, it is still important to set `starter` in the config! This option is used by the bot to track frames to ensure a unique starter is generated every time
 
 ### Johto (Emerald)
-1. Select the `starter` in `config/general.yml` - `chikorita`, `cyndaquil` or `totodile`
+1. Select the `starter` in `config/general.yml` - `Chikorita`, `Cyndaquil` or `Totodile`
 2. Face the desired PokéBall in Birch's lab, save the game (**in-game, not a save state**)
 3. Start the bot
 
@@ -261,13 +273,6 @@ The following `console` options will control how much data is displayed in the P
 - `encounter_ivs`
 - `encounter_moves`
 - `statistics`
-
-### Backups
-`backup_stats` - zips up and backup `stats/` folder every `n` total encounters
-- Files in `stats/` are known to get corrupted during power outages
-- Backups are stored in `backups/`
-- Make sure you regularly delete old backups (especially if your stats folder is large!)
-- Set to `0` to disable
 
 </details>
 
