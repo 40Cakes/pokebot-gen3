@@ -62,7 +62,6 @@ class ModeStarters:
         elif config["general"]["starter"] in self.johto_starters and GetROM().game_title == "POKEMON EMER":
             self.region: Regions = Regions.JOHTO_STARTERS
             self.start_party_length: int = 0
-            config["cheats"]["starters"] = True  # TODO temporary until menu navigation is ready
             console.print(
                 "[red]Notice: Johto starters enables the fast `starters` check option in `config/cheats.yml` by "
                 "default, the shininess of the starter is checked via memhacks while start menu navigation is WIP (in "
@@ -105,29 +104,27 @@ class ModeStarters:
             ForceManualMode()
             return
 
-        match self.region:
-            case Regions.KANTO_STARTERS:
-                match self.state:
-                    case StarterStates.RESET:
-                        GetEmulator().Reset()
-                        self.update_state(StarterStates.TITLE)
+        while True:
+            match self.region:
+                case Regions.KANTO_STARTERS:
+                    match self.state:
+                        case StarterStates.RESET:
+                            GetEmulator().Reset()
+                            self.update_state(StarterStates.TITLE)
 
-                    case StarterStates.TITLE:
-                        while True:
+                        case StarterStates.TITLE:
                             match GetGameState():
                                 case GameState.TITLE_SCREEN:
                                     GetEmulator().PressButton("A")
                                 case GameState.MAIN_MENU:  # TODO assumes trainer is in Oak's lab, facing a ball
                                     if GetTask("TASK_HANDLEMENUINPUT").get("isActive", False):
                                         self.update_state(StarterStates.RNG_CHECK)
-                                        break
-                            yield
+                                        continue
 
-                    case StarterStates.RNG_CHECK:
-                        if config["cheats"]["starters_rng"]:
-                            self.update_state(StarterStates.OVERWORLD)
-                        else:
-                            while True:
+                        case StarterStates.RNG_CHECK:
+                            if config["cheats"]["starters_rng"]:
+                                self.update_state(StarterStates.OVERWORLD)
+                            else:
                                 rng = int(struct.unpack("<I", ReadSymbol("gRngValue", size=4))[0])
                                 if rng in self.rng_history:
                                     pass
@@ -135,231 +132,107 @@ class ModeStarters:
                                     self.rng_history.append(rng)
                                     SaveRNGStateHistory(config["general"]["starter"], self.rng_history)
                                     self.update_state(StarterStates.OVERWORLD)
-                                    break
-                                yield
+                                    continue
 
-                    case StarterStates.OVERWORLD:
-                        self.start_party_length = len(GetParty())
-                        while True:
+                        case StarterStates.OVERWORLD:
+                            self.start_party_length = len(GetParty())
                             if not GetTask("TASK_SCRIPTSHOWMONPIC").get("isActive", False):
                                 GetEmulator().PressButton("A")
                             else:
                                 self.update_state(StarterStates.INJECT_RNG)
-                                break
-                            yield
+                                continue
 
-                    case StarterStates.INJECT_RNG:
-                        if config["cheats"]["starters_rng"]:
-                            WriteSymbol("gRngValue", struct.pack("<I", random.randint(0, 2**32 - 1)))
-                        self.update_state(StarterStates.SELECT_STARTER)
+                        case StarterStates.INJECT_RNG:
+                            if config["cheats"]["starters_rng"]:
+                                WriteSymbol("gRngValue", struct.pack("<I", random.randint(0, 2**32 - 1)))
+                            self.update_state(StarterStates.SELECT_STARTER)
 
-                    case StarterStates.SELECT_STARTER:  # TODO can be made slightly faster by holding B through chat
-                        while True:
+                        case StarterStates.SELECT_STARTER:  # TODO can be made slightly faster by holding B through chat
                             if GetTask("TASK_DRAWFIELDMESSAGEBOX").get("isActive", False):
                                 GetEmulator().PressButton("A")
                             elif not GetTask("TASK_SCRIPTSHOWMONPIC").get("isActive", False):
                                 GetEmulator().PressButton("B")
                             else:
                                 self.update_state(StarterStates.CONFIRM_STARTER)
-                                break
-                            yield
+                                continue
 
-                    case StarterStates.CONFIRM_STARTER:
-                        while True:
+                        case StarterStates.CONFIRM_STARTER:
                             if len(GetParty()) == 0:
                                 GetEmulator().PressButton("A")
                             else:
                                 self.update_state(StarterStates.EXIT_MENUS)
-                                break
-                            yield
+                                continue
 
-                    case StarterStates.EXIT_MENUS:
-                        if not config["cheats"]["starters"]:
-                            while True:
+                        case StarterStates.EXIT_MENUS:
+                            if not config["cheats"]["starters"]:
                                 if trainer.GetFacingDirection() != "Down":
                                     GetEmulator().PressButton("B")
                                     GetEmulator().HoldButton("Down")
                                 else:
                                     GetEmulator().ReleaseButton("Down")
                                     self.update_state(StarterStates.FOLLOW_PATH)
-                                    break
-                                yield
-                        else:
-                            self.update_state(StarterStates.LOG_STARTER)
-                            yield
+                                    continue
+                            else:
+                                self.update_state(StarterStates.LOG_STARTER)
+                                continue
 
-                    case StarterStates.FOLLOW_PATH:
-                        FollowPath([(trainer.GetCoords()[0], 7), (7, 7), (7, 8)])  # TODO Revisit FollowPath rework
-                        self.update_state(StarterStates.CHECK_STARTER)
+                        case StarterStates.FOLLOW_PATH:
+                            FollowPath([(trainer.GetCoords()[0], 7), (7, 7), (7, 8)])  # TODO Revisit FollowPath rework
+                            self.update_state(StarterStates.CHECK_STARTER)
 
-                    case StarterStates.CHECK_STARTER:
-                        while True:
+                        case StarterStates.CHECK_STARTER:
                             if not GetTask("TASK_PLAYERCONTROLLER_RESTOREBGMAFTERCRY").get("isActive", False):
                                 GetEmulator().PressButton("B")
                             else:
                                 self.update_state(StarterStates.LOG_STARTER)
-                                break
-                            yield
+                                continue
 
-                    case StarterStates.LOG_STARTER:
-                        EncounterPokemon(GetParty()[0])
-                        return
+                        case StarterStates.LOG_STARTER:
+                            EncounterPokemon(GetParty()[0])
+                            return
 
-            case Regions.JOHTO_STARTERS:
-                match self.state:
-                    case StarterStates.PARTY_FULL:
-                        console.print("[red]Your party is full, make some room before using the Johto starters mode!")
-                        ForceManualMode()
-                        return
+                case Regions.JOHTO_STARTERS:
+                    match self.state:
+                        case StarterStates.PARTY_FULL:
+                            console.print(
+                                "[red]Your party is full, make some room before using the Johto starters mode!"
+                            )
+                            ForceManualMode()
+                            return
 
-                    case StarterStates.RESET:
-                        GetEmulator().Reset()
-                        self.update_state(StarterStates.TITLE)
+                        case StarterStates.RESET:
+                            GetEmulator().Reset()
+                            self.update_state(StarterStates.TITLE)
 
-                    case StarterStates.TITLE:
-                        while True:
+                        case StarterStates.TITLE:
                             match GetGameState():
                                 case GameState.TITLE_SCREEN | GameState.MAIN_MENU:
                                     GetEmulator().PressButton("A")
                                 case GameState.OVERWORLD:
                                     self.update_state(StarterStates.OVERWORLD)
-                                    break
-                            yield
+                                    continue
 
-                    case StarterStates.OVERWORLD:
-                        self.start_party_length = len(GetParty())
-                        while True:
+                        case StarterStates.OVERWORLD:
+                            self.start_party_length = len(GetParty())
                             if GetTask("TASK_DRAWFIELDMESSAGE").get("isActive", False):
                                 GetEmulator().PressButton("A")
                             else:
                                 self.update_state(StarterStates.INJECT_RNG)
-                                break
-                            yield
+                                continue
 
-                    case StarterStates.INJECT_RNG:
-                        if config["cheats"]["starters_rng"]:
-                            WriteSymbol("gRngValue", struct.pack("<I", random.randint(0, 2**32 - 1)))
-                        self.update_state(StarterStates.YES_NO)
+                        case StarterStates.INJECT_RNG:
+                            if config["cheats"]["starters_rng"]:
+                                WriteSymbol("gRngValue", struct.pack("<I", random.randint(0, 2**32 - 1)))
+                            self.update_state(StarterStates.YES_NO)
 
-                    case StarterStates.YES_NO:
-                        while True:
+                        case StarterStates.YES_NO:
                             if GetTask("TASK_HANDLEYESNOINPUT").get("isActive", False):
                                 GetEmulator().PressButton("B")
                             else:
                                 self.update_state(StarterStates.RNG_CHECK)
-                                break
-                            yield
+                                continue
 
-                    case StarterStates.RNG_CHECK:
-                        if config["cheats"]["starters_rng"]:
-                            self.update_state(StarterStates.CONFIRM_STARTER)
-                        else:
-                            while True:
-                                rng = int(struct.unpack("<I", ReadSymbol("gRngValue", size=4))[0])
-                                if rng in self.rng_history:
-                                    pass
-                                else:
-                                    self.rng_history.append(rng)
-                                    SaveRNGStateHistory(config["general"]["starter"], self.rng_history)
-                                    self.update_state(StarterStates.CONFIRM_STARTER)
-                                    break
-                                yield
-
-                    case StarterStates.CONFIRM_STARTER:
-                        while True:
-                            if len(GetParty()) == self.start_party_length:
-                                GetEmulator().PressButton("A")
-                            else:
-                                self.update_state(StarterStates.EXIT_MENUS)
-                                break
-                            yield
-
-                    case StarterStates.EXIT_MENUS:
-                        if not config["cheats"]["starters"]:
-                            while True:
-                                if GetTask("TASK_POKEMONPICWINDOW").get("isActive", False):
-                                    GetEmulator().PressButton("B")
-                                elif GetTask("TASK_DRAWFIELDMESSAGE").get("isActive", False):
-                                    GetEmulator().PressButton("B")
-                                else:
-                                    break
-                                yield
-                        else:
-                            self.update_state(StarterStates.CHECK_STARTER)
-                            yield
-
-                    case StarterStates.CHECK_STARTER:
-                        while True:
-                            if config["cheats"]["starters"]:
-                                self.update_state(StarterStates.LOG_STARTER)
-                                break
-                            else:
-                                break  # TODO check Pokémon summary screen once menu navigation merged
-                            yield
-
-                    case StarterStates.LOG_STARTER:
-                        party = GetParty()
-                        EncounterPokemon(party[len(party) - 1])
-                        return
-
-            case Regions.HOENN_STARTERS:
-                match self.state:
-                    case StarterStates.RESET:
-                        GetEmulator().Reset()
-                        self.update_state(StarterStates.TITLE)
-
-                    case StarterStates.TITLE:
-                        while True:
-                            game_state = GetGameState()
-                            match game_state:
-                                case GameState.TITLE_SCREEN | GameState.MAIN_MENU:
-                                    GetEmulator().PressButton("A")
-                                case GameState.OVERWORLD:  # TODO assumes trainer is on Route 101, facing bag
-                                    if GetTask(self.task_map_popup):
-                                        self.update_state(StarterStates.OVERWORLD)
-                                        break
-                            yield
-
-                    case StarterStates.OVERWORLD:
-                        while True:
-                            if GetGameState() != GameState.CHOOSE_STARTER:
-                                GetEmulator().PressButton("A")
-                            else:
-                                self.update_state(StarterStates.INJECT_RNG)
-                                break
-                            yield
-
-                    case StarterStates.INJECT_RNG:
-                        if config["cheats"]["starters_rng"]:
-                            WriteSymbol("gRngValue", struct.pack("<I", random.randint(0, 2**32 - 1)))
-                        self.update_state(StarterStates.BAG_MENU)
-
-                    case StarterStates.BAG_MENU:
-                        while True:
-                            cursor_task = GetTask(self.task_bag_cursor).get("data", False)
-                            if cursor_task:
-                                cursor_pos = cursor_task[0]
-                                if cursor_pos > self.bag_position:
-                                    GetEmulator().PressButton("Left")
-                                elif cursor_pos < self.bag_position:
-                                    GetEmulator().PressButton("Right")
-                                elif cursor_pos == self.bag_position:
-                                    self.update_state(StarterStates.SELECT_STARTER)
-                                    break
-                            yield
-
-                    case StarterStates.SELECT_STARTER:
-                        while True:
-                            confirm = GetTask(self.task_confirm).get("isActive", False)
-                            if not confirm:
-                                GetEmulator().PressButton("A")
-                            else:
-                                self.update_state(StarterStates.RNG_CHECK)
-                                break
-                            yield
-
-                    case StarterStates.RNG_CHECK:
-                        while True:
+                        case StarterStates.RNG_CHECK:
                             if config["cheats"]["starters_rng"]:
                                 self.update_state(StarterStates.CONFIRM_STARTER)
                             else:
@@ -370,51 +243,134 @@ class ModeStarters:
                                     self.rng_history.append(rng)
                                     SaveRNGStateHistory(config["general"]["starter"], self.rng_history)
                                     self.update_state(StarterStates.CONFIRM_STARTER)
-                                    break
-                            yield
+                                    continue
 
-                    case StarterStates.CONFIRM_STARTER:
-                        while True:
-                            if config["cheats"]["starters"]:
-                                if len(GetParty()) > 0:
-                                    self.update_state(StarterStates.LOG_STARTER)
+                        case StarterStates.CONFIRM_STARTER:
+                            if len(GetParty()) == self.start_party_length:
                                 GetEmulator().PressButton("A")
                             else:
-                                confirm = GetTask(self.task_confirm).get("isActive", False)
-                                if not confirm and GetGameState() == GameState.BATTLE:
-                                    self.update_state(StarterStates.THROW_BALL)
-                                    break
-                                else:
-                                    GetEmulator().PressButton("A")
-                            yield
+                                self.update_state(StarterStates.EXIT_MENUS)
+                                continue
 
-                    # Check for ball being thrown
-                    case StarterStates.THROW_BALL:
-                        while True:
+                        case StarterStates.EXIT_MENUS:
+                            if config["cheats"]["starters"]:
+                                self.update_state(StarterStates.CHECK_STARTER)
+                                continue
+                            else:
+                                if GetTask("TASK_POKEMONPICWINDOW").get("isActive", False):
+                                    GetEmulator().PressButton("B")
+                                elif GetTask("TASK_DRAWFIELDMESSAGE").get("isActive", False):
+                                    GetEmulator().PressButton("B")
+                                else:
+                                    self.update_state(StarterStates.CHECK_STARTER)
+                                    continue
+
+                        case StarterStates.CHECK_STARTER:
+                            config["cheats"]["starters"] = True  # TODO temporary until menu navigation is ready
+                            if config["cheats"]["starters"]:     # TODO check Pokémon summary screen once menu navigation merged
+                                self.update_state(StarterStates.LOG_STARTER)
+                                continue
+
+                        case StarterStates.LOG_STARTER:
+                            party = GetParty()
+                            EncounterPokemon(party[len(party) - 1])
+                            return
+
+                case Regions.HOENN_STARTERS:
+                    match self.state:
+                        case StarterStates.RESET:
+                            GetEmulator().Reset()
+                            self.update_state(StarterStates.TITLE)
+
+                        case StarterStates.TITLE:
+                            game_state = GetGameState()
+                            match game_state:
+                                case GameState.TITLE_SCREEN | GameState.MAIN_MENU:
+                                    GetEmulator().PressButton("A")
+                                case GameState.OVERWORLD:  # TODO assumes trainer is on Route 101, facing bag
+                                    if GetTask(self.task_map_popup):
+                                        self.update_state(StarterStates.OVERWORLD)
+                                        continue
+
+                        case StarterStates.OVERWORLD:
+                            if GetGameState() != GameState.CHOOSE_STARTER:
+                                GetEmulator().PressButton("A")
+                            else:
+                                self.update_state(StarterStates.INJECT_RNG)
+                                continue
+
+                        case StarterStates.INJECT_RNG:
+                            if config["cheats"]["starters_rng"]:
+                                WriteSymbol("gRngValue", struct.pack("<I", random.randint(0, 2**32 - 1)))
+                            self.update_state(StarterStates.BAG_MENU)
+
+                        case StarterStates.BAG_MENU:
+                            cursor_task = GetTask(self.task_bag_cursor).get("data", False)
+                            if cursor_task:
+                                cursor_pos = cursor_task[0]
+                                if cursor_pos > self.bag_position:
+                                    GetEmulator().PressButton("Left")
+                                elif cursor_pos < self.bag_position:
+                                    GetEmulator().PressButton("Right")
+                                elif cursor_pos == self.bag_position:
+                                    self.update_state(StarterStates.SELECT_STARTER)
+                                    continue
+
+                        case StarterStates.SELECT_STARTER:
+                            confirm = GetTask(self.task_confirm).get("isActive", False)
+                            if not confirm:
+                                GetEmulator().PressButton("A")
+                            else:
+                                self.update_state(StarterStates.RNG_CHECK)
+                                continue
+
+                        case StarterStates.RNG_CHECK:
+                            if config["cheats"]["starters_rng"]:
+                                self.update_state(StarterStates.CONFIRM_STARTER)
+                            else:
+                                rng = int(struct.unpack("<I", ReadSymbol("gRngValue", size=4))[0])
+                                if rng in self.rng_history:
+                                    pass
+                                else:
+                                    self.rng_history.append(rng)
+                                    SaveRNGStateHistory(config["general"]["starter"], self.rng_history)
+                                    self.update_state(StarterStates.CONFIRM_STARTER)
+                                    continue
+
+                        case StarterStates.CONFIRM_STARTER:
+                                if config["cheats"]["starters"]:
+                                    if len(GetParty()) > 0:
+                                        self.update_state(StarterStates.LOG_STARTER)
+                                    GetEmulator().PressButton("A")
+                                else:
+                                    confirm = GetTask(self.task_confirm).get("isActive", False)
+                                    if confirm and GetGameState() != GameState.BATTLE:
+                                        GetEmulator().PressButton("A")
+                                    else:
+                                        self.update_state(StarterStates.THROW_BALL)
+                                        continue
+
+                        # Check for ball being thrown
+                        case StarterStates.THROW_BALL:
                             if not GetTask(self.task_ball_throw).get("isActive", False):
                                 GetEmulator().PressButton("B")
                             else:
                                 self.update_state(StarterStates.STARTER_CRY)
-                                break
-                            yield
+                                continue
 
-                    case StarterStates.STARTER_CRY:
-                        while True:
+                        case StarterStates.STARTER_CRY:
                             if GetTask("TASK_DUCKBGMFORPOKEMONCRY").get("isActive", False):
                                 GetEmulator().PressButton("A")
                             else:
                                 self.update_state(StarterStates.STARTER_CRY_END)
-                                break
-                            yield
+                                continue
 
-                    case StarterStates.STARTER_CRY_END:  # Ensures starter sprite is fully visible before resetting
-                        while True:
+                        case StarterStates.STARTER_CRY_END:  # Ensures starter sprite is fully visible before resetting
                             if not GetTask("TASK_DUCKBGMFORPOKEMONCRY").get("isActive", True):
                                 self.update_state(StarterStates.LOG_STARTER)
-                                break
-                            yield
+                                continue
 
-                    case StarterStates.LOG_STARTER:
-                        EncounterPokemon(GetParty()[0])
-                        return
-        yield
+                        case StarterStates.LOG_STARTER:
+                            EncounterPokemon(GetParty()[0])
+                            return
+            yield
