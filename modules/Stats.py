@@ -15,7 +15,7 @@ from rich.table import Table
 from modules.Colours import IVColour, IVSumColour, SVColour
 from modules.Config import config, ForceManualMode
 from modules.Console import console
-from modules.Files import BackupFolder, ReadFile, WriteFile
+from modules.Files import ReadFile, WriteFile
 from modules.Gui import SetMessage, GetEmulator
 from modules.Memory import GetGameState, GameState
 from modules.Profiles import Profile
@@ -613,12 +613,6 @@ def LogEncounter(pokemon: dict, block_list: list) -> NoReturn:
         # Save stats file
         WriteFile(files['totals'], json.dumps(stats, indent=4, sort_keys=True))
         session_encounters += 1
-
-        # Backup stats folder every n encounters
-        if config['logging']['backup_stats'] > 0 and \
-                stats['totals'].get('encounters', None) and \
-                stats['totals']['encounters'] % config['logging']['backup_stats'] == 0:
-            BackupFolder(f'./{stats_dir}/', f'./{stats_dir}/backups/{time.strftime("%Y%m%d-%H%M%S")}.zip')
 
     except SystemExit:
         raise

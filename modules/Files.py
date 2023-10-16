@@ -1,6 +1,4 @@
 import os
-import shutil
-from typing import NoReturn
 from modules.Console import console
 
 def ReadFile(file: str) -> str:
@@ -44,21 +42,3 @@ def WriteFile(file: str, value: str, mode: str = 'w') -> bool:
     except:
         console.print_exception(show_locals=True)()
         return False
-
-
-def BackupFolder(source, destination) -> NoReturn:
-    """
-    Backup a folder, .zip up a source directory and write file to destination.
-
-    :param source: path to backup
-    :param destination: path to write .zip backup file
-    :return:
-    """
-    basename = os.path.basename(destination)
-    dst_dir = os.path.dirname(destination)
-    if not os.path.exists(dst_dir):
-        os.makedirs(dst_dir)
-    name = basename.split('.')[0]
-    format = basename.split('.')[1]
-    shutil.make_archive(name, format, os.path.dirname(source), os.path.basename(source.strip(os.sep)))
-    shutil.move('%s.%s' % (name, format), destination)

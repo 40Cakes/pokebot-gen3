@@ -5,7 +5,6 @@ __pycache__
 .vs
 
 *.gba
-backups/
 build/
 config/*/
 dist/

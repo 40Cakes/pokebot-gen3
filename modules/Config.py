@@ -122,10 +122,6 @@ logging_schema = """
                     - verbose
                     - basic
                     - disable
-    backup_stats:
-        type: integer
-        minimum: 0
-
 """
 
 battle_schema = """

@@ -274,13 +274,6 @@ The following `console` options will control how much data is displayed in the P
 - `encounter_moves`
 - `statistics`
 
-### Backups
-`backup_stats` - zips up and backup `stats/` folder every `n` total encounters
-- Files in `stats/` are known to get corrupted during power outages
-- Backups are stored in `backups/`
-- Make sure you regularly delete old backups (especially if your stats folder is large!)
-- Set to `0` to disable
-
 </details>
 
 ## `discord.yml` - Discord integration config
