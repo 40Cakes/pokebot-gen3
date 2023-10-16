@@ -30,296 +30,254 @@ def CustomHooks(hook) -> NoReturn:
 
         def IVField() -> str:
             # Formatted IV table
-            if config['discord']['iv_format'] == 'formatted':
-                iv_field = '```' \
-                           '╔═══╤═══╤═══╤═══╤═══╤═══╗\n' \
-                           '║HP │ATK│DEF│SPA│SPD│SPE║\n' \
-                           '╠═══╪═══╪═══╪═══╪═══╪═══╣\n' \
-                           '║{:^3}│{:^3}│{:^3}│{:^3}│{:^3}│{:^3}║\n' \
-                           '╚═══╧═══╧═══╧═══╧═══╧═══╝' \
-                           '```'.format(
-                    pokemon['IVs']['hp'],
-                    pokemon['IVs']['attack'],
-                    pokemon['IVs']['defense'],
-                    pokemon['IVs']['spAttack'],
-                    pokemon['IVs']['spDefense'],
-                    pokemon['IVs']['speed'])
+            if config["discord"]["iv_format"] == "formatted":
+                iv_field = (
+                    "```"
+                    "╔═══╤═══╤═══╤═══╤═══╤═══╗\n"
+                    "║HP │ATK│DEF│SPA│SPD│SPE║\n"
+                    "╠═══╪═══╪═══╪═══╪═══╪═══╣\n"
+                    f"║{pokemon['IVs']['hp']:^3}│"
+                    f"{pokemon['IVs']['attack']:^3}│"
+                    f"{pokemon['IVs']['defense']:^3}│"
+                    f"{pokemon['IVs']['spAttack']:^3}│"
+                    f"{pokemon['IVs']['spDefense']:^3}│"
+                    f"{pokemon['IVs']['speed']:^3}║\n"
+                    "╚═══╧═══╧═══╧═══╧═══╧═══╝"
+                    "```"
+                )
             else:
-                # Default to basic IV formatting
-                iv_field = 'HP: {} | ATK: {} | DEF: {} | SPATK: {} | SPDEF: {} | SPE: {}'.format(
-                    pokemon['IVs']['hp'],
-                    pokemon['IVs']['attack'],
-                    pokemon['IVs']['defense'],
-                    pokemon['IVs']['spAttack'],
-                    pokemon['IVs']['spDefense'],
-                    pokemon['IVs']['speed'])
+                # Basic IV table
+                iv_field = (
+                    f"HP: {pokemon['IVs']['hp']} | "
+                    f"ATK: {pokemon['IVs']['attack']} | "
+                    f"DEF: {pokemon['IVs']['defense']} | "
+                    f"SPATK: {pokemon['IVs']['spAttack']} | "
+                    f"SPDEF: {pokemon['IVs']['spDefense']} | "
+                    f"SPE: {pokemon['IVs']['speed']}"
+                )
             return iv_field
+
+        def PhaseSummary() -> dict:
+            return {
+                f"{pokemon['name']} Phase Encounters": f"{stats['pokemon'][pokemon['name']].get('phase_encounters', 0):,}",
+                "Phase Encounters": f"{stats['totals'].get('phase_encounters', 0):,} ({GetEncounterRate():,}/h)",
+                "Phase IV Sum Records": (
+                    f":arrow_up: `{stats['totals'].get('phase_highest_iv_sum', 0):,}` IV {stats['totals'].get('phase_highest_iv_sum_pokemon', 'N/A')}\n"
+                    f":arrow_down: `{stats['totals'].get('phase_lowest_iv_sum', 0):,}` IV {stats['totals'].get('phase_lowest_iv_sum_pokemon', 'N/A')}"
+                ),
+                "Phase SV Records": (
+                    f":arrow_up: `{stats['totals'].get('phase_highest_sv', 0):,}` SV {stats['totals'].get('phase_highest_sv_pokemon', 'N/A')}\n"
+                    f":arrow_down: `{stats['totals'].get('phase_lowest_sv', 0):,}` SV ✨ {stats['totals'].get('phase_lowest_sv_pokemon', 'N/A')} ✨"
+                ),
+                "Phase Same Pokémon Streak": (
+                    f"{stats['totals'].get('phase_streak', 0):,} {stats['totals'].get('phase_streak_pokemon', 'N/A')} were encountered in a row!"
+                ),
+                "Total Encounters": (
+                    f"{stats['totals'].get('encounters', 0):,} ({stats['totals'].get('shiny_encounters', 0):,}✨)"
+                ),
+            }
 
         try:
             # Discord shiny Pokémon encountered
-            if config['discord']['shiny_pokemon_encounter']['enable'] and pokemon['shiny']:
+            if config["discord"]["shiny_pokemon_encounter"]["enable"] and pokemon["shiny"]:
                 # Discord pings
-                discord_ping = ''
-                match config['discord']['shiny_pokemon_encounter']['ping_mode']:
-                    case 'role':
-                        discord_ping = '📢 <@&{}>'.format(config['discord']['shiny_pokemon_encounter']['ping_id'])
-                    case 'user':
-                        discord_ping = '📢 <@{}>'.format(config['discord']['shiny_pokemon_encounter']['ping_id'])
+                discord_ping = ""
+                match config["discord"]["shiny_pokemon_encounter"]["ping_mode"]:
+                    case "role":
+                        discord_ping = f"📢 <@&{config['discord']['shiny_pokemon_encounter']['ping_id']}>"
+                    case "user":
+                        discord_ping = f"📢 <@{config['discord']['shiny_pokemon_encounter']['ping_id']}>"
 
-                block = '\n❌Skipping catching shiny (on catch block list)!' if pokemon['name'] in block_list else ''
+                block = "\n❌Skipping catching shiny (on catch block list)!" if pokemon["name"] in block_list else ""
 
                 DiscordMessage(
-                    webhook_url=config['discord']['shiny_pokemon_encounter'].get('webhook_url', None),
-                    content='Encountered a shiny ✨ {} ✨! {}\n{}'.format(
-                            pokemon['name'],
-                            block,
-                            discord_ping
-                    ),
+                    webhook_url=config["discord"]["shiny_pokemon_encounter"].get("webhook_url", None),
+                    content=f"Encountered a shiny ✨ {pokemon['name']} ✨! {block}\n{discord_ping}",
                     embed=True,
-                    embed_title='Shiny encountered!',
-                    embed_description='{} {} (Lv. {:,}) at {}!'.format(
-                                    pokemon['nature'],
-                                    pokemon['name'],
-                                    pokemon['level'],
-                                    pokemon['metLocation']),
+                    embed_title="Shiny encountered!",
+                    embed_description=(
+                        f"{pokemon['nature']} {pokemon['name']} (Lv. {pokemon['level']:,}) at {pokemon['metLocation']}!"
+                    ),
                     embed_fields={
-                        'Shiny Value': '{:,}'.format(pokemon['shinyValue']),
-                        'IVs': IVField(),
-                        '{} Encounters'.format(
-                                        pokemon['name']): '{:,} ({:,}✨)'.format(
-                                        stats['pokemon'][pokemon['name']].get('encounters', 0),
-                                        stats['pokemon'][pokemon['name']].get('shiny_encounters', 0)),
-                        '{} Phase Encounters'.format(
-                                        pokemon['name']): '{:,}'.format(
-                                        stats['pokemon'][pokemon['name']].get('phase_encounters', 0)),
-                        'Phase Encounters': '{:,} ({:,}/h)'.format(
-                                        stats['totals'].get('phase_encounters', 0),
-                                        GetEncounterRate()),
-                        'Phase IV Sum Records': ':arrow_up: `{:,}` IV {}\n:arrow_down: `{:,}` IV {}'.format(
-                                        stats['totals'].get('phase_highest_iv_sum', 0),
-                                        stats['totals'].get('phase_highest_iv_sum_pokemon', 'N/A'),
-                                        stats['totals'].get('phase_lowest_iv_sum', 0),
-                                        stats['totals'].get('phase_lowest_iv_sum_pokemon', 'N/A')),
-                        'Phase SV Records': ':arrow_up: `{:,}` SV {}\n:arrow_down: `{:,}` SV ✨ {} ✨'.format(
-                                        stats['totals'].get('phase_highest_sv', 0),
-                                        stats['totals'].get('phase_highest_sv_pokemon', 'N/A'),
-                                        stats['totals'].get('phase_lowest_sv', 0),
-                                        stats['totals'].get('phase_lowest_sv_pokemon', 'N/A')),
-                        'Phase Same Pokémon Streak': '{:,} {} were encountered in a row!'.format(
-                                        stats['totals'].get('phase_streak', 0),
-                                        stats['totals'].get('phase_streak_pokemon', 'N/A')),
-                        'Total Encounters': '{:,} ({:,}✨)'.format(
-                                        stats['totals'].get('encounters', 0),
-                                        stats['totals'].get('shiny_encounters', 0))},
-                    embed_thumbnail='./sprites/pokemon/shiny/{}.png'.format(
-                                        pokemon['name']),
-                    embed_footer='PokéBot ID: {} | {}'.format(
-                        config['discord']['bot_id'],
-                        GetROM().game_name),
-                    embed_color='ffd242')
+                        "Shiny Value": f"{pokemon['shinyValue']:,}",
+                        "IVs": IVField(),
+                        f"{pokemon['name']} Encounters": f"{stats['pokemon'][pokemon['name']].get('encounters', 0):,} ({stats['pokemon'][pokemon['name']].get('shiny_encounters', 0):,}✨)",
+                        f"{pokemon['name']} Phase Encounters": f"{stats['pokemon'][pokemon['name']].get('phase_encounters', 0):,}",
+                    }
+                    | PhaseSummary(),
+                    embed_thumbnail=f"./sprites/pokemon/shiny/{pokemon['name']}.png",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
+                    embed_color="ffd242",
+                )
         except:
             console.print_exception(show_locals=True)
 
         try:
             # Discord Pokémon encounter milestones
-            if config['discord']['pokemon_encounter_milestones']['enable'] and \
-            stats['pokemon'][pokemon['name']].get('encounters', -1) % config['discord']['pokemon_encounter_milestones'].get('interval', 0) == 0:
+            if (
+                config["discord"]["pokemon_encounter_milestones"]["enable"]
+                and stats["pokemon"][pokemon["name"]].get("encounters", -1)
+                % config["discord"]["pokemon_encounter_milestones"].get("interval", 0)
+                == 0
+            ):
                 # Discord pings
-                discord_ping = ''
-                match config['discord']['pokemon_encounter_milestones']['ping_mode']:
-                    case 'role':
-                        discord_ping = '📢 <@&{}>'.format(config['discord']['pokemon_encounter_milestones']['ping_id'])
-                    case 'user':
-                        discord_ping = '📢 <@{}>'.format(config['discord']['pokemon_encounter_milestones']['ping_id'])
+                discord_ping = ""
+                match config["discord"]["pokemon_encounter_milestones"]["ping_mode"]:
+                    case "role":
+                        discord_ping = f"📢 <@&{config['discord']['pokemon_encounter_milestones']['ping_id']}>"
+                    case "user":
+                        discord_ping = f"📢 <@{config['discord']['pokemon_encounter_milestones']['ping_id']}>"
                 DiscordMessage(
-                    webhook_url=config['discord']['pokemon_encounter_milestones'].get('webhook_url', None),
-                    content='🎉 New milestone achieved!\n{}'.format(discord_ping),
+                    webhook_url=config["discord"]["pokemon_encounter_milestones"].get("webhook_url", None),
+                    content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
-                    embed_description='{:,} {} encounters!'.format(
-                                    stats['pokemon'][pokemon['name']].get('encounters', 0),
-                                    pokemon['name']),
-                    embed_thumbnail='./sprites/pokemon/normal/{}.png'.format(
-                                    pokemon['name']),
-                    embed_footer='PokéBot ID: {} | {}'.format(
-                        config['discord']['bot_id'],
-                        GetROM().game_name),
-                    embed_color='50C878')
+                    embed_description=f"{stats['pokemon'][pokemon['name']].get('encounters', 0):,} {pokemon['name']} encounters!",
+                    embed_thumbnail=f"./sprites/pokemon/normal/{pokemon['name']}.png",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
+                    embed_color="50C878",
+                )
         except:
             console.print_exception(show_locals=True)
 
         try:
             # Discord shiny Pokémon encounter milestones
-            if config['discord']['shiny_pokemon_encounter_milestones']['enable'] and \
-            pokemon['shiny'] and \
-            stats['pokemon'][pokemon['name']].get('shiny_encounters', -1) % config['discord']['shiny_pokemon_encounter_milestones'].get('interval', 0) == 0:
+            if (
+                config["discord"]["shiny_pokemon_encounter_milestones"]["enable"]
+                and pokemon["shiny"]
+                and stats["pokemon"][pokemon["name"]].get("shiny_encounters", -1)
+                % config["discord"]["shiny_pokemon_encounter_milestones"].get("interval", 0)
+                == 0
+            ):
                 # Discord pings
-                discord_ping = ''
-                match config['discord']['shiny_pokemon_encounter_milestones']['ping_mode']:
-                    case 'role':
-                        discord_ping = '📢 <@&{}>'.format(config['discord']['shiny_pokemon_encounter_milestones']['ping_id'])
-                    case 'user':
-                        discord_ping = '📢 <@{}>'.format(config['discord']['shiny_pokemon_encounter_milestones']['ping_id'])
+                discord_ping = ""
+                match config["discord"]["shiny_pokemon_encounter_milestones"]["ping_mode"]:
+                    case "role":
+                        discord_ping = f"📢 <@&{config['discord']['shiny_pokemon_encounter_milestones']['ping_id']}>"
+                    case "user":
+                        discord_ping = f"📢 <@{config['discord']['shiny_pokemon_encounter_milestones']['ping_id']}>"
                 DiscordMessage(
-                    webhook_url=config['discord']['shiny_pokemon_encounter_milestones'].get('webhook_url', None),
-                    content='🎉 New milestone achieved!\n{}'.format(discord_ping),
+                    webhook_url=config["discord"]["shiny_pokemon_encounter_milestones"].get("webhook_url", None),
+                    content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
-                    embed_description='{:,} shiny ✨ {} ✨ encounters!'.format(
-                                        stats['pokemon'][pokemon['name']].get('shiny_encounters', 0),
-                                        pokemon['name']),
-                    embed_thumbnail='./sprites/pokemon/shiny/{}.png'.format(
-                                        pokemon['name']),
-                    embed_footer='PokéBot ID: {} | {}'.format(
-                        config['discord']['bot_id'],
-                        GetROM().game_name),
-                    embed_color='ffd242')
+                    embed_description=f"{stats['pokemon'][pokemon['name']].get('shiny_encounters', 0):,} shiny ✨ {pokemon['name']} ✨ encounters!",
+                    embed_thumbnail=f"./sprites/pokemon/shiny/{pokemon['name']}.png",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
+                    embed_color="ffd242",
+                )
         except:
             console.print_exception(show_locals=True)
 
         try:
             # Discord total encounter milestones
-            if config['discord']['total_encounter_milestones']['enable'] and \
-            stats['totals'].get('encounters', -1) % config['discord']['total_encounter_milestones'].get('interval', 0) == 0:
+            if (
+                config["discord"]["total_encounter_milestones"]["enable"]
+                and stats["totals"].get("encounters", -1)
+                % config["discord"]["total_encounter_milestones"].get("interval", 0)
+                == 0
+            ):
                 # Discord pings
-                discord_ping = ''
-                match config['discord']['total_encounter_milestones']['ping_mode']:
-                    case 'role':
-                        discord_ping = '📢 <@&{}>'.format(config['discord']['total_encounter_milestones']['ping_id'])
-                    case 'user':
-                        discord_ping = '📢 <@{}>'.format(config['discord']['total_encounter_milestones']['ping_id'])
+                discord_ping = ""
+                match config["discord"]["total_encounter_milestones"]["ping_mode"]:
+                    case "role":
+                        discord_ping = f"📢 <@&{config['discord']['total_encounter_milestones']['ping_id']}>"
+                    case "user":
+                        discord_ping = f"📢 <@{config['discord']['total_encounter_milestones']['ping_id']}>"
+
+                embed_thumbnail = random.choice(
+                    [
+                        "Dive Ball",
+                        "Great Ball",
+                        "Light Ball",
+                        "Luxury Ball",
+                        "Master Ball",
+                        "Nest Ball",
+                        "Net Ball",
+                        "Poké Ball",
+                        "Premier Ball",
+                        "Repeat Ball",
+                        "Safari Ball",
+                        "Smoke Ball",
+                        "Timer Ball",
+                        "Ultra Ball",
+                    ]
+                )
+
                 DiscordMessage(
-                    webhook_url=config['discord']['total_encounter_milestones'].get('webhook_url', None),
-                    content='🎉 New milestone achieved!\n{}'.format(discord_ping),
+                    webhook_url=config["discord"]["total_encounter_milestones"].get("webhook_url", None),
+                    content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
-                    embed_description='{:,} total encounters!'.format(
-                                      stats['totals'].get('encounters', 0)),
-                    embed_thumbnail='./sprites/items/{}.png'.format(
-                        random.choice([
-                            'Dive Ball',
-                            'Great Ball',
-                            'Light Ball',
-                            'Luxury Ball',
-                            'Master Ball',
-                            'Nest Ball',
-                            'Net Ball',
-                            'Poké Ball',
-                            'Premier Ball',
-                            'Repeat Ball',
-                            'Safari Ball',
-                            'Smoke Ball',
-                            'Timer Ball',
-                            'Ultra Ball'])),
-                    embed_footer='PokéBot ID: {} | {}'.format(
-                        config['discord']['bot_id'],
-                        GetROM().game_name),
-                    embed_color='50C878')
+                    embed_description=f"{stats['totals'].get('encounters', 0):,} total encounters!",
+                    embed_thumbnail=f"./sprites/items/{embed_thumbnail}.png",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
+                    embed_color="50C878",
+                )
         except:
             console.print_exception(show_locals=True)
 
         try:
             # Discord phase encounter notifications
-            if config['discord']['phase_summary']['enable'] and \
-            not pokemon['shiny'] and \
-            (stats['totals'].get('phase_encounters', -1) == config['discord']['phase_summary'].get('first_interval', 0) or
-            (stats['totals'].get('phase_encounters', -1) > config['discord']['phase_summary'].get('first_interval', 0) and
-            stats['totals'].get('phase_encounters', -1) % config['discord']['phase_summary'].get('consequent_interval', 0) == 0)):
+            if (
+                config["discord"]["phase_summary"]["enable"]
+                and not pokemon["shiny"]
+                and (
+                    stats["totals"].get("phase_encounters", -1)
+                    == config["discord"]["phase_summary"].get("first_interval", 0)
+                    or (
+                        stats["totals"].get("phase_encounters", -1)
+                        > config["discord"]["phase_summary"].get("first_interval", 0)
+                        and stats["totals"].get("phase_encounters", -1)
+                        % config["discord"]["phase_summary"].get("consequent_interval", 0)
+                        == 0
+                    )
+                )
+            ):
                 # Discord pings
-                discord_ping = ''
-                match config['discord']['phase_summary']['ping_mode']:
-                    case 'role':
-                        discord_ping = '📢 <@&{}>'.format(config['discord']['phase_summary']['ping_id'])
-                    case 'user':
-                        discord_ping = '📢 <@{}>'.format(config['discord']['phase_summary']['ping_id'])
+                discord_ping = ""
+                match config["discord"]["phase_summary"]["ping_mode"]:
+                    case "role":
+                        discord_ping = f"📢 <@&{config['discord']['phase_summary']['ping_id']}>"
+                    case "user":
+                        discord_ping = f"📢 <@{config['discord']['phase_summary']['ping_id']}>"
                 DiscordMessage(
-                    webhook_url=config['discord']['phase_summary'].get('webhook_url', None),
-                    content='💀 The current phase has reached {:,} encounters!\n{}'.format(
-                            stats['totals'].get('phase_encounters', 0),
-                            discord_ping),
+                    webhook_url=config["discord"]["phase_summary"].get("webhook_url", None),
+                    content=f"💀 The current phase has reached {stats['totals'].get('phase_encounters', 0):,} encounters!\n{discord_ping}",
                     embed=True,
-                    embed_fields={
-                        'Phase Encounters': '{:,} ({:,}/h)'.format(
-                                                stats['totals'].get('phase_encounters', 0),
-                                                GetEncounterRate()),
-                        'Phase IV Sum Records': ':arrow_up: IV `{:,}` {}\n:arrow_down: IV `{:,}` {}'.format(
-                                                stats['totals'].get('phase_highest_iv_sum', 0),
-                                                stats['totals'].get('phase_highest_iv_sum_pokemon', 'N/A'),
-                                                stats['totals'].get('phase_lowest_iv_sum', 0),
-                                                stats['totals'].get('phase_lowest_iv_sum_pokemon', 'N/A')),
-                        'Phase SV Records': ':arrow_up: SV `{:,}` {}\n:arrow_down: SV `{:,}` {}'.format(
-                                                stats['totals'].get('phase_highest_sv', 0),
-                                                stats['totals'].get('phase_highest_sv_pokemon', 'N/A'),
-                                                stats['totals'].get('phase_lowest_sv', 0),
-                                                stats['totals'].get('phase_lowest_sv_pokemon', 'N/A')),
-                        'Phase Same Pokémon Streak': '{:,} {} were encountered in a row!'.format(
-                                                stats['totals'].get('phase_streak', 0),
-                                                stats['totals'].get('phase_streak_pokemon', 'N/A')),
-                        'Total Encounters': '{:,} ({:,}✨)'.format(
-                                                stats['totals'].get('encounters', 0),
-                                                stats['totals'].get('shiny_encounters', 0))},
-                    embed_footer='PokéBot ID: {} | {}'.format(
-                        config['discord']['bot_id'],
-                        GetROM().game_name),
-                    embed_color='D70040')
+                    embed_fields=PhaseSummary(),
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
+                    embed_color="D70040",
+                )
         except:
             console.print_exception(show_locals=True)
 
         try:
             # Discord anti-shiny Pokémon encountered
-            if config['discord']['anti_shiny_pokemon_encounter']['enable'] and (65528 <= pokemon['shinyValue'] <= 65535):
+            if config["discord"]["anti_shiny_pokemon_encounter"]["enable"] and (
+                65528 <= pokemon["shinyValue"] <= 65535
+            ):
                 # Discord pings
-                discord_ping = ''
-                match config['discord']['anti_shiny_pokemon_encounter']['ping_mode']:
-                    case 'role':
-                        discord_ping = '📢 <@&{}>'.format(config['discord']['anti_shiny_pokemon_encounter']['ping_id'])
-                    case 'user':
-                        discord_ping = '📢 <@{}>'.format(config['discord']['anti_shiny_pokemon_encounter']['ping_id'])
+                discord_ping = ""
+                match config["discord"]["anti_shiny_pokemon_encounter"]["ping_mode"]:
+                    case "role":
+                        discord_ping = f"📢 <@&{config['discord']['anti_shiny_pokemon_encounter']['ping_id']}>"
+                    case "user":
+                        discord_ping = f"📢 <@{config['discord']['anti_shiny_pokemon_encounter']['ping_id']}>"
                 DiscordMessage(
-                    webhook_url=config['discord']['anti_shiny_pokemon_encounter'].get('webhook_url', None),
-                    content='Encountered an anti-shiny 💀 {} 💀!\n{}'.format(
-                            pokemon['name'],
-                            discord_ping
-                    ),
+                    webhook_url=config["discord"]["anti_shiny_pokemon_encounter"].get("webhook_url", None),
+                    content=f"Encountered an anti-shiny 💀 {pokemon['name']} 💀!\n{discord_ping}",
                     embed=True,
-                    embed_title='Anti-Shiny encountered!',
-                    embed_description='{} {} (Lv. {:,}) at {}!'.format(
-                                    pokemon['nature'],
-                                    pokemon['name'],
-                                    pokemon['level'],
-                                    pokemon['metLocation']),
+                    embed_title="Anti-Shiny encountered!",
+                    embed_description=f"{pokemon['nature']} {pokemon['name']} (Lv. {pokemon['level']:,}) at {pokemon['metLocation']}!",
                     embed_fields={
-                        'Shiny Value': '{:,}'.format(pokemon['shinyValue']),
-                        'IVs': IVField(),
-                        '{} Encounters'.format(
-                                        pokemon['name']): '{:,} ({:,}✨)'.format(
-                                        stats['pokemon'][pokemon['name']].get('encounters', 0),
-                                        stats['pokemon'][pokemon['name']].get('shiny_encounters', 0)),
-                        '{} Phase Encounters'.format(
-                                        pokemon['name']): '{:,}'.format(
-                                        stats['pokemon'][pokemon['name']].get('phase_encounters', 0)),
-                        'Phase Encounters': '{:,} ({:,}/h)'.format(
-                                        stats['totals'].get('phase_encounters', 0),
-                                        GetEncounterRate()),
-                        'Phase IV Sum Records': ':arrow_up: `{:,}` IV {}\n:arrow_down: `{:,}` IV {}'.format(
-                                        stats['totals'].get('phase_highest_iv_sum', 0),
-                                        stats['totals'].get('phase_highest_iv_sum_pokemon', 'N/A'),
-                                        stats['totals'].get('phase_lowest_iv_sum', 0),
-                                        stats['totals'].get('phase_lowest_iv_sum_pokemon', 'N/A')),
-                        'Phase SV Records': ':arrow_up: `{:,}` SV {}\n:arrow_down: `{:,}` SV {}'.format(
-                                        stats['totals'].get('phase_highest_sv', 0),
-                                        stats['totals'].get('phase_highest_sv_pokemon', 'N/A'),
-                                        stats['totals'].get('phase_lowest_sv', 0),
-                                        stats['totals'].get('phase_lowest_sv_pokemon', 'N/A')),
-                        'Phase Same Pokémon Streak': '{:,} {} were encountered in a row!'.format(
-                                        stats['totals'].get('phase_streak', 0),
-                                        stats['totals'].get('phase_streak_pokemon', 'N/A')),
-                        'Total Encounters': '{:,} ({:,}✨)'.format(
-                                        stats['totals'].get('encounters', 0),
-                                        stats['totals'].get('shiny_encounters', 0))},
-                    embed_thumbnail='./sprites/pokemon/anti-shiny/{}.png'.format(
-                                        pokemon['name']),
-                    embed_footer='PokéBot ID: {} | {}'.format(
-                        config['discord']['bot_id'],
-                        GetROM().game_name),
-                    embed_color='000000')
+                        "Shiny Value": f"{pokemon['shinyValue']:,}",
+                        "IVs": IVField(),
+                        f"{pokemon['name']} Encounters": f"{stats['pokemon'][pokemon['name']].get('encounters', 0):,} ({stats['pokemon'][pokemon['name']].get('shiny_encounters', 0):,}✨)",
+                        f"{pokemon['name']} Phase Encounters": f"{stats['pokemon'][pokemon['name']].get('phase_encounters', 0):,}",
+                    }
+                    | PhaseSummary(),
+                    embed_thumbnail=f"./sprites/pokemon/anti-shiny/{pokemon['name']}.png",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
+                    embed_color="000000",
+                )
         except:
             console.print_exception(show_locals=True)
 
@@ -329,14 +287,14 @@ def CustomHooks(hook) -> NoReturn:
     try:
         # Post the most recent OBS stream screenshot to Discord
         # (screenshot is taken in Stats.py before phase resets)
-        if config['obs']['discord_webhook_url'] and pokemon['shiny']:
+        if config["obs"]["discord_webhook_url"] and pokemon["shiny"]:
+
             def OBSDiscordScreenshot():
-                time.sleep(3) # Give the screenshot some time to save to disk
-                images = glob.glob('{}*.png'.format(config['obs']['replay_dir']))
+                time.sleep(3)  # Give the screenshot some time to save to disk
+                images = glob.glob(f"{config['obs']['replay_dir']}*.png")
                 image = max(images, key=os.path.getctime)
-                DiscordMessage(
-                    webhook_url=config['obs'].get('discord_webhook_url', None),
-                    image=image)
+                DiscordMessage(webhook_url=config["obs"].get("discord_webhook_url", None), image=image)
+
             # Run in a thread to not hold up other hooks
             Thread(target=OBSDiscordScreenshot).start()
     except:
@@ -344,11 +302,14 @@ def CustomHooks(hook) -> NoReturn:
 
     try:
         # Save OBS replay buffer n frames after encountering a shiny
-        if config['obs']['replay_buffer'] and pokemon['shiny']:
+        if config["obs"]["replay_buffer"] and pokemon["shiny"]:
+
             def OBSReplayBuffer():
                 from modules.OBS import OBSHotKey
-                time.sleep(config['obs'].get('replay_buffer_delay', 0))
-                OBSHotKey('OBS_KEY_F12', pressCtrl=True)
+
+                time.sleep(config["obs"].get("replay_buffer_delay", 0))
+                OBSHotKey("OBS_KEY_F12", pressCtrl=True)
+
             # Run in a thread to not hold up other hooks
             Thread(target=OBSReplayBuffer).start()
     except:

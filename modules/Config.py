@@ -348,7 +348,7 @@ def LoadConfig(file_name: str, schema: str) -> dict:
             result = LoadConfigFile(file_path, schema)
 
     if result is None:
-        console.print('[bold red]Could not find any config file named {}.[/]'.format(file_name))
+        console.print(f"[bold red]Could not find any config file named {file_name}.[/]")
         sys.exit(1)
 
     return result
@@ -372,7 +372,7 @@ def LoadConfigFile(file_path: Path, schema: str) -> dict:
             return config
     except:
         console.print_exception(show_locals=True)
-        console.print('[bold red]Config file {} is invalid![/]'.format(str(file_path)))
+        console.print(f"[bold red]Config file {str(file_path)} is invalid![/]")
         sys.exit(1)
 
 
@@ -395,7 +395,7 @@ def LoadConfigFromDirectory(path: Path, allow_missing_files=False) -> None:
         if file_path.is_file():
             config[key] = LoadConfigFile(file_path, schemas[key])
         elif not allow_missing_files:
-            console.print('[bold red]Expected a config file {} could not be found.[/]'.format(str(file_path)))
+            console.print(f"[bold red]Expected a config file {str(file_path)} could not be found.[/]")
             sys.exit(1)
 
 

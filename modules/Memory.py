@@ -62,11 +62,9 @@ def WriteSymbol(name: str, data: bytes, offset: int = 0x0) -> bool:
     try:
         addr, length = GetSymbol(name)
         if len(data) + offset > length:
-            raise Exception('{} bytes of data provided, is too large for symbol {} ({} bytes)!'.format(
-                (len(data) + offset),
-                addr,
-                length
-            ))
+            raise Exception(
+                f"{len(data) + offset} bytes of data provided, is too large for symbol {addr} ({length} bytes)!"
+            )
 
         GetEmulator().WriteBytes(addr + offset, data)
         return True
@@ -79,20 +77,22 @@ def WriteSymbol(name: str, data: bytes, offset: int = 0x0) -> bool:
 
 def ParseTasks(pretty_names: bool = False) -> list:
     try:
-        gTasks = ReadSymbol('gTasks')
+        gTasks = ReadSymbol("gTasks")
         tasks = []
         for x in range(16):
-            name = GetSymbolName(unpack_uint32(gTasks[(x * 40):(x * 40 + 4)]) - 1, pretty_names)
-            if name == '':
-                name = str(gTasks[(x * 40):(x * 40 + 4)])
-            tasks.append({
-                'func': name,
-                'isActive': bool(gTasks[(x * 40 + 4)]),
-                'prev': gTasks[(x * 40 + 5)],
-                'next': gTasks[(x * 40 + 6)],
-                'priority': gTasks[(x * 40 + 7)],
-                'data': gTasks[(x * 40 + 8):(x * 40 + 40)]
-            })
+            name = GetSymbolName(unpack_uint32(gTasks[(x * 40) : (x * 40 + 4)]) - 1, pretty_names)
+            if name == "":
+                name = str(gTasks[(x * 40) : (x * 40 + 4)])
+            tasks.append(
+                {
+                    "func": name,
+                    "isActive": bool(gTasks[(x * 40 + 4)]),
+                    "prev": gTasks[(x * 40 + 5)],
+                    "next": gTasks[(x * 40 + 6)],
+                    "priority": gTasks[(x * 40 + 7)],
+                    "data": gTasks[(x * 40 + 8) : (x * 40 + 40)],
+                }
+            )
         return tasks
     except SystemExit:
         raise
@@ -103,7 +103,7 @@ def ParseTasks(pretty_names: bool = False) -> list:
 def GetTask(func: str) -> dict:
     tasks = ParseTasks()
     for task in tasks:
-        if task['func'] == func:
+        if task["func"] == func:
             return task
     return {}
 
@@ -124,14 +124,14 @@ def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
     try:
         if not size:
-            size = GetSymbol(f'GSAVEBLOCK{num}')[1]
-        if GetROM().game_title in ['POKEMON EMER', 'POKEMON FIRE', 'POKEMON LEAF']:
-            p_Trainer = unpack_uint32(ReadSymbol(f'gSaveBlock{num}Ptr'))
+            size = GetSymbol(f"GSAVEBLOCK{num}")[1]
+        if GetROM().game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+            p_Trainer = unpack_uint32(ReadSymbol(f"gSaveBlock{num}Ptr"))
             if p_Trainer == 0:
                 return None
             return GetEmulator().ReadBytes(p_Trainer + offset, size)
         else:
-            return ReadSymbol('gSaveBlock{}'.format(num), offset=offset, size=size)
+            return ReadSymbol(f"gSaveBlock{num}", offset=offset, size=size)
     except SystemExit:
         raise
     except:
@@ -142,9 +142,9 @@ def GetItemOffsets() -> list[tuple[int, int]]:
     # Game specific offsets
     # Source: https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Section_1_-_Team_.2F_Items
     game_title = GetROM().game_title
-    if game_title in ['POKEMON FIRE', 'POKEMON LEAF']:
+    if game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
         return [(0x298, 120), (0x310, 168), (0x3B8, 120), (0x430, 52), (0x464, 232), (0x54C, 172)]
-    elif game_title == 'POKEMON EMER':
+    elif game_title == "POKEMON EMER":
         return [(0x498, 200), (0x560, 120), (0x5D8, 120), (0x650, 64), (0x690, 256), (0x790, 184)]
     else:
         return [(0x498, 200), (0x560, 80), (0x5B0, 80), (0x600, 64), (0x640, 256), (0x740, 184)]
@@ -152,9 +152,9 @@ def GetItemOffsets() -> list[tuple[int, int]]:
 
 def GetItemKey() -> int:
     game_title = GetROM().game_title
-    if game_title in ['POKEMON FIRE', 'POKEMON LEAF']:
+    if game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
         return unpack_uint16(GetSaveBlock(2, 0xF20, 2))
-    elif game_title == 'POKEMON EMER':
+    elif game_title == "POKEMON EMER":
         return unpack_uint16(GetSaveBlock(2, 0xAC, 2))
     else:
         return 0
@@ -178,37 +178,36 @@ class GameState(IntEnum):
 
 
 def GetGameStateSymbol() -> str:
-    callback2 = ReadSymbol('gMain', 4, 4)  # gMain.callback2
+    callback2 = ReadSymbol("gMain", 4, 4)  # gMain.callback2
     addr = unpack_uint32(callback2) - 1
     return GetSymbolName(addr)
 
 
 def GetGameState() -> GameState:
     match GetGameStateSymbol():
-        case 'CB2_OVERWORLD':
+        case "CB2_OVERWORLD":
             return GameState.OVERWORLD
-        case 'BATTLEMAINCB2':
+        case "BATTLEMAINCB2":
             return GameState.BATTLE
-        case 'CB2_BAGMENURUN' | 'SUB_80A3118':
+        case "CB2_BAGMENURUN" | "SUB_80A3118":
             return GameState.BAG_MENU
-        case 'CB2_UPDATEPARTYMENU' | 'CB2_PARTYMENUMAIN':
+        case "CB2_UPDATEPARTYMENU" | "CB2_PARTYMENUMAIN":
             return GameState.PARTY_MENU
-        case 'CB2_INITBATTLE' | 'CB2_HANDLESTARTBATTLE':
+        case "CB2_INITBATTLE" | "CB2_HANDLESTARTBATTLE":
             return GameState.BATTLE_STARTING
-        case 'CB2_ENDWILDBATTLE':
+        case "CB2_ENDWILDBATTLE":
             return GameState.BATTLE_ENDING
-        case 'CB2_LOADMAP' | 'CB2_LOADMAP2' | 'CB2_DOCHANGEMAP' | 'SUB_810CC80':
+        case "CB2_LOADMAP" | "CB2_LOADMAP2" | "CB2_DOCHANGEMAP" | "SUB_810CC80":
             return GameState.CHANGE_MAP
-        case 'CB2_STARTERCHOOSE' | 'CB2_CHOOSESTARTER':
+        case "CB2_STARTERCHOOSE" | "CB2_CHOOSESTARTER":
             return GameState.CHOOSE_STARTER
-        case 'CB2_INITCOPYRIGHTSCREENAFTERBOOTUP' | 'CB2_WAITFADEBEFORESETUPINTRO' | 'CB2_SETUPINTRO' | 'CB2_INTRO' | \
-             'CB2_INITTITLESCREEN' | 'CB2_TITLESCREENRUN' | 'CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN' | \
-             'CB2_INITMAINMENU' | 'MAINCB2' | 'MAINCB2_INTRO':
+        case "CB2_INITCOPYRIGHTSCREENAFTERBOOTUP" | "CB2_WAITFADEBEFORESETUPINTRO" | "CB2_SETUPINTRO" | "CB2_INTRO" | \
+             "CB2_INITTITLESCREEN" | "CB2_TITLESCREENRUN" | "CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN" | \
+             "CB2_INITMAINMENU" | "MAINCB2" | "MAINCB2_INTRO":
             return GameState.TITLE_SCREEN
-        case 'CB2_MAINMENU':
+        case "CB2_MAINMENU":
             return GameState.MAIN_MENU
         case _:
-            # print(f"Unknown state: {state}")
             return GameState.UNKNOWN
 
 
@@ -217,4 +216,4 @@ def GameHasStarted() -> bool:
     Reports whether the game has progressed past the main menu (save loaded
     or new game started.)
     """
-    return ReadSymbol('sPlayTimeCounterState') != b'\x00' and 0 != int.from_bytes(ReadSymbol('gObjectEvents', 0x10, 9))
+    return ReadSymbol("sPlayTimeCounterState") != b"\x00" and 0 != int.from_bytes(ReadSymbol("gObjectEvents", 0x10, 9))
