@@ -59,7 +59,6 @@ def CustomHooks(hook) -> NoReturn:
 
         def PhaseSummary() -> dict:
             return {
-                f"{pokemon['name']} Phase Encounters": f"{stats['pokemon'][pokemon['name']].get('phase_encounters', 0):,}",
                 "Phase Encounters": f"{stats['totals'].get('phase_encounters', 0):,} ({GetEncounterRate():,}/h)",
                 "Phase IV Sum Records": (
                     f":arrow_up: `{stats['totals'].get('phase_highest_iv_sum', 0):,}` IV {stats['totals'].get('phase_highest_iv_sum_pokemon', 'N/A')}\n"
