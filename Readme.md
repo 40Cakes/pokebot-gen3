@@ -135,19 +135,19 @@ For modes that use soft resets such as starters, the bot attempts to hit a uniqu
 - If you notice too many dupes or resets taking too long, consider enabling `starters_rng` in [`config/cheats.yml`](#cheatsyml---cheats-config)
 
 ### R/S/E
-1. Select the `starter` in `config/general.yml` - `treecko`, `torchic` or `mudkip`
+1. Select the `starter` in `config/general.yml` - `Treecko`, `Torchic` or `Mudkip`
 2. Face the starters bag, and save the game (**in-game, not a save state**)
 3. Start the bot
 
 ### FR/LG
-1. Select the `starter` in `config/general.yml` - `bulbasaur`, `charmander` or `squirtle`
+1. Select the `starter` in `config/general.yml` - `Bulbasaur`, `Charmander` or `Squirtle`
 2. Face the desired PokéBall in Oak's lab, save the game (**in-game, not a save state**)
 3. Start the bot
 
 - **Note**: Even though you set the trainer to face the desired PokéBall, it is still important to set `starter` in the config! This option is used by the bot to track frames to ensure a unique starter is generated every time
 
 ### Johto (Emerald)
-1. Select the `starter` in `config/general.yml` - `chikorita`, `cyndaquil` or `totodile`
+1. Select the `starter` in `config/general.yml` - `Chikorita`, `Cyndaquil` or `Totodile`
 2. Face the desired PokéBall in Birch's lab, save the game (**in-game, not a save state**)
 3. Start the bot
 
