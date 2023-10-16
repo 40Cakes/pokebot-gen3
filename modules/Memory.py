@@ -1,10 +1,26 @@
-import struct
 import sys
+import struct
 from enum import IntEnum
 
 from modules.Console import console
 from modules.Game import GetSymbol, GetSymbolName
 from modules.Gui import GetEmulator, GetROM
+
+
+def unpack_uint16(bytes: bytes) -> int:
+    return struct.unpack("<H", bytes)[0]
+
+
+def unpack_uint32(bytes: bytes) -> int:
+    return struct.unpack("<I", bytes)[0]
+
+
+def pack_uint16(int: int) -> bytes:
+    return struct.pack("<H", int)
+
+
+def pack_uint32(int: int) -> bytes:
+    return struct.pack("<I", int)
 
 
 def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
@@ -66,7 +82,7 @@ def ParseTasks(pretty_names: bool = False) -> list:
         gTasks = ReadSymbol('gTasks')
         tasks = []
         for x in range(16):
-            name = GetSymbolName(int(struct.unpack('<I', gTasks[(x * 40):(x * 40 + 4)])[0]) - 1, pretty_names)
+            name = GetSymbolName(unpack_uint32(gTasks[(x * 40):(x * 40 + 4)]) - 1, pretty_names)
             if name == '':
                 name = str(gTasks[(x * 40):(x * 40 + 4)])
             tasks.append({
@@ -108,9 +124,9 @@ def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
     try:
         if not size:
-            size = GetSymbol('GSAVEBLOCK{}'.format(num))[1]
+            size = GetSymbol(f'GSAVEBLOCK{num}')[1]
         if GetROM().game_title in ['POKEMON EMER', 'POKEMON FIRE', 'POKEMON LEAF']:
-            p_Trainer = struct.unpack('<I', ReadSymbol('gSaveBlock{}Ptr'.format(num)))[0]
+            p_Trainer = unpack_uint32(ReadSymbol(f'gSaveBlock{num}Ptr'))
             if p_Trainer == 0:
                 return None
             return GetEmulator().ReadBytes(p_Trainer + offset, size)
@@ -137,9 +153,9 @@ def GetItemOffsets() -> list[tuple[int, int]]:
 def GetItemKey() -> int:
     game_title = GetROM().game_title
     if game_title in ['POKEMON FIRE', 'POKEMON LEAF']:
-        return struct.unpack('<H', GetSaveBlock(2, 0xF20, 2))[0]
+        return unpack_uint16(GetSaveBlock(2, 0xF20, 2))
     elif game_title == 'POKEMON EMER':
-        return struct.unpack('<H', GetSaveBlock(2, 0xAC, 2))[0]
+        return unpack_uint16(GetSaveBlock(2, 0xAC, 2))
     else:
         return 0
 
@@ -163,7 +179,7 @@ class GameState(IntEnum):
 
 def GetGameStateSymbol() -> str:
     callback2 = ReadSymbol('gMain', 4, 4)  # gMain.callback2
-    addr = int(struct.unpack('<I', callback2)[0]) - 1
+    addr = unpack_uint32(callback2) - 1
     return GetSymbolName(addr)
 
 

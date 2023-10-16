@@ -1,7 +1,6 @@
 import binascii
 import os
 import shutil
-import struct
 import tkinter as tk
 import zlib
 from pathlib import Path
@@ -9,6 +8,7 @@ from tkinter import ttk, filedialog, font
 from typing import IO, Union
 
 from modules.Game import SetROM, GetSymbol, DecodeString
+from modules.Memory import unpack_uint16, unpack_uint32
 from modules.Profiles import Profile, CreateProfile, ProfileDirectoryExists
 from modules.Roms import ListAvailableRoms
 from version import pokebot_name, pokebot_version
@@ -38,7 +38,7 @@ def MigrateSaveState(file: IO) -> Profile:
     # 'ROM not found' error.
     # mGBA stores the CRC32 checksum of the ROM in its save states, so we use that to
     # find the right one.
-    crc32 = struct.unpack('<I', state_data[8:12])[0]
+    crc32 = unpack_uint32(state_data[8:12])
     matching_rom = None
     for rom in ListAvailableRoms():
         with open(rom.file, 'rb') as rom_file:
@@ -55,7 +55,7 @@ def MigrateSaveState(file: IO) -> Profile:
     # save state instead of accessing a running emulator.
     if matching_rom.game_title in ['POKEMON EMER', 'POKEMON FIRE', 'POKEMON LEAF']:
         pointer_offset = (GetSymbol('gSaveBlock2Ptr')[0] & 0x7FFF) + 0x19000
-        pointer = struct.unpack('<I', state_data[pointer_offset:pointer_offset + 4])[0]
+        pointer = unpack_uint32(state_data[pointer_offset:pointer_offset + 4])
         save_block_offset = (pointer & 0x3FFFF) + 0x21000
         save_block = state_data[save_block_offset:save_block_offset + 12]
     else:
@@ -63,7 +63,7 @@ def MigrateSaveState(file: IO) -> Profile:
         save_block = state_data[save_block_offset:save_block_offset + 12]
 
     trainer_name = DecodeString(save_block[0:7])
-    trainer_id = struct.unpack('<H', save_block[10:12])[0]
+    trainer_id = unpack_uint16(save_block[10:12])
 
     profile_name = trainer_name
     n = 2
@@ -112,8 +112,8 @@ def GetStateDataFromFile(file: IO) -> tuple[bytes, Union[bytes, None]]:
         if len(extdata_type_bytes) != 4:
             break
 
-        extdata_type = struct.unpack('<I', extdata_type_bytes)[0]
-        extdata_length = struct.unpack('<I', file.read(4))[0]
+        extdata_type = unpack_uint32(extdata_type_bytes)
+        extdata_length = unpack_uint32(file.read(4))
 
         # We are only interested in save data, which is identified by type=2
         if extdata_type == 2:
@@ -147,7 +147,7 @@ def GetStateDataFromPNG(file: IO) -> tuple[bytes, Union[bytes, None]]:
         if chunk_type == b'gbAs':
             state_data = zlib.decompress(file.read(chunk_length))
         elif chunk_type == b'gbAx':
-            ext_type = struct.unpack('<I', file.read(4))[0]
+            ext_type = unpack_uint32(file.read(4))
             file.seek(4, os.SEEK_CUR)
             if ext_type == 2:
                 savegame_data = zlib.decompress(file.read(chunk_length - 8))
