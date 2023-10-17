@@ -103,7 +103,10 @@ Please do not seek support or complain if you find that your ROM hack does not w
 ***
 
 # 🤖 Bot Modes
-Modify the `bot_mode` parameter in `config/general.yml` to any of the following modes.
+- The bot mode can be changed at any time while the bot is running by using the menu on the UI
+- `manual` mode is the default mode
+- Press `Tab` to toggle between `manual` mode and a previously selected mode
+
 ***
 ## 🔧 `manual`
 Manual mode simply disables all bot inputs, allowing you to track encounters and stats on your own shiny hunts as you play the game normally.
@@ -129,30 +132,25 @@ The bot will mash random directions to spin on a single tile.
 ## 💼 `starters`
 Soft reset for starter Pokémon.
 
-For modes that use soft resets such as starters, the bot attempts to hit a unique frames to reduce the amount of repeated, identical Pokémon, this may cause soft resets to take progressively longer.
+- For modes that use soft resets such as starters, the bot will track RNG to ensure a unique frame is hit after every reset, this is to prevent repeatedly generating an identical Pokémon, this will cause soft resets to take progressively longer over time
+- If resets begin to take too long, it is recommended to start a new save file with a different TID to reset this delay or check out [`config/cheats.yml`](#cheatsyml---cheats-config)
+- **Note**: Even though you set the trainer to face the desired PokéBall, it is still important to set the correct `starter` in the config! This option is used by the bot to track frames to ensure a unique starter is generated every time
+- **Note**: For the time being, Johto starters will automatically enable the `starters` option in [`config/cheats.yml`](#cheatsyml---cheats-config), the shininess of the starter is checked via memhacks as start menu navigation is WIP (in future, shininess will be checked via the party summary menu)
 
-- If resets begin to take too long, it is recommended to start a new save file with a different TID to reset this delay
-- If you notice too many dupes or resets taking too long, consider enabling `starters_rng` in [`config/cheats.yml`](#cheatsyml---cheats-config)
-
-### R/S/E
+### RSE
 1. Select the `starter` in `config/general.yml` - `Treecko`, `Torchic` or `Mudkip`
 2. Face the starters bag, and save the game (**in-game, not a save state**)
 3. Start the bot
 
-### FR/LG
+### FRLG
 1. Select the `starter` in `config/general.yml` - `Bulbasaur`, `Charmander` or `Squirtle`
 2. Face the desired PokéBall in Oak's lab, save the game (**in-game, not a save state**)
 3. Start the bot
-
-- **Note**: Even though you set the trainer to face the desired PokéBall, it is still important to set `starter` in the config! This option is used by the bot to track frames to ensure a unique starter is generated every time
 
 ### Johto (Emerald)
 1. Select the `starter` in `config/general.yml` - `Chikorita`, `Cyndaquil` or `Totodile`
 2. Face the desired PokéBall in Birch's lab, save the game (**in-game, not a save state**)
 3. Start the bot
-
-- **Note**: Even though you set the trainer to face the desired PokéBall, it is still important to set `starter` in the config! This option is used by the bot to track frames to ensure a unique starter is generated every time
-- **Note**: For the time being, Johto starters will automatically enable the `starters` option in [`config/cheats.yml`](#cheatsyml---cheats-config), the shininess of the starter is checked via memhacks as start menu navigation is WIP (in future, shininess will be checked via the party summary menu)
 
 <details>
 <summary>✅🟨❌ Click here for support information</summary>
@@ -254,7 +252,7 @@ This file controls keyboard to GBA button mappings.
 <summary>Click to expand</summary>
 
 ### General
-`bot_mode` - set to desired mode (see [🤖 Bot Modes](#-bot-modes))
+`bot_mode` - set the bot to automatically launch into a specific mode (see [🤖 Bot Modes](#-bot-modes))
 
 `starter` - used when `bot_mode` set to `starters` (see [💼 starters](#-starters))
 
