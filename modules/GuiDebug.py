@@ -1,4 +1,3 @@
-import struct
 import time
 import tkinter
 from tkinter import ttk
@@ -8,7 +7,9 @@ from modules.Daycare import GetDaycareData, PokemonGender
 from modules.Game import DecodeString, _reverse_symbols
 from modules.Gui import DebugTab, GetEmulator
 from modules.Items import GetItems
-from modules.Memory import GetSymbol, ReadSymbol, ParseTasks, GetSymbolName, GameHasStarted
+from modules.Memory import GetSymbol, ReadSymbol, ParseTasks, GetSymbolName, GameHasStarted, unpack_uint16, \
+    unpack_uint32
+
 from modules.Pokemon import names_list, GetParty
 
 if TYPE_CHECKING:
@@ -138,8 +139,8 @@ class TasksTab(DebugTab):
         callback1 = ReadSymbol("gMain", 0, 4)
         callback2 = ReadSymbol("gMain", 4, 4)
 
-        cb1_addr = int(struct.unpack("<I", callback1)[0]) - 1
-        cb2_addr = int(struct.unpack("<I", callback2)[0]) - 1
+        cb1_addr = unpack_uint32(callback1) - 1
+        cb2_addr = unpack_uint32(callback2) - 1
 
         self._cb1_label.config(text=GetSymbolName(cb1_addr, pretty_name=True))
         self._cb2_label.config(text=GetSymbolName(cb2_addr, pretty_name=True))
@@ -191,17 +192,17 @@ class BattleTab(DebugTab):
             "Caught Mon Ball used": int(data[5] & 0x30),  #:4;       // 0x5
             "Wild Mon was Shiny": bool(data[5] & 0x40),  #:1;       // 0x5
             "Count Revives used": int(data[4]),
-            "Player Mon 1 Species": struct.unpack("<H", data[6:8])[0],
+            "Player Mon 1 Species": unpack_uint16(data[6:8]),
             "Player Mon 1 Name": DecodeString(data[8:19]),  # SpeciesName(battleResult.playerMon1Species)
             "Battle turn Counter": int(data[19]),
-            "Player Mon 2 Species": struct.unpack("<H", data[38:40])[0],
+            "Player Mon 2 Species": unpack_uint16(data[38:40]),
             "Player Mon 2 Name": DecodeString(data[20:31]),
             "PokeBall Throws": int(data[31]),
-            "Last Opponent Species": struct.unpack("<H", data[32:34])[0],
-            "Last Opponent Name": SpeciesName(struct.unpack("<H", data[32:34])[0]),
-            "Last used Move Player": struct.unpack("<H", data[34:36])[0],
-            "Last used Move Opponent": struct.unpack("<H", data[36:38])[0],
-            "Cought Mon Species": struct.unpack("<H", data[40:42])[0],
+            "Last Opponent Species": unpack_uint16(data[32:34]),
+            "Last Opponent Name": SpeciesName(unpack_uint16(data[32:34])),
+            "Last used Move Player": unpack_uint16(data[34:36]),
+            "Last used Move Opponent": unpack_uint16(data[36:38]),
+            "Cought Mon Species": unpack_uint16(data[40:42]),
             "Cought Mon Name": DecodeString(data[42:53]),
             "Catch Attempts": int(data[54]),
         }

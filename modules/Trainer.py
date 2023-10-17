@@ -1,9 +1,8 @@
-import struct
 from enum import IntEnum, Enum
 
 from modules.Game import DecodeString
 from modules.Gui import GetROM
-from modules.Memory import GetSaveBlock, ReadSymbol
+from modules.Memory import GetSaveBlock, ReadSymbol, unpack_uint16
 from modules.data.MapData import MapRSE, MapFRLG
 
 
@@ -62,10 +61,10 @@ class Trainer:
         return "girl" if int.from_bytes(GetSaveBlock(2, 0x8, 1)) else "boy"
 
     def GetTID(self) -> int:
-        return int(struct.unpack("<H", GetSaveBlock(2, 0xA, 2))[0])
+        return unpack_uint16(GetSaveBlock(2, 0xA, 2))
 
     def GetSID(self) -> int:
-        return int(struct.unpack("<H", GetSaveBlock(2, 0xC, 2))[0])
+        return unpack_uint16(GetSaveBlock(2, 0xC, 2))
 
     def GetMap(self) -> tuple:
         b_gTasks = ReadSymbol("gTasks", 0x58, 4)

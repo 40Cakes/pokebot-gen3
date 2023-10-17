@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import IntEnum
 from typing import Union
-from modules.Memory import GetSaveBlock
+from modules.Memory import GetSaveBlock, unpack_uint32
 from modules.Pokemon import ParsePokemon, pokemon_list
 
 
@@ -143,11 +143,11 @@ def GetDaycareData() -> Union[DaycareData, None]:
     return DaycareData(
         pokemon1=pokemon1,
         pokemon1_egg_groups=egg_groups1,
-        pokemon1_steps=int.from_bytes(data[0x88:0x8C], byteorder='little'),
+        pokemon1_steps=unpack_uint32(data[0x88:0x8C]),
         pokemon2=pokemon2,
         pokemon2_egg_groups=egg_groups2,
-        pokemon2_steps=int.from_bytes(data[0x114:0x118], byteorder='little'),
-        offspring_personality=int.from_bytes(data[0x118:0x11C], byteorder='little'),
+        pokemon2_steps=unpack_uint32(data[0x114:0x118]),
+        offspring_personality=unpack_uint32(data[0x118:0x11C]),
         step_counter=int(data[0x11C]),
         compatibility=DaycareCompatibility.CalculateFor(pokemon1, pokemon2)
     )

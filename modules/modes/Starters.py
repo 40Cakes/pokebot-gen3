@@ -1,11 +1,10 @@
 import random
-import struct
 from enum import Enum
 
 from modules.Config import config, ForceManualMode
 from modules.Console import console
 from modules.Gui import GetROM, GetEmulator
-from modules.Memory import ReadSymbol, GetGameState, GameState, GetTask, WriteSymbol
+from modules.Memory import ReadSymbol, GetGameState, GameState, GetTask, WriteSymbol, unpack_uint32, pack_uint32
 from modules.Navigation import FollowPath
 from modules.Pokemon import GetParty
 from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
@@ -125,7 +124,7 @@ class ModeStarters:
                             if config["cheats"]["starters_rng"]:
                                 self.update_state(ModeStarterStates.OVERWORLD)
                             else:
-                                rng = int(struct.unpack("<I", ReadSymbol("gRngValue", size=4))[0])
+                                rng = unpack_uint32(ReadSymbol("gRngValue"))
                                 if rng in self.rng_history:
                                     pass
                                 else:
@@ -144,7 +143,7 @@ class ModeStarters:
 
                         case ModeStarterStates.INJECT_RNG:
                             if config["cheats"]["starters_rng"]:
-                                WriteSymbol("gRngValue", struct.pack("<I", random.randint(0, 2**32 - 1)))
+                                WriteSymbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.SELECT_STARTER)
 
                         case ModeStarterStates.SELECT_STARTER:  # TODO can be made slightly faster by holding B through chat
@@ -222,7 +221,7 @@ class ModeStarters:
 
                         case ModeStarterStates.INJECT_RNG:
                             if config["cheats"]["starters_rng"]:
-                                WriteSymbol("gRngValue", struct.pack("<I", random.randint(0, 2**32 - 1)))
+                                WriteSymbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.YES_NO)
 
                         case ModeStarterStates.YES_NO:
@@ -236,7 +235,7 @@ class ModeStarters:
                             if config["cheats"]["starters_rng"]:
                                 self.update_state(ModeStarterStates.CONFIRM_STARTER)
                             else:
-                                rng = int(struct.unpack("<I", ReadSymbol("gRngValue", size=4))[0])
+                                rng = unpack_uint32(ReadSymbol("gRngValue"))
                                 if rng in self.rng_history:
                                     pass
                                 else:
@@ -301,7 +300,7 @@ class ModeStarters:
 
                         case ModeStarterStates.INJECT_RNG:
                             if config["cheats"]["starters_rng"]:
-                                WriteSymbol("gRngValue", struct.pack("<I", random.randint(0, 2**32 - 1)))
+                                WriteSymbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.BAG_MENU)
 
                         case ModeStarterStates.BAG_MENU:
@@ -328,7 +327,7 @@ class ModeStarters:
                             if config["cheats"]["starters_rng"]:
                                 self.update_state(ModeStarterStates.CONFIRM_STARTER)
                             else:
-                                rng = int(struct.unpack("<I", ReadSymbol("gRngValue", size=4))[0])
+                                rng = unpack_uint32(ReadSymbol("gRngValue"))
                                 if rng in self.rng_history:
                                     pass
                                 else:
