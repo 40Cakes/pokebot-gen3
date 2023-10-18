@@ -68,6 +68,10 @@ LOCATION_MAP = ["Littleroot Town", "Oldale Town", "Dewford Town", "Lavaridge Tow
 
 
 class Type:
+    """
+    This represents an elemental type such as Fight, Electric, etc.
+    """
+
     def __init__(self, index: int, name: str):
         self.index: int = index
         self.name: str = name
@@ -90,6 +94,10 @@ class Type:
 
 @dataclass
 class Move:
+    """
+    This represents a battle move, but not the connection to any particular Pokemon.
+    Think of it as the 'move species'.
+    """
     index: int
     name: str
     type: Type
@@ -136,6 +144,9 @@ class Move:
 
 @dataclass
 class LearnedMove:
+    """
+    This represents a move slot for an individual Pokemon.
+    """
     move: Move
     total_pp: int
     pp: int
@@ -147,6 +158,10 @@ class LearnedMove:
 
 @dataclass
 class StatsValues:
+    """
+    A collection class for all 6 stats; can be used as a convenience thing wherever a list of
+    stats is required (IVs, EVs, Pokemon stats, EV yields, ...)
+    """
     hp: int
     attack: int
     defence: int
@@ -169,7 +184,18 @@ class StatsValues:
         return self.__getattribute__(item)
 
     @classmethod
-    def calculate(cls, species: 'Species', ivs: 'StatsValues', evs: 'StatsValues', nature: 'Nature', level: int):
+    def calculate(cls, species: 'Species', ivs: 'StatsValues', evs: 'StatsValues', nature: 'Nature',
+                  level: int) -> 'StatsValues':
+        """
+        Re-calculates the current effective stats of a Pokemon. This is needed for boxed
+        Pokemon, that do not store their current stats anywhere.
+        :param species:
+        :param ivs:
+        :param evs:
+        :param nature:
+        :param level:
+        :return: The calculated set of battle stats for the Pokemon
+        """
         if species.national_dex_number == 292:
             # Shedinja always has 1 HP
             hp = 1
@@ -195,6 +221,9 @@ class StatsValues:
 
 @dataclass
 class ContestConditions:
+    """
+    Represents the stats that are being used in the Pokémon Contest, equivalent to `StatsValues`.
+    """
     coolness: int
     beauty: int
     cuteness: int
@@ -233,6 +262,9 @@ class ItemPocket(Enum):
 
 @dataclass
 class Item:
+    """
+    This represents an item type in the game.
+    """
     index: int
     name: str
     price: int
@@ -261,12 +293,19 @@ class Item:
 
 @dataclass
 class HeldItem:
+    """
+    Represents a possible held item for a Pokemon encounter, along with the probability of it
+    being held.
+    """
     item: Item
     probability: float
 
 
 @dataclass
 class Nature:
+    """
+    Represents a Pokemon nature and its stats modifiers.
+    """
     index: int
     name: str
     modifiers: dict[str, float]
@@ -311,6 +350,12 @@ class LevelUpType(Enum):
     Slow = 'Slow'
 
     def get_experience_needed_for_level(self, level: int) -> int:
+        """
+        Calculates how much total experience is needed to reach a given level. The formulas here
+        are taken straight from the decompliation project.
+        :param level: The level to check for
+        :return: The number of EXP required to reach that level
+        """
         if level == 0:
             return 0
         elif level == 1:
@@ -341,6 +386,12 @@ class LevelUpType(Enum):
             return (4 * (level ** 3)) // 5
 
     def get_level_from_total_experience(self, total_experience: int) -> int:
+        """
+        Calculates which level a Pokemon should be, given a number of total EXP.
+        This is required for box pokemon, that do not actually store their level.
+        :param total_experience: Total number of experience points
+        :return: The level a Pokemon would have with that amount of EXP
+        """
         level = 0
         while total_experience >= self.get_experience_needed_for_level(level + 1):
             level += 1
@@ -469,11 +520,34 @@ class PokerusStatus:
 
 
 class Pokemon:
+    """
+    Represents an individual Pokemon.
+
+    The only real data in here is the `self.data` property, which contains the 100-byte (party Pokemon)
+    or 80-byte (box Pokemon) string of data that everything else can be computed from.
+
+    So serialising or copying a Pokemon only requires to store/copy this property and nothing else.
+    The class will calculate everything else on-the-fly.
+    """
+
     def __init__(self, data: bytes):
         self.data = data
 
     @cached_property
     def _decrypted_data(self) -> bytes:
+        """
+        Returns the decrypted Pokemon data and also puts the substructures in a consistent order.
+
+        For more information regarding encryption and substructure ordering, see:
+        https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Format
+
+        This is a `cached_property`, so it only runs once regardless of how many times it is called.
+
+        It puts the substructures in the same order as they are listed on Bulbapedia, to make working
+        with offsets a bit easier.
+
+        :return: The decrypted and re-ordered data for this Pokemon.
+        """
         order = POKEMON_DATA_SUBSTRUCTS_ORDER[self.personality_value % 24]
         u32le = numpy.dtype('<u4')
 
@@ -487,11 +561,15 @@ class Pokemon:
 
     @property
     def _character_set(self) -> Literal['international', 'japanese']:
-        return 'japanese' if self.data[18] == 1 else 'international'
-
-    @property
-    def is_empty(self) -> bool:
-        return self.data[19] & 0x02 == 0
+        """
+        Figures out which character set needs to be used for decoding nickname and
+        original trainer name of this Pokemon.
+        :return: The character table name as supported by `DecodeString()`
+        """
+        if self.language == ROMLanguage.Japanese:
+            return 'japanese'
+        else:
+            return 'international'
 
     def calculate_checksum(self) -> int:
         words = struct.unpack('<24H', self._decrypted_data[32:80])
@@ -503,6 +581,15 @@ class Pokemon:
     @property
     def is_valid(self) -> bool:
         return self.get_data_checksum() == self.calculate_checksum()
+
+    @property
+    def is_empty(self) -> bool:
+        """
+        Since many places in memory _might_ contain a Pokemon but also might not (all zeros or something),
+        this checks whether a given block of data is actually a Pokemon the same way the game does.
+        :return: Whether or not the data represents a Pokemon or is just an empty slot.
+        """
+        return self.data[19] & 0x02 == 0
 
     # ==========================================
     # Unencrypted values (offsets 0 through 32)
@@ -839,6 +926,16 @@ class Pokemon:
                 return f'{self.species.name} (lvl. {self.level})'
 
     def to_json(self):
+        """
+        Converts the Pokemon data into a simple dict, which can then be used for JSON-encoding
+        the data.
+
+        This is not meant to be used in new code unless truly necessary. It is mainly here so
+        we can continue to provide external consumers with the same data structures as before
+        (it is currently being used for the WebServer and for `shiny_log.json`.)
+
+        :return: A legacy-format dictionary containing data about this Pokemon
+        """
         moves = []
         for i in range(4):
             learned_move = self.move(i)
@@ -1128,7 +1225,7 @@ def GetParty() -> list[Pokemon]:
         mon = parse_pokemon(ReadSymbol('gPlayerParty', o, o + 100))
 
         # It's possible for party data to be written while we are trying to read it, in which case
-        # the checksum would be wrong and `ParsePokemon()` returns `None`.
+        # the checksum would be wrong and `parse_pokemon()` returns `None`.
         #
         # In order to still get a valid result, we will 'peek' into next frame's memory by
         # (1) advancing the emulation by one frame, (2) reading the memory, (3) restoring the previous
