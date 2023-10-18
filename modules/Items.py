@@ -1,11 +1,6 @@
-import json
-
 from modules.Console import console
-from modules.Files import ReadFile
 from modules.Memory import GetSaveBlock, GetItemOffsets, GetItemKey, unpack_uint16
-
-item_list = json.loads(ReadFile("./modules/data/items.json"))
-
+from modules.Pokemon import get_item_by_index
 
 def GetItems() -> dict:
     """
@@ -29,8 +24,8 @@ def GetItems() -> dict:
                 q = unpack_uint16(b_Items[p + (j * 4 + 2):p + (j * 4 + 4)])
                 item_id = unpack_uint16(b_Items[p + (j * 4):p + (j * 4 + 2)])
 
-                if item_id and item_id < len(item_list):
-                    name = item_list[item_id]
+                if item_id:
+                    name = get_item_by_index(item_id).name
                     quantity = int(q ^ GetItemKey()) if i != 0 else q
                     items[pockets[i]][name] = quantity
         return items

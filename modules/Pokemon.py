@@ -1,258 +1,1131 @@
 import json
-import numpy
 import struct
+from dataclasses import dataclass
+from enum import Enum
+from functools import cached_property
+from pathlib import Path
+from typing import Literal, Union
+
+import numpy
 
 from modules.Console import console
-from modules.Files import ReadFile
+from modules.Game import DecodeString
 from modules.Gui import GetEmulator
-from modules.Items import item_list
-from modules.Memory import ReadSymbol, unpack_uint16, unpack_uint32
+from modules.Memory import unpack_uint32, unpack_uint16, ReadSymbol
+from modules.Roms import ROMLanguage
 
-moves_list = json.loads(ReadFile('./modules/data/moves.json'))
-names_list = json.loads(ReadFile('./modules/data/names.json'))
-natures_list = json.loads(ReadFile('./modules/data/natures.json'))
-nat_ids_list = json.loads(ReadFile('./modules/data/nat-ids.json'))
-exp_groups_list = json.loads(ReadFile('./modules/data/exp-groups.json'))
-pokemon_list = json.loads(ReadFile('./modules/data/pokemon.json'))
-location_list = json.loads(ReadFile('./modules/data/locations.json'))
-hidden_powers_list = json.loads(ReadFile('./modules/data/hidden-powers.json'))
+DATA_DIRECTORY = Path(__file__).parent / 'data'
+
+# Some substructures in the data are in a different order each time, depending
+# on the Personality Value of the Pokémon. This is a lookup table for that.
+# see: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Substructure_order
+POKEMON_DATA_SUBSTRUCTS_ORDER = [
+    (0, 1, 2, 3), (0, 1, 3, 2), (0, 2, 1, 3), (0, 3, 1, 2), (0, 2, 3, 1), (0, 3, 2, 1), (1, 0, 2, 3), (1, 0, 3, 2),
+    (2, 0, 1, 3), (3, 0, 1, 2), (2, 0, 3, 1), (3, 0, 2, 1), (1, 2, 0, 3), (1, 3, 0, 2), (2, 1, 0, 3), (3, 1, 0, 2),
+    (2, 3, 0, 1), (3, 2, 0, 1), (1, 2, 3, 0), (1, 3, 2, 0), (2, 1, 3, 0), (3, 1, 2, 0), (2, 3, 1, 0), (3, 2, 1, 0),
+]
+
+HIDDEN_POWER_MAP = ["Fighting", "Flying", "Poison", "Ground", "Rock", "Bug", "Ghost", "Steel", "Fire", "Water", "Grass",
+                    "Electric", "Psychic", "Ice", "Dragon", "Dark"]
+
+LOCATION_MAP = ["Littleroot Town", "Oldale Town", "Dewford Town", "Lavaridge Town", "Fallarbor Town", "Verdanturf Town",
+                "Pacifidlog Town", "Petalburg City", "Slateport City", "Mauville City", "Rustboro City", "Fortree City",
+                "Lilycove City", "Mossdeep City", "Sootopolis City", "Ever Grande City", "Route 101", "Route 102",
+                "Route 103", "Route 104", "Route 105", "Route 106", "Route 107", "Route 108", "Route 109", "Route 110",
+                "Route 111", "Route 112", "Route 113", "Route 114", "Route 115", "Route 116", "Route 117", "Route 118",
+                "Route 119", "Route 120", "Route 121", "Route 122", "Route 123", "Route 124", "Route 125", "Route 126",
+                "Route 127", "Route 128", "Route 129", "Route 130", "Route 131", "Route 132", "Route 133", "Route 134",
+                "Underwater (Route 124)", "Underwater (Route 126)", "Underwater (Route 127)", "Underwater (Route 128)",
+                "Underwater (Sootopolis City)", "Granite Cave", "Mt. Chimney", "Safari Zone",
+                "Battle TowerRS/Battle FrontierE", "Petalburg Woods", "Rusturf Tunnel", "Abandoned Ship",
+                "New Mauville", "Meteor Falls", "Meteor Falls (unused)", "Mt. Pyre",
+                "Hideout* (Magma HideoutR/Aqua HideoutS)", "Shoal Cave", "Seafloor Cavern",
+                "Underwater (Seafloor Cavern)", "Victory Road", "Mirage Island", "Cave of Origin", "Southern Island",
+                "Fiery Path", "Fiery Path (unused)", "Jagged Pass", "Jagged Pass (unused)", "Sealed Chamber",
+                "Underwater (Route 134)", "Scorched Slab", "Island Cave", "Desert Ruins", "Ancient Tomb",
+                "Inside of Truck", "Sky Pillar", "Secret Base", "Ferry", "Pallet Town", "Viridian City", "Pewter City",
+                "Cerulean City", "Lavender Town", "Vermilion City", "Celadon City", "Fuchsia City", "Cinnabar Island",
+                "Indigo Plateau", "Saffron City", "Route 4 (Pokémon Center)", "Route 10 (Pokémon Center)", "Route 1",
+                "Route 2", "Route 3", "Route 4", "Route 5", "Route 6", "Route 7", "Route 8", "Route 9", "Route 10",
+                "Route 11", "Route 12", "Route 13", "Route 14", "Route 15", "Route 16", "Route 17", "Route 18",
+                "Route 19", "Route 20", "Route 21", "Route 22", "Route 23", "Route 24", "Route 25", "Viridian Forest",
+                "Mt. Moon", "S.S. Anne", "Underground Path (Routes 5-6)", "Underground Path (Routes 7-8)",
+                "Diglett's Cave", "Victory Road", "Rocket Hideout", "Silph Co.", "Pokémon Mansion", "Safari Zone",
+                "Pokémon League", "Rock Tunnel", "Seafoam Islands", "Pokémon Tower", "Cerulean Cave", "Power Plant",
+                "One Island", "Two Island", "Three Island", "Four Island", "Five Island", "Seven Island", "Six Island",
+                "Kindle Road", "Treasure Beach", "Cape Brink", "Bond Bridge", "Three Isle Port", "Sevii Isle 6",
+                "Sevii Isle 7", "Sevii Isle 8", "Sevii Isle 9", "Resort Gorgeous", "Water Labyrinth",
+                "Five Isle Meadow", "Memorial Pillar", "Outcast Island", "Green Path", "Water Path", "Ruin Valley",
+                "Trainer Tower (exterior)", "Canyon Entrance", "Sevault Canyon", "Tanoby Ruins", "Sevii Isle 22",
+                "Sevii Isle 23", "Sevii Isle 24", "Navel Rock", "Mt. Ember", "Berry Forest", "Icefall Cave",
+                "Rocket Warehouse", "Trainer Tower", "Dotted Hole", "Lost Cave", "Pattern Bush", "Altering Cave",
+                "Tanoby Chambers", "Three Isle Path", "Tanoby Key", "Birth Island", "Monean Chamber", "Liptoo Chamber",
+                "Weepth Chamber", "Dilford Chamber", "Scufib Chamber", "Rixy Chamber", "Viapois Chamber", "Ember Spa",
+                "Special Area", "Aqua Hideout", "Magma Hideout", "Mirage Tower", "Birth Island", "Faraway Island",
+                "Artisan Cave", "Marine Cave", "Underwater (Marine Cave)", "Terra Cave", "Underwater (Route 105)",
+                "Underwater (Route 125)", "Underwater (Route 129)", "Desert Underpass", "Altering Cave", "Navel Rock",
+                "Trainer Hill", "(gift egg)", "(in-game trade)", "(fateful encounter)"]
 
 
-def ParsePokemon(b_Pokemon: bytes) -> dict:
-    """
-    Parses raw Pokémon byte data.
-    See: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
+class Type:
+    def __init__(self, index: int, name: str):
+        self.index: int = index
+        self.name: str = name
+        self.kind: str = '???'
+        if index < 9:
+            self.kind = 'Physical'
+        else:
+            self.kind = 'Special'
+        self._effectiveness: dict['Type', float] = {}
 
-    :param b_Pokemon: Pokémon bytes (100 bytes) !TODO - PC mons are only 80 bytes
-    :return: Pokémon (dict)
-    """
-    # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Substructure_order
-    substructs = ['GAEM', 'GAME', 'GEAM', 'GEMA', 'GMAE', 'GMEA', 'AGEM', 'AGME', 'AEGM', 'AEMG', 'AMGE', 'AMEG',
-                  'EGAM', 'EGMA', 'EAGM', 'EAMG', 'EMGA', 'EMAG', 'MGAE', 'MGEA', 'MAGE', 'MAEG', 'MEGA', 'MEAG']
+    def set_effectiveness(self, other_type: 'Type', effectiveness: float):
+        self._effectiveness[other_type] = effectiveness
 
-    def SpeciesName(value: int) -> str:
-        if value > len(names_list):
-            return ''
-        return names_list[value - 1]
+    def get_effectiveness_against(self, other_type: 'Type') -> float:
+        return self._effectiveness.get(other_type, 1)
 
-    def NationalDexID(value: int) -> int:
-        if value <= 251:
-            return value
-        if value >= 413:
-            return 201
-        ix = value - 277
-        if ix < len(nat_ids_list):
-            return nat_ids_list[ix]
+    def __str__(self):
+        return self.name
 
-    def Language(value: int) -> str:
-        match value:
-            case 1:
-                return 'J'
-            case 2:
-                return 'E'
-            case 3:
-                return 'F'
-            case 4:
-                return 'I'
-            case 5:
-                return 'D'
-            case 7:
-                return 'S'
 
-    def OriginGame(value: int) -> str:
-        match value:
-            case 1:
-                return 'Sapphire'
-            case 2:
-                return 'Ruby'
-            case 3:
-                return 'Emerald'
-            case 4:
-                return 'FireRed'
-            case 5:
-                return 'LeafGreen'
-            case 15:
-                return 'Colosseum/XD'
+@dataclass
+class Move:
+    index: int
+    name: str
+    type: Type
+    accuracy: float
+    # This is the accuracy for a secondary effect, such as optional
+    # status changes etc.
+    secondary_accuracy: float
+    pp: int
+    priority: int
+    base_power: int
+    effect: str
+    target: str
+    makes_contact: bool
+    affected_by_protect: bool
+    affected_by_magic_coat: bool
+    affected_by_snatch: bool
+    usable_with_mirror_move: bool
+    affected_by_kings_rock: bool
 
-    def Moves(value: bytes) -> list:
-        moves = []
-        for i in range(0, 4):
-            move_id = unpack_uint16(value[(i * 2):((i + 1) * 2)])
-            if id == 0:
-                continue
-            moves.append(moves_list[move_id])
-            moves[i]['remaining_pp'] = int(value[(i + 8)])
-        return moves
+    def __str__(self):
+        return self.name
 
-    # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Encryption
-    def DecryptSubSection(data: bytes, key: int):
-        return struct.pack('<III',
-                           unpack_uint32(data[0:4]) ^ key,
-                           unpack_uint32(data[4:8]) ^ key,
-                           unpack_uint32(data[8:12]) ^ key)
+    @classmethod
+    def from_dict(cls, index: int, data: dict) -> 'Move':
+        return Move(
+            index=index,
+            name=data['name'],
+            type=get_type_by_name(data['type']),
+            accuracy=float(data['accuracy']),
+            secondary_accuracy=float(data['secondary_accuracy']),
+            pp=data['pp'],
+            priority=data['priority'],
+            base_power=data['base_power'],
+            effect=data['effect'],
+            target=data['target'],
+            makes_contact=data['makes_contact'],
+            affected_by_protect=data['affected_by_protect'],
+            affected_by_magic_coat=data['affected_by_magic_coat'],
+            affected_by_snatch=data['affected_by_snatch'],
+            usable_with_mirror_move=data['usable_with_mirror_move'],
+            affected_by_kings_rock=data['affected_by_kings_rock'],
+        )
 
-    try:
-        pid = unpack_uint32(b_Pokemon[0:4])
-        ot = unpack_uint32(b_Pokemon[4:8])
 
-        # Unpack data substructures
-        # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
-        # https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
-        key = ot ^ pid
-        data = b_Pokemon[32:80]
-        order = pid % 0x18
+@dataclass
+class LearnedMove:
+    move: Move
+    total_pp: int
+    pp: int
+    added_pps: int
 
-        order_string = substructs[order]
-        sections = {}
-        checksum = 0
-        for i in range(0, 4):
-            section = order_string[i]
-            section_data = data[(i*12):((i+1)*12)]
-            decrypted = DecryptSubSection(section_data, key)
-            sections[section] = decrypted
-            for c in range(0, 6):
-                checksum += unpack_uint16(decrypted[c*2:(c*2)+2])
-                checksum &= 0xFFFF
+    def __str__(self):
+        return f'{self.move.name} ({self.pp} / {self.total_pp})'
 
-        valid = True if not unpack_uint16(b_Pokemon[28:30]) ^ checksum else False
-        if not valid:
+
+@dataclass
+class StatsValues:
+    hp: int
+    attack: int
+    defence: int
+    speed: int
+    special_attack: int
+    special_defence: int
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'StatsValues':
+        return StatsValues(
+            data.get('hp', 0),
+            data.get('attack', 0),
+            data.get('defence', 0),
+            data.get('speed', 0),
+            data.get('special_attack', 0),
+            data.get('special_defence', 0),
+        )
+
+    def __getitem__(self, item):
+        return self.__getattribute__(item)
+
+    @classmethod
+    def calculate(cls, species: 'Species', ivs: 'StatsValues', evs: 'StatsValues', nature: 'Nature', level: int):
+        if species.national_dex_number == 292:
+            # Shedinja always has 1 HP
+            hp = 1
+        else:
+            hp = ((2 * species.base_stats.hp + ivs.hp + (evs.hp // 4)) * level) / 100 + 5 + level
+
+        stats = {}
+        for i in ['attack', 'defence', 'speed', 'special_attack', 'special_defence']:
+            stats[i] = (((2 * species.base_stats[i] + ivs[i] + (evs[i] // 4)) * level) // 100 + 5) * nature.modifiers[i]
+
+        return cls(
+            hp=hp,
+            attack=stats['attack'],
+            defence=stats['defence'],
+            speed=stats['speed'],
+            special_attack=stats['special_attack'],
+            special_defence=stats['special_defence']
+        )
+
+    def sum(self) -> int:
+        return self.hp + self.attack + self.defence + self.speed + self.special_attack + self.special_defence
+
+
+@dataclass
+class ContestConditions:
+    coolness: int
+    beauty: int
+    cuteness: int
+    smartness: int
+    toughness: int
+    feel: int
+
+
+class ItemType(Enum):
+    Mail = "mail",
+    UsableOutsideBattle = "usable_outside_battle"
+    UsableInCertainLocatiosn = "usable_in_certain_locations"
+    PokeblockCase = "pokeblock_case"
+    NotUsableOutsideBattle = "not_usable_outside_battle"
+
+    def __str__(self):
+        return self.value
+
+    @classmethod
+    def from_value(cls, value: str) -> 'ItemType':
+        for name, member in ItemType.__members__.items():
+            if member.value == value:
+                return member
+
+
+class ItemPocket(Enum):
+    Items = "items"
+    PokeBalls = "poke_balls"
+    TmsAndHms = "tms_and_hms"
+    Berries = "berries"
+    KeyItems = "key_items"
+
+    def __str__(self):
+        return self.value
+
+
+@dataclass
+class Item:
+    index: int
+    name: str
+    price: int
+    type: ItemType
+    pocket: ItemPocket
+    parameter: int
+    extra_parameter: int
+
+    @classmethod
+    def from_dict(cls, index: int, data: dict) -> 'Item':
+        if data['pocket'] == 'poke_balls':
+            item_type = data['type']
+        else:
+            item_type = ItemType.from_value(data['type'])
+
+        return Item(
+            index=index,
+            name=data['name'],
+            price=data['price'],
+            type=item_type,
+            pocket=ItemPocket(data['pocket']),
+            parameter=data['parameter'],
+            extra_parameter=data['extra_parameter']
+        )
+
+
+@dataclass
+class HeldItem:
+    item: Item
+    probability: float
+
+
+@dataclass
+class Nature:
+    index: int
+    name: str
+    modifiers: dict[str, float]
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def from_dict(cls, index: int, data: dict) -> 'Nature':
+        return Nature(
+            index=index,
+            name=data['name'],
+            modifiers={
+                'attack': data['attack_modifier'],
+                'defence': data['defence_modifier'],
+                'speed': data['speed_modifier'],
+                'special_attack': data['special_attack_modifier'],
+                'special_defence': data['special_defence_modifier'],
+            }
+        )
+
+
+@dataclass
+class Ability:
+    index: int
+    name: str
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def from_dict(cls, index: int, data: dict) -> 'Ability':
+        return Ability(index=index, name=data['name'])
+
+
+class LevelUpType(Enum):
+    MediumFast = 'Medium Fast'
+    Erratic = 'Erratic'
+    Fluctuating = 'Fluctuating'
+    MediumSlow = 'Medium Slow'
+    Fast = 'Fast'
+    Slow = 'Slow'
+
+    def get_experience_needed_for_level(self, level: int) -> int:
+        if level == 0:
+            return 0
+        elif level == 1:
+            return 1
+        elif self == LevelUpType.MediumSlow:
+            return ((6 * (level ** 3)) // 5) - (15 * (level ** 2)) + (100 * level) - 140
+        elif self == LevelUpType.Erratic:
+            if level <= 50:
+                return (100 - level) * (level ** 3) // 50
+            elif level <= 68:
+                return (150 - level) * (level ** 3) // 100
+            elif level <= 98:
+                return ((1911 - 10 * level) // 3) * (level ** 3) // 500
+            else:
+                return (160 - level) * (level ** 3) // 100
+        elif self == LevelUpType.Fluctuating:
+            if level <= 15:
+                return ((level + 1) // 3 + 24) * (level ** 3) // 50
+            elif level <= 36:
+                return (level + 14) * (level ** 3) // 50
+            else:
+                return ((level // 2) + 32) * (level ** 3) // 50
+        elif self == LevelUpType.MediumFast:
+            return level ** 3
+        elif self == LevelUpType.Slow:
+            return (5 * (level ** 3)) // 4
+        elif self == LevelUpType.Fast:
+            return (4 * (level ** 3)) // 5
+
+    def get_level_from_total_experience(self, total_experience: int) -> int:
+        level = 0
+        while total_experience >= self.get_experience_needed_for_level(level + 1):
+            level += 1
+        return level
+
+
+@dataclass
+class Species:
+    index: int
+    national_dex_number: int
+    hoenn_dex_number: int
+    name: str
+    types: list[Type]
+    abilities: list[Ability]
+    held_items: list[HeldItem]
+    base_stats: StatsValues
+    gender_ratio: int
+    egg_cycles: int
+    base_friendship: int
+    catch_rate: int
+    safari_zone_flee_probability: int
+    level_up_type: LevelUpType
+    egg_groups: list[str]
+    base_experience_yield: int
+    ev_yield: StatsValues
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def from_dict(cls, index: int, data: dict):
+        return Species(
+            index=index,
+            national_dex_number=data['national_dex_number'],
+            hoenn_dex_number=data['hoenn_dex_number'],
+            name=data['name'],
+            types=list(map(get_type_by_name, data['types'])),
+            abilities=list(map(get_ability_by_name, data['abilities'])),
+            held_items=list(map(lambda e: HeldItem(e[0], e[1]), data['held_items'])),
+            base_stats=StatsValues.from_dict(data['base_stats']),
+            gender_ratio=data['gender_ratio'],
+            egg_cycles=data['egg_cycles'],
+            base_friendship=data['base_friendship'],
+            catch_rate=data['catch_rate'],
+            safari_zone_flee_probability=data['safari_zone_flee_probability'],
+            level_up_type=LevelUpType(data['level_up_type']),
+            egg_groups=data['egg_groups'],
+            base_experience_yield=data['base_experience_yield'],
+            ev_yield=StatsValues.from_dict(data['ev_yield']),
+        )
+
+
+@dataclass
+class OriginalTrainer:
+    id: int
+    secret_id: int
+    name: str
+    gender: Literal['male', 'female']
+
+
+class Marking(Enum):
+    Circle = '●'
+    Square = '■'
+    Triangle = '▲'
+    Heart = '♥'
+
+    def __str__(self):
+        return self.value
+
+    @classmethod
+    def from_bitfield(cls, bitfield) -> list['Marking']:
+        markings = []
+        if bitfield & 0b0001:
+            markings.append(Marking.Circle)
+        if bitfield & 0b0010:
+            markings.append(Marking.Square)
+        if bitfield & 0b0100:
+            markings.append(Marking.Triangle)
+        if bitfield & 0b1000:
+            markings.append(Marking.Heart)
+        return markings
+
+
+class StatusCondition(Enum):
+    Healthy = 'none'
+    Sleep = 'asleep'
+    Poison = 'poisoned'
+    Burn = 'burned'
+    Freeze = 'frozen'
+    Paralysis = 'paralysed'
+    BadPoison = 'badly poisoned'
+
+    def __init__(self, value: str, turns_remaining: int = -1):
+        super().__init__(value)
+        self.turns_remaining = turns_remaining
+
+    def __str__(self):
+        if self.value == StatusCondition.Sleep:
+            return f'{self.value} ({self.turns_remaining} turns remaining)'
+        else:
+            return self.value
+
+    @classmethod
+    def from_bitfield(cls, bitfield: int) -> 'StatusCondition':
+        if bitfield & 0b1000_0000:
+            return StatusCondition.BadPoison
+        elif bitfield & 0b0100_0000:
+            return StatusCondition.Paralysis
+        elif bitfield & 0b0010_0000:
+            return StatusCondition.Freeze
+        elif bitfield & 0b0001_0000:
+            return StatusCondition.Burn
+        elif bitfield & 0b0000_1000:
+            return StatusCondition.Poison
+        elif bitfield & 0b0000_0111:
+            condition = StatusCondition.Sleep
+            condition.turns_remaining = bitfield & 0b0111
+        else:
+            return StatusCondition.Healthy
+
+
+@dataclass
+class PokerusStatus:
+    strain: int
+    days_remaining: int
+
+
+class Pokemon:
+    def __init__(self, data: bytes):
+        self.data = data
+
+    @cached_property
+    def _decrypted_data(self) -> bytes:
+        order = POKEMON_DATA_SUBSTRUCTS_ORDER[self.personality_value % 24]
+        u32le = numpy.dtype('<u4')
+
+        personality_value = numpy.frombuffer(self.data, count=1, dtype=u32le)
+        original_trainer_id = numpy.frombuffer(self.data, count=1, offset=4, dtype=u32le)
+        key = numpy.repeat(personality_value ^ original_trainer_id, 3)
+
+        decrypted = numpy.concatenate(
+            [numpy.frombuffer(self.data, count=3, offset=32 + (order[i] * 12), dtype=u32le) ^ key for i in range(4)])
+        return self.data[0:32] + decrypted.tobytes() + self.data[80:100]
+
+    @property
+    def _character_set(self) -> Literal['international', 'japanese']:
+        return 'japanese' if self.data[18] == 1 else 'international'
+
+    @property
+    def is_empty(self) -> bool:
+        return self.data[19] & 0x02 == 0
+
+    def calculate_checksum(self) -> int:
+        words = struct.unpack('<24H', self._decrypted_data[32:80])
+        return sum(words) & 0xFFFF
+
+    def get_data_checksum(self) -> int:
+        return unpack_uint16(self.data[28:30])
+
+    @property
+    def is_valid(self) -> bool:
+        return self.get_data_checksum() == self.calculate_checksum()
+
+    # ==========================================
+    # Unencrypted values (offsets 0 through 32)
+    # ==========================================
+
+    @property
+    def personality_value(self) -> int:
+        return unpack_uint32(self.data[0:4])
+
+    @property
+    def original_trainer(self) -> OriginalTrainer:
+        origin_data = unpack_uint16(self._decrypted_data[70:72])
+        if origin_data & 0xF000:
+            gender = 'female'
+        else:
+            gender = 'male'
+
+        return OriginalTrainer(
+            id=unpack_uint16(self.data[4:6]),
+            secret_id=unpack_uint16(self.data[6:8]),
+            name=DecodeString(self.data[20:27], character_set=self._character_set),
+            gender=gender
+        )
+
+    @property
+    def nickname(self) -> str:
+        return DecodeString(self.data[8:18], character_set=self._character_set)
+
+    @property
+    def name(self) -> str:
+        if self.is_egg:
+            return 'EGG'
+        nickname = self.nickname
+        if nickname:
+            return nickname
+        else:
+            return self.species.name.upper()
+
+    @property
+    def language(self) -> ROMLanguage:
+        if self.data[18] == 1:
+            return ROMLanguage.Japanese
+        elif self.data[18] == 2:
+            return ROMLanguage.English
+        elif self.data[18] == 3:
+            return ROMLanguage.French
+        elif self.data[18] == 4:
+            return ROMLanguage.Italian
+        elif self.data[18] == 5:
+            return ROMLanguage.German
+        elif self.data[18] == 7:
+            return ROMLanguage.Spanish
+        else:
             return None
 
-        tid = unpack_uint16(b_Pokemon[4:6])
-        sid = unpack_uint16(b_Pokemon[6:8])
-        id = unpack_uint16(sections['G'][0:2])
-        name = SpeciesName(id)
-        flags = int(b_Pokemon[19])
-        section_m = unpack_uint32(sections['M'][4:8])
-        ivs = {
-            'hp': int(section_m & 0x1F),
-            'attack': int((section_m >> 5) & 0x1F),
-            'defense': int((section_m >> 10) & 0x1F),
-            'speed': int((section_m >> 15) & 0x1F),
-            'spAttack': int((section_m >> 20) & 0x1F),
-            'spDefense': int((section_m >> 25) & 0x1F)
+    @property
+    def is_egg(self) -> bool:
+        packed_data = unpack_uint32(self._decrypted_data[72:76])
+        return self.data[19] & 0b0100 != 0 or (packed_data >> 30) & 1 != 0
+
+    @property
+    def markings(self) -> list[Marking]:
+        return Marking.from_bitfield(self.data[27])
+
+    # ==================================
+    # Encrypted values from subsections
+    # ==================================
+
+    @property
+    def species(self) -> Species:
+        species_id = unpack_uint16(self._decrypted_data[32:34])
+        return get_species_by_index(species_id)
+
+    @property
+    def held_item(self) -> Union[Item, None]:
+        item_index = unpack_uint16(self._decrypted_data[34:36])
+        if item_index == 0:
+            return None
+        else:
+            return get_item_by_index(item_index)
+
+    @property
+    def total_exp(self) -> int:
+        return unpack_uint32(self._decrypted_data[36:40])
+
+    @property
+    def friendship(self) -> int:
+        return self._decrypted_data[41]
+
+    def move(self, index: Literal[0, 1, 2, 3]) -> Union[LearnedMove, None]:
+        offset = 44 + index * 2
+        move_index = unpack_uint16(self._decrypted_data[offset:offset + 2])
+        if move_index == 0:
+            return None
+        move = get_move_by_index(move_index)
+        pp_bonuses = (self._decrypted_data[40] >> (2 * index)) & 0b11
+        total_pp = move.pp + ((move.pp * 20 * pp_bonuses) // 100)
+        pp = self._decrypted_data[52 + index]
+        return LearnedMove(move=move, total_pp=total_pp, pp=pp, added_pps=total_pp - move.pp)
+
+    @property
+    def moves(self) -> tuple[Union[Move, None], Union[Move, None], Union[Move, None], Union[Move, None]]:
+        return self.move(0), self.move(1), self.move(2), self.move(3)
+
+    @property
+    def evs(self) -> StatsValues:
+        return StatsValues(
+            hp=self._decrypted_data[56],
+            attack=self._decrypted_data[57],
+            defence=self._decrypted_data[58],
+            speed=self._decrypted_data[59],
+            special_attack=self._decrypted_data[60],
+            special_defence=self._decrypted_data[61],
+        )
+
+    @property
+    def ivs(self) -> StatsValues:
+        packed_data = unpack_uint32(self._decrypted_data[72:76])
+        return StatsValues(
+            hp=(packed_data >> 0) & 0b11111,
+            attack=(packed_data >> 5) & 0b11111,
+            defence=(packed_data >> 10) & 0b11111,
+            speed=(packed_data >> 15) & 0b11111,
+            special_attack=(packed_data >> 20) & 0b11111,
+            special_defence=(packed_data >> 25) & 0b11111,
+        )
+
+    @property
+    def contest_conditions(self) -> ContestConditions:
+        return ContestConditions(
+            coolness=self._decrypted_data[62],
+            beauty=self._decrypted_data[63],
+            cuteness=self._decrypted_data[64],
+            smartness=self._decrypted_data[65],
+            toughness=self._decrypted_data[66],
+            feel=self._decrypted_data[67],
+        )
+
+    @property
+    def pokerus_status(self) -> PokerusStatus:
+        return PokerusStatus(
+            strain=self._decrypted_data[68] >> 4,
+            days_remaining=self._decrypted_data[68] & 0b0111
+        )
+
+    @property
+    def ability(self) -> Ability:
+        packed_data = unpack_uint32(self._decrypted_data[72:76])
+        if packed_data & 0xF000_0000 and len(self.species.abilities) > 1:
+            return self.species.abilities[1]
+        else:
+            return self.species.abilities[0]
+
+    @property
+    def poke_ball(self) -> Item:
+        origin_data = unpack_uint16(self._decrypted_data[70:72])
+        item_index = (origin_data & 0b0111_1000_0000_0000) >> 11
+        return get_item_by_index(item_index)
+
+    @property
+    def game_of_origin(self) -> str:
+        origin_data = unpack_uint16(self._decrypted_data[70:72])
+        game_id = (origin_data & 0b0000_0111_1000_0000) >> 7
+        if game_id == 1:
+            return 'Sapphire'
+        elif game_id == 2:
+            return 'Ruby'
+        elif game_id == 3:
+            return 'Emerald'
+        elif game_id == 4:
+            return 'FireRed'
+        elif game_id == 5:
+            return 'LeafGreen'
+        elif game_id == 15:
+            return 'Colosseum/XD'
+        else:
+            return '?'
+
+    @property
+    def level_met(self):
+        return unpack_uint16(self._decrypted_data[70:72]) & 0b0111_1111
+
+    @property
+    def location_met(self):
+        location_index = self._decrypted_data[69]
+        if location_index < len(LOCATION_MAP):
+            return LOCATION_MAP[location_index]
+        else:
+            return 'Traded'
+
+    # ================================================
+    # Values that are only available for team Pokémon
+    # and not for boxed Pokémon
+    # ================================================
+
+    @property
+    def level(self) -> int:
+        # This property is not available for boxed Pokémon, but can be re-calculated
+        if len(self.data) <= 80:
+            return self.species.level_up_type.get_level_from_total_experience(self.total_exp)
+        return self.data[84]
+
+    @property
+    def status_condition(self) -> StatusCondition:
+        # This property is not available for boxed Pokémon
+        if len(self.data) <= 80:
+            return StatusCondition.Healthy
+        else:
+            return StatusCondition.from_bitfield(self.data[80])
+
+    @property
+    def stats(self) -> StatsValues:
+        # This property is not available for boxed Pokémon, but can be re-calculated
+        if len(self.data) <= 80:
+            return StatsValues.calculate(self.species, self.ivs, self.evs, self.nature, self.level)
+        else:
+            return StatsValues(
+                hp=unpack_uint16(self.data[88:90]),
+                attack=unpack_uint16(self.data[90:92]),
+                defence=unpack_uint16(self.data[92:94]),
+                speed=unpack_uint16(self.data[94:96]),
+                special_attack=unpack_uint16(self.data[96:98]),
+                special_defence=unpack_uint16(self.data[98:100]),
+            )
+
+    @property
+    def total_hp(self) -> int:
+        return self.stats.hp
+
+    @property
+    def current_hp(self) -> int:
+        if len(self.data) <= 80:
+            return self.stats.hp
+        else:
+            return unpack_uint16(self.data[86:88])
+
+    # ===================================================
+    # Values that are derived from the Personality Value
+    # ===================================================
+
+    @property
+    def nature(self) -> Nature:
+        return get_nature_by_index(self.personality_value % 25)
+
+    @property
+    def gender(self) -> Literal['male', 'female', None]:
+        ratio = self.species.gender_ratio
+        if ratio == 255:
+            return None
+        elif ratio == 254:
+            return 'female'
+        elif ratio == 0:
+            return 'male'
+
+        value = self.personality_value & 0xFF
+        if value >= ratio:
+            return 'male'
+        else:
+            return 'female'
+
+    @property
+    def shiny_value(self) -> int:
+        ot = self.original_trainer
+        return ot.id ^ ot.secret_id ^ unpack_uint16(self.data[0:2]) ^ unpack_uint16(self.data[2:4])
+
+    @property
+    def is_shiny(self) -> bool:
+        return self.shiny_value < 32000
+
+    @property
+    def hidden_power_type(self) -> Type:
+        ivs = self.ivs
+        value = ((ivs.hp & 1) << 0) + \
+                ((ivs.attack & 1) << 1) + \
+                ((ivs.defence & 1) << 2) + \
+                ((ivs.speed & 1) << 3) + \
+                ((ivs.special_attack & 1) << 4) + \
+                ((ivs.special_defence & 1) << 5)
+        value = (value * 15) // 63
+        return get_type_by_name(HIDDEN_POWER_MAP[value])
+
+    @property
+    def hidden_power_damage(self) -> int:
+        ivs = self.ivs
+        value = ((ivs.hp & 2) >> 1) + \
+                ((ivs.attack & 2) << 0) + \
+                ((ivs.defence & 2) << 1) + \
+                ((ivs.speed & 2) << 2) + \
+                ((ivs.special_attack & 2) << 3) + \
+                ((ivs.special_defence & 2) << 4)
+        value = (value * 40) // 63 + 30
+        return value
+
+    @property
+    def unown_letter(self) -> str:
+        letter_index = (self.data[0] & 0b11) << 6 + \
+                       (self.data[1] & 0b11) << 4 + \
+                       (self.data[2] & 0b11) << 2 + \
+                       (self.data[3] & 0b11) << 0
+        letter_index %= 28
+        if letter_index == 26:
+            return '!'
+        elif letter_index == 27:
+            return '?'
+        else:
+            return chr(65 + letter_index)
+
+    @property
+    def wurmple_evolution(self) -> Literal['silcoon', 'cascoon']:
+        value = unpack_uint16(self.data[0:2]) % 10
+        if value <= 4:
+            return 'silcoon'
+        else:
+            return 'cascoon'
+
+    # ==============
+    # Debug helpers
+    # ==============
+
+    def __str__(self):
+        if self.is_empty:
+            return 'N/A'
+        elif not self.is_valid:
+            return 'Invalid'
+        elif self.is_egg:
+            return f'Egg ({self.species.name})'
+        else:
+            gender = self.gender
+            if self.species.name == 'Unown':
+                return f'{self.species.name} {self.unown_letter} (lvl. {self.level})'
+            elif gender is not None:
+                return f'{self.species.name} (lvl. {self.level}, {gender})'
+            else:
+                return f'{self.species.name} (lvl. {self.level})'
+
+    def to_json(self):
+        moves = []
+        for i in range(4):
+            learned_move = self.move(i)
+            if learned_move is None:
+                moves.append({
+                    "accuracy": 0,
+                    "effect": "None",
+                    "id": 0,
+                    "kind": "None",
+                    "name": "None",
+                    "power": 0,
+                    "pp": 0,
+                    "remaining_pp": 0,
+                    "type": "None"
+                })
+                continue
+
+            move = learned_move.move
+            moves.append({
+                "accuracy": move.accuracy,
+                "effect": move.effect,
+                "id": move.index,
+                "kind": move.type.kind,
+                "name": move.name,
+                "power": move.base_power,
+                "pp": learned_move.total_pp,
+                "remaining_pp": learned_move.pp,
+                "type": move.type.name
+            }, )
+
+        return {
+            "EVs": {
+                "attack": self.evs.attack,
+                "defence": self.evs.defence,
+                "hp": self.evs.hp,
+                "spAttack": self.evs.special_attack,
+                "spDefense": self.evs.special_defence,
+                "speed": self.evs.speed
+            },
+            "IVSum": self.ivs.sum(),
+            "IVs": {
+                "attack": self.ivs.attack,
+                "defense": self.ivs.defence,
+                "hp": self.ivs.hp,
+                "spAttack": self.ivs.special_attack,
+                "spDefense": self.ivs.special_defence,
+                "speed": self.ivs.speed
+            },
+            "ability": self.ability.name,
+            "calculatedChecksum": self.calculate_checksum(),
+            "checksum": self.get_data_checksum(),
+            "condition": {
+                "beauty": self.contest_conditions.beauty,
+                "cool": self.contest_conditions.coolness,
+                "cute": self.contest_conditions.cuteness,
+                "feel": self.contest_conditions.feel,
+                "smart": self.contest_conditions.smartness,
+                "tough": self.contest_conditions.toughness
+            },
+            "expGroup": self.species.level_up_type.value,
+            "experience": self.species.base_experience_yield,
+            "friendship": self.friendship,
+            "hasSpecies": 1,
+            "hiddenPower": self.hidden_power_type.name,
+            "id": self.species.index,
+            "isEgg": 1 if self.is_egg else 0,
+            "item": {
+                "id": self.held_item.index if self.held_item else 0,
+                "name": self.held_item.name if self.held_item else "None"
+            },
+            "language": self.language.value,
+            "level": self.level,
+            "markings": {
+                "circle": Marking.Circle in self.markings,
+                "heart": Marking.Heart in self.markings,
+                "square": Marking.Square in self.markings,
+                "triangle": Marking.Triangle in self.markings
+            },
+            "metLocation": self.location_met,
+            "moves": moves,
+            "name": self.species.name,
+            "natID": self.species.national_dex_number,
+            "nature": self.nature.name,
+            "origins": {
+                "ball": self.poke_ball.name,
+                "game": self.game_of_origin,
+                "hatched": self.level_met == 0,
+                "metLevel": self.level_met
+            },
+            "ot": {
+                "sid": self.original_trainer.secret_id,
+                "tid": self.original_trainer.id
+            },
+            "pid": self.personality_value,
+            "pokerus": {
+                "days": self.pokerus_status.days_remaining,
+                "strain": self.pokerus_status.strain
+            },
+            "shiny": self.is_shiny,
+            "shinyValue": self.shiny_value,
+            "species": self.species.index,
+            "stats": {
+                "attack": self.stats.attack,
+                "defense": self.stats.defence,
+                "hp": self.current_hp,
+                "maxHP": self.total_hp,
+                "spAttack": self.stats.special_attack,
+                "spDefense": self.stats.special_defence,
+                "speed": self.stats.speed
+            },
+            "status": {
+                "badPoison": self.status_condition == StatusCondition.BadPoison,
+                "burn": self.status_condition == StatusCondition.Burn,
+                "freeze": self.status_condition == StatusCondition.Freeze,
+                "paralysis": self.status_condition == StatusCondition.Paralysis,
+                "poison": self.status_condition == StatusCondition.Poison,
+                "sleep": self.status_condition.turns_remaining if self.status_condition == StatusCondition.Sleep else 0
+            },
+            "type": [
+                self.species.types[0].name,
+                self.species.types[1].name if len(self.species.types) > 1 else ""
+            ]
         }
-        item_id = unpack_uint16(sections['G'][2:4])
-        shiny_value = tid ^ sid ^ unpack_uint16(b_Pokemon[0:2]) ^ unpack_uint16(b_Pokemon[2:4])
-        met_location = int(sections['M'][1])
 
-        pokemon = {
-            'name': name,
-            'id': id,
-            'natID': NationalDexID(id),
-            'species': unpack_uint16(sections['G'][0:2]),
-            'pid': pid,
-            'nature': natures_list[pid % 0x19] if pid % 0x19 < len(natures_list) else None,
-            'language': Language(int(b_Pokemon[18])),
-            'shinyValue': shiny_value,
-            'shiny': bool(shiny_value < 8),
-            'ot': {
-                'tid': tid,
-                'sid': sid
-            },
-            'checksum': unpack_uint16(b_Pokemon[28:30]),
-            'calculatedChecksum': checksum,
-            'hasSpecies': (flags >> 0x1) & 0x1,
-            'isEgg': (flags >> 0x2) & 0x1,
-            'level': int(b_Pokemon[84]) if len(b_Pokemon) > 80 else 0,
-            'expGroup': exp_groups_list[id - 1] if id - 1 < len(exp_groups_list) else None,
-            'item': {
-                'id': item_id,
-                'name': item_list[item_id] if item_id < len(item_list) else None
-            },
-            'friendship': int(sections['G'][9]),
-            'moves': Moves(sections['A']),
-            'markings': {
-                'circle': bool(b_Pokemon[27] & (1 << 0)),
-                'square': bool(b_Pokemon[27] & (1 << 1)),
-                'triangle': bool(b_Pokemon[27] & (1 << 2)),
-                'heart': bool(b_Pokemon[27] & (1 << 3))
-            },
-            'status': {
-                'sleep': unpack_uint32(b_Pokemon[80:84]) & 0x7,
-                'poison': bool(unpack_uint32(b_Pokemon[80:84]) & (1 << 3)),
-                'burn': bool(unpack_uint32(b_Pokemon[80:84]) & (1 << 4)),
-                'freeze': bool(unpack_uint32(b_Pokemon[80:84]) & (1 << 5)),
-                'paralysis': bool(unpack_uint32(b_Pokemon[80:84]) & (1 << 6)),
-                'badPoison': bool(unpack_uint32(b_Pokemon[80:84]) & (1 << 7))
-            } if len(b_Pokemon) > 80 else None,
-            'stats': {
-                'hp': int(b_Pokemon[86]),
-                'maxHP': int(b_Pokemon[88]),
-                'attack': int(b_Pokemon[90]),
-                'defense': int(b_Pokemon[92]),
-                'speed': int(b_Pokemon[94]),
-                'spAttack': int(b_Pokemon[96]),
-                'spDefense': int(b_Pokemon[98])
-            } if len(b_Pokemon) > 80 else None,
 
-            # Substruct G - Growth
-            'experience': unpack_uint32(sections['G'][4:8]),
-
-            # Substruct A - Attacks
-
-            # Substruct E - EVs & Condition
-            'EVs': {
-                'hp': int(sections['E'][0]),
-                'attack': int(sections['E'][1]),
-                'defence': int(sections['E'][2]),
-                'speed': int(sections['E'][3]),
-                'spAttack': int(sections['E'][4]),
-                'spDefense': int(sections['E'][5])
-            },
-            'condition': {
-                'cool': int(sections['E'][6]),
-                'beauty': int(sections['E'][7]),
-                'cute': int(sections['E'][8]),
-                'smart': int(sections['E'][9]),
-                'tough': int(sections['E'][10]),
-                'feel': int(sections['E'][11])
-            },
-
-            # Substruct M - Miscellaneous
-            'IVs': ivs,
-            'IVSum': sum(ivs.values()),
-            'hiddenPower': hidden_powers_list[int(numpy.floor((((ivs['hp'] % 2) +
-                                                           (2 * (ivs['attack'] % 2)) +
-                                                           (4 * (ivs['defense'] % 2)) +
-                                                           (8 * (ivs['speed'] % 2)) +
-                                                           (16 * (ivs['spAttack'] % 2)) +
-                                                           (32 * (ivs['spDefense'] % 2))) * 15) / 63))],
-            'pokerus': {
-                'days': int(sections['M'][0]) & 0xF,
-                'strain': int(sections['M'][0]) >> 0x4,
-            },
-            'metLocation': location_list[met_location] if met_location < len(location_list) else 'Traded',
-            'origins': {
-                'metLevel': unpack_uint16(sections['M'][2:4]) & 0x7F,
-                'hatched': False if unpack_uint16(sections['M'][2:4]) & 0x7F else True,
-                'game': OriginGame((unpack_uint16(sections['M'][2:4]) >> 0x7) & 0xF),
-                'ball': item_list[(unpack_uint16(sections['M'][2:4]) >> 0xB) & 0xF] if \
-                    (unpack_uint16(sections['M'][2:4]) >> 0xB) & 0xF < len(item_list) else None
-            },
-            'ability': pokemon_list[name]['ability'][min(int(section_m >> 31) & 1, len(pokemon_list[name]['ability']) - 1)],
-            'type': pokemon_list[name]['type'] if name in pokemon_list else None
-        }
+def parse_pokemon(data: bytes) -> Union[Pokemon, None]:
+    pokemon = Pokemon(data)
+    if not pokemon.is_empty and pokemon.is_valid:
         return pokemon
-
-    except SystemExit:
-        raise
-    except:
-        console.print_exception(show_locals=True)
+    else:
         return None
 
 
-def GetParty() -> list[dict]:
+def _load_types() -> tuple[dict[str, Type], list[Type]]:
+    by_name: dict[str, Type] = {}
+    by_index: list[Type] = []
+    with open(DATA_DIRECTORY / 'types.json', 'r') as file:
+        types_data = json.load(file)
+        for index in range(len(types_data)):
+            name = types_data[index]['name']
+            new_type = Type(index, name)
+            by_name[name] = new_type
+            by_index.append(new_type)
+
+        for entry in types_data:
+            for key in entry['effectiveness']:
+                by_name[entry['name']].set_effectiveness(by_name[key], entry['effectiveness'][key])
+    return by_name, by_index
+
+
+_types_by_name, _types_by_index = _load_types()
+
+
+def get_type_by_name(name: str) -> Type:
+    return _types_by_name[name]
+
+
+def get_type_by_index(index: int) -> Type:
+    return _types_by_index[index]
+
+
+def _load_moves() -> tuple[dict[str, Move], list[Move]]:
+    by_name: dict[str, Move] = {}
+    by_index: list[Move] = []
+    with open(DATA_DIRECTORY / 'moves.json', 'r') as file:
+        moves_data = json.load(file)
+        for index in range(len(moves_data)):
+            move = Move.from_dict(index, moves_data[index])
+            by_name[move.name] = move
+            by_index.append(move)
+    return by_name, by_index
+
+
+_moves_by_name, _moves_by_index = _load_moves()
+
+
+def get_move_by_name(name: str) -> Move:
+    return _moves_by_name[name]
+
+
+def get_move_by_index(index: int) -> Move:
+    return _moves_by_index[index]
+
+
+def _load_items() -> tuple[dict[str, Item], list[Item]]:
+    by_name: dict[str, Item] = {}
+    by_index: list[Item] = []
+    with open(DATA_DIRECTORY / 'items.json', 'r') as file:
+        items_data = json.load(file)
+        for index in range(len(items_data)):
+            item = Item.from_dict(index, items_data[index])
+            by_name[item.name] = item
+            by_index.append(item)
+    return by_name, by_index
+
+
+_items_by_name, _items_by_index = _load_items()
+
+
+def get_item_by_name(name: str) -> Item:
+    return _items_by_name[name]
+
+
+def get_item_by_index(index: int) -> Item:
+    return _items_by_index[index]
+
+
+def _load_natures() -> tuple[dict[str, Nature], list[Nature]]:
+    by_name: dict[str, Nature] = {}
+    by_index: list[Nature] = []
+    with open(DATA_DIRECTORY / 'natures.json', 'r') as file:
+        natures_data = json.load(file)
+        for index in range(len(natures_data)):
+            nature = Nature.from_dict(index, natures_data[index])
+            by_name[nature.name] = nature
+            by_index.append(nature)
+    return by_name, by_index
+
+
+_natures_by_name, _natures_by_index = _load_natures()
+
+
+def get_nature_by_name(name: str) -> Nature:
+    return _natures_by_name[name]
+
+
+def get_nature_by_index(index: int) -> Nature:
+    return _natures_by_index[index]
+
+
+def _load_abilities() -> tuple[dict[str, Ability], list[Ability]]:
+    by_name: dict[str, Ability] = {}
+    by_index: list[Ability] = []
+    with open(DATA_DIRECTORY / 'abilities.json', 'r') as file:
+        abilities_data = json.load(file)
+        for index in range(len(abilities_data)):
+            ability = Ability.from_dict(index, abilities_data[index])
+            by_name[ability.name] = ability
+            by_index.append(ability)
+    return by_name, by_index
+
+
+_abilities_by_name, _abilities_by_index = _load_abilities()
+
+
+def get_ability_by_name(name: str) -> Ability:
+    return _abilities_by_name[name]
+
+
+def get_ability_by_index(index: int) -> Ability:
+    return _abilities_by_index[index]
+
+
+def _load_species() -> tuple[dict[str, Species], list[Species]]:
+    by_name: dict[str, Species] = {}
+    by_index: list[Species] = []
+    with open(DATA_DIRECTORY / 'species.json', 'r') as file:
+        species_data = json.load(file)
+        for index in range(len(species_data)):
+            species = Species.from_dict(index, species_data[index])
+            by_name[species.name] = species
+            by_index.append(species)
+    return by_name, by_index
+
+
+_species_by_name, _species_by_index = _load_species()
+
+
+def get_species_by_name(name: str) -> Species:
+    return _species_by_name[name]
+
+
+def get_species_by_index(index: int) -> Species:
+    return _species_by_index[index]
+
+
+def GetParty() -> list[Pokemon]:
     """
     Checks how many Pokémon are in the trainer's party, decodes and returns them all.
 
     :return: party (list)
     """
     party = []
-    party_count = int.from_bytes(ReadSymbol('gPlayerPartyCount', size=1))
+    party_count = ReadSymbol('gPlayerPartyCount', size=1)[0]
     for p in range(party_count):
         o = p * 100
-        mon = ParsePokemon(ReadSymbol('gPlayerParty', o, o+100))
+        mon = parse_pokemon(ReadSymbol('gPlayerParty', o, o + 100))
 
         # It's possible for party data to be written while we are trying to read it, in which case
         # the checksum would be wrong and `ParsePokemon()` returns `None`.
@@ -261,32 +1134,32 @@ def GetParty() -> list[dict]:
         # (1) advancing the emulation by one frame, (2) reading the memory, (3) restoring the previous
         # frame's state so we don't mess with frame accuracy.
         if mon is None:
-            mon = GetEmulator().PeekFrame(lambda: ParsePokemon(ReadSymbol('gPlayerParty', o, o+100)))
+            mon = GetEmulator().PeekFrame(lambda: parse_pokemon(ReadSymbol('gPlayerParty', o, o + 100)))
             if mon is None:
-                raise RuntimeError(f'Party Pokemon #{p+1} was invalid for two frames in a row.')
+                raise RuntimeError(f'Party Pokemon #{p + 1} was invalid for two frames in a row.')
 
         party.append(mon)
     return party
 
 
-def GetOpponent() -> dict:
+def GetOpponent() -> Pokemon:
     """
     Gets the current opponent/encounter from `gEnemyParty`, decodes and returns.
 
     :return: opponent (dict)
     """
-    mon = ParsePokemon(ReadSymbol('gEnemyParty')[:100])
+    mon = parse_pokemon(ReadSymbol('gEnemyParty')[:100])
 
     # See comment in `GetParty()`
     if mon is None:
-        mon = GetEmulator().PeekFrame(lambda: ParsePokemon(ReadSymbol('gEnemyParty')[:100]))
+        mon = GetEmulator().PeekFrame(lambda: parse_pokemon(ReadSymbol('gEnemyParty')[:100]))
         if mon is None:
             raise RuntimeError(f'Opponent Pokemon was invalid for two frames in a row.')
 
     return mon
 
 
-last_opid = b'\x00\x00\x00\x00' # ReadSymbol('gEnemyParty', size=4)
+last_opid = b'\x00\x00\x00\x00'  # ReadSymbol('gEnemyParty', size=4)
 
 
 def OpponentChanged() -> bool:

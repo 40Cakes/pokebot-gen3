@@ -1,16 +1,17 @@
 import time
 import tkinter
+from enum import Enum
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-from modules.Daycare import GetDaycareData, PokemonGender
+from modules.Daycare import GetDaycareData
 from modules.Game import DecodeString, _reverse_symbols
 from modules.Gui import DebugTab, GetEmulator
 from modules.Items import GetItems
 from modules.Memory import GetSymbol, ReadSymbol, ParseTasks, GetSymbolName, GameHasStarted, unpack_uint16, \
     unpack_uint32
 
-from modules.Pokemon import names_list, GetParty
+from modules.Pokemon import GetParty, get_species_by_index
 
 if TYPE_CHECKING:
     from modules.LibmgbaEmulator import LibmgbaEmulator
@@ -59,7 +60,7 @@ class FancyTreeview:
             item_key = f'{key_prefix}{key}'
             if key == '__value':
                 pass
-            elif type(data[key]) == dict:
+            elif type(data[key]) is dict:
                 if item_key in self._items:
                     item = self._items[item_key]
                     self._tv.item(item, values=(data[key].get('__value', ''),))
@@ -68,7 +69,7 @@ class FancyTreeview:
                     self._items[item_key] = item
                 found_items.append(item_key)
                 found_items.extend(self._UpdateDict(data[key], f'{key_prefix}{key}.', item))
-            elif type(data[key]) == list or type(data[key]) == set:
+            elif isinstance(data[key], (list, set, tuple, frozenset)):
                 if item_key in self._items:
                     item = self._items[item_key]
                 else:
@@ -81,7 +82,7 @@ class FancyTreeview:
                     d[str(i)] = data[key][i]
 
                 found_items.extend(self._UpdateDict(d, f'{key_prefix}{key}.', item))
-            else:
+            elif isinstance(data[key], (bool, int, float, complex, str, bytes, bytearray)):
                 if item_key in self._items:
                     item = self._items[item_key]
                     self._tv.item(item, values=(data[key],))
@@ -89,6 +90,39 @@ class FancyTreeview:
                     item = self._tv.insert(parent, tkinter.END, text=key, values=(data[key],))
                     self._items[item_key] = item
                 found_items.append(item_key)
+            elif isinstance(data[key], Enum):
+                if item_key in self._items:
+                    item = self._items[item_key]
+                    self._tv.item(item, values=(data[key].name,))
+                else:
+                    item = self._tv.insert(parent, tkinter.END, text=key, values=(data[key].name,))
+                    self._items[item_key] = item
+                found_items.append(item_key)
+            else:
+                if data[key].__str__ is not object.__str__:
+                    value = str(data[key])
+                else:
+                    value = f'object({data[key].__class__.__name__})'
+
+                if item_key in self._items:
+                    item = self._items[item_key]
+                    self._tv.item(item, values=(value,))
+                else:
+                    item = self._tv.insert(parent, tkinter.END, text=key, values=(value,))
+                    self._items[item_key] = item
+                found_items.append(item_key)
+
+                properties = {}
+                try:
+                    for k in data[key].__dict__:
+                        properties[k] = data[key].__dict__[k]
+                except AttributeError:
+                    pass
+                for k in dir(data[key].__class__):
+                    if isinstance(getattr(data[key].__class__, k), property):
+                        properties[k] = getattr(data[key], k)
+
+                found_items.extend(self._UpdateDict(properties, f'{key_prefix}{key}.', item))
 
         return found_items
 
@@ -177,11 +211,6 @@ class BattleTab(DebugTab):
     def _GetData(self):
         data = ReadSymbol('gBattleResults')
 
-        def SpeciesName(value: int) -> str:
-            if value > len(names_list):
-                return ""
-            return names_list[value - 1]
-
         return {
             "Player Faint Counter": int(data[0]),
             "Opponent Faint Counter": int(data[1]),
@@ -199,7 +228,7 @@ class BattleTab(DebugTab):
             "Player Mon 2 Name": DecodeString(data[20:31]),
             "PokeBall Throws": int(data[31]),
             "Last Opponent Species": unpack_uint16(data[32:34]),
-            "Last Opponent Name": SpeciesName(unpack_uint16(data[32:34])),
+            "Last Opponent Name": get_species_by_index(unpack_uint16(data[32:34])).name,
             "Last used Move Player": unpack_uint16(data[34:36]),
             "Last used Move Opponent": unpack_uint16(data[36:38]),
             "Cought Mon Species": unpack_uint16(data[40:42]),
@@ -209,7 +238,8 @@ class BattleTab(DebugTab):
 
 
 class SymbolsTab(DebugTab):
-    SYMBOLS_TO_DISPLAY = {'gObjectEvents', 'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4', 'gDisplayedStringBattle'}
+    SYMBOLS_TO_DISPLAY = {'gObjectEvents', 'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4',
+                          'gDisplayedStringBattle'}
     DISPLAY_AS_STRING = {'sChat', 'gStringVar1', 'gStringVar2', 'gStringVar3', 'gStringVar4', 'gDisplayedStringBattle'}
     _tv: FancyTreeview
     _mini_window: tkinter.Tk = None
@@ -376,38 +406,32 @@ class TrainerTab(DebugTab):
         else:
             self._tv.UpdateData({})
 
-
     def _GetData(self):
         from modules.Trainer import trainer, AcroBikeStates, RunningStates, TileTransitionStates
         party = GetParty()
 
         result = {
-                "Name": trainer.GetName(),
-                "Gender": trainer.GetGender(),
-                "Trainer ID": trainer.GetTID(),
-                "Secret ID": trainer.GetSID(),
-                "Map": trainer.GetMap(),
-                "Map Name": trainer.GetMapName(),
-                "Local Coordinates": trainer.GetCoords(),
-                "On Bike": trainer.GetOnBike(),
-                "Running State": RunningStates(trainer.GetRunningState()).name,
-                "Acro Bike State": AcroBikeStates(trainer.GetAcroBikeState()).name,
-                "Tile Transition State": TileTransitionStates(trainer.GetTileTransitionState()).name,
-                "Facing Direction": trainer.GetFacingDirection()
-            }
+            "Name": trainer.GetName(),
+            "Gender": trainer.GetGender(),
+            "Trainer ID": trainer.GetTID(),
+            "Secret ID": trainer.GetSID(),
+            "Map": trainer.GetMap(),
+            "Map Name": trainer.GetMapName(),
+            "Local Coordinates": trainer.GetCoords(),
+            "On Bike": trainer.GetOnBike(),
+            "Running State": RunningStates(trainer.GetRunningState()).name,
+            "Acro Bike State": AcroBikeStates(trainer.GetAcroBikeState()).name,
+            "Tile Transition State": TileTransitionStates(trainer.GetTileTransitionState()).name,
+            "Facing Direction": trainer.GetFacingDirection()
+        }
 
         for i in range(0, 6):
             key = f'Party Pokémon #{i + 1}'
-            if len(party) <= i:
+            if len(party) <= i or party[i].is_empty:
                 result[key] = {'__value': 'n/a'}
                 continue
 
             result[key] = party[i]
-
-            if party[i]['isEgg']:
-                result[key]['__value'] = 'Egg'
-            else:
-                result[key]['__value'] = f"{party[i]['name']} (lvl. {party[i]['level']})"
 
         result['Items'] = GetItems()
 
@@ -431,26 +455,26 @@ class DaycareTab(DebugTab):
             return {}
 
         pokemon1 = 'n/a'
-        if data.pokemon1 is not None:
-            gender = f'({PokemonGender.GetFromPokemonData(data.pokemon1).name})'
-            if gender == PokemonGender.Genderless:
-                gender = ''
+        if data.pokemon1 is not None and not data.pokemon1.is_empty:
+            gender = ''
+            if data.pokemon1.gender is not None:
+                gender = f' ({data.pokemon1.gender})'
 
             pokemon1 = {
-                '__value': f"{data.pokemon1['name']}{gender}; {data.pokemon1_steps:,} steps",
+                '__value': f"{data.pokemon1.species.name}{gender}; {data.pokemon1_steps:,} steps",
                 'pokemon': data.pokemon1,
                 'steps': data.pokemon1_steps,
                 'egg_groups': ', '.join(set(data.pokemon1_egg_groups))
             }
 
         pokemon2 = 'n/a'
-        if data.pokemon2 is not None:
-            gender = f'({PokemonGender.GetFromPokemonData(data.pokemon2).name})'
-            if gender == PokemonGender.Genderless:
-                gender = ''
+        if data.pokemon2 is not None and not data.pokemon2.is_empty:
+            gender = ''
+            if data.pokemon2.gender is not None:
+                gender = f' ({data.pokemon2.gender})'
 
             pokemon2 = {
-                '__value': f"{data.pokemon2['name']}{gender}; {data.pokemon1_steps:,} steps",
+                '__value': f"{data.pokemon2.species.name}{gender}; {data.pokemon1_steps:,} steps",
                 'pokemon': data.pokemon2,
                 'steps': data.pokemon2_steps,
                 'egg_groups': ', '.join(set(data.pokemon2_egg_groups))

@@ -1,27 +1,402 @@
 [
-    "Hardy",
-    "Lonely",
-    "Brave",
-    "Adamant",
-    "Naughty",
-    "Bold",
-    "Docile",
-    "Relaxed",
-    "Impish",
-    "Lax",
-    "Timid",
-    "Hasty",
-    "Serious",
-    "Jolly",
-    "Naive",
-    "Modest",
-    "Mild",
-    "Quiet",
-    "Bashful",
-    "Rash",
-    "Calm",
-    "Gentle",
-    "Sassy",
-    "Careful",
-    "Quirky"
+    {
+        "name": "Hardy",
+        "localised_names": {
+            "D": "ROBUST",
+            "E": "HARDY",
+            "F": "HARDI",
+            "I": "ARDITA",
+            "J": "\u304c\u3093\u3070\u308a\u3084",
+            "S": "FUERTE"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 1,
+        "speed_modifier": 1,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Lonely",
+        "localised_names": {
+            "D": "SOLO",
+            "E": "LONELY",
+            "F": "SOLO",
+            "I": "SCHIVA",
+            "J": "\u3055\u307f\u3057\u304c\u308a",
+            "S": "HURA\u00d1A"
+        },
+        "attack_modifier": 1.1,
+        "defence_modifier": 0.9,
+        "speed_modifier": 1,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Brave",
+        "localised_names": {
+            "D": "MUTIG",
+            "E": "BRAVE",
+            "F": "BRAVE",
+            "I": "AUDACE",
+            "J": "\u3086\u3046\u304b\u3093",
+            "S": "AUDAZ"
+        },
+        "attack_modifier": 1.1,
+        "defence_modifier": 1,
+        "speed_modifier": 0.9,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Adamant",
+        "localised_names": {
+            "D": "HART",
+            "E": "ADAMANT",
+            "F": "RIGIDE",
+            "I": "DECISA",
+            "J": "\u3044\u3058\u3063\u3071\u308a",
+            "S": "FIRME"
+        },
+        "attack_modifier": 1.1,
+        "defence_modifier": 1,
+        "speed_modifier": 1,
+        "special_attack_modifier": 0.9,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Naughty",
+        "localised_names": {
+            "D": "FRECH",
+            "E": "NAUGHTY",
+            "F": "MAUVAIS",
+            "I": "BIRBONA",
+            "J": "\u3084\u3093\u3061\u3083",
+            "S": "P\u00cdCARA"
+        },
+        "attack_modifier": 1.1,
+        "defence_modifier": 1,
+        "speed_modifier": 1,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 0.9
+    },
+    {
+        "name": "Bold",
+        "localised_names": {
+            "D": "K\u00dcHN",
+            "E": "BOLD",
+            "F": "ASSURE",
+            "I": "SICURA",
+            "J": "\u305a\u3076\u3068\u3044",
+            "S": "OSADA"
+        },
+        "attack_modifier": 0.9,
+        "defence_modifier": 1.1,
+        "speed_modifier": 1,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Docile",
+        "localised_names": {
+            "D": "SANFT",
+            "E": "DOCILE",
+            "F": "DOCILE",
+            "I": "DOCILE",
+            "J": "\u3059\u306a\u304a",
+            "S": "D\u00d3CIL"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 1,
+        "speed_modifier": 1,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Relaxed",
+        "localised_names": {
+            "D": "LOCKER",
+            "E": "RELAXED",
+            "F": "RELAX",
+            "I": "PLACIDA",
+            "J": "\u306e\u3093\u304d",
+            "S": "PL\u00c1CIDA"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 1.1,
+        "speed_modifier": 0.9,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Impish",
+        "localised_names": {
+            "D": "PFIFFIG",
+            "E": "IMPISH",
+            "F": "MALIN",
+            "I": "SCALTRA",
+            "J": "\u308f\u3093\u3071\u304f",
+            "S": "AGITADA"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 1.1,
+        "speed_modifier": 1,
+        "special_attack_modifier": 0.9,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Lax",
+        "localised_names": {
+            "D": "LASCH",
+            "E": "LAX",
+            "F": "LACHE",
+            "I": "FIACCA",
+            "J": "\u306e\u3046\u3066\u3093\u304d",
+            "S": "FLOJA"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 1.1,
+        "speed_modifier": 1,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 0.9
+    },
+    {
+        "name": "Timid",
+        "localised_names": {
+            "D": "SCHEU",
+            "E": "TIMID",
+            "F": "TIMIDE",
+            "I": "TIMIDA",
+            "J": "\u304a\u304f\u3073\u3087\u3046",
+            "S": "MIEDOSA"
+        },
+        "attack_modifier": 0.9,
+        "defence_modifier": 1,
+        "speed_modifier": 1.1,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Hasty",
+        "localised_names": {
+            "D": "HASTIG",
+            "E": "HASTY",
+            "F": "PRESSE",
+            "I": "LESTA",
+            "J": "\u305b\u3063\u304b\u3061",
+            "S": "ACTIVA"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 0.9,
+        "speed_modifier": 1.1,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Serious",
+        "localised_names": {
+            "D": "ERNST",
+            "E": "SERIOUS",
+            "F": "SERIEUX",
+            "I": "SERIA",
+            "J": "\u307e\u3058\u3081",
+            "S": "SERIA"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 1,
+        "speed_modifier": 1,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Jolly",
+        "localised_names": {
+            "D": "FROH",
+            "E": "JOLLY",
+            "F": "JOVIAL",
+            "I": "ALLEGRA",
+            "J": "\u3088\u3046\u304d",
+            "S": "ALEGRE"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 1,
+        "speed_modifier": 1.1,
+        "special_attack_modifier": 0.9,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Naive",
+        "localised_names": {
+            "D": "NAIV",
+            "E": "NAIVE",
+            "F": "NAIF",
+            "I": "INGENUA",
+            "J": "\u3080\u3058\u3083\u304d",
+            "S": "INGENUA"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 1,
+        "speed_modifier": 1.1,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 0.9
+    },
+    {
+        "name": "Modest",
+        "localised_names": {
+            "D": "M\u00c4SSIG",
+            "E": "MODEST",
+            "F": "MODESTE",
+            "I": "MODESTA",
+            "J": "\u3072\u304b\u3048\u3081",
+            "S": "MODESTA"
+        },
+        "attack_modifier": 0.9,
+        "defence_modifier": 1,
+        "speed_modifier": 1,
+        "special_attack_modifier": 1.1,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Mild",
+        "localised_names": {
+            "D": "MILD",
+            "E": "MILD",
+            "F": "DOUX",
+            "I": "MITE",
+            "J": "\u304a\u3063\u3068\u308a",
+            "S": "AFABLE"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 0.9,
+        "speed_modifier": 1,
+        "special_attack_modifier": 1.1,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Quiet",
+        "localised_names": {
+            "D": "RUHIG",
+            "E": "QUIET",
+            "F": "DISCRET",
+            "I": "QUIETA",
+            "J": "\u308c\u3044\u305b\u3044",
+            "S": "MANSA"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 1,
+        "speed_modifier": 0.9,
+        "special_attack_modifier": 1.1,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Bashful",
+        "localised_names": {
+            "D": "ZAGHAFT",
+            "E": "BASHFUL",
+            "F": "PUDIQUE",
+            "I": "RITROSA",
+            "J": "\u3066\u308c\u3084",
+            "S": "T\u00cdMIDA"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 1,
+        "speed_modifier": 1,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 1
+    },
+    {
+        "name": "Rash",
+        "localised_names": {
+            "D": "HITZIG",
+            "E": "RASH",
+            "F": "FOUFOU",
+            "I": "ARDENTE",
+            "J": "\u3046\u3063\u304b\u308a\u3084",
+            "S": "ALOCADA"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 1,
+        "speed_modifier": 1,
+        "special_attack_modifier": 1.1,
+        "special_defence_modifier": 0.9
+    },
+    {
+        "name": "Calm",
+        "localised_names": {
+            "D": "STILL",
+            "E": "CALM",
+            "F": "CALME",
+            "I": "CALMA",
+            "J": "\u304a\u3060\u3084\u304b",
+            "S": "SERENA"
+        },
+        "attack_modifier": 0.9,
+        "defence_modifier": 1,
+        "speed_modifier": 1,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 1.1
+    },
+    {
+        "name": "Gentle",
+        "localised_names": {
+            "D": "ZART",
+            "E": "GENTLE",
+            "F": "GENTIL",
+            "I": "GENTILE",
+            "J": "\u304a\u3068\u306a\u3057\u3044",
+            "S": "AMABLE"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 0.9,
+        "speed_modifier": 1,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 1.1
+    },
+    {
+        "name": "Sassy",
+        "localised_names": {
+            "D": "FORSCH",
+            "E": "SASSY",
+            "F": "MALPOLI",
+            "I": "VIVACE",
+            "J": "\u306a\u307e\u3044\u304d",
+            "S": "GROSERA"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 1,
+        "speed_modifier": 0.9,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 1.1
+    },
+    {
+        "name": "Careful",
+        "localised_names": {
+            "D": "SACHT",
+            "E": "CAREFUL",
+            "F": "PRUDENT",
+            "I": "CAUTA",
+            "J": "\u3057\u3093\u3061\u3087\u3046",
+            "S": "CAUTA"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 1,
+        "speed_modifier": 1,
+        "special_attack_modifier": 0.9,
+        "special_defence_modifier": 1.1
+    },
+    {
+        "name": "Quirky",
+        "localised_names": {
+            "D": "KAUZIG",
+            "E": "QUIRKY",
+            "F": "BIZARRE",
+            "I": "FURBA",
+            "J": "\u304d\u307e\u3050\u308c",
+            "S": "RARA"
+        },
+        "attack_modifier": 1,
+        "defence_modifier": 1,
+        "speed_modifier": 1,
+        "special_attack_modifier": 1,
+        "special_defence_modifier": 1
+    }
 ]

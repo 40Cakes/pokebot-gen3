@@ -58,7 +58,7 @@ class Trainer:
         return DecodeString(GetSaveBlock(2, size=8))
 
     def GetGender(self) -> str:
-        return "girl" if int.from_bytes(GetSaveBlock(2, 0x8, 1)) else "boy"
+        return "girl" if int.from_bytes(GetSaveBlock(2, 0x8, 1), byteorder='little') else "boy"
 
     def GetTID(self) -> int:
         return unpack_uint16(GetSaveBlock(2, 0xA, 2))

@@ -16,6 +16,6 @@ replay_dir: "./stream/replays/"
 
 # Web server
 http_server:
-  enable: false # `true`, `false`
+  enable: true # `true`, `false`
   ip: 127.0.0.1
   port: 8888

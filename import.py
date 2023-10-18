@@ -142,7 +142,7 @@ def GetStateDataFromPNG(file: IO) -> tuple[bytes, Union[bytes, None]]:
     # Both are zlib-compressed, so `zlib.decompress()` is required before
     # being able to use the data.
     while True:
-        chunk_length = int.from_bytes(file.read(4))
+        chunk_length = int.from_bytes(file.read(4), byteorder='big')
         chunk_type = file.read(4)
         if chunk_type == b'gbAs':
             state_data = zlib.decompress(file.read(chunk_length))

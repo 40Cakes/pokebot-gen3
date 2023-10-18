@@ -1,5 +1,4 @@
 import time
-from typing import NoReturn
 from pypresence import Presence
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from modules.Console import console
@@ -17,7 +16,7 @@ def DiscordMessage(webhook_url: str = None,
                         embed_thumbnail: str = None,
                         embed_image: str = None,
                         embed_footer: str = None,
-                        embed_color: str = 'FFFFFF') -> NoReturn:
+                        embed_color: str = 'FFFFFF') -> None:
     try:
         if not webhook_url:
             webhook_url = config['discord']['global_webhook_url']
@@ -50,7 +49,7 @@ def DiscordMessage(webhook_url: str = None,
         console.print_exception(show_locals=True)
 
 
-def DiscordRichPresence() -> NoReturn:
+def DiscordRichPresence() -> None:
     try:
         from modules.Stats import GetEncounterRate, encounter_log, stats
         from asyncio import (new_event_loop as new_loop, set_event_loop as set_loop)

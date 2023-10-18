@@ -2,15 +2,15 @@ import os
 import glob
 import time
 import random
-from typing import NoReturn
 from threading import Thread
 from modules.Config import config
 from modules.Console import console
 from modules.Discord import DiscordMessage
 from modules.Gui import GetROM
+from modules.Pokemon import Pokemon
 
 
-def CustomHooks(hook) -> NoReturn:
+def CustomHooks(hook) -> None:
     """
     This function is called every time an encounter is logged, but before phase stats are reset (if shiny)
     this file is useful for custom webhooks or logging to external databases if you understand Python
@@ -19,7 +19,7 @@ def CustomHooks(hook) -> NoReturn:
     """
     try:
         # Deep copy of Pokémon and stats dictionaries when the thread was called to avoid main thread overwriting vars
-        pokemon = hook[0]
+        pokemon: Pokemon = hook[0]
         stats = hook[1]
         block_list = hook[2]
 
@@ -36,24 +36,24 @@ def CustomHooks(hook) -> NoReturn:
                     "╔═══╤═══╤═══╤═══╤═══╤═══╗\n"
                     "║HP │ATK│DEF│SPA│SPD│SPE║\n"
                     "╠═══╪═══╪═══╪═══╪═══╪═══╣\n"
-                    f"║{pokemon['IVs']['hp']:^3}│"
-                    f"{pokemon['IVs']['attack']:^3}│"
-                    f"{pokemon['IVs']['defense']:^3}│"
-                    f"{pokemon['IVs']['spAttack']:^3}│"
-                    f"{pokemon['IVs']['spDefense']:^3}│"
-                    f"{pokemon['IVs']['speed']:^3}║\n"
+                    f"║{pokemon.ivs.hp:^3}│"
+                    f"{pokemon.ivs.attack:^3}│"
+                    f"{pokemon.ivs.defence:^3}│"
+                    f"{pokemon.ivs.special_attack:^3}│"
+                    f"{pokemon.ivs.special_defence:^3}│"
+                    f"{pokemon.ivs.speed:^3}║\n"
                     "╚═══╧═══╧═══╧═══╧═══╧═══╝"
                     "```"
                 )
             else:
                 # Basic IV table
                 iv_field = (
-                    f"HP: {pokemon['IVs']['hp']} | "
-                    f"ATK: {pokemon['IVs']['attack']} | "
-                    f"DEF: {pokemon['IVs']['defense']} | "
-                    f"SPATK: {pokemon['IVs']['spAttack']} | "
-                    f"SPDEF: {pokemon['IVs']['spDefense']} | "
-                    f"SPE: {pokemon['IVs']['speed']}"
+                    f"HP: {pokemon.ivs.hp} | "
+                    f"ATK: {pokemon.ivs.attack} | "
+                    f"DEF: {pokemon.ivs.defence} | "
+                    f"SPATK: {pokemon.ivs.special_attack} | "
+                    f"SPDEF: {pokemon.ivs.special_defence} | "
+                    f"SPE: {pokemon.ivs.speed}"
                 )
             return iv_field
 
@@ -78,7 +78,7 @@ def CustomHooks(hook) -> NoReturn:
 
         try:
             # Discord shiny Pokémon encountered
-            if config["discord"]["shiny_pokemon_encounter"]["enable"] and pokemon["shiny"]:
+            if config["discord"]["shiny_pokemon_encounter"]["enable"] and pokemon.is_shiny:
                 # Discord pings
                 discord_ping = ""
                 match config["discord"]["shiny_pokemon_encounter"]["ping_mode"]:
@@ -87,24 +87,24 @@ def CustomHooks(hook) -> NoReturn:
                     case "user":
                         discord_ping = f"📢 <@{config['discord']['shiny_pokemon_encounter']['ping_id']}>"
 
-                block = "\n❌Skipping catching shiny (on catch block list)!" if pokemon["name"] in block_list else ""
+                block = "\n❌Skipping catching shiny (on catch block list)!" if pokemon.species.name in block_list else ""
 
                 DiscordMessage(
                     webhook_url=config["discord"]["shiny_pokemon_encounter"].get("webhook_url", None),
-                    content=f"Encountered a shiny ✨ {pokemon['name']} ✨! {block}\n{discord_ping}",
+                    content=f"Encountered a shiny ✨ {pokemon.species.name} ✨! {block}\n{discord_ping}",
                     embed=True,
                     embed_title="Shiny encountered!",
                     embed_description=(
-                        f"{pokemon['nature']} {pokemon['name']} (Lv. {pokemon['level']:,}) at {pokemon['metLocation']}!"
+                        f"{pokemon.nature.name} {pokemon.species.name} (Lv. {pokemon.level:,}) at {pokemon.location_met}!"
                     ),
                     embed_fields={
-                        "Shiny Value": f"{pokemon['shinyValue']:,}",
+                        "Shiny Value": f"{pokemon.shiny_value:,}",
                         "IVs": IVField(),
-                        f"{pokemon['name']} Encounters": f"{stats['pokemon'][pokemon['name']].get('encounters', 0):,} ({stats['pokemon'][pokemon['name']].get('shiny_encounters', 0):,}✨)",
-                        f"{pokemon['name']} Phase Encounters": f"{stats['pokemon'][pokemon['name']].get('phase_encounters', 0):,}",
+                        f"{pokemon.species.name} Encounters": f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} ({stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,}✨)",
+                        f"{pokemon.species.name} Phase Encounters": f"{stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,}",
                     }
                     | PhaseSummary(),
-                    embed_thumbnail=f"./sprites/pokemon/shiny/{pokemon['name']}.png",
+                    embed_thumbnail=f"./sprites/pokemon/shiny/{pokemon.species.name}.png",
                     embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
                     embed_color="ffd242",
                 )
@@ -115,7 +115,7 @@ def CustomHooks(hook) -> NoReturn:
             # Discord Pokémon encounter milestones
             if (
                 config["discord"]["pokemon_encounter_milestones"]["enable"]
-                and stats["pokemon"][pokemon["name"]].get("encounters", -1)
+                and stats["pokemon"][pokemon.species.name].get("encounters", -1)
                 % config["discord"]["pokemon_encounter_milestones"].get("interval", 0)
                 == 0
             ):
@@ -130,8 +130,8 @@ def CustomHooks(hook) -> NoReturn:
                     webhook_url=config["discord"]["pokemon_encounter_milestones"].get("webhook_url", None),
                     content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
-                    embed_description=f"{stats['pokemon'][pokemon['name']].get('encounters', 0):,} {pokemon['name']} encounters!",
-                    embed_thumbnail=f"./sprites/pokemon/normal/{pokemon['name']}.png",
+                    embed_description=f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} {pokemon.species.name} encounters!",
+                    embed_thumbnail=f"./sprites/pokemon/normal/{pokemon.species.name}.png",
                     embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
                     embed_color="50C878",
                 )
@@ -142,8 +142,8 @@ def CustomHooks(hook) -> NoReturn:
             # Discord shiny Pokémon encounter milestones
             if (
                 config["discord"]["shiny_pokemon_encounter_milestones"]["enable"]
-                and pokemon["shiny"]
-                and stats["pokemon"][pokemon["name"]].get("shiny_encounters", -1)
+                and pokemon.is_shiny
+                and stats["pokemon"][pokemon.species.name].get("shiny_encounters", -1)
                 % config["discord"]["shiny_pokemon_encounter_milestones"].get("interval", 0)
                 == 0
             ):
@@ -158,8 +158,8 @@ def CustomHooks(hook) -> NoReturn:
                     webhook_url=config["discord"]["shiny_pokemon_encounter_milestones"].get("webhook_url", None),
                     content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
-                    embed_description=f"{stats['pokemon'][pokemon['name']].get('shiny_encounters', 0):,} shiny ✨ {pokemon['name']} ✨ encounters!",
-                    embed_thumbnail=f"./sprites/pokemon/shiny/{pokemon['name']}.png",
+                    embed_description=f"{stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,} shiny ✨ {pokemon.species.name} ✨ encounters!",
+                    embed_thumbnail=f"./sprites/pokemon/shiny/{pokemon.species.name}.png",
                     embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
                     embed_color="ffd242",
                 )
@@ -217,7 +217,7 @@ def CustomHooks(hook) -> NoReturn:
             # Discord phase encounter notifications
             if (
                 config["discord"]["phase_summary"]["enable"]
-                and not pokemon["shiny"]
+                and not pokemon.is_shiny
                 and (
                     stats["totals"].get("phase_encounters", -1)
                     == config["discord"]["phase_summary"].get("first_interval", 0)
@@ -251,7 +251,7 @@ def CustomHooks(hook) -> NoReturn:
         try:
             # Discord anti-shiny Pokémon encountered
             if config["discord"]["anti_shiny_pokemon_encounter"]["enable"] and (
-                65528 <= pokemon["shinyValue"] <= 65535
+                65528 <= pokemon.shiny_value <= 65535
             ):
                 # Discord pings
                 discord_ping = ""
@@ -262,18 +262,18 @@ def CustomHooks(hook) -> NoReturn:
                         discord_ping = f"📢 <@{config['discord']['anti_shiny_pokemon_encounter']['ping_id']}>"
                 DiscordMessage(
                     webhook_url=config["discord"]["anti_shiny_pokemon_encounter"].get("webhook_url", None),
-                    content=f"Encountered an anti-shiny 💀 {pokemon['name']} 💀!\n{discord_ping}",
+                    content=f"Encountered an anti-shiny 💀 {pokemon.species.name} 💀!\n{discord_ping}",
                     embed=True,
                     embed_title="Anti-Shiny encountered!",
-                    embed_description=f"{pokemon['nature']} {pokemon['name']} (Lv. {pokemon['level']:,}) at {pokemon['metLocation']}!",
+                    embed_description=f"{pokemon.nature.name} {pokemon.species.name} (Lv. {pokemon.level:,}) at {pokemon.location_met}!",
                     embed_fields={
-                        "Shiny Value": f"{pokemon['shinyValue']:,}",
+                        "Shiny Value": f"{pokemon.shiny_value:,}",
                         "IVs": IVField(),
-                        f"{pokemon['name']} Encounters": f"{stats['pokemon'][pokemon['name']].get('encounters', 0):,} ({stats['pokemon'][pokemon['name']].get('shiny_encounters', 0):,}✨)",
-                        f"{pokemon['name']} Phase Encounters": f"{stats['pokemon'][pokemon['name']].get('phase_encounters', 0):,}",
+                        f"{pokemon.species.name} Encounters": f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} ({stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,}✨)",
+                        f"{pokemon.species.name} Phase Encounters": f"{stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,}",
                     }
                     | PhaseSummary(),
-                    embed_thumbnail=f"./sprites/pokemon/anti-shiny/{pokemon['name']}.png",
+                    embed_thumbnail=f"./sprites/pokemon/anti-shiny/{pokemon.species.name}.png",
                     embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
                     embed_color="000000",
                 )
@@ -286,7 +286,7 @@ def CustomHooks(hook) -> NoReturn:
     try:
         # Post the most recent OBS stream screenshot to Discord
         # (screenshot is taken in Stats.py before phase resets)
-        if config["obs"]["discord_webhook_url"] and pokemon["shiny"]:
+        if config["obs"]["discord_webhook_url"] and pokemon.is_shiny:
 
             def OBSDiscordScreenshot():
                 time.sleep(3)  # Give the screenshot some time to save to disk
@@ -301,7 +301,7 @@ def CustomHooks(hook) -> NoReturn:
 
     try:
         # Save OBS replay buffer n frames after encountering a shiny
-        if config["obs"]["replay_buffer"] and pokemon["shiny"]:
+        if config["obs"]["replay_buffer"] and pokemon.is_shiny:
 
             def OBSReplayBuffer():
                 from modules.OBS import OBSHotKey

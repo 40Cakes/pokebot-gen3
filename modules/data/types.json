@@ -1,279 +1,345 @@
-{
-    "Normal": {
+[
+    {
         "name": "Normal",
-        "immunes": [
-            "Ghost"
-        ],
-        "weaknesses": [
-            "Rock",
-            "Steel"
-        ],
-        "strengths": [
-
-        ]
+        "effectiveness": {
+            "Rock": 0.5,
+            "Steel": 0.5,
+            "Ghost": 0.0
+        },
+        "localised_names": {
+            "D": "NORMAL",
+            "E": "NORMAL",
+            "F": "NORMAL",
+            "I": "NORM",
+            "J": "\u30ce\u30fc\u30de\u30eb",
+            "S": "NORMAL"
+        }
     },
-    "Fire": {
-        "name": "Fire",
-        "immunes": [
-
-        ],
-        "weaknesses": [
-            "Fire",
-            "Water",
-            "Rock",
-            "Dragon"
-        ],
-        "strengths": [
-            "Grass",
-            "Ice",
-            "Bug",
-            "Steel"
-        ]
+    {
+        "name": "Fight",
+        "effectiveness": {
+            "Normal": 2.0,
+            "Ice": 2.0,
+            "Poison": 0.5,
+            "Flying": 0.5,
+            "Psychic": 0.5,
+            "Bug": 0.5,
+            "Rock": 2.0,
+            "Dark": 2.0,
+            "Steel": 2.0,
+            "Ghost": 0.0
+        },
+        "localised_names": {
+            "D": "KAMPF",
+            "E": "FIGHT",
+            "F": "COMBAT",
+            "I": "LOTTA",
+            "J": "\u304b\u304f\u3068\u3046",
+            "S": "LUCHA"
+        }
     },
-    "Water": {
-        "name": "Water",
-        "immunes": [
-
-        ],
-        "weaknesses": [
-            "Water",
-            "Grass",
-            "Dragon"
-        ],
-        "strengths": [
-            "Fire",
-            "Ground",
-            "Rock"
-        ]
-    },
-    "Electric": {
-        "name": "Electric",
-        "immunes": [
-            "Ground"
-        ],
-        "weaknesses": [
-            "Electric",
-            "Grass",
-            "Dragon"
-        ],
-        "strengths": [
-            "Water",
-            "Flying"
-        ]
-    },
-    "Grass": {
-        "name": "Grass",
-        "immunes": [
-
-        ],
-        "weaknesses": [
-            "Fire",
-            "Grass",
-            "Poison",
-            "Flying",
-            "Bug",
-            "Dragon",
-            "Steel"
-        ],
-        "strengths": [
-            "Water",
-            "Ground",
-            "Rock"
-        ]
-    },
-    "Ice": {
-        "name": "Ice",
-        "immunes": [
-
-        ],
-        "weaknesses": [
-            "Fire",
-            "Water",
-            "Ice",
-            "Steel"
-        ],
-        "strengths": [
-            "Grass",
-            "Ground",
-            "Flying",
-            "Dragon"
-        ]
-    },
-    "Fighting": {
-        "name": "Fighting",
-        "immunes": [
-            "Ghost"
-        ],
-        "weaknesses": [
-            "Poison",
-            "Flying",
-            "Psychic",
-            "Bug",
-            "Fairy"
-        ],
-        "strengths": [
-            "Normal",
-            "Ice",
-            "Rock",
-            "Dark",
-            "Steel"
-        ]
-    },
-    "Poison": {
-        "name": "Poison",
-        "immunes": [
-            "Steel"
-        ],
-        "weaknesses": [
-            "Poison",
-            "Ground",
-            "Rock",
-            "Ghost"
-        ],
-        "strengths": [
-            "Grass",
-            "Fairy"
-        ]
-    },
-    "Ground": {
-        "name": "Ground",
-        "immunes": [
-            "Flying"
-        ],
-        "weaknesses": [
-            "Grass",
-            "Bug"
-        ],
-        "strengths": [
-            "Fire",
-            "Electric",
-            "Poison",
-            "Rock",
-            "Steel"
-        ]
-    },
-    "Flying": {
+    {
         "name": "Flying",
-        "immunes": [
-
-        ],
-        "weaknesses": [
-            "Electric",
-            "Rock",
-            "Steel"
-        ],
-        "strengths": [
-            "Grass",
-            "Fighting",
-            "Bug"
-        ]
+        "effectiveness": {
+            "Electric": 0.5,
+            "Grass": 2.0,
+            "Fight": 2.0,
+            "Bug": 2.0,
+            "Rock": 0.5,
+            "Steel": 0.5
+        },
+        "localised_names": {
+            "D": "FLUG",
+            "E": "FLYING",
+            "F": "VOL",
+            "I": "VOLAN",
+            "J": "\u3072\u3053\u3046",
+            "S": "VOLAD."
+        }
     },
-    "Psychic": {
-        "name": "Psychic",
-        "immunes": [
-            "Dark"
-        ],
-        "weaknesses": [
-            "Psychic",
-            "Steel"
-        ],
-        "strengths": [
-            "Fighting",
-            "Poison"
-        ]
+    {
+        "name": "Poison",
+        "effectiveness": {
+            "Grass": 2.0,
+            "Poison": 0.5,
+            "Ground": 0.5,
+            "Rock": 0.5,
+            "Ghost": 0.5,
+            "Steel": 0.0
+        },
+        "localised_names": {
+            "D": "GIFT",
+            "E": "POISON",
+            "F": "POISON",
+            "I": "VELENO",
+            "J": "\u3069\u304f",
+            "S": "VENENO"
+        }
     },
-    "Bug": {
-        "name": "Bug",
-        "immunes": [
-
-        ],
-        "weaknesses": [
-            "Fire",
-            "Fighting",
-            "Poison",
-            "Flying",
-            "Ghost",
-            "Steel",
-            "Fairy"
-        ],
-        "strengths": [
-            "Grass",
-            "Psychic",
-            "Dark"
-        ]
+    {
+        "name": "Ground",
+        "effectiveness": {
+            "Fire": 2.0,
+            "Electric": 2.0,
+            "Grass": 0.5,
+            "Poison": 2.0,
+            "Flying": 0.0,
+            "Bug": 0.5,
+            "Rock": 2.0,
+            "Steel": 2.0
+        },
+        "localised_names": {
+            "D": "BODEN",
+            "E": "GROUND",
+            "F": "SOL",
+            "I": "TERRA",
+            "J": "\u3058\u3081\u3093",
+            "S": "TIERRA"
+        }
     },
-    "Rock": {
+    {
         "name": "Rock",
-        "immunes": [
-
-        ],
-        "weaknesses": [
-            "Fighting",
-            "Ground",
-            "Steel"
-        ],
-        "strengths": [
-            "Fire",
-            "Ice",
-            "Flying",
-            "Bug"
-        ]
+        "effectiveness": {
+            "Fire": 2.0,
+            "Ice": 2.0,
+            "Fight": 0.5,
+            "Ground": 0.5,
+            "Flying": 2.0,
+            "Bug": 2.0,
+            "Steel": 0.5
+        },
+        "localised_names": {
+            "D": "GEST.",
+            "E": "ROCK",
+            "F": "ROCHE",
+            "I": "ROCCIA",
+            "J": "\u3044\u308f",
+            "S": "ROCA"
+        }
     },
-    "Ghost": {
+    {
+        "name": "Bug",
+        "effectiveness": {
+            "Fire": 0.5,
+            "Grass": 2.0,
+            "Fight": 0.5,
+            "Poison": 0.5,
+            "Flying": 0.5,
+            "Psychic": 2.0,
+            "Ghost": 0.5,
+            "Dark": 2.0,
+            "Steel": 0.5
+        },
+        "localised_names": {
+            "D": "K\u00c4FER",
+            "E": "BUG",
+            "F": "INSECT",
+            "I": "COLEOT",
+            "J": "\u3080\u3057",
+            "S": "BICHO"
+        }
+    },
+    {
         "name": "Ghost",
-        "immunes": [
-            "Normal"
-        ],
-        "weaknesses": [
-            "Dark"
-        ],
-        "strengths": [
-            "Psychic",
-            "Ghost"
-        ]
+        "effectiveness": {
+            "Normal": 0.0,
+            "Psychic": 2.0,
+            "Dark": 0.5,
+            "Steel": 0.5,
+            "Ghost": 2.0
+        },
+        "localised_names": {
+            "D": "GEIST",
+            "E": "GHOST",
+            "F": "SPECTR",
+            "I": "SP.TRO",
+            "J": "\u30b4\u30fc\u30b9\u30c8",
+            "S": "FANT."
+        }
     },
-    "Dragon": {
-        "name": "Dragon",
-        "immunes": [
-            "Fairy"
-        ],
-        "weaknesses": [
-            "Steel"
-        ],
-        "strengths": [
-            "Dragon"
-        ]
-    },
-    "Dark": {
-        "name": "Dark",
-        "immunes": [
-
-        ],
-        "weaknesses": [
-            "Fighting",
-            "Dark",
-            "Fairy"
-        ],
-        "strengths": [
-            "Psychic",
-            "Ghost"
-        ]
-    },
-    "Steel": {
+    {
         "name": "Steel",
-        "immunes": [
-
-        ],
-        "weaknesses": [
-            "Fire",
-            "Water",
-            "Electric",
-            "Steel"
-        ],
-        "strengths": [
-            "Ice",
-            "Rock",
-            "Fairy"
-        ]
+        "effectiveness": {
+            "Fire": 0.5,
+            "Water": 0.5,
+            "Electric": 0.5,
+            "Ice": 2.0,
+            "Rock": 2.0,
+            "Steel": 0.5
+        },
+        "localised_names": {
+            "D": "STAHL",
+            "E": "STEEL",
+            "F": "ACIER",
+            "I": "ACC.IO",
+            "J": "\u306f\u304c\u306d",
+            "S": "ACERO"
+        }
+    },
+    {
+        "name": "???",
+        "effectiveness": {},
+        "localised_names": {
+            "D": "???",
+            "E": "???",
+            "F": "???",
+            "I": "???",
+            "J": "\uff1f\uff1f\uff1f",
+            "S": "(?)"
+        }
+    },
+    {
+        "name": "Fire",
+        "effectiveness": {
+            "Fire": 0.5,
+            "Water": 0.5,
+            "Grass": 2.0,
+            "Ice": 2.0,
+            "Bug": 2.0,
+            "Rock": 0.5,
+            "Dragon": 0.5,
+            "Steel": 2.0
+        },
+        "localised_names": {
+            "D": "FEUER",
+            "E": "FIRE",
+            "F": "FEU",
+            "I": "FUOCO",
+            "J": "\u307b\u306e\u304a",
+            "S": "FUEGO"
+        }
+    },
+    {
+        "name": "Water",
+        "effectiveness": {
+            "Fire": 2.0,
+            "Water": 0.5,
+            "Grass": 0.5,
+            "Ground": 2.0,
+            "Rock": 2.0,
+            "Dragon": 0.5
+        },
+        "localised_names": {
+            "D": "WASSER",
+            "E": "WATER",
+            "F": "EAU",
+            "I": "ACQUA",
+            "J": "\u307f\u305a",
+            "S": "AGUA"
+        }
+    },
+    {
+        "name": "Grass",
+        "effectiveness": {
+            "Fire": 0.5,
+            "Water": 2.0,
+            "Grass": 0.5,
+            "Poison": 0.5,
+            "Ground": 2.0,
+            "Flying": 0.5,
+            "Bug": 0.5,
+            "Rock": 2.0,
+            "Dragon": 0.5,
+            "Steel": 0.5
+        },
+        "localised_names": {
+            "D": "PFLAN.",
+            "E": "GRASS",
+            "F": "PLANTE",
+            "I": "ERBA",
+            "J": "\u304f\u3055",
+            "S": "PLANTA"
+        }
+    },
+    {
+        "name": "Electric",
+        "effectiveness": {
+            "Water": 2.0,
+            "Electric": 0.5,
+            "Grass": 0.5,
+            "Ground": 0.0,
+            "Flying": 2.0,
+            "Dragon": 0.5
+        },
+        "localised_names": {
+            "D": "ELEK.",
+            "E": "ELECTR",
+            "F": "ELECTR",
+            "I": "ELETT",
+            "J": "\u3067\u3093\u304d",
+            "S": "EL\u00c9CT."
+        }
+    },
+    {
+        "name": "Psychic",
+        "effectiveness": {
+            "Fight": 2.0,
+            "Poison": 2.0,
+            "Psychic": 0.5,
+            "Dark": 0.0,
+            "Steel": 0.5
+        },
+        "localised_names": {
+            "D": "PSYCHO",
+            "E": "PSYCHC",
+            "F": "PSY",
+            "I": "PSICO",
+            "J": "\u30a8\u30b9\u30d1\u30fc",
+            "S": "PS\u00cdQ."
+        }
+    },
+    {
+        "name": "Ice",
+        "effectiveness": {
+            "Water": 0.5,
+            "Grass": 2.0,
+            "Ice": 0.5,
+            "Ground": 2.0,
+            "Flying": 2.0,
+            "Dragon": 2.0,
+            "Steel": 0.5,
+            "Fire": 0.5
+        },
+        "localised_names": {
+            "D": "EIS",
+            "E": "ICE",
+            "F": "GLACE",
+            "I": "GHIACC",
+            "J": "\u3053\u304a\u308a",
+            "S": "HIELO"
+        }
+    },
+    {
+        "name": "Dragon",
+        "effectiveness": {
+            "Dragon": 2.0,
+            "Steel": 0.5
+        },
+        "localised_names": {
+            "D": "DRA.",
+            "E": "DRAGON",
+            "F": "DRAGON",
+            "I": "DRAGO",
+            "J": "\u30c9\u30e9\u30b4\u30f3",
+            "S": "DRAG\u00d3N"
+        }
+    },
+    {
+        "name": "Dark",
+        "effectiveness": {
+            "Fight": 0.5,
+            "Psychic": 2.0,
+            "Ghost": 2.0,
+            "Dark": 0.5,
+            "Steel": 0.5
+        },
+        "localised_names": {
+            "D": "UNL.",
+            "E": "DARK",
+            "F": "TENEBR",
+            "I": "BUIO",
+            "J": "\u3042\u304f",
+            "S": "SINIE."
+        }
     }
-}
+]

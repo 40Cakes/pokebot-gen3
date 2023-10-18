@@ -216,4 +216,5 @@ def GameHasStarted() -> bool:
     Reports whether the game has progressed past the main menu (save loaded
     or new game started.)
     """
-    return ReadSymbol("sPlayTimeCounterState") != b"\x00" and 0 != int.from_bytes(ReadSymbol("gObjectEvents", 0x10, 9))
+    return ReadSymbol("sPlayTimeCounterState") != b"\x00" and \
+        0 != int.from_bytes(ReadSymbol("gObjectEvents", 0x10, 9), byteorder='little')

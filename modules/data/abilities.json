@@ -1,0 +1,1484 @@
+[
+    {
+        "name": "-------",
+        "localised_names": {
+            "D": "-------",
+            "E": "-------",
+            "F": "-------",
+            "I": "-------",
+            "J": "\u30fc\u30fc\u30fc\u30fc\u30fc\u30fc\u30fc",
+            "S": "(?)"
+        },
+        "localised_descriptions": {
+            "D": "\u00c8  Keine Spezial-F\u00e4higkeit.",
+            "E": "\u00c8  No special ability.",
+            "F": "\u00c8  Pas de capacit\u00e9 sp\u00e9ciale.",
+            "I": "\u00c8  Nessuna abilit\u00e0 speciale.",
+            "J": "",
+            "S": "\u00c8  Ninguna en particular."
+        }
+    },
+    {
+        "name": "Stench",
+        "localised_names": {
+            "D": "DUFTNOTE",
+            "E": "STENCH",
+            "F": "PUANTEUR",
+            "I": "TANFO",
+            "J": "\u3042\u304f\u3057\u3085\u3046",
+            "S": "HEDOR"
+        },
+        "localised_descriptions": {
+            "D": "Wehrt wilde POK\u00e9MON ab.",
+            "E": "Helps repel wild POK\u00e9MON.",
+            "F": "Repousse POK\u00e9MON sauvage.",
+            "I": "Allontana POK\u00e9MON selvat.",
+            "J": "\u3068\u3073\u306f\u306d\u308b",
+            "S": "Aleja a POK\u00e9MON salvajes."
+        }
+    },
+    {
+        "name": "Drizzle",
+        "localised_names": {
+            "D": "NIESEL",
+            "E": "DRIZZLE",
+            "F": "CRACHIN",
+            "I": "PIOVISCHIO",
+            "J": "\u3042\u3081\u3075\u3089\u3057",
+            "S": "LLOVIZNA"
+        },
+        "localised_descriptions": {
+            "D": "Ruft im Kampf Regen herbei.",
+            "E": "Summons rain in battle.",
+            "F": "Invoque la pluie en combat.",
+            "I": "Nella lotta attira pioggia.",
+            "J": "",
+            "S": "Hace que llueva en combate."
+        }
+    },
+    {
+        "name": "Speed Boost",
+        "localised_names": {
+            "D": "TEMPOSCHUB",
+            "E": "SPEED BOOST",
+            "F": "TURBO",
+            "I": "ACCELERATORE",
+            "J": "\u304b\u305d\u304f",
+            "S": "IMPULSO"
+        },
+        "localised_descriptions": {
+            "D": "Erh\u00f6ht INIT. nach und nach.",
+            "E": "Gradually boosts SPEED.",
+            "F": "Am\u00e9liore la VITESSE.",
+            "I": "Graduale aumento VELOCIT\u00c0.",
+            "J": "",
+            "S": "Va subiendo la VELOCIDAD."
+        }
+    },
+    {
+        "name": "Battle Armor",
+        "localised_names": {
+            "D": "KAMPFPANZER",
+            "E": "BATTLE ARMOR",
+            "F": "ARMURBASTON",
+            "I": "LOTTASCUDO",
+            "J": "\u30ab\u30d6\u30c8\u30a2\u30fc\u30de\u30fc",
+            "S": "ARMAD. BAT."
+        },
+        "localised_descriptions": {
+            "D": "Wehrt Volltreffer ab.",
+            "E": "Blocks critical hits.",
+            "F": "Bloque les coups critiques.",
+            "I": "Evita i brutti colpi.",
+            "J": "\u30de\u30c3\u30c9\u30b7\u30e7\u30c3\u30c8",
+            "S": "Bloquea golpes cr\u00edticos."
+        }
+    },
+    {
+        "name": "Sturdy",
+        "localised_names": {
+            "D": "ROBUSTHEIT",
+            "E": "STURDY",
+            "F": "FERMETE",
+            "I": "VIGORE",
+            "J": "\u304c\u3093\u3058\u3087\u3046",
+            "S": "ROBUSTEZ"
+        },
+        "localised_descriptions": {
+            "D": "Keine 1-Treffer-K.O.-Att.",
+            "E": "Negates 1-hit KO attacks.",
+            "F": "Ignore les K.O. en un coup.",
+            "I": "Evita i KO in una mossa.",
+            "J": "\u30dd\u30a4\u30ba\u30f3\u30c6\u30fc\u30eb",
+            "S": "Anula golpes fulminantes."
+        }
+    },
+    {
+        "name": "Damp",
+        "localised_names": {
+            "D": "FEUCHTIGKEIT",
+            "E": "DAMP",
+            "F": "MOITEUR",
+            "I": "UMIDIT\u00c0",
+            "J": "\u3057\u3081\u308a\u3051",
+            "S": "HUMEDAD"
+        },
+        "localised_descriptions": {
+            "D": "Gegen Selbstzerst\u00f6rung.",
+            "E": "Prevents self-destruction.",
+            "F": "Emp\u00eache auto-destruction.",
+            "I": "Evita autodistruzione.",
+            "J": "\u307b\u3057\u304c\u308b",
+            "S": "Evita la autodestrucci\u00f3n."
+        }
+    },
+    {
+        "name": "Limber",
+        "localised_names": {
+            "D": "FLEXIBILIT\u00c4T",
+            "E": "LIMBER",
+            "F": "ECHAUFFEMENT",
+            "I": "SCIOLTEZZA",
+            "J": "\u3058\u3085\u3046\u306a\u3093",
+            "S": "FLEXIBILIDAD"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert Paralyse.",
+            "E": "Prevents paralysis.",
+            "F": "Emp\u00eache la paralysie.",
+            "I": "Evita la paralisi.",
+            "J": "",
+            "S": "Evita la par\u00e1lisis."
+        }
+    },
+    {
+        "name": "Sand Veil",
+        "localised_names": {
+            "D": "SANDSCHLEIER",
+            "E": "SAND VEIL",
+            "F": "VOILE SABLE",
+            "I": "SABBIAVELO",
+            "J": "\u3059\u306a\u304c\u304f\u308c",
+            "S": "VELO ARENA"
+        },
+        "localised_descriptions": {
+            "D": "Erh. Fluchtw. i. Sandsturm.",
+            "E": "Ups evasion in a sandstorm.",
+            "F": "Evasion si temp\u00eate sable.",
+            "I": "Sale evasione nella sabbia.",
+            "J": "",
+            "S": "M\u00e1s EVASI\u00d3N en torm. arena."
+        }
+    },
+    {
+        "name": "Static",
+        "localised_names": {
+            "D": "STATIK",
+            "E": "STATIC",
+            "F": "STATIK",
+            "I": "STATICO",
+            "J": "\u305b\u3044\u3067\u3093\u304d",
+            "S": "ELEC. EST\u00c1T."
+        },
+        "localised_descriptions": {
+            "D": "Paralysiert bei Ber\u00fchrung.",
+            "E": "Paralyzes on contact.",
+            "F": "Paralyse au toucher.",
+            "I": "Paralizza al contatto.",
+            "J": "",
+            "S": "Paraliza al m\u00edn. contacto."
+        }
+    },
+    {
+        "name": "Volt Absorb",
+        "localised_names": {
+            "D": "VOLTABSORBER",
+            "E": "VOLT ABSORB",
+            "F": "ABSORB VOLT",
+            "I": "ASSORBIVOLT",
+            "J": "\u3061\u304f\u3067\u3093",
+            "S": "ABSOR. ELEC."
+        },
+        "localised_descriptions": {
+            "D": "Wandelt Elektriz. in KP um.",
+            "E": "Turns electricity into HP.",
+            "F": "Change l\u2019\u00e9lectricit\u00e9 en PV.",
+            "I": "Muta l\u2019elettricit\u00e0 in PS.",
+            "J": "\u30dc\u30eb\u30c6\u30c3\u30ab\u30fc",
+            "S": "Cambia electricidad en PS."
+        }
+    },
+    {
+        "name": "Water Absorb",
+        "localised_names": {
+            "D": "H2O-ABSORBER",
+            "E": "WATER ABSORB",
+            "F": "ABSORB EAU",
+            "I": "ASSORBACQUA",
+            "J": "\u3061\u3087\u3059\u3044",
+            "S": "ABSOR. AGUA"
+        },
+        "localised_descriptions": {
+            "D": "Wandelt Wasser in KP um.",
+            "E": "Changes water into HP.",
+            "F": "Change l\u2019eau en PV.",
+            "I": "Muta l\u2019acqua in PS.",
+            "J": "",
+            "S": "Convierte el agua en PS."
+        }
+    },
+    {
+        "name": "Oblivious",
+        "localised_names": {
+            "D": "D\u00d6SIGKEIT",
+            "E": "OBLIVIOUS",
+            "F": "BENET",
+            "I": "INDIFFERENZA",
+            "J": "\u3069\u3093\u304b\u3093",
+            "S": "DESPISTE"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert Anziehung.",
+            "E": "Prevents attraction.",
+            "F": "Emp\u00eache l\u2019attirance.",
+            "I": "Evita l\u2019attrazione.",
+            "J": "\u30de\u30b8\u30ab\u30eb\u30ea\u30fc\u30d5",
+            "S": "Evita la atracci\u00f3n."
+        }
+    },
+    {
+        "name": "Cloud Nine",
+        "localised_names": {
+            "D": "WOLKE SIEBEN",
+            "E": "CLOUD NINE",
+            "F": "CIEL GRIS",
+            "I": "ANTIMETEO",
+            "J": "\u30ce\u30fc\u3066\u3093\u304d",
+            "S": "ACLIMATACI\u00d3N"
+        },
+        "localised_descriptions": {
+            "D": "Keine Wetter-Effekte.",
+            "E": "Negates weather effects.",
+            "F": "Ignore les effets du climat.",
+            "I": "Neutralizza effetti meteo.",
+            "J": "\u307f\u305a\u3042\u305d\u3073",
+            "S": "Anula los efectos del clima."
+        }
+    },
+    {
+        "name": "Compoundeyes",
+        "localised_names": {
+            "D": "FACETTENAUGE",
+            "E": "COMPOUNDEYES",
+            "F": "OEIL COMPOSE",
+            "I": "INSETTOCCHI",
+            "J": "\u3075\u304f\u304c\u3093",
+            "S": "OJOCOMPUESTO"
+        },
+        "localised_descriptions": {
+            "D": "Steigert Genauigkeit.",
+            "E": "Raises accuracy.",
+            "F": "Augmente la pr\u00e9cision.",
+            "I": "Aumenta la precisione.",
+            "J": "",
+            "S": "Aumenta la PRECISI\u00d3N."
+        }
+    },
+    {
+        "name": "Insomnia",
+        "localised_names": {
+            "D": "INSOMNIA",
+            "E": "INSOMNIA",
+            "F": "INSOMNIA",
+            "I": "INSONNIA",
+            "J": "\u3075\u307f\u3093",
+            "S": "INSOMNIO"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert Einschlafen.",
+            "E": "Prevents sleep.",
+            "F": "Emp\u00eache de s\u2019endormir.",
+            "I": "Evita il sonno.",
+            "J": "",
+            "S": "Evita el quedarse dormido."
+        }
+    },
+    {
+        "name": "Color Change",
+        "localised_names": {
+            "D": "FARBWECHSEL",
+            "E": "COLOR CHANGE",
+            "F": "DEGUISEMENT",
+            "I": "CAMBIACOLORE",
+            "J": "\u3078\u3093\u3057\u3087\u304f",
+            "S": "CAMBIO COLOR"
+        },
+        "localised_descriptions": {
+            "D": "\u00c4ndert Att.-Typ d. Gegners.",
+            "E": "Changes type to foe\u2019s move.",
+            "F": "S\u2019adapte au type ennemi.",
+            "I": "Cambia tipo in mossa nemico.",
+            "J": "\u3081\u3044\u305d\u3046",
+            "S": "Toma el tipo del mov. rival."
+        }
+    },
+    {
+        "name": "Immunity",
+        "localised_names": {
+            "D": "IMMUNIT\u00c4T",
+            "E": "IMMUNITY",
+            "F": "VACCIN",
+            "I": "IMMUNIT\u00c0",
+            "J": "\u3081\u3093\u3048\u304d",
+            "S": "INMUNIDAD"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert Vergiftungen.",
+            "E": "Prevents poisoning.",
+            "F": "Emp\u00eache l\u2019empoisonnement.",
+            "I": "Evita l\u2019avvelenamento.",
+            "J": "",
+            "S": "Evita el envenenamiento."
+        }
+    },
+    {
+        "name": "Flash Fire",
+        "localised_names": {
+            "D": "FEUERF\u00c4NGER",
+            "E": "FLASH FIRE",
+            "F": "TORCHE",
+            "I": "FUOCARDORE",
+            "J": "\u3082\u3089\u3044\u3073",
+            "S": "ABSOR. FUEGO"
+        },
+        "localised_descriptions": {
+            "D": "Steigt, wenn v. Feuer getr.",
+            "E": "Powers up if hit by fire.",
+            "F": "Puissance monte si br\u00fbl\u00e9.",
+            "I": "Il fuoco rende pi\u00f9 forti.",
+            "J": "",
+            "S": "Se carga si recibe fuego."
+        }
+    },
+    {
+        "name": "Shield Dust",
+        "localised_names": {
+            "D": "PUDERABWEHR",
+            "E": "SHIELD DUST",
+            "F": "ECRAN POUDRE",
+            "I": "POLVOSCUDO",
+            "J": "\u308a\u3093\u3077\u3093",
+            "S": "POLVO ESCUDO"
+        },
+        "localised_descriptions": {
+            "D": "Gegen Zusatz-Effekte.",
+            "E": "Prevents added effects.",
+            "F": "Emp\u00eache le cumul d\u2019effets.",
+            "I": "Blocca effetti aggiuntivi.",
+            "J": "",
+            "S": "Evita efectos secundarios."
+        }
+    },
+    {
+        "name": "Own Tempo",
+        "localised_names": {
+            "D": "TEMPOMACHER",
+            "E": "OWN TEMPO",
+            "F": "TEMPO PERSO",
+            "I": "MENTE LOCALE",
+            "J": "\u30de\u30a4\u30da\u30fc\u30b9",
+            "S": "RITMO PROPIO"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert Verwirrung.",
+            "E": "Prevents confusion.",
+            "F": "Emp\u00eache la confusion.",
+            "I": "Evita la confusione.",
+            "J": "\u30ea\u30fc\u30d5\u30d6\u30ec\u30fc\u30c9",
+            "S": "Evita la confusi\u00f3n."
+        }
+    },
+    {
+        "name": "Suction Cups",
+        "localised_names": {
+            "D": "SAUGNAPF",
+            "E": "SUCTION CUPS",
+            "F": "VENTOUSE",
+            "I": "VENTOSE",
+            "J": "\u304d\u3085\u3046\u3070\u3093",
+            "S": "VENTOSAS"
+        },
+        "localised_descriptions": {
+            "D": "Verankert den K\u00f6rper.",
+            "E": "Firmly anchors the body.",
+            "F": "Fixe solidement le corps.",
+            "I": "Fissa il corpo a terra.",
+            "J": "\u308a\u3085\u3046\u306e\u307e\u3044",
+            "S": "Fija el cuerpo con firmeza."
+        }
+    },
+    {
+        "name": "Intimidate",
+        "localised_names": {
+            "D": "BEDROHER",
+            "E": "INTIMIDATE",
+            "F": "INTIMIDATION",
+            "I": "PREPOTENZA",
+            "J": "\u3044\u304b\u304f",
+            "S": "INTIMIDACI\u00d3N"
+        },
+        "localised_descriptions": {
+            "D": "Senkt ANGR. des Gegners.",
+            "E": "Lowers the foe\u2019s ATTACK.",
+            "F": "Baisse l\u2019ATTAQUE ennemie.",
+            "I": "Riduce ATTACCO nemico.",
+            "J": "",
+            "S": "Baja el ATAQUE del rival."
+        }
+    },
+    {
+        "name": "Shadow Tag",
+        "localised_names": {
+            "D": "WEGSPERRE",
+            "E": "SHADOW TAG",
+            "F": "MARQUE OMBRE",
+            "I": "PEDINOMBRA",
+            "J": "\u304b\u3052\u3075\u307f",
+            "S": "SOMBRATRAMPA"
+        },
+        "localised_descriptions": {
+            "D": "Hindert Gegner an Flucht.",
+            "E": "Prevents the foe\u2019s escape.",
+            "F": "Emp\u00eache la fuite ennemie.",
+            "I": "Impedisce la fuga al nemico.",
+            "J": "\u30ed\u30c3\u30af\u30d6\u30e9\u30b9\u30c8",
+            "S": "Evita que el enemigo huya."
+        }
+    },
+    {
+        "name": "Rough Skin",
+        "localised_names": {
+            "D": "RAUHAUT",
+            "E": "ROUGH SKIN",
+            "F": "PEAU DURE",
+            "I": "CARTAVETRO",
+            "J": "\u3055\u3081\u306f\u3060",
+            "S": "PIEL TOSCA"
+        },
+        "localised_descriptions": {
+            "D": "Verletzt bei Ber\u00fchrung.",
+            "E": "Hurts to touch.",
+            "F": "Blesse quand touch\u00e9.",
+            "I": "Danneggia al contatto.",
+            "J": "\u3067\u3093\u3052\u304d\u306f",
+            "S": "Hiere al tacto."
+        }
+    },
+    {
+        "name": "Wonder Guard",
+        "localised_names": {
+            "D": "WUNDERWACHE",
+            "E": "WONDER GUARD",
+            "F": "GARDE MYSTIK",
+            "I": "MAGIDIFESA",
+            "J": "\u3075\u3057\u304e\u306a\u307e\u3082\u308a",
+            "S": "SUPERGUARDA."
+        },
+        "localised_descriptions": {
+            "D": "Nur sehr eff. Treff. schad.",
+            "E": "\u201cSuper effective\u201d hits.",
+            "F": "Re\u00e7oit seul. \u201csup. eff.\u201d.",
+            "I": "Colpito solo da \u201csupereff.\u201d.",
+            "J": "",
+            "S": "Cuesta mucho hacerle da\u00f1o."
+        }
+    },
+    {
+        "name": "Levitate",
+        "localised_names": {
+            "D": "SCHWEBE",
+            "E": "LEVITATE",
+            "F": "LEVITATION",
+            "I": "LEVITAZIONE",
+            "J": "\u3075\u3086\u3046",
+            "S": "LEVITACI\u00d3N"
+        },
+        "localised_descriptions": {
+            "D": "Kein Treffer b. BODEN-Att.",
+            "E": "Not hit by GROUND attacks.",
+            "F": "Ignore les attaques SOL.",
+            "I": "Evita attacchi tipo TERRA.",
+            "J": "",
+            "S": "No sufre at. tipo TIERRA."
+        }
+    },
+    {
+        "name": "Effect Spore",
+        "localised_names": {
+            "D": "SPORENWIRT",
+            "E": "EFFECT SPORE",
+            "F": "POSE SPORE",
+            "I": "SPARGISPORA",
+            "J": "\u307b\u3046\u3057",
+            "S": "EFEC. ESPORA"
+        },
+        "localised_descriptions": {
+            "D": "Gibt bei Kontakt Sporen ab.",
+            "E": "Leaves spores on contact.",
+            "F": "Laisse spores si touch\u00e9.",
+            "I": "Lascia spore al contatto.",
+            "J": "\u307f\u305a\u306e\u306f\u3069\u3046",
+            "S": "Deja esporas al contacto."
+        }
+    },
+    {
+        "name": "Synchronize",
+        "localised_names": {
+            "D": "SYNCHRO",
+            "E": "SYNCHRONIZE",
+            "F": "SYNCHRO",
+            "I": "SINCRONISMO",
+            "J": "\u30b7\u30f3\u30af\u30ed",
+            "S": "SINCRON\u00cdA"
+        },
+        "localised_descriptions": {
+            "D": "Gibt Stat.-Probleme weiter.",
+            "E": "Passes on status problems.",
+            "F": "Transf\u00e8re statuts.",
+            "I": "Trasmette problemi stato.",
+            "J": "",
+            "S": "Transmite problem. estado."
+        }
+    },
+    {
+        "name": "Clear Body",
+        "localised_names": {
+            "D": "NEUTRALTORSO",
+            "E": "CLEAR BODY",
+            "F": "CORPS SAIN",
+            "I": "CORPOCHIARO",
+            "J": "\u30af\u30ea\u30a2\u30dc\u30c7\u30a3",
+            "S": "CUERPO PURO"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert F\u00e4higk.-Reduk.",
+            "E": "Prevents ability reduction.",
+            "F": "Emp\u00eache r\u00e9duction de cap.",
+            "I": "Evita riduzione stat.",
+            "J": "\u306f\u3081\u3064\u306e\u306d\u304c\u3044",
+            "S": "Evita que baje la habilidad."
+        }
+    },
+    {
+        "name": "Natural Cure",
+        "localised_names": {
+            "D": "INNERE KRAFT",
+            "E": "NATURAL CURE",
+            "F": "MEDIC NATURE",
+            "I": "ALTERNACURA",
+            "J": "\u3057\u305c\u3093\u304b\u3044\u3075\u304f",
+            "S": "CURA NATURAL"
+        },
+        "localised_descriptions": {
+            "D": "Heilt bei Austausch.",
+            "E": "Heals upon switching out.",
+            "F": "Soigne POK\u00e9MON changeant.",
+            "I": "Cura chi viene sostituito.",
+            "J": "\u30b5\u30a4\u30b3\u30d6\u30fc\u30b9\u30c8",
+            "S": "Se cura al salir."
+        }
+    },
+    {
+        "name": "Lightningrod",
+        "localised_names": {
+            "D": "BLITZF\u00c4NGER",
+            "E": "LIGHTNINGROD",
+            "F": "PARATONNERRE",
+            "I": "PARAFULMINE",
+            "J": "\u3072\u3089\u3044\u3057\u3093",
+            "S": "PARARRAYOS"
+        },
+        "localised_descriptions": {
+            "D": "Zieht Elektro-Attacken an.",
+            "E": "Draws electrical moves.",
+            "F": "Attire attaques \u00e9lec.",
+            "I": "Attira mosse ELETTRO.",
+            "J": " \u3046   \u3046 F     \u3046 F\u305e   \u30a3 \u30a3     ",
+            "S": "Frena ataques el\u00e9ctricos."
+        }
+    },
+    {
+        "name": "Serene Grace",
+        "localised_names": {
+            "D": "EDELMUT",
+            "E": "SERENE GRACE",
+            "F": "SERENITE",
+            "I": "LEGGIADRO",
+            "J": "\u3066\u3093\u306e\u3081\u3050\u307f",
+            "S": "DICHA"
+        },
+        "localised_descriptions": {
+            "D": "Verst\u00e4rkt Zusatz-Effekte.",
+            "E": "Promotes added effects.",
+            "F": "Favorise le cumul d\u2019effets.",
+            "I": "Pi\u00f9 effetti aggiuntivi.",
+            "J": "\u30a1      \u30a3 \u30a3     \u306d \u306d  \u30a3  \u306d \u306d  \u30a3  ",
+            "S": "A\u00f1ade efectos secundarios."
+        }
+    },
+    {
+        "name": "Swift Swim",
+        "localised_names": {
+            "D": "WASSERTEMPO",
+            "E": "SWIFT SWIM",
+            "F": "GLISSADE",
+            "I": "NUOTOVELOX",
+            "J": "\u3059\u3044\u3059\u3044",
+            "S": "NADO R\u00c1PIDO"
+        },
+        "localised_descriptions": {
+            "D": "Steigert INIT. bei Regen.",
+            "E": "Raises SPEED in rain.",
+            "F": "Monte VITESSE s\u2019il pleut.",
+            "I": "Pi\u00f9 VELOCIT\u00c0 nella pioggia.",
+            "J": "\u30a1      :\u5186\u3093\u304f .\u3093\u304f\u305f\u3089\u305f\u3089l\u5186\u3093\u304f\u3048\u00dc\u308d\u304f    \u307f.\u3093\u304f\u2642\u30ac\u3046\u304f\u305f\u3089\u305f\u3089t\u5186\u3093\u304f\u3048\u00dc\u308d\u304f    \u307f.\u3093\u304f\u2642\u30ac\u3046\u304f \u30edc\u304f \u305f\u305f\u3089\u30a3\u304a  K\u304a  r\u3066  \uff01\u3049   \u3044\u305d\u306f\u3048 \u30be  \u3044\u3082\u305d\u3048 .\u3042 \u3066\u3082\u3053\u3048\u304a\u30be\u3042 \u3044\u304c\u304d\u3044\u304a \u3046 \u3053\u304c\u304d\u3044\u304a\u305b\u3046 \u3044\u3050\u304d\u3044\u304a\u3075\u3046 \u3053\u3050\u304d\u3044\u304a\u308c\u3046 \u3066\u304c\u304a\u3044\u304a\u30be\u3044 \u3066\u3050\u304b\u3044\u304a\u30dc\u3044 \u306d\u304c\u304a\u3044\u304a5\u3044 \u306e\u3050\u3048\u3044\u304a \u3044 \u3066\u304c\u3053\u3048\u304a.\u3044 \u306f\u3051\u3046\u3048\u304a \u3042\u3042\u3066\u304f\u3053\u3055\u304a \u3042\u3044\u3064 \u3057\u3046\u304b\u30db\u3042\u3042\u3044\u3046\u304d\u3044\u304a\u307f \u3044\u3044\u3046\u304d\u3044\u304a\u305e \u3042\u3044\u3044\u304d\u3044\u304a\u307f \u3044\u3044\u3044\u304d\u3044\u304a\u305e \u3042\u3044\u304b\u304d\u3044\u304a\u30bf \u3044\u3044\u304b\u304d\u3044\u304a\u30a3  \u3057\u3044\u304b\u3044 \u30c3  \u304b\u3044\u3046\u3044 \u30c3  \u306a\u3044\u3046\u3044 7 ",
+            "S": "Con lluvia, sube VELOCIDAD."
+        }
+    },
+    {
+        "name": "Chlorophyll",
+        "localised_names": {
+            "D": "CHLOROPHYLL",
+            "E": "CHLOROPHYLL",
+            "F": "CHLOROPHYLE",
+            "I": "CLOROFILLA",
+            "J": "\u3088\u3046\u308a\u3087\u304f\u305d",
+            "S": "CLOROFILA"
+        },
+        "localised_descriptions": {
+            "D": "INIT. + bei Sonnenschein.",
+            "E": "Raises SPEED in sunshine.",
+            "F": "Augmente VITESSE au soleil.",
+            "I": "Pi\u00f9 VELOCIT\u00c0 sotto il sole.",
+            "J": "        \u3044\u305d\u306f\u3048 \u30be  \u3044\u3082\u305d\u3048 .\u3042 \u3066\u3082\u3053\u3048\u304a\u30be\u3042 \u3044\u304c\u304d\u3044\u304a \u3046 \u3053\u304c\u304d\u3044\u304a\u305b\u3046 \u3044\u3050\u304d\u3044\u304a\u3075\u3046 \u3053\u3050\u304d\u3044\u304a\u308c\u3046 \u3066\u304c\u304a\u3044\u304a\u30be\u3044 \u3066\u3050\u304b\u3044\u304a\u30dc\u3044 \u306d\u304c\u304a\u3044\u304a5\u3044 \u306e\u3050\u3048\u3044\u304a \u3044 \u3066\u304c\u3053\u3048\u304a.\u3044 \u306f\u3051\u3046\u3048\u304a \u3042\u3042\u3066\u304f\u3053\u3055\u304a \u3042\u3044\u3064 \u3057\u3046\u304b\u30db\u3042 \u304f\u3042\u304a\u3044\u304a \u3042 \u3059\u3042\u3048\u3044\u304a\u3053\u3042 \u3061\u3042\u304a\u3044\u304a\u3064\u3042 \u3059\u3048\u3048\u3044\u304a\u3075\u3042 \u3059\u304b\u3048\u3044\u304a\u3084\u3042 \u3059\u304f\u3048\u3044\u304a\u308f\u3042 \u3053\u3055\u3053\u3044\u304a\u3083\u3042 \u3048\u305d\u306b\u3048\u304d\u30be ",
+            "S": "Con sol, sube la VELOCIDAD."
+        }
+    },
+    {
+        "name": "Illuminate",
+        "localised_names": {
+            "D": "ERLEUCHTUNG",
+            "E": "ILLUMINATE",
+            "F": "LUMIATIRANCE",
+            "I": "RISPLENDI",
+            "J": "\u306f\u3063\u3053\u3046",
+            "S": "ILUMINACI\u00d3N"
+        },
+        "localised_descriptions": {
+            "D": "Mehr PKMN-Begegnungen.",
+            "E": "Encounter rate increases.",
+            "F": "Augmente les rencontres.",
+            "I": "S\u2019incontrano pi\u00f9 POK\u00e9MON.",
+            "J": "       \u30df.\u3093\u304f\u304e\u00d7\u3093\u304f\u3057\u30f3c\u304f\u00e4\u30a9c\u304f\u3084oc\u304f\uff1ftc\u304fB\u30a9c\u304f3\u30e7c\u304f\u30b7\u30b8c\u304f\u30cdvc\u304f\u30ea\u00c4c\u304f\u3075\u30b8c\u304f\u3057\u30bec\u304f\u3074\u30d0c\u304f \u00dcc\u304f\u00e4\u2b07c\u304f\u3048\u30d0c\u304fc\u304fc\u304f\u30d4c\u304f\u30cd",
+            "S": "Facilita el encuentro."
+        }
+    },
+    {
+        "name": "Trace",
+        "localised_names": {
+            "D": "F\u00c4HRTE",
+            "E": "TRACE",
+            "F": "CALQUE",
+            "I": "TRACCIA",
+            "J": "\u30c8\u30ec\u30fc\u30b9",
+            "S": "RASTRO"
+        },
+        "localised_descriptions": {
+            "D": "Kopiert Spezial-Attacke.",
+            "E": "Copies special ability.",
+            "F": "Imite la capacit\u00e9 sp\u00e9ciale.",
+            "I": "Copia abilit\u00e0 speciale.",
+            "J": "c\u304f\u300d\u30dac\u304f\uff1f0c\u304fJ6c\u304f\u2b07 d\u304f\u3048\u304dd\u304f\u30a36c\u304f\u30e49c\u304f\u30b7 c\u304f7\u304fd\u304f\u00e4\u3059d\u304f\u3075 c\u304f\u3057\u300cc\u304f\u304f\u00d7c\u304f\u305e\u305dd\u304f\u307f\u306ad\u304fR.c\u304f.Ac\u304f\u2b07Gc\u304f\u300d\u306bd\u304fV\u307bd\u304f Gc\u304fpJc\u304fRPc\u304f\u30ea\u3080d\u304f\u30ae\u3086d\u304f\u30afkc\u304fpJc\u304fRPc\u304f\u30ea\u3080d\u304f\u30ae\u3086d\u304f7Jc\u304f\u3075  \u3048\u3042 \u30bf1\u3042   \u3075  \u3048\u3042 \u30bf5\u3042       \u2b07\u00d6\u308d\u304f\u3048\u00dc\u308d\u304f    \u305f\u00dc\u308d\u304f\u304a\u30a7\u3046\u304f \u3042 F \u304f   \u3042 F \u308a    \u304a  ",
+            "S": "Copia habilidad especial."
+        }
+    },
+    {
+        "name": "Huge Power",
+        "localised_names": {
+            "D": "KRAFTKOLOSS",
+            "E": "HUGE POWER",
+            "F": "COLOFORCE",
+            "I": "MACROFORZA",
+            "J": "\u3061\u304b\u3089\u3082\u3061",
+            "S": "POTENCIA"
+        },
+        "localised_descriptions": {
+            "D": "Steigert ANGR.",
+            "E": "Raises ATTACK.",
+            "F": "Augmente l\u2019ATTAQUE.",
+            "I": "Migliora l\u2019ATTACCO.",
+            "J": "  \u304fA\u3093\u304f:",
+            "S": "Aumenta el ATAQUE."
+        }
+    },
+    {
+        "name": "Poison Point",
+        "localised_names": {
+            "D": "GIFTDORN",
+            "E": "POISON POINT",
+            "F": "POINT POISON",
+            "I": "VELENOPUNTO",
+            "J": "\u3069\u304f\u306e\u30c8\u30b2",
+            "S": "PUNTO T\u00d3XICO"
+        },
+        "localised_descriptions": {
+            "D": "Vergiftet bei Ber\u00fchrung.",
+            "E": "Poisons foe on contact.",
+            "F": "Empoisonne quand touch\u00e9.",
+            "I": "Avvelena al contatto.",
+            "J": "   \u3048       \u3056   \u30a1\u3042     \u3068A\u3093\u304fl::ll    \u304a\u304a \u304f\u304a\u3053\u3053\u304a\u3053\u3055\u304a\u3053\u3057\u3068\u3053\u305d\u3068\u3053\u304b\u3068\u3053\u304a\u304a\u3053\u305f\u304a\u3053\u304f\u3068\u3055\u3053\u3068\u3055\u3055\u304a\u3055\u3057\u304a\u3055\u3048\u3068\u3055\u304a\u3068\u3055\u305f\u304a\u3059\u3055\u3068\u3059\u3059\u304a\u3059\u3057\u304a\u3059\u3048 \u3059\u3044\u3068\u3059\u305f\u304a\u3057\u3053\u304a\u3057\u3055\u3068\u3057\u3057\u304a\u3057\u3046\u304a\u3057\u3048\u3068\u3057\u3044\u304a\u3057\u304b\u304a\u3057\u304a\u3068\u3057\u305f\u304a\u3057\u304f\u304a\u305d\u3055\u304a\u305d\u3057\u3068\u305d\u305d\u304a\u305d\u3048\u3068\u305d\u3044\u3068\u305d\u305f\u3068\u305d\u304f\u304a\u305d\u3053\u304a\u3042 \u3068\u3042\u305d\u3068\u3042\u3046\u304a\u3042\u3044\u304a\u3042\u305b\u304a\u3042\u304b\u304a\u3042\u304a\u3068\u3042\u3061\u3068\u3042\u304f\u3068\u3046\u3057\u3068\u3046\u3046\u304a\u3046\u3048\u304a\u3046\u304a\u304a\u3046\u304d\u304a\u3046\u304f \u3048\u3053\u3068\u3048\u3059\u3068\u3048\u3057\u304a\u3048\u3046\u3068\u3048\u3044 \u3048\u304b\u304a\u3048\u304a\u3068\u3048\u304f\u3068\u3044\u3059\u304a\u3044\u3057\u3068\u3044\u3042\u3068\u3044\u304b\u3068\u3044\u304a\u304a\u3044\u304f\u304a\u305b\u3042\u3068\u305b\u3046\u3068\u305b\u305b\u304a\u305b\u3061 \u305b\u304f\u304a\u304b\u3053\u304a\u304b\u3057\u3068\u304b\u3042\u304a\u304b\u3046\u304a\u304b\u3044\u304a\u304b\u305b\u3068\u304b\u304d\u304a\u304b\u3061\u3068\u304b\u304f\u304a\u304a\u3053\u3068\u304a\u305d\u3068\u304a\u3042\u304a\u304a\u3048\u304a\u304a\u3044\u3068\u304a\u304b\u3068\u304a\u304f\u304a\u304d  \u304d\u305b\u3068\u304d\u3061\u304a\u304d\u304f\u304a\u304d\u304d\u3068\u305f\u305f\u3068\u305f\u304f\u304a\u3061\u3042\u304a\u3061\u305b\u3068\u3061\u304d\u3068\u3061\u3061\u304a\u3061\u304f\u304a\u304f\u3053\u304a\u304f\u3055\u304a\u304f\u3059\u304a\u304f\u305d\u3068\u304f\u304a\u3068\u304f\u304f\u304a    \u304d \u3042\u304d ",
+            "S": "Envenena al m\u00edn. contacto."
+        }
+    },
+    {
+        "name": "Inner Focus",
+        "localised_names": {
+            "D": "KONZENTRATOR",
+            "E": "INNER FOCUS",
+            "F": "ATTENTION",
+            "I": "FUOCODENTRO",
+            "J": "\u305b\u3044\u3057\u3093\u308a\u3087\u304f",
+            "S": "FOCO INTERNO"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert Zur\u00fcckschreck.",
+            "E": "Prevents flinching.",
+            "F": "Emp\u00eache la peur.",
+            "I": "Evita il tentennamento.",
+            "J": "",
+            "S": "Evita el retroceso."
+        }
+    },
+    {
+        "name": "Magma Armor",
+        "localised_names": {
+            "D": "MAGMAPANZER",
+            "E": "MAGMA ARMOR",
+            "F": "ARMUMAGMA",
+            "I": "MAGMASCUDO",
+            "J": "\u30de\u30b0\u30de\u306e\u3088\u308d\u3044",
+            "S": "ESCUDO MAGMA"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert Einfrieren.",
+            "E": "Prevents freezing.",
+            "F": "Emp\u00eache le gel.",
+            "I": "Evita il congelamento.",
+            "J": " \u30ce\u30fc\u30de\u30eb",
+            "S": "Evita el congelamiento."
+        }
+    },
+    {
+        "name": "Water Veil",
+        "localised_names": {
+            "D": "AQUAH\u00dcLLE",
+            "E": "WATER VEIL",
+            "F": "IGNIFU-VOILE",
+            "I": "IDROVELO",
+            "J": "\u307f\u305a\u306e\u30d9\u30fc\u30eb",
+            "S": "VELO AGUA"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert Verbrennungen.",
+            "E": "Prevents burns.",
+            "F": "Emp\u00eache les br\u00fblures.",
+            "I": "Evita le scottature.",
+            "J": "\u304b\u304f\u3068\u3046",
+            "S": "Evita las quemaduras."
+        }
+    },
+    {
+        "name": "Magnet Pull",
+        "localised_names": {
+            "D": "MAGNETFALLE",
+            "E": "MAGNET PULL",
+            "F": "MAGNEPIEGE",
+            "I": "MAGNETISMO",
+            "J": "\u3058\u308a\u3087\u304f",
+            "S": "IM\u00c1N"
+        },
+        "localised_descriptions": {
+            "D": "F\u00e4ngt STAHL-POK\u00e9MON.",
+            "E": "Traps STEEL-type POK\u00e9MON.",
+            "F": "Pi\u00e8ge les POK\u00e9MON ACIER.",
+            "I": "Irretisce POK\u00e9MON ACCIAIO.",
+            "J": "\u3072\u3053\u3046",
+            "S": "Atrapa POK\u00e9MON de ACERO."
+        }
+    },
+    {
+        "name": "Soundproof",
+        "localised_names": {
+            "D": "L\u00c4RMSCHUTZ",
+            "E": "SOUNDPROOF",
+            "F": "ANTI-BRUIT",
+            "I": "ANTISUONO",
+            "J": "\u307c\u3046\u304a\u3093",
+            "S": "INSONORIZAR"
+        },
+        "localised_descriptions": {
+            "D": "Immun gg. L\u00e4rm-Attacken.",
+            "E": "Avoids sound-based moves.",
+            "F": "Evite les attaques sonores.",
+            "I": "Evita mosse sonore.",
+            "J": "",
+            "S": "Evita ataques de sonido."
+        }
+    },
+    {
+        "name": "Rain Dish",
+        "localised_names": {
+            "D": "REGENGENUSS",
+            "E": "RAIN DISH",
+            "F": "CUVETTE",
+            "I": "COPRIPIOGGIA",
+            "J": "\u3042\u3081\u3046\u3051\u3056\u3089",
+            "S": "CURA LLUVIA"
+        },
+        "localised_descriptions": {
+            "D": "KP-Anstieg bei Regen.",
+            "E": "Slight HP recovery in rain.",
+            "F": "Gagne quelques PV si pluie.",
+            "I": "Lieve recupero PS se piove.",
+            "J": "\u3069\u304f",
+            "S": "Sube PS cuando llueve."
+        }
+    },
+    {
+        "name": "Sand Stream",
+        "localised_names": {
+            "D": "SANDSTURM",
+            "E": "SAND STREAM",
+            "F": "SABLE VOLANT",
+            "I": "SABBIAFIUME",
+            "J": "\u3059\u306a\u304a\u3053\u3057",
+            "S": "CHORRO ARENA"
+        },
+        "localised_descriptions": {
+            "D": "Erzeugt einen Sandsturm.",
+            "E": "Summons a sandstorm.",
+            "F": "Lance une temp\u00eate de sable.",
+            "I": "Causa tempesta di sabbia.",
+            "J": "",
+            "S": "Crea una tormenta de arena."
+        }
+    },
+    {
+        "name": "Pressure",
+        "localised_names": {
+            "D": "ERZWINGER",
+            "E": "PRESSURE",
+            "F": "PRESSION",
+            "I": "PRESSIONE",
+            "J": "\u30d7\u30ec\u30c3\u30b7\u30e3\u30fc",
+            "S": "PRESI\u00d3N"
+        },
+        "localised_descriptions": {
+            "D": "Steigert AP des Gegners.",
+            "E": "Raises foe\u2019s PP usage.",
+            "F": "Ennemi d\u00e9pense plus de PP.",
+            "I": "Il nemico usa pi\u00f9 PP.",
+            "J": "",
+            "S": "Baja los PP del enemigo."
+        }
+    },
+    {
+        "name": "Thick Fat",
+        "localised_names": {
+            "D": "SPECKSCHICHT",
+            "E": "THICK FAT",
+            "F": "ISOGRAISSE",
+            "I": "GRASSOSPESSO",
+            "J": "\u3042\u3064\u3044\u3057\u307c\u3046",
+            "S": "SEBO"
+        },
+        "localised_descriptions": {
+            "D": "Schutz vor Hitze und K\u00e4lte.",
+            "E": "Heat-and-cold protection.",
+            "F": "Contre chaleur et froid.",
+            "I": "Protegge da caldo e freddo.",
+            "J": "\u3058\u3081\u3093",
+            "S": "Protege del fr\u00edo y calor."
+        }
+    },
+    {
+        "name": "Early Bird",
+        "localised_names": {
+            "D": "FR\u00dcHWECKER",
+            "E": "EARLY BIRD",
+            "F": "MATINAL",
+            "I": "SVEGLIALAMPO",
+            "J": "\u306f\u3084\u304a\u304d",
+            "S": "MADRUGAR"
+        },
+        "localised_descriptions": {
+            "D": "Schnelles Aufwachen.",
+            "E": "Awakens quickly from sleep.",
+            "F": "Se r\u00e9veille rapidement.",
+            "I": "Rapido risveglio dal sonno.",
+            "J": "",
+            "S": "Despierta r\u00e1pido al PKMN."
+        }
+    },
+    {
+        "name": "Flame Body",
+        "localised_names": {
+            "D": "FLAMMK\u00d6RPER",
+            "E": "FLAME BODY",
+            "F": "CORPS ARDENT",
+            "I": "CORPODIFUOCO",
+            "J": "\u307b\u306e\u304a\u306e\u304b\u3089\u3060",
+            "S": "CUERPO LLAMA"
+        },
+        "localised_descriptions": {
+            "D": "Verbrennt bei Ber\u00fchrung.",
+            "E": "Burns the foe on contact.",
+            "F": "Br\u00fble l\u2019ennemi quand touch\u00e9.",
+            "I": "Scotta al contatto.",
+            "J": "\u3044\u308f",
+            "S": "Quema al m\u00ednimo contacto."
+        }
+    },
+    {
+        "name": "Run Away",
+        "localised_names": {
+            "D": "ANGSTHASE",
+            "E": "RUN AWAY",
+            "F": "FUITE",
+            "I": "FUGAFACILE",
+            "J": "\u306b\u3052\u3042\u3057",
+            "S": "FUGA"
+        },
+        "localised_descriptions": {
+            "D": "Erleichtert das Entkommen.",
+            "E": "Makes escaping easier.",
+            "F": "Am\u00e9liore chances de fuite.",
+            "I": "Rende pi\u00f9 facile la fuga.",
+            "J": "",
+            "S": "Facilita la huida."
+        }
+    },
+    {
+        "name": "Keen Eye",
+        "localised_names": {
+            "D": "ADLERAUGE",
+            "E": "KEEN EYE",
+            "F": "REGARD VIF",
+            "I": "SGUARDOFERMO",
+            "J": "\u3059\u308b\u3069\u3044\u3081",
+            "S": "VISTA LINCE"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert Verl. d. Genauig.",
+            "E": "Prevents loss of accuracy.",
+            "F": "Emp\u00eache perte de pr\u00e9cision.",
+            "I": "Evita cali di precisione.",
+            "J": "",
+            "S": "Evita que baje PRECISI\u00d3N."
+        }
+    },
+    {
+        "name": "Hyper Cutter",
+        "localised_names": {
+            "D": "SCHERENMACHT",
+            "E": "HYPER CUTTER",
+            "F": "HYPER CUTTER",
+            "I": "IPERTAGLIO",
+            "J": "\u304b\u3044\u308a\u304d\u30d0\u30b5\u30df",
+            "S": "CORTE FUERTE"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert ANGR.-Reduz.",
+            "E": "Prevents ATTACK reduction.",
+            "F": "Emp\u00eache r\u00e9duction ATTAQUE.",
+            "I": "Evita riduzione ATTACCO.",
+            "J": "\u3080\u3057",
+            "S": "Evita que baje el ATAQUE."
+        }
+    },
+    {
+        "name": "Pickup",
+        "localised_names": {
+            "D": "MITNAHME",
+            "E": "PICKUP",
+            "F": "RAMASSAGE",
+            "I": "RACCOLTA",
+            "J": "\u3082\u306e\u3072\u308d\u3044",
+            "S": "RECOGIDA"
+        },
+        "localised_descriptions": {
+            "D": "Kann Objekte aufnehmen.",
+            "E": "May pick up items.",
+            "F": "Peut ramasser des objets.",
+            "I": "Pu\u00f2 raccogliere strumenti.",
+            "J": "",
+            "S": "Puede tomar objetos."
+        }
+    },
+    {
+        "name": "Truant",
+        "localised_names": {
+            "D": "SCHNARCHNASE",
+            "E": "TRUANT",
+            "F": "ABSENTEISME",
+            "I": "PIGRONE",
+            "J": "\u306a\u307e\u3051",
+            "S": "AUSENTE"
+        },
+        "localised_descriptions": {
+            "D": "Greift in jedem 2. Zug an.",
+            "E": "Moves only every two turns.",
+            "F": "Frappe tous les 2 tours.",
+            "I": "Si muove solo ogni 2 turni.",
+            "J": "",
+            "S": "Interviene cada 2 rondas."
+        }
+    },
+    {
+        "name": "Hustle",
+        "localised_names": {
+            "D": "\u00dcBEREIFER",
+            "E": "HUSTLE",
+            "F": "AGITATION",
+            "I": "TUTTAFRETTA",
+            "J": "\u306f\u308a\u304d\u308a",
+            "S": "ENTUSIASMO"
+        },
+        "localised_descriptions": {
+            "D": "Tauscht Genauigk. u. Kraft.",
+            "E": "Trades accuracy for power.",
+            "F": "Substitue pr\u00e9c. par puiss.",
+            "I": "Pi\u00f9 forza, meno precisione.",
+            "J": "\u30b4\u30fc\u30b9\u30c8",
+            "S": "Cambia PRECIS. por energ\u00eda."
+        }
+    },
+    {
+        "name": "Cute Charm",
+        "localised_names": {
+            "D": "CHARMEBOLZEN",
+            "E": "CUTE CHARM",
+            "F": "JOLI SOURIRE",
+            "I": "INCANTEVOLE",
+            "J": "\u30e1\u30ed\u30e1\u30ed\u30dc\u30c7\u30a3",
+            "S": "GRAN ENCANTO"
+        },
+        "localised_descriptions": {
+            "D": "Wirkt bei Kontakt bet\u00f6rend.",
+            "E": "Infatuates on contact.",
+            "F": "S\u00e9duit quand touch\u00e9.",
+            "I": "Fa infatuare al contatto.",
+            "J": "\u306f\u304c\u306d",
+            "S": "Emboba al m\u00ednimo contacto."
+        }
+    },
+    {
+        "name": "Plus",
+        "localised_names": {
+            "D": "PLUS",
+            "E": "PLUS",
+            "F": "PLUS",
+            "I": "PI\u00d9",
+            "J": "\u30d7\u30e9\u30b9",
+            "S": "M\u00c1S"
+        },
+        "localised_descriptions": {
+            "D": "Bildet ein Team mit MINUN.",
+            "E": "Powers up with MINUS.",
+            "F": "Puissance + avec MINUS.",
+            "I": "Si potenzia con MENO.",
+            "J": "",
+            "S": "Mejora con habilidad MENOS."
+        }
+    },
+    {
+        "name": "Minus",
+        "localised_names": {
+            "D": "MINUS",
+            "E": "MINUS",
+            "F": "MINUS",
+            "I": "MENO",
+            "J": "\u30de\u30a4\u30ca\u30b9",
+            "S": "MENOS"
+        },
+        "localised_descriptions": {
+            "D": "Bildet ein Team mit PLUSLE.",
+            "E": "Powers up with PLUS.",
+            "F": "Puissance + avec PLUS.",
+            "I": "Si potenzia con PI\u00d9.",
+            "J": "\uff1f\uff1f\uff1f",
+            "S": "Mejora con habilidad M\u00c1S."
+        }
+    },
+    {
+        "name": "Forecast",
+        "localised_names": {
+            "D": "PROGNOSE",
+            "E": "FORECAST",
+            "F": "METEO",
+            "I": "PREVISIONI",
+            "J": "\u3066\u3093\u304d\u3084",
+            "S": "PREDICCI\u00d3N"
+        },
+        "localised_descriptions": {
+            "D": "Ist vom Wetter abh\u00e4ngig.",
+            "E": "Changes with the weather.",
+            "F": "Change selon le climat.",
+            "I": "Muta col tempo che fa.",
+            "J": "",
+            "S": "Cambia con el clima."
+        }
+    },
+    {
+        "name": "Sticky Hold",
+        "localised_names": {
+            "D": "WERTEHALTER",
+            "E": "STICKY HOLD",
+            "F": "GLUE",
+            "I": "ANTIFURTO",
+            "J": "\u306d\u3093\u3061\u3083\u304f",
+            "S": "VISCOSIDAD"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert ITEM-Diebstahl.",
+            "E": "Prevents item theft.",
+            "F": "Emp\u00eache le vol d\u2019objets.",
+            "I": "Evita il furto di strumenti.",
+            "J": "\u307b\u306e\u304a",
+            "S": "Evita el robo de objetos."
+        }
+    },
+    {
+        "name": "Shed Skin",
+        "localised_names": {
+            "D": "EXPIDERMIS",
+            "E": "SHED SKIN",
+            "F": "MUE",
+            "I": "MUTA",
+            "J": "\u3060\u3063\u3074",
+            "S": "MUDAR"
+        },
+        "localised_descriptions": {
+            "D": "Heilt durch H\u00e4utung.",
+            "E": "Heals the body by shedding.",
+            "F": "Mue pour se soigner.",
+            "I": "Una muta che guarisce.",
+            "J": "",
+            "S": "Se cura mudando la piel."
+        }
+    },
+    {
+        "name": "Guts",
+        "localised_names": {
+            "D": "ADRENALIN",
+            "E": "GUTS",
+            "F": "CRAN",
+            "I": "DENTISTRETTI",
+            "J": "\u3053\u3093\u3058\u3087\u3046",
+            "S": "AGALLAS"
+        },
+        "localised_descriptions": {
+            "D": "Steigert ANGR. bei Leiden.",
+            "E": "Ups ATTACK if suffering.",
+            "F": "Augmente ATT. quand bless\u00e9.",
+            "I": "Sale ATTACCO in difficolt\u00e0.",
+            "J": "\u307f\u305a",
+            "S": "Sube el ATAQUE si sufre."
+        }
+    },
+    {
+        "name": "Marvel Scale",
+        "localised_names": {
+            "D": "NOTSCHUTZ",
+            "E": "MARVEL SCALE",
+            "F": "ECAILLE SPE.",
+            "I": "PELLEDURA",
+            "J": "\u3075\u3057\u304e\u306a\u3046\u308d\u3053",
+            "S": "ESCAMA ESP."
+        },
+        "localised_descriptions": {
+            "D": "Steigert VERT. bei Leiden.",
+            "E": "Ups DEFENSE if suffering.",
+            "F": "Augmente DEF. quand bless\u00e9.",
+            "I": "Sale DIFESA in difficolt\u00e0.",
+            "J": "",
+            "S": "Sube la DEFENSA si sufre."
+        }
+    },
+    {
+        "name": "Liquid Ooze",
+        "localised_names": {
+            "D": "KLOAKENSOSSE",
+            "E": "LIQUID OOZE",
+            "F": "SUINTEMENT",
+            "I": "MELMA",
+            "J": "\u30d8\u30c9\u30ed\u3048\u304d",
+            "S": "LODO L\u00cdQUIDO"
+        },
+        "localised_descriptions": {
+            "D": "Saug-Attacken sch\u00e4digen.",
+            "E": "Draining causes injury.",
+            "F": "Blesse quand drain\u00e9.",
+            "I": "Il drenaggio arreca danno.",
+            "J": "",
+            "S": "Al verterlo, hiere."
+        }
+    },
+    {
+        "name": "Overgrow",
+        "localised_names": {
+            "D": "NOTD\u00dcNGER",
+            "E": "OVERGROW",
+            "F": "ENGRAIS",
+            "I": "ERBAIUTO",
+            "J": "\u3057\u3093\u308a\u3087\u304f",
+            "S": "ESPESURA"
+        },
+        "localised_descriptions": {
+            "D": "Erh\u00f6ht PFL.-Att. i. d. Not.",
+            "E": "Ups GRASS moves in a pinch.",
+            "F": "Augmente attaques PLANTE.",
+            "I": "Mosse ERBA + forti in diff.",
+            "J": "\u304f\u3055",
+            "S": "Sube ataques tipo PLANTA."
+        }
+    },
+    {
+        "name": "Blaze",
+        "localised_names": {
+            "D": "GROSSBRAND",
+            "E": "BLAZE",
+            "F": "BRASIER",
+            "I": "AIUTOFUOCO",
+            "J": "\u3082\u3046\u304b",
+            "S": "MAR LLAMAS"
+        },
+        "localised_descriptions": {
+            "D": "Erh\u00f6ht FEUER-Att. in Not.",
+            "E": "Ups FIRE moves in a pinch.",
+            "F": "Augmente attaques FEU.",
+            "I": "Mosse FUOCO + forti in diff.",
+            "J": "",
+            "S": "Sube ataques tipo FUEGO."
+        }
+    },
+    {
+        "name": "Torrent",
+        "localised_names": {
+            "D": "STURZBACH",
+            "E": "TORRENT",
+            "F": "TORRENT",
+            "I": "ACQUAIUTO",
+            "J": "\u3052\u304d\u308a\u3085\u3046",
+            "S": "TORRENTE"
+        },
+        "localised_descriptions": {
+            "D": "Erh\u00f6ht WASSER-Att. in Not.",
+            "E": "Ups WATER moves in a pinch.",
+            "F": "Augmente attaques EAU.",
+            "I": "Mos. ACQUA + forti in diff.",
+            "J": "",
+            "S": "Sube ataques tipo AGUA."
+        }
+    },
+    {
+        "name": "Swarm",
+        "localised_names": {
+            "D": "HEXAPLAGA",
+            "E": "SWARM",
+            "F": "ESSAIM",
+            "I": "AIUTINSETTO",
+            "J": "\u3080\u3057\u306e\u3057\u3089\u305b",
+            "S": "ENJAMBRE"
+        },
+        "localised_descriptions": {
+            "D": "Erh\u00f6ht K\u00c4FER-Att. in Not.",
+            "E": "Ups BUG moves in a pinch.",
+            "F": "Augmente attaques INSECT.",
+            "I": "Mos. COLEOT. + forti in diff.",
+            "J": "\u3067\u3093\u304d",
+            "S": "Sube ataques tipo BICHO."
+        }
+    },
+    {
+        "name": "Rock Head",
+        "localised_names": {
+            "D": "STEINHAUPT",
+            "E": "ROCK HEAD",
+            "F": "TETE DE ROC",
+            "I": "TESTADURA",
+            "J": "\u3044\u3057\u3042\u305f\u307e",
+            "S": "CABEZA ROCA"
+        },
+        "localised_descriptions": {
+            "D": "Verh. R\u00fccksto\u00df-Schaden.",
+            "E": "Prevents recoil damage.",
+            "F": "Emp\u00eache d\u00e9g\u00e2ts du recul.",
+            "I": "Evita contraccolpi.",
+            "J": "",
+            "S": "Evita volver a ser golpeado."
+        }
+    },
+    {
+        "name": "Drought",
+        "localised_names": {
+            "D": "D\u00dcRRE",
+            "E": "DROUGHT",
+            "F": "SECHERESSE",
+            "I": "SICCIT\u00c0",
+            "J": "\u3072\u3067\u308a",
+            "S": "SEQU\u00cdA"
+        },
+        "localised_descriptions": {
+            "D": "Erzeugt Sonne im Kampf.",
+            "E": "Summons sunlight in battle.",
+            "F": "Invoque le soleil.",
+            "I": "Attira il sole nella lotta.",
+            "J": "\u30a8\u30b9\u30d1\u30fc",
+            "S": "Toma luz solar en batalla."
+        }
+    },
+    {
+        "name": "Arena Trap",
+        "localised_names": {
+            "D": "AUSWEGSLOS",
+            "E": "ARENA TRAP",
+            "F": "PIEGE",
+            "I": "TRAPPOARENA",
+            "J": "\u3042\u308a\u3058\u3054\u304f",
+            "S": "TRAMPA ARENA"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert Flucht.",
+            "E": "Prevents fleeing.",
+            "F": "Emp\u00eache la fuite.",
+            "I": "Evita la fuga.",
+            "J": "\u3053\u304a\u308a",
+            "S": "Evita la huida."
+        }
+    },
+    {
+        "name": "Vital Spirit",
+        "localised_names": {
+            "D": "MUNTERKEIT",
+            "E": "VITAL SPIRIT",
+            "F": "ESPRIT VITAL",
+            "I": "SPIRITOVIVO",
+            "J": "\u3084\u308b\u304d",
+            "S": "ESP\u00cdR. VITAL"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert Einschlafen.",
+            "E": "Prevents sleep.",
+            "F": "Emp\u00eache le sommeil.",
+            "I": "Evita il sonno.",
+            "J": "",
+            "S": "Evita quedarse dormido."
+        }
+    },
+    {
+        "name": "White Smoke",
+        "localised_names": {
+            "D": "PULVERRAUCH",
+            "E": "WHITE SMOKE",
+            "F": "ECRAN FUMEE",
+            "I": "FUMOCHIARO",
+            "J": "\u3057\u308d\u3044\u3051\u3080\u308a",
+            "S": "HUMO BLANCO"
+        },
+        "localised_descriptions": {
+            "D": "Verhindert F\u00e4higk.-Reduz.",
+            "E": "Prevents ability reduction.",
+            "F": "Emp\u00eache r\u00e9duction des cap.",
+            "I": "Evita riduzione delle stat.",
+            "J": "\u30c9\u30e9\u30b4\u30f3",
+            "S": "Evita que baje la habilidad."
+        }
+    },
+    {
+        "name": "Pure Power",
+        "localised_names": {
+            "D": "MENTALKRAFT",
+            "E": "PURE POWER",
+            "F": "FORCE PURE",
+            "I": "FORZAPURA",
+            "J": "\u30e8\u30ac\u30d1\u30ef\u30fc",
+            "S": "ENERG\u00cdA PURA"
+        },
+        "localised_descriptions": {
+            "D": "Steigert ANGR.",
+            "E": "Raises ATTACK.",
+            "F": "Augmente l\u2019ATTAQUE.",
+            "I": "Aumenta l\u2019ATTACCO.",
+            "J": "\u3042\u304f",
+            "S": "Aumenta el ATAQUE."
+        }
+    },
+    {
+        "name": "Shell Armor",
+        "localised_names": {
+            "D": "PANZERHAUT",
+            "E": "SHELL ARMOR",
+            "F": "COQUE ARMURE",
+            "I": "GUSCIOSCUDO",
+            "J": "\u30b7\u30a7\u30eb\u30a2\u30fc\u30de\u30fc",
+            "S": "CAPARAZ\u00d3N"
+        },
+        "localised_descriptions": {
+            "D": "Wehrt Volltreffer ab.",
+            "E": "Blocks critical hits.",
+            "F": "Bloque les coups critiques.",
+            "I": "Blocca i brutti colpi.",
+            "J": "",
+            "S": "Bloquea golpes cr\u00edticos."
+        }
+    },
+    {
+        "name": "Cacophony",
+        "localised_names": {
+            "D": "KAKOPHONY",
+            "E": "CACOPHONY",
+            "F": "CACOPHONIE",
+            "I": "CACOFONIA",
+            "J": "\u305d\u3046\u304a\u3093",
+            "S": "CACOFON\u00cdA"
+        },
+        "localised_descriptions": {
+            "D": "Immun gg. L\u00e4rm-Attacken.",
+            "E": "Avoids sound-based moves.",
+            "F": "Evite les attaques sonores.",
+            "I": "Evita mosse sonore.",
+            "J": "",
+            "S": "Evita ataques de sonido."
+        }
+    },
+    {
+        "name": "Air Lock",
+        "localised_names": {
+            "D": "KLIMASCHUTZ",
+            "E": "AIR LOCK",
+            "F": "AIR LOCK",
+            "I": "RIPARO",
+            "J": "\u30a8\u30a2\u30ed\u30c3\u30af",
+            "S": "BUCLE AIRE"
+        },
+        "localised_descriptions": {
+            "D": "Kehrt Wetter-Effekte um.",
+            "E": "Negates weather effects.",
+            "F": "Ignore les effets du climat.",
+            "I": "Neutralizza effetti meteo.",
+            "J": "  \u3046\u304a  \u3055\u3053  \u3059\u3068  \u305d\u3053  \u305f\u305d  \u3061\u3057  \u3064\u3042  \u3066\u3042  \u3050\u3046  \u304a\u3057  \u305b\u304b  \u3068\u3047  \u306a\u3068  \u306b\u3047  \u306c\u305d  \u304f\u3044  \u3057\u304f  \u306d\u304f  \u306e\u304f  \u306f\u3048  \u304e\u3053  \u3075\u305d  \u3078\u304b  \u307b\u3068  \u307e\u306e  \u307f\u306e  \u3080\u304a  \u3081\u3048  \u3084\u3068  \u3053\u3053  \u3086\u3048  \u3088\u3047  \u3089\u3053  \u308a\u3053  \u308b\u3057  \u304b\u304f  \u308c\u3046  \u308d\u304b  \u308f\u3053  \u3092\u3044  \u3072\u3048  \u3093\u3046  \u3041\u304f  \u304d\u305d  \u3047\u305d  \u3048\u3053  \u3083\u3057  \u3051\u304a  \u3045\u3053  \u3085\u3068  \u3087\u3048  \u3049\u3048  \u3044\u3053  \u304c\u304f  \u3082\u3053  ",
+            "S": "Anula los efectos del clima."
+        }
+    }
+]

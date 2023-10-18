@@ -1,4 +1,3 @@
-from typing import NoReturn
 from flask_cors import CORS
 from flask import Flask, abort, jsonify
 
@@ -9,7 +8,7 @@ from modules.Pokemon import GetParty
 from modules.Stats import GetEncounterRate, encounter_log, stats, shiny_log
 
 
-def WebServer() -> NoReturn:
+def WebServer() -> None:
     """
     Run Flask server to make bot data available via HTTP requests.
     """
@@ -55,7 +54,7 @@ def WebServer() -> NoReturn:
             try:
                 party = GetParty()
                 if party:
-                    return jsonify(party)
+                    return jsonify([p.to_json() for p in party])
                 abort(503)
             except:
                 console.print_exception(show_locals=True)
