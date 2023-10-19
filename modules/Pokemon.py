@@ -857,7 +857,7 @@ class Pokemon:
 
     @property
     def is_shiny(self) -> bool:
-        return self.shiny_value < 32000
+        return self.shiny_value < 8
 
     @property
     def hidden_power_type(self) -> Type:
