@@ -16,7 +16,7 @@
         }
     },
     {
-        "name": "Fight",
+        "name": "Fighting",
         "effectiveness": {
             "Normal": 2.0,
             "Ice": 2.0,
@@ -43,7 +43,7 @@
         "effectiveness": {
             "Electric": 0.5,
             "Grass": 2.0,
-            "Fight": 2.0,
+            "Fighting": 2.0,
             "Bug": 2.0,
             "Rock": 0.5,
             "Steel": 0.5
@@ -102,7 +102,7 @@
         "effectiveness": {
             "Fire": 2.0,
             "Ice": 2.0,
-            "Fight": 0.5,
+            "Fighting": 0.5,
             "Ground": 0.5,
             "Flying": 2.0,
             "Bug": 2.0,
@@ -122,7 +122,7 @@
         "effectiveness": {
             "Fire": 0.5,
             "Grass": 2.0,
-            "Fight": 0.5,
+            "Fighting": 0.5,
             "Poison": 0.5,
             "Flying": 0.5,
             "Psychic": 2.0,
@@ -273,7 +273,7 @@
     {
         "name": "Psychic",
         "effectiveness": {
-            "Fight": 2.0,
+            "Fighting": 2.0,
             "Poison": 2.0,
             "Psychic": 0.5,
             "Dark": 0.0,
@@ -327,7 +327,7 @@
     {
         "name": "Dark",
         "effectiveness": {
-            "Fight": 0.5,
+            "Fighting": 0.5,
             "Psychic": 2.0,
             "Ghost": 2.0,
             "Dark": 0.5,

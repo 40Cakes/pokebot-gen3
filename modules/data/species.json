@@ -72,8 +72,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Grass"
+            "Grass",
+            "Monster"
         ],
         "base_experience_yield": 64,
         "ev_yield": {
@@ -120,8 +120,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Grass"
+            "Grass",
+            "Monster"
         ],
         "base_experience_yield": 141,
         "ev_yield": {
@@ -168,8 +168,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Grass"
+            "Grass",
+            "Monster"
         ],
         "base_experience_yield": 208,
         "ev_yield": {
@@ -288,8 +288,8 @@
         "national_dex_number": 6,
         "hoenn_dex_number": 208,
         "types": [
-            "Flying",
-            "Fire"
+            "Fire",
+            "Flying"
         ],
         "abilities": [
             "Blaze"
@@ -569,8 +569,8 @@
         "national_dex_number": 12,
         "hoenn_dex_number": 214,
         "types": [
-            "Flying",
-            "Bug"
+            "Bug",
+            "Flying"
         ],
         "abilities": [
             "Compoundeyes"
@@ -616,8 +616,8 @@
         "national_dex_number": 13,
         "hoenn_dex_number": 215,
         "types": [
-            "Poison",
-            "Bug"
+            "Bug",
+            "Poison"
         ],
         "abilities": [
             "Shield Dust"
@@ -663,8 +663,8 @@
         "national_dex_number": 14,
         "hoenn_dex_number": 216,
         "types": [
-            "Poison",
-            "Bug"
+            "Bug",
+            "Poison"
         ],
         "abilities": [
             "Shed Skin"
@@ -710,8 +710,8 @@
         "national_dex_number": 15,
         "hoenn_dex_number": 217,
         "types": [
-            "Poison",
-            "Bug"
+            "Bug",
+            "Poison"
         ],
         "abilities": [
             "Swarm"
@@ -1108,8 +1108,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Dragon",
-            "Field"
+            "Field",
+            "Dragon"
         ],
         "base_experience_yield": 62,
         "ev_yield": {
@@ -1156,8 +1156,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Dragon",
-            "Field"
+            "Field",
+            "Dragon"
         ],
         "base_experience_yield": 147,
         "ev_yield": {
@@ -1212,8 +1212,8 @@
         "safari_zone_flee_probability": 6,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Fairy",
-            "Field"
+            "Field",
+            "Fairy"
         ],
         "base_experience_yield": 82,
         "ev_yield": {
@@ -1259,8 +1259,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Fairy",
-            "Field"
+            "Field",
+            "Fairy"
         ],
         "base_experience_yield": 122,
         "ev_yield": {
@@ -1398,8 +1398,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Field"
+            "Field",
+            "Monster"
         ],
         "base_experience_yield": 59,
         "ev_yield": {
@@ -1538,8 +1538,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Field"
+            "Field",
+            "Monster"
         ],
         "base_experience_yield": 60,
         "ev_yield": {
@@ -1585,8 +1585,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Field"
+            "Field",
+            "Monster"
         ],
         "base_experience_yield": 118,
         "ev_yield": {
@@ -1633,8 +1633,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Field"
+            "Field",
+            "Monster"
         ],
         "base_experience_yield": 195,
         "ev_yield": {
@@ -2198,8 +2198,8 @@
         "national_dex_number": 46,
         "hoenn_dex_number": 235,
         "types": [
-            "Grass",
-            "Bug"
+            "Bug",
+            "Grass"
         ],
         "abilities": [
             "Effect Spore"
@@ -2229,8 +2229,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Grass",
-            "Bug"
+            "Bug",
+            "Grass"
         ],
         "base_experience_yield": 70,
         "ev_yield": {
@@ -2255,8 +2255,8 @@
         "national_dex_number": 47,
         "hoenn_dex_number": 236,
         "types": [
-            "Grass",
-            "Bug"
+            "Bug",
+            "Grass"
         ],
         "abilities": [
             "Effect Spore"
@@ -2286,8 +2286,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Grass",
-            "Bug"
+            "Bug",
+            "Grass"
         ],
         "base_experience_yield": 128,
         "ev_yield": {
@@ -2312,8 +2312,8 @@
         "national_dex_number": 48,
         "hoenn_dex_number": 237,
         "types": [
-            "Poison",
-            "Bug"
+            "Bug",
+            "Poison"
         ],
         "abilities": [
             "Compoundeyes"
@@ -2359,8 +2359,8 @@
         "national_dex_number": 49,
         "hoenn_dex_number": 238,
         "types": [
-            "Poison",
-            "Bug"
+            "Bug",
+            "Poison"
         ],
         "abilities": [
             "Shield Dust"
@@ -2614,8 +2614,8 @@
         "safari_zone_flee_probability": 6,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Field"
+            "Field",
+            "Water 1"
         ],
         "base_experience_yield": 80,
         "ev_yield": {
@@ -2662,8 +2662,8 @@
         "safari_zone_flee_probability": 8,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Field"
+            "Field",
+            "Water 1"
         ],
         "base_experience_yield": 174,
         "ev_yield": {
@@ -2688,7 +2688,7 @@
         "national_dex_number": 56,
         "hoenn_dex_number": 243,
         "types": [
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Vital Spirit"
@@ -2734,7 +2734,7 @@
         "national_dex_number": 57,
         "hoenn_dex_number": 244,
         "types": [
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Vital Spirit"
@@ -2979,7 +2979,7 @@
         "hoenn_dex_number": 249,
         "types": [
             "Water",
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Water Absorb",
@@ -3167,7 +3167,7 @@
         "national_dex_number": 66,
         "hoenn_dex_number": 73,
         "types": [
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Guts"
@@ -3213,7 +3213,7 @@
         "national_dex_number": 67,
         "hoenn_dex_number": 74,
         "types": [
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Guts"
@@ -3259,7 +3259,7 @@
         "national_dex_number": 68,
         "hoenn_dex_number": 75,
         "types": [
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Guts"
@@ -3446,8 +3446,8 @@
         "national_dex_number": 72,
         "hoenn_dex_number": 66,
         "types": [
-            "Poison",
-            "Water"
+            "Water",
+            "Poison"
         ],
         "abilities": [
             "Clear Body",
@@ -3494,8 +3494,8 @@
         "national_dex_number": 73,
         "hoenn_dex_number": 67,
         "types": [
-            "Poison",
-            "Water"
+            "Water",
+            "Poison"
         ],
         "abilities": [
             "Clear Body",
@@ -3542,8 +3542,8 @@
         "national_dex_number": 74,
         "hoenn_dex_number": 57,
         "types": [
-            "Rock",
-            "Ground"
+            "Ground",
+            "Rock"
         ],
         "abilities": [
             "Rock Head",
@@ -3590,8 +3590,8 @@
         "national_dex_number": 75,
         "hoenn_dex_number": 58,
         "types": [
-            "Rock",
-            "Ground"
+            "Ground",
+            "Rock"
         ],
         "abilities": [
             "Rock Head",
@@ -3638,8 +3638,8 @@
         "national_dex_number": 76,
         "hoenn_dex_number": 59,
         "types": [
-            "Rock",
-            "Ground"
+            "Ground",
+            "Rock"
         ],
         "abilities": [
             "Rock Head",
@@ -3780,8 +3780,8 @@
         "national_dex_number": 79,
         "hoenn_dex_number": 255,
         "types": [
-            "Psychic",
-            "Water"
+            "Water",
+            "Psychic"
         ],
         "abilities": [
             "Oblivious",
@@ -3829,8 +3829,8 @@
         "national_dex_number": 80,
         "hoenn_dex_number": 256,
         "types": [
-            "Psychic",
-            "Water"
+            "Water",
+            "Psychic"
         ],
         "abilities": [
             "Oblivious",
@@ -3997,8 +3997,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Flying",
-            "Field"
+            "Field",
+            "Flying"
         ],
         "base_experience_yield": 94,
         "ev_yield": {
@@ -4140,8 +4140,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Field"
+            "Field",
+            "Water 1"
         ],
         "base_experience_yield": 100,
         "ev_yield": {
@@ -4166,8 +4166,8 @@
         "national_dex_number": 87,
         "hoenn_dex_number": 259,
         "types": [
-            "Ice",
-            "Water"
+            "Water",
+            "Ice"
         ],
         "abilities": [
             "Thick Fat"
@@ -4188,8 +4188,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Field"
+            "Field",
+            "Water 1"
         ],
         "base_experience_yield": 176,
         "ev_yield": {
@@ -4363,8 +4363,8 @@
         "national_dex_number": 91,
         "hoenn_dex_number": 261,
         "types": [
-            "Ice",
-            "Water"
+            "Water",
+            "Ice"
         ],
         "abilities": [
             "Shell Armor"
@@ -4560,8 +4560,8 @@
         "national_dex_number": 95,
         "hoenn_dex_number": 265,
         "types": [
-            "Rock",
-            "Ground"
+            "Ground",
+            "Rock"
         ],
         "abilities": [
             "Rock Head",
@@ -4888,8 +4888,8 @@
         "national_dex_number": 102,
         "hoenn_dex_number": 270,
         "types": [
-            "Psychic",
-            "Grass"
+            "Grass",
+            "Psychic"
         ],
         "abilities": [
             "Chlorophyll"
@@ -4935,8 +4935,8 @@
         "national_dex_number": 103,
         "hoenn_dex_number": 271,
         "types": [
-            "Psychic",
-            "Grass"
+            "Grass",
+            "Psychic"
         ],
         "abilities": [
             "Chlorophyll"
@@ -5076,7 +5076,7 @@
         "national_dex_number": 106,
         "hoenn_dex_number": 274,
         "types": [
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Limber"
@@ -5122,7 +5122,7 @@
         "national_dex_number": 107,
         "hoenn_dex_number": 275,
         "types": [
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Keen Eye"
@@ -5307,8 +5307,8 @@
         "national_dex_number": 111,
         "hoenn_dex_number": 169,
         "types": [
-            "Rock",
-            "Ground"
+            "Ground",
+            "Rock"
         ],
         "abilities": [
             "Lightningrod",
@@ -5330,8 +5330,8 @@
         "safari_zone_flee_probability": 4,
         "level_up_type": "Slow",
         "egg_groups": [
-            "Monster",
-            "Field"
+            "Field",
+            "Monster"
         ],
         "base_experience_yield": 135,
         "ev_yield": {
@@ -5356,8 +5356,8 @@
         "national_dex_number": 112,
         "hoenn_dex_number": 170,
         "types": [
-            "Rock",
-            "Ground"
+            "Ground",
+            "Rock"
         ],
         "abilities": [
             "Lightningrod",
@@ -5379,8 +5379,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
-            "Monster",
-            "Field"
+            "Field",
+            "Monster"
         ],
         "base_experience_yield": 204,
         "ev_yield": {
@@ -5565,8 +5565,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Dragon"
+            "Dragon",
+            "Water 1"
         ],
         "base_experience_yield": 83,
         "ev_yield": {
@@ -5612,8 +5612,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Dragon"
+            "Dragon",
+            "Water 1"
         ],
         "base_experience_yield": 155,
         "ev_yield": {
@@ -5788,8 +5788,8 @@
         "national_dex_number": 121,
         "hoenn_dex_number": 144,
         "types": [
-            "Psychic",
-            "Water"
+            "Water",
+            "Psychic"
         ],
         "abilities": [
             "Illuminate",
@@ -5891,8 +5891,8 @@
         "national_dex_number": 123,
         "hoenn_dex_number": 281,
         "types": [
-            "Flying",
-            "Bug"
+            "Bug",
+            "Flying"
         ],
         "abilities": [
             "Swarm"
@@ -5938,8 +5938,8 @@
         "national_dex_number": 124,
         "hoenn_dex_number": 282,
         "types": [
-            "Ice",
-            "Psychic"
+            "Psychic",
+            "Ice"
         ],
         "abilities": [
             "Oblivious"
@@ -6226,8 +6226,8 @@
         "national_dex_number": 130,
         "hoenn_dex_number": 53,
         "types": [
-            "Flying",
-            "Water"
+            "Water",
+            "Flying"
         ],
         "abilities": [
             "Intimidate"
@@ -6274,8 +6274,8 @@
         "national_dex_number": 131,
         "hoenn_dex_number": 286,
         "types": [
-            "Ice",
-            "Water"
+            "Water",
+            "Ice"
         ],
         "abilities": [
             "Water Absorb",
@@ -6599,8 +6599,8 @@
         "national_dex_number": 138,
         "hoenn_dex_number": 293,
         "types": [
-            "Rock",
-            "Water"
+            "Water",
+            "Rock"
         ],
         "abilities": [
             "Swift Swim",
@@ -6622,8 +6622,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Water 3"
+            "Water 3",
+            "Water 1"
         ],
         "base_experience_yield": 120,
         "ev_yield": {
@@ -6648,8 +6648,8 @@
         "national_dex_number": 139,
         "hoenn_dex_number": 294,
         "types": [
-            "Rock",
-            "Water"
+            "Water",
+            "Rock"
         ],
         "abilities": [
             "Swift Swim",
@@ -6671,8 +6671,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Water 3"
+            "Water 3",
+            "Water 1"
         ],
         "base_experience_yield": 199,
         "ev_yield": {
@@ -6697,8 +6697,8 @@
         "national_dex_number": 140,
         "hoenn_dex_number": 295,
         "types": [
-            "Rock",
-            "Water"
+            "Water",
+            "Rock"
         ],
         "abilities": [
             "Swift Swim",
@@ -6720,8 +6720,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Water 3"
+            "Water 3",
+            "Water 1"
         ],
         "base_experience_yield": 119,
         "ev_yield": {
@@ -6746,8 +6746,8 @@
         "national_dex_number": 141,
         "hoenn_dex_number": 296,
         "types": [
-            "Rock",
-            "Water"
+            "Water",
+            "Rock"
         ],
         "abilities": [
             "Swift Swim",
@@ -6769,8 +6769,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Water 3"
+            "Water 3",
+            "Water 1"
         ],
         "base_experience_yield": 201,
         "ev_yield": {
@@ -6895,8 +6895,8 @@
         "national_dex_number": 144,
         "hoenn_dex_number": 299,
         "types": [
-            "Ice",
-            "Flying"
+            "Flying",
+            "Ice"
         ],
         "abilities": [
             "Pressure"
@@ -6989,8 +6989,8 @@
         "national_dex_number": 146,
         "hoenn_dex_number": 301,
         "types": [
-            "Flying",
-            "Fire"
+            "Fire",
+            "Flying"
         ],
         "abilities": [
             "Pressure"
@@ -7057,8 +7057,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
-            "Water 1",
-            "Dragon"
+            "Dragon",
+            "Water 1"
         ],
         "base_experience_yield": 67,
         "ev_yield": {
@@ -7104,8 +7104,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
-            "Water 1",
-            "Dragon"
+            "Dragon",
+            "Water 1"
         ],
         "base_experience_yield": 144,
         "ev_yield": {
@@ -7152,8 +7152,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
-            "Water 1",
-            "Dragon"
+            "Dragon",
+            "Water 1"
         ],
         "base_experience_yield": 218,
         "ev_yield": {
@@ -7296,8 +7296,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Grass"
+            "Grass",
+            "Monster"
         ],
         "base_experience_yield": 64,
         "ev_yield": {
@@ -7343,8 +7343,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Grass"
+            "Grass",
+            "Monster"
         ],
         "base_experience_yield": 141,
         "ev_yield": {
@@ -7390,8 +7390,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Grass"
+            "Grass",
+            "Monster"
         ],
         "base_experience_yield": 208,
         "ev_yield": {
@@ -7894,8 +7894,8 @@
         "national_dex_number": 165,
         "hoenn_dex_number": 320,
         "types": [
-            "Flying",
-            "Bug"
+            "Bug",
+            "Flying"
         ],
         "abilities": [
             "Swarm",
@@ -7942,8 +7942,8 @@
         "national_dex_number": 166,
         "hoenn_dex_number": 321,
         "types": [
-            "Flying",
-            "Bug"
+            "Bug",
+            "Flying"
         ],
         "abilities": [
             "Swarm",
@@ -7990,8 +7990,8 @@
         "national_dex_number": 167,
         "hoenn_dex_number": 322,
         "types": [
-            "Poison",
-            "Bug"
+            "Bug",
+            "Poison"
         ],
         "abilities": [
             "Swarm",
@@ -8038,8 +8038,8 @@
         "national_dex_number": 168,
         "hoenn_dex_number": 323,
         "types": [
-            "Poison",
-            "Bug"
+            "Bug",
+            "Poison"
         ],
         "abilities": [
             "Swarm",
@@ -8472,8 +8472,8 @@
         "national_dex_number": 177,
         "hoenn_dex_number": 162,
         "types": [
-            "Psychic",
-            "Flying"
+            "Flying",
+            "Psychic"
         ],
         "abilities": [
             "Synchronize",
@@ -8520,8 +8520,8 @@
         "national_dex_number": 178,
         "hoenn_dex_number": 163,
         "types": [
-            "Psychic",
-            "Flying"
+            "Flying",
+            "Psychic"
         ],
         "abilities": [
             "Synchronize",
@@ -8589,8 +8589,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Field"
+            "Field",
+            "Monster"
         ],
         "base_experience_yield": 59,
         "ev_yield": {
@@ -8636,8 +8636,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Field"
+            "Field",
+            "Monster"
         ],
         "base_experience_yield": 117,
         "ev_yield": {
@@ -8683,8 +8683,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Field"
+            "Field",
+            "Monster"
         ],
         "base_experience_yield": 194,
         "ev_yield": {
@@ -8777,8 +8777,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Water 1",
-            "Fairy"
+            "Fairy",
+            "Water 1"
         ],
         "base_experience_yield": 58,
         "ev_yield": {
@@ -8825,8 +8825,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Water 1",
-            "Fairy"
+            "Fairy",
+            "Water 1"
         ],
         "base_experience_yield": 153,
         "ev_yield": {
@@ -8945,8 +8945,8 @@
         "national_dex_number": 187,
         "hoenn_dex_number": 332,
         "types": [
-            "Flying",
-            "Grass"
+            "Grass",
+            "Flying"
         ],
         "abilities": [
             "Chlorophyll"
@@ -8993,8 +8993,8 @@
         "national_dex_number": 188,
         "hoenn_dex_number": 333,
         "types": [
-            "Flying",
-            "Grass"
+            "Grass",
+            "Flying"
         ],
         "abilities": [
             "Chlorophyll"
@@ -9041,8 +9041,8 @@
         "national_dex_number": 189,
         "hoenn_dex_number": 334,
         "types": [
-            "Flying",
-            "Grass"
+            "Grass",
+            "Flying"
         ],
         "abilities": [
             "Chlorophyll"
@@ -9228,8 +9228,8 @@
         "national_dex_number": 193,
         "hoenn_dex_number": 338,
         "types": [
-            "Flying",
-            "Bug"
+            "Bug",
+            "Flying"
         ],
         "abilities": [
             "Speed Boost",
@@ -9299,8 +9299,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Field"
+            "Field",
+            "Water 1"
         ],
         "base_experience_yield": 52,
         "ev_yield": {
@@ -9348,8 +9348,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Field"
+            "Field",
+            "Water 1"
         ],
         "base_experience_yield": 137,
         "ev_yield": {
@@ -9466,8 +9466,8 @@
         "national_dex_number": 198,
         "hoenn_dex_number": 343,
         "types": [
-            "Flying",
-            "Dark"
+            "Dark",
+            "Flying"
         ],
         "abilities": [
             "Insomnia"
@@ -9513,8 +9513,8 @@
         "national_dex_number": 199,
         "hoenn_dex_number": 344,
         "types": [
-            "Psychic",
-            "Water"
+            "Water",
+            "Psychic"
         ],
         "abilities": [
             "Oblivious",
@@ -9794,8 +9794,8 @@
         "national_dex_number": 205,
         "hoenn_dex_number": 348,
         "types": [
-            "Steel",
-            "Bug"
+            "Bug",
+            "Steel"
         ],
         "abilities": [
             "Sturdy"
@@ -9888,8 +9888,8 @@
         "national_dex_number": 207,
         "hoenn_dex_number": 350,
         "types": [
-            "Flying",
-            "Ground"
+            "Ground",
+            "Flying"
         ],
         "abilities": [
             "Hyper Cutter",
@@ -10006,8 +10006,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Fairy",
-            "Field"
+            "Field",
+            "Fairy"
         ],
         "base_experience_yield": 63,
         "ev_yield": {
@@ -10054,8 +10054,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Fairy",
-            "Field"
+            "Field",
+            "Fairy"
         ],
         "base_experience_yield": 178,
         "ev_yield": {
@@ -10080,8 +10080,8 @@
         "national_dex_number": 211,
         "hoenn_dex_number": 354,
         "types": [
-            "Poison",
-            "Water"
+            "Water",
+            "Poison"
         ],
         "abilities": [
             "Poison Point",
@@ -10128,8 +10128,8 @@
         "national_dex_number": 212,
         "hoenn_dex_number": 355,
         "types": [
-            "Steel",
-            "Bug"
+            "Bug",
+            "Steel"
         ],
         "abilities": [
             "Swarm"
@@ -10175,8 +10175,8 @@
         "national_dex_number": 213,
         "hoenn_dex_number": 356,
         "types": [
-            "Rock",
-            "Bug"
+            "Bug",
+            "Rock"
         ],
         "abilities": [
             "Sturdy"
@@ -10227,8 +10227,8 @@
         "national_dex_number": 214,
         "hoenn_dex_number": 168,
         "types": [
-            "Fight",
-            "Bug"
+            "Bug",
+            "Fighting"
         ],
         "abilities": [
             "Swarm",
@@ -10275,8 +10275,8 @@
         "national_dex_number": 215,
         "hoenn_dex_number": 357,
         "types": [
-            "Ice",
-            "Dark"
+            "Dark",
+            "Ice"
         ],
         "abilities": [
             "Inner Focus",
@@ -10462,8 +10462,8 @@
         "national_dex_number": 219,
         "hoenn_dex_number": 104,
         "types": [
-            "Rock",
-            "Fire"
+            "Fire",
+            "Rock"
         ],
         "abilities": [
             "Magma Armor",
@@ -10510,8 +10510,8 @@
         "national_dex_number": 220,
         "hoenn_dex_number": 360,
         "types": [
-            "Ice",
-            "Ground"
+            "Ground",
+            "Ice"
         ],
         "abilities": [
             "Oblivious"
@@ -10557,8 +10557,8 @@
         "national_dex_number": 221,
         "hoenn_dex_number": 361,
         "types": [
-            "Ice",
-            "Ground"
+            "Ground",
+            "Ice"
         ],
         "abilities": [
             "Oblivious"
@@ -10604,8 +10604,8 @@
         "national_dex_number": 222,
         "hoenn_dex_number": 180,
         "types": [
-            "Rock",
-            "Water"
+            "Water",
+            "Rock"
         ],
         "abilities": [
             "Hustle",
@@ -10627,8 +10627,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Water 1",
-            "Water 3"
+            "Water 3",
+            "Water 1"
         ],
         "base_experience_yield": 113,
         "ev_yield": {
@@ -10747,8 +10747,8 @@
         "national_dex_number": 225,
         "hoenn_dex_number": 364,
         "types": [
-            "Ice",
-            "Flying"
+            "Flying",
+            "Ice"
         ],
         "abilities": [
             "Vital Spirit",
@@ -10770,8 +10770,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Water 1",
-            "Field"
+            "Field",
+            "Water 1"
         ],
         "base_experience_yield": 183,
         "ev_yield": {
@@ -10796,8 +10796,8 @@
         "national_dex_number": 226,
         "hoenn_dex_number": 365,
         "types": [
-            "Flying",
-            "Water"
+            "Water",
+            "Flying"
         ],
         "abilities": [
             "Swift Swim",
@@ -10844,8 +10844,8 @@
         "national_dex_number": 227,
         "hoenn_dex_number": 115,
         "types": [
-            "Flying",
-            "Steel"
+            "Steel",
+            "Flying"
         ],
         "abilities": [
             "Keen Eye",
@@ -10988,8 +10988,8 @@
         "national_dex_number": 230,
         "hoenn_dex_number": 186,
         "types": [
-            "Dragon",
-            "Water"
+            "Water",
+            "Dragon"
         ],
         "abilities": [
             "Swift Swim"
@@ -11010,8 +11010,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Dragon"
+            "Dragon",
+            "Water 1"
         ],
         "base_experience_yield": 207,
         "ev_yield": {
@@ -11266,7 +11266,7 @@
         "national_dex_number": 236,
         "hoenn_dex_number": 371,
         "types": [
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Guts"
@@ -11312,7 +11312,7 @@
         "national_dex_number": 237,
         "hoenn_dex_number": 372,
         "types": [
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Intimidate"
@@ -11358,8 +11358,8 @@
         "national_dex_number": 238,
         "hoenn_dex_number": 373,
         "types": [
-            "Ice",
-            "Psychic"
+            "Psychic",
+            "Ice"
         ],
         "abilities": [
             "Oblivious"
@@ -11743,8 +11743,8 @@
         "national_dex_number": 246,
         "hoenn_dex_number": 381,
         "types": [
-            "Rock",
-            "Ground"
+            "Ground",
+            "Rock"
         ],
         "abilities": [
             "Guts"
@@ -11790,8 +11790,8 @@
         "national_dex_number": 247,
         "hoenn_dex_number": 382,
         "types": [
-            "Rock",
-            "Ground"
+            "Ground",
+            "Rock"
         ],
         "abilities": [
             "Shed Skin"
@@ -11837,8 +11837,8 @@
         "national_dex_number": 248,
         "hoenn_dex_number": 383,
         "types": [
-            "Rock",
-            "Dark"
+            "Dark",
+            "Rock"
         ],
         "abilities": [
             "Sand Stream"
@@ -11884,8 +11884,8 @@
         "national_dex_number": 249,
         "hoenn_dex_number": 384,
         "types": [
-            "Psychic",
-            "Flying"
+            "Flying",
+            "Psychic"
         ],
         "abilities": [
             "Pressure"
@@ -11931,8 +11931,8 @@
         "national_dex_number": 250,
         "hoenn_dex_number": 385,
         "types": [
-            "Flying",
-            "Fire"
+            "Fire",
+            "Flying"
         ],
         "abilities": [
             "Pressure"
@@ -11983,8 +11983,8 @@
         "national_dex_number": 251,
         "hoenn_dex_number": 386,
         "types": [
-            "Psychic",
-            "Grass"
+            "Grass",
+            "Psychic"
         ],
         "abilities": [
             "Natural Cure"
@@ -13373,7 +13373,7 @@
         "hoenn_dex_number": 5,
         "types": [
             "Fire",
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Blaze"
@@ -13420,7 +13420,7 @@
         "hoenn_dex_number": 6,
         "types": [
             "Fire",
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Blaze"
@@ -13894,8 +13894,8 @@
         "national_dex_number": 267,
         "hoenn_dex_number": 16,
         "types": [
-            "Flying",
-            "Bug"
+            "Bug",
+            "Flying"
         ],
         "abilities": [
             "Swarm"
@@ -13987,8 +13987,8 @@
         "national_dex_number": 269,
         "hoenn_dex_number": 18,
         "types": [
-            "Poison",
-            "Bug"
+            "Bug",
+            "Poison"
         ],
         "abilities": [
             "Shield Dust"
@@ -14203,8 +14203,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Grass",
-            "Field"
+            "Field",
+            "Grass"
         ],
         "base_experience_yield": 74,
         "ev_yield": {
@@ -14229,8 +14229,8 @@
         "national_dex_number": 274,
         "hoenn_dex_number": 23,
         "types": [
-            "Grass",
-            "Dark"
+            "Dark",
+            "Grass"
         ],
         "abilities": [
             "Chlorophyll",
@@ -14252,8 +14252,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Grass",
-            "Field"
+            "Field",
+            "Grass"
         ],
         "base_experience_yield": 141,
         "ev_yield": {
@@ -14278,8 +14278,8 @@
         "national_dex_number": 275,
         "hoenn_dex_number": 24,
         "types": [
-            "Grass",
-            "Dark"
+            "Dark",
+            "Grass"
         ],
         "abilities": [
             "Chlorophyll",
@@ -14301,8 +14301,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Grass",
-            "Field"
+            "Field",
+            "Grass"
         ],
         "base_experience_yield": 181,
         "ev_yield": {
@@ -14374,8 +14374,8 @@
         "national_dex_number": 291,
         "hoenn_dex_number": 43,
         "types": [
-            "Flying",
-            "Bug"
+            "Bug",
+            "Flying"
         ],
         "abilities": [
             "Speed Boost"
@@ -14421,8 +14421,8 @@
         "national_dex_number": 292,
         "hoenn_dex_number": 44,
         "types": [
-            "Ghost",
-            "Bug"
+            "Bug",
+            "Ghost"
         ],
         "abilities": [
             "Wonder Guard"
@@ -14610,7 +14610,7 @@
         "hoenn_dex_number": 35,
         "types": [
             "Grass",
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Effect Spore"
@@ -14678,8 +14678,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Human-Like",
-            "Field"
+            "Field",
+            "Human-Like"
         ],
         "base_experience_yield": 85,
         "ev_yield": {
@@ -14704,8 +14704,8 @@
         "national_dex_number": 278,
         "hoenn_dex_number": 27,
         "types": [
-            "Flying",
-            "Water"
+            "Water",
+            "Flying"
         ],
         "abilities": [
             "Keen Eye"
@@ -14752,8 +14752,8 @@
         "national_dex_number": 279,
         "hoenn_dex_number": 28,
         "types": [
-            "Flying",
-            "Water"
+            "Water",
+            "Flying"
         ],
         "abilities": [
             "Keen Eye"
@@ -14800,8 +14800,8 @@
         "national_dex_number": 283,
         "hoenn_dex_number": 32,
         "types": [
-            "Water",
-            "Bug"
+            "Bug",
+            "Water"
         ],
         "abilities": [
             "Swift Swim"
@@ -14822,8 +14822,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Bug"
+            "Bug",
+            "Water 1"
         ],
         "base_experience_yield": 63,
         "ev_yield": {
@@ -14848,8 +14848,8 @@
         "national_dex_number": 284,
         "hoenn_dex_number": 33,
         "types": [
-            "Flying",
-            "Bug"
+            "Bug",
+            "Flying"
         ],
         "abilities": [
             "Intimidate"
@@ -14870,8 +14870,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 1",
-            "Bug"
+            "Bug",
+            "Water 1"
         ],
         "base_experience_yield": 128,
         "ev_yield": {
@@ -14918,8 +14918,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
-            "Water 2",
-            "Field"
+            "Field",
+            "Water 2"
         ],
         "base_experience_yield": 137,
         "ev_yield": {
@@ -14966,8 +14966,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
-            "Water 2",
-            "Field"
+            "Field",
+            "Water 2"
         ],
         "base_experience_yield": 206,
         "ev_yield": {
@@ -15013,8 +15013,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Fairy",
-            "Field"
+            "Field",
+            "Fairy"
         ],
         "base_experience_yield": 65,
         "ev_yield": {
@@ -15060,8 +15060,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Fairy",
-            "Field"
+            "Field",
+            "Fairy"
         ],
         "base_experience_yield": 138,
         "ev_yield": {
@@ -15132,8 +15132,8 @@
         "national_dex_number": 343,
         "hoenn_dex_number": 131,
         "types": [
-            "Psychic",
-            "Ground"
+            "Ground",
+            "Psychic"
         ],
         "abilities": [
             "Levitate"
@@ -15179,8 +15179,8 @@
         "national_dex_number": 344,
         "hoenn_dex_number": 132,
         "types": [
-            "Psychic",
-            "Ground"
+            "Ground",
+            "Psychic"
         ],
         "abilities": [
             "Levitate"
@@ -15533,8 +15533,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
-            "Water 1",
-            "Water 3"
+            "Water 3",
+            "Water 1"
         ],
         "base_experience_yield": 111,
         "ev_yield": {
@@ -15582,8 +15582,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
-            "Water 1",
-            "Water 3"
+            "Water 3",
+            "Water 1"
         ],
         "base_experience_yield": 161,
         "ev_yield": {
@@ -15629,8 +15629,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
-            "Water 1",
-            "Dragon"
+            "Dragon",
+            "Water 1"
         ],
         "base_experience_yield": 61,
         "ev_yield": {
@@ -15676,8 +15676,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
-            "Water 1",
-            "Dragon"
+            "Dragon",
+            "Water 1"
         ],
         "base_experience_yield": 213,
         "ev_yield": {
@@ -15939,7 +15939,7 @@
         "national_dex_number": 296,
         "hoenn_dex_number": 48,
         "types": [
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Thick Fat",
@@ -15986,7 +15986,7 @@
         "national_dex_number": 297,
         "hoenn_dex_number": 49,
         "types": [
-            "Fight"
+            "Fighting"
         ],
         "abilities": [
             "Thick Fat",
@@ -16231,8 +16231,8 @@
         "national_dex_number": 363,
         "hoenn_dex_number": 173,
         "types": [
-            "Ice",
-            "Water"
+            "Water",
+            "Ice"
         ],
         "abilities": [
             "Thick Fat"
@@ -16253,8 +16253,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Water 1",
-            "Field"
+            "Field",
+            "Water 1"
         ],
         "base_experience_yield": 75,
         "ev_yield": {
@@ -16279,8 +16279,8 @@
         "national_dex_number": 364,
         "hoenn_dex_number": 174,
         "types": [
-            "Ice",
-            "Water"
+            "Water",
+            "Ice"
         ],
         "abilities": [
             "Thick Fat"
@@ -16301,8 +16301,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Water 1",
-            "Field"
+            "Field",
+            "Water 1"
         ],
         "base_experience_yield": 128,
         "ev_yield": {
@@ -16327,8 +16327,8 @@
         "national_dex_number": 365,
         "hoenn_dex_number": 175,
         "types": [
-            "Ice",
-            "Water"
+            "Water",
+            "Ice"
         ],
         "abilities": [
             "Thick Fat"
@@ -16349,8 +16349,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Water 1",
-            "Field"
+            "Field",
+            "Water 1"
         ],
         "base_experience_yield": 192,
         "ev_yield": {
@@ -16422,8 +16422,8 @@
         "national_dex_number": 332,
         "hoenn_dex_number": 120,
         "types": [
-            "Grass",
-            "Dark"
+            "Dark",
+            "Grass"
         ],
         "abilities": [
             "Sand Veil"
@@ -16564,8 +16564,8 @@
         "national_dex_number": 337,
         "hoenn_dex_number": 125,
         "types": [
-            "Psychic",
-            "Rock"
+            "Rock",
+            "Psychic"
         ],
         "abilities": [
             "Levitate"
@@ -16611,8 +16611,8 @@
         "national_dex_number": 338,
         "hoenn_dex_number": 126,
         "types": [
-            "Psychic",
-            "Rock"
+            "Rock",
+            "Psychic"
         ],
         "abilities": [
             "Levitate"
@@ -16913,8 +16913,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Fairy",
-            "Field"
+            "Field",
+            "Fairy"
         ],
         "base_experience_yield": 98,
         "ev_yield": {
@@ -16939,8 +16939,8 @@
         "national_dex_number": 307,
         "hoenn_dex_number": 76,
         "types": [
-            "Psychic",
-            "Fight"
+            "Fighting",
+            "Psychic"
         ],
         "abilities": [
             "Pure Power"
@@ -16986,8 +16986,8 @@
         "national_dex_number": 308,
         "hoenn_dex_number": 77,
         "types": [
-            "Psychic",
-            "Fight"
+            "Fighting",
+            "Psychic"
         ],
         "abilities": [
             "Pure Power"
@@ -17548,8 +17548,8 @@
         "national_dex_number": 357,
         "hoenn_dex_number": 150,
         "types": [
-            "Flying",
-            "Grass"
+            "Grass",
+            "Flying"
         ],
         "abilities": [
             "Chlorophyll"
@@ -17570,8 +17570,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
-            "Monster",
-            "Grass"
+            "Grass",
+            "Monster"
         ],
         "base_experience_yield": 169,
         "ev_yield": {
@@ -17617,8 +17617,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Field"
+            "Field",
+            "Monster"
         ],
         "base_experience_yield": 68,
         "ev_yield": {
@@ -17664,8 +17664,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Field"
+            "Field",
+            "Monster"
         ],
         "base_experience_yield": 126,
         "ev_yield": {
@@ -17711,8 +17711,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Field"
+            "Field",
+            "Monster"
         ],
         "base_experience_yield": 184,
         "ev_yield": {
@@ -18034,8 +18034,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
-            "Dragon",
-            "Field"
+            "Field",
+            "Dragon"
         ],
         "base_experience_yield": 165,
         "ev_yield": {
@@ -18106,8 +18106,8 @@
         "national_dex_number": 369,
         "hoenn_dex_number": 179,
         "types": [
-            "Rock",
-            "Water"
+            "Water",
+            "Rock"
         ],
         "abilities": [
             "Swift Swim",
@@ -18155,8 +18155,8 @@
         "national_dex_number": 304,
         "hoenn_dex_number": 70,
         "types": [
-            "Rock",
-            "Steel"
+            "Steel",
+            "Rock"
         ],
         "abilities": [
             "Sturdy",
@@ -18203,8 +18203,8 @@
         "national_dex_number": 305,
         "hoenn_dex_number": 71,
         "types": [
-            "Rock",
-            "Steel"
+            "Steel",
+            "Rock"
         ],
         "abilities": [
             "Sturdy",
@@ -18251,8 +18251,8 @@
         "national_dex_number": 306,
         "hoenn_dex_number": 72,
         "types": [
-            "Rock",
-            "Steel"
+            "Steel",
+            "Rock"
         ],
         "abilities": [
             "Sturdy",
@@ -18373,8 +18373,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
-            "Human-Like",
-            "Bug"
+            "Bug",
+            "Human-Like"
         ],
         "base_experience_yield": 146,
         "ev_yield": {
@@ -18420,8 +18420,8 @@
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
-            "Human-Like",
-            "Bug"
+            "Bug",
+            "Human-Like"
         ],
         "base_experience_yield": 146,
         "ev_yield": {
@@ -18446,8 +18446,8 @@
         "national_dex_number": 345,
         "hoenn_dex_number": 133,
         "types": [
-            "Rock",
-            "Grass"
+            "Grass",
+            "Rock"
         ],
         "abilities": [
             "Suction Cups"
@@ -18493,8 +18493,8 @@
         "national_dex_number": 346,
         "hoenn_dex_number": 134,
         "types": [
-            "Rock",
-            "Grass"
+            "Grass",
+            "Rock"
         ],
         "abilities": [
             "Suction Cups"
@@ -18540,8 +18540,8 @@
         "national_dex_number": 347,
         "hoenn_dex_number": 135,
         "types": [
-            "Rock",
-            "Bug"
+            "Bug",
+            "Rock"
         ],
         "abilities": [
             "Battle Armor"
@@ -18587,8 +18587,8 @@
         "national_dex_number": 348,
         "hoenn_dex_number": 136,
         "types": [
-            "Rock",
-            "Bug"
+            "Bug",
+            "Rock"
         ],
         "abilities": [
             "Battle Armor"
@@ -18914,8 +18914,8 @@
         "national_dex_number": 374,
         "hoenn_dex_number": 190,
         "types": [
-            "Psychic",
-            "Steel"
+            "Steel",
+            "Psychic"
         ],
         "abilities": [
             "Clear Body"
@@ -18961,8 +18961,8 @@
         "national_dex_number": 375,
         "hoenn_dex_number": 191,
         "types": [
-            "Psychic",
-            "Steel"
+            "Steel",
+            "Psychic"
         ],
         "abilities": [
             "Clear Body"
@@ -19008,8 +19008,8 @@
         "national_dex_number": 376,
         "hoenn_dex_number": 192,
         "types": [
-            "Psychic",
-            "Steel"
+            "Steel",
+            "Psychic"
         ],
         "abilities": [
             "Clear Body"
@@ -19426,8 +19426,8 @@
         "national_dex_number": 385,
         "hoenn_dex_number": 201,
         "types": [
-            "Psychic",
-            "Steel"
+            "Steel",
+            "Psychic"
         ],
         "abilities": [
             "Serene Grace"

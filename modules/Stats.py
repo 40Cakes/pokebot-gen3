@@ -522,7 +522,7 @@ def LogEncounter(pokemon: Pokemon, block_list: list) -> None:
             WriteFile(files["shiny_log"], json.dumps(shiny_log, indent=4, sort_keys=True))
 
         # Same Pokémon encounter streak records
-        if len(encounter_log) > 1 and encounter_log[-2]["pokemon"].name == pokemon.species.name:
+        if len(encounter_log) > 1 and encounter_log[-2]["pokemon"]["name"] == pokemon.species.name:
             stats["totals"]["current_streak"] = stats["totals"].get("current_streak", 0) + 1
         else:
             stats["totals"]["current_streak"] = 1

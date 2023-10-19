@@ -219,6 +219,8 @@ def ExtractTypes(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict]
                 name = 'Electric'
             elif name == 'Psychc':
                 name = 'Psychic'
+            elif name == 'Fight':
+                name = 'Fighting'
             types_list.append({
                 'name': name,
                 'effectiveness': {},
@@ -490,5 +492,6 @@ if __name__ == '__main__':
         print(f'Writing {str(file_path)}...')
         with open(file_path, 'w') as file:
             json.dump(extracted_data[key], file, indent=4)
+            file.write('\n')
 
     print('✅ Done!')
