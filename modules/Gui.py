@@ -48,23 +48,6 @@ def GetROM() -> ROM:
     return profile.rom
 
 
-# On Windows, the bot can be started by clicking this Python file. In that case, the terminal
-# window is only open for as long as the bot runs, which would make it impossible to see error
-# messages during a crash.
-# For those cases, we register an `atexit` handler that will wait for user input before closing
-# the terminal window.
-if platform.system() == 'Windows':
-    import atexit
-    import psutil
-
-
-    def PromptBeforeExit() -> None:
-        parent_process_name = psutil.Process(os.getppid()).name()
-        if parent_process_name == 'py.exe' and gui is not None:
-            gui.window.withdraw()
-            input('Press Enter to close...')
-
-
 class EmulatorControls:
     frame: Union[tkinter.Frame, None] = None
     bot_mode_combobox: ttk.Combobox
@@ -294,7 +277,7 @@ class PokebotGui:
 
     _load_save_window: Union[tkinter.Tk, None] = None
 
-    def __init__(self, main_loop: callable):
+    def __init__(self, main_loop: callable, on_exit: callable):
         global gui
         gui = self
 
@@ -315,9 +298,7 @@ class PokebotGui:
             self.emulator_keys[key_config['emulator'][action].lower()] = action
 
         self.main_loop = main_loop
-
-        if platform.system() == 'Windows':
-            atexit.register(PromptBeforeExit)
+        self.on_exit = on_exit
 
         self.controls = EmulatorControls(self, self.window)
 
@@ -409,9 +390,7 @@ class PokebotGui:
         if emulator:
             emulator.Shutdown()
 
-        if platform.system() == 'Windows':
-            self.window.withdraw()
-            PromptBeforeExit()
+        self.on_exit()
 
         os._exit(0)
 
