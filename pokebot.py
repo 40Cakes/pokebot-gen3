@@ -1,7 +1,31 @@
+import atexit
 import platform
 import sys
 from pathlib import Path
 from threading import Thread
+
+gui = None
+
+
+# On Windows, the bot can be started by clicking this Python file. In that case, the terminal
+# window is only open for as long as the bot runs, which would make it impossible to see error
+# messages during a crash.
+# For those cases, we register an `atexit` handler that will wait for user input before closing
+# the terminal window.
+def on_exit() -> None:
+    if platform.system() == 'Windows':
+        import psutil
+        import os
+        parent_process_name = psutil.Process(os.getppid()).name()
+        if parent_process_name == 'py.exe':
+            if gui is not None and gui.window is not None:
+                gui.window.withdraw()
+
+            print('')
+            input('Press Enter to close...')
+
+
+atexit.register(on_exit)
 
 from modules.Config import config, LoadConfigFromDirectory, ForceManualMode
 from modules.Console import console
@@ -95,11 +119,13 @@ if __name__ == "__main__":
     if platform.system() == "Windows":
         import win32api
 
+
         def Win32SignalHandler(signal_type):
             if signal_type == 2:
                 emulator = GetEmulator()
                 if emulator is not None:
                     emulator.Shutdown()
+
 
         win32api.SetConsoleCtrlHandler(Win32SignalHandler, True)
 
@@ -118,7 +144,7 @@ if __name__ == "__main__":
         elif ProfileDirectoryExists(arg):
             preselected_profile = LoadProfileByName(arg)
 
-    gui = PokebotGui(MainLoop)
+    gui = PokebotGui(MainLoop, on_exit)
     if debug_mode:
         from modules.Gui import DebugEmulatorControls
         from modules.GuiDebug import TasksTab, BattleTab, TrainerTab, DaycareTab, SymbolsTab, InputsTab
