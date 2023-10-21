@@ -1,0 +1,13 @@
+# Logging/console output options
+# See readme for documentation: https://github.com/40Cakes/pokebot-gen3#loggingyml---logging-and-console-output-config
+
+# Log encounters to .csv files
+log_encounters: false # `true`, `false`
+
+# Console output
+# `verbose`, `basic`, `disable`
+console:
+  encounter_data: verbose
+  encounter_ivs: verbose
+  encounter_moves: disable
+  statistics: verbose
