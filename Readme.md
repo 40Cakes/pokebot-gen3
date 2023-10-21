@@ -196,7 +196,7 @@ Running multiple instances of the bot is as easy as starting the bot multiple ti
 
 Statistics are saved into a subfolder of your profile `profiles/<profile name>/stats/`.
 
-The bot will first attempt to load individual config files from your profile folder (`profiles/<profile name>/config/`), if that folder does not exist or any of the configuration files are missing, it will load the default config file in the `profiles/` folder. This allows you to selectively override specific config files on a per-profile basis.
+The bot will first attempt to load individual config files from your profile folder (`profiles/<profile name>/`), if that folder does not exist or any of the configuration files are missing, it will load the default config file in the `profiles/` folder. This allows you to selectively override specific config files on a per-profile basis.
 
 Example:
 ```
