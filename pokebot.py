@@ -20,7 +20,7 @@ def MainLoop(profile: Profile) -> None:
     :param profile: The profile selected by the user
     """
     mode = None
-    LoadConfigFromDirectory(profile.path / "profiles", allow_missing_files=True)
+    LoadConfigFromDirectory(profile.path, allow_missing_files=True)
     InitStats(profile)
 
     try:

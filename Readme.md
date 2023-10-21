@@ -202,21 +202,19 @@ Example:
 ```
 ├── /profiles
     │
-    ├── /my-pokemon-emerald-profile
-    │   └───/config
-    │           discord.yml    <-- loaded for my-pokemon-emerald-profile
-    │           general.yml    <-- loaded for my-pokemon-emerald-profile
+    ├── /emerald-profile
+    │     discord.yml          <-- loaded for 'emerald-profile'
+    │     general.yml          <-- loaded for 'emerald-profile'
     │
-    ├── /my-firered-profile
-    │   └───/config
-    │           general.yml    <-- loaded for my-firered-profile
+    ├── /firered-profile
+    │     general.yml          <-- loaded for 'firered-profile'
     │
     │   catch_block.yml        <-- loaded for all profiles
     │   cheats.yml             <-- loaded for all profiles
     │   CustomCatchFilters.py  <-- loaded for all profiles
     │   CustomHooks.py         <-- loaded for all profiles
-    │   discord.yml            <-- loaded for all profiles except my-pokemon-emerald-profile
-    │   general.yml            <-- loaded for all profiles except my-pokemon-emerald-profile and my-firered-profile
+    │   discord.yml            <-- loaded for all profiles except 'emerald-profile'
+    │   general.yml            <-- loaded for all profiles except 'emerald-profile' and 'firered-profile'
     │   logging.yml            <-- loaded for all profiles
     │   obs.yml                <-- loaded for all profiles
 ```
