@@ -112,9 +112,9 @@ Please do not seek support or complain if you find that your ROM hack does not w
 Manual mode simply disables all bot inputs, allowing you to track encounters and stats on your own shiny hunts as you play the game normally.
 
 ## 🔄 `spin`
-Start the bot while in the overworld, in any patch of grass/water/cave.
-The bot will mash random directions to spin on a single tile.
-- `spin` mode is useful for Safari Zone and [repel tricking](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) as it doesn't count steps!
+Spin clockwise on a single tile, useful for Safari Zone and [repel tricking](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) as it doesn't count steps
+
+Start the mode while in the overworld, in any patch of grass/water/cave.
 
 <details>
 <summary>✅🟨❌ Click here for support information</summary>
@@ -122,11 +122,11 @@ The bot will mash random directions to spin on a single tile.
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:----:|:--------:|:-------:|:-------:|:---------:|
 | English  |  ✅   |    ✅     |    ✅    |    ✅    |     ✅     |
-| Japanese |  -   |    -     |    -    |    -    |     -     |
-| German   |  -   |    -     |    -    |    -    |     -     |
-| Spanish  |  -   |    -     |    -    |    -    |     -     |
-| French   |  -   |    -     |    -    |    -    |     -     |
-| Italian  |  -   |    -     |    -    |    -    |     -     |
+| Japanese |  🟨   |    🟨     |    🟨    |    🟨    |     🟨     |
+| German   |  🟨   |    🟨     |    🟨    |    🟨    |     🟨     |
+| Spanish  |  🟨   |    🟨     |    🟨    |    🟨    |     🟨     |
+| French   |  🟨   |    🟨     |    🟨    |    🟨    |     🟨     |
+| Italian  |  🟨   |    🟨     |    🟨    |    🟨    |     🟨     |
 </details>
 
 ## 💼 `starters`
@@ -166,7 +166,7 @@ Soft reset for starter Pokémon.
 </details>
 
 ## 🎣 `fishing`
-Start the bot facing the water, with any fishing rod registered.
+Start the mode while facing the water, with any fishing rod registered.
 
 <details>
 <summary>✅🟨❌ Click here for support information</summary>
@@ -179,6 +179,24 @@ Start the bot facing the water, with any fishing rod registered.
 | Spanish  |  -   |    -     |    -    |    -    |     -     |
 | French   |  -   |    -     |    -    |    -    |     -     |
 | Italian  |  -   |    -     |    -    |    -    |     -     |
+</details>
+
+## 🚲 `bunny_hop`
+Bunny hop on the spot with the [Acro Bike](https://bulbapedia.bulbagarden.net/wiki/Acro_Bike), useful for Safari Zone and [repel tricking](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) as it doesn't count steps.
+
+Start the mode while in the overworld, in any patch of grass/cave, with the Acro Bike registered.
+
+<details>
+<summary>✅🟨❌ Click here for support information</summary>
+
+|          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald |
+|:---------|:----:|:--------:|:-------:|
+| English  |  ✅   |    ✅     |    ✅    |
+| Japanese |  -   |    -     |    -    |
+| German   |  -   |    -     |    -    |
+| Spanish  |  -   |    -     |    -    |
+| French   |  -   |    -     |    -    |
+| Italian  |  -   |    -     |    -    |
 </details>
 
 ***

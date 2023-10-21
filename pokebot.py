@@ -89,6 +89,11 @@ def MainLoop(profile: Profile) -> None:
 
                         mode = ModeFishing()
 
+                    case "bunny_hop":
+                        from modules.modes.General import ModeBunnyHop
+
+                        mode = ModeBunnyHop()
+
             try:
                 if mode:
                     next(mode.step())

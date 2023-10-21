@@ -8,7 +8,7 @@ from modules.Console import console
 
 yaml = YAML()
 
-available_bot_modes = ['manual', 'spin', 'starters', 'fishing']
+available_bot_modes = ["manual", "spin", "starters", "fishing", "bunny_hop"]
 
 general_schema = f"""
 type: object
@@ -291,20 +291,14 @@ properties:
 """
 
 schemas = {
-    'general': general_schema,
-    'logging': logging_schema,
-    'discord': discord_schema,
-    'obs': obs_schema,
-    'cheats': cheats_schema
+    "general": general_schema,
+    "logging": logging_schema,
+    "discord": discord_schema,
+    "obs": obs_schema,
+    "cheats": cheats_schema,
 }
 
-config = {
-    'general': {},
-    'logging': {},
-    'discord': {},
-    'obs': {},
-    'cheats': {}
-}
+config = {"general": {}, "logging": {}, "discord": {}, "obs": {}, "cheats": {}}
 
 # Keeps a list of all configuration directories that should be searched whenever we are looking
 # for a particular config file.
@@ -348,7 +342,7 @@ def LoadConfigFile(file_path: Path, schema: str) -> dict:
     :return: Parsed and validated contents of the configuration file
     """
     try:
-        with open(file_path, mode='r', encoding='utf-8') as f:
+        with open(file_path, mode="r", encoding="utf-8") as f:
             config = yaml.load(f)
             validate(config, yaml.load(schema))
             return config
@@ -373,7 +367,7 @@ def LoadConfigFromDirectory(path: Path, allow_missing_files=False) -> None:
     config_dir_stack.append(path)
 
     for key in config:
-        file_path = path / (key + '.yml')
+        file_path = path / (key + ".yml")
         if file_path.is_file():
             config[key] = LoadConfigFile(file_path, schemas[key])
         elif not allow_missing_files:
@@ -381,7 +375,7 @@ def LoadConfigFromDirectory(path: Path, allow_missing_files=False) -> None:
             sys.exit(1)
 
 
-previous_bot_mode: str = ''
+previous_bot_mode: str = ""
 
 
 def ToggleManualMode() -> None:
@@ -391,18 +385,18 @@ def ToggleManualMode() -> None:
     """
     global previous_bot_mode
 
-    if config['general']['bot_mode'] == 'manual' and previous_bot_mode != '':
-        config['general']['bot_mode'] = previous_bot_mode
-        previous_bot_mode = ''
+    if config["general"]["bot_mode"] == "manual" and previous_bot_mode != "":
+        config["general"]["bot_mode"] = previous_bot_mode
+        previous_bot_mode = ""
     else:
-        previous_bot_mode = config['general']['bot_mode']
-        config['general']['bot_mode'] = 'manual'
+        previous_bot_mode = config["general"]["bot_mode"]
+        config["general"]["bot_mode"] = "manual"
 
 
 def SetBotMode(new_bot_mode) -> None:
     global previous_bot_mode
-    config['general']['bot_mode'] = new_bot_mode
-    previous_bot_mode = ''
+    config["general"]["bot_mode"] = new_bot_mode
+    previous_bot_mode = ""
 
 
 def ForceManualMode() -> None:
@@ -412,7 +406,7 @@ def ForceManualMode() -> None:
     """
     global previous_bot_mode
 
-    if config['general']['bot_mode'] != 'manual':
-        previous_bot_mode = config['general']['bot_mode']
+    if config["general"]["bot_mode"] != "manual":
+        previous_bot_mode = config["general"]["bot_mode"]
 
-    config['general']['bot_mode'] = 'manual'
+    config["general"]["bot_mode"] = "manual"
