@@ -131,7 +131,7 @@ def LoadROMData(file: Path) -> ROM:
     with open(file, "rb") as handle:
         # The byte at location 0xB2 must have value 0x96 in valid GBA ROMs
         handle.seek(0xB2)
-        magic_number = int.from_bytes(handle.read(1), byteorder='little')
+        magic_number = int.from_bytes(handle.read(1), byteorder="little")
         if magic_number != 0x96:
             raise InvalidROMError("This does not seem to be a valid ROM (magic number missing.)")
 
@@ -147,7 +147,7 @@ def LoadROMData(file: Path) -> ROM:
         maker_code = handle.read(2).decode("ascii")
 
         handle.seek(0xBC)
-        revision = int.from_bytes(handle.read(1), byteorder='little')
+        revision = int.from_bytes(handle.read(1), byteorder="little")
 
         game_name = game_title
         if game_title in GAME_NAME_MAP:

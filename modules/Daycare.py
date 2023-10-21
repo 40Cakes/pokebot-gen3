@@ -13,51 +13,52 @@ class DaycareCompatibility(IntEnum):
     High = 70
 
     @classmethod
-    def CalculateFor(cls, pokemon1: Union[Pokemon, None], pokemon2: Union[Pokemon, None]) -> tuple[
-        'DaycareCompatibility', str]:
+    def CalculateFor(
+        cls, pokemon1: Union[Pokemon, None], pokemon2: Union[Pokemon, None]
+    ) -> tuple["DaycareCompatibility", str]:
         if pokemon1 is None or pokemon1.is_empty or pokemon2 is None or pokemon2.is_empty:
-            return DaycareCompatibility.Incompatible, 'Less than two Pokémon in daycare'
+            return DaycareCompatibility.Incompatible, "Less than two Pokémon in daycare"
 
         egg_groups1 = pokemon1.species.egg_groups
         egg_groups2 = pokemon2.species.egg_groups
 
         # The 'undiscovered' egg group cannot be bred.
-        if egg_groups1[0] == 'no-eggs' or egg_groups2[0] == 'no-eggs':
+        if egg_groups1[0] == "no-eggs" or egg_groups2[0] == "no-eggs":
             return DaycareCompatibility.Incompatible, 'At least one of the Pokémon is in the "Undiscovered" egg group'
 
         # Breeding with Ditto is special.
-        if egg_groups1[0] == 'Ditto' or egg_groups2[0] == 'Ditto':
+        if egg_groups1[0] == "Ditto" or egg_groups2[0] == "Ditto":
             if egg_groups1[0] == egg_groups2[0]:
-                return DaycareCompatibility.Incompatible, 'Two Ditto cannot be bred'
+                return DaycareCompatibility.Incompatible, "Two Ditto cannot be bred"
             elif pokemon1.original_trainer.id == pokemon2.original_trainer.id:
-                return DaycareCompatibility.Low, 'Breeding with Ditto, same OT'
+                return DaycareCompatibility.Low, "Breeding with Ditto, same OT"
             else:
-                return DaycareCompatibility.Medium, 'Breeding with Ditto, different OT'
+                return DaycareCompatibility.Medium, "Breeding with Ditto, different OT"
 
         gender1 = pokemon1.gender
         gender2 = pokemon2.gender
 
         # Basic biology.
         if gender1 is None or gender2 is None:
-            return DaycareCompatibility.Incompatible, 'At least one of the Pokémon is genderless'
+            return DaycareCompatibility.Incompatible, "At least one of the Pokémon is genderless"
 
         if gender1 == gender2:
-            return DaycareCompatibility.Incompatible, 'Pokémon have the same gender'
+            return DaycareCompatibility.Incompatible, "Pokémon have the same gender"
 
         # Check for overlapping egg groups.
         if len(set(egg_groups1) & set(egg_groups2)) == 0:
-            return DaycareCompatibility.Incompatible, 'No overlapping egg groups'
+            return DaycareCompatibility.Incompatible, "No overlapping egg groups"
 
         if pokemon1.species == pokemon2.species:
             if pokemon1.original_trainer.id == pokemon2.original_trainer.id:
-                return DaycareCompatibility.Medium, 'Same species, same OT'
+                return DaycareCompatibility.Medium, "Same species, same OT"
             else:
-                return DaycareCompatibility.High, 'Same species, different OT'
+                return DaycareCompatibility.High, "Same species, different OT"
         else:
             if pokemon1.original_trainer.id == pokemon2.original_trainer.id:
-                return DaycareCompatibility.Low, 'Different species, same OT'
+                return DaycareCompatibility.Low, "Different species, same OT"
             else:
-                return DaycareCompatibility.Medium, 'Different species, different OT'
+                return DaycareCompatibility.Medium, "Different species, different OT"
 
 
 @dataclass
@@ -101,5 +102,5 @@ def GetDaycareData() -> Union[DaycareData, None]:
         pokemon2_steps=unpack_uint32(data[0x114:0x118]),
         offspring_personality=unpack_uint32(data[0x118:0x11C]),
         step_counter=int(data[0x11C]),
-        compatibility=DaycareCompatibility.CalculateFor(pokemon1, pokemon2)
+        compatibility=DaycareCompatibility.CalculateFor(pokemon1, pokemon2),
     )

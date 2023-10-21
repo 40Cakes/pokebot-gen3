@@ -16,7 +16,7 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/e6cea062-895e-411a-86fb-
 |![image](https://github.com/40Cakes/pokebot-gen3/assets/16377135/69230b70-24f2-46b3-bb7e-54241785a932)|![image](https://github.com/40Cakes/pokebot-gen3/assets/16377135/613e73b8-bc20-46aa-92c1-168d566f4e66)|![image](https://github.com/40Cakes/pokebot-gen3/assets/16377135/a8c0f5be-9b81-4be6-8a71-cdf909ef0df0)|
 
 # 📖 Preamble
-- This is still in development, as such, functionality is subject to change without warning - always make sure you back up your `config/<profile name>/` folder before updating your bot!
+- This is still in development, as such, functionality is subject to change without warning - always make sure you back up your `profiles/<profile name>/` folder before updating your bot!
 - Reach out in Discord [#bot-support-libmgba❔](https://discord.com/channels/1057088810950860850/1139190426834833528) if you have any issues
 
 The bot is frame perfect and can cheat by reading data from any point in memory. By default it will attempt to perform most actions as if a human were playing to make gameplay as representative as possible, some examples:
@@ -64,7 +64,7 @@ Alternatively, if you'd like to be able to easily pull the latest updates withou
 - Place some **official** Pokémon .gba ROMs into the `roms/` folder
 - Double click `pokebot.py` or run `python pokebot.py` in a terminal and follow the on-screen steps to create and/or select a profile
 
-The bot ships with the default mGBA input mapping, see [`config/keys.yml`](#keysyml---emulator-input-mapping) to view the default mapping, or customise them to your preference.
+The bot ships with the default mGBA input mapping, see [`profiles/keys.yml`](#keysyml---emulator-input-mapping) to view the default mapping, or customise them to your preference.
 
 The bot will pause once a shiny is encountered. You **must** ensure you are able to escape battle **100% of the time**, otherwise the bot will get stuck. Auto-catching and other features will be added in due time.
 
@@ -77,8 +77,8 @@ If you have a save from mGBA that you'd like to import and use with the bot, the
 - **File** > **Save State File...** > **Save**
 - Double click `import.py` or run `python import.py` in a terminal to launch the save importer tool
 - Open the save state file you just saved
-- A new bot profile will be created in the `config/` folder and set up all required files
-- If the importer tool detects files in the `stats/` or `config/` folders from old versions of the bot (from commit `ec5d702`, 7th October, 2023 or earlier), then they will be copied into your new profile
+- A new bot profile will be created in the `profiles/` folder and set up all required files
+- If the importer tool detects files in the `stats/` or `profiles/` folders from old versions of the bot (from commit `ec5d702`, 7th October, 2023 or earlier), then they will be copied into your new profile
 
 ***
 
@@ -133,22 +133,22 @@ The bot will mash random directions to spin on a single tile.
 Soft reset for starter Pokémon.
 
 - For modes that use soft resets such as starters, the bot will track RNG to ensure a unique frame is hit after every reset, this is to prevent repeatedly generating an identical Pokémon, this will cause soft resets to take progressively longer over time
-- If resets begin to take too long, it is recommended to start a new save file with a different TID to reset this delay or check out [`config/cheats.yml`](#cheatsyml---cheats-config)
+- If resets begin to take too long, it is recommended to start a new save file with a different TID to reset this delay or check out [`profiles/cheats.yml`](#cheatsyml---cheats-config)
 - **Note**: Even though you set the trainer to face the desired PokéBall, it is still important to set the correct `starter` in the config! This option is used by the bot to track frames to ensure a unique starter is generated every time
-- **Note**: For the time being, Johto starters will automatically enable the `starters` option in [`config/cheats.yml`](#cheatsyml---cheats-config), the shininess of the starter is checked via memhacks as start menu navigation is WIP (in future, shininess will be checked via the party summary menu)
+- **Note**: For the time being, Johto starters will automatically enable the `starters` option in [`profiles/cheats.yml`](#cheatsyml---cheats-config), the shininess of the starter is checked via memhacks as start menu navigation is WIP (in future, shininess will be checked via the party summary menu)
 
 ### RSE
-1. Select the `starter` in `config/general.yml` - `Treecko`, `Torchic` or `Mudkip`
+1. Select the `starter` in `profiles/general.yml` - `Treecko`, `Torchic` or `Mudkip`
 2. Face the starters bag, and save the game (**in-game, not a save state**)
 3. Start the bot
 
 ### FRLG
-1. Select the `starter` in `config/general.yml` - `Bulbasaur`, `Charmander` or `Squirtle`
+1. Select the `starter` in `profiles/general.yml` - `Bulbasaur`, `Charmander` or `Squirtle`
 2. Face the desired PokéBall in Oak's lab, save the game (**in-game, not a save state**)
 3. Start the bot
 
 ### Johto (Emerald)
-1. Select the `starter` in `config/general.yml` - `Chikorita`, `Cyndaquil` or `Totodile`
+1. Select the `starter` in `profiles/general.yml` - `Chikorita`, `Cyndaquil` or `Totodile`
 2. Face the desired PokéBall in Birch's lab, save the game (**in-game, not a save state**)
 3. Start the bot
 
@@ -187,21 +187,30 @@ Start the bot facing the water, with any fishing rod registered.
 Configuration files are loaded and validated against a schema, once at bot launch. Any changes made while the bot is running will not take effect until the bot is stopped and restarted.
 
 ## 🚧 Work in progress 🚧
-A lot of the config in `.yml` files is is placeholder for future/planned features.
+A lot of the config in `.yml` files is placeholder for future/planned features.
 
 ## Multi-instance botting
-The bot stores all profile information, such as save games, screenshots, statistics, etc. in the profile `config/<profile name>/`) folder, which is automatically created once you create a new profile in the GUI.
+The bot stores all profile information, such as save games, screenshots, statistics, etc. in the profile `profiles/<profile name>/`) folder, which is automatically created once you create a new profile in the GUI.
 
 Running multiple instances of the bot is as easy as starting the bot multiple times and loading a different profile each time. You should **not** run multiple instances of the bot with the same profile simultaneously!
 
-Statistics are saved into a subfolder of your profile `config/<profile name>/stats/`.
+Statistics are saved into a subfolder of your profile `profiles/<profile name>/stats/`.
 
-The bot will first attempt to load individual config files from your profile folder (`config/<profile name>/config/`), if that folder does not exist or any of the configuration files are missing, it will load the default config file in the `config/` folder. This allows you to selectively override specific config files on a per profile basis.
+The bot will first attempt to load individual config files from your profile folder (`profiles/<profile name>/config/`), if that folder does not exist or any of the configuration files are missing, it will load the default config file in the `profiles/` folder. This allows you to selectively override specific config files on a per-profile basis.
 
 Example:
 ```
-├── /config
-    │   battle.yml             <-- loaded for all profiles
+├── /profiles
+    │
+    ├── /my-pokemon-emerald-profile
+    │   └───/config
+    │           discord.yml    <-- loaded for my-pokemon-emerald-profile
+    │           general.yml    <-- loaded for my-pokemon-emerald-profile
+    │
+    ├── /my-firered-profile
+    │   └───/config
+    │           general.yml    <-- loaded for my-firered-profile
+    │
     │   catch_block.yml        <-- loaded for all profiles
     │   cheats.yml             <-- loaded for all profiles
     │   CustomCatchFilters.py  <-- loaded for all profiles
@@ -210,15 +219,6 @@ Example:
     │   general.yml            <-- loaded for all profiles except my-pokemon-emerald-profile and my-firered-profile
     │   logging.yml            <-- loaded for all profiles
     │   obs.yml                <-- loaded for all profiles
-    │
-    ├── /my-pokemon-emerald-profile
-    │   └───/config
-    |           discord.yml    <-- loaded for my-pokemon-emerald-profile
-    │           general.yml    <-- loaded for my-pokemon-emerald-profile
-    │
-    ├── /my-firered-profile
-        └───/config
-                general.yml    <-- loaded for my-firered-profile
 ```
 
 ## `keys.yml` - Emulator input mapping

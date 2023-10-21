@@ -124,22 +124,6 @@ logging_schema = """
                     - disable
 """
 
-battle_schema = """
-    battle:
-        type: boolean
-    pickup:
-        type: boolean
-    pickup_threshold:
-        type: integer
-        minimum: 1
-        maximum: 6
-    banned_moves:
-        type: array
-        uniqueItems: true
-        items:
-            type: string
-"""
-
 discord_schema = """
 type: object
 properties:
@@ -309,7 +293,6 @@ properties:
 schemas = {
     'general': general_schema,
     'logging': logging_schema,
-    'battle': battle_schema,
     'discord': discord_schema,
     'obs': obs_schema,
     'cheats': cheats_schema
@@ -318,7 +301,6 @@ schemas = {
 config = {
     'general': {},
     'logging': {},
-    'battle': {},
     'discord': {},
     'obs': {},
     'cheats': {}
@@ -326,8 +308,8 @@ config = {
 
 # Keeps a list of all configuration directories that should be searched whenever we are looking
 # for a particular config file.
-# In practice, this will contain the global `config/` directory, and the profile-specific config
-# directory (`config/<profile name>/config/`) once a profile has been selected by the user.
+# In practice, this will contain the global `profiles/` directory, and the profile-specific config
+# directory (`profiles/<profile name>/config/`) once a profile has been selected by the user.
 config_dir_stack: list[Path] = []
 
 

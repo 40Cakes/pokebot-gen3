@@ -10,7 +10,7 @@ _character_table_international: list[str] = []
 _character_table_japanese: list[str] = []
 _current_character_table: list[str] = []
 
-DATA_DIRECTORY = Path(__file__).parent / 'data'
+DATA_DIRECTORY = Path(__file__).parent / "data"
 
 
 def _LoadSymbols(symbols_file: str, language: ROMLanguage) -> None:
@@ -18,7 +18,7 @@ def _LoadSymbols(symbols_file: str, language: ROMLanguage) -> None:
 
     _symbols.clear()
     _reverse_symbols.clear()
-    for d in [DATA_DIRECTORY / 'symbols', DATA_DIRECTORY / 'symbols' / 'patches']:
+    for d in [DATA_DIRECTORY / "symbols", DATA_DIRECTORY / "symbols" / "patches"]:
         for s in open(d / symbols_file).readlines():
             address, _, length, label = s.split(" ")
 
@@ -32,9 +32,9 @@ def _LoadSymbols(symbols_file: str, language: ROMLanguage) -> None:
 
     language_code = str(language)
     language_patch_file = symbols_file.replace(".sym", ".json")
-    language_patch_path = DATA_DIRECTORY / 'symbols' / 'patches' / 'language' / language_patch_file
+    language_patch_path = DATA_DIRECTORY / "symbols" / "patches" / "language" / language_patch_file
     if language_code in ["D", "I", "S", "F", "J"] and language_patch_path.is_file():
-        with open(language_patch_path, 'r') as file:
+        with open(language_patch_path, "r") as file:
             language_patches = json.load(file)
         for item in language_patches:
             if language_code in language_patches[item]:
@@ -52,52 +52,57 @@ def _prepare_character_tables() -> None:
     _character_table_international.clear()
     _character_table_japanese.clear()
 
-    CHARACTER_TABLE_JAPANESE = " あいうえおかきくけこさしすせそ" + \
-                               "たちつてとなにぬねのはひふへほま" + \
-                               "みむめもやゆよらりるれろわをんぁ" + \
-                               "ぃぅぇぉゃゅょがぎぐげござじずぜ" + \
-                               "ぞだぢづでどばびぶべぼぱぴぷぺぽ" + \
-                               "っアイウエオカキクケコサシスセソ" + \
-                               "タチツテトナニヌネノハヒフヘホマ" + \
-                               "ミムメモヤユヨラリルレロワヲンァ" + \
-                               "ィゥェォャュョガギグゲゴザジズゼ" + \
-                               "ゾダヂヅデドバビブベボパピプペポ" + \
-                               "ッ0123456789！？。ー・" + \
-                               " 『』「」♂♀円.×/ABCDE" + \
-                               "FGHIJKLMNOPQRSTU" + \
-                               "VWXYZabcdefghijk" + \
-                               "lmnopqrstuvwxyz▶" + \
-                               ":ÄÖÜäöü⬆⬇⬅      "
+    CHARACTER_TABLE_JAPANESE = (
+        " あいうえおかきくけこさしすせそ"
+        "たちつてとなにぬねのはひふへほま"
+        "みむめもやゆよらりるれろわをんぁ"
+        "ぃぅぇぉゃゅょがぎぐげござじずぜ"
+        "ぞだぢづでどばびぶべぼぱぴぷぺぽ"
+        "っアイウエオカキクケコサシスセソ"
+        "タチツテトナニヌネノハヒフヘホマ"
+        "ミムメモヤユヨラリルレロワヲンァ"
+        "ィゥェォャュョガギグゲゴザジズゼ"
+        "ゾダヂヅデドバビブベボパピプペポ"
+        "ッ0123456789！？。ー・"
+        " 『』「」♂♀円.×/ABCDE"
+        "FGHIJKLMNOPQRSTU"
+        "VWXYZabcdefghijk"
+        "lmnopqrstuvwxyz▶"
+        ":ÄÖÜäöü⬆⬇⬅      "
+    )
     for i in CHARACTER_TABLE_JAPANESE:
         _character_table_japanese.append(i)
 
-    CHARACTER_TABLE_INTERNATIONAL = " ÀÁÂÇÈÉÊËÌ ÎÏÒÓÔ" + \
-                                    "ŒÙÚÛÑßàá çèéêëì " + \
-                                    "îïòóôœùúûñºªᵉ&+ " + \
-                                    "    L=;         " + \
-                                    "                " + \
-                                    "▯¿¡       Í%()  " + \
-                                    "        â      í" + \
-                                    "         ⬆⬇⬅➡***" + \
-                                    "****ᵉ<>         " + \
-                                    "                " + \
-                                    " 0123456789!?.-・" + \
-                                    " “”‘’♂♀$,×/ABCDE" + \
-                                    "FGHIJKLMNOPQRSTU" + \
-                                    "VWXYZabcdefghijk" + \
-                                    "lmnopqrstuvwxyz▶" + \
-                                    ":ÄÖÜäöü         "
+    CHARACTER_TABLE_INTERNATIONAL = (
+        " ÀÁÂÇÈÉÊËÌ ÎÏÒÓÔ"
+        + "ŒÙÚÛÑßàá çèéêëì "
+        + "îïòóôœùúûñºªᵉ&+ "
+        + "    L=;         "
+        + "                "
+        + "▯¿¡       Í%()  "
+        + "        â      í"
+        + "         ⬆⬇⬅➡***"
+        + "****ᵉ<>         "
+        + "                "
+        + " 0123456789!?.-・"
+        + " “”‘’♂♀$,×/ABCDE"
+        + "FGHIJKLMNOPQRSTU"
+        + "VWXYZabcdefghijk"
+        + "lmnopqrstuvwxyz▶"
+        + ":ÄÖÜäöü         "
+    )
+
     for i in CHARACTER_TABLE_INTERNATIONAL:
         _character_table_international.append(i)
-    _character_table_international[0x34] = 'Lv'
-    _character_table_international[0x53] = 'Pk'
-    _character_table_international[0x54] = 'Mn'
-    _character_table_international[0x55] = 'Po'
-    _character_table_international[0x56] = 'Ké'
-    _character_table_international[0x57] = 'BL'
-    _character_table_international[0x58] = 'OC'
-    _character_table_international[0x59] = 'K'
-    _character_table_international[0xA0] = 're'
+    _character_table_international[0x34] = "Lv"
+    _character_table_international[0x53] = "Pk"
+    _character_table_international[0x54] = "Mn"
+    _character_table_international[0x55] = "Po"
+    _character_table_international[0x56] = "Ké"
+    _character_table_international[0x57] = "BL"
+    _character_table_international[0x58] = "OC"
+    _character_table_international[0x59] = "K"
+    _character_table_international[0xA0] = "re"
 
 
 def SetROM(rom: ROM) -> None:
@@ -146,7 +151,6 @@ def SetROM(rom: ROM) -> None:
         _current_character_table = _character_table_international
 
 
-
 def GetSymbol(symbol_name: str) -> tuple[int, int]:
     canonical_name = symbol_name.strip().upper()
     if canonical_name not in _symbols:
@@ -166,8 +170,11 @@ def GetSymbolName(address: int, pretty_name: bool = False) -> str:
     return _reverse_symbols.get(address, ("", ""))[0 if not pretty_name else 1]
 
 
-def DecodeString(encoded_string: bytes, replace_newline: bool = True,
-                 character_set: Literal['international', 'japanese', 'rom_default'] = 'rom_default') -> str:
+def DecodeString(
+    encoded_string: bytes,
+    replace_newline: bool = True,
+    character_set: Literal["international", "japanese", "rom_default"] = "rom_default",
+) -> str:
     """
     Generation III Pokémon games use a proprietary character encoding to store text data.
     The Generation III encoding is greatly different from the encodings used in previous generations, with characters
@@ -179,11 +186,11 @@ def DecodeString(encoded_string: bytes, replace_newline: bool = True,
     :param character_set: Which character set should be used for decoding; defaults to the ROM language
     :return: decoded bytes (string)
     """
-    if character_set == 'rom_default':
+    if character_set == "rom_default":
         character_table = _current_character_table
-    elif character_set == 'international':
+    elif character_set == "international":
         character_table = _character_table_international
-    elif character_set == 'japanese':
+    elif character_set == "japanese":
         character_table = _character_table_japanese
     else:
         raise RuntimeError(f"Invalid value for character set: '{character_set}'.")
@@ -220,11 +227,11 @@ def DecodeString(encoded_string: bytes, replace_newline: bool = True,
             i = encoded_string[cursor]
             cursor += 1
             if i == 0x01:
-                string += '{PlayerName}'
+                string += "{PlayerName}"
             elif i == 0x06:
-                string += '{RivalName}'
+                string += "{RivalName}"
             else:
-                string += '{Var' + str(i - 1) + '}'
+                string += "{Var" + str(i - 1) + "}"
         elif i == 0xFC:
             if cursor >= len(encoded_string):
                 return

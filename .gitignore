@@ -6,7 +6,7 @@ __pycache__
 
 *.gba
 build/
-config/*/
+profiles/*/
 dist/
 logs/
 mgba/

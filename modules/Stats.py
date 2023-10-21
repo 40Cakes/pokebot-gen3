@@ -38,7 +38,7 @@ files = None
 def InitStats(profile: Profile):
     global CustomCatchFilters, CustomHooks, stats, encounter_log, shiny_log, stats_dir, files
 
-    config_dir_path = profile.path / "config"
+    config_dir_path = profile.path / "profiles"
     stats_dir_path = profile.path / "stats"
     if not stats_dir_path.exists():
         stats_dir_path.mkdir()
@@ -49,15 +49,15 @@ def InitStats(profile: Profile):
     try:
         if (config_dir_path / "CustomCatchFilters.py").is_file():
             CustomCatchFilters = importlib.import_module(
-                ".CustomCatchFilters", f"config.{profile.path.name}.config"
+                ".CustomCatchFilters", f"profiles.{profile.path.name}.config"
             ).CustomCatchFilters
         else:
-            from config.CustomCatchFilters import CustomCatchFilters
+            from profiles.CustomCatchFilters import CustomCatchFilters
 
         if (config_dir_path / "CustomHooks.py").is_file():
-            CustomHooks = importlib.import_module(".CustomHooks", f"config.{profile.path.name}.config").CustomHooks
+            CustomHooks = importlib.import_module(".CustomHooks", f"profiles.{profile.path.name}.config").CustomHooks
         else:
-            from config.CustomHooks import CustomHooks
+            from profiles.CustomHooks import CustomHooks
 
         f_stats = ReadFile(files["totals"])
         stats = json.loads(f_stats) if f_stats else None
@@ -166,16 +166,14 @@ def PrintStats(pokemon: Pokemon) -> None:
                 pokemon_table.add_column(
                     "Hidden Power", justify="center", width=15, style=pokemon.hidden_power_type.name.lower()
                 )
-                pokemon_table.add_column(
-                    "Shiny Value", justify="center", style=SVColour(pokemon.shiny_value), width=10
-                )
+                pokemon_table.add_column("Shiny Value", justify="center", style=SVColour(pokemon.shiny_value), width=10)
                 pokemon_table.add_row(
                     str(hex(pokemon.personality_value)[2:]).upper(),
                     str(pokemon.level),
-                    pokemon.held_item.name if pokemon.held_item else '-',
+                    pokemon.held_item.name if pokemon.held_item else "-",
                     pokemon.nature.name,
                     pokemon.ability.name,
-                    f'{pokemon.hidden_power_type.name} ({pokemon.hidden_power_damage})',
+                    f"{pokemon.hidden_power_type.name} ({pokemon.hidden_power_damage})",
                     f"{pokemon.shiny_value:,}",
                 )
                 console.print(pokemon_table)
@@ -341,7 +339,9 @@ def LogEncounter(pokemon: Pokemon, block_list: list) -> None:
         stats["totals"]["phase_encounters"] = stats["totals"].get("phase_encounters", 0) + 1
 
         # Update Pokémon stats
-        stats["pokemon"][pokemon.species.name]["encounters"] = stats["pokemon"][pokemon.species.name].get("encounters", 0) + 1
+        stats["pokemon"][pokemon.species.name]["encounters"] = (
+            stats["pokemon"][pokemon.species.name].get("encounters", 0) + 1
+        )
         stats["pokemon"][pokemon.species.name]["phase_encounters"] = (
             stats["pokemon"][pokemon.species.name].get("phase_encounters", 0) + 1
         )
@@ -389,9 +389,9 @@ def LogEncounter(pokemon: Pokemon, block_list: list) -> None:
             stats["totals"]["phase_lowest_sv_pokemon"] = pokemon.species.name
 
         # Pokémon highest phase IV record
-        if not stats["pokemon"][pokemon.species.name].get("phase_highest_iv_sum") or pokemon.ivs.sum() >= stats["pokemon"][
-            pokemon.species.name
-        ].get("phase_highest_iv_sum", -1):
+        if not stats["pokemon"][pokemon.species.name].get("phase_highest_iv_sum") or pokemon.ivs.sum() >= stats[
+            "pokemon"
+        ][pokemon.species.name].get("phase_highest_iv_sum", -1):
             stats["pokemon"][pokemon.species.name]["phase_highest_iv_sum"] = pokemon.ivs.sum()
 
         # Pokémon highest total IV record
@@ -399,9 +399,9 @@ def LogEncounter(pokemon: Pokemon, block_list: list) -> None:
             stats["pokemon"][pokemon.species.name]["total_highest_iv_sum"] = pokemon.ivs.sum()
 
         # Pokémon lowest phase IV record
-        if not stats["pokemon"][pokemon.species.name].get("phase_lowest_iv_sum") or pokemon.ivs.sum() <= stats["pokemon"][
-            pokemon.species.name
-        ].get("phase_lowest_iv_sum", 999):
+        if not stats["pokemon"][pokemon.species.name].get("phase_lowest_iv_sum") or pokemon.ivs.sum() <= stats[
+            "pokemon"
+        ][pokemon.species.name].get("phase_lowest_iv_sum", 999):
             stats["pokemon"][pokemon.species.name]["phase_lowest_iv_sum"] = pokemon.ivs.sum()
 
         # Pokémon lowest total IV record
@@ -438,7 +438,7 @@ def LogEncounter(pokemon: Pokemon, block_list: list) -> None:
             csvfile = f"Phase {stats['totals'].get('shiny_encounters', 0)} Encounters.csv"
             if len(pokemon.species.types) < 2:
                 # Add blank 2nd type to monotype Pokémon to preserve .csv column alignment
-                types = [pokemon.species.types[0].name, '']
+                types = [pokemon.species.types[0].name, ""]
             else:
                 types = [pokemon.species.types[0].name, pokemon.species.types[1].name]
             pd_pokemon = (

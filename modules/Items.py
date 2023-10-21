@@ -2,6 +2,7 @@ from modules.Console import console
 from modules.Memory import GetSaveBlock, GetItemOffsets, GetItemKey, unpack_uint16
 from modules.Pokemon import get_item_by_index
 
+
 def GetItems() -> dict:
     """
     Get all items and their quantities from the PC, Items pocket, Key Items pocket, Poké Balls pocket, TMs & HMs pocket,
@@ -21,8 +22,8 @@ def GetItems() -> dict:
         for i in range(6):
             p = item_offsets[i][0] - item_offsets[0][0]
             for j in range(0, int(item_offsets[i][1] / 4)):
-                q = unpack_uint16(b_Items[p + (j * 4 + 2):p + (j * 4 + 4)])
-                item_id = unpack_uint16(b_Items[p + (j * 4):p + (j * 4 + 2)])
+                q = unpack_uint16(b_Items[p + (j * 4 + 2) : p + (j * 4 + 4)])
+                item_id = unpack_uint16(b_Items[p + (j * 4) : p + (j * 4 + 2)])
 
                 if item_id:
                     name = get_item_by_index(item_id).name
