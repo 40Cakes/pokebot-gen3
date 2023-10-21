@@ -13,19 +13,16 @@ from datetime import datetime
 
 from rich.table import Table
 
-from modules.Battle import BattleOpponent, FleeBattle, CheckLeadCanBattle, RotatePokemon, CheckBattleCanHappen
 from modules.Colours import IVColour, IVSumColour, SVColour
 from modules.Config import config, ForceManualMode
 from modules.Console import console
 from modules.Files import ReadFile, WriteFile
 from modules.Gui import SetMessage, GetEmulator
 from modules.Memory import GetGameState, GameState
-from modules.Menuing import CheckForPickup
 from modules.Profiles import Profile
 
 CustomCatchFilters = None
 CustomHooks = None
-block_list: list = []
 session_encounters: int = 0
 session_pokemon: list = []
 stats = None
@@ -317,7 +314,7 @@ def PrintStats(pokemon: dict) -> NoReturn:
         console.print_exception(show_locals=True)
 
 
-def LogEncounter(pokemon: dict, block_list: list) -> NoReturn:
+def LogEncounter(pokemon: dict) -> NoReturn:
     global stats, encounter_log, encounter_timestamps, session_pokemon, session_encounters
 
     try:
@@ -547,6 +544,13 @@ def LogEncounter(pokemon: dict, block_list: list) -> NoReturn:
                 GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
             OBSHotKey("OBS_KEY_F11", pressCtrl=True)
 
+
+        block_list = []
+        if pokemon["shiny"]:
+            from modules.Config import catch_block_schema, LoadConfig
+            block_list = LoadConfig("catch_block.yml", catch_block_schema)["block_list"]
+        SetMessage(f"Encountered a {pokemon['name']} with a shiny value of {pokemon['shinyValue']:,}!")
+
         # Run custom code in CustomHooks in a thread
         hook = (copy.deepcopy(pokemon), copy.deepcopy(stats), copy.deepcopy(block_list))
         Thread(target=CustomHooks, args=(hook,)).start()
@@ -592,77 +596,30 @@ def LogEncounter(pokemon: dict, block_list: list) -> NoReturn:
         WriteFile(files["totals"], json.dumps(stats, indent=4, sort_keys=True))
         session_encounters += 1
 
+        # TODO temporary until auto-catch is ready
+        state_tag = ""
+        custom_found = CustomCatchFilters(pokemon)
+        if pokemon["shiny"] or custom_found:
+            if pokemon["shiny"]:
+                state_tag = "shiny"
+                console.print("[bold yellow]Shiny found!")
+                SetMessage("Shiny found! Bot has been switched to manual mode so you can catch it.")
+            elif custom_found:
+                state_tag = "customfilter"
+                console.print("[bold green]Custom filter Pokemon found!")
+                SetMessage("Custom filter triggered! Bot has been switched to manual mode so you can catch it.")
+
+            if not custom_found and pokemon["name"] in block_list:
+                console.print("[bold yellow]" + pokemon["name"] + " is on the catch block list, skipping encounter...")
+            else:
+                dirsafe_chars = f"-_.() {string.ascii_letters}{string.digits}"
+                filename_suffix = f"{state_tag}_{pokemon['name']}"
+                filename_suffix = "".join(c for c in filename_suffix if c in dirsafe_chars)
+                GetEmulator().CreateSaveState(suffix=filename_suffix)
+                ForceManualMode()
+                return
+
     except SystemExit:
         raise
     except:
         console.print_exception(show_locals=True)
-
-
-dirsafe_chars = f"-_.() {string.ascii_letters}{string.digits}"
-
-
-def EncounterPokemon(pokemon: dict) -> NoReturn:
-    """
-    Call when a Pokémon is encountered, decides whether to battle, flee or catch.
-    Expects the trainer's state to be MISC_MENU (battle started, no longer in the overworld).
-
-    :return:
-    """
-
-    global block_list
-    if pokemon["shiny"] or block_list == []:
-        # Load catch block config file - allows for editing while bot is running
-        from modules.Config import catch_block_schema, LoadConfig
-
-        config_catch_block = LoadConfig("catch_block.yml", catch_block_schema)
-        block_list = config_catch_block["block_list"]
-
-    LogEncounter(pokemon, block_list)
-    SetMessage(f"Encountered a {pokemon['name']} with a shiny value of {pokemon['shinyValue']:,}!")
-
-    # TODO temporary until auto-catch is ready
-    custom_found = CustomCatchFilters(pokemon)
-    if pokemon["shiny"] or custom_found:
-        if pokemon["shiny"]:
-            state_tag = "shiny"
-            console.print("[bold yellow]Shiny found!")
-            SetMessage("Shiny found! Bot has been switched to manual mode so you can catch it.")
-        elif custom_found:
-            state_tag = "customfilter"
-            console.print("[bold green]Custom filter Pokemon found!")
-            SetMessage("Custom filter triggered! Bot has been switched to manual mode so you can catch it.")
-        else:
-            state_tag = ""
-
-        if not custom_found and pokemon["name"] in block_list:
-            console.print("[bold yellow]" + pokemon["name"] + " is on the catch block list, skipping encounter...")
-        else:
-            filename_suffix = f"{state_tag}_{pokemon['name']}"
-            filename_suffix = "".join(c for c in filename_suffix if c in dirsafe_chars)
-            GetEmulator().CreateSaveState(suffix=filename_suffix)
-
-            ForceManualMode()
-
-    while GetGameState() == GameState.GARBAGE_COLLECTION:
-        GetEmulator().RunSingleFrame()  # TODO bad (needs to be refactored so main loop advances frame)
-
-    if GetGameState() == GameState.OVERWORLD:
-        return None
-
-    if GetGameState() in (GameState.BATTLE, GameState.BATTLE_STARTING) and config['general']['bot_mode'] != 'manual':
-        battle_can_happen = CheckBattleCanHappen()
-        if config['battle']['battle'] and battle_can_happen and not config['general']['bot_mode'] == 'manual':
-            battle_won = BattleOpponent()
-            # adding this in for lead rotation functionality down the line
-            replace_battler = not battle_won
-        else:
-            FleeBattle()
-        if config['battle']['battle'] and battle_can_happen:
-            replace_battler = replace_battler or not CheckLeadCanBattle()
-            if config['battle']["replace_lead_battler"] and replace_battler:
-                RotatePokemon()
-        if config['battle']["pickup"] and battle_can_happen:
-            while GetGameState() != GameState.OVERWORLD and not config['general']['bot_mode'] == 'manual':
-                continue
-            if GetGameState() == GameState.OVERWORLD:
-                CheckForPickup(stats['totals'].get('encounters', 0))

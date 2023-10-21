@@ -15,7 +15,7 @@ pickup_threshold: 3
 # Valid option: (positive integer)
 pickup_check_frequency: 5
 
-# What to do if the lead pokemon faints.
+# What to do if the lead Pokémon faints.
 # Valid option: `stop`, `flee`, `rotate`
 faint_action: rotate
 
@@ -26,7 +26,7 @@ faint_action: rotate
 new_move: learn_best
 
 # Toggle evolution canceling
-# Set true if you do not want your pokemon to evolve
+# Set true if you do not want your Pokémon to evolve
 # Valid options: `true`, `false`
 stop_evolution: false
 
@@ -37,7 +37,7 @@ stop_evolution: false
 replace_lead_battler: true
 
 # Rotation strategy:
-# If set to `first_available`, the bot will switch to the first pokemon that has more than 20% hp and at least 1 pp of a
+# If set to `first_available`, the bot will switch to the first Pokémon that has more than 20% hp and at least 1 pp of a
 # damaging move. Future support will be added for a smarter switching option that takes into account how much damage the
 # switch in will take, and how much damage the switch in can do.
 # Valid options: `first_available`

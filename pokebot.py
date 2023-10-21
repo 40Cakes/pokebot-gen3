@@ -1,15 +1,13 @@
-import platform
 import sys
+import platform
 from pathlib import Path
 from threading import Thread
 
 from modules.Config import config, LoadConfigFromDirectory, ForceManualMode
 from modules.Console import console
 from modules.Gui import PokebotGui, GetEmulator
-from modules.Memory import GetGameState, GameState
-from modules.Pokemon import OpponentChanged, GetOpponent
 from modules.Profiles import Profile, ProfileDirectoryExists, LoadProfileByName
-from modules.Stats import InitStats, EncounterPokemon
+from modules.Stats import InitStats
 from version import pokebot_name, pokebot_version
 
 
@@ -37,10 +35,6 @@ def MainLoop(profile: Profile) -> None:
 
     while True:
         try:
-            if not mode and GetGameState() == GameState.BATTLE and config["general"]["bot_mode"] != "starters":
-                if OpponentChanged():
-                    EncounterPokemon(GetOpponent())
-
             if config["general"]["bot_mode"] == "manual":
                 if mode:
                     mode = None

@@ -3,7 +3,7 @@ from modules.Gui import GetEmulator
 from modules.Memory import GetGameState, GameState
 from modules.Temp import temp_RunFromBattle
 from modules.Pokemon import OpponentChanged, GetOpponent
-from modules.Stats import EncounterPokemon
+from modules.Stats import encounter_pokemon
 from modules.Trainer import trainer
 
 
@@ -23,7 +23,7 @@ def FollowPath(coords: list, run: bool = True) -> bool:
         while True and config["general"]["bot_mode"] != "manual":
             if GetGameState() == GameState.BATTLE:
                 if OpponentChanged():
-                    EncounterPokemon(GetOpponent())
+                    encounter_pokemon(GetOpponent())
                 GetEmulator().ReleaseButton("B")
                 temp_RunFromBattle()
 

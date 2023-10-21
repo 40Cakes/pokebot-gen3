@@ -8,9 +8,10 @@ from modules.Game import DecodeString, _reverse_symbols
 from modules.Gui import DebugTab, GetEmulator
 from modules.Items import GetItems
 from modules.Memory import GetSymbol, ReadSymbol, ParseTasks, GetSymbolName, GameHasStarted, unpack_uint16, \
-    unpack_uint32
+    unpack_uint32, GetGameState
 
 from modules.Pokemon import names_list, GetParty
+from modules.modes.Battle import get_battle_state
 
 if TYPE_CHECKING:
     from modules.LibmgbaEmulator import LibmgbaEmulator
@@ -393,7 +394,9 @@ class TrainerTab(DebugTab):
                 "Running State": RunningStates(trainer.GetRunningState()).name,
                 "Acro Bike State": AcroBikeStates(trainer.GetAcroBikeState()).name,
                 "Tile Transition State": TileTransitionStates(trainer.GetTileTransitionState()).name,
-                "Facing Direction": trainer.GetFacingDirection()
+                "Facing Direction": trainer.GetFacingDirection(),
+                "Game State": GetGameState().name,
+                "Battle State": get_battle_state().name
             }
 
         for i in range(0, 6):

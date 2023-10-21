@@ -7,7 +7,7 @@ from modules.Gui import GetROM, GetEmulator
 from modules.Memory import ReadSymbol, GetGameState, GameState, GetTask, WriteSymbol, unpack_uint32, pack_uint32
 from modules.Navigation import FollowPath
 from modules.Pokemon import GetParty
-from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, EncounterPokemon
+from modules.Stats import GetRNGStateHistory, SaveRNGStateHistory, LogEncounter
 from modules.Trainer import trainer
 
 
@@ -187,7 +187,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.LOG_STARTER:
-                            EncounterPokemon(GetParty()[0])
+                            LogEncounter(GetParty()[0])
                             return
 
                 case Regions.JOHTO_STARTERS:
@@ -272,7 +272,7 @@ class ModeStarters:
 
                         case ModeStarterStates.LOG_STARTER:
                             party = GetParty()
-                            EncounterPokemon(party[len(party) - 1])
+                            LogEncounter(party[len(party) - 1])
                             return
 
                 case Regions.HOENN_STARTERS:
@@ -370,6 +370,6 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.LOG_STARTER:
-                            EncounterPokemon(GetParty()[0])
+                            LogEncounter(GetParty()[0])
                             return
             yield
