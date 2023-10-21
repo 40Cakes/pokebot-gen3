@@ -1224,6 +1224,7 @@ class Pokemon:
                 "speed": self.ivs.speed,
             },
             "ability": self.ability.name,
+            "antiShiny": self.is_anti_shiny,
             "calculatedChecksum": self.calculate_checksum(),
             "checksum": self.get_data_checksum(),
             "condition": {
