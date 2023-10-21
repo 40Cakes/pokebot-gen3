@@ -44,7 +44,7 @@ def MainLoop(profile: Profile) -> None:
     :param profile: The profile selected by the user
     """
     mode = None
-    LoadConfigFromDirectory(profile.path / "config", allow_missing_files=True)
+    LoadConfigFromDirectory(profile.path, allow_missing_files=True)
     InitStats(profile)
 
     try:
@@ -111,7 +111,7 @@ def MainLoop(profile: Profile) -> None:
 
 if __name__ == "__main__":
     console.print(f"Starting [bold cyan]{pokebot_name} {pokebot_version}![/]")
-    LoadConfigFromDirectory(Path(__file__).parent / "config")
+    LoadConfigFromDirectory(Path(__file__).parent / "profiles")
 
     # This catches the signal Windows emits when the underlying console window is closed
     # by the user. We still want to save the emulator state in that case, which would not

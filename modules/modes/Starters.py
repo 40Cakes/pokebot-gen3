@@ -62,7 +62,7 @@ class ModeStarters:
             self.region: Regions = Regions.JOHTO_STARTERS
             self.start_party_length: int = 0
             console.print(
-                "[red]Notice: Johto starters enables the fast `starters` check option in `config/cheats.yml` by "
+                "[red]Notice: Johto starters enables the fast `starters` check option in `profiles/cheats.yml` by "
                 "default, the shininess of the starter is checked via memhacks while start menu navigation is WIP (in "
                 "future, shininess will be checked via the party summary menu)."
             )

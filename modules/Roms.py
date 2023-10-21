@@ -1,6 +1,6 @@
 import hashlib
 from dataclasses import dataclass
-from enum import StrEnum
+from enum import Enum
 from pathlib import Path
 
 ROMS_DIRECTORY = Path(__file__).parent.parent / "roms"
@@ -71,13 +71,16 @@ ROM_HASHES = [
 ROM_HASHES = list(map(lambda x: x.lower(), ROM_HASHES))
 
 
-class ROMLanguage(StrEnum):
+class ROMLanguage(Enum):
     English = "E"
     French = "F"
     German = "D"
     Italian = "I"
     Japanese = "J"
     Spanish = "S"
+
+    def __str__(self):
+        return self.value
 
 
 @dataclass
@@ -128,7 +131,7 @@ def LoadROMData(file: Path) -> ROM:
     with open(file, "rb") as handle:
         # The byte at location 0xB2 must have value 0x96 in valid GBA ROMs
         handle.seek(0xB2)
-        magic_number = int.from_bytes(handle.read(1))
+        magic_number = int.from_bytes(handle.read(1), byteorder="little")
         if magic_number != 0x96:
             raise InvalidROMError("This does not seem to be a valid ROM (magic number missing.)")
 
@@ -144,7 +147,7 @@ def LoadROMData(file: Path) -> ROM:
         maker_code = handle.read(2).decode("ascii")
 
         handle.seek(0xBC)
-        revision = int.from_bytes(handle.read(1))
+        revision = int.from_bytes(handle.read(1), byteorder="little")
 
         game_name = game_title
         if game_title in GAME_NAME_MAP:

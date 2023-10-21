@@ -28,7 +28,8 @@ class TileTransitionStates(IntEnum):
     NOT_MOVING = 0
     TRANSITIONING = 1  # transition between tiles
     CENTERING = 2  # on the frame in which you have centered on a tile but are about to keep moving,
-                   # even if changing directions. Used for a ledge hop, since you are transitioning
+    # even if changing directions. Used for a ledge hop, since you are transitioning
+
 
 class AcroBikeStates(IntEnum):
     NORMAL = 0
@@ -58,7 +59,7 @@ class Trainer:
         return DecodeString(GetSaveBlock(2, size=8))
 
     def GetGender(self) -> str:
-        return "girl" if int.from_bytes(GetSaveBlock(2, 0x8, 1)) else "boy"
+        return "girl" if int.from_bytes(GetSaveBlock(2, 0x8, 1), byteorder="little") else "boy"
 
     def GetTID(self) -> int:
         return unpack_uint16(GetSaveBlock(2, 0xA, 2))

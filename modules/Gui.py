@@ -700,7 +700,7 @@ class PokebotGui:
             welcome_message = f'Hey! This seems to be your first launch of {pokebot_name}, ' \
                               'to get started you first need to create a profile.\n\n' \
                               'A profile stores your save game, save states, bot config, ' \
-                              'bot statistics, screenshots etc. Profiles are stored in the "config/" folder.\n\n' \
+                              'bot statistics, screenshots etc. Profiles are stored in the "profiles/" folder.\n\n' \
                               'You can create and run as many profiles as your PC can handle, ' \
                               'simply launch another instance of the bot with a different profile.\n'
             ttk.Label(frame, text=welcome_message, wraplength=450, justify='left').grid(column=0, row=0, columnspan=2)

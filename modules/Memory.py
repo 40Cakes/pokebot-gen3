@@ -201,9 +201,7 @@ def GetGameState() -> GameState:
             return GameState.CHANGE_MAP
         case "CB2_STARTERCHOOSE" | "CB2_CHOOSESTARTER":
             return GameState.CHOOSE_STARTER
-        case "CB2_INITCOPYRIGHTSCREENAFTERBOOTUP" | "CB2_WAITFADEBEFORESETUPINTRO" | "CB2_SETUPINTRO" | "CB2_INTRO" | \
-             "CB2_INITTITLESCREEN" | "CB2_TITLESCREENRUN" | "CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN" | \
-             "CB2_INITMAINMENU" | "MAINCB2" | "MAINCB2_INTRO":
+        case "CB2_INITCOPYRIGHTSCREENAFTERBOOTUP" | "CB2_WAITFADEBEFORESETUPINTRO" | "CB2_SETUPINTRO" | "CB2_INTRO" | "CB2_INITTITLESCREEN" | "CB2_TITLESCREENRUN" | "CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN" | "CB2_INITMAINMENU" | "MAINCB2" | "MAINCB2_INTRO":
             return GameState.TITLE_SCREEN
         case "CB2_MAINMENU":
             return GameState.MAIN_MENU
@@ -216,4 +214,6 @@ def GameHasStarted() -> bool:
     Reports whether the game has progressed past the main menu (save loaded
     or new game started.)
     """
-    return ReadSymbol("sPlayTimeCounterState") != b"\x00" and 0 != int.from_bytes(ReadSymbol("gObjectEvents", 0x10, 9))
+    return ReadSymbol("sPlayTimeCounterState") != b"\x00" and 0 != int.from_bytes(
+        ReadSymbol("gObjectEvents", 0x10, 9), byteorder="little"
+    )

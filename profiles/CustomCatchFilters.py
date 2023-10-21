@@ -1,11 +1,10 @@
 # TODO add list of available fields to filter on
 # TODO add option for a Discord webhook when a custom is caught
-import math
-
-from modules.Config import config
 from modules.Console import console
+from modules.Pokemon import Pokemon
 
-def CustomCatchFilters(pokemon: dict) -> bool:
+
+def CustomCatchFilters(pokemon: Pokemon) -> bool:
     """
     Check the current encounter, catch if it matches any of the following criteria.
     Some examples are provided (most are disabled by default).
@@ -20,37 +19,66 @@ def CustomCatchFilters(pokemon: dict) -> bool:
     :param pokemon: Pokémon object of the current encounter
     """
     try:
-        ivs = [pokemon['IVs']['hp'],
-               pokemon['IVs']['attack'],
-               pokemon['IVs']['defense'],
-               pokemon['IVs']['speed'],
-               pokemon['IVs']['spAttack'],
-               pokemon['IVs']['spDefense']]
+        ivs = [
+            pokemon.ivs.hp,
+            pokemon.ivs.attack,
+            pokemon.ivs.defence,
+            pokemon.ivs.speed,
+            pokemon.ivs.special_attack,
+            pokemon.ivs.special_defence,
+        ]
 
         ### Edit below this line ###
 
         # Any 1-time encounter Pokémon (starters/legendaries/gift Pokémon) in this exceptions list will not be checked
-        exceptions = ['Kyogre', 'Groudon', 'Rayquaza', 'Regirock', 'Regice', 'Registeel', 'Latios', 'Latias', 'Mew',
-                      'Lugia', 'Ho-Oh', 'Deoxys', 'Articuno', 'Zapdos', 'Moltres', 'Mewtwo', 'Raikou', 'Entei',
-                      'Suicine', 'Castform', 'Lileep', 'Anorith', 'Wynaut', 'Beldum', 'Togepi', 'Eevee', 'Omanyte',
-                      'Kabuto', 'Hitmonlee', 'Hitmonchan']
+        exceptions = [
+            "Kyogre",
+            "Groudon",
+            "Rayquaza",
+            "Regirock",
+            "Regice",
+            "Registeel",
+            "Latios",
+            "Latias",
+            "Mew",
+            "Lugia",
+            "Ho-Oh",
+            "Deoxys",
+            "Articuno",
+            "Zapdos",
+            "Moltres",
+            "Mewtwo",
+            "Raikou",
+            "Entei",
+            "Suicine",
+            "Castform",
+            "Lileep",
+            "Anorith",
+            "Wynaut",
+            "Beldum",
+            "Togepi",
+            "Eevee",
+            "Omanyte",
+            "Kabuto",
+            "Hitmonlee",
+            "Hitmonchan",
+        ]
 
-        if pokemon['name'] not in exceptions and config['general']['bot_mode'] != 'starters':
-
+        if pokemon.species.name not in exceptions:
             # Catch shiny Wurmple based on evolution
-            if pokemon['shiny'] and pokemon['name'] == 'Wurmple':
-                evolution = 'Silcoon/Beautifly' if math.floor(pokemon['pid'] / 65536) % 10 <= 4 else 'Cascoon/Dustox'
-                if evolution == 'Silcoon/Beautifly':
+            if pokemon.is_shiny and pokemon.species.name == "Wurmple":
+                evolution = "Silcoon/Beautifly" if pokemon.wurmple_evolution == "silcoon" else "Cascoon/Dustox"
+                if evolution == "Silcoon/Beautifly":
                     pass  # ❌ disabled
-                if evolution == 'Cascoon/Dustox':
+                if evolution == "Cascoon/Dustox":
                     pass  # ❌ disabled
 
             # Catch perfect IV Pokémon
-            if pokemon['IVSum'] == 186:
+            if pokemon.ivs.sum() == 186:
                 return True  # ✅ enabled
 
             # Catch zero IV Pokémon
-            if pokemon['IVSum'] == 0:
+            if pokemon.ivs.sum() == 0:
                 return True  # ✅ enabled
 
             # Catch Pokémon with 6 identical IVs of any value
@@ -63,19 +91,15 @@ def CustomCatchFilters(pokemon: dict) -> bool:
                 pass  # ❌ disabled
 
             # Catch Pokémon with a good IV sum of greater than or equal to 170
-            if pokemon['IVSum'] >= 170:
-                pass  # ❌ disabled
-
-            # Catch uncaught Pokémon, not yet registered in the dex
-            if pokemon['hasSpecies'] == 0:
+            if pokemon.ivs.sum() >= 170:
                 pass  # ❌ disabled
 
             # Catch all Poochyena with a Pecha Berry
-            if pokemon['name'] == 'Poochyena' and pokemon['item']['name'] == 'Pecha Berry':
+            if pokemon.species.name == "Poochyena" and pokemon.held_item and pokemon.held_item.name == "Pecha Berry":
                 pass  # ❌ disable
 
             # Catch any Pokémon with perfect attack, spAttack and speed
-            if pokemon['IVs']['attack'] == 31 and pokemon['IVs']['spAttack'] == 31 and pokemon['IVs']['speed'] == 31:
+            if pokemon.ivs.attack == 31 and pokemon.ivs.special_attack == 31 and pokemon.ivs.speed == 31:
                 pass  # ❌ disable
 
         ### Edit above this line ###
@@ -83,5 +107,5 @@ def CustomCatchFilters(pokemon: dict) -> bool:
         return False
     except:
         console.print_exception(show_locals=True)
-        console.print('[red bold]Failed to check Pokemon, potentially due to invalid custom catch filter...')
+        console.print("[red bold]Failed to check Pokemon, potentially due to invalid custom catch filter...")
         return False
