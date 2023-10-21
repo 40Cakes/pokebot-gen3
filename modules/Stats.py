@@ -432,17 +432,13 @@ def LogEncounter(pokemon: Pokemon, block_list: list) -> None:
             stats["totals"]["lowest_iv_sum"] = pokemon.ivs.sum()
             stats["totals"]["lowest_iv_sum_pokemon"] = pokemon.species.name
 
+        pokemon_json = pokemon.to_json()
         if config["logging"]["log_encounters"]:
             # Log all encounters to a CSV file per phase
             csvpath = f"{stats_dir}/encounters/"
             csvfile = f"Phase {stats['totals'].get('shiny_encounters', 0)} Encounters.csv"
-            if len(pokemon.species.types) < 2:
-                # Add blank 2nd type to monotype Pokémon to preserve .csv column alignment
-                types = [pokemon.species.types[0].name, ""]
-            else:
-                types = [pokemon.species.types[0].name, pokemon.species.types[1].name]
             pd_pokemon = (
-                pd.DataFrame.from_dict(FlattenData(pokemon), orient="index")
+                pd.DataFrame.from_dict(FlattenData(pokemon_json), orient="index")
                 .drop(
                     [
                         "EVs_attack",
@@ -460,7 +456,8 @@ def LogEncounter(pokemon: Pokemon, block_list: list) -> None:
                         "moves_2_effect",
                         "moves_3_effect",
                         "pokerus_days",
-                        "pokerus_strain" "status_badPoison",
+                        "pokerus_strain",
+                        "status_badPoison",
                         "status_burn",
                         "status_freeze",
                         "status_paralysis",
@@ -470,7 +467,8 @@ def LogEncounter(pokemon: Pokemon, block_list: list) -> None:
                         "condition_cool",
                         "condition_cute",
                         "condition_feel",
-                        "condition_smart" "condition_tough",
+                        "condition_smart",
+                        "condition_tough",
                     ],
                     errors="ignore",
                 )
@@ -499,7 +497,7 @@ def LogEncounter(pokemon: Pokemon, block_list: list) -> None:
         # Log encounter to encounter_log
         log_obj = {
             "time_encountered": time.time(),
-            "pokemon": pokemon.to_json(),
+            "pokemon": pokemon_json,
             "snapshot_stats": {
                 "phase_encounters": stats["totals"]["phase_encounters"],
                 "species_encounters": stats["pokemon"][pokemon.species.name]["encounters"],
