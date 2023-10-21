@@ -203,20 +203,24 @@ Example:
 ├── /profiles
     │
     ├── /emerald-profile
-    │     discord.yml          <-- loaded for 'emerald-profile'
-    │     general.yml          <-- loaded for 'emerald-profile'
+    │     current_save.sav
+    │     current_state.ss1
+    │     discord.yml          <-- config loaded for 'emerald-profile'
+    │     general.yml          <-- config loaded for 'emerald-profile'
     │
     ├── /firered-profile
-    │     general.yml          <-- loaded for 'firered-profile'
+    │     current_save.sav
+    │     current_state.ss1
+    │     general.yml          <-- config loaded for 'firered-profile'
     │
-    │   catch_block.yml        <-- loaded for all profiles
-    │   cheats.yml             <-- loaded for all profiles
-    │   CustomCatchFilters.py  <-- loaded for all profiles
-    │   CustomHooks.py         <-- loaded for all profiles
-    │   discord.yml            <-- loaded for all profiles except 'emerald-profile'
-    │   general.yml            <-- loaded for all profiles except 'emerald-profile' and 'firered-profile'
-    │   logging.yml            <-- loaded for all profiles
-    │   obs.yml                <-- loaded for all profiles
+    │   catch_block.yml        <-- config loaded for all profiles
+    │   cheats.yml             <-- config loaded for all profiles
+    │   CustomCatchFilters.py  <-- config loaded for all profiles
+    │   CustomHooks.py         <-- config loaded for all profiles
+    │   discord.yml            <-- config loaded for all profiles except 'emerald-profile'
+    │   general.yml            <-- config loaded for all profiles except 'emerald-profile' and 'firered-profile'
+    │   logging.yml            <-- config loaded for all profiles
+    │   obs.yml                <-- config loaded for all profiles
 ```
 
 ## `keys.yml` - Emulator input mapping
