@@ -6,6 +6,7 @@ from modules.Roms import ROM, ROMLanguage
 
 _symbols: dict[str, tuple[int, int]] = {}
 _reverse_symbols: dict[int, tuple[str, str, int]] = {}
+_event_flags: dict[str, int] = {}
 _character_table_international: list[str] = []
 _character_table_japanese: list[str] = []
 _current_character_table: list[str] = []
@@ -45,6 +46,25 @@ def _LoadSymbols(symbols_file: str, language: ROMLanguage) -> None:
                     _symbols[item.upper()][1],
                 )
 
+
+def _LoadEventFlags(flags_file: str) -> None:
+    global _event_flags
+
+    _event_flags.clear()
+    for s in open(DATA_DIRECTORY / "event_flags" / flags_file).readlines():
+        col = s.split("\t")
+
+        for i in range(len(col)):
+            if col[i] in ["", "\n"]:
+                col[i] = None
+
+        if col[4] or col[6]:
+            if col[4]:
+                _event_flags[col[4].replace("\n", "")] = int(col[0], 16)
+            else:
+                _event_flags[col[6].replace("\n", "")] = int(col[0], 16)
+
+    _event_flags = dict(sorted(_event_flags.items()))
 
 def _prepare_character_tables() -> None:
     global _character_table_international, _character_table_japanese
@@ -117,6 +137,7 @@ def SetROM(rom: ROM) -> None:
                     _LoadSymbols("pokeruby_rev1.sym", rom.language)
                 case 2:
                     _LoadSymbols("pokeruby_rev2.sym", rom.language)
+            _LoadEventFlags("flags_gen3rs.txt")
 
         case "AXP":
             match rom.revision:
@@ -126,9 +147,11 @@ def SetROM(rom: ROM) -> None:
                     _LoadSymbols("pokesapphire_rev1.sym", rom.language)
                 case 2:
                     _LoadSymbols("pokesapphire_rev2.sym", rom.language)
+            _LoadEventFlags("flags_gen3rs.txt")
 
         case "BPE":
             _LoadSymbols("pokeemerald.sym", rom.language)
+            _LoadEventFlags("flags_gen3e.txt")
 
         case "BPR":
             match rom.revision:
@@ -136,6 +159,7 @@ def SetROM(rom: ROM) -> None:
                     _LoadSymbols("pokefirered.sym", rom.language)
                 case 1:
                     _LoadSymbols("pokefirered_rev1.sym", rom.language)
+            _LoadEventFlags("flags_gen3frlg.txt")
 
         case "BPG":
             match rom.revision:
@@ -143,6 +167,7 @@ def SetROM(rom: ROM) -> None:
                     _LoadSymbols("pokeleafgreen.sym", rom.language)
                 case 1:
                     _LoadSymbols("pokeleafgreen_rev1.sym", rom.language)
+            _LoadEventFlags("flags_gen3frlg.txt")
 
     _prepare_character_tables()
     if rom.language == ROMLanguage.Japanese:
@@ -154,7 +179,7 @@ def SetROM(rom: ROM) -> None:
 def GetSymbol(symbol_name: str) -> tuple[int, int]:
     canonical_name = symbol_name.strip().upper()
     if canonical_name not in _symbols:
-        raise RuntimeError("Unknown symbol: " + symbol_name)
+        raise RuntimeError(f"Unknown symbol: {symbol_name}!")
 
     return _symbols[canonical_name]
 
@@ -168,6 +193,13 @@ def GetSymbolName(address: int, pretty_name: bool = False) -> str:
     :return: name of the symbol (str)
     """
     return _reverse_symbols.get(address, ("", ""))[0 if not pretty_name else 1]
+
+
+def GetEventFlagOffset(flag_name: str) -> int:
+    if flag_name not in _event_flags:
+        raise RuntimeError(f"Unknown event flag: {flag_name}!")
+
+    return _event_flags[flag_name]
 
 
 def DecodeString(

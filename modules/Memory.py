@@ -3,7 +3,7 @@ import struct
 from enum import IntEnum
 
 from modules.Console import console
-from modules.Game import GetSymbol, GetSymbolName
+from modules.Game import GetSymbol, GetSymbolName, GetEventFlagOffset
 from modules.Gui import GetEmulator, GetROM
 
 
@@ -141,23 +141,23 @@ def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
 def GetItemOffsets() -> list[tuple[int, int]]:
     # Game specific offsets
     # Source: https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Section_1_-_Team_.2F_Items
-    game_title = GetROM().game_title
-    if game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
-        return [(0x298, 120), (0x310, 168), (0x3B8, 120), (0x430, 52), (0x464, 232), (0x54C, 172)]
-    elif game_title == "POKEMON EMER":
-        return [(0x498, 200), (0x560, 120), (0x5D8, 120), (0x650, 64), (0x690, 256), (0x790, 184)]
-    else:
-        return [(0x498, 200), (0x560, 80), (0x5B0, 80), (0x600, 64), (0x640, 256), (0x740, 184)]
+    match GetROM().game_title:
+        case "POKEMON FIRE" | "POKEMON LEAF":
+            return [(0x298, 120), (0x310, 168), (0x3B8, 120), (0x430, 52), (0x464, 232), (0x54C, 172)]
+        case "POKEMON EMER":
+            return [(0x498, 200), (0x560, 120), (0x5D8, 120), (0x650, 64), (0x690, 256), (0x790, 184)]
+        case _:
+            return [(0x498, 200), (0x560, 80), (0x5B0, 80), (0x600, 64), (0x640, 256), (0x740, 184)]
 
 
 def GetItemKey() -> int:
-    game_title = GetROM().game_title
-    if game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
-        return unpack_uint16(GetSaveBlock(2, 0xF20, 2))
-    elif game_title == "POKEMON EMER":
-        return unpack_uint16(GetSaveBlock(2, 0xAC, 2))
-    else:
-        return 0
+    match GetROM().game_title:
+        case "POKEMON FIRE" | "POKEMON LEAF":
+            return unpack_uint16(GetSaveBlock(2, 0xF20, 2))
+        case "POKEMON EMER":
+            return unpack_uint16(GetSaveBlock(2, 0xAC, 2))
+        case _:
+            return 0
 
 
 class GameState(IntEnum):
@@ -217,3 +217,18 @@ def GameHasStarted() -> bool:
     return ReadSymbol("sPlayTimeCounterState") != b"\x00" and 0 != int.from_bytes(
         ReadSymbol("gObjectEvents", 0x10, 9), byteorder="little"
     )
+
+
+def GetEventFlag(flag_name: str) -> bool:
+    flag_offset = GetEventFlagOffset(flag_name)
+
+    match GetROM().game_title:
+        case "POKEMON FIRE" | "POKEMON LEAF":
+            sav_offset = 3808
+        case "POKEMON EMER":
+            sav_offset = 4720
+        case _:
+            sav_offset = 4640
+
+    flag_byte = GetSaveBlock(1, offset=sav_offset + (flag_offset // 8), size=1)
+    return bool((flag_byte[0] >> (flag_offset % 8)) & 1)
