@@ -515,6 +515,29 @@ class DaycareTab(DebugTab):
         }
 
 
+class EventFlagsTab(DebugTab):
+    _tv: FancyTreeview
+
+    def Draw(self, root: ttk.Notebook):
+        frame = ttk.Frame(root, padding=10)
+        self._tv = FancyTreeview(frame)
+        root.add(frame, text="Event Flags")
+
+    def Update(self, emulator: "LibmgbaEmulator"):
+        self._tv.UpdateData(self._GetData())
+
+    def _GetData(self):
+        from modules.Game import _event_flags
+        from modules.Memory import GetEventFlag
+
+        result = {}
+
+        for flag in _event_flags:
+            result[flag] = GetEventFlag(flag)
+
+        return result
+
+
 class InputsTab(DebugTab):
     _tv: FancyTreeview
 
