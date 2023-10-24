@@ -221,14 +221,6 @@ def GameHasStarted() -> bool:
 
 def GetEventFlag(flag_name: str) -> bool:
     flag_offset = GetEventFlagOffset(flag_name)
+    flag_byte = GetSaveBlock(1, offset=flag_offset[0], size=1)
 
-    match GetROM().game_title:
-        case "POKEMON FIRE" | "POKEMON LEAF":
-            sav_offset = 3808
-        case "POKEMON EMER":
-            sav_offset = 4720
-        case _:
-            sav_offset = 4640
-
-    flag_byte = GetSaveBlock(1, offset=sav_offset + (flag_offset // 8), size=1)
-    return bool((flag_byte[0] >> (flag_offset % 8)) & 1)
+    return bool((flag_byte[0] >> (flag_offset[1])) & 1)

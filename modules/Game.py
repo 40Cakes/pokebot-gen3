@@ -6,7 +6,7 @@ from modules.Roms import ROM, ROMLanguage
 
 _symbols: dict[str, tuple[int, int]] = {}
 _reverse_symbols: dict[int, tuple[str, str, int]] = {}
-_event_flags: dict[str, int] = {}
+_event_flags: dict[str, tuple[int, int]] = {}
 _character_table_international: list[str] = []
 _character_table_japanese: list[str] = []
 _current_character_table: list[str] = []
@@ -47,8 +47,16 @@ def _LoadSymbols(symbols_file: str, language: ROMLanguage) -> None:
                 )
 
 
-def _LoadEventFlags(flags_file: str) -> None:
+def _LoadEventFlags(flags_file: str) -> None:  # TODO Japanese ROMs not working
     global _event_flags
+
+    match flags_file:
+        case "flags_gen3rs.txt":
+            sav1_offset = 0x1220
+        case "flags_gen3e.txt":
+            sav1_offset = 0x1270
+        case "flags_gen3frlg.txt":
+            sav1_offset = 0x0EE0
 
     _event_flags.clear()
     for s in open(DATA_DIRECTORY / "event_flags" / flags_file).readlines():
@@ -60,9 +68,9 @@ def _LoadEventFlags(flags_file: str) -> None:
 
         if col[4] or col[6]:
             if col[4]:
-                _event_flags[col[4].replace("\n", "")] = int(col[0], 16)
+                _event_flags[col[4].replace("\n", "")] = ((int(col[0], 16) // 8) + sav1_offset, int(col[0], 16) % 8)
             else:
-                _event_flags[col[6].replace("\n", "")] = int(col[0], 16)
+                _event_flags[col[6].replace("\n", "")] = ((int(col[0], 16) // 8) + sav1_offset, int(col[0], 16) % 8)
 
     _event_flags = dict(sorted(_event_flags.items()))
 
