@@ -261,8 +261,8 @@ Example:
     │
     │   catch_block.yml        <-- config loaded for all profiles
     │   cheats.yml             <-- config loaded for all profiles
-    │   CustomCatchFilters.py  <-- config loaded for all profiles
-    │   CustomHooks.py         <-- config loaded for all profiles
+    │   customcatchfilters.py  <-- config loaded for all profiles
+    │   customhooks.py         <-- config loaded for all profiles
     │   discord.yml            <-- config loaded for all profiles except 'emerald-profile'
     │   general.yml            <-- config loaded for all profiles except 'emerald-profile' and 'firered-profile'
     │   logging.yml            <-- config loaded for all profiles

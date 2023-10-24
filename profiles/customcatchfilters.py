@@ -4,7 +4,7 @@ from modules.console import console
 from modules.pokemon import Pokemon
 
 
-def CustomCatchFilters(pokemon: Pokemon) -> bool:
+def custom_catch_filters(pokemon: Pokemon) -> bool:
     """
     Check the current encounter, catch if it matches any of the following criteria.
     Some examples are provided (most are disabled by default).
