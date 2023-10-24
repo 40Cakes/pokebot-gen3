@@ -7,10 +7,10 @@ from pathlib import Path
 from tkinter import ttk, filedialog, font
 from typing import IO, Union
 
-from modules.Game import SetROM, GetSymbol, DecodeString
-from modules.Memory import unpack_uint16, unpack_uint32
-from modules.Profiles import Profile, CreateProfile, ProfileDirectoryExists
-from modules.Roms import ListAvailableRoms
+from modules.game import set_rom, get_symbol, decode_string
+from modules.memory import unpack_uint16, unpack_uint32
+from modules.profiles import Profile, create_profile, profile_directory_exists
+from modules.roms import list_available_roms
 from version import pokebot_name, pokebot_version
 
 
@@ -18,7 +18,7 @@ class MigrationError(Exception):
     pass
 
 
-def MigrateSaveState(file: IO) -> Profile:
+def migrate_save_state(file: IO) -> Profile:
     file.seek(0)
     magic = file.read(4)
     file.seek(0)
@@ -27,9 +27,9 @@ def MigrateSaveState(file: IO) -> Profile:
     # contain a PNG file that contains a custom 'gbAs' chunk, which in turn contains
     # the actual (zlib-compressed) state data. We'd like to support both.
     if magic == b"\x89PNG":
-        state_data, savegame_data = GetStateDataFromPNG(file)
+        state_data, savegame_data = get_state_data_from_png(file)
     elif magic == b"\x07\x00\x00\x01":
-        state_data, savegame_data = GetStateDataFromFile(file)
+        state_data, savegame_data = get_state_data_from_file(file)
     else:
         raise MigrationError("This does not appear to be a supported save state file.")
 
@@ -40,7 +40,7 @@ def MigrateSaveState(file: IO) -> Profile:
     # find the right one.
     crc32 = unpack_uint32(state_data[8:12])
     matching_rom = None
-    for rom in ListAvailableRoms():
+    for rom in list_available_roms():
         with open(rom.file, "rb") as rom_file:
             rom_crc32 = binascii.crc32(rom_file.read())
         if rom_crc32 == crc32:
@@ -50,30 +50,30 @@ def MigrateSaveState(file: IO) -> Profile:
         raise MigrationError(
             'Could not find a compatible ROM for this save state... Please place your .gba ROMs in the "roms/" folder.'
         )
-    SetROM(matching_rom)
+    set_rom(matching_rom)
 
     # Figure out the trainer name so we can use it as the name for the newly imported profile.
-    # This code is adapted from `modules/Trainer.py`, except it uses the RAM data stored in the
+    # This code is adapted from `modules/trainer.py`, except it uses the RAM data stored in the
     # save state instead of accessing a running emulator.
     if matching_rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-        pointer_offset = (GetSymbol("gSaveBlock2Ptr")[0] & 0x7FFF) + 0x19000
+        pointer_offset = (get_symbol("gSaveBlock2Ptr")[0] & 0x7FFF) + 0x19000
         pointer = unpack_uint32(state_data[pointer_offset : pointer_offset + 4])
         save_block_offset = (pointer & 0x3FFFF) + 0x21000
         save_block = state_data[save_block_offset : save_block_offset + 12]
     else:
-        save_block_offset = (GetSymbol("gSaveBlock2")[0] & 0x3FFFF) + 0x21000
+        save_block_offset = (get_symbol("gSaveBlock2")[0] & 0x3FFFF) + 0x21000
         save_block = state_data[save_block_offset : save_block_offset + 12]
 
-    trainer_name = DecodeString(save_block[0:7])
+    trainer_name = decode_string(save_block[0:7])
     trainer_id = unpack_uint16(save_block[10:12])
 
     profile_name = trainer_name
     n = 2
-    while ProfileDirectoryExists(profile_name):
+    while profile_directory_exists(profile_name):
         profile_name = f"{trainer_name}_{str(n)}"
         n += 1
 
-    profile = CreateProfile(profile_name, matching_rom)
+    profile = create_profile(profile_name, matching_rom)
     with open(profile.path / "current_state.ss1", "wb") as state_file:
         state_file.write(state_data)
 
@@ -98,7 +98,7 @@ def MigrateSaveState(file: IO) -> Profile:
     return profile
 
 
-def GetStateDataFromFile(file: IO) -> tuple[bytes, Union[bytes, None]]:
+def get_state_data_from_file(file: IO) -> tuple[bytes, Union[bytes, None]]:
     state_data = file.read(0x61000)
     savegame_data = None
 
@@ -127,7 +127,7 @@ def GetStateDataFromFile(file: IO) -> tuple[bytes, Union[bytes, None]]:
     return state_data, savegame_data
 
 
-def GetStateDataFromPNG(file: IO) -> tuple[bytes, Union[bytes, None]]:
+def get_state_data_from_png(file: IO) -> tuple[bytes, Union[bytes, None]]:
     state_data = None
     savegame_data = None
 
@@ -168,7 +168,7 @@ def GetStateDataFromPNG(file: IO) -> tuple[bytes, Union[bytes, None]]:
     return state_data, savegame_data
 
 
-def HandleButtonClick() -> None:
+def handle_button_click() -> None:
     global error_label
 
     filetypes = [
@@ -181,13 +181,13 @@ def HandleButtonClick() -> None:
 
     if file is not None:
         try:
-            profile = MigrateSaveState(file)
-            ShowSuccessMessage(profile.path.name, profile.rom.game_name)
+            profile = migrate_save_state(file)
+            show_success_message(profile.path.name, profile.rom.game_name)
         except MigrationError as error:
             error_label.config(text=str(error), wraplength=360, justify="center")
 
 
-def ShowSuccessMessage(profile_name, game_name) -> None:
+def show_success_message(profile_name, game_name) -> None:
     global window, frame, label_font
 
     frame.destroy()
@@ -229,7 +229,7 @@ if __name__ == "__main__":
     
     Note: you can only import save states (.ss1, .ss2, ...) and NOT save game files (.sav)!"""
     ttk.Label(frame, text=help_message, wraplength=360, justify="center").grid(column=0, row=1)
-    ttk.Button(frame, text="Select file", command=HandleButtonClick, cursor="hand2").grid(column=0, row=2, pady=20)
+    ttk.Button(frame, text="Select file", command=handle_button_click, cursor="hand2").grid(column=0, row=2, pady=20)
 
     error_label = ttk.Label(frame, text="", foreground="red")
     error_label.grid(column=0, row=3)

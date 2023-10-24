@@ -2,9 +2,9 @@ import sys
 import struct
 from enum import IntEnum
 
-from modules.Console import console
-from modules.Game import GetSymbol, GetSymbolName, GetEventFlagOffset
-from modules.Gui import GetEmulator, GetROM
+from modules.console import console
+from modules.game import get_symbol, get_symbol_name, get_event_flag_offset
+from modules.gui import get_emulator, get_rom
 
 
 def unpack_uint16(bytes: bytes) -> int:
@@ -23,7 +23,7 @@ def pack_uint32(int: int) -> bytes:
     return struct.pack("<I", int)
 
 
-def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
+def read_symbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
     """
     This function uses the symbol tables from the Pokémon decompilation projects found here: https://github.com/pret
     Symbol tables are loaded and parsed as a dict in the `Emulator` class, the .sym files for each game can be found
@@ -47,26 +47,26 @@ def ReadSymbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
     :return: (bytes)
     """
     try:
-        addr, length = GetSymbol(name)
+        addr, length = get_symbol(name)
         if size <= 0:
             size = length
 
-        return GetEmulator().ReadBytes(addr + offset, size)
+        return get_emulator().read_bytes(addr + offset, size)
     except SystemExit:
         raise
     except:
         console.print_exception(show_locals=True)
 
 
-def WriteSymbol(name: str, data: bytes, offset: int = 0x0) -> bool:
+def write_symbol(name: str, data: bytes, offset: int = 0x0) -> bool:
     try:
-        addr, length = GetSymbol(name)
+        addr, length = get_symbol(name)
         if len(data) + offset > length:
             raise Exception(
                 f"{len(data) + offset} bytes of data provided, is too large for symbol {addr} ({length} bytes)!"
             )
 
-        GetEmulator().WriteBytes(addr + offset, data)
+        get_emulator().write_bytes(addr + offset, data)
         return True
     except SystemExit:
         raise
@@ -75,12 +75,12 @@ def WriteSymbol(name: str, data: bytes, offset: int = 0x0) -> bool:
         sys.exit(1)
 
 
-def ParseTasks(pretty_names: bool = False) -> list:
+def parse_tasks(pretty_names: bool = False) -> list:
     try:
-        gTasks = ReadSymbol("gTasks")
+        gTasks = read_symbol("gTasks")
         tasks = []
         for x in range(16):
-            name = GetSymbolName(unpack_uint32(gTasks[(x * 40) : (x * 40 + 4)]) - 1, pretty_names)
+            name = get_symbol_name(unpack_uint32(gTasks[(x * 40) : (x * 40 + 4)]) - 1, pretty_names)
             if name == "":
                 name = str(gTasks[(x * 40) : (x * 40 + 4)])
             tasks.append(
@@ -100,15 +100,15 @@ def ParseTasks(pretty_names: bool = False) -> list:
         console.print_exception(show_locals=True)
 
 
-def GetTask(func: str) -> dict:
-    tasks = ParseTasks()
+def get_task(func: str) -> dict:
+    tasks = parse_tasks()
     for task in tasks:
         if task["func"] == func:
             return task
     return {}
 
 
-def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
+def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     """
     The Generation III save file is broken up into two game save blocks, this function will return sections from these
     save blocks. Emerald, FireRed and LeafGreen SaveBlocks will randomly move around in memory, which requires following
@@ -124,40 +124,18 @@ def GetSaveBlock(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
     try:
         if not size:
-            size = GetSymbol(f"GSAVEBLOCK{num}")[1]
-        if GetROM().game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-            p_Trainer = unpack_uint32(ReadSymbol(f"gSaveBlock{num}Ptr"))
+            size = get_symbol(f"GSAVEBLOCK{num}")[1]
+        if get_rom().game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+            p_Trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
             if p_Trainer == 0:
                 return None
-            return GetEmulator().ReadBytes(p_Trainer + offset, size)
+            return get_emulator().read_bytes(p_Trainer + offset, size)
         else:
-            return ReadSymbol(f"gSaveBlock{num}", offset=offset, size=size)
+            return read_symbol(f"gSaveBlock{num}", offset=offset, size=size)
     except SystemExit:
         raise
     except:
         console.print_exception(show_locals=True)
-
-
-def GetItemOffsets() -> list[tuple[int, int]]:
-    # Game specific offsets
-    # Source: https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Section_1_-_Team_.2F_Items
-    match GetROM().game_title:
-        case "POKEMON FIRE" | "POKEMON LEAF":
-            return [(0x298, 120), (0x310, 168), (0x3B8, 120), (0x430, 52), (0x464, 232), (0x54C, 172)]
-        case "POKEMON EMER":
-            return [(0x498, 200), (0x560, 120), (0x5D8, 120), (0x650, 64), (0x690, 256), (0x790, 184)]
-        case _:
-            return [(0x498, 200), (0x560, 80), (0x5B0, 80), (0x600, 64), (0x640, 256), (0x740, 184)]
-
-
-def GetItemKey() -> int:
-    match GetROM().game_title:
-        case "POKEMON FIRE" | "POKEMON LEAF":
-            return unpack_uint16(GetSaveBlock(2, 0xF20, 2))
-        case "POKEMON EMER":
-            return unpack_uint16(GetSaveBlock(2, 0xAC, 2))
-        case _:
-            return 0
 
 
 class GameState(IntEnum):
@@ -177,14 +155,14 @@ class GameState(IntEnum):
     UNKNOWN = 999
 
 
-def GetGameStateSymbol() -> str:
-    callback2 = ReadSymbol("gMain", 4, 4)  # gMain.callback2
+def get_game_state_symbol() -> str:
+    callback2 = read_symbol("gMain", 4, 4)  # gMain.callback2
     addr = unpack_uint32(callback2) - 1
-    return GetSymbolName(addr)
+    return get_symbol_name(addr)
 
 
-def GetGameState() -> GameState:
-    match GetGameStateSymbol():
+def get_game_state() -> GameState:
+    match get_game_state_symbol():
         case "CB2_OVERWORLD":
             return GameState.OVERWORLD
         case "BATTLEMAINCB2":
@@ -209,18 +187,18 @@ def GetGameState() -> GameState:
             return GameState.UNKNOWN
 
 
-def GameHasStarted() -> bool:
+def game_has_started() -> bool:
     """
     Reports whether the game has progressed past the main menu (save loaded
     or new game started.)
     """
-    return ReadSymbol("sPlayTimeCounterState") != b"\x00" and 0 != int.from_bytes(
-        ReadSymbol("gObjectEvents", 0x10, 9), byteorder="little"
+    return read_symbol("sPlayTimeCounterState") != b"\x00" and 0 != int.from_bytes(
+        read_symbol("gObjectEvents", 0x10, 9), byteorder="little"
     )
 
 
-def GetEventFlag(flag_name: str) -> bool:
-    flag_offset = GetEventFlagOffset(flag_name)
-    flag_byte = GetSaveBlock(1, offset=flag_offset[0], size=1)
+def get_event_flag(flag_name: str) -> bool:
+    flag_offset = get_event_flag_offset(flag_name)
+    flag_byte = get_save_block(1, offset=flag_offset[0], size=1)
 
     return bool((flag_byte[0] >> (flag_offset[1])) & 1)

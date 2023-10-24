@@ -1,14 +1,14 @@
 from flask_cors import CORS
 from flask import Flask, abort, jsonify
 
-from modules.Config import config
-from modules.Console import console
-from modules.Items import GetItems
-from modules.Pokemon import GetParty
-from modules.Stats import GetEncounterRate, encounter_log, stats, shiny_log
+from modules.config import config
+from modules.console import console
+from modules.items import get_items
+from modules.pokemon import get_party
+from modules.stats import get_encounter_rate, encounter_log, stats, shiny_log
 
 
-def WebServer() -> None:
+def http_server() -> None:
     """
     Run Flask server to make bot data available via HTTP requests.
     """
@@ -17,20 +17,20 @@ def WebServer() -> None:
         CORS(server)
 
         @server.route("/trainer", methods=["GET"])
-        def Trainer():
-            from modules.Trainer import trainer
+        def http_get_trainer():
+            from modules.trainer import trainer
 
             try:
                 trainer = {
-                    "name": trainer.GetName(),
-                    "gender": trainer.GetGender(),
-                    "tid": trainer.GetTID(),
-                    "sid": trainer.GetSID(),
-                    "map": trainer.GetMap(),
-                    "map_name": trainer.GetMapName(),
-                    "coords": trainer.GetCoords(),
-                    "on_bike": trainer.GetOnBike(),
-                    "facing": trainer.GetFacingDirection(),
+                    "name": trainer.get_name(),
+                    "gender": trainer.get_gender(),
+                    "tid": trainer.get_tid(),
+                    "sid": trainer.get_sid(),
+                    "map": trainer.get_map(),
+                    "map_name": trainer.get_map_name(),
+                    "coords": trainer.get_coords(),
+                    "on_bike": trainer.get_on_bike(),
+                    "facing": trainer.get_facing_direction(),
                 }
                 if trainer:
                     return jsonify(trainer)
@@ -40,9 +40,9 @@ def WebServer() -> None:
                 abort(503)
 
         @server.route("/items", methods=["GET"])
-        def Bag():
+        def http_get_bag():
             try:
-                items = GetItems()
+                items = get_items()
                 if items:
                     return jsonify(items)
                 abort(503)
@@ -51,9 +51,9 @@ def WebServer() -> None:
                 abort(503)
 
         @server.route("/party", methods=["GET"])
-        def Party():
+        def http_get_party():
             try:
-                party = GetParty()
+                party = get_party()
                 if party:
                     return jsonify([p.to_json() for p in party])
                 abort(503)
@@ -62,7 +62,7 @@ def WebServer() -> None:
                 abort(503)
 
         @server.route("/encounter_log", methods=["GET"])  # TODO add parameter to get encounter by list index
-        def EncounterLog():
+        def http_get_encounter_log():
             try:
                 if encounter_log:
                     return jsonify(encounter_log)
@@ -72,7 +72,7 @@ def WebServer() -> None:
                 abort(503)
 
         @server.route("/shiny_log", methods=["GET"])
-        def ShinyLog():
+        def http_get_shiny_log():
             try:
                 if shiny_log:
                     return jsonify(shiny_log["shiny_log"])
@@ -82,15 +82,15 @@ def WebServer() -> None:
                 abort(503)
 
         @server.route("/encounter_rate", methods=["GET"])
-        def EncounterRate():
+        def http_get_encounter_rate():
             try:
-                return jsonify({"encounter_rate": GetEncounterRate()})
+                return jsonify({"encounter_rate": get_encounter_rate()})
             except:
                 console.print_exception(show_locals=True)
                 return jsonify({"encounter_rate": 0})
 
         @server.route("/stats", methods=["GET"])
-        def Stats():
+        def http_get_stats():
             try:
                 if stats:
                     return jsonify(stats)

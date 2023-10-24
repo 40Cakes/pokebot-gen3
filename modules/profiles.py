@@ -7,8 +7,8 @@ from pathlib import Path
 import jsonschema
 from ruamel.yaml import YAML
 
-from modules.Console import console
-from modules.Roms import ROMS_DIRECTORY, ROM, ListAvailableRoms, LoadROMData
+from modules.console import console
+from modules.roms import ROMS_DIRECTORY, ROM, list_available_roms, load_rom_data
 
 PROFILES_DIRECTORY = Path(__file__).parent.parent / "profiles"
 
@@ -59,25 +59,25 @@ class Profile:
     last_played: typing.Union[datetime, None]
 
 
-def ListAvailableProfiles() -> list[Profile]:
+def list_available_profiles() -> list[Profile]:
     if not PROFILES_DIRECTORY.is_dir():
         raise RuntimeError(f"Directory {str(PROFILES_DIRECTORY)} does not exist!")
 
     profiles = []
     for entry in PROFILES_DIRECTORY.iterdir():
         try:
-            profiles.append(LoadProfile(entry))
+            profiles.append(load_profile(entry))
         except RuntimeError:
             pass
 
     return profiles
 
 
-def LoadProfileByName(name: str) -> Profile:
-    return LoadProfile(PROFILES_DIRECTORY / name)
+def load_profile_by_name(name: str) -> Profile:
+    return load_profile(PROFILES_DIRECTORY / name)
 
 
-def LoadProfile(path) -> Profile:
+def load_profile(path) -> Profile:
     if not path.is_dir():
         raise RuntimeError("Path is not a valid profile directory.")
 
@@ -101,10 +101,10 @@ def LoadProfile(path) -> Profile:
 
     rom_file = ROMS_DIRECTORY / metadata["rom"]["file_name"]
     if rom_file.is_file():
-        rom = LoadROMData(rom_file)
+        rom = load_rom_data(rom_file)
         return Profile(rom, path, last_played)
     else:
-        for rom in ListAvailableRoms():
+        for rom in list_available_roms():
             if (
                 rom.game_code == metadata["rom"]["game_code"]
                 and rom.revision == metadata["rom"]["revision"]
@@ -112,15 +112,18 @@ def LoadProfile(path) -> Profile:
             ):
                 return Profile(rom, path, last_played)
 
-    console.print(f'[bold red]Could not find a ROM for profile "{path.name}".[/]')
+    console.print(
+        f"[bold red]Could not find ROM `{metadata['rom']['file_name']}` for profile `{path.name}`, "
+        f"please place `{metadata['rom']['file_name']}` into `{ROMS_DIRECTORY}`!"
+    )
     sys.exit(1)
 
 
-def ProfileDirectoryExists(name: str) -> bool:
+def profile_directory_exists(name: str) -> bool:
     return (PROFILES_DIRECTORY / name).exists()
 
 
-def CreateProfile(name: str, rom: ROM) -> Profile:
+def create_profile(name: str, rom: ROM) -> Profile:
     profile_directory = PROFILES_DIRECTORY / name
     if profile_directory.exists():
         raise RuntimeError(f'There already is a profile called "{name}", cannot create a new one with that name.')

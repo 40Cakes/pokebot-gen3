@@ -8,11 +8,11 @@ from typing import Literal, Union
 
 import numpy
 
-from modules.Console import console
-from modules.Game import DecodeString
-from modules.Gui import GetEmulator
-from modules.Memory import unpack_uint32, unpack_uint16, ReadSymbol
-from modules.Roms import ROMLanguage
+from modules.console import console
+from modules.game import decode_string
+from modules.gui import get_emulator
+from modules.memory import unpack_uint32, unpack_uint16, read_symbol, pack_uint32
+from modules.roms import ROMLanguage
 
 DATA_DIRECTORY = Path(__file__).parent / "data"
 
@@ -837,13 +837,13 @@ class Pokemon:
         return OriginalTrainer(
             id=unpack_uint16(self.data[4:6]),
             secret_id=unpack_uint16(self.data[6:8]),
-            name=DecodeString(self.data[20:27], character_set=self._character_set),
+            name=decode_string(self.data[20:27], character_set=self._character_set),
             gender=gender,
         )
 
     @property
     def nickname(self) -> str:
-        return DecodeString(self.data[8:18], character_set=self._character_set)
+        return decode_string(self.data[8:18], character_set=self._character_set)
 
     @property
     def name(self) -> str:
@@ -1443,17 +1443,17 @@ def get_species_by_index(index: int) -> Species:
     return _species_by_index[index]
 
 
-def GetParty() -> list[Pokemon]:
+def get_party() -> list[Pokemon]:
     """
     Checks how many Pokémon are in the trainer's party, decodes and returns them all.
 
     :return: party (list)
     """
     party = []
-    party_count = ReadSymbol("gPlayerPartyCount", size=1)[0]
+    party_count = read_symbol("gPlayerPartyCount", size=1)[0]
     for p in range(party_count):
         o = p * 100
-        mon = parse_pokemon(ReadSymbol("gPlayerParty", o, o + 100))
+        mon = parse_pokemon(read_symbol("gPlayerParty", o, o + 100))
 
         # It's possible for party data to be written while we are trying to read it, in which case
         # the checksum would be wrong and `parse_pokemon()` returns `None`.
@@ -1462,7 +1462,7 @@ def GetParty() -> list[Pokemon]:
         # (1) advancing the emulation by one frame, (2) reading the memory, (3) restoring the previous
         # frame's state so we don't mess with frame accuracy.
         if mon is None:
-            mon = GetEmulator().PeekFrame(lambda: parse_pokemon(ReadSymbol("gPlayerParty", o, o + 100)))
+            mon = get_emulator().peek_frame(lambda: parse_pokemon(read_symbol("gPlayerParty", o, o + 100)))
             if mon is None:
                 raise RuntimeError(f"Party Pokemon #{p + 1} was invalid for two frames in a row.")
 
@@ -1470,27 +1470,27 @@ def GetParty() -> list[Pokemon]:
     return party
 
 
-def GetOpponent() -> Pokemon:
+def get_opponent() -> Pokemon:
     """
     Gets the current opponent/encounter from `gEnemyParty`, decodes and returns.
 
     :return: opponent (dict)
     """
-    mon = parse_pokemon(ReadSymbol("gEnemyParty")[:100])
+    mon = parse_pokemon(read_symbol("gEnemyParty")[:100])
 
     # See comment in `GetParty()`
     if mon is None:
-        mon = GetEmulator().PeekFrame(lambda: parse_pokemon(ReadSymbol("gEnemyParty")[:100]))
+        mon = get_emulator().peek_frame(lambda: parse_pokemon(read_symbol("gEnemyParty")[:100]))
         if mon is None:
             raise RuntimeError(f"Opponent Pokemon was invalid for two frames in a row.")
 
     return mon
 
 
-last_opid = b"\x00\x00\x00\x00"  # ReadSymbol('gEnemyParty', size=4)
+last_opid = pack_uint32(0)  # ReadSymbol('gEnemyParty', size=4)
 
 
-def OpponentChanged() -> bool:
+def opponent_changed() -> bool:
     """
     Checks if the current opponent/encounter from `gEnemyParty` has changed since the function was last called.
     Very fast way to check as this only reads the first 4 bytes (PID) and does not decode the Pokémon data.
@@ -1499,7 +1499,7 @@ def OpponentChanged() -> bool:
     """
     try:
         global last_opid
-        opponent_pid = ReadSymbol("gEnemyParty", size=4)
+        opponent_pid = read_symbol("gEnemyParty", size=4)
         if opponent_pid != last_opid and opponent_pid != b"\x00\x00\x00\x00":
             last_opid = opponent_pid
             return True

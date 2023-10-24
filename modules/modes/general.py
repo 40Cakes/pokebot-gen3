@@ -1,8 +1,8 @@
 from enum import Enum
 
-from modules.Gui import GetEmulator
-from modules.Memory import GetTask, GetGameState, GameState
-from modules.Trainer import trainer, RunningStates, TileTransitionStates, AcroBikeStates
+from modules.gui import get_emulator
+from modules.memory import get_task, get_game_state, GameState
+from modules.trainer import trainer, RunningStates, TileTransitionStates, AcroBikeStates
 
 
 class TaskFishing(Enum):
@@ -35,11 +35,11 @@ class ModeSpin:
 
     def step(self):
         while True:
-            match (trainer.GetRunningState(), trainer.GetTileTransitionState()):
+            match (trainer.get_running_state(), trainer.get_tile_transition_state()):
                 case (RunningStates.NOT_MOVING, TileTransitionStates.NOT_MOVING):
-                    GetEmulator().PressButton(self.get_next_direction(trainer.GetFacingDirection()))
+                    get_emulator().press_button(self.get_next_direction(trainer.get_facing_direction()))
                 case (RunningStates.TURN_DIRECTION, TileTransitionStates.CENTERING):
-                    if GetGameState() == GameState.BATTLE:
+                    if get_game_state() == GameState.BATTLE:
                         return
             yield
 
@@ -47,34 +47,34 @@ class ModeSpin:
 class ModeFishing:
     def step(self):
         while True:
-            task_fishing = GetTask("TASK_FISHING")
+            task_fishing = get_task("TASK_FISHING")
             if task_fishing.get("isActive", False):
                 match task_fishing["data"][0]:
                     case TaskFishing.WAIT_FOR_A.value | TaskFishing.END_NO_MON.value:
-                        GetEmulator().PressButton("A")
+                        get_emulator().press_button("A")
                     case TaskFishing.NOT_EVEN_NIBBLE.value:
-                        GetEmulator().PressButton("B")
+                        get_emulator().press_button("B")
                     case TaskFishing.START_ENCOUNTER.value:
-                        GetEmulator().PressButton("A")
-            elif GetGameState() == GameState.BATTLE:
+                        get_emulator().press_button("A")
+            elif get_game_state() == GameState.BATTLE:
                 return
             else:
-                GetEmulator().PressButton("Select")  # TODO assumes player has a rod registered
+                get_emulator().press_button("Select")  # TODO assumes player has a rod registered
             yield
 
 
 class ModeBunnyHop:
     def step(self):
         while True:
-            match (trainer.GetAcroBikeState(), trainer.GetTileTransitionState(), trainer.GetOnBike()):
+            match (trainer.get_acro_bike_state(), trainer.get_tile_transition_state(), trainer.get_on_bike()):
                 case (AcroBikeStates.NORMAL, TileTransitionStates.NOT_MOVING, False):
-                    GetEmulator().PressButton("Select")  # TODO assumes player has the Acro Bike registered
+                    get_emulator().press_button("Select")  # TODO assumes player has the Acro Bike registered
                 case (AcroBikeStates.HOPPING_WHEELIE, TileTransitionStates.CENTERING, True):
-                    if GetGameState() == GameState.BATTLE:
-                        GetEmulator().ReleaseButton("B")
+                    if get_game_state() == GameState.BATTLE:
+                        get_emulator().release_button("B")
                         return
                 case (AcroBikeStates.STANDING_WHEELIE, TileTransitionStates.NOT_MOVING, True):
-                    GetEmulator().HoldButton("B")
+                    get_emulator().hold_button("B")
                 case _:
-                    GetEmulator().PressButton("B")
+                    get_emulator().press_button("B")
             yield

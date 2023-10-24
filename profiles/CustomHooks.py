@@ -3,11 +3,11 @@ import glob
 import time
 import random
 from threading import Thread
-from modules.Config import config
-from modules.Console import console
-from modules.Discord import DiscordMessage
-from modules.Gui import GetROM
-from modules.Pokemon import Pokemon
+from modules.config import config
+from modules.console import console
+from modules.discord import discord_message
+from modules.gui import get_rom
+from modules.pokemon import Pokemon
 
 
 def CustomHooks(hook) -> None:
@@ -26,7 +26,7 @@ def CustomHooks(hook) -> None:
         ### Your custom code goes here ###
 
         # Discord messages
-        from modules.Stats import GetEncounterRate
+        from modules.stats import get_encounter_rate
 
         def IVField() -> str:
             # Formatted IV table
@@ -59,7 +59,7 @@ def CustomHooks(hook) -> None:
 
         def PhaseSummary() -> dict:
             return {
-                "Phase Encounters": f"{stats['totals'].get('phase_encounters', 0):,} ({GetEncounterRate():,}/h)",
+                "Phase Encounters": f"{stats['totals'].get('phase_encounters', 0):,} ({get_encounter_rate():,}/h)",
                 "Phase IV Sum Records": (
                     f":arrow_up: `{stats['totals'].get('phase_highest_iv_sum', 0):,}` IV {stats['totals'].get('phase_highest_iv_sum_pokemon', 'N/A')}\n"
                     f":arrow_down: `{stats['totals'].get('phase_lowest_iv_sum', 0):,}` IV {stats['totals'].get('phase_lowest_iv_sum_pokemon', 'N/A')}"
@@ -91,7 +91,7 @@ def CustomHooks(hook) -> None:
                     "\n❌Skipping catching shiny (on catch block list)!" if pokemon.species.name in block_list else ""
                 )
 
-                DiscordMessage(
+                discord_message(
                     webhook_url=config["discord"]["shiny_pokemon_encounter"].get("webhook_url", None),
                     content=f"Encountered a shiny ✨ {pokemon.species.name} ✨! {block}\n{discord_ping}",
                     embed=True,
@@ -107,7 +107,7 @@ def CustomHooks(hook) -> None:
                     }
                     | PhaseSummary(),
                     embed_thumbnail=f"./sprites/pokemon/shiny/{pokemon.species.name}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {get_rom().game_name}",
                     embed_color="ffd242",
                 )
         except:
@@ -128,13 +128,13 @@ def CustomHooks(hook) -> None:
                         discord_ping = f"📢 <@&{config['discord']['pokemon_encounter_milestones']['ping_id']}>"
                     case "user":
                         discord_ping = f"📢 <@{config['discord']['pokemon_encounter_milestones']['ping_id']}>"
-                DiscordMessage(
+                discord_message(
                     webhook_url=config["discord"]["pokemon_encounter_milestones"].get("webhook_url", None),
                     content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
                     embed_description=f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} {pokemon.species.name} encounters!",
                     embed_thumbnail=f"./sprites/pokemon/normal/{pokemon.species.name}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {get_rom().game_name}",
                     embed_color="50C878",
                 )
         except:
@@ -156,13 +156,13 @@ def CustomHooks(hook) -> None:
                         discord_ping = f"📢 <@&{config['discord']['shiny_pokemon_encounter_milestones']['ping_id']}>"
                     case "user":
                         discord_ping = f"📢 <@{config['discord']['shiny_pokemon_encounter_milestones']['ping_id']}>"
-                DiscordMessage(
+                discord_message(
                     webhook_url=config["discord"]["shiny_pokemon_encounter_milestones"].get("webhook_url", None),
                     content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
                     embed_description=f"{stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,} shiny ✨ {pokemon.species.name} ✨ encounters!",
                     embed_thumbnail=f"./sprites/pokemon/shiny/{pokemon.species.name}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {get_rom().game_name}",
                     embed_color="ffd242",
                 )
         except:
@@ -203,13 +203,13 @@ def CustomHooks(hook) -> None:
                     ]
                 )
 
-                DiscordMessage(
+                discord_message(
                     webhook_url=config["discord"]["total_encounter_milestones"].get("webhook_url", None),
                     content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
                     embed_description=f"{stats['totals'].get('encounters', 0):,} total encounters!",
                     embed_thumbnail=f"./sprites/items/{embed_thumbnail}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {get_rom().game_name}",
                     embed_color="50C878",
                 )
         except:
@@ -239,12 +239,12 @@ def CustomHooks(hook) -> None:
                         discord_ping = f"📢 <@&{config['discord']['phase_summary']['ping_id']}>"
                     case "user":
                         discord_ping = f"📢 <@{config['discord']['phase_summary']['ping_id']}>"
-                DiscordMessage(
+                discord_message(
                     webhook_url=config["discord"]["phase_summary"].get("webhook_url", None),
                     content=f"💀 The current phase has reached {stats['totals'].get('phase_encounters', 0):,} encounters!\n{discord_ping}",
                     embed=True,
                     embed_fields=PhaseSummary(),
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {get_rom().game_name}",
                     embed_color="D70040",
                 )
         except:
@@ -260,7 +260,7 @@ def CustomHooks(hook) -> None:
                         discord_ping = f"📢 <@&{config['discord']['anti_shiny_pokemon_encounter']['ping_id']}>"
                     case "user":
                         discord_ping = f"📢 <@{config['discord']['anti_shiny_pokemon_encounter']['ping_id']}>"
-                DiscordMessage(
+                discord_message(
                     webhook_url=config["discord"]["anti_shiny_pokemon_encounter"].get("webhook_url", None),
                     content=f"Encountered an anti-shiny 💀 {pokemon.species.name} 💀!\n{discord_ping}",
                     embed=True,
@@ -274,7 +274,7 @@ def CustomHooks(hook) -> None:
                     }
                     | PhaseSummary(),
                     embed_thumbnail=f"./sprites/pokemon/anti-shiny/{pokemon.species.name}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {GetROM().game_name}",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {get_rom().game_name}",
                     embed_color="000000",
                 )
         except:
@@ -285,14 +285,14 @@ def CustomHooks(hook) -> None:
 
     try:
         # Post the most recent OBS stream screenshot to Discord
-        # (screenshot is taken in Stats.py before phase resets)
+        # (screenshot is taken in stats.py before phase resets)
         if config["obs"]["discord_webhook_url"] and pokemon.is_shiny:
 
             def OBSDiscordScreenshot():
                 time.sleep(3)  # Give the screenshot some time to save to disk
                 images = glob.glob(f"{config['obs']['replay_dir']}*.png")
                 image = max(images, key=os.path.getctime)
-                DiscordMessage(webhook_url=config["obs"].get("discord_webhook_url", None), image=image)
+                discord_message(webhook_url=config["obs"].get("discord_webhook_url", None), image=image)
 
             # Run in a thread to not hold up other hooks
             Thread(target=OBSDiscordScreenshot).start()
@@ -304,10 +304,10 @@ def CustomHooks(hook) -> None:
         if config["obs"]["replay_buffer"] and pokemon.is_shiny:
 
             def OBSReplayBuffer():
-                from modules.OBS import OBSHotKey
+                from modules.obs import obs_hot_key
 
                 time.sleep(config["obs"].get("replay_buffer_delay", 0))
-                OBSHotKey("OBS_KEY_F12", pressCtrl=True)
+                obs_hot_key("OBS_KEY_F12", pressCtrl=True)
 
             # Run in a thread to not hold up other hooks
             Thread(target=OBSReplayBuffer).start()

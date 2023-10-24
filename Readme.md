@@ -523,6 +523,18 @@ All HTTP responses are in JSON format.
 
 ***
 
+# 🐛 Debugging
+
+The bot supports auto-starting a profile and can also be launched into a 'debug' mode which can aid bot development.
+
+```
+python pokebot.py my-profile          starts the 'my-profile' profile
+python pokebot.py my-profile --debug  starts the 'my-profile' profile in debug mode
+python pokebot.py --debug             starts the profile selection screen in debug mode
+```
+
+***
+
 # ❤ Attributions
 
 - [mGBA](https://github.com/mgba-emu/mgba)

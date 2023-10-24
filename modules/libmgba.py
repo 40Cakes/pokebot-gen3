@@ -16,20 +16,20 @@ import mgba.log
 import mgba.png
 import mgba.vfs
 from mgba import ffi, lib, libmgba_version_string
-from modules.Console import console
-from modules.Profiles import Profile
+from modules.console import console
+from modules.profiles import Profile
 
 input_map = {
-    'A': 0x1,
-    'B': 0x2,
-    'Select': 0x4,
-    'Start': 0x8,
-    'Right': 0x10,
-    'Left': 0x20,
-    'Up': 0x40,
-    'Down': 0x80,
-    'R': 0x100,
-    'L': 0x200
+    "A": 0x1,
+    "B": 0x2,
+    "Select": 0x4,
+    "Start": 0x8,
+    "Right": 0x10,
+    "Left": 0x20,
+    "Up": 0x40,
+    "Down": 0x80,
+    "R": 0x100,
+    "L": 0x200,
 }
 
 
@@ -38,6 +38,7 @@ class PerformanceTracker:
     This is a little helper utility used for measuring the FPS rate and allowing
     the emulator to calculate how long it needs to wait to hit a targeted FPS rate.
     """
+
     last_render_time: int = 0
     last_frame_time: int = 0
 
@@ -49,13 +50,13 @@ class PerformanceTracker:
     time_spent_emulating: int = 0
     time_spent_total: int = 0
 
-    def TrackRender(self) -> None:
+    def track_render(self) -> None:
         self.last_render_time = time.time_ns()
 
-    def TimeSinceLastRender(self) -> int:
+    def time_since_last_render(self) -> int:
         return time.time_ns() - self.last_render_time
 
-    def TrackFrame(self) -> None:
+    def track_frame(self) -> None:
         now = time.time_ns()
         self.time_spent_total += now - self.last_frame_time
         self.last_frame_time = now
@@ -74,7 +75,7 @@ class PerformanceTracker:
 
         self.frame_counter += 1
 
-    def TimeSinceLastFrame(self) -> int:
+    def time_since_last_frame(self) -> int:
         return time.time_ns() - self.last_frame_time
 
 
@@ -94,7 +95,7 @@ class LibmgbaEmulator:
     _audio_stream: Union[sounddevice.RawOutputStream, None] = None
 
     def __init__(self, profile: Profile, on_frame_callback: callable):
-        console.print(f'Running [cyan]{libmgba_version_string()}[/]')
+        console.print(f"Running [cyan]{libmgba_version_string()}[/]")
 
         # Prevents relentless spamming to stdout by libmgba.
         mgba.log.silence()
@@ -102,16 +103,16 @@ class LibmgbaEmulator:
         self._profile = profile
         self._core = mgba.core.load_path(str(profile.rom.file))
         if not self._core:
-            raise RuntimeError(f'Could not load ROM file {str(profile.rom.file)}')
+            raise RuntimeError(f"Could not load ROM file {str(profile.rom.file)}")
 
         # libmgba needs a save file to be loaded, or otherwise it will not save anything
         # to disk if the player saves the game. This can be an empty file.
-        self._current_save_path = profile.path / 'current_save.sav'
+        self._current_save_path = profile.path / "current_save.sav"
         if not self._current_save_path.exists():
             # Create an empty file if a save game does not exist yet.
-            with open(self._current_save_path, 'wb'):
+            with open(self._current_save_path, "wb"):
                 pass
-        self._save = mgba.vfs.open_path(str(self._current_save_path), 'r+')
+        self._save = mgba.vfs.open_path(str(self._current_save_path), "r+")
         self._core.load_save(self._save)
 
         self._screen = mgba.image.Image(*self._core.desired_video_dimensions())
@@ -120,26 +121,26 @@ class LibmgbaEmulator:
 
         # Whenever the emulator closes, it stores the current state in `current_state.ss1`.
         # Load this file if it exists, to continue exactly where we left off.
-        self._current_state_path = profile.path / 'current_state.ss1'
+        self._current_state_path = profile.path / "current_state.ss1"
         if self._current_state_path.exists():
-            with open(self._current_state_path, 'rb') as state_file:
-                self.LoadSaveState(state_file.read())
+            with open(self._current_state_path, "rb") as state_file:
+                self.load_save_state(state_file.read())
 
         self._memory: mgba.gba.GBAMemory = self._core.memory
         self._on_frame_callback = on_frame_callback
         self._performance_tracker = PerformanceTracker()
 
         self._gba_audio = self._core.get_audio_channels()
-        self._ResetAudio()
+        self._reset_audio()
 
         self._prev_pressed_inputs: int = 0
         self._pressed_inputs: int = 0
         self._held_inputs: int = 0
 
-        atexit.register(self.Shutdown)
-        self._core._callbacks.savedata_updated.append(self.BackupCurrentSaveGame)
+        atexit.register(self.shutdown)
+        self._core._callbacks.savedata_updated.append(self.backup_current_save_game)
 
-    def _ResetAudio(self) -> None:
+    def _reset_audio(self) -> None:
         """
         This is called at the start of the emulation, as well as when there has been
         an error during playback. The latter can happen if the audio device suddenly
@@ -154,56 +155,57 @@ class LibmgbaEmulator:
             del self._audio_stream
 
         try:
-            default_sound_device = sounddevice.query_devices(device=sounddevice.default.device, kind='output')
-            sample_rate = int(default_sound_device['default_samplerate'])
+            default_sound_device = sounddevice.query_devices(device=sounddevice.default.device, kind="output")
+            sample_rate = int(default_sound_device["default_samplerate"])
 
-            if default_sound_device['max_output_channels'] < 2:
-                raise sounddevice.PortAudioError('Your audio device does not support stereo. '
-                                                 'What on earth are you using, a yoghurt pot telephone?!')
+            if default_sound_device["max_output_channels"] < 2:
+                raise sounddevice.PortAudioError(
+                    "Your audio device does not support stereo. What on earth are you using, a yoghurt pot telephone?!"
+                )
 
             self._gba_audio.set_rate(sample_rate)
-            self._audio_stream = sounddevice.RawOutputStream(channels=2, samplerate=sample_rate, dtype='int16')
+            self._audio_stream = sounddevice.RawOutputStream(channels=2, samplerate=sample_rate, dtype="int16")
             if self._throttled:
                 self._audio_stream.start()
         except sounddevice.PortAudioError as error:
-            console.print(f'[red]{str(error)}[/]')
-            console.print('[red bold]Failed to initialise sound![/] [red]Sound will be disabled.[/]')
+            console.print(f"[red]{str(error)}[/]")
+            console.print("[red bold]Failed to initialise sound![/] [red]Sound will be disabled.[/]")
             self._audio_stream = None
 
-    def Reset(self) -> None:
+    def reset(self) -> None:
         self._core.reset()
 
-    def CreateSaveState(self, suffix: str = '') -> None:
-        states_directory = self._profile.path / 'states'
+    def create_save_state(self, suffix: str = "") -> None:
+        states_directory = self._profile.path / "states"
         if not states_directory.exists():
             states_directory.mkdir()
 
-        screenshot = self.GetScreenshot()
+        screenshot = self.get_screenshot()
         extra_chunks = PIL.PngImagePlugin.PngInfo()
-        extra_chunks.add(b'gbAs', zlib.compress(self.GetSaveState()))
+        extra_chunks.add(b"gbAs", zlib.compress(self.get_save_state()))
 
         # First, we store the current state as a new file inside the `states/` directory -- so that in case
         # anything goes wrong here (full disk or whatever) we catch it before overriding the current state.
         # This also serves as a backup directory -- in case the bot does something dumb, the user can just
         # restore one of the states from this directory.
-        filename = time.strftime('%Y-%m-%d_%H-%M-%S')
+        filename = time.strftime("%Y-%m-%d_%H-%M-%S")
         if suffix:
-            filename += f'_{suffix}'
-        filename += '.ss1'
+            filename += f"_{suffix}"
+        filename += ".ss1"
         backup_path = states_directory / filename
-        with open(backup_path, 'wb') as state_file:
-            screenshot.save(state_file, format='PNG', pnginfo=extra_chunks)
+        with open(backup_path, "wb") as state_file:
+            screenshot.save(state_file, format="PNG", pnginfo=extra_chunks)
 
-        console.print(f'Save state {backup_path} created!')
+        console.print(f"Save state {backup_path} created!")
 
         # Once that succeeds, override `current_state.ss1` (which is what the bot loads on startup.)
         if backup_path.stat().st_size > 0:
-            with open(self._current_state_path, 'wb') as state_file:
-                screenshot.save(state_file, format='PNG', pnginfo=extra_chunks)
+            with open(self._current_state_path, "wb") as state_file:
+                screenshot.save(state_file, format="PNG", pnginfo=extra_chunks)
 
-        console.print(f'Updated `current_state.ss1`!')
+        console.print(f"Updated `current_state.ss1`!")
 
-    def Shutdown(self) -> None:
+    def shutdown(self) -> None:
         """
         This method is called whenever the bot shuts down, either because and error occurred or because
         the user initiated the exit (by pressing Escape or closing the window.)
@@ -211,11 +213,11 @@ class LibmgbaEmulator:
         It's saving the current emulator state into a save state file so that the next time the bot starts,
         it can just continue where it has been so rudely interrupted.
         """
-        console.print('[yellow]Shutting down...[/]')
+        console.print("[yellow]Shutting down...[/]")
 
-        self.CreateSaveState()
+        self.create_save_state()
 
-    def BackupCurrentSaveGame(self) -> None:
+    def backup_current_save_game(self) -> None:
         """
         This is called every time the emulator writes out the save game (which happens when the player
         uses the 'Save' function in-game.)
@@ -223,32 +225,32 @@ class LibmgbaEmulator:
         For backup purposes, we keep a copy of every save ever created and put it inside the profile's
         `saves/` directory.
         """
-        with open(self._current_save_path, 'rb') as save_file:
-            saves_directory = self._profile.path / 'saves'
+        with open(self._current_save_path, "rb") as save_file:
+            saves_directory = self._profile.path / "saves"
             if not saves_directory.exists():
                 saves_directory.mkdir()
-            with open(saves_directory / time.strftime('%Y-%m-%d_%H-%M-%S.sav'), 'wb') as backup_file:
+            with open(saves_directory / time.strftime("%Y-%m-%d_%H-%M-%S.sav"), "wb") as backup_file:
                 backup_file.write(save_file.read())
 
-    def GetFrameCount(self) -> int:
+    def get_frame_count(self) -> int:
         """
         :return: The number of frames since the start of this emulation session
         """
         return self._core.frame_counter
 
-    def GetImageDimensions(self) -> tuple[int, int]:
+    def get_image_dimensions(self) -> tuple[int, int]:
         """
         :return: The screen resolution (width, height) of the GBA
         """
         return self._core.desired_video_dimensions()
 
-    def GetCurrentFPS(self) -> int:
+    def get_current_fps(self) -> int:
         """
         :return: Number of frames emulated in the last second
         """
         return self._performance_tracker.fps_history[-1]
 
-    def GetCurrentTimeSpentInBotFraction(self) -> float:
+    def get_current_time_spent_in_bot_fraction(self) -> float:
         """
         This indicates what fraction of time per frame has been spent in bot processing code (i.e. outside of this
         class) compared
@@ -265,10 +267,10 @@ class LibmgbaEmulator:
         """
         return self._performance_tracker.time_spent_in_bot_fraction_history[-1]
 
-    def GetVideoEnabled(self) -> bool:
+    def get_video_enabled(self) -> bool:
         return self._video_enabled
 
-    def SetVideoEnabled(self, video_enabled: bool) -> None:
+    def set_video_enabled(self, video_enabled: bool) -> None:
         """
         Enable or disable video.
 
@@ -292,19 +294,19 @@ class LibmgbaEmulator:
         self._core._native.video.renderer.disableWIN[1] = not video_enabled
         self._core._native.video.renderer.disableOBJWIN = not video_enabled
 
-    def GetAudioEnabled(self) -> bool:
+    def get_audio_enabled(self) -> bool:
         return self._audio_enabled
 
-    def SetAudioEnabled(self, audio_enabled) -> None:
+    def set_audio_enabled(self, audio_enabled) -> None:
         self._audio_enabled = audio_enabled
 
-    def GetThrottle(self) -> bool:
+    def get_throttle(self) -> bool:
         """
         :return: Whether the emulator currently runs at 1× speed (True) or unthrottled (False)
         """
         return self._throttled
 
-    def SetThrottle(self, is_throttled: bool) -> None:
+    def set_throttle(self, is_throttled: bool) -> None:
         """
         :param is_throttled: True for 1× speed, False for unthrottled
         """
@@ -317,23 +319,23 @@ class LibmgbaEmulator:
             elif not is_throttled and was_throttled:
                 self._audio_stream.stop()
 
-    def GetSpeedFactor(self) -> float:
+    def get_speed_factor(self) -> float:
         return self._speed_factor
 
-    def SetSpeedFactor(self, speed_factor: float) -> None:
+    def set_speed_factor(self, speed_factor: float) -> None:
         self._speed_factor = speed_factor
 
         if self._audio_stream is not None:
             self._gba_audio.set_rate(self._audio_stream.samplerate // speed_factor)
 
-    def GetSaveState(self) -> bytes:
+    def get_save_state(self) -> bytes:
         """
         Returns the current serialised emulator state (i.e. a save state in mGBA parlance)
         :return: The raw save state data
         """
         return self._core.save_state()
 
-    def LoadSaveState(self, state: bytes) -> None:
+    def load_save_state(self, state: bytes) -> None:
         """
         Loads a serialised emulator state (i.e. a save state in mGBA parlance)
         :param state: The raw save state data
@@ -343,7 +345,7 @@ class LibmgbaEmulator:
         vfile.seek(0, whence=0)
         self._core.load_state(vfile)
 
-    def ReadBytes(self, address: int, length: int = 1) -> bytes:
+    def read_bytes(self, address: int, length: int = 1) -> bytes:
         """
         Reads a block of memory from an arbitrary address on the system
         bus. That means that you need to specify the full memory address
@@ -362,21 +364,21 @@ class LibmgbaEmulator:
         if bank == 0x2:
             offset = address & 0x3FFFF
             if offset + length > 0x3FFFF:
-                raise RuntimeError('Illegal range: EWRAM only extends from 0x02000000 to 0x0203FFFF')
-            ffi.memmove(result, ffi.cast('char*', self._core._native.memory.wram) + offset, length)
+                raise RuntimeError("Illegal range: EWRAM only extends from 0x02000000 to 0x0203FFFF")
+            ffi.memmove(result, ffi.cast("char*", self._core._native.memory.wram) + offset, length)
         elif bank == 0x3:
             offset = address & 0x7FFF
             if offset + length > 0x7FFF:
-                raise RuntimeError('Illegal range: IWRAM only extends from 0x03000000 to 0x03007FFF')
-            ffi.memmove(result, ffi.cast('char*', self._core._native.memory.iwram) + offset, length)
+                raise RuntimeError("Illegal range: IWRAM only extends from 0x03000000 to 0x03007FFF")
+            ffi.memmove(result, ffi.cast("char*", self._core._native.memory.iwram) + offset, length)
         elif bank >= 0x8:
             offset = address - 0x08000000
-            ffi.memmove(result, ffi.cast('char*', self._core._native.memory.rom) + offset, length)
+            ffi.memmove(result, ffi.cast("char*", self._core._native.memory.rom) + offset, length)
         else:
-            raise RuntimeError(f'Invalid memory address for reading: {hex(address)}')
+            raise RuntimeError(f"Invalid memory address for reading: {hex(address)}")
         return result
 
-    def WriteBytes(self, address: int, data: bytes) -> None:
+    def write_bytes(self, address: int, data: bytes) -> None:
         """
         Writes to an arbitrary address on the system bus.
 
@@ -391,53 +393,53 @@ class LibmgbaEmulator:
         if bank == 0x2:
             offset = address & 0x3FFFF
             if offset + length > 0x3FFFF:
-                raise RuntimeError('Illegal range: EWRAM only extends from 0x02000000 to 0x0203FFFF')
-            ffi.memmove(ffi.cast('char*', self._core._native.memory.wram) + offset, data, length)
+                raise RuntimeError("Illegal range: EWRAM only extends from 0x02000000 to 0x0203FFFF")
+            ffi.memmove(ffi.cast("char*", self._core._native.memory.wram) + offset, data, length)
         elif bank == 0x3:
             offset = address & 0x7FFF
             if offset + length > 0x7FFF:
-                raise RuntimeError('Illegal range: IWRAM only extends from 0x03000000 to 0x03007FFF')
-            ffi.memmove(ffi.cast('char*', self._core._native.memory.iwram) + offset, data, length)
+                raise RuntimeError("Illegal range: IWRAM only extends from 0x03000000 to 0x03007FFF")
+            ffi.memmove(ffi.cast("char*", self._core._native.memory.iwram) + offset, data, length)
         else:
-            raise RuntimeError(f'Invalid memory address for writing: {hex(address)}')
+            raise RuntimeError(f"Invalid memory address for writing: {hex(address)}")
 
-    def GetInputs(self) -> int:
+    def get_inputs(self) -> int:
         """
         :return: A bitfield with all the buttons that are currently being pressed
         """
         return self._core._core.getKeys(self._core._core)
 
-    def SetInputs(self, inputs: int):
+    def set_inputs(self, inputs: int):
         """
         :param inputs: A bitfield with all the buttons that should now be pressed
         """
         self._core._core.setKeys(self._core._core, inputs)
 
-    def PressButton(self, button: str = None, inputs: int = 0):
+    def press_button(self, button: str = None, inputs: int = 0):
         """
         :param button: A GBA button to be pressed, if pressed on previous frame it will be released
         :param inputs: Alternate raw input bitfield
         """
         self._pressed_inputs |= (input_map[button] ^ self._prev_pressed_inputs) if not inputs else inputs
 
-    def HoldButton(self, button: str = None, inputs: int = 0):
+    def hold_button(self, button: str = None, inputs: int = 0):
         """
         :param button: A GBA button to be held, will be held until ReleaseInput called
         :param inputs: Alternate raw input bitfield
         """
         self._held_inputs |= input_map[button] if not inputs else inputs
 
-    def ReleaseButton(self, button: str = None, inputs: int = 0):
+    def release_button(self, button: str = None, inputs: int = 0):
         """
         :param button: A GBA button to be release if held
         :param inputs: Alternate raw input bitfield
         """
         self._held_inputs ^= input_map[button] if not inputs else inputs
 
-    def GetCurrentScreenImage(self) -> PIL.Image.Image:
+    def get_current_screen_image(self) -> PIL.Image.Image:
         return self._screen.to_pil()
 
-    def GetScreenshot(self) -> PIL.Image.Image:
+    def get_screenshot(self) -> PIL.Image.Image:
         current_state = None
         if not self._video_enabled:
             # If video has been disabled, it's not possible to receive the current screen content
@@ -447,34 +449,34 @@ class LibmgbaEmulator:
             # we take a save state before and then restore it afterwards.
             # So the screenshot will be 1 frame late, but the emulation will resume from the same
             # state.
-            self.SetVideoEnabled(True)
-            current_state = self.GetSaveState()
+            self.set_video_enabled(True)
+            current_state = self.get_save_state()
             self._core.run_frame()
 
-        screenshot = self.GetCurrentScreenImage().convert('RGB')
+        screenshot = self.get_current_screen_image().convert("RGB")
 
         if current_state is not None:
-            self.LoadSaveState(current_state)
-            self.SetVideoEnabled(False)
+            self.load_save_state(current_state)
+            self.set_video_enabled(False)
 
         return screenshot
 
-    def TakeScreenshot(self, suffix: str = '') -> None:
+    def take_screenshot(self, suffix: str = "") -> None:
         """
         Saves the currently displayed image as a screenshot inside the profile's `screenshots/`
         directory.
         """
-        png_directory = self._profile.path / 'screenshots'
+        png_directory = self._profile.path / "screenshots"
         if not png_directory.exists():
             png_directory.mkdir()
-        current_timestamp = time.strftime('%Y-%m-%d_%H-%M-%S')
-        if suffix != '':
-            suffix = f'_{suffix}'
-        png_path = png_directory / f'{current_timestamp}_{str(self.GetFrameCount())}{suffix}.png'
-        with open(png_path, 'wb') as file:
-            self.GetScreenshot().save(file, format='PNG')
+        current_timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
+        if suffix != "":
+            suffix = f"_{suffix}"
+        png_path = png_directory / f"{current_timestamp}_{str(self.get_frame_count())}{suffix}.png"
+        with open(png_path, "wb") as file:
+            self.get_screenshot().save(file, format="PNG")
 
-    def PeekFrame(self, callback: callable, frames_to_advance: int = 1) -> any:
+    def peek_frame(self, callback: callable, frames_to_advance: int = 1) -> any:
         """
         Runs the emulation for a number of frames and then runs {callback()}, after which it restores
         the original emulator state.
@@ -486,18 +488,18 @@ class LibmgbaEmulator:
         :param frames_to_advance: Optional number of frames to advance (defaults to 1)
         :return: The return value of the callback function
         """
-        original_emulator_state = self.GetSaveState()
+        original_emulator_state = self.get_save_state()
         for i in range(frames_to_advance):
             self._core.run_frame()
         result = callback()
-        self.LoadSaveState(original_emulator_state)
+        self.load_save_state(original_emulator_state)
         return result
 
-    def RunSingleFrame(self) -> None:
+    def run_single_frame(self) -> None:
         """
         Runs the emulation for a single frame, and then waits if necessary to hit the target FPS rate.
         """
-        self.SetInputs(self._pressed_inputs | self._held_inputs)
+        self.set_inputs(self._pressed_inputs | self._held_inputs)
 
         begin = time.time_ns()
         self._core.run_frame()
@@ -532,13 +534,13 @@ class LibmgbaEmulator:
                         self._gba_audio.clear()
                         self._audio_stream.write(audio_data)
                 except sounddevice.PortAudioError as error:
-                    console.print(f'[bold red]Error while playing audio:[/] [red]{str(error)}[/]')
-                    self._ResetAudio()
+                    console.print(f"[bold red]Error while playing audio:[/] [red]{str(error)}[/]")
+                    self._reset_audio()
             else:
                 target_frame_duration = (1 / 60) / self._speed_factor
-                time_since_last_frame = self._performance_tracker.TimeSinceLastFrame() / 1_000_000_000
+                time_since_last_frame = self._performance_tracker.time_since_last_frame() / 1_000_000_000
                 if time_since_last_frame < target_frame_duration:
                     time.sleep(target_frame_duration - time_since_last_frame)
 
         self._performance_tracker.time_spent_total -= time.time_ns() - begin
-        self._performance_tracker.TrackFrame()
+        self._performance_tracker.track_frame()

@@ -98,7 +98,7 @@ class InvalidROMError(Exception):
     pass
 
 
-def ListAvailableRoms() -> list[ROM]:
+def list_available_roms() -> list[ROM]:
     """
     This scans all files in the `roms/` directory and returns any entry that might
     be a valid GBA ROM, along with some meta data that could be extracted from the
@@ -116,14 +116,14 @@ def ListAvailableRoms() -> list[ROM]:
     for file in ROMS_DIRECTORY.iterdir():
         if file.is_file():
             try:
-                roms.append(LoadROMData(file))
+                roms.append(load_rom_data(file))
             except InvalidROMError:
                 pass
 
     return roms
 
 
-def LoadROMData(file: Path) -> ROM:
+def load_rom_data(file: Path) -> ROM:
     # GBA cartridge headers are 0xC0 bytes long, so any files smaller than that cannot be a ROM
     if file.stat().st_size < 0xC0:
         raise InvalidROMError("This does not seem to be a valid ROM (file size too small.)")

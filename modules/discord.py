@@ -1,12 +1,12 @@
 import time
 from pypresence import Presence
 from discord_webhook import DiscordWebhook, DiscordEmbed
-from modules.Console import console
-from modules.Config import config
-from modules.Gui import GetROM
+from modules.console import console
+from modules.config import config
+from modules.gui import get_rom
 
 
-def DiscordMessage(
+def discord_message(
     webhook_url: str = None,
     content: str = None,
     image: str = None,
@@ -51,9 +51,9 @@ def DiscordMessage(
         console.print_exception(show_locals=True)
 
 
-def DiscordRichPresence() -> None:
+def discord_rich_presence() -> None:
     try:
-        from modules.Stats import GetEncounterRate, encounter_log, stats
+        from modules.stats import get_encounter_rate, encounter_log, stats
         from asyncio import new_event_loop as new_loop, set_event_loop as set_loop
 
         set_loop(new_loop())
@@ -61,7 +61,7 @@ def DiscordRichPresence() -> None:
         RPC.connect()
         start = time.time()
 
-        match GetROM().game_title:
+        match get_rom().game_title:
             case "POKEMON RUBY":
                 large_image = "groudon"
             case "POKEMON SAPP":
@@ -77,8 +77,11 @@ def DiscordRichPresence() -> None:
             try:
                 location = encounter_log[-1]["pokemon"]["metLocation"] if len(encounter_log) > 0 else "N/A"
                 RPC.update(
-                    state=f"{location} | {GetROM().game_name}",
-                    details=f'{stats["totals"].get("encounters", 0):,} ({stats["totals"].get("shiny_encounters", 0):,}✨) | {GetEncounterRate():,}/h',
+                    state=f"{location} | {get_rom().game_name}",
+                    details=(
+                        f'{stats["totals"].get("encounters", 0):,} ({stats["totals"].get("shiny_encounters", 0):,}✨) |'
+                        f" {get_encounter_rate():,}/h"
+                    ),
                     large_image=large_image,
                     start=start,
                     buttons=[{"label": "⏬ Download PokéBot", "url": "https://github.com/40Cakes/pokebot-gen3"}],
