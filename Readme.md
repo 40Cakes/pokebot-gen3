@@ -1,7 +1,7 @@
 # PokéBot Gen3 (libmgba)
 [![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://www.python.org/) [![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/UtxR3cazUa) [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/channel/UCl5dLxULvf6ynUiqRSchrzA) [![Twitter](https://img.shields.io/badge/Twitter-%231DA1F2.svg?style=for-the-badge&logo=Twitter&logoColor=white)](https://twitter.com/40_Cakes)
 
-**PokéBot Gen3 for mGBA** is a Python script, written to automatically shiny hunt in Pokémon Ruby, Sapphire, Emerald, FireRed and LeafGreen.
+**PokéBot Gen3 (libmgba)** is a bot, written in Python that automatically shiny hunts in Pokémon Ruby, Sapphire, Emerald, FireRed and LeafGreen.
 
 Initially created to complete a Prof. Oak and Living ✨Shiny✨ Dex Challenge in Pokémon Emerald, a 🔴24/7 livestream of the challenge can be found ongoing [here](https://www.youtube.com/watch?v=W6OOnrx8g58).
 
@@ -50,7 +50,7 @@ Alternatively, if you'd like to be able to easily pull the latest updates withou
 - Any time there's a new update, you can pull the latest changes by clicking **Fetch origin**, then **Pull origin**
 
 ### Requirements
-- [Python 3.11](https://www.python.org/downloads/release/python-3110/)
+- [Python 3.11](https://www.python.org/downloads/release/python-3110/) (**64-bit**)
 - Double click `requirements.py` or run `python requirements.py` in a terminal to install required Python modules and download [libmgba](https://github.com/hanzi/libmgba-py) automatically
   - **Linux** only: Install the following packages with `apt` or appropriate package manager: `sudo apt install python3-tk libmgba0.10 portaudio19-dev`
 
