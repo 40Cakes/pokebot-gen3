@@ -32,6 +32,15 @@ def CustomCatchFilters(pokemon: Pokemon) -> bool:
 
         # Any 1-time encounter Pokémon (starters/legendaries/gift Pokémon) in this exceptions list will not be checked
         exceptions = [
+            "Bulbasaur",
+            "Charmander",
+            "Squirtle",
+            "Chikorita",
+            "Cyndaquil",
+            "Totodile",
+            "Treecko",
+            "Torchic",
+            "Mudkip",
             "Kyogre",
             "Groudon",
             "Rayquaza",
@@ -74,7 +83,7 @@ def CustomCatchFilters(pokemon: Pokemon) -> bool:
                     pass  # ❌ disabled
 
             # Catch perfect IV Pokémon
-            if pokemon.ivs.sum() == 186:
+            if pokemon.ivs.sum() == (6 * 31):
                 return True  # ✅ enabled
 
             # Catch zero IV Pokémon
