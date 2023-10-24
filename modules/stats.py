@@ -20,8 +20,8 @@ from modules.memory import get_game_state, GameState
 from modules.pokemon import Pokemon
 from modules.profiles import Profile
 
-CustomCatchFilters = None
-CustomHooks = None
+custom_catch_filters = None
+custom_hooks = None
 block_list: list = []
 session_encounters: int = 0
 session_pokemon: list = []
@@ -36,7 +36,7 @@ files = None
 
 
 def init_stats(profile: Profile):
-    global CustomCatchFilters, CustomHooks, stats, encounter_log, shiny_log, stats_dir, files
+    global custom_catch_filters, custom_hooks, stats, encounter_log, shiny_log, stats_dir, files
 
     config_dir_path = profile.path / "profiles"
     stats_dir_path = profile.path / "stats"
@@ -47,17 +47,17 @@ def init_stats(profile: Profile):
     files = {"shiny_log": str(stats_dir_path / "shiny_log.json"), "totals": str(stats_dir_path / "totals.json")}
 
     try:
-        if (config_dir_path / "CustomCatchFilters.py").is_file():
-            CustomCatchFilters = importlib.import_module(
-                ".CustomCatchFilters", f"profiles.{profile.path.name}.config"
-            ).CustomCatchFilters
+        if (config_dir_path / "customcatchfilters.py").is_file():
+            custom_catch_filters = importlib.import_module(
+                ".custom_catch_filters", f"profiles.{profile.path.name}.config"
+            ).customcatchfilters
         else:
-            from profiles.CustomCatchFilters import CustomCatchFilters
+            from profiles.customcatchfilters import custom_catch_filters
 
-        if (config_dir_path / "CustomHooks.py").is_file():
-            CustomHooks = importlib.import_module(".CustomHooks", f"profiles.{profile.path.name}.config").CustomHooks
+        if (config_dir_path / "customhooks.py").is_file():
+            custom_hooks = importlib.import_module(".custom_hooks", f"profiles.{profile.path.name}.config").customhooks
         else:
-            from profiles.CustomHooks import CustomHooks
+            from profiles.customhooks import custom_hooks
 
         f_stats = read_file(files["totals"])
         stats = json.loads(f_stats) if f_stats else None
@@ -551,9 +551,9 @@ def log_encounter(pokemon: Pokemon, block_list: list) -> None:
                 get_emulator().run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
             obs_hot_key("OBS_KEY_F11", pressCtrl=True)
 
-        # Run custom code in CustomHooks in a thread
+        # Run custom code in custom_hooks in a thread
         hook = (Pokemon(pokemon.data), copy.deepcopy(stats), copy.deepcopy(block_list))
-        Thread(target=CustomHooks, args=(hook,)).start()
+        Thread(target=custom_hooks, args=(hook,)).start()
 
         if pokemon.is_shiny:
             # Total longest phase
@@ -625,7 +625,7 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
     set_message(f"Encountered a {pokemon.species.name} with a shiny value of {pokemon.shiny_value:,}!")
 
     # TODO temporary until auto-catch is ready
-    custom_found = CustomCatchFilters(pokemon)
+    custom_found = custom_catch_filters(pokemon)
     if pokemon.is_shiny or custom_found:
         if pokemon.is_shiny:
             state_tag = "shiny"

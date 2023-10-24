@@ -10,7 +10,7 @@ from modules.gui import get_rom
 from modules.pokemon import Pokemon
 
 
-def CustomHooks(hook) -> None:
+def custom_hooks(hook) -> None:
     """
     This function is called every time an encounter is logged, but before phase stats are reset (if shiny)
     this file is useful for custom webhooks or logging to external databases if you understand Python
