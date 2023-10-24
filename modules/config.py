@@ -4,7 +4,7 @@ from pathlib import Path
 from jsonschema import validate
 from ruamel.yaml import YAML
 
-from modules.Console import console
+from modules.console import console
 
 yaml = YAML()
 
@@ -307,7 +307,7 @@ config = {"general": {}, "logging": {}, "discord": {}, "obs": {}, "cheats": {}}
 config_dir_stack: list[Path] = []
 
 
-def LoadConfig(file_name: str, schema: str) -> dict:
+def load_config(file_name: str, schema: str) -> dict:
     """
     Looks for and loads a single config file and returns its parsed contents.
 
@@ -321,7 +321,7 @@ def LoadConfig(file_name: str, schema: str) -> dict:
     for config_dir in config_dir_stack:
         file_path = config_dir / file_name
         if file_path.is_file():
-            result = LoadConfigFile(file_path, schema)
+            result = load_config_file(file_path, schema)
 
     if result is None:
         console.print(f"[bold red]Could not find any config file named {file_name}.[/]")
@@ -330,7 +330,7 @@ def LoadConfig(file_name: str, schema: str) -> dict:
     return result
 
 
-def LoadConfigFile(file_path: Path, schema: str) -> dict:
+def load_config_file(file_path: Path, schema: str) -> dict:
     """
     Loads and validates a single config file. This requires an exact path and therefore will not
     fall back to the global config directory if the file could not be found.
@@ -352,7 +352,7 @@ def LoadConfigFile(file_path: Path, schema: str) -> dict:
         sys.exit(1)
 
 
-def LoadConfigFromDirectory(path: Path, allow_missing_files=False) -> None:
+def load_config_from_directory(path: Path, allow_missing_files=False) -> None:
     """
     Loads all the 'default' configuration files into the `config` variable that can be accessed by other modules.
 
@@ -369,7 +369,7 @@ def LoadConfigFromDirectory(path: Path, allow_missing_files=False) -> None:
     for key in config:
         file_path = path / (key + ".yml")
         if file_path.is_file():
-            config[key] = LoadConfigFile(file_path, schemas[key])
+            config[key] = load_config_file(file_path, schemas[key])
         elif not allow_missing_files:
             console.print(f"[bold red]Expected a config file {str(file_path)} could not be found.[/]")
             sys.exit(1)
@@ -378,7 +378,7 @@ def LoadConfigFromDirectory(path: Path, allow_missing_files=False) -> None:
 previous_bot_mode: str = ""
 
 
-def ToggleManualMode() -> None:
+def toggle_manual_mode() -> None:
     """
     Toggles between manual mode and the bot mode configured in `general.yml`.
     If the configured bot mode is already `manual`, this has no effect.
@@ -393,13 +393,13 @@ def ToggleManualMode() -> None:
         config["general"]["bot_mode"] = "manual"
 
 
-def SetBotMode(new_bot_mode) -> None:
+def set_bot_mode(new_bot_mode) -> None:
     global previous_bot_mode
     config["general"]["bot_mode"] = new_bot_mode
     previous_bot_mode = ""
 
 
-def ForceManualMode() -> None:
+def force_manual_mode() -> None:
     """
     Ensures that the bot is running in manual mode, to give control back to
     the user. If the bot is already in manual mode, this has no effect.

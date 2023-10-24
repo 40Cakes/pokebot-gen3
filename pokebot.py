@@ -27,46 +27,46 @@ def on_exit() -> None:
 
 atexit.register(on_exit)
 
-from modules.Config import config, LoadConfigFromDirectory, ForceManualMode
-from modules.Console import console
-from modules.Gui import PokebotGui, GetEmulator
-from modules.Memory import GetGameState, GameState
-from modules.Pokemon import OpponentChanged, GetOpponent
-from modules.Profiles import Profile, ProfileDirectoryExists, LoadProfileByName
-from modules.Stats import InitStats, EncounterPokemon
-from modules.Temp import temp_RunFromBattle
+from modules.config import config, load_config_from_directory, force_manual_mode
+from modules.console import console
+from modules.gui import PokebotGui, get_emulator
+from modules.memory import get_game_state, GameState
+from modules.pokemon import opponent_changed, get_opponent
+from modules.profiles import Profile, profile_directory_exists, load_profile_by_name
+from modules.stats import init_stats, encounter_pokemon
+from modules.temp import temp_run_from_battle
 from version import pokebot_name, pokebot_version
 
 
-def MainLoop(profile: Profile) -> None:
+def main_loop(profile: Profile) -> None:
     """
     This function is run after the user has selected a profile and the emulator has been started.
     :param profile: The profile selected by the user
     """
     mode = None
-    LoadConfigFromDirectory(profile.path, allow_missing_files=True)
-    InitStats(profile)
+    load_config_from_directory(profile.path, allow_missing_files=True)
+    init_stats(profile)
 
     try:
         if config["discord"]["rich_presence"]:
-            from modules.Discord import DiscordRichPresence
+            from modules.discord import discord_rich_presence
 
-            Thread(target=DiscordRichPresence).start()
+            Thread(target=discord_rich_presence).start()
 
         if config["obs"]["http_server"]["enable"]:
-            from modules.WebServer import WebServer
+            from modules.http import http_server
 
-            Thread(target=WebServer).start()
+            Thread(target=http_server).start()
     except:
         console.print_exception(show_locals=True)
 
     while True:
         try:
-            if not mode and GetGameState() == GameState.BATTLE and config["general"]["bot_mode"] != "starters":
-                if OpponentChanged():
-                    EncounterPokemon(GetOpponent())
+            if not mode and get_game_state() == GameState.BATTLE and config["general"]["bot_mode"] != "starters":
+                if opponent_changed():
+                    encounter_pokemon(get_opponent())
                 if config["general"]["bot_mode"] != "manual":
-                    temp_RunFromBattle()
+                    temp_run_from_battle()
 
             if config["general"]["bot_mode"] == "manual":
                 if mode:
@@ -75,22 +75,22 @@ def MainLoop(profile: Profile) -> None:
             elif not mode:
                 match config["general"]["bot_mode"]:
                     case "spin":
-                        from modules.modes.General import ModeSpin
+                        from modules.modes.general import ModeSpin
 
                         mode = ModeSpin()
 
                     case "starters":
-                        from modules.modes.Starters import ModeStarters
+                        from modules.modes.starters import ModeStarters
 
                         mode = ModeStarters()
 
                     case "fishing":
-                        from modules.modes.General import ModeFishing
+                        from modules.modes.general import ModeFishing
 
                         mode = ModeFishing()
 
                     case "bunny_hop":
-                        from modules.modes.General import ModeBunnyHop
+                        from modules.modes.general import ModeBunnyHop
 
                         mode = ModeBunnyHop()
 
@@ -103,9 +103,9 @@ def MainLoop(profile: Profile) -> None:
             except:
                 console.print_exception(show_locals=True)
                 mode = None
-                ForceManualMode()
+                force_manual_mode()
 
-            GetEmulator().RunSingleFrame()
+            get_emulator().run_single_frame()
 
         except SystemExit:
             raise
@@ -116,7 +116,7 @@ def MainLoop(profile: Profile) -> None:
 
 if __name__ == "__main__":
     console.print(f"Starting [bold cyan]{pokebot_name} {pokebot_version}![/]")
-    LoadConfigFromDirectory(Path(__file__).parent / "profiles")
+    load_config_from_directory(Path(__file__).parent / "profiles")
 
     # This catches the signal Windows emits when the underlying console window is closed
     # by the user. We still want to save the emulator state in that case, which would not
@@ -125,44 +125,37 @@ if __name__ == "__main__":
         import win32api
 
 
-        def Win32SignalHandler(signal_type):
+        def win32_signal_handler(signal_type):
             if signal_type == 2:
-                emulator = GetEmulator()
+                emulator = get_emulator()
                 if emulator is not None:
-                    emulator.Shutdown()
+                    emulator.shutdown()
 
 
-        win32api.SetConsoleCtrlHandler(Win32SignalHandler, True)
+        win32api.SetConsoleCtrlHandler(win32_signal_handler, True)
 
-    # Allows auto-starting a profile by passing its name as an argument.
-    # It also supports the `--debug` flag to enable the debug GUI controls.
-    #
-    # Examples:
-    #     `python pokebot.py my-profile`          starts the 'my-profile' profile
-    #     `python pokebot.py my-profile --debug`  starts the 'my-profile' profile in debug mode
-    #     `python pokebot.py --debug`             starts the profile selection screen in debug mode
     preselected_profile = None
     debug_mode = False
     for arg in sys.argv[1:]:
         if arg == "--debug":
             debug_mode = True
-        elif ProfileDirectoryExists(arg):
-            preselected_profile = LoadProfileByName(arg)
+        elif profile_directory_exists(arg):
+            preselected_profile = load_profile_by_name(arg)
 
-    gui = PokebotGui(MainLoop, on_exit)
+    gui = PokebotGui(main_loop, on_exit)
     if debug_mode:
-        from modules.Gui import DebugEmulatorControls
-        from modules.GuiDebug import TasksTab, BattleTab, TrainerTab, DaycareTab, SymbolsTab, InputsTab, EventFlagsTab
+        from modules.gui import DebugEmulatorControls
+        from modules.debug import TasksTab, BattleTab, TrainerTab, DaycareTab, SymbolsTab, InputsTab, EventFlagsTab
 
         controls = DebugEmulatorControls(gui, gui.window)
-        controls.AddTab(TasksTab())
-        controls.AddTab(BattleTab())
-        controls.AddTab(TrainerTab())
-        controls.AddTab(DaycareTab())
-        controls.AddTab(SymbolsTab())
-        controls.AddTab(EventFlagsTab())
-        controls.AddTab(InputsTab())
+        controls.add_tab(TasksTab())
+        controls.add_tab(BattleTab())
+        controls.add_tab(TrainerTab())
+        controls.add_tab(DaycareTab())
+        controls.add_tab(SymbolsTab())
+        controls.add_tab(EventFlagsTab())
+        controls.add_tab(InputsTab())
 
         gui.controls = controls
 
-    gui.Run(preselected_profile)
+    gui.run(preselected_profile)

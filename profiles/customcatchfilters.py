@@ -1,10 +1,10 @@
 # TODO add list of available fields to filter on
 # TODO add option for a Discord webhook when a custom is caught
-from modules.Console import console
-from modules.Pokemon import Pokemon
+from modules.console import console
+from modules.pokemon import Pokemon
 
 
-def CustomCatchFilters(pokemon: Pokemon) -> bool:
+def custom_catch_filters(pokemon: Pokemon) -> bool:
     """
     Check the current encounter, catch if it matches any of the following criteria.
     Some examples are provided (most are disabled by default).

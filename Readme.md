@@ -261,8 +261,8 @@ Example:
     │
     │   catch_block.yml        <-- config loaded for all profiles
     │   cheats.yml             <-- config loaded for all profiles
-    │   CustomCatchFilters.py  <-- config loaded for all profiles
-    │   CustomHooks.py         <-- config loaded for all profiles
+    │   customcatchfilters.py  <-- config loaded for all profiles
+    │   customhooks.py         <-- config loaded for all profiles
     │   discord.yml            <-- config loaded for all profiles except 'emerald-profile'
     │   general.yml            <-- config loaded for all profiles except 'emerald-profile' and 'firered-profile'
     │   logging.yml            <-- config loaded for all profiles
@@ -520,6 +520,18 @@ All HTTP responses are in JSON format.
 - Use a lead Pokémon with a [short cry](https://docs.google.com/spreadsheets/d/1rmtNdlIXiif1Sz20i-9mfhFdoqb1VnAOIntlr3tnPeU)
 - Use a lead Pokémon with a single character nickname
 - Don't use a shiny lead Pokémon (shiny animation takes a few frames at the start of every battle)
+
+***
+
+# 🐛 Debugging
+
+The bot supports auto-starting a profile and can also be launched into a 'debug' mode which can aid bot development.
+
+```
+python pokebot.py my-profile          starts the 'my-profile' profile
+python pokebot.py my-profile --debug  starts the 'my-profile' profile in debug mode
+python pokebot.py --debug             starts the profile selection screen in debug mode
+```
 
 ***
 

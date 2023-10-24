@@ -4,24 +4,24 @@ from enum import Enum
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-from modules.Daycare import GetDaycareData
-from modules.Game import DecodeString, _reverse_symbols
-from modules.Gui import DebugTab, GetEmulator
-from modules.Items import GetItems
-from modules.Memory import (
-    GetSymbol,
-    ReadSymbol,
-    ParseTasks,
-    GetSymbolName,
-    GameHasStarted,
+from modules.daycare import get_daycare_data
+from modules.game import decode_string, _reverse_symbols
+from modules.gui import DebugTab, get_emulator
+from modules.items import get_items
+from modules.memory import (
+    get_symbol,
+    read_symbol,
+    parse_tasks,
+    get_symbol_name,
+    game_has_started,
     unpack_uint16,
     unpack_uint32,
 )
 
-from modules.Pokemon import GetParty, get_species_by_index
+from modules.pokemon import get_party, get_species_by_index
 
 if TYPE_CHECKING:
-    from modules.LibmgbaEmulator import LibmgbaEmulator
+    from modules.libmgba import LibmgbaEmulator
 
 
 class FancyTreeview:
@@ -40,7 +40,7 @@ class FancyTreeview:
 
         self._items = {}
         self._tv = ttk.Treeview(
-            treeview_scrollbar_combo, columns=("value"), show="tree headings", selectmode="browse", height=height
+            treeview_scrollbar_combo, columns="value", show="tree headings", selectmode="browse", height=height
         )
 
         self._tv.column("value", width=220)
@@ -51,16 +51,16 @@ class FancyTreeview:
         self._tv.grid(row=0, column=0, sticky="E")
 
         self._context_menu = tkinter.Menu(self._tv, tearoff=0)
-        self._context_menu.add_command(label="Copy Value", command=self._HandleCopy)
+        self._context_menu.add_command(label="Copy Value", command=self._handle_copy)
         for action in additional_context_actions:
             self._context_menu.add_command(
-                label=action, command=lambda a=action: self._HandleAction(additional_context_actions[a])
+                label=action, command=lambda a=action: self._handle_action(additional_context_actions[a])
             )
 
-        self._tv.bind("<Button-3>", self._HandleRightClick)
+        self._tv.bind("<Button-3>", self._handle_right_click)
 
-    def UpdateData(self, data: dict) -> None:
-        found_items = self._UpdateDict(data, "", "")
+    def update_data(self, data: dict) -> None:
+        found_items = self._update_dict(data, "", "")
         missing_items = set(self._items.keys()) - set(found_items)
         for key in missing_items:
             try:
@@ -69,7 +69,7 @@ class FancyTreeview:
                 pass
             del self._items[key]
 
-    def _UpdateDict(self, data: any, key_prefix: str, parent: str) -> list[str]:
+    def _update_dict(self, data: any, key_prefix: str, parent: str) -> list[str]:
         found_items = []
 
         for key in data:
@@ -84,7 +84,7 @@ class FancyTreeview:
                     item = self._tv.insert(parent, tkinter.END, text=key, values=(data[key].get("__value", ""),))
                     self._items[item_key] = item
                 found_items.append(item_key)
-                found_items.extend(self._UpdateDict(data[key], f"{key_prefix}{key}.", item))
+                found_items.extend(self._update_dict(data[key], f"{key_prefix}{key}.", item))
             elif isinstance(data[key], (list, set, tuple, frozenset)):
                 if item_key in self._items:
                     item = self._items[item_key]
@@ -97,7 +97,7 @@ class FancyTreeview:
                 for i in range(0, len(data[key])):
                     d[str(i)] = data[key][i]
 
-                found_items.extend(self._UpdateDict(d, f"{key_prefix}{key}.", item))
+                found_items.extend(self._update_dict(d, f"{key_prefix}{key}.", item))
             elif isinstance(data[key], (bool, int, float, complex, str, bytes, bytearray)):
                 if item_key in self._items:
                     item = self._items[item_key]
@@ -138,17 +138,17 @@ class FancyTreeview:
                     if isinstance(getattr(data[key].__class__, k), property):
                         properties[k] = getattr(data[key], k)
 
-                found_items.extend(self._UpdateDict(properties, f"{key_prefix}{key}.", item))
+                found_items.extend(self._update_dict(properties, f"{key_prefix}{key}.", item))
 
         return found_items
 
-    def _HandleRightClick(self, event) -> None:
+    def _handle_right_click(self, event) -> None:
         item = self._tv.identify_row(event.y)
         if item:
             self._tv.selection_set(item)
             self._context_menu.tk_popup(event.x_root, event.y_root)
 
-    def _HandleCopy(self) -> None:
+    def _handle_copy(self) -> None:
         selection = self._tv.selection()
         if len(selection) < 1:
             return
@@ -157,7 +157,7 @@ class FancyTreeview:
 
         pyperclip.copy(self._tv.item(selection[0])["values"][0])
 
-    def _HandleAction(self, callback: callable) -> None:
+    def _handle_action(self, callback: callable) -> None:
         selection = self._tv.selection()
         if len(selection) < 1:
             return
@@ -170,7 +170,7 @@ class TasksTab(DebugTab):
     _cb2_label: ttk.Label
     _tv: FancyTreeview
 
-    def Draw(self, root: ttk.Notebook):
+    def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
         frame.columnconfigure(1, weight=1)
 
@@ -186,19 +186,19 @@ class TasksTab(DebugTab):
 
         root.add(frame, text="Tasks")
 
-    def Update(self, emulator: "LibmgbaEmulator"):
-        callback1 = ReadSymbol("gMain", 0, 4)
-        callback2 = ReadSymbol("gMain", 4, 4)
+    def update(self, emulator: "LibmgbaEmulator"):
+        callback1 = read_symbol("gMain", 0, 4)
+        callback2 = read_symbol("gMain", 4, 4)
 
         cb1_addr = unpack_uint32(callback1) - 1
         cb2_addr = unpack_uint32(callback2) - 1
 
-        self._cb1_label.config(text=GetSymbolName(cb1_addr, pretty_name=True))
-        self._cb2_label.config(text=GetSymbolName(cb2_addr, pretty_name=True))
+        self._cb1_label.config(text=get_symbol_name(cb1_addr, pretty_name=True))
+        self._cb2_label.config(text=get_symbol_name(cb2_addr, pretty_name=True))
 
         data = {}
         index = 0
-        for task in ParseTasks(pretty_names=True):
+        for task in parse_tasks(pretty_names=True):
             if task["func"].upper() == "TASKDUMMY" or task["func"] == b"\x00\x00\x00\x00" or not task["isActive"]:
                 continue
 
@@ -211,22 +211,22 @@ class TasksTab(DebugTab):
             }
             index += 1
 
-        self._tv.UpdateData(data)
+        self._tv.update_data(data)
 
 
 class BattleTab(DebugTab):
     _tv: FancyTreeview
 
-    def Draw(self, root: ttk.Notebook):
+    def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
         self._tv = FancyTreeview(frame)
         root.add(frame, text="Battle")
 
-    def Update(self, emulator: "LibmgbaEmulator"):
-        self._tv.UpdateData(self._GetData())
+    def update(self, emulator: "LibmgbaEmulator"):
+        self._tv.update_data(self._get_data())
 
-    def _GetData(self):
-        data = ReadSymbol("gBattleResults")
+    def _get_data(self):
+        data = read_symbol("gBattleResults")
 
         return {
             "Player Faint Counter": int(data[0]),
@@ -239,17 +239,17 @@ class BattleTab(DebugTab):
             "Wild Mon was Shiny": bool(data[5] & 0x40),  #:1;       // 0x5
             "Count Revives used": int(data[4]),
             "Player Mon 1 Species": unpack_uint16(data[6:8]),
-            "Player Mon 1 Name": DecodeString(data[8:19]),  # SpeciesName(battleResult.playerMon1Species)
+            "Player Mon 1 Name": decode_string(data[8:19]),  # SpeciesName(battleResult.playerMon1Species)
             "Battle turn Counter": int(data[19]),
             "Player Mon 2 Species": unpack_uint16(data[38:40]),
-            "Player Mon 2 Name": DecodeString(data[20:31]),
+            "Player Mon 2 Name": decode_string(data[20:31]),
             "PokeBall Throws": int(data[31]),
             "Last Opponent Species": unpack_uint16(data[32:34]),
             "Last Opponent Name": get_species_by_index(unpack_uint16(data[32:34])).name,
             "Last used Move Player": unpack_uint16(data[34:36]),
             "Last used Move Opponent": unpack_uint16(data[36:38]),
             "Cought Mon Species": unpack_uint16(data[40:42]),
-            "Cought Mon Name": DecodeString(data[42:53]),
+            "Cought Mon Name": decode_string(data[42:53]),
             "Catch Attempts": int(data[54]),
         }
 
@@ -268,22 +268,22 @@ class SymbolsTab(DebugTab):
     _tv: FancyTreeview
     _mini_window: tkinter.Tk = None
 
-    def Draw(self, root: ttk.Notebook):
+    def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
 
-        button = ttk.Button(frame, text="Add Symbol to Watch", command=self._AddNewSymbol)
+        button = ttk.Button(frame, text="Add Symbol to Watch", command=self._add_new_symbol)
         button.grid(row=0, column=0, sticky="NE")
 
         context_actions = {
-            "Remove from List": self._HandleRemoveSymbol,
-            "Toggle String Decoding": self._HandleToggleSymbol,
+            "Remove from List": self._handle_remove_symbol,
+            "Toggle String Decoding": self._handle_toggle_symbol,
         }
 
         self._tv = FancyTreeview(frame, row=1, height=18, additional_context_actions=context_actions)
 
         root.add(frame, text="Symbols")
 
-    def _AddNewSymbol(self):
+    def _add_new_symbol(self):
         if self._mini_window is not None:
             return
 
@@ -291,11 +291,11 @@ class SymbolsTab(DebugTab):
         self._mini_window.title("Add a symbol to list")
         self._mini_window.geometry("480x480")
 
-        def RemoveWindow(event=None):
+        def remove_window(event=None):
             self._mini_window.destroy()
             self._mini_window = None
 
-        self._mini_window.protocol("WM_DELETE_WINDOW", RemoveWindow)
+        self._mini_window.protocol("WM_DELETE_WINDOW", remove_window)
         self._mini_window.rowconfigure(1, weight=1)
         self._mini_window.columnconfigure(0, weight=1)
 
@@ -336,7 +336,7 @@ class SymbolsTab(DebugTab):
             if symbol not in items:
                 items[symbol] = tv.insert("", tkinter.END, text=symbol, values=(symbol, hex(address), hex(length)))
 
-        def HandleInput(event=None):
+        def handle_input(event=None):
             search_term = search_input.get().strip().lower()
             for key in items:
                 if search_term in key.lower() and key in detached_items:
@@ -346,70 +346,70 @@ class SymbolsTab(DebugTab):
                     tv.detach(items[key])
                     detached_items.add(key)
 
-        search_input.bind("<KeyRelease>", HandleInput)
+        search_input.bind("<KeyRelease>", handle_input)
 
-        def HandleDoubleClick(event):
+        def handle_double_click(event):
             if self._mini_window is not None:
                 item = tv.identify_row(event.y)
                 if item:
                     self.SYMBOLS_TO_DISPLAY.add(tv.item(item)["text"])
-                    self.Update(GetEmulator())
+                    self.update(get_emulator())
 
-        tv.bind("<Double-Button-1>", HandleDoubleClick)
+        tv.bind("<Double-Button-1>", handle_double_click)
 
         scrollbar = ttk.Scrollbar(tv_frame, orient=tkinter.VERTICAL, command=tv.yview)
         scrollbar.grid(row=0, column=1, sticky="NWS")
         tv.configure(yscrollcommand=scrollbar.set)
         tv.grid(row=0, column=0, sticky="E")
 
-        def HandleFocusOut(event=None):
+        def handle_focus_out(event=None):
             if self._mini_window.focus_get() is None:
-                RemoveWindow()
+                remove_window()
 
-        self._mini_window.bind("<FocusOut>", HandleFocusOut)
-        self._mini_window.bind("<Escape>", RemoveWindow)
-        self._mini_window.bind("<Control-q>", RemoveWindow)
+        self._mini_window.bind("<FocusOut>", handle_focus_out)
+        self._mini_window.bind("<Escape>", remove_window)
+        self._mini_window.bind("<Control-q>", remove_window)
 
         while self._mini_window is not None and self._mini_window.state() != "destroyed":
             self._mini_window.update_idletasks()
             self._mini_window.update()
             time.sleep(1 / 60)
 
-    def Update(self, emulator: "LibmgbaEmulator"):
+    def update(self, emulator: "LibmgbaEmulator"):
         data = {}
 
         for symbol in self.SYMBOLS_TO_DISPLAY:
             try:
-                address, length = GetSymbol(symbol.upper())
+                address, length = get_symbol(symbol.upper())
             except RuntimeError:
                 self.SYMBOLS_TO_DISPLAY.remove(symbol)
                 self.DISPLAY_AS_STRING.remove(symbol)
                 break
 
-            value = emulator.ReadBytes(address, length)
+            value = emulator.read_bytes(address, length)
             if symbol in self.DISPLAY_AS_STRING:
-                data[symbol] = DecodeString(value)
+                data[symbol] = decode_string(value)
             elif length == 4 or length == 2:
                 n = int.from_bytes(value, byteorder="little")
                 data[symbol] = f"{value.hex(' ', 1)} ({n})"
             else:
                 data[symbol] = value.hex(" ", 1)
 
-        self._tv.UpdateData(data)
+        self._tv.update_data(data)
 
-    def _HandleNewSymbol(self, event):
+    def _handle_new_symbol(self, event):
         new_symbol = self._combobox.get()
         try:
-            GetSymbol(new_symbol)
+            get_symbol(new_symbol)
             self.SYMBOLS_TO_DISPLAY.add(new_symbol)
         except RuntimeError:
             pass
 
-    def _HandleRemoveSymbol(self, symbol: str):
+    def _handle_remove_symbol(self, symbol: str):
         self.SYMBOLS_TO_DISPLAY.remove(symbol)
         self.DISPLAY_AS_STRING.remove(symbol)
 
-    def _HandleToggleSymbol(self, symbol: str):
+    def _handle_toggle_symbol(self, symbol: str):
         if symbol in self.DISPLAY_AS_STRING:
             self.DISPLAY_AS_STRING.remove(symbol)
         else:
@@ -419,35 +419,35 @@ class SymbolsTab(DebugTab):
 class TrainerTab(DebugTab):
     _tv: FancyTreeview
 
-    def Draw(self, root: ttk.Notebook):
+    def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
         self._tv = FancyTreeview(frame)
         root.add(frame, text="Trainer")
 
-    def Update(self, emulator: "LibmgbaEmulator"):
-        if GameHasStarted():
-            self._tv.UpdateData(self._GetData())
+    def update(self, emulator: "LibmgbaEmulator"):
+        if game_has_started():
+            self._tv.update_data(self._get_data())
         else:
-            self._tv.UpdateData({})
+            self._tv.update_data({})
 
-    def _GetData(self):
-        from modules.Trainer import trainer, AcroBikeStates, RunningStates, TileTransitionStates
+    def _get_data(self):
+        from modules.trainer import trainer, AcroBikeStates, RunningStates, TileTransitionStates
 
-        party = GetParty()
+        party = get_party()
 
         result = {
-            "Name": trainer.GetName(),
-            "Gender": trainer.GetGender(),
-            "Trainer ID": trainer.GetTID(),
-            "Secret ID": trainer.GetSID(),
-            "Map": trainer.GetMap(),
-            "Map Name": trainer.GetMapName(),
-            "Local Coordinates": trainer.GetCoords(),
-            "On Bike": trainer.GetOnBike(),
-            "Running State": RunningStates(trainer.GetRunningState()).name,
-            "Acro Bike State": AcroBikeStates(trainer.GetAcroBikeState()).name,
-            "Tile Transition State": TileTransitionStates(trainer.GetTileTransitionState()).name,
-            "Facing Direction": trainer.GetFacingDirection(),
+            "Name": trainer.get_name(),
+            "Gender": trainer.get_gender(),
+            "Trainer ID": trainer.get_tid(),
+            "Secret ID": trainer.get_sid(),
+            "Map": trainer.get_map(),
+            "Map Name": trainer.get_map_name(),
+            "Local Coordinates": trainer.get_coords(),
+            "On Bike": trainer.get_on_bike(),
+            "Running State": RunningStates(trainer.get_running_state()).name,
+            "Acro Bike State": AcroBikeStates(trainer.get_acro_bike_state()).name,
+            "Tile Transition State": TileTransitionStates(trainer.get_tile_transition_state()).name,
+            "Facing Direction": trainer.get_facing_direction(),
         }
 
         for i in range(0, 6):
@@ -458,7 +458,7 @@ class TrainerTab(DebugTab):
 
             result[key] = party[i]
 
-        result["Items"] = GetItems()
+        result["Items"] = get_items()
 
         return result
 
@@ -466,16 +466,16 @@ class TrainerTab(DebugTab):
 class DaycareTab(DebugTab):
     _tv: FancyTreeview
 
-    def Draw(self, root: ttk.Notebook):
+    def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
         self._tv = FancyTreeview(frame)
         root.add(frame, text="Daycare")
 
-    def Update(self, emulator: "LibmgbaEmulator"):
-        self._tv.UpdateData(self._GetData())
+    def update(self, emulator: "LibmgbaEmulator"):
+        self._tv.update_data(self._get_data())
 
-    def _GetData(self):
-        data = GetDaycareData()
+    def _get_data(self):
+        data = get_daycare_data()
         if data is None:
             return {}
 
@@ -518,22 +518,22 @@ class DaycareTab(DebugTab):
 class EventFlagsTab(DebugTab):
     _tv: FancyTreeview
 
-    def Draw(self, root: ttk.Notebook):
+    def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
         self._tv = FancyTreeview(frame)
         root.add(frame, text="Event Flags")
 
-    def Update(self, emulator: "LibmgbaEmulator"):
-        self._tv.UpdateData(self._GetData())
+    def update(self, emulator: "LibmgbaEmulator"):
+        self._tv.update_data(self._get_data())
 
-    def _GetData(self):
-        from modules.Game import _event_flags
-        from modules.Memory import GetEventFlag
+    def _get_data(self):
+        from modules.game import _event_flags
+        from modules.memory import get_event_flag
 
         result = {}
 
         for flag in _event_flags:
-            result[flag] = GetEventFlag(flag)
+            result[flag] = get_event_flag(flag)
 
         return result
 
@@ -541,19 +541,19 @@ class EventFlagsTab(DebugTab):
 class InputsTab(DebugTab):
     _tv: FancyTreeview
 
-    def Draw(self, root: ttk.Notebook):
+    def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
         self._tv = FancyTreeview(frame)
         root.add(frame, text="Inputs")
 
-    def Update(self, emulator: "LibmgbaEmulator"):
-        self._tv.UpdateData(self._GetData())
+    def update(self, emulator: "LibmgbaEmulator"):
+        self._tv.update_data(self._get_data())
 
-    def _GetData(self):
-        from modules.LibmgbaEmulator import input_map
+    def _get_data(self):
+        from modules.libmgba import input_map
 
         result = {}
-        inputs = GetEmulator().GetInputs()
+        inputs = get_emulator().get_inputs()
 
         for input in input_map:
             result[input] = True if input_map[input] & inputs else False

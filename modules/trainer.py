@@ -1,9 +1,9 @@
 from enum import IntEnum, Enum
 
-from modules.Game import DecodeString
-from modules.Gui import GetROM
-from modules.Memory import GetSaveBlock, ReadSymbol, unpack_uint16
-from modules.data.MapData import MapRSE, MapFRLG
+from modules.game import decode_string
+from modules.gui import get_rom
+from modules.memory import get_save_block, read_symbol, unpack_uint16
+from modules.data.map import MapRSE, MapFRLG
 
 
 # https://github.com/pret/pokeemerald/blob/104e81b359d287668cee613f6604020a6e7228a3/include/global.fieldmap.h
@@ -48,60 +48,60 @@ class FacingDirection(Enum):
 
 class Trainer:
     def __init__(self):
-        if GetROM().game_title in ["POKEMON EMER", "POKEMON RUBY", "POKEMON SAPP"]:
+        if get_rom().game_title in ["POKEMON EMER", "POKEMON RUBY", "POKEMON SAPP"]:
             self.map_data = MapRSE
             self.map_offset = 0
         else:
             self.map_data = MapFRLG
             self.map_offset = 1
 
-    def GetName(self) -> str:
-        return DecodeString(GetSaveBlock(2, size=8))
+    def get_name(self) -> str:
+        return decode_string(get_save_block(2, size=8))
 
-    def GetGender(self) -> str:
-        return "girl" if int.from_bytes(GetSaveBlock(2, 0x8, 1), byteorder="little") else "boy"
+    def get_gender(self) -> str:
+        return "girl" if int.from_bytes(get_save_block(2, 0x8, 1), byteorder="little") else "boy"
 
-    def GetTID(self) -> int:
-        return unpack_uint16(GetSaveBlock(2, 0xA, 2))
+    def get_tid(self) -> int:
+        return unpack_uint16(get_save_block(2, 0xA, 2))
 
-    def GetSID(self) -> int:
-        return unpack_uint16(GetSaveBlock(2, 0xC, 2))
+    def get_sid(self) -> int:
+        return unpack_uint16(get_save_block(2, 0xC, 2))
 
-    def GetMap(self) -> tuple:
-        b_gTasks = ReadSymbol("gTasks", 0x58, 4)
+    def get_map(self) -> tuple:
+        b_gTasks = read_symbol("gTasks", 0x58, 4)
         return (int(b_gTasks[self.map_offset + 1]), int(b_gTasks[self.map_offset]))
 
-    def GetMapName(self) -> str:
+    def get_map_name(self) -> str:
         try:
-            return self.map_data(self.GetMap()).name
+            return self.map_data(self.get_map()).name
         except ValueError:
             return "UNKNOWN"
 
-    def GetCoords(self) -> tuple:
-        b_gObjectEvents = ReadSymbol("gObjectEvents", 16, 3)
+    def get_coords(self) -> tuple:
+        b_gObjectEvents = read_symbol("gObjectEvents", 16, 3)
         return (int(b_gObjectEvents[0]) - 7, int(b_gObjectEvents[2]) - 7)
 
-    def GetOnBike(self) -> bool:
-        b_gPlayerAvatar = ReadSymbol("gPlayerAvatar", size=1)
+    def get_on_bike(self) -> bool:
+        b_gPlayerAvatar = read_symbol("gPlayerAvatar", size=1)
         return (
             int(b_gPlayerAvatar[0])
             & (AvatarFlags.PLAYER_AVATAR_FLAG_MACH_BIKE | AvatarFlags.PLAYER_AVATAR_FLAG_ACRO_BIKE)
         ) != 0
 
-    def GetRunningState(self) -> int:
-        b_gPlayerAvatar = ReadSymbol("gPlayerAvatar", offset=2, size=1)
+    def get_running_state(self) -> int:
+        b_gPlayerAvatar = read_symbol("gPlayerAvatar", offset=2, size=1)
         return int(b_gPlayerAvatar[0])
 
-    def GetTileTransitionState(self) -> int:
-        b_gPlayerAvatar = ReadSymbol("gPlayerAvatar", offset=3, size=1)
+    def get_tile_transition_state(self) -> int:
+        b_gPlayerAvatar = read_symbol("gPlayerAvatar", offset=3, size=1)
         return int(b_gPlayerAvatar[0])
 
-    def GetAcroBikeState(self) -> int:
-        b_gPlayerAvatar = ReadSymbol("gPlayerAvatar", offset=8, size=1)
+    def get_acro_bike_state(self) -> int:
+        b_gPlayerAvatar = read_symbol("gPlayerAvatar", offset=8, size=1)
         return int(b_gPlayerAvatar[0])
 
-    def GetFacingDirection(self) -> str:
-        b_gObjectEvents = ReadSymbol("gObjectEvents", 24, 1)
+    def get_facing_direction(self) -> str:
+        b_gObjectEvents = read_symbol("gObjectEvents", 24, 1)
         return FacingDirection(int(b_gObjectEvents[0])).name
 
 
