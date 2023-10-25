@@ -1,8 +1,8 @@
 import atexit
 import platform
 import sys
-from pathlib import Path
 
+from modules.runtime import is_bundled_app, get_base_path
 from modules.version import pokebot_name, pokebot_version
 
 recommended_python_version = "3.12"
@@ -26,6 +26,7 @@ required_modules = [
     "Pillow~=10.0.1",
     "sounddevice~=0.4.6",
     "requests~=2.31.0",
+    "pyperclip~=1.8.2",
 ]
 
 if platform.system() == "Windows":
@@ -48,7 +49,7 @@ def on_exit() -> None:
         import os
 
         parent_process_name = psutil.Process(os.getppid()).name()
-        if parent_process_name == "py.exe":
+        if parent_process_name == "py.exe" or is_bundled_app():
             if gui is not None and gui.window is not None:
                 gui.window.withdraw()
 
@@ -60,12 +61,10 @@ atexit.register(on_exit)
 
 
 def check_requirements() -> None:
-    this_directory = Path(__file__).parent
-
     # We do not want to do downlaod requirements every single time the bot is started.
     # As a quick sanity check, we store the current bot version in `.last-requirements-check`.
     # If that file is present and contains the current bot version, we skip the check.
-    requirements_file = this_directory / ".last-requirements-check"
+    requirements_file = get_base_path() / ".last-requirements-check"
     requirements_version_hash = pokebot_version + '/' + platform.python_version()
     need_to_fetch_requirements = True
     if requirements_file.is_file():
@@ -118,7 +117,7 @@ def check_requirements() -> None:
 
         # Make sure that `libmgba-py` is installed.
         print("")
-        libmgba_directory = this_directory / "mgba"
+        libmgba_directory = get_base_path() / "mgba"
         if not libmgba_directory.is_dir():
             match platform.system():
                 case "Windows":
@@ -153,7 +152,7 @@ def check_requirements() -> None:
             if response.status_code == 200:
                 print("Unzipping libmgba into `./mgba`...")
                 with zipfile.ZipFile(io.BytesIO(response.content)) as zip_handle:
-                    zip_handle.extractall(this_directory)
+                    zip_handle.extractall(get_base_path())
 
         # Mark the requirements for the current bot version as checked, so we do not
         # have to run all of this again until the next update.
@@ -164,7 +163,8 @@ def check_requirements() -> None:
 
 
 if __name__ == "__main__":
-    check_requirements()
+    if not is_bundled_app():
+        check_requirements()
 
     from modules.config import load_config_from_directory
     from modules.console import console
@@ -173,7 +173,7 @@ if __name__ == "__main__":
     from modules.profiles import profile_directory_exists, load_profile_by_name
 
     console.print(f"Starting [bold cyan]{pokebot_name} {pokebot_version}![/]")
-    load_config_from_directory(Path(__file__).parent / "profiles")
+    load_config_from_directory(get_base_path() / "profiles")
 
     # This catches the signal Windows emits when the underlying console window is closed
     # by the user. We still want to save the emulator state in that case, which would not
