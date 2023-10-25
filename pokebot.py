@@ -66,10 +66,11 @@ def check_requirements() -> None:
     # As a quick sanity check, we store the current bot version in `.last-requirements-check`.
     # If that file is present and contains the current bot version, we skip the check.
     requirements_file = this_directory / ".last-requirements-check"
+    requirements_version_hash = pokebot_version + '/' + platform.python_version()
     need_to_fetch_requirements = True
     if requirements_file.is_file():
         with open(requirements_file, "r") as file:
-            if file.read() == pokebot_version:
+            if file.read() == requirements_version_hash:
                 need_to_fetch_requirements = False
             else:
                 print(
@@ -157,7 +158,7 @@ def check_requirements() -> None:
         # Mark the requirements for the current bot version as checked, so we do not
         # have to run all of this again until the next update.
         with open(requirements_file, "w") as file:
-            file.write(pokebot_version)
+            file.write(requirements_version_hash)
 
     print("")
 
