@@ -1,5 +1,7 @@
 import time
+from pathlib import Path
 from pypresence import Presence
+from typing import Union
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from modules.console import console
 from modules.config import config
@@ -14,8 +16,8 @@ def discord_message(
     embed_title: str = None,
     embed_description: str = None,
     embed_fields: object = None,
-    embed_thumbnail: str = None,
-    embed_image: str = None,
+    embed_thumbnail: Union[str, Path] = None,
+    embed_image: Union[str, Path] = None,
     embed_footer: str = None,
     embed_color: str = "FFFFFF",
 ) -> None:

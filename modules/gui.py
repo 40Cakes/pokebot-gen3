@@ -21,6 +21,7 @@ from modules.console import console
 from modules.libmgba import LibmgbaEmulator, input_map
 from modules.profiles import Profile, list_available_profiles, profile_directory_exists, create_profile
 from modules.roms import ROM, list_available_roms
+from modules.runtime import get_sprites_path
 from modules.version import pokebot_name, pokebot_version
 
 
@@ -342,11 +343,11 @@ class PokebotGui:
         rand = random.randint(0, 99)
         match rand:
             case _ if rand < 10:
-                icon_dir = Path(__file__).parent.parent / "sprites" / "pokemon" / "shiny"
+                icon_dir = get_sprites_path() / "pokemon" / "shiny"
             case _ if rand < 99:
-                icon_dir = Path(__file__).parent.parent / "sprites" / "pokemon" / "normal"
+                icon_dir = get_sprites_path() / "pokemon" / "normal"
             case _:
-                icon_dir = Path(__file__).parent.parent / "sprites" / "pokemon" / "anti-shiny"
+                icon_dir = get_sprites_path() / "pokemon" / "anti-shiny"
 
         files = [x for x in icon_dir.glob("*.png") if x.is_file()]
 
@@ -621,9 +622,7 @@ class PokebotGui:
                     "TM Steel.png",
                     "TM Water.png",
                 ]
-                sprite = PIL.Image.open(
-                    Path(__file__).parent.parent / "sprites" / "items" / random.choice(possible_sprites)
-                )
+                sprite = PIL.Image.open(get_sprites_path() / "items" / random.choice(possible_sprites))
                 if sprite.mode != "RGBA":
                     sprite = sprite.convert("RGBA")
                 sprite = sprite.resize((sprite.width * 3, sprite.height * 3), resample=False)

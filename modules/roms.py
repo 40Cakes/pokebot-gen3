@@ -3,7 +3,9 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-ROMS_DIRECTORY = Path(__file__).parent.parent / "roms"
+from modules.runtime import get_base_path
+
+ROMS_DIRECTORY = get_base_path() / "roms"
 
 GAME_NAME_MAP = {
     "POKEMON EMER": "Pokémon Emerald",

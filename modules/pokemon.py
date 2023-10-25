@@ -1,4 +1,5 @@
 import json
+import string
 import struct
 from dataclasses import dataclass
 from enum import Enum
@@ -13,6 +14,7 @@ from modules.game import decode_string
 from modules.gui import get_emulator
 from modules.memory import unpack_uint32, unpack_uint16, read_symbol, pack_uint32
 from modules.roms import ROMLanguage
+from modules.runtime import get_data_path
 
 DATA_DIRECTORY = Path(__file__).parent / "data"
 
@@ -406,7 +408,7 @@ class StatsValues:
 
     @classmethod
     def calculate(
-        cls, species: "Species", ivs: "StatsValues", evs: "StatsValues", nature: "Nature", level: int
+            cls, species: "Species", ivs: "StatsValues", evs: "StatsValues", nature: "Nature", level: int
     ) -> "StatsValues":
         """
         Re-calculates the current effective stats of a Pokemon. This is needed for boxed
@@ -587,29 +589,29 @@ class LevelUpType(Enum):
         elif level == 1:
             return 1
         elif self == LevelUpType.MediumSlow:
-            return ((6 * (level**3)) // 5) - (15 * (level**2)) + (100 * level) - 140
+            return ((6 * (level ** 3)) // 5) - (15 * (level ** 2)) + (100 * level) - 140
         elif self == LevelUpType.Erratic:
             if level <= 50:
-                return (100 - level) * (level**3) // 50
+                return (100 - level) * (level ** 3) // 50
             elif level <= 68:
-                return (150 - level) * (level**3) // 100
+                return (150 - level) * (level ** 3) // 100
             elif level <= 98:
-                return ((1911 - 10 * level) // 3) * (level**3) // 500
+                return ((1911 - 10 * level) // 3) * (level ** 3) // 500
             else:
-                return (160 - level) * (level**3) // 100
+                return (160 - level) * (level ** 3) // 100
         elif self == LevelUpType.Fluctuating:
             if level <= 15:
-                return ((level + 1) // 3 + 24) * (level**3) // 50
+                return ((level + 1) // 3 + 24) * (level ** 3) // 50
             elif level <= 36:
-                return (level + 14) * (level**3) // 50
+                return (level + 14) * (level ** 3) // 50
             else:
-                return ((level // 2) + 32) * (level**3) // 50
+                return ((level // 2) + 32) * (level ** 3) // 50
         elif self == LevelUpType.MediumFast:
-            return level**3
+            return level ** 3
         elif self == LevelUpType.Slow:
-            return (5 * (level**3)) // 4
+            return (5 * (level ** 3)) // 4
         elif self == LevelUpType.Fast:
-            return (4 * (level**3)) // 5
+            return (4 * (level ** 3)) // 5
 
     def get_level_from_total_experience(self, total_experience: int) -> int:
         """
@@ -643,6 +645,23 @@ class Species:
     egg_groups: list[str]
     base_experience_yield: int
     ev_yield: StatsValues
+
+    @property
+    def safe_name(self) -> str:
+        """
+        :return: The species name with any characters that might be problematic in file names replaced.
+        """
+        result = ''
+        for i in range(len(self.name)):
+            if self.name[i] in f"-_.()' {string.ascii_letters}{string.digits}":
+                result += self.name[i]
+            elif self.name[i] == '♂':
+                result += '_m'
+            elif self.name[i] == '♀':
+                result += '_f'
+            else:
+                result += '_'
+        return result
 
     def __str__(self):
         return self.name
@@ -908,7 +927,7 @@ class Pokemon:
 
     def move(self, index: Literal[0, 1, 2, 3]) -> Union[LearnedMove, None]:
         offset = 44 + index * 2
-        move_index = unpack_uint16(self._decrypted_data[offset : offset + 2])
+        move_index = unpack_uint16(self._decrypted_data[offset: offset + 2])
         if move_index == 0:
             return None
         move = get_move_by_index(move_index)
@@ -1091,12 +1110,12 @@ class Pokemon:
     def hidden_power_type(self) -> Type:
         ivs = self.ivs
         value = (
-            ((ivs.hp & 1) << 0)
-            + ((ivs.attack & 1) << 1)
-            + ((ivs.defence & 1) << 2)
-            + ((ivs.speed & 1) << 3)
-            + ((ivs.special_attack & 1) << 4)
-            + ((ivs.special_defence & 1) << 5)
+                ((ivs.hp & 1) << 0)
+                + ((ivs.attack & 1) << 1)
+                + ((ivs.defence & 1) << 2)
+                + ((ivs.speed & 1) << 3)
+                + ((ivs.special_attack & 1) << 4)
+                + ((ivs.special_defence & 1) << 5)
         )
         value = (value * 15) // 63
         return get_type_by_name(HIDDEN_POWER_MAP[value])
@@ -1105,12 +1124,12 @@ class Pokemon:
     def hidden_power_damage(self) -> int:
         ivs = self.ivs
         value = (
-            ((ivs.hp & 2) >> 1)
-            + ((ivs.attack & 2) << 0)
-            + ((ivs.defence & 2) << 1)
-            + ((ivs.speed & 2) << 2)
-            + ((ivs.special_attack & 2) << 3)
-            + ((ivs.special_defence & 2) << 4)
+                ((ivs.hp & 2) >> 1)
+                + ((ivs.attack & 2) << 0)
+                + ((ivs.defence & 2) << 1)
+                + ((ivs.speed & 2) << 2)
+                + ((ivs.special_attack & 2) << 3)
+                + ((ivs.special_defence & 2) << 4)
         )
         value = (value * 40) // 63 + 30
         return value
@@ -1118,11 +1137,11 @@ class Pokemon:
     @property
     def unown_letter(self) -> str:
         letter_index = (
-            (self.data[0] & 0b11)
-            << 6 + (self.data[1] & 0b11)
-            << 4 + (self.data[2] & 0b11)
-            << 2 + (self.data[3] & 0b11)
-            << 0
+                (self.data[0] & 0b11)
+                << 6 + (self.data[1] & 0b11)
+                << 4 + (self.data[2] & 0b11)
+                << 2 + (self.data[3] & 0b11)
+                << 0
         )
         letter_index %= 28
         if letter_index == 26:
@@ -1303,7 +1322,7 @@ def parse_pokemon(data: bytes) -> Union[Pokemon, None]:
 def _load_types() -> tuple[dict[str, Type], list[Type]]:
     by_name: dict[str, Type] = {}
     by_index: list[Type] = []
-    with open(DATA_DIRECTORY / "types.json", "r") as file:
+    with open(get_data_path() / "types.json", "r") as file:
         types_data = json.load(file)
         for index in range(len(types_data)):
             name = types_data[index]["name"]
@@ -1331,7 +1350,7 @@ def get_type_by_index(index: int) -> Type:
 def _load_moves() -> tuple[dict[str, Move], list[Move]]:
     by_name: dict[str, Move] = {}
     by_index: list[Move] = []
-    with open(DATA_DIRECTORY / "moves.json", "r") as file:
+    with open(get_data_path() / "moves.json", "r") as file:
         moves_data = json.load(file)
         for index in range(len(moves_data)):
             move = Move.from_dict(index, moves_data[index])
@@ -1354,7 +1373,7 @@ def get_move_by_index(index: int) -> Move:
 def _load_items() -> tuple[dict[str, Item], list[Item]]:
     by_name: dict[str, Item] = {}
     by_index: list[Item] = []
-    with open(DATA_DIRECTORY / "items.json", "r") as file:
+    with open(get_data_path() / "items.json", "r") as file:
         items_data = json.load(file)
         for index in range(len(items_data)):
             item = Item.from_dict(index, items_data[index])
@@ -1377,7 +1396,7 @@ def get_item_by_index(index: int) -> Item:
 def _load_natures() -> tuple[dict[str, Nature], list[Nature]]:
     by_name: dict[str, Nature] = {}
     by_index: list[Nature] = []
-    with open(DATA_DIRECTORY / "natures.json", "r") as file:
+    with open(get_data_path() / "natures.json", "r") as file:
         natures_data = json.load(file)
         for index in range(len(natures_data)):
             nature = Nature.from_dict(index, natures_data[index])
@@ -1400,7 +1419,7 @@ def get_nature_by_index(index: int) -> Nature:
 def _load_abilities() -> tuple[dict[str, Ability], list[Ability]]:
     by_name: dict[str, Ability] = {}
     by_index: list[Ability] = []
-    with open(DATA_DIRECTORY / "abilities.json", "r") as file:
+    with open(get_data_path() / "abilities.json", "r") as file:
         abilities_data = json.load(file)
         for index in range(len(abilities_data)):
             ability = Ability.from_dict(index, abilities_data[index])
@@ -1423,7 +1442,7 @@ def get_ability_by_index(index: int) -> Ability:
 def _load_species() -> tuple[dict[str, Species], list[Species]]:
     by_name: dict[str, Species] = {}
     by_index: list[Species] = []
-    with open(DATA_DIRECTORY / "species.json", "r") as file:
+    with open(get_data_path() / "species.json", "r") as file:
         species_data = json.load(file)
         for index in range(len(species_data)):
             species = Species.from_dict(index, species_data[index])
