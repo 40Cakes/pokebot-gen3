@@ -647,4 +647,5 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
 
             force_manual_mode()
             get_emulator().set_speed_factor(1)
+            get_emulator().set_throttle(True)
             get_emulator().set_video_enabled(True)
