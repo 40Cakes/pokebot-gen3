@@ -653,7 +653,7 @@ class Species:
         """
         result = ''
         for i in range(len(self.name)):
-            if self.name[i] in f"-_.() {string.ascii_letters}{string.digits}":
+            if self.name[i] in f"-_.()' {string.ascii_letters}{string.digits}":
                 result += self.name[i]
             elif self.name[i] == '♂':
                 result += '_m'
