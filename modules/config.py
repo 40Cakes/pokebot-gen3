@@ -90,6 +90,8 @@ properties:
                 - Repeat Ball
                 - Timer Ball
                 - Ultra Ball
+    save_pokemon:
+        type: boolean
 """
 
 logging_schema = """

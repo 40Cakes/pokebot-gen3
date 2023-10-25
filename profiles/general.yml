@@ -8,3 +8,7 @@ bot_mode: manual
 # Starter - used when `bot_mode` is set to `starters`
 # `Treecko`, `Torchic`, `Mudkip`, `Bulbasaur`, `Charmander`, `Squirtle`, `Chikorita`, `Cyndaquil`, `Totodile`
 starter: Mudkip
+
+
+# Save each shiny encounter as a pkX file
+save_pokemon: true

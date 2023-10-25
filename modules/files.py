@@ -43,3 +43,30 @@ def write_file(file: str, value: str, mode: str = "w") -> bool:
     except:
         console.print_exception(show_locals=True)()
         return False
+
+def write_pk(file: str, data: bytearray) -> bool:
+    """
+    Slightly modified funciton to the write_file function that provides the ability
+    to write byte arrays out directly into a file
+
+    :param file: File to write to
+    :param date: Pokemon data to be written
+    :return: True if file was written to successfully, otherwise False (bool)
+    """
+    try:
+        # Remove file if it already exists
+        if os.path.exists(file):
+            os.remove(file)
+
+        # Create the directory if required
+        directory = os.path.dirname(file)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        # Open the file and write the data
+        with open(file, "wb") as binary_file: 
+            binary_file.write(data)
+        return True
+    except:
+        console.print_exception(show_locals=True)()
+        return False

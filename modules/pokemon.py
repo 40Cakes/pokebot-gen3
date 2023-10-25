@@ -1,5 +1,5 @@
-import json
-import struct
+import json, struct
+from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum
 from functools import cached_property
@@ -13,6 +13,8 @@ from modules.game import decode_string
 from modules.gui import get_emulator
 from modules.memory import unpack_uint32, unpack_uint16, read_symbol, pack_uint32
 from modules.roms import ROMLanguage
+from modules.files import write_pk
+from modules.config import config
 
 DATA_DIRECTORY = Path(__file__).parent / "data"
 
@@ -758,6 +760,7 @@ class Pokemon:
 
     def __init__(self, data: bytes):
         self.data = data
+        self.save()
 
     @cached_property
     def _decrypted_data(self) -> bytes:
@@ -1139,6 +1142,43 @@ class Pokemon:
             return "silcoon"
         else:
             return "cascoon"
+
+    def save(self):
+        """
+        Takes the binary data of the pokemon and outputs it in a pkX format
+        """
+
+        file_name = ""
+        # Check that the player wants the pokemon to be saved
+        if not config["general"]["save_pokemon"]:
+            return
+        else:
+            from modules.profiles import PROFILES_DIRECTORY
+            pokemon_dir_path = PROFILES_DIRECTORY / "pokemon"
+            
+            # Reformat the name to best describe the pokemon
+            # <dex_num> <shiny ★> - <IV sum> - <mon_name> - <pid>.pk3
+            # e.g. 0273 ★ - [100] - SEEDOT - Modest [180] - C88CF14B19C6.pk3
+            
+            #TODO - dex_num = 
+            #file_name = f"{dex_num} "
+            
+            # In the event of identical pokemon, I've added DTG into the mix 
+            iv_sum = self.ivs.hp + self.ivs.attack + self.ivs.defence + self.ivs.speed + self.ivs.special_attack + self.ivs.special_defence
+            catch_time = datetime.utcnow().strftime("%Y%m%d.%H.%M.%S")
+            # Depending on the game changes what the ext of the file needs to be (gen4 = pk4)
+            #version = 
+
+            # Put the file together and save it
+            if self.is_shiny: file_name = f"{file_name}★ "
+
+            #file_name = f"{file_name}-{iv_sum}-{self.name}-{self.nature}-{self.personality_value}-{catch_time}.pk3"
+            file_name = f"{config['discord']['bot_id']}{file_name} - {iv_sum} - {self.name} - {self.nature} - {self.personality_value} - {catch_time}.pk3"
+            #TODO - add versioning into the mix
+            #file_name = f"{file_name} - {iv_sum} - {self.name} - {nature}.pk{version}"
+            
+            write_pk(f"{pokemon_dir_path}/{file_name}", self.data )
+        
 
     # ==============
     # Debug helpers
