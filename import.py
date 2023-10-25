@@ -11,7 +11,7 @@ from modules.game import set_rom, get_symbol, decode_string
 from modules.memory import unpack_uint16, unpack_uint32
 from modules.profiles import Profile, create_profile, profile_directory_exists
 from modules.roms import list_available_roms
-from version import pokebot_name, pokebot_version
+from modules.version import pokebot_name, pokebot_version
 
 
 class MigrationError(Exception):

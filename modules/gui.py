@@ -21,7 +21,7 @@ from modules.console import console
 from modules.libmgba import LibmgbaEmulator, input_map
 from modules.profiles import Profile, list_available_profiles, profile_directory_exists, create_profile
 from modules.roms import ROM, list_available_roms
-from version import pokebot_name, pokebot_version
+from modules.version import pokebot_name, pokebot_version
 
 
 gui: "PokebotGui" = None

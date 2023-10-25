@@ -51,8 +51,8 @@ Alternatively, if you'd like to be able to easily pull the latest updates withou
 
 ### Requirements
 - [Python 3.11](https://www.python.org/downloads/release/python-3110/) (**64-bit**)
-- Double click `requirements.py` or run `python requirements.py` in a terminal to install required Python modules and download [libmgba](https://github.com/hanzi/libmgba-py) automatically
-  - **Linux** only: Install the following packages with `apt` or appropriate package manager: `sudo apt install python3-tk libmgba0.10 portaudio19-dev`
+- **Linux** only: Install the following packages with `apt` or appropriate package manager: `sudo apt install python3-tk libmgba0.10 portaudio19-dev`
+- **Note**: running the bot will **automatically** install required Python packages and download + extract [libmgba](https://github.com/hanzi/libmgba-py) - if you're using Python for any other projects, consider using a [venv](https://docs.python.org/3/library/venv.html) to isolate these packages from your base environment
 
 ### Optional
 - [Windows Terminal](https://github.com/microsoft/terminal/releases) - recommended for full 🌈<span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span>🌈 and  ✨emoji support✨ in the console output

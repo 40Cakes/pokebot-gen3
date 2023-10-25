@@ -5,6 +5,7 @@ __pycache__
 .vs
 
 *.gba
+.last-requirements-check
 build/
 profiles/*/
 dist/
