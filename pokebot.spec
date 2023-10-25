@@ -50,7 +50,7 @@ import shutil
 current_dir = pathlib.Path(os.getcwd())
 output_dir = pathlib.Path(DISTPATH) / app_name
 
-shutil.copyfile(current_dir / 'LICENSE', output_dir / 'LICENSE')
+shutil.copyfile(current_dir / 'LICENSE.txt', output_dir / 'LICENSE.txt')
 shutil.copyfile(current_dir / 'Readme.md', output_dir / 'Readme.md')
 
 os.mkdir(output_dir / 'profiles')
