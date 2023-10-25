@@ -52,9 +52,12 @@ output_dir = pathlib.Path(DISTPATH) / app_name
 
 shutil.copyfile(current_dir / 'LICENSE', output_dir / 'LICENSE')
 shutil.copyfile(current_dir / 'Readme.md', output_dir / 'Readme.md')
+
 os.mkdir(output_dir / 'profiles')
-os.mkdir(output_dir / 'roms')
 for file in (current_dir / 'profiles').glob('*.yml'):
     shutil.copyfile(file, output_dir / 'profiles' / file.name)
 for file in (current_dir / 'profiles').glob('*.py'):
     shutil.copyfile(file, output_dir / 'profiles' / file.name)
+
+os.mkdir(output_dir / 'roms')
+shutil.copyfile(current_dir / 'roms' / '.gitkeep', output_dir / 'roms' / '.gitkeep')
