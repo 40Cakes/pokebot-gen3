@@ -10,5 +10,8 @@ bot_mode: manual
 starter: Mudkip
 
 
-# Save each shiny encounter as a pkX file
-save_pokemon: true
+# Select what pokemon to save as a pk file
+# save_all_pokemon overrides the other two
+save_all_pokemon: true    
+save_shiny_pokemon: true
+save_custom_pokemon: true

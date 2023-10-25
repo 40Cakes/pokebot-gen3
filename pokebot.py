@@ -159,7 +159,6 @@ def check_requirements() -> None:
 
     print("")
 
-
 if __name__ == "__main__":
     check_requirements()
 

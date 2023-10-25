@@ -16,6 +16,7 @@ from modules.roms import ROMLanguage
 from modules.files import write_pk
 from modules.config import config
 
+
 DATA_DIRECTORY = Path(__file__).parent / "data"
 
 # Some substructures in the data are in a different order each time, depending
@@ -1143,26 +1144,27 @@ class Pokemon:
         else:
             return "cascoon"
 
+    @property
+    def dex_number(self) -> int:
+        """
+        Returns the pokedex number
+        """
+
+
     def save(self):
         """
         Takes the binary data of the pokemon and outputs it in a pkX format
         """
 
-        file_name = ""
-        # Check that the player wants the pokemon to be saved
-        if not config["general"]["save_pokemon"]:
-            return
-        else:
-            from modules.profiles import PROFILES_DIRECTORY
-            pokemon_dir_path = PROFILES_DIRECTORY / "pokemon"
+        def prep_pk_for_save(self):
+            file_name = ""
+
+            from modules.stats import pokemon_dir
             
             # Reformat the name to best describe the pokemon
             # <dex_num> <shiny ★> - <IV sum> - <mon_name> - <pid>.pk3
             # e.g. 0273 ★ - [100] - SEEDOT - Modest [180] - C88CF14B19C6.pk3
-            
-            #TODO - dex_num = 
-            #file_name = f"{dex_num} "
-            
+                      
             # In the event of identical pokemon, I've added DTG into the mix 
             iv_sum = self.ivs.hp + self.ivs.attack + self.ivs.defence + self.ivs.speed + self.ivs.special_attack + self.ivs.special_defence
             catch_time = datetime.utcnow().strftime("%Y%m%d.%H.%M.%S")
@@ -1170,14 +1172,31 @@ class Pokemon:
             #version = 
 
             # Put the file together and save it
-            if self.is_shiny: file_name = f"{file_name}★ "
+            file_name = f"{self.dex_number } "
+            if self.is_shiny: file_name = f"{file_name} ★ "
 
             #file_name = f"{file_name}-{iv_sum}-{self.name}-{self.nature}-{self.personality_value}-{catch_time}.pk3"
-            file_name = f"{config['discord']['bot_id']}{file_name} - {iv_sum} - {self.name} - {self.nature} - {self.personality_value} - {catch_time}.pk3"
+            file_name = f"{file_name} - {iv_sum} - {self.name} - {self.nature} - {self.personality_value} - {catch_time}.pk3"
+            
             #TODO - add versioning into the mix
             #file_name = f"{file_name} - {iv_sum} - {self.name} - {nature}.pk{version}"
             
-            write_pk(f"{pokemon_dir_path}/{file_name}", self.data )
+            write_pk(f"{pokemon_dir}/{file_name}", self.data )
+
+        # Write all pokemon to pk file
+        if config["general"]["save_all_pokemon"]: 
+            prep_pk_for_save(self)
+
+        # Pokemon is shiny and user wants to save shiny pokemon
+        elif config["general"]["save_shiny_pokemon"] and self.is_shiny:
+            prep_pk_for_save(self)
+
+        # Pokemon suits custom paramaters and user wants to save it
+        else:
+            from profiles.customcatchfilters import custom_catch_filters
+            if config["general"]["save_custom_pokemon"] and custom_catch_filters(self):
+                prep_pk_for_save(self)
+            
         
 
     # ==============

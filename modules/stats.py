@@ -32,17 +32,22 @@ cached_timestamp: str = ""
 encounter_log: list = []
 shiny_log = None
 stats_dir = None
+pokemon_dir = None
 files = None
 
 
 def init_stats(profile: Profile):
-    global custom_catch_filters, custom_hooks, stats, encounter_log, shiny_log, stats_dir, files
+    global custom_catch_filters, custom_hooks, stats, encounter_log, shiny_log, stats_dir, files, pokemon_dir
 
     config_dir_path = profile.path / "profiles"
     stats_dir_path = profile.path / "stats"
+    pokemon_dir_path = profile.path / "pokemon"
     if not stats_dir_path.exists():
         stats_dir_path.mkdir()
     stats_dir = str(stats_dir_path)
+    if not pokemon_dir_path.exists():
+        pokemon_dir_path.mkdir()
+    pokemon_dir = str(pokemon_dir_path)
 
     files = {"shiny_log": str(stats_dir_path / "shiny_log.json"), "totals": str(stats_dir_path / "totals.json")}
 

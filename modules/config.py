@@ -90,7 +90,11 @@ properties:
                 - Repeat Ball
                 - Timer Ball
                 - Ultra Ball
-    save_pokemon:
+    save_all_pokemon:
+        type: boolean
+    save_shiny_pokemon:
+        type: boolean
+    save_custom_pokemon:
         type: boolean
 """
 
