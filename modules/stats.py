@@ -2,7 +2,6 @@ import os
 import copy
 import json
 import math
-import string
 import sys
 import time
 import importlib
@@ -602,9 +601,6 @@ def log_encounter(pokemon: Pokemon, block_list: list) -> None:
         console.print_exception(show_locals=True)
 
 
-dirsafe_chars = f"-_.() {string.ascii_letters}{string.digits}"
-
-
 def encounter_pokemon(pokemon: Pokemon) -> None:
     """
     Call when a Pokémon is encountered, decides whether to battle, flee or catch.
@@ -641,8 +637,7 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
         if not custom_found and pokemon.species.name in block_list:
             console.print("[bold yellow]" + pokemon.species.name + " is on the catch block list, skipping encounter...")
         else:
-            filename_suffix = f"{state_tag}_{pokemon.species.name}"
-            filename_suffix = "".join(c for c in filename_suffix if c in dirsafe_chars)
+            filename_suffix = f"{state_tag}_{pokemon.species.safe_name}"
             get_emulator().create_save_state(suffix=filename_suffix)
 
             force_manual_mode()

@@ -1,4 +1,5 @@
 import json
+import string
 import struct
 from dataclasses import dataclass
 from enum import Enum
@@ -644,6 +645,23 @@ class Species:
     egg_groups: list[str]
     base_experience_yield: int
     ev_yield: StatsValues
+
+    @property
+    def safe_name(self) -> str:
+        """
+        :return: The species name with any characters that might be problematic in file names replaced.
+        """
+        result = ''
+        for i in range(len(self.name)):
+            if self.name[i] in f"-_.() {string.ascii_letters}{string.digits}":
+                result += self.name[i]
+            elif self.name[i] == '♂':
+                result += '_m'
+            elif self.name[i] == '♀':
+                result += '_f'
+            else:
+                result += '_'
+        return result
 
     def __str__(self):
         return self.name
