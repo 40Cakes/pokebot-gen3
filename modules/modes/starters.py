@@ -3,7 +3,7 @@ from enum import Enum
 
 from modules.config import config, force_manual_mode
 from modules.console import console
-from modules.gui import get_rom, get_emulator
+from modules.gui import get_rom, get_emulator, set_message
 from modules.memory import read_symbol, get_game_state, GameState, get_task, write_symbol, unpack_uint32, pack_uint32
 from modules.navigation import follow_path
 from modules.pokemon import get_party
@@ -117,6 +117,7 @@ class ModeStarters:
                                     get_emulator().press_button("A")
                                 case GameState.MAIN_MENU:  # TODO assumes trainer is in Oak's lab, facing a ball
                                     if get_task("TASK_HANDLEMENUINPUT").get("isActive", False):
+                                        set_message("Waiting for a unique frame before continuing...")
                                         self.update_state(ModeStarterStates.RNG_CHECK)
                                         continue
 
@@ -228,6 +229,7 @@ class ModeStarters:
                             if get_task("TASK_HANDLEYESNOINPUT").get("isActive", False):
                                 get_emulator().press_button("B")
                             else:
+                                set_message("Waiting for a unique frame before continuing...")
                                 self.update_state(ModeStarterStates.RNG_CHECK)
                                 continue
 
@@ -320,6 +322,7 @@ class ModeStarters:
                             if not confirm:
                                 get_emulator().press_button("A")
                             else:
+                                set_message("Waiting for a unique frame before continuing...")
                                 self.update_state(ModeStarterStates.RNG_CHECK)
                                 continue
 
