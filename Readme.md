@@ -50,7 +50,7 @@ Alternatively, if you'd like to be able to easily pull the latest updates withou
 - Any time there's a new update, you can pull the latest changes by clicking **Fetch origin**, then **Pull origin**
 
 ### Requirements
-- [Python 3.11](https://www.python.org/downloads/release/python-3110/) (**64-bit**)
+- [Python 3.12](https://www.python.org/downloads/release/python-3120/) (**64-bit**)
 - **Linux** only: Install the following packages with `apt` or appropriate package manager: `sudo apt install python3-tk libmgba0.10 portaudio19-dev`
 - **Note**: running the bot will **automatically** install required Python packages and download + extract [libmgba](https://github.com/hanzi/libmgba-py) - if you're using Python for any other projects, consider using a [venv](https://docs.python.org/3/library/venv.html) to isolate these packages from your base environment
 

@@ -5,24 +5,24 @@ from pathlib import Path
 
 from modules.version import pokebot_name, pokebot_version
 
-recommended_python_version = "3.11"
-supported_python_versions = [(3, 10), (3, 11)]
+recommended_python_version = "3.12"
+supported_python_versions = [(3, 10), (3, 11), (3, 12)]
 
 libmgba_tag = "0.2.0-2"
 libmgba_ver = "0.2.0"
 
 required_modules = [
-    "numpy~=1.25.2",
+    "numpy~=1.26.1",
     "Flask~=2.3.2",
     "Flask-Cors~=4.0.0",
-    "ruamel.yaml~=0.17.32",
+    "ruamel.yaml~=0.18.2",
     "pypresence~=4.3.0",
     "obsws-python~=1.6.0",
-    "pandas~=2.0.3",
+    "pandas~=2.1.1",
     "discord-webhook~=1.2.1",
     "jsonschema~=4.17.3",
     "rich~=13.5.2",
-    "cffi~=1.15.1",
+    "cffi~=1.16.0",
     "Pillow~=10.0.1",
     "sounddevice~=0.4.6",
     "requests~=2.31.0",
@@ -108,9 +108,11 @@ def check_requirements() -> None:
         # Run `pip install` on all required modules.
         import subprocess
 
+        pip_flags = ["--disable-pip-version-check", "--no-python-version-warning"]
         for module in required_modules:
             subprocess.check_call(
-                [sys.executable, "-m", "pip", "install", module], stderr=sys.stderr, stdout=sys.stdout
+                [sys.executable, "-m", "pip", "install", *pip_flags, module],
+                stderr=sys.stderr, stdout=sys.stdout
             )
 
         # Make sure that `libmgba-py` is installed.
