@@ -646,3 +646,5 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
             get_emulator().create_save_state(suffix=filename_suffix)
 
             force_manual_mode()
+            get_emulator().set_speed_factor(1)
+            get_emulator().set_video_enabled(True)
