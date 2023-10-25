@@ -6,7 +6,7 @@ from modules.console import console
 from modules.gui import get_rom, get_emulator, set_message
 from modules.memory import read_symbol, get_game_state, GameState, get_task, write_symbol, unpack_uint32, pack_uint32
 from modules.navigation import follow_path
-from modules.pokemon import get_party
+from modules.pokemon import get_party, opponent_changed
 from modules.stats import get_rng_state_history, save_rng_state_history, encounter_pokemon
 from modules.trainer import trainer
 
@@ -189,6 +189,7 @@ class ModeStarters:
 
                         case ModeStarterStates.LOG_STARTER:
                             encounter_pokemon(get_party()[0])
+                            opponent_changed()  # Prevent opponent from being logged if starter is shiny
                             return
 
                 case Regions.JOHTO_STARTERS:
@@ -275,6 +276,7 @@ class ModeStarters:
                         case ModeStarterStates.LOG_STARTER:
                             party = get_party()
                             encounter_pokemon(party[len(party) - 1])
+                            opponent_changed()  # Prevent opponent from being logged if starter is shiny
                             return
 
                 case Regions.HOENN_STARTERS:
@@ -374,5 +376,6 @@ class ModeStarters:
 
                         case ModeStarterStates.LOG_STARTER:
                             encounter_pokemon(get_party()[0])
+                            opponent_changed()  # Prevent opponent from being logged if starter is shiny
                             return
             yield
