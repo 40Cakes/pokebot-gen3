@@ -37,7 +37,7 @@ files = None
 def init_stats(profile: Profile):
     global custom_catch_filters, custom_hooks, stats, encounter_log, shiny_log, stats_dir, files
 
-    config_dir_path = profile.path / "profiles"
+    config_dir_path = profile.path
     stats_dir_path = profile.path / "stats"
     if not stats_dir_path.exists():
         stats_dir_path.mkdir()
@@ -48,8 +48,8 @@ def init_stats(profile: Profile):
     try:
         if (config_dir_path / "customcatchfilters.py").is_file():
             custom_catch_filters = importlib.import_module(
-                ".custom_catch_filters", f"profiles.{profile.path.name}.config"
-            ).customcatchfilters
+                ".customcatchfilters", f"profiles.{profile.path.name}"
+            ).custom_catch_filters
         else:
             from profiles.customcatchfilters import custom_catch_filters
 
