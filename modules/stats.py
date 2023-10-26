@@ -54,7 +54,7 @@ def init_stats(profile: Profile):
             from profiles.customcatchfilters import custom_catch_filters
 
         if (config_dir_path / "customhooks.py").is_file():
-            custom_hooks = importlib.import_module(".custom_hooks", f"profiles.{profile.path.name}.config").customhooks
+            custom_hooks = importlib.import_module(".customhooks", f"profiles.{profile.path.name}").custom_hooks
         else:
             from profiles.customhooks import custom_hooks
 
