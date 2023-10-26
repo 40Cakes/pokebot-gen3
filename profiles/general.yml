@@ -12,6 +12,6 @@ starter: Mudkip
 
 # Select what pokemon to save as a pk file
 # save_all_pokemon overrides the other two
-save_all_pokemon: true    
+save_all_pokemon: false    
 save_shiny_pokemon: true
 save_custom_pokemon: true
