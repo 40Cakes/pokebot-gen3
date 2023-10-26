@@ -1,8 +1,8 @@
 import json
-from pathlib import Path
 from typing import Literal
 
 from modules.roms import ROM, ROMLanguage
+from modules.runtime import get_data_path
 
 _symbols: dict[str, tuple[int, int]] = {}
 _reverse_symbols: dict[int, tuple[str, str, int]] = {}
@@ -11,15 +11,13 @@ _character_table_international: list[str] = []
 _character_table_japanese: list[str] = []
 _current_character_table: list[str] = []
 
-DATA_DIRECTORY = Path(__file__).parent / "data"
-
 
 def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
     global _symbols, _reverse_symbols
 
     _symbols.clear()
     _reverse_symbols.clear()
-    for d in [DATA_DIRECTORY / "symbols", DATA_DIRECTORY / "symbols" / "patches"]:
+    for d in [get_data_path() / "symbols", get_data_path() / "symbols" / "patches"]:
         for s in open(d / symbols_file).readlines():
             address, _, length, label = s.split(" ")
 
@@ -33,7 +31,7 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
 
     language_code = str(language)
     language_patch_file = symbols_file.replace(".sym", ".json")
-    language_patch_path = DATA_DIRECTORY / "symbols" / "patches" / "language" / language_patch_file
+    language_patch_path = get_data_path() / "symbols" / "patches" / "language" / language_patch_file
     if language_code in ["D", "I", "S", "F", "J"] and language_patch_path.is_file():
         with open(language_patch_path, "r") as file:
             language_patches = json.load(file)
@@ -57,9 +55,11 @@ def _load_event_flags(flags_file: str) -> None:  # TODO Japanese ROMs not workin
             sav1_offset = 0x1270
         case "flags_gen3frlg.txt":
             sav1_offset = 0x0EE0
+        case _:
+            raise RuntimeError("Invalid argument to _load_event_flags()")
 
     _event_flags.clear()
-    for s in open(DATA_DIRECTORY / "event_flags" / flags_file).readlines():
+    for s in open(get_data_path() / "event_flags" / flags_file).readlines():
         col = s.split("\t")
 
         for i in range(len(col)):

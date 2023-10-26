@@ -9,8 +9,9 @@ from ruamel.yaml import YAML
 
 from modules.console import console
 from modules.roms import ROMS_DIRECTORY, ROM, list_available_roms, load_rom_data
+from modules.runtime import get_base_path
 
-PROFILES_DIRECTORY = Path(__file__).parent.parent / "profiles"
+PROFILES_DIRECTORY = get_base_path() / "profiles"
 
 metadata_schema = """
 type: object

@@ -2,7 +2,6 @@ import os
 import copy
 import json
 import math
-import string
 import sys
 import time
 import importlib
@@ -40,7 +39,7 @@ files = None
 def init_stats(profile: Profile):
     global custom_catch_filters, custom_hooks, stats, encounter_log, shiny_log, stats_dir, files, pokemon_dir
 
-    config_dir_path = profile.path / "profiles"
+    config_dir_path = profile.path
     stats_dir_path = profile.path / "stats"
     pokemon_dir_path = profile.path / "pokemon"
     if not stats_dir_path.exists():
@@ -55,13 +54,13 @@ def init_stats(profile: Profile):
     try:
         if (config_dir_path / "customcatchfilters.py").is_file():
             custom_catch_filters = importlib.import_module(
-                ".custom_catch_filters", f"profiles.{profile.path.name}.config"
-            ).customcatchfilters
+                ".customcatchfilters", f"profiles.{profile.path.name}"
+            ).custom_catch_filters
         else:
             from profiles.customcatchfilters import custom_catch_filters
 
         if (config_dir_path / "customhooks.py").is_file():
-            custom_hooks = importlib.import_module(".custom_hooks", f"profiles.{profile.path.name}.config").customhooks
+            custom_hooks = importlib.import_module(".customhooks", f"profiles.{profile.path.name}").custom_hooks
         else:
             from profiles.customhooks import custom_hooks
 
@@ -608,9 +607,6 @@ def log_encounter(pokemon: Pokemon, block_list: list) -> None:
         console.print_exception(show_locals=True)
 
 
-dirsafe_chars = f"-_.() {string.ascii_letters}{string.digits}"
-
-
 def encounter_pokemon(pokemon: Pokemon) -> None:
     """
     Call when a Pokémon is encountered, decides whether to battle, flee or catch.
@@ -663,11 +659,11 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
         if not custom_found and pokemon.species.name in block_list:
             console.print("[bold yellow]" + pokemon.species.name + " is on the catch block list, skipping encounter...")
         else:
-            filename_suffix = f"{state_tag}_{pokemon.species.name}"
-            filename_suffix = "".join(c for c in filename_suffix if c in dirsafe_chars)
+            filename_suffix = f"{state_tag}_{pokemon.species.safe_name}"
             get_emulator().create_save_state(suffix=filename_suffix)
 
             force_manual_mode()
+
 
 def save_pokemon_as_pk(pokemon: Pokemon) -> None:
         """
@@ -700,3 +696,6 @@ def save_pokemon_as_pk(pokemon: Pokemon) -> None:
         
         write_pk(f"{pokemon_dir}/{file_name}", pokemon.data )
      
+            get_emulator().set_speed_factor(1)
+            get_emulator().set_throttle(True)
+            get_emulator().set_video_enabled(True)
