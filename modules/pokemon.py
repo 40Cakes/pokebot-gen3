@@ -1,5 +1,4 @@
 import json, struct
-from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum
 from functools import cached_property
@@ -13,8 +12,6 @@ from modules.game import decode_string
 from modules.gui import get_emulator
 from modules.memory import unpack_uint32, unpack_uint16, read_symbol, pack_uint32
 from modules.roms import ROMLanguage
-from modules.files import write_pk
-from modules.config import config
 
 
 DATA_DIRECTORY = Path(__file__).parent / "data"
@@ -761,7 +758,6 @@ class Pokemon:
 
     def __init__(self, data: bytes):
         self.data = data
-        self.save()
 
     @cached_property
     def _decrypted_data(self) -> bytes:
@@ -1142,61 +1138,7 @@ class Pokemon:
         if value <= 4:
             return "silcoon"
         else:
-            return "cascoon"
-
-    @property
-    def dex_number(self) -> int:
-        """
-        Returns the pokedex number
-        """
-
-
-    def save(self):
-        """
-        Takes the binary data of the pokemon and outputs it in a pkX format
-        """
-
-        def prep_pk_for_save(self):
-            file_name = ""
-
-            from modules.stats import pokemon_dir
-            
-            # Reformat the name to best describe the pokemon
-            # <dex_num> <shiny ★> - <IV sum> - <mon_name> - <pid>.pk3
-            # e.g. 0273 ★ - [100] - SEEDOT - Modest [180] - C88CF14B19C6.pk3
-                      
-            # In the event of identical pokemon, I've added DTG into the mix 
-            iv_sum = self.ivs.hp + self.ivs.attack + self.ivs.defence + self.ivs.speed + self.ivs.special_attack + self.ivs.special_defence
-            catch_time = datetime.utcnow().strftime("%Y%m%d.%H.%M.%S")
-            # Depending on the game changes what the ext of the file needs to be (gen4 = pk4)
-            #version = 
-
-            # Put the file together and save it
-            file_name = f"{self.dex_number } "
-            if self.is_shiny: file_name = f"{file_name} ★ "
-
-            #file_name = f"{file_name}-{iv_sum}-{self.name}-{self.nature}-{self.personality_value}-{catch_time}.pk3"
-            file_name = f"{file_name} - {iv_sum} - {self.name} - {self.nature} - {self.personality_value} - {catch_time}.pk3"
-            
-            #TODO - add versioning into the mix
-            #file_name = f"{file_name} - {iv_sum} - {self.name} - {nature}.pk{version}"
-            
-            write_pk(f"{pokemon_dir}/{file_name}", self.data )
-
-        # Write all pokemon to pk file
-        if config["general"]["save_all_pokemon"]: 
-            prep_pk_for_save(self)
-
-        # Pokemon is shiny and user wants to save shiny pokemon
-        elif config["general"]["save_shiny_pokemon"] and self.is_shiny:
-            prep_pk_for_save(self)
-
-        # Pokemon suits custom paramaters and user wants to save it
-        else:
-            from profiles.customcatchfilters import custom_catch_filters
-            if config["general"]["save_custom_pokemon"] and custom_catch_filters(self):
-                prep_pk_for_save(self)
-            
+            return "cascoon"      
         
 
     # ==============
