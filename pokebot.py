@@ -1,6 +1,7 @@
 import atexit
 import platform
 import sys
+import json
 
 from modules.runtime import is_bundled_app, get_base_path
 from modules.version import pokebot_name, pokebot_version
@@ -74,90 +75,97 @@ def check_requirements() -> None:
             else:
                 print(
                     f"This is a newer version of {pokebot_name} than you have run before. "
-                    f"We will have to check again if all requirements are met."
+                    f"Checking if requirements are met..."
                 )
                 print("")
     else:
         print(
             f"Seems like this is the first time you are running {pokebot_name}!\n"
-            "We will check if your system meets all the requirements to run it."
+            "Checking if requirements are met..."
         )
         print("")
 
     if need_to_fetch_requirements:
-        python_version = platform.python_version_tuple()
-        version_matched = False
-        for supported_version in supported_python_versions:
-            if int(python_version[0]) == supported_version[0] and int(python_version[1]) == supported_version[1]:
-                version_matched = True
-                break
-        if not version_matched:
-            supported_versions_list = ", ".join(map(lambda t: f"{str(t[0])}.{str(t[1])}", supported_python_versions))
-            print(f"ERROR: The Python version you are using (Python {platform.python_version()}) is not supported.\n")
-            print(f"Supported versions are: {supported_versions_list}")
-            print(f"It is recommended that you install Python {recommended_python_version}.")
-            sys.exit(1)
+        print(f"The following Python modules need to be installed:\n\n{json.dumps(required_modules, indent=2)}\n\n")
+        response = input("Install modules? [y/n] ")
+        if response.lower() == "y":
+            python_version = platform.python_version_tuple()
+            version_matched = False
+            for supported_version in supported_python_versions:
+                if int(python_version[0]) == supported_version[0] and int(python_version[1]) == supported_version[1]:
+                    version_matched = True
+                    break
+            if not version_matched:
+                supported_versions_list = ", ".join(map(lambda t: f"{str(t[0])}.{str(t[1])}", supported_python_versions))
+                print(f"ERROR: The Python version you are using (Python {platform.python_version()}) is not supported.\n")
+                print(f"Supported versions are: {supported_versions_list}")
+                print(f"It is recommended that you install Python {recommended_python_version}.")
+                sys.exit(1)
 
-        # Some dependencies only work with 64-bit Python. Since this isn't the 90s anymore,
-        # we'll just require that.
-        if platform.architecture()[0] != "64bit":
-            print(f"ERROR: A 64-bit version of Python is required in order to run {pokebot_name} {pokebot_version}.\n")
-            print(f"You are currently running a {platform.architecture()[0]} version.")
-            sys.exit(1)
+            # Some dependencies only work with 64-bit Python. Since this isn't the 90s anymore,
+            # we'll just require that.
+            if platform.architecture()[0] != "64bit":
+                print(f"ERROR: A 64-bit version of Python is required in order to run {pokebot_name} {pokebot_version}.\n")
+                print(f"You are currently running a {platform.architecture()[0]} version.")
+                sys.exit(1)
 
-        # Run `pip install` on all required modules.
-        import subprocess
+            # Run `pip install` on all required modules.
+            import subprocess
 
-        pip_flags = ["--disable-pip-version-check", "--no-python-version-warning"]
-        for module in required_modules:
-            subprocess.check_call(
-                [sys.executable, "-m", "pip", "install", *pip_flags, module],
-                stderr=sys.stderr, stdout=sys.stdout
-            )
+            pip_flags = ["--disable-pip-version-check", "--no-python-version-warning"]
+            for module in required_modules:
+                subprocess.check_call(
+                    [sys.executable, "-m", "pip", "install", *pip_flags, module],
+                    stderr=sys.stderr, stdout=sys.stdout
+                )
 
-        # Make sure that `libmgba-py` is installed.
-        print("")
-        libmgba_directory = get_base_path() / "mgba"
-        if not libmgba_directory.is_dir():
-            match platform.system():
-                case "Windows":
-                    libmgba_url = (
-                        f"https://github.com/hanzi/libmgba-py/releases/download/{libmgba_tag}/"
-                        f"libmgba-py_{libmgba_ver}_win64.zip"
-                    )
-
-                case "Linux":
-                    linux_release = platform.freedesktop_os_release()
-                    supported_linux_releases = [("ubuntu", "23.04"), ("debian", "12")]
-                    if (linux_release["ID"], linux_release["VERSION_ID"]) not in supported_linux_releases:
-                        print(
-                            f'You are running an untested version of Linux ({linux_release["PRETTY_NAME"]}). '
-                            f"Currently, only {supported_linux_releases} have been tested and confirmed working."
+            # Make sure that `libmgba-py` is installed.
+            print("")
+            libmgba_directory = get_base_path() / "mgba"
+            if not libmgba_directory.is_dir():
+                match platform.system():
+                    case "Windows":
+                        libmgba_url = (
+                            f"https://github.com/hanzi/libmgba-py/releases/download/{libmgba_tag}/"
+                            f"libmgba-py_{libmgba_ver}_win64.zip"
                         )
-                        input("Press enter to install libmgba-py anyway...")
-                    libmgba_url = (
-                        f"https://github.com/hanzi/libmgba-py/releases/download/{libmgba_tag}/"
-                        f"libmgba-py_{libmgba_ver}_ubuntu-lunar.zip"
-                    )
 
-                case _:
-                    print(f"ERROR: {platform.system()} is unsupported. Only Windows and Linux are currently supported.")
-                    sys.exit(1)
+                    case "Linux":
+                        linux_release = platform.freedesktop_os_release()
+                        supported_linux_releases = [("ubuntu", "23.04"), ("debian", "12")]
+                        if (linux_release["ID"], linux_release["VERSION_ID"]) not in supported_linux_releases:
+                            print(
+                                f'You are running an untested version of Linux ({linux_release["PRETTY_NAME"]}). '
+                                f"Currently, only {supported_linux_releases} have been tested and confirmed working."
+                            )
+                            input("Press enter to install libmgba-py anyway...")
+                        libmgba_url = (
+                            f"https://github.com/hanzi/libmgba-py/releases/download/{libmgba_tag}/"
+                            f"libmgba-py_{libmgba_ver}_ubuntu-lunar.zip"
+                        )
 
-            import io
-            import requests
-            import zipfile
+                    case _:
+                        print(f"ERROR: {platform.system()} is unsupported. Only Windows and Linux are currently supported.")
+                        sys.exit(1)
 
-            response = requests.get(libmgba_url)
-            if response.status_code == 200:
-                print("Unzipping libmgba into `./mgba`...")
-                with zipfile.ZipFile(io.BytesIO(response.content)) as zip_handle:
-                    zip_handle.extractall(get_base_path())
+                import io
+                import requests
+                import zipfile
 
-        # Mark the requirements for the current bot version as checked, so we do not
-        # have to run all of this again until the next update.
-        with open(requirements_file, "w") as file:
-            file.write(requirements_version_hash)
+                response = requests.get(libmgba_url)
+                if response.status_code == 200:
+                    print("Unzipping libmgba into `./mgba`...")
+                    with zipfile.ZipFile(io.BytesIO(response.content)) as zip_handle:
+                        zip_handle.extractall(get_base_path())
+
+            # Mark the requirements for the current bot version as checked, so we do not
+            # have to run all of this again until the next update.
+            with open(requirements_file, "w") as file:
+                file.write(requirements_version_hash)
+
+        else:
+            print("Exiting!")
+            sys.exit(1)
 
     print("")
 
