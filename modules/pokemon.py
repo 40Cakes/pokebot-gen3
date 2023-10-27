@@ -730,33 +730,22 @@ class StatusCondition(Enum):
     Paralysis = "paralysed"
     BadPoison = "badly poisoned"
 
-    def __init__(self, value: str, turns_remaining: int = -1):
-        super().__init__(value)
-        self.turns_remaining = turns_remaining
-
-    def __str__(self):
-        if self.value == StatusCondition.Sleep:
-            return f"{self.value} ({self.turns_remaining} turns remaining)"
-        else:
-            return self.value
-
     @classmethod
     def from_bitfield(cls, bitfield: int) -> "StatusCondition":
+        condition = StatusCondition.Healthy
         if bitfield & 0b1000_0000:
-            return StatusCondition.BadPoison
+            condition = StatusCondition.BadPoison
         elif bitfield & 0b0100_0000:
-            return StatusCondition.Paralysis
+            condition = StatusCondition.Paralysis
         elif bitfield & 0b0010_0000:
-            return StatusCondition.Freeze
+            condition = StatusCondition.Freeze
         elif bitfield & 0b0001_0000:
-            return StatusCondition.Burn
+            condition = StatusCondition.Burn
         elif bitfield & 0b0000_1000:
-            return StatusCondition.Poison
+            condition = StatusCondition.Poison
         elif bitfield & 0b0000_0111:
             condition = StatusCondition.Sleep
-            condition.turns_remaining = bitfield & 0b0111
-        else:
-            return StatusCondition.Healthy
+        return condition
 
 
 @dataclass
@@ -1037,12 +1026,19 @@ class Pokemon:
         return self.data[84]
 
     @property
+    def sleep_duration(self) -> int:
+        """Returns the remaining turns on the sleep condition."""
+        turns = self.data[80] & 0b0111 if len(self.data) > 80 else 0
+        return turns
+
+    @property
     def status_condition(self) -> StatusCondition:
-        # This property is not available for boxed Pokémon
-        if len(self.data) <= 80:
-            return StatusCondition.Healthy
-        else:
-            return StatusCondition.from_bitfield(self.data[80])
+        """Returns the StatusCondition of a pokémon."""
+        status = StatusCondition.Healthy
+        # This property is not available for boxed Pokémon.
+        if len(self.data) > 80:
+            status = StatusCondition.from_bitfield(self.data[80])
+        return status
 
     @property
     def stats(self) -> StatsValues:
@@ -1306,7 +1302,7 @@ class Pokemon:
                 "freeze": self.status_condition == StatusCondition.Freeze,
                 "paralysis": self.status_condition == StatusCondition.Paralysis,
                 "poison": self.status_condition == StatusCondition.Poison,
-                "sleep": self.status_condition.turns_remaining if self.status_condition == StatusCondition.Sleep else 0,
+                "sleep": self.sleep_duration if self.status_condition == StatusCondition.Sleep else 0,
             },
             "type": [self.species.types[0].name, self.species.types[1].name if len(self.species.types) > 1 else ""],
         }
