@@ -2,6 +2,7 @@
 # TODO add option for a Discord webhook when a custom is caught
 from modules.console import console
 from modules.pokemon import Pokemon
+from modules.stats import save_pk3
 
 
 def custom_catch_filters(pokemon: Pokemon) -> bool:
@@ -11,8 +12,10 @@ def custom_catch_filters(pokemon: Pokemon) -> bool:
     These filters are checked *after* catch block list, so if Wurmple is on your catch block list, the Wurmple evolution
     examples below will still be checked.
 
-    `return True` will command the bot to catch the current encounter
-    `pass` - will skip the check, and continue to check other criteria further down this file
+    - `return True` will command the bot to catch the current encounter
+    - `pass` - will skip the check, and continue to check other criteria further down this file
+    - `save_pk3(pokemon)` instead of `return True` will dump a .pk3 file and continue without pausing the bot until
+    auto-catch is ready
 
     Note: you must restart the bot after editing this file for changes to take effect!
 
