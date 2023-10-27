@@ -44,7 +44,8 @@ def write_file(file: str, value: str, mode: str = "w") -> bool:
         console.print_exception(show_locals=True)()
         return False
 
-def write_pk(file: str, data: bytearray) -> bool:
+
+def write_pk(file: str, data: bytes) -> bool:
     """
     Slightly modified funciton to the write_file function that provides the ability
     to write byte arrays out directly into a file
@@ -64,9 +65,9 @@ def write_pk(file: str, data: bytearray) -> bool:
             os.makedirs(directory)
 
         # Open the file and write the data
-        with open(file, "wb") as binary_file: 
+        with open(file, "wb") as binary_file:
             binary_file.write(data)
         return True
     except:
-        console.print_exception(show_locals=True)()
+        console.print_exception(show_locals=True)
         return False

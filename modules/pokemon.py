@@ -1158,8 +1158,7 @@ class Pokemon:
         if value <= 4:
             return "silcoon"
         else:
-            return "cascoon"      
-        
+            return "cascoon"
 
     # ==============
     # Debug helpers
