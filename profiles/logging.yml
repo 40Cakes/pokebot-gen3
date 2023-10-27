@@ -11,3 +11,10 @@ console:
   encounter_ivs: verbose
   encounter_moves: disable
   statistics: verbose
+
+# Save .pk3 files
+# `true`, `false`
+save_pk3:
+  all: false
+  shiny: true
+  custom: true

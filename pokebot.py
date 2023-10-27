@@ -169,7 +169,6 @@ def check_requirements() -> None:
 
     print("")
 
-
 if __name__ == "__main__":
     if not is_bundled_app():
         check_requirements()
