@@ -39,8 +39,7 @@ def import_pk3_into_storage(path: str) -> bool:
         data = bytes(handle.read(80))
         pokemon = Pokemon(data)
         if pokemon.is_valid:
-            addr = _find_pokemon_storage_offset()[0]
-            get_emulator().write_bytes(addr + available_offset, data)
+            get_emulator().write_bytes(g_pokemon_storage + available_offset, data)
         else:
             return False
 
