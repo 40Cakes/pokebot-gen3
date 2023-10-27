@@ -171,7 +171,9 @@ def print_stats(pokemon: Pokemon) -> None:
                 pokemon_table.add_column(
                     "Hidden Power", justify="center", width=15, style=pokemon.hidden_power_type.name.lower()
                 )
-                pokemon_table.add_column("Shiny Value", justify="center", style=sv_colour(pokemon.shiny_value), width=10)
+                pokemon_table.add_column(
+                    "Shiny Value", justify="center", style=sv_colour(pokemon.shiny_value), width=10
+                )
                 pokemon_table.add_row(
                     str(hex(pokemon.personality_value)[2:]).upper(),
                     str(pokemon.level),
@@ -612,16 +614,14 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
     Call when a Pokémon is encountered, decides whether to battle, flee or catch.
     Expects the trainer's state to be MISC_MENU (battle started, no longer in the overworld).
     It also calls the function to save the pokemon as a pk file if required in the config.
-    
+
     :return:
     """
 
     global block_list
-    
-    # Write all pokemon to pk file
-    if config["general"]["save_all_pokemon"]: 
-        save_pokemon_as_pk(pokemon)
 
+    if config["logging"]["save_pk3"]["all"]:
+        save_pk3(pokemon)
 
     if pokemon.is_shiny or block_list == []:
         # Load catch block config file - allows for editing while bot is running
@@ -637,19 +637,15 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
     custom_found = custom_catch_filters(pokemon)
     if pokemon.is_shiny or custom_found:
         if pokemon.is_shiny:
-            # If not all pokemon are saved, but shinies are, save it 
-            # (if save_all_pokemon=true, this mon was already saved earlier in the function)
-            if not config["general"]["save_all_pokemon"] and config["general"]["save_shiny_pokemon"]: 
-                save_pokemon_as_pk(pokemon)
+            if not config["logging"]["save_pk3"]["all"] and config["logging"]["save_pk3"]["shiny"]:
+                save_pk3(pokemon)
             state_tag = "shiny"
             console.print("[bold yellow]Shiny found!")
             set_message("Shiny found! Bot has been switched to manual mode so you can catch it.")
 
         elif custom_found:
-            # If not all pokemon are saved, but customs are, save it 
-            # (if save_all_pokemon=true, this mon was already saved earlier in the function)
-            if not config["general"]["save_all_pokemon"] and config["general"]["save_custom_pokemon"]: 
-                save_pokemon_as_pk(pokemon)
+            if not config["logging"]["save_pk3"]["all"] and config["logging"]["save_pk3"]["custom"]:
+                save_pk3(pokemon)
             state_tag = "customfilter"
             console.print("[bold green]Custom filter Pokemon found!")
             set_message("Custom filter triggered! Bot has been switched to manual mode so you can catch it.")
@@ -663,39 +659,24 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
             get_emulator().create_save_state(suffix=filename_suffix)
 
             force_manual_mode()
-
-
-def save_pokemon_as_pk(pokemon: Pokemon) -> None:
-        """
-        Takes the binary data of [obj]Pokemon.data  and outputs it in a pkX format
-        in the /profiles/[PROFILE]/pokemon dir.
-        """
-
-        file_name = ""
-
-        from modules.stats import pokemon_dir
-        
-        # Reformat the name to best describe the pokemon
-        # <dex_num> <shiny ★> - <IV sum> - <mon_name> - <Nature> <pid> <DTG>.pk<gen>
-        # e.g. 0273 ★ - [100] - SEEDOT - Modest [180] - C88CF14B19C6 20231026 16:13:11.pk3
-                    
-        iv_sum =    pokemon.ivs.hp + pokemon.ivs.attack + pokemon.ivs.defence + pokemon.ivs.speed + \
-                    pokemon.ivs.special_attack + pokemon.ivs.special_defence
-        catch_time = datetime.utcnow().strftime("%Y%m%d.%H.%M.%S")
-        
-        # Depending on the game changes what the ext of the file needs to be (gen4 = pk4)
-        gen = 3
-
-        # Put the file together and save it
-        file_name = f"{pokemon.species.national_dex_number } "
-        if pokemon.is_shiny: file_name = f"{file_name} ★ "
-
-        file_name = f"{file_name} - {iv_sum} - {pokemon.name} - {pokemon.nature} - {pokemon.personality_value} - {catch_time}.pk{gen}"
-        
-        #TODO - add versioning into the mix
-        
-        write_pk(f"{pokemon_dir}/{file_name}", pokemon.data )
-     
             get_emulator().set_speed_factor(1)
             get_emulator().set_throttle(True)
             get_emulator().set_video_enabled(True)
+
+
+def save_pk3(pokemon: Pokemon) -> None:
+    """
+    Takes the binary data of [obj]Pokemon.data and outputs it in a pkX format
+    in the /profiles/[PROFILE]/pokemon dir.
+    """
+
+    file_name = f"{pokemon.species.national_dex_number} "
+    if pokemon.is_shiny:
+        file_name = f"{file_name} ★ "
+
+    file_name = (
+        f"{file_name} - {pokemon.name} - {pokemon.nature} "
+        "[{pokemon.ivs.sum()}] - {hex(pokemon.personality_value)[2:].upper()}.pk3"
+    )
+
+    write_pk(f"{pokemon_dir}/{file_name}", pokemon.data)
