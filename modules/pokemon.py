@@ -16,6 +16,7 @@ from modules.memory import unpack_uint32, unpack_uint16, read_symbol, pack_uint3
 from modules.roms import ROMLanguage
 from modules.runtime import get_data_path
 
+
 DATA_DIRECTORY = Path(__file__).parent / "data"
 
 # Some substructures in the data are in a different order each time, depending
