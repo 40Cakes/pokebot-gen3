@@ -16,32 +16,6 @@ properties:
     bot_mode:
         type: string
         enum: {available_bot_modes}
-    coords:
-        type: object
-        properties:
-            pos1:
-                type: object
-                properties:
-                    x:
-                        type: integer
-                        minimum: 0
-                    y:
-                        type: integer
-                        minimum: 0
-            pos2:
-                type: object
-                properties:
-                    x:
-                        type: integer
-                        minimum: 0
-                    y:
-                        type: integer
-                        minimum: 0
-    bonk_direction:
-        type: string
-        enum:
-            - horizontal
-            - vertical
     starter:
         type: string
         enum:
@@ -54,48 +28,6 @@ properties:
             - Chikorita
             - Totodile
             - Cyndaquil
-    fossil:
-        type: string
-        enum:
-            - anorith
-            - lileep
-    autosave_encounters:
-        type: integer
-        minimum: 0
-    auto_catch:
-        type: boolean
-    use_spore:
-        type: boolean
-    catch_shinies:
-        type: boolean
-    deoxys_puzzle_solved:
-        type: boolean
-    auto_stop:
-        type: boolean
-    save_game_after_catch:
-        type: boolean
-    ball_priority:
-        type: array
-        uniqueItems: true
-        items:
-            type: string
-            enum:
-                - Dive Ball
-                - Great Ball
-                - Luxury Ball
-                - Master Ball
-                - Nest Ball
-                - Poké Ball
-                - Premier Ball
-                - Repeat Ball
-                - Timer Ball
-                - Ultra Ball
-    save_all_pokemon:
-        type: boolean
-    save_shiny_pokemon:
-        type: boolean
-    save_custom_pokemon:
-        type: boolean
 """
 
 logging_schema = """
@@ -128,6 +60,15 @@ logging_schema = """
                     - verbose
                     - basic
                     - disable
+    save_pk3:
+        type: object
+        properties:
+            all:
+                type: boolean
+            shiny:
+                type: boolean
+            custom:
+                type: boolean
 """
 
 discord_schema = """
