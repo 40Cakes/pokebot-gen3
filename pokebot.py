@@ -1,3 +1,6 @@
+"""Main program entrypoint."""
+
+import argparse
 import atexit
 import platform
 import sys
@@ -5,6 +8,8 @@ import json
 
 from modules.runtime import is_bundled_app, get_base_path
 from modules.version import pokebot_name, pokebot_version
+
+OS_NAME = platform.system()
 
 recommended_python_version = "3.12"
 supported_python_versions = [(3, 10), (3, 11), (3, 12)]
@@ -30,7 +35,7 @@ required_modules = [
     "pyperclip~=1.8.2",
 ]
 
-if platform.system() == "Windows":
+if OS_NAME == "Windows":
     required_modules.extend([
         "pywin32>=306",
         "psutil~=5.9.5"
@@ -45,20 +50,20 @@ gui = None
 # For those cases, we register an `atexit` handler that will wait for user input before closing
 # the terminal window.
 def on_exit() -> None:
-    if platform.system() == "Windows":
-        import psutil
-        import os
+    """Windows-specific handler to prevent the terminal from being terminated until user input."""
+    import psutil
+    import os
+    parent_process_name = psutil.Process(os.getppid()).name()
+    if parent_process_name == "py.exe" or is_bundled_app():
+        if gui is not None and gui.window is not None:
+            gui.window.withdraw()
 
-        parent_process_name = psutil.Process(os.getppid()).name()
-        if parent_process_name == "py.exe" or is_bundled_app():
-            if gui is not None and gui.window is not None:
-                gui.window.withdraw()
-
-            print("")
-            input("Press Enter to close...")
+        print("")
+        input("Press Enter to close...")
 
 
-atexit.register(on_exit)
+if OS_NAME == "Windows":
+    atexit.register(on_exit)
 
 
 def check_requirements() -> None:
@@ -169,6 +174,17 @@ def check_requirements() -> None:
 
     print("")
 
+def parse_arguments() -> argparse.Namespace:
+    """Parses program arguments."""
+    parser = argparse.ArgumentParser(description=f'{pokebot_name} {pokebot_version}')
+    parser.add_argument(
+        'profile',
+        nargs='?',
+        help='Profile to initialize. Otherwise, the profile selection menu will appear.',
+    )
+    parser.add_argument('-d', '--debug', action='store_true', help='Enable extra debug options and a debug menu.')
+    return parser.parse_args()
+
 if __name__ == "__main__":
     if not is_bundled_app():
         check_requirements()
@@ -179,13 +195,12 @@ if __name__ == "__main__":
     from modules.main import main_loop
     from modules.profiles import profile_directory_exists, load_profile_by_name
 
-    console.print(f"Starting [bold cyan]{pokebot_name} {pokebot_version}![/]")
     load_config_from_directory(get_base_path() / "profiles")
 
     # This catches the signal Windows emits when the underlying console window is closed
     # by the user. We still want to save the emulator state in that case, which would not
     # happen by default!
-    if platform.system() == "Windows":
+    if OS_NAME == "Windows":
         import win32api
 
         def win32_signal_handler(signal_type):
@@ -196,14 +211,13 @@ if __name__ == "__main__":
 
         win32api.SetConsoleCtrlHandler(win32_signal_handler, True)
 
-    preselected_profile = None
-    debug_mode = False
-    for arg in sys.argv[1:]:
-        if arg == "--debug":
-            debug_mode = True
-        elif profile_directory_exists(arg):
-            preselected_profile = load_profile_by_name(arg)
+    parsed_args = parse_arguments()
+    preselected_profile = parsed_args.profile
+    debug_mode = parsed_args.debug
+    if preselected_profile and profile_directory_exists(preselected_profile):
+        preselected_profile = load_profile_by_name(preselected_profile)
 
+    console.print(f"Starting [bold cyan]{pokebot_name} {pokebot_version}![/]")
     gui = PokebotGui(main_loop, on_exit)
     if debug_mode:
         from modules.gui import DebugEmulatorControls
