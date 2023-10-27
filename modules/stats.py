@@ -666,17 +666,16 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
 
 def save_pk3(pokemon: Pokemon) -> None:
     """
-    Takes the binary data of [obj]Pokemon.data and outputs it in a pkX format
-    in the /profiles/[PROFILE]/pokemon dir.
+    Takes the byte data of [obj]Pokémon.data and outputs it in a pkX format in the /profiles/[PROFILE]/pokemon dir.
     """
 
-    file_name = f"{pokemon.species.national_dex_number} "
+    pk3_filename = f"{pokemon.species.national_dex_number}"
     if pokemon.is_shiny:
-        file_name = f"{file_name} ★ "
+        pk3_filename = f"{pk3_filename} ★"
 
-    file_name = (
-        f"{file_name} - {pokemon.name} - {pokemon.nature} "
+    pk3_filename = (
+        f"{pk3_filename} - {pokemon.name} - {pokemon.nature} "
         f"[{pokemon.ivs.sum()}] - {hex(pokemon.personality_value)[2:].upper()}.pk3"
     )
 
-    write_pk(f"{pokemon_dir}/{file_name}", pokemon.data)
+    write_pk(f"{pokemon_dir}/{pk3_filename}", pokemon.data)
