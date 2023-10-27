@@ -174,7 +174,6 @@ def check_requirements() -> None:
 
     print("")
 
-
 def parse_arguments() -> argparse.Namespace:
     """Parses program arguments."""
     parser = argparse.ArgumentParser(description=f'{pokebot_name} {pokebot_version}')
@@ -185,7 +184,6 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument('-d', '--debug', action='store_true', help='Enable extra debug options and a debug menu.')
     return parser.parse_args()
-
 
 if __name__ == "__main__":
     if not is_bundled_app():

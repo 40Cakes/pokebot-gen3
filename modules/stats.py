@@ -18,6 +18,7 @@ from modules.gui import set_message, get_emulator
 from modules.memory import get_game_state, GameState
 from modules.pokemon import Pokemon
 from modules.profiles import Profile
+from modules.files import write_pk
 
 custom_catch_filters = None
 custom_hooks = None
@@ -31,17 +32,22 @@ cached_timestamp: str = ""
 encounter_log: list = []
 shiny_log = None
 stats_dir = None
+pokemon_dir = None
 files = None
 
 
 def init_stats(profile: Profile):
-    global custom_catch_filters, custom_hooks, stats, encounter_log, shiny_log, stats_dir, files
+    global custom_catch_filters, custom_hooks, stats, encounter_log, shiny_log, stats_dir, files, pokemon_dir
 
     config_dir_path = profile.path
     stats_dir_path = profile.path / "stats"
+    pokemon_dir_path = profile.path / "pokemon"
     if not stats_dir_path.exists():
         stats_dir_path.mkdir()
     stats_dir = str(stats_dir_path)
+    if not pokemon_dir_path.exists():
+        pokemon_dir_path.mkdir()
+    pokemon_dir = str(pokemon_dir_path)
 
     files = {"shiny_log": str(stats_dir_path / "shiny_log.json"), "totals": str(stats_dir_path / "totals.json")}
 
@@ -165,7 +171,9 @@ def print_stats(pokemon: Pokemon) -> None:
                 pokemon_table.add_column(
                     "Hidden Power", justify="center", width=15, style=pokemon.hidden_power_type.name.lower()
                 )
-                pokemon_table.add_column("Shiny Value", justify="center", style=sv_colour(pokemon.shiny_value), width=10)
+                pokemon_table.add_column(
+                    "Shiny Value", justify="center", style=sv_colour(pokemon.shiny_value), width=10
+                )
                 pokemon_table.add_row(
                     str(hex(pokemon.personality_value)[2:]).upper(),
                     str(pokemon.level),
@@ -605,11 +613,16 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
     """
     Call when a Pokémon is encountered, decides whether to battle, flee or catch.
     Expects the trainer's state to be MISC_MENU (battle started, no longer in the overworld).
+    It also calls the function to save the pokemon as a pk file if required in the config.
 
     :return:
     """
 
     global block_list
+
+    if config["logging"]["save_pk3"]["all"]:
+        save_pk3(pokemon)
+
     if pokemon.is_shiny or block_list == []:
         # Load catch block config file - allows for editing while bot is running
         from modules.config import catch_block_schema, load_config
@@ -624,10 +637,15 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
     custom_found = custom_catch_filters(pokemon)
     if pokemon.is_shiny or custom_found:
         if pokemon.is_shiny:
+            if not config["logging"]["save_pk3"]["all"] and config["logging"]["save_pk3"]["shiny"]:
+                save_pk3(pokemon)
             state_tag = "shiny"
             console.print("[bold yellow]Shiny found!")
             set_message("Shiny found! Bot has been switched to manual mode so you can catch it.")
+
         elif custom_found:
+            if not config["logging"]["save_pk3"]["all"] and config["logging"]["save_pk3"]["custom"]:
+                save_pk3(pokemon)
             state_tag = "customfilter"
             console.print("[bold green]Custom filter Pokemon found!")
             set_message("Custom filter triggered! Bot has been switched to manual mode so you can catch it.")
@@ -644,3 +662,21 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
             get_emulator().set_speed_factor(1)
             get_emulator().set_throttle(True)
             get_emulator().set_video_enabled(True)
+
+
+def save_pk3(pokemon: Pokemon) -> None:
+    """
+    Takes the binary data of [obj]Pokemon.data and outputs it in a pkX format
+    in the /profiles/[PROFILE]/pokemon dir.
+    """
+
+    file_name = f"{pokemon.species.national_dex_number} "
+    if pokemon.is_shiny:
+        file_name = f"{file_name} ★ "
+
+    file_name = (
+        f"{file_name} - {pokemon.name} - {pokemon.nature} "
+        "[{pokemon.ivs.sum()}] - {hex(pokemon.personality_value)[2:].upper()}.pk3"
+    )
+
+    write_pk(f"{pokemon_dir}/{file_name}", pokemon.data)
