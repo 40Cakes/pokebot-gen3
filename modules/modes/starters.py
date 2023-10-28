@@ -1,9 +1,9 @@
 import random
 from enum import Enum
 
-from modules.config import config, force_manual_mode
+from modules.config import config
 from modules.console import console
-from modules.gui import get_rom, get_emulator, set_message
+from modules.context import context
 from modules.memory import read_symbol, get_game_state, GameState, get_task, write_symbol, unpack_uint32, pack_uint32
 from modules.navigation import follow_path
 from modules.pokemon import get_party, opponent_changed
@@ -52,13 +52,13 @@ class ModeStarters:
         self.johto_starters: list = ["Chikorita", "Totodile", "Cyndaquil"]
         self.hoenn_starters: list = ["Treecko", "Torchic", "Mudkip"]
 
-        if config["general"]["starter"] in self.kanto_starters and get_rom().game_title in [
+        if config["general"]["starter"] in self.kanto_starters and context.rom.game_title in [
             "POKEMON LEAF",
             "POKEMON FIRE",
         ]:
             self.region: Regions = Regions.KANTO_STARTERS
 
-        elif config["general"]["starter"] in self.johto_starters and get_rom().game_title == "POKEMON EMER":
+        elif config["general"]["starter"] in self.johto_starters and context.rom.game_title == "POKEMON EMER":
             self.region: Regions = Regions.JOHTO_STARTERS
             self.start_party_length: int = 0
             console.print(
@@ -71,13 +71,13 @@ class ModeStarters:
 
         elif config["general"]["starter"] in self.hoenn_starters:
             self.bag_position: int = BagPositions[config["general"]["starter"].upper()].value
-            if get_rom().game_title == "POKEMON EMER":
+            if context.rom.game_title == "POKEMON EMER":
                 self.region = Regions.HOENN_STARTERS
                 self.task_bag_cursor: str = "TASK_HANDLESTARTERCHOOSEINPUT"
                 self.task_confirm: str = "TASK_HANDLECONFIRMSTARTERINPUT"
                 self.task_ball_throw: str = "TASK_PLAYCRYWHENRELEASEDFROMBALL"
                 self.task_map_popup: str = "TASK_MAPNAMEPOPUPWINDOW"
-            elif get_rom().game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
+            elif context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
                 self.region = Regions.HOENN_STARTERS
                 self.task_bag_cursor: str = "TASK_STARTERCHOOSE2"
                 self.task_confirm: str = "TASK_STARTERCHOOSE5"
@@ -98,9 +98,9 @@ class ModeStarters:
         if self.state == ModeStarterStates.INCOMPATIBLE:
             console.print(
                 f"[red bold]Starter `{config['general']['starter']}` is incompatible, update `starter` in config "
-                f"file `general.yml` to a valid starter for {get_rom().game_name} and restart the bot!"
+                f"file `general.yml` to a valid starter for {context.rom.game_name} and restart the bot!"
             )
-            force_manual_mode()
+            context.bot_mode = "manual"
             return
 
         while True:
@@ -108,16 +108,16 @@ class ModeStarters:
                 case Regions.KANTO_STARTERS:
                     match self.state:
                         case ModeStarterStates.RESET:
-                            get_emulator().reset()
+                            context.emulator.reset()
                             self.update_state(ModeStarterStates.TITLE)
 
                         case ModeStarterStates.TITLE:
                             match get_game_state():
                                 case GameState.TITLE_SCREEN:
-                                    get_emulator().press_button("A")
+                                    context.emulator.press_button("A")
                                 case GameState.MAIN_MENU:  # TODO assumes trainer is in Oak's lab, facing a ball
                                     if get_task("TASK_HANDLEMENUINPUT").get("isActive", False):
-                                        set_message("Waiting for a unique frame before continuing...")
+                                        context.message = "Waiting for a unique frame before continuing..."
                                         self.update_state(ModeStarterStates.RNG_CHECK)
                                         continue
 
@@ -137,7 +137,7 @@ class ModeStarters:
                         case ModeStarterStates.OVERWORLD:
                             self.start_party_length = len(get_party())
                             if not get_task("TASK_SCRIPTSHOWMONPIC").get("isActive", False):
-                                get_emulator().press_button("A")
+                                context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.INJECT_RNG)
                                 continue
@@ -149,16 +149,16 @@ class ModeStarters:
 
                         case ModeStarterStates.SELECT_STARTER:  # TODO can be made slightly faster by holding B through chat
                             if get_task("TASK_DRAWFIELDMESSAGEBOX").get("isActive", False):
-                                get_emulator().press_button("A")
+                                context.emulator.press_button("A")
                             elif not get_task("TASK_SCRIPTSHOWMONPIC").get("isActive", False):
-                                get_emulator().press_button("B")
+                                context.emulator.press_button("B")
                             else:
                                 self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                 continue
 
                         case ModeStarterStates.CONFIRM_STARTER:
                             if len(get_party()) == 0:
-                                get_emulator().press_button("A")
+                                context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.EXIT_MENUS)
                                 continue
@@ -166,10 +166,10 @@ class ModeStarters:
                         case ModeStarterStates.EXIT_MENUS:
                             if not config["cheats"]["starters"]:
                                 if trainer.get_facing_direction() != "Down":
-                                    get_emulator().press_button("B")
-                                    get_emulator().hold_button("Down")
+                                    context.emulator.press_button("B")
+                                    context.emulator.hold_button("Down")
                                 else:
-                                    get_emulator().release_button("Down")
+                                    context.emulator.release_button("Down")
                                     self.update_state(ModeStarterStates.FOLLOW_PATH)
                                     continue
                             else:
@@ -182,7 +182,7 @@ class ModeStarters:
 
                         case ModeStarterStates.CHECK_STARTER:
                             if not get_task("TASK_PLAYERCONTROLLER_RESTOREBGMAFTERCRY").get("isActive", False):
-                                get_emulator().press_button("B")
+                                context.emulator.press_button("B")
                             else:
                                 self.update_state(ModeStarterStates.LOG_STARTER)
                                 continue
@@ -198,17 +198,17 @@ class ModeStarters:
                             console.print(
                                 "[red]Your party is full, make some room before using the Johto starters mode!"
                             )
-                            force_manual_mode()
+                            context.bot_mode = "manual"
                             return
 
                         case ModeStarterStates.RESET:
-                            get_emulator().reset()
+                            context.emulator.reset()
                             self.update_state(ModeStarterStates.TITLE)
 
                         case ModeStarterStates.TITLE:
                             match get_game_state():
                                 case GameState.TITLE_SCREEN | GameState.MAIN_MENU:
-                                    get_emulator().press_button("A")
+                                    context.emulator.press_button("A")
                                 case GameState.OVERWORLD:
                                     self.update_state(ModeStarterStates.OVERWORLD)
                                     continue
@@ -216,7 +216,7 @@ class ModeStarters:
                         case ModeStarterStates.OVERWORLD:
                             self.start_party_length = len(get_party())
                             if get_task("TASK_DRAWFIELDMESSAGE").get("isActive", False):
-                                get_emulator().press_button("A")
+                                context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.INJECT_RNG)
                                 continue
@@ -228,9 +228,9 @@ class ModeStarters:
 
                         case ModeStarterStates.YES_NO:
                             if get_task("TASK_HANDLEYESNOINPUT").get("isActive", False):
-                                get_emulator().press_button("B")
+                                context.emulator.press_button("B")
                             else:
-                                set_message("Waiting for a unique frame before continuing...")
+                                context.message = "Waiting for a unique frame before continuing..."
                                 self.update_state(ModeStarterStates.RNG_CHECK)
                                 continue
 
@@ -249,7 +249,7 @@ class ModeStarters:
 
                         case ModeStarterStates.CONFIRM_STARTER:
                             if len(get_party()) == self.start_party_length:
-                                get_emulator().press_button("A")
+                                context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.EXIT_MENUS)
                                 continue
@@ -260,9 +260,9 @@ class ModeStarters:
                                 continue
                             else:
                                 if get_task("TASK_POKEMONPICWINDOW").get("isActive", False):
-                                    get_emulator().press_button("B")
+                                    context.emulator.press_button("B")
                                 elif get_task("TASK_DRAWFIELDMESSAGE").get("isActive", False):
-                                    get_emulator().press_button("B")
+                                    context.emulator.press_button("B")
                                 else:
                                     self.update_state(ModeStarterStates.CHECK_STARTER)
                                     continue
@@ -282,14 +282,14 @@ class ModeStarters:
                 case Regions.HOENN_STARTERS:
                     match self.state:
                         case ModeStarterStates.RESET:
-                            get_emulator().reset()
+                            context.emulator.reset()
                             self.update_state(ModeStarterStates.TITLE)
 
                         case ModeStarterStates.TITLE:
                             game_state = get_game_state()
                             match game_state:
                                 case GameState.TITLE_SCREEN | GameState.MAIN_MENU:
-                                    get_emulator().press_button("A")
+                                    context.emulator.press_button("A")
                                 case GameState.OVERWORLD:  # TODO assumes trainer is on Route 101, facing bag
                                     if get_task(self.task_map_popup):
                                         self.update_state(ModeStarterStates.OVERWORLD)
@@ -297,7 +297,7 @@ class ModeStarters:
 
                         case ModeStarterStates.OVERWORLD:
                             if get_game_state() != GameState.CHOOSE_STARTER:
-                                get_emulator().press_button("A")
+                                context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.INJECT_RNG)
                                 continue
@@ -312,9 +312,9 @@ class ModeStarters:
                             if cursor_task:
                                 cursor_pos = cursor_task[0]
                                 if cursor_pos > self.bag_position:
-                                    get_emulator().press_button("Left")
+                                    context.emulator.press_button("Left")
                                 elif cursor_pos < self.bag_position:
-                                    get_emulator().press_button("Right")
+                                    context.emulator.press_button("Right")
                                 elif cursor_pos == self.bag_position:
                                     self.update_state(ModeStarterStates.SELECT_STARTER)
                                     continue
@@ -322,9 +322,9 @@ class ModeStarters:
                         case ModeStarterStates.SELECT_STARTER:
                             confirm = get_task(self.task_confirm).get("isActive", False)
                             if not confirm:
-                                get_emulator().press_button("A")
+                                context.emulator.press_button("A")
                             else:
-                                set_message("Waiting for a unique frame before continuing...")
+                                context.message = "Waiting for a unique frame before continuing..."
                                 self.update_state(ModeStarterStates.RNG_CHECK)
                                 continue
 
@@ -345,11 +345,11 @@ class ModeStarters:
                             if config["cheats"]["starters"]:
                                 if len(get_party()) > 0:
                                     self.update_state(ModeStarterStates.LOG_STARTER)
-                                get_emulator().press_button("A")
+                                context.emulator.press_button("A")
                             else:
                                 confirm = get_task(self.task_confirm).get("isActive", False)
                                 if confirm and get_game_state() != GameState.BATTLE:
-                                    get_emulator().press_button("A")
+                                    context.emulator.press_button("A")
                                 else:
                                     self.update_state(ModeStarterStates.THROW_BALL)
                                     continue
@@ -357,14 +357,14 @@ class ModeStarters:
                         # Check for ball being thrown
                         case ModeStarterStates.THROW_BALL:
                             if not get_task(self.task_ball_throw).get("isActive", False):
-                                get_emulator().press_button("B")
+                                context.emulator.press_button("B")
                             else:
                                 self.update_state(ModeStarterStates.STARTER_CRY)
                                 continue
 
                         case ModeStarterStates.STARTER_CRY:
                             if get_task("TASK_DUCKBGMFORPOKEMONCRY").get("isActive", False):
-                                get_emulator().press_button("A")
+                                context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.STARTER_CRY_END)
                                 continue

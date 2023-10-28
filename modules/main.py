@@ -1,9 +1,9 @@
 import sys
 from threading import Thread
 
-from modules.config import config, load_config_from_directory, force_manual_mode
+from modules.config import config, load_config_from_directory
 from modules.console import console
-from modules.gui import get_emulator
+from modules.context import context
 from modules.memory import get_game_state, GameState
 from modules.pokemon import opponent_changed, get_opponent
 from modules.profiles import Profile
@@ -35,18 +35,18 @@ def main_loop(profile: Profile) -> None:
 
     while True:
         try:
-            if not mode and get_game_state() == GameState.BATTLE and config["general"]["bot_mode"] != "starters":
+            if not mode and get_game_state() == GameState.BATTLE and context.bot_mode != "starters":
                 if opponent_changed():
                     encounter_pokemon(get_opponent())
-                if config["general"]["bot_mode"] != "manual":
+                if context.bot_mode != "manual":
                     temp_run_from_battle()
 
-            if config["general"]["bot_mode"] == "manual":
+            if context.bot_mode == "manual":
                 if mode:
                     mode = None
 
             elif not mode:
-                match config["general"]["bot_mode"]:
+                match context.bot_mode:
                     case "spin":
                         from modules.modes.general import ModeSpin
 
@@ -76,9 +76,9 @@ def main_loop(profile: Profile) -> None:
             except:
                 console.print_exception(show_locals=True)
                 mode = None
-                force_manual_mode()
+                context.bot_mode = "manual"
 
-            get_emulator().run_single_frame()
+            context.emulator.run_single_frame()
 
         except SystemExit:
             raise

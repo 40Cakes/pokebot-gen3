@@ -28,6 +28,12 @@ properties:
             - Chikorita
             - Totodile
             - Cyndaquil
+    colour_scheme:
+        type: string
+        enum:
+            - system
+            - light
+            - dark
 """
 
 logging_schema = """
@@ -320,40 +326,3 @@ def load_config_from_directory(path: Path, allow_missing_files=False) -> None:
         elif not allow_missing_files:
             console.print(f"[bold red]Expected a config file {str(file_path)} could not be found.[/]")
             sys.exit(1)
-
-
-previous_bot_mode: str = ""
-
-
-def toggle_manual_mode() -> None:
-    """
-    Toggles between manual mode and the bot mode configured in `general.yml`.
-    If the configured bot mode is already `manual`, this has no effect.
-    """
-    global previous_bot_mode
-
-    if config["general"]["bot_mode"] == "manual" and previous_bot_mode != "":
-        config["general"]["bot_mode"] = previous_bot_mode
-        previous_bot_mode = ""
-    else:
-        previous_bot_mode = config["general"]["bot_mode"]
-        config["general"]["bot_mode"] = "manual"
-
-
-def set_bot_mode(new_bot_mode) -> None:
-    global previous_bot_mode
-    config["general"]["bot_mode"] = new_bot_mode
-    previous_bot_mode = ""
-
-
-def force_manual_mode() -> None:
-    """
-    Ensures that the bot is running in manual mode, to give control back to
-    the user. If the bot is already in manual mode, this has no effect.
-    """
-    global previous_bot_mode
-
-    if config["general"]["bot_mode"] != "manual":
-        previous_bot_mode = config["general"]["bot_mode"]
-
-    config["general"]["bot_mode"] = "manual"

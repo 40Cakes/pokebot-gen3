@@ -1,7 +1,7 @@
 from enum import IntEnum, Enum
 
 from modules.game import decode_string
-from modules.gui import get_rom
+from modules.context import context
 from modules.memory import get_save_block, read_symbol, unpack_uint16
 from modules.data.map import MapRSE, MapFRLG
 
@@ -48,7 +48,7 @@ class FacingDirection(Enum):
 
 class Trainer:
     def __init__(self):
-        if get_rom().game_title in ["POKEMON EMER", "POKEMON RUBY", "POKEMON SAPP"]:
+        if context.rom.game_title in ["POKEMON EMER", "POKEMON RUBY", "POKEMON SAPP"]:
             self.map_data = MapRSE
             self.map_offset = 0
         else:
