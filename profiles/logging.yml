@@ -18,3 +18,7 @@ save_pk3:
   all: false
   shiny: true
   custom: true
+
+# Automatically load .pk3 file into PC storage
+# `true`, `false`
+import_pk3: false
