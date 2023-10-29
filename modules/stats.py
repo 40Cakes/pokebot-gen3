@@ -13,13 +13,12 @@ from rich.table import Table
 from modules.colours import iv_colour, iv_sum_colour, sv_colour
 from modules.config import config, force_manual_mode
 from modules.console import console
-from modules.files import read_file, write_file
+from modules.files import read_file, write_file, write_pk
 from modules.gui import set_message, get_emulator
 from modules.memory import get_game_state, GameState
+from modules.pc_storage import import_into_storage
 from modules.pokemon import Pokemon
 from modules.profiles import Profile
-from modules.files import write_pk
-from modules.pc_storage import import_pk3_into_storage
 
 custom_catch_filters = None
 custom_hooks = None
@@ -620,14 +619,9 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
     """
 
     global block_list
-    mon_is_saved = False
-    mon_is_imported = False
 
     if config["logging"]["save_pk3"]["all"]:
-        path = save_pk3(pokemon)
-        mon_is_saved = True
-        if config["logging"]["import_pk3"]:
-            mon_is_imported = import_pk3_into_storage(path)
+        save_pk3(pokemon)
 
     if pokemon.is_shiny or block_list == []:
         # Load catch block config file - allows for editing while bot is running
@@ -644,20 +638,14 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
     if pokemon.is_shiny or custom_found:
         if pokemon.is_shiny:
             if not config["logging"]["save_pk3"]["all"] and config["logging"]["save_pk3"]["shiny"]:
-                path = save_pk3(pokemon)
-                mon_is_saved = True
-                if config["logging"]["import_pk3"]:
-                    mon_is_imported = import_pk3_into_storage(path)
+                save_pk3(pokemon)
             state_tag = "shiny"
             console.print("[bold yellow]Shiny found!")
             set_message("Shiny found! Bot has been switched to manual mode so you can catch it.")
 
         elif custom_found:
             if not config["logging"]["save_pk3"]["all"] and config["logging"]["save_pk3"]["custom"]:
-                path = save_pk3(pokemon)
-                mon_is_saved = True
-                if config["logging"]["import_pk3"]:
-                    mon_is_imported = import_pk3_into_storage(path)
+                save_pk3(pokemon)
             state_tag = "customfilter"
             console.print("[bold green]Custom filter Pokemon found!")
             set_message("Custom filter triggered! Bot has been switched to manual mode so you can catch it.")
@@ -669,22 +657,22 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
         else:
             filename_suffix = f"{state_tag}_{pokemon.species.safe_name}"
             get_emulator().create_save_state(suffix=filename_suffix)
+
             # TEMPORARY until auto-battle/auto-catch is done
             # if the mon is saved and imported, no need to catch it by hand
-            if mon_is_saved and config["logging"]["import_pk3"] and mon_is_imported:
-                pass
-            else:
-                force_manual_mode()
-                get_emulator().set_speed_factor(1)
-                get_emulator().set_throttle(True)
-                get_emulator().set_video_enabled(True)
+            if config["logging"]["import_pk3"]:
+                if import_into_storage(pokemon.data):
+                    return
+
+            force_manual_mode()
+            get_emulator().set_speed_factor(1)
+            get_emulator().set_throttle(True)
+            get_emulator().set_video_enabled(True)
 
 
-def save_pk3(pokemon: Pokemon) -> str:
+def save_pk3(pokemon: Pokemon) -> None:
     """
     Takes the byte data of [obj]Pokémon.data and outputs it in a pkX format in the /profiles/[PROFILE]/pokemon dir.
-    
-    :return: the path the pokemon was saved to
     """
 
     pk3_filename = f"{pokemon.species.national_dex_number}"
@@ -695,6 +683,5 @@ def save_pk3(pokemon: Pokemon) -> str:
         f"{pk3_filename} - {pokemon.name} - {pokemon.nature} "
         f"[{pokemon.ivs.sum()}] - {hex(pokemon.personality_value)[2:].upper()}.pk3"
     )
-    path = f"{pokemon_dir}/{pk3_filename}"
-    write_pk(path, pokemon.data)
-    return path
+
+    write_pk(f"{pokemon_dir}/{pk3_filename}", pokemon.data)
