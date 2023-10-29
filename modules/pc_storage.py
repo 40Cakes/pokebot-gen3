@@ -40,9 +40,8 @@ def import_into_storage(data: bytes) -> bool:
 
     pokemon = Pokemon(data)
     if pokemon.is_valid and space_available:
-        box = math.floor((available_offset/80) / IN_BOX_COUNT)
+        box = math.floor(((available_offset / 80) / IN_BOX_COUNT) + 1)
         message = f"Saved {pokemon.species.name} to PC box {box}!"
-
         get_emulator().write_bytes(g_pokemon_storage + available_offset, data)
         set_message(message)
         console.print(message)
