@@ -51,7 +51,7 @@ def write_pk(file: str, data: bytes) -> bool:
     to write byte arrays out directly into a file
 
     :param file: File to write to
-    :param date: Pokemon data to be written
+    :param data: Pokemon data to be written
     :return: True if file was written to successfully, otherwise False (bool)
     """
     try:

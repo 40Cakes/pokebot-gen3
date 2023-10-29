@@ -13,12 +13,12 @@ from rich.table import Table
 from modules.colours import iv_colour, iv_sum_colour, sv_colour
 from modules.config import config, force_manual_mode
 from modules.console import console
-from modules.files import read_file, write_file
+from modules.files import read_file, write_file, write_pk
 from modules.gui import set_message, get_emulator
 from modules.memory import get_game_state, GameState
+from modules.pc_storage import import_into_storage
 from modules.pokemon import Pokemon
 from modules.profiles import Profile
-from modules.files import write_pk
 
 custom_catch_filters = None
 custom_hooks = None
@@ -657,6 +657,12 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
         else:
             filename_suffix = f"{state_tag}_{pokemon.species.safe_name}"
             get_emulator().create_save_state(suffix=filename_suffix)
+
+            # TEMPORARY until auto-battle/auto-catch is done
+            # if the mon is saved and imported, no need to catch it by hand
+            if config["logging"]["import_pk3"]:
+                if import_into_storage(pokemon.data):
+                    return
 
             force_manual_mode()
             get_emulator().set_speed_factor(1)
