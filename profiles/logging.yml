@@ -19,6 +19,6 @@ save_pk3:
   shiny: true
   custom: true
 
-# Import pokemon from pk3 file into pc storage right after saving them
+# Automatically load .pk3 file into PC storage
 # `true`, `false`
 import_pk3: false
