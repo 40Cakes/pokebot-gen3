@@ -334,7 +334,7 @@ The Pokémon are dumped to the `pokemon/` folder in your profile, in the followi
 
 Feel free to share any rare/interesting .pk3 files in [#pkhexchange💱](https://discord.com/channels/1057088810950860850/1123523909745135616)!
 
-### Import raw Pokémon data (.pk3)
+### Automatically add Pokémon to PC storage (.pk3)
 While auto-catch is currently still a work in progress, the following option automatically import encountered Pokémon into your PC storage.
 
 Imported Pokémon will be placed into the first available PC slot, in a regular PokéBall.
