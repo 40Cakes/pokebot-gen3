@@ -519,8 +519,8 @@ def log_encounter(pokemon: Pokemon, block_list: list) -> None:
             encounter_timestamps = encounter_timestamps[-100:]
 
         encounter_log.append(log_obj)
-        if len(encounter_log) > 10:
-            encounter_log = encounter_log[-10:]
+        while len(encounter_log) > 10:
+            del encounter_log[0]
 
         if pokemon.is_shiny:
             shiny_log["shiny_log"].append(log_obj)
