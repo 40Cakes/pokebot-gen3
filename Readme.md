@@ -75,10 +75,9 @@ If you have a save from mGBA that you'd like to import and use with the bot, the
 
 - In mGBA, run a game and load into the save file
 - **File** > **Save State File...** > **Save**
-- Double click `import.py` or run `python import.py` in a terminal to launch the save importer tool
+- Double click `pokebot.py` or run `python pokebot.py` in a terminal > type a profile **name** > click **Load Existing Save**
 - Open the save state file you just saved
 - A new bot profile will be created in the `profiles/` folder and set up all required files
-- If the importer tool detects files in the `stats/` or `profiles/` folders from old versions of the bot (from commit `ec5d702`, 7th October, 2023 or earlier), then they will be copied into your new profile
 
 ***
 
@@ -300,9 +299,7 @@ This file controls keyboard to GBA button mappings.
 <summary>Click to expand</summary>
 
 ### General
-`bot_mode` - set the bot to automatically launch into a specific mode (see [🤖 Bot Modes](#-bot-modes))
-
-`starter` - used when `bot_mode` set to `starters` (see [💼 starters](#-starters))
+`starter` - choose which starter Pokémon to hunt for, used when bot mode is set to `starters` (see [💼 starters](#-starters))
 
 </details>
 
@@ -524,9 +521,11 @@ All HTTP responses are in JSON format.
 
 `GET /shiny_log` returns a detailed list of all shiny Pokémon encounters (`shiny_log.json`)
 
+`GET /stats` returns the phase and total statistics (`totals.json`)
+
 `GET /encounter_rate` returns the current encounter rate (encounters per hour)
 
-`GET /stats` returns the phase and total statistics (`totals.json`)
+`GET /event_flags` returns all event flags for the current save file (optional parameter `?flag=FLAG_NAME` to get a specific flag)
 
 </details>
 
