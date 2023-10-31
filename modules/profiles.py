@@ -1,5 +1,4 @@
 import sys
-import typing
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -57,7 +56,7 @@ class Profile:
 
     rom: ROM
     path: Path
-    last_played: typing.Union[datetime, None]
+    last_played: datetime | None
 
 
 def list_available_profiles() -> list[Profile]:
