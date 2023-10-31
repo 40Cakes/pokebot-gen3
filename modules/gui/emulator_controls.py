@@ -5,7 +5,6 @@ from typing import Union
 from modules.config import available_bot_modes
 from modules.context import context
 from modules.libmgba import LibmgbaEmulator
-from modules.stats import get_encounter_rate
 from modules.version import pokebot_name, pokebot_version
 
 
@@ -167,7 +166,9 @@ class EmulatorControls:
         current_load = context.emulator.get_current_time_spent_in_bot_fraction()
         if current_fps:
             stats.append(f"{current_fps:,}fps ({current_fps / 60:0.2f}x)")
-        stats.append(f"{get_encounter_rate():,}/h")
+        if context.profile:
+            from modules.stats import total_stats  # TODO prevent instantiating TotalStats class before profile selected
+            stats.append(f"{total_stats.get_encounter_rate():,}/h")
         stats.append(f"{round(current_load * 100, 1)}%")
         self.stats_label.config(text=" | ".join(stats))
 

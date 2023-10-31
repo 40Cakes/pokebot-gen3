@@ -6,19 +6,16 @@ from modules.console import console
 from modules.context import context
 from modules.memory import get_game_state, GameState
 from modules.pokemon import opponent_changed, get_opponent
-from modules.profiles import Profile
-from modules.stats import init_stats, encounter_pokemon
 from modules.temp import temp_run_from_battle
 
 
-def main_loop(profile: Profile) -> None:
+def main_loop() -> None:
     """
     This function is run after the user has selected a profile and the emulator has been started.
-    :param profile: The profile selected by the user
     """
+    from modules.stats import total_stats  # TODO prevent instantiating TotalStats class before profile selected
     mode = None
-    load_config_from_directory(profile.path, allow_missing_files=True)
-    init_stats(profile)
+    load_config_from_directory(context.profile.path, allow_missing_files=True)
 
     try:
         if config["discord"]["rich_presence"]:
@@ -37,7 +34,7 @@ def main_loop(profile: Profile) -> None:
         try:
             if not mode and get_game_state() == GameState.BATTLE and context.bot_mode != "starters":
                 if opponent_changed():
-                    encounter_pokemon(get_opponent())
+                    total_stats.encounter_pokemon(get_opponent())
                 if context.bot_mode != "manual":
                     temp_run_from_battle()
 

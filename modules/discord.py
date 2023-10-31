@@ -55,7 +55,7 @@ def discord_message(
 
 def discord_rich_presence() -> None:
     try:
-        from modules.stats import get_encounter_rate, encounter_log, stats
+        from modules.stats import total_stats
         from asyncio import new_event_loop as new_loop, set_event_loop as set_loop
 
         set_loop(new_loop())
@@ -77,12 +77,14 @@ def discord_rich_presence() -> None:
 
         while True:
             try:
+                encounter_log = total_stats.get_encounter_log()
+                totals = total_stats.get_total_stats()
                 location = encounter_log[-1]["pokemon"]["metLocation"] if len(encounter_log) > 0 else "N/A"
                 RPC.update(
                     state=f"{location} | {context.rom.game_name}",
                     details=(
-                        f'{stats["totals"].get("encounters", 0):,} ({stats["totals"].get("shiny_encounters", 0):,}✨) |'
-                        f" {get_encounter_rate():,}/h"
+                        f'{totals["totals"].get("encounters", 0):,} ({totals["totals"].get("shiny_encounters", 0):,}✨) |'
+                        f" {total_stats.get_encounter_rate():,}/h"
                     ),
                     large_image=large_image,
                     start=start,

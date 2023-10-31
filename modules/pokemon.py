@@ -1176,7 +1176,7 @@ class Pokemon:
             else:
                 return f"{self.species.name} (lvl. {self.level})"
 
-    def to_json(self):
+    def to_dict(self) -> dict:
         """
         Converts the Pokemon data into a simple dict, which can then be used for JSON-encoding
         the data.

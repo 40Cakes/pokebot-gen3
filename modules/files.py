@@ -1,8 +1,10 @@
 import os
+from pathlib import Path
+
 from modules.console import console
 
 
-def read_file(file: str) -> str:
+def read_file(file: Path) -> str:
     """
     Simple function to read data from a file, return False if file doesn't exist
     :param file: File to read
@@ -19,7 +21,7 @@ def read_file(file: str) -> str:
         return None
 
 
-def write_file(file: str, value: str, mode: str = "w") -> bool:
+def write_file(file: Path, value: str, mode: str = "w") -> bool:
     """
     Simple function to write data to a file, will create the file if doesn't exist.
     Writes to a temp file, then performs os.remove + os.rename to prevent corruption of files (atomic operations).
@@ -30,7 +32,7 @@ def write_file(file: str, value: str, mode: str = "w") -> bool:
     :return: True if file was written to successfully, otherwise False (bool)
     """
     try:
-        tmp_file = file + ".tmp"
+        tmp_file = str(f"{file}.tmp")
         directory = os.path.dirname(tmp_file)
         if not os.path.exists(directory):
             os.makedirs(directory)
@@ -45,7 +47,7 @@ def write_file(file: str, value: str, mode: str = "w") -> bool:
         return False
 
 
-def write_pk(file: str, data: bytes) -> bool:
+def write_pk(file: Path, data: bytes) -> bool:
     """
     Slightly modified funciton to the write_file function that provides the ability
     to write byte arrays out directly into a file

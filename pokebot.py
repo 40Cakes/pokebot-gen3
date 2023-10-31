@@ -45,41 +45,44 @@ def parse_arguments() -> argparse.Namespace:
 
 
 if __name__ == "__main__":
-    if not is_bundled_app():
-        from requirements import check_requirements
-        check_requirements()
+    try:
+        if not is_bundled_app():
+            from requirements import check_requirements
+            check_requirements()
 
-    from modules.config import load_config_from_directory
-    from modules.context import context
-    from modules.console import console
-    from modules.gui import PokebotGui
-    from modules.main import main_loop
-    from modules.profiles import profile_directory_exists, load_profile_by_name
+        from modules.config import load_config_from_directory
+        from modules.context import context
+        from modules.console import console
+        from modules.gui import PokebotGui
+        from modules.main import main_loop
+        from modules.profiles import profile_directory_exists, load_profile_by_name
 
-    load_config_from_directory(get_base_path() / "profiles")
+        load_config_from_directory(get_base_path() / "profiles")
 
-    # This catches the signal Windows emits when the underlying console window is closed
-    # by the user. We still want to save the emulator state in that case, which would not
-    # happen by default!
-    if OS_NAME == "Windows":
-        import win32api
-
-
-        def win32_signal_handler(signal_type):
-            if signal_type == 2:
-                if context.emulator is not None:
-                    context.emulator.shutdown()
+        # This catches the signal Windows emits when the underlying console window is closed
+        # by the user. We still want to save the emulator state in that case, which would not
+        # happen by default!
+        if OS_NAME == "Windows":
+            import win32api
 
 
-        win32api.SetConsoleCtrlHandler(win32_signal_handler, True)
+            def win32_signal_handler(signal_type):
+                if signal_type == 2:
+                    if context.emulator is not None:
+                        context.emulator.shutdown()
 
-    parsed_args = parse_arguments()
-    preselected_profile = parsed_args.profile
-    context.debug = parsed_args.debug
-    if preselected_profile and profile_directory_exists(preselected_profile):
-        preselected_profile = load_profile_by_name(preselected_profile)
 
-    console.print(f"Starting [bold cyan]{pokebot_name} {pokebot_version}![/]")
-    gui = PokebotGui(main_loop, on_exit)
-    context.gui = gui
-    gui.run(preselected_profile)
+            win32api.SetConsoleCtrlHandler(win32_signal_handler, True)
+
+        parsed_args = parse_arguments()
+        preselected_profile = parsed_args.profile
+        context.debug = parsed_args.debug
+        if preselected_profile and profile_directory_exists(preselected_profile):
+            preselected_profile = load_profile_by_name(preselected_profile)
+
+        console.print(f"Starting [bold cyan]{pokebot_name} {pokebot_version}![/]")
+        gui = PokebotGui(main_loop, on_exit)
+        context.gui = gui
+        gui.run(preselected_profile)
+    except:
+        console.print_exception(show_locals=True)

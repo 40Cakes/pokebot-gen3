@@ -27,8 +27,6 @@ def custom_hooks(hook) -> None:
         ### Your custom code goes here ###
 
         # Discord messages
-        from modules.stats import get_encounter_rate
-
         def IVField() -> str:
             # Formatted IV table
             if config["discord"]["iv_format"] == "formatted":
@@ -59,8 +57,9 @@ def custom_hooks(hook) -> None:
             return iv_field
 
         def PhaseSummary() -> dict:
+            from modules.stats import total_stats  # TODO prevent instantiating TotalStats class before profile selected
             return {
-                "Phase Encounters": f"{stats['totals'].get('phase_encounters', 0):,} ({get_encounter_rate():,}/h)",
+                "Phase Encounters": f"{stats['totals'].get('phase_encounters', 0):,} ({total_stats.get_encounter_rate():,}/h)",
                 "Phase IV Sum Records": (
                     f":arrow_up: `{stats['totals'].get('phase_highest_iv_sum', 0):,}` IV {stats['totals'].get('phase_highest_iv_sum_pokemon', 'N/A')}\n"
                     f":arrow_down: `{stats['totals'].get('phase_lowest_iv_sum', 0):,}` IV {stats['totals'].get('phase_lowest_iv_sum_pokemon', 'N/A')}"

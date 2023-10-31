@@ -124,7 +124,7 @@ class PokebotGui:
         self._emulator_screen.enable()
         self._current_screen = self._emulator_screen
 
-        self._main_loop(profile)
+        self._main_loop()
 
     def _handle_key_down_event(self, event):
         keysym_with_modifier = ("ctrl+" if event.state & 4 else "") + event.keysym.lower()

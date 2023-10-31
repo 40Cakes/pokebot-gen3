@@ -1,7 +1,7 @@
 from modules.context import context
 from modules.memory import get_game_state, GameState
 from modules.pokemon import opponent_changed, get_opponent
-from modules.stats import encounter_pokemon
+from modules.stats import total_stats
 from modules.temp import temp_run_from_battle
 from modules.trainer import trainer
 
@@ -22,7 +22,7 @@ def follow_path(coords: list, run: bool = True) -> bool:
         while True and context.bot_mode != "manual":
             if get_game_state() == GameState.BATTLE:
                 if opponent_changed():
-                    encounter_pokemon(get_opponent())
+                    total_stats.encounter_pokemon(get_opponent())
                 context.emulator.release_button("B")
                 temp_run_from_battle()
 
