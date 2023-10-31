@@ -1,10 +1,6 @@
 # General settings
 # See readme for documentation: https://github.com/40Cakes/pokebot-gen3#generalyml---general-config
 
-# Bot mode
-# `manual`, `spin`, `starters`, `fishing`, `bunny_hop`
-bot_mode: manual
-
-# Starter - used when `bot_mode` is set to `starters`
+# Starter - used when bot mode is set to `starters`
 # `Treecko`, `Torchic`, `Mudkip`, `Bulbasaur`, `Charmander`, `Squirtle`, `Chikorita`, `Cyndaquil`, `Totodile`
 starter: Mudkip

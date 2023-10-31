@@ -13,9 +13,6 @@ available_bot_modes = ["manual", "spin", "starters", "fishing", "bunny_hop"]
 general_schema = f"""
 type: object
 properties:
-    bot_mode:
-        type: string
-        enum: {available_bot_modes}
     starter:
         type: string
         enum:
