@@ -130,7 +130,7 @@ class CreateProfileScreen:
         entry.grid(column=1, row=0, sticky="EW")
         entry.bind('<Control-a>', lambda e: self.window.after(50, select_all, e.widget))
 
-        available_roms = list_available_roms()
+        available_roms = list_available_roms(force_recheck=True)
         rom_names = []
         for rom in available_roms:
             rom_names.append(rom.short_game_name)

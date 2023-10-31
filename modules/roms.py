@@ -131,7 +131,7 @@ def list_available_roms(force_recheck: bool = False) -> list[ROM]:
         for file in ROMS_DIRECTORY.iterdir():
             if file.is_file():
                 try:
-                    rom_cache.append(load_rom_data(file))
+                    load_rom_data(file)
                 except InvalidROMError:
                     pass
 
