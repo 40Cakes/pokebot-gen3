@@ -1,11 +1,13 @@
 from flask_cors import CORS
-from flask import Flask, abort, jsonify
+from flask import Flask, abort, jsonify, request
 
 from modules.config import config
 from modules.console import console
 from modules.items import get_items
 from modules.pokemon import get_party
-from modules.stats import get_encounter_rate, encounter_log, stats, shiny_log
+from modules.stats import total_stats
+from modules.game import _event_flags
+from modules.memory import get_event_flag
 
 
 def http_server() -> None:
@@ -21,19 +23,9 @@ def http_server() -> None:
             from modules.trainer import trainer
 
             try:
-                trainer = {
-                    "name": trainer.get_name(),
-                    "gender": trainer.get_gender(),
-                    "tid": trainer.get_tid(),
-                    "sid": trainer.get_sid(),
-                    "map": trainer.get_map(),
-                    "map_name": trainer.get_map_name(),
-                    "coords": trainer.get_coords(),
-                    "on_bike": trainer.get_on_bike(),
-                    "facing": trainer.get_facing_direction(),
-                }
-                if trainer:
-                    return jsonify(trainer)
+                data = trainer.to_dict()
+                if data:
+                    return jsonify(data)
                 abort(503)
             except:
                 console.print_exception(show_locals=True)
@@ -42,9 +34,9 @@ def http_server() -> None:
         @server.route("/items", methods=["GET"])
         def http_get_bag():
             try:
-                items = get_items()
-                if items:
-                    return jsonify(items)
+                data = get_items()
+                if data:
+                    return jsonify(data)
                 abort(503)
             except:
                 console.print_exception(show_locals=True)
@@ -53,19 +45,20 @@ def http_server() -> None:
         @server.route("/party", methods=["GET"])
         def http_get_party():
             try:
-                party = get_party()
-                if party:
-                    return jsonify([p.to_json() for p in party])
+                data = get_party()
+                if data:
+                    return jsonify([p.to_dict() for p in data])
                 abort(503)
             except:
                 console.print_exception(show_locals=True)
                 abort(503)
 
-        @server.route("/encounter_log", methods=["GET"])  # TODO add parameter to get encounter by list index
+        @server.route("/encounter_log", methods=["GET"])
         def http_get_encounter_log():
             try:
-                if encounter_log:
-                    return jsonify(encounter_log)
+                data = total_stats.get_encounter_log()
+                if data:
+                    return jsonify(data)
                 abort(503)
             except:
                 console.print_exception(show_locals=True)
@@ -74,8 +67,9 @@ def http_server() -> None:
         @server.route("/shiny_log", methods=["GET"])
         def http_get_shiny_log():
             try:
-                if shiny_log:
-                    return jsonify(shiny_log["shiny_log"])
+                data = total_stats.get_shiny_log()
+                if data:
+                    return jsonify(data["shiny_log"])
                 abort(503)
             except:
                 console.print_exception(show_locals=True)
@@ -84,7 +78,7 @@ def http_server() -> None:
         @server.route("/encounter_rate", methods=["GET"])
         def http_get_encounter_rate():
             try:
-                return jsonify({"encounter_rate": get_encounter_rate()})
+                return jsonify({"encounter_rate": total_stats.get_encounter_rate()})
             except:
                 console.print_exception(show_locals=True)
                 return jsonify({"encounter_rate": 0})
@@ -92,12 +86,44 @@ def http_server() -> None:
         @server.route("/stats", methods=["GET"])
         def http_get_stats():
             try:
-                if stats:
-                    return jsonify(stats)
+                data = total_stats.get_total_stats()
+                if data:
+                    return jsonify(data)
                 abort(503)
             except:
                 console.print_exception(show_locals=True)
                 abort(503)
+
+        @server.route("/event_flags", methods=["GET"])
+        def http_get_event_flags():
+            try:
+                flag = request.args.get("flag")
+
+                if flag and flag in _event_flags:
+                    return(jsonify({flag: get_event_flag(flag)}))
+                else:
+                    result = {}
+
+                    for flag in _event_flags:
+                        result[flag] = get_event_flag(flag)
+
+                    return result
+                abort(503)
+            except:
+                console.print_exception(show_locals=True)
+                abort(503)
+
+        @server.route("/", methods=["GET"])
+        def http_get_routes():
+            routes = {}
+            for route in server.url_map._rules:
+                routes[route.rule] = {}
+                routes[route.rule]["functionName"] = route.endpoint
+                routes[route.rule]["methods"] = list(route.methods)
+
+            routes.pop("/static/<path:filename>")
+
+            return jsonify(routes)
 
         server.run(
             debug=False,
