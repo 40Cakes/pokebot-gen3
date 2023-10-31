@@ -75,7 +75,7 @@ class SelectProfileScreen:
             else:
                 last_played = "never"
 
-            data = (profile.path.name, profile.rom.game_name.replace("Pokémon ", ""), last_played)
+            data = (profile.path.name, profile.rom.short_game_name, last_played)
             treeview.insert("", "end", text=profile.path.name, values=data)
 
         def on_double_click(event):
