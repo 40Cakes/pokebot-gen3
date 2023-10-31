@@ -11,10 +11,11 @@ from datetime import datetime
 
 from rich.table import Table
 from modules.colours import iv_colour, iv_sum_colour, sv_colour
-from modules.config import config, force_manual_mode
+from modules.config import config
 from modules.console import console
+from modules.context import context
 from modules.files import read_file, write_file, write_pk
-from modules.gui import set_message, get_emulator
+from modules.gui.desktop_notification import desktop_notification
 from modules.memory import get_game_state, GameState
 from modules.pc_storage import import_into_storage
 from modules.pokemon import Pokemon
@@ -347,10 +348,10 @@ def log_encounter(pokemon: Pokemon, block_list: list) -> None:
 
         # Update Pokémon stats
         stats["pokemon"][pokemon.species.name]["encounters"] = (
-            stats["pokemon"][pokemon.species.name].get("encounters", 0) + 1
+                stats["pokemon"][pokemon.species.name].get("encounters", 0) + 1
         )
         stats["pokemon"][pokemon.species.name]["phase_encounters"] = (
-            stats["pokemon"][pokemon.species.name].get("phase_encounters", 0) + 1
+                stats["pokemon"][pokemon.species.name].get("phase_encounters", 0) + 1
         )
         stats["pokemon"][pokemon.species.name]["last_encounter_time_unix"] = time.time()
         stats["pokemon"][pokemon.species.name]["last_encounter_time_str"] = str(datetime.now())
@@ -417,14 +418,14 @@ def log_encounter(pokemon: Pokemon, block_list: list) -> None:
 
         # Phase highest IV sum record
         if not stats["totals"].get("phase_highest_iv_sum") or pokemon.ivs.sum() >= stats["totals"].get(
-            "phase_highest_iv_sum", -1
+                "phase_highest_iv_sum", -1
         ):
             stats["totals"]["phase_highest_iv_sum"] = pokemon.ivs.sum()
             stats["totals"]["phase_highest_iv_sum_pokemon"] = pokemon.species.name
 
         # Phase lowest IV sum record
         if not stats["totals"].get("phase_lowest_iv_sum") or pokemon.ivs.sum() <= stats["totals"].get(
-            "phase_lowest_iv_sum", 999
+                "phase_lowest_iv_sum", 999
         ):
             stats["totals"]["phase_lowest_iv_sum"] = pokemon.ivs.sum()
             stats["totals"]["phase_lowest_iv_sum_pokemon"] = pokemon.species.name
@@ -537,7 +538,7 @@ def log_encounter(pokemon: Pokemon, block_list: list) -> None:
 
         if pokemon.is_shiny:
             stats["pokemon"][pokemon.species.name]["shiny_encounters"] = (
-                stats["pokemon"][pokemon.species.name].get("shiny_encounters", 0) + 1
+                    stats["pokemon"][pokemon.species.name].get("shiny_encounters", 0) + 1
             )
             stats["totals"]["shiny_encounters"] = stats["totals"].get("shiny_encounters", 0) + 1
 
@@ -546,16 +547,16 @@ def log_encounter(pokemon: Pokemon, block_list: list) -> None:
         if pokemon.is_shiny:
             #  TODO fix all this OBS crap
             for i in range(config["obs"].get("shiny_delay", 1)):
-                get_emulator().run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+                context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
 
         if config["obs"]["screenshot"] and pokemon.is_shiny:
             from modules.obs import obs_hot_key
 
             while get_game_state() != GameState.BATTLE:
-                get_emulator().press_button("B")  # Throw out Pokémon for screenshot
-                get_emulator().run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+                context.emulator.press_button("B")  # Throw out Pokémon for screenshot
+                context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
             for i in range(180):
-                get_emulator().run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+                context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
             obs_hot_key("OBS_KEY_F11", pressCtrl=True)
 
         # Run custom code in custom_hooks in a thread
@@ -570,8 +571,8 @@ def log_encounter(pokemon: Pokemon, block_list: list) -> None:
 
             # Total shortest phase
             if (
-                not stats["totals"].get("shortest_phase_encounters", None)
-                or stats["totals"]["phase_encounters"] <= stats["totals"]["shortest_phase_encounters"]
+                    not stats["totals"].get("shortest_phase_encounters", None)
+                    or stats["totals"]["phase_encounters"] <= stats["totals"]["shortest_phase_encounters"]
             ):
                 stats["totals"]["shortest_phase_encounters"] = stats["totals"]["phase_encounters"]
                 stats["totals"]["shortest_phase_pokemon"] = pokemon.species.name
@@ -631,7 +632,7 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
         block_list = config_catch_block["block_list"]
 
     log_encounter(pokemon, block_list)
-    set_message(f"Encountered a {pokemon.species.name} with a shiny value of {pokemon.shiny_value:,}!")
+    context.message = f"Encountered a {pokemon.species.name} with a shiny value of {pokemon.shiny_value:,}!"
 
     # TODO temporary until auto-catch is ready
     custom_found = custom_catch_filters(pokemon)
@@ -641,22 +642,30 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
                 save_pk3(pokemon)
             state_tag = "shiny"
             console.print("[bold yellow]Shiny found!")
-            set_message("Shiny found! Bot has been switched to manual mode so you can catch it.")
+            context.message = "Shiny found! Bot has been switched to manual mode so you can catch it."
+
+            alert_title = "Shiny found!"
+            alert_message = f"Found a shiny {pokemon.species.name}. 🥳"
 
         elif custom_found:
             if not config["logging"]["save_pk3"]["all"] and config["logging"]["save_pk3"]["custom"]:
                 save_pk3(pokemon)
             state_tag = "customfilter"
             console.print("[bold green]Custom filter Pokemon found!")
-            set_message("Custom filter triggered! Bot has been switched to manual mode so you can catch it.")
+            context.message = "Custom filter triggered! Bot has been switched to manual mode so you can catch it."
+
+            alert_title = "Custom filter triggered!"
+            alert_message = f"Found a {pokemon.species.name} that matched one of your filters."
         else:
             state_tag = ""
+            alert_title = None
+            alert_message = None
 
         if not custom_found and pokemon.species.name in block_list:
             console.print("[bold yellow]" + pokemon.species.name + " is on the catch block list, skipping encounter...")
         else:
             filename_suffix = f"{state_tag}_{pokemon.species.safe_name}"
-            get_emulator().create_save_state(suffix=filename_suffix)
+            context.emulator.create_save_state(suffix=filename_suffix)
 
             # TEMPORARY until auto-battle/auto-catch is done
             # if the mon is saved and imported, no need to catch it by hand
@@ -664,10 +673,13 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
                 if import_into_storage(pokemon.data):
                     return
 
-            force_manual_mode()
-            get_emulator().set_speed_factor(1)
-            get_emulator().set_throttle(True)
-            get_emulator().set_video_enabled(True)
+            context.bot_mode = "manual"
+            context.emulator.set_speed_factor(1)
+            context.emulator.set_throttle(True)
+            context.emulator.set_video_enabled(True)
+
+            if alert_title is not None and alert_message is not None:
+                desktop_notification(title=alert_title, message=alert_message)
 
 
 def save_pk3(pokemon: Pokemon) -> None:

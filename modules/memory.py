@@ -3,8 +3,8 @@ import struct
 from enum import IntEnum
 
 from modules.console import console
+from modules.context import context
 from modules.game import get_symbol, get_symbol_name, get_event_flag_offset
-from modules.gui import get_emulator, get_rom
 
 
 def unpack_uint16(bytes: bytes) -> int:
@@ -51,7 +51,7 @@ def read_symbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
         if size <= 0:
             size = length
 
-        return get_emulator().read_bytes(addr + offset, size)
+        return context.emulator.read_bytes(addr + offset, size)
     except SystemExit:
         raise
     except:
@@ -66,7 +66,7 @@ def write_symbol(name: str, data: bytes, offset: int = 0x0) -> bool:
                 f"{len(data) + offset} bytes of data provided, is too large for symbol {addr} ({length} bytes)!"
             )
 
-        get_emulator().write_bytes(addr + offset, data)
+        context.emulator.write_bytes(addr + offset, data)
         return True
     except SystemExit:
         raise
@@ -125,11 +125,11 @@ def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     try:
         if not size:
             size = get_symbol(f"GSAVEBLOCK{num}")[1]
-        if get_rom().game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
             p_Trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
             if p_Trainer == 0:
                 return None
-            return get_emulator().read_bytes(p_Trainer + offset, size)
+            return context.emulator.read_bytes(p_Trainer + offset, size)
         else:
             return read_symbol(f"gSaveBlock{num}", offset=offset, size=size)
     except SystemExit:

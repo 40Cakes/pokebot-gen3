@@ -1,5 +1,5 @@
 from modules.console import console
-from modules.gui import get_rom
+from modules.context import context
 from modules.memory import get_save_block, unpack_uint16
 from modules.pokemon import get_item_by_index
 
@@ -7,7 +7,7 @@ from modules.pokemon import get_item_by_index
 def get_item_offsets() -> list[tuple[int, int]]:
     # Game specific offsets
     # Source: https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Section_1_-_Team_.2F_Items
-    match get_rom().game_title:
+    match context.rom.game_title:
         case "POKEMON FIRE" | "POKEMON LEAF":
             return [(0x298, 120), (0x310, 168), (0x3B8, 120), (0x430, 52), (0x464, 232), (0x54C, 172)]
         case "POKEMON EMER":
@@ -17,7 +17,7 @@ def get_item_offsets() -> list[tuple[int, int]]:
 
 
 def get_item_key() -> int:
-    match get_rom().game_title:
+    match context.rom.game_title:
         case "POKEMON FIRE" | "POKEMON LEAF":
             return unpack_uint16(get_save_block(2, 0xF20, 2))
         case "POKEMON EMER":

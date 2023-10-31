@@ -50,8 +50,9 @@ if __name__ == "__main__":
         check_requirements()
 
     from modules.config import load_config_from_directory
+    from modules.context import context
     from modules.console import console
-    from modules.gui import PokebotGui, get_emulator
+    from modules.gui import PokebotGui
     from modules.main import main_loop
     from modules.profiles import profile_directory_exists, load_profile_by_name
 
@@ -66,34 +67,19 @@ if __name__ == "__main__":
 
         def win32_signal_handler(signal_type):
             if signal_type == 2:
-                emulator = get_emulator()
-                if emulator is not None:
-                    emulator.shutdown()
+                if context.emulator is not None:
+                    context.emulator.shutdown()
 
 
         win32api.SetConsoleCtrlHandler(win32_signal_handler, True)
 
     parsed_args = parse_arguments()
     preselected_profile = parsed_args.profile
-    debug_mode = parsed_args.debug
+    context.debug = parsed_args.debug
     if preselected_profile and profile_directory_exists(preselected_profile):
         preselected_profile = load_profile_by_name(preselected_profile)
 
     console.print(f"Starting [bold cyan]{pokebot_name} {pokebot_version}![/]")
     gui = PokebotGui(main_loop, on_exit)
-    if debug_mode:
-        from modules.gui import DebugEmulatorControls
-        from modules.debug import TasksTab, BattleTab, TrainerTab, DaycareTab, SymbolsTab, InputsTab, EventFlagsTab
-
-        controls = DebugEmulatorControls(gui, gui.window)
-        controls.add_tab(TasksTab())
-        controls.add_tab(BattleTab())
-        controls.add_tab(TrainerTab())
-        controls.add_tab(DaycareTab())
-        controls.add_tab(SymbolsTab())
-        controls.add_tab(EventFlagsTab())
-        controls.add_tab(InputsTab())
-
-        gui.controls = controls
-
+    context.gui = gui
     gui.run(preselected_profile)

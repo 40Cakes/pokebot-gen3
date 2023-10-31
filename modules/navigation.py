@@ -1,9 +1,8 @@
-from modules.config import config
-from modules.gui import get_emulator
+from modules.context import context
 from modules.memory import get_game_state, GameState
-from modules.temp import temp_run_from_battle
 from modules.pokemon import opponent_changed, get_opponent
 from modules.stats import encounter_pokemon
+from modules.temp import temp_run_from_battle
 from modules.trainer import trainer
 
 
@@ -18,20 +17,20 @@ def follow_path(coords: list, run: bool = True) -> bool:
     """
     for x, y, *map_data in coords:
         if run:
-            get_emulator().hold_button("B")
+            context.emulator.hold_button("B")
 
-        while True and config["general"]["bot_mode"] != "manual":
+        while True and context.bot_mode != "manual":
             if get_game_state() == GameState.BATTLE:
                 if opponent_changed():
                     encounter_pokemon(get_opponent())
-                get_emulator().release_button("B")
+                context.emulator.release_button("B")
                 temp_run_from_battle()
 
             trainer_coords = trainer.get_coords()
             # Check if map changed to desired map
             if map_data:
                 if trainer_coords[0] == map_data[0][0] and trainer_coords[1] == map_data[0][1]:
-                    get_emulator().release_button("B")
+                    context.emulator.release_button("B")
                     break
 
             if trainer_coords[0] > x:
@@ -43,11 +42,11 @@ def follow_path(coords: list, run: bool = True) -> bool:
             elif trainer_coords[1] > y:
                 direction = "Up"
             else:
-                get_emulator().release_button("B")
+                context.emulator.release_button("B")
                 break
 
-            get_emulator().press_button(direction)
-            get_emulator().run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-        get_emulator().run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+            context.emulator.press_button(direction)
+            context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+        context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
 
     return True

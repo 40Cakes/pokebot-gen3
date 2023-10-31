@@ -5,8 +5,8 @@ import random
 from threading import Thread
 from modules.config import config
 from modules.console import console
+from modules.context import context
 from modules.discord import discord_message
-from modules.gui import get_rom
 from modules.pokemon import Pokemon
 from modules.runtime import get_sprites_path
 
@@ -108,7 +108,7 @@ def custom_hooks(hook) -> None:
                     }
                     | PhaseSummary(),
                     embed_thumbnail=get_sprites_path() / "pokemon" / "shiny" / f"{pokemon.species.safe_name}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {get_rom().game_name}",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
                     embed_color="ffd242",
                 )
         except:
@@ -135,7 +135,7 @@ def custom_hooks(hook) -> None:
                     embed=True,
                     embed_description=f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} {pokemon.species.name} encounters!",
                     embed_thumbnail=get_sprites_path() / "pokemon" / "normal" / f"{pokemon.species.safe_name}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {get_rom().game_name}",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
                     embed_color="50C878",
                 )
         except:
@@ -163,7 +163,7 @@ def custom_hooks(hook) -> None:
                     embed=True,
                     embed_description=f"{stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,} shiny ✨ {pokemon.species.name} ✨ encounters!",
                     embed_thumbnail=get_sprites_path() / "pokemon" / "shiny" / f"{pokemon.species.safe_name}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {get_rom().game_name}",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
                     embed_color="ffd242",
                 )
         except:
@@ -210,7 +210,7 @@ def custom_hooks(hook) -> None:
                     embed=True,
                     embed_description=f"{stats['totals'].get('encounters', 0):,} total encounters!",
                     embed_thumbnail=get_sprites_path() / "items" / f"{embed_thumbnail}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {get_rom().game_name}",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
                     embed_color="50C878",
                 )
         except:
@@ -245,7 +245,7 @@ def custom_hooks(hook) -> None:
                     content=f"💀 The current phase has reached {stats['totals'].get('phase_encounters', 0):,} encounters!\n{discord_ping}",
                     embed=True,
                     embed_fields=PhaseSummary(),
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {get_rom().game_name}",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
                     embed_color="D70040",
                 )
         except:
@@ -275,7 +275,7 @@ def custom_hooks(hook) -> None:
                     }
                     | PhaseSummary(),
                     embed_thumbnail=get_sprites_path() / "pokemon" / "anti-shiny" / f"{pokemon.species.safe_name}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {get_rom().game_name}",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
                     embed_color="000000",
                 )
         except:

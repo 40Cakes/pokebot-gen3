@@ -5,7 +5,7 @@ from typing import Union
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from modules.console import console
 from modules.config import config
-from modules.gui import get_rom
+from modules.context import context
 
 
 def discord_message(
@@ -63,7 +63,7 @@ def discord_rich_presence() -> None:
         RPC.connect()
         start = time.time()
 
-        match get_rom().game_title:
+        match context.rom.game_title:
             case "POKEMON RUBY":
                 large_image = "groudon"
             case "POKEMON SAPP":
@@ -79,7 +79,7 @@ def discord_rich_presence() -> None:
             try:
                 location = encounter_log[-1]["pokemon"]["metLocation"] if len(encounter_log) > 0 else "N/A"
                 RPC.update(
-                    state=f"{location} | {get_rom().game_name}",
+                    state=f"{location} | {context.rom.game_name}",
                     details=(
                         f'{stats["totals"].get("encounters", 0):,} ({stats["totals"].get("shiny_encounters", 0):,}✨) |'
                         f" {get_encounter_rate():,}/h"

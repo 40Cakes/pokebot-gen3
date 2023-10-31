@@ -26,7 +26,8 @@ required_modules = [
     "Pillow~=10.0.1",
     "sounddevice~=0.4.6",
     "requests~=2.31.0",
-    "pyperclip3~=0.4.1"
+    "pyperclip3~=0.4.1",
+    "plyer~=2.1.0"
 ]
 
 if platform.system() == "Windows":

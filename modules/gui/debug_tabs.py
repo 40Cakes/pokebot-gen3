@@ -2,11 +2,12 @@ import time
 import tkinter
 from enum import Enum
 from tkinter import ttk
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
+from modules.context import context
 from modules.daycare import get_daycare_data
 from modules.game import decode_string, _reverse_symbols
-from modules.gui import DebugTab, get_emulator
+from modules.gui.emulator_controls import DebugTab
 from modules.items import get_items
 from modules.memory import (
     get_symbol,
@@ -26,24 +27,27 @@ if TYPE_CHECKING:
 
 class FancyTreeview:
     def __init__(
-        self,
-        root: ttk.Widget,
-        height=20,
-        row=0,
-        column=0,
-        columnspan=1,
-        additional_context_actions: dict[str, callable] = {},
+            self,
+            root: ttk.Widget,
+            height=22,
+            row=0,
+            column=0,
+            columnspan=1,
+            additional_context_actions: dict[str, callable] = {},
     ):
         treeview_scrollbar_combo = ttk.Frame(root)
         treeview_scrollbar_combo.columnconfigure(0, weight=1)
-        treeview_scrollbar_combo.grid(row=row, column=column, columnspan=columnspan)
+        treeview_scrollbar_combo.grid(row=row, column=column, columnspan=columnspan, sticky="NSWE")
 
         self._items = {}
         self._tv = ttk.Treeview(
             treeview_scrollbar_combo, columns="value", show="tree headings", selectmode="browse", height=height
         )
 
-        self._tv.column("value", width=220)
+        self._tv.column("#0", width=220)
+        self._tv.heading("#0", text="Key", anchor="w")
+        self._tv.column("value", width=270)
+        self._tv.heading("value", text="Value", anchor="w")
 
         scrollbar = ttk.Scrollbar(treeview_scrollbar_combo, orient=tkinter.VERTICAL, command=self._tv.yview)
         scrollbar.grid(row=0, column=1, sticky="NWS")
@@ -86,10 +90,15 @@ class FancyTreeview:
                 found_items.append(item_key)
                 found_items.extend(self._update_dict(data[key], f"{key_prefix}{key}.", item))
             elif isinstance(data[key], (list, set, tuple, frozenset)):
+                value = ""
+                if isinstance(data[key], tuple):
+                    value = str(data[key])
+
                 if item_key in self._items:
                     item = self._items[item_key]
+                    self._tv.item(item, values=(value,))
                 else:
-                    item = self._tv.insert(parent, tkinter.END, text=key, values=("",))
+                    item = self._tv.insert(parent, tkinter.END, text=key, values=(value,))
                     self._items[item_key] = item
                 found_items.append(item_key)
 
@@ -182,7 +191,7 @@ class TasksTab(DebugTab):
         self._cb2_label = ttk.Label(frame, text="", padding=(10, 10))
         self._cb2_label.grid(row=1, column=1, sticky="W")
 
-        self._tv = FancyTreeview(frame, height=16, row=2, columnspan=2)
+        self._tv = FancyTreeview(frame, height=19, row=2, columnspan=2)
 
         root.add(frame, text="Tasks")
 
@@ -255,23 +264,28 @@ class BattleTab(DebugTab):
 
 
 class SymbolsTab(DebugTab):
-    SYMBOLS_TO_DISPLAY = {
-        "gObjectEvents",
-        "sChat",
-        "gStringVar1",
-        "gStringVar2",
-        "gStringVar3",
-        "gStringVar4",
-        "gDisplayedStringBattle",
-    }
-    DISPLAY_AS_STRING = {"sChat", "gStringVar1", "gStringVar2", "gStringVar3", "gStringVar4", "gDisplayedStringBattle"}
-    _tv: FancyTreeview
-    _mini_window: tkinter.Tk = None
+    def __init__(self):
+        self.symbols_to_display = {
+            "gObjectEvents",
+            "sChat",
+            "gStringVar1",
+            "gStringVar2",
+            "gStringVar3",
+            "gStringVar4",
+            "gDisplayedStringBattle",
+        }
+        self.display_as_string = {"sChat", "gStringVar1", "gStringVar2", "gStringVar3", "gStringVar4",
+                                  "gDisplayedStringBattle"}
+        self._tv: FancyTreeview
+        self._mini_window: Union[tkinter.Toplevel, None] = None
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
+        frame.rowconfigure(0, weight=0)
+        frame.rowconfigure(1, weight=0, minsize=5)
+        frame.rowconfigure(2, weight=1)
 
-        button = ttk.Button(frame, text="Add Symbol to Watch", command=self._add_new_symbol)
+        button = ttk.Button(frame, text="Add Symbol to Watch", padding=0, command=self._add_new_symbol)
         button.grid(row=0, column=0, sticky="NE")
 
         context_actions = {
@@ -279,7 +293,7 @@ class SymbolsTab(DebugTab):
             "Toggle String Decoding": self._handle_toggle_symbol,
         }
 
-        self._tv = FancyTreeview(frame, row=1, height=18, additional_context_actions=context_actions)
+        self._tv = FancyTreeview(frame, row=2, height=20, additional_context_actions=context_actions)
 
         root.add(frame, text="Symbols")
 
@@ -287,7 +301,7 @@ class SymbolsTab(DebugTab):
         if self._mini_window is not None:
             return
 
-        self._mini_window = tkinter.Tk()
+        self._mini_window = tkinter.Toplevel(context.gui.window)
         self._mini_window.title("Add a symbol to list")
         self._mini_window.geometry("480x480")
 
@@ -330,7 +344,7 @@ class SymbolsTab(DebugTab):
                 continue
             if symbol[1] != symbol[1].upper():
                 continue
-            if symbol in self.SYMBOLS_TO_DISPLAY:
+            if symbol in self.symbols_to_display:
                 continue
 
             if symbol not in items:
@@ -352,8 +366,8 @@ class SymbolsTab(DebugTab):
             if self._mini_window is not None:
                 item = tv.identify_row(event.y)
                 if item:
-                    self.SYMBOLS_TO_DISPLAY.add(tv.item(item)["text"])
-                    self.update(get_emulator())
+                    self.symbols_to_display.add(tv.item(item)["text"])
+                    self.update(context.emulator)
 
         tv.bind("<Double-Button-1>", handle_double_click)
 
@@ -378,16 +392,16 @@ class SymbolsTab(DebugTab):
     def update(self, emulator: "LibmgbaEmulator"):
         data = {}
 
-        for symbol in self.SYMBOLS_TO_DISPLAY:
+        for symbol in self.symbols_to_display:
             try:
                 address, length = get_symbol(symbol.upper())
             except RuntimeError:
-                self.SYMBOLS_TO_DISPLAY.remove(symbol)
-                self.DISPLAY_AS_STRING.remove(symbol)
+                self.symbols_to_display.remove(symbol)
+                self.display_as_string.remove(symbol)
                 break
 
             value = emulator.read_bytes(address, length)
-            if symbol in self.DISPLAY_AS_STRING:
+            if symbol in self.display_as_string:
                 data[symbol] = decode_string(value)
             elif length == 4 or length == 2:
                 n = int.from_bytes(value, byteorder="little")
@@ -401,19 +415,19 @@ class SymbolsTab(DebugTab):
         new_symbol = self._combobox.get()
         try:
             get_symbol(new_symbol)
-            self.SYMBOLS_TO_DISPLAY.add(new_symbol)
+            self.symbols_to_display.add(new_symbol)
         except RuntimeError:
             pass
 
     def _handle_remove_symbol(self, symbol: str):
-        self.SYMBOLS_TO_DISPLAY.remove(symbol)
-        self.DISPLAY_AS_STRING.remove(symbol)
+        self.symbols_to_display.remove(symbol)
+        self.display_as_string.remove(symbol)
 
     def _handle_toggle_symbol(self, symbol: str):
-        if symbol in self.DISPLAY_AS_STRING:
-            self.DISPLAY_AS_STRING.remove(symbol)
+        if symbol in self.display_as_string:
+            self.display_as_string.remove(symbol)
         else:
-            self.DISPLAY_AS_STRING.add(symbol)
+            self.display_as_string.add(symbol)
 
 
 class TrainerTab(DebugTab):
@@ -553,7 +567,7 @@ class InputsTab(DebugTab):
         from modules.libmgba import input_map
 
         result = {}
-        inputs = get_emulator().get_inputs()
+        inputs = context.emulator.get_inputs()
 
         for input in input_map:
             result[input] = True if input_map[input] & inputs else False

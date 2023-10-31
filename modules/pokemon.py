@@ -10,8 +10,8 @@ from typing import Literal, Union
 import numpy
 
 from modules.console import console
+from modules.context import context
 from modules.game import decode_string
-from modules.gui import get_emulator
 from modules.memory import unpack_uint32, unpack_uint16, read_symbol, pack_uint32
 from modules.roms import ROMLanguage
 from modules.runtime import get_data_path
@@ -1478,7 +1478,7 @@ def get_party() -> list[Pokemon]:
         # (1) advancing the emulation by one frame, (2) reading the memory, (3) restoring the previous
         # frame's state so we don't mess with frame accuracy.
         if mon is None:
-            mon = get_emulator().peek_frame(lambda: parse_pokemon(read_symbol("gPlayerParty", o, o + 100)))
+            mon = context.emulator.peek_frame(lambda: parse_pokemon(read_symbol("gPlayerParty", o, o + 100)))
             if mon is None:
                 raise RuntimeError(f"Party Pokemon #{p + 1} was invalid for two frames in a row.")
 
@@ -1496,7 +1496,7 @@ def get_opponent() -> Pokemon:
 
     # See comment in `GetParty()`
     if mon is None:
-        mon = get_emulator().peek_frame(lambda: parse_pokemon(read_symbol("gEnemyParty")[:100]))
+        mon = context.emulator.peek_frame(lambda: parse_pokemon(read_symbol("gEnemyParty")[:100]))
         if mon is None:
             raise RuntimeError(f"Opponent Pokemon was invalid for two frames in a row.")
 
