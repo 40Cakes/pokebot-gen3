@@ -33,7 +33,6 @@ required_modules = [
     "sounddevice~=0.4.6",
     "requests~=2.31.0",
     "pyperclip~=1.8.2",
-    "darkdetect~=0.8.0",
     "plyer~=2.1.0"
 ]
 

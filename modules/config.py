@@ -28,12 +28,6 @@ properties:
             - Chikorita
             - Totodile
             - Cyndaquil
-    colour_scheme:
-        type: string
-        enum:
-            - system
-            - light
-            - dark
 """
 
 logging_schema = """

@@ -5,9 +5,8 @@ from typing import TYPE_CHECKING, Union
 
 import PIL.Image
 import PIL.ImageTk
-import darkdetect
 
-from modules.config import load_config, keys_schema, config
+from modules.config import load_config, keys_schema
 from modules.console import console
 from modules.context import context
 from modules.game import set_rom
@@ -16,7 +15,6 @@ from modules.gui.emulator_screen import EmulatorScreen
 from modules.gui.load_state_window import LoadStateWindow
 from modules.gui.select_profile_screen import SelectProfileScreen
 from modules.libmgba import LibmgbaEmulator, input_map
-from modules.runtime import get_data_path
 from modules.sprites import choose_random_sprite, crop_sprite_square
 from modules.version import pokebot_name, pokebot_version
 

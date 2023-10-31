@@ -8,7 +8,3 @@ bot_mode: manual
 # Starter - used when `bot_mode` is set to `starters`
 # `Treecko`, `Torchic`, `Mudkip`, `Bulbasaur`, `Charmander`, `Squirtle`, `Chikorita`, `Cyndaquil`, `Totodile`
 starter: Mudkip
-
-# Colour scheme of the GUI
-# `dark` or `light` -- or `system` to just follow your operating system's settings
-colour_scheme: system
