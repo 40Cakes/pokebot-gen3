@@ -149,7 +149,7 @@ class EmulatorControls:
         self.stats_label = ttk.Label(group, text="", foreground="grey", font=tkinter.font.Font(size=9))
         self.stats_label.grid(row=0, column=0, sticky="W")
 
-        version_label = ttk.Label(group, text=f"{context.rom.game_name} - {pokebot_name} {pokebot_version}",
+        version_label = ttk.Label(group, text=f"{context.rom.short_game_name} - {pokebot_name} {pokebot_version}",
                                   foreground="grey", font=tkinter.font.Font(size=9))
         version_label.grid(row=0, column=1, sticky="E")
 

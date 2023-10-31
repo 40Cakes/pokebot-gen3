@@ -95,6 +95,10 @@ class ROM:
     maker_code: str
     revision: int
 
+    @property
+    def short_game_name(self) -> str:
+        return self.game_name.replace("Pokémon ", "")
+
 
 class InvalidROMError(Exception):
     pass

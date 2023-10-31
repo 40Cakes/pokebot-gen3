@@ -133,7 +133,7 @@ class CreateProfileScreen:
         available_roms = list_available_roms()
         rom_names = []
         for rom in available_roms:
-            rom_names.append(rom.game_name.replace("Pokémon ", ""))
+            rom_names.append(rom.short_game_name)
 
         ttk.Label(container, text="Game:", padding=label_padding).grid(row=1, column=0, sticky="W")
         rom_input = ttk.Combobox(container, values=sorted(rom_names), width=28, state="readonly")
@@ -141,9 +141,9 @@ class CreateProfileScreen:
         rom_input.grid(column=1, row=1)
 
         def get_selected_rom() -> Union[ROM, None]:
-            rom_name = rom_input.get()
+            selected_rom_name = rom_input.get()
             for rom in available_roms:
-                if rom.game_name.replace("Pokémon ", "") == rom_name:
+                if rom.short_game_name == selected_rom_name:
                     return rom
             return None
 
