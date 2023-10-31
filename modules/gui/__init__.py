@@ -36,7 +36,8 @@ class PokebotGui:
         self.window.bind("<KeyRelease>", self._handle_key_up_event)
 
         style = ttk.Style()
-        style.map("Accent.TButton", bordercolor="green",
+        style.theme_use("default")
+        style.map("Accent.TButton",
                   foreground=[("!active", "white"), ("active", "white"), ("pressed", "white")],
                   background=[("!active", "green"), ("active", "darkgreen"), ("pressed", "green")])
 

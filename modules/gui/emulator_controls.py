@@ -127,7 +127,7 @@ class EmulatorControls:
 
         ttk.Label(group, text="Other Settings:").grid(row=0, columnspan=2, sticky="W")
 
-        button_settings = {"width": 5, "padding": (0, 3), "cursor": "hand2"}
+        button_settings = {"width": 6, "padding": (0, 3), "cursor": "hand2"}
         self.toggle_video_button = ttk.Button(group, text="Video", **button_settings, command=context.toggle_video)
         self.toggle_audio_button = ttk.Button(group, text="Audio", **button_settings, command=context.toggle_audio)
 
@@ -188,7 +188,7 @@ class DebugEmulatorControls(EmulatorControls):
         self.debug_tabs: list[DebugTab] = []
 
     def get_additional_width(self) -> int:
-        return 600
+        return 550
 
     def add_to_window(self):
         self.debug_frame = ttk.Frame(self.window, padding=(10, 5))

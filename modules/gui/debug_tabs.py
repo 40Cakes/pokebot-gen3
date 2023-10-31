@@ -29,7 +29,7 @@ class FancyTreeview:
     def __init__(
             self,
             root: ttk.Widget,
-            height=20,
+            height=22,
             row=0,
             column=0,
             columnspan=1,
@@ -191,7 +191,7 @@ class TasksTab(DebugTab):
         self._cb2_label = ttk.Label(frame, text="", padding=(10, 10))
         self._cb2_label.grid(row=1, column=1, sticky="W")
 
-        self._tv = FancyTreeview(frame, height=16, row=2, columnspan=2)
+        self._tv = FancyTreeview(frame, height=19, row=2, columnspan=2)
 
         root.add(frame, text="Tasks")
 
@@ -293,7 +293,7 @@ class SymbolsTab(DebugTab):
             "Toggle String Decoding": self._handle_toggle_symbol,
         }
 
-        self._tv = FancyTreeview(frame, row=2, height=18, additional_context_actions=context_actions)
+        self._tv = FancyTreeview(frame, row=2, height=20, additional_context_actions=context_actions)
 
         root.add(frame, text="Symbols")
 
