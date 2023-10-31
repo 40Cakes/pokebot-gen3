@@ -24,6 +24,7 @@ class LoadStateWindow:
 
         def remove_window(event=None):
             self._load_save_window.destroy()
+            self._load_save_window = None
 
         def load_state(state: Path):
             context.emulator.load_save_state(state.read_bytes())
