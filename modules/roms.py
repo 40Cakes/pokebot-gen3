@@ -130,15 +130,15 @@ def list_available_roms(force_recheck: bool = False) -> list[ROM]:
     if not ROMS_DIRECTORY.is_dir():
         raise RuntimeError(f"Directory {str(ROMS_DIRECTORY)} does not exist!")
 
+    result = []
     for file in ROMS_DIRECTORY.iterdir():
         if file.is_file():
-            if force_recheck or str(file) not in rom_cache:
-                try:
-                    rom_cache[str(file)] = load_rom_data(file)
-                except InvalidROMError:
-                    pass
+            try:
+                result.append(load_rom_data(file))
+            except InvalidROMError:
+                pass
 
-    return list(rom_cache.values())
+    return result
 
 
 def load_rom_data(file: Path) -> ROM:
