@@ -104,5 +104,21 @@ class Trainer:
         b_gObjectEvents = read_symbol("gObjectEvents", 24, 1)
         return FacingDirection(int(b_gObjectEvents[0])).name
 
+    def to_dict(self) -> dict:
+        return {
+            "name": self.get_name(),
+            "gender": self.get_gender(),
+            "tid": self.get_tid(),
+            "sid": self.get_sid(),
+            "map": self.get_map(),
+            "map_name": self.get_map_name(),
+            "coords": self.get_coords(),
+            "running_state": self.get_running_state(),
+            "tile_transition_state": self.get_tile_transition_state(),
+            "acro_bike_state": self.get_acro_bike_state(),
+            "on_bike": self.get_on_bike(),
+            "facing": self.get_facing_direction(),
+        }
+
 
 trainer = Trainer()
