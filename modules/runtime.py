@@ -9,6 +9,13 @@ def is_bundled_app() -> bool:
     return getattr(sys, "frozen", False)
 
 
+def is_virtualenv() -> bool:
+    """
+    :return: Whether we are running in a virtualenv (True) or in the global Python environment (False)
+    """
+    return sys.prefix != sys.base_prefix
+
+
 def get_base_path() -> Path:
     """
     :return: A `Path` object to the base directory of the bot (where `pokebot.py` or `pokebot.exe`

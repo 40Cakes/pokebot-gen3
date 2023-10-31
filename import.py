@@ -1,9 +1,7 @@
 import binascii
 import os
-import shutil
 import tkinter as tk
 import zlib
-from pathlib import Path
 from tkinter import ttk, filedialog, font
 from typing import IO, Union
 
@@ -11,6 +9,7 @@ from modules.game import set_rom, get_symbol, decode_string
 from modules.memory import unpack_uint16, unpack_uint32
 from modules.profiles import Profile, create_profile, profile_directory_exists
 from modules.roms import list_available_roms
+from modules.runtime import is_bundled_app, get_base_path
 from modules.version import pokebot_name, pokebot_version
 
 
@@ -80,18 +79,6 @@ def migrate_save_state(file: IO) -> Profile:
     if savegame_data is not None:
         with open(profile.path / "current_save.sav", "wb") as save_file:
             save_file.write(savegame_data)
-
-    # In case this save state has been used with the old Pymem implementation of the bot, try to
-    # import config and stats into the new directory structure.
-    full_game_code = (matching_rom.game_code + str(matching_rom.language)).upper()
-    config_dir = Path(__file__).parent / "config" / full_game_code / f"{trainer_id}-{trainer_name}"
-    stats_dir = Path(__file__).parent / "stats" / full_game_code / f"{trainer_id}-{trainer_name}"
-
-    if config_dir.is_dir():
-        shutil.copytree(config_dir, profile.path / "profiles")
-
-    if stats_dir.is_dir():
-        shutil.copytree(stats_dir, profile.path / "stats")
 
     file.close()
 
@@ -176,7 +163,7 @@ def handle_button_click() -> None:
     ]
 
     file = filedialog.askopenfile(
-        title="Select Save State", initialdir=Path(__file__).parent, filetypes=filetypes, mode="rb"
+        title="Select Save State", initialdir=get_base_path(), filetypes=filetypes, mode="rb"
     )
 
     if file is not None:
@@ -210,6 +197,10 @@ def show_success_message(profile_name, game_name) -> None:
 
 
 if __name__ == "__main__":
+    if not is_bundled_app():
+        from requirements import check_requirements
+        check_requirements()
+
     window = tk.Tk()
     window.title(f"Save Importer for {pokebot_name} {pokebot_version}")
     window.geometry("480x320")
