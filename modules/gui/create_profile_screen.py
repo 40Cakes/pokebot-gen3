@@ -20,8 +20,6 @@ class CreateProfileScreen:
         self.frame: Union[ttk.Frame, None] = None
 
     def enable(self) -> None:
-        self.window.geometry("600x400")
-        self.window.resizable(False, True)
         self.window.rowconfigure(0, weight=1)
         self.window.columnconfigure(0, weight=1)
 
@@ -31,8 +29,12 @@ class CreateProfileScreen:
         self.frame.rowconfigure(1, weight=1)
         self.frame.columnconfigure(0, weight=1)
 
+        if len(list_available_roms()) == 0:
+            self._show_missing_roms_screen()
+            return
+
         if len(list_available_profiles()) == 0:
-            self.window.geometry("600x480")
+            self.window.geometry("540x480")
             self._show_welcome_message()
         else:
             self._show_return_button()
@@ -80,7 +82,7 @@ class CreateProfileScreen:
         container = ttk.LabelFrame(self.frame, text="Create a New Profile", padding=(20, 10))
         container.grid(row=row, sticky="N")
 
-        label_padding = (0, 12, 10, 12)
+        label_padding = (0, 6, 10, 6)
 
         ttk.Label(container, text="Name:", padding=label_padding).grid(row=0, column=0, sticky="W")
 
@@ -175,14 +177,14 @@ class CreateProfileScreen:
                 title="Load Existing Save",
                 on_selection=handle_selected_file)
 
-        button_container = ttk.Frame(container, padding=(0, 20, 0, 5))
+        button_container = ttk.Frame(container, padding=(0, 15, 0, 5))
         button_container.grid(row=2, column=0, columnspan=2)
         button_container.columnconfigure(0, weight=1)
         button_container.columnconfigure(1, minsize=10)
         button_container.columnconfigure(2, weight=1)
 
         new_game_button = ttk.Button(button_container, text="Start New Game", cursor="hand2", state="disabled",
-                                     command=handle_create_new_game_press, style='Accent.TButton')
+                                     command=handle_create_new_game_press, style="Accent.TButton")
         new_game_button.grid(column=0, row=0)
 
         load_save_button = ttk.Button(button_container, text="Load Existing Save", cursor="hand2", state="disabled",
@@ -190,3 +192,22 @@ class CreateProfileScreen:
         load_save_button.grid(column=2, row=0)
 
         message_label = ttk.Label(container, text="", wraplength=340, padding=(0, 15, 0, 0))
+
+    def _show_missing_roms_screen(self) -> None:
+        group = ttk.Frame(self.frame)
+        group.grid()
+
+        error_message = ("There don't seem to be any Pokémon ROMs in the 'roms/' folder. "
+                         "Please add some and retry.\n\n"
+                         "Note that only the original ROMs for Pokémon Ruby, Sapphire, Emerald, FireRed and LeafGreen "
+                         "are supported by this bot. Any modified ROM will not be detected.")
+        message = ttk.Label(group, text=error_message, wraplength=300, foreground="red", padding=(0, 0, 0, 25))
+        message.grid(row=0, column=0, sticky="S")
+
+        def handle_button_click() -> None:
+            if len(list_available_roms(force_recheck=True)) > 0:
+                self.disable()
+                self.enable()
+
+        button = ttk.Button(group, text="Try again", command=handle_button_click, cursor="hand2")
+        button.grid(row=1, column=0, sticky="N")

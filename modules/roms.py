@@ -100,7 +100,10 @@ class InvalidROMError(Exception):
     pass
 
 
-def list_available_roms() -> list[ROM]:
+rom_cache: list[ROM] = []
+
+
+def list_available_roms(force_recheck: bool = False) -> list[ROM]:
     """
     This scans all files in the `roms/` directory and returns any entry that might
     be a valid GBA ROM, along with some meta data that could be extracted from the
@@ -109,23 +112,35 @@ def list_available_roms() -> list[ROM]:
     The ROM (header) structure is described on this website:
     https://problemkaputt.de/gbatek-gba-cartridge-header.htm
 
+    :param force_recheck: Whether to ignore the cached ROM list that is generated
+                          the first time this function is called. This might be a
+                          bit slow if there are a lot of ROMs available; mostly
+                          because of the expensive SHA1 hash of every file.
     :return: List of all the valid ROMS that have been found
     """
-    if not ROMS_DIRECTORY.is_dir():
-        raise RuntimeError(f"Directory {str(ROMS_DIRECTORY)} does not exist!")
+    global rom_cache
+    if force_recheck or len(rom_cache) == 0:
+        if not ROMS_DIRECTORY.is_dir():
+            raise RuntimeError(f"Directory {str(ROMS_DIRECTORY)} does not exist!")
 
-    roms = []
-    for file in ROMS_DIRECTORY.iterdir():
-        if file.is_file():
-            try:
-                roms.append(load_rom_data(file))
-            except InvalidROMError:
-                pass
+        rom_cache.clear()
+        for file in ROMS_DIRECTORY.iterdir():
+            if file.is_file():
+                try:
+                    rom_cache.append(load_rom_data(file))
+                except InvalidROMError:
+                    pass
 
-    return roms
+    return rom_cache
 
 
 def load_rom_data(file: Path) -> ROM:
+    # Prefer cached data so we can skip the expensive stuff below
+    global rom_cache
+    for rom in rom_cache:
+        if rom.file == file:
+            return rom
+
     # GBA cartridge headers are 0xC0 bytes long, so any files smaller than that cannot be a ROM
     if file.stat().st_size < 0xC0:
         raise InvalidROMError("This does not seem to be a valid ROM (file size too small.)")
@@ -159,4 +174,7 @@ def load_rom_data(file: Path) -> ROM:
         if revision > 0:
             game_name += f" (Rev {revision})"
 
-        return ROM(file, game_name, game_title, game_code[:3], ROMLanguage(game_code[3]), maker_code, revision)
+        rom = ROM(file, game_name, game_title, game_code[:3], ROMLanguage(game_code[3]), maker_code, revision)
+        rom_cache.append(rom)
+
+        return rom

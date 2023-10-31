@@ -31,9 +31,16 @@ class PokebotGui:
         self._main_loop = main_loop
         self._on_exit = on_exit
 
+        self.window.geometry("540x400")
+        self.window.resizable(False, True)
         self.window.protocol("WM_DELETE_WINDOW", self._close_window)
         self.window.bind("<KeyPress>", self._handle_key_down_event)
         self.window.bind("<KeyRelease>", self._handle_key_up_event)
+
+        style = ttk.Style()
+        style.map("Accent.TButton", bordercolor="green",
+                  foreground=[("!active", "white"), ("active", "white"), ("pressed", "white")],
+                  background=[("!active", "green"), ("active", "darkgreen"), ("pressed", "green")])
 
         key_config = load_config("keys.yml", keys_schema)
         self._gba_keys: dict[str, int] = {}
@@ -42,15 +49,6 @@ class PokebotGui:
         self._emulator_keys: dict[str, str] = {}
         for action in key_config["emulator"]:
             self._emulator_keys[key_config["emulator"][action].lower()] = action
-
-        self.window.tk.call('source', str(get_data_path().parent / 'ttk-theme' / 'forest-light.tcl'))
-        self.window.tk.call('source', str(get_data_path().parent / 'ttk-theme' / 'forest-dark.tcl'))
-
-        theme_setting = config["general"]["colour_scheme"]
-        if (darkdetect.isDark() and theme_setting != "light") or theme_setting == "dark":
-            ttk.Style().theme_use('forest-dark')
-        else:
-            ttk.Style().theme_use('forest-light')
 
         self._create_profile_screen = CreateProfileScreen(self.window, self._enable_select_profile_screen,
                                                           self._run_profile)

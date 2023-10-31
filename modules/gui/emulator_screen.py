@@ -56,6 +56,8 @@ class EmulatorScreen:
     def disable(self) -> None:
         if self.frame:
             self.frame.destroy()
+        self.window.geometry("540x400")
+        self.window.resizable(False, True)
 
     def update(self) -> None:
         if context.emulator._performance_tracker.time_since_last_render() >= (1 / 60) * 1_000_000_000:
