@@ -113,6 +113,7 @@ def http_server() -> None:
                     "current_message": context.message,
                     "frame_count": context.emulator.get_frame_count(),
                     "current_fps": context.emulator.get_current_fps(),
+                    "current_time_spent_in_bot_fraction": context.emulator.get_current_time_spent_in_bot_fraction(),
                     "profile": {
                         "name": context.profile.path.name
                     },
