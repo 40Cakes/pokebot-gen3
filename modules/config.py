@@ -69,6 +69,8 @@ logging_schema = """
                 type: boolean
             custom:
                 type: boolean
+    import_pk3:
+        type: boolean
 """
 
 discord_schema = """

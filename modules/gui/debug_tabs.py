@@ -162,9 +162,9 @@ class FancyTreeview:
         if len(selection) < 1:
             return
 
-        import pyperclip
+        import pyperclip3
 
-        pyperclip.copy(self._tv.item(selection[0])["values"][0])
+        pyperclip3.copy(str(self._tv.item(selection[0])["values"][0]))
 
     def _handle_action(self, callback: callable) -> None:
         selection = self._tv.selection()

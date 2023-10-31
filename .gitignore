@@ -3,6 +3,7 @@ __pycache__
 .venv
 .idea
 .vs
+.vscode
 
 *.gba
 .last-requirements-check

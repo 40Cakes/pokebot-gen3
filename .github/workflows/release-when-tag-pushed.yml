@@ -1,0 +1,38 @@
+name: Creates a new release when a tag is pushed
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  create-release-for-tag:
+    # This release action only really makes sense in the main repository and not in
+    # a fork, hence this condition.
+    if: github.repository == '40Cakes/pokebot-gen3'
+
+    name: "Create a release for the tag"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update version.py and remove unnecessary files
+        run: |
+          echo "pokebot_name = \"PokéBot\"" > modules/version.py
+          echo "pokebot_version = \"${{ github.ref_name }}\"" >> modules/version.py
+          rm -rf .git .github .gitattributes .gitignore pokebot.spec
+          mv LICENSE LICENSE.txt
+
+      - name: Create a ZIP file
+        run: |
+          zip -qq -r /tmp/pokebot-${{ github.ref_name }}.zip .
+
+      - name: Creates the GitHub release
+        uses: marvinpinto/action-automatic-releases@v1.2.1
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: false
+          automatic_release_tag: ${{ github.ref_name }}
+          files: |
+            /tmp/pokebot-${{ github.ref_name }}.zip

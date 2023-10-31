@@ -14,12 +14,12 @@ from modules.colours import iv_colour, iv_sum_colour, sv_colour
 from modules.config import config
 from modules.console import console
 from modules.context import context
-from modules.files import read_file, write_file
+from modules.files import read_file, write_file, write_pk
 from modules.gui.desktop_notification import desktop_notification
 from modules.memory import get_game_state, GameState
+from modules.pc_storage import import_into_storage
 from modules.pokemon import Pokemon
 from modules.profiles import Profile
-from modules.files import write_pk
 
 custom_catch_filters = None
 custom_hooks = None
@@ -112,14 +112,14 @@ def get_encounter_rate() -> int:
                 cached_timestamp = encounter_timestamps[-1]
                 encounter_rate = int(
                     (
-                            3600000
-                            / (
-                                    (
-                                            encounter_timestamps[-1]
-                                            - encounter_timestamps[-min(session_encounters, len(encounter_timestamps))]
-                                    )
-                                    * 1000
+                        3600000
+                        / (
+                            (
+                                encounter_timestamps[-1]
+                                - encounter_timestamps[-min(session_encounters, len(encounter_timestamps))]
                             )
+                            * 1000
+                        )
                     )
                     * (min(session_encounters, len(encounter_timestamps)))
                 )
@@ -666,6 +666,12 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
         else:
             filename_suffix = f"{state_tag}_{pokemon.species.safe_name}"
             context.emulator.create_save_state(suffix=filename_suffix)
+
+            # TEMPORARY until auto-battle/auto-catch is done
+            # if the mon is saved and imported, no need to catch it by hand
+            if config["logging"]["import_pk3"]:
+                if import_into_storage(pokemon.data):
+                    return
 
             context.bot_mode = "manual"
             context.emulator.set_speed_factor(1)
