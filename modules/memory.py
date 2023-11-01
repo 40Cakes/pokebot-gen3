@@ -2,7 +2,6 @@ import sys
 import struct
 from enum import IntEnum
 
-from modules.console import console
 from modules.context import context
 from modules.game import get_symbol, get_symbol_name, get_event_flag_offset
 
@@ -54,8 +53,6 @@ def read_symbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
         return context.emulator.read_bytes(addr + offset, size)
     except SystemExit:
         raise
-    except:
-        console.print_exception(show_locals=True)
 
 
 def write_symbol(name: str, data: bytes, offset: int = 0x0) -> bool:
@@ -71,7 +68,6 @@ def write_symbol(name: str, data: bytes, offset: int = 0x0) -> bool:
     except SystemExit:
         raise
     except:
-        console.print_exception(show_locals=True)
         sys.exit(1)
 
 
@@ -96,8 +92,6 @@ def parse_tasks(pretty_names: bool = False) -> list:
         return tasks
     except SystemExit:
         raise
-    except:
-        console.print_exception(show_locals=True)
 
 
 def get_task(func: str) -> dict:
@@ -134,8 +128,6 @@ def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
             return read_symbol(f"gSaveBlock{num}", offset=offset, size=size)
     except SystemExit:
         raise
-    except:
-        console.print_exception(show_locals=True)
 
 
 class GameState(IntEnum):
