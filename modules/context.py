@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class BotContext:
-    def __init__(self, initial_bot_mode: str = 'manual'):
+    def __init__(self, initial_bot_mode: str = 'Manual'):
         self.emulator: Optional["LibmgbaEmulator"] = None
         self.gui: Optional["PokebotGui"] = None
         self.profile: Optional["Profile"] = None
@@ -17,7 +17,7 @@ class BotContext:
         self._current_message: str = ''
 
         self._current_bot_mode: str = initial_bot_mode
-        self._previous_bot_mode: str = 'manual'
+        self._previous_bot_mode: str = 'Manual'
 
     @property
     def message(self) -> str:
@@ -57,12 +57,12 @@ class BotContext:
             self._update_gui()
 
     def toggle_manual_mode(self) -> None:
-        if self._current_bot_mode == "manual":
+        if self._current_bot_mode == "Manual":
             self._current_bot_mode = self._previous_bot_mode
-            self._previous_bot_mode = "manual"
+            self._previous_bot_mode = "Manual"
         else:
             self._previous_bot_mode = self._current_bot_mode
-            self._current_bot_mode = "manual"
+            self._current_bot_mode = "Manual"
         self._update_gui()
 
     @property

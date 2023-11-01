@@ -72,7 +72,7 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
                 if import_into_storage(pokemon.data):
                     return
 
-            context.bot_mode = "manual"
+            context.bot_mode = "Manual"
             context.emulator.set_speed_factor(1)
             context.emulator.set_throttle(True)
             context.emulator.set_video_enabled(True)

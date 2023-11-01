@@ -103,7 +103,7 @@ class ModeStarters:
             )
             console.print(f"[red bold]{message}")
             context.message = message
-            context.bot_mode = "manual"
+            context.bot_mode = "Manual"
             return
 
         while True:
@@ -203,7 +203,7 @@ class ModeStarters:
                             console.print(
                                 "[red]Your party is full, make some room before using the Johto starters mode!"
                             )
-                            context.bot_mode = "manual"
+                            context.bot_mode = "Manual"
                             return
 
                         case ModeStarterStates.RESET:

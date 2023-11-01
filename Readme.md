@@ -103,14 +103,14 @@ Please do not seek support or complain if you find that your ROM hack does not w
 
 # 🤖 Bot Modes
 - The bot mode can be changed at any time while the bot is running by using the menu on the UI
-- `manual` mode is the default mode
-- Press `Tab` to toggle between `manual` mode and a previously selected mode
+- `Manual` mode is the default mode
+- Press `Tab` to toggle between `Manual` mode and a previously selected mode
 
 ***
-## 🔧 `manual`
+## 🔧 Manual
 Manual mode simply disables all bot inputs, allowing you to track encounters and stats on your own shiny hunts as you play the game normally.
 
-## 🔄 `spin`
+## 🔄 Spin
 Spin clockwise on a single tile, useful for Safari Zone and [repel tricking](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) as it doesn't count steps
 
 Start the mode while in the overworld, in any patch of grass/water/cave.
@@ -135,7 +135,7 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/32ced886-062b-483b-86c4-
 | Italian  |  🟨   |    🟨     |    🟨    |    🟨    |     🟨     |
 </details>
 
-## 💼 `starters`
+## 💼 Starters
 Soft reset for starter Pokémon.
 
 <details>
@@ -178,7 +178,7 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/54f7f774-8cc1-4c6e-a6f7-
 | Italian  |    -    |      -      |     -      |     -      |      -       |
 </details>
 
-## 🎣 `fishing`
+## 🎣 Fishing
 Start the mode while facing the water, with any fishing rod registered.
 <details>
 <summary>🎥 Click here to show a video example</summary>
@@ -200,11 +200,11 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/4317ba99-8854-4ce5-b054-
 | Italian  |  -   |    -     |    -    |    -    |     -     |
 </details>
 
-## 🚲 `bunny_hop`
+## 🚲 Bunny Hop
 Bunny hop on the spot with the [Acro Bike](https://bulbapedia.bulbagarden.net/wiki/Acro_Bike), useful for Safari Zone and [repel tricking](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) as it doesn't count steps.
 
 Start the mode while in the overworld, in any patch of grass/cave, with the Acro Bike registered.
-- **Note**: `bunny_hop` is ~10% slower encounters/h on average than `spin` mode
+- **Note**: `Bunny Hop` is ~10% slower encounters/h on average than `spin` mode
 
 <details>
 <summary>🎥 Click here to show a video example</summary>
@@ -541,7 +541,7 @@ All HTTP responses are in JSON format.
 - Set **TEXT SPEED** to **FAST**
 - Set **BATTLE SCENE** to **OFF**
 - Utilise [repel tricks](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) to boost encounter rates of target Pokémon
-- Using `bot_mode` `spin` or `bunny_hop` and repels will become effectively infinite + steps won't be counted in Safari Zone
+- Using modes `Spin` or `Bunny Hop` and repels will become effectively infinite + steps won't be counted in Safari Zone
 - Use a lead Pokémon with encounter rate boosting [abilities](https://bulbapedia.bulbagarden.net/wiki/Category:Abilities_that_affect_appearance_of_wild_Pok%C3%A9mon), such as **[Illuminate](https://bulbapedia.bulbagarden.net/wiki/Illuminate_(Ability))**
 - Use a lead Pokémon with a [short cry](https://docs.google.com/spreadsheets/d/1rmtNdlIXiif1Sz20i-9mfhFdoqb1VnAOIntlr3tnPeU)
 - Use a lead Pokémon with a single character nickname
@@ -559,14 +559,14 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  -m {manual,spin,starters,fishing,bunny_hop}, --bot-mode {manual,spin,starters,fishing,bunny_hop}
-                        Initial bot mode (default: manual.)
+  -m {Manual,Spin,Starters,Fishing,Bunny Hop}, --bot-mode {Manual,Spin,Starters,Fishing,Bunny Hop}
+                        Initial bot mode (default: Manual)
   -s {0,1,2,3,4}, --emulation-speed {0,1,2,3,4}
-                        Initial emulation speed (0 for unthrottled; default: 1.)
-  -nv, --no-video       Turn off video output by default.
-  -na, --no-audio       Turn off audio output by default.
-  -t, --always-on-top   Keep the bot window always on top of other windows.
-  -d, --debug           Enable extra debug options and a debug menu.
+                        Initial emulation speed (0 for unthrottled; default: 1)
+  -nv, --no-video       Turn off video output by default
+  -na, --no-audio       Turn off audio output by default
+  -t, --always-on-top   Keep the bot window always on top of other windows
+  -d, --debug           Enable extra debug options and a debug menu
 ```
 
 ***

@@ -30,39 +30,39 @@ def main_loop() -> None:
             Thread(target=http_server).start()
 
         while True:
-            if not mode and get_game_state() == GameState.BATTLE and context.bot_mode != "starters":
+            if not mode and get_game_state() == GameState.BATTLE and context.bot_mode != "Starters":
                 if opponent_changed():
                     encounter_pokemon(get_opponent())
-                if context.bot_mode != "manual":
+                if context.bot_mode != "Manual":
                     temp_run_from_battle()
 
-            if context.bot_mode == "manual":
+            if context.bot_mode == "Manual":
                 if mode:
                     mode = None
 
             elif not mode:
                 match context.bot_mode:
-                    case "spin":
+                    case "Spin":
                         from modules.modes.general import ModeSpin
 
                         mode = ModeSpin()
 
-                    case "starters":
+                    case "Starters":
                         from modules.modes.starters import ModeStarters
 
                         mode = ModeStarters()
 
-                    case "fishing":
+                    case "Fishing":
                         from modules.modes.general import ModeFishing
 
                         mode = ModeFishing()
 
-                    case "bunny_hop":
+                    case "Bunny Hop":
                         from modules.modes.general import ModeBunnyHop
 
                         mode = ModeBunnyHop()
 
-                    case "rayquaza":
+                    case "Rayquaza":
                         from modules.modes.legendaries import ModeRayquaza
 
                         mode = ModeRayquaza()
@@ -75,7 +75,7 @@ def main_loop() -> None:
                 continue
             except:
                 mode = None
-                context.bot_mode = "manual"
+                context.bot_mode = "Manual"
 
             context.emulator.run_single_frame()
 

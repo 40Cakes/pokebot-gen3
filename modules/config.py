@@ -8,7 +8,7 @@ from modules.console import console
 
 yaml = YAML()
 
-available_bot_modes = ["manual", "spin", "starters", "fishing", "bunny_hop"]
+available_bot_modes = ["Manual", "Spin", "Starters", "Fishing", "Bunny Hop", "Rayquaza"]
 
 general_schema = f"""
 type: object
