@@ -97,10 +97,12 @@ class ModeStarters:
 
     def step(self):
         if self.state == ModeStarterStates.INCOMPATIBLE:
-            console.print(
-                f"[red bold]Starter `{config['general']['starter']}` is incompatible, update `starter` in config "
+            message = (
+                f"Starter `{config['general']['starter']}` is incompatible, update `starter` in config "
                 f"file `general.yml` to a valid starter for {context.rom.game_name} and restart the bot!"
             )
+            console.print(f"[red bold]{message}")
+            context.message = message
             context.bot_mode = "manual"
             return
 
