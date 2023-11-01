@@ -17,7 +17,7 @@ class CreateProfileScreen:
         self.window = window
         self.enable_profile_selection_screen = enable_profile_selection_screen
         self.run_profile = run_profile
-        self.frame: Union[ttk.Frame, None] = None
+        self.frame: ttk.Frame | None = None
 
     def enable(self) -> None:
         self.window.rowconfigure(0, weight=1)

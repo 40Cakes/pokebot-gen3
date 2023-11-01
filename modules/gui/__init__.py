@@ -118,13 +118,13 @@ class PokebotGui:
 
     def _enable_create_profile_screen(self) -> None:
         self._reset_screen()
-        self._create_profile_screen.enable()
         self._current_screen = self._create_profile_screen
+        self._create_profile_screen.enable()
 
     def _enable_select_profile_screen(self) -> None:
         self._reset_screen()
-        self._select_profile_screen.enable()
         self._current_screen = self._select_profile_screen
+        self._select_profile_screen.enable()
 
     def _run_profile(self, profile: "Profile") -> None:
         self._reset_screen()
@@ -139,8 +139,8 @@ class PokebotGui:
             context.debug = self._startup_settings.debug
             context.bot_mode = self._startup_settings.bot_mode
 
-        self._emulator_screen.enable()
         self._current_screen = self._emulator_screen
+        self._emulator_screen.enable()
         self._main_loop()
 
     def _handle_key_down_event(self, event):
