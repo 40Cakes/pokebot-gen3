@@ -554,9 +554,19 @@ All HTTP responses are in JSON format.
 The bot supports auto-starting a profile and can also be launched into a 'debug' mode which can aid bot development.
 
 ```
-python pokebot.py my-profile          starts the 'my-profile' profile
-python pokebot.py my-profile --debug  starts the 'my-profile' profile in debug mode
-python pokebot.py --debug             starts the profile selection screen in debug mode
+positional arguments:
+  profile               Profile to initialize. Otherwise, the profile selection menu will appear.
+
+options:
+  -h, --help            show this help message and exit
+  -m {manual,spin,starters,fishing,bunny_hop}, --bot-mode {manual,spin,starters,fishing,bunny_hop}
+                        Initial bot mode (default: manual.)
+  -s {0,1,2,3,4}, --emulation-speed {0,1,2,3,4}
+                        Initial emulation speed (0 for unthrottled; default: 1.)
+  -nv, --no-video       Turn off video output by default.
+  -na, --no-audio       Turn off audio output by default.
+  -t, --always-on-top   Keep the bot window always on top of other windows.
+  -d, --debug           Enable extra debug options and a debug menu.
 ```
 
 ***
