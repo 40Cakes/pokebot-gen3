@@ -2,7 +2,6 @@ import sys
 from threading import Thread
 
 from modules.config import config, load_config_from_directory
-from modules.console import console
 from modules.context import context
 from modules.memory import get_game_state, GameState
 from modules.pokemon import opponent_changed, get_opponent
@@ -18,18 +17,15 @@ def main_loop() -> None:
     mode = None
     load_config_from_directory(context.profile.path, allow_missing_files=True)
 
-    try:
-        if config["discord"]["rich_presence"]:
-            from modules.discord import discord_rich_presence
+    if config["discord"]["rich_presence"]:
+        from modules.discord import discord_rich_presence
 
-            Thread(target=discord_rich_presence).start()
+        Thread(target=discord_rich_presence).start()
 
-        if config["obs"]["http_server"]["enable"]:
-            from modules.http import http_server
+    if config["obs"]["http_server"]["enable"]:
+        from modules.http import http_server
 
-            Thread(target=http_server).start()
-    except:
-        console.print_exception(show_locals=True)
+        Thread(target=http_server).start()
 
     while True:
         try:
@@ -72,7 +68,6 @@ def main_loop() -> None:
                 mode = None
                 continue
             except:
-                console.print_exception(show_locals=True)
                 mode = None
                 context.bot_mode = "manual"
 
@@ -81,5 +76,4 @@ def main_loop() -> None:
         except SystemExit:
             raise
         except:
-            console.print_exception(show_locals=True)
             sys.exit(1)

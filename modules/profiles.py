@@ -89,7 +89,6 @@ def load_profile(path) -> Profile:
         metadata = YAML().load(metadata_file)
         jsonschema.validate(metadata, YAML().load(metadata_schema))
     except:
-        console.print_exception(show_locals=True)
         console.print(f'[bold red]Metadata file for profile "{path.name}" is invalid![/]')
         sys.exit(1)
 

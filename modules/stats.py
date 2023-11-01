@@ -62,7 +62,6 @@ class TotalStats:
         except SystemExit:
             raise
         except:
-            console.print_exception(show_locals=True)
             sys.exit(1)
 
     def append_encounter_timestamps(self) -> None:
@@ -89,35 +88,29 @@ class TotalStats:
         return self.shiny_log["shiny_log"]
 
     def get_encounter_rate(self) -> int:
-        try:
-            if len(self.encounter_timestamps) > 1 and self.session_encounters > 1:
-                if self.cached_timestamp != self.encounter_timestamps[-1]:
-                    self.cached_timestamp = self.encounter_timestamps[-1]
-                    encounter_rate = int(
-                        (
-                            3600000
-                            / (
-                                (
-                                    self.encounter_timestamps[-1]
-                                    - self.encounter_timestamps[
-                                        -min(self.session_encounters, len(self.encounter_timestamps))
-                                    ]
-                                )
-                                * 1000
+        if len(self.encounter_timestamps) > 1 and self.session_encounters > 1:
+            if self.cached_timestamp != self.encounter_timestamps[-1]:
+                self.cached_timestamp = self.encounter_timestamps[-1]
+                encounter_rate = int(
+                    (
+                        3600000
+                        / (
+                            (
+                                self.encounter_timestamps[-1]
+                                - self.encounter_timestamps[
+                                    -min(self.session_encounters, len(self.encounter_timestamps))
+                                ]
                             )
+                            * 1000
                         )
-                        * (min(self.session_encounters, len(self.encounter_timestamps)))
                     )
-                    self.cached_encounter_rate = encounter_rate
-                    return encounter_rate
-                else:
-                    return self.cached_encounter_rate
-            return 0
-        except SystemExit:
-            raise
-        except:
-            console.print_exception(show_locals=True)
-            return 0
+                    * (min(self.session_encounters, len(self.encounter_timestamps)))
+                )
+                self.cached_encounter_rate = encounter_rate
+                return encounter_rate
+            else:
+                return self.cached_encounter_rate
+        return 0
 
     def update_incremental_stats(self, pokemon: Pokemon) -> None:
         self.session_encounters += 1
@@ -310,62 +303,56 @@ class TotalStats:
         }
 
     def log_encounter(self, pokemon: Pokemon, block_list: list) -> None:
-        try:
-            if "pokemon" not in self.total_stats:
-                self.total_stats["pokemon"] = {}
-            if "totals" not in self.total_stats:
-                self.total_stats["totals"] = {}
+        if "pokemon" not in self.total_stats:
+            self.total_stats["pokemon"] = {}
+        if "totals" not in self.total_stats:
+            self.total_stats["totals"] = {}
 
-            if not pokemon.species.name in self.total_stats["pokemon"]:  # Set up a Pokémon stats if first encounter
-                self.total_stats["pokemon"].update({pokemon.species.name: {}})
+        if not pokemon.species.name in self.total_stats["pokemon"]:  # Set up a Pokémon stats if first encounter
+            self.total_stats["pokemon"].update({pokemon.species.name: {}})
 
-            self.update_incremental_stats(pokemon)
-            self.update_sv_records(pokemon)
-            self.update_iv_records(pokemon)
+        self.update_incremental_stats(pokemon)
+        self.update_sv_records(pokemon)
+        self.update_iv_records(pokemon)
 
-            if config["logging"]["log_encounters"]:
-                log_encounter_to_csv(self.total_stats, pokemon.to_dict(), self.stats_dir_path)
+        if config["logging"]["log_encounters"]:
+            log_encounter_to_csv(self.total_stats, pokemon.to_dict(), self.stats_dir_path)
 
-            self.update_shiny_averages(pokemon)
-            self.append_encounter_timestamps()
-            self.append_encounter_log(pokemon)
-            self.update_same_pokemon_streak_record(pokemon)
+        self.update_shiny_averages(pokemon)
+        self.append_encounter_timestamps()
+        self.append_encounter_log(pokemon)
+        self.update_same_pokemon_streak_record(pokemon)
 
-            if pokemon.is_shiny:
-                self.append_shiny_log(pokemon)
-                self.update_shiny_incremental_stats(pokemon)
+        if pokemon.is_shiny:
+            self.append_shiny_log(pokemon)
+            self.update_shiny_incremental_stats(pokemon)
 
-                #  TODO fix all this OBS crap
-                for i in range(config["obs"].get("shiny_delay", 1)):
+            #  TODO fix all this OBS crap
+            for i in range(config["obs"].get("shiny_delay", 1)):
+                context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+
+            if config["obs"]["screenshot"]:
+                from modules.obs import obs_hot_key
+
+                while get_game_state() != GameState.BATTLE:
+                    context.emulator.press_button("B")  # Throw out Pokémon for screenshot
                     context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+                for i in range(180):
+                    context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+                obs_hot_key("OBS_KEY_F11", pressCtrl=True)
 
-                if config["obs"]["screenshot"]:
-                    from modules.obs import obs_hot_key
+        print_stats(self.total_stats, pokemon, self.session_pokemon, self.get_encounter_rate())
 
-                    while get_game_state() != GameState.BATTLE:
-                        context.emulator.press_button("B")  # Throw out Pokémon for screenshot
-                        context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-                    for i in range(180):
-                        context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-                    obs_hot_key("OBS_KEY_F11", pressCtrl=True)
+        # Run custom code in custom_hooks in a thread
+        hook = (Pokemon(pokemon.data), copy.deepcopy(self.total_stats), copy.deepcopy(block_list))
+        Thread(target=self.custom_hooks, args=(hook,)).start()
 
-            print_stats(self.total_stats, pokemon, self.session_pokemon, self.get_encounter_rate())
+        if pokemon.is_shiny:
+            self.update_phase_records(pokemon)
+            self.reset_phase_stats()
 
-            # Run custom code in custom_hooks in a thread
-            hook = (Pokemon(pokemon.data), copy.deepcopy(self.total_stats), copy.deepcopy(block_list))
-            Thread(target=self.custom_hooks, args=(hook,)).start()
-
-            if pokemon.is_shiny:
-                self.update_phase_records(pokemon)
-                self.reset_phase_stats()
-
-            # Save stats file
-            write_file(self.files["totals"], json.dumps(self.total_stats, indent=4, sort_keys=True))
-
-        except SystemExit:
-            raise
-        except:
-            console.print_exception(show_locals=True)
+        # Save stats file
+        write_file(self.files["totals"], json.dumps(self.total_stats, indent=4, sort_keys=True))
 
 
 total_stats = TotalStats()
