@@ -6,21 +6,19 @@ from modules.console import console
 from modules.context import context
 from modules.memory import get_game_state, GameState
 from modules.pokemon import opponent_changed, get_opponent
-from modules.profiles import Profile
-from modules.stats import init_stats, encounter_pokemon
 from modules.temp import temp_run_from_battle
 
 
-def main_loop(profile: Profile) -> None:
+def main_loop() -> None:
     """
     This function is run after the user has selected a profile and the emulator has been started.
-    :param profile: The profile selected by the user
     """
-    mode = None
-    load_config_from_directory(profile.path, allow_missing_files=True)
-    init_stats(profile)
+    from modules.encounter import encounter_pokemon  # prevents instantiating TotalStats class before profile selected
 
     try:
+        mode = None
+        load_config_from_directory(context.profile.path, allow_missing_files=True)
+
         if config["discord"]["rich_presence"]:
             from modules.discord import discord_rich_presence
 
@@ -30,42 +28,44 @@ def main_loop(profile: Profile) -> None:
             from modules.http import http_server
 
             Thread(target=http_server).start()
-    except:
-        console.print_exception(show_locals=True)
 
-    while True:
-        try:
-            if not mode and get_game_state() == GameState.BATTLE and context.bot_mode != "starters":
+        while True:
+            if not mode and get_game_state() == GameState.BATTLE and context.bot_mode != "Starters":
                 if opponent_changed():
                     encounter_pokemon(get_opponent())
-                if context.bot_mode != "manual":
+                if context.bot_mode != "Manual":
                     temp_run_from_battle()
 
-            if context.bot_mode == "manual":
+            if context.bot_mode == "Manual":
                 if mode:
                     mode = None
 
             elif not mode:
                 match context.bot_mode:
-                    case "spin":
+                    case "Spin":
                         from modules.modes.general import ModeSpin
 
                         mode = ModeSpin()
 
-                    case "starters":
+                    case "Starters":
                         from modules.modes.starters import ModeStarters
 
                         mode = ModeStarters()
 
-                    case "fishing":
+                    case "Fishing":
                         from modules.modes.general import ModeFishing
 
                         mode = ModeFishing()
 
-                    case "bunny_hop":
+                    case "Bunny Hop":
                         from modules.modes.general import ModeBunnyHop
 
                         mode = ModeBunnyHop()
+
+                    case "Rayquaza":
+                        from modules.modes.legendaries import ModeRayquaza
+
+                        mode = ModeRayquaza()
 
             try:
                 if mode:
@@ -74,14 +74,13 @@ def main_loop(profile: Profile) -> None:
                 mode = None
                 continue
             except:
-                console.print_exception(show_locals=True)
                 mode = None
-                context.bot_mode = "manual"
+                context.bot_mode = "Manual"
 
             context.emulator.run_single_frame()
 
-        except SystemExit:
-            raise
-        except:
-            console.print_exception(show_locals=True)
-            sys.exit(1)
+    except SystemExit:
+        raise
+    except:
+        console.print_exception(show_locals=True)
+        sys.exit(1)

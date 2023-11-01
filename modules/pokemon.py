@@ -9,7 +9,6 @@ from typing import Literal
 
 import numpy
 
-from modules.console import console
 from modules.context import context
 from modules.game import decode_string
 from modules.memory import unpack_uint32, unpack_uint16, read_symbol, pack_uint32
@@ -1176,7 +1175,7 @@ class Pokemon:
             else:
                 return f"{self.species.name} (lvl. {self.level})"
 
-    def to_json(self):
+    def to_dict(self) -> dict:
         """
         Converts the Pokemon data into a simple dict, which can then be used for JSON-encoding
         the data.
@@ -1524,5 +1523,4 @@ def opponent_changed() -> bool:
     except SystemExit:
         raise
     except:
-        console.print_exception(show_locals=True)
         return False

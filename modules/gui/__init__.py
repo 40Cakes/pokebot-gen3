@@ -29,7 +29,7 @@ class PokebotGui:
         self._current_screen = None
         self._main_loop = main_loop
         self._on_exit = on_exit
-        self._startup_settings: 'StartupSettings | None' = None
+        self._startup_settings: "StartupSettings | None" = None
 
         self.window.geometry("540x400")
         self.window.resizable(False, True)
@@ -39,9 +39,11 @@ class PokebotGui:
 
         style = ttk.Style()
         style.theme_use("default")
-        style.map("Accent.TButton",
-                  foreground=[("!active", "white"), ("active", "white"), ("pressed", "white")],
-                  background=[("!active", "green"), ("active", "darkgreen"), ("pressed", "green")])
+        style.map(
+            "Accent.TButton",
+            foreground=[("!active", "white"), ("active", "white"), ("pressed", "white")],
+            background=[("!active", "green"), ("active", "darkgreen"), ("pressed", "green")],
+        )
 
         key_config = load_config("keys.yml", keys_schema)
         self._gba_keys: dict[str, int] = {}
@@ -51,10 +53,12 @@ class PokebotGui:
         for action in key_config["emulator"]:
             self._emulator_keys[key_config["emulator"][action].lower()] = action
 
-        self._create_profile_screen = CreateProfileScreen(self.window, self._enable_select_profile_screen,
-                                                          self._run_profile)
-        self._select_profile_screen = SelectProfileScreen(self.window, self._enable_create_profile_screen,
-                                                          self._run_profile)
+        self._create_profile_screen = CreateProfileScreen(
+            self.window, self._enable_select_profile_screen, self._run_profile
+        )
+        self._select_profile_screen = SelectProfileScreen(
+            self.window, self._enable_create_profile_screen, self._run_profile
+        )
         self._emulator_screen = EmulatorScreen(self.window)
         self._set_app_icon()
 
@@ -122,7 +126,7 @@ class PokebotGui:
         self._select_profile_screen.enable()
         self._current_screen = self._select_profile_screen
 
-    def _run_profile(self, profile: 'Profile') -> None:
+    def _run_profile(self, profile: "Profile") -> None:
         self._reset_screen()
         context.profile = profile
         set_rom(profile.rom)
@@ -137,7 +141,7 @@ class PokebotGui:
 
         self._emulator_screen.enable()
         self._current_screen = self._emulator_screen
-        self._main_loop(profile)
+        self._main_loop()
 
     def _handle_key_down_event(self, event):
         keysym_with_modifier = ("ctrl+" if event.state & 4 else "") + event.keysym.lower()
@@ -149,14 +153,14 @@ class PokebotGui:
 
         # These key bindings will only be applied if the emulation has started.
         if context.emulator:
-            if keysym_with_modifier in self._gba_keys and context.bot_mode == "manual":
+            if keysym_with_modifier in self._gba_keys and context.bot_mode == "Manual":
                 context.emulator.hold_button(inputs=self._gba_keys[keysym_with_modifier])
             elif keysym_with_modifier in self._emulator_keys:
                 match self._emulator_keys[keysym_with_modifier]:
                     case "reset":
                         context.emulator.reset()
                     case "save_state":
-                        context.emulator.create_save_state("manual")
+                        context.emulator.create_save_state("Manual")
                     case "load_state":
                         LoadStateWindow(self.window)
                     case "toggle_stepping_mode":
@@ -167,7 +171,7 @@ class PokebotGui:
                         self._emulator_screen.scale = max(1, self._emulator_screen.scale - 1)
                     case "toggle_manual":
                         context.toggle_manual_mode()
-                        console.print(f'Now in [cyan]{context.bot_mode}[/] mode')
+                        console.print(f"Now in [cyan]{context.bot_mode}[/] mode")
                         context.emulator.set_inputs(0)
                     case "toggle_video":
                         context.toggle_video()
@@ -191,5 +195,5 @@ class PokebotGui:
     def _handle_key_up_event(self, event):
         keysym_with_modifier = ("ctrl+" if event.state & 4 else "") + event.keysym.lower()
         if context.emulator:
-            if keysym_with_modifier in self._gba_keys and (context.bot_mode == "manual"):
+            if keysym_with_modifier in self._gba_keys and (context.bot_mode == "Manual"):
                 context.emulator.release_button(inputs=self._gba_keys[keysym_with_modifier])

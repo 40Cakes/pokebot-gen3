@@ -8,14 +8,11 @@ from modules.console import console
 
 yaml = YAML()
 
-available_bot_modes = ["manual", "spin", "starters", "fishing", "bunny_hop"]
+available_bot_modes = ["Manual", "Spin", "Starters", "Fishing", "Bunny Hop", "Rayquaza"]
 
 general_schema = f"""
 type: object
 properties:
-    bot_mode:
-        type: string
-        enum: {available_bot_modes}
     starter:
         type: string
         enum:
@@ -296,7 +293,6 @@ def load_config_file(file_path: Path, schema: str) -> dict:
             validate(config, yaml.load(schema))
             return config
     except:
-        console.print_exception(show_locals=True)
         console.print(f"[bold red]Config file {str(file_path)} is invalid![/]")
         sys.exit(1)
 

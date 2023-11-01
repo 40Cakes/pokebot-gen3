@@ -75,10 +75,9 @@ If you have a save from mGBA that you'd like to import and use with the bot, the
 
 - In mGBA, run a game and load into the save file
 - **File** > **Save State File...** > **Save**
-- Double click `import.py` or run `python import.py` in a terminal to launch the save importer tool
+- Double click `pokebot.py` or run `python pokebot.py` in a terminal > type a profile **name** > click **Load Existing Save**
 - Open the save state file you just saved
 - A new bot profile will be created in the `profiles/` folder and set up all required files
-- If the importer tool detects files in the `stats/` or `profiles/` folders from old versions of the bot (from commit `ec5d702`, 7th October, 2023 or earlier), then they will be copied into your new profile
 
 ***
 
@@ -104,14 +103,14 @@ Please do not seek support or complain if you find that your ROM hack does not w
 
 # 🤖 Bot Modes
 - The bot mode can be changed at any time while the bot is running by using the menu on the UI
-- `manual` mode is the default mode
-- Press `Tab` to toggle between `manual` mode and a previously selected mode
+- `Manual` mode is the default mode
+- Press `Tab` to toggle between `Manual` mode and a previously selected mode
 
 ***
-## 🔧 `manual`
+## 🔧 Manual
 Manual mode simply disables all bot inputs, allowing you to track encounters and stats on your own shiny hunts as you play the game normally.
 
-## 🔄 `spin`
+## 🔄 Spin
 Spin clockwise on a single tile, useful for Safari Zone and [repel tricking](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) as it doesn't count steps
 
 Start the mode while in the overworld, in any patch of grass/water/cave.
@@ -136,7 +135,7 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/32ced886-062b-483b-86c4-
 | Italian  |  🟨   |    🟨     |    🟨    |    🟨    |     🟨     |
 </details>
 
-## 💼 `starters`
+## 💼 Starters
 Soft reset for starter Pokémon.
 
 <details>
@@ -179,7 +178,7 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/54f7f774-8cc1-4c6e-a6f7-
 | Italian  |    -    |      -      |     -      |     -      |      -       |
 </details>
 
-## 🎣 `fishing`
+## 🎣 Fishing
 Start the mode while facing the water, with any fishing rod registered.
 <details>
 <summary>🎥 Click here to show a video example</summary>
@@ -201,11 +200,11 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/4317ba99-8854-4ce5-b054-
 | Italian  |  -   |    -     |    -    |    -    |     -     |
 </details>
 
-## 🚲 `bunny_hop`
+## 🚲 Bunny Hop
 Bunny hop on the spot with the [Acro Bike](https://bulbapedia.bulbagarden.net/wiki/Acro_Bike), useful for Safari Zone and [repel tricking](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) as it doesn't count steps.
 
 Start the mode while in the overworld, in any patch of grass/cave, with the Acro Bike registered.
-- **Note**: `bunny_hop` is ~10% slower encounters/h on average than `spin` mode
+- **Note**: `Bunny Hop` is ~10% slower encounters/h on average than `spin` mode
 
 <details>
 <summary>🎥 Click here to show a video example</summary>
@@ -300,9 +299,7 @@ This file controls keyboard to GBA button mappings.
 <summary>Click to expand</summary>
 
 ### General
-`bot_mode` - set the bot to automatically launch into a specific mode (see [🤖 Bot Modes](#-bot-modes))
-
-`starter` - used when `bot_mode` set to `starters` (see [💼 starters](#-starters))
+`starter` - choose which starter Pokémon to hunt for, used when bot mode is set to `starters` (see [💼 starters](#-starters))
 
 </details>
 
@@ -524,9 +521,15 @@ All HTTP responses are in JSON format.
 
 `GET /shiny_log` returns a detailed list of all shiny Pokémon encounters (`shiny_log.json`)
 
+`GET /stats` returns the phase and total statistics (`totals.json`)
+
 `GET /encounter_rate` returns the current encounter rate (encounters per hour)
 
-`GET /stats` returns the phase and total statistics (`totals.json`)
+`GET /event_flags` returns all event flags for the current save file (optional parameter `?flag=FLAG_NAME` to get a specific flag)
+
+`GET /emulator` returns information about the emulator core + the current loaded game/profile
+
+`GET /fps` returns a list of emulator FPS (frames per second), in intervals of 1 second, for the previous 60 seconds
 
 </details>
 
@@ -538,7 +541,7 @@ All HTTP responses are in JSON format.
 - Set **TEXT SPEED** to **FAST**
 - Set **BATTLE SCENE** to **OFF**
 - Utilise [repel tricks](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) to boost encounter rates of target Pokémon
-- Using `bot_mode` `spin` or `bunny_hop` and repels will become effectively infinite + steps won't be counted in Safari Zone
+- Using modes `Spin` or `Bunny Hop` and repels will become effectively infinite + steps won't be counted in Safari Zone
 - Use a lead Pokémon with encounter rate boosting [abilities](https://bulbapedia.bulbagarden.net/wiki/Category:Abilities_that_affect_appearance_of_wild_Pok%C3%A9mon), such as **[Illuminate](https://bulbapedia.bulbagarden.net/wiki/Illuminate_(Ability))**
 - Use a lead Pokémon with a [short cry](https://docs.google.com/spreadsheets/d/1rmtNdlIXiif1Sz20i-9mfhFdoqb1VnAOIntlr3tnPeU)
 - Use a lead Pokémon with a single character nickname
@@ -551,9 +554,19 @@ All HTTP responses are in JSON format.
 The bot supports auto-starting a profile and can also be launched into a 'debug' mode which can aid bot development.
 
 ```
-python pokebot.py my-profile          starts the 'my-profile' profile
-python pokebot.py my-profile --debug  starts the 'my-profile' profile in debug mode
-python pokebot.py --debug             starts the profile selection screen in debug mode
+positional arguments:
+  profile               Profile to initialize. Otherwise, the profile selection menu will appear.
+
+options:
+  -h, --help            show this help message and exit
+  -m {Manual,Spin,Starters,Fishing,Bunny Hop}, --bot-mode {Manual,Spin,Starters,Fishing,Bunny Hop}
+                        Initial bot mode (default: Manual)
+  -s {0,1,2,3,4}, --emulation-speed {0,1,2,3,4}
+                        Initial emulation speed (0 for unthrottled; default: 1)
+  -nv, --no-video       Turn off video output by default
+  -na, --no-audio       Turn off audio output by default
+  -t, --always-on-top   Keep the bot window always on top of other windows
+  -d, --debug           Enable extra debug options and a debug menu
 ```
 
 ***

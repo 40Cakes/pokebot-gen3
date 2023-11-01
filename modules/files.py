@@ -1,8 +1,12 @@
+import json
 import os
-from modules.console import console
+from pathlib import Path
+
+from modules.context import context
+from modules.pokemon import Pokemon
 
 
-def read_file(file: str) -> str:
+def read_file(file: Path) -> str:
     """
     Simple function to read data from a file, return False if file doesn't exist
     :param file: File to read
@@ -15,11 +19,10 @@ def read_file(file: str) -> str:
         else:
             return None
     except:
-        console.print_exception(show_locals=True)()
         return None
 
 
-def write_file(file: str, value: str, mode: str = "w") -> bool:
+def write_file(file: Path, value: str, mode: str = "w") -> bool:
     """
     Simple function to write data to a file, will create the file if doesn't exist.
     Writes to a temp file, then performs os.remove + os.rename to prevent corruption of files (atomic operations).
@@ -30,7 +33,7 @@ def write_file(file: str, value: str, mode: str = "w") -> bool:
     :return: True if file was written to successfully, otherwise False (bool)
     """
     try:
-        tmp_file = file + ".tmp"
+        tmp_file = str(f"{file}.tmp")
         directory = os.path.dirname(tmp_file)
         if not os.path.exists(directory):
             os.makedirs(directory)
@@ -41,33 +44,48 @@ def write_file(file: str, value: str, mode: str = "w") -> bool:
         os.rename(tmp_file, file)
         return True
     except:
-        console.print_exception(show_locals=True)()
         return False
 
 
-def write_pk(file: str, data: bytes) -> bool:
+def save_pk3(pokemon: Pokemon) -> None:
     """
-    Slightly modified funciton to the write_file function that provides the ability
-    to write byte arrays out directly into a file
+    Takes the byte data of [obj]Pokémon.data and outputs it in a pkX format in the /profiles/[PROFILE]/pokemon dir.
+    """
+    pokemon_dir_path = context.profile.path / "pokemon"
+    if not pokemon_dir_path.exists():
+        pokemon_dir_path.mkdir()
 
-    :param file: File to write to
-    :param data: Pokemon data to be written
-    :return: True if file was written to successfully, otherwise False (bool)
-    """
+    pk3_file = f"{pokemon.species.national_dex_number}"
+    if pokemon.is_shiny:
+        pk3_file = f"{pk3_file} ★"
+
+    pk3_file = pokemon_dir_path / (
+        f"{pk3_file} - {pokemon.name} - {pokemon.nature} "
+        f"[{pokemon.ivs.sum()}] - {hex(pokemon.personality_value)[2:].upper()}.pk3"
+    )
+
+    if os.path.exists(pk3_file):
+        os.remove(pk3_file)
+
+    # Open the file and write the data
+    with open(pk3_file, "wb") as binary_file:
+        binary_file.write(pokemon.data)
+
+
+def get_rng_state_history(name: str) -> list:
+    default = []
     try:
-        # Remove file if it already exists
-        if os.path.exists(file):
-            os.remove(file)
-
-        # Create the directory if required
-        directory = os.path.dirname(file)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
-        # Open the file and write the data
-        with open(file, "wb") as binary_file:
-            binary_file.write(data)
-        return True
+        file = read_file(context.profile.path / "rng" / f"{name}.json")
+        data = json.loads(file) if file else default
+        return data
+    except SystemExit:
+        raise
     except:
-        console.print_exception(show_locals=True)
+        return default
+
+
+def save_rng_state_history(name: str, data: list) -> bool:
+    if write_file(context.profile.path / "rng" / f"{name}.json", json.dumps(data)):
+        return True
+    else:
         return False

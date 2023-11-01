@@ -1,8 +1,8 @@
 # TODO add list of available fields to filter on
 # TODO add option for a Discord webhook when a custom is caught
 from modules.console import console
+from modules.files import save_pk3
 from modules.pokemon import Pokemon
-from modules.stats import save_pk3
 
 
 def custom_catch_filters(pokemon: Pokemon) -> bool:

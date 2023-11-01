@@ -33,25 +33,22 @@ def get_items() -> dict:
 
     :return: trainer's items (dict)
     """
-    try:
-        items = {}
-        pockets = ["PC", "Items", "Key Items", "Poké Balls", "TMs & HMs", "Berries"]
-        for pocket in pockets:
-            items[pocket] = {}
+    items = {}
+    pockets = ["PC", "Items", "Key Items", "Poké Balls", "TMs & HMs", "Berries"]
+    for pocket in pockets:
+        items[pocket] = {}
 
-        item_offsets = get_item_offsets()
-        b_Items = get_save_block(1, item_offsets[0][0], item_offsets[4][0] + item_offsets[4][1])
+    item_offsets = get_item_offsets()
+    b_Items = get_save_block(1, item_offsets[0][0], item_offsets[4][0] + item_offsets[4][1])
 
-        for i in range(6):
-            p = item_offsets[i][0] - item_offsets[0][0]
-            for j in range(0, int(item_offsets[i][1] / 4)):
-                q = unpack_uint16(b_Items[p + (j * 4 + 2) : p + (j * 4 + 4)])
-                item_id = unpack_uint16(b_Items[p + (j * 4) : p + (j * 4 + 2)])
+    for i in range(6):
+        p = item_offsets[i][0] - item_offsets[0][0]
+        for j in range(0, int(item_offsets[i][1] / 4)):
+            q = unpack_uint16(b_Items[p + (j * 4 + 2) : p + (j * 4 + 4)])
+            item_id = unpack_uint16(b_Items[p + (j * 4) : p + (j * 4 + 2)])
 
-                if item_id:
-                    name = get_item_by_index(item_id).name
-                    quantity = int(q ^ get_item_key()) if i != 0 else q
-                    items[pockets[i]][name] = quantity
-        return items
-    except:
-        console.print_exception(show_locals=True)
+            if item_id:
+                name = get_item_by_index(item_id).name
+                quantity = int(q ^ get_item_key()) if i != 0 else q
+                items[pockets[i]][name] = quantity
+    return items

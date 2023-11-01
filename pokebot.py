@@ -21,6 +21,7 @@ def on_exit() -> None:
     if OS_NAME == "Windows":
         import psutil
         import os
+
         parent_process_name = psutil.Process(os.getppid()).name()
         if parent_process_name == "py.exe" or is_bundled_app():
             if gui is not None and gui.window is not None:
@@ -35,7 +36,7 @@ atexit.register(on_exit)
 
 @dataclass
 class StartupSettings:
-    profile: 'Profile | None'
+    profile: "Profile | None"
     debug: bool
     bot_mode: str
     no_video: bool
@@ -46,29 +47,40 @@ class StartupSettings:
 
 def parse_arguments() -> StartupSettings:
     """Parses command-line arguments."""
-    parser = argparse.ArgumentParser(description=f'{pokebot_name} {pokebot_version}')
+    parser = argparse.ArgumentParser(description=f"{pokebot_name} {pokebot_version}")
     parser.add_argument(
-        'profile',
-        nargs='?',
-        help='Profile to initialize. Otherwise, the profile selection menu will appear.',
+        "profile",
+        nargs="?",
+        help="Profile to initialize. Otherwise, the profile selection menu will appear.",
     )
-    parser.add_argument('-m', '--bot-mode', choices=available_bot_modes, help='Initial bot mode (default: manual.)')
-    parser.add_argument('-s', '--emulation-speed', choices=['0', '1', '2', '3', '4'],
-                        help='Initial emulation speed (0 for unthrottled; default: 1.)')
-    parser.add_argument('-nv', '--no-video', action='store_true', help='Turn off video output by default.')
-    parser.add_argument('-na', '--no-audio', action='store_true', help='Turn off audio output by default.')
-    parser.add_argument('-t', '--always-on-top', action='store_true',
-                        help='Keep the bot window always on top of other windows.')
-    parser.add_argument('-d', '--debug', action='store_true', help='Enable extra debug options and a debug menu.')
+    parser.add_argument("-m", "--bot-mode", choices=available_bot_modes, help="Initial bot mode (default: Manual)")
+    parser.add_argument(
+        "-s",
+        "--emulation-speed",
+        choices=["0", "1", "2", "3", "4"],
+        help="Initial emulation speed (0 for unthrottled; default: 1)",
+    )
+    parser.add_argument("-nv", "--no-video", action="store_true", help="Turn off video output by default")
+    parser.add_argument("-na", "--no-audio", action="store_true", help="Turn off audio output by default")
+    parser.add_argument(
+        "-t", "--always-on-top", action="store_true", help="Keep the bot window always on top of other windows"
+    )
+    parser.add_argument("-d", "--debug", action="store_true", help="Enable extra debug options and a debug menu")
     args = parser.parse_args()
 
     preselected_profile: Profile | None = None
     if args.profile and profile_directory_exists(args.profile):
         preselected_profile = load_profile_by_name(args.profile)
 
-    return StartupSettings(profile=preselected_profile, debug=bool(args.debug), bot_mode=args.bot_mode or "manual",
-                           no_video=bool(args.no_video), no_audio=bool(args.no_audio),
-                           emulation_speed=int(args.emulation_speed or "1"), always_on_top=bool(args.always_on_top))
+    return StartupSettings(
+        profile=preselected_profile,
+        debug=bool(args.debug),
+        bot_mode=args.bot_mode or "Manual",
+        no_video=bool(args.no_video),
+        no_audio=bool(args.no_audio),
+        emulation_speed=int(args.emulation_speed or "1"),
+        always_on_top=bool(args.always_on_top),
+    )
 
 
 if __name__ == "__main__":
@@ -92,12 +104,10 @@ if __name__ == "__main__":
     if OS_NAME == "Windows":
         import win32api
 
-
         def win32_signal_handler(signal_type):
             if signal_type == 2:
                 if context.emulator is not None:
                     context.emulator.shutdown()
-
 
         win32api.SetConsoleCtrlHandler(win32_signal_handler, True)
 
