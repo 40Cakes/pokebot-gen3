@@ -104,7 +104,7 @@ class InvalidROMError(Exception):
     pass
 
 
-rom_cache: list[ROM] = []
+rom_cache: dict[str, ROM] = {}
 
 
 def list_available_roms(force_recheck: bool = False) -> list[ROM]:
@@ -123,27 +123,29 @@ def list_available_roms(force_recheck: bool = False) -> list[ROM]:
     :return: List of all the valid ROMS that have been found
     """
     global rom_cache
-    if force_recheck or len(rom_cache) == 0:
-        if not ROMS_DIRECTORY.is_dir():
-            raise RuntimeError(f"Directory {str(ROMS_DIRECTORY)} does not exist!")
 
+    if force_recheck:
         rom_cache.clear()
-        for file in ROMS_DIRECTORY.iterdir():
-            if file.is_file():
-                try:
-                    rom_cache.append(load_rom_data(file))
-                except InvalidROMError:
-                    pass
 
-    return rom_cache
+    if not ROMS_DIRECTORY.is_dir():
+        raise RuntimeError(f"Directory {str(ROMS_DIRECTORY)} does not exist!")
+
+    result = []
+    for file in ROMS_DIRECTORY.iterdir():
+        if file.is_file():
+            try:
+                result.append(load_rom_data(file))
+            except InvalidROMError:
+                pass
+
+    return result
 
 
 def load_rom_data(file: Path) -> ROM:
     # Prefer cached data so we can skip the expensive stuff below
     global rom_cache
-    for rom in rom_cache:
-        if rom.file == file:
-            return rom
+    if str(file) in rom_cache:
+        return rom_cache[str(file)]
 
     # GBA cartridge headers are 0xC0 bytes long, so any files smaller than that cannot be a ROM
     if file.stat().st_size < 0xC0:
@@ -179,6 +181,6 @@ def load_rom_data(file: Path) -> ROM:
             game_name += f" (Rev {revision})"
 
         rom = ROM(file, game_name, game_title, game_code[:3], ROMLanguage(game_code[3]), maker_code, revision)
-        rom_cache.append(rom)
+        rom_cache[str(file)] = rom
 
         return rom
