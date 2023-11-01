@@ -199,11 +199,18 @@ class TasksTab(DebugTab):
         callback1 = read_symbol("gMain", 0, 4)
         callback2 = read_symbol("gMain", 4, 4)
 
-        cb1_addr = unpack_uint32(callback1) - 1
-        cb2_addr = unpack_uint32(callback2) - 1
+        cb1_addr = max(0, unpack_uint32(callback1) - 1)
+        cb2_addr = max(0, unpack_uint32(callback2) - 1)
 
-        self._cb1_label.config(text=get_symbol_name(cb1_addr, pretty_name=True))
-        self._cb2_label.config(text=get_symbol_name(cb2_addr, pretty_name=True))
+        cb1_symbol = get_symbol_name(cb1_addr, pretty_name=True)
+        if cb1_symbol == "":
+            cb1_symbol = hex(cb1_addr)
+        cb2_symbol = get_symbol_name(cb1_addr, pretty_name=True)
+        if cb2_symbol == "":
+            cb2_symbol = hex(cb2_addr)
+
+        self._cb1_label.config(text=cb1_symbol)
+        self._cb2_label.config(text=cb2_symbol)
 
         data = {}
         index = 0
