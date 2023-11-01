@@ -37,7 +37,7 @@ The bot is frame perfect and can cheat by reading data from any point in memory.
 
 - Windows (**64-bit**)
 - Linux (**64-bit**)
-  - Note: only tested and confirmed working on **Ubuntu 23.04** and **Debian 12**
+  - Note: only tested and confirmed working on **Ubuntu 23.04, 23.10** and **Debian 12**
 
 ### Download the Bot
 To download the latest bot from GitHub, go to the top of the page > click the green **Code** button > **Download ZIP**.
