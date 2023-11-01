@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from enum import Enum
 from functools import cached_property
 from pathlib import Path
-from typing import Literal, Union
+from typing import Literal
 
 import numpy
 
@@ -865,7 +865,7 @@ class Pokemon:
             return self.species.name.upper()
 
     @property
-    def language(self) -> ROMLanguage:
+    def language(self) -> ROMLanguage | None:
         if self.data[18] == 1:
             return ROMLanguage.Japanese
         elif self.data[18] == 2:
@@ -900,7 +900,7 @@ class Pokemon:
         return get_species_by_index(species_id)
 
     @property
-    def held_item(self) -> Union[Item, None]:
+    def held_item(self) -> Item | None:
         item_index = unpack_uint16(self._decrypted_data[34:36])
         if item_index == 0:
             return None
@@ -915,7 +915,7 @@ class Pokemon:
     def friendship(self) -> int:
         return self._decrypted_data[41]
 
-    def move(self, index: Literal[0, 1, 2, 3]) -> Union[LearnedMove, None]:
+    def move(self, index: Literal[0, 1, 2, 3]) -> LearnedMove | None:
         offset = 44 + index * 2
         move_index = unpack_uint16(self._decrypted_data[offset: offset + 2])
         if move_index == 0:
@@ -927,7 +927,7 @@ class Pokemon:
         return LearnedMove(move=move, total_pp=total_pp, pp=pp, added_pps=total_pp - move.pp)
 
     @property
-    def moves(self) -> tuple[Union[Move, None], Union[Move, None], Union[Move, None], Union[Move, None]]:
+    def moves(self) -> tuple[Move | None, Move | None, Move | None, Move | None]:
         return self.move(0), self.move(1), self.move(2), self.move(3)
 
     @property
@@ -1308,7 +1308,7 @@ class Pokemon:
         }
 
 
-def parse_pokemon(data: bytes) -> Union[Pokemon, None]:
+def parse_pokemon(data: bytes) -> Pokemon | None:
     pokemon = Pokemon(data)
     if not pokemon.is_empty and pokemon.is_valid:
         return pokemon

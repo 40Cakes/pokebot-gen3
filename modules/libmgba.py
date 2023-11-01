@@ -4,7 +4,6 @@ import PIL.PngImagePlugin
 import time
 import zlib
 from collections import deque
-from typing import Union
 
 import sounddevice
 
@@ -92,7 +91,7 @@ class LibmgbaEmulator:
     # How often a frame should be drawn to the screen (can be less frequent than the emulation rate)
     _target_seconds_per_render = 1 / 60
 
-    _audio_stream: Union[sounddevice.RawOutputStream, None] = None
+    _audio_stream: sounddevice.RawOutputStream | None = None
 
     def __init__(self, profile: Profile, on_frame_callback: callable):
         console.print(f"Running [cyan]{libmgba_version_string()}[/]")
