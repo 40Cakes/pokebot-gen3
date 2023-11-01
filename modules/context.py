@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from modules.gui import PokebotGui
@@ -9,9 +9,9 @@ if TYPE_CHECKING:
 
 class BotContext:
     def __init__(self, initial_bot_mode: str = 'manual'):
-        self.emulator: Union['LibmgbaEmulator', None] = None
-        self.gui: Union['PokebotGui', None] = None
-        self.profile: Union['Profile', None] = None
+        self.emulator: Optional["LibmgbaEmulator"] = None
+        self.gui: Optional["PokebotGui"] = None
+        self.profile: Optional["Profile"] = None
         self.debug: bool = False
 
         self._current_message: str = ''
@@ -102,7 +102,7 @@ class BotContext:
             self._update_gui()
 
     @property
-    def rom(self) -> Union['ROM', None]:
+    def rom(self) -> Optional["ROM"]:
         if self.profile:
             return self.profile.rom
         else:
