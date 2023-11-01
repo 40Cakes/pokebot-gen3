@@ -1,7 +1,7 @@
 import os
 import platform
 from tkinter import Tk, ttk
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 import PIL.Image
 import PIL.ImageTk
@@ -19,6 +19,7 @@ from modules.sprites import choose_random_sprite, crop_sprite_square
 from modules.version import pokebot_name, pokebot_version
 
 if TYPE_CHECKING:
+    from pokebot import StartupSettings
     from modules.profiles import Profile
 
 
@@ -28,6 +29,7 @@ class PokebotGui:
         self._current_screen = None
         self._main_loop = main_loop
         self._on_exit = on_exit
+        self._startup_settings: 'StartupSettings | None' = None
 
         self.window.geometry("540x400")
         self.window.resizable(False, True)
@@ -56,9 +58,13 @@ class PokebotGui:
         self._emulator_screen = EmulatorScreen(self.window)
         self._set_app_icon()
 
-    def run(self, preselected_profile: Union['Profile', None] = None) -> None:
-        if preselected_profile is not None:
-            self._run_profile(preselected_profile)
+    def run(self, startup_settings: "StartupSettings") -> None:
+        self._startup_settings = startup_settings
+        if startup_settings.always_on_top:
+            self.window.wm_attributes("-topmost", True)
+
+        if startup_settings.profile is not None:
+            self._run_profile(startup_settings.profile)
         else:
             self._enable_select_profile_screen()
 
@@ -121,9 +127,16 @@ class PokebotGui:
         context.profile = profile
         set_rom(profile.rom)
         context.emulator = LibmgbaEmulator(profile, self._emulator_screen.update)
+
+        if self._startup_settings:
+            context.audio = not self._startup_settings.no_audio
+            context.video = not self._startup_settings.no_video
+            context.emulation_speed = self._startup_settings.emulation_speed
+            context.debug = self._startup_settings.debug
+            context.bot_mode = self._startup_settings.bot_mode
+
         self._emulator_screen.enable()
         self._current_screen = self._emulator_screen
-
         self._main_loop(profile)
 
     def _handle_key_down_event(self, event):
