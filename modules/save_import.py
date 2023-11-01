@@ -1,7 +1,7 @@
 import binascii
 import os
 import zlib
-from typing import IO, Union
+from typing import IO
 
 from modules.memory import unpack_uint32
 from modules.profiles import Profile, create_profile
@@ -73,7 +73,7 @@ def migrate_save_state(file: IO, profile_name: str, selected_rom: ROM) -> Profil
     return profile
 
 
-def get_state_data_from_mgba_state_file(file: IO) -> tuple[bytes, Union[bytes, None]]:
+def get_state_data_from_mgba_state_file(file: IO) -> tuple[bytes, bytes | None]:
     state_data = file.read(0x61000)
     savegame_data = None
 
@@ -102,7 +102,7 @@ def get_state_data_from_mgba_state_file(file: IO) -> tuple[bytes, Union[bytes, N
     return state_data, savegame_data
 
 
-def get_state_data_from_png(file: IO) -> tuple[bytes, Union[bytes, None]]:
+def get_state_data_from_png(file: IO) -> tuple[bytes, bytes | None]:
     state_data = None
     savegame_data = None
 

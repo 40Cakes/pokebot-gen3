@@ -23,10 +23,24 @@ try:
         with open(git_dir / "HEAD", "r") as head_file:
             head = head_file.read().strip()
             if head.startswith("ref: "):
+                # If the head of a branch is checked out
                 full_path = git_dir.as_posix() + "/" + head[5:]
                 with open(full_path, "r") as ref_file:
-                    ref = ref_file.read().strip()
-                    pokebot_version = f"dev-{ref[0:7]}"
+                    head = ref_file.read().strip()
+
+            if len(head) == 40:
+                # If a tag is checked out
+                for tag_path in (git_dir / "refs" / "tags").iterdir():
+                    if tag_path.is_file():
+                        with open(tag_path, "r") as tag_file:
+                            tag = tag_file.read().strip()
+                            if tag == head:
+                                pokebot_version = tag_path.name
+                                break
+
+                # If some regular non-head commit is checked out
+                if pokebot_version == "dev":
+                    pokebot_version = f"dev-{head[0:7]}"
 except:
     # If any issue occurred while trying to figure out the current commit hash,
     # just default to showing 'dev' for the version.
