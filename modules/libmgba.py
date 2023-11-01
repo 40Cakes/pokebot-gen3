@@ -313,10 +313,19 @@ class LibmgbaEmulator:
         self._throttled = is_throttled
 
         if self._audio_stream is not None:
-            if is_throttled and not was_throttled:
-                self._audio_stream.start()
-            elif not is_throttled and was_throttled:
-                self._audio_stream.stop()
+            try:
+                if is_throttled and not was_throttled:
+                    self._audio_stream.start()
+                elif not is_throttled and was_throttled:
+                    self._audio_stream.stop()
+            except sounddevice.PortAudioError as error:
+                if was_throttled:
+                    action = 'disabling'
+                else:
+                    action = 'enabling'
+
+                console.print(f"[bold red]Error while {action} audio:[/] [red]{str(error)}[/]")
+                self._reset_audio()
 
     def get_speed_factor(self) -> float:
         return self._speed_factor
