@@ -56,11 +56,6 @@ class EmulatorControls:
         if self.frame is None:
             return
 
-        # This avoids any other GUI element from having the focus. We don't want that because
-        # for example if the bot mode combobox is focussed, pressing Down might open the
-        # dropdown menu.
-        self.window.focus()
-
         if self.bot_mode_combobox.get() != context.bot_mode:
             self.bot_mode_combobox.current(available_bot_modes.index(context.bot_mode))
             self.last_known_bot_mode = context.bot_mode
