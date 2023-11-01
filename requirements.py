@@ -120,7 +120,7 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
 
             case "Linux":
                 linux_release = platform.freedesktop_os_release()
-                supported_linux_releases = [("ubuntu", "23.04"), ("debian", "12")]
+                supported_linux_releases = [("ubuntu", "23.04"), ("ubuntu", "23.10"), ("debian", "12")]
                 if (linux_release["ID"], linux_release["VERSION_ID"]) not in supported_linux_releases:
                     print(
                         f'You are running an untested version of Linux ({linux_release["PRETTY_NAME"]}). '
