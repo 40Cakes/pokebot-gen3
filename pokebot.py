@@ -53,19 +53,19 @@ def parse_arguments() -> StartupSettings:
         nargs="?",
         help="Profile to initialize. Otherwise, the profile selection menu will appear.",
     )
-    parser.add_argument("-m", "--bot-mode", choices=available_bot_modes, help="Initial bot mode (default: manual.)")
+    parser.add_argument("-m", "--bot-mode", choices=available_bot_modes, help="Initial bot mode (default: Manual)")
     parser.add_argument(
         "-s",
         "--emulation-speed",
         choices=["0", "1", "2", "3", "4"],
-        help="Initial emulation speed (0 for unthrottled; default: 1.)",
+        help="Initial emulation speed (0 for unthrottled; default: 1)",
     )
-    parser.add_argument("-nv", "--no-video", action="store_true", help="Turn off video output by default.")
-    parser.add_argument("-na", "--no-audio", action="store_true", help="Turn off audio output by default.")
+    parser.add_argument("-nv", "--no-video", action="store_true", help="Turn off video output by default")
+    parser.add_argument("-na", "--no-audio", action="store_true", help="Turn off audio output by default")
     parser.add_argument(
-        "-t", "--always-on-top", action="store_true", help="Keep the bot window always on top of other windows."
+        "-t", "--always-on-top", action="store_true", help="Keep the bot window always on top of other windows"
     )
-    parser.add_argument("-d", "--debug", action="store_true", help="Enable extra debug options and a debug menu.")
+    parser.add_argument("-d", "--debug", action="store_true", help="Enable extra debug options and a debug menu")
     args = parser.parse_args()
 
     preselected_profile: Profile | None = None
@@ -75,7 +75,7 @@ def parse_arguments() -> StartupSettings:
     return StartupSettings(
         profile=preselected_profile,
         debug=bool(args.debug),
-        bot_mode=args.bot_mode or "manual",
+        bot_mode=args.bot_mode or "Manual",
         no_video=bool(args.no_video),
         no_audio=bool(args.no_audio),
         emulation_speed=int(args.emulation_speed or "1"),
