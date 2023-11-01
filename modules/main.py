@@ -2,6 +2,7 @@ import sys
 from threading import Thread
 
 from modules.config import config, load_config_from_directory
+from modules.console import console
 from modules.context import context
 from modules.memory import get_game_state, GameState
 from modules.pokemon import opponent_changed, get_opponent
@@ -14,21 +15,21 @@ def main_loop() -> None:
     """
     from modules.encounter import encounter_pokemon  # prevents instantiating TotalStats class before profile selected
 
-    mode = None
-    load_config_from_directory(context.profile.path, allow_missing_files=True)
+    try:
+        mode = None
+        load_config_from_directory(context.profile.path, allow_missing_files=True)
 
-    if config["discord"]["rich_presence"]:
-        from modules.discord import discord_rich_presence
+        if config["discord"]["rich_presence"]:
+            from modules.discord import discord_rich_presence
 
-        Thread(target=discord_rich_presence).start()
+            Thread(target=discord_rich_presence).start()
 
-    if config["obs"]["http_server"]["enable"]:
-        from modules.http import http_server
+        if config["obs"]["http_server"]["enable"]:
+            from modules.http import http_server
 
-        Thread(target=http_server).start()
+            Thread(target=http_server).start()
 
-    while True:
-        try:
+        while True:
             if not mode and get_game_state() == GameState.BATTLE and context.bot_mode != "starters":
                 if opponent_changed():
                     encounter_pokemon(get_opponent())
@@ -61,6 +62,11 @@ def main_loop() -> None:
 
                         mode = ModeBunnyHop()
 
+                    case "rayquaza":
+                        from modules.modes.legendaries import ModeRayquaza
+
+                        mode = ModeRayquaza()
+
             try:
                 if mode:
                     next(mode.step())
@@ -73,7 +79,8 @@ def main_loop() -> None:
 
             context.emulator.run_single_frame()
 
-        except SystemExit:
-            raise
-        except:
-            sys.exit(1)
+    except SystemExit:
+        raise
+    except:
+        console.print_exception(show_locals=True)
+        sys.exit(1)
