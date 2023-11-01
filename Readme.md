@@ -527,6 +527,10 @@ All HTTP responses are in JSON format.
 
 `GET /event_flags` returns all event flags for the current save file (optional parameter `?flag=FLAG_NAME` to get a specific flag)
 
+`GET /emulator` returns information about the emulator core + the current loaded game/profile
+
+`GET /fps` returns a list of emulator FPS (frames per second), in intervals of 1 second, for the previous 60 seconds
+
 </details>
 
 ***

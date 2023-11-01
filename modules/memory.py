@@ -78,7 +78,7 @@ def parse_tasks(pretty_names: bool = False) -> list:
         for x in range(16):
             name = get_symbol_name(unpack_uint32(gTasks[(x * 40) : (x * 40 + 4)]) - 1, pretty_names)
             if name == "":
-                name = str(gTasks[(x * 40) : (x * 40 + 4)])
+                name = "0x" + gTasks[(x * 40) : (x * 40 + 4)].hex()
             tasks.append(
                 {
                     "func": name,

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import Union
 
 from modules.memory import get_save_block, unpack_uint32
 from modules.pokemon import Pokemon, parse_pokemon
@@ -13,9 +12,7 @@ class DaycareCompatibility(IntEnum):
     High = 70
 
     @classmethod
-    def calculate_for(
-        cls, pokemon1: Union[Pokemon, None], pokemon2: Union[Pokemon, None]
-    ) -> tuple["DaycareCompatibility", str]:
+    def calculate_for(cls, pokemon1: Pokemon | None, pokemon2: Pokemon | None) -> tuple["DaycareCompatibility", str]:
         if pokemon1 is None or pokemon1.is_empty or pokemon2 is None or pokemon2.is_empty:
             return DaycareCompatibility.Incompatible, "Less than two Pokémon in daycare"
 
@@ -75,7 +72,7 @@ class DaycareData:
     compatibility: tuple[DaycareCompatibility, str]
 
 
-def get_daycare_data() -> Union[DaycareData, None]:
+def get_daycare_data() -> DaycareData | None:
     data = get_save_block(1, 0x3030, 0x120)
     if data is None:
         return None

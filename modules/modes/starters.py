@@ -4,10 +4,11 @@ from enum import Enum
 from modules.config import config
 from modules.console import console
 from modules.context import context
+from modules.encounter import encounter_pokemon
+from modules.files import get_rng_state_history, save_rng_state_history
 from modules.memory import read_symbol, get_game_state, GameState, get_task, write_symbol, unpack_uint32, pack_uint32
 from modules.navigation import follow_path
 from modules.pokemon import get_party, opponent_changed
-from modules.stats import total_stats
 from modules.trainer import trainer
 
 
@@ -89,7 +90,7 @@ class ModeStarters:
             self.state = ModeStarterStates.INCOMPATIBLE
 
         if not config["cheats"]["starters_rng"]:
-            self.rng_history: list = total_stats.get_rng_state_history(config["general"]["starter"])
+            self.rng_history: list = get_rng_state_history(config["general"]["starter"])
 
     def update_state(self, state: ModeStarterStates):
         self.state: ModeStarterStates = state
@@ -130,7 +131,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    total_stats.save_rng_state_history(config["general"]["starter"], self.rng_history)
+                                    save_rng_state_history(config["general"]["starter"], self.rng_history)
                                     self.update_state(ModeStarterStates.OVERWORLD)
                                     continue
 
@@ -144,7 +145,7 @@ class ModeStarters:
 
                         case ModeStarterStates.INJECT_RNG:
                             if config["cheats"]["starters_rng"]:
-                                write_symbol("gRngValue", pack_uint32(random.randint(0, 2 ** 32 - 1)))
+                                write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.SELECT_STARTER)
 
                         case ModeStarterStates.SELECT_STARTER:  # TODO can be made slightly faster by holding B through chat
@@ -177,7 +178,9 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.FOLLOW_PATH:
-                            follow_path([(trainer.get_coords()[0], 7), (7, 7), (7, 8)])  # TODO Revisit FollowPath rework
+                            follow_path(
+                                [(trainer.get_coords()[0], 7), (7, 7), (7, 8)]
+                            )  # TODO Revisit FollowPath rework
                             self.update_state(ModeStarterStates.CHECK_STARTER)
 
                         case ModeStarterStates.CHECK_STARTER:
@@ -188,7 +191,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.LOG_STARTER:
-                            total_stats.encounter_pokemon(get_party()[0])
+                            encounter_pokemon(get_party()[0])
                             opponent_changed()  # Prevent opponent from being logged if starter is shiny
                             return
 
@@ -223,7 +226,7 @@ class ModeStarters:
 
                         case ModeStarterStates.INJECT_RNG:
                             if config["cheats"]["starters_rng"]:
-                                write_symbol("gRngValue", pack_uint32(random.randint(0, 2 ** 32 - 1)))
+                                write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.YES_NO)
 
                         case ModeStarterStates.YES_NO:
@@ -243,7 +246,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    total_stats.save_rng_state_history(config["general"]["starter"], self.rng_history)
+                                    save_rng_state_history(config["general"]["starter"], self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
 
@@ -269,13 +272,15 @@ class ModeStarters:
 
                         case ModeStarterStates.CHECK_STARTER:
                             config["cheats"]["starters"] = True  # TODO temporary until menu navigation is ready
-                            if config["cheats"]["starters"]:     # TODO check Pokémon summary screen once menu navigation merged
+                            if config["cheats"][
+                                "starters"
+                            ]:  # TODO check Pokémon summary screen once menu navigation merged
                                 self.update_state(ModeStarterStates.LOG_STARTER)
                                 continue
 
                         case ModeStarterStates.LOG_STARTER:
                             party = get_party()
-                            total_stats.encounter_pokemon(party[len(party) - 1])
+                            encounter_pokemon(party[len(party) - 1])
                             opponent_changed()  # Prevent opponent from being logged if starter is shiny
                             return
 
@@ -304,7 +309,7 @@ class ModeStarters:
 
                         case ModeStarterStates.INJECT_RNG:
                             if config["cheats"]["starters_rng"]:
-                                write_symbol("gRngValue", pack_uint32(random.randint(0, 2 ** 32 - 1)))
+                                write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.BAG_MENU)
 
                         case ModeStarterStates.BAG_MENU:
@@ -337,7 +342,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    total_stats.save_rng_state_history(config["general"]["starter"], self.rng_history)
+                                    save_rng_state_history(config["general"]["starter"], self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
 
@@ -375,7 +380,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.LOG_STARTER:
-                            total_stats.encounter_pokemon(get_party()[0])
+                            encounter_pokemon(get_party()[0])
                             opponent_changed()  # Prevent opponent from being logged if starter is shiny
                             return
             yield

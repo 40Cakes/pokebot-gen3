@@ -13,7 +13,8 @@ def main_loop() -> None:
     """
     This function is run after the user has selected a profile and the emulator has been started.
     """
-    from modules.stats import total_stats  # TODO prevent instantiating TotalStats class before profile selected
+    from modules.encounter import encounter_pokemon  # prevents instantiating TotalStats class before profile selected
+
     mode = None
     load_config_from_directory(context.profile.path, allow_missing_files=True)
 
@@ -34,7 +35,7 @@ def main_loop() -> None:
         try:
             if not mode and get_game_state() == GameState.BATTLE and context.bot_mode != "starters":
                 if opponent_changed():
-                    total_stats.encounter_pokemon(get_opponent())
+                    encounter_pokemon(get_opponent())
                 if context.bot_mode != "manual":
                     temp_run_from_battle()
 

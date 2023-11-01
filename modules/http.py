@@ -3,6 +3,7 @@ from flask import Flask, abort, jsonify, request
 
 from modules.config import config
 from modules.console import console
+from modules.context import context
 from modules.items import get_items
 from modules.pokemon import get_party
 from modules.stats import total_stats
@@ -100,7 +101,7 @@ def http_server() -> None:
                 flag = request.args.get("flag")
 
                 if flag and flag in _event_flags:
-                    return(jsonify({flag: get_event_flag(flag)}))
+                    return jsonify({flag: get_event_flag(flag)})
                 else:
                     result = {}
 
@@ -108,10 +109,41 @@ def http_server() -> None:
                         result[flag] = get_event_flag(flag)
 
                     return result
-                abort(503)
             except:
                 console.print_exception(show_locals=True)
                 abort(503)
+
+        @server.route("/emulator", methods=["GET"])
+        def http_get_emulator():
+            if context.emulator is None:
+                return jsonify(None)
+            else:
+                return jsonify(
+                    {
+                        "emulation_speed": context.emulation_speed,
+                        "video_enabled": context.video,
+                        "audio_enabled": context.audio,
+                        "bot_mode": context.bot_mode,
+                        "current_message": context.message,
+                        "frame_count": context.emulator.get_frame_count(),
+                        "current_fps": context.emulator.get_current_fps(),
+                        "current_time_spent_in_bot_fraction": context.emulator.get_current_time_spent_in_bot_fraction(),
+                        "profile": {"name": context.profile.path.name},
+                        "game": {
+                            "title": context.rom.game_title,
+                            "name": context.rom.game_name,
+                            "language": str(context.rom.language),
+                            "revision": context.rom.revision,
+                        },
+                    }
+                )
+
+        @server.route("/fps", methods=["GET"])
+        def http_get_fps():
+            if context.emulator is None:
+                return jsonify(None)
+            else:
+                return jsonify(list(reversed(context.emulator._performance_tracker.fps_history)))
 
         @server.route("/", methods=["GET"])
         def http_get_routes():

@@ -26,7 +26,10 @@ class EmulatorScreen:
         self._stepping_button: Union[Button, None] = None
         self._current_step: int = 0
 
-        if context.debug:
+        self._controls: EmulatorControls | None = None
+
+    def _initialise_controls(self, debug: bool = False) -> None:
+        if debug:
             controls = DebugEmulatorControls(self.window)
             controls.add_tab(TasksTab())
             controls.add_tab(BattleTab())
@@ -50,6 +53,7 @@ class EmulatorScreen:
         self.frame.rowconfigure(0, weight=1)
         self.frame.columnconfigure(0, weight=1)
 
+        self._initialise_controls(context.debug)
         self._add_canvas()
         self.scale = 2
 
