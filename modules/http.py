@@ -9,6 +9,7 @@ from modules.pokemon import get_party
 from modules.stats import total_stats
 from modules.game import _event_flags
 from modules.memory import get_event_flag
+from modules.trainer import trainer
 
 
 def http_server() -> None:
@@ -21,97 +22,45 @@ def http_server() -> None:
 
         @server.route("/trainer", methods=["GET"])
         def http_get_trainer():
-            from modules.trainer import trainer
-
-            try:
-                data = trainer.to_dict()
-                if data:
-                    return jsonify(data)
-                abort(503)
-            except:
-                console.print_exception(show_locals=True)
-                abort(503)
+            return jsonify(trainer.to_dict())
 
         @server.route("/items", methods=["GET"])
         def http_get_bag():
-            try:
-                data = get_items()
-                if data:
-                    return jsonify(data)
-                abort(503)
-            except:
-                console.print_exception(show_locals=True)
-                abort(503)
+            return jsonify(get_items())
 
         @server.route("/party", methods=["GET"])
         def http_get_party():
-            try:
-                data = get_party()
-                if data:
-                    return jsonify([p.to_dict() for p in data])
-                abort(503)
-            except:
-                console.print_exception(show_locals=True)
-                abort(503)
+            return jsonify([p.to_dict() for p in get_party()])
 
         @server.route("/encounter_log", methods=["GET"])
         def http_get_encounter_log():
-            try:
-                data = total_stats.get_encounter_log()
-                if data:
-                    return jsonify(data)
-                abort(503)
-            except:
-                console.print_exception(show_locals=True)
-                abort(503)
+            return jsonify(total_stats.get_encounter_log())
 
         @server.route("/shiny_log", methods=["GET"])
         def http_get_shiny_log():
-            try:
-                data = total_stats.get_shiny_log()
-                if data:
-                    return jsonify(data["shiny_log"])
-                abort(503)
-            except:
-                console.print_exception(show_locals=True)
-                abort(503)
+            return jsonify(total_stats.get_shiny_log())
 
         @server.route("/encounter_rate", methods=["GET"])
         def http_get_encounter_rate():
-            try:
-                return jsonify({"encounter_rate": total_stats.get_encounter_rate()})
-            except:
-                console.print_exception(show_locals=True)
-                return jsonify({"encounter_rate": 0})
+            return jsonify({"encounter_rate": total_stats.get_encounter_rate()})
 
         @server.route("/stats", methods=["GET"])
         def http_get_stats():
-            try:
-                data = total_stats.get_total_stats()
-                if data:
-                    return jsonify(data)
-                abort(503)
-            except:
-                console.print_exception(show_locals=True)
-                abort(503)
+            return jsonify(total_stats.get_total_stats())
 
         @server.route("/event_flags", methods=["GET"])
         def http_get_event_flags():
-            try:
-                flag = request.args.get("flag")
+            flag = request.args.get("flag")
 
-                if flag and flag in _event_flags:
-                    return jsonify({flag: get_event_flag(flag)})
-                else:
-                    result = {}
+            if flag and flag in _event_flags:
+                return jsonify({flag: get_event_flag(flag)})
+            else:
+                result = {}
 
-                    for flag in _event_flags:
-                        result[flag] = get_event_flag(flag)
+                for flag in _event_flags:
+                    result[flag] = get_event_flag(flag)
 
-                    return result
-            except:
-                console.print_exception(show_locals=True)
-                abort(503)
+                return result
 
         @server.route("/emulator", methods=["GET"])
         def http_get_emulator():
@@ -148,6 +97,7 @@ def http_server() -> None:
         @server.route("/", methods=["GET"])
         def http_get_routes():
             routes = {}
+
             for route in server.url_map._rules:
                 routes[route.rule] = {}
                 routes[route.rule]["functionName"] = route.endpoint
@@ -163,5 +113,6 @@ def http_server() -> None:
             host=config["obs"]["http_server"]["ip"],
             port=config["obs"]["http_server"]["port"],
         )
+
     except:
         console.print_exception(show_locals=True)
