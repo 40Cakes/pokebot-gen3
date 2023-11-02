@@ -26,6 +26,7 @@ class ModeAncientLegendaries:
                     (
                         context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
                         and not get_event_flag("FLAG_DEFEATED_KYOGRE")
+                        and not get_event_flag("FLAG_LEGENDARY_BATTLE_COMPLETED")
                         and trainer_map == MapRSE.MARINE_CAVE_A.value
                         and not trainer_coords == (9, 26)  # Tile that triggers Kyogre to initiate battle
                         and 5 <= trainer_coords[0] <= 14
@@ -36,6 +37,7 @@ class ModeAncientLegendaries:
                     (
                         context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
                         and not get_event_flag("FLAG_DEFEATED_GROUDON")
+                        and not get_event_flag("FLAG_LEGENDARY_BATTLE_COMPLETED")
                         and trainer_map == MapRSE.TERRA_CAVE_A.value
                         and not trainer_coords == (17, 26)  # Tile that triggers Groudon to initiate battle
                         and 11 <= trainer_coords[0] <= 20
@@ -93,10 +95,14 @@ class ModeAncientLegendaries:
 
         match context.selected_pokemon:
             case "Kyogre":
-                if not get_event_flag("FLAG_HIDE_MARINE_CAVE_KYOGRE"):  # TODO flag is Emerald only
+                if not get_event_flag("FLAG_HIDE_MARINE_CAVE_KYOGRE") and not get_event_flag(
+                    "FLAG_LEGENDARY_BATTLE_COMPLETED"
+                ):
                     self.state: ModeAncientLegendariesStates = ModeAncientLegendariesStates.INTERACT
             case "Groudon":
-                if not get_event_flag("FLAG_HIDE_TERRA_CAVE_GROUDON"):  # TODO flag is Emerald only
+                if not get_event_flag("FLAG_HIDE_TERRA_CAVE_GROUDON") and not get_event_flag(
+                    "FLAG_LEGENDARY_BATTLE_COMPLETED"
+                ):
                     self.state: ModeAncientLegendariesStates = ModeAncientLegendariesStates.INTERACT
             case "Rayquaza":
                 if not get_event_flag("FLAG_HIDE_SKY_PILLAR_TOP_RAYQUAZA_STILL"):

@@ -3,7 +3,7 @@ import struct
 from enum import IntEnum
 
 from modules.context import context
-from modules.game import get_symbol, get_symbol_name, get_event_flag_offset
+from modules.game import get_symbol, get_symbol_name, get_event_flag_offset, _event_flags
 
 
 def unpack_uint16(bytes: bytes) -> int:
@@ -190,6 +190,9 @@ def game_has_started() -> bool:
 
 
 def get_event_flag(flag_name: str) -> bool:
+    if flag_name not in _event_flags:
+        return False
+
     flag_offset = get_event_flag_offset(flag_name)
     flag_byte = get_save_block(1, offset=flag_offset[0], size=1)
 
