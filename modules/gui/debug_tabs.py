@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Union
 
 from modules.context import context
 from modules.daycare import get_daycare_data
-from modules.game import decode_string, _reverse_symbols
+from modules.game import decode_string, _symbols, _reverse_symbols
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_items
 from modules.memory import (
@@ -343,8 +343,9 @@ class SymbolsTab(DebugTab):
 
         items: dict[str, str] = {}
         detached_items = set()
-        for address in _reverse_symbols:
-            _, symbol, length = _reverse_symbols[address]
+        for symbol,values in _symbols.items():
+            address, length = values
+            _,symbol,_ = _reverse_symbols[address]
             if length == 0:
                 continue
             if not (symbol.startswith("s") or symbol.startswith("l") or symbol.startswith("g")):
