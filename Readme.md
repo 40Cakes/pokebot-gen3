@@ -103,8 +103,8 @@ Please do not seek support or complain if you find that your ROM hack does not w
 
 # 🤖 Bot Modes
 - The bot mode can be changed at any time while the bot is running by using the menu on the UI
-- `Manual` mode is the default mode
-- Press `Tab` to toggle between `Manual` mode and a previously selected mode
+- Manual mode is the default mode
+- Press `Tab` to toggle between manual mode and a previously selected mode
 
 ***
 ## 🔧 Manual
@@ -204,7 +204,7 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/4317ba99-8854-4ce5-b054-
 Bunny hop on the spot with the [Acro Bike](https://bulbapedia.bulbagarden.net/wiki/Acro_Bike), useful for Safari Zone and [repel tricking](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) as it doesn't count steps.
 
 Start the mode while in the overworld, in any patch of grass/cave, with the Acro Bike registered.
-- **Note**: `Bunny Hop` is ~10% slower encounters/h on average than `spin` mode
+- **Note**: Bunny hopping is ~10% slower encounters/h on average than spinning
 
 <details>
 <summary>🎥 Click here to show a video example</summary>
@@ -299,7 +299,7 @@ This file controls keyboard to GBA button mappings.
 <summary>Click to expand</summary>
 
 ### General
-`starter` - choose which starter Pokémon to hunt for, used when bot mode is set to `starters` (see [💼 starters](#-starters))
+`starter` - choose which starter Pokémon to hunt for, used when in starters mode (see [💼 Starters](#-Starters))
 
 </details>
 
@@ -540,12 +540,16 @@ All HTTP responses are in JSON format.
 
 - Set **TEXT SPEED** to **FAST**
 - Set **BATTLE SCENE** to **OFF**
+
+## Tips
 - Utilise [repel tricks](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) to boost encounter rates of target Pokémon
-- Using modes `Spin` or `Bunny Hop` and repels will become effectively infinite + steps won't be counted in Safari Zone
+- Using spin or bunny hop modes, repels will become effectively infinite + steps won't be counted in Safari Zone
 - Use a lead Pokémon with encounter rate boosting [abilities](https://bulbapedia.bulbagarden.net/wiki/Category:Abilities_that_affect_appearance_of_wild_Pok%C3%A9mon), such as **[Illuminate](https://bulbapedia.bulbagarden.net/wiki/Illuminate_(Ability))**
+- Use the [White Flute](https://bulbapedia.bulbagarden.net/wiki/White_Flute) to boost encounter rates (does not stack with encounter rate boosting abilities)
 - Use a lead Pokémon with a [short cry](https://docs.google.com/spreadsheets/d/1rmtNdlIXiif1Sz20i-9mfhFdoqb1VnAOIntlr3tnPeU)
-- Use a lead Pokémon with a single character nickname
-- Don't use a shiny lead Pokémon (shiny animation takes a few frames at the start of every battle)
+- Use a lead Pokémon in a [Smoke Ball](https://bulbapedia.bulbagarden.net/wiki/Smoke_Ball) against opponents with [trapping moves](https://bulbapedia.bulbagarden.net/wiki/Category:Trapping_moves) to guarantee fleeing from battle
+- Use a lead Pokémon with a single character nickname (each additional text character wastes frames)
+- Don't use a shiny lead Pokémon (shiny animation wastes a few frames at the start of every battle)
 
 ***
 
