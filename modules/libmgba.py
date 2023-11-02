@@ -442,7 +442,7 @@ class LibmgbaEmulator:
         :param button: A GBA button to be release if held
         :param inputs: Alternate raw input bitfield
         """
-        self._held_inputs ^= input_map[button] if not inputs else inputs
+        self._held_inputs &= ~input_map[button] if not inputs else ~inputs
 
     def get_current_screen_image(self) -> PIL.Image.Image:
         return self._screen.to_pil()
