@@ -1,7 +1,7 @@
 import time
 import tkinter
 from enum import Enum
-from tkinter import ttk
+from tkinter import ttk, Canvas
 from typing import TYPE_CHECKING, Union
 
 from modules.context import context
@@ -9,16 +9,17 @@ from modules.daycare import get_daycare_data
 from modules.game import decode_string, _symbols, _reverse_symbols
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_items
+from modules.map import get_map_data_for_current_position, get_map_data
 from modules.memory import (
     get_symbol,
     read_symbol,
     parse_tasks,
+    get_task,
     get_symbol_name,
     game_has_started,
     unpack_uint16,
     unpack_uint32,
 )
-
 from modules.pokemon import get_party, get_species_by_index
 
 if TYPE_CHECKING:
@@ -62,6 +63,10 @@ class FancyTreeview:
             )
 
         self._tv.bind("<Button-3>", self._handle_right_click)
+        self._tv.bind("<Up>", lambda _: root.focus_set())
+        self._tv.bind("<Down>", lambda _: root.focus_set())
+        self._tv.bind("<Left>", lambda _: root.focus_set())
+        self._tv.bind("<Right>", lambda _: root.focus_set())
 
     def update_data(self, data: dict) -> None:
         found_items = self._update_dict(data, "", "")
@@ -581,3 +586,80 @@ class InputsTab(DebugTab):
             result[input] = True if input_map[input] & inputs else False
 
         return result
+
+
+class MapTab(DebugTab):
+    def __init__(self):
+        self._tv: FancyTreeview | None = None
+        self._canvas: Canvas | None = None
+        self._selected_tile: tuple[int, int] | None = None
+        self._selected_map: tuple[int, int] | None = None
+        self._marker_rectangle: tuple[tuple[int, int], tuple[int, int]] | None = None
+
+    def draw(self, root: ttk.Notebook):
+        frame = ttk.Frame(root, padding=10)
+        self._tv = FancyTreeview(frame)
+        root.add(frame, text="Map")
+
+    def update(self, emulator: "LibmgbaEmulator"):
+        show_different_tile = self._marker_rectangle is not None and get_task('TASK_WEATHERMAIN') != {}
+        from modules.trainer import trainer
+        if trainer.get_tile_transition_state() != 0:
+            self._marker_rectangle = None
+            self._selected_tile = None
+            show_different_tile = False
+
+        self._tv.update_data(self._get_data(show_different_tile))
+        if show_different_tile:
+            self._canvas.create_rectangle(self._marker_rectangle[0], self._marker_rectangle[1],
+                                          outline="red", dash=(5, 3), width=2)
+
+    def on_video_output_click(self, click_location: tuple[int, int], scale: int, canvas: Canvas):
+        tile_size = 16
+        half_tile_size = tile_size // 2
+        tile_x = (click_location[0] // scale) // tile_size
+        tile_y = ((click_location[1] // scale) + half_tile_size) // tile_size
+
+        current_map_data = get_map_data_for_current_position()
+        actual_x = current_map_data.local_position[0] + (tile_x - 7)
+        actual_y = current_map_data.local_position[1] + (tile_y - 5)
+        if self._selected_tile == (actual_x, actual_y) or \
+                actual_x < 0 or actual_x >= current_map_data.map_size[0] or \
+                actual_y < 0 or actual_y >= current_map_data.map_size[1]:
+            self._selected_tile = None
+            self._selected_map = None
+            self._marker_rectangle = None
+            return
+
+        start_x = tile_x * tile_size * scale
+        start_y = (tile_y * tile_size - half_tile_size) * scale
+        end_x = (tile_x + 1) * tile_size * scale
+        end_y = ((tile_y + 1) * tile_size - half_tile_size) * scale
+
+        self._canvas = canvas
+        self._selected_tile = (actual_x, actual_y)
+        self._selected_map = (current_map_data.map_group, current_map_data.map_number)
+        self._marker_rectangle = ((start_x, start_y), (end_x, end_y))
+
+    def _get_data(self, show_different_tile: bool):
+        if show_different_tile:
+            map_group, map_number = self._selected_map
+            map_data = get_map_data(map_group, map_number, self._selected_tile)
+        else:
+            map_data = get_map_data_for_current_position()
+
+        return {
+            "Name": map_data.map_name,
+            "Size": map_data.map_size,
+            "Type": map_data.map_type,
+            "Weather": map_data.weather,
+            "Local Position": map_data.local_position,
+            "Tile Type": map_data.tile_type,
+            "Tile Has Encounters": map_data.has_encounters,
+            "Surfing possible": map_data.is_surfable,
+            "Cycling possible": map_data.is_cycling_possible,
+            "Escaping possible": map_data.is_escaping_possible,
+            "Running possible": map_data.is_running_possible,
+            "Show Map Name Popup": map_data.is_map_name_popup_shown,
+            "Is Dark Cave": map_data.is_dark_cave,
+        }
