@@ -417,25 +417,30 @@ class MapLocation:
         return context.emulator.read_bytes(map_layout_pointer, 24)
 
     @cached_property
-    def _metatile_attributes(self) -> int:
-        MAPGRID_METATILE_ID_MASK = 0x3FF
+    def _metatile_attributes(self) -> tuple[int, int, int]:
+        """
+        :return: Metatile Attributes, Collision, Elevation
+        """
+        mapgrid_metatile_id_mask = 0x3FF
 
         x, y = self.local_position
         width, height = self.map_size
 
-        map_grid_block = MAPGRID_METATILE_ID_MASK
+        map_grid_block = mapgrid_metatile_id_mask
         if 0 <= x < width and 0 <= y < height:
             offset = (x * 2) + (width * y * 2)
             map_data_pointer = unpack_uint32(self._map_layout[12:16])
             map_grid_block = unpack_uint16(context.emulator.read_bytes(map_data_pointer + offset, 2))
 
-        if (map_grid_block & MAPGRID_METATILE_ID_MASK) == MAPGRID_METATILE_ID_MASK:
+        if (map_grid_block & mapgrid_metatile_id_mask) == mapgrid_metatile_id_mask:
             i = (x + 1) & 1
             i += ((y + 1) & 1) * 2
             border_pointer = unpack_uint32(self._map_layout[8:12])
             map_grid_block = unpack_uint16(context.emulator.read_bytes(border_pointer + i * 2, 2)) | 0xC00
 
-        metatile = map_grid_block & MAPGRID_METATILE_ID_MASK
+        metatile = (map_grid_block & 0x03FF)
+        collision = (map_grid_block & 0x0C00) >> 10
+        elevation = (map_grid_block & 0xF000) >> 12
 
         if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
             metatiles_in_primary = 640
@@ -466,11 +471,11 @@ class MapLocation:
         else:
             attribute = unpack_uint16(context.emulator.read_bytes(attributes_pointer + attribute_offset, 2))
 
-        return attribute
+        return attribute, collision, elevation
 
     @cached_property
     def _tile_behaviour(self) -> int:
-        return read_symbol("sTileBitAttributes", self._metatile_attributes & 0x3FF, 1)[0]
+        return read_symbol("sTileBitAttributes", self._metatile_attributes[0] & 0x3FF, 1)[0]
 
     @property
     def map_name(self) -> str:
@@ -506,12 +511,20 @@ class MapLocation:
 
     @property
     def tile_type(self) -> str:
-        return _get_tile_type_name(self._metatile_attributes & 0xFF)
+        return _get_tile_type_name(self._metatile_attributes[0] & 0xFF)
+
+    @property
+    def collision(self) -> int:
+        return self._metatile_attributes[1]
+
+    @property
+    def elevation(self) -> int:
+        return self._metatile_attributes[2]
 
     @property
     def has_encounters(self) -> bool:
         if context.rom.game_title in ["POKEMON FIRE", "POKEMON SAPP"]:
-            return bool(self._metatile_attributes & 0x0700_0000)
+            return bool(self._metatile_attributes[0] & 0x0700_0000)
         else:
             return bool(self._tile_behaviour & 1)
 
