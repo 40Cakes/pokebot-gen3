@@ -1222,20 +1222,6 @@ class RotatePokemon(BaseMenuNavigator):
             case "exit_to_overworld":
                 self.navigator = PartyMenuExit().step()
 
-    # TODO
-    def rotate_mon(self):
-        if self.new_lead is not None:
-            yield from StartMenuNavigator("POKEMON").step()
-            for i in range(30):
-                if get_game_state() != GameState.PARTY_MENU:
-                    context.emulator.press_button("A")
-                    yield
-            switcher = send_out_pokemon(self.new_lead)
-            for _ in switcher:
-                yield
-        else:
-            context.bot_mode = "Manual"
-
     @staticmethod
     def confirm_switch():
         while get_task("TASK_HANDLECHOOSEMONINPUT") != {} or get_task("HANDLEPARTYMENUSWITCHPOKEMONINPUT") != {}:
