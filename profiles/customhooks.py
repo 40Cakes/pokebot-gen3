@@ -23,6 +23,7 @@ def custom_hooks(hook) -> None:
         pokemon: Pokemon = hook[0]
         stats = hook[1]
         block_list = hook[2]
+        custom_found, custom_filter_matched = hook[3]
 
         ### Your custom code goes here ###
 
@@ -276,6 +277,46 @@ def custom_hooks(hook) -> None:
                     embed_thumbnail=get_sprites_path() / "pokemon" / "anti-shiny" / f"{pokemon.species.safe_name}.png",
                     embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
                     embed_color="000000",
+                )
+        except:
+            console.print_exception(show_locals=True)
+
+        try:
+            # Discord Pokémon matching custom filter encountered
+            webhook_config = config["discord"]["custom_filter_pokemon_encounter"]
+            if (
+                not pokemon.is_shiny
+                and not pokemon.is_anti_shiny
+                and webhook_config["enable"]
+                and custom_found
+            ):
+                # Discord pings
+                discord_ping = ""
+                match webhook_config["ping_mode"]:
+                    case "role":
+                        discord_ping = f"📢 <@&{webhook_config['ping_id']}>"
+                    case "user":
+                        discord_ping = f"📢 <@{webhook_config['ping_id']}>"
+
+                block = (
+                    "\n❌Skipping catching Pokémon matching custom filter (on catch block list)!" if pokemon.species.name in block_list else ""
+                )
+
+                discord_message(
+                    webhook_url=webhook_config.get("webhook_url", None),
+                    content=f"Encountered a {pokemon.species.name} matching custom filter `{custom_filter_matched}`! {block}\n{discord_ping}",
+                    embed=True,
+                    embed_title="Encountered Pokémon matching custom catch filter!",
+                    embed_description=f"{pokemon.nature.name} {pokemon.species.name} (Lv. {pokemon.level:,}) at {pokemon.location_met}!\nMatching custom filter **{custom_filter_matched}**",
+                    embed_fields={
+                        "Shiny Value": f"{pokemon.shiny_value:,}",
+                        "IVs": IVField(),
+                        "Held item": pokemon.held_item.name if pokemon.held_item else "None",
+                        f"{pokemon.species.name} Encounters": f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} ({stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,}✨)",
+                    },
+                    embed_thumbnail=get_sprites_path() / "pokemon" / "normal" / f"{pokemon.species.safe_name}.png",
+                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
+                    embed_color="6a89cc",
                 )
         except:
             console.print_exception(show_locals=True)

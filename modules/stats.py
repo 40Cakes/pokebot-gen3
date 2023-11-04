@@ -37,13 +37,17 @@ class TotalStats:
             }
 
             if (self.config_dir_path / "customcatchfilters.py").is_file():
-                self.custom_catch_filters = importlib.import_module(
+                custom_catch_filters_module = importlib.import_module(
                     ".customcatchfilters", f"profiles.{context.profile.path.name}"
-                ).custom_catch_filters
+                )
+                self.custom_catch_filters = custom_catch_filters_module.custom_catch_filters
+                self.CustomFilterMatched = custom_catch_filters_module.CustomFilterMatched
             else:
                 from profiles.customcatchfilters import custom_catch_filters
+                from profiles.customcatchfilters import CustomFilterMatched
 
                 self.custom_catch_filters = custom_catch_filters
+                self.CustomFilterMatched = CustomFilterMatched
 
             if (self.config_dir_path / "customhooks.py").is_file():
                 self.custom_hooks = importlib.import_module(
@@ -344,7 +348,13 @@ class TotalStats:
         print_stats(self.total_stats, pokemon, self.session_pokemon, self.get_encounter_rate())
 
         # Run custom code in custom_hooks in a thread
-        hook = (Pokemon(pokemon.data), copy.deepcopy(self.total_stats), copy.deepcopy(block_list))
+        custom_filter_matched = total_stats.custom_catch_filters(pokemon)
+        hook = (
+            Pokemon(pokemon.data),
+            copy.deepcopy(self.total_stats),
+            copy.deepcopy(block_list),
+            (custom_filter_matched != total_stats.CustomFilterMatched.NONE, custom_filter_matched)
+        )
         Thread(target=self.custom_hooks, args=(hook,)).start()
 
         if pokemon.is_shiny:
