@@ -144,6 +144,8 @@ class GameState(IntEnum):
     CHANGE_MAP = 901
     TITLE_SCREEN = 902
     MAIN_MENU = 903
+    GARBAGE_COLLECTION = 905
+    EVOLUTION = 906
     UNKNOWN = 999
 
 

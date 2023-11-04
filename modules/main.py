@@ -1,6 +1,7 @@
 import sys
 from threading import Thread
 
+from modules.battle import BattleOpponent
 from modules.config import config, load_config_from_directory
 from modules.console import console
 from modules.context import context
@@ -34,7 +35,7 @@ def main_loop() -> None:
                 if opponent_changed():
                     encounter_pokemon(get_opponent())
                 if context.bot_mode != "Manual":
-                    temp_run_from_battle()
+                    mode = BattleOpponent()
 
             if context.bot_mode == "Manual":
                 if mode:
