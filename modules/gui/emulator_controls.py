@@ -1,5 +1,5 @@
 import tkinter.font
-from tkinter import Tk, ttk, Canvas
+from tkinter import Tk, ttk
 from typing import Union
 
 from modules.config import available_bot_modes
@@ -78,7 +78,7 @@ class EmulatorControls:
             self.last_known_bot_mode = context.bot_mode
             self.update()
 
-    def on_video_output_click(self, click_location: tuple[int, int], scale: int, canvas: Canvas):
+    def on_video_output_click(self, click_location: tuple[int, int], scale: int):
         pass
 
     def _add_bot_mode_controls(self, row: int, column: int):
@@ -178,7 +178,7 @@ class DebugTab:
     def update(self, emulator: 'LibmgbaEmulator'):
         pass
 
-    def on_video_output_click(self, click_location: tuple[int, int], scale: int, canvas: Canvas):
+    def on_video_output_click(self, click_location: tuple[int, int], scale: int):
         pass
 
 
@@ -216,10 +216,10 @@ class DebugEmulatorControls(EmulatorControls):
         index = self.debug_notebook.index("current")
         self.debug_tabs[index].update(context.emulator)
 
-    def on_video_output_click(self, click_location: tuple[int, int], scale: int, canvas: Canvas):
-        super().on_video_output_click(click_location, scale, canvas)
+    def on_video_output_click(self, click_location: tuple[int, int], scale: int):
+        super().on_video_output_click(click_location, scale)
         index = self.debug_notebook.index("current")
-        self.debug_tabs[index].on_video_output_click(click_location, scale, canvas)
+        self.debug_tabs[index].on_video_output_click(click_location, scale)
 
     def on_tab_change(self, event):
         index = self.debug_notebook.index("current")

@@ -2,14 +2,14 @@ import time
 import tkinter
 from enum import Enum
 from tkinter import ttk, Canvas
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union, Optional
 
 from modules.context import context
 from modules.daycare import get_daycare_data
 from modules.game import decode_string, _symbols, _reverse_symbols
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_items
-from modules.map import get_map_data_for_current_position, get_map_data
+from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects
 from modules.memory import (
     get_symbol,
     read_symbol,
@@ -34,8 +34,12 @@ class FancyTreeview:
             row=0,
             column=0,
             columnspan=1,
-            additional_context_actions: dict[str, callable] = {},
+            additional_context_actions: Optional[dict[str, callable]] = None,
+            on_highlight: Optional[callable] = None,
     ):
+        if additional_context_actions is None:
+            additional_context_actions = {}
+
         treeview_scrollbar_combo = ttk.Frame(root)
         treeview_scrollbar_combo.columnconfigure(0, weight=1)
         treeview_scrollbar_combo.grid(row=row, column=column, columnspan=columnspan, sticky="NSWE")
@@ -67,6 +71,13 @@ class FancyTreeview:
         self._tv.bind("<Down>", lambda _: root.focus_set())
         self._tv.bind("<Left>", lambda _: root.focus_set())
         self._tv.bind("<Right>", lambda _: root.focus_set())
+
+        if on_highlight is not None:
+            def handle_selection(e):
+                selected_item = self._tv.focus()
+                on_highlight(self._tv.item(selected_item)["text"])
+
+            self._tv.bind("<ButtonRelease-1>", handle_selection)
 
     def update_data(self, data: dict) -> None:
         found_items = self._update_dict(data, "", "")
@@ -348,9 +359,9 @@ class SymbolsTab(DebugTab):
 
         items: dict[str, str] = {}
         detached_items = set()
-        for symbol,values in _symbols.items():
+        for symbol, values in _symbols.items():
             address, length = values
-            _,symbol,_ = _reverse_symbols[address]
+            _, symbol, _ = _reverse_symbols[address]
             if length == 0:
                 continue
             if not (symbol.startswith("s") or symbol.startswith("l") or symbol.startswith("g")):
@@ -589,16 +600,17 @@ class InputsTab(DebugTab):
 
 
 class MapTab(DebugTab):
-    def __init__(self):
+    def __init__(self, canvas: Canvas):
+        self._canvas = canvas
         self._tv: FancyTreeview | None = None
-        self._canvas: Canvas | None = None
         self._selected_tile: tuple[int, int] | None = None
         self._selected_map: tuple[int, int] | None = None
+        self._selected_object: tuple[int, int, int] | None = None
         self._marker_rectangle: tuple[tuple[int, int], tuple[int, int]] | None = None
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
-        self._tv = FancyTreeview(frame)
+        self._tv = FancyTreeview(frame, on_highlight=self._handle_selection)
         root.add(frame, text="Map")
 
     def update(self, emulator: "LibmgbaEmulator"):
@@ -612,13 +624,41 @@ class MapTab(DebugTab):
         self._tv.update_data(self._get_data(show_different_tile))
         if show_different_tile:
             self._canvas.create_rectangle(self._marker_rectangle[0], self._marker_rectangle[1],
-                                          outline="red", dash=(5, 3), width=2)
+                                          outline="red", dash=(5, 5), width=2)
 
-    def on_video_output_click(self, click_location: tuple[int, int], scale: int, canvas: Canvas):
+        if self._selected_object is not None:
+            scale = self._canvas.winfo_reqwidth() // 240
+            map_objects = get_map_objects()
+            found = False
+            for obj in map_objects:
+                if self._selected_object == (obj.map_group, obj.map_num, obj.local_id):
+                    object_coords = obj.current_coords
+                    camera_coords = trainer.get_coords()
+
+                    relative_x = object_coords[0] - camera_coords[0]
+                    relative_y = object_coords[1] - camera_coords[1]
+
+                    if -7 <= relative_x <= 7 and -5 <= relative_y <= 5:
+                        start_x = (relative_x + 7) * 16 * scale
+                        start_y = ((relative_y + 5) * 16 - 8) * scale
+
+                        end_x = start_x + 16 * scale
+                        end_y = start_y + 16 * scale
+
+                        self._canvas.create_rectangle((start_x, start_y), (end_x, end_y),
+                                                      outline="blue", dash=(5, 5), width=2)
+
+                    found = True
+                    break
+
+            if not found:
+                self._selected_object = None
+
+    def on_video_output_click(self, click_location: tuple[int, int], scale: int):
         tile_size = 16
         half_tile_size = tile_size // 2
-        tile_x = (click_location[0] // scale) // tile_size
-        tile_y = ((click_location[1] // scale) + half_tile_size) // tile_size
+        tile_x = click_location[0] // tile_size
+        tile_y = (click_location[1] + half_tile_size) // tile_size
 
         current_map_data = get_map_data_for_current_position()
         actual_x = current_map_data.local_position[0] + (tile_x - 7)
@@ -636,7 +676,6 @@ class MapTab(DebugTab):
         end_x = (tile_x + 1) * tile_size * scale
         end_y = ((tile_y + 1) * tile_size - half_tile_size) * scale
 
-        self._canvas = canvas
         self._selected_tile = (actual_x, actual_y)
         self._selected_map = (current_map_data.map_group, current_map_data.map_number)
         self._marker_rectangle = ((start_x, start_y), (end_x, end_y))
@@ -648,20 +687,54 @@ class MapTab(DebugTab):
         else:
             map_data = get_map_data_for_current_position()
 
+        map_objects = get_map_objects()
+        object_list = {"__value": len(map_objects)}
+        for i in range(len(map_objects)):
+            object_list[f"Object #{i}"] = {
+                "__value": str(map_objects[i]),
+                "Local Position": map_objects[i].current_coords,
+                "Elevation": map_objects[i].current_elevation,
+                "Local ID": map_objects[i].local_id,
+                "Facing Direction": map_objects[i].facing_direction,
+                "Movement Type": map_objects[i].movement_type,
+                "Movement Direction": map_objects[i].movement_direction,
+                "Movement Range X": map_objects[i].range_x,
+                "Movement Range Y": map_objects[i].range_y,
+                "Trainer Type": map_objects[i].trainer_type,
+            }
+
         return {
-            "Name": map_data.map_name,
-            "Size": map_data.map_size,
-            "Type": map_data.map_type,
-            "Weather": map_data.weather,
-            "Local Position": map_data.local_position,
-            "Elevation": map_data.elevation,
-            "Tile Type": map_data.tile_type,
-            "Tile Has Encounters": map_data.has_encounters,
-            "Collision": bool(map_data.collision),
-            "Surfing possible": map_data.is_surfable,
-            "Cycling possible": map_data.is_cycling_possible,
-            "Escaping possible": map_data.is_escaping_possible,
-            "Running possible": map_data.is_running_possible,
-            "Show Map Name Popup": map_data.is_map_name_popup_shown,
-            "Is Dark Cave": map_data.is_dark_cave,
+            "Map": {
+                "__value": map_data.map_name,
+                "Size": map_data.map_size,
+                "Type": map_data.map_type,
+                "Weather": map_data.weather,
+                "Cycling possible": map_data.is_cycling_possible,
+                "Escaping possible": map_data.is_escaping_possible,
+                "Running possible": map_data.is_running_possible,
+                "Show Map Name Popup": map_data.is_map_name_popup_shown,
+                "Is Dark Cave": map_data.is_dark_cave,
+            },
+            "Tile": {
+                "__value": f"{map_data.local_position[0]}/{map_data.local_position[1]}",
+                "Elevation": map_data.elevation,
+                "Tile Type": map_data.tile_type,
+                "Tile Has Encounters": map_data.has_encounters,
+                "Collision": bool(map_data.collision),
+                "Surfing possible": map_data.is_surfable,
+            },
+            "Objects": object_list,
         }
+
+    def _handle_selection(self, selected_label: str) -> None:
+        self._selected_object = None
+        if not selected_label.startswith("Object #"):
+            return
+
+        object_index = int(selected_label[8:])
+        map_objects = get_map_objects()
+        if len(map_objects) <= object_index:
+            return
+
+        selected_object = map_objects[object_index]
+        self._selected_object = (selected_object.map_group, selected_object.map_num, selected_object.local_id)

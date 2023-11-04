@@ -1,3 +1,4 @@
+import string
 from functools import cached_property
 
 from modules.context import context
@@ -585,6 +586,367 @@ class MapLocation:
         return bool(self._map_header[0x15] & 0b0001)
 
 
+class ObjectEvent:
+    MOVEMENT_TYPES = ["NONE", "LOOK_AROUND", "WANDER_AROUND", "WANDER_UP_AND_DOWN", "WANDER_DOWN_AND_UP",
+                      "WANDER_LEFT_AND_RIGHT", "WANDER_RIGHT_AND_LEFT", "FACE_UP", "FACE_DOWN", "FACE_LEFT",
+                      "FACE_RIGHT", "PLAYER", "BERRY_TREE_GROWTH", "FACE_DOWN_AND_UP", "FACE_LEFT_AND_RIGHT",
+                      "FACE_UP_AND_LEFT", "FACE_UP_AND_RIGHT", "FACE_DOWN_AND_LEFT", "FACE_DOWN_AND_RIGHT",
+                      "FACE_DOWN_UP_AND_LEFT", "FACE_DOWN_UP_AND_RIGHT", "FACE_UP_LEFT_AND_RIGHT",
+                      "FACE_DOWN_LEFT_AND_RIGHT", "ROTATE_COUNTERCLOCKWISE", "ROTATE_CLOCKWISE", "WALK_UP_AND_DOWN",
+                      "WALK_DOWN_AND_UP", "WALK_LEFT_AND_RIGHT", "WALK_RIGHT_AND_LEFT",
+                      "WALK_SEQUENCE_UP_RIGHT_LEFT_DOWN", "WALK_SEQUENCE_RIGHT_LEFT_DOWN_UP",
+                      "WALK_SEQUENCE_DOWN_UP_RIGHT_LEFT", "WALK_SEQUENCE_LEFT_DOWN_UP_RIGHT",
+                      "WALK_SEQUENCE_UP_LEFT_RIGHT_DOWN", "WALK_SEQUENCE_LEFT_RIGHT_DOWN_UP",
+                      "WALK_SEQUENCE_DOWN_UP_LEFT_RIGHT", "WALK_SEQUENCE_RIGHT_DOWN_UP_LEFT",
+                      "WALK_SEQUENCE_LEFT_UP_DOWN_RIGHT", "WALK_SEQUENCE_UP_DOWN_RIGHT_LEFT",
+                      "WALK_SEQUENCE_RIGHT_LEFT_UP_DOWN", "WALK_SEQUENCE_DOWN_RIGHT_LEFT_UP",
+                      "WALK_SEQUENCE_RIGHT_UP_DOWN_LEFT", "WALK_SEQUENCE_UP_DOWN_LEFT_RIGHT",
+                      "WALK_SEQUENCE_LEFT_RIGHT_UP_DOWN", "WALK_SEQUENCE_DOWN_LEFT_RIGHT_UP",
+                      "WALK_SEQUENCE_UP_LEFT_DOWN_RIGHT", "WALK_SEQUENCE_DOWN_RIGHT_UP_LEFT",
+                      "WALK_SEQUENCE_LEFT_DOWN_RIGHT_UP", "WALK_SEQUENCE_RIGHT_UP_LEFT_DOWN",
+                      "WALK_SEQUENCE_UP_RIGHT_DOWN_LEFT", "WALK_SEQUENCE_DOWN_LEFT_UP_RIGHT",
+                      "WALK_SEQUENCE_LEFT_UP_RIGHT_DOWN", "WALK_SEQUENCE_RIGHT_DOWN_LEFT_UP", "COPY_PLAYER",
+                      "COPY_PLAYER_OPPOSITE", "COPY_PLAYER_COUNTERCLOCKWISE", "COPY_PLAYER_CLOCKWISE", "TREE_DISGUISE",
+                      "MOUNTAIN_DISGUISE", "COPY_PLAYER_IN_GRASS", "COPY_PLAYER_OPPOSITE_IN_GRASS",
+                      "COPY_PLAYER_COUNTERCLOCKWISE_IN_GRASS", "COPY_PLAYER_CLOCKWISE_IN_GRASS", "BURIED",
+                      "WALK_IN_PLACE_DOWN", "WALK_IN_PLACE_UP", "WALK_IN_PLACE_LEFT", "WALK_IN_PLACE_RIGHT",
+                      "WALK_IN_PLACE_FAST_DOWN", "WALK_IN_PLACE_FAST_UP", "WALK_IN_PLACE_FAST_LEFT",
+                      "WALK_IN_PLACE_FAST_RIGHT", "JOG_IN_PLACE_DOWN", "JOG_IN_PLACE_UP", "JOG_IN_PLACE_LEFT",
+                      "JOG_IN_PLACE_RIGHT", "INVISIBLE", "RAISE_HAND_AND_STOP", "RAISE_HAND_AND_JUMP",
+                      "RAISE_HAND_AND_SWIM", "WANDER_AROUND_SLOWER"]
+
+    MOVEMENT_ACTIONS = {
+        0x0: "FACE_DOWN",
+        0x1: "FACE_UP",
+        0x2: "FACE_LEFT",
+        0x3: "FACE_RIGHT",
+        0x4: "FACE_DOWN_FAST",
+        0x5: "FACE_UP_FAST",
+        0x6: "FACE_LEFT_FAST",
+        0x7: "FACE_RIGHT_FAST",
+        0x8: "WALK_SLOWER_DOWN",
+        0x9: "WALK_SLOWER_UP",
+        0xA: "WALK_SLOWER_LEFT",
+        0xB: "WALK_SLOWER_RIGHT",
+        0xC: "WALK_SLOW_DOWN",
+        0xD: "WALK_SLOW_UP",
+        0xE: "WALK_SLOW_LEFT",
+        0xF: "WALK_SLOW_RIGHT",
+        0x10: "WALK_NORMAL_DOWN",
+        0x11: "WALK_NORMAL_UP",
+        0x12: "WALK_NORMAL_LEFT",
+        0x13: "WALK_NORMAL_RIGHT",
+        0x14: "JUMP_2_DOWN",
+        0x15: "JUMP_2_UP",
+        0x16: "JUMP_2_LEFT",
+        0x17: "JUMP_2_RIGHT",
+        0x18: "DELAY_1",
+        0x19: "DELAY_2",
+        0x1A: "DELAY_4",
+        0x1B: "DELAY_8",
+        0x1C: "DELAY_16",
+        0x1D: "WALK_FAST_DOWN",
+        0x1E: "WALK_FAST_UP",
+        0x1F: "WALK_FAST_LEFT",
+        0x20: "WALK_FAST_RIGHT",
+        0x21: "WALK_IN_PLACE_SLOW_DOWN",
+        0x22: "WALK_IN_PLACE_SLOW_UP",
+        0x23: "WALK_IN_PLACE_SLOW_LEFT",
+        0x24: "WALK_IN_PLACE_SLOW_RIGHT",
+        0x25: "WALK_IN_PLACE_NORMAL_DOWN",
+        0x26: "WALK_IN_PLACE_NORMAL_UP",
+        0x27: "WALK_IN_PLACE_NORMAL_LEFT",
+        0x28: "WALK_IN_PLACE_NORMAL_RIGHT",
+        0x29: "WALK_IN_PLACE_FAST_DOWN",
+        0x2A: "WALK_IN_PLACE_FAST_UP",
+        0x2B: "WALK_IN_PLACE_FAST_LEFT",
+        0x2C: "WALK_IN_PLACE_FAST_RIGHT",
+        0x2D: "WALK_IN_PLACE_FASTER_DOWN",
+        0x2E: "WALK_IN_PLACE_FASTER_UP",
+        0x2F: "WALK_IN_PLACE_FASTER_LEFT",
+        0x30: "WALK_IN_PLACE_FASTER_RIGHT",
+        0x31: "RIDE_WATER_CURRENT_DOWN",
+        0x32: "RIDE_WATER_CURRENT_UP",
+        0x33: "RIDE_WATER_CURRENT_LEFT",
+        0x34: "RIDE_WATER_CURRENT_RIGHT",
+        0x35: "WALK_FASTER_DOWN",
+        0x36: "WALK_FASTER_UP",
+        0x37: "WALK_FASTER_LEFT",
+        0x38: "WALK_FASTER_RIGHT",
+        0x39: "SLIDE_DOWN",
+        0x3A: "SLIDE_UP",
+        0x3B: "SLIDE_LEFT",
+        0x3C: "SLIDE_RIGHT",
+        0x3D: "PLAYER_RUN_DOWN",
+        0x3E: "PLAYER_RUN_UP",
+        0x3F: "PLAYER_RUN_LEFT",
+        0x40: "PLAYER_RUN_RIGHT",
+        0x41: "PLAYER_RUN_DOWN_SLOW",
+        0x42: "PLAYER_RUN_UP_SLOW",
+        0x43: "PLAYER_RUN_LEFT_SLOW",
+        0x44: "PLAYER_RUN_RIGHT_SLOW",
+        0x45: "START_ANIM_IN_DIRECTION",
+        0x46: "JUMP_SPECIAL_DOWN",
+        0x47: "JUMP_SPECIAL_UP",
+        0x48: "JUMP_SPECIAL_LEFT",
+        0x49: "JUMP_SPECIAL_RIGHT",
+        0x4A: "FACE_PLAYER",
+        0x4B: "FACE_AWAY_PLAYER",
+        0x4C: "LOCK_FACING_DIRECTION",
+        0x4D: "UNLOCK_FACING_DIRECTION",
+        0x4E: "JUMP_DOWN",
+        0x4F: "JUMP_UP",
+        0x50: "JUMP_LEFT",
+        0x51: "JUMP_RIGHT",
+        0x52: "JUMP_IN_PLACE_DOWN",
+        0x53: "JUMP_IN_PLACE_UP",
+        0x54: "JUMP_IN_PLACE_LEFT",
+        0x55: "JUMP_IN_PLACE_RIGHT",
+        0x56: "JUMP_IN_PLACE_DOWN_UP",
+        0x57: "JUMP_IN_PLACE_UP_DOWN",
+        0x58: "JUMP_IN_PLACE_LEFT_RIGHT",
+        0x59: "JUMP_IN_PLACE_RIGHT_LEFT",
+        0x5A: "FACE_ORIGINAL_DIRECTION",
+        0x5B: "NURSE_JOY_BOW_DOWN",
+        0x5C: "ENABLE_JUMP_LANDING_GROUND_EFFECT",
+        0x5D: "DISABLE_JUMP_LANDING_GROUND_EFFECT",
+        0x5E: "DISABLE_ANIMATION",
+        0x5F: "RESTORE_ANIMATION",
+        0x60: "SET_INVISIBLE",
+        0x61: "SET_VISIBLE",
+        0x62: "EMOTE_EXCLAMATION_MARK",
+        0x63: "EMOTE_QUESTION_MARK",
+        0x64: "EMOTE_X",
+        0x65: "EMOTE_DOUBLE_EXCL_MARK",
+        0x66: "EMOTE_SMILE",
+        0x67: "REVEAL_TRAINER",
+        0x68: "ROCK_SMASH_BREAK",
+        0x69: "CUT_TREE",
+        0x6A: "SET_FIXED_PRIORITY",
+        0x6B: "CLEAR_FIXED_PRIORITY",
+        0x6C: "INIT_AFFINE_ANIM",
+        0x6D: "CLEAR_AFFINE_ANIM",
+        0x6E: "WALK_DOWN_START_AFFINE",
+        0x6F: "WALK_DOWN_AFFINE",
+        0x70: "ACRO_WHEELIE_FACE_DOWN",
+        0x71: "ACRO_WHEELIE_FACE_UP",
+        0x72: "ACRO_WHEELIE_FACE_LEFT",
+        0x73: "ACRO_WHEELIE_FACE_RIGHT",
+        0x74: "ACRO_POP_WHEELIE_DOWN",
+        0x75: "ACRO_POP_WHEELIE_UP",
+        0x76: "ACRO_POP_WHEELIE_LEFT",
+        0x77: "ACRO_POP_WHEELIE_RIGHT",
+        0x78: "ACRO_END_WHEELIE_FACE_DOWN",
+        0x79: "ACRO_END_WHEELIE_FACE_UP",
+        0x7A: "ACRO_END_WHEELIE_FACE_LEFT",
+        0x7B: "ACRO_END_WHEELIE_FACE_RIGHT",
+        0x7C: "ACRO_WHEELIE_HOP_FACE_DOWN",
+        0x7D: "ACRO_WHEELIE_HOP_FACE_UP",
+        0x7E: "ACRO_WHEELIE_HOP_FACE_LEFT",
+        0x7F: "ACRO_WHEELIE_HOP_FACE_RIGHT",
+        0x80: "ACRO_WHEELIE_HOP_DOWN",
+        0x81: "ACRO_WHEELIE_HOP_UP",
+        0x82: "ACRO_WHEELIE_HOP_LEFT",
+        0x83: "ACRO_WHEELIE_HOP_RIGHT",
+        0x84: "ACRO_WHEELIE_JUMP_DOWN",
+        0x85: "ACRO_WHEELIE_JUMP_UP",
+        0x86: "ACRO_WHEELIE_JUMP_LEFT",
+        0x87: "ACRO_WHEELIE_JUMP_RIGHT",
+        0x88: "ACRO_WHEELIE_IN_PLACE_DOWN",
+        0x89: "ACRO_WHEELIE_IN_PLACE_UP",
+        0x8A: "ACRO_WHEELIE_IN_PLACE_LEFT",
+        0x8B: "ACRO_WHEELIE_IN_PLACE_RIGHT",
+        0x8C: "ACRO_POP_WHEELIE_MOVE_DOWN",
+        0x8D: "ACRO_POP_WHEELIE_MOVE_UP",
+        0x8E: "ACRO_POP_WHEELIE_MOVE_LEFT",
+        0x8F: "ACRO_POP_WHEELIE_MOVE_RIGHT",
+        0x90: "ACRO_WHEELIE_MOVE_DOWN",
+        0x91: "ACRO_WHEELIE_MOVE_UP",
+        0x92: "ACRO_WHEELIE_MOVE_LEFT",
+        0x93: "ACRO_WHEELIE_MOVE_RIGHT",
+        0x94: "SPIN_DOWN",
+        0x95: "SPIN_UP",
+        0x96: "SPIN_LEFT",
+        0x97: "SPIN_RIGHT",
+        0x98: "RAISE_HAND_AND_STOP",
+        0x99: "RAISE_HAND_AND_JUMP",
+        0x9A: "RAISE_HAND_AND_SWIM",
+        0x9B: "WALK_SLOWEST_DOWN",
+        0x9C: "WALK_SLOWEST_UP",
+        0x9D: "WALK_SLOWEST_LEFT",
+        0x9E: "WALK_SLOWEST_RIGHT",
+        0x9F: "SHAKE_HEAD_OR_WALK_IN_PLACE",
+        0xA0: "GLIDE_DOWN",
+        0xA1: "GLIDE_UP",
+        0xA2: "GLIDE_LEFT",
+        0xA3: "GLIDE_RIGHT",
+        0xA4: "FLY_UP",
+        0xA5: "FLY_DOWN",
+        0xA6: "JUMP_SPECIAL_WITH_EFFECT_DOWN",
+        0xA7: "JUMP_SPECIAL_WITH_EFFECT_UP",
+        0xA8: "JUMP_SPECIAL_WITH_EFFECT_LEFT",
+        0xA9: "JUMP_SPECIAL_WITH_EFFECT_RIGHT",
+        0xFE: "STEP_END",
+        0xFF: "NONE",
+    }
+
+    def __init__(self, data: bytes):
+        self._data = data
+
+    @property
+    def flags(self) -> list[str]:
+        flag_names = ["active", "singleMovementActive", "triggerGroundEffectsOnMove", "triggerGroundEffectsOnStop",
+                      "disableCoveringGroundEffects", "landingJump", "heldMovementActive", "heldMovementFinished",
+                      "frozen", "facingDirectionLocked", "disableAnim", "enableAnim", "inanimate", "invisible",
+                      "offScreen", "trackedByCamera", "isPlayer", "hasReflection", "inShortGrass",
+                      "inShallowFlowingWater", "inSandPile", "inHotSprings", "hasShadow", "spriteAnimPausedBackup",
+                      "spriteAffineAnimPausedBackup", "disableJumpLandingGroundEffect", "fixedPriority",
+                      "hideReflection"]
+
+        flags = []
+        bitmap = unpack_uint32(self._data[0:4])
+        for i in range(len(flag_names)):
+            if (bitmap >> i) & 0x01:
+                flags.append(flag_names[i])
+        return flags
+
+    @property
+    def sprite_id(self) -> int:
+        return self._data[4]
+
+    @property
+    def graphics_id(self) -> int:
+        return self._data[5]
+
+    @property
+    def movement_type(self) -> str:
+        return string.capwords(self.MOVEMENT_TYPES[self._data[6]].replace("_", " "))
+
+    @property
+    def trainer_type(self) -> str:
+        match self._data[7]:
+            case 0:
+                return "None"
+            case 1:
+                return "Normal"
+            case 2:
+                return "See All Directions"
+            case 3:
+                return "Buried"
+
+    @property
+    def local_id(self) -> int:
+        return self._data[8]
+
+    @property
+    def map_num(self) -> int:
+        return self._data[9]
+
+    @property
+    def map_group(self) -> int:
+        return self._data[10]
+
+    @property
+    def current_elevation(self) -> int:
+        return self._data[11] & 0x0F
+
+    @property
+    def previous_elevation(self) -> int:
+        return (self._data[11] & 0xF0) >> 4
+
+    @property
+    def initial_coords(self) -> tuple[int, int]:
+        return unpack_uint16(self._data[0x0C:0x0E]) - 7, unpack_uint16(self._data[0x0E:0x10]) - 7
+
+    @property
+    def current_coords(self) -> tuple[int, int]:
+        return unpack_uint16(self._data[0x10:0x12]) - 7, unpack_uint16(self._data[0x12:0x14]) - 7
+
+    @property
+    def previous_coords(self) -> tuple[int, int]:
+        return unpack_uint16(self._data[0x14:0x16]) - 7, unpack_uint16(self._data[0x16:0x18]) - 7
+
+    @property
+    def facing_direction(self) -> str:
+        direction = unpack_uint16(self._data[0x18:0x1A]) & 0x000F
+        match direction:
+            case 1:
+                return "Down"
+            case 2:
+                return "Up"
+            case 3:
+                return "Left"
+            case 4:
+                return "Right"
+
+    @property
+    def movement_direction(self) -> str:
+        direction = (unpack_uint16(self._data[0x18:0x1A]) & 0x00F0) >> 4
+        match direction:
+            case 1:
+                return "Down"
+            case 2:
+                return "Up"
+            case 3:
+                return "Left"
+            case 4:
+                return "Right"
+
+    @property
+    def range_x(self) -> int:
+        return (unpack_uint16(self._data[0x18:0x1A]) & 0x0F00) >> 8
+
+    @property
+    def range_y(self) -> int:
+        return (unpack_uint16(self._data[0x18:0x1A]) & 0xF000) >> 12
+
+    @property
+    def field_effect_sprite_id(self) -> int:
+        return self._data[0x1A]
+
+    @property
+    def warp_arrow_sprite_id(self) -> int:
+        return self._data[0x1B]
+
+    @property
+    def movement_action(self) -> str:
+        return string.capwords(self.MOVEMENT_ACTIONS[self._data[0x1C]].replace("_", " "))
+
+    @property
+    def trainer_range_berry_tree_id(self) -> int:
+        return self._data[0x1D]
+
+    @property
+    def current_metatile_behaviour(self) -> int:
+        return self._data[0x1E]
+
+    @property
+    def previous_metatile_behaviour(self) -> int:
+        return self._data[0x1F]
+
+    @property
+    def previous_movement_direction(self) -> int:
+        return self._data[0x20]
+
+    @property
+    def direction_sequence_index(self) -> int:
+        return self._data[0x21]
+
+    @property
+    def player_copyable_movement(self) -> int:
+        return self._data[0x22]
+
+    def __str__(self) -> str:
+        if "isPlayer" in self.flags:
+            return "Player"
+        elif self.trainer_type == "Buried":
+            return f"Buried Trainer at {self.current_coords}"
+        elif self.trainer_type != "None":
+            return f"Trainer at {self.current_coords}"
+        else:
+            return f"Entity at {self.current_coords}"
+
+
 def get_map_data_for_current_position() -> MapLocation:
     from modules.trainer import trainer
     map_group, map_number = trainer.get_map()
@@ -596,3 +958,15 @@ def get_map_data(map_group: int, map_number: int, local_position: tuple[int, int
     map_number_pointer = unpack_uint32(context.emulator.read_bytes(map_group_pointer + 4 * map_number, 4))
     map_header = context.emulator.read_bytes(map_number_pointer, 0x1C)
     return MapLocation(map_header, map_group, map_number, local_position)
+
+
+def get_map_objects() -> list[ObjectEvent]:
+    data = read_symbol("gObjectEvents", 0, 0x24 * 16)
+    objects = []
+    for i in range(16):
+        offset = i * 0x24
+        is_active = bool(data[offset] & 0x01)
+        if is_active:
+            map_object = ObjectEvent(data[offset:offset + 0x24])
+            objects.append(map_object)
+    return objects
