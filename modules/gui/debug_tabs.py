@@ -435,14 +435,6 @@ class SymbolsTab(DebugTab):
 
         self._tv.update_data(data)
 
-    def _handle_new_symbol(self, event):
-        new_symbol = self._combobox.get()
-        try:
-            get_symbol(new_symbol)
-            self.symbols_to_display.add(new_symbol)
-        except RuntimeError:
-            pass
-
     def _handle_remove_symbol(self, symbol: str):
         self.symbols_to_display.remove(symbol)
         self.display_as_string.remove(symbol)
