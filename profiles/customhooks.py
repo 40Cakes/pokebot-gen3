@@ -101,7 +101,7 @@ def custom_hooks(hook) -> None:
                     ),
                     embed_fields={
                         "Shiny Value": f"{pokemon.shiny_value:,}",
-                        "IVs": IVField(),
+                        f"IVs ({pokemon.ivs.sum()})": IVField(),
                         f"{pokemon.species.name} Encounters": f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} ({stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,}✨)",
                         f"{pokemon.species.name} Phase Encounters": f"{stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,}",
                     }
@@ -268,7 +268,7 @@ def custom_hooks(hook) -> None:
                     embed_description=f"{pokemon.nature.name} {pokemon.species.name} (Lv. {pokemon.level:,}) at {pokemon.location_met}!",
                     embed_fields={
                         "Shiny Value": f"{pokemon.shiny_value:,}",
-                        "IVs": IVField(),
+                        f"IVs ({pokemon.ivs.sum()})": IVField(),
                         f"{pokemon.species.name} Encounters": f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} ({stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,}✨)",
                         f"{pokemon.species.name} Phase Encounters": f"{stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,}",
                     }
