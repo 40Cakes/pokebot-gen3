@@ -625,17 +625,21 @@ class MapTab(DebugTab):
             for obj in map_objects:
                 if self._selected_object == (obj.map_group, obj.map_num, obj.local_id):
                     object_coords = obj.current_coords
+                    previous_coords = obj.previous_coords
                     camera_coords = trainer.get_coords()
 
                     relative_x = object_coords[0] - camera_coords[0]
                     relative_y = object_coords[1] - camera_coords[1]
 
-                    if -7 <= relative_x <= 7 and -5 <= relative_y <= 5:
-                        start_x = (relative_x + 7) * 16 * scale
-                        start_y = ((relative_y + 5) * 16 - 8) * scale
+                    previous_relative_x = previous_coords[0] - camera_coords[0]
+                    previous_relative_y = previous_coords[1] - camera_coords[1]
 
-                        end_x = start_x + 16 * scale
-                        end_y = start_y + 16 * scale
+                    if -7 <= relative_x <= 7 and -5 <= relative_y <= 5:
+                        start_x = min(relative_x + 7, previous_relative_x + 7) * 16 * scale
+                        start_y = (min(relative_y + 5, previous_relative_y + 5) * 16 - 8) * scale
+
+                        end_x = (max(relative_x + 8, previous_relative_x + 8) * 16) * scale
+                        end_y = (max(relative_y + 6, previous_relative_y + 6) * 16 - 8) * scale
 
                         self._canvas.create_rectangle((start_x, start_y), (end_x, end_y),
                                                       outline="blue", dash=(5, 5), width=2)
