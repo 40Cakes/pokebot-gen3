@@ -95,9 +95,11 @@ class StartMenuOptionKanto(IntEnum):
     MAX_STARTMENU_ITEMS = 8
 
 
-def get_party_menu_cursor_pos() -> dict:
+def get_party_menu_cursor_pos(party_length: int) -> dict:
     """
     Function to parse the party menu data and return usable information
+
+    :param party_length: the number of Pokémon in the party
     """
     party_menu = {
         "slot_id": -1,
@@ -117,7 +119,7 @@ def get_party_menu_cursor_pos() -> dict:
         party_menu["learn_move_state"] = struct.unpack("<h", p_menu[16:18])[0]
     else:
         party_menu["slot_id"] = int.from_bytes(
-            context.emulator.read_bytes(0x0202002F + len(get_party()) * 136 + 3, length=1), "little"
+            context.emulator.read_bytes(0x0202002F + party_length * 136 + 3, length=1), "little"
         )
         party_menu["slot_id_2"] = party_menu["slot_id"]
 

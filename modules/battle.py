@@ -242,11 +242,15 @@ class BattleMoveLearner(BaseMenuNavigator):
                 self.current_step = "wait_for_move_learn_menu"
             case "wait_for_move_learn_menu":
                 self.current_step = "navigate_to_move"
+            case "navigate_to_move":
+                self.current_step = "confirm_replace"
             case "avoid_learning":
                 self.current_step = "wait_for_stop_learning"
             case "wait_for_stop_learning":
                 self.current_step = "confirm_no_learn"
-            case "navigate_to_move" | "confirm_no_learn":
+            case "confirm_replace":
+                self.current_step = "wait_for_next_state"
+            case "wait_for_next_state" | "confirm_no_learn":
                 self.current_step = "exit"
 
     def update_navigator(self):
@@ -257,15 +261,35 @@ class BattleMoveLearner(BaseMenuNavigator):
                 self.navigator = self.wait_for_move_learn_menu()
             case "navigate_to_move":
                 self.navigator = self.navigate_move_learn_menu()
+            case "confirm_replace":
+                self.navigator = self.confirm_replace()
             case "avoid_learning":
                 self.navigator = self.avoid_learning()
             case "wait_for_stop_learning":
                 self.navigator = self.wait_for_stop_learning()
             case "confirm_no_learn":
                 self.navigator = self.confirm_no_learn()
+            case "wait_for_next_state":
+                self.navigator = self.wait_for_next_state()
+
+    def wait_for_next_state(self):
+        for i in range(300):
+            if get_battle_state() == BattleState.LEARNING:
+                break
+            yield
+        while get_battle_state() == BattleState.LEARNING:
+            context.emulator.press_button("B")
+            yield
 
     def confirm_learn(self):
         while get_learn_move_state() == "LEARN_YN":
+            context.emulator.press_button("A")
+            yield
+        else:
+            self.navigator = None
+
+    def confirm_replace(self):
+        while get_learn_move_state() == "MOVE_MENU":
             context.emulator.press_button("A")
             yield
         else:
@@ -785,7 +809,7 @@ def send_out_pokemon(index):
     cursor_positions = len(get_party()) + 1
 
     # navigate to the desired index as quickly as possible
-    party_menu_index = get_party_menu_cursor_pos()["slot_id"]
+    party_menu_index = get_party_menu_cursor_pos(cursor_positions - 1)["slot_id"]
     if party_menu_index >= cursor_positions:
         party_menu_index = cursor_positions - 1
     while party_menu_index != index:
@@ -799,7 +823,7 @@ def send_out_pokemon(index):
             context.emulator.press_button("Up")
         else:
             context.emulator.press_button("Down")
-        party_menu_index = get_party_menu_cursor_pos()["slot_id"]
+        party_menu_index = get_party_menu_cursor_pos(cursor_positions - 1)["slot_id"]
         if party_menu_index >= cursor_positions:
             party_menu_index = cursor_positions - 1
         yield
@@ -824,103 +848,6 @@ def send_out_pokemon(index):
                 yield
 
 
-# TODO
-def switch_out_pokemon(index):
-    """
-    Navigates from the party menu to the index of the desired Pokémon
-    """
-    cursor_positions = len(get_party()) + 1
-
-    while not party_menu_is_open():
-        context.emulator.press_button("A")
-        yield
-
-    party_menu_index = get_party_menu_cursor_pos()["slot_id"]
-    if party_menu_index >= cursor_positions:
-        party_menu_index = cursor_positions - 1
-
-    while party_menu_index != index:
-        if party_menu_index > index:
-            up_presses = party_menu_index - index
-            down_presses = index + cursor_positions - party_menu_index
-        else:
-            up_presses = party_menu_index + cursor_positions - index
-            down_presses = index - party_menu_index
-
-        if down_presses > up_presses:
-            context.emulator.press_button("Up")
-        else:
-            context.emulator.press_button("Down")
-        party_menu_index = get_party_menu_cursor_pos()["slot_id"]
-        if party_menu_index >= cursor_positions:
-            party_menu_index = cursor_positions - 1
-        yield
-
-    if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-        while (
-            not get_task("TASK_HANDLESELECTIONMENUINPUT") != {}
-            and get_task("TASK_HANDLESELECTIONMENUINPUT")["isActive"]
-        ):
-            context.emulator.press_button("A")
-            yield
-        while get_task("TASK_HANDLESELECTIONMENUINPUT") != {} and get_task("TASK_HANDLESELECTIONMENUINPUT")["isActive"]:
-            yield from PokemonPartySubMenuNavigator("SWITCH").step()
-        while get_party_menu_cursor_pos()["action"] != 8:
-            context.emulator.press_button("A")
-            yield
-        while get_party_menu_cursor_pos()["action"] == 8:
-            if get_party_menu_cursor_pos()["slot_id_2"] == 7:
-                context.emulator.press_button("Down")
-            elif get_party_menu_cursor_pos()["slot_id_2"] != 0:
-                context.emulator.press_button("Left")
-            else:
-                context.emulator.press_button("A")
-            yield
-
-        while get_game_state() == GameState.PARTY_MENU:
-            context.emulator.press_button("B")
-            yield
-    else:
-        while "SUB_8089D94" not in [task["func"] for task in parse_tasks()]:
-            context.emulator.press_button("A")
-            yield
-
-        while ("SUB_8089D94" in [task["func"] for task in parse_tasks()]) and not (
-            "SUB_808A060" in [task["func"] for task in parse_tasks()]
-            or "HANDLEPARTYMENUSWITCHPOKEMONINPUT" in [task["func"] for task in parse_tasks()]
-        ):
-            yield from PokemonPartySubMenuNavigator("SWITCH").step()
-            yield
-        while switch_pokemon_active():
-            if get_party_menu_cursor_pos()["slot_id_2"] != 0:
-                context.emulator.press_button("Up")
-            else:
-                context.emulator.press_button("A")
-            yield
-
-        while (
-            get_task("HANDLEDEFAULTPARTYMENU") == {}
-            and get_task("HANDLEPARTYMENUSWITCHPOKEMONINPUT") == {}
-            and get_task("HANDLEBATTLEPARTYMENU") == {}
-        ):
-            context.emulator.press_button("B")
-            yield
-
-    while get_game_state() != GameState.OVERWORLD or parse_start_menu()["open"]:
-        context.emulator.press_button("B")
-        yield
-
-    for i in range(30):
-        if get_game_state() != GameState.OVERWORLD or parse_start_menu()["open"]:
-            break
-        context.emulator.press_button("B")
-        yield
-
-    while get_game_state() != GameState.OVERWORLD or parse_start_menu()["open"]:
-        context.emulator.press_button("B")
-        yield
-
-
 def calculate_new_move_viability(mon: Pokemon, new_move: Move) -> int:
     """
     Function that judges the move a Pokémon is trying to learn against its moveset and returns the index of the worst
@@ -933,7 +860,7 @@ def calculate_new_move_viability(mon: Pokemon, new_move: Move) -> int:
 
     # exit learning move if new move is banned or has 0 power
     if new_move.base_power == 0 or new_move.name in config["battle"]["banned_moves"]:
-        context.message = f"New move has base power of 0, so {mon.name} will skip learning it."
+        context.message = f"{new_move.name} has base power of 0, so {mon.name} will skip learning it."
         return 4
     # get the effective power of each move
     move_power = []
@@ -1146,7 +1073,6 @@ def execute_menu_action(decision: tuple):
             return
 
 
-# TODO
 def check_lead_can_battle():
     """
     Determines whether the lead Pokémon is fit to fight
@@ -1154,7 +1080,7 @@ def check_lead_can_battle():
     lead = get_party()[0]
     lead_has_moves = False
     for move in lead.moves:
-        if move.move.base_power > 0 and move.move.name not in config["battle"]["banned_moves"] and move.pp > 0:
+        if move is not None and move.move.base_power > 0 and move.move.name not in config["battle"]["banned_moves"] and move.pp > 0:
             lead_has_moves = True
             break
     lead_has_hp = lead.current_hp > 0.2 * lead.stats.hp
@@ -1185,7 +1111,7 @@ def mon_has_enough_hp(mon: Pokemon) -> bool:
 
 
 def move_is_usable(m: LearnedMove) -> bool:
-    return m.move.base_power > 0 and m.pp > 0 and m.move.name not in config["battle"]["banned_moves"]
+    return m is not None and m.move.base_power > 0 and m.pp > 0 and m.move.name not in config["battle"]["banned_moves"]
 
 
 class RotatePokemon(BaseMenuNavigator):

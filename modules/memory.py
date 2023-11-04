@@ -177,6 +177,8 @@ def get_game_state() -> GameState:
             return GameState.TITLE_SCREEN
         case "CB2_MAINMENU":
             return GameState.MAIN_MENU
+        case "CB2_EVOLUTIONSCENEUPDATE":
+            return GameState.EVOLUTION
         case _:
             return GameState.UNKNOWN
 

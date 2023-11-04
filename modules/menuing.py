@@ -234,6 +234,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
         self.primary_option = None
         self.get_primary_option()
         self.subnavigator = None
+        self.party = get_party()
 
     def get_primary_option(self):
         if self.mode in ["take_item", "give_item"]:
@@ -282,16 +283,15 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                 self.navigator = self.switch_mon()
 
     def navigate_to_mon(self):
-        while get_party_menu_cursor_pos()["slot_id"] != self.idx:
-            if get_party_menu_cursor_pos()["slot_id"] > self.idx:
+        while get_party_menu_cursor_pos(len(self.party))["slot_id"] != self.idx:
+            if get_party_menu_cursor_pos(len(self.party))["slot_id"] > self.idx:
                 context.emulator.press_button("Up")
             else:
                 context.emulator.press_button("Down")
             yield
 
-    @staticmethod
-    def navigate_to_lead():
-        while get_party_menu_cursor_pos()["slot_id_2"] != 0:
+    def navigate_to_lead(self):
+        while get_party_menu_cursor_pos(len(self.party))["slot_id_2"] != 0:
             context.emulator.press_button("Left")
             yield
 
@@ -382,6 +382,26 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
 
 class BattlePartyMenuNavigator(PokemonPartyMenuNavigator):
 
+    def get_next_func(self):
+        match self.current_step:
+            case "None":
+                self.current_step = "navigate_to_mon"
+            case "navigate_to_mon":
+                self.current_step = "select_mon"
+            case "select_mon":
+                self.current_step = "select_option"
+            case "select_option":
+                match self.mode:
+                    case "take_item":
+                        self.current_step = "select_take_item"
+                    case "give_item":
+                        self.current_step = "select_give_item"
+                    case _:
+                        self.current_step = "exit"
+            case "navigate_to_lead":
+                self.current_step = "confirm_lead"
+            case "select_take_item" | "select_give_item" | "confirm_lead":
+                self.current_step = "exit"
     def select_mon(self):
         while get_task("TASK_HANDLECHOOSEMONINPUT") != {} or get_task("HANDLEBATTLEPARTYMENU") != {}:
             context.emulator.press_button("A")
@@ -429,9 +449,12 @@ class CheckForPickup(BaseMenuNavigator):
         else:
             self.check_threshold_met = encounter_total >= config["battle"]["pickup_check_frequency"]
         self.get_pokemon_with_pickup_and_item()
-        self.pickup_threshold_met = (
-            self.check_threshold_met and len(self.pokemon_with_pickup_and_item) >= config["battle"]["pickup_threshold"]
-        )
+        if config["battle"]["pickup_threshold"] > self.pokemon_with_pickup > 0:
+            threshold = self.pokemon_with_pickup
+            context.message = f"Number of pickup pokemon is {threshold}, which is lower than config. Using\nparty value of {threshold} instead."
+        else:
+            threshold = config["battle"]["pickup_threshold"]
+        self.pickup_threshold_met = self.check_threshold_met and len(self.pokemon_with_pickup_and_item) >= threshold
         if self.pickup_threshold_met:
             context.message = "Pickup threshold is met! Gathering items."
 
@@ -451,12 +474,21 @@ class CheckForPickup(BaseMenuNavigator):
                 context.emulator.press_button("B")
                 yield
         else:
-            while get_task("HANDLEDEFAULTPARTYMENU") == {} and get_task("HANDLEPARTYMENUSWITCHPOKEMONINPUT") == {} and get_task("HANDLEBATTLEPARTYMENU") == {}:
+            while (
+                get_task("HANDLEDEFAULTPARTYMENU") == {}
+                and get_task("HANDLEPARTYMENUSWITCHPOKEMONINPUT") == {}
+                and get_task("HANDLEBATTLEPARTYMENU") == {}
+            ):
                 context.emulator.press_button("B")
                 yield
 
     def should_open_party_menu(self):
-        if not config["cheats"]["pickup"] and self.check_threshold_met and not self.checked:
+        if (
+            not config["cheats"]["pickup"]
+            and self.check_threshold_met
+            and not self.checked
+            and self.pokemon_with_pickup > 0
+        ):
             return True
         elif self.pickup_threshold_met:
             return True
@@ -549,7 +581,6 @@ class PartyMenuExit(BaseMenuNavigator):
 
 
 class MenuWrapper:
-
     def __init__(self, menu_handler: BaseMenuNavigator):
         self.menu_handler = menu_handler.step()
 
