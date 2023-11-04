@@ -1,7 +1,7 @@
 import sys
 from threading import Thread
 
-from modules.battle import BattleOpponent
+from modules.battle import BattleHandler
 from modules.config import config, load_config_from_directory
 from modules.console import console
 from modules.context import context
@@ -34,8 +34,8 @@ def main_loop() -> None:
             if not mode and get_game_state() == GameState.BATTLE and context.bot_mode != "Starters":
                 if opponent_changed():
                     encounter_pokemon(get_opponent())
-                if context.bot_mode != "Manual":
-                    mode = BattleOpponent()
+                    if context.bot_mode != "Manual" and config["battle"]["battle"]:
+                        mode = BattleHandler()
 
             if context.bot_mode == "Manual":
                 if mode:

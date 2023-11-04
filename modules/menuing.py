@@ -10,6 +10,16 @@ from modules.menu_parsers import (
 from modules.pokemon import get_party
 
 
+class MenuWrapper:
+
+    def __init__(self, menu_handler: object):
+        self.menu_handler = menu_handler.step()
+
+    def step(self):
+        while True:
+            yield from self.menu_handler
+
+
 def party_menu_is_open() -> bool:
     """
     helper function to determine whether the Pokémon party menu is active
@@ -275,7 +285,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
             if get_party_menu_cursor_pos()["slot_id"] > self.idx:
                 context.emulator.press_button("Up")
             else:
-                context.emulator.PressButton("Down")
+                context.emulator.press_button("Down")
             yield
 
     def select_mon(self):

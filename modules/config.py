@@ -57,17 +57,51 @@ logging_schema = """
                     - verbose
                     - basic
                     - disable
-    save_pk3:
-        type: object
-        properties:
-            all:
-                type: boolean
-            shiny:
-                type: boolean
-            custom:
-                type: boolean
-    import_pk3:
+"""
+
+battle_schema = """
+type: object
+properties:
+    battle:
         type: boolean
+    battle_method:
+        type: string
+        enum:
+            - strongest
+    pickup:
+        type: boolean
+    pickup_threshold:
+        type: integer
+        minimum: 1
+        maximum: 6
+    pickup_check_frequency:
+        type: integer
+        minimum: 1
+    faint_action:
+        type: string
+        enum:
+            - stop
+            - flee
+            - rotate
+    new_move:
+        type: string
+        enum:
+            - stop
+            - cancel
+            - learn_best
+    stop_evolution:
+        type: boolean
+    replace_lead_battler:
+        type: boolean
+    switch_strategy:
+        type: string
+        enum:
+            - first_available
+    banned_moves:
+        type: array
+        uniqueItems: true
+        items:
+            type: string
 """
 
 discord_schema = """
@@ -191,6 +225,8 @@ properties:
         type: boolean
     starters_rng:
         type: boolean
+    pickup:
+        type: boolean
 """
 
 catch_block_schema = """
@@ -239,12 +275,13 @@ properties:
 schemas = {
     "general": general_schema,
     "logging": logging_schema,
+    "battle": battle_schema,
     "discord": discord_schema,
     "obs": obs_schema,
     "cheats": cheats_schema,
 }
 
-config = {"general": {}, "logging": {}, "discord": {}, "obs": {}, "cheats": {}}
+config = {"general": {}, "logging": {}, "battle": {}, "discord": {}, "obs": {}, "cheats": {}}
 
 # Keeps a list of all configuration directories that should be searched whenever we are looking
 # for a particular config file.

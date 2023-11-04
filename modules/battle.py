@@ -31,7 +31,7 @@ from modules.menuing import (
     PokemonPartyMenuNavigator,
     BattlePartyMenuNavigator,
 )
-from modules.pokemon import get_party, get_opponent, Pokemon, Move
+from modules.pokemon import get_party, get_opponent, Pokemon, Move, LearnedMove
 
 
 class BattleState(IntEnum):
@@ -355,6 +355,17 @@ class BattleMoveLearner(BaseMenuNavigator):
         else:
             self.navigator = None
 
+class BattleHandler:
+    """
+    Wrapper for the BattleOpponent class that makes it compatible with the current structure of the main loop.
+    """
+    def __init__(self):
+        self.battler = BattleOpponent().step()
+
+    def step(self):
+        for _ in self.battler:
+            yield _
+
 
 class BattleOpponent:
     """
@@ -394,7 +405,7 @@ class BattleOpponent:
             # In an effort to reduce bot usage, we will only update the party/current battler/foe HP when the battle
             # state changes. No point checking if the battle state hasn't changed, right?
 
-            # check for level ups
+            # update party
             self.update_party()
 
             # ensure that the current battler is correct
@@ -565,7 +576,7 @@ class BattleOpponent:
         )
 
     @staticmethod
-    def get_move_power(move: Move, battler: Pokemon, target: Pokemon):
+    def get_move_power(move: LearnedMove, battler: Pokemon, target: Pokemon):
         """
         Calculates the effective power of a move.
 
@@ -574,21 +585,21 @@ class BattleOpponent:
         :param target: The Pokémon that the move is targeting
         :return: The effective power of the move given the battler and target Pokémon
         """
-        power = move.base_power
+        power = move.move.base_power
 
         # Ignore banned moves and moves that have no PP remaining
         if not move_is_usable(move):
             return 0
 
         for target_type in target.species.types:
-            power *= move.type.get_effectiveness_against(target_type)
+            power *= move.move.type.get_effectiveness_against(target_type)
 
         # Factor in STAB
-        if move.type in battler.species.types:
+        if move.move.type in battler.species.types:
             power *= 1.5
 
         # Determine how each Pokémon's stats affect the damage
-        match move.type.kind:
+        match move.move.type.kind:
             case "Physical":
                 stat_calc = battler.stats.attack / target.stats.defence
             case "Special":
@@ -611,7 +622,7 @@ class BattleOpponent:
         # calculate best move and return info
         best_move_index = move_power.index(max(move_power))
         return {
-            "name": ally.moves[best_move_index].name,
+            "name": ally.moves[best_move_index].move.name,
             "index": best_move_index,
             "power": max(move_power),
         }
@@ -630,7 +641,7 @@ class BattleOpponent:
                 context.message = "Lead Pokémon has no effective moves to battle the foe!"
                 return -1
 
-            context.message = f"Best move against {current_opponent.name} is {move["name"]}, effective power: {move["power"]:.2f}"
+            context.message = f"Best move against {current_opponent.name} is {move['name']}, effective power: {move['power']:.2f}"
 
             return move["index"]
 
@@ -964,7 +975,7 @@ def calculate_new_move_viability(mon: Pokemon, new_move: Move) -> int:
         return 4
     # get the effective power of each move
     move_power = []
-    full_moveset = list(mon.moves)
+    full_moveset = [move.move for move in mon.moves]
     full_moveset.append(new_move)
     for move in full_moveset:
         attack_type = move.type.kind
@@ -1047,8 +1058,8 @@ def can_battle_happen() -> bool:
         if mon.current_hp / mon.stats.hp > 0.2 and not mon.is_egg:
             for move in mon.moves:
                 if (
-                        move.base_power > 0
-                        and move.name not in config["battle"]["banned_moves"]
+                        move.move.base_power > 0
+                        and move.move.name not in config["battle"]["banned_moves"]
                         and move.pp > 0
                 ):
                     return True
@@ -1178,7 +1189,7 @@ def check_lead_can_battle():
     lead = get_party()[0]
     lead_has_moves = False
     for move in lead.moves:
-        if move.base_power > 0 and move.name not in config["battle"]["banned_moves"] and move.pp > 0:
+        if move.move.base_power > 0 and move.move.name not in config["battle"]["banned_moves"] and move.pp > 0:
             lead_has_moves = True
             break
     lead_has_hp = lead.current_hp > 0.2 * lead.stats.hp
@@ -1224,5 +1235,5 @@ def mon_has_enough_hp(mon: Pokemon) -> bool:
     return mon.current_hp / mon.stats.hp > 0.2
 
 
-def move_is_usable(m: Move) -> bool:
-    return m.base_power > 0 and m.pp > 0 and m.name not in config["battle"]["banned_moves"]
+def move_is_usable(m: LearnedMove) -> bool:
+    return m.move.base_power > 0 and m.pp > 0 and m.move.name not in config["battle"]["banned_moves"]

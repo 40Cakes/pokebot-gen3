@@ -1,0 +1,84 @@
+# Battle settings
+# See readme for documentation: (soon)
+
+# Enable battling
+battle: true
+
+# Battle method - which battling engine to use. Currently only supports 'strongest'
+# Valid options: strongest
+battle_method: strongest
+
+# Enable pickup farming
+pickup: true
+
+# How many pickup Pokémon need to have items before taking items from the Pokémon
+# Valid options are any integer from 1-6 inclusive
+pickup_threshold: 3
+
+# How many encounters before checking for pickup items (if cheat mode disabled)
+pickup_check_frequency: 5
+
+# What to do if the Pokémon battling faints. Stop will make the bot enter manual mode, flee will attempt an escape, and
+#  rotate will send out the next Pokémon.
+# Valid options are stop, flee, and rotate
+faint_action: rotate
+
+# What to do if a Pokémon attempts to learn a move. Stop will make the bot enter manual mode, cancel will refuse
+# learning any moves, and learn_best will replace the weakest move (or the weakest move of a redundant typing, to
+# maximize coverage.)
+new_move: learn_best
+
+# Whether to forcibly stop Pokémon from evolving:
+stop_evolution: false
+
+# Whether to rotate the lead Pokémon if it gets low on health or runs out of moves to use.
+replace_lead_battler: true
+
+# IN PROGRESS: What strategy to use when switching out a Pokémon. Currently, the only implemented strategy is the next
+# available Pokémon in the party.
+# Valid options: first_available
+switch_strategy: first_available
+
+# Banned moves: Moves to blacklist from the auto-battle engine. A Pokémon that knows one of these moves will not use it.
+banned_moves:
+  - None
+  # 2-turn
+  - Bounce
+  - Dig
+  - Dive
+  - Fly
+  - Sky Attack
+  - Razor Wind
+  - Doom Desire
+  - Solar Beam
+  # Inconsistent
+  - Fake Out
+  - False Swipe
+  - Nature Power
+  - Present
+  - Destiny Bond
+  - Wrap
+  - Snore
+  - Spit Up
+  - Bide
+  - Bind
+  - Counter
+  - Future Sight
+  - Mirror Coat
+  - Grudge
+  - Snatch
+  - Spite
+  - Curse
+  - Endeavor
+  - Revenge
+  - Assist
+  - Focus Punch
+  - Eruption
+  - Flail
+  # Ends battle
+  - Roar
+  - Whirlwind
+  - Selfdestruct
+  - Perish Song
+  - Explosion
+  - Memento
