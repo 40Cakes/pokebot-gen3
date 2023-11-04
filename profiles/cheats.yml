@@ -3,6 +3,7 @@
 
 starters: false # `true`, `false`
 starters_rng: false # `true`, `false`
+pickup: false # `true`, `false`
 
 # -----------------------------------------
 # Everything below is not implemented, yet™

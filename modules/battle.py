@@ -30,6 +30,7 @@ from modules.menuing import (
     PokemonPartySubMenuNavigator,
     PokemonPartyMenuNavigator,
     BattlePartyMenuNavigator,
+    PartyMenuExit,
 )
 from modules.pokemon import get_party, get_opponent, Pokemon, Move, LearnedMove
 
@@ -48,47 +49,6 @@ class BattleState(IntEnum):
 
     # misc undetected state (move animations, buffering, etc.)
     OTHER = 20
-
-
-class EncounterPokemon:
-    def __init__(self):
-        self.battle_can_happen = can_battle_happen()
-        self.battle = None
-
-    def step(self):
-        while True:
-            match get_game_state():
-                case GameState.BATTLE.value | GameState.BATTLE_STARTING.value | GameState.PARTY_MENU.value:
-                    if config["battle"]["battle"] and self.battle_can_happen:
-                        if self.battle is None:
-                            self.battle = BattleOpponent()
-                        while not self.battle.battle_ended:
-                            yield from self.battle.step()
-                        if config["battle"]["replace_lead_battler"] and not check_lead_can_battle():
-                            lead_switcher = RotatePokemon()
-                            for _ in lead_switcher:
-                                yield _
-                    else:
-                        for _ in flee_battle():
-                            yield _
-
-                case GameState.GARBAGE_COLLECTION:
-                    yield
-
-        # TODO
-        # if config['battle']['battle'] and battle_can_happen:
-        #    battle_won = BattleOpponent()
-        #    # adding this in for lead rotation functionality down the line
-        #    replace_battler = not battle_won
-        # if config['battle']['battle'] and battle_can_happen:
-        #    replace_battler = replace_battler or not CheckLeadCanBattle()
-        #    if config['battle']["replace_lead_battler"] and replace_battler:
-        #        RotatePokemon()
-        # if config['battle']["pickup"] and battle_can_happen:
-        #    while get_game_state() != GameState.OVERWORLD and not config['general']['bot_mode'] == 'manual':
-        #        continue
-        #    if get_game_state() == GameState.OVERWORLD:
-        #        CheckForPickup(stats['totals'].get('encounters', 0))
 
 
 def flee_battle():
@@ -201,7 +161,7 @@ class BattleAction(BaseMenuNavigator):
             self.navigator = None
 
     def choose_mon(self):
-        while True:
+        while self.navigator is not None:
             if self.subnavigator is None:
                 self.subnavigator = BattlePartyMenuNavigator(idx=self.idx, mode="switch").step()
                 yield
@@ -222,7 +182,7 @@ class BattleAction(BaseMenuNavigator):
                 context.message = "Can't find a viable switch-in. Switching to manual mode."
                 context.bot_mode = "Manual"
             else:
-                self.subnavigator = PokemonPartyMenuNavigator(idx=mon_to_switch, mode="switch").step()
+                self.subnavigator = BattlePartyMenuNavigator(idx=mon_to_switch, mode="switch").step()
         else:
             yield from self.subnavigator
 
@@ -355,10 +315,12 @@ class BattleMoveLearner(BaseMenuNavigator):
         else:
             self.navigator = None
 
+
 class BattleHandler:
     """
     Wrapper for the BattleOpponent class that makes it compatible with the current structure of the main loop.
     """
+
     def __init__(self):
         self.battler = BattleOpponent().step()
 
@@ -432,18 +394,19 @@ class BattleOpponent:
                 self.action = self.handle_battler_faint()
 
     def select_option(self):
-        while self.choice is None or self.idx is None:
-            self.determine_battle_menu_action()
-        else:
-            while self.battle_action is None:
-                self.battle_action = BattleAction(choice=self.choice, idx=self.idx).step()
+        while get_battle_state() in [BattleState.ACTION_SELECTION, BattleState.MOVE_SELECTION]:
+            while self.choice is None or self.idx is None:
+                self.determine_battle_menu_action()
             else:
-                for _ in self.battle_action:
-                    yield _
-                self.choice = None
-                self.idx = None
-                self.battle_action = None
-                self.action = None
+                while self.battle_action is None:
+                    self.battle_action = BattleAction(choice=self.choice, idx=self.idx).step()
+                else:
+                    for _ in self.battle_action:
+                        yield _
+                    self.choice = None
+                    self.idx = None
+                    self.battle_action = None
+                    self.action = None
 
     def handle_evolution(self):
         while self.battle_state == BattleState.EVOLVING:
@@ -536,7 +499,7 @@ class BattleOpponent:
         """
         # TODO: someday support double battles maybe idk
         battler_indices = [
-            int.from_bytes(read_symbol("gBattlerPartyIndexes", size=12)[2 * i: 2 * i + 2], "little")
+            int.from_bytes(read_symbol("gBattlerPartyIndexes", size=12)[2 * i : 2 * i + 2], "little")
             for i in range(self.num_battlers)
         ]
         if len(self.party) == 1:
@@ -570,10 +533,7 @@ class BattleOpponent:
 
     @staticmethod
     def is_valid_move(move: Move) -> bool:
-        return (
-                move.name not in config["battle"]["banned_moves"]
-                and move.base_power > 0
-        )
+        return move is not None and move.name not in config["battle"]["banned_moves"] and move.base_power > 0
 
     @staticmethod
     def get_move_power(move: LearnedMove, battler: Pokemon, target: Pokemon):
@@ -617,7 +577,7 @@ class BattleOpponent:
         :return: A dictionary containing the name of the move to use, the move's index, and the effective power of the move.
         """
         # calculate power of each possible move
-        move_power = [self.get_move_power(move, ally, foe) for move in ally.moves]
+        move_power = [self.get_move_power(move, ally, foe) for move in ally.moves if move is not None]
 
         # calculate best move and return info
         best_move_index = move_power.index(max(move_power))
@@ -641,7 +601,9 @@ class BattleOpponent:
                 context.message = "Lead Pokémon has no effective moves to battle the foe!"
                 return -1
 
-            context.message = f"Best move against {current_opponent.name} is {move['name']}, effective power: {move['power']:.2f}"
+            context.message = (
+                f"Best move against {current_opponent.name} is {move['name']}, effective power: {move['power']:.2f}"
+            )
 
             return move["index"]
 
@@ -743,55 +705,55 @@ def get_learn_move_state() -> str:
     match get_game_state():
         case GameState.BATTLE:
             learn_move_yes_no = (
-                    get_symbol_name(unpack_uint32(read_symbol("gBattleScriptCurrInstr", size=4)) - 17)
-                    == "BATTLESCRIPT_ASKTOLEARNMOVE"
+                get_symbol_name(unpack_uint32(read_symbol("gBattleScriptCurrInstr", size=4)) - 17)
+                == "BATTLESCRIPT_ASKTOLEARNMOVE"
             )
             stop_learn_move_yes_no = (
-                    get_symbol_name(unpack_uint32(read_symbol("gBattleScriptCurrInstr", size=4)) - 32)
-                    == "BATTLESCRIPT_ASKTOLEARNMOVE"
+                get_symbol_name(unpack_uint32(read_symbol("gBattleScriptCurrInstr", size=4)) - 32)
+                == "BATTLESCRIPT_ASKTOLEARNMOVE"
             )
 
         case GameState.EVOLUTION:
             match context.rom.game_title:
                 case "POKEMON RUBY" | "POKEMON SAPP":
                     learn_move_yes_no = (
-                            unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 21
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 4
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][18:20]) == 5
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][20:22]) == 9
+                        unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 21
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 4
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][18:20]) == 5
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][20:22]) == 9
                     )
                     stop_learn_move_yes_no = (
-                            unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 21
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 4
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][18:20]) == 10
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][20:22]) == 0
+                        unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 21
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 4
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][18:20]) == 10
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][20:22]) == 0
                     )
                 case "POKEMON EMER":
                     learn_move_yes_no = (
-                            unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 22
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][12:14]) in [3, 4]
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][14:16]) == 5
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 10
+                        unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 22
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][12:14]) in [3, 4]
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][14:16]) == 5
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 10
                     )
                     stop_learn_move_yes_no = (
-                            unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 22
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][12:14]) == [3, 4]
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][14:16]) == 11
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 0
+                        unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 22
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][12:14]) == [3, 4]
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][14:16]) == 11
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 0
                     )
 
                 case "POKEMON FIRE" | "POKEMON LEAF":
                     learn_move_yes_no = (
-                            unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 24
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][12:14]) == 4
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][14:16]) == 5
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 10
+                        unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 24
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][12:14]) == 4
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][14:16]) == 5
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 10
                     )
                     stop_learn_move_yes_no = (
-                            unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 24
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][12:14]) == 4
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][14:16]) == 11
-                            and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 0
+                        unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 24
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][12:14]) == 4
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][14:16]) == 11
+                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 0
                     )
     match context.rom.game_title:
         case "POKEMON RUBY" | "POKEMON SAPP":
@@ -896,8 +858,8 @@ def switch_out_pokemon(index):
 
     if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
         while (
-                not get_task("TASK_HANDLESELECTIONMENUINPUT") != {}
-                and get_task("TASK_HANDLESELECTIONMENUINPUT")["isActive"]
+            not get_task("TASK_HANDLESELECTIONMENUINPUT") != {}
+            and get_task("TASK_HANDLESELECTIONMENUINPUT")["isActive"]
         ):
             context.emulator.press_button("A")
             yield
@@ -924,8 +886,8 @@ def switch_out_pokemon(index):
             yield
 
         while ("SUB_8089D94" in [task["func"] for task in parse_tasks()]) and not (
-                "SUB_808A060" in [task["func"] for task in parse_tasks()]
-                or "HANDLEPARTYMENUSWITCHPOKEMONINPUT" in [task["func"] for task in parse_tasks()]
+            "SUB_808A060" in [task["func"] for task in parse_tasks()]
+            or "HANDLEPARTYMENUSWITCHPOKEMONINPUT" in [task["func"] for task in parse_tasks()]
         ):
             yield from PokemonPartySubMenuNavigator("SWITCH").step()
             yield
@@ -937,9 +899,9 @@ def switch_out_pokemon(index):
             yield
 
         while (
-                get_task("HANDLEDEFAULTPARTYMENU") == {}
-                and get_task("HANDLEPARTYMENUSWITCHPOKEMONINPUT") == {}
-                and get_task("HANDLEBATTLEPARTYMENU") == {}
+            get_task("HANDLEDEFAULTPARTYMENU") == {}
+            and get_task("HANDLEPARTYMENUSWITCHPOKEMONINPUT") == {}
+            and get_task("HANDLEBATTLEPARTYMENU") == {}
         ):
             context.emulator.press_button("B")
             yield
@@ -1025,7 +987,9 @@ def calculate_new_move_viability(mon: Pokemon, new_move: Move) -> int:
         weakest_move_power = min(redundant_move_power)
         weakest_move = full_moveset.index(redundant_type_moves[redundant_move_power.index(weakest_move_power)])
         context.message = "Opting to replace a move that has a redundant type so as to maximize coverage."
-    context.message = f"Move to replace is {full_moveset[weakest_move].name} with a calculated power of {weakest_move_power}"
+    context.message = (
+        f"Move to replace is {full_moveset[weakest_move].name} with a calculated power of {weakest_move_power}"
+    )
 
     return weakest_move
 
@@ -1058,9 +1022,10 @@ def can_battle_happen() -> bool:
         if mon.current_hp / mon.stats.hp > 0.2 and not mon.is_egg:
             for move in mon.moves:
                 if (
-                        move.move.base_power > 0
-                        and move.move.name not in config["battle"]["banned_moves"]
-                        and move.pp > 0
+                    move is not None
+                    and move.move.base_power > 0
+                    and move.move.name not in config["battle"]["banned_moves"]
+                    and move.pp > 0
                 ):
                     return True
     return False
@@ -1208,27 +1173,11 @@ def get_new_lead() -> int | None:
         if mon.is_egg:
             continue
         # check to see that the party member has enough HP to be subbed out
-        elif mon.current_hp / mon.stats.hp > 0.2:
+        elif mon_has_enough_hp(mon):
             for move in mon.moves:
                 if move_is_usable(move):
                     return i
     return None
-
-
-# TODO
-def RotatePokemon():
-    new_lead = get_new_lead()
-    if new_lead is not None:
-        yield from StartMenuNavigator("POKEMON").step()
-        for i in range(30):
-            if get_game_state() != GameState.PARTY_MENU:
-                context.emulator.press_button("A")
-                yield
-        switcher = send_out_pokemon(new_lead)
-        for _ in switcher:
-            yield
-    else:
-        context.bot_mode = "Manual"
 
 
 def mon_has_enough_hp(mon: Pokemon) -> bool:
@@ -1237,3 +1186,58 @@ def mon_has_enough_hp(mon: Pokemon) -> bool:
 
 def move_is_usable(m: LearnedMove) -> bool:
     return m.move.base_power > 0 and m.pp > 0 and m.move.name not in config["battle"]["banned_moves"]
+
+
+class RotatePokemon(BaseMenuNavigator):
+    def __init__(self):
+        super().__init__()
+        self.party = get_party()
+        self.new_lead = get_new_lead()
+
+    def get_next_func(self):
+        match self.current_step:
+            case "None":
+                match self.new_lead:
+                    case None:
+                        self.current_step = "exit"
+                    case _:
+                        self.current_step = "open_party_menu"
+            case "open_party_menu":
+                self.current_step = "switch_pokemon"
+            case "switch_pokemon":
+                self.current_step = "confirm_switch"
+            case "confirm_switch":
+                self.current_step = "exit_to_overworld"
+            case "exit_to_overworld":
+                self.current_step = "exit"
+
+    def update_navigator(self):
+        match self.current_step:
+            case "open_party_menu":
+                self.navigator = StartMenuNavigator("POKEMON").step()
+            case "switch_pokemon":
+                self.navigator = PokemonPartyMenuNavigator(idx=self.new_lead, mode="switch").step()
+            case "switch_pokemon":
+                self.navigator = self.confirm_switch()
+            case "exit_to_overworld":
+                self.navigator = PartyMenuExit().step()
+
+    # TODO
+    def rotate_mon(self):
+        if self.new_lead is not None:
+            yield from StartMenuNavigator("POKEMON").step()
+            for i in range(30):
+                if get_game_state() != GameState.PARTY_MENU:
+                    context.emulator.press_button("A")
+                    yield
+            switcher = send_out_pokemon(self.new_lead)
+            for _ in switcher:
+                yield
+        else:
+            context.bot_mode = "Manual"
+
+    @staticmethod
+    def confirm_switch():
+        while get_task("TASK_HANDLECHOOSEMONINPUT") != {} or get_task("HANDLEPARTYMENUSWITCHPOKEMONINPUT") != {}:
+            context.emulator.press_button("A")
+            yield
