@@ -682,6 +682,18 @@ class MapTab(DebugTab):
         map_objects = get_map_objects()
         object_list = {"__value": len(map_objects)}
         for i in range(len(map_objects)):
+            flags = map_objects[i].flags
+            if len(flags) == 0:
+                flags_value = "None"
+            elif len(flags) <= 3:
+                flags_value = ", ".join(flags)
+            else:
+                flags_value = ", ".join(flags[0:3]) + "... +" + str(len(flags) - 3)
+
+            flags_list = {"__value": flags_value}
+            for j in range(len(flags)):
+                flags_list[str(j)] = flags[j]
+
             object_list[f"Object #{i}"] = {
                 "__value": str(map_objects[i]),
                 "Local Position": map_objects[i].current_coords,
@@ -693,6 +705,7 @@ class MapTab(DebugTab):
                 "Movement Range X": map_objects[i].range_x,
                 "Movement Range Y": map_objects[i].range_y,
                 "Trainer Type": map_objects[i].trainer_type,
+                "Flags": flags_list
             }
 
         return {
@@ -708,7 +721,7 @@ class MapTab(DebugTab):
                 "Is Dark Cave": map_data.is_dark_cave,
             },
             "Tile": {
-                "__value": f"{map_data.local_position[0]}/{map_data.local_position[1]}",
+                "__value": f"{map_data.local_position[0]}/{map_data.local_position[1]} ({map_data.tile_type})",
                 "Elevation": map_data.elevation,
                 "Tile Type": map_data.tile_type,
                 "Tile Has Encounters": map_data.has_encounters,
