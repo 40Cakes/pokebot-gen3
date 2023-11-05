@@ -320,9 +320,9 @@ class LibmgbaEmulator:
                     self._audio_stream.stop()
             except sounddevice.PortAudioError as error:
                 if was_throttled:
-                    action = 'disabling'
+                    action = "disabling"
                 else:
-                    action = 'enabling'
+                    action = "enabling"
 
                 console.print(f"[bold red]Error while {action} audio:[/] [red]{str(error)}[/]")
                 self._reset_audio()
@@ -386,7 +386,7 @@ class LibmgbaEmulator:
             raise RuntimeError(f"Invalid memory address for reading: {hex(address)}")
         return result
 
-    def write_bytes(self, address: int, data: bytes) -> None:
+    def write_bytes(self, address: int, data: bytes) -> bool:
         """
         Writes to an arbitrary address on the system bus.
 
@@ -403,11 +403,13 @@ class LibmgbaEmulator:
             if offset + length > 0x3FFFF:
                 raise RuntimeError("Illegal range: EWRAM only extends from 0x02000000 to 0x0203FFFF")
             ffi.memmove(ffi.cast("char*", self._core._native.memory.wram) + offset, data, length)
+            return True
         elif bank == 0x3:
             offset = address & 0x7FFF
             if offset + length > 0x7FFF:
                 raise RuntimeError("Illegal range: IWRAM only extends from 0x03000000 to 0x03007FFF")
             ffi.memmove(ffi.cast("char*", self._core._native.memory.iwram) + offset, data, length)
+            return True
         else:
             raise RuntimeError(f"Invalid memory address for writing: {hex(address)}")
 

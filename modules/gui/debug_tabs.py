@@ -17,6 +17,7 @@ from modules.memory import (
     game_has_started,
     unpack_uint16,
     unpack_uint32,
+    set_event_flag,
 )
 
 from modules.pokemon import get_party, get_species_by_index
@@ -27,13 +28,13 @@ if TYPE_CHECKING:
 
 class FancyTreeview:
     def __init__(
-            self,
-            root: ttk.Widget,
-            height=22,
-            row=0,
-            column=0,
-            columnspan=1,
-            additional_context_actions: dict[str, callable] = {},
+        self,
+        root: ttk.Widget,
+        height=22,
+        row=0,
+        column=0,
+        columnspan=1,
+        additional_context_actions: dict[str, callable] = {},
     ):
         treeview_scrollbar_combo = ttk.Frame(root)
         treeview_scrollbar_combo.columnconfigure(0, weight=1)
@@ -281,8 +282,14 @@ class SymbolsTab(DebugTab):
             "gStringVar4",
             "gDisplayedStringBattle",
         }
-        self.display_as_string = {"sChat", "gStringVar1", "gStringVar2", "gStringVar3", "gStringVar4",
-                                  "gDisplayedStringBattle"}
+        self.display_as_string = {
+            "sChat",
+            "gStringVar1",
+            "gStringVar2",
+            "gStringVar3",
+            "gStringVar4",
+            "gDisplayedStringBattle",
+        }
         self._tv: FancyTreeview
         self._mini_window: Union[tkinter.Toplevel, None] = None
 
@@ -541,11 +548,17 @@ class EventFlagsTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
-        self._tv = FancyTreeview(frame)
+
+        context_actions = {"Toggle Flag": self._toggle_flag}
+
+        self._tv = FancyTreeview(frame, additional_context_actions=context_actions)
         root.add(frame, text="Event Flags")
 
     def update(self, emulator: "LibmgbaEmulator"):
         self._tv.update_data(self._get_data())
+
+    def _toggle_flag(self, flag: str):
+        set_event_flag(flag)
 
     def _get_data(self):
         from modules.game import _event_flags

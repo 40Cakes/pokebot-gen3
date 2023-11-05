@@ -125,7 +125,30 @@ def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
                 return None
             return context.emulator.read_bytes(p_Trainer + offset, size)
         else:
-            return read_symbol(f"gSaveBlock{num}", offset=offset, size=size)
+            return read_symbol(f"gSaveBlock{num}", offset, size)
+    except SystemExit:
+        raise
+
+
+def write_to_save_block(data: bytes, num: int = 1, offset: int = 0) -> bool:
+    """
+    Writes data to a save block - ! use with care, high potential of corrupting save data in memory
+
+    :param data: Data to write to saveblock
+    :param num: 1 or 2 (gSaveblock1 or gSaveblock2)
+    see: https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Game_save_A.2C_Game_save_B
+    :param offset: Write n bytes offset from beginning of the save block
+    :return: Success true/false (bool)
+    """
+    # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
+    try:
+        if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+            p_Trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
+            if p_Trainer == 0:
+                return False
+            return context.emulator.write_bytes(p_Trainer + offset, data)
+        else:
+            return write_symbol(f"gSaveBlock{num}", data, offset)
     except SystemExit:
         raise
 
@@ -197,3 +220,14 @@ def get_event_flag(flag_name: str) -> bool:
     flag_byte = get_save_block(1, offset=flag_offset[0], size=1)
 
     return bool((flag_byte[0] >> (flag_offset[1])) & 1)
+
+
+def set_event_flag(flag_name: str) -> bool:
+    if flag_name not in _event_flags:
+        return False
+
+    flag_offset = get_event_flag_offset(flag_name)
+    flag_byte = get_save_block(1, offset=flag_offset[0], size=1)
+
+    write_to_save_block(int.to_bytes(int.from_bytes(flag_byte) ^ (1 << flag_offset[1])), 1, offset=flag_offset[0])
+    return True
