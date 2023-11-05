@@ -2,7 +2,7 @@
 # See readme for documentation: (soon)
 
 # Enable battling
-battle: true
+battle: false
 
 # Battle method - which battling engine to use. Currently only supports 'strongest'
 # Valid options: strongest

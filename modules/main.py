@@ -41,7 +41,8 @@ def main_loop() -> None:
                     lead_rotated = False
                     encounter_pokemon(get_opponent())
                     encounter_counter += 1
-                if context.bot_mode != "Manual" and config["battle"]["battle"]:
+                if context.bot_mode != "Manual":
+                    # BattleHandler will run if config["battle"]["battle"] is not enabled.
                     mode = BattleHandler()
 
             if context.bot_mode == "Manual":
