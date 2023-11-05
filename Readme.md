@@ -416,6 +416,8 @@ Each webhook type also supports pinging @users or @roles.
 
 ![Discord_G2hvTZG21a](https://github.com/40Cakes/pokebot-gen3/assets/16377135/3f04d1cf-4040-4163-80d2-13cac84eed1f)
 
+`custom_filter_pokemon_encounter` - [Custom catch filter](#customcatchfilterspy---custom-catch-filters) encounters
+
 </details>
 
 ## `catch_block.yml` - Catch block config
@@ -530,6 +532,43 @@ All HTTP responses are in JSON format.
 `GET /emulator` returns information about the emulator core + the current loaded game/profile
 
 `GET /fps` returns a list of emulator FPS (frames per second), in intervals of 1 second, for the previous 60 seconds
+
+</details>
+
+## `customcatchfilters.py` - Custom catch filters
+
+<details>
+<summary>Click to expand</summary>
+
+All Pokémon encounters are checked by custom catch filters, use this file if you are after a very Pokémon that match very specific criteria, some examples are provided (most are disabled by default).
+
+These filters are checked *after* the catch block list, so if Wurmple is on your catch block list, the Wurmple evolution examples will still be checked.
+
+If you are not familiar with Python, it is highly recommended to use an IDE such as [PyCharm](https://www.jetbrains.com/pycharm/) to edit this file as any syntax errors will be highlighted, and the `pokemon` object will auto-complete/show available parameters to filter on.
+
+- `return "any message"` (string) - will command the bot to catch the current encounter, the string returned will be added to the Discord webhook if `custom_filter_pokemon_encounter` is enabled in [discord.yml](#discordyml---discord-integration-config)
+- `pass` - will skip the check, and continue to check other criteria further down the file
+- `save_pk3(pokemon)` instead of `return "any message"` will [dump a .pk3 file](#save-raw-pokémon-data-pk3) and continue without pausing the bot until auto-catch is ready
+
+The following example will catch any shiny Wurmple that will evolve into Silcoon/Beautifly, and ignore any that would evolve into Cascoon/Dustox:
+
+```py
+# Shiny Wurmple evolving based on evolution
+if pokemon.is_shiny and pokemon.species.name == "Wurmple":
+    if pokemon.wurmple_evolution == "silcoon":
+        return "Shiny Wurmple evolving into Silcoon/Beautifly"
+    if pokemon.wurmple_evolution == "cascoon":
+        pass
+```
+
+The following example will catch any Pokémon with all perfect IVs:
+```py
+# Pokémon with perfect IVs
+if pokemon.ivs.sum() == (6 * 31):
+    return "Pokémon with perfect IVs"
+```
+
+- **Note**: you must restart the bot after editing this file for changes to take effect!
 
 </details>
 

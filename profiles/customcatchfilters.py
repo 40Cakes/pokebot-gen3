@@ -5,19 +5,7 @@ from modules.pokemon import Pokemon
 
 def custom_catch_filters(pokemon: Pokemon) -> str | bool:
     """
-    Check the current encounter, catch if it matches any of the following criteria.
-    Some examples are provided (most are disabled by default).
-    These filters are checked *after* catch block list, so if Wurmple is on your catch block list, the Wurmple evolution
-    examples below will still be checked.
-    If you use an IDE such as PyCharm, the pokemon class will auto-complete/show available options to filter on
-
-    - return "any message" - will command the bot to catch the current encounter, the string returned will be added to
-    the Discord webhook if `custom_filter_pokemon_encounter` is enabled in discord.yml
-    - `pass` - will skip the check, and continue to check other criteria further down this file
-    - `save_pk3(pokemon)` instead of `return "any message"` will dump a .pk3 file and continue without pausing the bot
-    until auto-catch is ready
-
-    Note: you must restart the bot after editing this file for changes to take effect!
+    See readme for documentation: https://github.com/40Cakes/pokebot-gen3#customcatchfilterspy---custom-catch-filters
 
     :param pokemon: Pokémon object of the current encounter
     """
@@ -79,11 +67,10 @@ def custom_catch_filters(pokemon: Pokemon) -> str | bool:
         if pokemon.species.name not in exceptions:
             # Shiny Wurmple evolving based on evolution
             if pokemon.is_shiny and pokemon.species.name == "Wurmple":
-                evolution = "Silcoon/Beautifly" if pokemon.wurmple_evolution == "silcoon" else "Cascoon/Dustox"
-                if evolution == "Silcoon/Beautifly":
+                if pokemon.wurmple_evolution == "silcoon":
                     # return "Shiny Wurmple evolving into Silcoon/Beautifly"
                     pass
-                if evolution == "Cascoon/Dustox":
+                if pokemon.wurmple_evolution == "cascoon":
                     # return "Shiny Wurmple evolving into Cascoon/Dustox"
                     pass
 
