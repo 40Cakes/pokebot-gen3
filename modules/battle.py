@@ -226,6 +226,7 @@ class BattleMoveLearner(BaseMenuNavigator):
                     case "stop":
                         context.message = "New move trying to be learned, switching to manual mode..."
                         context.bot_mode = "Manual"
+                        self.current_step = "exit"
                     case "cancel":
                         self.current_step = "avoid_learning"
                     case "learn_best":
