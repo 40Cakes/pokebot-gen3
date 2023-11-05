@@ -9,6 +9,7 @@ from modules.context import context
 from modules.discord import discord_message
 from modules.pokemon import Pokemon
 from modules.runtime import get_sprites_path
+from modules.version import pokebot_version
 
 
 def custom_hooks(hook) -> None:
@@ -59,23 +60,28 @@ def custom_hooks(hook) -> None:
 
         def PhaseSummary() -> dict:
             from modules.stats import total_stats  # TODO prevent instantiating TotalStats class before profile selected
+
+            sparkle = "✨" if stats["totals"].get("phase_lowest_sv", -1) < 8 else ""
             return {
-                "Phase Encounters": f"{stats['totals'].get('phase_encounters', 0):,} ({total_stats.get_encounter_rate():,}/h)",
+                "Phase Encounters": f"{stats['totals'].get('phase_encounters', -1):,} ({total_stats.get_encounter_rate():,}/h)",
                 "Phase IV Sum Records": (
-                    f":arrow_up: `{stats['totals'].get('phase_highest_iv_sum', 0):,}` IV {stats['totals'].get('phase_highest_iv_sum_pokemon', 'N/A')}\n"
-                    f":arrow_down: `{stats['totals'].get('phase_lowest_iv_sum', 0):,}` IV {stats['totals'].get('phase_lowest_iv_sum_pokemon', 'N/A')}"
+                    f":arrow_up: `{stats['totals'].get('phase_highest_iv_sum', -1):,}` IV {stats['totals'].get('phase_highest_iv_sum_pokemon', 'N/A')}\n"
+                    f":arrow_down: `{stats['totals'].get('phase_lowest_iv_sum', -1):,}` IV {stats['totals'].get('phase_lowest_iv_sum_pokemon', 'N/A')}"
                 ),
                 "Phase SV Records": (
-                    f":arrow_up: `{stats['totals'].get('phase_highest_sv', 0):,}` SV {stats['totals'].get('phase_highest_sv_pokemon', 'N/A')}\n"
-                    f":arrow_down: `{stats['totals'].get('phase_lowest_sv', 0):,}` SV ✨ {stats['totals'].get('phase_lowest_sv_pokemon', 'N/A')} ✨"
+                    f":arrow_up: `{stats['totals'].get('phase_highest_sv', -1):,}` SV {stats['totals'].get('phase_highest_sv_pokemon', 'N/A')}\n"
+                    f":arrow_down: `{stats['totals'].get('phase_lowest_sv', -1):,}` SV {sparkle}{stats['totals'].get('phase_lowest_sv_pokemon', 'N/A')}{sparkle}"
                 ),
                 "Phase Same Pokémon Streak": (
-                    f"{stats['totals'].get('phase_streak', 0):,} {stats['totals'].get('phase_streak_pokemon', 'N/A')} were encountered in a row!"
+                    f"{stats['totals'].get('phase_streak', -1):,} {stats['totals'].get('phase_streak_pokemon', 'N/A')} were encountered in a row!"
                 ),
                 "Total Encounters": (
-                    f"{stats['totals'].get('encounters', 0):,} ({stats['totals'].get('shiny_encounters', 0):,}✨)"
+                    f"{stats['totals'].get('encounters', -1):,} ({stats['totals'].get('shiny_encounters', -1):,}✨)"
                 ),
             }
+
+        def Footer() -> str:
+            return f"ID: {config['discord']['bot_id']} | {context.rom.game_name}\nPokéBot {pokebot_version}"
 
         try:
             # Discord shiny Pokémon encountered
@@ -109,7 +115,7 @@ def custom_hooks(hook) -> None:
                     }
                     | PhaseSummary(),
                     embed_thumbnail=get_sprites_path() / "pokemon" / "shiny" / f"{pokemon.species.safe_name}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
+                    embed_footer=Footer(),
                     embed_color="ffd242",
                 )
         except:
@@ -136,7 +142,7 @@ def custom_hooks(hook) -> None:
                     embed=True,
                     embed_description=f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} {pokemon.species.name} encounters!",
                     embed_thumbnail=get_sprites_path() / "pokemon" / "normal" / f"{pokemon.species.safe_name}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
+                    embed_footer=Footer(),
                     embed_color="50C878",
                 )
         except:
@@ -164,7 +170,7 @@ def custom_hooks(hook) -> None:
                     embed=True,
                     embed_description=f"{stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,} shiny ✨ {pokemon.species.name} ✨ encounters!",
                     embed_thumbnail=get_sprites_path() / "pokemon" / "shiny" / f"{pokemon.species.safe_name}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
+                    embed_footer=Footer(),
                     embed_color="ffd242",
                 )
         except:
@@ -211,7 +217,7 @@ def custom_hooks(hook) -> None:
                     embed=True,
                     embed_description=f"{stats['totals'].get('encounters', 0):,} total encounters!",
                     embed_thumbnail=get_sprites_path() / "items" / f"{embed_thumbnail}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
+                    embed_footer=Footer(),
                     embed_color="50C878",
                 )
         except:
@@ -246,7 +252,7 @@ def custom_hooks(hook) -> None:
                     content=f"💀 The current phase has reached {stats['totals'].get('phase_encounters', 0):,} encounters!\n{discord_ping}",
                     embed=True,
                     embed_fields=PhaseSummary(),
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
+                    embed_footer=Footer(),
                     embed_color="D70040",
                 )
         except:
@@ -277,7 +283,7 @@ def custom_hooks(hook) -> None:
                     }
                     | PhaseSummary(),
                     embed_thumbnail=get_sprites_path() / "pokemon" / "anti-shiny" / f"{pokemon.species.safe_name}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
+                    embed_footer=Footer(),
                     embed_color="000000",
                 )
         except:
@@ -288,14 +294,14 @@ def custom_hooks(hook) -> None:
             if config["discord"]["custom_filter_pokemon_encounter"]["enable"] and isinstance(custom_filter_result, str):
                 # Discord pings
                 discord_ping = ""
-                match config['discord']['custom_filter_pokemon_encounter']["ping_mode"]:
+                match config["discord"]["custom_filter_pokemon_encounter"]["ping_mode"]:
                     case "role":
                         discord_ping = f"📢 <@&{config['discord']['custom_filter_pokemon_encounter']['ping_id']}>"
                     case "user":
                         discord_ping = f"📢 <@{config['discord']['custom_filter_pokemon_encounter']['ping_id']}>"
 
                 discord_message(
-                    webhook_url=config['discord']['custom_filter_pokemon_encounter'].get("webhook_url", None),
+                    webhook_url=config["discord"]["custom_filter_pokemon_encounter"].get("webhook_url", None),
                     content=f"Encountered a {pokemon.species.name} matching custom filter: `{custom_filter_result}`!\n{discord_ping}",
                     embed=True,
                     embed_title="Encountered Pokémon matching custom catch filter!",
@@ -309,7 +315,7 @@ def custom_hooks(hook) -> None:
                     }
                     | PhaseSummary(),
                     embed_thumbnail=get_sprites_path() / "pokemon" / "normal" / f"{pokemon.species.safe_name}.png",
-                    embed_footer=f"PokéBot ID: {config['discord']['bot_id']} | {context.rom.game_name}",
+                    embed_footer=Footer(),
                     embed_color="6a89cc",
                 )
         except:
