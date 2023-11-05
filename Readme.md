@@ -540,11 +540,11 @@ All HTTP responses are in JSON format.
 <details>
 <summary>Click to expand</summary>
 
-All Pokémon encounters are checked by custom catch filters, use this file if you are after a very Pokémon that match very specific criteria, some examples are provided (most are disabled by default).
+All Pokémon encounters are checked by custom catch filters, use this file if you are after Pokémon that match very specific criteria, some examples are provided (most are disabled by default).
 
-These filters are checked *after* the catch block list, so if Wurmple is on your catch block list, the Wurmple evolution examples will still be checked.
+These filters are checked *after* the catch block list, so if Wurmple is on your [catch block list](#catchblockyml---catch-block-config), the Wurmple evolution example below will still be checked.
 
-If you are not familiar with Python, it is highly recommended to use an IDE such as [PyCharm](https://www.jetbrains.com/pycharm/) to edit this file as any syntax errors will be highlighted, and the `pokemon` object will auto-complete/show available parameters to filter on.
+If you are not familiar with Python, it is highly recommended to use an IDE such as [PyCharm](https://www.jetbrains.com/pycharm/) to edit this file as any syntax errors will be highlighted, and the `pokemon` object will auto-complete and show available parameters for you to filter on.
 
 - `return "any message"` (string) - will command the bot to catch the current encounter, the string returned will be added to the Discord webhook if `custom_filter_pokemon_encounter` is enabled in [discord.yml](#discordyml---discord-integration-config)
 - `pass` - will skip the check, and continue to check other criteria further down the file
