@@ -8,7 +8,6 @@ from modules.context import context
 from modules.memory import get_game_state, GameState
 from modules.menuing import MenuWrapper, CheckForPickup, should_check_for_pickup
 from modules.pokemon import opponent_changed, get_opponent
-from modules.temp import temp_run_from_battle
 
 
 def main_loop() -> None:
