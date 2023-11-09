@@ -1,4 +1,4 @@
-from tkinter import Tk, Button, Canvas, PhotoImage
+from tkinter import Tk, Button, PhotoImage
 
 import PIL.Image
 import PIL.ImageTk
@@ -34,6 +34,7 @@ class EmulatorScreen:
             controls.add_tab(TasksTab())
             controls.add_tab(BattleTab())
             controls.add_tab(TrainerTab())
+            controls.add_tab(MapTab(self.canvas))
             controls.add_tab(DaycareTab())
             controls.add_tab(SymbolsTab())
             controls.add_tab(EventFlagsTab())
@@ -53,8 +54,8 @@ class EmulatorScreen:
         self.frame.rowconfigure(0, weight=1)
         self.frame.columnconfigure(0, weight=1)
 
-        self._initialise_controls(context.debug)
         self._add_canvas()
+        self._initialise_controls(context.debug)
         self.scale = 2
 
     def disable(self) -> None:
@@ -152,3 +153,8 @@ class EmulatorScreen:
     def _add_canvas(self) -> None:
         self.canvas = Canvas(self.window, width=480, height=320)
         self.canvas.grid(sticky="NW", row=0, column=0)
+        if context.debug:
+            def handle_click_on_video_output(event):
+                if context.video:
+                    self._controls.on_video_output_click((event.x // self.scale, event.y // self.scale), self.scale)
+            self.canvas.bind("<Button-1>", handle_click_on_video_output)
