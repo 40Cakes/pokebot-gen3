@@ -30,11 +30,13 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
         config_catch_block = load_config("catch_block.yml", catch_block_schema)
         block_list = config_catch_block["block_list"]
 
-    total_stats.log_encounter(pokemon, block_list)
+    custom_filter_result = total_stats.custom_catch_filters(pokemon)
+    custom_found = isinstance(custom_filter_result, str)
+
+    total_stats.log_encounter(pokemon, block_list, custom_filter_result)
     context.message = f"Encountered a {pokemon.species.name} with a shiny value of {pokemon.shiny_value:,}!"
 
     # TODO temporary until auto-catch is ready
-    custom_found = total_stats.custom_catch_filters(pokemon)
     if pokemon.is_shiny or custom_found:
         if pokemon.is_shiny:
             if not config["logging"]["save_pk3"]["all"] and config["logging"]["save_pk3"]["shiny"]:
@@ -51,10 +53,10 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
                 save_pk3(pokemon)
             state_tag = "customfilter"
             console.print("[bold green]Custom filter Pokemon found!")
-            context.message = "Custom filter triggered! Bot has been switched to manual mode so you can catch it."
+            context.message = f"Custom filter triggered ({custom_filter_result})! Bot has been switched to manual mode so you can catch it."
 
             alert_title = "Custom filter triggered!"
-            alert_message = f"Found a {pokemon.species.name} that matched one of your filters."
+            alert_message = f"Found a {pokemon.species.name} that matched one of your filters. ({custom_filter_result})"
         else:
             state_tag = ""
             alert_title = None
