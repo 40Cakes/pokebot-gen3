@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Union, Optional
 
 from modules.context import context
 from modules.daycare import get_daycare_data
-from modules.game import decode_string, _symbols, _reverse_symbols
+from modules.game import decode_string, _symbols, _reverse_symbols, _event_flags
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_items
 from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects
@@ -20,6 +20,7 @@ from modules.memory import (
     unpack_uint16,
     unpack_uint32,
     set_event_flag,
+    get_event_flag,
 )
 from modules.pokemon import get_party, get_species_by_index
 
@@ -571,9 +572,6 @@ class EventFlagsTab(DebugTab):
         set_event_flag(flag)
 
     def _get_data(self):
-        from modules.game import _event_flags
-        from modules.memory import get_event_flag
-
         result = {}
 
         for flag in _event_flags:
