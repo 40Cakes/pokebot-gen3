@@ -68,8 +68,8 @@ class Trainer:
         return unpack_uint16(get_save_block(2, 0xC, 2))
 
     def get_map(self) -> tuple:
-        b_gTasks = read_symbol("gTasks", 0x58, 4)
-        return (int(b_gTasks[self.map_offset + 1]), int(b_gTasks[self.map_offset]))
+        location_data = get_save_block(1, 4, 2)
+        return location_data[0], location_data[1]
 
     def get_map_name(self) -> str:
         try:
@@ -78,8 +78,8 @@ class Trainer:
             return "UNKNOWN"
 
     def get_coords(self) -> tuple:
-        b_gObjectEvents = read_symbol("gObjectEvents", 16, 3)
-        return (int(b_gObjectEvents[0]) - 7, int(b_gObjectEvents[2]) - 7)
+        b_gObjectEvents = read_symbol("gObjectEvents", 16, 4)
+        return unpack_uint16(b_gObjectEvents[0:2]) - 7, unpack_uint16(b_gObjectEvents[2:4]) - 7
 
     def get_on_bike(self) -> bool:
         b_gPlayerAvatar = read_symbol("gPlayerAvatar", size=1)
