@@ -144,6 +144,16 @@ properties:
                     - ~
                     - user
                     - role
+    custom_filter_pokemon_encounter:
+        type: object
+        properties:
+            enable:
+                type: boolean
+            ping_mode:
+                enum:
+                    - ~
+                    - user
+                    - role
 """
 
 obs_schema = """

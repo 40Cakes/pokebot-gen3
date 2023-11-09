@@ -8,7 +8,7 @@ from threading import Thread
 from datetime import datetime
 
 from modules.config import config
-from modules.console import console, print_stats
+from modules.console import print_stats
 from modules.context import context
 from modules.csv import log_encounter_to_csv
 from modules.files import read_file, write_file
@@ -302,13 +302,13 @@ class TotalStats:
             },
         }
 
-    def log_encounter(self, pokemon: Pokemon, block_list: list) -> None:
+    def log_encounter(self, pokemon: Pokemon, block_list: list, custom_filter_result: str | bool) -> None:
         if "pokemon" not in self.total_stats:
             self.total_stats["pokemon"] = {}
         if "totals" not in self.total_stats:
             self.total_stats["totals"] = {}
 
-        if not pokemon.species.name in self.total_stats["pokemon"]:  # Set up a Pokémon stats if first encounter
+        if pokemon.species.name not in self.total_stats["pokemon"]:  # Set up a Pokémon stats if first encounter
             self.total_stats["pokemon"].update({pokemon.species.name: {}})
 
         self.update_incremental_stats(pokemon)
@@ -344,7 +344,12 @@ class TotalStats:
         print_stats(self.total_stats, pokemon, self.session_pokemon, self.get_encounter_rate())
 
         # Run custom code in custom_hooks in a thread
-        hook = (Pokemon(pokemon.data), copy.deepcopy(self.total_stats), copy.deepcopy(block_list))
+        hook = (
+            Pokemon(pokemon.data),
+            copy.deepcopy(self.total_stats),
+            copy.deepcopy(block_list),
+            copy.deepcopy(custom_filter_result)
+        )
         Thread(target=self.custom_hooks, args=(hook,)).start()
 
         if pokemon.is_shiny:
