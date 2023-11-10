@@ -2,7 +2,7 @@ import json
 import string
 import struct
 from dataclasses import dataclass
-from enum import Enum
+from enum import KEEP, Enum, Flag
 from functools import cached_property
 from pathlib import Path
 from typing import Literal
@@ -1504,6 +1504,8 @@ def get_opponent() -> Pokemon:
 
 last_opid = pack_uint32(0)  # ReadSymbol('gEnemyParty', size=4)
 
+class BattleTypeFlag(Flag, boundary=KEEP):
+    BATTLE_TYPE_TRAINER = 1 << 3
 
 def opponent_changed() -> bool:
     """
@@ -1515,7 +1517,9 @@ def opponent_changed() -> bool:
     try:
         global last_opid
         opponent_pid = read_symbol("gEnemyParty", size=4)
-        if opponent_pid != last_opid and opponent_pid != b"\x00\x00\x00\x00":
+        gBattleTypeFlags = read_symbol("gBattleTypeFlags ")
+        if opponent_pid != last_opid and opponent_pid != b"\x00\x00\x00\x00" and \
+            (BattleTypeFlag.BATTLE_TYPE_TRAINER not in BattleTypeFlag(unpack_uint32(gBattleTypeFlags))):
             last_opid = opponent_pid
             return True
         else:
