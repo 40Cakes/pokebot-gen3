@@ -285,6 +285,7 @@ This file controls keyboard to GBA button mappings.
 - Zoom window scaling in/out: `+`, `-`
 - Create save state: `Ctrl + S`
 - Load save state menu: `Ctrl + L`
+- Reload configuration files: `Ctrl + C`
 - Reset emulator/reboot game: `Ctrl + R`
 - Exit the bot and emulator: `Ctrl + Q`
 - Emulator speed:

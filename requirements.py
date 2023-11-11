@@ -12,6 +12,7 @@ libmgba_ver = "0.2.0"
 
 # This is a list of requirements for `pip`, akin to `requirements.txt`.
 required_modules = [
+    "confz==2.0.1",
     "numpy~=1.26.1",
     "Flask~=2.3.2",
     "Flask-Cors~=4.0.0",

@@ -45,7 +45,7 @@ class EmulatorScreen:
 
     def enable(self) -> None:
         self.window.title(f"{context.profile.path.name} | {pokebot_name} {pokebot_version}")
-        self.window.resizable(False, False)
+        self.window.resizable(context.debug, context.debug)
         self.window.rowconfigure(0, weight=1)
         self.window.columnconfigure(0, weight=1)
 
@@ -62,7 +62,7 @@ class EmulatorScreen:
         if self.frame:
             self.frame.destroy()
         self.window.geometry("540x400")
-        self.window.resizable(False, True)
+        self.window.resizable(context.debug, True)
 
     def update(self) -> None:
         if context.emulator._performance_tracker.time_since_last_render() >= (1 / 60) * 1_000_000_000:

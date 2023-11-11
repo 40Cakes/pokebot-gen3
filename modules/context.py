@@ -6,9 +6,13 @@ if TYPE_CHECKING:
     from modules.profiles import Profile
     from modules.roms import ROM
 
+from modules.config import Config
+
 
 class BotContext:
     def __init__(self, initial_bot_mode: str = 'Manual'):
+        self.config = Config()
+
         self.emulator: Optional["LibmgbaEmulator"] = None
         self.gui: Optional["PokebotGui"] = None
         self.profile: Optional["Profile"] = None
@@ -18,6 +22,26 @@ class BotContext:
 
         self._current_bot_mode: str = initial_bot_mode
         self._previous_bot_mode: str = 'Manual'
+
+    def reload_config(self) -> str:
+        """Triggers a config reload, reload the global config then specific profile config.
+
+        :return: A user-facing message
+        """
+        try:
+            new_config = Config()
+            new_config.load(self.config.config_dir, strict=False)
+            self.config = new_config
+            message = '[cyan]Profile settings loaded.[/]'
+        except Exception as error:
+            if self.debug:
+                raise error
+            message = (
+                '[bold red]The configuration could not be loaded, no changes have been made.[/]\n'
+                '[bold yellow]This is Probably due to a malformed file.'
+                'For more information run the bot with the --debug flag.[/]'
+            )
+        return message
 
     @property
     def message(self) -> str:
@@ -113,4 +137,4 @@ class BotContext:
             self.gui.on_settings_updated()
 
 
-context = BotContext()
+context: BotContext = BotContext()

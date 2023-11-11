@@ -1,6 +1,0 @@
-# General settings
-# See readme for documentation: https://github.com/40Cakes/pokebot-gen3#generalyml---general-config
-
-# Starter - used when bot mode is set to `starters`
-# `Treecko`, `Torchic`, `Mudkip`, `Bulbasaur`, `Charmander`, `Squirtle`, `Chikorita`, `Cyndaquil`, `Totodile`
-starter: Mudkip

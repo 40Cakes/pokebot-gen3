@@ -7,7 +7,6 @@ import importlib
 from threading import Thread
 from datetime import datetime
 
-from modules.config import config
 from modules.console import print_stats
 from modules.context import context
 from modules.csv import log_encounter_to_csv
@@ -315,7 +314,7 @@ class TotalStats:
         self.update_sv_records(pokemon)
         self.update_iv_records(pokemon)
 
-        if config["logging"]["log_encounters"]:
+        if context.config.logging.log_encounters:
             log_encounter_to_csv(self.total_stats, pokemon.to_dict(), self.stats_dir_path)
 
         self.update_shiny_averages(pokemon)
@@ -328,10 +327,10 @@ class TotalStats:
             self.update_shiny_incremental_stats(pokemon)
 
             #  TODO fix all this OBS crap
-            for i in range(config["obs"].get("shiny_delay", 1)):
+            for i in range(context.config.obs.get("shiny_delay", 1)):
                 context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
 
-            if config["obs"]["screenshot"]:
+            if context.config.obs.screenshot:
                 from modules.obs import obs_hot_key
 
                 while get_game_state() != GameState.BATTLE:

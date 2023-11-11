@@ -1,0 +1,3 @@
+# Requirements exclusive for development/testing.
+# These should not be installed for users.
+pytest==7.4.3
