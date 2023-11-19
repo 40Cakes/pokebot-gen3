@@ -1519,7 +1519,7 @@ def opponent_changed() -> bool:
     try:
         global last_opid
         opponent_pid = read_symbol("gEnemyParty", size=4)
-        g_battle_type_flags = read_symbol("gBattleTypeFlags")
+        g_battle_type_flags = read_symbol("gBattleTypeFlags", size=4)
         if (
             opponent_pid != last_opid
             and opponent_pid != b"\x00\x00\x00\x00"
