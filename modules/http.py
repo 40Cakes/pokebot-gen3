@@ -20,47 +20,47 @@ def websocket_server() -> None:
     """
     Run websockets to make the bot data available through a client
     """
-
-    options = ["player"]
        
-    # Message received        
+    # Message received, respond with request      
     async def handler(websocket, path):
-        message = await websocket.recv()
-            
-        message = message.lower()
-        match message:
-            case "trainer" | "tr":
-                await websocket.send(ws_get_trainer())
-            
-            case "encounter log" | "el" | "enc log":
-                await websocket.send(wg_get_encounter_log())
+        # Begin loop to prevent websocket termination after just 1 message
+        while True:
+            message = await websocket.recv()
+                
+            message = message.lower()
+            match message:
+                case "trainer" | "tr":
+                    await websocket.send(ws_get_trainer())
+                
+                case "encounter log" | "el" | "enc log":
+                    await websocket.send(wg_get_encounter_log())
 
-            case "items" | "it" | "bag" | "bg":
-                await websocket.send(wg_get_items())
-            
-            case "emulator" | "em" | "emu" :
-                await websocket.send(wg_get_emulator())
+                case "items" | "it" | "bag" | "bg":
+                    await websocket.send(wg_get_items())
                 
-            case "party" | "pa" :
-                await websocket.send(wg_get_party())
-            
-            case "shiny" | "sh" | "shy":
-                await websocket.send(wg_get_shiny_log())
+                case "emulator" | "em" | "emu" :
+                    await websocket.send(wg_get_emulator())
+                    
+                case "party" | "pa" :
+                    await websocket.send(wg_get_party())
                 
-            case "stats" | "st" :
-                await websocket.send(wg_get_stats())
-            
-            case "encounter rate" | "er" | "enc rate":
-                await websocket.send(wg_get_encounter_rate())
+                case "shiny" | "sh" | "shy":
+                    await websocket.send(wg_get_shiny_log())
+                    
+                case "stats" | "st" :
+                    await websocket.send(wg_get_stats())
                 
-            case "fps" :
-                await websocket.send(wg_get_fps())
-                
-            case "flags" | "event flags" | "ef" | "ev fl"  | "fl":
-                await websocket.send(wg_get_event_flags())
-            # Unknown message
-            case _:
-                await websocket.send(prep_data(f"unknown message: {message}","unknown"))
+                case "encounter rate" | "er" | "enc rate":
+                    await websocket.send(wg_get_encounter_rate())
+                    
+                case "fps" :
+                    await websocket.send(wg_get_fps())
+                    
+                case "flags" | "event flags" | "ef" | "ev fl"  | "fl":
+                    await websocket.send(wg_get_event_flags())
+                # Unknown message
+                case _:
+                    await websocket.send(prep_data(f"unknown message: {message}","unknown"))
     
     def prep_data(obj, type):
         data = dict()
@@ -135,14 +135,13 @@ def websocket_server() -> None:
             return prep_data(list(reversed(context.emulator._performance_tracker.fps_history)), "fps")
 
     async def main():
-        host=config["obs"]["websocket"]["ip"]
-        port=config["obs"]["websocket"]["port"]
+        host=config["obs"]["websocket_server"]["ip"]
+        port=config["obs"]["websocket_server"]["port"]
         async with serve(handler, host, port):
             await asyncio.Future()  # run forever
 
     # Start the websocket
     asyncio.run(main())
-
 
 def http_server() -> None:
     """
