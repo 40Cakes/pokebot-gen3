@@ -2,7 +2,7 @@ import json
 import string
 import struct
 from dataclasses import dataclass
-from enum import Enum
+from enum import KEEP, Enum, Flag
 from functools import cached_property
 from pathlib import Path
 from typing import Literal
@@ -408,7 +408,7 @@ class StatsValues:
 
     @classmethod
     def calculate(
-            cls, species: "Species", ivs: "StatsValues", evs: "StatsValues", nature: "Nature", level: int
+        cls, species: "Species", ivs: "StatsValues", evs: "StatsValues", nature: "Nature", level: int
     ) -> "StatsValues":
         """
         Re-calculates the current effective stats of a Pokemon. This is needed for boxed
@@ -589,29 +589,29 @@ class LevelUpType(Enum):
         elif level == 1:
             return 1
         elif self == LevelUpType.MediumSlow:
-            return ((6 * (level ** 3)) // 5) - (15 * (level ** 2)) + (100 * level) - 140
+            return ((6 * (level**3)) // 5) - (15 * (level**2)) + (100 * level) - 140
         elif self == LevelUpType.Erratic:
             if level <= 50:
-                return (100 - level) * (level ** 3) // 50
+                return (100 - level) * (level**3) // 50
             elif level <= 68:
-                return (150 - level) * (level ** 3) // 100
+                return (150 - level) * (level**3) // 100
             elif level <= 98:
-                return ((1911 - 10 * level) // 3) * (level ** 3) // 500
+                return ((1911 - 10 * level) // 3) * (level**3) // 500
             else:
-                return (160 - level) * (level ** 3) // 100
+                return (160 - level) * (level**3) // 100
         elif self == LevelUpType.Fluctuating:
             if level <= 15:
-                return ((level + 1) // 3 + 24) * (level ** 3) // 50
+                return ((level + 1) // 3 + 24) * (level**3) // 50
             elif level <= 36:
-                return (level + 14) * (level ** 3) // 50
+                return (level + 14) * (level**3) // 50
             else:
-                return ((level // 2) + 32) * (level ** 3) // 50
+                return ((level // 2) + 32) * (level**3) // 50
         elif self == LevelUpType.MediumFast:
-            return level ** 3
+            return level**3
         elif self == LevelUpType.Slow:
-            return (5 * (level ** 3)) // 4
+            return (5 * (level**3)) // 4
         elif self == LevelUpType.Fast:
-            return (4 * (level ** 3)) // 5
+            return (4 * (level**3)) // 5
 
     def get_level_from_total_experience(self, total_experience: int) -> int:
         """
@@ -651,16 +651,16 @@ class Species:
         """
         :return: The species name with any characters that might be problematic in file names replaced.
         """
-        result = ''
+        result = ""
         for i in range(len(self.name)):
             if self.name[i] in f"-_.()' {string.ascii_letters}{string.digits}":
                 result += self.name[i]
-            elif self.name[i] == '♂':
-                result += '_m'
-            elif self.name[i] == '♀':
-                result += '_f'
+            elif self.name[i] == "♂":
+                result += "_m"
+            elif self.name[i] == "♀":
+                result += "_f"
             else:
-                result += '_'
+                result += "_"
         return result
 
     def __str__(self):
@@ -916,7 +916,7 @@ class Pokemon:
 
     def move(self, index: Literal[0, 1, 2, 3]) -> LearnedMove | None:
         offset = 44 + index * 2
-        move_index = unpack_uint16(self._decrypted_data[offset: offset + 2])
+        move_index = unpack_uint16(self._decrypted_data[offset : offset + 2])
         if move_index == 0:
             return None
         move = get_move_by_index(move_index)
@@ -1106,12 +1106,12 @@ class Pokemon:
     def hidden_power_type(self) -> Type:
         ivs = self.ivs
         value = (
-                ((ivs.hp & 1) << 0)
-                + ((ivs.attack & 1) << 1)
-                + ((ivs.defence & 1) << 2)
-                + ((ivs.speed & 1) << 3)
-                + ((ivs.special_attack & 1) << 4)
-                + ((ivs.special_defence & 1) << 5)
+            ((ivs.hp & 1) << 0)
+            + ((ivs.attack & 1) << 1)
+            + ((ivs.defence & 1) << 2)
+            + ((ivs.speed & 1) << 3)
+            + ((ivs.special_attack & 1) << 4)
+            + ((ivs.special_defence & 1) << 5)
         )
         value = (value * 15) // 63
         return get_type_by_name(HIDDEN_POWER_MAP[value])
@@ -1120,12 +1120,12 @@ class Pokemon:
     def hidden_power_damage(self) -> int:
         ivs = self.ivs
         value = (
-                ((ivs.hp & 2) >> 1)
-                + ((ivs.attack & 2) << 0)
-                + ((ivs.defence & 2) << 1)
-                + ((ivs.speed & 2) << 2)
-                + ((ivs.special_attack & 2) << 3)
-                + ((ivs.special_defence & 2) << 4)
+            ((ivs.hp & 2) >> 1)
+            + ((ivs.attack & 2) << 0)
+            + ((ivs.defence & 2) << 1)
+            + ((ivs.speed & 2) << 2)
+            + ((ivs.special_attack & 2) << 3)
+            + ((ivs.special_defence & 2) << 4)
         )
         value = (value * 40) // 63 + 30
         return value
@@ -1133,11 +1133,11 @@ class Pokemon:
     @property
     def unown_letter(self) -> str:
         letter_index = (
-                (self.data[0] & 0b11)
-                << 6 + (self.data[1] & 0b11)
-                << 4 + (self.data[2] & 0b11)
-                << 2 + (self.data[3] & 0b11)
-                << 0
+            (self.data[0] & 0b11)
+            << 6 + (self.data[1] & 0b11)
+            << 4 + (self.data[2] & 0b11)
+            << 2 + (self.data[3] & 0b11)
+            << 0
         )
         letter_index %= 28
         if letter_index == 26:
@@ -1505,6 +1505,10 @@ def get_opponent() -> Pokemon:
 last_opid = pack_uint32(0)  # ReadSymbol('gEnemyParty', size=4)
 
 
+class BattleTypeFlag(Flag, boundary=KEEP):
+    BATTLE_TYPE_TRAINER = 1 << 3
+
+
 def opponent_changed() -> bool:
     """
     Checks if the current opponent/encounter from `gEnemyParty` has changed since the function was last called.
@@ -1515,7 +1519,12 @@ def opponent_changed() -> bool:
     try:
         global last_opid
         opponent_pid = read_symbol("gEnemyParty", size=4)
-        if opponent_pid != last_opid and opponent_pid != b"\x00\x00\x00\x00":
+        g_battle_type_flags = read_symbol("gBattleTypeFlags", size=4)
+        if (
+            opponent_pid != last_opid
+            and opponent_pid != b"\x00\x00\x00\x00"
+            and (BattleTypeFlag.BATTLE_TYPE_TRAINER not in BattleTypeFlag(unpack_uint32(g_battle_type_flags)))
+        ):
             last_opid = opponent_pid
             return True
         else:
