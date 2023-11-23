@@ -25,9 +25,10 @@ def main_loop() -> None:
             Thread(target=discord_rich_presence).start()
 
         if config["obs"]["http_server"]["enable"]:
-            from modules.http import http_server
+            from modules.http import http_server, websocket_server
 
             Thread(target=http_server).start()
+            Thread(target=websocket_server).start()
 
         while True:
             if not mode and get_game_state() == GameState.BATTLE and context.bot_mode != "Starters":
