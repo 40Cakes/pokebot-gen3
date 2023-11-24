@@ -45,8 +45,16 @@ def main_loop() -> None:
             if context.bot_mode == "Manual":
                 if mode:
                     mode = None
-
+                    if config["obs"]["websocket_server"]["enable"]:
+                        from modules.http import websocket_handler
+                
+                        websocket_handler.add_update("emulator")
+                        
             elif not mode:
+                if config["obs"]["websocket_server"]["enable"]:
+                    from modules.http import websocket_handler
+            
+                    websocket_handler.add_update("emulator")
                 match context.bot_mode:
                     case "Spin":
                         from modules.modes.general import ModeSpin
