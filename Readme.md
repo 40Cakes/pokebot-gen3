@@ -510,6 +510,15 @@ The `http_server` config will enable a Flask HTTP server, which can be used to r
 `port` - TCP port for server to listen on
 - Port must be unique for each bot instance
 
+The `websocket_server` will host a websocketed endpoint on the bot to provide updates to your client as well as receiving requests in a similar vein to the `http_server`.
+
+`enable` - toggle websocket server on/off
+
+`ip` - IP address for the server to listen on (can also use `localhost`)
+
+`port` - TCP port for the server to host
+- Port must be unique for each bot instance
+
 #### HTTP Endpoints
 All HTTP responses are in JSON format.
 
@@ -533,7 +542,32 @@ All HTTP responses are in JSON format.
 
 `GET /fps` returns a list of emulator FPS (frames per second), in intervals of 1 second, for the previous 60 seconds
 
+#### Websocket queries
+All responses will be in a json format to the effect of `<data><type>`. It responds to `str` messages:
+
+`trainer` - returns trainer information such as name, TID, SID, map bank, map ID, X/Y coordinates etc.
+
+`items` - returns all a list of all items in the bag and PC, and their quantities
+
+`party` - returns a detailed list of all Pokémon in the party
+
+`encounter log` returns a detailed list of the recent 10 Pokémon encounters
+
+`shiny` returns a detailed list of all shiny Pokémon encounters (`shiny_log.json`)
+
+`stats` returns the phase and total statistics (`totals.json`)
+
+`encounter rate` returns the current encounter rate (encounters per hour)
+
+`event flags` returns all event flags for the current save file (optional parameter `?flag=FLAG_NAME` to get a specific flag)
+
+`emulator` returns information about the emulator core + the current loaded game/profile
+
+`fps` returns a list of emulator FPS (frames per second), in intervals of 1 second, for the previous 60 seconds
+
 </details>
+
+
 
 ## `customcatchfilters.py` - Custom catch filters
 
