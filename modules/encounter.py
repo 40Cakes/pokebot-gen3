@@ -20,7 +20,7 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
         save_pk3(pokemon)
 
     if pokemon.is_shiny:
-        config.reload_file('catch_block')
+        config.reload_file("catch_block")
 
     custom_filter_result = total_stats.custom_catch_filters(pokemon)
     custom_found = isinstance(custom_filter_result, str)

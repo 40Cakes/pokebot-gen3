@@ -66,8 +66,9 @@ class EmulatorControls:
         self._set_button_colour(self.unthrottled_button, active_condition=context.emulation_speed == 0)
 
         self._set_button_colour(self.toggle_video_button, active_condition=context.video)
-        self._set_button_colour(self.toggle_audio_button, active_condition=context.audio,
-                                disabled_condition=context.emulation_speed == 0)
+        self._set_button_colour(
+            self.toggle_audio_button, active_condition=context.audio, disabled_condition=context.emulation_speed == 0
+        )
 
         self.bot_message.config(text=context.message)
 
@@ -89,7 +90,9 @@ class EmulatorControls:
             context.bot_mode = new_bot_mode
 
         ttk.Label(group, text="Bot Mode:", justify="left").grid(row=0, sticky="W")
-        self.bot_mode_combobox = ttk.Combobox(group, values=context.config.available_bot_modes, width=16, state="readonly")
+        self.bot_mode_combobox = ttk.Combobox(
+            group, values=context.config.available_bot_modes, width=16, state="readonly"
+        )
         self.bot_mode_combobox.bind("<<ComboboxSelected>>", handle_bot_mode_selection)
         self.bot_mode_combobox.bind("<FocusIn>", lambda e: self.window.focus())
         self.bot_mode_combobox.grid(row=1, sticky="W", padx=0)
@@ -145,8 +148,12 @@ class EmulatorControls:
         self.stats_label = ttk.Label(group, text="", foreground="grey", font=tkinter.font.Font(size=9))
         self.stats_label.grid(row=0, column=0, sticky="W")
 
-        version_label = ttk.Label(group, text=f"{context.rom.short_game_name} - {pokebot_name} {pokebot_version}",
-                                  foreground="grey", font=tkinter.font.Font(size=9))
+        version_label = ttk.Label(
+            group,
+            text=f"{context.rom.short_game_name} - {pokebot_name} {pokebot_version}",
+            foreground="grey",
+            font=tkinter.font.Font(size=9),
+        )
         version_label.grid(row=0, column=1, sticky="E")
 
     def _set_button_colour(self, button: ttk.Button, active_condition: bool, disabled_condition: bool = False) -> None:
@@ -165,6 +172,7 @@ class EmulatorControls:
             stats.append(f"{current_fps:,}fps ({current_fps / 59.73:0.2f}x)")
         if context.profile:
             from modules.stats import total_stats  # TODO prevent instantiating TotalStats class before profile selected
+
             stats.append(f"{total_stats.get_encounter_rate():,}/h")
         stats.append(f"{round(current_load * 100, 1)}%")
         self.stats_label.config(text=" | ".join(stats))
@@ -174,7 +182,7 @@ class DebugTab:
     def draw(self, root: ttk.Notebook):
         pass
 
-    def update(self, emulator: 'LibmgbaEmulator'):
+    def update(self, emulator: "LibmgbaEmulator"):
         pass
 
     def on_video_output_click(self, click_location: tuple[int, int], scale: int):

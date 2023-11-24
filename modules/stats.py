@@ -347,7 +347,7 @@ class TotalStats:
             Pokemon(pokemon.data),
             copy.deepcopy(self.total_stats),
             copy.deepcopy(block_list),
-            copy.deepcopy(custom_filter_result)
+            copy.deepcopy(custom_filter_result),
         )
         Thread(target=self.custom_hooks, args=(hook,)).start()
 

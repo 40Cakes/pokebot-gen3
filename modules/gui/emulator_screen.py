@@ -121,11 +121,13 @@ class EmulatorScreen:
     def toggle_stepping_mode(self) -> None:
         self._stepping_mode = not self._stepping_mode
         if self._stepping_mode:
+
             def next_step():
                 self._current_step += 1
 
-            self._stepping_button = Button(self.window, text="⮞", padx=8, background="red", foreground="white",
-                                           command=next_step, cursor="hand2")
+            self._stepping_button = Button(
+                self.window, text="⮞", padx=8, background="red", foreground="white", command=next_step, cursor="hand2"
+            )
             self._stepping_button.place(x=0, y=0)
             self._current_step = 0
         else:
@@ -139,7 +141,8 @@ class EmulatorScreen:
 
     def _update_image(self, image: PIL.Image):
         self.current_canvas_image = PIL.ImageTk.PhotoImage(
-            image=image.resize((self.width * self.scale, self.height * self.scale), resample=False))
+            image=image.resize((self.width * self.scale, self.height * self.scale), resample=False)
+        )
         self.canvas.create_image(self.center_of_canvas, image=self.current_canvas_image, state="normal")
         self._update_window()
 
@@ -154,7 +157,9 @@ class EmulatorScreen:
         self.canvas = Canvas(self.window, width=480, height=320)
         self.canvas.grid(sticky="NW", row=0, column=0)
         if context.debug:
+
             def handle_click_on_video_output(event):
                 if context.video:
                     self._controls.on_video_output_click((event.x // self.scale, event.y // self.scale), self.scale)
+
             self.canvas.bind("<Button-1>", handle_click_on_video_output)

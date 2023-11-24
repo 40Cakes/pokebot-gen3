@@ -181,8 +181,7 @@ def custom_hooks(hook) -> None:
             # Discord total encounter milestones
             if (
                 config.discord.total_encounter_milestones.enable
-                and stats["totals"].get("encounters", -1)
-                % config.discord.total_encounter_milestones.get("interval", 0)
+                and stats["totals"].get("encounters", -1) % config.discord.total_encounter_milestones.get("interval", 0)
                 == 0
             ):
                 # Discord pings
@@ -230,8 +229,7 @@ def custom_hooks(hook) -> None:
                 config.discord.phase_summary.enable
                 and not pokemon.is_shiny
                 and (
-                    stats["totals"].get("phase_encounters", -1)
-                    == config.discord.phase_summary.get("first_interval", 0)
+                    stats["totals"].get("phase_encounters", -1) == config.discord.phase_summary.get("first_interval", 0)
                     or (
                         stats["totals"].get("phase_encounters", -1)
                         > config.discord.phase_summary.get("first_interval", 0)

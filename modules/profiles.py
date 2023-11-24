@@ -38,7 +38,7 @@ def list_available_profiles() -> list[Profile]:
 
     profiles = []
     for entry in PROFILES_DIRECTORY.iterdir():
-        if entry.name.startswith('_'):
+        if entry.name.startswith("_"):
             continue
         try:
             profiles.append(load_profile(entry))
@@ -68,11 +68,13 @@ def load_profile(path: Path) -> Profile:
         return Profile(rom, path, last_played)
     else:
         for rom in list_available_roms():
-            if all([
-                rom.game_code == metadata.rom.game_code,
-                rom.revision == metadata.rom.revision,
-                rom.language == metadata.rom.language,
-            ]):
+            if all(
+                [
+                    rom.game_code == metadata.rom.game_code,
+                    rom.revision == metadata.rom.revision,
+                    rom.language == metadata.rom.language,
+                ]
+            ):
                 return Profile(rom, path, last_played)
 
     console.print(
@@ -87,7 +89,7 @@ def profile_directory_exists(name: str) -> bool:
 
 
 def create_profile(name: str, rom: ROM) -> Profile:
-    if name.startswith('_'):
+    if name.startswith("_"):
         raise exceptions.PrettyValueError(f'Profile names cannot start with the underscore "_" character.')
     profile_directory = PROFILES_DIRECTORY / name
     if profile_directory.exists():

@@ -12,13 +12,13 @@ from modules.config.schemas_v1 import CatchBlock, Cheats, Discord, General, Keys
 
 # Defines which class attributes of the Config class are meant to hold required configuration data.
 CONFIG_ATTRS = {
-    'catch_block',
-    'cheats',
-    'discord',
-    'general',
-    'keys',
-    'logging',
-    'obs',
+    "catch_block",
+    "cheats",
+    "discord",
+    "general",
+    "keys",
+    "logging",
+    "obs",
 }
 
 
@@ -34,7 +34,7 @@ class Config:
         :param is_profile: Whether profile files are expected in this directory.
         :param strict: Whether to allow files to be missing.
         """
-        self.config_dir = get_base_path() / 'profiles' if not config_dir else Path(config_dir)
+        self.config_dir = get_base_path() / "profiles" if not config_dir else Path(config_dir)
         self.catch_block: CatchBlock = CatchBlock()
         self.cheats: Cheats = Cheats()
         self.discord: Discord = Discord()
@@ -75,7 +75,7 @@ class Config:
         for attr in CONFIG_ATTRS:
             self.save_file(attr, strict=strict)
         if self.is_profile:
-            self.save_file('metadata', strict=strict)
+            self.save_file("metadata", strict=strict)
 
     def reload_file(self, attr: str, strict: bool = False) -> None:
         """Reload a specific configuration file, using the same source.
@@ -86,7 +86,7 @@ class Config:
 
         config_inst = getattr(self, attr, None)
         if not isinstance(config_inst, BaseConfig):
-            raise exceptions.PrettyValueError(f'Config.{attr} is not a valid configuration to load.')
+            raise exceptions.PrettyValueError(f"Config.{attr} is not a valid configuration to load.")
         file_path = self.config_dir / config_inst.filename
         config_inst = load_config_file(file_path, config_inst.__class__, strict=strict)
         if config_inst:
@@ -101,7 +101,7 @@ class Config:
 
         config_inst = getattr(self, attr, None)
         if not isinstance(config_inst, BaseConfig):
-            raise exceptions.PrettyValueError(f'Config.{attr} is not a valid configuration to save.')
+            raise exceptions.PrettyValueError(f"Config.{attr} is not a valid configuration to save.")
         save_config_file(self.config_dir, config_inst, strict=strict)
 
 
@@ -134,10 +134,10 @@ def save_config_file(config_dir: Path, config_inst: BaseConfig, strict: bool = F
             raise exceptions.CriticalDirectoryMissing(config_dir)
         config_dir.mkdir()
     if not isinstance(config_inst, BaseConfig):
-        raise exceptions.PrettyValueError(f'The provided config is not a valid config instance.')
+        raise exceptions.PrettyValueError(f"The provided config is not a valid config instance.")
     config_file = config_dir / config_inst.filename
     if strict and config_file.is_file():
-        raise exceptions.PrettyValueError(f'The file {config_file} already exists. Refusing to overwrite it.')
+        raise exceptions.PrettyValueError(f"The file {config_file} already exists. Refusing to overwrite it.")
     yaml = YAML()
     yaml.allow_unicode = False
     yaml.dump(config_inst.model_dump(), config_dir / config_inst.filename)

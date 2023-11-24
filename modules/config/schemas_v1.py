@@ -26,14 +26,14 @@ class Starters(Enum):
 class CatchBlock(BaseConfig):
     """Schema for the catch_block configuration."""
 
-    filename: ClassVar = 'catch_block.yml'
+    filename: ClassVar = "catch_block.yml"
     block_list: list[str] = []
 
 
 class Cheats(BaseConfig):
     """Schema for the cheat configuration."""
 
-    filename: ClassVar = 'cheats.yml'
+    filename: ClassVar = "cheats.yml"
     starters: bool = False
     starters_rng: bool = False
 
@@ -41,11 +41,11 @@ class Cheats(BaseConfig):
 class Discord(BaseConfig):
     """Schema for the discord configuration."""
 
-    filename: ClassVar = 'discord.yml'
+    filename: ClassVar = "discord.yml"
     rich_presence: bool = False
-    iv_format: Literal["basic", "formatted"] = 'formatted'
-    bot_id: str = 'PokéBot'
-    global_webhook_url: str = ''
+    iv_format: Literal["basic", "formatted"] = "formatted"
+    bot_id: str = "PokéBot"
+    global_webhook_url: str = ""
     shiny_pokemon_encounter: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
     pokemon_encounter_milestones: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=10000))
     shiny_pokemon_encounter_milestones: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=5))
@@ -62,21 +62,21 @@ class DiscordWebhook(BaseConfig):
     first_interval: PositiveInt | None = 8192  # Only used by phase_summary.
     consequent_interval: PositiveInt | None = 5000  # Only used by phase_summary.
     interval: PositiveInt = 5
-    ping_mode: Literal['user', 'role', None] = None
+    ping_mode: Literal["user", "role", None] = None
     ping_id: str | None = None
 
 
 class General(BaseConfig):
     """Schema for the general configuration."""
 
-    filename: ClassVar = 'general.yml'
+    filename: ClassVar = "general.yml"
     starter: Starters = Starters.MUDKIP
 
 
 class Keys(BaseConfig):
     """Schema for the keys configuration."""
 
-    filename: ClassVar = 'keys.yml'
+    filename: ClassVar = "keys.yml"
     gba: KeysGBA = Field(default_factory=lambda: KeysGBA())
     emulator: KeysEmulator = Field(default_factory=lambda: KeysEmulator())
 
@@ -84,42 +84,42 @@ class Keys(BaseConfig):
 class KeysEmulator(BaseConfig):
     """Schema for the emulator keys section in the Keys config."""
 
-    zoom_in: str = 'plus'
-    zoom_out: str = 'minus'
-    toggle_manual: str = 'Tab'
-    toggle_video: str = 'v'
-    toggle_audio: str = 'b'
-    set_speed_1x: str = '1'
-    set_speed_2x: str = '2'
-    set_speed_3x: str = '3'
-    set_speed_4x: str = '4'
-    set_speed_unthrottled: str = '0'
-    reset: str = 'Ctrl+R'
-    reload_config: str = 'Ctrl+C'
-    exit: str = 'Ctrl+Q'
-    save_state: str = 'Ctrl+S'
-    toggle_stepping_mode: str = 'Ctrl+L'
+    zoom_in: str = "plus"
+    zoom_out: str = "minus"
+    toggle_manual: str = "Tab"
+    toggle_video: str = "v"
+    toggle_audio: str = "b"
+    set_speed_1x: str = "1"
+    set_speed_2x: str = "2"
+    set_speed_3x: str = "3"
+    set_speed_4x: str = "4"
+    set_speed_unthrottled: str = "0"
+    reset: str = "Ctrl+R"
+    reload_config: str = "Ctrl+C"
+    exit: str = "Ctrl+Q"
+    save_state: str = "Ctrl+S"
+    toggle_stepping_mode: str = "Ctrl+L"
 
 
 class KeysGBA(BaseConfig):
     """Schema for the GBA keys section in the Keys config."""
 
-    Up: str = 'Up'
-    Down: str = 'Down'
-    Left: str = 'Left'
-    Right: str = 'Right'
-    A: str = 'x'
-    B: str = 'z'
-    L: str = 'a'
-    R: str = 's'
-    Start: str = 'Return'
-    Select: str = 'BackSpace'
+    Up: str = "Up"
+    Down: str = "Down"
+    Left: str = "Left"
+    Right: str = "Right"
+    A: str = "x"
+    B: str = "z"
+    L: str = "a"
+    R: str = "s"
+    Start: str = "Return"
+    Select: str = "BackSpace"
 
 
 class Logging(BaseConfig):
     """Schema for the logging configuration."""
 
-    filename: ClassVar = 'logging.yml'
+    filename: ClassVar = "logging.yml"
     console: LoggingConsole = Field(default_factory=lambda: LoggingConsole())
     save_pk3: LoggingSavePK3 = Field(default_factory=lambda: LoggingSavePK3())
     import_pk3: bool = False
@@ -129,10 +129,10 @@ class Logging(BaseConfig):
 class LoggingConsole(BaseConfig):
     """Schema for the console section in the Logging config."""
 
-    encounter_data: Literal["verbose", "basic", "disable"] = 'verbose'
-    encounter_ivs: Literal["verbose", "basic", "disable"] = 'verbose'
-    encounter_moves: Literal["verbose", "basic", "disable"] = 'disable'
-    statistics: Literal["verbose", "basic", "disable"] = 'verbose'
+    encounter_data: Literal["verbose", "basic", "disable"] = "verbose"
+    encounter_ivs: Literal["verbose", "basic", "disable"] = "verbose"
+    encounter_moves: Literal["verbose", "basic", "disable"] = "disable"
+    statistics: Literal["verbose", "basic", "disable"] = "verbose"
 
 
 class LoggingSavePK3(BaseConfig):
@@ -146,7 +146,7 @@ class LoggingSavePK3(BaseConfig):
 class OBS(BaseConfig):
     """Schema for the OBS configuration."""
 
-    filename: ClassVar = 'obs.yml'
+    filename: ClassVar = "obs.yml"
     discord_delay: NonNegativeInt = 0
     discord_webhook_url: str | None = None
     replay_dir: Path = "./stream/replays/"
@@ -157,7 +157,7 @@ class OBS(BaseConfig):
     obs_websocket: OBSWebsocket = Field(default_factory=lambda: OBSWebsocket())
     http_server: OBSHTTPServer = Field(default_factory=lambda: OBSHTTPServer())
 
-    @field_validator('replay_dir')
+    @field_validator("replay_dir")
     def validate_dir(cls, value: str | Path, **kwargs) -> Path:
         """Ensure the replay_dir field returns a path."""
         if isinstance(value, str):
@@ -170,8 +170,8 @@ class OBS(BaseConfig):
 class OBSWebsocket(BaseConfig):
     """Schema for the obs_websocket section in the OBS config."""
 
-    host: str = '127.0.0.1'
-    password: str = 'password'
+    host: str = "127.0.0.1"
+    password: str = "password"
     port: Annotated[int, Field(gt=0, lt=65536)] = 4455
 
 
@@ -179,14 +179,14 @@ class OBSHTTPServer(BaseConfig):
     """Schema for the http_server section in the OBS config."""
 
     enable: bool = False
-    ip: str = '127.0.0.1'
+    ip: str = "127.0.0.1"
     port: Annotated[int, Field(gt=0, lt=65536)] = 8888
 
 
 class ProfileMetadata(BaseConfig):
     """Schema for the metadata configuration file part of profiles."""
 
-    filename: ClassVar = 'metadata.yml'
+    filename: ClassVar = "metadata.yml"
     version: PositiveInt = 1
     rom: ProfileMetadataROM = Field(default_factory=lambda: ProfileMetadataROM())
 
@@ -194,7 +194,7 @@ class ProfileMetadata(BaseConfig):
 class ProfileMetadataROM(BaseConfig):
     """Schema for the rom section of the metadata config."""
 
-    file_name: str = ''
-    game_code: str = ''
+    file_name: str = ""
+    game_code: str = ""
     revision: NonNegativeInt = 0
-    language: Literal['E', 'F', 'D', 'I', 'J', 'S'] = ''
+    language: Literal["E", "F", "D", "I", "J", "S"] = ""

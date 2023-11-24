@@ -61,7 +61,6 @@ def sv_colour(value: int) -> str:
 
 
 def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: list, encounter_rate: int) -> None:
-
     type_colour = pokemon.species.types[0].name.lower()
     rich_name = f"[{type_colour}]{pokemon.species.name}[/]"
     console.print("\n")

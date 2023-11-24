@@ -20,7 +20,7 @@ pytest
 ...
 collected 5 items                                                                                                             
 
-test/test_config.py .....                                                                                               [100%]
+tests/test_config.py .....                                                                                               [100%]
 
 ====================================================== 5 passed in 0.33s ======================================================
 ```
@@ -34,7 +34,7 @@ pytest test_config.py
 ...
 collected 5 items                                                                                                             
 
-test/test_config.py .....                                                                                               [100%]
+tests/test_config.py .....                                                                                               [100%]
 
 ====================================================== 5 passed in 0.33s ======================================================
 ```
@@ -47,7 +47,7 @@ pytest -k defaults -vvv
 ...
 collected 5 items / 4 deselected / 1 selected                                                                                 
 
-test/test_config.py::test_config[defaults load correctly] PASSED                                                        [100%]
+tests/test_config.py::test_config[defaults load correctly] PASSED                                                        [100%]
 
 =============================================== 1 passed, 4 deselected in 0.30s ===============================================
 ```
