@@ -31,8 +31,9 @@ def main_loop() -> None:
             
         if config["obs"]["websocket_server"]["enable"]:
             from modules.http import websocket_server
-            
+    
             Thread(target=websocket_server).start()
+            
             
         while True:
             if not mode and get_game_state() == GameState.BATTLE and context.bot_mode != "Starters":

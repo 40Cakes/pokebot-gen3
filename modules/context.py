@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from modules.libmgba import LibmgbaEmulator
     from modules.profiles import Profile
     from modules.roms import ROM
+    
 
 
 class BotContext:
@@ -55,6 +56,7 @@ class BotContext:
             self._previous_bot_mode = self._current_bot_mode
             self._current_bot_mode = new_bot_mode
             self._update_gui()
+            
 
     def toggle_manual_mode(self) -> None:
         if self._current_bot_mode == "Manual":
@@ -111,6 +113,25 @@ class BotContext:
     def _update_gui(self) -> None:
         if self.gui:
             self.gui.on_settings_updated()
+            
+    def to_dict (self) -> dict:
+        return {
+            "emulation_speed": self.emulation_speed,
+            "video_enabled": self.video,
+            "audio_enabled": self.audio,
+            "bot_mode": self.bot_mode,
+            "current_message": self.message,
+            "frame_count": self.emulator.get_frame_count(),
+            "current_fps": self.emulator.get_current_fps(),
+            "current_time_spent_in_bot_fraction": self.emulator.get_current_time_spent_in_bot_fraction(),
+            "profile": {"name": self.profile.path.name},
+            "game": {
+                "title": self.rom.game_title,
+                "name": self.rom.game_name,
+                "language": str(self.rom.language),
+                "revision": self.rom.revision
+            }
+        }
 
 
 context = BotContext()

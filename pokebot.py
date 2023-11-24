@@ -33,7 +33,6 @@ def on_exit() -> None:
 
 atexit.register(on_exit)
 
-
 @dataclass
 class StartupSettings:
     profile: "Profile | None"

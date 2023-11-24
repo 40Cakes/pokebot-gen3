@@ -6,7 +6,7 @@ from modules.gui.desktop_notification import desktop_notification
 from modules.pc_storage import import_into_storage
 from modules.pokemon import Pokemon
 from modules.stats import total_stats
-
+from modules.http import websocket_handler
 block_list: list = []
 
 
@@ -22,7 +22,10 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
 
     if config["logging"]["save_pk3"]["all"]:
         save_pk3(pokemon)
-
+    
+    if config["obs"]["websocket_server"]["enable"]:
+        websocket_handler.add_update(pokemon.to_dict(),"encounter")
+        
     if pokemon.is_shiny or block_list == []:
         # Load catch block config file - allows for editing while bot is running
         from modules.config import catch_block_schema, load_config
