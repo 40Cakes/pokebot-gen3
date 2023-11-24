@@ -13,6 +13,10 @@ from modules.game import _event_flags
 from modules.memory import get_event_flag, get_game_state
 from modules.trainer import trainer  
 
+
+def prep_data(data, type: str) -> str:
+    return json.dumps({"type" : type, "data" : data})
+
 class WebsocketHandler:
     """ This class hosts clients and updates. The clients are
     websockets that are connected. Updates are a list of
@@ -22,8 +26,32 @@ class WebsocketHandler:
         self.updates: list = []
         self.clients = set()
         
-    def add_update(self, data, type) -> None:
-        self.updates.append({"data" : data, "type" : type})
+    def add_update(self, type) -> None:
+        print(f"updating {type}")
+        match type:
+            case "encounter_log":
+                self.updates.append(self.get_encounter_log())
+            case "encounter_rate":
+                self.updates.append(self.get_encounter_rate())
+            case "emulator":
+                self.updates.append(self.get_emulator())
+            case "party":
+                self.updates.append(self.get_party())
+            case "fps":
+                self.updates.append(self.get_fps())
+            case "event_flags": 
+                self.updates.append(self.get_event_flags())
+            case "items":
+                self.updates.append(self.get_items())
+            case "shiny":
+                self.updates.append(self.get_shiny_log())
+            case "stats":
+                self.updates.append(self.get_stats())
+            case "trainer":
+                self.updates.append(self.get_trainer())
+            case _ :
+                self.updates.append(None)
+        
     
     def get_updates(self) -> list:
         updates_list = []
@@ -39,6 +67,56 @@ class WebsocketHandler:
 
     def get_clients(self) -> set():
         return self.clients
+            
+    def get_trainer(self) -> str:
+        data = trainer.to_dict()
+        data["game_state"] = get_game_state().name
+        return prep_data(data, "trainer")
+
+    def get_encounter_log(self) -> str:
+        return prep_data(total_stats.get_encounter_log(), "encounter_log")
+   
+    def get_items(self) -> str:
+        return prep_data(get_items(),"items")
+
+    def get_party(self) -> str:
+        return prep_data([p.to_dict() for p in get_party()], "party")
+
+    def get_shiny_log(self) -> str:
+        return prep_data(total_stats.get_shiny_log(), "shiny_log")
+
+    def get_encounter_rate(self) -> str:
+        return prep_data({"encounter_rate": total_stats.get_encounter_rate()}, "encounter_rate")
+
+    def get_stats(self) -> str:
+        return prep_data(total_stats.get_total_stats(), "stats")
+
+    def get_event_flags(self) -> str:
+        flag = request.args.get("flag")
+
+        if flag and flag in _event_flags:
+            return prep_data({flag: get_event_flag(flag)}, "flags")
+        else:
+            result = {}
+
+            for flag in _event_flags:
+                result[flag] = get_event_flag(flag)
+
+            return prep_data(result, "flags")
+
+    def get_emulator(self) -> str:
+        if context.emulator is None:
+            return prep_data(None, "emulator")
+        else:
+            return prep_data(
+                context.to_dict(), "emulator"
+            )
+
+    def get_fps(self) -> str:
+        if context.emulator is None:
+            return prep_data(None, "fps")
+        else:
+            return prep_data(list(reversed(context.emulator._performance_tracker.fps_history)), "fps")
 
 def websocket_server() -> None:
     """
@@ -57,51 +135,53 @@ def websocket_server() -> None:
             messages = websocket_handler.get_updates()
             while messages:
                 message = messages.pop()
-                message = prep_data(message["data"], message["type"])
-                for client in websocket_handler.get_clients():
-                    await asyncio.create_task(send(client, message))
+                if message != None:
+                    for client in websocket_handler.get_clients():
+                        await asyncio.create_task(send(client, message))
 
     async def consumer_handler(websocket):
         websocket_handler.add_client(websocket)
         try:
             # Begin loop to prevent websocket termination after just 1 message
             while True:
+                
                 message = await websocket.recv()
                 message = message.lower()
+                print(f"websocket message rx {message}")
                 match message:
                     case "trainer" | "tr":
-                        await websocket.send(ws_get_trainer())
+                        await websocket.send(websocket_handler.get_trainer())
                     
-                    case "encounter log" | "el" | "enc log":
-                        await websocket.send(ws_get_encounter_log())
+                    case "encounter_log" | "el" | "enc log":
+                        await websocket.send(websocket_handler.get_encounter_log())
 
                     case "items" | "it" | "bag" | "bg":
-                        await websocket.send(ws_get_items())
+                        await websocket.send(websocket_handler.get_items())
                     
                     case "emulator" | "em" | "emu" :
-                        await websocket.send(ws_get_emulator())
+                        await websocket.send(websocket_handler.get_emulator())
                         
                     case "party" | "pa" :
-                        await websocket.send(ws_get_party())
+                        await websocket.send(websocket_handler.get_party())
                     
                     case "shiny" | "sh" | "shy":
-                        await websocket.send(ws_get_shiny_log())
+                        await websocket.send(websocket_handler.get_shiny_log())
                         
                     case "stats" | "st" :
-                        await websocket.send(ws_get_stats())
+                        await websocket.send(websocket_handler.get_stats())
                     
-                    case "encounter rate" | "er" | "enc rate":
-                        await websocket.send(ws_get_encounter_rate())
+                    case "encounter_rate" | "er" | "enc rate":
+                        await websocket.send(websocket_handler.get_encounter_rate())
                         
                     case "fps" :
-                        await websocket.send(ws_get_fps())
+                        await websocket.send(websocket_handler.get_fps())
                         
-                    case "flags" | "event flags" | "ef" | "ev fl"  | "fl":
-                        await websocket.send(ws_get_event_flags())
+                    case "flags" | "event_flags" | "ef" | "ev fl"  | "fl":
+                        await websocket.send(websocket_handler.get_event_flags())
                         
                     # Unknown message
                     case _:
-                        await websocket.send(prep_data(f"unknown message: {message}","unknown")) 
+                        await websocket.send(websocket_handler.prep_data(f"unknown message: {message}","unknown")) 
         except Exception as e:
             pass
         finally:
@@ -112,60 +192,6 @@ def websocket_server() -> None:
             await websocket.send(message)
         except websockets.ConnectionClosed:
             pass
-    
-    def prep_data(data, type: str):
-        return json.dumps({"type" : type, "data" : data})
-            
-    
-    def ws_get_trainer():
-        data = trainer.to_dict()
-        data["game_state"] = get_game_state().name
-        return prep_data(data, "trainer")
-
-    def ws_get_encounter_log():
-        return prep_data(total_stats.get_encounter_log(), "encounter_log")
-   
-    def ws_get_items():
-        return prep_data(get_items(),"items")
-
-    def ws_get_party():
-        return prep_data([p.to_dict() for p in get_party()], "party")
-
-    def ws_get_shiny_log():
-        return prep_data(total_stats.get_shiny_log(), "shiny_log")
-
-    def ws_get_encounter_rate():
-        return prep_data({"encounter_rate": total_stats.get_encounter_rate()}, "encounter_rate")
-
-    def ws_get_stats():
-        return prep_data(total_stats.get_total_stats(), "stats")
-
-    def ws_get_event_flags():
-        flag = request.args.get("flag")
-
-        if flag and flag in _event_flags:
-            return prep_data({flag: get_event_flag(flag)}, "flags")
-        else:
-            result = {}
-
-            for flag in _event_flags:
-                result[flag] = get_event_flag(flag)
-
-            return prep_data(result, "flags")
-
-    def ws_get_emulator():
-        if context.emulator is None:
-            return prep_data(None, "emulator")
-        else:
-            return prep_data(
-                context.to_dict(), "emulator"
-            )
-
-    def ws_get_fps():
-        if context.emulator is None:
-            return prep_data(None, "fps")
-        else:
-            return prep_data(list(reversed(context.emulator._performance_tracker.fps_history)), "fps")
 
     async def main():
         host=config["obs"]["websocket_server"]["ip"]
