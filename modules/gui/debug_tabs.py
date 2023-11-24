@@ -299,14 +299,17 @@ class SymbolsTab(DebugTab):
             "gStringVar3",
             "gStringVar4",
             "gDisplayedStringBattle",
+            "gBattleTypeFlags",
         }
-        self.display_as_string = {
-            "sChat",
-            "gStringVar1",
-            "gStringVar2",
-            "gStringVar3",
-            "gStringVar4",
-            "gDisplayedStringBattle",
+        self.display_mode = {
+            "gObjectEvents": None,
+            "sChat": "str",
+            "gStringVar1": "str",
+            "gStringVar2": "str",
+            "gStringVar3": "str",
+            "gStringVar4": "str",
+            "gDisplayedStringBattle": "str",
+            "gBattleTypeFlags": "bin",
         }
         self._tv: FancyTreeview
         self._mini_window: Union[tkinter.Toplevel, None] = None
@@ -322,7 +325,10 @@ class SymbolsTab(DebugTab):
 
         context_actions = {
             "Remove from List": self._handle_remove_symbol,
-            "Toggle String Decoding": self._handle_toggle_symbol,
+            "Show as Hexadecimal Value": self._handle_show_as_hex,
+            "Show as String": self._handle_show_as_string,
+            "Show as Decimal Value": self._handle_show_as_dec,
+            "Show as Binary Value": self._handle_show_as_bin,
         }
 
         self._tv = FancyTreeview(frame, row=2, height=20, additional_context_actions=context_actions)
@@ -399,7 +405,14 @@ class SymbolsTab(DebugTab):
             if self._mini_window is not None:
                 item = tv.identify_row(event.y)
                 if item:
-                    self.symbols_to_display.add(tv.item(item)["text"])
+                    symbol_name = tv.item(item)["text"]
+                    symbol_length = int(tv.item(item).get('values')[2], 16)
+                    if tv.item(item)["text"].startswith("s"):
+                        self.display_mode[symbol_name] = "str"
+                    elif symbol_length == 2 or symbol_length == 4:
+                        self.display_mode[symbol_name] = "dec"
+                    else:
+                        self.display_mode[symbol_name] = "hex"
                     self.update(context.emulator)
 
         tv.bind("<Double-Button-1>", handle_double_click)
@@ -430,15 +443,23 @@ class SymbolsTab(DebugTab):
                 address, length = get_symbol(symbol.upper())
             except RuntimeError:
                 self.symbols_to_display.remove(symbol)
-                self.display_as_string.remove(symbol)
+                del self.display_mode[symbol]
                 break
 
             value = emulator.read_bytes(address, length)
-            if symbol in self.display_as_string:
+            display_mode = self.display_mode.get(symbol, "hex")
+
+            if display_mode == "str":
                 data[symbol] = decode_string(value)
-            elif length == 4 or length == 2:
+            elif display_mode == "dec":
                 n = int.from_bytes(value, byteorder="little")
                 data[symbol] = f"{value.hex(' ', 1)} ({n})"
+            elif display_mode == "bin":
+                n = int.from_bytes(value, byteorder="little")
+                binary_string = bin(n).removeprefix("0b").rjust(length * 8, '0')
+                chunk_size = 4
+                chunks = [binary_string[i:i+chunk_size] for i in range(0, len(binary_string), chunk_size)]
+                data[symbol] = " ".join(chunks)
             else:
                 data[symbol] = value.hex(" ", 1)
 
@@ -446,13 +467,16 @@ class SymbolsTab(DebugTab):
 
     def _handle_remove_symbol(self, symbol: str):
         self.symbols_to_display.remove(symbol)
-        self.display_as_string.remove(symbol)
+        del self.display_mode[symbol]
 
-    def _handle_toggle_symbol(self, symbol: str):
-        if symbol in self.display_as_string:
-            self.display_as_string.remove(symbol)
-        else:
-            self.display_as_string.add(symbol)
+    def _handle_show_as_hex(self, symbol: str):
+        self.display_mode[symbol] = "hex"
+    def _handle_show_as_string(self, symbol: str):
+        self.display_mode[symbol] = "str"
+    def _handle_show_as_dec(self, symbol: str):
+        self.display_mode[symbol] = "dec"
+    def _handle_show_as_bin(self, symbol: str):
+        self.display_mode[symbol] = "bin"
 
 
 class TrainerTab(DebugTab):
