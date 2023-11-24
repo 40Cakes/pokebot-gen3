@@ -542,8 +542,8 @@ All HTTP responses are in JSON format.
 
 `GET /fps` returns a list of emulator FPS (frames per second), in intervals of 1 second, for the previous 60 seconds
 
-#### Websocket queries
-All responses will be in a json format to the effect of `<data><type>`. It responds to `str` messages:
+#### Websocket types
+All responses will be in a json format to the effect of `{data : data , type : type}`. It responds to `str` messages where the `str` is identical to the `type` that it responds with:
 
 `trainer` - returns trainer information such as name, TID, SID, map bank, map ID, X/Y coordinates etc.
 
@@ -551,19 +551,30 @@ All responses will be in a json format to the effect of `<data><type>`. It respo
 
 `party` - returns a detailed list of all Pokémon in the party
 
-`encounter log` returns a detailed list of the recent 10 Pokémon encounters
+`encounter_log` returns a detailed list of the recent 10 Pokémon encounters
 
 `shiny` returns a detailed list of all shiny Pokémon encounters (`shiny_log.json`)
 
 `stats` returns the phase and total statistics (`totals.json`)
 
-`encounter rate` returns the current encounter rate (encounters per hour)
+`encounter_rate` returns the current encounter rate (encounters per hour)
 
-`event flags` returns all event flags for the current save file (optional parameter `?flag=FLAG_NAME` to get a specific flag)
+`event_flags` returns all event flags for the current save file (optional parameter `?flag=FLAG_NAME` to get a specific flag)
 
 `emulator` returns information about the emulator core + the current loaded game/profile
 
 `fps` returns a list of emulator FPS (frames per second), in intervals of 1 second, for the previous 60 seconds
+
+
+#### Websocket messages
+The websocket regularly sends out updates too in the format `{data : data , type : type}`:
+
+`encounter` - where a new pokemon is encountered, the websocket server will inform all connected clients. TIP - on receiving this, update your stats and encounter log.
+
+`bot_mode` - the bot mode has changed, it sends a full json of the emu data
+
+
+
 
 </details>
 
