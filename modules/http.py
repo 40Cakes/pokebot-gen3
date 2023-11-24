@@ -176,7 +176,6 @@ def websocket_server() -> None:
     # Start the websocket
     asyncio.run(main())
     
-
 def http_server() -> None:
     """
     Run Flask server to make bot data available via HTTP requests.
