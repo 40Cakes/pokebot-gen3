@@ -30,7 +30,6 @@ def on_exit() -> None:
             print("")
             input("Press Enter to close...")
 
-
 atexit.register(on_exit)
 
 @dataclass

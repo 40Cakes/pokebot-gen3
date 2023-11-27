@@ -24,7 +24,7 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
         save_pk3(pokemon)
     
     if config["obs"]["websocket_server"]["enable"]:
-        websocket_handler.add_update("encounter")
+        websocket_handler.add_update("encounter", pokemon.to_dict())
         
     if pokemon.is_shiny or block_list == []:
         # Load catch block config file - allows for editing while bot is running
