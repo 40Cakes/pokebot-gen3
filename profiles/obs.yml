@@ -19,3 +19,8 @@ http_server:
   enable: false # `true`, `false`
   ip: 127.0.0.1
   port: 8888
+
+websocket_server:
+  enable: true # `true`, `false`
+  ip: 0.0.0.0
+  port: 8887
