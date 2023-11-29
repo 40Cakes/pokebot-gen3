@@ -1,4 +1,3 @@
-from modules.config import config
 from modules.console import console
 from modules.context import context
 from modules.files import save_pk3
@@ -6,8 +5,6 @@ from modules.gui.desktop_notification import desktop_notification
 from modules.pc_storage import import_into_storage
 from modules.pokemon import Pokemon
 from modules.stats import total_stats
-
-block_list: list = []
 
 
 def encounter_pokemon(pokemon: Pokemon) -> None:
@@ -18,28 +15,24 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
 
     :return:
     """
-    global block_list
-
-    if config["logging"]["save_pk3"]["all"]:
+    config = context.config
+    if config.logging.save_pk3.all:
         save_pk3(pokemon)
 
-    if pokemon.is_shiny or block_list == []:
-        # Load catch block config file - allows for editing while bot is running
-        from modules.config import catch_block_schema, load_config
-
-        config_catch_block = load_config("catch_block.yml", catch_block_schema)
-        block_list = config_catch_block["block_list"]
+    if pokemon.is_shiny:
+        config.reload_file("catch_block")
 
     custom_filter_result = total_stats.custom_catch_filters(pokemon)
     custom_found = isinstance(custom_filter_result, str)
 
-    total_stats.log_encounter(pokemon, block_list, custom_filter_result)
+    total_stats.log_encounter(pokemon, config.catch_block.block_list, custom_filter_result)
+
     context.message = f"Encountered a {pokemon.species.name} with a shiny value of {pokemon.shiny_value:,}!"
 
     # TODO temporary until auto-catch is ready
     if pokemon.is_shiny or custom_found:
         if pokemon.is_shiny:
-            if not config["logging"]["save_pk3"]["all"] and config["logging"]["save_pk3"]["shiny"]:
+            if not config.logging.save_pk3.all and config.logging.save_pk3.shiny:
                 save_pk3(pokemon)
             state_tag = "shiny"
             console.print("[bold yellow]Shiny found!")
@@ -49,7 +42,7 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
             alert_message = f"Found a shiny {pokemon.species.name}. 🥳"
 
         elif custom_found:
-            if not config["logging"]["save_pk3"]["all"] and config["logging"]["save_pk3"]["custom"]:
+            if not config.logging.save_pk3.all and config.logging.save_pk3.custom:
                 save_pk3(pokemon)
             state_tag = "customfilter"
             console.print("[bold green]Custom filter Pokemon found!")
@@ -62,7 +55,7 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
             alert_title = None
             alert_message = None
 
-        if not custom_found and pokemon.species.name in block_list:
+        if not custom_found and pokemon.species.name in config.catch_block.block_list:
             console.print(f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...")
         else:
             filename_suffix = f"{state_tag}_{pokemon.species.safe_name}"
@@ -70,7 +63,7 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
 
             # TEMPORARY until auto-battle/auto-catch is done
             # if the mon is saved and imported, no need to catch it by hand
-            if config["logging"]["import_pk3"]:
+            if config.logging.import_pk3:
                 if import_into_storage(pokemon.data):
                     return
 

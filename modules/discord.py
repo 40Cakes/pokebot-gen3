@@ -2,7 +2,6 @@ import time
 from pathlib import Path
 from pypresence import Presence
 from discord_webhook import DiscordWebhook, DiscordEmbed
-from modules.config import config
 from modules.context import context
 
 
@@ -19,42 +18,42 @@ def discord_message(
     embed_footer: str = None,
     embed_color: str = "FFFFFF",
 ) -> None:
-    if not webhook_url:
-        webhook_url = config["discord"]["global_webhook_url"]
-    webhook, embed_obj = DiscordWebhook(url=webhook_url, content=content), None
+    webhook_url = webhook_url or context.config.discord.global_webhook_url
+    if webhook_url:
+        webhook, embed_obj = DiscordWebhook(url=webhook_url, content=content), None
 
-    if image:
-        with open(image, "rb") as f:
-            webhook.add_file(file=f.read(), filename="image.png")
+        if image:
+            with open(image, "rb") as f:
+                webhook.add_file(file=f.read(), filename="image.png")
 
-    if embed:
-        embed_obj = DiscordEmbed(title=embed_title, color=embed_color)
+        if embed:
+            embed_obj = DiscordEmbed(title=embed_title, color=embed_color)
 
-        if embed_description:
-            embed_obj.description = embed_description
+            if embed_description:
+                embed_obj.description = embed_description
 
-        if embed_fields:
-            for key, value in embed_fields.items():
-                embed_obj.add_embed_field(name=key, value=value, inline=False)
+            if embed_fields:
+                for key, value in embed_fields.items():
+                    embed_obj.add_embed_field(name=key, value=value, inline=False)
 
-        if embed_thumbnail:
-            with open(embed_thumbnail, "rb") as f:
-                webhook.add_file(file=f.read(), filename="thumb.png")
-            embed_obj.set_thumbnail(url="attachment://thumb.png")
+            if embed_thumbnail:
+                with open(embed_thumbnail, "rb") as f:
+                    webhook.add_file(file=f.read(), filename="thumb.png")
+                embed_obj.set_thumbnail(url="attachment://thumb.png")
 
-        if embed_image:
-            with open(embed_image, "rb") as f:
-                webhook.add_file(file=f.read(), filename="embed.png")
-            embed_obj.set_image(url="attachment://embed.png")
+            if embed_image:
+                with open(embed_image, "rb") as f:
+                    webhook.add_file(file=f.read(), filename="embed.png")
+                embed_obj.set_image(url="attachment://embed.png")
 
-        if embed_footer:
-            embed_obj.set_footer(text=embed_footer)
+            if embed_footer:
+                embed_obj.set_footer(text=embed_footer)
 
-        embed_obj.set_timestamp()
-        webhook.add_embed(embed_obj)
+            embed_obj.set_timestamp()
+            webhook.add_embed(embed_obj)
 
-    time.sleep(config["obs"]["discord_delay"])
-    webhook.execute()
+        time.sleep(context.config.obs.discord_delay)
+        webhook.execute()
 
 
 def discord_rich_presence() -> None:
@@ -86,7 +85,7 @@ def discord_rich_presence() -> None:
         RPC.update(
             state=f"{location} | {context.rom.game_name}",
             details=(
-                f'{totals["totals"].get("encounters", 0):,} ({totals["totals"].get("shiny_encounters", 0):,}✨) |'
+                f'{totals.get("totals", {}).get("encounters", 0):,} ({totals.get("totals", {}).get("shiny_encounters", 0):,}✨) |'
                 f" {total_stats.get_encounter_rate():,}/h"
             ),
             large_image=large_image,

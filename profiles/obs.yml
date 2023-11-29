@@ -1,5 +1,4 @@
-# OBS settings
-# See readme for documentation: https://github.com/40Cakes/pokebot-gen3#obsyml---obs-config
+# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3#obsyml---obs-config
 
 obs_websocket:
   host: 127.0.0.1
@@ -8,14 +7,13 @@ obs_websocket:
 
 shiny_delay: 0
 discord_delay: 0
-screenshot: false # `true`, `false`
-replay_buffer: false # `true`, `false`
+screenshot: false
+replay_buffer: false
 replay_buffer_delay: 0
 discord_webhook_url:
 replay_dir: "./stream/replays/"
 
-# Web server
 http_server:
-  enable: false # `true`, `false`
+  enable: false
   ip: 127.0.0.1
   port: 8888
