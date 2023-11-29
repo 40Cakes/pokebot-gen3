@@ -77,17 +77,17 @@ def custom_catch_filters(pokemon: Pokemon) -> str | bool:
             # Pokémon with perfect IVs
             if pokemon.ivs.sum() == (6 * 31):
                 return "Pokémon with perfect IVs"
-                #pass
+                # pass
 
             # Pokémon with all 0 IVs
             if pokemon.ivs.sum() == 0:
                 return "Pokémon with all 0 IVs"
-                #pass
+                # pass
 
             # Pokémon with 6 identical IVs of any value
             if all(v == ivs[0] for v in ivs):
                 return "Pokémon with 6 identical IVs of any value"
-                #pass
+                # pass
 
             # Pokémon with 4 or more max IVs in any stat
             max_ivs = sum(1 for v in ivs if v == 31)
