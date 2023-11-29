@@ -1,5 +1,4 @@
 import random
-import time
 from enum import Enum
 
 from modules.console import console
