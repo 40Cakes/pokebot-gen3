@@ -50,10 +50,16 @@ class ModeStarterStates(Enum):
 class ModeStarters:
     def __init__(self) -> None:
         self.state: ModeStarterStates = ModeStarterStates.RESET
-        self.kanto_starters: list = ["Bulbasaur", "Charmander", "Squirtle"]
+        self.kanto_starters: list = ["Bulbasaur",  "Squirtle", "Charmander"]
         self.johto_starters: list = ["Chikorita", "Totodile", "Cyndaquil"]
         self.hoenn_starters: list = ["Treecko", "Torchic", "Mudkip"]
 
+        if config.general.random:
+            starter = random.choice(self.kanto_starters)
+            config.general.set_mon(starter)
+        else:
+            starter = config.general.starter.value
+        
         if config.general.starter.value in self.kanto_starters and context.rom.game_title in [
             "POKEMON LEAF",
             "POKEMON FIRE",
@@ -139,12 +145,25 @@ class ModeStarters:
                                     continue
 
                         case ModeStarterStates.OVERWORLD:
-                            self.start_party_length = len(get_party())
-                            if not get_task("TASK_SCRIPTSHOWMONPIC").get("isActive", False):
+                            starter = config.general.starter.value
+                            if get_task("TASK_HANDLEMENUINPUT").get("isActive", False):
                                 context.emulator.press_button("A")
+                            elif get_task("TASK_RUNTIMEBASEDEVENTS").get("data", False) != bytearray(b'\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'):
+                                context.emulator.press_button("B")
+                            
+                            elif trainer.get_coords()[0] != self.kanto_starters.index(starter)+8:
+                                follow_path(
+                                    [(self.kanto_starters.index(starter)+8 , 5)]
+                                )
+                            elif not trainer.get_facing_direction() == "Up":
+                                context.emulator.press_button("Up")
                             else:
-                                self.update_state(ModeStarterStates.INJECT_RNG)
-                                continue
+                                self.start_party_length = len(get_party())
+                                if not get_task("TASK_SCRIPTSHOWMONPIC").get("isActive", False):
+                                    context.emulator.press_button("A")
+                                else:
+                                    self.update_state(ModeStarterStates.INJECT_RNG)
+                                    continue
 
                         case ModeStarterStates.INJECT_RNG:
                             if config.cheats.starters_rng:
@@ -196,6 +215,8 @@ class ModeStarters:
                         case ModeStarterStates.LOG_STARTER:
                             encounter_pokemon(get_party()[0])
                             opponent_changed()  # Prevent opponent from being logged if starter is shiny
+                            if config.general.random:
+                                config.general.set_mon(random.choice(self.kanto_starters))
                             return
 
                 case Regions.JOHTO_STARTERS:
