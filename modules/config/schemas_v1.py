@@ -6,7 +6,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Literal
 
-from confz import BaseConfig, FileSource
+from confz import BaseConfig
 from pydantic import field_validator, Field
 from pydantic.types import Annotated, ClassVar, NonNegativeInt, PositiveInt
 
