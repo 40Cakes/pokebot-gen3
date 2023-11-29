@@ -1,0 +1,21 @@
+# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/wiki/%F0%9F%93%84-Logging-and-Console-Output
+
+# Log all encounters to .csv (`stats/encounters/` folder), each phase is logged to a separate file
+log_encounters: false # `true`, `false`
+
+# Console output
+# `verbose`, `basic`, `disable`
+console:
+  encounter_data: verbose
+  encounter_ivs: verbose
+  encounter_moves: disable
+  statistics: verbose
+
+# Save .pk3 files
+save_pk3:
+  all: false
+  shiny: true
+  custom: true
+
+# Automatically load .pk3 file into PC storage
+import_pk3: false

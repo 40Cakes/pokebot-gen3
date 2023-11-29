@@ -1,0 +1,57 @@
+# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/wiki/%F0%9F%8E%AE-Emulator-Input-Mapping
+
+# Default mGBA mapping
+gba:
+  Up: Up
+  Down: Down
+  Left: Left
+  Right: Right
+  A: x
+  B: z
+  L: a
+  R: s
+  Start: Return
+  Select: BackSpace
+
+# Keys that trigger emulator features
+# You can optionally prefix a key code with 'Ctrl+' so that it only works if the Ctrl modifier key is held at the same time.
+emulator:
+  # Increase zoom level by 1
+  zoom_in: plus
+
+  # Decrease zoom level by 1
+  zoom_out: minus
+
+  # Toggle between the 'manual' bot mode and the previously selected mode
+  toggle_manual: Tab
+
+  # Toggle video output (disabling video will boost FPS)
+  toggle_video: v
+
+  # Toggle sound output
+  toggle_audio: b
+
+  # Set emulation speed
+  set_speed_1x: '1'
+  set_speed_2x: '2'
+  set_speed_3x: '3'
+  set_speed_4x: '4'
+
+  # ⚠ Photosensitivity warning: Disable throttling entirely, the emulator will run as fast as your CPU allows
+  set_speed_unthrottled: '0'
+
+  # Reset emulator core/reboot game
+  reset: Ctrl+R
+
+  # Exit emulator and bot
+  exit: Ctrl+Q
+
+  # Create a save state
+  save_state: Ctrl+S
+
+  # Open load save state selection menu
+  load_state: Ctrl+L
+
+  # -- Ignore this unless you want to do programming on the bot code --
+  # Allows you to put the emulator into 'stepping mode', where frames need to be advanced manually using a button, useful for analysing memory values
+  toggle_stepping_mode: Ctrl+P
