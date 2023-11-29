@@ -1,6 +1,7 @@
 import time
 import tkinter
 from enum import Enum
+from PIL import Image, ImageDraw, ImageTk, ImageOps
 from tkinter import ttk, Canvas
 from typing import TYPE_CHECKING, Union, Optional
 
@@ -188,6 +189,65 @@ class FancyTreeview:
             return
 
         callback(self._tv.item(selection[0])["text"])
+
+
+class MapViewer:
+
+    COLLISION = (255,0,0)
+    ENCOUNTERS = (0,255,0)
+    NORMAL = (255,255,255)
+    JUMP = (0,255,255)
+    WATER = (0,0,255)
+    PLAYER = (0,0,0)
+    TILE_SIZE = 8
+
+    def __init__( self, 
+                  root: ttk.Widget,
+                  row=0,
+                  column=0) -> None:
+        self._root = root
+        self._map: ttk.Label = ttk.Label(self._root, padding=(10, 10))
+        self._map.grid(row=row, column=column)
+
+    def update(self):
+        current_map_data = get_map_data_for_current_position()
+        self._selected_map = (current_map_data.map_group, current_map_data.map_number)
+        map_image = ImageTk.PhotoImage(self._get_map_bitmap())
+        self._map.configure(image=map_image)
+        self._map.image = map_image
+    
+    def _get_map_bitmap(self) -> Image:
+    
+        map_group, map_number = self._selected_map
+        map_data = get_map_data_for_current_position()
+        cur_x, cur_y = map_data.local_position
+        
+        map_width, map_height = map_data.map_size
+        image = Image.new("RGB", (map_width * MapViewer.TILE_SIZE, map_height * MapViewer.TILE_SIZE), color = MapViewer.NORMAL)
+        image_draw = ImageDraw.Draw(image)
+        for y in range(map_height):
+            for x in range(map_width):
+                tile_data = get_map_data(map_group, map_number, (x,y))
+                tile_color = MapViewer.NORMAL
+                if bool(tile_data.collision):
+                    tile_color = MapViewer.COLLISION
+                if tile_data.has_encounters:
+                    tile_color = MapViewer.ENCOUNTERS
+                if "Jump" in tile_data.tile_type:
+                    tile_color = MapViewer.JUMP
+                if tile_data.is_surfable:
+                    tile_color = MapViewer.WATER
+                if x == cur_x and y == cur_y:
+                    tile_color = MapViewer.PLAYER
+                image_draw.rectangle(xy = [
+                    (x * MapViewer.TILE_SIZE, y * MapViewer.TILE_SIZE),
+                    ((x + 1) * MapViewer.TILE_SIZE, (y + 1) * MapViewer.TILE_SIZE)
+                ], fill=tile_color)
+
+        image.size
+
+        return ImageOps.contain(image, (150,150))
+
 
 
 class TasksTab(DebugTab):
@@ -589,11 +649,12 @@ class InputsTab(DebugTab):
             result[input] = True if input_map[input] & inputs else False
 
         return result
-
+    
 
 class MapTab(DebugTab):
     def __init__(self, canvas: Canvas):
         self._canvas = canvas
+        self._map: MapViewer | None = None
         self._tv: FancyTreeview | None = None
         self._selected_tile: tuple[int, int] | None = None
         self._selected_map: tuple[int, int] | None = None
@@ -602,11 +663,13 @@ class MapTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
-        self._tv = FancyTreeview(frame, on_highlight=self._handle_selection)
+        self._map = MapViewer(frame, row=1)
+        self._tv = FancyTreeview(frame, row=0, height=15, on_highlight=self._handle_selection)
         root.add(frame, text="Map")
 
     def update(self, emulator: "LibmgbaEmulator"):
         show_different_tile = self._marker_rectangle is not None and get_task('TASK_WEATHERMAIN') != {}
+        self._map.update()
         from modules.trainer import trainer
         if trainer.get_tile_transition_state() != 0:
             self._marker_rectangle = None
@@ -747,3 +810,4 @@ class MapTab(DebugTab):
 
         selected_object = map_objects[object_index]
         self._selected_object = (selected_object.map_group, selected_object.map_num, selected_object.local_id)
+        
