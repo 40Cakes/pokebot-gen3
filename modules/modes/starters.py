@@ -5,10 +5,12 @@ from modules.console import console
 from modules.context import context
 from modules.encounter import encounter_pokemon
 from modules.files import get_rng_state_history, save_rng_state_history
-from modules.memory import read_symbol, get_game_state, GameState, get_task, write_symbol, unpack_uint32, pack_uint32
+from modules.memory import read_symbol, get_game_state, GameState, get_task, write_symbol, unpack_uint32, pack_uint32, get_event_flag
 from modules.navigation import follow_path
 from modules.pokemon import get_party, opponent_changed
 from modules.trainer import trainer
+from modules.game import decode_string
+from modules.map import get_map_objects
 
 config = context.config
 
@@ -50,28 +52,34 @@ class ModeStarterStates(Enum):
 class ModeStarters:
     def __init__(self) -> None:
         self.state: ModeStarterStates = ModeStarterStates.RESET
-        self.kanto_starters: list = ["Bulbasaur", "Charmander", "Squirtle"]
-        self.johto_starters: list = ["Chikorita", "Totodile", "Cyndaquil"]
+        self.kanto_starters: list = ["Bulbasaur",  "Squirtle", "Charmander"]
+        self.johto_starters: list = ["Cyndaquil", "Totodile", "Chikorita"]
         self.hoenn_starters: list = ["Treecko", "Torchic", "Mudkip"]
-
-        if config.general.starter.value in self.kanto_starters and context.rom.game_title in [
+        
+        johto_objects = 0
+        for item in get_map_objects():
+            if str(item) in ["Entity at (8, 4)","Entity at (9, 4)","Entity at (10, 4)"]:
+                johto_objects += 1
+        
+        if (config.general.starter.value in self.kanto_starters or config.general.random) and context.rom.game_title in [
             "POKEMON LEAF",
             "POKEMON FIRE",
         ]:
             self.region: Regions = Regions.KANTO_STARTERS
-
-        elif config.general.starter.value in self.johto_starters and context.rom.game_title == "POKEMON EMER":
+            if config.general.random:
+                config.general.set_mon(random.choice(self.kanto_starters))
+        
+        elif (config.general.starter.value in self.johto_starters or config.general.random) and context.rom.game_title == "POKEMON EMER" and johto_objects >= 2: 
             self.region: Regions = Regions.JOHTO_STARTERS
             self.start_party_length: int = 0
-            console.print(
-                "[red]Notice: Johto starters enables the fast `starters` check option in `profiles/cheats.yml` by "
-                "default, the shininess of the starter is checked via memhacks while start menu navigation is WIP (in "
-                "future, shininess will be checked via the party summary menu)."
-            )
+            if config.general.random:
+                config.general.set_mon(random.choice(self.johto_starters))
             if len(get_party()) == 6:
                 self.update_state(ModeStarterStates.PARTY_FULL)
 
-        elif config.general.starter.value in self.hoenn_starters:
+        elif config.general.starter.value in self.hoenn_starters or config.general.random:
+            if config.general.random:
+                config.general.set_mon(random.choice(self.hoenn_starters))
             self.bag_position: int = BagPositions[config.general.starter.value.upper()].value
             if context.rom.game_title == "POKEMON EMER":
                 self.region = Regions.HOENN_STARTERS
@@ -139,12 +147,25 @@ class ModeStarters:
                                     continue
 
                         case ModeStarterStates.OVERWORLD:
-                            self.start_party_length = len(get_party())
-                            if not get_task("TASK_SCRIPTSHOWMONPIC").get("isActive", False):
+                            context.message = "Pathing to starter..."
+                            starter = config.general.starter.value
+                            if get_task("TASK_HANDLEMENUINPUT").get("isActive", False):
                                 context.emulator.press_button("A")
+                            elif get_task("TASK_RUNTIMEBASEDEVENTS").get("data", False) != bytearray(b'\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'):
+                                context.emulator.press_button("B")
+                            elif trainer.get_coords()[0] != self.kanto_starters.index(starter)+8:
+                                follow_path(
+                                    [(self.kanto_starters.index(starter)+8 , 5)]
+                                )
+                            elif not trainer.get_facing_direction() == "Up":
+                                context.emulator.press_button("Up")
                             else:
-                                self.update_state(ModeStarterStates.INJECT_RNG)
-                                continue
+                                self.start_party_length = len(get_party())
+                                if not get_task("TASK_SCRIPTSHOWMONPIC").get("isActive", False):
+                                    context.emulator.press_button("A")
+                                else:
+                                    self.update_state(ModeStarterStates.INJECT_RNG)
+                                    continue
 
                         case ModeStarterStates.INJECT_RNG:
                             if config.cheats.starters_rng:
@@ -220,12 +241,26 @@ class ModeStarters:
                                     continue
 
                         case ModeStarterStates.OVERWORLD:
-                            self.start_party_length = len(get_party())
-                            if get_task("TASK_DRAWFIELDMESSAGE").get("isActive", False):
-                                context.emulator.press_button("A")
+                            context.message = "Pathing to starter..."
+                            starter = config.general.starter.value
+                            # if get_task("TASK_HANDLEMENUINPUT").get("isActive", False):
+                            #     context.emulator.press_button("A")
+                            # elif get_task("TASK_RUNTIMEBASEDEVENTS").get("data", False) != bytearray(b'\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'):
+                            #     context.emulator.press_button("B")
+                            
+                            if trainer.get_coords()[0] != self.johto_starters.index(starter)+8:
+                                follow_path(
+                                    [(self.johto_starters.index(starter)+8 , 5)]
+                                )
+                            elif not trainer.get_facing_direction() == "Up":
+                                context.emulator.press_button("Up")
                             else:
-                                self.update_state(ModeStarterStates.INJECT_RNG)
-                                continue
+                                self.start_party_length = len(get_party())
+                                if get_task("TASK_DRAWFIELDMESSAGE").get("isActive", False):
+                                    context.emulator.press_button("A")
+                                else:
+                                    self.update_state(ModeStarterStates.INJECT_RNG)
+                                    continue
 
                         case ModeStarterStates.INJECT_RNG:
                             if config.cheats.starters_rng:
@@ -274,10 +309,29 @@ class ModeStarters:
                                     continue
 
                         case ModeStarterStates.CHECK_STARTER:
-                            config.cheats.starters = True  # TODO temporary until menu navigation is ready
+                            # config.cheats.starters = True  # TODO temporary until menu navigation is ready
                             if config.cheats.starters:  # TODO check Pokémon summary screen once menu navigation merged
                                 self.update_state(ModeStarterStates.LOG_STARTER)
                                 continue
+                            elif get_task("SCRIPTMOVEMENT_MOVEOBJECTS").get("isActive", False):
+                                context.emulator.press_button("B")
+                            elif not read_symbol("sStartMenuWindowId") == bytearray(b'\x01'):
+                                context.emulator.press_button("Start")
+                            elif not read_symbol("sStartMenuCursorPos") == bytearray(b'\x01'):
+                                context.emulator.press_button("Down")
+                            elif (read_symbol("sStartMenuCursorPos") == bytearray(b'\x01') and get_task("TASK_SHOWSTARTMENU").get("isActive", False)) or get_task("TASK_HANDLECHOOSEMONINPUT").get("isActive", False):
+                                context.emulator.press_button("A")
+                            elif get_task("TASK_HANDLESLECTIONMENUINPUT").get("isActive", False):
+                                context.emulator.press_button("A")
+                            elif not get_task("TASK_HANDLEINPUT").get("isActive", False) and not get_task("TASK_CHANGESUMMARYMON").get("isActive", False):
+                                context.emulator.press_button("A")
+                            else:
+                                if ", met at  È5, LITTLEROOT TOWN." in decode_string(read_symbol("gStringVar4")):
+                                    print("auidjhw")
+                                    self.update_state(ModeStarterStates.LOG_STARTER)
+                                else:
+                                    context.emulator.press_button("Down")
+                                
 
                         case ModeStarterStates.LOG_STARTER:
                             party = get_party()

@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Literal
 
 from confz import BaseConfig
-from pydantic import field_validator, Field
+from pydantic import field_validator, Field, ConfigDict
 from pydantic.types import Annotated, ClassVar, NonNegativeInt, PositiveInt
 
 
@@ -68,9 +68,13 @@ class DiscordWebhook(BaseConfig):
 
 class General(BaseConfig):
     """Schema for the general configuration."""
-
+    model_config = ConfigDict(frozen=False)
     filename: ClassVar = "general.yml"
     starter: Starters = Starters.MUDKIP
+    random: bool = False
+    
+    def set_mon(self, mon: str):
+        self.starter = Starters[mon.upper()]
 
 
 class Keys(BaseConfig):
