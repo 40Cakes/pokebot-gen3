@@ -54,7 +54,7 @@ class ModeStarters:
         self.johto_starters: list = ["Chikorita", "Totodile", "Cyndaquil"]
         self.hoenn_starters: list = ["Treecko", "Torchic", "Mudkip"]
         
-        if config.general.starter.value in self.kanto_starters and context.rom.game_title in [
+        if (config.general.starter.value in self.kanto_starters or config.general.random) and context.rom.game_title in [
             "POKEMON LEAF",
             "POKEMON FIRE",
         ]:
@@ -62,7 +62,7 @@ class ModeStarters:
             if config.general.random:
                 config.general.set_mon(random.choice(self.kanto_starters))
 
-        elif config.general.starter.value in self.johto_starters and context.rom.game_title == "POKEMON EMER":
+        elif (config.general.starter.value in self.johto_starters or config.general.random) and context.rom.game_title == "POKEMON EMER":
             self.region: Regions = Regions.JOHTO_STARTERS
             self.start_party_length: int = 0
             if config.general.random:
@@ -75,7 +75,7 @@ class ModeStarters:
             if len(get_party()) == 6:
                 self.update_state(ModeStarterStates.PARTY_FULL)
 
-        elif config.general.starter.value in self.hoenn_starters:
+        elif config.general.starter.value in self.hoenn_starters or config.general.random:
             if config.general.random:
                 config.general.set_mon(random.choice(self.hoenn_starters))
             self.bag_position: int = BagPositions[config.general.starter.value.upper()].value
@@ -216,8 +216,6 @@ class ModeStarters:
                         case ModeStarterStates.LOG_STARTER:
                             encounter_pokemon(get_party()[0])
                             opponent_changed()  # Prevent opponent from being logged if starter is shiny
-                            if config.general.random:
-                                config.general.set_mon(random.choice(self.kanto_starters))
                             return
 
                 case Regions.JOHTO_STARTERS:
