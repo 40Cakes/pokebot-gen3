@@ -62,7 +62,8 @@ class ModeStarters:
             if config.general.random:
                 config.general.set_mon(random.choice(self.kanto_starters))
 
-        elif (config.general.starter.value in self.johto_starters or config.general.random) and context.rom.game_title == "POKEMON EMER":
+        #Have to put valid Johto start if using random mode
+        elif config.general.starter.value in self.johto_starters and context.rom.game_title == "POKEMON EMER": 
             self.region: Regions = Regions.JOHTO_STARTERS
             self.start_party_length: int = 0
             if config.general.random:
