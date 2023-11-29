@@ -327,7 +327,7 @@ class TotalStats:
             self.update_shiny_incremental_stats(pokemon)
 
             #  TODO fix all this OBS crap
-            for i in range(context.config.obs.get("shiny_delay", 1)):
+            for i in range(context.config.obs.shiny_delay):
                 context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
 
             if context.config.obs.screenshot:

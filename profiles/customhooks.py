@@ -332,7 +332,7 @@ def custom_hooks(hook) -> None:
                 time.sleep(3)  # Give the screenshot some time to save to disk
                 images = glob.glob(f"{config.obs.replay_dir}*.png")
                 image = max(images, key=os.path.getctime)
-                discord_message(webhook_url=config.obs.get("discord_webhook_url", None), image=image)
+                discord_message(webhook_url=config.obs.discord_webhook_url, image=image)
 
             # Run in a thread to not hold up other hooks
             Thread(target=OBSDiscordScreenshot).start()
@@ -346,7 +346,7 @@ def custom_hooks(hook) -> None:
             def OBSReplayBuffer():
                 from modules.obs import obs_hot_key
 
-                time.sleep(config.obs.get("replay_buffer_delay", 0))
+                time.sleep(config.obs.replay_buffer_delay)
                 obs_hot_key("OBS_KEY_F12", pressCtrl=True)
 
             # Run in a thread to not hold up other hooks
