@@ -62,9 +62,9 @@ class DiscordWebhook(BaseConfig):
     model_config = ConfigDict(coerce_numbers_to_str=True)
 
     enable: bool = False
-    first_interval: PositiveInt | None = 8192  # Only used by phase_summary.
-    consequent_interval: PositiveInt | None = 5000  # Only used by phase_summary.
-    interval: PositiveInt = 5
+    first_interval: PositiveInt | None = 0  # Only used by phase_summary.
+    consequent_interval: PositiveInt | None = 0  # Only used by phase_summary.
+    interval: PositiveInt = 0
     ping_mode: Literal["user", "role", None] = None
     ping_id: str | None = None
     webhook_url: str | None = None
