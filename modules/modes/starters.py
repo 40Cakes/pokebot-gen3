@@ -243,11 +243,6 @@ class ModeStarters:
                         case ModeStarterStates.OVERWORLD:
                             context.message = "Pathing to starter..."
                             starter = config.general.starter.value
-                            # if get_task("TASK_HANDLEMENUINPUT").get("isActive", False):
-                            #     context.emulator.press_button("A")
-                            # elif get_task("TASK_RUNTIMEBASEDEVENTS").get("data", False) != bytearray(b'\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'):
-                            #     context.emulator.press_button("B")
-                            
                             if trainer.get_coords()[0] != self.johto_starters.index(starter)+8:
                                 follow_path(
                                     [(self.johto_starters.index(starter)+8 , 5)]
@@ -309,8 +304,7 @@ class ModeStarters:
                                     continue
 
                         case ModeStarterStates.CHECK_STARTER:
-                            # config.cheats.starters = True  # TODO temporary until menu navigation is ready
-                            if config.cheats.starters:  # TODO check Pokémon summary screen once menu navigation merged
+                            if config.cheats.starters:
                                 self.update_state(ModeStarterStates.LOG_STARTER)
                                 continue
                             elif get_task("SCRIPTMOVEMENT_MOVEOBJECTS").get("isActive", False):
