@@ -53,22 +53,20 @@ class ModeStarters:
         self.kanto_starters: list = ["Bulbasaur",  "Squirtle", "Charmander"]
         self.johto_starters: list = ["Chikorita", "Totodile", "Cyndaquil"]
         self.hoenn_starters: list = ["Treecko", "Torchic", "Mudkip"]
-
-        if config.general.random:
-            starter = random.choice(self.kanto_starters)
-            config.general.set_mon(starter)
-        else:
-            starter = config.general.starter.value
         
         if config.general.starter.value in self.kanto_starters and context.rom.game_title in [
             "POKEMON LEAF",
             "POKEMON FIRE",
         ]:
             self.region: Regions = Regions.KANTO_STARTERS
+            if config.general.random:
+                config.general.set_mon(random.choice(self.kanto_starters))
 
         elif config.general.starter.value in self.johto_starters and context.rom.game_title == "POKEMON EMER":
             self.region: Regions = Regions.JOHTO_STARTERS
             self.start_party_length: int = 0
+            if config.general.random:
+                config.general.set_mon(random.choice(self.johto_starters))
             console.print(
                 "[red]Notice: Johto starters enables the fast `starters` check option in `profiles/cheats.yml` by "
                 "default, the shininess of the starter is checked via memhacks while start menu navigation is WIP (in "
@@ -78,6 +76,8 @@ class ModeStarters:
                 self.update_state(ModeStarterStates.PARTY_FULL)
 
         elif config.general.starter.value in self.hoenn_starters:
+            if config.general.random:
+                config.general.set_mon(random.choice(self.hoenn_starters))
             self.bag_position: int = BagPositions[config.general.starter.value.upper()].value
             if context.rom.game_title == "POKEMON EMER":
                 self.region = Regions.HOENN_STARTERS
@@ -145,6 +145,7 @@ class ModeStarters:
                                     continue
 
                         case ModeStarterStates.OVERWORLD:
+                            context.message = "Pathing to starter..."
                             starter = config.general.starter.value
                             if get_task("TASK_HANDLEMENUINPUT").get("isActive", False):
                                 context.emulator.press_button("A")
