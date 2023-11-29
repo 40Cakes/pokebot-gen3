@@ -9,7 +9,6 @@ __pycache__
 .last-requirements-check
 build/
 profiles/*/
-profiles/*.yml
 dist/
 logs/
 mgba/
