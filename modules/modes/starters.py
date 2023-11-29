@@ -6,11 +6,12 @@ from modules.console import console
 from modules.context import context
 from modules.encounter import encounter_pokemon
 from modules.files import get_rng_state_history, save_rng_state_history
-from modules.memory import read_symbol, get_game_state, GameState, get_task, write_symbol, unpack_uint32, pack_uint32
+from modules.memory import read_symbol, get_game_state, GameState, get_task, write_symbol, unpack_uint32, pack_uint32, get_event_flag
 from modules.navigation import follow_path
 from modules.pokemon import get_party, opponent_changed
 from modules.trainer import trainer
 from modules.game import decode_string
+from modules.map import get_map_objects
 
 config = context.config
 
@@ -56,6 +57,11 @@ class ModeStarters:
         self.johto_starters: list = ["Cyndaquil", "Totodile", "Chikorita"]
         self.hoenn_starters: list = ["Treecko", "Torchic", "Mudkip"]
         
+        johto_objects = 0
+        for item in get_map_objects():
+            if str(item) in ["Entity at (8, 4)","Entity at (9, 4)","Entity at (10, 4)"]:
+                johto_objects += 1
+        
         if (config.general.starter.value in self.kanto_starters or config.general.random) and context.rom.game_title in [
             "POKEMON LEAF",
             "POKEMON FIRE",
@@ -63,9 +69,8 @@ class ModeStarters:
             self.region: Regions = Regions.KANTO_STARTERS
             if config.general.random:
                 config.general.set_mon(random.choice(self.kanto_starters))
-
-        #Have to put valid Johto starter if using random mode
-        elif config.general.starter.value in self.johto_starters and context.rom.game_title == "POKEMON EMER": 
+        
+        elif (config.general.starter.value in self.johto_starters or config.general.random) and context.rom.game_title == "POKEMON EMER" and johto_objects >= 2: 
             self.region: Regions = Regions.JOHTO_STARTERS
             self.start_party_length: int = 0
             if config.general.random:
@@ -149,7 +154,6 @@ class ModeStarters:
                                 context.emulator.press_button("A")
                             elif get_task("TASK_RUNTIMEBASEDEVENTS").get("data", False) != bytearray(b'\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'):
                                 context.emulator.press_button("B")
-                            
                             elif trainer.get_coords()[0] != self.kanto_starters.index(starter)+8:
                                 follow_path(
                                     [(self.kanto_starters.index(starter)+8 , 5)]
