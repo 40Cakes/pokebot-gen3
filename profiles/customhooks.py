@@ -166,7 +166,7 @@ def custom_hooks(hook) -> None:
                     case "user":
                         discord_ping = f"📢 <@{config.discord.shiny_pokemon_encounter_milestones.ping_id}>"
                 discord_message(
-                    webhook_url=config.discord.shiny_pokemon_encounter_milestones.get("webhook_url", None),
+                    webhook_url=config.discord.shiny_pokemon_encounter_milestones.webhook_url,
                     content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
                     embed_description=f"{stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,} shiny ✨ {pokemon.species.name} ✨ encounters!",
@@ -212,7 +212,7 @@ def custom_hooks(hook) -> None:
                 )
 
                 discord_message(
-                    webhook_url=config.discord.total_encounter_milestones.get("webhook_url", None),
+                    webhook_url=config.discord.total_encounter_milestones.webhook_url,
                     content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
                     embed_description=f"{stats['totals'].get('encounters', 0):,} total encounters!",
@@ -232,7 +232,7 @@ def custom_hooks(hook) -> None:
                     stats["totals"].get("phase_encounters", -1) == config.discord.phase_summary.first_interval
                     or (
                         stats["totals"].get("phase_encounters", -1)
-                        > config.discord.phase_summary.get("first_interval", 0)
+                        > config.discord.phase_summary.first_interval
                         and stats["totals"].get("phase_encounters", -1)
                         % config.discord.phase_summary.consequent_interval
                         == 0
@@ -247,7 +247,7 @@ def custom_hooks(hook) -> None:
                     case "user":
                         discord_ping = f"📢 <@{config.discord.phase_summary.ping_id}>"
                 discord_message(
-                    webhook_url=config.discord.phase_summary.get("webhook_url", None),
+                    webhook_url=config.discord.phase_summary.webhook_url,
                     content=f"💀 The current phase has reached {stats['totals'].get('phase_encounters', 0):,} encounters!\n{discord_ping}",
                     embed=True,
                     embed_fields=PhaseSummary(),
