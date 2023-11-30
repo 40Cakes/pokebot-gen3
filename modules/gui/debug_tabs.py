@@ -10,7 +10,7 @@ from modules.daycare import get_daycare_data
 from modules.game import decode_string, _symbols, _reverse_symbols
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_items
-from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects
+from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects, get_map_all_tiles
 from modules.memory import (
     get_symbol,
     read_symbol,
@@ -198,7 +198,6 @@ class MapViewer:
     NORMAL = (255,255,255)
     JUMP = (0,255,255)
     WATER = (0,0,255)
-    PLAYER = (0,0,0)
     TILE_SIZE = 8
 
     def __init__( self, 
@@ -208,26 +207,29 @@ class MapViewer:
         self._root = root
         self._map: ttk.Label = ttk.Label(self._root, padding=(10, 10))
         self._map.grid(row=row, column=column)
+        self._cache: dict[tuple[int, int], ImageTk.PhotoImage] = {}
 
     def update(self):
         current_map_data = get_map_data_for_current_position()
-        self._selected_map = (current_map_data.map_group, current_map_data.map_number)
-        map_image = ImageTk.PhotoImage(self._get_map_bitmap())
-        self._map.configure(image=map_image)
-        self._map.image = map_image
+        
+        cached_map = self._cache.get(current_map_data.local_position, False)
+        if not cached_map:
+            cached_map = ImageTk.PhotoImage(self._get_map_bitmap())
+            self._cache[current_map_data.local_position] = cached_map
+        
+        self._map.configure(image=cached_map)
+        self._map.image = cached_map
     
     def _get_map_bitmap(self) -> Image:
     
-        map_group, map_number = self._selected_map
-        map_data = get_map_data_for_current_position()
-        cur_x, cur_y = map_data.local_position
+        tiles = get_map_all_tiles()
+        map_width, map_height = tiles[0].map_size
         
-        map_width, map_height = map_data.map_size
         image = Image.new("RGB", (map_width * MapViewer.TILE_SIZE, map_height * MapViewer.TILE_SIZE), color = MapViewer.NORMAL)
         image_draw = ImageDraw.Draw(image)
         for y in range(map_height):
             for x in range(map_width):
-                tile_data = get_map_data(map_group, map_number, (x,y))
+                tile_data = tiles[x + map_width * y]
                 tile_color = MapViewer.NORMAL
                 if bool(tile_data.collision):
                     tile_color = MapViewer.COLLISION
@@ -237,8 +239,6 @@ class MapViewer:
                     tile_color = MapViewer.JUMP
                 if tile_data.is_surfable:
                     tile_color = MapViewer.WATER
-                if x == cur_x and y == cur_y:
-                    tile_color = MapViewer.PLAYER
                 image_draw.rectangle(xy = [
                     (x * MapViewer.TILE_SIZE, y * MapViewer.TILE_SIZE),
                     ((x + 1) * MapViewer.TILE_SIZE, (y + 1) * MapViewer.TILE_SIZE)

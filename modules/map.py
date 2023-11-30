@@ -970,3 +970,14 @@ def get_map_objects() -> list[ObjectEvent]:
             map_object = ObjectEvent(data[offset:offset + 0x24])
             objects.append(map_object)
     return objects
+
+
+def get_map_all_tiles() -> list[MapLocation]:
+    current_map_data = get_map_data_for_current_position()
+    map_group, map_number = current_map_data.map_group, current_map_data.map_number
+    map_width, map_height = current_map_data.map_size
+    tiles = []
+    for y in range(map_height):
+        for x in range(map_width):
+            tiles.append(get_map_data(map_group, map_number, (x, y)))
+    return tiles
