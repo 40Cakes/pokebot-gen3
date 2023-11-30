@@ -189,28 +189,13 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.EXIT_MENUS:
-                            if not config.cheats.starters:
-                                if trainer.get_facing_direction() != "Down":
-                                    context.emulator.press_button("B")
-                                    context.emulator.hold_button("Down")
-                                else:
-                                    context.emulator.release_button("Down")
-                                    self.update_state(ModeStarterStates.FOLLOW_PATH)
-                                    continue
-                            else:
-                                self.update_state(ModeStarterStates.LOG_STARTER)
-                                continue
-
-                        case ModeStarterStates.FOLLOW_PATH:
-                            follow_path(
-                                [(trainer.get_coords()[0], 7), (7, 7), (7, 8)]
-                            )  # TODO Revisit FollowPath rework
-                            self.update_state(ModeStarterStates.CHECK_STARTER)
-
-                        case ModeStarterStates.CHECK_STARTER:
-                            if not get_task("TASK_PLAYERCONTROLLER_RESTOREBGMAFTERCRY").get("isActive", False):
+                            if get_task("SCRIPTMOVEMENT_MOVEOBJECTS").get("isActive", False):
                                 context.emulator.press_button("B")
-                            else:
+                            elif not read_symbol("sStartMenuWindowId") == bytearray(b'\x01'):
+                                context.emulator.press_button("Start")
+                            elif get_task("TASK_STARTMENUHANDLEINPUT").get("isActive", False) or get_task("TASK_HANDLECHOOSEMONINPUT").get("isActive", False) or get_task("TASK_HANDLESELECTIONMENUINPUT").get("isActive", False):
+                                context.emulator.press_button("A")
+                            elif get_task("TASK_DUCKBGMFORPOKEMONCRY").get("isActive", False):
                                 self.update_state(ModeStarterStates.LOG_STARTER)
                                 continue
 
