@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Literal
 
 from confz import BaseConfig
-from pydantic import field_validator, Field
+from pydantic import ConfigDict, field_validator, Field
 from pydantic.types import Annotated, ClassVar, NonNegativeInt, PositiveInt
 
 
@@ -58,12 +58,16 @@ class Discord(BaseConfig):
 class DiscordWebhook(BaseConfig):
     """Schema for the different webhooks sections contained in the Discord config."""
 
+    # This allows `ping_id` to just be an integer, even though it is treated like a string later on.
+    model_config = ConfigDict(coerce_numbers_to_str=True)
+
     enable: bool = False
-    first_interval: PositiveInt | None = 8192  # Only used by phase_summary.
-    consequent_interval: PositiveInt | None = 5000  # Only used by phase_summary.
-    interval: PositiveInt = 5
+    first_interval: PositiveInt | None = 0  # Only used by phase_summary.
+    consequent_interval: PositiveInt | None = 0  # Only used by phase_summary.
+    interval: PositiveInt = 0
     ping_mode: Literal["user", "role", None] = None
     ping_id: str | None = None
+    webhook_url: str | None = None
 
 
 class General(BaseConfig):
