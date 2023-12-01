@@ -210,15 +210,19 @@ class MapViewer:
         self._cache: dict[tuple[int, int], ImageTk.PhotoImage] = {}
 
     def update(self):
-        current_map_data = get_map_data_for_current_position()
-        
-        cached_map = self._cache.get(current_map_data.local_position, False)
-        if not cached_map:
-            cached_map = ImageTk.PhotoImage(self._get_map_bitmap())
-            self._cache[current_map_data.local_position] = cached_map
-        
-        self._map.configure(image=cached_map)
-        self._map.image = cached_map
+        try:
+            current_map_data = get_map_data_for_current_position()
+            
+            cached_map = self._cache.get((current_map_data.map_group, current_map_data.map_number), False)
+            if not cached_map:
+                cached_map = ImageTk.PhotoImage(self._get_map_bitmap())
+                self._cache[(current_map_data.map_group, current_map_data.map_number)] = cached_map
+            
+            self._map.configure(image=cached_map)
+            self._map.image = cached_map
+        except TypeError|RuntimeError:
+            #If trainer data do not exists yet then ignore. eg. New game, intro, etc
+            pass
     
     def _get_map_bitmap(self) -> Image:
     
