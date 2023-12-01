@@ -1,5 +1,5 @@
 import random
-from enum import Enum
+from enum import Enum, auto
 
 from modules.console import console
 from modules.context import context
@@ -26,25 +26,27 @@ class BagPositions(Enum):
 
 
 class ModeStarterStates(Enum):
-    RESET = 0
-    TITLE = 1
-    OVERWORLD = 2
-    BAG_MENU = 3
-    INJECT_RNG = 4
-    SELECT_STARTER = 5
-    CONFIRM_STARTER = 6
-    RNG_CHECK = 7
-    STARTER_BATTLE = 8
-    THROW_BALL = 9
-    STARTER_CRY = 10
-    STARTER_CRY_END = 11
-    YES_NO = 12
-    EXIT_MENUS = 13
-    FOLLOW_PATH = 14
-    CHECK_STARTER = 15
-    PARTY_FULL = 16
-    LOG_STARTER = 17
-    INCOMPATIBLE = 18
+    RESET = auto()
+    TITLE = auto()
+    OVERWORLD = auto()
+    BAG_MENU = auto()
+    INJECT_RNG = auto()
+    SELECT_STARTER = auto()
+    CONFIRM_STARTER = auto()
+    RNG_CHECK = auto()
+    STARTER_BATTLE = auto()
+    THROW_BALL = auto()
+    OPPONENT_CRY_START = auto()
+    OPPONENT_CRY_END = auto()
+    STARTER_CRY = auto()
+    STARTER_CRY_END = auto()
+    YES_NO = auto()
+    EXIT_MENUS = auto()
+    FOLLOW_PATH = auto()
+    CHECK_STARTER = auto()
+    PARTY_FULL = auto()
+    LOG_STARTER = auto()
+    INCOMPATIBLE = auto()
 
 
 class ModeStarters:
@@ -162,6 +164,9 @@ class ModeStarters:
 
                         case ModeStarterStates.CONFIRM_STARTER:
                             if len(get_party()) == 0:
+                                # Uncomment the following to _guarantee_ a shiny being generated. For testing purposes.
+                                # write_symbol("gRngValue",
+                                #              generate_guaranteed_shiny_rng_seed(trainer.get_tid(), trainer.get_sid()))
                                 context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.EXIT_MENUS)
@@ -184,10 +189,31 @@ class ModeStarters:
                             follow_path(
                                 [(trainer.get_coords()[0], 7), (7, 7), (7, 8)]
                             )  # TODO Revisit FollowPath rework
-                            self.update_state(ModeStarterStates.CHECK_STARTER)
+                            self.update_state(ModeStarterStates.OPPONENT_CRY_START)
 
-                        case ModeStarterStates.CHECK_STARTER:
-                            if not get_task("TASK_PLAYERCONTROLLER_RESTOREBGMAFTERCRY").get("isActive", False):
+                        case ModeStarterStates.OPPONENT_CRY_START:
+                            if not get_task("TASK_FADEMON_TONORMAL_STEP").get("isActive", False):
+                                context.emulator.press_button("B")
+                            else:
+                                self.update_state(ModeStarterStates.OPPONENT_CRY_END)
+                                continue
+
+                        case ModeStarterStates.OPPONENT_CRY_END:
+                            if get_task("TASK_FADEMON_TONORMAL_STEP").get("isActive", False):
+                                context.emulator.press_button("B")
+                            else:
+                                self.update_state(ModeStarterStates.STARTER_CRY)
+                                continue
+
+                        case ModeStarterStates.STARTER_CRY:
+                            if not get_task("TASK_FADEMON_TONORMAL_STEP").get("isActive", False):
+                                context.emulator.press_button("B")
+                            else:
+                                self.update_state(ModeStarterStates.STARTER_CRY_END)
+                                continue
+
+                        case ModeStarterStates.STARTER_CRY_END:
+                            if get_task("TASK_FADEMON_TONORMAL_STEP").get("isActive", False):
                                 context.emulator.press_button("B")
                             else:
                                 self.update_state(ModeStarterStates.LOG_STARTER)
@@ -355,6 +381,9 @@ class ModeStarters:
                             else:
                                 confirm = get_task(self.task_confirm).get("isActive", False)
                                 if confirm and get_game_state() != GameState.BATTLE:
+                                    # Uncomment the following to _guarantee_ a shiny being generated. For testing purposes.
+                                    # write_symbol("gRngValue",
+                                    #              generate_guaranteed_shiny_rng_seed(trainer.get_tid(), trainer.get_sid()))
                                     context.emulator.press_button("A")
                                 else:
                                     self.update_state(ModeStarterStates.THROW_BALL)
@@ -385,3 +414,18 @@ class ModeStarters:
                             opponent_changed()  # Prevent opponent from being logged if starter is shiny
                             return
             yield
+
+
+def generate_guaranteed_shiny_rng_seed(trainer_id: int, secret_id: int) -> bytes:
+    while True:
+        seed = random.randint(0, 0xFFFF_FFFF)
+
+        rng_value = seed
+        rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
+        rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
+        personality_value_upper = rng_value >> 16
+        rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
+        personality_value_lower = rng_value >> 16
+
+        if trainer_id ^ secret_id ^ personality_value_upper ^ personality_value_lower < 8:
+            return pack_uint32(seed)
