@@ -134,7 +134,7 @@ class ModeStarters:
                         case ModeStarterStates.TITLE:
                             match get_game_state():
                                 case GameState.TITLE_SCREEN:
-                                    context.emulator.press_button("A")
+                                    context.emulator.press_button(random.choice(["A","Start","Left","Right", "Up"]))
                                 case GameState.MAIN_MENU:  # TODO assumes trainer is in Oak's lab, facing a ball
                                     if get_task("TASK_HANDLEMENUINPUT").get("isActive", False):
                                         self.update_state(ModeStarterStates.OVERWORLD)
@@ -153,8 +153,8 @@ class ModeStarters:
                                 )
                             elif not trainer.get_facing_direction() == "Up":
                                 context.emulator.press_button("Up")
-                                context.message = "Waiting for a unique frame before continuing..."
                             else:
+                                context.message = "Waiting for a unique frame before continuing..."
                                 self.update_state(ModeStarterStates.RNG_CHECK)
                                 continue
 
@@ -172,6 +172,7 @@ class ModeStarters:
                                     else:
                                         save_rng_state_history(config.general.starter.value, self.rng_history)
                                     self.update_state(ModeStarterStates.INJECT_RNG)
+                                    context.message = "Selecting starter..."
                                     continue
 
                         case ModeStarterStates.INJECT_RNG:
@@ -202,6 +203,7 @@ class ModeStarters:
                                 context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.EXIT_MENUS)
+                                context.message = "Checking shininess..."
                                 continue
 
                         case ModeStarterStates.EXIT_MENUS:
