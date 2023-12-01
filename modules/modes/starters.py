@@ -1,5 +1,5 @@
 import random
-from enum import Enum
+from enum import Enum, auto
 
 from modules.console import console
 from modules.context import context
@@ -28,25 +28,27 @@ class BagPositions(Enum):
 
 
 class ModeStarterStates(Enum):
-    RESET = 0
-    TITLE = 1
-    OVERWORLD = 2
-    BAG_MENU = 3
-    INJECT_RNG = 4
-    SELECT_STARTER = 5
-    CONFIRM_STARTER = 6
-    RNG_CHECK = 7
-    STARTER_BATTLE = 8
-    THROW_BALL = 9
-    STARTER_CRY = 10
-    STARTER_CRY_END = 11
-    YES_NO = 12
-    EXIT_MENUS = 13
-    FOLLOW_PATH = 14
-    CHECK_STARTER = 15
-    PARTY_FULL = 16
-    LOG_STARTER = 17
-    INCOMPATIBLE = 18
+    RESET = auto()
+    TITLE = auto()
+    OVERWORLD = auto()
+    BAG_MENU = auto()
+    INJECT_RNG = auto()
+    SELECT_STARTER = auto()
+    CONFIRM_STARTER = auto()
+    RNG_CHECK = auto()
+    STARTER_BATTLE = auto()
+    THROW_BALL = auto()
+    OPPONENT_CRY_START = auto()
+    OPPONENT_CRY_END = auto()
+    STARTER_CRY = auto()
+    STARTER_CRY_END = auto()
+    YES_NO = auto()
+    EXIT_MENUS = auto()
+    FOLLOW_PATH = auto()
+    CHECK_STARTER = auto()
+    PARTY_FULL = auto()
+    LOG_STARTER = auto()
+    INCOMPATIBLE = auto()
 
 
 class ModeStarters:
@@ -99,7 +101,13 @@ class ModeStarters:
             self.state = ModeStarterStates.INCOMPATIBLE
 
         if not config.cheats.starters_rng:
-            self.rng_history: list = get_rng_state_history(config.general.starter.value)
+            if config.general.random:
+                if self.region == Regions.JOHTO_STARTERS:
+                    self.rng_history: list = get_rng_state_history("Johto_Random_Starter")
+                else:
+                    self.rng_history: list = get_rng_state_history("Random_Starter")
+            else:
+                self.rng_history: list = get_rng_state_history(config.general.starter.value)
 
     def update_state(self, state: ModeStarterStates):
         self.state: ModeStarterStates = state
@@ -129,23 +137,9 @@ class ModeStarters:
                                     context.emulator.press_button("A")
                                 case GameState.MAIN_MENU:  # TODO assumes trainer is in Oak's lab, facing a ball
                                     if get_task("TASK_HANDLEMENUINPUT").get("isActive", False):
-                                        context.message = "Waiting for a unique frame before continuing..."
-                                        self.update_state(ModeStarterStates.RNG_CHECK)
+                                        self.update_state(ModeStarterStates.OVERWORLD)
                                         continue
-
-                        case ModeStarterStates.RNG_CHECK:
-                            if config.cheats.starters_rng:
-                                self.update_state(ModeStarterStates.OVERWORLD)
-                            else:
-                                rng = unpack_uint32(read_symbol("gRngValue"))
-                                if rng in self.rng_history:
-                                    pass
-                                else:
-                                    self.rng_history.append(rng)
-                                    save_rng_state_history(config.general.starter.value, self.rng_history)
-                                    self.update_state(ModeStarterStates.OVERWORLD)
-                                    continue
-
+                        
                         case ModeStarterStates.OVERWORLD:
                             context.message = "Pathing to starter..."
                             starter = config.general.starter.value
@@ -159,18 +153,37 @@ class ModeStarters:
                                 )
                             elif not trainer.get_facing_direction() == "Up":
                                 context.emulator.press_button("Up")
+                                context.message = "Waiting for a unique frame before continuing..."
                             else:
-                                self.start_party_length = len(get_party())
-                                if not get_task("TASK_SCRIPTSHOWMONPIC").get("isActive", False):
-                                    context.emulator.press_button("A")
+                                self.update_state(ModeStarterStates.RNG_CHECK)
+                                continue
+
+                        case ModeStarterStates.RNG_CHECK:
+                            if config.cheats.starters_rng:
+                                self.update_state(ModeStarterStates.OVERWORLD)
+                            else:
+                                rng = unpack_uint32(read_symbol("gRngValue"))
+                                if rng in self.rng_history:
+                                    pass
                                 else:
+                                    self.rng_history.append(rng)
+                                    if config.general.random:
+                                        save_rng_state_history("Random_Starter", self.rng_history)
+                                    else:
+                                        save_rng_state_history(config.general.starter.value, self.rng_history)
                                     self.update_state(ModeStarterStates.INJECT_RNG)
                                     continue
 
                         case ModeStarterStates.INJECT_RNG:
                             if config.cheats.starters_rng:
                                 write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
-                            self.update_state(ModeStarterStates.SELECT_STARTER)
+                            self.start_party_length = len(get_party())
+                            if not get_task("TASK_SCRIPTSHOWMONPIC").get("isActive", False):
+                                context.emulator.press_button("A")
+                            else:
+                                self.update_state(ModeStarterStates.SELECT_STARTER)
+                                continue
+                            
 
                         case ModeStarterStates.SELECT_STARTER:  # TODO can be made slightly faster by holding B through chat
                             if get_task("TASK_DRAWFIELDMESSAGEBOX").get("isActive", False):
@@ -183,6 +196,9 @@ class ModeStarters:
 
                         case ModeStarterStates.CONFIRM_STARTER:
                             if len(get_party()) == 0:
+                                # Uncomment the following to _guarantee_ a shiny being generated. For testing purposes.
+                                # write_symbol("gRngValue",
+                                #              generate_guaranteed_shiny_rng_seed(trainer.get_tid(), trainer.get_sid()))
                                 context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.EXIT_MENUS)
@@ -418,3 +434,17 @@ class ModeStarters:
                             opponent_changed()  # Prevent opponent from being logged if starter is shiny
                             return
             yield
+
+def generate_guaranteed_shiny_rng_seed(trainer_id: int, secret_id: int) -> bytes:
+    while True:
+        seed = random.randint(0, 0xFFFF_FFFF)
+
+        rng_value = seed
+        rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
+        rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
+        personality_value_upper = rng_value >> 16
+        rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
+        personality_value_lower = rng_value >> 16
+
+        if trainer_id ^ secret_id ^ personality_value_upper ^ personality_value_lower < 8:
+            return pack_uint32(seed)
