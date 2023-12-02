@@ -58,20 +58,6 @@ class DiscordWebhook(BaseConfig):
     webhook_url: str | None = None
 
 
-<<<<<<< HEAD
-class General(BaseConfig):
-    """Schema for the general configuration."""
-    model_config = ConfigDict(frozen=False)
-    filename: ClassVar = "general.yml"
-    starter: Starters = Starters.MUDKIP
-    random: bool = False
-    
-    def set_mon(self, mon: str):
-        self.starter = Starters[mon.upper()]
-
-
-=======
->>>>>>> origin/main
 class Keys(BaseConfig):
     """Schema for the keys configuration."""
 
