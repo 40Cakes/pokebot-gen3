@@ -3,6 +3,7 @@ from enum import IntEnum, auto
 
 from modules.context import context
 from modules.game import get_symbol, get_symbol_name, get_event_flag_offset, _event_flags
+from modules.state_cache import state_cache
 
 
 def unpack_uint16(bytes: bytes) -> int:
@@ -170,33 +171,41 @@ class GameState(IntEnum):
 def get_game_state_symbol() -> str:
     callback2 = read_symbol("gMain", 4, 4)  # gMain.callback2
     addr = unpack_uint32(callback2) - 1
-    return get_symbol_name(addr)
+    callback_name = get_symbol_name(addr)
+    state_cache.callback2 = callback_name
+    return callback_name
 
 
 def get_game_state() -> GameState:
+    if state_cache.game_state.age_in_frames == 0:
+        return state_cache.game_state.value
+
     match get_game_state_symbol():
         case "CB2_OVERWORLD":
-            return GameState.OVERWORLD
+            result = GameState.OVERWORLD
         case "BATTLEMAINCB2":
-            return GameState.BATTLE
+            result = GameState.BATTLE
         case "CB2_BAGMENURUN" | "SUB_80A3118":
-            return GameState.BAG_MENU
+            result = GameState.BAG_MENU
         case "CB2_UPDATEPARTYMENU" | "CB2_PARTYMENUMAIN":
-            return GameState.PARTY_MENU
+            result = GameState.PARTY_MENU
         case "CB2_INITBATTLE" | "CB2_HANDLESTARTBATTLE":
-            return GameState.BATTLE_STARTING
+            result = GameState.BATTLE_STARTING
         case "CB2_ENDWILDBATTLE":
-            return GameState.BATTLE_ENDING
+            result = GameState.BATTLE_ENDING
         case "CB2_LOADMAP" | "CB2_LOADMAP2" | "CB2_DOCHANGEMAP" | "SUB_810CC80":
-            return GameState.CHANGE_MAP
+            result = GameState.CHANGE_MAP
         case "CB2_STARTERCHOOSE" | "CB2_CHOOSESTARTER":
-            return GameState.CHOOSE_STARTER
+            result = GameState.CHOOSE_STARTER
         case "CB2_INITCOPYRIGHTSCREENAFTERBOOTUP" | "CB2_WAITFADEBEFORESETUPINTRO" | "CB2_SETUPINTRO" | "CB2_INTRO" | "CB2_INITTITLESCREEN" | "CB2_TITLESCREENRUN" | "CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN" | "CB2_INITMAINMENU" | "MAINCB2" | "MAINCB2_INTRO":
-            return GameState.TITLE_SCREEN
+            result = GameState.TITLE_SCREEN
         case "CB2_MAINMENU":
-            return GameState.MAIN_MENU
+            result = GameState.MAIN_MENU
         case _:
-            return GameState.UNKNOWN
+            result = GameState.UNKNOWN
+
+    state_cache.game_state = result
+    return result
 
 
 def game_has_started() -> bool:
