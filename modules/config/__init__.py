@@ -8,14 +8,13 @@ from ruamel.yaml import YAML
 from modules import exceptions
 from modules.modes import available_bot_modes
 from modules.runtime import get_base_path
-from modules.config.schemas_v1 import CatchBlock, Cheats, Discord, General, Keys, Logging, OBS, ProfileMetadata
+from modules.config.schemas_v1 import CatchBlock, Cheats, Discord, Keys, Logging, OBS, ProfileMetadata
 
 # Defines which class attributes of the Config class are meant to hold required configuration data.
 CONFIG_ATTRS = {
     "catch_block",
     "cheats",
     "discord",
-    "general",
     "keys",
     "logging",
     "obs",
@@ -38,7 +37,6 @@ class Config:
         self.catch_block: CatchBlock = CatchBlock()
         self.cheats: Cheats = Cheats()
         self.discord: Discord = Discord()
-        self.general: General = General()
         self.is_profile = is_profile
         self.keys: Keys = Keys()
         self.loaded = False
