@@ -1,4 +1,3 @@
-import sys
 import struct
 from enum import IntEnum
 
@@ -67,8 +66,6 @@ def write_symbol(name: str, data: bytes, offset: int = 0x0) -> bool:
         return True
     except SystemExit:
         raise
-    except:
-        sys.exit(1)
 
 
 def parse_tasks(pretty_names: bool = False) -> list:
