@@ -62,11 +62,10 @@ def main_loop() -> None:
 
                         mode = ModeBunnyHop()
 
-                    case "Rayquaza":
-                        from modules.modes.legendaries import ModeRayquaza
+                    case "Ancient Legendaries":
+                        from modules.modes.legendaries import ModeAncientLegendaries
 
-                        mode = ModeRayquaza()
-
+                        mode = ModeAncientLegendaries()
             try:
                 if mode:
                     next(mode.step())
