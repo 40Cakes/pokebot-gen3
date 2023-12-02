@@ -57,6 +57,8 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
+  -m {Manual,Spin,Starters,Fishing,Bunny Hop, Ancient Legendaries}, --bot-mode {Manual,Spin,Starters,Fishing,Bunny Hop, Ancient Legendaries}
+                        Initial bot mode (default: Manual)
   -s {0,1,2,3,4}, --emulation-speed {0,1,2,3,4}
                         Initial emulation speed (0 for unthrottled; default: 1)
   -nv, --no-video       Turn off video output by default
