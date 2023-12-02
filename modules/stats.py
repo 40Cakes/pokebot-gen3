@@ -8,7 +8,7 @@ from collections import deque
 from threading import Thread
 from datetime import datetime
 
-from modules.console import print_stats
+from modules.console import console, print_stats
 from modules.context import context
 from modules.csv import log_encounter_to_csv
 from modules.files import read_file, write_file
@@ -62,6 +62,7 @@ class TotalStats:
         except SystemExit:
             raise
         except:
+            console.print_exception()
             sys.exit(1)
 
     def append_encounter_timestamps(self) -> None:
