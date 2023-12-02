@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Union, Optional
 
 from modules.context import context
 from modules.daycare import get_daycare_data
-from modules.game import decode_string, _symbols, _reverse_symbols
+from modules.game import decode_string, _symbols, _reverse_symbols, _event_flags
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_items
 from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects
@@ -19,6 +19,8 @@ from modules.memory import (
     game_has_started,
     unpack_uint16,
     unpack_uint32,
+    set_event_flag,
+    get_event_flag,
 )
 from modules.pokemon import get_party, get_species_by_index
 
@@ -28,14 +30,14 @@ if TYPE_CHECKING:
 
 class FancyTreeview:
     def __init__(
-            self,
-            root: ttk.Widget,
-            height=22,
-            row=0,
-            column=0,
-            columnspan=1,
-            additional_context_actions: Optional[dict[str, callable]] = None,
-            on_highlight: Optional[callable] = None,
+        self,
+        root: ttk.Widget,
+        height=22,
+        row=0,
+        column=0,
+        columnspan=1,
+        additional_context_actions: Optional[dict[str, callable]] = None,
+        on_highlight: Optional[callable] = None,
     ):
         if additional_context_actions is None:
             additional_context_actions = {}
@@ -73,6 +75,7 @@ class FancyTreeview:
         self._tv.bind("<Right>", lambda _: root.focus_set())
 
         if on_highlight is not None:
+
             def handle_selection(e):
                 selected_item = self._tv.focus()
                 on_highlight(self._tv.item(selected_item)["text"])
@@ -297,8 +300,14 @@ class SymbolsTab(DebugTab):
             "gStringVar4",
             "gDisplayedStringBattle",
         }
-        self.display_as_string = {"sChat", "gStringVar1", "gStringVar2", "gStringVar3", "gStringVar4",
-                                  "gDisplayedStringBattle"}
+        self.display_as_string = {
+            "sChat",
+            "gStringVar1",
+            "gStringVar2",
+            "gStringVar3",
+            "gStringVar4",
+            "gDisplayedStringBattle",
+        }
         self._tv: FancyTreeview
         self._mini_window: Union[tkinter.Toplevel, None] = None
 
@@ -550,16 +559,19 @@ class EventFlagsTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
-        self._tv = FancyTreeview(frame)
+
+        context_actions = {"Toggle Flag": self._toggle_flag}
+
+        self._tv = FancyTreeview(frame, additional_context_actions=context_actions)
         root.add(frame, text="Event Flags")
 
     def update(self, emulator: "LibmgbaEmulator"):
         self._tv.update_data(self._get_data())
 
-    def _get_data(self):
-        from modules.game import _event_flags
-        from modules.memory import get_event_flag
+    def _toggle_flag(self, flag: str):
+        set_event_flag(flag)
 
+    def _get_data(self):
         result = {}
 
         for flag in _event_flags:
@@ -606,8 +618,9 @@ class MapTab(DebugTab):
         root.add(frame, text="Map")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        show_different_tile = self._marker_rectangle is not None and get_task('TASK_WEATHERMAIN') != {}
+        show_different_tile = self._marker_rectangle is not None and get_task("TASK_WEATHERMAIN") != {}
         from modules.trainer import trainer
+
         if trainer.get_tile_transition_state() != 0:
             self._marker_rectangle = None
             self._selected_tile = None
@@ -615,8 +628,9 @@ class MapTab(DebugTab):
 
         self._tv.update_data(self._get_data(show_different_tile))
         if show_different_tile:
-            self._canvas.create_rectangle(self._marker_rectangle[0], self._marker_rectangle[1],
-                                          outline="red", dash=(5, 5), width=2)
+            self._canvas.create_rectangle(
+                self._marker_rectangle[0], self._marker_rectangle[1], outline="red", dash=(5, 5), width=2
+            )
 
         if self._selected_object is not None:
             scale = self._canvas.winfo_reqwidth() // 240
@@ -641,8 +655,9 @@ class MapTab(DebugTab):
                         end_x = (max(relative_x + 8, previous_relative_x + 8) * 16) * scale
                         end_y = (max(relative_y + 6, previous_relative_y + 6) * 16 - 8) * scale
 
-                        self._canvas.create_rectangle((start_x, start_y), (end_x, end_y),
-                                                      outline="blue", dash=(5, 5), width=2)
+                        self._canvas.create_rectangle(
+                            (start_x, start_y), (end_x, end_y), outline="blue", dash=(5, 5), width=2
+                        )
 
                     found = True
                     break
@@ -659,9 +674,13 @@ class MapTab(DebugTab):
         current_map_data = get_map_data_for_current_position()
         actual_x = current_map_data.local_position[0] + (tile_x - 7)
         actual_y = current_map_data.local_position[1] + (tile_y - 5)
-        if self._selected_tile == (actual_x, actual_y) or \
-                actual_x < 0 or actual_x >= current_map_data.map_size[0] or \
-                actual_y < 0 or actual_y >= current_map_data.map_size[1]:
+        if (
+            self._selected_tile == (actual_x, actual_y)
+            or actual_x < 0
+            or actual_x >= current_map_data.map_size[0]
+            or actual_y < 0
+            or actual_y >= current_map_data.map_size[1]
+        ):
             self._selected_tile = None
             self._selected_map = None
             self._marker_rectangle = None
@@ -709,7 +728,7 @@ class MapTab(DebugTab):
                 "Movement Range X": map_objects[i].range_x,
                 "Movement Range Y": map_objects[i].range_y,
                 "Trainer Type": map_objects[i].trainer_type,
-                "Flags": flags_list
+                "Flags": flags_list,
             }
 
         return {

@@ -22,6 +22,7 @@ class BotContext:
 
         self._current_bot_mode: str = initial_bot_mode
         self._previous_bot_mode: str = "Manual"
+        self.selected_pokemon: str = None
 
     def reload_config(self) -> str:
         """Triggers a config reload, reload the global config then specific profile config.
@@ -78,9 +79,11 @@ class BotContext:
         if self._current_bot_mode != new_bot_mode:
             self._previous_bot_mode = self._current_bot_mode
             self._current_bot_mode = new_bot_mode
+            self.selected_pokemon = None
             self._update_gui()
 
     def toggle_manual_mode(self) -> None:
+        self.selected_pokemon = None
         if self._current_bot_mode == "Manual":
             self._current_bot_mode = self._previous_bot_mode
             self._previous_bot_mode = "Manual"
@@ -88,6 +91,9 @@ class BotContext:
             self._previous_bot_mode = self._current_bot_mode
             self._current_bot_mode = "Manual"
         self._update_gui()
+
+    def select_pokemon(self, pokemon: str) -> None:
+        self.selected_pokemon = pokemon
 
     @property
     def audio(self) -> bool:
@@ -137,4 +143,4 @@ class BotContext:
             self.gui.on_settings_updated()
 
 
-context: BotContext = BotContext()
+context = BotContext()

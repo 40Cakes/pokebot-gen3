@@ -1,8 +1,8 @@
 import struct
-from enum import IntEnum
+from enum import IntEnum, auto
 
 from modules.context import context
-from modules.game import get_symbol, get_symbol_name, get_event_flag_offset
+from modules.game import get_symbol, get_symbol_name, get_event_flag_offset, _event_flags
 
 
 def unpack_uint16(bytes: bytes) -> int:
@@ -122,26 +122,49 @@ def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
                 return None
             return context.emulator.read_bytes(p_Trainer + offset, size)
         else:
-            return read_symbol(f"gSaveBlock{num}", offset=offset, size=size)
+            return read_symbol(f"gSaveBlock{num}", offset, size)
+    except SystemExit:
+        raise
+
+
+def write_to_save_block(data: bytes, num: int = 1, offset: int = 0) -> bool:
+    """
+    Writes data to a save block - ! use with care, high potential of corrupting save data in memory
+
+    :param data: Data to write to saveblock
+    :param num: 1 or 2 (gSaveblock1 or gSaveblock2)
+    see: https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Game_save_A.2C_Game_save_B
+    :param offset: Write n bytes offset from beginning of the save block
+    :return: Success true/false (bool)
+    """
+    # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
+    try:
+        if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+            p_Trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
+            if p_Trainer == 0:
+                return False
+            return context.emulator.write_bytes(p_Trainer + offset, data)
+        else:
+            return write_symbol(f"gSaveBlock{num}", data, offset)
     except SystemExit:
         raise
 
 
 class GameState(IntEnum):
     # Menus
-    BAG_MENU = 100
-    CHOOSE_STARTER = 101
-    PARTY_MENU = 102
+    BAG_MENU = auto()
+    CHOOSE_STARTER = auto()
+    PARTY_MENU = auto()
     # Battle related
-    BATTLE = 200
-    BATTLE_STARTING = 201
-    BATTLE_ENDING = 202
+    BATTLE = auto()
+    BATTLE_STARTING = auto()
+    BATTLE_ENDING = auto()
     # Misc
-    OVERWORLD = 900
-    CHANGE_MAP = 901
-    TITLE_SCREEN = 902
-    MAIN_MENU = 903
-    UNKNOWN = 999
+    OVERWORLD = auto()
+    CHANGE_MAP = auto()
+    TITLE_SCREEN = auto()
+    MAIN_MENU = auto()
+    UNKNOWN = auto()
 
 
 def get_game_state_symbol() -> str:
@@ -187,7 +210,21 @@ def game_has_started() -> bool:
 
 
 def get_event_flag(flag_name: str) -> bool:
+    if flag_name not in _event_flags:
+        return False
+
     flag_offset = get_event_flag_offset(flag_name)
     flag_byte = get_save_block(1, offset=flag_offset[0], size=1)
 
     return bool((flag_byte[0] >> (flag_offset[1])) & 1)
+
+
+def set_event_flag(flag_name: str) -> bool:
+    if flag_name not in _event_flags:
+        return False
+
+    flag_offset = get_event_flag_offset(flag_name)
+    flag_byte = get_save_block(1, offset=flag_offset[0], size=1)
+
+    write_to_save_block(int.to_bytes(int.from_bytes(flag_byte) ^ (1 << flag_offset[1])), 1, offset=flag_offset[0])
+    return True
