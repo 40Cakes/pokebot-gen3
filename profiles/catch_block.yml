@@ -1,7 +1,4 @@
-# Catch block list config
-# See readme for documentation: https://github.com/40Cakes/pokebot-gen3#catch_blockyml---catch-block-config
+# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/wiki/%E2%9D%8C-Catch-Block-List
 
 block_list:
-  - PokemonName1
-  - PokemonName2
-  - PokemonName3
+  - MissingNo

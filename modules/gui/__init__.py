@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 import PIL.Image
 import PIL.ImageTk
 
-from modules.config import load_config, keys_schema
 from modules.console import console
 from modules.context import context
 from modules.game import set_rom
@@ -32,7 +31,7 @@ class PokebotGui:
         self._startup_settings: "StartupSettings | None" = None
 
         self.window.geometry("540x400")
-        self.window.resizable(False, True)
+        self.window.resizable(context.debug, True)
         self.window.protocol("WM_DELETE_WINDOW", self._close_window)
         self.window.bind("<KeyPress>", self._handle_key_down_event)
         self.window.bind("<KeyRelease>", self._handle_key_up_event)
@@ -45,13 +44,7 @@ class PokebotGui:
             background=[("!active", "green"), ("active", "darkgreen"), ("pressed", "green")],
         )
 
-        key_config = load_config("keys.yml", keys_schema)
-        self._gba_keys: dict[str, int] = {}
-        for key in input_map:
-            self._gba_keys[key_config["gba"][key].lower()] = input_map[key]
-        self._emulator_keys: dict[str, str] = {}
-        for action in key_config["emulator"]:
-            self._emulator_keys[key_config["emulator"][action].lower()] = action
+        self._apply_key_config()
 
         self._create_profile_screen = CreateProfileScreen(
             self.window, self._enable_select_profile_screen, self._run_profile
@@ -61,6 +54,16 @@ class PokebotGui:
         )
         self._emulator_screen = EmulatorScreen(self.window)
         self._set_app_icon()
+
+    def _apply_key_config(self) -> None:
+        """Applies key settings from the configuration."""
+        key_config = context.config.keys
+        self._gba_keys: dict[str, int] = {}
+        for key, val in dict(key_config.gba).items():
+            self._gba_keys[val.lower()] = input_map[key]
+        self._emulator_keys: dict = {}
+        for action, value in dict(key_config.emulator).items():
+            self._emulator_keys[value.lower()] = action
 
     def run(self, startup_settings: "StartupSettings") -> None:
         self._startup_settings = startup_settings
@@ -129,6 +132,7 @@ class PokebotGui:
     def _run_profile(self, profile: "Profile") -> None:
         self._reset_screen()
         context.profile = profile
+        context.config.load(profile.path, strict=False)
         set_rom(profile.rom)
         context.emulator = LibmgbaEmulator(profile, self._emulator_screen.update)
 
@@ -173,6 +177,10 @@ class PokebotGui:
                         context.toggle_manual_mode()
                         console.print(f"Now in [cyan]{context.bot_mode}[/] mode")
                         context.emulator.set_inputs(0)
+                    case "reload_config":
+                        message = context.reload_config()
+                        self._apply_key_config()
+                        console.print(message)
                     case "toggle_video":
                         context.toggle_video()
                     case "toggle_audio":

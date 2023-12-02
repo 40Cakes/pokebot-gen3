@@ -2,6 +2,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.theme import Theme
 
+from modules.context import context
 from modules.pokemon import Pokemon
 
 theme = Theme(
@@ -59,15 +60,13 @@ def sv_colour(value: int) -> str:
     return "red"
 
 
-def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: list, encounter_rate: int) -> None:
-    from modules.config import config
-
+def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set, encounter_rate: int) -> None:
     type_colour = pokemon.species.types[0].name.lower()
     rich_name = f"[{type_colour}]{pokemon.species.name}[/]"
     console.print("\n")
     console.rule(f"{rich_name} encountered at {pokemon.location_met}", style=type_colour)
 
-    match config["logging"]["console"]["encounter_data"]:
+    match context.config.logging.console.encounter_data:
         case "verbose":
             pokemon_table = Table()
             pokemon_table.add_column("PID", justify="center", width=10)
@@ -99,7 +98,7 @@ def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: list, enco
                 f"Shiny Value: {pokemon.shiny_value:,}"
             )
 
-    match config["logging"]["console"]["encounter_ivs"]:
+    match context.config.logging.console.encounter_ivs:
         case "verbose":
             iv_table = Table(title=f"{pokemon.species.name} IVs")
             iv_table.add_column("HP", justify="center", style=iv_colour(pokemon.ivs.hp))
@@ -130,7 +129,7 @@ def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: list, enco
                 f"Sum: [{iv_sum_colour(pokemon.ivs.sum())}]{pokemon.ivs.sum()}[/]"
             )
 
-    match config["logging"]["console"]["encounter_moves"]:
+    match context.config.logging.console.encounter_moves:
         case "verbose":
             move_table = Table(title=f"{pokemon.species.name} Moves")
             move_table.add_column("Name", justify="left", width=20)
@@ -167,7 +166,7 @@ def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: list, enco
                         f"PP: {learned_move.pp}"
                     )
 
-    match config["logging"]["console"]["statistics"]:
+    match context.config.logging.console.statistics:
         case "verbose":
             stats_table = Table(title="Statistics")
             stats_table.add_column("", justify="left", width=10)
@@ -179,7 +178,7 @@ def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: list, enco
             stats_table.add_column("Total Encounters", justify="right", width=10)
             stats_table.add_column("Shiny Average", justify="right", width=10)
 
-            for p in sorted(set(session_pokemon)):
+            for p in sorted(session_pokemon):
                 stats_table.add_row(
                     p,
                     f"[red]{total_stats['pokemon'][p].get('phase_lowest_iv_sum', -1)}[/] / [green]{total_stats['pokemon'][p].get('phase_highest_iv_sum', -1)}",

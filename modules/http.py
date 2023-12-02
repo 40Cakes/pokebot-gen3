@@ -1,7 +1,6 @@
 from flask_cors import CORS
 from flask import Flask, jsonify, request
 
-from modules.config import config
 from modules.context import context
 from modules.items import get_items
 from modules.pokemon import get_party
@@ -110,6 +109,6 @@ def http_server() -> None:
     server.run(
         debug=False,
         threaded=True,
-        host=config["obs"]["http_server"]["ip"],
-        port=config["obs"]["http_server"]["port"],
+        host=context.config.obs.http_server.ip,
+        port=context.config.obs.http_server.port,
     )

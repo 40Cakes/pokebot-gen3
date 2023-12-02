@@ -1,7 +1,6 @@
 import random
-from enum import Enum
+from enum import Enum, auto
 
-from modules.config import config
 from modules.console import console
 from modules.context import context
 from modules.encounter import encounter_pokemon
@@ -11,11 +10,13 @@ from modules.navigation import follow_path
 from modules.pokemon import get_party, opponent_changed
 from modules.trainer import trainer
 
+config = context.config
+
 
 class Regions(Enum):
-    KANTO_STARTERS = 0
-    JOHTO_STARTERS = 1
-    HOENN_STARTERS = 2
+    KANTO_STARTERS = auto()
+    JOHTO_STARTERS = auto()
+    HOENN_STARTERS = auto()
 
 
 class BagPositions(Enum):
@@ -25,25 +26,27 @@ class BagPositions(Enum):
 
 
 class ModeStarterStates(Enum):
-    RESET = 0
-    TITLE = 1
-    OVERWORLD = 2
-    BAG_MENU = 3
-    INJECT_RNG = 4
-    SELECT_STARTER = 5
-    CONFIRM_STARTER = 6
-    RNG_CHECK = 7
-    STARTER_BATTLE = 8
-    THROW_BALL = 9
-    STARTER_CRY = 10
-    STARTER_CRY_END = 11
-    YES_NO = 12
-    EXIT_MENUS = 13
-    FOLLOW_PATH = 14
-    CHECK_STARTER = 15
-    PARTY_FULL = 16
-    LOG_STARTER = 17
-    INCOMPATIBLE = 18
+    RESET = auto()
+    TITLE = auto()
+    OVERWORLD = auto()
+    BAG_MENU = auto()
+    INJECT_RNG = auto()
+    SELECT_STARTER = auto()
+    CONFIRM_STARTER = auto()
+    RNG_CHECK = auto()
+    STARTER_BATTLE = auto()
+    THROW_BALL = auto()
+    OPPONENT_CRY_START = auto()
+    OPPONENT_CRY_END = auto()
+    STARTER_CRY = auto()
+    STARTER_CRY_END = auto()
+    YES_NO = auto()
+    EXIT_MENUS = auto()
+    FOLLOW_PATH = auto()
+    CHECK_STARTER = auto()
+    PARTY_FULL = auto()
+    LOG_STARTER = auto()
+    INCOMPATIBLE = auto()
 
 
 class ModeStarters:
@@ -53,13 +56,13 @@ class ModeStarters:
         self.johto_starters: list = ["Chikorita", "Totodile", "Cyndaquil"]
         self.hoenn_starters: list = ["Treecko", "Torchic", "Mudkip"]
 
-        if config["general"]["starter"] in self.kanto_starters and context.rom.game_title in [
+        if config.general.starter.value in self.kanto_starters and context.rom.game_title in [
             "POKEMON LEAF",
             "POKEMON FIRE",
         ]:
             self.region: Regions = Regions.KANTO_STARTERS
 
-        elif config["general"]["starter"] in self.johto_starters and context.rom.game_title == "POKEMON EMER":
+        elif config.general.starter.value in self.johto_starters and context.rom.game_title == "POKEMON EMER":
             self.region: Regions = Regions.JOHTO_STARTERS
             self.start_party_length: int = 0
             console.print(
@@ -70,8 +73,8 @@ class ModeStarters:
             if len(get_party()) == 6:
                 self.update_state(ModeStarterStates.PARTY_FULL)
 
-        elif config["general"]["starter"] in self.hoenn_starters:
-            self.bag_position: int = BagPositions[config["general"]["starter"].upper()].value
+        elif config.general.starter.value in self.hoenn_starters:
+            self.bag_position: int = BagPositions[config.general.starter.value.upper()].value
             if context.rom.game_title == "POKEMON EMER":
                 self.region = Regions.HOENN_STARTERS
                 self.task_bag_cursor: str = "TASK_HANDLESTARTERCHOOSEINPUT"
@@ -89,8 +92,8 @@ class ModeStarters:
         else:
             self.state = ModeStarterStates.INCOMPATIBLE
 
-        if not config["cheats"]["starters_rng"]:
-            self.rng_history: list = get_rng_state_history(config["general"]["starter"])
+        if not config.cheats.starters_rng:
+            self.rng_history: list = get_rng_state_history(config.general.starter.value)
 
     def update_state(self, state: ModeStarterStates):
         self.state: ModeStarterStates = state
@@ -98,7 +101,7 @@ class ModeStarters:
     def step(self):
         if self.state == ModeStarterStates.INCOMPATIBLE:
             message = (
-                f"Starter `{config['general']['starter']}` is incompatible, update `starter` in config "
+                f"Starter `{config.general.starter.value}` is incompatible, update `starter` in config "
                 f"file `general.yml` to a valid starter for {context.rom.game_name} and restart the bot!"
             )
             console.print(f"[red bold]{message}")
@@ -125,7 +128,7 @@ class ModeStarters:
                                         continue
 
                         case ModeStarterStates.RNG_CHECK:
-                            if config["cheats"]["starters_rng"]:
+                            if config.cheats.starters_rng:
                                 self.update_state(ModeStarterStates.OVERWORLD)
                             else:
                                 rng = unpack_uint32(read_symbol("gRngValue"))
@@ -133,7 +136,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(config["general"]["starter"], self.rng_history)
+                                    save_rng_state_history(config.general.starter.value, self.rng_history)
                                     self.update_state(ModeStarterStates.OVERWORLD)
                                     continue
 
@@ -146,7 +149,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.INJECT_RNG:
-                            if config["cheats"]["starters_rng"]:
+                            if config.cheats.starters_rng:
                                 write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.SELECT_STARTER)
 
@@ -161,13 +164,16 @@ class ModeStarters:
 
                         case ModeStarterStates.CONFIRM_STARTER:
                             if len(get_party()) == 0:
+                                # Uncomment the following to _guarantee_ a shiny being generated. For testing purposes.
+                                # write_symbol("gRngValue",
+                                #              generate_guaranteed_shiny_rng_seed(trainer.get_tid(), trainer.get_sid()))
                                 context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.EXIT_MENUS)
                                 continue
 
                         case ModeStarterStates.EXIT_MENUS:
-                            if not config["cheats"]["starters"]:
+                            if not config.cheats.starters:
                                 if trainer.get_facing_direction() != "Down":
                                     context.emulator.press_button("B")
                                     context.emulator.hold_button("Down")
@@ -183,10 +189,31 @@ class ModeStarters:
                             follow_path(
                                 [(trainer.get_coords()[0], 7), (7, 7), (7, 8)]
                             )  # TODO Revisit FollowPath rework
-                            self.update_state(ModeStarterStates.CHECK_STARTER)
+                            self.update_state(ModeStarterStates.OPPONENT_CRY_START)
 
-                        case ModeStarterStates.CHECK_STARTER:
-                            if not get_task("TASK_PLAYERCONTROLLER_RESTOREBGMAFTERCRY").get("isActive", False):
+                        case ModeStarterStates.OPPONENT_CRY_START:
+                            if not get_task("TASK_FADEMON_TONORMAL_STEP").get("isActive", False):
+                                context.emulator.press_button("B")
+                            else:
+                                self.update_state(ModeStarterStates.OPPONENT_CRY_END)
+                                continue
+
+                        case ModeStarterStates.OPPONENT_CRY_END:
+                            if get_task("TASK_FADEMON_TONORMAL_STEP").get("isActive", False):
+                                context.emulator.press_button("B")
+                            else:
+                                self.update_state(ModeStarterStates.STARTER_CRY)
+                                continue
+
+                        case ModeStarterStates.STARTER_CRY:
+                            if not get_task("TASK_FADEMON_TONORMAL_STEP").get("isActive", False):
+                                context.emulator.press_button("B")
+                            else:
+                                self.update_state(ModeStarterStates.STARTER_CRY_END)
+                                continue
+
+                        case ModeStarterStates.STARTER_CRY_END:
+                            if get_task("TASK_FADEMON_TONORMAL_STEP").get("isActive", False):
                                 context.emulator.press_button("B")
                             else:
                                 self.update_state(ModeStarterStates.LOG_STARTER)
@@ -227,7 +254,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.INJECT_RNG:
-                            if config["cheats"]["starters_rng"]:
+                            if config.cheats.starters_rng:
                                 write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.YES_NO)
 
@@ -240,7 +267,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.RNG_CHECK:
-                            if config["cheats"]["starters_rng"]:
+                            if config.cheats.starters_rng:
                                 self.update_state(ModeStarterStates.CONFIRM_STARTER)
                             else:
                                 rng = unpack_uint32(read_symbol("gRngValue"))
@@ -248,7 +275,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(config["general"]["starter"], self.rng_history)
+                                    save_rng_state_history(config.general.starter.value, self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
 
@@ -260,7 +287,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.EXIT_MENUS:
-                            if config["cheats"]["starters"]:
+                            if config.cheats.starters:
                                 self.update_state(ModeStarterStates.CHECK_STARTER)
                                 continue
                             else:
@@ -273,10 +300,8 @@ class ModeStarters:
                                     continue
 
                         case ModeStarterStates.CHECK_STARTER:
-                            config["cheats"]["starters"] = True  # TODO temporary until menu navigation is ready
-                            if config["cheats"][
-                                "starters"
-                            ]:  # TODO check Pokémon summary screen once menu navigation merged
+                            config.cheats.starters = True  # TODO temporary until menu navigation is ready
+                            if config.cheats.starters:  # TODO check Pokémon summary screen once menu navigation merged
                                 self.update_state(ModeStarterStates.LOG_STARTER)
                                 continue
 
@@ -310,7 +335,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.INJECT_RNG:
-                            if config["cheats"]["starters_rng"]:
+                            if config.cheats.starters_rng:
                                 write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.BAG_MENU)
 
@@ -336,7 +361,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.RNG_CHECK:
-                            if config["cheats"]["starters_rng"]:
+                            if config.cheats.starters_rng:
                                 self.update_state(ModeStarterStates.CONFIRM_STARTER)
                             else:
                                 rng = unpack_uint32(read_symbol("gRngValue"))
@@ -344,18 +369,21 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(config["general"]["starter"], self.rng_history)
+                                    save_rng_state_history(config.general.starter.value, self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
 
                         case ModeStarterStates.CONFIRM_STARTER:
-                            if config["cheats"]["starters"]:
+                            if config.cheats.starters:
                                 if len(get_party()) > 0:
                                     self.update_state(ModeStarterStates.LOG_STARTER)
                                 context.emulator.press_button("A")
                             else:
                                 confirm = get_task(self.task_confirm).get("isActive", False)
                                 if confirm and get_game_state() != GameState.BATTLE:
+                                    # Uncomment the following to _guarantee_ a shiny being generated. For testing purposes.
+                                    # write_symbol("gRngValue",
+                                    #              generate_guaranteed_shiny_rng_seed(trainer.get_tid(), trainer.get_sid()))
                                     context.emulator.press_button("A")
                                 else:
                                     self.update_state(ModeStarterStates.THROW_BALL)
@@ -386,3 +414,18 @@ class ModeStarters:
                             opponent_changed()  # Prevent opponent from being logged if starter is shiny
                             return
             yield
+
+
+def generate_guaranteed_shiny_rng_seed(trainer_id: int, secret_id: int) -> bytes:
+    while True:
+        seed = random.randint(0, 0xFFFF_FFFF)
+
+        rng_value = seed
+        rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
+        rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
+        personality_value_upper = rng_value >> 16
+        rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
+        personality_value_lower = rng_value >> 16
+
+        if trainer_id ^ secret_id ^ personality_value_upper ^ personality_value_lower < 8:
+            return pack_uint32(seed)

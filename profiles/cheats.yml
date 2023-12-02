@@ -1,14 +1,4 @@
-# Cheats config
-# See readme for documentation: https://github.com/40Cakes/pokebot-gen3#cheatsyml---cheats-config
+# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/wiki/%F0%9F%92%8E-Cheats
 
-starters: false # `true`, `false`
-starters_rng: false # `true`, `false`
-
-# -----------------------------------------
-# Everything below is not implemented, yet™
-# -----------------------------------------
-
-# TODO RNG manipulation
-# TODO egg resets
-# TODO instant find Feebas tile
-# TODO instant find roamer map
+starters: false
+starters_rng: false

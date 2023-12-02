@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 from pathlib import Path
 
 from modules.context import context
@@ -10,8 +10,8 @@ from modules.trainer import trainer
 
 
 class ModeAncientLegendariesStates(Enum):
-    INTERACT = 0
-    LEAVE_ROOM = 1
+    INTERACT = auto()
+    LEAVE_ROOM = auto()
 
 
 class ModeAncientLegendaries:
