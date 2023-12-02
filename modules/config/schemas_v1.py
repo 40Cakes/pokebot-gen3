@@ -102,7 +102,8 @@ class KeysEmulator(BaseConfig):
     reload_config: str = "Ctrl+C"
     exit: str = "Ctrl+Q"
     save_state: str = "Ctrl+S"
-    toggle_stepping_mode: str = "Ctrl+L"
+    load_state: str = "Ctrl+L"
+    toggle_stepping_mode: str = "Ctrl+P"
 
 
 class KeysGBA(BaseConfig):
