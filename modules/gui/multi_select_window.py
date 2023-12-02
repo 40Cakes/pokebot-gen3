@@ -32,7 +32,7 @@ class MultiSelectWindow:
             context.selected_pokemon = selection
             self._multi_select_window.after(50, remove_window)
 
-        window_geometry = (len(options.selections)*164, 180)
+        window_geometry = (len(options.selections) * 164, 180)
 
         self._multi_select_window = Toplevel(window)
         self._multi_select_window.title(options.window_title)
