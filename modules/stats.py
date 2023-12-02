@@ -4,6 +4,7 @@ import math
 import sys
 import time
 import importlib
+from collections import deque
 from threading import Thread
 from datetime import datetime
 
@@ -18,9 +19,9 @@ from modules.pokemon import Pokemon
 class TotalStats:
     def __init__(self):
         self.session_encounters: int = 0
-        self.session_pokemon: list = []
-        self.encounter_log: list[dict] = []
-        self.encounter_timestamps: list = []
+        self.session_pokemon: set = set()
+        self.encounter_log: deque[dict] = deque(maxlen=10)
+        self.encounter_timestamps: deque[float] = deque(maxlen=100)
         self.cached_timestamp: str = ""
         self.cached_encounter_rate: int = 0
 
@@ -66,13 +67,9 @@ class TotalStats:
 
     def append_encounter_timestamps(self) -> None:
         self.encounter_timestamps.append(time.time())
-        if len(self.encounter_timestamps) > 100:
-            self.encounter_timestamps = self.encounter_timestamps[-100:]
 
     def append_encounter_log(self, pokemon: Pokemon) -> None:
         self.encounter_log.append(self.get_log_obj(pokemon))
-        if len(self.encounter_log) > 10:
-            self.encounter_log = self.encounter_log[-10:]
 
     def append_shiny_log(self, pokemon: Pokemon) -> None:
         self.shiny_log["shiny_log"].append(self.get_log_obj(pokemon))
@@ -82,7 +79,7 @@ class TotalStats:
         return self.total_stats
 
     def get_encounter_log(self) -> list:
-        return self.encounter_log
+        return list(self.encounter_log)
 
     def get_shiny_log(self) -> list:
         return self.shiny_log["shiny_log"]
@@ -114,8 +111,7 @@ class TotalStats:
 
     def update_incremental_stats(self, pokemon: Pokemon) -> None:
         self.session_encounters += 1
-        self.session_pokemon.append(pokemon.species.name)
-        self.session_pokemon = list(set(self.session_pokemon))
+        self.session_pokemon.add(pokemon.species.name)
         self.total_stats["totals"]["encounters"] = self.total_stats["totals"].get("encounters", 0) + 1
         self.total_stats["totals"]["phase_encounters"] = self.total_stats["totals"].get("phase_encounters", 0) + 1
         self.total_stats["pokemon"][pokemon.species.name]["encounters"] = (
@@ -151,27 +147,27 @@ class TotalStats:
 
     def reset_phase_stats(self) -> None:
         # Reset phase stats
-        self.session_pokemon = []
-        self.total_stats["totals"].pop("phase_encounters", None)
-        self.total_stats["totals"].pop("phase_highest_sv", None)
-        self.total_stats["totals"].pop("phase_highest_sv_pokemon", None)
-        self.total_stats["totals"].pop("phase_lowest_sv", None)
-        self.total_stats["totals"].pop("phase_lowest_sv_pokemon", None)
-        self.total_stats["totals"].pop("phase_highest_iv_sum", None)
-        self.total_stats["totals"].pop("phase_highest_iv_sum_pokemon", None)
-        self.total_stats["totals"].pop("phase_lowest_iv_sum", None)
-        self.total_stats["totals"].pop("phase_lowest_iv_sum_pokemon", None)
-        self.total_stats["totals"].pop("current_streak", None)
-        self.total_stats["totals"].pop("phase_streak", None)
-        self.total_stats["totals"].pop("phase_streak_pokemon", None)
+        self.session_pokemon.clear()
+        self.total_stats["totals"]["phase_encounters"] = 0
+        self.total_stats["totals"]["phase_highest_sv"] = None
+        self.total_stats["totals"]["phase_highest_sv_pokemon"] = None
+        self.total_stats["totals"]["phase_lowest_sv"] = None
+        self.total_stats["totals"]["phase_lowest_sv_pokemon"] = None
+        self.total_stats["totals"]["phase_highest_iv_sum"] = None
+        self.total_stats["totals"]["phase_highest_iv_sum_pokemon"] = None
+        self.total_stats["totals"]["phase_lowest_iv_sum"] = None
+        self.total_stats["totals"]["phase_lowest_iv_sum_pokemon"] = None
+        self.total_stats["totals"]["current_streak"] = 0
+        self.total_stats["totals"]["phase_streak"] = 0
+        self.total_stats["totals"]["phase_streak_pokemon"] = None
 
         # Reset Pokémon phase stats
         for n in self.total_stats["pokemon"]:
-            self.total_stats["pokemon"][n].pop("phase_encounters", None)
-            self.total_stats["pokemon"][n].pop("phase_highest_sv", None)
-            self.total_stats["pokemon"][n].pop("phase_lowest_sv", None)
-            self.total_stats["pokemon"][n].pop("phase_highest_iv_sum", None)
-            self.total_stats["pokemon"][n].pop("phase_lowest_iv_sum", None)
+            self.total_stats["pokemon"][n]["phase_encounters"] = 0
+            self.total_stats["pokemon"][n]["phase_highest_sv"] = None
+            self.total_stats["pokemon"][n]["phase_lowest_sv"] = None
+            self.total_stats["pokemon"][n]["phase_highest_iv_sum"] = None
+            self.total_stats["pokemon"][n]["phase_lowest_iv_sum"] = None
 
     def update_sv_records(self, pokemon: Pokemon) -> None:
         # Pokémon phase highest shiny value
@@ -309,7 +305,7 @@ class TotalStats:
             self.total_stats["totals"] = {}
 
         if pokemon.species.name not in self.total_stats["pokemon"]:  # Set up a Pokémon stats if first encounter
-            self.total_stats["pokemon"].update({pokemon.species.name: {}})
+            self.total_stats["pokemon"][pokemon.species.name] = {}
 
         self.update_incremental_stats(pokemon)
         self.update_sv_records(pokemon)

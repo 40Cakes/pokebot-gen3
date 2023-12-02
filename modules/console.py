@@ -60,7 +60,7 @@ def sv_colour(value: int) -> str:
     return "red"
 
 
-def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: list, encounter_rate: int) -> None:
+def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set, encounter_rate: int) -> None:
     type_colour = pokemon.species.types[0].name.lower()
     rich_name = f"[{type_colour}]{pokemon.species.name}[/]"
     console.print("\n")
@@ -178,7 +178,7 @@ def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: list, enco
             stats_table.add_column("Total Encounters", justify="right", width=10)
             stats_table.add_column("Shiny Average", justify="right", width=10)
 
-            for p in sorted(set(session_pokemon)):
+            for p in sorted(session_pokemon):
                 stats_table.add_row(
                     p,
                     f"[red]{total_stats['pokemon'][p].get('phase_lowest_iv_sum', -1)}[/] / [green]{total_stats['pokemon'][p].get('phase_highest_iv_sum', -1)}",
