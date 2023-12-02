@@ -1,5 +1,5 @@
 import struct
-from enum import IntEnum
+from enum import IntEnum, auto
 
 from modules.context import context
 from modules.game import get_symbol, get_symbol_name, get_event_flag_offset, _event_flags
@@ -152,19 +152,19 @@ def write_to_save_block(data: bytes, num: int = 1, offset: int = 0) -> bool:
 
 class GameState(IntEnum):
     # Menus
-    BAG_MENU = 100
-    CHOOSE_STARTER = 101
-    PARTY_MENU = 102
+    BAG_MENU = auto()
+    CHOOSE_STARTER = auto()
+    PARTY_MENU = auto()
     # Battle related
-    BATTLE = 200
-    BATTLE_STARTING = 201
-    BATTLE_ENDING = 202
+    BATTLE = auto()
+    BATTLE_STARTING = auto()
+    BATTLE_ENDING = auto()
     # Misc
-    OVERWORLD = 900
-    CHANGE_MAP = 901
-    TITLE_SCREEN = 902
-    MAIN_MENU = 903
-    UNKNOWN = 999
+    OVERWORLD = auto()
+    CHANGE_MAP = auto()
+    TITLE_SCREEN = auto()
+    MAIN_MENU = auto()
+    UNKNOWN = auto()
 
 
 def get_game_state_symbol() -> str:
