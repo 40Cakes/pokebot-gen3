@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 
 from modules.context import context
 from modules.memory import get_task, get_game_state, GameState

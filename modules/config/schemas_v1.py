@@ -11,18 +11,6 @@ from pydantic import ConfigDict, field_validator, Field
 from pydantic.types import Annotated, ClassVar, NonNegativeInt, PositiveInt
 
 
-class Starters(Enum):
-    TREECKO = "Treecko"
-    TORCHIC = "Torchic"
-    MUDKIP = "Mudkip"
-    BULBASAUR = "Bulbasaur"
-    CHARMANDER = "Charmander"
-    SQUIRTLE = "Squirtle"
-    CHIKORITA = "Chikorita"
-    TOTODILE = "Totodile"
-    CYNDAQUIL = "Cyndaquil"
-
-
 class CatchBlock(BaseConfig):
     """Schema for the catch_block configuration."""
 
@@ -70,13 +58,6 @@ class DiscordWebhook(BaseConfig):
     webhook_url: str | None = None
 
 
-class General(BaseConfig):
-    """Schema for the general configuration."""
-
-    filename: ClassVar = "general.yml"
-    starter: Starters = Starters.MUDKIP
-
-
 class Keys(BaseConfig):
     """Schema for the keys configuration."""
 
@@ -102,7 +83,8 @@ class KeysEmulator(BaseConfig):
     reload_config: str = "Ctrl+C"
     exit: str = "Ctrl+Q"
     save_state: str = "Ctrl+S"
-    toggle_stepping_mode: str = "Ctrl+L"
+    load_state: str = "Ctrl+L"
+    toggle_stepping_mode: str = "Ctrl+P"
 
 
 class KeysGBA(BaseConfig):
