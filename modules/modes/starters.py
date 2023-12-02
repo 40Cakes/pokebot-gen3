@@ -1,10 +1,13 @@
 import random
 from enum import Enum, auto
+from pathlib import Path
 
 from modules.console import console
 from modules.context import context
+from modules.data.map import MapRSE, MapFRLG
 from modules.encounter import encounter_pokemon
 from modules.files import get_rng_state_history, save_rng_state_history
+from modules.gui.multi_select_window import Selection, MultiSelector, MultiSelectWindow
 from modules.memory import read_symbol, get_game_state, GameState, get_task, write_symbol, unpack_uint32, pack_uint32
 from modules.navigation import follow_path
 from modules.pokemon import get_party, opponent_changed
@@ -46,23 +49,183 @@ class ModeStarterStates(Enum):
     CHECK_STARTER = auto()
     PARTY_FULL = auto()
     LOG_STARTER = auto()
-    INCOMPATIBLE = auto()
 
 
 class ModeStarters:
     def __init__(self) -> None:
-        self.state: ModeStarterStates = ModeStarterStates.RESET
-        self.kanto_starters: list = ["Bulbasaur", "Charmander", "Squirtle"]
-        self.johto_starters: list = ["Chikorita", "Totodile", "Cyndaquil"]
-        self.hoenn_starters: list = ["Treecko", "Torchic", "Mudkip"]
+        if not context.selected_pokemon:
+            sprites = Path(__file__).parent.parent.parent / "sprites" / "pokemon" / "normal"
 
-        if config.general.starter.value in self.kanto_starters and context.rom.game_title in [
-            "POKEMON LEAF",
-            "POKEMON FIRE",
-        ]:
+            conditions = {
+                "Bulbasaur": bool(
+                    (
+                        context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]
+                        and trainer.get_map() == MapFRLG.PALLET_TOWN_D.value
+                        and trainer.get_coords() == (8, 5)
+                        and trainer.get_facing_direction() == "Up"
+                    )
+                ),
+                "Charmander": bool(
+                    (
+                        context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]
+                        and trainer.get_map() == MapFRLG.PALLET_TOWN_D.value
+                        and trainer.get_coords() == (10, 5)
+                        and trainer.get_facing_direction() == "Up"
+                    )
+                ),
+                "Squirtle": bool(
+                    (
+                        context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]
+                        and trainer.get_map() == MapFRLG.PALLET_TOWN_D.value
+                        and trainer.get_coords() == (9, 5)
+                        and trainer.get_facing_direction() == "Up"
+                    )
+                ),
+                "Chikorita": bool(
+                    (
+                        context.rom.game_title == "POKEMON EMER"
+                        and trainer.get_map() == MapRSE.LITTLEROOT_TOWN_E.value
+                        and trainer.get_coords() == (10, 5)
+                        and trainer.get_facing_direction() == "Up"
+                    )
+                ),
+                "Cyndaquil": bool(
+                    (
+                        context.rom.game_title == "POKEMON EMER"
+                        and trainer.get_map() == MapRSE.LITTLEROOT_TOWN_E.value
+                        and trainer.get_coords() == (8, 5)
+                        and trainer.get_facing_direction() == "Up"
+                    )
+                ),
+                "Totodile": bool(
+                    (
+                        context.rom.game_title == "POKEMON EMER"
+                        and trainer.get_map() == MapRSE.LITTLEROOT_TOWN_E.value
+                        and trainer.get_coords() == (9, 5)
+                        and trainer.get_facing_direction() == "Up"
+                    )
+                ),
+                "Treecko": bool(
+                    (
+                        context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
+                        and trainer.get_map() == MapRSE.ROUTE_101.value
+                        and (
+                            (trainer.get_coords() == (7, 15) and trainer.get_facing_direction() == "Up")
+                            or (trainer.get_coords() == (8, 14) and trainer.get_facing_direction() == "Left")
+                        )
+                    )
+                ),
+                "Torchic": bool(
+                    (
+                        context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
+                        and trainer.get_map() == MapRSE.ROUTE_101.value
+                        and (
+                            (trainer.get_coords() == (7, 15) and trainer.get_facing_direction() == "Up")
+                            or (trainer.get_coords() == (8, 14) and trainer.get_facing_direction() == "Left")
+                        )
+                    )
+                ),
+                "Mudkip": bool(
+                    (
+                        context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
+                        and trainer.get_map() == MapRSE.ROUTE_101.value
+                        and (
+                            (trainer.get_coords() == (7, 15) and trainer.get_facing_direction() == "Up")
+                            or (trainer.get_coords() == (8, 14) and trainer.get_facing_direction() == "Left")
+                        )
+                    )
+                ),
+            }
+
+            if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+                selections = [
+                    Selection(
+                        button_label="Bulbasaur",
+                        button_enable=conditions["Bulbasaur"],
+                        button_tooltip="Select Bulbasaur"
+                        if conditions["Bulbasaur"]
+                        else "Invalid location:\nPlace the trainer facing Bulbasaur's PokéBall in Oak's lab",
+                        sprite=sprites / "Bulbasaur.png",
+                    ),
+                    Selection(
+                        button_label="Charmander",
+                        button_enable=conditions["Charmander"],
+                        button_tooltip="Select Charmander"
+                        if conditions["Charmander"]
+                        else "Invalid location:\nPlace the trainer facing Charmander's PokéBall in Oak's lab",
+                        sprite=sprites / "Charmander.png",
+                    ),
+                    Selection(
+                        button_label="Squirtle",
+                        button_enable=conditions["Squirtle"],
+                        button_tooltip="Select Squirtle"
+                        if conditions["Squirtle"]
+                        else "Invalid location:\nPlace the trainer facing Squirtle's PokéBall in Oak's lab",
+                        sprite=sprites / "Squirtle.png",
+                    ),
+                ]
+            elif context.rom.game_title == "POKEMON EMER" and trainer.get_map() == MapRSE.LITTLEROOT_TOWN_E.value:
+                selections = [
+                    Selection(
+                        button_label="Chikorita",
+                        button_enable=conditions["Chikorita"],
+                        button_tooltip="Select Chikorita"
+                        if conditions["Chikorita"]
+                        else "Invalid location:\nPlace the trainer facing Chikorita's PokéBall in Birch's lab",
+                        sprite=sprites / "Chikorita.png",
+                    ),
+                    Selection(
+                        button_label="Cyndaquil",
+                        button_enable=conditions["Cyndaquil"],
+                        button_tooltip="Select Cyndaquil"
+                        if conditions["Cyndaquil"]
+                        else "Invalid location:\nPlace the trainer facing Cyndaquil's PokéBall in Birch's lab",
+                        sprite=sprites / "Cyndaquil.png",
+                    ),
+                    Selection(
+                        button_label="Totodile",
+                        button_enable=conditions["Totodile"],
+                        button_tooltip="Select Totodile"
+                        if conditions["Totodile"]
+                        else "Invalid location:\nPlace the trainer facing Totodile's PokéBall in Birch's lab",
+                        sprite=sprites / "Totodile.png",
+                    ),
+                ]
+            else:
+                selections = [
+                    Selection(
+                        button_label="Treecko",
+                        button_enable=conditions["Treecko"],
+                        button_tooltip="Select Treecko"
+                        if conditions["Treecko"]
+                        else "Invalid location:\nPlace the trainer facing Birch's bag on Route 101",
+                        sprite=sprites / "Treecko.png",
+                    ),
+                    Selection(
+                        button_label="Torchic",
+                        button_enable=conditions["Torchic"],
+                        button_tooltip="Select Torchic"
+                        if conditions["Torchic"]
+                        else "Invalid location:\nPlace the trainer facing Birch's bag on Route 101",
+                        sprite=sprites / "Torchic.png",
+                    ),
+                    Selection(
+                        button_label="Mudkip",
+                        button_enable=conditions["Mudkip"],
+                        button_tooltip="Select Mudkip"
+                        if conditions["Mudkip"]
+                        else "Invalid location:\nPlace the trainer facing Birch's bag on Route 101",
+                        sprite=sprites / "Mudkip.png",
+                    ),
+                ]
+
+            options = MultiSelector("Select a starter...", selections)
+            MultiSelectWindow(context.gui.window, options)
+
+        if context.selected_pokemon in ["Bulbasaur", "Charmander", "Squirtle"]:
             self.region: Regions = Regions.KANTO_STARTERS
 
-        elif config.general.starter.value in self.johto_starters and context.rom.game_title == "POKEMON EMER":
+        elif context.selected_pokemon in ["Chikorita", "Cyndaquil", "Totodile"]:
             self.region: Regions = Regions.JOHTO_STARTERS
             self.start_party_length: int = 0
             console.print(
@@ -73,8 +236,8 @@ class ModeStarters:
             if len(get_party()) == 6:
                 self.update_state(ModeStarterStates.PARTY_FULL)
 
-        elif config.general.starter.value in self.hoenn_starters:
-            self.bag_position: int = BagPositions[config.general.starter.value.upper()].value
+        elif context.selected_pokemon in ["Treecko", "Torchic", "Mudkip"]:
+            self.bag_position: int = BagPositions[context.selected_pokemon.upper()].value
             if context.rom.game_title == "POKEMON EMER":
                 self.region = Regions.HOENN_STARTERS
                 self.task_bag_cursor: str = "TASK_HANDLESTARTERCHOOSEINPUT"
@@ -87,28 +250,16 @@ class ModeStarters:
                 self.task_confirm: str = "TASK_STARTERCHOOSE5"
                 self.task_ball_throw: str = "SUB_814146C"
                 self.task_map_popup: str = "TASK_MAPNAMEPOPUP"
-            else:
-                self.state = ModeStarterStates.INCOMPATIBLE
-        else:
-            self.state = ModeStarterStates.INCOMPATIBLE
 
         if not config.cheats.starters_rng:
-            self.rng_history: list = get_rng_state_history(config.general.starter.value)
+            self.rng_history: list = get_rng_state_history(context.selected_pokemon)
+
+        self.state: ModeStarterStates = ModeStarterStates.RESET
 
     def update_state(self, state: ModeStarterStates):
         self.state: ModeStarterStates = state
 
     def step(self):
-        if self.state == ModeStarterStates.INCOMPATIBLE:
-            message = (
-                f"Starter `{config.general.starter.value}` is incompatible, update `starter` in config "
-                f"file `general.yml` to a valid starter for {context.rom.game_name} and restart the bot!"
-            )
-            console.print(f"[red bold]{message}")
-            context.message = message
-            context.bot_mode = "Manual"
-            return
-
         while True:
             match self.region:
                 case Regions.KANTO_STARTERS:
@@ -136,7 +287,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(config.general.starter.value, self.rng_history)
+                                    save_rng_state_history(context.selected_pokemon, self.rng_history)
                                     self.update_state(ModeStarterStates.OVERWORLD)
                                     continue
 
@@ -275,7 +426,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(config.general.starter.value, self.rng_history)
+                                    save_rng_state_history(context.selected_pokemon, self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
 
@@ -369,7 +520,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(config.general.starter.value, self.rng_history)
+                                    save_rng_state_history(context.selected_pokemon, self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
 

@@ -17,8 +17,6 @@ class ModeAncientLegendariesStates(Enum):
 class ModeAncientLegendaries:
     def __init__(self):
         if not context.selected_pokemon:
-            trainer_coords = trainer.get_coords()
-            trainer_map = trainer.get_map()
             sprites = Path(__file__).parent.parent.parent / "sprites" / "pokemon" / "normal"
 
             conditions = {
@@ -27,10 +25,10 @@ class ModeAncientLegendaries:
                         context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
                         and not get_event_flag("FLAG_DEFEATED_KYOGRE")
                         and not get_event_flag("FLAG_LEGENDARY_BATTLE_COMPLETED")
-                        and trainer_map == MapRSE.MARINE_CAVE_A.value
-                        and not trainer_coords == (9, 26)  # Tile that triggers Kyogre to initiate battle
-                        and 5 <= trainer_coords[0] <= 14
-                        and 26 <= trainer_coords[1] <= 27
+                        and trainer.get_map() == MapRSE.MARINE_CAVE_A.value
+                        and not trainer.get_coords() == (9, 26)  # Tile that triggers Kyogre to initiate battle
+                        and 5 <= trainer.get_coords()[0] <= 14
+                        and 26 <= trainer.get_coords()[1] <= 27
                     )
                 ),
                 "Groudon": bool(
@@ -38,18 +36,18 @@ class ModeAncientLegendaries:
                         context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
                         and not get_event_flag("FLAG_DEFEATED_GROUDON")
                         and not get_event_flag("FLAG_LEGENDARY_BATTLE_COMPLETED")
-                        and trainer_map == MapRSE.TERRA_CAVE_A.value
-                        and not trainer_coords == (17, 26)  # Tile that triggers Groudon to initiate battle
-                        and 11 <= trainer_coords[0] <= 20
-                        and 26 <= trainer_coords[1] <= 27
+                        and trainer.get_map() == MapRSE.TERRA_CAVE_A.value
+                        and not trainer.get_coords() == (17, 26)  # Tile that triggers Groudon to initiate battle
+                        and 11 <= trainer.get_coords()[0] <= 20
+                        and 26 <= trainer.get_coords()[1] <= 27
                     )
                 ),
                 "Rayquaza": bool(
                     (
                         context.rom.game_title == "POKEMON EMER"
                         and not get_event_flag("FLAG_DEFEATED_RAYQUAZA")
-                        and trainer_map == MapRSE.SKY_PILLAR_G.value
-                        and trainer_coords == (14, 7)
+                        and trainer.get_map() == MapRSE.SKY_PILLAR_G.value
+                        and trainer.get_coords() == (14, 7)
                         and trainer.get_facing_direction() == "Up"
                     )
                 ),
@@ -57,34 +55,34 @@ class ModeAncientLegendaries:
 
             selections = [
                 Selection(
-                    "Kyogre",
-                    conditions["Kyogre"],
-                    "Select Kyogre"
+                    button_label="Kyogre",
+                    button_enable=conditions["Kyogre"],
+                    button_tooltip="Select Kyogre"
                     if conditions["Kyogre"]
                     else (
                         "Invalid location:\n"
                         "Place the trainer anywhere on the platform in Marine Cave, in front of Kyogre"
                     ),
-                    sprites / "Kyogre.png",
+                    sprite=sprites / "Kyogre.png",
                 ),
                 Selection(
-                    "Groudon",
-                    conditions["Groudon"],
-                    "Select Groudon"
+                    button_label="Groudon",
+                    button_enable=conditions["Groudon"],
+                    button_tooltip="Select Groudon"
                     if conditions["Groudon"]
                     else (
                         "Invalid location:\n"
                         "Place the trainer anywhere on the platform in Terra Cave, in front of Groudon"
                     ),
-                    sprites / "Groudon.png",
+                    sprite=sprites / "Groudon.png",
                 ),
                 Selection(
-                    "Rayquaza",
-                    conditions["Rayquaza"],
-                    "Select Rayquaza"
+                    button_label="Rayquaza",
+                    button_enable=conditions["Rayquaza"],
+                    button_tooltip="Select Rayquaza"
                     if conditions["Rayquaza"]
                     else "Invalid location:\nPlace the trainer at the top of Sky Pillar, facing Rayquaza",
-                    sprites / "Rayquaza.png",
+                    sprite=sprites / "Rayquaza.png",
                 ),
             ]
 

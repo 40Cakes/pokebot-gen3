@@ -6,22 +6,22 @@ from modules.trainer import trainer, RunningStates, TileTransitionStates, AcroBi
 
 
 class TaskFishing(Enum):
-    INIT = auto()
-    GET_ROD_OUT = auto()
-    WAIT_BEFORE_DOTS = auto()
-    INIT_DOTS = auto()
-    SHOW_DOTS = auto()
-    CHECK_FOR_BITE = auto()
-    GOT_BITE = auto()
-    WAIT_FOR_A = auto()
-    CHECK_MORE_DOTS = auto()
-    MON_ON_HOOK = auto()
-    START_ENCOUNTER = auto()
-    NOT_EVEN_NIBBLE = auto()
-    GOT_AWAY = auto()
-    NO_MON = auto()
-    PUT_ROD_AWAY = auto()
-    END_NO_MON = auto()
+    INIT = 0
+    GET_ROD_OUT = 1
+    WAIT_BEFORE_DOTS = 2
+    INIT_DOTS = 3
+    SHOW_DOTS = 4
+    CHECK_FOR_BITE = 5
+    GOT_BITE = 6
+    WAIT_FOR_A = 7
+    CHECK_MORE_DOTS = 8
+    MON_ON_HOOK = 9
+    START_ENCOUNTER = 10
+    NOT_EVEN_NIBBLE = 11
+    GOT_AWAY = 12
+    NO_MON = 13
+    PUT_ROD_AWAY = 14
+    END_NO_MON = 15
 
 
 class ModeSpin:
