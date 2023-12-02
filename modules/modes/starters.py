@@ -451,10 +451,11 @@ class ModeStarters:
                                     continue
 
                         case ModeStarterStates.CHECK_STARTER:
-                            config.cheats.starters = True  # TODO temporary until menu navigation is ready
-                            if config.cheats.starters:  # TODO check Pokémon summary screen once menu navigation merged
-                                self.update_state(ModeStarterStates.LOG_STARTER)
-                                continue
+                            #config.cheats.starters = True  # TODO temporary until menu navigation is ready
+                            #if config.cheats.starters:  # TODO check Pokémon summary screen once menu navigation merged
+
+                            self.update_state(ModeStarterStates.LOG_STARTER)
+                            continue
 
                         case ModeStarterStates.LOG_STARTER:
                             party = get_party()
