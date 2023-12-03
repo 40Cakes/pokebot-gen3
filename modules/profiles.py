@@ -3,41 +3,14 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-import jsonschema
-from ruamel.yaml import YAML
-
+from modules import exceptions
+from modules.config import load_config_file, save_config_file
+from modules.config.schemas_v1 import ProfileMetadata, ProfileMetadataROM
 from modules.console import console
 from modules.roms import ROMS_DIRECTORY, ROM, list_available_roms, load_rom_data
 from modules.runtime import get_base_path
 
 PROFILES_DIRECTORY = get_base_path() / "profiles"
-
-metadata_schema = """
-type: object
-properties:
-    version:
-        type: integer
-        enum:
-            - 1
-    rom:
-        type: object
-        properties:
-            file_name:
-                type: string
-            game_code:
-                type: string
-            revision:
-                type: integer
-            language:
-                type: string
-                enum:
-                    - E
-                    - F
-                    - D
-                    - I
-                    - J
-                    - S
-"""
 
 
 @dataclass
@@ -65,6 +38,8 @@ def list_available_profiles() -> list[Profile]:
 
     profiles = []
     for entry in PROFILES_DIRECTORY.iterdir():
+        if entry.name.startswith("_"):
+            continue
         try:
             profiles.append(load_profile(entry))
         except RuntimeError:
@@ -77,43 +52,34 @@ def load_profile_by_name(name: str) -> Profile:
     return load_profile(PROFILES_DIRECTORY / name)
 
 
-def load_profile(path) -> Profile:
+def load_profile(path: Path) -> Profile:
     if not path.is_dir():
         raise RuntimeError("Path is not a valid profile directory.")
-
-    metadata_file = path / "metadata.yml"
-    if not metadata_file.is_file():
-        raise RuntimeError("Path is not a valid profile directory.")
-
-    try:
-        metadata = YAML().load(metadata_file)
-        jsonschema.validate(metadata, YAML().load(metadata_schema))
-    except:
-        console.print(f'[bold red]Metadata file for profile "{path.name}" is invalid![/]')
-        sys.exit(1)
-
+    metadata = load_config_file(path / ProfileMetadata.filename, ProfileMetadata, strict=True)
     current_state = path / "current_state.ss1"
     if current_state.exists():
         last_played = datetime.fromtimestamp(current_state.stat().st_mtime)
     else:
         last_played = None
 
-    rom_file = ROMS_DIRECTORY / metadata["rom"]["file_name"]
+    rom_file = ROMS_DIRECTORY / metadata.rom.file_name
     if rom_file.is_file():
         rom = load_rom_data(rom_file)
         return Profile(rom, path, last_played)
     else:
         for rom in list_available_roms():
-            if (
-                rom.game_code == metadata["rom"]["game_code"]
-                and rom.revision == metadata["rom"]["revision"]
-                and rom.language == metadata["rom"]["language"]
+            if all(
+                [
+                    rom.game_code == metadata.rom.game_code,
+                    rom.revision == metadata.rom.revision,
+                    rom.language == metadata.rom.language,
+                ]
             ):
                 return Profile(rom, path, last_played)
 
     console.print(
-        f"[bold red]Could not find ROM `{metadata['rom']['file_name']}` for profile `{path.name}`, "
-        f"please place `{metadata['rom']['file_name']}` into `{ROMS_DIRECTORY}`!"
+        f"[bold red]Could not find ROM `{metadata.rom.file_name}` for profile `{path.name}`, "
+        f"please place `{metadata.rom.file_name}` into `{ROMS_DIRECTORY}`!"
     )
     sys.exit(1)
 
@@ -123,24 +89,19 @@ def profile_directory_exists(name: str) -> bool:
 
 
 def create_profile(name: str, rom: ROM) -> Profile:
+    if name.startswith("_"):
+        raise exceptions.PrettyValueError(f'Profile names cannot start with the underscore "_" character.')
     profile_directory = PROFILES_DIRECTORY / name
     if profile_directory.exists():
         raise RuntimeError(f'There already is a profile called "{name}", cannot create a new one with that name.')
 
-    profile_directory.mkdir()
-    yaml = YAML()
-    yaml.allow_unicode = False
-    yaml.dump(
-        {
-            "version": 1,
-            "rom": {
-                "file_name": rom.file.name,
-                "game_code": rom.game_code,
-                "revision": rom.revision,
-                "language": str(rom.language),
-            },
-        },
-        profile_directory / "metadata.yml",
+    rom_cfg = ProfileMetadataROM(
+        file_name=rom.file.name,
+        game_code=rom.game_code,
+        revision=rom.revision,
+        language=str(rom.language),
     )
+    profile_metadata = ProfileMetadata(rom=rom_cfg)
+    save_config_file(profile_directory, profile_metadata, strict=False)
 
     return Profile(rom, profile_directory, None)

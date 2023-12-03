@@ -585,6 +585,51 @@ class MapLocation:
     def is_dark_cave(self) -> bool:
         return bool(self._map_header[0x15] & 0b0001)
 
+    def all_tiles(self) -> list[list["MapLocation"]]:
+        result = []
+
+        for x in range(self.map_size[0]):
+            row = []
+            for y in range(self.map_size[1]):
+                row.append(MapLocation(self._map_header, self.map_group, self.map_number, (x, y)))
+            result.append(row)
+
+        return result
+
+    def dict_for_map(self) -> dict:
+        return {
+            "map_group": self.map_group,
+            "map_number": self.map_number,
+            "name": self.map_name,
+            "size": self.map_size,
+            "type": self.map_type,
+            "weather": self.weather,
+            "is_cycling_possible": self.is_cycling_possible,
+            "is_escaping_possible": self.is_escaping_possible,
+            "is_running_possible": self.is_running_possible,
+            "is_map_name_popup_shown": self.is_map_name_popup_shown,
+            "is_dark_cave": self.is_dark_cave,
+        }
+
+    def dict_for_tile(self) -> dict:
+        return {
+            "local_coordinates": self.local_position,
+            "elevation": self.elevation,
+            "type": self.tile_type,
+            "has_encounters": self.has_encounters,
+            "collision": self.collision,
+            "is_surfing_possible": self.is_surfable,
+        }
+
+    def dicts_for_all_tiles(self) -> list[list[dict]]:
+        result = []
+        for row in self.all_tiles():
+            result_row = []
+            for tile in row:
+                result_row.append(tile.dict_for_tile())
+            result.append(result_row)
+        return result
+
 
 class ObjectEvent:
     MOVEMENT_TYPES = ["NONE", "LOOK_AROUND", "WANDER_AROUND", "WANDER_UP_AND_DOWN", "WANDER_DOWN_AND_UP",

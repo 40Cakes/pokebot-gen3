@@ -3,7 +3,7 @@ from modules.encounter import encounter_pokemon
 from modules.memory import get_game_state, GameState, get_task
 from modules.pokemon import opponent_changed, get_opponent
 from modules.temp import temp_run_from_battle
-from modules.trainer import trainer
+from modules.trainer import trainer, TileTransitionStates
 
 
 def follow_path(coords: list, run: bool = True) -> bool:  # TODO needs a rework
@@ -34,27 +34,29 @@ def follow_path(coords: list, run: bool = True) -> bool:  # TODO needs a rework
                     context.emulator.press_button("B")
                     context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
 
-            trainer_coords = trainer.get_coords()
-            # Check if map changed to desired map
-            if map_data:
-                trainer_map = trainer.get_map()
-                if trainer_map[0] == map_data[0][0] and trainer_map[1] == map_data[0][1]:
+            if trainer.get_tile_transition_state() == TileTransitionStates.NOT_MOVING:
+                trainer_coords = trainer.get_coords()
+                # Check if map changed to desired map
+                if map_data:
+                    trainer_map = trainer.get_map()
+                    if trainer_map[0] == map_data[0][0] and trainer_map[1] == map_data[0][1]:
+                        context.emulator.release_button("B")
+                        break
+
+                if trainer_coords[0] > x:
+                    direction = "Left"
+                elif trainer_coords[0] < x:
+                    direction = "Right"
+                elif trainer_coords[1] < y:
+                    direction = "Down"
+                elif trainer_coords[1] > y:
+                    direction = "Up"
+                else:
                     context.emulator.release_button("B")
                     break
 
-            if trainer_coords[0] > x:
-                direction = "Left"
-            elif trainer_coords[0] < x:
-                direction = "Right"
-            elif trainer_coords[1] < y:
-                direction = "Down"
-            elif trainer_coords[1] > y:
-                direction = "Up"
-            else:
-                context.emulator.release_button("B")
-                break
-
-            context.emulator.press_button(direction)
+                context.emulator.press_button(direction)
+                context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
             context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
         context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
 
