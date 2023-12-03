@@ -838,6 +838,18 @@ class ObjectEvent:
     def __init__(self, data: bytes):
         self._data = data
 
+    def __eq__(self, other):
+        if isinstance(other, ObjectEvent):
+            return other._data == self._data
+        else:
+            return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, ObjectEvent):
+            return other._data != self._data
+        else:
+            return NotImplemented
+
     @property
     def flags(self) -> list[str]:
         flag_names = ["active", "singleMovementActive", "triggerGroundEffectsOnMove", "triggerGroundEffectsOnStop",
@@ -990,12 +1002,6 @@ class ObjectEvent:
             return f"Trainer at {self.current_coords}"
         else:
             return f"Entity at {self.current_coords}"
-
-
-def get_map_data_for_current_position() -> MapLocation:
-    from modules.trainer import trainer
-    map_group, map_number = trainer.get_map()
-    return MapLocation(read_symbol("gMapHeader"), map_group, map_number, trainer.get_coords())
 
 
 def get_map_data(map_group: int, map_number: int, local_position: tuple[int, int]) -> MapLocation:

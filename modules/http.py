@@ -11,12 +11,11 @@ from modules.game import _event_flags
 from modules.http_stream import add_subscriber
 from modules.items import get_items
 from modules.main import work_queue
-from modules.map import get_map_data_for_current_position
 from modules.memory import get_event_flag, get_game_state, GameState
-from modules.pokemon import get_party, get_opponent
+from modules.pokemon import get_party
 from modules.stats import total_stats
 from modules.state_cache import state_cache
-from modules.trainer import trainer
+from modules.player import get_player
 
 
 def http_server() -> None:
@@ -73,9 +72,18 @@ def http_server() -> None:
 
         return Response(stream(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
-    @server.route("/trainer", methods=["GET"])
-    def http_get_trainer():
-        data = trainer.to_dict()
+    @server.route("/player", methods=["GET"])
+    def http_get_player():
+        cached_player = state_cache.player
+        if cached_player.age_in_frames > 5:
+            work_queue.put_nowait(get_player)
+            while cached_player.age_in_frames > 5:
+                time.sleep(0.05)
+
+        if cached_player.value is not None:
+            data = cached_player.value.to_dict()
+        else:
+            data = {}
         data["game_state"] = get_game_state().name
         return jsonify(data)
 
@@ -85,12 +93,23 @@ def http_server() -> None:
 
     @server.route("/map", methods=["GET"])
     def http_get_map():
-        map_data = get_map_data_for_current_position()
-        return jsonify({
-            "map": map_data.dict_for_map(),
-            "player_position": map_data.local_position,
-            "tiles": map_data.dicts_for_all_tiles(),
-        })
+        cached_player = state_cache.player
+        if cached_player.age_in_frames > 5:
+            work_queue.put_nowait(get_player)
+            while cached_player.age_in_frames > 5:
+                time.sleep(0.05)
+
+        if cached_player.value is not None:
+            map_data = cached_player.value.map_location
+            data = {
+                "map": map_data.dict_for_map(),
+                "player_position": map_data.local_position,
+                "tiles": map_data.dicts_for_all_tiles(),
+            }
+        else:
+            data = None
+
+        return jsonify(data)
 
     @server.route("/party", methods=["GET"])
     def http_get_party():
