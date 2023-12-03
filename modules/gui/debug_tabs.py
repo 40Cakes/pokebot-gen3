@@ -711,6 +711,7 @@ class MapTab(DebugTab):
         from modules.trainer import trainer
 
         show_different_tile = self._marker_rectangle is not None and get_task("TASK_WEATHERMAIN") != {}
+        self._map.update()
 
         if trainer.get_tile_transition_state() != 0:
             self._marker_rectangle = None
