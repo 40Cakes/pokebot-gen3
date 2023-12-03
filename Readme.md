@@ -33,20 +33,6 @@ The wiki contains information about the default emulator keybinds/inputs, bot mo
 
 ***
 
-# ⏩ Tips/Tricks
-## Optimal game settings
-
-- Set **TEXT SPEED** to **FAST**
-- Set **BATTLE SCENE** to **OFF**
-- Utilise [repel tricks](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) to boost encounter rates of target Pokémon
-- Using modes [Spin](https://github.com/40Cakes/pokebot-gen3/wiki/%F0%9F%94%84-Spin) or [Bunny Hop](https://github.com/40Cakes/pokebot-gen3/wiki/%F0%9F%9A%B2-Bunny-Hop) and repels will become effectively infinite + steps won't be counted in Safari Zone
-- Use a lead Pokémon with encounter rate boosting [abilities](https://bulbapedia.bulbagarden.net/wiki/Category:Abilities_that_affect_appearance_of_wild_Pok%C3%A9mon), such as **[Illuminate](https://bulbapedia.bulbagarden.net/wiki/Illuminate_(Ability))**
-- Use a lead Pokémon with a [short cry](https://docs.google.com/spreadsheets/d/1rmtNdlIXiif1Sz20i-9mfhFdoqb1VnAOIntlr3tnPeU)
-- Use a lead Pokémon with a single character nickname
-- Don't use a shiny lead Pokémon (shiny animation takes a few frames at the start of every battle)
-
-***
-
 # 🐛 Debugging
 
 The bot supports auto-starting a profile and can also be launched into a 'debug' mode which can aid bot development.
@@ -57,6 +43,8 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
+  -m {MODE_NAME}, --bot-mode {MODE_NAME}
+                        Initial bot mode (default: Manual)
   -s {0,1,2,3,4}, --emulation-speed {0,1,2,3,4}
                         Initial emulation speed (0 for unthrottled; default: 1)
   -nv, --no-video       Turn off video output by default
@@ -64,6 +52,8 @@ options:
   -t, --always-on-top   Keep the bot window always on top of other windows
   -d, --debug           Enable extra debug options and a debug menu
 ```
+
+Click [here](https://github.com/40Cakes/pokebot-gen3/blob/main/modules/modes/__init__.py) for a list of bot mode strings to use in place of `MODE_NAME`.
 
 ***
 
