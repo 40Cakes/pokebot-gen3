@@ -1,4 +1,4 @@
-from tkinter import Tk, Button, Canvas, PhotoImage
+from tkinter import Tk, Button, PhotoImage
 
 import PIL.Image
 import PIL.ImageTk
@@ -34,6 +34,7 @@ class EmulatorScreen:
             controls.add_tab(TasksTab())
             controls.add_tab(BattleTab())
             controls.add_tab(TrainerTab())
+            controls.add_tab(MapTab(self.canvas))
             controls.add_tab(DaycareTab())
             controls.add_tab(SymbolsTab())
             controls.add_tab(EventFlagsTab())
@@ -44,7 +45,7 @@ class EmulatorScreen:
 
     def enable(self) -> None:
         self.window.title(f"{context.profile.path.name} | {pokebot_name} {pokebot_version}")
-        self.window.resizable(False, False)
+        self.window.resizable(context.debug, context.debug)
         self.window.rowconfigure(0, weight=1)
         self.window.columnconfigure(0, weight=1)
 
@@ -53,15 +54,15 @@ class EmulatorScreen:
         self.frame.rowconfigure(0, weight=1)
         self.frame.columnconfigure(0, weight=1)
 
-        self._initialise_controls(context.debug)
         self._add_canvas()
+        self._initialise_controls(context.debug)
         self.scale = 2
 
     def disable(self) -> None:
         if self.frame:
             self.frame.destroy()
         self.window.geometry("540x400")
-        self.window.resizable(False, True)
+        self.window.resizable(context.debug, True)
 
     def update(self) -> None:
         if context.emulator._performance_tracker.time_since_last_render() >= (1 / 60) * 1_000_000_000:
@@ -120,11 +121,13 @@ class EmulatorScreen:
     def toggle_stepping_mode(self) -> None:
         self._stepping_mode = not self._stepping_mode
         if self._stepping_mode:
+
             def next_step():
                 self._current_step += 1
 
-            self._stepping_button = Button(self.window, text="⮞", padx=8, background="red", foreground="white",
-                                           command=next_step, cursor="hand2")
+            self._stepping_button = Button(
+                self.window, text="⮞", padx=8, background="red", foreground="white", command=next_step, cursor="hand2"
+            )
             self._stepping_button.place(x=0, y=0)
             self._current_step = 0
         else:
@@ -138,7 +141,8 @@ class EmulatorScreen:
 
     def _update_image(self, image: PIL.Image):
         self.current_canvas_image = PIL.ImageTk.PhotoImage(
-            image=image.resize((self.width * self.scale, self.height * self.scale), resample=False))
+            image=image.resize((self.width * self.scale, self.height * self.scale), resample=False)
+        )
         self.canvas.create_image(self.center_of_canvas, image=self.current_canvas_image, state="normal")
         self._update_window()
 
@@ -152,3 +156,10 @@ class EmulatorScreen:
     def _add_canvas(self) -> None:
         self.canvas = Canvas(self.window, width=480, height=320)
         self.canvas.grid(sticky="NW", row=0, column=0)
+        if context.debug:
+
+            def handle_click_on_video_output(event):
+                if context.video:
+                    self._controls.on_video_output_click((event.x // self.scale, event.y // self.scale), self.scale)
+
+            self.canvas.bind("<Button-1>", handle_click_on_video_output)

@@ -1,9 +1,10 @@
 import sys
 import struct
-from enum import IntEnum
+from enum import IntEnum, auto
 
 from modules.context import context
-from modules.game import get_symbol, get_symbol_name, get_event_flag_offset
+from modules.game import get_symbol, get_symbol_name, get_event_flag_offset, _event_flags
+from modules.state_cache import state_cache
 
 
 def unpack_uint16(bytes: bytes) -> int:
@@ -67,8 +68,6 @@ def write_symbol(name: str, data: bytes, offset: int = 0x0) -> bool:
         return True
     except SystemExit:
         raise
-    except:
-        sys.exit(1)
 
 
 def parse_tasks(pretty_names: bool = False) -> list:
@@ -125,62 +124,93 @@ def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
                 return None
             return context.emulator.read_bytes(p_Trainer + offset, size)
         else:
-            return read_symbol(f"gSaveBlock{num}", offset=offset, size=size)
+            return read_symbol(f"gSaveBlock{num}", offset, size)
+    except SystemExit:
+        raise
+
+
+def write_to_save_block(data: bytes, num: int = 1, offset: int = 0) -> bool:
+    """
+    Writes data to a save block - ! use with care, high potential of corrupting save data in memory
+
+    :param data: Data to write to saveblock
+    :param num: 1 or 2 (gSaveblock1 or gSaveblock2)
+    see: https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Game_save_A.2C_Game_save_B
+    :param offset: Write n bytes offset from beginning of the save block
+    :return: Success true/false (bool)
+    """
+    # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
+    try:
+        if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+            p_Trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
+            if p_Trainer == 0:
+                return False
+            return context.emulator.write_bytes(p_Trainer + offset, data)
+        else:
+            return write_symbol(f"gSaveBlock{num}", data, offset)
     except SystemExit:
         raise
 
 
 class GameState(IntEnum):
     # Menus
-    BAG_MENU = 100
-    CHOOSE_STARTER = 101
-    PARTY_MENU = 102
+    BAG_MENU = auto()
+    CHOOSE_STARTER = auto()
+    PARTY_MENU = auto()
     # Battle related
-    BATTLE = 200
-    BATTLE_STARTING = 201
-    BATTLE_ENDING = 202
+    BATTLE = auto()
+    BATTLE_STARTING = auto()
+    BATTLE_ENDING = auto()
     # Misc
-    OVERWORLD = 900
-    CHANGE_MAP = 901
-    TITLE_SCREEN = 902
-    MAIN_MENU = 903
-    GARBAGE_COLLECTION = 905
-    EVOLUTION = 906
-    UNKNOWN = 999
+    OVERWORLD = auto()
+    CHANGE_MAP = auto()
+    TITLE_SCREEN = auto()
+    MAIN_MENU = auto()
+    GARBAGE_COLLECTION = auto()
+    EVOLUTION = auto()
+    UNKNOWN = auto()
 
 
 def get_game_state_symbol() -> str:
     callback2 = read_symbol("gMain", 4, 4)  # gMain.callback2
     addr = unpack_uint32(callback2) - 1
-    return get_symbol_name(addr)
+    callback_name = get_symbol_name(addr)
+    state_cache.callback2 = callback_name
+    return callback_name
 
 
 def get_game_state() -> GameState:
+    if state_cache.game_state.age_in_frames == 0:
+        return state_cache.game_state.value
+
     match get_game_state_symbol():
         case "CB2_OVERWORLD":
-            return GameState.OVERWORLD
+            result = GameState.OVERWORLD
         case "BATTLEMAINCB2":
-            return GameState.BATTLE
+            result = GameState.BATTLE
         case "CB2_BAGMENURUN" | "SUB_80A3118":
-            return GameState.BAG_MENU
+            result = GameState.BAG_MENU
         case "CB2_UPDATEPARTYMENU" | "CB2_PARTYMENUMAIN":
-            return GameState.PARTY_MENU
+            result = GameState.PARTY_MENU
         case "CB2_INITBATTLE" | "CB2_HANDLESTARTBATTLE":
-            return GameState.BATTLE_STARTING
+            result = GameState.BATTLE_STARTING
         case "CB2_ENDWILDBATTLE":
-            return GameState.BATTLE_ENDING
+            result = GameState.BATTLE_ENDING
         case "CB2_LOADMAP" | "CB2_LOADMAP2" | "CB2_DOCHANGEMAP" | "SUB_810CC80":
-            return GameState.CHANGE_MAP
+            result = GameState.CHANGE_MAP
         case "CB2_STARTERCHOOSE" | "CB2_CHOOSESTARTER":
-            return GameState.CHOOSE_STARTER
+            result = GameState.CHOOSE_STARTER
         case "CB2_INITCOPYRIGHTSCREENAFTERBOOTUP" | "CB2_WAITFADEBEFORESETUPINTRO" | "CB2_SETUPINTRO" | "CB2_INTRO" | "CB2_INITTITLESCREEN" | "CB2_TITLESCREENRUN" | "CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN" | "CB2_INITMAINMENU" | "MAINCB2" | "MAINCB2_INTRO":
-            return GameState.TITLE_SCREEN
+            result = GameState.TITLE_SCREEN
         case "CB2_MAINMENU":
-            return GameState.MAIN_MENU
+            result = GameState.MAIN_MENU
         case "CB2_EVOLUTIONSCENEUPDATE":
-            return GameState.EVOLUTION
+            result = GameState.EVOLUTION
         case _:
-            return GameState.UNKNOWN
+            result = GameState.UNKNOWN
+
+    state_cache.game_state = result
+    return result
 
 
 def game_has_started() -> bool:
@@ -194,7 +224,21 @@ def game_has_started() -> bool:
 
 
 def get_event_flag(flag_name: str) -> bool:
+    if flag_name not in _event_flags:
+        return False
+
     flag_offset = get_event_flag_offset(flag_name)
     flag_byte = get_save_block(1, offset=flag_offset[0], size=1)
 
     return bool((flag_byte[0] >> (flag_offset[1])) & 1)
+
+
+def set_event_flag(flag_name: str) -> bool:
+    if flag_name not in _event_flags:
+        return False
+
+    flag_offset = get_event_flag_offset(flag_name)
+    flag_byte = get_save_block(1, offset=flag_offset[0], size=1)
+
+    write_to_save_block(int.to_bytes(int.from_bytes(flag_byte) ^ (1 << flag_offset[1])), 1, offset=flag_offset[0])
+    return True

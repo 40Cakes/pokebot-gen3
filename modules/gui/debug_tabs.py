@@ -1,24 +1,27 @@
 import time
 import tkinter
 from enum import Enum
-from tkinter import ttk
-from typing import TYPE_CHECKING, Union
+from tkinter import ttk, Canvas
+from typing import TYPE_CHECKING, Union, Optional
 
 from modules.context import context
 from modules.daycare import get_daycare_data
-from modules.game import decode_string, _symbols, _reverse_symbols
+from modules.game import decode_string, _symbols, _reverse_symbols, _event_flags
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_items
+from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects
 from modules.memory import (
     get_symbol,
     read_symbol,
     parse_tasks,
+    get_task,
     get_symbol_name,
     game_has_started,
     unpack_uint16,
     unpack_uint32,
+    set_event_flag,
+    get_event_flag,
 )
-
 from modules.pokemon import get_party, get_species_by_index
 
 if TYPE_CHECKING:
@@ -27,14 +30,18 @@ if TYPE_CHECKING:
 
 class FancyTreeview:
     def __init__(
-            self,
-            root: ttk.Widget,
-            height=22,
-            row=0,
-            column=0,
-            columnspan=1,
-            additional_context_actions: dict[str, callable] = {},
+        self,
+        root: ttk.Widget,
+        height=22,
+        row=0,
+        column=0,
+        columnspan=1,
+        additional_context_actions: Optional[dict[str, callable]] = None,
+        on_highlight: Optional[callable] = None,
     ):
+        if additional_context_actions is None:
+            additional_context_actions = {}
+
         treeview_scrollbar_combo = ttk.Frame(root)
         treeview_scrollbar_combo.columnconfigure(0, weight=1)
         treeview_scrollbar_combo.grid(row=row, column=column, columnspan=columnspan, sticky="NSWE")
@@ -62,6 +69,18 @@ class FancyTreeview:
             )
 
         self._tv.bind("<Button-3>", self._handle_right_click)
+        self._tv.bind("<Up>", lambda _: root.focus_set())
+        self._tv.bind("<Down>", lambda _: root.focus_set())
+        self._tv.bind("<Left>", lambda _: root.focus_set())
+        self._tv.bind("<Right>", lambda _: root.focus_set())
+
+        if on_highlight is not None:
+
+            def handle_selection(e):
+                selected_item = self._tv.focus()
+                on_highlight(self._tv.item(selected_item)["text"])
+
+            self._tv.bind("<ButtonRelease-1>", handle_selection)
 
     def update_data(self, data: dict) -> None:
         found_items = self._update_dict(data, "", "")
@@ -280,9 +299,18 @@ class SymbolsTab(DebugTab):
             "gStringVar3",
             "gStringVar4",
             "gDisplayedStringBattle",
+            "gBattleTypeFlags",
         }
-        self.display_as_string = {"sChat", "gStringVar1", "gStringVar2", "gStringVar3", "gStringVar4",
-                                  "gDisplayedStringBattle"}
+        self.display_mode = {
+            "gObjectEvents": None,
+            "sChat": "str",
+            "gStringVar1": "str",
+            "gStringVar2": "str",
+            "gStringVar3": "str",
+            "gStringVar4": "str",
+            "gDisplayedStringBattle": "str",
+            "gBattleTypeFlags": "bin",
+        }
         self._tv: FancyTreeview
         self._mini_window: Union[tkinter.Toplevel, None] = None
 
@@ -297,7 +325,10 @@ class SymbolsTab(DebugTab):
 
         context_actions = {
             "Remove from List": self._handle_remove_symbol,
-            "Toggle String Decoding": self._handle_toggle_symbol,
+            "Show as Hexadecimal Value": self._handle_show_as_hex,
+            "Show as String": self._handle_show_as_string,
+            "Show as Decimal Value": self._handle_show_as_dec,
+            "Show as Binary Value": self._handle_show_as_bin,
         }
 
         self._tv = FancyTreeview(frame, row=2, height=20, additional_context_actions=context_actions)
@@ -343,9 +374,9 @@ class SymbolsTab(DebugTab):
 
         items: dict[str, str] = {}
         detached_items = set()
-        for symbol,values in _symbols.items():
+        for symbol, values in _symbols.items():
             address, length = values
-            _,symbol,_ = _reverse_symbols[address]
+            _, symbol, _ = _reverse_symbols[address]
             if length == 0:
                 continue
             if not (symbol.startswith("s") or symbol.startswith("l") or symbol.startswith("g")):
@@ -374,7 +405,14 @@ class SymbolsTab(DebugTab):
             if self._mini_window is not None:
                 item = tv.identify_row(event.y)
                 if item:
-                    self.symbols_to_display.add(tv.item(item)["text"])
+                    symbol_name = tv.item(item)["text"]
+                    symbol_length = int(tv.item(item).get('values')[2], 16)
+                    if tv.item(item)["text"].startswith("s"):
+                        self.display_mode[symbol_name] = "str"
+                    elif symbol_length == 2 or symbol_length == 4:
+                        self.display_mode[symbol_name] = "dec"
+                    else:
+                        self.display_mode[symbol_name] = "hex"
                     self.update(context.emulator)
 
         tv.bind("<Double-Button-1>", handle_double_click)
@@ -405,37 +443,40 @@ class SymbolsTab(DebugTab):
                 address, length = get_symbol(symbol.upper())
             except RuntimeError:
                 self.symbols_to_display.remove(symbol)
-                self.display_as_string.remove(symbol)
+                del self.display_mode[symbol]
                 break
 
             value = emulator.read_bytes(address, length)
-            if symbol in self.display_as_string:
+            display_mode = self.display_mode.get(symbol, "hex")
+
+            if display_mode == "str":
                 data[symbol] = decode_string(value)
-            elif length == 4 or length == 2:
+            elif display_mode == "dec":
                 n = int.from_bytes(value, byteorder="little")
                 data[symbol] = f"{value.hex(' ', 1)} ({n})"
+            elif display_mode == "bin":
+                n = int.from_bytes(value, byteorder="little")
+                binary_string = bin(n).removeprefix("0b").rjust(length * 8, '0')
+                chunk_size = 4
+                chunks = [binary_string[i:i+chunk_size] for i in range(0, len(binary_string), chunk_size)]
+                data[symbol] = " ".join(chunks)
             else:
                 data[symbol] = value.hex(" ", 1)
 
         self._tv.update_data(data)
 
-    def _handle_new_symbol(self, event):
-        new_symbol = self._combobox.get()
-        try:
-            get_symbol(new_symbol)
-            self.symbols_to_display.add(new_symbol)
-        except RuntimeError:
-            pass
-
     def _handle_remove_symbol(self, symbol: str):
         self.symbols_to_display.remove(symbol)
-        self.display_as_string.remove(symbol)
+        del self.display_mode[symbol]
 
-    def _handle_toggle_symbol(self, symbol: str):
-        if symbol in self.display_as_string:
-            self.display_as_string.remove(symbol)
-        else:
-            self.display_as_string.add(symbol)
+    def _handle_show_as_hex(self, symbol: str):
+        self.display_mode[symbol] = "hex"
+    def _handle_show_as_string(self, symbol: str):
+        self.display_mode[symbol] = "str"
+    def _handle_show_as_dec(self, symbol: str):
+        self.display_mode[symbol] = "dec"
+    def _handle_show_as_bin(self, symbol: str):
+        self.display_mode[symbol] = "bin"
 
 
 class TrainerTab(DebugTab):
@@ -542,16 +583,19 @@ class EventFlagsTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
-        self._tv = FancyTreeview(frame)
+
+        context_actions = {"Toggle Flag": self._toggle_flag}
+
+        self._tv = FancyTreeview(frame, additional_context_actions=context_actions)
         root.add(frame, text="Event Flags")
 
     def update(self, emulator: "LibmgbaEmulator"):
         self._tv.update_data(self._get_data())
 
-    def _get_data(self):
-        from modules.game import _event_flags
-        from modules.memory import get_event_flag
+    def _toggle_flag(self, flag: str):
+        set_event_flag(flag)
 
+    def _get_data(self):
         result = {}
 
         for flag in _event_flags:
@@ -581,3 +625,168 @@ class InputsTab(DebugTab):
             result[input] = True if input_map[input] & inputs else False
 
         return result
+
+
+class MapTab(DebugTab):
+    def __init__(self, canvas: Canvas):
+        self._canvas = canvas
+        self._tv: FancyTreeview | None = None
+        self._selected_tile: tuple[int, int] | None = None
+        self._selected_map: tuple[int, int] | None = None
+        self._selected_object: tuple[int, int, int] | None = None
+        self._marker_rectangle: tuple[tuple[int, int], tuple[int, int]] | None = None
+
+    def draw(self, root: ttk.Notebook):
+        frame = ttk.Frame(root, padding=10)
+        self._tv = FancyTreeview(frame, on_highlight=self._handle_selection)
+        root.add(frame, text="Map")
+
+    def update(self, emulator: "LibmgbaEmulator"):
+        show_different_tile = self._marker_rectangle is not None and get_task("TASK_WEATHERMAIN") != {}
+        from modules.trainer import trainer
+
+        if trainer.get_tile_transition_state() != 0:
+            self._marker_rectangle = None
+            self._selected_tile = None
+            show_different_tile = False
+
+        self._tv.update_data(self._get_data(show_different_tile))
+        if show_different_tile:
+            self._canvas.create_rectangle(
+                self._marker_rectangle[0], self._marker_rectangle[1], outline="red", dash=(5, 5), width=2
+            )
+
+        if self._selected_object is not None:
+            scale = self._canvas.winfo_reqwidth() // 240
+            map_objects = get_map_objects()
+            found = False
+            for obj in map_objects:
+                if self._selected_object == (obj.map_group, obj.map_num, obj.local_id):
+                    object_coords = obj.current_coords
+                    previous_coords = obj.previous_coords
+                    camera_coords = trainer.get_coords()
+
+                    relative_x = object_coords[0] - camera_coords[0]
+                    relative_y = object_coords[1] - camera_coords[1]
+
+                    previous_relative_x = previous_coords[0] - camera_coords[0]
+                    previous_relative_y = previous_coords[1] - camera_coords[1]
+
+                    if -7 <= relative_x <= 7 and -5 <= relative_y <= 5:
+                        start_x = min(relative_x + 7, previous_relative_x + 7) * 16 * scale
+                        start_y = (min(relative_y + 5, previous_relative_y + 5) * 16 - 8) * scale
+
+                        end_x = (max(relative_x + 8, previous_relative_x + 8) * 16) * scale
+                        end_y = (max(relative_y + 6, previous_relative_y + 6) * 16 - 8) * scale
+
+                        self._canvas.create_rectangle(
+                            (start_x, start_y), (end_x, end_y), outline="blue", dash=(5, 5), width=2
+                        )
+
+                    found = True
+                    break
+
+            if not found:
+                self._selected_object = None
+
+    def on_video_output_click(self, click_location: tuple[int, int], scale: int):
+        tile_size = 16
+        half_tile_size = tile_size // 2
+        tile_x = click_location[0] // tile_size
+        tile_y = (click_location[1] + half_tile_size) // tile_size
+
+        current_map_data = get_map_data_for_current_position()
+        actual_x = current_map_data.local_position[0] + (tile_x - 7)
+        actual_y = current_map_data.local_position[1] + (tile_y - 5)
+        if (
+            self._selected_tile == (actual_x, actual_y)
+            or actual_x < 0
+            or actual_x >= current_map_data.map_size[0]
+            or actual_y < 0
+            or actual_y >= current_map_data.map_size[1]
+        ):
+            self._selected_tile = None
+            self._selected_map = None
+            self._marker_rectangle = None
+            return
+
+        start_x = tile_x * tile_size * scale
+        start_y = (tile_y * tile_size - half_tile_size) * scale
+        end_x = (tile_x + 1) * tile_size * scale
+        end_y = ((tile_y + 1) * tile_size - half_tile_size) * scale
+
+        self._selected_tile = (actual_x, actual_y)
+        self._selected_map = (current_map_data.map_group, current_map_data.map_number)
+        self._marker_rectangle = ((start_x, start_y), (end_x, end_y))
+
+    def _get_data(self, show_different_tile: bool):
+        if show_different_tile:
+            map_group, map_number = self._selected_map
+            map_data = get_map_data(map_group, map_number, self._selected_tile)
+        else:
+            map_data = get_map_data_for_current_position()
+
+        map_objects = get_map_objects()
+        object_list = {"__value": len(map_objects)}
+        for i in range(len(map_objects)):
+            flags = map_objects[i].flags
+            if len(flags) == 0:
+                flags_value = "None"
+            elif len(flags) <= 3:
+                flags_value = ", ".join(flags)
+            else:
+                flags_value = ", ".join(flags[0:3]) + "... +" + str(len(flags) - 3)
+
+            flags_list = {"__value": flags_value}
+            for j in range(len(flags)):
+                flags_list[str(j)] = flags[j]
+
+            object_list[f"Object #{i}"] = {
+                "__value": str(map_objects[i]),
+                "Local Position": map_objects[i].current_coords,
+                "Elevation": map_objects[i].current_elevation,
+                "Local ID": map_objects[i].local_id,
+                "Facing Direction": map_objects[i].facing_direction,
+                "Movement Type": map_objects[i].movement_type,
+                "Movement Direction": map_objects[i].movement_direction,
+                "Movement Range X": map_objects[i].range_x,
+                "Movement Range Y": map_objects[i].range_y,
+                "Trainer Type": map_objects[i].trainer_type,
+                "Flags": flags_list,
+            }
+
+        return {
+            "Map": {
+                "__value": map_data.map_name,
+                "Size": map_data.map_size,
+                "Type": map_data.map_type,
+                "Weather": map_data.weather,
+                "Cycling possible": map_data.is_cycling_possible,
+                "Escaping possible": map_data.is_escaping_possible,
+                "Running possible": map_data.is_running_possible,
+                "Show Map Name Popup": map_data.is_map_name_popup_shown,
+                "Is Dark Cave": map_data.is_dark_cave,
+            },
+            "Tile": {
+                "__value": f"{map_data.local_position[0]}/{map_data.local_position[1]} ({map_data.tile_type})",
+                "Elevation": map_data.elevation,
+                "Tile Type": map_data.tile_type,
+                "Tile Has Encounters": map_data.has_encounters,
+                "Collision": bool(map_data.collision),
+                "Surfing possible": map_data.is_surfable,
+            },
+            "Objects": object_list,
+        }
+
+    def _handle_selection(self, selected_label: str) -> None:
+        self._selected_object = None
+        if not selected_label.startswith("Object #"):
+            return
+
+        object_index = int(selected_label[8:])
+        map_objects = get_map_objects()
+        if len(map_objects) <= object_index:
+            return
+
+        selected_object = map_objects[object_index]
+        self._selected_object = (selected_object.map_group, selected_object.map_num, selected_object.local_id)

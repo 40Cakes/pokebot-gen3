@@ -204,10 +204,7 @@ def get_symbol_name(address: int, pretty_name: bool = False) -> str:
     return _reverse_symbols.get(address, ("", ""))[0 if not pretty_name else 1]
 
 
-def get_event_flag_offset(flag_name: str) -> int:
-    if flag_name not in _event_flags:
-        raise RuntimeError(f"Unknown event flag: {flag_name}!")
-
+def get_event_flag_offset(flag_name: str) -> tuple[int, int]:
     return _event_flags[flag_name]
 
 

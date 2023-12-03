@@ -1,4 +1,3 @@
-from modules.config import config
 from modules.context import context
 from modules.memory import get_game_state, GameState, get_task
 from modules.menu_parsers import (
@@ -9,6 +8,9 @@ from modules.menu_parsers import (
     get_party_menu_cursor_pos,
 )
 from modules.pokemon import get_party
+
+
+config = context.config
 
 
 def party_menu_is_open() -> bool:
@@ -381,7 +383,6 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
 
 
 class BattlePartyMenuNavigator(PokemonPartyMenuNavigator):
-
     def get_next_func(self):
         match self.current_step:
             case "None":
@@ -402,6 +403,7 @@ class BattlePartyMenuNavigator(PokemonPartyMenuNavigator):
                 self.current_step = "confirm_lead"
             case "select_take_item" | "select_give_item" | "confirm_lead":
                 self.current_step = "exit"
+
     def select_mon(self):
         while get_task("TASK_HANDLECHOOSEMONINPUT") != {} or get_task("HANDLEBATTLEPARTYMENU") != {}:
             context.emulator.press_button("A")
@@ -443,17 +445,17 @@ class CheckForPickup(BaseMenuNavigator):
                     self.pokemon_with_pickup_and_item.append(i)
 
     def check_pickup_threshold(self, encounter_total):
-        if config["cheats"]["pickup"]:
+        if config.cheats.pickup:
             self.check_threshold_met = True
             self.checked = True
         else:
-            self.check_threshold_met = encounter_total >= config["battle"]["pickup_check_frequency"]
+            self.check_threshold_met = encounter_total >= config.battle.pickup_check_frequency
         self.get_pokemon_with_pickup_and_item()
-        if config["battle"]["pickup_threshold"] > self.pokemon_with_pickup > 0:
+        if config.battle.pickup_threshold > self.pokemon_with_pickup > 0:
             threshold = self.pokemon_with_pickup
             context.message = f"Number of pickup pokemon is {threshold}, which is lower than config. Using\nparty value of {threshold} instead."
         else:
-            threshold = config["battle"]["pickup_threshold"]
+            threshold = config.battle.pickup_threshold
         self.pickup_threshold_met = self.check_threshold_met and len(self.pokemon_with_pickup_and_item) >= threshold
         if self.pickup_threshold_met:
             context.message = "Pickup threshold is met! Gathering items."
@@ -483,12 +485,7 @@ class CheckForPickup(BaseMenuNavigator):
                 yield
 
     def should_open_party_menu(self):
-        if (
-            not config["cheats"]["pickup"]
-            and self.check_threshold_met
-            and not self.checked
-            and self.pokemon_with_pickup > 0
-        ):
+        if not config.cheats.pickup and self.check_threshold_met and not self.checked and self.pokemon_with_pickup > 0:
             return True
         elif self.pickup_threshold_met:
             return True
@@ -590,6 +587,6 @@ class MenuWrapper:
 
 
 def should_check_for_pickup(x: int):
-    if config["cheats"]["pickup"] or x >= config["battle"]["pickup_check_frequency"]:
+    if config.cheats.pickup or x >= config.battle.pickup_check_frequency:
         return True
     return False

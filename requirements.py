@@ -12,6 +12,7 @@ libmgba_ver = "0.2.0"
 
 # This is a list of requirements for `pip`, akin to `requirements.txt`.
 required_modules = [
+    "confz==2.0.1",
     "numpy~=1.26.1",
     "Flask~=2.3.2",
     "Flask-Cors~=4.0.0",
@@ -27,7 +28,7 @@ required_modules = [
     "sounddevice~=0.4.6",
     "requests~=2.31.0",
     "pyperclip3~=0.4.1",
-    "plyer~=2.1.0"
+    "plyer~=2.1.0",
 ]
 
 if platform.system() == "Windows":
@@ -44,14 +45,17 @@ def get_requirements_hash() -> str:
     :return: A hash of all the current requirements, as well as this system's Python version.
     """
     import hashlib
-    requirements_block = "\n".join([
-        *required_modules,
-        platform.python_version(),
-        libmgba_ver,
-        libmgba_tag,
-        recommended_python_version,
-        *supported_python_versions,
-    ])
+
+    requirements_block = "\n".join(
+        [
+            *required_modules,
+            platform.python_version(),
+            libmgba_ver,
+            libmgba_tag,
+            recommended_python_version,
+            *supported_python_versions,
+        ]
+    )
     return hashlib.sha1(requirements_block.encode("utf-8")).hexdigest()
 
 
@@ -103,8 +107,7 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
     pip_flags = ["--disable-pip-version-check", "--no-python-version-warning"]
     for module in required_modules:
         subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", *pip_flags, module],
-            stderr=sys.stderr, stdout=sys.stdout
+            [sys.executable, "-m", "pip", "install", *pip_flags, module], stderr=sys.stderr, stdout=sys.stdout
         )
 
     # Make sure that `libmgba-py` is installed.
@@ -194,5 +197,5 @@ def check_requirements() -> bool:
         return update_requirements()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     update_requirements()
