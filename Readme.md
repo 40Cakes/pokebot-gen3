@@ -27,18 +27,12 @@ The bot is frame perfect and can _technically_ cheat by reading data from any po
 
 These are intentional design decisions, bot [cheats](https://github.com/40Cakes/pokebot-gen3/wiki/%F0%9F%92%8E-Cheats) can be used to bypass them (in most cases).
 
-***
-
 # ⚠ Photosensitivity Warning
 - Running mGBA at unbound speeds (3,000+ frames per second on high-end PCs), can cause **very fast and bright flashing**!
 - Any unbounded video examples on the wiki will be hidden by default, and marked with **⚠ photosensitivity warning**
 
-***
-
 # ❓ Getting Started
 Visit the [wiki](https://github.com/40Cakes/pokebot-gen3/wiki) for information getting started, keybinds/inputs, bot modes, configuration files and more!
-
-***
 
 # 🐛 Debugging
 
@@ -63,8 +57,6 @@ options:
 ```
 
 Click [here](https://github.com/40Cakes/pokebot-gen3/blob/main/modules/modes/__init__.py) for a list of bot mode strings to use in place of `MODE_NAME`.
-
-***
 
 # ❤ Attributions
 
