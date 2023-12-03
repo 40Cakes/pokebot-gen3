@@ -300,7 +300,7 @@ def custom_hooks(hook) -> None:
                         discord_ping = f"📢 <@{config.discord.custom_filter_pokemon_encounter.ping_id}>"
 
                 discord_message(
-                    webhook_url=config.discord.custom_filter_pokemon_encounterwebhook_url,
+                    webhook_url=config.discord.custom_filter_pokemon_encounter.webhook_url,
                     content=f"Encountered a {pokemon.species.name} matching custom filter: `{custom_filter_result}`!\n{discord_ping}",
                     embed=True,
                     embed_title="Encountered Pokémon matching custom catch filter!",
