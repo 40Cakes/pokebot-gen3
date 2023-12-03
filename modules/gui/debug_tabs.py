@@ -13,8 +13,6 @@ from modules.map import get_map_data_for_current_position, get_map_data, get_map
 from modules.memory import (
     get_symbol,
     read_symbol,
-    parse_tasks,
-    get_task,
     get_symbol_name,
     game_has_started,
     unpack_uint16,
@@ -23,6 +21,7 @@ from modules.memory import (
     get_event_flag,
 )
 from modules.pokemon import get_party, get_species_by_index
+from modules.tasks import get_tasks, task_is_active
 
 if TYPE_CHECKING:
     from modules.libmgba import LibmgbaEmulator
@@ -233,16 +232,13 @@ class TasksTab(DebugTab):
 
         data = {}
         index = 0
-        for task in parse_tasks(pretty_names=True):
-            if task["func"].upper() == "TASKDUMMY" or task["func"] == b"\x00\x00\x00\x00" or not task["isActive"]:
-                continue
-
-            data[task["func"]] = {
-                "__value": task["data"].rstrip(b"\00").hex(" ", 1),
-                "function": task["func"],
-                "active": task["isActive"],
-                "priority": task["priority"],
-                "data": task["data"].hex(" ", 1),
+        for task in get_tasks():
+            data[task.symbol] = {
+                "__value": task.data.rstrip(b"\00").hex(" ", 1),
+                "function": task.symbol,
+                "pointer": hex(task.function_pointer),
+                "priority": task.priority,
+                "data": task.data.hex(" ", 1),
             }
             index += 1
 
@@ -642,7 +638,7 @@ class MapTab(DebugTab):
         root.add(frame, text="Map")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        show_different_tile = self._marker_rectangle is not None and get_task("TASK_WEATHERMAIN") != {}
+        show_different_tile = self._marker_rectangle is not None and task_is_active("Task_WeatherMain")
         from modules.trainer import trainer
 
         if trainer.get_tile_transition_state() != 0:

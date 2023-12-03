@@ -8,9 +8,10 @@ from modules.data.map import MapRSE, MapFRLG
 from modules.encounter import encounter_pokemon
 from modules.files import get_rng_state_history, save_rng_state_history
 from modules.gui.multi_select_window import Selection, MultiSelector, MultiSelectWindow
-from modules.memory import read_symbol, get_game_state, GameState, get_task, write_symbol, unpack_uint32, pack_uint32
+from modules.memory import read_symbol, get_game_state, GameState, write_symbol, unpack_uint32, pack_uint32
 from modules.navigation import follow_path
 from modules.pokemon import get_party, opponent_changed
+from modules.tasks import get_task, task_is_active
 from modules.trainer import trainer
 
 config = context.config
@@ -273,7 +274,7 @@ class ModeStarters:
                                 case GameState.TITLE_SCREEN:
                                     context.emulator.press_button("A")
                                 case GameState.MAIN_MENU:  # TODO assumes trainer is in Oak's lab, facing a ball
-                                    if get_task("TASK_HANDLEMENUINPUT").get("isActive", False):
+                                    if task_is_active("Task_HandleMenuInput"):
                                         context.message = "Waiting for a unique frame before continuing..."
                                         self.update_state(ModeStarterStates.RNG_CHECK)
                                         continue
@@ -293,7 +294,7 @@ class ModeStarters:
 
                         case ModeStarterStates.OVERWORLD:
                             self.start_party_length = len(get_party())
-                            if not get_task("TASK_SCRIPTSHOWMONPIC").get("isActive", False):
+                            if not task_is_active("Task_ScriptShowMonPic"):
                                 context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.INJECT_RNG)
@@ -305,9 +306,9 @@ class ModeStarters:
                             self.update_state(ModeStarterStates.SELECT_STARTER)
 
                         case ModeStarterStates.SELECT_STARTER:  # TODO can be made slightly faster by holding B through chat
-                            if get_task("TASK_DRAWFIELDMESSAGEBOX").get("isActive", False):
+                            if task_is_active("Task_DrawFieldMessageBox"):
                                 context.emulator.press_button("A")
-                            elif not get_task("TASK_SCRIPTSHOWMONPIC").get("isActive", False):
+                            elif not task_is_active("Task_ScriptShowMonPic"):
                                 context.emulator.press_button("B")
                             else:
                                 self.update_state(ModeStarterStates.CONFIRM_STARTER)
@@ -343,28 +344,28 @@ class ModeStarters:
                             self.update_state(ModeStarterStates.OPPONENT_CRY_START)
 
                         case ModeStarterStates.OPPONENT_CRY_START:
-                            if not get_task("TASK_FADEMON_TONORMAL_STEP").get("isActive", False):
+                            if not task_is_active("Task_FadeMon_ToNormal_Step"):
                                 context.emulator.press_button("B")
                             else:
                                 self.update_state(ModeStarterStates.OPPONENT_CRY_END)
                                 continue
 
                         case ModeStarterStates.OPPONENT_CRY_END:
-                            if get_task("TASK_FADEMON_TONORMAL_STEP").get("isActive", False):
+                            if task_is_active("Task_FadeMon_ToNormal_Step"):
                                 context.emulator.press_button("B")
                             else:
                                 self.update_state(ModeStarterStates.STARTER_CRY)
                                 continue
 
                         case ModeStarterStates.STARTER_CRY:
-                            if not get_task("TASK_FADEMON_TONORMAL_STEP").get("isActive", False):
+                            if not task_is_active("Task_FadeMon_ToNormal_Step"):
                                 context.emulator.press_button("B")
                             else:
                                 self.update_state(ModeStarterStates.STARTER_CRY_END)
                                 continue
 
                         case ModeStarterStates.STARTER_CRY_END:
-                            if get_task("TASK_FADEMON_TONORMAL_STEP").get("isActive", False):
+                            if task_is_active("Task_FadeMon_ToNormal_Step"):
                                 context.emulator.press_button("B")
                             else:
                                 self.update_state(ModeStarterStates.LOG_STARTER)
@@ -398,7 +399,7 @@ class ModeStarters:
 
                         case ModeStarterStates.OVERWORLD:
                             self.start_party_length = len(get_party())
-                            if get_task("TASK_DRAWFIELDMESSAGE").get("isActive", False):
+                            if task_is_active("Task_DrawFieldMessage"):
                                 context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.INJECT_RNG)
@@ -410,7 +411,7 @@ class ModeStarters:
                             self.update_state(ModeStarterStates.YES_NO)
 
                         case ModeStarterStates.YES_NO:
-                            if get_task("TASK_HANDLEYESNOINPUT").get("isActive", False):
+                            if task_is_active("Task_HandleYesNoInput"):
                                 context.emulator.press_button("B")
                             else:
                                 context.message = "Waiting for a unique frame before continuing..."
@@ -442,9 +443,9 @@ class ModeStarters:
                                 self.update_state(ModeStarterStates.CHECK_STARTER)
                                 continue
                             else:
-                                if get_task("TASK_POKEMONPICWINDOW").get("isActive", False):
+                                if task_is_active("Task_PokemonPicWindow"):
                                     context.emulator.press_button("B")
-                                elif get_task("TASK_DRAWFIELDMESSAGE").get("isActive", False):
+                                elif task_is_active("Task_DrawFieldMessage"):
                                     context.emulator.press_button("B")
                                 else:
                                     self.update_state(ModeStarterStates.CHECK_STARTER)
@@ -475,7 +476,7 @@ class ModeStarters:
                                 case GameState.TITLE_SCREEN | GameState.MAIN_MENU:
                                     context.emulator.press_button("A")
                                 case GameState.OVERWORLD:  # TODO assumes trainer is on Route 101, facing bag
-                                    if get_task(self.task_map_popup):
+                                    if task_is_active(self.task_map_popup):
                                         self.update_state(ModeStarterStates.OVERWORLD)
                                         continue
 
@@ -492,9 +493,9 @@ class ModeStarters:
                             self.update_state(ModeStarterStates.BAG_MENU)
 
                         case ModeStarterStates.BAG_MENU:
-                            cursor_task = get_task(self.task_bag_cursor).get("data", False)
+                            cursor_task = get_task(self.task_bag_cursor)
                             if cursor_task:
-                                cursor_pos = cursor_task[0]
+                                cursor_pos = cursor_task.data[0]
                                 if cursor_pos > self.bag_position:
                                     context.emulator.press_button("Left")
                                 elif cursor_pos < self.bag_position:
@@ -504,7 +505,7 @@ class ModeStarters:
                                     continue
 
                         case ModeStarterStates.SELECT_STARTER:
-                            confirm = get_task(self.task_confirm).get("isActive", False)
+                            confirm = task_is_active(self.task_confirm)
                             if not confirm:
                                 context.emulator.press_button("A")
                             else:
@@ -531,7 +532,7 @@ class ModeStarters:
                                     self.update_state(ModeStarterStates.LOG_STARTER)
                                 context.emulator.press_button("A")
                             else:
-                                confirm = get_task(self.task_confirm).get("isActive", False)
+                                confirm = task_is_active(self.task_confirm)
                                 if confirm and get_game_state() != GameState.BATTLE:
                                     # Uncomment the following to _guarantee_ a shiny being generated. For testing purposes.
                                     # write_symbol("gRngValue",
@@ -543,21 +544,21 @@ class ModeStarters:
 
                         # Check for ball being thrown
                         case ModeStarterStates.THROW_BALL:
-                            if not get_task(self.task_ball_throw).get("isActive", False):
+                            if not task_is_active(self.task_ball_throw):
                                 context.emulator.press_button("B")
                             else:
                                 self.update_state(ModeStarterStates.STARTER_CRY)
                                 continue
 
                         case ModeStarterStates.STARTER_CRY:
-                            if get_task("TASK_DUCKBGMFORPOKEMONCRY").get("isActive", False):
+                            if task_is_active("Task_DuckBGMForPokemonCry"):
                                 context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.STARTER_CRY_END)
                                 continue
 
                         case ModeStarterStates.STARTER_CRY_END:  # Ensures starter sprite is fully visible before resetting
-                            if not get_task("TASK_DUCKBGMFORPOKEMONCRY").get("isActive", True):
+                            if not task_is_active("Task_DuckBGMForPokemonCry"):
                                 self.update_state(ModeStarterStates.LOG_STARTER)
                                 continue
 
