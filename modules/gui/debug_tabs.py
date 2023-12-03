@@ -246,12 +246,10 @@ class MapViewer:
                     tile_color = MapViewer.JUMP
                 if tile_data.is_surfable:
                     tile_color = MapViewer.WATER
-                image_draw.rectangle(xy = [
+                image_draw.rectangle(xy = (
                     (x * MapViewer.TILE_SIZE, y * MapViewer.TILE_SIZE),
                     ((x + 1) * MapViewer.TILE_SIZE, (y + 1) * MapViewer.TILE_SIZE)
-                ], fill=tile_color)
-
-        image.size
+                ), fill=tile_color)
 
         return ImageOps.contain(image, (150,150))
 
