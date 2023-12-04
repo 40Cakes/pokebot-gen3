@@ -350,7 +350,7 @@ class ModeStarters:
 
                         case ModeStarterStates.RNG_CHECK:
                             if config.cheats.starters_rng:
-                                self.update_state(ModeStarterStates.INJECT_RNG)
+                                self.update_state(ModeStarterStates.SELECT_STARTER)
                             else:
                                 rng = unpack_uint32(read_symbol("gRngValue"))
                                 if rng in self.rng_history:
@@ -361,22 +361,14 @@ class ModeStarters:
                                         save_rng_state_history("Random_Kanto", self.rng_history)
                                     else:
                                         save_rng_state_history(context.selected_pokemon, self.rng_history)
-                                    self.update_state(ModeStarterStates.INJECT_RNG)
+                                    self.update_state(ModeStarterStates.SELECT_STARTER)
                                     continue
 
-                        case ModeStarterStates.INJECT_RNG:
-                            if config.cheats.starters_rng:
-                                write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
+                        case ModeStarterStates.SELECT_STARTER:  # TODO can be made slightly faster by holding B through chat
                             self.start_party_length = len(get_party())
                             if not get_task("TASK_SCRIPTSHOWMONPIC").get("isActive", False):
                                 context.emulator.press_button("A")
-                            else:
-                                self.update_state(ModeStarterStates.SELECT_STARTER)
-                                continue
-                            
-
-                        case ModeStarterStates.SELECT_STARTER:  # TODO can be made slightly faster by holding B through chat
-                            if get_task("TASK_DRAWFIELDMESSAGEBOX").get("isActive", False):
+                            elif get_task("TASK_DRAWFIELDMESSAGEBOX").get("isActive", False):
                                 context.emulator.press_button("A")
                             elif not get_task("TASK_SCRIPTSHOWMONPIC").get("isActive", False):
                                 context.emulator.press_button("B")
@@ -386,9 +378,8 @@ class ModeStarters:
 
                         case ModeStarterStates.CONFIRM_STARTER:
                             if len(get_party()) == 0:
-                                # Uncomment the following to _guarantee_ a shiny being generated. For testing purposes.
-                                # write_symbol("gRngValue",
-                                #              generate_guaranteed_shiny_rng_seed(trainer.get_tid(), trainer.get_sid()))
+                                if config.cheats.starters_rng:
+                                    write_symbol("gRngValue", generate_guaranteed_shiny_rng_seed(trainer.get_tid(), trainer.get_sid()))
                                 context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.EXIT_MENUS)
@@ -446,13 +437,8 @@ class ModeStarters:
                                 if get_task("TASK_DRAWFIELDMESSAGE").get("isActive", False):
                                     context.emulator.press_button("A")
                                 else:
-                                    self.update_state(ModeStarterStates.INJECT_RNG)
+                                    self.update_state(ModeStarterStates.YES_NO)
                                     continue
-
-                        case ModeStarterStates.INJECT_RNG:
-                            if config.cheats.starters_rng:
-                                write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
-                            self.update_state(ModeStarterStates.YES_NO)
 
                         case ModeStarterStates.YES_NO:
                             if get_task("TASK_HANDLEYESNOINPUT").get("isActive", False):
@@ -480,6 +466,8 @@ class ModeStarters:
 
                         case ModeStarterStates.CONFIRM_STARTER:
                             if len(get_party()) == self.start_party_length:
+                                if config.cheats.starters_rng:
+                                    write_symbol("gRngValue", generate_guaranteed_shiny_rng_seed(trainer.get_tid(), trainer.get_sid()))
                                 context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.EXIT_MENUS)
@@ -547,13 +535,8 @@ class ModeStarters:
                             if get_game_state() != GameState.CHOOSE_STARTER:
                                 context.emulator.press_button("A")
                             else:
-                                self.update_state(ModeStarterStates.INJECT_RNG)
+                                self.update_state(ModeStarterStates.BAG_MENU)
                                 continue
-
-                        case ModeStarterStates.INJECT_RNG:
-                            if config.cheats.starters_rng:
-                                write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
-                            self.update_state(ModeStarterStates.BAG_MENU)
 
                         case ModeStarterStates.BAG_MENU:
                             cursor_task = get_task(self.task_bag_cursor).get("data", False)
@@ -600,9 +583,8 @@ class ModeStarters:
                             else:
                                 confirm = get_task(self.task_confirm).get("isActive", False)
                                 if confirm and get_game_state() != GameState.BATTLE:
-                                    # Uncomment the following to _guarantee_ a shiny being generated. For testing purposes.
-                                    # write_symbol("gRngValue",
-                                    #              generate_guaranteed_shiny_rng_seed(trainer.get_tid(), trainer.get_sid()))
+                                    if config.cheats.starters_rng:
+                                        write_symbol("gRngValue", generate_guaranteed_shiny_rng_seed(trainer.get_tid(), trainer.get_sid()))
                                     context.emulator.press_button("A")
                                 else:
                                     self.update_state(ModeStarterStates.THROW_BALL)
