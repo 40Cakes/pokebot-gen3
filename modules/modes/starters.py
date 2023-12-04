@@ -521,7 +521,6 @@ class ModeStarters:
                                 context.emulator.press_button("A")
                             else:
                                 if ", met at  È5, LITTLEROOT TOWN." in decode_string(read_symbol("gStringVar4")):
-                                    print("auidjhw")
                                     self.update_state(ModeStarterStates.LOG_STARTER)
                                 else:
                                     context.emulator.press_button("Down")
