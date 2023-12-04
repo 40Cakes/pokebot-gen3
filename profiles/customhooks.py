@@ -181,8 +181,7 @@ def custom_hooks(hook) -> None:
             # Discord total encounter milestones
             if (
                 config.discord.total_encounter_milestones.enable
-                and stats["totals"].get("encounters", -1) % config.discord.total_encounter_milestones.interval
-                == 0
+                and stats["totals"].get("encounters", -1) % config.discord.total_encounter_milestones.interval == 0
             ):
                 # Discord pings
                 discord_ping = ""
@@ -231,8 +230,7 @@ def custom_hooks(hook) -> None:
                 and (
                     stats["totals"].get("phase_encounters", -1) == config.discord.phase_summary.first_interval
                     or (
-                        stats["totals"].get("phase_encounters", -1)
-                        > config.discord.phase_summary.first_interval
+                        stats["totals"].get("phase_encounters", -1) > config.discord.phase_summary.first_interval
                         and stats["totals"].get("phase_encounters", -1)
                         % config.discord.phase_summary.consequent_interval
                         == 0
