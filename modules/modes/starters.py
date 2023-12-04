@@ -397,19 +397,23 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.EXIT_MENUS:
-                            if get_task("SCRIPTMOVEMENT_MOVEOBJECTS").get("isActive", False):
-                                context.emulator.press_button("B")
-                            elif not read_symbol("sStartMenuWindowId") == bytearray(b"\x01"):
-                                context.emulator.press_button("Start")
-                            elif (
-                                get_task("TASK_STARTMENUHANDLEINPUT").get("isActive", False)
-                                or get_task("TASK_HANDLECHOOSEMONINPUT").get("isActive", False)
-                                or get_task("TASK_HANDLESELECTIONMENUINPUT").get("isActive", False)
-                            ):
-                                context.emulator.press_button("A")
-                            elif get_task("TASK_DUCKBGMFORPOKEMONCRY").get("isActive", False):
+                            if config.cheats.starters:
                                 self.update_state(ModeStarterStates.LOG_STARTER)
                                 continue
+                            else:
+                                if get_task("SCRIPTMOVEMENT_MOVEOBJECTS").get("isActive", False):
+                                    context.emulator.press_button("B")
+                                elif not read_symbol("sStartMenuWindowId") == bytearray(b"\x01"):
+                                    context.emulator.press_button("Start")
+                                elif (
+                                    get_task("TASK_STARTMENUHANDLEINPUT").get("isActive", False)
+                                    or get_task("TASK_HANDLECHOOSEMONINPUT").get("isActive", False)
+                                    or get_task("TASK_HANDLESELECTIONMENUINPUT").get("isActive", False)
+                                ):
+                                    context.emulator.press_button("A")
+                                elif get_task("TASK_DUCKBGMFORPOKEMONCRY").get("isActive", False):
+                                    self.update_state(ModeStarterStates.LOG_STARTER)
+                                    continue
 
                         case ModeStarterStates.LOG_STARTER:
                             encounter_pokemon(get_party()[0])
