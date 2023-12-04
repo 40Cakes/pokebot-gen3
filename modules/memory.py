@@ -69,37 +69,6 @@ def write_symbol(name: str, data: bytes, offset: int = 0x0) -> bool:
         raise
 
 
-def parse_tasks(pretty_names: bool = False) -> list:
-    try:
-        gTasks = read_symbol("gTasks")
-        tasks = []
-        for x in range(16):
-            name = get_symbol_name(unpack_uint32(gTasks[(x * 40) : (x * 40 + 4)]) - 1, pretty_names)
-            if name == "":
-                name = "0x" + gTasks[(x * 40) : (x * 40 + 4)].hex()
-            tasks.append(
-                {
-                    "func": name,
-                    "isActive": bool(gTasks[(x * 40 + 4)]),
-                    "prev": gTasks[(x * 40 + 5)],
-                    "next": gTasks[(x * 40 + 6)],
-                    "priority": gTasks[(x * 40 + 7)],
-                    "data": gTasks[(x * 40 + 8) : (x * 40 + 40)],
-                }
-            )
-        return tasks
-    except SystemExit:
-        raise
-
-
-def get_task(func: str) -> dict:
-    tasks = parse_tasks()
-    for task in tasks:
-        if task["func"] == func:
-            return task
-    return {}
-
-
 def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     """
     The Generation III save file is broken up into two game save blocks, this function will return sections from these

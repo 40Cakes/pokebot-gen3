@@ -5,7 +5,9 @@ from modules.context import context
 
 if TYPE_CHECKING:
     from modules.memory import GameState
+    from modules.player import Player
     from modules.pokemon import Pokemon
+    from modules.tasks import TaskList
 
 T = TypeVar("T")
 
@@ -44,6 +46,8 @@ class StateCache:
     def __init__(self):
         self._party: StateCacheItem[list["Pokemon"]] = StateCacheItem([])
         self._opponent: StateCacheItem["Pokemon | None"] = StateCacheItem(None)
+        self._player: StateCacheItem["Player | None"] = StateCacheItem(None)
+        self._tasks: StateCacheItem["TaskList | None"] = StateCacheItem(None)
         self._game_state: StateCacheItem["GameState | None"] = StateCacheItem(None)
 
     @property
@@ -73,6 +77,26 @@ class StateCache:
             self._opponent.value = opponent
         else:
             self._opponent.checked()
+
+    @property
+    def player(self) -> StateCacheItem["Player | None"]:
+        return self._player
+
+    @player.setter
+    def player(self, player: "Player"):
+        if self._opponent.value is None or player != self._opponent.value:
+            self._player.value = player
+
+    @property
+    def tasks(self) -> StateCacheItem["TaskList | None"]:
+        return self._tasks
+
+    @tasks.setter
+    def tasks(self, tasks: "TaskList"):
+        if self._tasks.value != tasks:
+            self._tasks.value = tasks
+        else:
+            self._tasks.checked()
 
     @property
     def game_state(self) -> StateCacheItem["GameState | None"]:

@@ -6,7 +6,7 @@ from modules.data.map import MapRSE
 from modules.gui.multi_select_window import MultiSelector, Selection, MultiSelectWindow
 from modules.memory import get_game_state, GameState, get_event_flag, read_symbol
 from modules.navigation import follow_path
-from modules.trainer import trainer
+from modules.player import get_player
 
 
 class ModeAncientLegendariesStates(Enum):
@@ -17,6 +17,7 @@ class ModeAncientLegendariesStates(Enum):
 class ModeAncientLegendaries:
     def __init__(self):
         if not context.selected_pokemon:
+            player = get_player()
             sprites = Path(__file__).parent.parent.parent / "sprites" / "pokemon" / "normal"
 
             conditions = {
@@ -25,10 +26,10 @@ class ModeAncientLegendaries:
                         context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
                         and not get_event_flag("FLAG_DEFEATED_KYOGRE")
                         and not get_event_flag("FLAG_LEGENDARY_BATTLE_COMPLETED")
-                        and trainer.get_map() == MapRSE.MARINE_CAVE_A.value
-                        and not trainer.get_coords() == (9, 26)  # Tile that triggers Kyogre to initiate battle
-                        and 5 <= trainer.get_coords()[0] <= 14
-                        and 26 <= trainer.get_coords()[1] <= 27
+                        and player.map_group_and_number == MapRSE.MARINE_CAVE_A.value
+                        and not player.local_coordinates == (9, 26)  # Tile that triggers Kyogre to initiate battle
+                        and 5 <= player.local_coordinates[0] <= 14
+                        and 26 <= player.local_coordinates[1] <= 27
                     )
                 ),
                 "Groudon": bool(
@@ -36,19 +37,19 @@ class ModeAncientLegendaries:
                         context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
                         and not get_event_flag("FLAG_DEFEATED_GROUDON")
                         and not get_event_flag("FLAG_LEGENDARY_BATTLE_COMPLETED")
-                        and trainer.get_map() == MapRSE.TERRA_CAVE_A.value
-                        and not trainer.get_coords() == (17, 26)  # Tile that triggers Groudon to initiate battle
-                        and 11 <= trainer.get_coords()[0] <= 20
-                        and 26 <= trainer.get_coords()[1] <= 27
+                        and player.map_group_and_number == MapRSE.TERRA_CAVE_A.value
+                        and not player.local_coordinates == (17, 26)  # Tile that triggers Groudon to initiate battle
+                        and 11 <= player.local_coordinates[0] <= 20
+                        and 26 <= player.local_coordinates[1] <= 27
                     )
                 ),
                 "Rayquaza": bool(
                     (
                         context.rom.game_title == "POKEMON EMER"
                         and not get_event_flag("FLAG_DEFEATED_RAYQUAZA")
-                        and trainer.get_map() == MapRSE.SKY_PILLAR_G.value
-                        and trainer.get_coords() == (14, 7)
-                        and trainer.get_facing_direction() == "Up"
+                        and player.map_group_and_number == MapRSE.SKY_PILLAR_G.value
+                        and player.local_coordinates == (14, 7)
+                        and player.facing_direction == "Up"
                     )
                 ),
             }
@@ -113,6 +114,8 @@ class ModeAncientLegendaries:
 
     def step(self):
         while True:
+            player = get_player()
+
             match self.state, context.selected_pokemon:
                 case ModeAncientLegendariesStates.INTERACT, "Kyogre":
                     match get_game_state():
@@ -122,7 +125,7 @@ class ModeAncientLegendaries:
                                 continue
                             else:
                                 follow_path(  # TODO follow_path() needs reworking (not a generator)
-                                    [(trainer.get_coords()[0], 26), (9, 26)]
+                                    [(player.local_coordinates[0], 26), (9, 26)]
                                 )
                         case GameState.BATTLE:
                             return
@@ -135,7 +138,7 @@ class ModeAncientLegendaries:
                                 continue
                             else:
                                 follow_path(  # TODO follow_path() needs reworking (not a generator)
-                                    [(trainer.get_coords()[0], 26), (17, 26)]
+                                    [(player.local_coordinates[0], 26), (17, 26)]
                                 )
                         case GameState.BATTLE:
                             return
@@ -156,14 +159,14 @@ class ModeAncientLegendaries:
                             return
 
                 case ModeAncientLegendariesStates.LEAVE_ROOM, "Kyogre":
-                    if trainer.get_coords() == (9, 26):
+                    if player.local_coordinates == (9, 26):
                         context.emulator.hold_button("Down")
                         context.emulator.press_button("B")
                     else:
                         context.emulator.release_button("Down")
                         follow_path(  # TODO follow_path() needs reworking (not a generator)
                             [
-                                (trainer.get_coords()[0], 27),
+                                (player.local_coordinates[0], 27),
                                 (18, 27),
                                 (18, 14),
                                 (14, 14),
@@ -181,14 +184,14 @@ class ModeAncientLegendaries:
                         return
 
                 case ModeAncientLegendariesStates.LEAVE_ROOM, "Groudon":
-                    if trainer.get_coords() == (17, 26):
+                    if player.local_coordinates == (17, 26):
                         context.emulator.hold_button("Left")
                         context.emulator.press_button("B")
                     else:
                         context.emulator.release_button("Left")
                         follow_path(  # TODO follow_path() needs reworking (not a generator)
                             [
-                                (trainer.get_coords()[0], 26),
+                                (player.local_coordinates[0], 26),
                                 (7, 26),
                                 (7, 15),
                                 (9, 15),

@@ -75,11 +75,11 @@ declare module PokeBotApi {
     export type GetFPSResponse = number[];
 
     /**
-     * Response body for `GET /trainer`.
+     * Response body for `GET /player`.
      */
-    export type GetTrainerResponse = {
+    export type GetPlayerResponse = null | {
         name: string;
-        gender: "boy" | "girl";
+        gender: "male" | "female";
 
         // Trainer ID.
         tid: number;
