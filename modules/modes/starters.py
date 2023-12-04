@@ -52,6 +52,7 @@ class ModeStarterStates(Enum):
     PARTY_FULL = auto()
     LOG_STARTER = auto()
 
+
 class ModeStarters:
     def __init__(self) -> None:
         if not context.selected_pokemon:
@@ -82,7 +83,7 @@ class ModeStarters:
                         and trainer.get_facing_direction() == "Up"
                     )
                 ),
-                "Random_Kanto": bool(
+                "Random Kanto": bool(
                     (
                         context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]
                         and trainer.get_map() == MapFRLG.PALLET_TOWN_D.value
@@ -113,7 +114,7 @@ class ModeStarters:
                         and trainer.get_facing_direction() == "Up"
                     )
                 ),
-                "Random_Johto": bool(
+                "Random Johto": bool(
                     (
                         context.rom.game_title == "POKEMON EMER"
                         and trainer.get_map() == MapRSE.LITTLEROOT_TOWN_E.value
@@ -150,7 +151,7 @@ class ModeStarters:
                         )
                     )
                 ),
-                "Random_Hoenn": bool(
+                "Random Hoenn": bool(
                     (
                         context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
                         and trainer.get_map() == MapRSE.ROUTE_101.value
@@ -159,7 +160,7 @@ class ModeStarters:
                             or (trainer.get_coords() == (8, 14) and trainer.get_facing_direction() == "Left")
                         )
                     )
-                )
+                ),
             }
 
             if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
@@ -189,13 +190,13 @@ class ModeStarters:
                         sprite=sprites / "Charmander.png",
                     ),
                     Selection(
-                        button_label="Random_Kanto",
-                        button_enable=conditions["Random_Kanto"],
+                        button_label="Random",
+                        button_enable=conditions["Random Kanto"],
                         button_tooltip="Select Random"
-                        if conditions["Random_Kanto"]
+                        if conditions["Random Kanto"]
                         else "Invalid location:\nPlace the trainer facing any PokéBall in Oak's lab",
                         sprite=sprites / "Unown.png",
-                    )
+                    ),
                 ]
             elif context.rom.game_title == "POKEMON EMER" and trainer.get_map() == MapRSE.LITTLEROOT_TOWN_E.value:
                 selections = [
@@ -224,13 +225,13 @@ class ModeStarters:
                         sprite=sprites / "Chikorita.png",
                     ),
                     Selection(
-                        button_label="Random_Johto",
-                        button_enable=conditions["Random_Johto"],
+                        button_label="Random",
+                        button_enable=conditions["Random Johto"],
                         button_tooltip="Select Random"
-                        if conditions["Random_Johto"]
+                        if conditions["Random Johto"]
                         else "Invalid location:\nPlace the trainer facing any PokéBall in Birch's lab",
                         sprite=sprites / "Unown.png",
-                    )
+                    ),
                 ]
             else:
                 selections = [
@@ -259,28 +260,28 @@ class ModeStarters:
                         sprite=sprites / "Mudkip.png",
                     ),
                     Selection(
-                        button_label="Random_Hoenn",
-                        button_enable=conditions["Random_Hoenn"],
+                        button_label="Random",
+                        button_enable=conditions["Random Hoenn"],
                         button_tooltip="Select Random"
-                        if conditions["Random_Hoenn"]
+                        if conditions["Random Hoenn"]
                         else "Invalid location:\nPlace the trainer facing Birch's bag on Route 101",
                         sprite=sprites / "Unown.png",
-                    )
+                    ),
                 ]
 
             options = MultiSelector("Select a starter...", selections)
             MultiSelectWindow(context.gui.window, options)
-            if context.selected_pokemon in ["Random_Kanto","Random_Johto","Random_Hoenn"]:
+            if context.selected_pokemon in ["Random Kanto", "Random Johto", "Random Hoenn"]:
                 context.random_starter = True
             else:
                 context.random_starter = False
 
-        if context.selected_pokemon in ["Bulbasaur", "Charmander", "Squirtle", "Random_Kanto"]:
+        if context.selected_pokemon in ["Bulbasaur", "Charmander", "Squirtle", "Random Kanto"]:
             if context.random_starter:
                 context.selected_pokemon = random.choice(["Bulbasaur", "Charmander", "Squirtle"])
             self.region: Regions = Regions.KANTO_STARTERS
 
-        elif context.selected_pokemon in ["Chikorita", "Cyndaquil", "Totodile", "Random_Johto"]:
+        elif context.selected_pokemon in ["Chikorita", "Cyndaquil", "Totodile", "Random Johto"]:
             if context.random_starter:
                 context.selected_pokemon = random.choice(["Chikorita", "Cyndaquil", "Totodile"])
             self.region: Regions = Regions.JOHTO_STARTERS
@@ -288,7 +289,7 @@ class ModeStarters:
             if len(get_party()) == 6:
                 self.update_state(ModeStarterStates.PARTY_FULL)
 
-        elif context.selected_pokemon in ["Treecko", "Torchic", "Mudkip","Random_Hoenn"]:
+        elif context.selected_pokemon in ["Treecko", "Torchic", "Mudkip", "Random Hoenn"]:
             if context.random_starter:
                 context.selected_pokemon = random.choice(["Treecko", "Torchic", "Mudkip"])
             self.bag_position: int = BagPositions[context.selected_pokemon.upper()].value
@@ -325,21 +326,26 @@ class ModeStarters:
                         case ModeStarterStates.TITLE:
                             match get_game_state():
                                 case GameState.TITLE_SCREEN:
-                                    context.emulator.press_button(random.choice(["A","Start","Left","Right", "Up"]))
+                                    context.emulator.press_button(random.choice(["A", "Start", "Left", "Right", "Up"]))
                                 case GameState.MAIN_MENU:  # TODO assumes trainer is in Oak's lab, facing a ball
                                     if get_task("TASK_HANDLEMENUINPUT").get("isActive", False):
                                         self.update_state(ModeStarterStates.OVERWORLD)
                                         continue
-                        
+
                         case ModeStarterStates.OVERWORLD:
                             context.message = "Pathing to starter..."
                             if get_task("TASK_HANDLEMENUINPUT").get("isActive", False):
                                 context.emulator.press_button("A")
-                            elif get_task("TASK_RUNTIMEBASEDEVENTS").get("data", False) != bytearray(b'\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'):
+                            elif get_task("TASK_RUNTIMEBASEDEVENTS").get("data", False) != bytearray(
+                                b"\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+                            ):
                                 context.emulator.press_button("B")
-                            elif trainer.get_coords()[0] != ["Bulbasaur", "Squirtle", "Charmander"].index(context.selected_pokemon)+8:
+                            elif (
+                                trainer.get_coords()[0]
+                                != ["Bulbasaur", "Squirtle", "Charmander"].index(context.selected_pokemon) + 8
+                            ):
                                 follow_path(
-                                    [(["Bulbasaur", "Squirtle", "Charmander"].index(context.selected_pokemon)+8 , 5)]
+                                    [(["Bulbasaur", "Squirtle", "Charmander"].index(context.selected_pokemon) + 8, 5)]
                                 )
                             elif not trainer.get_facing_direction() == "Up":
                                 context.emulator.press_button("Up")
@@ -358,7 +364,7 @@ class ModeStarters:
                                 else:
                                     self.rng_history.append(rng)
                                     if context.random_starter:
-                                        save_rng_state_history("Random_Kanto", self.rng_history)
+                                        save_rng_state_history("Random Kanto", self.rng_history)
                                     else:
                                         save_rng_state_history(context.selected_pokemon, self.rng_history)
                                     self.update_state(ModeStarterStates.INJECT_RNG)
@@ -373,7 +379,6 @@ class ModeStarters:
                             else:
                                 self.update_state(ModeStarterStates.SELECT_STARTER)
                                 continue
-                            
 
                         case ModeStarterStates.SELECT_STARTER:  # TODO can be made slightly faster by holding B through chat
                             if get_task("TASK_DRAWFIELDMESSAGEBOX").get("isActive", False):
@@ -398,9 +403,13 @@ class ModeStarters:
                         case ModeStarterStates.EXIT_MENUS:
                             if get_task("SCRIPTMOVEMENT_MOVEOBJECTS").get("isActive", False):
                                 context.emulator.press_button("B")
-                            elif not read_symbol("sStartMenuWindowId") == bytearray(b'\x01'):
+                            elif not read_symbol("sStartMenuWindowId") == bytearray(b"\x01"):
                                 context.emulator.press_button("Start")
-                            elif get_task("TASK_STARTMENUHANDLEINPUT").get("isActive", False) or get_task("TASK_HANDLECHOOSEMONINPUT").get("isActive", False) or get_task("TASK_HANDLESELECTIONMENUINPUT").get("isActive", False):
+                            elif (
+                                get_task("TASK_STARTMENUHANDLEINPUT").get("isActive", False)
+                                or get_task("TASK_HANDLECHOOSEMONINPUT").get("isActive", False)
+                                or get_task("TASK_HANDLESELECTIONMENUINPUT").get("isActive", False)
+                            ):
                                 context.emulator.press_button("A")
                             elif get_task("TASK_DUCKBGMFORPOKEMONCRY").get("isActive", False):
                                 self.update_state(ModeStarterStates.LOG_STARTER)
@@ -431,13 +440,15 @@ class ModeStarters:
                                 case GameState.OVERWORLD:
                                     self.update_state(ModeStarterStates.OVERWORLD)
                                     continue
-                    
-                        
+
                         case ModeStarterStates.OVERWORLD:
                             context.message = "Pathing to starter..."
-                            if trainer.get_coords()[0] != ["Cyndaquil", "Totodile", "Chikorita"].index(context.selected_pokemon)+8:
+                            if (
+                                trainer.get_coords()[0]
+                                != ["Cyndaquil", "Totodile", "Chikorita"].index(context.selected_pokemon) + 8
+                            ):
                                 follow_path(
-                                    [(["Cyndaquil", "Totodile", "Chikorita"].index(context.selected_pokemon)+8 , 5)]
+                                    [(["Cyndaquil", "Totodile", "Chikorita"].index(context.selected_pokemon) + 8, 5)]
                                 )
                             elif not trainer.get_facing_direction() == "Up":
                                 context.emulator.press_button("Up")
@@ -472,7 +483,7 @@ class ModeStarters:
                                 else:
                                     self.rng_history.append(rng)
                                     if context.random_starter:
-                                        save_rng_state_history("Random_Johto", self.rng_history)
+                                        save_rng_state_history("Random Johto", self.rng_history)
                                     else:
                                         save_rng_state_history(context.selected_pokemon, self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
@@ -504,15 +515,20 @@ class ModeStarters:
                                 continue
                             elif get_task("SCRIPTMOVEMENT_MOVEOBJECTS").get("isActive", False):
                                 context.emulator.press_button("B")
-                            elif not read_symbol("sStartMenuWindowId") == bytearray(b'\x01'):
+                            elif not read_symbol("sStartMenuWindowId") == bytearray(b"\x01"):
                                 context.emulator.press_button("Start")
-                            elif not read_symbol("sStartMenuCursorPos") == bytearray(b'\x01'):
+                            elif not read_symbol("sStartMenuCursorPos") == bytearray(b"\x01"):
                                 context.emulator.press_button("Down")
-                            elif (read_symbol("sStartMenuCursorPos") == bytearray(b'\x01') and get_task("TASK_SHOWSTARTMENU").get("isActive", False)) or get_task("TASK_HANDLECHOOSEMONINPUT").get("isActive", False):
+                            elif (
+                                read_symbol("sStartMenuCursorPos") == bytearray(b"\x01")
+                                and get_task("TASK_SHOWSTARTMENU").get("isActive", False)
+                            ) or get_task("TASK_HANDLECHOOSEMONINPUT").get("isActive", False):
                                 context.emulator.press_button("A")
                             elif get_task("TASK_HANDLESLECTIONMENUINPUT").get("isActive", False):
                                 context.emulator.press_button("A")
-                            elif not get_task("TASK_HANDLEINPUT").get("isActive", False) and not get_task("TASK_CHANGESUMMARYMON").get("isActive", False):
+                            elif not get_task("TASK_HANDLEINPUT").get("isActive", False) and not get_task(
+                                "TASK_CHANGESUMMARYMON"
+                            ).get("isActive", False):
                                 context.emulator.press_button("A")
                             else:
                                 if ", met at  È5, LITTLEROOT TOWN." in decode_string(read_symbol("gStringVar4")):
@@ -542,7 +558,7 @@ class ModeStarters:
                                     if get_task(self.task_map_popup):
                                         self.update_state(ModeStarterStates.OVERWORLD)
                                         continue
-                                    
+
                         case ModeStarterStates.OVERWORLD:
                             if get_game_state() != GameState.CHOOSE_STARTER:
                                 context.emulator.press_button("A")
@@ -586,7 +602,7 @@ class ModeStarters:
                                 else:
                                     self.rng_history.append(rng)
                                     if context.random_starter:
-                                        save_rng_state_history("Random_Hoenn", self.rng_history)
+                                        save_rng_state_history("Random Hoenn", self.rng_history)
                                     else:
                                         save_rng_state_history(context.selected_pokemon, self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
@@ -633,6 +649,7 @@ class ModeStarters:
                             opponent_changed()  # Prevent opponent from being logged if starter is shiny
                             return
             yield
+
 
 def generate_guaranteed_shiny_rng_seed(trainer_id: int, secret_id: int) -> bytes:
     while True:
