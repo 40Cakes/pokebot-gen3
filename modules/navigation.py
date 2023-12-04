@@ -4,7 +4,7 @@ from modules.memory import get_game_state, GameState
 from modules.pokemon import opponent_changed, get_opponent
 from modules.tasks import task_is_active
 from modules.temp import temp_run_from_battle
-from modules.player import get_player, TileTransitionState
+from modules.player import get_player_avatar, TileTransitionState
 
 
 def follow_path(coords: list, run: bool = True) -> bool:  # TODO needs a rework
@@ -35,7 +35,7 @@ def follow_path(coords: list, run: bool = True) -> bool:  # TODO needs a rework
                     context.emulator.press_button("B")
                     context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
 
-            player = get_player()
+            player = get_player_avatar()
             if player.tile_transition_state == TileTransitionState.NOT_MOVING:
                 trainer_coords = player.local_coordinates
                 # Check if map changed to desired map

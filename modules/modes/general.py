@@ -3,7 +3,7 @@ from enum import Enum
 from modules.context import context
 from modules.memory import get_game_state, GameState
 from modules.tasks import get_task
-from modules.player import get_player, RunningState, TileTransitionState, AcroBikeState
+from modules.player import get_player_avatar, RunningState, TileTransitionState, AcroBikeState
 
 
 class TaskFishing(Enum):
@@ -36,7 +36,7 @@ class ModeSpin:
 
     def step(self):
         while True:
-            player = get_player()
+            player = get_player_avatar()
             match (player.running_state, player.tile_transition_state):
                 case (RunningState.NOT_MOVING, TileTransitionState.NOT_MOVING):
                     context.emulator.press_button(self.get_next_direction(player.facing_direction))
@@ -68,7 +68,7 @@ class ModeFishing:
 class ModeBunnyHop:
     def step(self):
         while True:
-            player = get_player()
+            player = get_player_avatar()
             match (player.acro_bike_state, player.tile_transition_state, player.is_on_bike):
                 case (AcroBikeState.NORMAL, TileTransitionState.NOT_MOVING, False):
                     context.emulator.press_button("Select")  # TODO assumes player has the Acro Bike registered
