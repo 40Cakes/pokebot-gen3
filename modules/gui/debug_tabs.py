@@ -23,6 +23,7 @@ from modules.memory import (
     set_event_flag,
     get_event_flag,
 )
+from modules.player import get_player, AvatarFlags, TileTransitionState
 from modules.pokemon import get_party, get_species_by_index
 
 if TYPE_CHECKING:
@@ -543,13 +544,13 @@ class SymbolsTab(DebugTab):
         self.display_mode[symbol] = "bin"
 
 
-class TrainerTab(DebugTab):
+class PlayerTab(DebugTab):
     _tv: FancyTreeview
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
         self._tv = FancyTreeview(frame)
-        root.add(frame, text="Trainer")
+        root.add(frame, text="Player")
 
     def update(self, emulator: "LibmgbaEmulator"):
         if game_has_started():
@@ -558,23 +559,35 @@ class TrainerTab(DebugTab):
             self._tv.update_data({})
 
     def _get_data(self):
-        from modules.trainer import trainer, AcroBikeStates, RunningStates, TileTransitionStates
-
+        player = get_player()
         party = get_party()
 
+        flags = {}
+        active_flags = []
+        for flag in AvatarFlags:
+            flags[flag.name] = flag in player.flags
+            if flag in player.flags:
+                active_flags.append(flag.name)
+
+        if len(active_flags) == 0:
+            flags["__value"] = "None"
+        else:
+            flags["__value"] = ", ".join(active_flags)
+
         result = {
-            "Name": trainer.get_name(),
-            "Gender": trainer.get_gender(),
-            "Trainer ID": trainer.get_tid(),
-            "Secret ID": trainer.get_sid(),
-            "Map": trainer.get_map(),
-            "Map Name": trainer.get_map_name(),
-            "Local Coordinates": trainer.get_coords(),
-            "On Bike": trainer.get_on_bike(),
-            "Running State": RunningStates(trainer.get_running_state()).name,
-            "Acro Bike State": AcroBikeStates(trainer.get_acro_bike_state()).name,
-            "Tile Transition State": TileTransitionStates(trainer.get_tile_transition_state()).name,
-            "Facing Direction": trainer.get_facing_direction(),
+            "Name": player.name,
+            "Gender": player.gender,
+            "Trainer ID": player.trainer_id,
+            "Secret ID": player.secret_id,
+            "Map": player.map_group_and_number,
+            "Map Name": player.map_name,
+            "Local Coordinates": player.local_coordinates,
+            "Flags": flags,
+            "On Bike": player.is_on_bike,
+            "Running State": player.running_state.name,
+            "Acro Bike State": player.acro_bike_state.name,
+            "Tile Transition State": player.tile_transition_state.name,
+            "Facing Direction": player.facing_direction,
         }
 
         for i in range(0, 6):
@@ -708,12 +721,11 @@ class MapTab(DebugTab):
         root.add(frame, text="Map")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        from modules.trainer import trainer
-
+        player = get_player()
         show_different_tile = self._marker_rectangle is not None and get_task("TASK_WEATHERMAIN") != {}
         self._map.update()
 
-        if trainer.get_tile_transition_state() != 0:
+        if player.tile_transition_state != TileTransitionState.NOT_MOVING:
             self._marker_rectangle = None
             self._selected_tile = None
             show_different_tile = False
@@ -732,7 +744,7 @@ class MapTab(DebugTab):
                 if self._selected_object == (obj.map_group, obj.map_num, obj.local_id):
                     object_coords = obj.current_coords
                     previous_coords = obj.previous_coords
-                    camera_coords = trainer.get_coords()
+                    camera_coords = player.local_coordinates
 
                     relative_x = object_coords[0] - camera_coords[0]
                     relative_y = object_coords[1] - camera_coords[1]
@@ -763,7 +775,7 @@ class MapTab(DebugTab):
         tile_x = click_location[0] // tile_size
         tile_y = (click_location[1] + half_tile_size) // tile_size
 
-        current_map_data = get_map_data_for_current_position()
+        current_map_data = get_player().map_location
         actual_x = current_map_data.local_position[0] + (tile_x - 7)
         actual_y = current_map_data.local_position[1] + (tile_y - 5)
         if (
@@ -792,7 +804,7 @@ class MapTab(DebugTab):
             map_group, map_number = self._selected_map
             map_data = get_map_data(map_group, map_number, self._selected_tile)
         else:
-            map_data = get_map_data_for_current_position()
+            map_data = get_player().map_location
 
         map_objects = get_map_objects()
         object_list = {"__value": len(map_objects)}

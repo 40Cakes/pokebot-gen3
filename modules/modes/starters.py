@@ -10,8 +10,8 @@ from modules.files import get_rng_state_history, save_rng_state_history
 from modules.gui.multi_select_window import Selection, MultiSelector, MultiSelectWindow
 from modules.memory import read_symbol, get_game_state, GameState, get_task, write_symbol, unpack_uint32, pack_uint32
 from modules.navigation import follow_path
+from modules.player import get_player
 from modules.pokemon import get_party, opponent_changed
-from modules.trainer import trainer
 
 config = context.config
 
@@ -54,88 +54,89 @@ class ModeStarterStates(Enum):
 class ModeStarters:
     def __init__(self) -> None:
         if not context.selected_pokemon:
+            player = get_player()
             sprites = Path(__file__).parent.parent.parent / "sprites" / "pokemon" / "normal"
-
             conditions = {
                 "Bulbasaur": bool(
                     (
                         context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]
-                        and trainer.get_map() == MapFRLG.PALLET_TOWN_D.value
-                        and trainer.get_coords() == (8, 5)
-                        and trainer.get_facing_direction() == "Up"
+                        and player.map_group_and_number == MapFRLG.PALLET_TOWN_D.value
+                        and player.local_coordinates == (8, 5)
+                        and player.facing_direction == "Up"
                     )
                 ),
                 "Charmander": bool(
                     (
                         context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]
-                        and trainer.get_map() == MapFRLG.PALLET_TOWN_D.value
-                        and trainer.get_coords() == (10, 5)
-                        and trainer.get_facing_direction() == "Up"
+                        and player.map_group_and_number == MapFRLG.PALLET_TOWN_D.value
+                        and player.local_coordinates == (10, 5)
+                        and player.facing_direction == "Up"
                     )
                 ),
                 "Squirtle": bool(
                     (
                         context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]
-                        and trainer.get_map() == MapFRLG.PALLET_TOWN_D.value
-                        and trainer.get_coords() == (9, 5)
-                        and trainer.get_facing_direction() == "Up"
+                        and player.map_group_and_number == MapFRLG.PALLET_TOWN_D.value
+                        and player.local_coordinates == (9, 5)
+                        and player.facing_direction == "Up"
                     )
                 ),
                 "Chikorita": bool(
                     (
                         context.rom.game_title == "POKEMON EMER"
-                        and trainer.get_map() == MapRSE.LITTLEROOT_TOWN_E.value
-                        and trainer.get_coords() == (10, 5)
-                        and trainer.get_facing_direction() == "Up"
+                        and player.map_group_and_number == MapRSE.LITTLEROOT_TOWN_E.value
+                        and player.local_coordinates == (10, 5)
+                        and player.facing_direction == "Up"
                     )
                 ),
                 "Cyndaquil": bool(
                     (
                         context.rom.game_title == "POKEMON EMER"
-                        and trainer.get_map() == MapRSE.LITTLEROOT_TOWN_E.value
-                        and trainer.get_coords() == (8, 5)
-                        and trainer.get_facing_direction() == "Up"
+                        and player.map_group_and_number == MapRSE.LITTLEROOT_TOWN_E.value
+                        and player.local_coordinates == (8, 5)
+                        and player.facing_direction == "Up"
                     )
                 ),
                 "Totodile": bool(
                     (
                         context.rom.game_title == "POKEMON EMER"
-                        and trainer.get_map() == MapRSE.LITTLEROOT_TOWN_E.value
-                        and trainer.get_coords() == (9, 5)
-                        and trainer.get_facing_direction() == "Up"
+                        and player.map_group_and_number == MapRSE.LITTLEROOT_TOWN_E.value
+                        and player.local_coordinates == (9, 5)
+                        and player.facing_direction == "Up"
                     )
                 ),
                 "Treecko": bool(
                     (
                         context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
-                        and trainer.get_map() == MapRSE.ROUTE_101.value
+                        and player.map_group_and_number == MapRSE.ROUTE_101.value
                         and (
-                            (trainer.get_coords() == (7, 15) and trainer.get_facing_direction() == "Up")
-                            or (trainer.get_coords() == (8, 14) and trainer.get_facing_direction() == "Left")
+                            (player.local_coordinates == (7, 15) and player.facing_direction == "Up")
+                            or (player.local_coordinates == (8, 14) and player.facing_direction == "Left")
                         )
                     )
                 ),
                 "Torchic": bool(
                     (
                         context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
-                        and trainer.get_map() == MapRSE.ROUTE_101.value
+                        and player.map_group_and_number == MapRSE.ROUTE_101.value
                         and (
-                            (trainer.get_coords() == (7, 15) and trainer.get_facing_direction() == "Up")
-                            or (trainer.get_coords() == (8, 14) and trainer.get_facing_direction() == "Left")
+                            (player.local_coordinates == (7, 15) and player.facing_direction == "Up")
+                            or (player.local_coordinates == (8, 14) and player.facing_direction == "Left")
                         )
                     )
                 ),
                 "Mudkip": bool(
                     (
                         context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
-                        and trainer.get_map() == MapRSE.ROUTE_101.value
+                        and player.map_group_and_number == MapRSE.ROUTE_101.value
                         and (
-                            (trainer.get_coords() == (7, 15) and trainer.get_facing_direction() == "Up")
-                            or (trainer.get_coords() == (8, 14) and trainer.get_facing_direction() == "Left")
+                            (player.local_coordinates == (7, 15) and player.facing_direction == "Up")
+                            or (player.local_coordinates == (8, 14) and player.facing_direction == "Left")
                         )
                     )
                 ),
             }
+
 
             if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
                 selections = [
@@ -164,7 +165,7 @@ class ModeStarters:
                         sprite=sprites / "Squirtle.png",
                     ),
                 ]
-            elif context.rom.game_title == "POKEMON EMER" and trainer.get_map() == MapRSE.LITTLEROOT_TOWN_E.value:
+            elif context.rom.game_title == "POKEMON EMER" and player.map_group_and_number == MapRSE.LITTLEROOT_TOWN_E.value:
                 selections = [
                     Selection(
                         button_label="Chikorita",
@@ -261,6 +262,8 @@ class ModeStarters:
 
     def step(self):
         while True:
+            player = get_player()
+
             match self.region:
                 case Regions.KANTO_STARTERS:
                     match self.state:
@@ -317,7 +320,7 @@ class ModeStarters:
                             if len(get_party()) == 0:
                                 # Uncomment the following to _guarantee_ a shiny being generated. For testing purposes.
                                 # write_symbol("gRngValue",
-                                #              generate_guaranteed_shiny_rng_seed(trainer.get_tid(), trainer.get_sid()))
+                                #              generate_guaranteed_shiny_rng_seed(player.trainer_id, player.secret_id))
                                 context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.EXIT_MENUS)
@@ -325,7 +328,7 @@ class ModeStarters:
 
                         case ModeStarterStates.EXIT_MENUS:
                             if not config.cheats.starters:
-                                if trainer.get_facing_direction() != "Down":
+                                if player.facing_direction != "Down":
                                     context.emulator.press_button("B")
                                     context.emulator.hold_button("Down")
                                 else:
@@ -338,7 +341,7 @@ class ModeStarters:
 
                         case ModeStarterStates.FOLLOW_PATH:
                             follow_path(
-                                [(trainer.get_coords()[0], 7), (7, 7), (7, 8)]
+                                [(player.local_coordinates[0], 7), (7, 7), (7, 8)]
                             )  # TODO Revisit FollowPath rework
                             self.update_state(ModeStarterStates.OPPONENT_CRY_START)
 
@@ -535,7 +538,7 @@ class ModeStarters:
                                 if confirm and get_game_state() != GameState.BATTLE:
                                     # Uncomment the following to _guarantee_ a shiny being generated. For testing purposes.
                                     # write_symbol("gRngValue",
-                                    #              generate_guaranteed_shiny_rng_seed(trainer.get_tid(), trainer.get_sid()))
+                                    #              generate_guaranteed_shiny_rng_seed(player.trainer_id, player.secret_id))
                                     context.emulator.press_button("A")
                                 else:
                                     self.update_state(ModeStarterStates.THROW_BALL)

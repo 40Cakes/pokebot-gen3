@@ -944,6 +944,18 @@ class ObjectEvent:
     def __init__(self, data: bytes):
         self._data = data
 
+    def __eq__(self, other):
+        if isinstance(other, ObjectEvent):
+            return other._data == self._data
+        else:
+            return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, ObjectEvent):
+            return other._data != self._data
+        else:
+            return NotImplemented
+
     @property
     def flags(self) -> list[str]:
         flag_names = [
@@ -1122,10 +1134,12 @@ class ObjectEvent:
 
 
 def get_map_data_for_current_position() -> MapLocation:
-    from modules.trainer import trainer
+    from modules.player import get_player
 
-    map_group, map_number = trainer.get_map()
-    return MapLocation(read_symbol("gMapHeader"), map_group, map_number, trainer.get_coords())
+    player = get_player()
+
+    map_group, map_number = player.map_group_and_number
+    return MapLocation(read_symbol("gMapHeader"), map_group, map_number, player.local_coordinates)
 
 
 def get_map_data(map_group: int, map_number: int, local_position: tuple[int, int]) -> MapLocation:

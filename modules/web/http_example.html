@@ -83,14 +83,19 @@
             handleEmulationSpeedChange(data.emulation_speed);
             handleVideoEnabledChange(data.video_enabled);
             handleAudioEnabledChange(data.audio_enabled);
-            handlePerformanceData({fps: data.current_fps, current_time_spent_in_bot_fraction});
+            handlePerformanceData({
+                fps: data.current_fps,
+                current_time_spent_in_bot_fraction: data.current_time_spent_in_bot_fraction,
+                encounter_rate: 0,
+                frame_count: 0,
+            });
             handleMessageChange(data.current_message);
         });
 
-    fetch("/trainer")
+    fetch("/player")
         .then(response => response.json())
         .then(data => {
-            /** @var {PokeBotApi.GetTrainerResponse} */
+            /** @var {PokeBotApi.GetPlayerResponse} */
             handleGameStateChange(data.game_state);
         });
 
@@ -181,7 +186,7 @@
     {
         document.getElementById("fps").innerText            = data.fps.toLocaleString("en-GB");
         document.getElementById("bot_percentage").innerText = (data.current_time_spent_in_bot_fraction * 100).toLocaleString("en-GB", {maximumFractionDigits: 1}) + "%";
-        if (typeof data.encounter_rate !== "undefined") {
+        if (data.encounter_rate > 0) {
             document.getElementById("encounter_rate").innerText = data.encounter_rate.toLocaleString("en-GB") + "/hr";
         }
     }
