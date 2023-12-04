@@ -271,17 +271,17 @@ class ModeStarters:
 
             options = MultiSelector("Select a starter...", selections)
             MultiSelectWindow(context.gui.window, options)
-            if context.selected_pokemon in ["Random Kanto", "Random Johto", "Random Hoenn"]:
+            if context.selected_pokemon == "Random":
                 context.random_starter = True
             else:
                 context.random_starter = False
 
-        if context.selected_pokemon in ["Bulbasaur", "Charmander", "Squirtle", "Random Kanto"]:
+        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
             if context.random_starter:
                 context.selected_pokemon = random.choice(["Bulbasaur", "Charmander", "Squirtle"])
             self.region: Regions = Regions.KANTO_STARTERS
 
-        elif context.selected_pokemon in ["Chikorita", "Cyndaquil", "Totodile", "Random Johto"]:
+        elif context.rom.game_title == "POKEMON EMER" and trainer.get_coords()[1] == 5:
             if context.random_starter:
                 context.selected_pokemon = random.choice(["Chikorita", "Cyndaquil", "Totodile"])
             self.region: Regions = Regions.JOHTO_STARTERS
@@ -289,7 +289,7 @@ class ModeStarters:
             if len(get_party()) == 6:
                 self.update_state(ModeStarterStates.PARTY_FULL)
 
-        elif context.selected_pokemon in ["Treecko", "Torchic", "Mudkip", "Random Hoenn"]:
+        elif context.rom.game_title in ["POKEMON EMER", "POKEMON SAPP", "POKEMON RUBY"]:
             if context.random_starter:
                 context.selected_pokemon = random.choice(["Treecko", "Torchic", "Mudkip"])
             self.bag_position: int = BagPositions[context.selected_pokemon.upper()].value
