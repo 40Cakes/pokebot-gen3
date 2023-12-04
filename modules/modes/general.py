@@ -1,8 +1,9 @@
-from enum import Enum, auto
+from enum import Enum
 
 from modules.context import context
-from modules.memory import get_task, get_game_state, GameState
-from modules.trainer import trainer, RunningStates, TileTransitionStates, AcroBikeStates
+from modules.memory import get_game_state, GameState
+from modules.tasks import get_task
+from modules.player import get_player, RunningState, TileTransitionState, AcroBikeState
 
 
 class TaskFishing(Enum):
@@ -35,10 +36,11 @@ class ModeSpin:
 
     def step(self):
         while True:
-            match (trainer.get_running_state(), trainer.get_tile_transition_state()):
-                case (RunningStates.NOT_MOVING, TileTransitionStates.NOT_MOVING):
-                    context.emulator.press_button(self.get_next_direction(trainer.get_facing_direction()))
-                case (RunningStates.TURN_DIRECTION, TileTransitionStates.CENTERING):
+            player = get_player()
+            match (player.running_state, player.tile_transition_state):
+                case (RunningState.NOT_MOVING, TileTransitionState.NOT_MOVING):
+                    context.emulator.press_button(self.get_next_direction(player.facing_direction))
+                case (RunningState.TURN_DIRECTION, TileTransitionState.CENTERING):
                     if get_game_state() == GameState.BATTLE:
                         return
             yield
@@ -47,9 +49,9 @@ class ModeSpin:
 class ModeFishing:
     def step(self):
         while True:
-            task_fishing = get_task("TASK_FISHING")
-            if task_fishing.get("isActive", False):
-                match task_fishing["data"][0]:
+            task_fishing = get_task("Task_Fishing")
+            if task_fishing is not None:
+                match task_fishing.data[0]:
                     case TaskFishing.WAIT_FOR_A.value | TaskFishing.END_NO_MON.value:
                         context.emulator.press_button("A")
                     case TaskFishing.NOT_EVEN_NIBBLE.value:
@@ -66,14 +68,15 @@ class ModeFishing:
 class ModeBunnyHop:
     def step(self):
         while True:
-            match (trainer.get_acro_bike_state(), trainer.get_tile_transition_state(), trainer.get_on_bike()):
-                case (AcroBikeStates.NORMAL, TileTransitionStates.NOT_MOVING, False):
+            player = get_player()
+            match (player.acro_bike_state, player.tile_transition_state, player.is_on_bike):
+                case (AcroBikeState.NORMAL, TileTransitionState.NOT_MOVING, False):
                     context.emulator.press_button("Select")  # TODO assumes player has the Acro Bike registered
-                case (AcroBikeStates.HOPPING_WHEELIE, TileTransitionStates.CENTERING, True):
+                case (AcroBikeState.HOPPING_WHEELIE, TileTransitionState.CENTERING, True):
                     if get_game_state() == GameState.BATTLE:
                         context.emulator.release_button("B")
                         return
-                case (AcroBikeStates.STANDING_WHEELIE, TileTransitionStates.NOT_MOVING, True):
+                case (AcroBikeState.STANDING_WHEELIE, TileTransitionState.NOT_MOVING, True):
                     context.emulator.hold_button("B")
                 case _:
                     context.emulator.press_button("B")

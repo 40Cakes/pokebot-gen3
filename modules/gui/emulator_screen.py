@@ -33,7 +33,7 @@ class EmulatorScreen:
             controls = DebugEmulatorControls(self.window)
             controls.add_tab(TasksTab())
             controls.add_tab(BattleTab())
-            controls.add_tab(TrainerTab())
+            controls.add_tab(PlayerTab())
             controls.add_tab(MapTab(self.canvas))
             controls.add_tab(DaycareTab())
             controls.add_tab(SymbolsTab())

@@ -7,8 +7,8 @@ from time import sleep, time
 from modules.console import console
 from modules.context import context
 from modules.main import work_queue
-from modules.map import get_map_data_for_current_position
 from modules.memory import get_game_state, GameState
+from modules.player import get_player
 from modules.pokemon import get_party, get_opponent
 from modules.state_cache import state_cache
 from modules.stats import total_stats
@@ -78,15 +78,22 @@ def add_subscriber(subscribed_topics: list[str]) -> tuple[queue.Queue:, callable
 
 
 def run_watcher():
-    from modules.trainer import trainer
-
     update_interval = update_interval_in_ms / 1000
     previous_second = int(time())
+
+    if state_cache.player.value is not None:
+        map_group_and_number = state_cache.player.value.map_group_and_number
+        map_local_coordinates = state_cache.player.value.local_coordinates
+    else:
+        map_group_and_number = (-1, -1)
+        map_local_coordinates = (-1, -1)
+
     previous_game_state = {
-        "trainer_map": trainer.get_map(),
-        "trainer_local_coords": trainer.get_coords(),
         "party": state_cache.party.frame,
         "opponent": state_cache.opponent.frame,
+        "player": state_cache.player.frame,
+        "map_group_and_number": map_group_and_number,
+        "map_local_coordinates": map_local_coordinates,
         "game_state": get_game_state(),
     }
     previous_emulator_state = {
@@ -143,11 +150,16 @@ def run_watcher():
 
         if subscriptions["Map"] > 0 or subscriptions["MapTile"] > 0:
             if current_game_state == GameState.OVERWORLD:
-                current_map = trainer.get_map()
-                current_coords = trainer.get_coords()
-                if current_map != previous_game_state["trainer_map"]:
-                    try:
-                        map_data = get_map_data_for_current_position()
+                if state_cache.player.age_in_frames > 4:
+                    # If the cached player data is too old, tell the main thread to update it at the next
+                    # possible opportunity.
+                    work_queue.put_nowait(get_player)
+                elif state_cache.player.value is not None:
+                    previous_game_state["player"] = state_cache.player.frame
+                    current_map = state_cache.player.value.map_group_and_number
+                    current_coords = state_cache.player.value.local_coordinates
+                    if current_map != previous_game_state["map_group_and_number"]:
+                        map_data = state_cache.player.value.map_location
                         data = {
                             "map": map_data.dict_for_map(),
                             "player_position": map_data.local_position,
@@ -155,18 +167,10 @@ def run_watcher():
                         }
 
                         send_message(DataSubscription.Map, data=data, event_type="MapChange")
-                        previous_game_state["trainer_map"] = current_map
-                    except:
-                        # If fetching map data failed for any reason, ignore the error and continue.
-                        pass
-                if current_coords != previous_game_state["trainer_local_coords"]:
-                    try:
-                        send_message(DataSubscription.Map, data=get_map_data_for_current_position().local_position,
-                                     event_type="MapTileChange")
-                        previous_game_state["trainer_local_coords"] = current_coords
-                    except:
-                        # If fetching map data failed for any reason, ignore the error and continue.
-                        pass
+                        previous_game_state["map_group_and_number"] = current_map
+                    if current_coords != previous_game_state["map_local_coordinates"]:
+                        send_message(DataSubscription.Map, data=current_coords, event_type="MapTileChange")
+                        previous_game_state["map_local_coordinates"] = current_coords
 
         if subscriptions["BotMode"] > 0:
             if context.bot_mode != previous_emulator_state["bot_mode"]:
