@@ -1,6 +1,7 @@
 import time
 import tkinter
 from enum import Enum
+from PIL import Image, ImageDraw, ImageTk, ImageOps
 from tkinter import ttk, Canvas
 from typing import TYPE_CHECKING, Union, Optional
 
@@ -9,7 +10,7 @@ from modules.daycare import get_daycare_data
 from modules.game import decode_string, _symbols, _reverse_symbols, _event_flags
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_items
-from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects
+from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects, get_map_all_tiles
 from modules.memory import (
     get_symbol,
     read_symbol,
@@ -191,6 +192,66 @@ class FancyTreeview:
             return
 
         callback(self._tv.item(selection[0])["text"])
+
+
+class MapViewer:
+    COLLISION = (255, 0, 0)
+    ENCOUNTERS = (0, 255, 0)
+    NORMAL = (255, 255, 255)
+    JUMP = (0, 255, 255)
+    WATER = (0, 0, 255)
+    TILE_SIZE = 8
+
+    def __init__(self, root: ttk.Widget, row=0, column=0) -> None:
+        self._root = root
+        self._map: ttk.Label = ttk.Label(self._root, padding=(10, 10))
+        self._map.grid(row=row, column=column)
+        self._cache: dict[tuple[int, int], ImageTk.PhotoImage] = {}
+
+    def update(self):
+        try:
+            current_map_data = get_map_data_for_current_position()
+
+            cached_map = self._cache.get((current_map_data.map_group, current_map_data.map_number), False)
+            if not cached_map:
+                cached_map = ImageTk.PhotoImage(self._get_map_bitmap())
+                self._cache[(current_map_data.map_group, current_map_data.map_number)] = cached_map
+
+            self._map.configure(image=cached_map)
+            self._map.image = cached_map
+        except TypeError | RuntimeError:
+            # If trainer data do not exists yet then ignore. eg. New game, intro, etc
+            pass
+
+    def _get_map_bitmap(self) -> Image:
+        tiles = get_map_all_tiles()
+        map_width, map_height = tiles[0].map_size
+
+        image = Image.new(
+            "RGB", (map_width * MapViewer.TILE_SIZE, map_height * MapViewer.TILE_SIZE), color=MapViewer.NORMAL
+        )
+        image_draw = ImageDraw.Draw(image)
+        for y in range(map_height):
+            for x in range(map_width):
+                tile_data = tiles[x + map_width * y]
+                tile_color = MapViewer.NORMAL
+                if bool(tile_data.collision):
+                    tile_color = MapViewer.COLLISION
+                if tile_data.has_encounters:
+                    tile_color = MapViewer.ENCOUNTERS
+                if "Jump" in tile_data.tile_type:
+                    tile_color = MapViewer.JUMP
+                if tile_data.is_surfable:
+                    tile_color = MapViewer.WATER
+                image_draw.rectangle(
+                    xy=(
+                        (x * MapViewer.TILE_SIZE, y * MapViewer.TILE_SIZE),
+                        ((x + 1) * MapViewer.TILE_SIZE, (y + 1) * MapViewer.TILE_SIZE),
+                    ),
+                    fill=tile_color,
+                )
+
+        return ImageOps.contain(image, (150, 150))
 
 
 class TasksTab(DebugTab):
@@ -406,7 +467,7 @@ class SymbolsTab(DebugTab):
                 item = tv.identify_row(event.y)
                 if item:
                     symbol_name = tv.item(item)["text"]
-                    symbol_length = int(tv.item(item).get('values')[2], 16)
+                    symbol_length = int(tv.item(item).get("values")[2], 16)
                     if tv.item(item)["text"].startswith("s"):
                         self.display_mode[symbol_name] = "str"
                     elif symbol_length == 2 or symbol_length == 4:
@@ -456,9 +517,9 @@ class SymbolsTab(DebugTab):
                 data[symbol] = f"{value.hex(' ', 1)} ({n})"
             elif display_mode == "bin":
                 n = int.from_bytes(value, byteorder="little")
-                binary_string = bin(n).removeprefix("0b").rjust(length * 8, '0')
+                binary_string = bin(n).removeprefix("0b").rjust(length * 8, "0")
                 chunk_size = 4
-                chunks = [binary_string[i:i+chunk_size] for i in range(0, len(binary_string), chunk_size)]
+                chunks = [binary_string[i : i + chunk_size] for i in range(0, len(binary_string), chunk_size)]
                 data[symbol] = " ".join(chunks)
             else:
                 data[symbol] = value.hex(" ", 1)
@@ -471,10 +532,13 @@ class SymbolsTab(DebugTab):
 
     def _handle_show_as_hex(self, symbol: str):
         self.display_mode[symbol] = "hex"
+
     def _handle_show_as_string(self, symbol: str):
         self.display_mode[symbol] = "str"
+
     def _handle_show_as_dec(self, symbol: str):
         self.display_mode[symbol] = "dec"
+
     def _handle_show_as_bin(self, symbol: str):
         self.display_mode[symbol] = "bin"
 
@@ -630,6 +694,7 @@ class InputsTab(DebugTab):
 class MapTab(DebugTab):
     def __init__(self, canvas: Canvas):
         self._canvas = canvas
+        self._map: MapViewer | None = None
         self._tv: FancyTreeview | None = None
         self._selected_tile: tuple[int, int] | None = None
         self._selected_map: tuple[int, int] | None = None
@@ -638,12 +703,15 @@ class MapTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
-        self._tv = FancyTreeview(frame, on_highlight=self._handle_selection)
+        self._map = MapViewer(frame, row=1)
+        self._tv = FancyTreeview(frame, row=0, height=15, on_highlight=self._handle_selection)
         root.add(frame, text="Map")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        show_different_tile = self._marker_rectangle is not None and get_task("TASK_WEATHERMAIN") != {}
         from modules.trainer import trainer
+
+        show_different_tile = self._marker_rectangle is not None and get_task("TASK_WEATHERMAIN") != {}
+        self._map.update()
 
         if trainer.get_tile_transition_state() != 0:
             self._marker_rectangle = None
