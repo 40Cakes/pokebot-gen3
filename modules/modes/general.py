@@ -1,7 +1,8 @@
 from enum import Enum
 
 from modules.context import context
-from modules.memory import get_task, get_game_state, GameState
+from modules.memory import get_game_state, GameState
+from modules.tasks import get_task
 from modules.player import get_player, RunningState, TileTransitionState, AcroBikeState
 
 
@@ -48,9 +49,9 @@ class ModeSpin:
 class ModeFishing:
     def step(self):
         while True:
-            task_fishing = get_task("TASK_FISHING")
-            if task_fishing.get("isActive", False):
-                match task_fishing["data"][0]:
+            task_fishing = get_task("Task_Fishing")
+            if task_fishing is not None:
+                match task_fishing.data[0]:
                     case TaskFishing.WAIT_FOR_A.value | TaskFishing.END_NO_MON.value:
                         context.emulator.press_button("A")
                     case TaskFishing.NOT_EVEN_NIBBLE.value:

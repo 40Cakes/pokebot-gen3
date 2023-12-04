@@ -1,7 +1,8 @@
 from modules.context import context
 from modules.encounter import encounter_pokemon
-from modules.memory import get_game_state, GameState, get_task
+from modules.memory import get_game_state, GameState
 from modules.pokemon import opponent_changed, get_opponent
+from modules.tasks import task_is_active
 from modules.temp import temp_run_from_battle
 from modules.player import get_player, TileTransitionState
 
@@ -27,10 +28,10 @@ def follow_path(coords: list, run: bool = True) -> bool:  # TODO needs a rework
                 temp_run_from_battle()
 
             # Check if PokeNav is active every n frames (get_task is expensive)
-            if context.emulator.get_frame_count() % 60 == 0 and get_task("TASK_SPINPOKENAVICON").get("isActive", False):
+            if context.emulator.get_frame_count() % 60 == 0 and task_is_active("Task_SpinPokenavIcon"):
                 context.emulator.release_button("B")
 
-                while get_task("TASK_SPINPOKENAVICON").get("isActive", False):
+                while task_is_active("Task_SpinPokenavIcon"):
                     context.emulator.press_button("B")
                     context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
 
