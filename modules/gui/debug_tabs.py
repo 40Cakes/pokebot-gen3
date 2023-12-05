@@ -883,7 +883,7 @@ class MapTab(DebugTab):
             event = map_bg_events[i]
             kind = event.kind
             key = format_coordinates(event.local_coordinates)
-            if kind.startswith("Script"):
+            if kind == "Script":
                 bg_events_list[key] = {
                     "__value": f"Script/Sign ({event.script_symbol})",
                     "Script": event.script_symbol,

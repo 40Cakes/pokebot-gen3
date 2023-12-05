@@ -472,6 +472,17 @@ class MapConnection:
     def destination_map(self) -> "MapLocation":
         return get_map_data(self.destination_map_group, self.destination_map_number, (0, 0))
 
+    def to_dict(self) -> dict:
+        return {
+            "direction": self.direction,
+            "offset": self.offset,
+            "destination": {
+                "map_group": self.destination_map_group,
+                "map_number": self.destination_map_number,
+                "map_name": self.destination_map.map_name,
+            },
+        }
+
 
 class MapWarp:
     def __init__(self, data: bytes):
@@ -503,6 +514,18 @@ class MapWarp:
         destination_warp = destination_map.warps[self.destination_warp_id]
         destination_map.local_position = destination_warp.local_coordinates
         return destination_map
+
+    def to_dict(self) -> dict:
+        return {
+            "local_coordinates": self.local_coordinates,
+            "elevation": self.elevation,
+            "destination": {
+                "warp_id": self.destination_warp_id,
+                "map_group": self.destination_map_group,
+                "map_number": self.destination_map_number,
+                "map_name": self.destination_location.map_name,
+            },
+        }
 
 
 class MapCoordEvent:
@@ -541,6 +564,13 @@ class MapCoordEvent:
         else:
             return symbol
 
+    def to_dict(self) -> dict:
+        return {
+            "local_coordinates": self.local_coordinates,
+            "elevation": self.elevation,
+            "script": self.script_symbol,
+        }
+
 
 class MapBgEvent:
     """
@@ -559,18 +589,10 @@ class MapBgEvent:
         return self._data[4]
 
     @property
-    def kind(self) -> str:
+    def kind(self) -> Literal["Script", "Hidden Item", "Secret Base", "???"]:
         match self._data[5]:
-            case 0:
-                return "Script: Facing any Direction"
-            case 1:
-                return "Script: Facing North"
-            case 2:
-                return "Script: Facing South"
-            case 3:
-                return "Script: Facing East"
-            case 4:
-                return "Script: Facing West"
+            case 0 | 1 | 2 | 3 | 4:
+                return "Script"
             case 7:
                 return "Hidden Item"
             case 8:
@@ -579,13 +601,30 @@ class MapBgEvent:
                 return "???"
 
     @property
+    def player_facing_direction(self) -> str:
+        """ This only has meaning if `kind` is 'Script'. """
+        match self._data[5]:
+            case 0:
+                return "Any"
+            case 1:
+                return "Up"
+            case 2:
+                return "Down"
+            case 3:
+                return "Right"
+            case 4:
+                return "Left"
+            case _:
+                return "???"
+
+    @property
     def script_pointer(self) -> int:
-        """ This only has meaning if `kind` is one of the 'Script' values. """
+        """ This only has meaning if `kind` is 'Script'. """
         return unpack_uint32(self._data[8:12])
 
     @property
     def script_symbol(self) -> str:
-        """ This only has meaning if `kind` is one of the 'Script' values. """
+        """ This only has meaning if `kind` is 'Script'. """
         symbol = get_symbol_name(self.script_pointer, pretty_name=True)
         if symbol == "":
             return hex(self.script_pointer)
@@ -606,6 +645,25 @@ class MapBgEvent:
     def secret_base_id(self) -> int:
         """ This only has meaning if `kind` is 'Secret Base'. """
         return unpack_uint32(self._data[8:12])
+
+    def to_dict(self) -> dict:
+        kind = self.kind
+        data = {
+            "local_coordinates": self.local_coordinates,
+            "elevation": self.elevation,
+            "kind": kind,
+        }
+
+        match kind:
+            case "Script":
+                data["player_facing_direction"] = self.player_facing_direction
+                data["script"] = self.script_symbol
+            case "Hidden Item":
+                data["item"] = self.hidden_item.name
+            case "Secret Base":
+                data["secret_base_id"] = self.secret_base_id
+
+        return data
 
 
 class MapLocation:
@@ -924,6 +982,11 @@ class MapLocation:
             "is_running_possible": self.is_running_possible,
             "is_map_name_popup_shown": self.is_map_name_popup_shown,
             "is_dark_cave": self.is_dark_cave,
+            "connections": [c.to_dict() for c in self.connections],
+            "warps": [w.to_dict() for w in self.warps],
+            "tile_enter_events": [e.to_dict() for e in self.coord_events],
+            "tile_interact_events": [e.to_dict() for e in self.bg_events],
+            "object_templates": [t.to_dict() for t in self.objects],
         }
 
     def dict_for_tile(self) -> dict:
@@ -1490,6 +1553,39 @@ class ObjectEventTemplate:
     def clone_target_map(self) -> MapLocation:
         """ This only has meaning if `kind` is 'clone' on FRLG. """
         return get_map_data(self.clone_target_map_group, self.clone_target_map_number, (0, 0))
+
+    def to_dict(self) -> dict:
+        kind = self.kind
+        data = {
+            "local_id": self.local_id,
+            "local_coordinates": self.local_coordinates,
+            "kind": kind,
+            "script": self.script_symbol,
+        }
+
+        if kind == "normal":
+            trainer = None
+            if self.trainer_type != "None":
+                trainer = {
+                    "type": self.trainer_type,
+                    "range": self.trainer_range,
+                }
+
+            data["elevation"] = self.elevation
+            data["trainer"] = trainer
+            data["movement"] = {
+                "type": self.movement_type,
+                "range": self.movement_range,
+            }
+        else:
+            data["target"] = {
+                "map_group": self.clone_target_map_group,
+                "map_number": self.clone_target_map_number,
+                "map_name": self.clone_target_map.map_name,
+                "local_id": self.local_id
+            }
+
+        return data
 
     def __str__(self) -> str:
         if self.trainer_type == "Buried":
