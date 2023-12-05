@@ -31,14 +31,14 @@ if TYPE_CHECKING:
 
 class FancyTreeview:
     def __init__(
-        self,
-        root: ttk.Widget,
-        height=22,
-        row=0,
-        column=0,
-        columnspan=1,
-        additional_context_actions: Optional[dict[str, callable]] = None,
-        on_highlight: Optional[callable] = None,
+            self,
+            root: ttk.Widget,
+            height=22,
+            row=0,
+            column=0,
+            columnspan=1,
+            additional_context_actions: Optional[dict[str, callable]] = None,
+            on_highlight: Optional[callable] = None,
     ):
         if additional_context_actions is None:
             additional_context_actions = {}
@@ -76,7 +76,6 @@ class FancyTreeview:
         self._tv.bind("<Right>", lambda _: root.focus_set())
 
         if on_highlight is not None:
-
             def handle_selection(e):
                 selected_item = self._tv.focus()
                 on_highlight(self._tv.item(selected_item)["text"])
@@ -516,7 +515,7 @@ class SymbolsTab(DebugTab):
                 n = int.from_bytes(value, byteorder="little")
                 binary_string = bin(n).removeprefix("0b").rjust(length * 8, "0")
                 chunk_size = 4
-                chunks = [binary_string[i : i + chunk_size] for i in range(0, len(binary_string), chunk_size)]
+                chunks = [binary_string[i: i + chunk_size] for i in range(0, len(binary_string), chunk_size)]
                 data[symbol] = " ".join(chunks)
             else:
                 data[symbol] = value.hex(" ", 1)
@@ -775,11 +774,11 @@ class MapTab(DebugTab):
         actual_x = current_map_data.local_position[0] + (tile_x - 7)
         actual_y = current_map_data.local_position[1] + (tile_y - 5)
         if (
-            self._selected_tile == (actual_x, actual_y)
-            or actual_x < 0
-            or actual_x >= current_map_data.map_size[0]
-            or actual_y < 0
-            or actual_y >= current_map_data.map_size[1]
+                self._selected_tile == (actual_x, actual_y)
+                or actual_x < 0
+                or actual_x >= current_map_data.map_size[0]
+                or actual_y < 0
+                or actual_y >= current_map_data.map_size[1]
         ):
             self._selected_tile = None
             self._selected_map = None
@@ -831,6 +830,79 @@ class MapTab(DebugTab):
                 "Flags": flags_list,
             }
 
+        def format_coordinates(coordinates: tuple[int, int]) -> str:
+            return f"{str(coordinates[0])}/{str(coordinates[1])}"
+
+        map_connections = map_data.connections
+        connections_list = {"__value": set()}
+        for i in range(len(map_connections)):
+            connections_list[map_connections[i].direction] = \
+                f"to {map_connections[i].destination_map.map_name} (offset: {str(map_connections[i].offset)})"
+            connections_list["__value"].add(map_connections[i].direction)
+        connections_list["__value"] = ", ".join(connections_list["__value"])
+
+        map_warps = map_data.warps
+        warps_list = {"__value": len(map_warps)}
+        for i in range(len(map_warps)):
+            warp = map_warps[i]
+            d = warp.destination_location
+            warps_list[format_coordinates(warp.local_coordinates)] = \
+                f"to ({format_coordinates(d.local_position)}) on [{d.map_group}, {d.map_number}] ({d.map_name})"
+
+        map_object_templates = map_data.objects
+        object_templates_list = {"__value": len(map_object_templates)}
+        for i in range(len(map_object_templates)):
+            obj = map_object_templates[i]
+            key = f"Object Template #{obj.local_id}"
+            object_templates_list[key] = {
+                "__value": str(obj),
+                "coordinates": obj.local_coordinates,
+                "script": obj.script_symbol,
+                "flag_id": obj.flag_id,
+            }
+            if obj.kind == "normal":
+                object_templates_list[key]["movement_type"] = obj.movement_type
+                object_templates_list[key]["movement_range"] = obj.movement_range
+                object_templates_list[key]["trainer_type"] = obj.trainer_type
+                object_templates_list[key]["trainer_range"] = obj.trainer_range
+            else:
+                object_templates_list[key]["target_local_id"] = obj.clone_target_local_id
+                target_map = obj.clone_target_map
+                object_templates_list[key]["target_map"] = \
+                    f"{target_map.map_name} [{target_map.map_group}, {target_map.map_number}]"
+
+        map_coord_events = map_data.coord_events
+        coord_events_list = {"__value": len(map_coord_events)}
+        for i in range(len(map_coord_events)):
+            event = map_coord_events[i]
+            coord_events_list[format_coordinates(event.local_coordinates)] = event.script_symbol
+
+        map_bg_events = map_data.bg_events
+        bg_events_list = {"__value": len(map_bg_events)}
+        for i in range(len(map_bg_events)):
+            event = map_bg_events[i]
+            kind = event.kind
+            key = format_coordinates(event.local_coordinates)
+            if kind.startswith("Script"):
+                bg_events_list[key] = {
+                    "__value": f"Script/Sign ({event.script_symbol})",
+                    "Script": event.script_symbol,
+                    "Type": kind,
+                }
+            elif kind == "Hidden Item":
+                bg_events_list[key] = {
+                    "__value": f"Hidden Item: {event.hidden_item.name}",
+                    "Item": event.hidden_item.name,
+                    "Flag": event.hidden_item_flag_id,
+                }
+            elif kind == "Secret Base":
+                bg_events_list[key] = {
+                    "__value": f"Secret Base (ID={event.secret_base_id})",
+                    "Secret Base ID": event.secret_base_id,
+                }
+            else:
+                bg_events_list[key] = "???"
+
         return {
             "Map": {
                 "__value": map_data.map_name,
@@ -851,7 +923,12 @@ class MapTab(DebugTab):
                 "Collision": bool(map_data.collision),
                 "Surfing possible": map_data.is_surfable,
             },
-            "Objects": object_list,
+            "Loaded Objects": object_list,
+            "Connections": connections_list,
+            "Warps": warps_list,
+            "Object Templates": object_templates_list,
+            "Tile Enter Events": coord_events_list,
+            "Tile Interaction Events": bg_events_list,
         }
 
     def _handle_selection(self, selected_label: str) -> None:
