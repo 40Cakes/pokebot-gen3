@@ -1,4 +1,4 @@
-import {MapLocation, Pokemon} from "./pokemon";
+import {MapLocation, Pokedex, Pokemon} from "./pokemon";
 
 declare module PokeBotApi {
     /**
@@ -104,6 +104,11 @@ declare module PokeBotApi {
 
         game_state: string;
     };
+
+    /**
+     * Response body for `GET /pokedex`
+     */
+    export type GetPokedexResponse = Pokedex;
 
     /**
      * Response body for `GET /party`.

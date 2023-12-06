@@ -16,6 +16,7 @@ from modules.pokemon import get_party
 from modules.stats import total_stats
 from modules.state_cache import state_cache
 from modules.player import get_player
+from modules.pokedex import get_pokedex
 
 
 def http_server() -> None:
@@ -120,6 +121,16 @@ def http_server() -> None:
                 time.sleep(0.05)
 
         return jsonify([p.to_dict() for p in cached_party.value])
+
+    @server.route("/pokedex", methods=["GET"])
+    def http_get_pokedex():
+        cached_pokedex = state_cache.pokedex
+        if cached_pokedex.age_in_seconds > 1:
+            work_queue.put_nowait(get_pokedex)
+            while cached_pokedex.age_in_seconds > 1:
+                time.sleep(0.05)
+
+        return jsonify(cached_pokedex.value.to_dict())
 
     @server.route("/opponent", methods=["GET"])
     def http_get_opponent():

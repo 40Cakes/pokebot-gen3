@@ -10,6 +10,7 @@ from modules.main import work_queue
 from modules.memory import get_game_state, GameState
 from modules.player import get_player
 from modules.pokemon import get_party, get_opponent
+from modules.pokedex import get_pokedex
 from modules.state_cache import state_cache
 from modules.stats import total_stats
 
@@ -19,6 +20,7 @@ queue_size = 10
 
 class DataSubscription(IntFlag):
     Party = auto()
+    Pokedex = auto()
     Opponent = auto()
     GameState = auto()
     Map = auto()
@@ -90,6 +92,7 @@ def run_watcher():
 
     previous_game_state = {
         "party": state_cache.party.frame,
+        "pokedex": state_cache.pokedex.frame,
         "opponent": state_cache.opponent.frame,
         "player": state_cache.player.frame,
         "map_group_and_number": map_group_and_number,
@@ -128,6 +131,16 @@ def run_watcher():
                 previous_game_state["party"] = state_cache.party.frame
                 data = list(map(lambda x: x.to_dict() if x is not None else None, state_cache.party.value))
                 send_message(DataSubscription.Party, data=data, event_type="Party")
+
+        if subscriptions["Pokedex"] > 0:
+            if state_cache.pokedex.age_in_seconds > 0:
+                # If the cached Pokedex data is too old, tell the main thread to update it at the next
+                # possible opportunity.
+                work_queue.put_nowait(get_pokedex)
+            if state_cache.pokedex.frame > previous_game_state["pokedex"]:
+                previous_game_state["pokedex"] = state_cache.pokedex.frame
+                send_message(DataSubscription.Pokedex, data=state_cache.pokedex.value.to_dict(), event_type="Pokedex")
+
 
         if subscriptions["Opponent"] > 0:
             if current_game_state == GameState.BATTLE:

@@ -664,6 +664,9 @@ class Species:
                 result += "_"
         return result
 
+    def to_dict(self) -> dict:
+        return _to_dict_helper(self)
+
     def __str__(self):
         return self.name
 
@@ -1189,42 +1192,7 @@ class Pokemon:
                 return f"{self.species.name} (lvl. {self.level})"
 
     def to_dict(self) -> dict:
-        def prepare(value) -> any:
-            if value is None:
-                return value
-
-            if type(value) is dict:
-                result = {}
-                for k in value:
-                    result[k] = prepare(value[k])
-                return result
-
-            if isinstance(value, (list, set, tuple, frozenset)):
-                result = []
-                for v in value:
-                    result.append(prepare(v))
-                return result
-
-            if isinstance(value, (bool, int, float, str)):
-                return value
-
-            if isinstance(value, Enum):
-                return value.name
-
-            result = {}
-            try:
-                for k in value.__dict__:
-                    if not k.startswith("_") and k != "data":
-                        result[k] = prepare(value.__dict__[k])
-            except AttributeError:
-                pass
-            for k in dir(value.__class__):
-                if not k.startswith("_") and isinstance(getattr(value.__class__, k), property):
-                    result[k] = prepare(getattr(value, k))
-
-            return result
-        result = prepare(self)
-        return result
+        return _to_dict_helper(self)
 
     def to_legacy_dict(self) -> dict:
         """
@@ -1601,3 +1569,39 @@ def opponent_changed() -> bool:
         raise
     except:
         return False
+
+
+def _to_dict_helper(value) -> any:
+    if value is None:
+        return value
+
+    if type(value) is dict:
+        result = {}
+        for k in value:
+            result[k] = _to_dict_helper(value[k])
+        return result
+
+    if isinstance(value, (list, set, tuple, frozenset)):
+        result = []
+        for v in value:
+            result.append(_to_dict_helper(v))
+        return result
+
+    if isinstance(value, (bool, int, float, str)):
+        return value
+
+    if isinstance(value, Enum):
+        return value.name
+
+    result = {}
+    try:
+        for k in value.__dict__:
+            if not k.startswith("_") and k != "data":
+                result[k] = _to_dict_helper(value.__dict__[k])
+    except AttributeError:
+        pass
+    for k in dir(value.__class__):
+        if not k.startswith("_") and isinstance(getattr(value.__class__, k), property):
+            result[k] = _to_dict_helper(getattr(value, k))
+
+    return result
