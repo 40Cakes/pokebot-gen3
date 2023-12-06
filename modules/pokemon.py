@@ -1486,19 +1486,21 @@ def get_ability_by_index(index: int) -> Ability:
     return _abilities_by_index[index]
 
 
-def _load_species() -> tuple[dict[str, Species], list[Species]]:
+def _load_species() -> tuple[dict[str, Species], list[Species], dict[int, Species]]:
     by_name: dict[str, Species] = {}
     by_index: list[Species] = []
+    by_national_dex: dict[int, Species] = {}
     with open(get_data_path() / "species.json", "r") as file:
         species_data = json.load(file)
         for index in range(len(species_data)):
             species = Species.from_dict(index, species_data[index])
             by_name[species.name] = species
             by_index.append(species)
-    return by_name, by_index
+            by_national_dex[species.national_dex_number] = species
+    return by_name, by_index, by_national_dex
 
 
-_species_by_name, _species_by_index = _load_species()
+_species_by_name, _species_by_index, _species_by_national_dex = _load_species()
 
 
 def get_species_by_name(name: str) -> Species:
@@ -1507,6 +1509,10 @@ def get_species_by_name(name: str) -> Species:
 
 def get_species_by_index(index: int) -> Species:
     return _species_by_index[index]
+
+
+def get_species_by_national_dex(national_dex_number: int) -> Species:
+    return _species_by_national_dex[national_dex_number]
 
 
 def get_party() -> list[Pokemon]:
