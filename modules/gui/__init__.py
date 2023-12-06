@@ -38,10 +38,29 @@ class PokebotGui:
 
         style = ttk.Style()
         style.theme_use("default")
+        foreground_color = "#ffffff"
+        background_color = "#202124"
+
+        # Set the background color for the GUI elements
+        style.configure("TFrame", background=background_color, foreground=foreground_color)
+        style.configure("TEntry", background=background_color, foreground=foreground_color)
+        style.configure("TNotebook", background=background_color, foreground=foreground_color)
+        style.configure("TButton.Table", background=background_color, foreground=foreground_color)
+        style.configure("Treeview", background=background_color, foreground=foreground_color)
+        style.configure("TScrollbar", background=background_color, foreground=foreground_color)
+        style.configure("TBackground", background=background_color, foreground=foreground_color)
+        style.configure("TCombobox", background=background_color, foreground=background_color)
+        style.configure("TSpinbox", background=background_color, foreground=foreground_color)
+        style.configure("TRadiobutton", background=background_color, foreground=foreground_color)
+        style.configure("Nested.TFrame", background=background_color, foreground=foreground_color)
+        style.configure("TCheckbutton", background=background_color, foreground=foreground_color)
+        style.configure("TLabel", background=background_color, foreground=foreground_color)
+        style.configure("TTextbox", background=background_color, foreground=foreground_color)
+
         style.map(
             "Accent.TButton",
-            foreground=[("!active", "white"), ("active", "white"), ("pressed", "white")],
-            background=[("!active", "green"), ("active", "darkgreen"), ("pressed", "green")],
+            foreground=[("active", "#ffffff"), ("!active", "#ffffff"), ("pressed", "#ffffff")],
+            background=[("!active", "#202124"), ("active", "#91039c"), ("pressed", "#202124")],
         )
 
         self._apply_key_config()
