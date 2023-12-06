@@ -255,6 +255,15 @@ export type Pokemon = {
     // Current level of this Pokémon.
     level: number;
 
+    // Number of EXP the Pokémon still needs to collect until the next level-up.
+    // For level-100 Pokémon, this is always 0.
+    exp_needed_until_next_level: number;
+
+    // Number between 0 and 1, indicating how many EXP towards the next level have
+    // already been collected.
+    // For level-100 Pokémon, this is always 1.
+    exp_fraction_to_next_level: number;
+
     // Current status condition of this Pokémon.
     status_condition: StatusCondition;
 

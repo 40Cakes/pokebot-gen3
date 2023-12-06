@@ -1038,6 +1038,21 @@ class Pokemon:
         return self.data[84]
 
     @property
+    def exp_needed_until_next_level(self) -> int:
+        if self.level >= 100:
+            return 0
+        total_exp_for_next_level = self.species.level_up_type.get_experience_needed_for_level(self.level + 1)
+        return total_exp_for_next_level - self.total_exp
+
+    @property
+    def exp_fraction_to_next_level(self) -> float:
+        if self.level >= 100:
+            return 1
+        total_exp_for_this_level = self.species.level_up_type.get_experience_needed_for_level(self.level)
+        total_exp_for_next_level = self.species.level_up_type.get_experience_needed_for_level(self.level + 1)
+        return (self.total_exp - total_exp_for_this_level) / (total_exp_for_next_level - total_exp_for_this_level)
+
+    @property
     def sleep_duration(self) -> int:
         """Returns the remaining turns on the sleep condition."""
         turns = self.data[80] & 0b0111 if len(self.data) > 80 else 0
