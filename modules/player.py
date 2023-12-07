@@ -5,7 +5,7 @@ from typing import Literal
 from modules.game import decode_string
 from modules.context import context
 from modules.map import MapLocation, ObjectEvent
-from modules.memory import get_save_block, read_symbol, unpack_uint16
+from modules.memory import get_save_block, read_symbol, unpack_uint16, unpack_uint32
 from modules.state_cache import state_cache
 from modules.data.map import MapRSE, MapFRLG
 
@@ -155,7 +155,6 @@ class Player:
             "on_bike": self.is_on_bike,
             "facing": self.facing_direction,
         }
-
 
 def get_player() -> Player:
     if state_cache.player.age_in_frames == 0:
