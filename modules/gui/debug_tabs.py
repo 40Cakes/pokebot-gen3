@@ -395,7 +395,7 @@ class SymbolsTab(DebugTab):
         
         def sort_treeview(tv, col, reverse):
             try:
-                data = [int(tv.set(child, col), child) for child in tv.get_children('')]
+                data = [(int(tv.set(child, col),16), child) for child in tv.get_children('')]
             except Exception:
                 data = [(tv.set(child, col), child) for child in tv.get_children('')]
             data.sort(reverse=reverse)
