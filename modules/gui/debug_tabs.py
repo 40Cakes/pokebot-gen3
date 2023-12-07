@@ -392,16 +392,31 @@ class SymbolsTab(DebugTab):
                 elif search_term not in key.lower() and key not in detached_items:
                     tv.detach(items[key])
                     detached_items.add(key)
+        
+        def sort_treeview(tv, col, reverse):
+            try:
+                data = [int(tv.set(child, col), child) for child in tv.get_children('')]
+            except Exception:
+                data = [(tv.set(child, col), child) for child in tv.get_children('')]
+            data.sort(reverse=reverse)
 
+            for index, item in enumerate(data):
+                tv.move(item[1], '', index)
+
+            tv.heading(col, command=lambda: sort_treeview(tv, col, not reverse))
+         
         search_input.bind("<KeyRelease>", handle_input)
 
         def handle_double_click(event):
             if self._mini_window is not None:
                 item = tv.identify_row(event.y)
+                col = tv.identify_column(event.x)
                 if item:
                     self.symbols_to_display.add(tv.item(item)["text"])
                     self.update(context.emulator)
-
+                elif col:
+                    sort_treeview(tv, col, False)
+        
         tv.bind("<Double-Button-1>", handle_double_click)
 
         scrollbar = ttk.Scrollbar(tv_frame, orient=tkinter.VERTICAL, command=tv.yview)
