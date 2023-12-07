@@ -143,28 +143,31 @@ class Player:
     @property
     def naming_screen(self) -> dict:
         naming_screen = {}
-        if context.rom.game_title not in ["POKEMON RUBY", "POKEMON SAPP"]:
-            naming_screen["Text Buffer"] = decode_string(context.emulator.read_bytes(unpack_uint32(read_symbol("sNamingScreen")) + 0x1800, 16))
-            naming_screen["Current Page"] = context.emulator.read_bytes(unpack_uint32(read_symbol("sNamingScreen")) + 0x1E22, 1)[0]
-            naming_screen["Cursor X"] = context.emulator.read_bytes(0x03007D98, 1)[0]
-            if context.rom.game_title == "POKEMON EMER":
-                naming_screen["Cursor Y"] = int(context.emulator.read_bytes(0x030023A8, 1)[0]/16)-5
-            else:
-                naming_screen["Cursor Y"] = int(context.emulator.read_bytes(0x030031D8, 1)[0]/16)-5
-        else:
-            naming_screen["Text Buffer"] = decode_string(context.emulator.read_bytes(unpack_uint32(read_symbol("namingScreenDataPtr")) + 0x11, 16))
-            try:
-                naming_screen["Current Page"] = [0x3c,0x42,0x3F].index(context.emulator.read_bytes(0x03001858, 1)[0])
-            except Exception:
-                naming_screen["Current Page"] = None
-            try:
-                if naming_screen["Current Page"] == 2:
-                    naming_screen["Cursor X"] = [0x1B,0x33,0x4B,0x63,0x7B,0x93,0xBC].index(context.emulator.read_bytes(0x0300185E, 1)[0])
+        try:
+            if context.rom.game_title not in ["POKEMON RUBY", "POKEMON SAPP"]:
+                naming_screen["Text Buffer"] = decode_string(context.emulator.read_bytes(unpack_uint32(read_symbol("sNamingScreen")) + 0x1800, 16))
+                naming_screen["Current Page"] = context.emulator.read_bytes(unpack_uint32(read_symbol("sNamingScreen")) + 0x1E22, 1)[0]
+                naming_screen["Cursor X"] = context.emulator.read_bytes(0x03007D98, 1)[0]
+                if context.rom.game_title == "POKEMON EMER":
+                    naming_screen["Cursor Y"] = int(context.emulator.read_bytes(0x030023A8, 1)[0]/16)-5
                 else:
-                    naming_screen["Cursor X"] = [0x1B,0x2B,0x3B,0x53,0x63,0x73,0x83,0x9B,0xBC].index(context.emulator.read_bytes(0x0300185E, 1)[0])
-            except Exception:
-                pass
-            naming_screen["Cursor Y"] = int(context.emulator.read_bytes(0x0300185C, 1)[0]/16)-4
+                    naming_screen["Cursor Y"] = int(context.emulator.read_bytes(0x030031D8, 1)[0]/16)-5
+            else:
+                naming_screen["Text Buffer"] = decode_string(context.emulator.read_bytes(unpack_uint32(read_symbol("namingScreenDataPtr")) + 0x11, 16))
+                try:
+                    naming_screen["Current Page"] = [0x3c,0x42,0x3F].index(context.emulator.read_bytes(0x03001858, 1)[0])
+                except Exception:
+                    naming_screen["Current Page"] = None
+                try:
+                    if naming_screen["Current Page"] == 2:
+                        naming_screen["Cursor X"] = [0x1B,0x33,0x4B,0x63,0x7B,0x93,0xBC].index(context.emulator.read_bytes(0x0300185E, 1)[0])
+                    else:
+                        naming_screen["Cursor X"] = [0x1B,0x2B,0x3B,0x53,0x63,0x73,0x83,0x9B,0xBC].index(context.emulator.read_bytes(0x0300185E, 1)[0])
+                except Exception:
+                    pass
+                naming_screen["Cursor Y"] = int(context.emulator.read_bytes(0x0300185C, 1)[0]/16)-4
+        except Exception:
+            naming_screen = "Not Open"
         return naming_screen
 
     def to_dict(self) -> dict:
