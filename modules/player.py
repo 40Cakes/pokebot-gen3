@@ -146,7 +146,7 @@ class Player:
         try:
             if context.rom.game_title not in ["POKEMON RUBY", "POKEMON SAPP"]:
                 naming_screen["Buffer"] = decode_string(context.emulator.read_bytes(unpack_uint32(read_symbol("sNamingScreen")) + 0x1800, 16))
-                naming_screen["Page"] = context.emulator.read_bytes(unpack_uint32(read_symbol("sNamingScreen")) + 0x1E22, 1)[0]
+                naming_screen["Page"] = [1,2,0].index(context.emulator.read_bytes(unpack_uint32(read_symbol("sNamingScreen")) + 0x1E22, 1)[0])
                 naming_screen["X"] = context.emulator.read_bytes(0x03007D98, 1)[0]
                 if context.rom.game_title == "POKEMON EMER":
                     naming_screen["Y"] = int(context.emulator.read_bytes(0x030023A8, 1)[0]/16)-5
