@@ -484,6 +484,7 @@ class SymbolsTab(DebugTab):
                         self.display_mode[symbol_name] = "dec"
                     else:
                         self.display_mode[symbol_name] = "hex"
+                    self.symbols_to_display.add(tv.item(item)["text"])
                     self.update(context.emulator)
                 elif col:
                     sort_treeview(tv, col, False)
