@@ -286,7 +286,7 @@ class TotalStats:
     def get_log_obj(self, pokemon: Pokemon) -> dict:
         return {
             "time_encountered": time.time(),
-            "pokemon": pokemon.to_dict(),
+            "pokemon": pokemon.to_legacy_dict(),
             "snapshot_stats": {
                 "phase_encounters": self.total_stats["totals"]["phase_encounters"],
                 "species_encounters": self.total_stats["pokemon"][pokemon.species.name]["encounters"],
@@ -312,7 +312,7 @@ class TotalStats:
         self.update_iv_records(pokemon)
 
         if context.config.logging.log_encounters:
-            log_encounter_to_csv(self.total_stats, pokemon.to_dict(), self.stats_dir_path)
+            log_encounter_to_csv(self.total_stats, pokemon.to_legacy_dict(), self.stats_dir_path)
 
         self.update_shiny_averages(pokemon)
         self.append_encounter_timestamps()

@@ -15,41 +15,30 @@ https://github.com/40Cakes/pokebot-gen3/assets/16377135/e6cea062-895e-411a-86fb-
 | Shiny Notifications | Phase Stats | Milestones |
 |![image](https://github.com/40Cakes/pokebot-gen3/assets/16377135/69230b70-24f2-46b3-bb7e-54241785a932)|![image](https://github.com/40Cakes/pokebot-gen3/assets/16377135/613e73b8-bc20-46aa-92c1-168d566f4e66)|![image](https://github.com/40Cakes/pokebot-gen3/assets/16377135/a8c0f5be-9b81-4be6-8a71-cdf909ef0df0)|
 
-# 📖 Preamble
-- This is still in development, as such, functionality is subject to change - always make sure you back up your `profiles` folders before updating your bot!
-- Reach out in Discord [#bot-support-libmgba❔](https://discord.com/channels/1057088810950860850/1139190426834833528) if you have any issues
+# ✨ Preamble
+This bot is still in development, as such, functionality is subject to change - always make sure you back up your `profiles` folders before updating your bot! 
 
-The bot is frame perfect and can _technically_ cheat by reading data from any point in memory. By default it will attempt to perform actions as if a human were playing to make gameplay as representative as possible, some examples:
+Reach out in Discord [#bot-support-libmgba❔](https://discord.com/channels/1057088810950860850/1139190426834833528) for help and support, or [raise an issue](https://github.com/40Cakes/pokebot-gen3/issues) on this repository.
+
+The bot is frame perfect and can _technically_ cheat by reading data from any point in memory and manipulating RNG. By default it will attempt to perform actions as if a human were playing to make gameplay as representative as possible, some examples:
 - Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible before resetting
 - It's possible to peek inside un-hatched eggs to view stats and shininess as soon as they're received from the daycare, the bot will wait until the eggs are fully hatched before checking and logging
-- These are intentional design decisions, bot [cheats](https://github.com/40Cakes/pokebot-gen3/wiki/%F0%9F%92%8E-Cheats) can be used to bypass them (in most cases)
+- Feebas tile locations could be instantly located by reading memory, the bot will attempt to locate the tiles by searching each tile individually
 
-***
+These are intentional design decisions, bot [cheats](https://github.com/40Cakes/pokebot-gen3/wiki/%F0%9F%92%8E-Cheats) can be used to bypass them (in most cases).
+
+# ⚠ Photosensitivity Warning
+- Running mGBA at unbound speeds (3,000+ frames per second on high-end PCs), can cause **very fast and bright flashing**!
+- Any unbounded video examples on the wiki will be hidden by default, and marked with **⚠ photosensitivity warning**
 
 # ❓ Getting Started
-Visit the [wiki](https://github.com/40Cakes/pokebot-gen3/wiki) for information on running the bot.
-
-The wiki contains information about the default emulator keybinds/inputs, bot modes, configuration files and more (use the side bar to navigate)!
-
-***
-
-# ⏩ Tips/Tricks
-## Optimal game settings
-
-- Set **TEXT SPEED** to **FAST**
-- Set **BATTLE SCENE** to **OFF**
-- Utilise [repel tricks](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) to boost encounter rates of target Pokémon
-- Using modes [Spin](https://github.com/40Cakes/pokebot-gen3/wiki/%F0%9F%94%84-Spin) or [Bunny Hop](https://github.com/40Cakes/pokebot-gen3/wiki/%F0%9F%9A%B2-Bunny-Hop) and repels will become effectively infinite + steps won't be counted in Safari Zone
-- Use a lead Pokémon with encounter rate boosting [abilities](https://bulbapedia.bulbagarden.net/wiki/Category:Abilities_that_affect_appearance_of_wild_Pok%C3%A9mon), such as **[Illuminate](https://bulbapedia.bulbagarden.net/wiki/Illuminate_(Ability))**
-- Use a lead Pokémon with a [short cry](https://docs.google.com/spreadsheets/d/1rmtNdlIXiif1Sz20i-9mfhFdoqb1VnAOIntlr3tnPeU)
-- Use a lead Pokémon with a single character nickname
-- Don't use a shiny lead Pokémon (shiny animation takes a few frames at the start of every battle)
-
-***
+Visit the [wiki](https://github.com/40Cakes/pokebot-gen3/wiki) for information getting started, keybinds/inputs, bot modes, configuration files and more!
 
 # 🐛 Debugging
 
-The bot supports auto-starting a profile and can also be launched into a 'debug' mode which can aid bot development.
+The bot supports auto-starting a profile and can also be launched into a "debug" mode which will open an extra pane next to the emulator to aid bot development.
+
+The debug tabs includes information such as currently running game tasks and callbacks, emulator inputs, as well as information about recent battles, player status, current map, daycare and event flags.
 
 ```
 positional arguments:
@@ -57,6 +46,8 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
+  -m {MODE_NAME}, --bot-mode {MODE_NAME}
+                        Initial bot mode (default: Manual)
   -s {0,1,2,3,4}, --emulation-speed {0,1,2,3,4}
                         Initial emulation speed (0 for unthrottled; default: 1)
   -nv, --no-video       Turn off video output by default
@@ -65,13 +56,7 @@ options:
   -d, --debug           Enable extra debug options and a debug menu
 ```
 
-***
-
-# ⚠ Photosensitivity Warning
-- Running mGBA at unbound speeds, will cause **very fast and bright flashing**!
-- Any unbounded video examples on this page will be hidden by default, and marked with **⚠ photosensitivity warning**
-
-***
+Click [here](https://github.com/40Cakes/pokebot-gen3/blob/main/modules/modes/__init__.py) for a list of bot mode strings to use in place of `MODE_NAME`.
 
 # ❤ Attributions
 

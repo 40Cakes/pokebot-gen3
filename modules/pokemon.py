@@ -14,6 +14,7 @@ from modules.game import decode_string
 from modules.memory import unpack_uint32, unpack_uint16, read_symbol, pack_uint32
 from modules.roms import ROMLanguage
 from modules.runtime import get_data_path
+from modules.state_cache import state_cache
 
 
 DATA_DIRECTORY = Path(__file__).parent / "data"
@@ -281,9 +282,9 @@ LOCATION_MAP = [
     "Altering Cave",
     "Navel Rock",
     "Trainer Hill",
-    "(gift egg)",
-    "(in-game trade)",
-    "(fateful encounter)",
+    "Gift Egg",
+    "In-game Trade",
+    "Fateful Encounter",
 ]
 
 
@@ -460,7 +461,7 @@ class ContestConditions:
 class ItemType(Enum):
     Mail = ("mail",)
     UsableOutsideBattle = "usable_outside_battle"
-    UsableInCertainLocatiosn = "usable_in_certain_locations"
+    UsableInCertainLocations = "usable_in_certain_locations"
     PokeblockCase = "pokeblock_case"
     NotUsableOutsideBattle = "not_usable_outside_battle"
 
@@ -766,6 +767,18 @@ class Pokemon:
 
     def __init__(self, data: bytes):
         self.data = data
+
+    def __eq__(self, other):
+        if isinstance(other, Pokemon):
+            return other.data == self.data
+        else:
+            return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, Pokemon):
+            return other.data != self.data
+        else:
+            return NotImplemented
 
     @cached_property
     def _decrypted_data(self) -> bytes:
@@ -1176,6 +1189,44 @@ class Pokemon:
                 return f"{self.species.name} (lvl. {self.level})"
 
     def to_dict(self) -> dict:
+        def prepare(value) -> any:
+            if value is None:
+                return value
+
+            if type(value) is dict:
+                result = {}
+                for k in value:
+                    result[k] = prepare(value[k])
+                return result
+
+            if isinstance(value, (list, set, tuple, frozenset)):
+                result = []
+                for v in value:
+                    result.append(prepare(v))
+                return result
+
+            if isinstance(value, (bool, int, float, str)):
+                return value
+
+            if isinstance(value, Enum):
+                return value.name
+
+            result = {}
+            try:
+                for k in value.__dict__:
+                    if not k.startswith("_") and k != "data":
+                        result[k] = prepare(value.__dict__[k])
+            except AttributeError:
+                pass
+            for k in dir(value.__class__):
+                if not k.startswith("_") and isinstance(getattr(value.__class__, k), property):
+                    result[k] = prepare(getattr(value, k))
+
+            return result
+        result = prepare(self)
+        return result
+
+    def to_legacy_dict(self) -> dict:
         """
         Converts the Pokemon data into a simple dict, which can then be used for JSON-encoding
         the data.
@@ -1464,11 +1515,14 @@ def get_party() -> list[Pokemon]:
 
     :return: party (list)
     """
+    if state_cache.party.age_in_frames == 0:
+        return state_cache.party.value
+
     party = []
     party_count = read_symbol("gPlayerPartyCount", size=1)[0]
     for p in range(party_count):
         o = p * 100
-        mon = parse_pokemon(read_symbol("gPlayerParty", o, o + 100))
+        mon = parse_pokemon(read_symbol("gPlayerParty", o, 100))
 
         # It's possible for party data to be written while we are trying to read it, in which case
         # the checksum would be wrong and `parse_pokemon()` returns `None`.
@@ -1477,11 +1531,14 @@ def get_party() -> list[Pokemon]:
         # (1) advancing the emulation by one frame, (2) reading the memory, (3) restoring the previous
         # frame's state so we don't mess with frame accuracy.
         if mon is None:
-            mon = context.emulator.peek_frame(lambda: parse_pokemon(read_symbol("gPlayerParty", o, o + 100)))
+            mon = context.emulator.peek_frame(lambda: parse_pokemon(read_symbol("gPlayerParty", o, 100)))
             if mon is None:
                 raise RuntimeError(f"Party Pokemon #{p + 1} was invalid for two frames in a row.")
 
         party.append(mon)
+
+    state_cache.party = party
+
     return party
 
 
@@ -1491,13 +1548,18 @@ def get_opponent() -> Pokemon:
 
     :return: opponent (dict)
     """
+    if state_cache.opponent.age_in_frames == 0:
+        return state_cache.opponent.value
+
     mon = parse_pokemon(read_symbol("gEnemyParty")[:100])
 
     # See comment in `GetParty()`
     if mon is None:
         mon = context.emulator.peek_frame(lambda: parse_pokemon(read_symbol("gEnemyParty")[:100]))
         if mon is None:
-            raise RuntimeError(f"Opponent Pokemon was invalid for two frames in a row.")
+            return None
+
+    state_cache.opponent = mon
 
     return mon
 

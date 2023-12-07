@@ -1,6 +1,7 @@
 import time
 import tkinter
 from enum import Enum
+from PIL import Image, ImageDraw, ImageTk, ImageOps
 from tkinter import ttk, Canvas
 from typing import TYPE_CHECKING, Union, Optional
 
@@ -9,12 +10,10 @@ from modules.daycare import get_daycare_data
 from modules.game import decode_string, _symbols, _reverse_symbols, _event_flags
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_items
-from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects
+from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects, get_map_all_tiles
 from modules.memory import (
     get_symbol,
     read_symbol,
-    parse_tasks,
-    get_task,
     get_symbol_name,
     game_has_started,
     unpack_uint16,
@@ -22,7 +21,9 @@ from modules.memory import (
     set_event_flag,
     get_event_flag,
 )
+from modules.player import get_player, AvatarFlags, TileTransitionState
 from modules.pokemon import get_party, get_species_by_index
+from modules.tasks import get_tasks, task_is_active
 
 if TYPE_CHECKING:
     from modules.libmgba import LibmgbaEmulator
@@ -193,6 +194,66 @@ class FancyTreeview:
         callback(self._tv.item(selection[0])["text"])
 
 
+class MapViewer:
+    COLLISION = (255, 0, 0)
+    ENCOUNTERS = (0, 255, 0)
+    NORMAL = (255, 255, 255)
+    JUMP = (0, 255, 255)
+    WATER = (0, 0, 255)
+    TILE_SIZE = 8
+
+    def __init__(self, root: ttk.Widget, row=0, column=0) -> None:
+        self._root = root
+        self._map: ttk.Label = ttk.Label(self._root, padding=(10, 10))
+        self._map.grid(row=row, column=column)
+        self._cache: dict[tuple[int, int], ImageTk.PhotoImage] = {}
+
+    def update(self):
+        try:
+            current_map_data = get_map_data_for_current_position()
+
+            cached_map = self._cache.get((current_map_data.map_group, current_map_data.map_number), False)
+            if not cached_map:
+                cached_map = ImageTk.PhotoImage(self._get_map_bitmap())
+                self._cache[(current_map_data.map_group, current_map_data.map_number)] = cached_map
+
+            self._map.configure(image=cached_map)
+            self._map.image = cached_map
+        except TypeError | RuntimeError:
+            # If trainer data do not exists yet then ignore. eg. New game, intro, etc
+            pass
+
+    def _get_map_bitmap(self) -> Image:
+        tiles = get_map_all_tiles()
+        map_width, map_height = tiles[0].map_size
+
+        image = Image.new(
+            "RGB", (map_width * MapViewer.TILE_SIZE, map_height * MapViewer.TILE_SIZE), color=MapViewer.NORMAL
+        )
+        image_draw = ImageDraw.Draw(image)
+        for y in range(map_height):
+            for x in range(map_width):
+                tile_data = tiles[x + map_width * y]
+                tile_color = MapViewer.NORMAL
+                if bool(tile_data.collision):
+                    tile_color = MapViewer.COLLISION
+                if tile_data.has_encounters:
+                    tile_color = MapViewer.ENCOUNTERS
+                if "Jump" in tile_data.tile_type:
+                    tile_color = MapViewer.JUMP
+                if tile_data.is_surfable:
+                    tile_color = MapViewer.WATER
+                image_draw.rectangle(
+                    xy=(
+                        (x * MapViewer.TILE_SIZE, y * MapViewer.TILE_SIZE),
+                        ((x + 1) * MapViewer.TILE_SIZE, (y + 1) * MapViewer.TILE_SIZE),
+                    ),
+                    fill=tile_color,
+                )
+
+        return ImageOps.contain(image, (150, 150))
+
+
 class TasksTab(DebugTab):
     _cb1_label: ttk.Label
     _cb2_label: ttk.Label
@@ -233,16 +294,13 @@ class TasksTab(DebugTab):
 
         data = {}
         index = 0
-        for task in parse_tasks(pretty_names=True):
-            if task["func"].upper() == "TASKDUMMY" or task["func"] == b"\x00\x00\x00\x00" or not task["isActive"]:
-                continue
-
-            data[task["func"]] = {
-                "__value": task["data"].rstrip(b"\00").hex(" ", 1),
-                "function": task["func"],
-                "active": task["isActive"],
-                "priority": task["priority"],
-                "data": task["data"].hex(" ", 1),
+        for task in get_tasks():
+            data[task.symbol] = {
+                "__value": task.data.rstrip(b"\00").hex(" ", 1),
+                "function": task.symbol,
+                "pointer": hex(task.function_pointer),
+                "priority": task.priority,
+                "data": task.data.hex(" ", 1),
             }
             index += 1
 
@@ -299,14 +357,17 @@ class SymbolsTab(DebugTab):
             "gStringVar3",
             "gStringVar4",
             "gDisplayedStringBattle",
+            "gBattleTypeFlags",
         }
-        self.display_as_string = {
-            "sChat",
-            "gStringVar1",
-            "gStringVar2",
-            "gStringVar3",
-            "gStringVar4",
-            "gDisplayedStringBattle",
+        self.display_mode = {
+            "gObjectEvents": None,
+            "sChat": "str",
+            "gStringVar1": "str",
+            "gStringVar2": "str",
+            "gStringVar3": "str",
+            "gStringVar4": "str",
+            "gDisplayedStringBattle": "str",
+            "gBattleTypeFlags": "bin",
         }
         self._tv: FancyTreeview
         self._mini_window: Union[tkinter.Toplevel, None] = None
@@ -322,7 +383,10 @@ class SymbolsTab(DebugTab):
 
         context_actions = {
             "Remove from List": self._handle_remove_symbol,
-            "Toggle String Decoding": self._handle_toggle_symbol,
+            "Show as Hexadecimal Value": self._handle_show_as_hex,
+            "Show as String": self._handle_show_as_string,
+            "Show as Decimal Value": self._handle_show_as_dec,
+            "Show as Binary Value": self._handle_show_as_bin,
         }
 
         self._tv = FancyTreeview(frame, row=2, height=20, additional_context_actions=context_actions)
@@ -412,7 +476,14 @@ class SymbolsTab(DebugTab):
                 item = tv.identify_row(event.y)
                 col = tv.identify_column(event.x)
                 if item:
-                    self.symbols_to_display.add(tv.item(item)["text"])
+                    symbol_name = tv.item(item)["text"]
+                    symbol_length = int(tv.item(item).get("values")[2], 16)
+                    if tv.item(item)["text"].startswith("s"):
+                        self.display_mode[symbol_name] = "str"
+                    elif symbol_length == 2 or symbol_length == 4:
+                        self.display_mode[symbol_name] = "dec"
+                    else:
+                        self.display_mode[symbol_name] = "hex"
                     self.update(context.emulator)
                 elif col:
                     sort_treeview(tv, col, False)
@@ -445,15 +516,23 @@ class SymbolsTab(DebugTab):
                 address, length = get_symbol(symbol.upper())
             except RuntimeError:
                 self.symbols_to_display.remove(symbol)
-                self.display_as_string.remove(symbol)
+                del self.display_mode[symbol]
                 break
 
             value = emulator.read_bytes(address, length)
-            if symbol in self.display_as_string:
+            display_mode = self.display_mode.get(symbol, "hex")
+
+            if display_mode == "str":
                 data[symbol] = decode_string(value)
-            elif length == 4 or length == 2:
+            elif display_mode == "dec":
                 n = int.from_bytes(value, byteorder="little")
                 data[symbol] = f"{value.hex(' ', 1)} ({n})"
+            elif display_mode == "bin":
+                n = int.from_bytes(value, byteorder="little")
+                binary_string = bin(n).removeprefix("0b").rjust(length * 8, "0")
+                chunk_size = 4
+                chunks = [binary_string[i : i + chunk_size] for i in range(0, len(binary_string), chunk_size)]
+                data[symbol] = " ".join(chunks)
             else:
                 data[symbol] = value.hex(" ", 1)
 
@@ -461,22 +540,28 @@ class SymbolsTab(DebugTab):
 
     def _handle_remove_symbol(self, symbol: str):
         self.symbols_to_display.remove(symbol)
-        self.display_as_string.remove(symbol)
+        del self.display_mode[symbol]
 
-    def _handle_toggle_symbol(self, symbol: str):
-        if symbol in self.display_as_string:
-            self.display_as_string.remove(symbol)
-        else:
-            self.display_as_string.add(symbol)
+    def _handle_show_as_hex(self, symbol: str):
+        self.display_mode[symbol] = "hex"
+
+    def _handle_show_as_string(self, symbol: str):
+        self.display_mode[symbol] = "str"
+
+    def _handle_show_as_dec(self, symbol: str):
+        self.display_mode[symbol] = "dec"
+
+    def _handle_show_as_bin(self, symbol: str):
+        self.display_mode[symbol] = "bin"
 
 
-class TrainerTab(DebugTab):
+class PlayerTab(DebugTab):
     _tv: FancyTreeview
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
         self._tv = FancyTreeview(frame)
-        root.add(frame, text="Trainer")
+        root.add(frame, text="Player")
 
     def update(self, emulator: "LibmgbaEmulator"):
         if game_has_started():
@@ -485,23 +570,35 @@ class TrainerTab(DebugTab):
             self._tv.update_data({})
 
     def _get_data(self):
-        from modules.trainer import trainer, AcroBikeStates, RunningStates, TileTransitionStates
-
+        player = get_player()
         party = get_party()
 
+        flags = {}
+        active_flags = []
+        for flag in AvatarFlags:
+            flags[flag.name] = flag in player.flags
+            if flag in player.flags:
+                active_flags.append(flag.name)
+
+        if len(active_flags) == 0:
+            flags["__value"] = "None"
+        else:
+            flags["__value"] = ", ".join(active_flags)
+
         result = {
-            "Name": trainer.get_name(),
-            "Gender": trainer.get_gender(),
-            "Trainer ID": trainer.get_tid(),
-            "Secret ID": trainer.get_sid(),
-            "Map": trainer.get_map(),
-            "Map Name": trainer.get_map_name(),
-            "Local Coordinates": trainer.get_coords(),
-            "On Bike": trainer.get_on_bike(),
-            "Running State": RunningStates(trainer.get_running_state()).name,
-            "Acro Bike State": AcroBikeStates(trainer.get_acro_bike_state()).name,
-            "Tile Transition State": TileTransitionStates(trainer.get_tile_transition_state()).name,
-            "Facing Direction": trainer.get_facing_direction(),
+            "Name": player.name,
+            "Gender": player.gender,
+            "Trainer ID": player.trainer_id,
+            "Secret ID": player.secret_id,
+            "Map": player.map_group_and_number,
+            "Map Name": player.map_name,
+            "Local Coordinates": player.local_coordinates,
+            "Flags": flags,
+            "On Bike": player.is_on_bike,
+            "Running State": player.running_state.name,
+            "Acro Bike State": player.acro_bike_state.name,
+            "Tile Transition State": player.tile_transition_state.name,
+            "Facing Direction": player.facing_direction,
         }
 
         for i in range(0, 6):
@@ -621,6 +718,7 @@ class InputsTab(DebugTab):
 class MapTab(DebugTab):
     def __init__(self, canvas: Canvas):
         self._canvas = canvas
+        self._map: MapViewer | None = None
         self._tv: FancyTreeview | None = None
         self._selected_tile: tuple[int, int] | None = None
         self._selected_map: tuple[int, int] | None = None
@@ -629,14 +727,16 @@ class MapTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
-        self._tv = FancyTreeview(frame, on_highlight=self._handle_selection)
+        self._map = MapViewer(frame, row=1)
+        self._tv = FancyTreeview(frame, row=0, height=15, on_highlight=self._handle_selection)
         root.add(frame, text="Map")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        show_different_tile = self._marker_rectangle is not None and get_task("TASK_WEATHERMAIN") != {}
-        from modules.trainer import trainer
+        player = get_player()
+        show_different_tile = self._marker_rectangle is not None and task_is_active("Task_WeatherMain")
+        self._map.update()
 
-        if trainer.get_tile_transition_state() != 0:
+        if player.tile_transition_state != TileTransitionState.NOT_MOVING:
             self._marker_rectangle = None
             self._selected_tile = None
             show_different_tile = False
@@ -655,7 +755,7 @@ class MapTab(DebugTab):
                 if self._selected_object == (obj.map_group, obj.map_num, obj.local_id):
                     object_coords = obj.current_coords
                     previous_coords = obj.previous_coords
-                    camera_coords = trainer.get_coords()
+                    camera_coords = player.local_coordinates
 
                     relative_x = object_coords[0] - camera_coords[0]
                     relative_y = object_coords[1] - camera_coords[1]
@@ -686,7 +786,7 @@ class MapTab(DebugTab):
         tile_x = click_location[0] // tile_size
         tile_y = (click_location[1] + half_tile_size) // tile_size
 
-        current_map_data = get_map_data_for_current_position()
+        current_map_data = get_player().map_location
         actual_x = current_map_data.local_position[0] + (tile_x - 7)
         actual_y = current_map_data.local_position[1] + (tile_y - 5)
         if (
@@ -715,7 +815,7 @@ class MapTab(DebugTab):
             map_group, map_number = self._selected_map
             map_data = get_map_data(map_group, map_number, self._selected_tile)
         else:
-            map_data = get_map_data_for_current_position()
+            map_data = get_player().map_location
 
         map_objects = get_map_objects()
         object_list = {"__value": len(map_objects)}

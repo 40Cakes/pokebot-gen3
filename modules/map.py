@@ -397,11 +397,38 @@ def _get_tile_type_name(tile_type: int):
             return "???"
 
 
-MAP_TYPES = ["None", "Town", "City", "Route", "Underground", "Underwater", "Ocean Route", "Unknown", "Indoor",
-             "Secret Base"]
-WEATHER_TYPES = ["None", "Sunny Clouds", "Sunny", "Rain", "Snow", "Thunderstorm", "Fog (Horizontal)", "Volcanic Ash",
-                 "Sandstorm", "Fog (Diagonal)", "Underwater", "Shade", "Drought", "Downpour", "Underwater Bubbles",
-                 "Abnormal", "Route 119 Cycle", "Route 123 Cycle"]
+MAP_TYPES = [
+    "None",
+    "Town",
+    "City",
+    "Route",
+    "Underground",
+    "Underwater",
+    "Ocean Route",
+    "Unknown",
+    "Indoor",
+    "Secret Base",
+]
+WEATHER_TYPES = [
+    "None",
+    "Sunny Clouds",
+    "Sunny",
+    "Rain",
+    "Snow",
+    "Thunderstorm",
+    "Fog (Horizontal)",
+    "Volcanic Ash",
+    "Sandstorm",
+    "Fog (Diagonal)",
+    "Underwater",
+    "Shade",
+    "Drought",
+    "Downpour",
+    "Underwater Bubbles",
+    "Abnormal",
+    "Route 119 Cycle",
+    "Route 123 Cycle",
+]
 
 
 class MapLocation:
@@ -438,7 +465,7 @@ class MapLocation:
             border_pointer = unpack_uint32(self._map_layout[8:12])
             map_grid_block = unpack_uint16(context.emulator.read_bytes(border_pointer + i * 2, 2)) | 0xC00
 
-        metatile = (map_grid_block & 0x03FF)
+        metatile = map_grid_block & 0x03FF
         collision = (map_grid_block & 0x0C00) >> 10
         elevation = (map_grid_block & 0xF000) >> 12
 
@@ -531,9 +558,18 @@ class MapLocation:
     @property
     def is_surfable(self) -> bool:
         if context.rom.game_title in ["POKEMON FIRE", "POKEMON SAPP"]:
-            return self.tile_type in ["Pond Water", "Fast Water", "Deep Water", "Waterfall", "Ocean Water",
-                                      "Cycling Road Water", "Eastward Current", "Westward Current", "Northward Current",
-                                      "Southward Current"]
+            return self.tile_type in [
+                "Pond Water",
+                "Fast Water",
+                "Deep Water",
+                "Waterfall",
+                "Ocean Water",
+                "Cycling Road Water",
+                "Eastward Current",
+                "Westward Current",
+                "Northward Current",
+                "Southward Current",
+            ]
         else:
             return bool(self._tile_behaviour & 2)
 
@@ -542,9 +578,16 @@ class MapLocation:
         if self.map_type == "Indoor":
             return False
 
-        if self.tile_type in ["No Running", "Long Grass", "Hot Springs", "Pacifidlog Vertical Log (Top)",
-                              "Pacifidlog Vertical Log (Bottom)", "Pacifidlog Horizontal Log (Left)",
-                              "Pacifidlog Horizontal Log (Right)", "Fortree Bridge"]:
+        if self.tile_type in [
+            "No Running",
+            "Long Grass",
+            "Hot Springs",
+            "Pacifidlog Vertical Log (Top)",
+            "Pacifidlog Vertical Log (Bottom)",
+            "Pacifidlog Horizontal Log (Left)",
+            "Pacifidlog Horizontal Log (Right)",
+            "Fortree Bridge",
+        ]:
             return False
 
         if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
@@ -564,9 +607,16 @@ class MapLocation:
         if self.map_type == "Indoor":
             return False
 
-        if self.tile_type in ["No Running", "Long Grass", "Hot Springs", "Pacifidlog Vertical Log (Top)",
-                              "Pacifidlog Vertical Log (Bottom)", "Pacifidlog Horizontal Log (Left)",
-                              "Pacifidlog Horizontal Log (Right)", "Fortree Bridge"]:
+        if self.tile_type in [
+            "No Running",
+            "Long Grass",
+            "Hot Springs",
+            "Pacifidlog Vertical Log (Top)",
+            "Pacifidlog Vertical Log (Bottom)",
+            "Pacifidlog Horizontal Log (Left)",
+            "Pacifidlog Horizontal Log (Right)",
+            "Fortree Bridge",
+        ]:
             return False
 
         if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
@@ -585,35 +635,136 @@ class MapLocation:
     def is_dark_cave(self) -> bool:
         return bool(self._map_header[0x15] & 0b0001)
 
+    def all_tiles(self) -> list[list["MapLocation"]]:
+        result = []
+
+        for x in range(self.map_size[0]):
+            row = []
+            for y in range(self.map_size[1]):
+                row.append(MapLocation(self._map_header, self.map_group, self.map_number, (x, y)))
+            result.append(row)
+
+        return result
+
+    def dict_for_map(self) -> dict:
+        return {
+            "map_group": self.map_group,
+            "map_number": self.map_number,
+            "name": self.map_name,
+            "size": self.map_size,
+            "type": self.map_type,
+            "weather": self.weather,
+            "is_cycling_possible": self.is_cycling_possible,
+            "is_escaping_possible": self.is_escaping_possible,
+            "is_running_possible": self.is_running_possible,
+            "is_map_name_popup_shown": self.is_map_name_popup_shown,
+            "is_dark_cave": self.is_dark_cave,
+        }
+
+    def dict_for_tile(self) -> dict:
+        return {
+            "local_coordinates": self.local_position,
+            "elevation": self.elevation,
+            "type": self.tile_type,
+            "has_encounters": self.has_encounters,
+            "collision": self.collision,
+            "is_surfing_possible": self.is_surfable,
+        }
+
+    def dicts_for_all_tiles(self) -> list[list[dict]]:
+        result = []
+        for row in self.all_tiles():
+            result_row = []
+            for tile in row:
+                result_row.append(tile.dict_for_tile())
+            result.append(result_row)
+        return result
+
 
 class ObjectEvent:
-    MOVEMENT_TYPES = ["NONE", "LOOK_AROUND", "WANDER_AROUND", "WANDER_UP_AND_DOWN", "WANDER_DOWN_AND_UP",
-                      "WANDER_LEFT_AND_RIGHT", "WANDER_RIGHT_AND_LEFT", "FACE_UP", "FACE_DOWN", "FACE_LEFT",
-                      "FACE_RIGHT", "PLAYER", "BERRY_TREE_GROWTH", "FACE_DOWN_AND_UP", "FACE_LEFT_AND_RIGHT",
-                      "FACE_UP_AND_LEFT", "FACE_UP_AND_RIGHT", "FACE_DOWN_AND_LEFT", "FACE_DOWN_AND_RIGHT",
-                      "FACE_DOWN_UP_AND_LEFT", "FACE_DOWN_UP_AND_RIGHT", "FACE_UP_LEFT_AND_RIGHT",
-                      "FACE_DOWN_LEFT_AND_RIGHT", "ROTATE_COUNTERCLOCKWISE", "ROTATE_CLOCKWISE", "WALK_UP_AND_DOWN",
-                      "WALK_DOWN_AND_UP", "WALK_LEFT_AND_RIGHT", "WALK_RIGHT_AND_LEFT",
-                      "WALK_SEQUENCE_UP_RIGHT_LEFT_DOWN", "WALK_SEQUENCE_RIGHT_LEFT_DOWN_UP",
-                      "WALK_SEQUENCE_DOWN_UP_RIGHT_LEFT", "WALK_SEQUENCE_LEFT_DOWN_UP_RIGHT",
-                      "WALK_SEQUENCE_UP_LEFT_RIGHT_DOWN", "WALK_SEQUENCE_LEFT_RIGHT_DOWN_UP",
-                      "WALK_SEQUENCE_DOWN_UP_LEFT_RIGHT", "WALK_SEQUENCE_RIGHT_DOWN_UP_LEFT",
-                      "WALK_SEQUENCE_LEFT_UP_DOWN_RIGHT", "WALK_SEQUENCE_UP_DOWN_RIGHT_LEFT",
-                      "WALK_SEQUENCE_RIGHT_LEFT_UP_DOWN", "WALK_SEQUENCE_DOWN_RIGHT_LEFT_UP",
-                      "WALK_SEQUENCE_RIGHT_UP_DOWN_LEFT", "WALK_SEQUENCE_UP_DOWN_LEFT_RIGHT",
-                      "WALK_SEQUENCE_LEFT_RIGHT_UP_DOWN", "WALK_SEQUENCE_DOWN_LEFT_RIGHT_UP",
-                      "WALK_SEQUENCE_UP_LEFT_DOWN_RIGHT", "WALK_SEQUENCE_DOWN_RIGHT_UP_LEFT",
-                      "WALK_SEQUENCE_LEFT_DOWN_RIGHT_UP", "WALK_SEQUENCE_RIGHT_UP_LEFT_DOWN",
-                      "WALK_SEQUENCE_UP_RIGHT_DOWN_LEFT", "WALK_SEQUENCE_DOWN_LEFT_UP_RIGHT",
-                      "WALK_SEQUENCE_LEFT_UP_RIGHT_DOWN", "WALK_SEQUENCE_RIGHT_DOWN_LEFT_UP", "COPY_PLAYER",
-                      "COPY_PLAYER_OPPOSITE", "COPY_PLAYER_COUNTERCLOCKWISE", "COPY_PLAYER_CLOCKWISE", "TREE_DISGUISE",
-                      "MOUNTAIN_DISGUISE", "COPY_PLAYER_IN_GRASS", "COPY_PLAYER_OPPOSITE_IN_GRASS",
-                      "COPY_PLAYER_COUNTERCLOCKWISE_IN_GRASS", "COPY_PLAYER_CLOCKWISE_IN_GRASS", "BURIED",
-                      "WALK_IN_PLACE_DOWN", "WALK_IN_PLACE_UP", "WALK_IN_PLACE_LEFT", "WALK_IN_PLACE_RIGHT",
-                      "WALK_IN_PLACE_FAST_DOWN", "WALK_IN_PLACE_FAST_UP", "WALK_IN_PLACE_FAST_LEFT",
-                      "WALK_IN_PLACE_FAST_RIGHT", "JOG_IN_PLACE_DOWN", "JOG_IN_PLACE_UP", "JOG_IN_PLACE_LEFT",
-                      "JOG_IN_PLACE_RIGHT", "INVISIBLE", "RAISE_HAND_AND_STOP", "RAISE_HAND_AND_JUMP",
-                      "RAISE_HAND_AND_SWIM", "WANDER_AROUND_SLOWER"]
+    MOVEMENT_TYPES = [
+        "NONE",
+        "LOOK_AROUND",
+        "WANDER_AROUND",
+        "WANDER_UP_AND_DOWN",
+        "WANDER_DOWN_AND_UP",
+        "WANDER_LEFT_AND_RIGHT",
+        "WANDER_RIGHT_AND_LEFT",
+        "FACE_UP",
+        "FACE_DOWN",
+        "FACE_LEFT",
+        "FACE_RIGHT",
+        "PLAYER",
+        "BERRY_TREE_GROWTH",
+        "FACE_DOWN_AND_UP",
+        "FACE_LEFT_AND_RIGHT",
+        "FACE_UP_AND_LEFT",
+        "FACE_UP_AND_RIGHT",
+        "FACE_DOWN_AND_LEFT",
+        "FACE_DOWN_AND_RIGHT",
+        "FACE_DOWN_UP_AND_LEFT",
+        "FACE_DOWN_UP_AND_RIGHT",
+        "FACE_UP_LEFT_AND_RIGHT",
+        "FACE_DOWN_LEFT_AND_RIGHT",
+        "ROTATE_COUNTERCLOCKWISE",
+        "ROTATE_CLOCKWISE",
+        "WALK_UP_AND_DOWN",
+        "WALK_DOWN_AND_UP",
+        "WALK_LEFT_AND_RIGHT",
+        "WALK_RIGHT_AND_LEFT",
+        "WALK_SEQUENCE_UP_RIGHT_LEFT_DOWN",
+        "WALK_SEQUENCE_RIGHT_LEFT_DOWN_UP",
+        "WALK_SEQUENCE_DOWN_UP_RIGHT_LEFT",
+        "WALK_SEQUENCE_LEFT_DOWN_UP_RIGHT",
+        "WALK_SEQUENCE_UP_LEFT_RIGHT_DOWN",
+        "WALK_SEQUENCE_LEFT_RIGHT_DOWN_UP",
+        "WALK_SEQUENCE_DOWN_UP_LEFT_RIGHT",
+        "WALK_SEQUENCE_RIGHT_DOWN_UP_LEFT",
+        "WALK_SEQUENCE_LEFT_UP_DOWN_RIGHT",
+        "WALK_SEQUENCE_UP_DOWN_RIGHT_LEFT",
+        "WALK_SEQUENCE_RIGHT_LEFT_UP_DOWN",
+        "WALK_SEQUENCE_DOWN_RIGHT_LEFT_UP",
+        "WALK_SEQUENCE_RIGHT_UP_DOWN_LEFT",
+        "WALK_SEQUENCE_UP_DOWN_LEFT_RIGHT",
+        "WALK_SEQUENCE_LEFT_RIGHT_UP_DOWN",
+        "WALK_SEQUENCE_DOWN_LEFT_RIGHT_UP",
+        "WALK_SEQUENCE_UP_LEFT_DOWN_RIGHT",
+        "WALK_SEQUENCE_DOWN_RIGHT_UP_LEFT",
+        "WALK_SEQUENCE_LEFT_DOWN_RIGHT_UP",
+        "WALK_SEQUENCE_RIGHT_UP_LEFT_DOWN",
+        "WALK_SEQUENCE_UP_RIGHT_DOWN_LEFT",
+        "WALK_SEQUENCE_DOWN_LEFT_UP_RIGHT",
+        "WALK_SEQUENCE_LEFT_UP_RIGHT_DOWN",
+        "WALK_SEQUENCE_RIGHT_DOWN_LEFT_UP",
+        "COPY_PLAYER",
+        "COPY_PLAYER_OPPOSITE",
+        "COPY_PLAYER_COUNTERCLOCKWISE",
+        "COPY_PLAYER_CLOCKWISE",
+        "TREE_DISGUISE",
+        "MOUNTAIN_DISGUISE",
+        "COPY_PLAYER_IN_GRASS",
+        "COPY_PLAYER_OPPOSITE_IN_GRASS",
+        "COPY_PLAYER_COUNTERCLOCKWISE_IN_GRASS",
+        "COPY_PLAYER_CLOCKWISE_IN_GRASS",
+        "BURIED",
+        "WALK_IN_PLACE_DOWN",
+        "WALK_IN_PLACE_UP",
+        "WALK_IN_PLACE_LEFT",
+        "WALK_IN_PLACE_RIGHT",
+        "WALK_IN_PLACE_FAST_DOWN",
+        "WALK_IN_PLACE_FAST_UP",
+        "WALK_IN_PLACE_FAST_LEFT",
+        "WALK_IN_PLACE_FAST_RIGHT",
+        "JOG_IN_PLACE_DOWN",
+        "JOG_IN_PLACE_UP",
+        "JOG_IN_PLACE_LEFT",
+        "JOG_IN_PLACE_RIGHT",
+        "INVISIBLE",
+        "RAISE_HAND_AND_STOP",
+        "RAISE_HAND_AND_JUMP",
+        "RAISE_HAND_AND_SWIM",
+        "WANDER_AROUND_SLOWER",
+    ]
 
     MOVEMENT_ACTIONS = {
         0x0: "FACE_DOWN",
@@ -793,15 +944,50 @@ class ObjectEvent:
     def __init__(self, data: bytes):
         self._data = data
 
+    def __eq__(self, other):
+        if isinstance(other, ObjectEvent):
+            return other._data == self._data
+        else:
+            return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, ObjectEvent):
+            return other._data != self._data
+        else:
+            return NotImplemented
+
     @property
     def flags(self) -> list[str]:
-        flag_names = ["active", "singleMovementActive", "triggerGroundEffectsOnMove", "triggerGroundEffectsOnStop",
-                      "disableCoveringGroundEffects", "landingJump", "heldMovementActive", "heldMovementFinished",
-                      "frozen", "facingDirectionLocked", "disableAnim", "enableAnim", "inanimate", "invisible",
-                      "offScreen", "trackedByCamera", "isPlayer", "hasReflection", "inShortGrass",
-                      "inShallowFlowingWater", "inSandPile", "inHotSprings", "hasShadow", "spriteAnimPausedBackup",
-                      "spriteAffineAnimPausedBackup", "disableJumpLandingGroundEffect", "fixedPriority",
-                      "hideReflection"]
+        flag_names = [
+            "active",
+            "singleMovementActive",
+            "triggerGroundEffectsOnMove",
+            "triggerGroundEffectsOnStop",
+            "disableCoveringGroundEffects",
+            "landingJump",
+            "heldMovementActive",
+            "heldMovementFinished",
+            "frozen",
+            "facingDirectionLocked",
+            "disableAnim",
+            "enableAnim",
+            "inanimate",
+            "invisible",
+            "offScreen",
+            "trackedByCamera",
+            "isPlayer",
+            "hasReflection",
+            "inShortGrass",
+            "inShallowFlowingWater",
+            "inSandPile",
+            "inHotSprings",
+            "hasShadow",
+            "spriteAnimPausedBackup",
+            "spriteAffineAnimPausedBackup",
+            "disableJumpLandingGroundEffect",
+            "fixedPriority",
+            "hideReflection",
+        ]
 
         flags = []
         bitmap = unpack_uint32(self._data[0:4])
@@ -948,9 +1134,12 @@ class ObjectEvent:
 
 
 def get_map_data_for_current_position() -> MapLocation:
-    from modules.trainer import trainer
-    map_group, map_number = trainer.get_map()
-    return MapLocation(read_symbol("gMapHeader"), map_group, map_number, trainer.get_coords())
+    from modules.player import get_player
+
+    player = get_player()
+
+    map_group, map_number = player.map_group_and_number
+    return MapLocation(read_symbol("gMapHeader"), map_group, map_number, player.local_coordinates)
 
 
 def get_map_data(map_group: int, map_number: int, local_position: tuple[int, int]) -> MapLocation:
@@ -967,6 +1156,17 @@ def get_map_objects() -> list[ObjectEvent]:
         offset = i * 0x24
         is_active = bool(data[offset] & 0x01)
         if is_active:
-            map_object = ObjectEvent(data[offset:offset + 0x24])
+            map_object = ObjectEvent(data[offset : offset + 0x24])
             objects.append(map_object)
     return objects
+
+
+def get_map_all_tiles() -> list[MapLocation]:
+    current_map_data = get_map_data_for_current_position()
+    map_group, map_number = current_map_data.map_group, current_map_data.map_number
+    map_width, map_height = current_map_data.map_size
+    tiles = []
+    for y in range(map_height):
+        for x in range(map_width):
+            tiles.append(get_map_data(map_group, map_number, (x, y)))
+    return tiles
