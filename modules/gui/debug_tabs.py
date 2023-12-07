@@ -587,10 +587,6 @@ class PlayerTab(DebugTab):
             flags["__value"] = ", ".join(active_flags)
 
         result = {
-            "test_TextBuffer": player.text_buffer,
-            "test_CurrentPage": player.current_page,
-            "test_cur_posX": player.name_cur_pos[0],
-            "test_cur_posY": player.name_cur_pos[1],
             "Name": player.name,
             "Gender": player.gender,
             "Trainer ID": player.trainer_id,
@@ -604,6 +600,7 @@ class PlayerTab(DebugTab):
             "Acro Bike State": player.acro_bike_state.name,
             "Tile Transition State": player.tile_transition_state.name,
             "Facing Direction": player.facing_direction,
+            "Naming Screen": player.naming_screen,
         }
 
         for i in range(0, 6):
