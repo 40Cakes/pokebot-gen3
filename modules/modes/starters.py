@@ -13,7 +13,6 @@ from modules.navigation import follow_path
 from modules.player import get_player
 from modules.pokemon import get_party, opponent_changed
 from modules.tasks import get_task, task_is_active
-from modules.keyboard import get_keyboard, type_name
 
 config = context.config
 
@@ -51,7 +50,6 @@ class ModeStarterStates(Enum):
     CHECK_STARTER = auto()
     PARTY_FULL = auto()
     LOG_STARTER = auto()
-    NAME_STARTER = auto()
 
 
 class ModeStarters:
@@ -326,15 +324,6 @@ class ModeStarters:
                                 #              generate_guaranteed_shiny_rng_seed(player.trainer_id, player.secret_id))
                                 context.emulator.press_button("A")
                             else:
-                                context.message = "Naming starter..."
-                                self.update_state(ModeStarterStates.NAME_STARTER)
-                                continue
-                            
-                        case ModeStarterStates.NAME_STARTER:
-                            if not get_keyboard().enabled:
-                                context.emulator.press_button("A")
-                            else:
-                                type_name("Pea69!w♀")
                                 self.update_state(ModeStarterStates.EXIT_MENUS)
                                 continue
 
