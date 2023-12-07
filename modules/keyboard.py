@@ -2,6 +2,17 @@ from modules.context import context
 from modules.memory import unpack_uint32, read_symbol
 from modules.game import decode_string
 from modules.tasks import task_is_active
+from pathlib import Path
+import math
+import json
+
+DATA_DIRECTORY = Path(__file__).parent / "data"
+
+with open(f'{DATA_DIRECTORY}/keyboard.json', 'r', encoding='utf-8') as f:
+    key_layout = json.load(f)
+
+#Will have to add more languages later and detect it
+lang = "en"
 
 class Keyboard:
     def __init__(self):
@@ -39,7 +50,7 @@ class Keyboard:
         x_val = None
         y_val = None
         if context.rom.game_title not in ["POKEMON RUBY", "POKEMON SAPP"]:
-            x_val = context.emulator.read_bytes(0x03007D98, 1)[0]
+            x_val = int(context.emulator.read_bytes(0x03007D98, 1)[0])
             if context.rom.game_title == "POKEMON EMER":
                 y_val = int(context.emulator.read_bytes(0x030023A8, 1)[0]/16)-5
             else:
@@ -57,3 +68,84 @@ class Keyboard:
 
 def get_keyboard():
     return Keyboard()
+
+def type_name(name):
+    if len(name) > 10:
+        name = name[:10]
+    goto = [0,0]
+    for page in range(len(key_layout[lang])):
+        if name[0] in key_layout[lang][page]["array"]:
+            goto = [page,key_layout[lang][page]["array"].index(name[0])]
+            break
+    cur_char = 0
+    press = None
+    h = key_layout[lang][0]["height"]
+    w = key_layout[lang][0]["width"]
+    done = False
+    while get_keyboard().cur_pos != (0,0):
+        context.emulator.run_single_frame()
+    while True and context.bot_mode != "Manual":
+        page = get_keyboard().cur_page
+        if page <= 3:
+            if h != key_layout[lang][page]["height"] or w != key_layout[lang][page]["width"]:
+                h = key_layout[lang][page]["height"]
+                w = key_layout[lang][page]["width"]
+            spot = get_keyboard().cur_pos
+            if spot[0] <= w and spot[1] <= h:
+                if page != goto[0]: # Press Select until on correct page
+                    while page != goto[0]:
+                        context.emulator.press_button("Select")
+                        context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+                        page = get_keyboard().cur_page
+                elif spot[0] + spot[1]*w == goto[1]: # Press A if on correct character
+                    while len(get_keyboard().text_buffer) < cur_char + 1:
+                        context.emulator.press_button("A")
+                        context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+                    cur_char += 1
+                    if cur_char + 1 >= len(name):
+                        break
+                    else:
+                        if not name[cur_char] in key_layout[lang][page]["array"]:
+                            for new_page in range(len(key_layout[lang])):
+                                if name[cur_char] in key_layout[lang][new_page]["array"]:
+                                    goto = [new_page,key_layout[lang][new_page]["array"].index(name[cur_char])]
+                                    break
+                        else:
+                            goto = [page,key_layout[lang][page]["array"].index(name[cur_char])]
+                elif spot[0] + spot[1]*w < goto[1]:
+                    if math.floor(goto[1]/w) == (spot[1]):
+                        press = "Right"
+                    else:
+                        press = "Down"
+                    while spot[0] + spot[1]*w < goto[1]:
+                        context.emulator.press_button(press)
+                        context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+                        spot = get_keyboard().cur_pos
+                        print(spot)
+                        print(goto)
+                elif spot[0] + spot[1]*w > goto[1]:
+                    if math.floor(goto[1]/w) == (spot[1]):
+                        press = "Left"
+                    else:
+                        press = "Up"
+                    while spot[0] + spot[1]*w > goto[1]:
+                        context.emulator.press_button(press)
+                        context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+                        spot = get_keyboard().cur_pos
+            else:
+                context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+    while get_keyboard().enabled:
+        keyboard = get_keyboard()
+        if keyboard.cur_pos[0] > w:
+            context.emulator.press_button("A")
+            context.emulator.run_single_frame()
+        else:
+            context.emulator.press_button("Start")
+            context.emulator.run_single_frame()
+    context.emulator.release_button("A")
+    context.emulator.release_button("Down")
+    context.emulator.release_button("Up")
+    context.emulator.release_button("Left")
+    context.emulator.release_button("Right")
+    context.emulator.release_button("Start")
+    context.emulator.release_button("Select")
