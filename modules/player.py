@@ -5,7 +5,7 @@ from typing import Literal
 from modules.game import decode_string
 from modules.context import context
 from modules.map import MapLocation, ObjectEvent
-from modules.memory import get_save_block, read_symbol, unpack_uint16
+from modules.memory import get_save_block, read_symbol, unpack_uint16, unpack_uint32
 from modules.state_cache import state_cache
 from modules.data.map import MapRSE, MapFRLG
 
@@ -139,9 +139,27 @@ class Player:
     @property
     def facing_direction(self) -> str:
         return self._object_event.facing_direction
+    
+    @property
+    def text_buffer(self) -> str:
+        text_buffer = decode_string(context.emulator.read_bytes(unpack_uint32(read_symbol("sNamingScreen")) + 0x1800, 16))
+        return text_buffer
+    
+    @property
+    def current_page(self) -> str:
+        current_page = context.emulator.read_bytes(unpack_uint32(read_symbol("sNamingScreen")) + 0x1E22, 1)[0]
+        return current_page
+
+    @property
+    def name_cur_pos(self) -> int:
+        return [context.emulator.read_bytes(0x03007D98, 1)[0], int(context.emulator.read_bytes(0x030023A8, 1)[0]/16)-5]
 
     def to_dict(self) -> dict:
         return {
+            "test_TextBuffer": self.text_buffer,
+            "test_CurrentPage": self.current_page,
+            "test_cur_posX": self.name_cur_pos[0],
+            "test_cur_posY": self.name_cur_pos[1],
             "name": self.name,
             "gender": self.gender,
             "tid": self.trainer_id,

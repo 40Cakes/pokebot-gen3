@@ -587,6 +587,10 @@ class PlayerTab(DebugTab):
             flags["__value"] = ", ".join(active_flags)
 
         result = {
+            "test_TextBuffer": player.text_buffer,
+            "test_CurrentPage": player.current_page,
+            "test_cur_posX": player.name_cur_pos[0],
+            "test_cur_posY": player.name_cur_pos[1],
             "Name": player.name,
             "Gender": player.gender,
             "Trainer ID": player.trainer_id,
