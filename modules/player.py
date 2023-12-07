@@ -139,36 +139,6 @@ class Player:
     @property
     def facing_direction(self) -> str:
         return self._object_event.facing_direction
-    
-    @property
-    def naming_screen(self) -> dict:
-        naming_screen = {}
-        try:
-            if context.rom.game_title not in ["POKEMON RUBY", "POKEMON SAPP"]:
-                naming_screen["Buffer"] = decode_string(context.emulator.read_bytes(unpack_uint32(read_symbol("sNamingScreen")) + 0x1800, 16))
-                naming_screen["Page"] = [1,2,0].index(context.emulator.read_bytes(unpack_uint32(read_symbol("sNamingScreen")) + 0x1E22, 1)[0])
-                naming_screen["X"] = context.emulator.read_bytes(0x03007D98, 1)[0]
-                if context.rom.game_title == "POKEMON EMER":
-                    naming_screen["Y"] = int(context.emulator.read_bytes(0x030023A8, 1)[0]/16)-5
-                else:
-                    naming_screen["Y"] = int(context.emulator.read_bytes(0x030031D8, 1)[0]/16)-5
-            else:
-                naming_screen["Buffer"] = decode_string(context.emulator.read_bytes(unpack_uint32(read_symbol("namingScreenDataPtr")) + 0x11, 16))
-                try:
-                    naming_screen["Page"] = [0x3c,0x42,0x3F].index(context.emulator.read_bytes(0x03001858, 1)[0])
-                except Exception:
-                    naming_screen["Page"] = None
-                try:
-                    if naming_screen["Page"] == 2:
-                        naming_screen["X"] = [0x1B,0x33,0x4B,0x63,0x7B,0x93,0xBC].index(context.emulator.read_bytes(0x0300185E, 1)[0])
-                    else:
-                        naming_screen["X"] = [0x1B,0x2B,0x3B,0x53,0x63,0x73,0x83,0x9B,0xBC].index(context.emulator.read_bytes(0x0300185E, 1)[0])
-                except Exception:
-                    pass
-                naming_screen["Y"] = int(context.emulator.read_bytes(0x0300185C, 1)[0]/16)-4
-        except Exception:
-            naming_screen = None
-        return naming_screen
 
     def to_dict(self) -> dict:
         return {
@@ -184,9 +154,7 @@ class Player:
             "acro_bike_state": self.acro_bike_state.name,
             "on_bike": self.is_on_bike,
             "facing": self.facing_direction,
-            "naming_screen": self.naming_screen
         }
-
 
 def get_player() -> Player:
     if state_cache.player.age_in_frames == 0:
