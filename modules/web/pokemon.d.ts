@@ -424,3 +424,20 @@ export type MapLocation = {
     // Information about _all_ the tiles on that map, indexed by x/y.
     tiles: MapTileData[][];
 };
+
+type ItemSlot = {
+    item: Item;
+    quantity: number;
+}
+
+// Items that the player is carrying.
+export type ItemBag = {
+    items: ItemSlot[];
+    key_items: ItemSlot[];
+    poke_balls: ItemSlot[];
+    tms_hms: ItemSlot[];
+    berries: ItemSlot[];
+}
+
+// Items that are stored in the PC.
+export type ItemStorage = ItemSlot[];

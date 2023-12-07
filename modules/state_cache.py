@@ -4,6 +4,7 @@ from typing import Generic, TypeVar, TYPE_CHECKING
 from modules.context import context
 
 if TYPE_CHECKING:
+    from modules.items import ItemBag, ItemStorage
     from modules.memory import GameState
     from modules.player import Player
     from modules.pokemon import Pokemon
@@ -47,6 +48,8 @@ class StateCache:
         self._party: StateCacheItem[list["Pokemon"]] = StateCacheItem([])
         self._opponent: StateCacheItem["Pokemon | None"] = StateCacheItem(None)
         self._player: StateCacheItem["Player | None"] = StateCacheItem(None)
+        self._item_bag: StateCacheItem["ItemBag | None"] = StateCacheItem(None)
+        self._item_storage: StateCacheItem["ItemStorage | None"] = StateCacheItem(None)
         self._tasks: StateCacheItem["TaskList | None"] = StateCacheItem(None)
         self._game_state: StateCacheItem["GameState | None"] = StateCacheItem(None)
 
@@ -86,6 +89,28 @@ class StateCache:
     def player(self, player: "Player"):
         if self._opponent.value is None or player != self._opponent.value:
             self._player.value = player
+
+    @property
+    def item_bag(self) -> StateCacheItem["ItemBag | None"]:
+        return self._item_bag
+
+    @item_bag.setter
+    def item_bag(self, item_bag: "ItemBag"):
+        if self._item_bag.value is None or self._item_bag.value != item_bag:
+            self._item_bag.value = item_bag
+        else:
+            self._item_bag.checked()
+
+    @property
+    def item_storage(self) -> StateCacheItem["ItemStorage | None"]:
+        return self._item_storage
+
+    @item_storage.setter
+    def item_storage(self, item_storage: "ItemStorage"):
+        if self._item_storage.value is None or self._item_storage.value != item_storage:
+            self._item_storage.value = item_storage
+        else:
+            self._item_storage.checked()
 
     @property
     def tasks(self) -> StateCacheItem["TaskList | None"]:

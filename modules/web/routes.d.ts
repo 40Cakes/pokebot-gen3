@@ -1,4 +1,4 @@
-import {MapLocation, Pokemon} from "./pokemon";
+import {ItemBag, ItemStorage, MapLocation, Pokemon} from "./pokemon";
 
 declare module PokeBotApi {
     /**
@@ -117,17 +117,13 @@ declare module PokeBotApi {
 
     /**
      * Response body for `GET /items`.
-     *
-     * There is a key for each bag pocket, and within each of those there is an object
-     * where the key is the name of an item and the value is the amount of said item.
      */
     export type GetItemsResponse = {
-        "PC": { [k: string]: number };
-        "Items": { [k: string]: number };
-        "Key Items": { [k: string]: number };
-        "Poké Balls": { [k: string]: number };
-        "TMs & HMs": { [k: string]: number };
-        "Berries": { [k: string]: number };
+        // Items that the player is carrying.
+        bag: ItemBag;
+
+        // Items that are stored in the PC.
+        storage: ItemStorage;
     };
 
     /**

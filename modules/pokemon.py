@@ -11,6 +11,7 @@ import numpy
 
 from modules.context import context
 from modules.game import decode_string
+from modules.items import Item, get_item_by_index
 from modules.memory import unpack_uint32, unpack_uint16, read_symbol, pack_uint32
 from modules.roms import ROMLanguage
 from modules.runtime import get_data_path
@@ -456,66 +457,6 @@ class ContestConditions:
     smartness: int
     toughness: int
     feel: int
-
-
-class ItemType(Enum):
-    Mail = ("mail",)
-    UsableOutsideBattle = "usable_outside_battle"
-    UsableInCertainLocations = "usable_in_certain_locations"
-    PokeblockCase = "pokeblock_case"
-    NotUsableOutsideBattle = "not_usable_outside_battle"
-
-    def __str__(self):
-        return self.value
-
-    @classmethod
-    def from_value(cls, value: str) -> "ItemType":
-        for name, member in ItemType.__members__.items():
-            if member.value == value:
-                return member
-
-
-class ItemPocket(Enum):
-    Items = "items"
-    PokeBalls = "poke_balls"
-    TmsAndHms = "tms_and_hms"
-    Berries = "berries"
-    KeyItems = "key_items"
-
-    def __str__(self):
-        return self.value
-
-
-@dataclass
-class Item:
-    """
-    This represents an item type in the game.
-    """
-
-    index: int
-    name: str
-    price: int
-    type: ItemType
-    pocket: ItemPocket
-    parameter: int
-    extra_parameter: int
-
-    @classmethod
-    def from_dict(cls, index: int, data: dict) -> "Item":
-        if data["pocket"] == "poke_balls":
-            item_type = data["type"]
-        else:
-            item_type = ItemType.from_value(data["type"])
-
-        return Item(
-            index=index,
-            name=data["name"],
-            price=data["price"],
-            type=item_type,
-            pocket=ItemPocket(data["pocket"]),
-            parameter=data["parameter"],
-            extra_parameter=data["extra_parameter"],
-        )
 
 
 @dataclass
@@ -1415,29 +1356,6 @@ def get_move_by_name(name: str) -> Move:
 
 def get_move_by_index(index: int) -> Move:
     return _moves_by_index[index]
-
-
-def _load_items() -> tuple[dict[str, Item], list[Item]]:
-    by_name: dict[str, Item] = {}
-    by_index: list[Item] = []
-    with open(get_data_path() / "items.json", "r") as file:
-        items_data = json.load(file)
-        for index in range(len(items_data)):
-            item = Item.from_dict(index, items_data[index])
-            by_name[item.name] = item
-            by_index.append(item)
-    return by_name, by_index
-
-
-_items_by_name, _items_by_index = _load_items()
-
-
-def get_item_by_name(name: str) -> Item:
-    return _items_by_name[name]
-
-
-def get_item_by_index(index: int) -> Item:
-    return _items_by_index[index]
 
 
 def _load_natures() -> tuple[dict[str, Nature], list[Nature]]:
