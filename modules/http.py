@@ -10,7 +10,7 @@ from modules.context import context
 from modules.data.map import MapRSE, MapFRLG
 from modules.game import _event_flags
 from modules.http_stream import add_subscriber
-from modules.items import get_items
+from modules.items import get_item_bag, get_item_storage
 from modules.main import work_queue
 from modules.map import get_map_data
 from modules.memory import get_event_flag, get_game_state, GameState
@@ -106,7 +106,19 @@ def http_server() -> None:
 
     @server.route("/items", methods=["GET"])
     def http_get_bag():
-        return jsonify(get_items())
+        cached_bag = state_cache.item_bag
+        cached_storage = state_cache.item_storage
+        if cached_bag.age_in_seconds > 1:
+            work_queue.put_nowait(get_item_bag)
+        if cached_storage.age_in_seconds > 1:
+            work_queue.put_nowait(get_item_storage)
+        while cached_bag.age_in_seconds > 1 or cached_storage.age_in_seconds > 1:
+                time.sleep(0.05)
+
+        return jsonify({
+            "bag": cached_bag.value.to_dict(),
+            "storage": cached_storage.value.to_list(),
+        })
 
     @server.route("/map", methods=["GET"])
     def http_get_map():

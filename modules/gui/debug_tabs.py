@@ -9,7 +9,7 @@ from modules.context import context
 from modules.daycare import get_daycare_data
 from modules.game import decode_string, _symbols, _reverse_symbols, _event_flags
 from modules.gui.emulator_controls import DebugTab
-from modules.items import get_items
+from modules.items import get_item_bag, get_item_storage
 from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects, get_map_all_tiles
 from modules.memory import (
     get_symbol,
@@ -33,14 +33,14 @@ if TYPE_CHECKING:
 
 class FancyTreeview:
     def __init__(
-        self,
-        root: ttk.Widget,
-        height=22,
-        row=0,
-        column=0,
-        columnspan=1,
-        additional_context_actions: Optional[dict[str, callable]] = None,
-        on_highlight: Optional[callable] = None,
+            self,
+            root: ttk.Widget,
+            height=22,
+            row=0,
+            column=0,
+            columnspan=1,
+            additional_context_actions: Optional[dict[str, callable]] = None,
+            on_highlight: Optional[callable] = None,
     ):
         if additional_context_actions is None:
             additional_context_actions = {}
@@ -78,7 +78,6 @@ class FancyTreeview:
         self._tv.bind("<Right>", lambda _: root.focus_set())
 
         if on_highlight is not None:
-
             def handle_selection(e):
                 selected_item = self._tv.focus()
                 on_highlight(self._tv.item(selected_item)["text"])
@@ -534,7 +533,7 @@ class SymbolsTab(DebugTab):
                 n = int.from_bytes(value, byteorder="little")
                 binary_string = bin(n).removeprefix("0b").rjust(length * 8, "0")
                 chunk_size = 4
-                chunks = [binary_string[i : i + chunk_size] for i in range(0, len(binary_string), chunk_size)]
+                chunks = [binary_string[i: i + chunk_size] for i in range(0, len(binary_string), chunk_size)]
                 data[symbol] = " ".join(chunks)
             else:
                 data[symbol] = value.hex(" ", 1)
@@ -629,7 +628,47 @@ class PlayerTab(DebugTab):
 
             result[key] = party[i]
 
-        result["Items"] = get_items()
+        item_bag = get_item_bag()
+        bag_data = {
+            "Items": {"__value": f"{len(item_bag.items)}/{item_bag.items_size} Slots"},
+            "Key Items": {"__value": f"{len(item_bag.key_items)}/{item_bag.key_items_size} Slots"},
+            "Poké Balls": {"__value": f"{len(item_bag.poke_balls)}/{item_bag.poke_balls_size} Slots"},
+            "TMs and HMs": {"__value": f"{len(item_bag.tms_hms)}/{item_bag.tms_hms_size} Slots"},
+            "Berries": {"__value": f"{len(item_bag.berries)}/{item_bag.berries_size} Slots"},
+        }
+        total_slots = item_bag.items_size + item_bag.key_items_size + item_bag.poke_balls_size + item_bag.tms_hms_size + item_bag.berries_size
+        used_slots = len(item_bag.items) + len(item_bag.key_items) + len(item_bag.poke_balls) + len(
+            item_bag.tms_hms) + len(item_bag.berries)
+        bag_data["__value"] = f"{used_slots}/{total_slots} Slots"
+        n = 0
+        for slot in item_bag.items:
+            n += 1
+            bag_data["Items"][n] = f"{slot.quantity}× {slot.item.name}"
+        n = 0
+        for slot in item_bag.key_items:
+            n += 1
+            bag_data["Key Items"][n] = f"{slot.quantity}× {slot.item.name}"
+        n = 0
+        for slot in item_bag.poke_balls:
+            n += 1
+            bag_data["Poké Balls"][n] = f"{slot.quantity}× {slot.item.name}"
+        n = 0
+        for slot in item_bag.tms_hms:
+            n += 1
+            bag_data["TMs and HMs"][n] = f"{slot.quantity}× {slot.item.name}"
+        n = 0
+        for slot in item_bag.berries:
+            n += 1
+            bag_data["Berries"][n] = f"{slot.quantity}× {slot.item.name}"
+        result["Item Bag"] = bag_data
+
+        item_storage = get_item_storage()
+        storage_data = {"__value": f"{len(item_storage.items)}/{item_storage.number_of_slots} Slots"}
+        n = 0
+        for slot in item_storage.items:
+            n += 1
+            storage_data[n] = f"{slot.quantity}× {slot.item.name}"
+        result["Item Storage"] = storage_data
 
         pokemon_storage = get_pokemon_storage()
         result["Pokemon Storage"] = {"__value": f"{pokemon_storage.pokemon_count} Pokémon"}
@@ -818,11 +857,11 @@ class MapTab(DebugTab):
         actual_x = current_map_data.local_position[0] + (tile_x - 7)
         actual_y = current_map_data.local_position[1] + (tile_y - 5)
         if (
-            self._selected_tile == (actual_x, actual_y)
-            or actual_x < 0
-            or actual_x >= current_map_data.map_size[0]
-            or actual_y < 0
-            or actual_y >= current_map_data.map_size[1]
+                self._selected_tile == (actual_x, actual_y)
+                or actual_x < 0
+                or actual_x >= current_map_data.map_size[0]
+                or actual_y < 0
+                or actual_y >= current_map_data.map_size[1]
         ):
             self._selected_tile = None
             self._selected_map = None
