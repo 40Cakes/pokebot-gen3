@@ -1,4 +1,4 @@
-import {ItemBag, ItemStorage, MapLocation, Pokemon} from "./pokemon";
+import {ItemBag, ItemStorage, MapLocation, Player, PlayerAvatar, Pokedex, Pokemon} from "./pokemon";
 
 declare module PokeBotApi {
     /**
@@ -75,35 +75,24 @@ declare module PokeBotApi {
     export type GetFPSResponse = number[];
 
     /**
+     * Response body for `GET /game_state`
+     */
+    export type GetGameStateResponse = string;
+
+    /**
      * Response body for `GET /player`.
      */
-    export type GetPlayerResponse = null | {
-        name: string;
-        gender: "male" | "female";
+    export type GetPlayerResponse = null | Player;
 
-        // Trainer ID.
-        tid: number;
+    /**
+     * Response body for `GET /player_avatar`
+     */
+    export type GetPlayerAvatarResponse = null | PlayerAvatar;
 
-        // Secret ID.
-        sid: number;
-
-        // Current map group and map number.
-        map: [number, number];
-
-        // Name of the map the player is currently on.
-        map_name: string;
-
-        // Local coordinates (in tiles) on the current map.
-        coords: [number, number];
-
-        running_state: number;
-        tile_transition_state: number;
-        acro_bike_state: number;
-        on_bike: boolean;
-        facing_direction: "Down" | "Up" | "Left" | "Right";
-
-        game_state: string;
-    };
+    /**
+     * Response body for `GET /pokedex`
+     */
+    export type GetPokedexResponse = Pokedex;
 
     /**
      * Response body for `GET /party`.

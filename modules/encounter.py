@@ -2,7 +2,7 @@ from modules.console import console
 from modules.context import context
 from modules.files import save_pk3
 from modules.gui.desktop_notification import desktop_notification
-from modules.pc_storage import import_into_storage
+from modules.pokemon_storage import get_pokemon_storage
 from modules.pokemon import Pokemon
 from modules.stats import total_stats
 
@@ -64,8 +64,22 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
             # TEMPORARY until auto-battle/auto-catch is done
             # if the mon is saved and imported, no need to catch it by hand
             if config.logging.import_pk3:
-                if import_into_storage(pokemon.data):
-                    return
+                pokemon_storage = get_pokemon_storage()
+
+                if pokemon_storage.contains_pokemon(pokemon):
+                    message = f"This Pokémon already exists in the storage system. Not importing it."
+                    context.message = message
+                    console.print(message)
+                else:
+                    import_result = pokemon_storage.dangerous_import_into_storage(pokemon)
+                    if import_result is None:
+                        message = f"Not enough room in PC to automatically import {pokemon.species.name}!"
+                        context.message = message
+                        console.print(message)
+                    else:
+                        message = f"Saved {pokemon.species.name} to PC box {import_result[0] + 1} ('{import_result[1]}')!"
+                        context.message = message
+                        console.print(message)
 
             context.bot_mode = "Manual"
             context.emulation_speed = 1
