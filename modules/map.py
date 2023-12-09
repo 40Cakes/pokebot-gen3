@@ -602,7 +602,7 @@ class MapBgEvent:
 
     @property
     def player_facing_direction(self) -> str:
-        """ This only has meaning if `kind` is 'Script'. """
+        """This only has meaning if `kind` is 'Script'."""
         match self._data[5]:
             case 0:
                 return "Any"
@@ -619,12 +619,12 @@ class MapBgEvent:
 
     @property
     def script_pointer(self) -> int:
-        """ This only has meaning if `kind` is 'Script'. """
+        """This only has meaning if `kind` is 'Script'."""
         return unpack_uint32(self._data[8:12])
 
     @property
     def script_symbol(self) -> str:
-        """ This only has meaning if `kind` is 'Script'. """
+        """This only has meaning if `kind` is 'Script'."""
         symbol = get_symbol_name(self.script_pointer, pretty_name=True)
         if symbol == "":
             return hex(self.script_pointer)
@@ -633,17 +633,17 @@ class MapBgEvent:
 
     @property
     def hidden_item(self) -> Item:
-        """ This only has meaning if `kind` is 'Hidden Item'. """
+        """This only has meaning if `kind` is 'Hidden Item'."""
         return get_item_by_index(unpack_uint16(self._data[8:10]))
 
     @property
     def hidden_item_flag_id(self) -> int:
-        """ This only has meaning if `kind` is 'Hidden Item'. """
+        """This only has meaning if `kind` is 'Hidden Item'."""
         return unpack_uint16(self._data[10:12])
 
     @property
     def secret_base_id(self) -> int:
-        """ This only has meaning if `kind` is 'Secret Base'. """
+        """This only has meaning if `kind` is 'Secret Base'."""
         return unpack_uint32(self._data[8:12])
 
     def to_dict(self) -> dict:
@@ -895,7 +895,7 @@ class MapLocation:
 
         result = []
         for index in range(count):
-            result.append(MapConnection(data[size_of_struct * index:size_of_struct * (index + 1)]))
+            result.append(MapConnection(data[size_of_struct * index : size_of_struct * (index + 1)]))
         return result
 
     @property
@@ -910,7 +910,7 @@ class MapLocation:
 
         result = []
         for index in range(warp_count):
-            result.append(MapWarp(data[size_of_struct * index:size_of_struct * (index + 1)]))
+            result.append(MapWarp(data[size_of_struct * index : size_of_struct * (index + 1)]))
         return result
 
     @property
@@ -925,7 +925,7 @@ class MapLocation:
 
         result = []
         for index in range(object_event_count):
-            result.append(ObjectEventTemplate(data[size_of_struct * index:size_of_struct * (index + 1)]))
+            result.append(ObjectEventTemplate(data[size_of_struct * index : size_of_struct * (index + 1)]))
         return result
 
     @property
@@ -940,7 +940,7 @@ class MapLocation:
 
         result = []
         for index in range(coord_event_count):
-            result.append(MapCoordEvent(data[size_of_struct * index:size_of_struct * (index + 1)]))
+            result.append(MapCoordEvent(data[size_of_struct * index : size_of_struct * (index + 1)]))
         return result
 
     @property
@@ -955,7 +955,7 @@ class MapLocation:
 
         result = []
         for index in range(bg_event_count):
-            result.append(MapBgEvent(data[size_of_struct * index:size_of_struct * (index + 1)]))
+            result.append(MapBgEvent(data[size_of_struct * index : size_of_struct * (index + 1)]))
         return result
 
     def all_tiles(self) -> list[list["MapLocation"]]:
@@ -1536,22 +1536,22 @@ class ObjectEventTemplate:
 
     @property
     def clone_target_local_id(self) -> int:
-        """ This only has meaning if `kind` is 'clone' on FRLG. """
+        """This only has meaning if `kind` is 'clone' on FRLG."""
         return self.elevation
 
     @property
     def clone_target_map_group(self) -> int:
-        """ This only has meaning if `kind` is 'clone' on FRLG. """
+        """This only has meaning if `kind` is 'clone' on FRLG."""
         return unpack_uint16(self._data[12:14])
 
     @property
     def clone_target_map_number(self) -> int:
-        """ This only has meaning if `kind` is 'clone' on FRLG. """
+        """This only has meaning if `kind` is 'clone' on FRLG."""
         return unpack_uint16(self._data[14:16])
 
     @property
     def clone_target_map(self) -> MapLocation:
-        """ This only has meaning if `kind` is 'clone' on FRLG. """
+        """This only has meaning if `kind` is 'clone' on FRLG."""
         return get_map_data(self.clone_target_map_group, self.clone_target_map_number, (0, 0))
 
     def to_dict(self) -> dict:
@@ -1582,7 +1582,7 @@ class ObjectEventTemplate:
                 "map_group": self.clone_target_map_group,
                 "map_number": self.clone_target_map_number,
                 "map_name": self.clone_target_map.map_name,
-                "local_id": self.local_id
+                "local_id": self.local_id,
             }
 
         return data
@@ -1619,7 +1619,7 @@ def get_map_objects() -> list[ObjectEvent]:
         offset = i * 0x24
         is_active = bool(data[offset] & 0x01)
         if is_active:
-            map_object = ObjectEvent(data[offset: offset + 0x24])
+            map_object = ObjectEvent(data[offset : offset + 0x24])
             objects.append(map_object)
     return objects
 
