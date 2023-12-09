@@ -66,7 +66,7 @@ def _load_event_flags(flags_file: str) -> None:  # TODO Japanese ROMs not workin
             if col[i] in ["", "\n"]:
                 col[i] = None
 
-        _event_flags[col[5].replace("\n", "")] = ((int(col[0], 16) // 8) + sav1_offset, int(col[0], 16) % 8)
+        _event_flags[col[5].replace("\n", "")] = ((int(col[1], 16) // 8) + sav1_offset, int(col[1], 16) % 8)
 
     _event_flags = dict(sorted(_event_flags.items()))
 
