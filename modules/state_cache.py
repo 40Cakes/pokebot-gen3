@@ -5,9 +5,10 @@ from modules.context import context
 
 if TYPE_CHECKING:
     from modules.memory import GameState
-    from modules.player import Player
+    from modules.player import Player, PlayerAvatar
     from modules.pokemon import Pokemon
     from modules.pokemon_storage import PokemonStorage
+    from modules.pokedex import Pokedex
     from modules.tasks import TaskList
 
 T = TypeVar("T")
@@ -48,6 +49,8 @@ class StateCache:
         self._party: StateCacheItem[list["Pokemon"]] = StateCacheItem([])
         self._opponent: StateCacheItem["Pokemon | None"] = StateCacheItem(None)
         self._player: StateCacheItem["Player | None"] = StateCacheItem(None)
+        self._player_avatar: StateCacheItem["PlayerAvatar | None"] = StateCacheItem(None)
+        self._pokedex: StateCacheItem["Pokedex | None"] = StateCacheItem(None)
         self._pokemon_storage: StateCacheItem["PokemonStorage | None"] = StateCacheItem(None)
         self._tasks: StateCacheItem["TaskList | None"] = StateCacheItem(None)
         self._game_state: StateCacheItem["GameState | None"] = StateCacheItem(None)
@@ -86,8 +89,32 @@ class StateCache:
 
     @player.setter
     def player(self, player: "Player"):
-        if self._opponent.value is None or player != self._opponent.value:
+        if self._player.value is None or player != self._player.value:
             self._player.value = player
+        else:
+            self._player.checked()
+
+    @property
+    def player_avatar(self) -> StateCacheItem["PlayerAvatar | None"]:
+        return self._player_avatar
+
+    @player_avatar.setter
+    def player_avatar(self, player_avatar: "PlayerAvatar"):
+        if self._player_avatar.value is None or player_avatar != self._player_avatar.value:
+            self._player_avatar.value = player_avatar
+        else:
+            self._player_avatar.checked()
+
+    @property
+    def pokedex(self) -> StateCacheItem["Pokedex | None"]:
+        return self._pokedex
+
+    @pokedex.setter
+    def pokedex(self, pokedex: "Pokedex"):
+        if self._pokedex.value != pokedex:
+            self._pokedex.value = pokedex
+        else:
+            self._pokedex.checked()
 
     @property
     def pokemon_storage(self) -> StateCacheItem["PokemonStorage | None"]:
