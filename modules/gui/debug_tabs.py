@@ -21,7 +21,7 @@ from modules.memory import (
     set_event_flag,
     get_event_flag,
 )
-from modules.player import get_player, AvatarFlags, TileTransitionState
+from modules.player import get_player, get_player_avatar, AvatarFlags, TileTransitionState
 from modules.pokemon import get_party, get_species_by_index
 from modules.tasks import get_tasks, task_is_active
 
@@ -556,13 +556,14 @@ class PlayerTab(DebugTab):
 
     def _get_data(self):
         player = get_player()
+        player_avatar = get_player_avatar()
         party = get_party()
 
         flags = {}
         active_flags = []
         for flag in AvatarFlags:
-            flags[flag.name] = flag in player.flags
-            if flag in player.flags:
+            flags[flag.name] = flag in player_avatar.flags
+            if flag in player_avatar.flags:
                 active_flags.append(flag.name)
 
         if len(active_flags) == 0:
@@ -575,15 +576,17 @@ class PlayerTab(DebugTab):
             "Gender": player.gender,
             "Trainer ID": player.trainer_id,
             "Secret ID": player.secret_id,
-            "Map": player.map_group_and_number,
-            "Map Name": player.map_name,
-            "Local Coordinates": player.local_coordinates,
+            "Money": f"${player.money:,}",
+            "Coins": f"{player.coins:,}",
+            "Registered Item": player.registered_item.name if player.registered_item is not None else "None",
+            "Map Group and Number": player_avatar.map_group_and_number,
+            "Local Coordinates": player_avatar.local_coordinates,
             "Flags": flags,
-            "On Bike": player.is_on_bike,
-            "Running State": player.running_state.name,
-            "Acro Bike State": player.acro_bike_state.name,
-            "Tile Transition State": player.tile_transition_state.name,
-            "Facing Direction": player.facing_direction,
+            "On Bike": player_avatar.is_on_bike,
+            "Running State": player_avatar.running_state.name,
+            "Acro Bike State": player_avatar.acro_bike_state.name,
+            "Tile Transition State": player_avatar.tile_transition_state.name,
+            "Facing Direction": player_avatar.facing_direction,
         }
 
         for i in range(0, 6):
@@ -717,7 +720,7 @@ class MapTab(DebugTab):
         root.add(frame, text="Map")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        player = get_player()
+        player = get_player_avatar()
         show_different_tile = self._marker_rectangle is not None and task_is_active("Task_WeatherMain")
         self._map.update()
 
@@ -771,7 +774,7 @@ class MapTab(DebugTab):
         tile_x = click_location[0] // tile_size
         tile_y = (click_location[1] + half_tile_size) // tile_size
 
-        current_map_data = get_player().map_location
+        current_map_data = get_player_avatar().map_location
         actual_x = current_map_data.local_position[0] + (tile_x - 7)
         actual_y = current_map_data.local_position[1] + (tile_y - 5)
         if (
@@ -800,7 +803,7 @@ class MapTab(DebugTab):
             map_group, map_number = self._selected_map
             map_data = get_map_data(map_group, map_number, self._selected_tile)
         else:
-            map_data = get_player().map_location
+            map_data = get_player_avatar().map_location
 
         map_objects = get_map_objects()
         object_list = {"__value": len(map_objects)}
@@ -831,6 +834,82 @@ class MapTab(DebugTab):
                 "Flags": flags_list,
             }
 
+        def format_coordinates(coordinates: tuple[int, int]) -> str:
+            return f"{str(coordinates[0])}/{str(coordinates[1])}"
+
+        map_connections = map_data.connections
+        connections_list = {"__value": set()}
+        for i in range(len(map_connections)):
+            connections_list[
+                map_connections[i].direction
+            ] = f"to {map_connections[i].destination_map.map_name} (offset: {str(map_connections[i].offset)})"
+            connections_list["__value"].add(map_connections[i].direction)
+        connections_list["__value"] = ", ".join(connections_list["__value"])
+
+        map_warps = map_data.warps
+        warps_list = {"__value": len(map_warps)}
+        for i in range(len(map_warps)):
+            warp = map_warps[i]
+            d = warp.destination_location
+            warps_list[
+                format_coordinates(warp.local_coordinates)
+            ] = f"to ({format_coordinates(d.local_position)}) on [{d.map_group}, {d.map_number}] ({d.map_name})"
+
+        map_object_templates = map_data.objects
+        object_templates_list = {"__value": len(map_object_templates)}
+        for i in range(len(map_object_templates)):
+            obj = map_object_templates[i]
+            key = f"Object Template #{obj.local_id}"
+            object_templates_list[key] = {
+                "__value": str(obj),
+                "coordinates": obj.local_coordinates,
+                "script": obj.script_symbol,
+                "flag_id": obj.flag_id,
+            }
+            if obj.kind == "normal":
+                object_templates_list[key]["movement_type"] = obj.movement_type
+                object_templates_list[key]["movement_range"] = obj.movement_range
+                object_templates_list[key]["trainer_type"] = obj.trainer_type
+                object_templates_list[key]["trainer_range"] = obj.trainer_range
+            else:
+                object_templates_list[key]["target_local_id"] = obj.clone_target_local_id
+                target_map = obj.clone_target_map
+                object_templates_list[key][
+                    "target_map"
+                ] = f"{target_map.map_name} [{target_map.map_group}, {target_map.map_number}]"
+
+        map_coord_events = map_data.coord_events
+        coord_events_list = {"__value": len(map_coord_events)}
+        for i in range(len(map_coord_events)):
+            event = map_coord_events[i]
+            coord_events_list[format_coordinates(event.local_coordinates)] = event.script_symbol
+
+        map_bg_events = map_data.bg_events
+        bg_events_list = {"__value": len(map_bg_events)}
+        for i in range(len(map_bg_events)):
+            event = map_bg_events[i]
+            kind = event.kind
+            key = format_coordinates(event.local_coordinates)
+            if kind == "Script":
+                bg_events_list[key] = {
+                    "__value": f"Script/Sign ({event.script_symbol})",
+                    "Script": event.script_symbol,
+                    "Type": kind,
+                }
+            elif kind == "Hidden Item":
+                bg_events_list[key] = {
+                    "__value": f"Hidden Item: {event.hidden_item.name}",
+                    "Item": event.hidden_item.name,
+                    "Flag": event.hidden_item_flag_id,
+                }
+            elif kind == "Secret Base":
+                bg_events_list[key] = {
+                    "__value": f"Secret Base (ID={event.secret_base_id})",
+                    "Secret Base ID": event.secret_base_id,
+                }
+            else:
+                bg_events_list[key] = "???"
+
         return {
             "Map": {
                 "__value": map_data.map_name,
@@ -851,7 +930,12 @@ class MapTab(DebugTab):
                 "Collision": bool(map_data.collision),
                 "Surfing possible": map_data.is_surfable,
             },
-            "Objects": object_list,
+            "Loaded Objects": object_list,
+            "Connections": connections_list,
+            "Warps": warps_list,
+            "Object Templates": object_templates_list,
+            "Tile Enter Events": coord_events_list,
+            "Tile Interaction Events": bg_events_list,
         }
 
     def _handle_selection(self, selected_label: str) -> None:

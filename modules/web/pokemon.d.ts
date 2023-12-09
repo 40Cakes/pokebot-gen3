@@ -372,6 +372,83 @@ export type Weather =
     | "Route 119 Cycle"
     | "Route 123 Cycle"
 
+type MapConnection = {
+    direction: "South" | "North" | "West" | "East" | "Dive" | "Emerge";
+
+    // Offset of the connecting map compared to this one, i.e. how many tiles
+    // a player needs to be moved up/down/left/right (depending on connection
+    // direction) when transitioning maps.
+    offset: number;
+
+    destination: {
+        map_group: number;
+        map_number: number;
+        map_name: string;
+    }
+};
+
+type MapWarp = {
+    local_coordinates: [number, number];
+    elevation: number;
+    destination: {
+        map_group: number;
+        map_number: number;
+        map_name: string;
+
+        // Index of the warp on the destination map where this warp should
+        // lead to. This is used to figure out the local coordinates at the
+        // destination.
+        warp_id: number;
+    }
+};
+
+type MapTileEnterEvent = {
+    local_coordinates: [number, number];
+    elevation: number;
+
+    // Name of the script symbol in the pret decompilation project.
+    // This is not an official name and only here for easier reading of the list.
+    script: string;
+};
+
+type MapTileInteractEvent =
+    { local_coordinates: [number, number]; elevation: number; } & (
+        | { kind: "Script"; player_facing_direction: "Any" | "Up" | "Down" | "Right" | "Left"; script: string; }
+        | { kind: "Hidden Item"; item: string; }
+        | { kind: "Secret Base"; secret_base_id: number; }
+    );
+
+type MapRegularObjectTemplate = {
+    kind: "normal";
+
+    local_id: number;
+    local_coordinates: [number, number];
+    elevation: number;
+
+    // Name of the script symbol in the pret decompilation project.
+    // This is not an official name and only here for easier reading of the list.
+    script: string;
+
+    trainer: { type: "None" | "Normal" | "See All Directions" | "Buried"; range: number; } | null;
+    movement: { type: string; range: [number, number]; };
+};
+
+type MapCloneObjectTemplate = {
+    kind: "clone";
+
+    local_id: number;
+    local_coordinates: [number, number];
+
+    target: {
+        "map_group": number;
+        "map_number": number;
+        "map_name": string;
+        "local_id": number;
+    }
+};
+
+type MapObjectTemplate = MapRegularObjectTemplate | MapCloneObjectTemplate;
+
 type MapData = {
     map_group: number;
     map_number: number;
@@ -400,6 +477,27 @@ type MapData = {
     // Indicates that this map is 'dark', i.e. HM Flash needs to be used in order
     // to see properly.
     is_dark_cave: boolean;
+
+    // Where this map connects to in the overworld (can be up to one per cardinal
+    // direction, as well as one for diving/surfacing.
+    connections: MapConnection[];
+
+    // Tiles on this map that, when entering, will teleport the player to a
+    // different location on another map. This is used for implementing doors.
+    warps: MapWarp[];
+
+    // Events triggered by walking onto a tile.
+    tile_enter_events: MapTileEnterEvent[];
+
+    // Events triggered by interacting with ('talking to') a tile.
+    tile_interact_events: MapTileInteractEvent[];
+
+    // Objects that should be placed on this map.
+    // Not all of these objects might be present. Some are toggled on/off depending
+    // on some flag's value, and some objects might be NPCs that walk around and so
+    // are in different positions than `local_coordinates` indicates. (The range of
+    // their movement is defined by `movement.range`.)
+    object_templates: MapObjectTemplate[];
 };
 
 type MapTileData = {
@@ -432,4 +530,41 @@ export type MapLocation = {
 
     // Information about _all_ the tiles on that map, indexed by x/y.
     tiles: MapTileData[][];
+};
+
+export type Player = {
+    name: string;
+    gender: "male" | "female";
+
+    trainer_id: number;
+    secret_id: number;
+
+    money: number;
+    coins: number;
+
+    registered_item: string;
+};
+
+export type PlayerAvatar = {
+    map_group_and_number: [number, number];
+
+    // Local coordinates (in tiles) on the current map.
+    local_coordinates: [number, number];
+
+    running_state: "NOT_MOVING" | "TURN_DIRECTION" | "MOVING";
+    tile_transition_state: "NOT_MOVING" | "TRANSITIONING" | "CENTERING";
+    acro_bike_state: "NORMAL" | "TURNING" | "STANDING_WHEELIE" | "HOPPING_WHEELIE" | "MOVING_WHEELIE";
+    on_bike: boolean;
+    facing_direction: "Down" | "Up" | "Left" | "Right";
+
+    flags: {
+        OnFoot: boolean;
+        OnMachBike: boolean;
+        OnAcroBike: boolean;
+        Surfing: boolean;
+        Underwater: boolean;
+        Controllable: boolean;
+        ForciblyMoving: boolean;
+        Dash: boolean;
+    };
 };
