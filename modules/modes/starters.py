@@ -138,7 +138,6 @@ class ModeStarters:
                 ),
             }
 
-
             if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
                 selections = [
                     Selection(
@@ -166,7 +165,10 @@ class ModeStarters:
                         sprite=sprites / "Squirtle.png",
                     ),
                 ]
-            elif context.rom.game_title == "POKEMON EMER" and player_avatar.map_group_and_number == MapRSE.LITTLEROOT_TOWN_E.value:
+            elif (
+                context.rom.game_title == "POKEMON EMER"
+                and player_avatar.map_group_and_number == MapRSE.LITTLEROOT_TOWN_E.value
+            ):
                 selections = [
                     Selection(
                         button_label="Chikorita",
@@ -457,8 +459,8 @@ class ModeStarters:
                                     continue
 
                         case ModeStarterStates.CHECK_STARTER:
-                            #config.cheats.starters = True  # TODO temporary until menu navigation is ready
-                            #if config.cheats.starters:  # TODO check Pokémon summary screen once menu navigation merged
+                            # config.cheats.starters = True  # TODO temporary until menu navigation is ready
+                            # if config.cheats.starters:  # TODO check Pokémon summary screen once menu navigation merged
 
                             self.update_state(ModeStarterStates.LOG_STARTER)
                             continue
