@@ -1238,6 +1238,7 @@ class Pokemon:
                     result[k] = prepare(getattr(value, k))
 
             return result
+
         result = prepare(self)
         return result
 
