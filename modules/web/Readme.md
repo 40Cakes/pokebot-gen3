@@ -121,6 +121,14 @@ second containing some basic performance data (e.g. FPS, encounter rate, ...)
 This event is also called `PerformanceData`
 
 
+### Topic `Pokedex`
+
+This will notify you each time the Pokedex data (seen and owned species)
+changes.
+
+The event is also called `Pokedex`.
+
+
 ### Topic `Player`
 
 This will send you a `Player` event whenever some basic data of the player

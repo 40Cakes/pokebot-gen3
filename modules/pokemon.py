@@ -664,6 +664,9 @@ class Species:
                 result += "_"
         return result
 
+    def to_dict(self) -> dict:
+        return _to_dict_helper(self)
+
     def __str__(self):
         return self.name
 
@@ -1502,19 +1505,21 @@ def get_ability_by_index(index: int) -> Ability:
     return _abilities_by_index[index]
 
 
-def _load_species() -> tuple[dict[str, Species], list[Species]]:
+def _load_species() -> tuple[dict[str, Species], list[Species], dict[int, Species]]:
     by_name: dict[str, Species] = {}
     by_index: list[Species] = []
+    by_national_dex: dict[int, Species] = {}
     with open(get_data_path() / "species.json", "r") as file:
         species_data = json.load(file)
         for index in range(len(species_data)):
             species = Species.from_dict(index, species_data[index])
             by_name[species.name] = species
             by_index.append(species)
-    return by_name, by_index
+            by_national_dex[species.national_dex_number] = species
+    return by_name, by_index, by_national_dex
 
 
-_species_by_name, _species_by_index = _load_species()
+_species_by_name, _species_by_index, _species_by_national_dex = _load_species()
 
 
 def get_species_by_name(name: str) -> Species:
@@ -1523,6 +1528,10 @@ def get_species_by_name(name: str) -> Species:
 
 def get_species_by_index(index: int) -> Species:
     return _species_by_index[index]
+
+
+def get_species_by_national_dex(national_dex_number: int) -> Species:
+    return _species_by_national_dex[national_dex_number]
 
 
 def get_party() -> list[Pokemon]:
@@ -1611,3 +1620,39 @@ def opponent_changed() -> bool:
         raise
     except:
         return False
+
+
+def _to_dict_helper(value) -> any:
+    if value is None:
+        return value
+
+    if type(value) is dict:
+        result = {}
+        for k in value:
+            result[k] = _to_dict_helper(value[k])
+        return result
+
+    if isinstance(value, (list, set, tuple, frozenset)):
+        result = []
+        for v in value:
+            result.append(_to_dict_helper(v))
+        return result
+
+    if isinstance(value, (bool, int, float, str)):
+        return value
+
+    if isinstance(value, Enum):
+        return value.name
+
+    result = {}
+    try:
+        for k in value.__dict__:
+            if not k.startswith("_") and k != "data":
+                result[k] = _to_dict_helper(value.__dict__[k])
+    except AttributeError:
+        pass
+    for k in dir(value.__class__):
+        if not k.startswith("_") and isinstance(getattr(value.__class__, k), property):
+            result[k] = _to_dict_helper(getattr(value, k))
+
+    return result

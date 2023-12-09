@@ -340,6 +340,11 @@ export type Pokemon = {
     wurmple_evolution: "silcoon" | "cascoon";
 };
 
+export type Pokedex = {
+    "seen": { "national_dex_number": number; name: string; }[];
+    "owned": { "national_dex_number": number; name: string; }[];
+};
+
 export type MapType =
     "None"
     | "Town"

@@ -1,4 +1,4 @@
-import {MapLocation, Player, PlayerAvatar, Pokemon} from "./pokemon";
+import {MapLocation, Player, PlayerAvatar, Pokedex, Pokemon} from "./pokemon";
 
 declare module PokeBotApi {
     /**
@@ -88,6 +88,11 @@ declare module PokeBotApi {
      * Response body for `GET /player_avatar`
      */
     export type GetPlayerAvatarResponse = null | PlayerAvatar;
+
+    /**
+     * Response body for `GET /pokedex`
+     */
+    export type GetPokedexResponse = Pokedex;
 
     /**
      * Response body for `GET /party`.

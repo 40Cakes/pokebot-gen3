@@ -22,6 +22,7 @@ from modules.memory import (
     get_event_flag,
 )
 from modules.player import get_player, get_player_avatar, AvatarFlags, TileTransitionState
+from modules.pokedex import get_pokedex
 from modules.pokemon import get_party, get_species_by_index
 from modules.tasks import get_tasks, task_is_active
 
@@ -587,6 +588,19 @@ class PlayerTab(DebugTab):
         else:
             flags["__value"] = ", ".join(active_flags)
 
+
+        pokedex = get_pokedex()
+
+        seen_species = pokedex.seen_species
+        pokedex_seen = {"__value": len(seen_species)}
+        for species in seen_species:
+            pokedex_seen[species.national_dex_number] = species.name
+
+        owned_species = pokedex.owned_species
+        pokedex_owned = {"__value": len(owned_species)}
+        for species in owned_species:
+            pokedex_owned[species.national_dex_number] = species.name
+
         result = {
             "Name": player.name,
             "Gender": player.gender,
@@ -603,6 +617,8 @@ class PlayerTab(DebugTab):
             "Acro Bike State": player_avatar.acro_bike_state.name,
             "Tile Transition State": player_avatar.tile_transition_state.name,
             "Facing Direction": player_avatar.facing_direction,
+            "Pokedex Seen": pokedex_seen,
+            "Pokedex Owned": pokedex_owned,
         }
 
         for i in range(0, 6):
