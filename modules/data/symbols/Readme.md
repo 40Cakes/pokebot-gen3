@@ -30,3 +30,4 @@ gPlayerParty - name of the symbol
 0x08000000 - 0x???????? - Game Pak ROM (0 to 32 MB)
 0x0E000000 - 0x???????? - Game Pak RAM
 ```
+The `fetch_symbols.py` script will automatically download the latest symbols tables from [pret GitHub](https://github.com/pret).
