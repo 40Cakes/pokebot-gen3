@@ -457,11 +457,24 @@ class SymbolsTab(DebugTab):
                     tv.detach(items[key])
                     detached_items.add(key)
 
+        def sort_treeview(tv, col, reverse):
+            try:
+                data = [(int(tv.set(child, col), 16), child) for child in tv.get_children("")]
+            except Exception:
+                data = [(tv.set(child, col), child) for child in tv.get_children("")]
+            data.sort(reverse=reverse)
+
+            for index, item in enumerate(data):
+                tv.move(item[1], "", index)
+
+            tv.heading(col, command=lambda: sort_treeview(tv, col, not reverse))
+
         search_input.bind("<KeyRelease>", handle_input)
 
         def handle_double_click(event):
             if self._mini_window is not None:
                 item = tv.identify_row(event.y)
+                col = tv.identify_column(event.x)
                 if item:
                     symbol_name = tv.item(item)["text"]
                     symbol_length = int(tv.item(item).get("values")[2], 16)
@@ -471,7 +484,10 @@ class SymbolsTab(DebugTab):
                         self.display_mode[symbol_name] = "dec"
                     else:
                         self.display_mode[symbol_name] = "hex"
+                    self.symbols_to_display.add(tv.item(item)["text"])
                     self.update(context.emulator)
+                elif col:
+                    sort_treeview(tv, col, False)
 
         tv.bind("<Double-Button-1>", handle_double_click)
 
