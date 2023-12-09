@@ -1,9 +1,12 @@
 import string
+import struct
 from functools import cached_property
+from typing import Literal
 
 from modules.context import context
 from modules.game import decode_string
-from modules.memory import unpack_uint16, unpack_uint32, read_symbol
+from modules.memory import unpack_uint16, unpack_uint32, read_symbol, get_symbol_name
+from modules.pokemon import get_item_by_index, Item
 
 
 def _get_tile_type_name(tile_type: int):
@@ -431,6 +434,238 @@ WEATHER_TYPES = [
 ]
 
 
+class MapConnection:
+    def __init__(self, data: bytes):
+        self._data = data
+
+    @property
+    def direction(self) -> str:
+        match self._data[0]:
+            case 1:
+                return "South"
+            case 2:
+                return "North"
+            case 3:
+                return "West"
+            case 4:
+                return "East"
+            case 5:
+                return "Dive"
+            case 6:
+                return "Emerge"
+            case _:
+                return "???"
+
+    @property
+    def offset(self) -> int:
+        return struct.unpack("<i", self._data[4:8])[0]
+
+    @property
+    def destination_map_group(self) -> int:
+        return self._data[8]
+
+    @property
+    def destination_map_number(self) -> int:
+        return self._data[9]
+
+    @property
+    def destination_map(self) -> "MapLocation":
+        return get_map_data(self.destination_map_group, self.destination_map_number, (0, 0))
+
+    def to_dict(self) -> dict:
+        return {
+            "direction": self.direction,
+            "offset": self.offset,
+            "destination": {
+                "map_group": self.destination_map_group,
+                "map_number": self.destination_map_number,
+                "map_name": self.destination_map.map_name,
+            },
+        }
+
+
+class MapWarp:
+    def __init__(self, data: bytes):
+        self._data = data
+
+    @property
+    def local_coordinates(self) -> tuple[int, int]:
+        return unpack_uint16(self._data[0:2]), unpack_uint16(self._data[2:4])
+
+    @property
+    def elevation(self) -> int:
+        return self._data[4]
+
+    @property
+    def destination_warp_id(self) -> int:
+        return self._data[5]
+
+    @property
+    def destination_map_group(self) -> int:
+        return self._data[7]
+
+    @property
+    def destination_map_number(self) -> int:
+        return self._data[6]
+
+    @property
+    def destination_location(self) -> "MapLocation":
+        destination_map = get_map_data(self.destination_map_group, self.destination_map_number, (0, 0))
+        destination_warp = destination_map.warps[self.destination_warp_id]
+        destination_map.local_position = destination_warp.local_coordinates
+        return destination_map
+
+    def to_dict(self) -> dict:
+        return {
+            "local_coordinates": self.local_coordinates,
+            "elevation": self.elevation,
+            "destination": {
+                "warp_id": self.destination_warp_id,
+                "map_group": self.destination_map_group,
+                "map_number": self.destination_map_number,
+                "map_name": self.destination_location.map_name,
+            },
+        }
+
+
+class MapCoordEvent:
+    """
+    A 'coord event' is an event that gets triggered by entering a tile.
+    """
+
+    def __init__(self, data: bytes):
+        self._data = data
+
+    @property
+    def local_coordinates(self) -> tuple[int, int]:
+        return unpack_uint16(self._data[0:2]), unpack_uint16(self._data[2:4])
+
+    @property
+    def elevation(self) -> int:
+        return self._data[4]
+
+    @property
+    def trigger(self) -> int:
+        return unpack_uint16(self._data[8:10])
+
+    @property
+    def index(self) -> int:
+        return unpack_uint16(self._data[10:12])
+
+    @property
+    def script_pointer(self) -> int:
+        return unpack_uint32(self._data[12:16])
+
+    @property
+    def script_symbol(self) -> str:
+        symbol = get_symbol_name(self.script_pointer, pretty_name=True)
+        if symbol == "":
+            return hex(self.script_pointer)
+        else:
+            return symbol
+
+    def to_dict(self) -> dict:
+        return {
+            "local_coordinates": self.local_coordinates,
+            "elevation": self.elevation,
+            "script": self.script_symbol,
+        }
+
+
+class MapBgEvent:
+    """
+    A 'BG event' is an event that triggers when interacting with a tile.
+    """
+
+    def __init__(self, data: bytes):
+        self._data = data
+
+    @property
+    def local_coordinates(self) -> tuple[int, int]:
+        return unpack_uint16(self._data[0:2]), unpack_uint16(self._data[2:4])
+
+    @property
+    def elevation(self) -> int:
+        return self._data[4]
+
+    @property
+    def kind(self) -> Literal["Script", "Hidden Item", "Secret Base", "???"]:
+        match self._data[5]:
+            case 0 | 1 | 2 | 3 | 4:
+                return "Script"
+            case 7:
+                return "Hidden Item"
+            case 8:
+                return "Secret Base"
+            case _:
+                return "???"
+
+    @property
+    def player_facing_direction(self) -> str:
+        """This only has meaning if `kind` is 'Script'."""
+        match self._data[5]:
+            case 0:
+                return "Any"
+            case 1:
+                return "Up"
+            case 2:
+                return "Down"
+            case 3:
+                return "Right"
+            case 4:
+                return "Left"
+            case _:
+                return "???"
+
+    @property
+    def script_pointer(self) -> int:
+        """This only has meaning if `kind` is 'Script'."""
+        return unpack_uint32(self._data[8:12])
+
+    @property
+    def script_symbol(self) -> str:
+        """This only has meaning if `kind` is 'Script'."""
+        symbol = get_symbol_name(self.script_pointer, pretty_name=True)
+        if symbol == "":
+            return hex(self.script_pointer)
+        else:
+            return symbol
+
+    @property
+    def hidden_item(self) -> Item:
+        """This only has meaning if `kind` is 'Hidden Item'."""
+        return get_item_by_index(unpack_uint16(self._data[8:10]))
+
+    @property
+    def hidden_item_flag_id(self) -> int:
+        """This only has meaning if `kind` is 'Hidden Item'."""
+        return unpack_uint16(self._data[10:12])
+
+    @property
+    def secret_base_id(self) -> int:
+        """This only has meaning if `kind` is 'Secret Base'."""
+        return unpack_uint32(self._data[8:12])
+
+    def to_dict(self) -> dict:
+        kind = self.kind
+        data = {
+            "local_coordinates": self.local_coordinates,
+            "elevation": self.elevation,
+            "kind": kind,
+        }
+
+        match kind:
+            case "Script":
+                data["player_facing_direction"] = self.player_facing_direction
+                data["script"] = self.script_symbol
+            case "Hidden Item":
+                data["item"] = self.hidden_item.name
+            case "Secret Base":
+                data["secret_base_id"] = self.secret_base_id
+
+        return data
+
+
 class MapLocation:
     def __init__(self, map_header: bytes, map_group: int, map_number: int, local_position: tuple[int, int]):
         self._map_header = map_header
@@ -503,6 +738,14 @@ class MapLocation:
     @cached_property
     def _tile_behaviour(self) -> int:
         return read_symbol("sTileBitAttributes", self._metatile_attributes[0] & 0x3FF, 1)[0]
+
+    @cached_property
+    def _event_list(self) -> bytes | None:
+        events_list_pointer = unpack_uint32(self._map_header[0x04:0x08])
+        if events_list_pointer == 0:
+            return None
+        else:
+            return context.emulator.read_bytes(events_list_pointer, 20)
 
     @property
     def map_name(self) -> str:
@@ -635,6 +878,86 @@ class MapLocation:
     def is_dark_cave(self) -> bool:
         return bool(self._map_header[0x15] & 0b0001)
 
+    @property
+    def connections(self) -> list[MapConnection]:
+        list_of_connections_pointer = unpack_uint32(self._map_header[0x0C:0x10])
+        if list_of_connections_pointer == 0:
+            return []
+
+        list_of_connections = context.emulator.read_bytes(list_of_connections_pointer, 0x08)
+        count = unpack_uint32(list_of_connections[0:4])
+        connection_pointer = unpack_uint32(list_of_connections[4:8])
+        if connection_pointer == 0:
+            return []
+
+        size_of_struct = 12
+        data = context.emulator.read_bytes(connection_pointer, size_of_struct * count)
+
+        result = []
+        for index in range(count):
+            result.append(MapConnection(data[size_of_struct * index : size_of_struct * (index + 1)]))
+        return result
+
+    @property
+    def warps(self) -> list[MapWarp]:
+        warp_count = self._event_list[1]
+        warp_pointer = unpack_uint32(self._event_list[8:12])
+        if warp_count == 0 or warp_pointer == 0:
+            return []
+
+        size_of_struct = 8
+        data = context.emulator.read_bytes(warp_pointer, warp_count * size_of_struct)
+
+        result = []
+        for index in range(warp_count):
+            result.append(MapWarp(data[size_of_struct * index : size_of_struct * (index + 1)]))
+        return result
+
+    @property
+    def objects(self) -> list["ObjectEventTemplate"]:
+        object_event_count = self._event_list[0]
+        object_event_pointer = unpack_uint32(self._event_list[4:8])
+        if object_event_count == 0 or object_event_pointer == 0:
+            return []
+
+        size_of_struct = 24
+        data = context.emulator.read_bytes(object_event_pointer, size_of_struct * object_event_count)
+
+        result = []
+        for index in range(object_event_count):
+            result.append(ObjectEventTemplate(data[size_of_struct * index : size_of_struct * (index + 1)]))
+        return result
+
+    @property
+    def coord_events(self) -> list[MapCoordEvent]:
+        coord_event_count = self._event_list[2]
+        coord_event_pointer = unpack_uint32(self._event_list[12:16])
+        if coord_event_count == 0 or coord_event_pointer == 0:
+            return []
+
+        size_of_struct = 16
+        data = context.emulator.read_bytes(coord_event_pointer, size_of_struct * coord_event_count)
+
+        result = []
+        for index in range(coord_event_count):
+            result.append(MapCoordEvent(data[size_of_struct * index : size_of_struct * (index + 1)]))
+        return result
+
+    @property
+    def bg_events(self) -> list[MapBgEvent]:
+        bg_event_count = self._event_list[3]
+        bg_event_pointer = unpack_uint32(self._event_list[16:20])
+        if bg_event_count == 0 or bg_event_pointer == 0:
+            return []
+
+        size_of_struct = 12
+        data = context.emulator.read_bytes(bg_event_pointer, size_of_struct * bg_event_count)
+
+        result = []
+        for index in range(bg_event_count):
+            result.append(MapBgEvent(data[size_of_struct * index : size_of_struct * (index + 1)]))
+        return result
+
     def all_tiles(self) -> list[list["MapLocation"]]:
         result = []
 
@@ -659,6 +982,11 @@ class MapLocation:
             "is_running_possible": self.is_running_possible,
             "is_map_name_popup_shown": self.is_map_name_popup_shown,
             "is_dark_cave": self.is_dark_cave,
+            "connections": [c.to_dict() for c in self.connections],
+            "warps": [w.to_dict() for w in self.warps],
+            "tile_enter_events": [e.to_dict() for e in self.coord_events],
+            "tile_interact_events": [e.to_dict() for e in self.bg_events],
+            "object_templates": [t.to_dict() for t in self.objects],
         }
 
     def dict_for_tile(self) -> dict:
@@ -1131,6 +1459,141 @@ class ObjectEvent:
             return f"Trainer at {self.current_coords}"
         else:
             return f"Entity at {self.current_coords}"
+
+
+class ObjectEventTemplate:
+    def __init__(self, data: bytes):
+        self._data = data
+
+    @property
+    def local_id(self) -> int:
+        return self._data[0]
+
+    @property
+    def graphics_id(self) -> int:
+        return self._data[1]
+
+    @property
+    def kind(self) -> Literal["normal", "clone"]:
+        if self._data[2] == 255:
+            return "clone"
+        else:
+            return "normal"
+
+    @property
+    def local_coordinates(self) -> tuple[int, int]:
+        return unpack_uint16(self._data[4:6]), unpack_uint16(self._data[6:8])
+
+    @property
+    def elevation(self) -> int:
+        return self._data[8]
+
+    @property
+    def movement_type(self) -> str:
+        return ObjectEvent.MOVEMENT_TYPES[self._data[9]]
+
+    @property
+    def movement_range(self) -> tuple[int, int]:
+        return (self._data[10] & 0xF0) >> 4, self._data[10] & 0x0F
+
+    @property
+    def trainer_type(self) -> Literal["None", "Normal", "See All Directions", "Buried", "???"]:
+        match unpack_uint16(self._data[12:14]):
+            case 0:
+                return "None"
+            case 1:
+                return "Normal"
+            case 2:
+                return "See All Directions"
+            case 3:
+                return "Buried"
+            case _:
+                return "???"
+
+    @property
+    def trainer_range(self) -> int:
+        return unpack_uint16(self._data[14:16])
+
+    @property
+    def berry_tree_id(self) -> int:
+        return unpack_uint16(self._data[14:16])
+
+    @property
+    def script_pointer(self) -> int:
+        return unpack_uint32(self._data[16:20])
+
+    @property
+    def script_symbol(self) -> str:
+        symbol = get_symbol_name(self.script_pointer, pretty_name=True)
+        if symbol == "":
+            return hex(self.script_pointer)
+        else:
+            return symbol
+
+    @property
+    def flag_id(self) -> int:
+        return unpack_uint16(self._data[20:22])
+
+    @property
+    def clone_target_local_id(self) -> int:
+        """This only has meaning if `kind` is 'clone' on FRLG."""
+        return self.elevation
+
+    @property
+    def clone_target_map_group(self) -> int:
+        """This only has meaning if `kind` is 'clone' on FRLG."""
+        return unpack_uint16(self._data[12:14])
+
+    @property
+    def clone_target_map_number(self) -> int:
+        """This only has meaning if `kind` is 'clone' on FRLG."""
+        return unpack_uint16(self._data[14:16])
+
+    @property
+    def clone_target_map(self) -> MapLocation:
+        """This only has meaning if `kind` is 'clone' on FRLG."""
+        return get_map_data(self.clone_target_map_group, self.clone_target_map_number, (0, 0))
+
+    def to_dict(self) -> dict:
+        kind = self.kind
+        data = {
+            "local_id": self.local_id,
+            "local_coordinates": self.local_coordinates,
+            "kind": kind,
+            "script": self.script_symbol,
+        }
+
+        if kind == "normal":
+            trainer = None
+            if self.trainer_type != "None":
+                trainer = {
+                    "type": self.trainer_type,
+                    "range": self.trainer_range,
+                }
+
+            data["elevation"] = self.elevation
+            data["trainer"] = trainer
+            data["movement"] = {
+                "type": self.movement_type,
+                "range": self.movement_range,
+            }
+        else:
+            data["target"] = {
+                "map_group": self.clone_target_map_group,
+                "map_number": self.clone_target_map_number,
+                "map_name": self.clone_target_map.map_name,
+                "local_id": self.local_id,
+            }
+
+        return data
+
+    def __str__(self) -> str:
+        if self.trainer_type == "Buried":
+            return f"Buried Trainer at {self.local_coordinates}"
+        elif self.trainer_type != "None":
+            return f"Trainer at {self.local_coordinates}"
+        else:
+            return f"Entity at {self.local_coordinates}"
 
 
 def get_map_data_for_current_position() -> MapLocation:

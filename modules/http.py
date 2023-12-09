@@ -7,10 +7,12 @@ from flask_cors import CORS
 
 from modules.config import available_bot_modes
 from modules.context import context
+from modules.data.map import MapRSE, MapFRLG
 from modules.game import _event_flags
 from modules.http_stream import add_subscriber
 from modules.items import get_items
 from modules.main import work_queue
+from modules.map import get_map_data
 from modules.memory import get_event_flag, get_game_state, GameState
 from modules.pokemon import get_party
 from modules.stats import total_stats
@@ -123,6 +125,26 @@ def http_server() -> None:
             data = None
 
         return jsonify(data)
+
+    @server.route("/map/<int:map_group>/<int:map_number>")
+    def http_get_map_by_group_and_number(map_group: int, map_number: int):
+        if context.rom.game_title in ["POKEMON EMER", "POKEMON RUBY", "POKEMON SAPP"]:
+            maps_enum = MapRSE
+        else:
+            maps_enum = MapFRLG
+
+        try:
+            maps_enum((map_group, map_number))
+        except ValueError:
+            return Response(f"No such map: {str(map_group)}, {str(map_number)}", status=404)
+
+        map_data = get_map_data(map_group, map_number, local_position=(0, 0))
+        return jsonify(
+            {
+                "map": map_data.dict_for_map(),
+                "tiles": map_data.dicts_for_all_tiles(),
+            }
+        )
 
     @server.route("/party", methods=["GET"])
     def http_get_party():
