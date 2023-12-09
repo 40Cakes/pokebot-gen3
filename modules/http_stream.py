@@ -42,7 +42,7 @@ for name in DataSubscription.all_names():
 max_client_id: int = 0
 
 
-def add_subscriber(subscribed_topics: list[str]) -> tuple[queue.Queue :, callable]:
+def add_subscriber(subscribed_topics: list[str]) -> tuple[queue.Queue:, callable]:
     for topic in subscribed_topics:
         if topic not in DataSubscription.all_names():
             raise ValueError(f"Topic '{topic}' does not exist.")
@@ -119,8 +119,7 @@ def run_watcher():
                     "current_time_spent_in_bot_fraction": context.emulator.get_current_time_spent_in_bot_fraction(),
                     "encounter_rate": total_stats.get_encounter_rate(),
                 },
-                event_type="PerformanceData",
-            )
+                event_type="PerformanceData")
 
         if subscriptions["Player"] > 0:
             if state_cache.player.age_in_frames >= 60:
@@ -175,7 +174,7 @@ def run_watcher():
                         data = {
                             "map": map_data.dict_for_map(),
                             "player_position": map_data.local_position,
-                            "tiles": map_data.dicts_for_all_tiles(),
+                            "tiles": map_data.dicts_for_all_tiles()
                         }
 
                         send_message(DataSubscription.Map, data=data, event_type="MapChange")
@@ -197,9 +196,8 @@ def run_watcher():
         if subscriptions["EmulatorSettings"] > 0:
             if context.emulation_speed != previous_emulator_state["emulation_speed"]:
                 previous_emulator_state["emulation_speed"] = context.emulation_speed
-                send_message(
-                    DataSubscription.EmulatorSettings, data=context.emulation_speed, event_type="EmulationSpeed"
-                )
+                send_message(DataSubscription.EmulatorSettings, data=context.emulation_speed,
+                             event_type="EmulationSpeed")
 
             if context.audio != previous_emulator_state["audio_enabled"]:
                 previous_emulator_state["audio_enabled"] = context.audio
@@ -218,11 +216,8 @@ def run_watcher():
         sleep(update_interval)
 
 
-def send_message(
-    subscription_flag: DataSubscription,
-    data: str | list | tuple | dict | int | float | None,
-    event_type: str | None = None,
-) -> None:
+def send_message(subscription_flag: DataSubscription, data: str | list | tuple | dict | int | float | None,
+                 event_type: str | None = None) -> None:
     if event_type is not None:
         message = f"event: {event_type}\ndata: {json.dumps(data)}"
     else:
@@ -233,5 +228,5 @@ def send_message(
             try:
                 subscribers[index][1].put_nowait(message)
             except queue.Full:
-                console.print(f"[yellow]Queue for client [bold]{subscribers[index][0]}[/] was full. Disconnecting.[/]")
+                console.print(f'[yellow]Queue for client [bold]{subscribers[index][0]}[/] was full. Disconnecting.[/]')
                 subscribers[index][3]()
