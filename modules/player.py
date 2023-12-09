@@ -58,17 +58,21 @@ class PlayerAvatar:
 
     def __eq__(self, other):
         if isinstance(other, PlayerAvatar):
-            return other._object_event == self._object_event and \
-                other._player_avatar_data == self._player_avatar_data and \
-                other._map_group_and_number == self._map_group_and_number
+            return (
+                other._object_event == self._object_event
+                and other._player_avatar_data == self._player_avatar_data
+                and other._map_group_and_number == self._map_group_and_number
+            )
         else:
             return NotImplemented
 
     def __ne__(self, other):
         if isinstance(other, PlayerAvatar):
-            return other._object_event != self._object_event or \
-                other._player_avatar_data != self._player_avatar_data or \
-                other._map_group_and_number == self._map_group_and_number
+            return (
+                other._object_event != self._object_event
+                or other._player_avatar_data != self._player_avatar_data
+                or other._map_group_and_number == self._map_group_and_number
+            )
         else:
             return NotImplemented
 
@@ -78,8 +82,12 @@ class PlayerAvatar:
 
     @cached_property
     def map_location(self) -> MapLocation:
-        return MapLocation(read_symbol("gMapHeader"), self._object_event.map_group, self._object_event.map_num,
-                           self._object_event.current_coords)
+        return MapLocation(
+            read_symbol("gMapHeader"),
+            self._object_event.map_group,
+            self._object_event.map_num,
+            self._object_event.current_coords,
+        )
 
     @property
     def local_coordinates(self) -> tuple[int, int]:
@@ -91,8 +99,7 @@ class PlayerAvatar:
 
     @property
     def is_on_bike(self) -> bool:
-        return AvatarFlags.OnAcroBike in self.flags \
-            or AvatarFlags.OnMachBike in self.flags
+        return AvatarFlags.OnAcroBike in self.flags or AvatarFlags.OnMachBike in self.flags
 
     @property
     def running_state(self) -> RunningState:
