@@ -21,7 +21,7 @@ from modules.memory import (
     set_event_flag,
     get_event_flag,
 )
-from modules.player import get_player, AvatarFlags, TileTransitionState
+from modules.player import get_player, get_player_avatar, AvatarFlags, TileTransitionState
 from modules.pokemon import get_party, get_species_by_index
 from modules.tasks import get_tasks, task_is_active
 
@@ -555,13 +555,14 @@ class PlayerTab(DebugTab):
 
     def _get_data(self):
         player = get_player()
+        player_avatar = get_player_avatar()
         party = get_party()
 
         flags = {}
         active_flags = []
         for flag in AvatarFlags:
-            flags[flag.name] = flag in player.flags
-            if flag in player.flags:
+            flags[flag.name] = flag in player_avatar.flags
+            if flag in player_avatar.flags:
                 active_flags.append(flag.name)
 
         if len(active_flags) == 0:
@@ -574,15 +575,17 @@ class PlayerTab(DebugTab):
             "Gender": player.gender,
             "Trainer ID": player.trainer_id,
             "Secret ID": player.secret_id,
-            "Map": player.map_group_and_number,
-            "Map Name": player.map_name,
-            "Local Coordinates": player.local_coordinates,
+            "Money": f"${player.money:,}",
+            "Coins": f"{player.coins:,}",
+            "Registered Item": player.registered_item.name if player.registered_item is not None else "None",
+            "Map Group and Number": player_avatar.map_group_and_number,
+            "Local Coordinates": player_avatar.local_coordinates,
             "Flags": flags,
-            "On Bike": player.is_on_bike,
-            "Running State": player.running_state.name,
-            "Acro Bike State": player.acro_bike_state.name,
-            "Tile Transition State": player.tile_transition_state.name,
-            "Facing Direction": player.facing_direction,
+            "On Bike": player_avatar.is_on_bike,
+            "Running State": player_avatar.running_state.name,
+            "Acro Bike State": player_avatar.acro_bike_state.name,
+            "Tile Transition State": player_avatar.tile_transition_state.name,
+            "Facing Direction": player_avatar.facing_direction,
         }
 
         for i in range(0, 6):
@@ -716,7 +719,7 @@ class MapTab(DebugTab):
         root.add(frame, text="Map")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        player = get_player()
+        player = get_player_avatar()
         show_different_tile = self._marker_rectangle is not None and task_is_active("Task_WeatherMain")
         self._map.update()
 
@@ -770,7 +773,7 @@ class MapTab(DebugTab):
         tile_x = click_location[0] // tile_size
         tile_y = (click_location[1] + half_tile_size) // tile_size
 
-        current_map_data = get_player().map_location
+        current_map_data = get_player_avatar().map_location
         actual_x = current_map_data.local_position[0] + (tile_x - 7)
         actual_y = current_map_data.local_position[1] + (tile_y - 5)
         if (
@@ -799,7 +802,7 @@ class MapTab(DebugTab):
             map_group, map_number = self._selected_map
             map_data = get_map_data(map_group, map_number, self._selected_tile)
         else:
-            map_data = get_player().map_location
+            map_data = get_player_avatar().map_location
 
         map_objects = get_map_objects()
         object_list = {"__value": len(map_objects)}

@@ -17,7 +17,7 @@ from modules.memory import get_event_flag, get_game_state, GameState
 from modules.pokemon import get_party
 from modules.stats import total_stats
 from modules.state_cache import state_cache
-from modules.player import get_player
+from modules.player import get_player, get_player_avatar
 
 
 def http_server() -> None:
@@ -40,14 +40,14 @@ def http_server() -> None:
 
         def stream():
             try:
-                yield "retry: 1000\n\n"
+                yield "retry: 2500\n\n"
                 while True:
                     yield queue.get()
                     yield "\n\n"
             except GeneratorExit:
                 unsubscribe()
 
-        return Response(stream(), mimetype='text/event-stream')
+        return Response(stream(), mimetype="text/event-stream")
 
     @server.route("/stream_video", methods=["GET"])
     def http_get_video_stream():
@@ -86,7 +86,20 @@ def http_server() -> None:
             data = cached_player.value.to_dict()
         else:
             data = {}
-        data["game_state"] = get_game_state().name
+        return jsonify(data)
+
+    @server.route("/player_avatar", methods=["GET"])
+    def http_get_player_avatar():
+        cached_avatar = state_cache.player_avatar
+        if cached_avatar.age_in_frames > 5:
+            work_queue.put_nowait(get_player_avatar)
+            while cached_avatar.age_in_frames > 5:
+                time.sleep(0.05)
+
+        if cached_avatar.value is not None:
+            data = cached_avatar.value.to_dict()
+        else:
+            data = {}
         return jsonify(data)
 
     @server.route("/items", methods=["GET"])
@@ -95,14 +108,14 @@ def http_server() -> None:
 
     @server.route("/map", methods=["GET"])
     def http_get_map():
-        cached_player = state_cache.player
-        if cached_player.age_in_frames > 5:
-            work_queue.put_nowait(get_player)
-            while cached_player.age_in_frames > 5:
+        cached_avatar = state_cache.player_avatar
+        if cached_avatar.age_in_frames > 5:
+            work_queue.put_nowait(get_player_avatar)
+            while cached_avatar.age_in_frames > 5:
                 time.sleep(0.05)
 
-        if cached_player.value is not None:
-            map_data = cached_player.value.map_location
+        if cached_avatar.value is not None:
+            map_data = cached_avatar.value.map_location
             data = {
                 "map": map_data.dict_for_map(),
                 "player_position": map_data.local_position,
@@ -143,7 +156,7 @@ def http_server() -> None:
 
     @server.route("/opponent", methods=["GET"])
     def http_get_opponent():
-        if state_cache.game_state != GameState.BATTLE:
+        if state_cache.game_state.value != GameState.BATTLE:
             result = None
         else:
             cached_opponent = state_cache.opponent
@@ -153,6 +166,10 @@ def http_server() -> None:
                 result = None
 
         return jsonify(result)
+
+    @server.route("/game_state", methods=["GET"])
+    def http_get_game_state():
+        return jsonify(get_game_state().name)
 
     @server.route("/encounter_log", methods=["GET"])
     def http_get_encounter_log():
@@ -227,13 +244,15 @@ def http_server() -> None:
                 if new_settings["emulation_speed"] not in [0, 1, 2, 3, 4]:
                     return Response(
                         f"Setting `emulation_speed` contains an invalid value ('{new_settings['emulation_speed']}')",
-                        status=422)
+                        status=422,
+                    )
                 context.emulation_speed = new_settings["emulation_speed"]
             elif key == "bot_mode":
                 if new_settings["bot_mode"] not in available_bot_modes:
                     return Response(
                         f"Setting `bot_mode` contains an invalid value ('{new_settings['bot_mode']}'). Possible values are: {', '.join(available_bot_modes)}",
-                        status=422)
+                        status=422,
+                    )
                 context.bot_mode = new_settings["bot_mode"]
             elif key == "video_enabled":
                 if not isinstance(new_settings["video_enabled"], bool):

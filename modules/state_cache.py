@@ -5,7 +5,7 @@ from modules.context import context
 
 if TYPE_CHECKING:
     from modules.memory import GameState
-    from modules.player import Player
+    from modules.player import Player, PlayerAvatar
     from modules.pokemon import Pokemon
     from modules.tasks import TaskList
 
@@ -47,6 +47,7 @@ class StateCache:
         self._party: StateCacheItem[list["Pokemon"]] = StateCacheItem([])
         self._opponent: StateCacheItem["Pokemon | None"] = StateCacheItem(None)
         self._player: StateCacheItem["Player | None"] = StateCacheItem(None)
+        self._player_avatar: StateCacheItem["PlayerAvatar | None"] = StateCacheItem(None)
         self._tasks: StateCacheItem["TaskList | None"] = StateCacheItem(None)
         self._game_state: StateCacheItem["GameState | None"] = StateCacheItem(None)
 
@@ -84,8 +85,21 @@ class StateCache:
 
     @player.setter
     def player(self, player: "Player"):
-        if self._opponent.value is None or player != self._opponent.value:
+        if self._player.value is None or player != self._player.value:
             self._player.value = player
+        else:
+            self._player.checked()
+
+    @property
+    def player_avatar(self) -> StateCacheItem["PlayerAvatar | None"]:
+        return self._player_avatar
+
+    @player_avatar.setter
+    def player_avatar(self, player_avatar: "PlayerAvatar"):
+        if self._player_avatar.value is None or player_avatar != self._player_avatar.value:
+            self._player_avatar.value = player_avatar
+        else:
+            self._player_avatar.checked()
 
     @property
     def tasks(self) -> StateCacheItem["TaskList | None"]:

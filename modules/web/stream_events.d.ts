@@ -1,4 +1,4 @@
-import {MapLocation, Pokemon} from "./pokemon";
+import {MapLocation, Pokemon, Player as PlayerType} from "./pokemon";
 
 declare module StreamEvents {
     export type PerformanceData = {
@@ -18,6 +18,9 @@ declare module StreamEvents {
         // Last calculated encounter rate.
         encounter_rate: number;
     };
+
+    // Contains some basic data about the player (such as name, IDs, current money, ...)
+    export type Player = PlayerType;
 
     // Lists Pokémon in the current party. May contain between 0 and 6 entries.
     export type Party = Pokemon[];

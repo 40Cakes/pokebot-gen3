@@ -522,3 +522,40 @@ export type MapLocation = {
     // Information about _all_ the tiles on that map, indexed by x/y.
     tiles: MapTileData[][];
 };
+
+export type Player = {
+    name: string;
+    gender: "male" | "female";
+
+    trainer_id: number;
+    secret_id: number;
+
+    money: number;
+    coins: number;
+
+    registered_item: string;
+};
+
+export type PlayerAvatar = {
+    map_group_and_number: [number, number];
+
+    // Local coordinates (in tiles) on the current map.
+    local_coordinates: [number, number];
+
+    running_state: "NOT_MOVING" | "TURN_DIRECTION" | "MOVING";
+    tile_transition_state: "NOT_MOVING" | "TRANSITIONING" | "CENTERING";
+    acro_bike_state: "NORMAL" | "TURNING" | "STANDING_WHEELIE" | "HOPPING_WHEELIE" | "MOVING_WHEELIE";
+    on_bike: boolean;
+    facing_direction: "Down" | "Up" | "Left" | "Right";
+
+    flags: {
+        OnFoot: boolean;
+        OnMachBike: boolean;
+        OnAcroBike: boolean;
+        Surfing: boolean;
+        Underwater: boolean;
+        Controllable: boolean;
+        ForciblyMoving: boolean;
+        Dash: boolean;
+    };
+};
