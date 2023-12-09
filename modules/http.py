@@ -139,10 +139,12 @@ def http_server() -> None:
             return Response(f"No such map: {str(map_group)}, {str(map_number)}", status=404)
 
         map_data = get_map_data(map_group, map_number, local_position=(0, 0))
-        return jsonify({
-            "map": map_data.dict_for_map(),
-            "tiles": map_data.dicts_for_all_tiles(),
-        })
+        return jsonify(
+            {
+                "map": map_data.dict_for_map(),
+                "tiles": map_data.dicts_for_all_tiles(),
+            }
+        )
 
     @server.route("/party", methods=["GET"])
     def http_get_party():

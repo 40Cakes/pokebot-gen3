@@ -31,14 +31,14 @@ if TYPE_CHECKING:
 
 class FancyTreeview:
     def __init__(
-            self,
-            root: ttk.Widget,
-            height=22,
-            row=0,
-            column=0,
-            columnspan=1,
-            additional_context_actions: Optional[dict[str, callable]] = None,
-            on_highlight: Optional[callable] = None,
+        self,
+        root: ttk.Widget,
+        height=22,
+        row=0,
+        column=0,
+        columnspan=1,
+        additional_context_actions: Optional[dict[str, callable]] = None,
+        on_highlight: Optional[callable] = None,
     ):
         if additional_context_actions is None:
             additional_context_actions = {}
@@ -76,6 +76,7 @@ class FancyTreeview:
         self._tv.bind("<Right>", lambda _: root.focus_set())
 
         if on_highlight is not None:
+
             def handle_selection(e):
                 selected_item = self._tv.focus()
                 on_highlight(self._tv.item(selected_item)["text"])
@@ -515,7 +516,7 @@ class SymbolsTab(DebugTab):
                 n = int.from_bytes(value, byteorder="little")
                 binary_string = bin(n).removeprefix("0b").rjust(length * 8, "0")
                 chunk_size = 4
-                chunks = [binary_string[i: i + chunk_size] for i in range(0, len(binary_string), chunk_size)]
+                chunks = [binary_string[i : i + chunk_size] for i in range(0, len(binary_string), chunk_size)]
                 data[symbol] = " ".join(chunks)
             else:
                 data[symbol] = value.hex(" ", 1)
@@ -777,11 +778,11 @@ class MapTab(DebugTab):
         actual_x = current_map_data.local_position[0] + (tile_x - 7)
         actual_y = current_map_data.local_position[1] + (tile_y - 5)
         if (
-                self._selected_tile == (actual_x, actual_y)
-                or actual_x < 0
-                or actual_x >= current_map_data.map_size[0]
-                or actual_y < 0
-                or actual_y >= current_map_data.map_size[1]
+            self._selected_tile == (actual_x, actual_y)
+            or actual_x < 0
+            or actual_x >= current_map_data.map_size[0]
+            or actual_y < 0
+            or actual_y >= current_map_data.map_size[1]
         ):
             self._selected_tile = None
             self._selected_map = None
@@ -839,8 +840,9 @@ class MapTab(DebugTab):
         map_connections = map_data.connections
         connections_list = {"__value": set()}
         for i in range(len(map_connections)):
-            connections_list[map_connections[i].direction] = \
-                f"to {map_connections[i].destination_map.map_name} (offset: {str(map_connections[i].offset)})"
+            connections_list[
+                map_connections[i].direction
+            ] = f"to {map_connections[i].destination_map.map_name} (offset: {str(map_connections[i].offset)})"
             connections_list["__value"].add(map_connections[i].direction)
         connections_list["__value"] = ", ".join(connections_list["__value"])
 
@@ -849,8 +851,9 @@ class MapTab(DebugTab):
         for i in range(len(map_warps)):
             warp = map_warps[i]
             d = warp.destination_location
-            warps_list[format_coordinates(warp.local_coordinates)] = \
-                f"to ({format_coordinates(d.local_position)}) on [{d.map_group}, {d.map_number}] ({d.map_name})"
+            warps_list[
+                format_coordinates(warp.local_coordinates)
+            ] = f"to ({format_coordinates(d.local_position)}) on [{d.map_group}, {d.map_number}] ({d.map_name})"
 
         map_object_templates = map_data.objects
         object_templates_list = {"__value": len(map_object_templates)}
@@ -871,8 +874,9 @@ class MapTab(DebugTab):
             else:
                 object_templates_list[key]["target_local_id"] = obj.clone_target_local_id
                 target_map = obj.clone_target_map
-                object_templates_list[key]["target_map"] = \
-                    f"{target_map.map_name} [{target_map.map_group}, {target_map.map_number}]"
+                object_templates_list[key][
+                    "target_map"
+                ] = f"{target_map.map_name} [{target_map.map_group}, {target_map.map_number}]"
 
         map_coord_events = map_data.coord_events
         coord_events_list = {"__value": len(map_coord_events)}
