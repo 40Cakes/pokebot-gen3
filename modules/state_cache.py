@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from modules.memory import GameState
     from modules.player import Player, PlayerAvatar
     from modules.pokemon import Pokemon
+    from modules.pokemon_storage import PokemonStorage
     from modules.pokedex import Pokedex
     from modules.tasks import TaskList
 
@@ -50,6 +51,7 @@ class StateCache:
         self._player: StateCacheItem["Player | None"] = StateCacheItem(None)
         self._player_avatar: StateCacheItem["PlayerAvatar | None"] = StateCacheItem(None)
         self._pokedex: StateCacheItem["Pokedex | None"] = StateCacheItem(None)
+        self._pokemon_storage: StateCacheItem["PokemonStorage | None"] = StateCacheItem(None)
         self._tasks: StateCacheItem["TaskList | None"] = StateCacheItem(None)
         self._game_state: StateCacheItem["GameState | None"] = StateCacheItem(None)
 
@@ -113,6 +115,17 @@ class StateCache:
             self._pokedex.value = pokedex
         else:
             self._pokedex.checked()
+
+    @property
+    def pokemon_storage(self) -> StateCacheItem["PokemonStorage | None"]:
+        return self._pokemon_storage
+
+    @pokemon_storage.setter
+    def pokemon_storage(self, pokemon_storage: "PokemonStorage"):
+        if self._pokemon_storage.value is None or self._pokemon_storage.value != pokemon_storage:
+            self._pokemon_storage.value = pokemon_storage
+        else:
+            self._pokemon_storage.checked()
 
     @property
     def tasks(self) -> StateCacheItem["TaskList | None"]:

@@ -573,3 +573,24 @@ export type PlayerAvatar = {
         Dash: boolean;
     };
 };
+
+type PokemonStorageSlot = {
+    slot_index: number;
+    row: number;
+    column: number;
+    pokemon: Pokemon;
+};
+
+type PokemonStorageBox = {
+    name: string;
+    wallpaper_id: number;
+
+    // A list of all _used_ slots in this box.
+    slots: PokemonStorageSlot[];
+};
+
+export type PokemonStorage = {
+    active_box_index: number;
+    pokemon_count: number;
+    boxes: PokemonStorageBox[];
+};

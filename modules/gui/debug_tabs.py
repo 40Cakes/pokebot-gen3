@@ -24,6 +24,7 @@ from modules.memory import (
 from modules.player import get_player, get_player_avatar, AvatarFlags, TileTransitionState
 from modules.pokedex import get_pokedex
 from modules.pokemon import get_party, get_species_by_index
+from modules.pokemon_storage import get_pokemon_storage
 from modules.tasks import get_tasks, task_is_active
 
 if TYPE_CHECKING:
@@ -588,7 +589,6 @@ class PlayerTab(DebugTab):
         else:
             flags["__value"] = ", ".join(active_flags)
 
-
         pokedex = get_pokedex()
 
         seen_species = pokedex.seen_species
@@ -601,7 +601,7 @@ class PlayerTab(DebugTab):
         for species in owned_species:
             pokedex_owned[species.national_dex_number] = species.name
 
-        result = {
+        result: dict[str, any] = {
             "Name": player.name,
             "Gender": player.gender,
             "Trainer ID": player.trainer_id,
@@ -630,6 +630,14 @@ class PlayerTab(DebugTab):
             result[key] = party[i]
 
         result["Items"] = get_items()
+
+        pokemon_storage = get_pokemon_storage()
+        result["Pokemon Storage"] = {"__value": f"{pokemon_storage.pokemon_count} Pokémon"}
+        for box in pokemon_storage.boxes:
+            box_data = {"__value": f"{box.name} ({len(box)} Pokémon)"}
+            for slot in box.slots:
+                box_data[f"Row {slot.row}, Column {slot.column}"] = str(slot.pokemon)
+            result["Pokemon Storage"][f"Box #{box.number + 1}"] = box_data
 
         return result
 

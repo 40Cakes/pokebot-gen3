@@ -15,6 +15,7 @@ from modules.main import work_queue
 from modules.map import get_map_data
 from modules.memory import get_event_flag, get_game_state, GameState
 from modules.pokemon import get_party
+from modules.pokemon_storage import get_pokemon_storage
 from modules.stats import total_stats
 from modules.state_cache import state_cache
 from modules.player import get_player, get_player_avatar
@@ -166,6 +167,16 @@ def http_server() -> None:
                 time.sleep(0.05)
 
         return jsonify(cached_pokedex.value.to_dict())
+
+    @server.route("/pokemon_storage", methods=["GET"])
+    def http_get_pokemon_storage():
+        cached_storage = state_cache.pokemon_storage
+        if cached_storage.age_in_frames > 5:
+            work_queue.put_nowait(get_pokemon_storage)
+            while cached_storage.age_in_frames > 5:
+                time.sleep(0.05)
+
+        return jsonify(cached_storage.value.to_dict())
 
     @server.route("/opponent", methods=["GET"])
     def http_get_opponent():
