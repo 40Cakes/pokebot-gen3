@@ -47,7 +47,7 @@ def http_server() -> None:
             except GeneratorExit:
                 unsubscribe()
 
-        return Response(stream(), mimetype='text/event-stream')
+        return Response(stream(), mimetype="text/event-stream")
 
     @server.route("/stream_video", methods=["GET"])
     def http_get_video_stream():
@@ -246,13 +246,15 @@ def http_server() -> None:
                 if new_settings["emulation_speed"] not in [0, 1, 2, 3, 4]:
                     return Response(
                         f"Setting `emulation_speed` contains an invalid value ('{new_settings['emulation_speed']}')",
-                        status=422)
+                        status=422,
+                    )
                 context.emulation_speed = new_settings["emulation_speed"]
             elif key == "bot_mode":
                 if new_settings["bot_mode"] not in available_bot_modes:
                     return Response(
                         f"Setting `bot_mode` contains an invalid value ('{new_settings['bot_mode']}'). Possible values are: {', '.join(available_bot_modes)}",
-                        status=422)
+                        status=422,
+                    )
                 context.bot_mode = new_settings["bot_mode"]
             elif key == "video_enabled":
                 if not isinstance(new_settings["video_enabled"], bool):
