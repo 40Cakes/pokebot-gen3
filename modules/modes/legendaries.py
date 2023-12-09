@@ -6,7 +6,7 @@ from modules.data.map import MapRSE
 from modules.gui.multi_select_window import MultiSelector, Selection, MultiSelectWindow
 from modules.memory import get_game_state, GameState, get_event_flag, read_symbol
 from modules.navigation import follow_path
-from modules.player import get_player
+from modules.player import get_player_avatar
 
 
 class ModeAncientLegendariesStates(Enum):
@@ -17,7 +17,7 @@ class ModeAncientLegendariesStates(Enum):
 class ModeAncientLegendaries:
     def __init__(self):
         if not context.selected_pokemon:
-            player = get_player()
+            player = get_player_avatar()
             sprites = Path(__file__).parent.parent.parent / "sprites" / "pokemon" / "normal"
 
             conditions = {
@@ -114,7 +114,7 @@ class ModeAncientLegendaries:
 
     def step(self):
         while True:
-            player = get_player()
+            player_avatar = get_player_avatar()
 
             match self.state, context.selected_pokemon:
                 case ModeAncientLegendariesStates.INTERACT, "Kyogre":
@@ -125,7 +125,7 @@ class ModeAncientLegendaries:
                                 continue
                             else:
                                 follow_path(  # TODO follow_path() needs reworking (not a generator)
-                                    [(player.local_coordinates[0], 26), (9, 26)]
+                                    [(player_avatar.local_coordinates[0], 26), (9, 26)]
                                 )
                         case GameState.BATTLE:
                             return
@@ -138,7 +138,7 @@ class ModeAncientLegendaries:
                                 continue
                             else:
                                 follow_path(  # TODO follow_path() needs reworking (not a generator)
-                                    [(player.local_coordinates[0], 26), (17, 26)]
+                                    [(player_avatar.local_coordinates[0], 26), (17, 26)]
                                 )
                         case GameState.BATTLE:
                             return
@@ -159,14 +159,14 @@ class ModeAncientLegendaries:
                             return
 
                 case ModeAncientLegendariesStates.LEAVE_ROOM, "Kyogre":
-                    if player.local_coordinates == (9, 26):
+                    if player_avatar.local_coordinates == (9, 26):
                         context.emulator.hold_button("Down")
                         context.emulator.press_button("B")
                     else:
                         context.emulator.release_button("Down")
                         follow_path(  # TODO follow_path() needs reworking (not a generator)
                             [
-                                (player.local_coordinates[0], 27),
+                                (player_avatar.local_coordinates[0], 27),
                                 (18, 27),
                                 (18, 14),
                                 (14, 14),
@@ -184,14 +184,14 @@ class ModeAncientLegendaries:
                         return
 
                 case ModeAncientLegendariesStates.LEAVE_ROOM, "Groudon":
-                    if player.local_coordinates == (17, 26):
+                    if player_avatar.local_coordinates == (17, 26):
                         context.emulator.hold_button("Left")
                         context.emulator.press_button("B")
                     else:
                         context.emulator.release_button("Left")
                         follow_path(  # TODO follow_path() needs reworking (not a generator)
                             [
-                                (player.local_coordinates[0], 26),
+                                (player_avatar.local_coordinates[0], 26),
                                 (7, 26),
                                 (7, 15),
                                 (9, 15),
