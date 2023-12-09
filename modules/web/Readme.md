@@ -121,6 +121,12 @@ second containing some basic performance data (e.g. FPS, encounter rate, ...)
 This event is also called `PerformanceData`
 
 
+### Topic `Player`
+
+This will send you a `Player` event whenever some basic data of the player
+changes, such as name, cash, coins, and the registered (select) item.
+
+
 ### Topic `Opponent`
 
 This will send you an `Opponent` event each time the opponent changes.

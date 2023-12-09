@@ -1134,9 +1134,9 @@ class ObjectEvent:
 
 
 def get_map_data_for_current_position() -> MapLocation:
-    from modules.player import get_player
+    from modules.player import get_player_avatar
 
-    player = get_player()
+    player = get_player_avatar()
 
     map_group, map_number = player.map_group_and_number
     return MapLocation(read_symbol("gMapHeader"), map_group, map_number, player.local_coordinates)
