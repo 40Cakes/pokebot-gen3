@@ -61,7 +61,9 @@ class ModeLegendaryBirds:
                         and player_avatar.map_group_and_number == MapFRLG.POWER_PLANT.value
                         and (
                             (player_avatar.local_coordinates == (5, 12) and player_avatar.facing_direction == "Up")
-                            or (player_avatar.local_coordinates == (4, 11) and player_avatar.facing_direction == "Right")
+                            or (
+                                player_avatar.local_coordinates == (4, 11) and player_avatar.facing_direction == "Right"
+                            )
                             or (player_avatar.local_coordinates == (5, 10) and player_avatar.facing_direction == "Down")
                             or (player_avatar.local_coordinates == (6, 11) and player_avatar.facing_direction == "Left")
                         )

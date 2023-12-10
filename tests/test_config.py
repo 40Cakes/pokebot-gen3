@@ -108,7 +108,8 @@ CONFIG_TESTS = {
         "defaults load correctly": {"kwargs": {"config_dir": Path("tests")}, "expected": DEFAULT_CONFIG},
         "folder loads correctly": {
             "kwargs": {"config_dir": Path("tests") / "config"},
-            "expected": DEFAULT_CONFIG.copy() | {"cheats": {"fast_check_starters": True, "random_soft_reset_rng": True}},
+            "expected": DEFAULT_CONFIG.copy()
+            | {"cheats": {"fast_check_starters": True, "random_soft_reset_rng": True}},
         },
         "profile loads correctly": {
             "kwargs": {"config_dir": (Path("tests") / "config") / "profile", "is_profile": True},
