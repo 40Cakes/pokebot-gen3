@@ -62,7 +62,7 @@ class ModeAncientLegendaries:
                     if conditions["Kyogre"]
                     else (
                         "Invalid location:\n"
-                        "Place the trainer anywhere on the platform in Marine Cave, in front of Kyogre"
+                        "Place the player anywhere on the platform in Marine Cave, in front of Kyogre"
                     ),
                     sprite=sprites / "Kyogre.png",
                 ),
@@ -73,7 +73,7 @@ class ModeAncientLegendaries:
                     if conditions["Groudon"]
                     else (
                         "Invalid location:\n"
-                        "Place the trainer anywhere on the platform in Terra Cave, in front of Groudon"
+                        "Place the player anywhere on the platform in Terra Cave, in front of Groudon"
                     ),
                     sprite=sprites / "Groudon.png",
                 ),
@@ -82,7 +82,7 @@ class ModeAncientLegendaries:
                     button_enable=conditions["Rayquaza"],
                     button_tooltip="Select Rayquaza"
                     if conditions["Rayquaza"]
-                    else "Invalid location:\nPlace the trainer at the top of Sky Pillar, facing Rayquaza",
+                    else "Invalid location:\nPlace the player at the top of Sky Pillar, facing Rayquaza",
                     sprite=sprites / "Rayquaza.png",
                 ),
             ]

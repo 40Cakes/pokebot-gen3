@@ -10,7 +10,7 @@ from modules.stats import total_stats
 def encounter_pokemon(pokemon: Pokemon) -> None:
     """
     Call when a Pokémon is encountered, decides whether to battle, flee or catch.
-    Expects the trainer's state to be MISC_MENU (battle started, no longer in the overworld).
+    Expects the player's state to be MISC_MENU (battle started, no longer in the overworld).
     It also calls the function to save the pokemon as a pk file if required in the config.
 
     :return:
