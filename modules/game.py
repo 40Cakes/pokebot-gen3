@@ -137,9 +137,17 @@ def set_rom(rom: ROM) -> None:
         case "AXV":
             match rom.revision:
                 case 0:
-                    _load_symbols("pokeruby.sym", rom.language)
+                    match rom.language:
+                        case "D":
+                            _load_symbols("pokeruby_de.sym", rom.language)
+                        case _:
+                            _load_symbols("pokeruby.sym", rom.language)
                 case 1:
-                    _load_symbols("pokeruby_rev1.sym", rom.language)
+                    match rom.language:
+                        case "D":
+                            _load_symbols("pokeruby_de_rev1.sym", rom.language)
+                        case _:
+                            _load_symbols("pokeruby_rev1.sym", rom.language)
                 case 2:
                     _load_symbols("pokeruby_rev2.sym", rom.language)
             _load_event_flags("chkdb_gen3rs.txt")
@@ -147,9 +155,17 @@ def set_rom(rom: ROM) -> None:
         case "AXP":
             match rom.revision:
                 case 0:
-                    _load_symbols("pokesapphire.sym", rom.language)
+                    match rom.language:
+                        case "D":
+                            _load_symbols("pokesapphire_de.sym", rom.language)
+                        case _:
+                            _load_symbols("pokesapphire.sym", rom.language)
                 case 1:
-                    _load_symbols("pokesapphire_rev1.sym", rom.language)
+                    match rom.language:
+                        case "D":
+                            _load_symbols("pokesapphire_de_rev1.sym", rom.language)
+                        case _:
+                            _load_symbols("pokesapphire_rev1.sym", rom.language)
                 case 2:
                     _load_symbols("pokesapphire_rev2.sym", rom.language)
             _load_event_flags("chkdb_gen3rs.txt")
