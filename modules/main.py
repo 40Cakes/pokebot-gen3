@@ -22,6 +22,7 @@ def main_loop() -> None:
     This function is run after the user has selected a profile and the emulator has been started.
     """
     from modules.encounter import encounter_pokemon  # prevents instantiating TotalStats class before profile selected
+
     encounter_counter = 0
     pickup_checked = False
     lead_rotated = False
@@ -59,7 +60,9 @@ def main_loop() -> None:
                 if mode:
                     mode = None
 
-            elif not mode and config.battle.pickup and should_check_for_pickup(encounter_counter) and not pickup_checked:
+            elif (
+                not mode and config.battle.pickup and should_check_for_pickup(encounter_counter) and not pickup_checked
+            ):
                 mode = MenuWrapper(CheckForPickup(encounter_counter))
                 pickup_checked = True
                 encounter_counter = 0

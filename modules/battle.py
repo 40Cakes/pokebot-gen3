@@ -1154,8 +1154,6 @@ class RotatePokemon(BaseMenuNavigator):
 
     @staticmethod
     def confirm_switch():
-        while task_is_active("TASK_HANDLECHOOSEMONINPUT") or task_is_active(
-            "HANDLEPARTYMENUSWITCHPOKEMONINPUT"
-        ):
+        while task_is_active("TASK_HANDLECHOOSEMONINPUT") or task_is_active("HANDLEPARTYMENUSWITCHPOKEMONINPUT"):
             context.emulator.press_button("A")
             yield
