@@ -10,7 +10,7 @@ from modules.player import get_player_avatar, TileTransitionState
 def follow_path(coords: list, run: bool = True) -> bool:  # TODO needs a rework
     """
     Function to walk/run the trianer through a list of coords.
-    TODO check if trainer gets stuck, re-attempt previous tuple of coords in the list
+    TODO check if player gets stuck, re-attempt previous tuple of coords in the list
 
     :param coords: coords (tuple) (`posX`, `posY`)
     :param run: Trainer will hold B (run) if True, otherwise trainer will walk
