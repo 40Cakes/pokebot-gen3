@@ -12,7 +12,7 @@ from modules.memory import (
     unpack_uint32,
     pack_uint32,
 )
-from modules.pokemon import get_opponent
+from modules.pokemon import get_opponent, opponent_changed
 from modules.tasks import task_is_active
 
 config = context.config
@@ -112,6 +112,7 @@ class ModeStaticSoftResets:
 
                 case ModeStaticSoftResetsStates.LOG_OPPONENT:
                     encounter_pokemon(get_opponent())
+                    opponent_changed()
                     return
 
             yield
