@@ -14,17 +14,13 @@ class Pokedex:
 
     def __eq__(self, other):
         if isinstance(other, Pokedex):
-            return other._data == self._data and \
-                other._seen1 == self._seen1 and \
-                other._seen2 == self._seen2
+            return other._data == self._data and other._seen1 == self._seen1 and other._seen2 == self._seen2
         else:
             return NotImplemented
 
     def __ne__(self, other):
         if isinstance(other, Pokedex):
-            return other._data != self._data or \
-                other._seen1 != self._seen1 or \
-                other._seen2 != self._seen2
+            return other._data != self._data or other._seen1 != self._seen1 or other._seen2 != self._seen2
         else:
             return NotImplemented
 
@@ -40,9 +36,7 @@ class Pokedex:
             mask = 1 << (index % 8)
 
             is_seen = self._data[0x44 + offset] & mask
-            if is_seen and \
-                    (self._seen1[offset] & mask) == is_seen and \
-                    (self._seen2[offset] & mask) == is_seen:
+            if is_seen and (self._seen1[offset] & mask) == is_seen and (self._seen2[offset] & mask) == is_seen:
                 result.append(get_species_by_national_dex(index + 1))
         return result
 
@@ -54,9 +48,7 @@ class Pokedex:
             mask = 1 << (index % 8)
 
             is_seen = self._data[0x10 + offset] & mask
-            if is_seen and \
-                    (self._seen1[offset] & mask) == is_seen and \
-                    (self._seen2[offset] & mask) == is_seen:
+            if is_seen and (self._seen1[offset] & mask) == is_seen and (self._seen2[offset] & mask) == is_seen:
                 result.append(get_species_by_national_dex(index + 1))
         return result
 

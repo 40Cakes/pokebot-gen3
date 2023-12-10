@@ -26,7 +26,7 @@ class PokemonStorageSlot:
             "slot_index": self.slot_index,
             "row": self.row,
             "column": self.column,
-            "pokemon": self.pokemon.to_dict()
+            "pokemon": self.pokemon.to_dict(),
         }
 
 
@@ -91,7 +91,7 @@ class PokemonStorage:
         boxes = []
         for box_index in range(14):
             name_offset = 0x8344 + (box_index * 9)
-            name = decode_string(self._data[name_offset:name_offset + 9])
+            name = decode_string(self._data[name_offset : name_offset + 9])
 
             wallpaper_id_index = 0x83C2 + box_index
             wallpaper_id = self._data[wallpaper_id_index]
@@ -100,7 +100,7 @@ class PokemonStorage:
             slots = []
             for slot_index in range(30):
                 offset = pokemon_offset + (slot_index * 80)
-                pokemon = Pokemon(self._data[offset:offset + 80])
+                pokemon = Pokemon(self._data[offset : offset + 80])
                 if not pokemon.is_empty:
                     slots.append(PokemonStorageSlot(slot_index, pokemon))
 
@@ -158,7 +158,7 @@ class PokemonStorage:
         return {
             "active_box_index": self.active_box_index,
             "pokemon_count": self.pokemon_count,
-            "boxes": [b.to_dict() for b in self.boxes]
+            "boxes": [b.to_dict() for b in self.boxes],
         }
 
 

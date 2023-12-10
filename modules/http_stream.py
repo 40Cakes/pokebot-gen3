@@ -153,7 +153,6 @@ def run_watcher():
                 previous_game_state["pokedex"] = state_cache.pokedex.frame
                 send_message(DataSubscription.Pokedex, data=state_cache.pokedex.value.to_dict(), event_type="Pokedex")
 
-
         if subscriptions["Opponent"] > 0:
             if current_game_state == GameState.BATTLE:
                 if state_cache.opponent.age_in_frames >= 60:

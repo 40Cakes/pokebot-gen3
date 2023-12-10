@@ -113,12 +113,14 @@ def http_server() -> None:
         if cached_storage.age_in_seconds > 1:
             work_queue.put_nowait(get_item_storage)
         while cached_bag.age_in_seconds > 1 or cached_storage.age_in_seconds > 1:
-                time.sleep(0.05)
+            time.sleep(0.05)
 
-        return jsonify({
-            "bag": cached_bag.value.to_dict(),
-            "storage": cached_storage.value.to_list(),
-        })
+        return jsonify(
+            {
+                "bag": cached_bag.value.to_dict(),
+                "storage": cached_storage.value.to_list(),
+            }
+        )
 
     @server.route("/map", methods=["GET"])
     def http_get_map():

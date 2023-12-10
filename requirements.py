@@ -32,10 +32,7 @@ required_modules = [
 ]
 
 if platform.system() == "Windows":
-    required_modules.extend([
-        "pywin32>=306",
-        "psutil~=5.9.5"
-    ])
+    required_modules.extend(["pywin32>=306", "psutil~=5.9.5"])
 
 
 def get_requirements_hash() -> str:

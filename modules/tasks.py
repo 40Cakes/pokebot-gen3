@@ -75,7 +75,7 @@ class TaskList:
     def _dict(self) -> dict[str, Task]:
         tasks: dict[str, Task] = {}
         for index in range(16):
-            task_data = self._data[index * 40: (index + 1) * 40]
+            task_data = self._data[index * 40 : (index + 1) * 40]
             # offset 4 is `is_active` and offsets 0 through 3 are the function pointer
             if task_data[4] != 0 and task_data[0:4] != b"\x00\x00\x00\x00":
                 task = Task(task_data)
