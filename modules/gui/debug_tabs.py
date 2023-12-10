@@ -33,14 +33,14 @@ if TYPE_CHECKING:
 
 class FancyTreeview:
     def __init__(
-            self,
-            root: ttk.Widget,
-            height=22,
-            row=0,
-            column=0,
-            columnspan=1,
-            additional_context_actions: Optional[dict[str, callable]] = None,
-            on_highlight: Optional[callable] = None,
+        self,
+        root: ttk.Widget,
+        height=22,
+        row=0,
+        column=0,
+        columnspan=1,
+        additional_context_actions: Optional[dict[str, callable]] = None,
+        on_highlight: Optional[callable] = None,
     ):
         if additional_context_actions is None:
             additional_context_actions = {}
@@ -78,6 +78,7 @@ class FancyTreeview:
         self._tv.bind("<Right>", lambda _: root.focus_set())
 
         if on_highlight is not None:
+
             def handle_selection(e):
                 selected_item = self._tv.focus()
                 on_highlight(self._tv.item(selected_item)["text"])
@@ -533,7 +534,7 @@ class SymbolsTab(DebugTab):
                 n = int.from_bytes(value, byteorder="little")
                 binary_string = bin(n).removeprefix("0b").rjust(length * 8, "0")
                 chunk_size = 4
-                chunks = [binary_string[i: i + chunk_size] for i in range(0, len(binary_string), chunk_size)]
+                chunks = [binary_string[i : i + chunk_size] for i in range(0, len(binary_string), chunk_size)]
                 data[symbol] = " ".join(chunks)
             else:
                 data[symbol] = value.hex(" ", 1)
@@ -636,9 +637,20 @@ class PlayerTab(DebugTab):
             "TMs and HMs": {"__value": f"{len(item_bag.tms_hms)}/{item_bag.tms_hms_size} Slots"},
             "Berries": {"__value": f"{len(item_bag.berries)}/{item_bag.berries_size} Slots"},
         }
-        total_slots = item_bag.items_size + item_bag.key_items_size + item_bag.poke_balls_size + item_bag.tms_hms_size + item_bag.berries_size
-        used_slots = len(item_bag.items) + len(item_bag.key_items) + len(item_bag.poke_balls) + len(
-            item_bag.tms_hms) + len(item_bag.berries)
+        total_slots = (
+            item_bag.items_size
+            + item_bag.key_items_size
+            + item_bag.poke_balls_size
+            + item_bag.tms_hms_size
+            + item_bag.berries_size
+        )
+        used_slots = (
+            len(item_bag.items)
+            + len(item_bag.key_items)
+            + len(item_bag.poke_balls)
+            + len(item_bag.tms_hms)
+            + len(item_bag.berries)
+        )
         bag_data["__value"] = f"{used_slots}/{total_slots} Slots"
         n = 0
         for slot in item_bag.items:
@@ -857,11 +869,11 @@ class MapTab(DebugTab):
         actual_x = current_map_data.local_position[0] + (tile_x - 7)
         actual_y = current_map_data.local_position[1] + (tile_y - 5)
         if (
-                self._selected_tile == (actual_x, actual_y)
-                or actual_x < 0
-                or actual_x >= current_map_data.map_size[0]
-                or actual_y < 0
-                or actual_y >= current_map_data.map_size[1]
+            self._selected_tile == (actual_x, actual_y)
+            or actual_x < 0
+            or actual_x >= current_map_data.map_size[0]
+            or actual_y < 0
+            or actual_y >= current_map_data.map_size[1]
         ):
             self._selected_tile = None
             self._selected_map = None
