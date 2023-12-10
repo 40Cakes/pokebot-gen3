@@ -145,7 +145,7 @@ class ModeStarters:
                         button_enable=conditions["Bulbasaur"],
                         button_tooltip="Select Bulbasaur"
                         if conditions["Bulbasaur"]
-                        else "Invalid location:\nPlace the trainer facing Bulbasaur's PokéBall in Oak's lab",
+                        else "Invalid location:\nPlace the player facing Bulbasaur's PokéBall in Oak's lab",
                         sprite=sprites / "Bulbasaur.png",
                     ),
                     Selection(
@@ -153,7 +153,7 @@ class ModeStarters:
                         button_enable=conditions["Charmander"],
                         button_tooltip="Select Charmander"
                         if conditions["Charmander"]
-                        else "Invalid location:\nPlace the trainer facing Charmander's PokéBall in Oak's lab",
+                        else "Invalid location:\nPlace the player facing Charmander's PokéBall in Oak's lab",
                         sprite=sprites / "Charmander.png",
                     ),
                     Selection(
@@ -161,7 +161,7 @@ class ModeStarters:
                         button_enable=conditions["Squirtle"],
                         button_tooltip="Select Squirtle"
                         if conditions["Squirtle"]
-                        else "Invalid location:\nPlace the trainer facing Squirtle's PokéBall in Oak's lab",
+                        else "Invalid location:\nPlace the player facing Squirtle's PokéBall in Oak's lab",
                         sprite=sprites / "Squirtle.png",
                     ),
                 ]
@@ -175,7 +175,7 @@ class ModeStarters:
                         button_enable=conditions["Chikorita"],
                         button_tooltip="Select Chikorita"
                         if conditions["Chikorita"]
-                        else "Invalid location:\nPlace the trainer facing Chikorita's PokéBall in Birch's lab",
+                        else "Invalid location:\nPlace the player facing Chikorita's PokéBall in Birch's lab",
                         sprite=sprites / "Chikorita.png",
                     ),
                     Selection(
@@ -183,7 +183,7 @@ class ModeStarters:
                         button_enable=conditions["Cyndaquil"],
                         button_tooltip="Select Cyndaquil"
                         if conditions["Cyndaquil"]
-                        else "Invalid location:\nPlace the trainer facing Cyndaquil's PokéBall in Birch's lab",
+                        else "Invalid location:\nPlace the player facing Cyndaquil's PokéBall in Birch's lab",
                         sprite=sprites / "Cyndaquil.png",
                     ),
                     Selection(
@@ -191,7 +191,7 @@ class ModeStarters:
                         button_enable=conditions["Totodile"],
                         button_tooltip="Select Totodile"
                         if conditions["Totodile"]
-                        else "Invalid location:\nPlace the trainer facing Totodile's PokéBall in Birch's lab",
+                        else "Invalid location:\nPlace the player facing Totodile's PokéBall in Birch's lab",
                         sprite=sprites / "Totodile.png",
                     ),
                 ]
@@ -202,7 +202,7 @@ class ModeStarters:
                         button_enable=conditions["Treecko"],
                         button_tooltip="Select Treecko"
                         if conditions["Treecko"]
-                        else "Invalid location:\nPlace the trainer facing Birch's bag on Route 101",
+                        else "Invalid location:\nPlace the player facing Birch's bag on Route 101",
                         sprite=sprites / "Treecko.png",
                     ),
                     Selection(
@@ -210,7 +210,7 @@ class ModeStarters:
                         button_enable=conditions["Torchic"],
                         button_tooltip="Select Torchic"
                         if conditions["Torchic"]
-                        else "Invalid location:\nPlace the trainer facing Birch's bag on Route 101",
+                        else "Invalid location:\nPlace the player facing Birch's bag on Route 101",
                         sprite=sprites / "Torchic.png",
                     ),
                     Selection(
@@ -218,7 +218,7 @@ class ModeStarters:
                         button_enable=conditions["Mudkip"],
                         button_tooltip="Select Mudkip"
                         if conditions["Mudkip"]
-                        else "Invalid location:\nPlace the trainer facing Birch's bag on Route 101",
+                        else "Invalid location:\nPlace the player facing Birch's bag on Route 101",
                         sprite=sprites / "Mudkip.png",
                     ),
                 ]
@@ -255,7 +255,7 @@ class ModeStarters:
                 self.task_ball_throw: str = "SUB_814146C"
                 self.task_map_popup: str = "TASK_MAPNAMEPOPUP"
 
-        if not config.cheats.starters_rng:
+        if not config.cheats.random_soft_reset_rng:
             self.rng_history: list = get_rng_state_history(context.selected_pokemon)
 
         self.state: ModeStarterStates = ModeStarterStates.RESET
@@ -277,15 +277,15 @@ class ModeStarters:
                         case ModeStarterStates.TITLE:
                             match get_game_state():
                                 case GameState.TITLE_SCREEN:
-                                    context.emulator.press_button("A")
-                                case GameState.MAIN_MENU:  # TODO assumes trainer is in Oak's lab, facing a ball
+                                    context.emulator.press_button(random.choice(["A", "Start", "Left", "Right", "Up"]))
+                                case GameState.MAIN_MENU:  # TODO assumes player is in Oak's lab, facing a ball
                                     if task_is_active("Task_HandleMenuInput"):
                                         context.message = "Waiting for a unique frame before continuing..."
                                         self.update_state(ModeStarterStates.RNG_CHECK)
                                         continue
 
                         case ModeStarterStates.RNG_CHECK:
-                            if config.cheats.starters_rng:
+                            if config.cheats.random_soft_reset_rng:
                                 self.update_state(ModeStarterStates.OVERWORLD)
                             else:
                                 rng = unpack_uint32(read_symbol("gRngValue"))
@@ -306,7 +306,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.INJECT_RNG:
-                            if config.cheats.starters_rng:
+                            if config.cheats.random_soft_reset_rng:
                                 write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.SELECT_STARTER)
 
@@ -325,14 +325,14 @@ class ModeStarters:
                                 # from modules.player import get_player
                                 # player = get_player()
                                 # write_symbol("gRngValue",
-                                #              generate_guaranteed_shiny_rng_seed(player.trainer_id, player.secret_id))
+                                #              generate_guaranteed_shiny_rng_seed(player.player_id, player.secret_id))
                                 context.emulator.press_button("A")
                             else:
                                 self.update_state(ModeStarterStates.EXIT_MENUS)
                                 continue
 
                         case ModeStarterStates.EXIT_MENUS:
-                            if not config.cheats.starters:
+                            if not config.cheats.fast_check_starters:
                                 if player_avatar.facing_direction != "Down":
                                     context.emulator.press_button("B")
                                     context.emulator.hold_button("Down")
@@ -413,7 +413,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.INJECT_RNG:
-                            if config.cheats.starters_rng:
+                            if config.cheats.random_soft_reset_rng:
                                 write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.YES_NO)
 
@@ -426,7 +426,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.RNG_CHECK:
-                            if config.cheats.starters_rng:
+                            if config.cheats.random_soft_reset_rng:
                                 self.update_state(ModeStarterStates.CONFIRM_STARTER)
                             else:
                                 rng = unpack_uint32(read_symbol("gRngValue"))
@@ -446,7 +446,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.EXIT_MENUS:
-                            if config.cheats.starters:
+                            if config.cheats.fast_check_starters:
                                 self.update_state(ModeStarterStates.CHECK_STARTER)
                                 continue
                             else:
@@ -459,8 +459,8 @@ class ModeStarters:
                                     continue
 
                         case ModeStarterStates.CHECK_STARTER:
-                            # config.cheats.starters = True  # TODO temporary until menu navigation is ready
-                            # if config.cheats.starters:  # TODO check Pokémon summary screen once menu navigation merged
+                            # config.cheats.fast_check_starters = True  # TODO temporary until menu navigation is ready
+                            # if config.cheats.fast_check_starters:  # TODO check Pokémon summary screen once menu navigation merged
 
                             self.update_state(ModeStarterStates.LOG_STARTER)
                             continue
@@ -495,7 +495,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.INJECT_RNG:
-                            if config.cheats.starters_rng:
+                            if config.cheats.random_soft_reset_rng:
                                 write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.BAG_MENU)
 
@@ -521,7 +521,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.RNG_CHECK:
-                            if config.cheats.starters_rng:
+                            if config.cheats.random_soft_reset_rng:
                                 self.update_state(ModeStarterStates.CONFIRM_STARTER)
                             else:
                                 rng = unpack_uint32(read_symbol("gRngValue"))
@@ -534,7 +534,7 @@ class ModeStarters:
                                     continue
 
                         case ModeStarterStates.CONFIRM_STARTER:
-                            if config.cheats.starters:
+                            if config.cheats.fast_check_starters:
                                 if len(get_party()) > 0:
                                     self.update_state(ModeStarterStates.LOG_STARTER)
                                 context.emulator.press_button("A")
