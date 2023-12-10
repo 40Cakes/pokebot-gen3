@@ -41,8 +41,13 @@ class SelectProfileScreen:
         label = ttk.Label(header, text="Select a profile to run:")
         label.grid(column=0, row=0, sticky="W")
 
-        new_profile_button = ttk.Button(header, text="+ New profile", command=self.enable_profile_creation_screen,
-                                        style="Accent.TButton", cursor="hand2")
+        new_profile_button = ttk.Button(
+            header,
+            text="+ New profile",
+            command=self.enable_profile_creation_screen,
+            style="Accent.TButton",
+            cursor="hand2",
+        )
         new_profile_button.grid(column=1, row=0, sticky="E")
 
     def _add_profile_list(self, available_profiles: list[Profile], row: int = 1) -> None:
@@ -51,8 +56,9 @@ class SelectProfileScreen:
         container.rowconfigure(0, weight=1)
         container.grid(row=row, sticky="NSEW")
 
-        treeview = ttk.Treeview(container, columns=("profile_name", "game", "last_played"), show="headings",
-                                selectmode="browse")
+        treeview = ttk.Treeview(
+            container, columns=("profile_name", "game", "last_played"), show="headings", selectmode="browse"
+        )
         treeview.column("profile_name", width=200)
         treeview.heading("profile_name", text="Profile Name")
         treeview.column("game", width=150)

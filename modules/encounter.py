@@ -77,7 +77,9 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
                         context.message = message
                         console.print(message)
                     else:
-                        message = f"Saved {pokemon.species.name} to PC box {import_result[0] + 1} ('{import_result[1]}')!"
+                        message = (
+                            f"Saved {pokemon.species.name} to PC box {import_result[0] + 1} ('{import_result[1]}')!"
+                        )
                         context.message = message
                         console.print(message)
 
