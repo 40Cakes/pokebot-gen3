@@ -15,7 +15,6 @@ def download_file(url):
         print(f"Failed to download file. Status code: {response.status_code}")
 
 
-# Example usage
 urls = [
     "https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby.sym",
     "https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby_de.sym",
@@ -31,7 +30,7 @@ urls = [
     "https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered.sym",
     "https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym",
     "https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen.sym",
-    "https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen_rev1.sym"
+    "https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen_rev1.sym",
 ]
 
 for url in urls:
