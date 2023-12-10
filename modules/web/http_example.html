@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>PokéBot</title>
     <!--
     Note: This is just an example page, showing how to use the streaming API.
@@ -10,32 +11,74 @@
     -->
 </head>
 <body>
-<p>
-    <img src="/stream_video?fps=30" width="480" height="320" id="gba_video"/>
-</p>
+<div id="screen_loading">Loading Data&hellip;</div>
+<div id="screen_connection_lost">Connection Lost.<br/>Retrying&hellip;</div>
 
-<p>
-    FPS: <strong id="fps"></strong> &middot;
-    Bot Percentage: <strong id="bot_percentage"></strong> &middot;
-    Encounter Rate: <strong id="encounter_rate"></strong><br/>
-    Bot Mode: <strong id="bot_mode"></strong> &middot;
-    Game State: <strong id="game_mode"></strong> &middot;
-    Emulation Speed: <strong id="emulation_speed"></strong> &middot;
-    Video Enabled: <strong id="video_enabled"></strong> &middot;
-    Audio Enabled: <strong id="audio_enabled"></strong><br/>
-    Message: <strong id="message"></strong>
-</p>
+<div id="first_row">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Emulator Video" id="gba_video"/>
 
-<h2>Party</h2>
+    <div id="emulator_card">
+        <p id="performance_data">
+            FPS: <strong id="fps"></strong> &middot;
+            Bot Percentage: <strong id="bot_percentage"></strong> &middot;
+            Encounter Rate: <strong id="encounter_rate"></strong>
+        </p>
 
-<ol>
-    <li id="party0" class="party-entry"></li>
-    <li id="party1" class="party-entry"></li>
-    <li id="party2" class="party-entry"></li>
-    <li id="party3" class="party-entry"></li>
-    <li id="party4" class="party-entry"></li>
-    <li id="party5" class="party-entry"></li>
-</ol>
+        <ul>
+            <li>Bot Mode: <strong id="bot_mode"></strong></li>
+            <li>Game State: <strong id="game_mode"></strong></li>
+            <li>Emulation Speed: <strong id="emulation_speed"></strong></li>
+            <li>Video Enabled: <strong id="video_enabled"></strong></li>
+            <li>Audio Enabled: <strong id="audio_enabled"></strong></li>
+            <li>Message: <strong id="message"></strong></li>
+        </ul>
+    </div>
+</div>
+
+<div id="second_row">
+    <div id="trainer_card">
+        <h2>Player Data</h2>
+
+        <ul>
+            <li>Player Name: <strong id="player_name"></strong></li>
+            <li>Gender: <strong id="player_gender"></strong></li>
+            <li>Trainer ID: <strong id="trainer_id"></strong></li>
+            <li>Secret ID: <strong id="secret_id"></strong></li>
+            <li>Money: <strong id="player_money"></strong></li>
+            <li>Coins: <strong id="player_coins"></strong></li>
+            <li>Registered (Select) Item: <strong id="registered_item"></strong></li>
+        </ul>
+    </div>
+
+    <div id="party_card">
+        <h2>Party</h2>
+
+        <ol>
+            <li id="party0" class="party-entry"></li>
+            <li id="party1" class="party-entry"></li>
+            <li id="party2" class="party-entry"></li>
+            <li id="party3" class="party-entry"></li>
+            <li id="party4" class="party-entry"></li>
+            <li id="party5" class="party-entry"></li>
+        </ol>
+    </div>
+
+    <div id="map_card">
+        <h2>Map</h2>
+
+        <ul>
+            <li>Current Map: <strong id="map_name"></strong> (type: <strong id="map_type"></strong>)</li>
+            <li>Weather: <strong id="weather"></strong></li>
+            <li>Properties: <strong id="map_properties"></strong></li>
+        </ul>
+
+        <ul>
+            <li>Local Coordinates: <strong id="local_coords"></strong></li>
+            <li>Tile Type: <strong id="tile_type"></strong></li>
+            <li>Properties: <strong id="tile_properties"></strong></li>
+        </ul>
+    </div>
+</div>
 
 <div class="encounter-container">
     <div id="encounter">
@@ -44,21 +87,9 @@
     </div>
 </div>
 
-<h2>Map</h2>
+<h2 id="mini_map_headline">Mini Map</h2>
 
 <canvas id="mini_map"></canvas>
-
-<p>
-    Current Map: <strong id="map_name"></strong> (type: <strong id="map_type"></strong>)<br/>
-    Weather: <strong id="weather"></strong><br/>
-    Properties: <strong id="map_properties"></strong>
-</p>
-
-<p>
-    Local Coordinates: <strong id="local_coords"></strong><br/>
-    Tile Type: <strong id="tile_type"></strong><br/>
-    Properties: <strong id="tile_properties"></strong>
-</p>
 
 <h2>Event Log</h2>
 
@@ -75,53 +106,67 @@
      *
      * The streaming endpoint will only send _updates_ so this is still necessary.
      */
-    fetch("/emulator")
-        .then(response => response.json())
-        .then(data => {
-            /** @var {PokeBotApi.GetEmulatorResponse} */
-            handleBotModeChange(data.bot_mode);
-            handleEmulationSpeedChange(data.emulation_speed);
-            handleVideoEnabledChange(data.video_enabled);
-            handleAudioEnabledChange(data.audio_enabled);
-            handlePerformanceData({fps: data.current_fps, current_time_spent_in_bot_fraction});
-            handleMessageChange(data.current_message);
-        });
+    const initialDataFetchPromises = [
+        fetch("/emulator")
+            .then(response => response.json())
+            .then(data => {
+                /** @var {PokeBotApi.GetEmulatorResponse} */
+                handleBotModeChange(data.bot_mode);
+                handleEmulationSpeedChange(data.emulation_speed);
+                handleVideoEnabledChange(data.video_enabled);
+                handleAudioEnabledChange(data.audio_enabled);
+                handlePerformanceData({
+                    fps: data.current_fps,
+                    current_time_spent_in_bot_fraction: data.current_time_spent_in_bot_fraction,
+                    encounter_rate: 0,
+                    frame_count: 0,
+                });
+                handleMessageChange(data.current_message);
+            }),
 
-    fetch("/trainer")
-        .then(response => response.json())
-        .then(data => {
-            /** @var {PokeBotApi.GetTrainerResponse} */
-            handleGameStateChange(data.game_state);
-        });
+        fetch("/game_state")
+            .then(response => response.json())
+            .then(data => {
+                /** @var {PokeBotApi.GetGameStateResponse} */
+                handleGameStateChange(data);
+            }),
 
-    fetch("/party")
-        .then(response => response.json())
-        .then(data => {
-            /** @var {PokeBotApi.GetPartyResponse} */
-            handlePartyChange(data);
-        });
+        fetch("/player")
+            .then(response => response.json())
+            .then(data => {
+                /** @var {PokeBotApi.GetPlayerResponse} */
+                handlePlayerChange(data);
+            }),
 
-    fetch("/opponent")
-        .then(response => response.json())
-        .then(data => {
-            /** @var {PokeBotApi.GetOpponentResponse} */
-            handleOpponentChange(data);
-        });
+        fetch("/party")
+            .then(response => response.json())
+            .then(data => {
+                /** @var {PokeBotApi.GetPartyResponse} */
+                handlePartyChange(data);
+            }),
 
-    fetch("/encounter_rate")
-        .then(response => response.json())
-        .then(data => {
-            /** @var {PokeBotApi.GetEncounterRateResponse} */
-            document.getElementById("encounter_rate").innerText = data.encounter_rate + "/hr";
-        });
+        fetch("/opponent")
+            .then(response => response.json())
+            .then(data => {
+                /** @var {PokeBotApi.GetOpponentResponse} */
+                handleOpponentChange(data);
+            }),
 
-    fetch("/map")
-        .then(response => response.json())
-        .then(data => {
-            /** @var {PokeBotApi.GetMapResponse} */
-            handleMapChange(data);
-            handleMapTileChange(data.player_position);
-        })
+        fetch("/encounter_rate")
+            .then(response => response.json())
+            .then(data => {
+                /** @var {PokeBotApi.GetEncounterRateResponse} */
+                document.getElementById("encounter_rate").innerText = data.encounter_rate + "/hr";
+            }),
+
+        fetch("/map")
+            .then(response => response.json())
+            .then(data => {
+                /** @var {PokeBotApi.GetMapResponse} */
+                handleMapChange(data);
+                handleMapTileChange(data.player_position);
+            }),
+    ];
 
 
     /*
@@ -145,18 +190,31 @@
      *
      * In this example, we are handling all possible events.
      */
-    const eventSource = new EventSource(url);
-    eventSource.addEventListener("PerformanceData", event => handlePerformanceData(JSON.parse(event.data)));
-    eventSource.addEventListener("Party", event => handlePartyChange(JSON.parse(event.data)));
-    eventSource.addEventListener("Opponent", event => handleOpponentChange(JSON.parse(event.data)));
-    eventSource.addEventListener("MapChange", event => handleMapChange(JSON.parse(event.data)));
-    eventSource.addEventListener("MapTileChange", event => handleMapTileChange(JSON.parse(event.data)));
-    eventSource.addEventListener("Message", event => handleMessageChange(JSON.parse(event.data)));
-    eventSource.addEventListener("GameState", event => handleGameStateChange(JSON.parse(event.data)));
-    eventSource.addEventListener("BotMode", event => handleBotModeChange(JSON.parse(event.data)));
-    eventSource.addEventListener("EmulationSpeed", event => handleEmulationSpeedChange(JSON.parse(event.data)));
-    eventSource.addEventListener("AudioEnabled", event => handleAudioEnabledChange(JSON.parse(event.data)));
-    eventSource.addEventListener("VideoEnabled", event => handleVideoEnabledChange(JSON.parse(event.data)));
+    Promise.all(initialDataFetchPromises).then(() => {
+        const eventSource = new EventSource(url);
+        eventSource.addEventListener("PerformanceData", event => handlePerformanceData(JSON.parse(event.data)));
+        eventSource.addEventListener("Player", event => handlePlayerChange(JSON.parse(event.data)));
+        eventSource.addEventListener("Party", event => handlePartyChange(JSON.parse(event.data)));
+        eventSource.addEventListener("Opponent", event => handleOpponentChange(JSON.parse(event.data)));
+        eventSource.addEventListener("MapChange", event => handleMapChange(JSON.parse(event.data)));
+        eventSource.addEventListener("MapTileChange", event => handleMapTileChange(JSON.parse(event.data)));
+        eventSource.addEventListener("Message", event => handleMessageChange(JSON.parse(event.data)));
+        eventSource.addEventListener("GameState", event => handleGameStateChange(JSON.parse(event.data)));
+        eventSource.addEventListener("BotMode", event => handleBotModeChange(JSON.parse(event.data)));
+        eventSource.addEventListener("EmulationSpeed", event => handleEmulationSpeedChange(JSON.parse(event.data)));
+        eventSource.addEventListener("AudioEnabled", event => handleAudioEnabledChange(JSON.parse(event.data)));
+        eventSource.addEventListener("VideoEnabled", event => handleVideoEnabledChange(JSON.parse(event.data)));
+
+        document.getElementById("screen_loading").style.display = "none";
+        eventSource.onerror = () => {
+            document.getElementById("screen_connection_lost").style.display = "flex";
+        };
+        eventSource.onopen = () => {
+            document.getElementById("screen_connection_lost").style.display = "none";
+            document.getElementById("gba_video").src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+            document.getElementById("gba_video").src = "/stream_video?fps=30&cache_buster=" + (new Date).toString();
+        };
+    });
 
     function log(html)
     {
@@ -181,8 +239,33 @@
     {
         document.getElementById("fps").innerText            = data.fps.toLocaleString("en-GB");
         document.getElementById("bot_percentage").innerText = (data.current_time_spent_in_bot_fraction * 100).toLocaleString("en-GB", {maximumFractionDigits: 1}) + "%";
-        if (typeof data.encounter_rate !== "undefined") {
+        if (data.encounter_rate > 0) {
             document.getElementById("encounter_rate").innerText = data.encounter_rate.toLocaleString("en-GB") + "/hr";
+        }
+    }
+
+    /**
+     * @param {StreamEvents.Player} data
+     */
+    function handlePlayerChange(data)
+    {
+        document.getElementById("player_name").innerText = data.name;
+        document.getElementById("player_gender").innerText = data.gender;
+        if (data.gender === "male") {
+            document.getElementById("player_gender").style.color = "#058";
+        } else {
+            document.getElementById("player_gender").style.color = "#909";
+        }
+        document.getElementById("trainer_id").innerText = data.trainer_id.toString();
+        document.getElementById("secret_id").innerText = data.secret_id.toString();
+        document.getElementById("player_money").innerText = "$" + data.money.toLocaleString("en-GB");
+        document.getElementById("player_coins").innerText = data.coins.toLocaleString("en-GB");
+        if (data.registered_item) {
+            document.getElementById("registered_item").innerText = data.registered_item;
+            document.getElementById("registered_item").classList.remove("none");
+        } else {
+            document.getElementById("registered_item").innerText = "none";
+            document.getElementById("registered_item").classList.add("none");
         }
     }
 
@@ -305,6 +388,9 @@
 `;
     }
 
+    /**
+     * @param {StreamEvents.MapChange} data
+     */
     function handleMapChange(data)
     {
         mapData = data;
@@ -335,7 +421,7 @@
     }
 
     /**
-     * @param {StreamEvents.MapChange} data
+     * @param {StreamEvents.MapTileChange} data
      */
     function handleMapTileChange(data)
     {
@@ -364,11 +450,17 @@
     }
 
     /**
-     * @param {StreamEvents.MapTileChange} data
+     * @param {StreamEvents.Message} data
      */
     function handleMessageChange(data)
     {
-        document.getElementById("message").innerText = data ?? "";
+        if (data !== null && data !== "") {
+            document.getElementById("message").innerText = data;
+            document.getElementById("message").classList.remove("none");
+        } else {
+            document.getElementById("message").innerText = "none";
+            document.getElementById("message").classList.add("none");
+        }
     }
 
     /**
@@ -457,15 +549,23 @@
                 } else if (tile.type.includes("Water") || tile.type.includes("Current")) {
                     if (tile.has_encounters) {
                         colour = "#08F";
+                    } else if (tile.type.includes("Deep Water")) {
+                        colour = "#05B";
                     } else {
                         colour = "#0FF";
                     }
-                } else if (tile.collision && tile.type.includes("Warp")) {
+                } else if (tile.type.includes("Warp") || tile.type === "Non-Animated Door") {
                     colour = "#F0F";
+                } else if (tile.type.startsWith("Jump")) {
+                    colour = "#a50";
                 } else if (tile.collision) {
                     colour = "#000";
                 } else if (tile.has_encounters) {
                     colour = "#080";
+                } else if (tile.type === "Sand") {
+                    colour = "#ffd";
+                } else if (tile.type === "Deep Sand") {
+                    colour = "#ffb";
                 }
 
                 if (colour !== null) {
@@ -495,13 +595,51 @@
 </script>
 
 <style>
+    html, body {
+        margin: 0;
+        padding: 0;
+    }
+
+    #first_row > div, #second_row > div {
+        padding: 1rem;
+        box-sizing: border-box;
+    }
+
+    #second_row h2 {
+        margin-top: 0;
+    }
+
+    .none {
+        color: #aaa;
+    }
+
     #gba_video {
-        position: absolute;
-        top: 0;
-        right: 0;
-        border-left: 1px #000 solid;
+        border-right: 1px #000 solid;
         border-bottom: 1px #000 solid;
+        margin-right: 1rem;
         image-rendering: crisp-edges;
+        box-sizing: border-box;
+
+        aspect-ratio: 1.5;
+        width: 100%;
+        max-width: 480px;
+    }
+
+    @media screen and (max-width: 520px) {
+        #gba_video {
+            margin-right: 0;
+        }
+    }
+
+    #emulator_card, #trainer_card, #party_card, #map_card {
+        display: inline-block;
+        vertical-align: top;
+        width: 100%;
+        max-width: 500px;
+    }
+
+    #emulator_card ul, #trainer_card ul, #party_card ol, #map_card ul {
+        padding-left: 1rem;
     }
 
     .party-entry {
@@ -555,11 +693,36 @@
         background-color: rgba(0, 0, 0, 0.2);
     }
 
+    @media screen and (max-width: 479px) {
+        #encounter table {
+            margin-top: .5rem;
+        }
+
+        #encounter th, #encounter td {
+            font-size: 70%;
+        }
+    }
+
     #mini_map {
         border: 1px #000 solid;
-        float: right;
-        margin-right: 1rem;
-        margin-bottom: 1rem;
+        box-sizing: border-box;
+        margin: 1rem 0;
+        max-width: 100%;
+    }
+
+    @media screen and (min-width: 1400px) {
+        #mini_map_headline {
+            display: none;
+        }
+
+        #mini_map {
+            margin: 0;
+            position: absolute;
+            top: 0;
+            right: 0;
+            border-top: 0;
+            border-right: 0;
+        }
     }
 
     #log p {
@@ -570,6 +733,33 @@
         font-size: 75%;
         color: #888;
         margin-right: 10px;
+    }
+
+
+    #screen_loading, #screen_connection_lost {
+        position: fixed;
+        z-index: 1;
+
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+
+        font-size: 3rem;
+    }
+
+    #screen_loading {
+        background-color: rgba(255, 240, 80, 0.75);
+    }
+
+    #screen_connection_lost {
+        display: none;
+        background-color: rgba(255, 120, 120, 0.75);
     }
 </style>
 </body>

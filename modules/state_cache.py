@@ -4,8 +4,13 @@ from typing import Generic, TypeVar, TYPE_CHECKING
 from modules.context import context
 
 if TYPE_CHECKING:
+    from modules.items import ItemBag, ItemStorage
     from modules.memory import GameState
+    from modules.player import Player, PlayerAvatar
     from modules.pokemon import Pokemon
+    from modules.pokemon_storage import PokemonStorage
+    from modules.pokedex import Pokedex
+    from modules.tasks import TaskList
 
 T = TypeVar("T")
 
@@ -44,6 +49,13 @@ class StateCache:
     def __init__(self):
         self._party: StateCacheItem[list["Pokemon"]] = StateCacheItem([])
         self._opponent: StateCacheItem["Pokemon | None"] = StateCacheItem(None)
+        self._player: StateCacheItem["Player | None"] = StateCacheItem(None)
+        self._player_avatar: StateCacheItem["PlayerAvatar | None"] = StateCacheItem(None)
+        self._pokedex: StateCacheItem["Pokedex | None"] = StateCacheItem(None)
+        self._pokemon_storage: StateCacheItem["PokemonStorage | None"] = StateCacheItem(None)
+        self._item_bag: StateCacheItem["ItemBag | None"] = StateCacheItem(None)
+        self._item_storage: StateCacheItem["ItemStorage | None"] = StateCacheItem(None)
+        self._tasks: StateCacheItem["TaskList | None"] = StateCacheItem(None)
         self._game_state: StateCacheItem["GameState | None"] = StateCacheItem(None)
 
     @property
@@ -73,6 +85,83 @@ class StateCache:
             self._opponent.value = opponent
         else:
             self._opponent.checked()
+
+    @property
+    def player(self) -> StateCacheItem["Player | None"]:
+        return self._player
+
+    @player.setter
+    def player(self, player: "Player"):
+        if self._player.value is None or player != self._player.value:
+            self._player.value = player
+        else:
+            self._player.checked()
+
+    @property
+    def player_avatar(self) -> StateCacheItem["PlayerAvatar | None"]:
+        return self._player_avatar
+
+    @player_avatar.setter
+    def player_avatar(self, player_avatar: "PlayerAvatar"):
+        if self._player_avatar.value is None or player_avatar != self._player_avatar.value:
+            self._player_avatar.value = player_avatar
+        else:
+            self._player_avatar.checked()
+
+    @property
+    def pokedex(self) -> StateCacheItem["Pokedex | None"]:
+        return self._pokedex
+
+    @pokedex.setter
+    def pokedex(self, pokedex: "Pokedex"):
+        if self._pokedex.value != pokedex:
+            self._pokedex.value = pokedex
+        else:
+            self._pokedex.checked()
+
+    @property
+    def pokemon_storage(self) -> StateCacheItem["PokemonStorage | None"]:
+        return self._pokemon_storage
+
+    @pokemon_storage.setter
+    def pokemon_storage(self, pokemon_storage: "PokemonStorage"):
+        if self._pokemon_storage.value is None or self._pokemon_storage.value != pokemon_storage:
+            self._pokemon_storage.value = pokemon_storage
+        else:
+            self._pokemon_storage.checked()
+
+    @property
+    def item_bag(self) -> StateCacheItem["ItemBag | None"]:
+        return self._item_bag
+
+    @item_bag.setter
+    def item_bag(self, item_bag: "ItemBag"):
+        if self._item_bag.value is None or self._item_bag.value != item_bag:
+            self._item_bag.value = item_bag
+        else:
+            self._item_bag.checked()
+
+    @property
+    def item_storage(self) -> StateCacheItem["ItemStorage | None"]:
+        return self._item_storage
+
+    @item_storage.setter
+    def item_storage(self, item_storage: "ItemStorage"):
+        if self._item_storage.value is None or self._item_storage.value != item_storage:
+            self._item_storage.value = item_storage
+        else:
+            self._item_storage.checked()
+
+    @property
+    def tasks(self) -> StateCacheItem["TaskList | None"]:
+        return self._tasks
+
+    @tasks.setter
+    def tasks(self, tasks: "TaskList"):
+        if self._tasks.value != tasks:
+            self._tasks.value = tasks
+        else:
+            self._tasks.checked()
 
     @property
     def game_state(self) -> StateCacheItem["GameState | None"]:
