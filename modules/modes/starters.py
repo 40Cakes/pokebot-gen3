@@ -256,7 +256,7 @@ class ModeStarters:
                 self.task_map_popup: str = "TASK_MAPNAMEPOPUP"
 
         if not config.cheats.random_soft_reset_rng:
-            self.rng_history: list = get_rng_state_history(context.selected_pokemon)
+            self.rng_history: list = get_rng_state_history()
 
         self.state: ModeStarterStates = ModeStarterStates.RESET
 
@@ -293,7 +293,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(context.selected_pokemon, self.rng_history)
+                                    save_rng_state_history(self.rng_history)
                                     self.update_state(ModeStarterStates.OVERWORLD)
                                     continue
 
@@ -434,7 +434,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(context.selected_pokemon, self.rng_history)
+                                    save_rng_state_history(self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
 
@@ -529,7 +529,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(context.selected_pokemon, self.rng_history)
+                                    save_rng_state_history(self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
 
