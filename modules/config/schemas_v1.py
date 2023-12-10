@@ -83,6 +83,7 @@ class Cheats(BaseConfig):
     filename: ClassVar = "cheats.yml"
     starters: bool = False
     starters_rng: bool = False
+    pickup: bool = False
 
 
 class Discord(BaseConfig):

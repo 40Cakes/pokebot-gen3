@@ -4,9 +4,7 @@ from modules.context import context
 from modules.memory import (
     get_game_state,
     read_symbol,
-    parse_tasks,
     get_symbol_name,
-    get_task,
     unpack_uint16,
     unpack_uint32,
     GameState,
@@ -30,9 +28,10 @@ from modules.menuing import (
     PartyMenuExit,
 )
 from modules.pokemon import get_party, get_opponent, Pokemon, Move, LearnedMove
-
+from modules.tasks import get_task, get_tasks, task_is_active
 
 config = context.config
+
 
 class BattleState(IntEnum):
     # out-of-battle states
@@ -626,7 +625,7 @@ class BattleOpponent:
                 return -1
 
             context.message = (
-                f"Best move against {current_opponent.name} is {move['name']}, effective power: {move['power']:.2f}"
+                f"Best move against {current_opponent.name} is {move['name']}, effective power: {move['power']:,.2f}"
             )
 
             return move["index"]
@@ -738,57 +737,57 @@ def get_learn_move_state() -> str:
             )
 
         case GameState.EVOLUTION:
+            task_evolution_scene = get_task("TASK_EVOLUTIONSCENE")
             match context.rom.game_title:
                 case "POKEMON RUBY" | "POKEMON SAPP":
                     learn_move_yes_no = (
-                        unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 21
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 4
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][18:20]) == 5
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][20:22]) == 9
+                        unpack_uint16(task_evolution_scene.data[0:2]) == 21
+                        and unpack_uint16(task_evolution_scene.data[16:18]) == 4
+                        and unpack_uint16(task_evolution_scene.data[18:20]) == 5
+                        and unpack_uint16(task_evolution_scene.data[20:22]) == 9
                     )
                     stop_learn_move_yes_no = (
-                        unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 21
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 4
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][18:20]) == 10
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][20:22]) == 0
+                        unpack_uint16(task_evolution_scene.data[0:2]) == 21
+                        and unpack_uint16(task_evolution_scene.data[16:18]) == 4
+                        and unpack_uint16(task_evolution_scene.data[18:20]) == 10
+                        and unpack_uint16(task_evolution_scene.data[20:22]) == 0
                     )
                 case "POKEMON EMER":
                     learn_move_yes_no = (
-                        unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 22
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][12:14]) in [3, 4]
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][14:16]) == 5
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 10
+                        unpack_uint16(task_evolution_scene.data[0:2]) == 22
+                        and unpack_uint16(task_evolution_scene.data[12:14]) in [3, 4]
+                        and unpack_uint16(task_evolution_scene.data[14:16]) == 5
+                        and unpack_uint16(task_evolution_scene.data[16:18]) == 10
                     )
                     stop_learn_move_yes_no = (
-                        unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 22
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][12:14]) == [3, 4]
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][14:16]) == 11
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 0
+                        unpack_uint16(task_evolution_scene.data[0:2]) == 22
+                        and unpack_uint16(task_evolution_scene.data[12:14]) == [3, 4]
+                        and unpack_uint16(task_evolution_scene.data[14:16]) == 11
+                        and unpack_uint16(task_evolution_scene.data[16:18]) == 0
                     )
 
                 case "POKEMON FIRE" | "POKEMON LEAF":
                     learn_move_yes_no = (
-                        unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 24
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][12:14]) == 4
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][14:16]) == 5
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 10
+                        unpack_uint16(task_evolution_scene.data[0:2]) == 24
+                        and unpack_uint16(task_evolution_scene.data[12:14]) == 4
+                        and unpack_uint16(task_evolution_scene.data[14:16]) == 5
+                        and unpack_uint16(task_evolution_scene.data[16:18]) == 10
                     )
                     stop_learn_move_yes_no = (
-                        unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][0:2]) == 24
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][12:14]) == 4
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][14:16]) == 11
-                        and unpack_uint16(get_task("TASK_EVOLUTIONSCENE")["data"][16:18]) == 0
+                        unpack_uint16(task_evolution_scene.data[0:2]) == 24
+                        and unpack_uint16(task_evolution_scene.data[12:14]) == 4
+                        and unpack_uint16(task_evolution_scene.data[14:16]) == 11
+                        and unpack_uint16(task_evolution_scene.data[16:18]) == 0
                     )
     match context.rom.game_title:
         case "POKEMON RUBY" | "POKEMON SAPP":
-            move_menu_task = get_task("SUB_809E260")
+            move_menu = task_is_active("SUB_809E260")
         case "POKEMON EMER":
-            move_menu_task = get_task("TASK_HANDLEREPLACEMOVEINPUT")
+            move_menu = task_is_active("TASK_HANDLEREPLACEMOVEINPUT")
         case "POKEMON FIRE" | "POKEMON LEAF":
-            move_menu_task = get_task("TASK_INPUTHANDLER_SELECTORFORGETMOVE")
+            move_menu = task_is_active("TASK_INPUTHANDLER_SELECTORFORGETMOVE")
         case _:
-            move_menu_task = None
-    move_menu = move_menu_task != {} and move_menu_task["isActive"]
+            move_menu = False
 
     if move_menu:
         return "MOVE_MENU"
@@ -831,19 +830,19 @@ def send_out_pokemon(index):
     match context.rom.game_title:
         case "POKEMON EMER" | "POKEMON FIRE" | "POKEMON LEAF":
             for i in range(60):
-                if "TASK_HANDLESELECTIONMENUINPUT" not in [task["func"] for task in parse_tasks()]:
+                if "TASK_HANDLESELECTIONMENUINPUT" not in [task.symbol for task in get_tasks()]:
                     context.emulator.press_button("A")
                 else:
                     break
                 yield
-            while "TASK_HANDLESELECTIONMENUINPUT" in [task["func"] for task in parse_tasks()]:
+            while "TASK_HANDLESELECTIONMENUINPUT" in [task.symbol for task in get_tasks()]:
                 yield from PokemonPartySubMenuNavigator("SHIFT").step()
         case _:
             for i in range(60):
-                if "TASK_HANDLEPOPUPMENUINPUT" not in [task["func"] for task in parse_tasks()]:
+                if "TASK_HANDLEPOPUPMENUINPUT" not in [task.symbol for task in get_tasks()]:
                     context.emulator.press_button("A")
                 yield
-            while "TASK_HANDLEPOPUPMENUINPUT" in [task["func"] for task in parse_tasks()]:
+            while "TASK_HANDLEPOPUPMENUINPUT" in [task.symbol for task in get_tasks()]:
                 context.emulator.press_button("A")
                 yield
 
@@ -1155,6 +1154,8 @@ class RotatePokemon(BaseMenuNavigator):
 
     @staticmethod
     def confirm_switch():
-        while get_task("TASK_HANDLECHOOSEMONINPUT") != {} or get_task("HANDLEPARTYMENUSWITCHPOKEMONINPUT") != {}:
+        while task_is_active("TASK_HANDLECHOOSEMONINPUT") or task_is_active(
+            "HANDLEPARTYMENUSWITCHPOKEMONINPUT"
+        ):
             context.emulator.press_button("A")
             yield

@@ -1,4 +1,3 @@
-import sys
 import struct
 from enum import IntEnum, auto
 

@@ -2,8 +2,9 @@ import struct
 from enum import IntEnum
 
 from modules.context import context
-from modules.memory import get_symbol_name, read_symbol, get_task, unpack_uint32
+from modules.memory import get_symbol_name, read_symbol, unpack_uint32
 from modules.pokemon import get_party, parse_pokemon, Pokemon, get_move_by_index, Move
+from modules.tasks import get_task, task_is_active
 
 
 class CursorOptionEFRLG(IntEnum):
@@ -186,13 +187,13 @@ def get_learning_mon() -> Pokemon:
     """
     index = 0
     if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-        index = int.from_bytes(get_task("TASK_EVOLUTIONSCENE")["data"][20:22], "little")
+        index = int.from_bytes(get_task("TASK_EVOLUTIONSCENE").data[20:22], "little")
     else:
         for i, member in enumerate(get_party()):
             if member == parse_pokemon(
                 context.emulator.read_bytes(
-                    int.from_bytes(get_task("TASK_EVOLUTIONSCENE")["data"][2:4], "little")
-                    | (int.from_bytes(get_task("TASK_EVOLUTIONSCENE")["data"][4:6], "little") << 0x10),
+                    int.from_bytes(get_task("TASK_EVOLUTIONSCENE").data[2:4], "little")
+                    | (int.from_bytes(get_task("TASK_EVOLUTIONSCENE").data[4:6], "little") << 0x10),
                     length=100,
                 )
             ):
@@ -214,7 +215,9 @@ def get_learning_move_cursor_pos() -> int:
     match context.rom.game_title:
         case "POKEMON EMER":
             return int.from_bytes(
-                context.emulator.read_bytes(struct.unpack("<I", read_symbol("sMonSummaryScreen"))[0] + 0x40C6, length=1),
+                context.emulator.read_bytes(
+                    struct.unpack("<I", read_symbol("sMonSummaryScreen"))[0] + 0x40C6, length=1
+                ),
                 "little",
             )
         case "POKEMON FIRE" | "POKEMON LEAF":
@@ -245,8 +248,7 @@ def parse_start_menu() -> dict:
         actions.append(start_menu_enum(item_indices[i]).name)
 
     for task in ["SUB_80712B4", "TASK_SHOWSTARTMENU", "TASK_STARTMENUHANDLEINPUT"]:
-        task_status = get_task(task)
-        if task_status != {} and task_status['isActive']:
+        if task_is_active(task):
             is_open = True
             break
 

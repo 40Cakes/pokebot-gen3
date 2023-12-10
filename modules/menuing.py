@@ -1,5 +1,5 @@
 from modules.context import context
-from modules.memory import get_game_state, GameState, get_task
+from modules.memory import get_game_state, GameState
 from modules.menu_parsers import (
     parse_start_menu,
     parse_party_menu,
@@ -8,7 +8,7 @@ from modules.menu_parsers import (
     get_party_menu_cursor_pos,
 )
 from modules.pokemon import get_party
-
+from modules.tasks import task_is_active
 
 config = context.config
 
@@ -23,23 +23,10 @@ def party_menu_is_open() -> bool:
         return get_game_state() == GameState.PARTY_MENU
     else:
         return (
-            get_task("HANDLEDEFAULTPARTYMENU") != {}
-            or get_task("HANDLEPARTYMENUSWITCHPOKEMONINPUT") != {}
-            or get_task("HANDLEBATTLEPARTYMENU") != {}
+            task_is_active("HANDLEDEFAULTPARTYMENU")
+            or task_is_active("HANDLEPARTYMENUSWITCHPOKEMONINPUT")
+            or task_is_active("HANDLEBATTLEPARTYMENU")
         )
-
-
-def switch_pokemon_active() -> bool:
-    """
-    helper function to determine if the Pokémon party menu is currently ready to switch the places of two Pokémon.
-
-    :return: True if the Pokémon party menu is ready to switch two Pokémon, false otherwise.
-    """
-    task = get_task("HANDLEPARTYMENUSWITCHPOKEMONINPUT")
-    if task != {} and task["isActive"]:
-        return True
-    else:
-        return False
 
 
 class BaseMenuNavigator:
@@ -299,17 +286,19 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
 
     def select_mon(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-            while get_task("TASK_HANDLECHOOSEMONINPUT") != {}:
+            while task_is_active("TASK_HANDLECHOOSEMONINPUT"):
                 context.emulator.press_button("A")
                 yield
         else:
-            while get_task("SUB_8089D94") == {}:
+            while not task_is_active("SUB_8089D94"):
                 context.emulator.press_button("A")
                 yield
 
     @staticmethod
     def switch_mon():
-        while get_task("TASK_HANDLECHOOSEMONINPUT") != {} or get_task("HANDLEPARTYMENUSWITCHPOKEMONINPUT") != {}:
+        while task_is_active("TASK_HANDLECHOOSEMONINPUT") or task_is_active(
+            "HANDLEPARTYMENUSWITCHPOKEMONINPUT"
+        ):
             context.emulator.press_button("A")
             yield
 
@@ -324,7 +313,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                     self.navigator = None
                     self.subnavigator = None
         else:
-            while get_task("SUB_8089D94") != {} and get_task("SUB_808A060") == {}:
+            while task_is_active("SUB_8089D94") and not task_is_active("SUB_808A060"):
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator(self.primary_option).step()
                 else:
@@ -335,7 +324,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
 
     def select_switch(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-            while get_task("TASK_HANDLESELECTIONMENUINPUT") == {}:
+            while not task_is_active("TASK_HANDLESELECTIONMENUINPUT"):
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator("SHIFT").step()
                 else:
@@ -344,7 +333,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                     self.navigator = None
                     self.subnavigator = None
         else:
-            while get_task("TASK_HANDLEPOPUPMENUINPUT") != {}:
+            while task_is_active("TASK_HANDLEPOPUPMENUINPUT"):
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator(0).step()
                 else:
@@ -364,7 +353,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                     self.navigator = None
                     self.subnavigator = None
         else:
-            while get_task("SUB_808A060") != {}:
+            while task_is_active("SUB_808A060"):
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator(1).step()
                 else:
@@ -378,7 +367,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
             while get_party()[self.idx].held_item is None:
                 yield from PokemonPartySubMenuNavigator("GIVE_ITEM").step()
         else:
-            while get_task("SUB_808A060") != {}:
+            while task_is_active("SUB_808A060"):
                 yield from PokemonPartySubMenuNavigator(0).step()
 
 
@@ -405,16 +394,16 @@ class BattlePartyMenuNavigator(PokemonPartyMenuNavigator):
                 self.current_step = "exit"
 
     def select_mon(self):
-        while get_task("TASK_HANDLECHOOSEMONINPUT") != {} or get_task("HANDLEBATTLEPARTYMENU") != {}:
+        while task_is_active("TASK_HANDLECHOOSEMONINPUT") or task_is_active("HANDLEBATTLEPARTYMENU"):
             context.emulator.press_button("A")
             yield
 
     def select_option(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-            while get_task("TASK_HANDLESELECTIONMENUINPUT") != {}:
+            while task_is_active("TASK_HANDLESELECTIONMENUINPUT"):
                 yield from PokemonPartySubMenuNavigator(self.primary_option).step()
         else:
-            while get_task("TASK_HANDLEPOPUPMENUINPUT") != {}:
+            while task_is_active("TASK_HANDLEPOPUPMENUINPUT"):
                 yield from PokemonPartySubMenuNavigator(self.primary_option).step()
 
 
@@ -472,14 +461,14 @@ class CheckForPickup(BaseMenuNavigator):
 
     def return_to_party_menu(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-            while get_task("TASK_PRINTANDWAITFORTEXT") != {} and get_task("TASK_PRINTANDWAITFORTEXT")["isActive"]:
+            while task_is_active("TASK_PRINTANDWAITFORTEXT"):
                 context.emulator.press_button("B")
                 yield
         else:
             while (
-                get_task("HANDLEDEFAULTPARTYMENU") == {}
-                and get_task("HANDLEPARTYMENUSWITCHPOKEMONINPUT") == {}
-                and get_task("HANDLEBATTLEPARTYMENU") == {}
+                task_is_active("HANDLEDEFAULTPARTYMENU")
+                and task_is_active("HANDLEPARTYMENUSWITCHPOKEMONINPUT")
+                and task_is_active("HANDLEBATTLEPARTYMENU")
             ):
                 context.emulator.press_button("B")
                 yield
