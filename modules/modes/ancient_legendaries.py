@@ -109,7 +109,7 @@ class ModeAncientLegendaries:
             case _:
                 return
 
-    def update_state(self, state: ModeAncientLegendariesStates):
+    def update_state(self, state: ModeAncientLegendariesStates) -> None:
         self.state: ModeAncientLegendariesStates = state
 
     def step(self):

@@ -21,6 +21,7 @@ config = context.config
 class ModeStaticSoftResetsStates(Enum):
     RESET = auto()
     TITLE = auto()
+    WAIT_FRAMES = auto()
     OVERWORLD = auto()
     INJECT_RNG = auto()
     RNG_CHECK = auto()
@@ -32,17 +33,23 @@ class ModeStaticSoftResetsStates(Enum):
 
 class ModeStaticSoftResets:
     def __init__(self) -> None:
-        if context.rom.game_title not in ["POKEMON FIRE", "POKEMON LEAF"]:  # TODO temp while PR is WIP
-            context.message("Only FRLG static soft resets are supported at the moment.")
-            return
-
         if not config.cheats.random_soft_reset_rng:
             self.rng_history: list = get_rng_state_history()
 
+        self.frame_count = None
         self.state: ModeStaticSoftResetsStates = ModeStaticSoftResetsStates.RESET
 
-    def update_state(self, state: ModeStaticSoftResetsStates):
+    def update_state(self, state: ModeStaticSoftResetsStates) -> None:
         self.state: ModeStaticSoftResetsStates = state
+
+    def wait_frames(self, frames: int) -> bool:
+        if not self.frame_count:
+            self.frame_count = context.emulator.get_frame_count()
+        elif context.emulator.get_frame_count() < self.frame_count + frames:
+            return False
+        else:
+            self.frame_count = 0
+            return True
 
     def step(self):
         while True:
@@ -52,41 +59,58 @@ class ModeStaticSoftResets:
                     self.update_state(ModeStaticSoftResetsStates.TITLE)
 
                 case ModeStaticSoftResetsStates.TITLE:
-                    match context.rom.game_title:
-                        case "POKEMON FIRE" | "POKEMON LEAF":
-                            match get_game_state():
-                                case GameState.TITLE_SCREEN:
-                                    context.emulator.press_button(random.choice(["A", "Start", "Left", "Right", "Up"]))
-                                case GameState.MAIN_MENU:
-                                    if task_is_active("Task_HandleMenuInput"):
-                                        context.message = "Waiting for a unique frame before continuing..."
-                                        self.update_state(ModeStaticSoftResetsStates.RNG_CHECK)
-                                        continue
+                    match context.rom.game_title, get_game_state():
+                        case "POKEMON RUBY" | "POKEMON SAPP" | "POKEMON EMER", GameState.TITLE_SCREEN | GameState.MAIN_MENU:
+                            context.emulator.press_button("A")
+
+                        case "POKEMON RUBY" | "POKEMON SAPP" | "POKEMON EMER", GameState.OVERWORLD:
+                            context.message = "Waiting for a unique frame before continuing..."
+                            self.update_state(ModeStaticSoftResetsStates.RNG_CHECK)
+                            continue
+
+                        case "POKEMON FIRE" | "POKEMON LEAF", GameState.TITLE_SCREEN:
+                            context.emulator.press_button(random.choice(["A", "Start", "Left", "Right", "Up"]))
+
+                        case "POKEMON FIRE" | "POKEMON LEAF", GameState.MAIN_MENU:
+                            if task_is_active("Task_HandleMenuInput"):
+                                context.message = "Waiting for a unique frame before continuing..."
+                                self.update_state(ModeStaticSoftResetsStates.RNG_CHECK)
+                                continue
 
                 case ModeStaticSoftResetsStates.RNG_CHECK:
                     if config.cheats.random_soft_reset_rng:
-                        self.update_state(ModeStaticSoftResetsStates.OVERWORLD)
+                        self.update_state(ModeStaticSoftResetsStates.WAIT_FRAMES)
                     else:
                         rng = unpack_uint32(read_symbol("gRngValue"))
-                        if rng in self.rng_history:
+                        if rng in self.rng_history or (
+                            task_is_active("Task_ExitNonDoor")
+                            or task_is_active("task_map_chg_seq_0807E20C")
+                            or task_is_active("task_map_chg_seq_0807E2CC")
+                        ):
                             pass
                         else:
                             self.rng_history.append(rng)
                             save_rng_state_history(self.rng_history)
-                            self.update_state(ModeStaticSoftResetsStates.OVERWORLD)
+                            self.update_state(ModeStaticSoftResetsStates.WAIT_FRAMES)
                             continue
 
-                case ModeStaticSoftResetsStates.OVERWORLD:
-                    if not task_is_active("Task_DrawFieldMessageBox"):
-                        context.emulator.press_button("A")
-                    else:
+                case ModeStaticSoftResetsStates.WAIT_FRAMES:
+                    if self.wait_frames(5):
                         self.update_state(ModeStaticSoftResetsStates.INJECT_RNG)
-                        continue
+                    else:
+                        pass
 
                 case ModeStaticSoftResetsStates.INJECT_RNG:
                     if config.cheats.random_soft_reset_rng:
                         write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
-                    self.update_state(ModeStaticSoftResetsStates.BATTLE)
+                    self.update_state(ModeStaticSoftResetsStates.OVERWORLD)
+
+                case ModeStaticSoftResetsStates.OVERWORLD:
+                    if not opponent_changed():
+                        context.emulator.press_button("A")
+                    else:
+                        self.update_state(ModeStaticSoftResetsStates.BATTLE)
+                        continue
 
                 case ModeStaticSoftResetsStates.BATTLE:
                     if get_game_state() != GameState.BATTLE:
@@ -112,7 +136,6 @@ class ModeStaticSoftResets:
 
                 case ModeStaticSoftResetsStates.LOG_OPPONENT:
                     encounter_pokemon(get_opponent())
-                    opponent_changed()
                     return
 
             yield

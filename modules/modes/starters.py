@@ -260,7 +260,7 @@ class ModeStarters:
 
         self.state: ModeStarterStates = ModeStarterStates.RESET
 
-    def update_state(self, state: ModeStarterStates):
+    def update_state(self, state: ModeStarterStates) -> None:
         self.state: ModeStarterStates = state
 
     def step(self):
