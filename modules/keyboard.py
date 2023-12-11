@@ -3,7 +3,6 @@ from modules.memory import unpack_uint32, read_symbol
 from modules.game import decode_string
 from modules.tasks import task_is_active
 from pathlib import Path
-import math
 import json
 
 DATA_DIRECTORY = Path(__file__).parent / "data"
