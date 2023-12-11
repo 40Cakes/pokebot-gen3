@@ -79,7 +79,7 @@ def get_keyboard():
 
 # Currently need to send max length of name if naming a pokemon
 # Max length for boxes is 8 and max length for pokemon name is 10
-def type_name(name : str, max_length = 8 : int):
+def type_name(name : str, max_length : int = 8):
     if len(name) > max_length:
         name = name[:max_length]
     name = ''.join([char if char in valid_characters else " " for char in name])
