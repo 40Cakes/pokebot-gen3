@@ -94,13 +94,11 @@ def type_name(name : str, max_length : int = 8):
     h = key_layout[lang][0]["height"]
     w = key_layout[lang][0]["width"]
     done = False
-    keyboard = get_keyboard()
+    keyboard = Keyboard()
     while (keyboard.cur_pos[0] > w and keyboard.cur_pos[1] > h) or len(keyboard.text_buffer) > 0:
-        keyboard = get_keyboard()
         context.emulator.press_button("B")
         context.emulator.run_single_frame()
     while True and context.bot_mode != "Manual":
-        keyboard = get_keyboard()
         page = keyboard.cur_page
         if page <= 3:
             if h != key_layout[lang][page]["height"] or w != key_layout[lang][page]["width"]:
@@ -112,15 +110,15 @@ def type_name(name : str, max_length : int = 8):
                     while page != goto[2]:
                         context.emulator.press_button("Select")
                         context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-                        page = get_keyboard().cur_page
+                        page = keyboard.cur_page
                     last_pos = None
                 elif spot[0] == goto[0] and spot[1] == goto[1]: # Press A if on correct character
                     last_pos = spot
-                    while len(get_keyboard().text_buffer) < cur_char + 1:
+                    while len(keyboard.text_buffer) < cur_char + 1:
                         context.emulator.press_button("A")
                         context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
                     cur_char += 1
-                    if len(get_keyboard().text_buffer) >= len(name):
+                    if len(keyboard.text_buffer) >= len(name):
                         break
                     else:
                         found = False
@@ -162,8 +160,7 @@ def type_name(name : str, max_length : int = 8):
     context.emulator.release_button("Start")
     context.emulator.release_button("Select")
     context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-    while get_keyboard().enabled:
-        keyboard = get_keyboard()
+    while keyboard.enabled:
         if keyboard.cur_pos[0] > w or (keyboard.cur_pos == (8,0) and context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]):
             context.emulator.press_button("A")
             context.emulator.run_single_frame()
