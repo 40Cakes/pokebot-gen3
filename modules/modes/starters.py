@@ -254,6 +254,8 @@ class ModeStarters:
                 self.task_confirm: str = "TASK_STARTERCHOOSE5"
                 self.task_ball_throw: str = "SUB_814146C"
                 self.task_map_popup: str = "TASK_MAPNAMEPOPUP"
+        else:
+            return
 
         if not config.cheats.random_soft_reset_rng:
             self.rng_history: list = get_rng_state_history()

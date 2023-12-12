@@ -83,6 +83,11 @@ def main_loop() -> None:
 
                         mode = ModeStaticSoftResets()
 
+                    case "Tower Duo":
+                        from modules.modes.tower_duo import ModeTowerDuo
+
+                        mode = ModeTowerDuo()
+
                     case "Ancient Legendaries":
                         from modules.modes.ancient_legendaries import ModeAncientLegendaries
 
