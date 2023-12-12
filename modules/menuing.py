@@ -1,4 +1,5 @@
 from modules.context import context
+from modules.items import get_item_bag
 from modules.memory import get_game_state, GameState
 from modules.menu_parsers import (
     parse_start_menu,
@@ -479,6 +480,13 @@ class CheckForPickup(BaseMenuNavigator):
         else:
             return False
 
+    def check_space_in_bag(self):
+        if self.current_mon is not None:
+            pokemon = self.party[self.current_mon]
+            if not get_item_bag().has_space_for(pokemon.held_item):
+                context.bot_mode = "Manual"
+                context.message = f"Item bag is full! {pokemon.species.name} (party slot #{self.current_mon + 1}) is holding a {pokemon.held_item.name} but there is no space left for it in the bag."
+
     def get_next_func(self):
         match self.current_step:
             case "None":
@@ -490,6 +498,7 @@ class CheckForPickup(BaseMenuNavigator):
                 self.checked = True
                 if self.pickup_threshold_met:
                     self.current_mon = self.pokemon_with_pickup_and_item[0]
+                    self.check_space_in_bag()
                     self.current_step = "take_mon_item"
                 else:
                     self.current_step = "exit_to_overworld"
@@ -511,6 +520,7 @@ class CheckForPickup(BaseMenuNavigator):
             context.bot_mode = "Manual"
         else:
             self.current_mon = self.pokemon_with_pickup_and_item[next_idx]
+            self.check_space_in_bag()
 
     def update_navigator(self):
         match self.current_step:
