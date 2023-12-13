@@ -13,6 +13,8 @@
 <body>
 <div id="screen_loading">Loading Data&hellip;</div>
 <div id="screen_connection_lost">Connection Lost.<br/>Retrying&hellip;</div>
+<!-- Theme switch button -->
+<button onclick="toggleTheme()">Switch Theme</button>
 
 <div id="first_row">
     <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Emulator Video" id="gba_video"/>
@@ -592,12 +594,62 @@
         );
         context.stroke();
     }
+	
+        const themes = [
+            { '--background-color': '#333', '--text-color': '#fff', '--background-image': 'none'},
+            { '--background-color': '#fff', '--text-color': '#333', '--background-image': 'none'},
+            { '--background-color': '#333', '--text-color': '#00ff22', '--background-image': 'none'},
+            { '--background-color': '#333', '--text-color': '#0040ff', '--background-image': 'none'},
+            { '--background-color': '#333', '--text-color': '#f50505', '--background-image': 'none'},
+            { '--background-color': '#000000', '--text-color': '#fff', '--background-image': 'none'},
+            { '--background-color': '#000000', '--text-color': '#00ff22', '--background-image': 'none'},
+            { '--background-color': '#000000', '--text-color': '#0613c9', '--background-image': 'none'},
+			{ '--background-color': '#000000', '--text-color': '#f50505', '--background-image': 'none'},
+        ];
+
+        let currentThemeIndex = 0;
+
+        // Check if a theme preference is stored in localStorage
+        const storedThemeIndex = localStorage.getItem('themeIndex');
+        if (storedThemeIndex !== null && !isNaN(storedThemeIndex)) {
+            currentThemeIndex = parseInt(storedThemeIndex, 10);
+        }
+
+        // Apply the theme on initial load
+        applyTheme(themes[currentThemeIndex]);
+
+        function toggleTheme() {
+            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+            applyTheme(themes[currentThemeIndex]);
+
+            // Save the selected theme index to localStorage
+            localStorage.setItem('themeIndex', currentThemeIndex.toString());
+        }
+
+        function applyTheme(theme) {
+            const styleElement = document.getElementById('theme-styles');
+            const root = document.documentElement;
+
+            for (const [property, value] of Object.entries(theme)) {
+                root.style.setProperty(property, value);
+            }
+        }
 </script>
 
-<style>
-    html, body {
+<style id="theme-styles">
+		:root {
+		--background-color: #333;
+		--text-color: #fff;
+		--background-image: None;
+		/* Add other theme-related variables here */
+	}
+	
+	html, body {
         margin: 0;
         padding: 0;
+		background-image: var(--background-image);
+		background-color: var(--background-color);
+		color: var(--text-color);
     }
 
     #first_row > div, #second_row > div {
@@ -749,6 +801,7 @@
         justify-content: center;
         align-items: center;
         text-align: center;
+		color: #000;
 
         font-size: 3rem;
     }
