@@ -81,8 +81,8 @@ class Cheats(BaseConfig):
     """Schema for the cheat configuration."""
 
     filename: ClassVar = "cheats.yml"
-    starters: bool = False
-    starters_rng: bool = False
+    fast_check_starters: bool = False
+    random_soft_reset_rng: bool = False
     pickup: bool = False
 
 

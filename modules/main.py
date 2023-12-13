@@ -47,7 +47,11 @@ def main_loop() -> None:
                 callback = work_queue.get_nowait()
                 callback()
 
-            if not mode and get_game_state() == GameState.BATTLE and context.bot_mode != "Starters":
+            if (
+                not mode
+                and get_game_state() == GameState.BATTLE
+                and context.bot_mode not in ["Starters", "Legendary Birds"]
+            ):
                 if opponent_changed():
                     pickup_checked = False
                     lead_rotated = False
@@ -93,8 +97,13 @@ def main_loop() -> None:
 
                         mode = ModeBunnyHop()
 
+                    case "Legendary Birds":
+                        from modules.modes.legendary_birds import ModeLegendaryBirds
+
+                        mode = ModeLegendaryBirds()
+
                     case "Ancient Legendaries":
-                        from modules.modes.legendaries import ModeAncientLegendaries
+                        from modules.modes.ancient_legendaries import ModeAncientLegendaries
 
                         mode = ModeAncientLegendaries()
             try:
