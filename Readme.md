@@ -60,6 +60,8 @@ Click [here](https://github.com/40Cakes/pokebot-gen3/blob/main/modules/modes/__i
 
 # ❤ Attributions
 
+Core functionality:
+
 - [mGBA](https://github.com/mgba-emu/mgba)
 - [libmgba-py](https://github.com/hanzi/libmgba-py/)
 
@@ -73,3 +75,7 @@ This project would not be possible without the decompiled symbol tables and othe
 - [Pokémon Ruby and Sapphire decompilation](https://github.com/pret/pokeruby) ([symbols](https://github.com/pret/pokeruby/tree/symbols))
 - [Pokémon FireRed and LeafGreen decompilation](https://github.com/pret/pokefirered) ([symbols](https://github.com/pret/pokefirered/tree/symbols))
 - PKHeX Plugin: [MissingEventFlagsCheckerPlugin](https://github.com/fattard/MissingEventFlagsCheckerPlugin) (event flags data)
+
+Test save states and bot profiles:
+
+- [Johnnie's PokéBot-Profiles](https://github.com/johnnieb333/Pokebot-Profiles)
