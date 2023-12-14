@@ -72,7 +72,7 @@ def load_profile(path: Path) -> Profile:
                 [
                     rom.game_code == metadata.rom.game_code,
                     rom.revision == metadata.rom.revision,
-                    rom.language == metadata.rom.language,
+                    rom.language.value == metadata.rom.language,
                 ]
             ):
                 return Profile(rom, path, last_played)
