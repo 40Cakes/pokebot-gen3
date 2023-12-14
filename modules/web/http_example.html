@@ -16,7 +16,20 @@
     <div id="screen_loading">Loading Data&hellip;</div>
     <div id="screen_connection_lost">Connection Lost.<br/>Retrying&hellip;</div>
     <!-- Theme switch button -->
-    <button onclick="toggleTheme()">Switch Theme</button>
+    <!-- Theme dropdown list -->
+    <label for="themeSelector">Select Theme:</label>
+    <select id="themeSelector" onchange="changeTheme()">
+        <option value="0">Dark Theme</option>
+        <option value="1">Light Theme</option>
+        <option value="2">Dark Green Theme</option>
+        <option value="3">Dark Blue Theme</option>
+        <option value="4">Dark Red Theme</option>
+        <option value="5">Black Theme</option>
+        <option value="6">Black Green Theme</option>
+        <option value="7">Black Blue Theme</option>
+        <option value="8">Black Red Theme</option>
+		<option value="random">Random Theme</option>
+    </select>
 
     <div id="first_row">
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Emulator Video" id="gba_video" />
@@ -639,6 +652,38 @@
 
             // Save the selected theme index to localStorage
             localStorage.setItem('themeIndex', currentThemeIndex.toString());
+        }
+		
+        function changeTheme() {
+            const themeSelector = document.getElementById('themeSelector');
+            const selectedTheme = themeSelector.value;
+
+            if (selectedTheme === 'random') {
+                // Generate two random colors for the background and text
+                const randomBackgroundColor = getRandomColor();
+                const randomTextColor = getRandomColor();
+
+                const randomTheme = {
+                    '--background-color': randomBackgroundColor,
+                    '--text-color': randomTextColor,
+                    '--background-image': 'none'
+                };
+
+                applyTheme(randomTheme);
+            } else {
+                const selectedThemeIndex = parseInt(selectedTheme, 10);
+                const predefinedTheme = themes[selectedThemeIndex];
+
+                applyTheme(predefinedTheme);
+            }
+
+            // Save the selected theme to localStorage
+            localStorage.setItem('themeIndex', selectedTheme.toString());
+        }
+
+        function getRandomColor() {
+            // Generate a random hex color code
+            return '#' + Math.floor(Math.random()*16777215).toString(16);
         }
 
         function applyTheme(theme) {
