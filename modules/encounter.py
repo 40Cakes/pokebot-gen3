@@ -3,7 +3,7 @@ from modules.context import context
 from modules.files import save_pk3
 from modules.gui.desktop_notification import desktop_notification
 from modules.pokemon_storage import get_pokemon_storage
-from modules.pokemon import Pokemon
+from modules.pokemon import Pokemon, get_battle_type_flags, BattleTypeFlag
 from modules.stats import total_stats
 
 
@@ -29,8 +29,10 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
 
     context.message = f"Encountered a {pokemon.species.name} with a shiny value of {pokemon.shiny_value:,}!"
 
+    battle_type_flags = get_battle_type_flags()
+
     # TODO temporary until auto-catch is ready
-    if pokemon.is_shiny or custom_found:
+    if pokemon.is_shiny or custom_found or BattleTypeFlag.ROAMER in battle_type_flags:
         if pokemon.is_shiny:
             if not config.logging.save_pk3.all and config.logging.save_pk3.shiny:
                 save_pk3(pokemon)
@@ -50,6 +52,15 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
 
             alert_title = "Custom filter triggered!"
             alert_message = f"Found a {pokemon.species.name} that matched one of your filters. ({custom_filter_result})"
+
+        elif BattleTypeFlag.ROAMER in battle_type_flags:
+            state_tag = "roamer"
+            console.print("[bold pink]Roaming Pokemon found!")
+            context.message = f"Roaming Pokemon found! Bot has been switched to manual mode so you can catch it."
+
+            alert_title = "Roaming Pokemon found!"
+            alert_message = f"Encountered a roaming {pokemon.species.name}."
+
         else:
             state_tag = ""
             alert_title = None
