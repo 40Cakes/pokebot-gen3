@@ -274,7 +274,7 @@
      */
     function handlePartyChange(data)
     {
-        for (let index = 0; index < 6; index++) {
+        for (let index = 0; index < data.length; index++) {
             const listEntry = document.getElementById("party" + index);
 
             const nameParts = [];
@@ -305,7 +305,14 @@
                 hpBarColoured.style.backgroundColor = "#080";
             }
             hpBar.append(hpBarColoured);
-            listEntry.append(hpBar);
+
+            const expBar = document.createElement("div");
+            expBar.className = "exp-bar";
+            const expBarColoured = document.createElement("div");
+            expBarColoured.style.width = `${data[index].exp_fraction_to_next_level * 100}%`;
+            expBar.append(expBarColoured);
+
+            listEntry.append(hpBar, expBar);
         }
     }
 
@@ -646,14 +653,25 @@
         margin-bottom: .5rem;
     }
 
-    .party-entry .hp-bar {
-        height: 3px;
+    .party-entry .hp-bar, .party-entry .exp-bar {
         width: 200px;
         background-color: #ddd;
+        border: 1px #888 solid;
     }
 
-    .party-entry .hp-bar div {
+    .party-entry .hp-bar {
+        height: 5px;
+        margin-top: 2px;
+    }
+
+    .party-entry .exp-bar {
+        height: 3px;
+        margin-top: 1px;
+    }
+
+    .party-entry .hp-bar div, .party-entry .exp-bar div {
         height: 100%;
+        background-color: #5ae;
     }
 
     .encounter-container {

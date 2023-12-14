@@ -1511,7 +1511,42 @@ last_opid = pack_uint32(0)  # ReadSymbol('gEnemyParty', size=4)
 
 
 class BattleTypeFlag(Flag, boundary=KEEP):
-    BATTLE_TYPE_TRAINER = 1 << 3
+    DOUBLE = 1 << 0
+    LINK = 1 << 1
+    IS_MASTER = 1 << 2
+    TRAINER = 1 << 3
+    FIRST_BATTLE = 1 << 4
+    LINK_IN_BATTLE = 1 << 5
+    MULTI = 1 << 6
+    SAFARI = 1 << 7
+    BATTLE_TOWER = 1 << 8
+    WALLY_TUTORIAL = 1 << 9
+    ROAMER = 1 << 10
+    EREADER_TRAINER = 1 << 11
+    KYOGRE_GROUDON = 1 << 12
+    LEGENDARY = 1 << 13
+    REGI = 1 << 14
+    TWO_OPPONENTS = 1 << 15
+    DOME = 1 << 16
+    PALACE = 1 << 17
+    ARENA = 1 << 18
+    FACTORY = 1 << 19
+    PIKE = 1 << 20
+    PYRAMID = 1 << 21
+    INGAME_PARTNER = 1 << 22
+    TOWER_LINK_MULTI = 1 << 23
+    RECORDED = 1 << 24
+    RECORDED_LINK = 1 << 25
+    TRAINER_HILL = 1 << 26
+    SECRET_BASE = 1 << 27
+    GROUDON = 1 << 28
+    KYOGRE = 1 << 29
+    RAYQUAZA = 1 << 30
+    RECORDED_IS_MASTER = 1 << 31
+
+
+def get_battle_type_flags() -> BattleTypeFlag:
+    return BattleTypeFlag(unpack_uint32(read_symbol("gBattleTypeFlags")))
 
 
 def opponent_changed() -> bool:
@@ -1524,11 +1559,10 @@ def opponent_changed() -> bool:
     try:
         global last_opid
         opponent_pid = read_symbol("gEnemyParty", size=4)
-        g_battle_type_flags = read_symbol("gBattleTypeFlags", size=4)
         if (
             opponent_pid != last_opid
             and opponent_pid != b"\x00\x00\x00\x00"
-            and (BattleTypeFlag.BATTLE_TYPE_TRAINER not in BattleTypeFlag(unpack_uint32(g_battle_type_flags)))
+            and (BattleTypeFlag.TRAINER not in get_battle_type_flags())
         ):
             last_opid = opponent_pid
             return True
