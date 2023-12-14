@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>PokéBot</title>
     <!--
     Note: This is just an example page, showing how to use the streaming API.
@@ -10,106 +11,105 @@
           expect too much of it.
     -->
 </head>
+
 <body>
-<div id="screen_loading">Loading Data&hellip;</div>
-<div id="screen_connection_lost">Connection Lost.<br/>Retrying&hellip;</div>
-<!-- Theme switch button -->
-<button onclick="toggleTheme()">Switch Theme</button>
+    <div id="screen_loading">Loading Data&hellip;</div>
+    <div id="screen_connection_lost">Connection Lost.<br/>Retrying&hellip;</div>
+    <!-- Theme switch button -->
+    <button onclick="toggleTheme()">Switch Theme</button>
 
-<div id="first_row">
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Emulator Video" id="gba_video"/>
+    <div id="first_row">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Emulator Video" id="gba_video" />
 
-    <div id="emulator_card">
-        <p id="performance_data">
-            FPS: <strong id="fps"></strong> &middot;
-            Bot Percentage: <strong id="bot_percentage"></strong> &middot;
-            Encounter Rate: <strong id="encounter_rate"></strong>
-        </p>
+        <div id="emulator_card">
+            <p id="performance_data">
+                FPS: <strong id="fps"></strong> &middot; Bot Percentage: <strong id="bot_percentage"></strong> &middot; Encounter Rate: <strong id="encounter_rate"></strong>
+            </p>
 
-        <ul>
-            <li>Bot Mode: <strong id="bot_mode"></strong></li>
-            <li>Game State: <strong id="game_mode"></strong></li>
-            <li>Emulation Speed: <strong id="emulation_speed"></strong></li>
-            <li>Video Enabled: <strong id="video_enabled"></strong></li>
-            <li>Audio Enabled: <strong id="audio_enabled"></strong></li>
-            <li>Message: <strong id="message"></strong></li>
-        </ul>
-    </div>
-</div>
-
-<div id="second_row">
-    <div id="trainer_card">
-        <h2>Player Data</h2>
-
-        <ul>
-            <li>Player Name: <strong id="player_name"></strong></li>
-            <li>Gender: <strong id="player_gender"></strong></li>
-            <li>Trainer ID: <strong id="trainer_id"></strong></li>
-            <li>Secret ID: <strong id="secret_id"></strong></li>
-            <li>Money: <strong id="player_money"></strong></li>
-            <li>Coins: <strong id="player_coins"></strong></li>
-            <li>Registered (Select) Item: <strong id="registered_item"></strong></li>
-        </ul>
+            <ul>
+                <li>Bot Mode: <strong id="bot_mode"></strong></li>
+                <li>Game State: <strong id="game_mode"></strong></li>
+                <li>Emulation Speed: <strong id="emulation_speed"></strong></li>
+                <li>Video Enabled: <strong id="video_enabled"></strong></li>
+                <li>Audio Enabled: <strong id="audio_enabled"></strong></li>
+                <li>Message: <strong id="message"></strong></li>
+            </ul>
+        </div>
     </div>
 
-    <div id="party_card">
-        <h2>Party</h2>
+    <div id="second_row">
+        <div id="trainer_card">
+            <h2>Player Data</h2>
 
-        <ol>
-            <li id="party0" class="party-entry"></li>
-            <li id="party1" class="party-entry"></li>
-            <li id="party2" class="party-entry"></li>
-            <li id="party3" class="party-entry"></li>
-            <li id="party4" class="party-entry"></li>
-            <li id="party5" class="party-entry"></li>
-        </ol>
+            <ul>
+                <li>Player Name: <strong id="player_name"></strong></li>
+                <li>Gender: <strong id="player_gender"></strong></li>
+                <li>Trainer ID: <strong id="trainer_id"></strong></li>
+                <li>Secret ID: <strong id="secret_id"></strong></li>
+                <li>Money: <strong id="player_money"></strong></li>
+                <li>Coins: <strong id="player_coins"></strong></li>
+                <li>Registered (Select) Item: <strong id="registered_item"></strong></li>
+            </ul>
+        </div>
+
+        <div id="party_card">
+            <h2>Party</h2>
+
+            <ol>
+                <li id="party0" class="party-entry"></li>
+                <li id="party1" class="party-entry"></li>
+                <li id="party2" class="party-entry"></li>
+                <li id="party3" class="party-entry"></li>
+                <li id="party4" class="party-entry"></li>
+                <li id="party5" class="party-entry"></li>
+            </ol>
+        </div>
+
+        <div id="map_card">
+            <h2>Map</h2>
+
+            <ul>
+                <li>Current Map: <strong id="map_name"></strong> (type: <strong id="map_type"></strong>)</li>
+                <li>Weather: <strong id="weather"></strong></li>
+                <li>Properties: <strong id="map_properties"></strong></li>
+            </ul>
+
+            <ul>
+                <li>Local Coordinates: <strong id="local_coords"></strong></li>
+                <li>Tile Type: <strong id="tile_type"></strong></li>
+                <li>Properties: <strong id="tile_properties"></strong></li>
+            </ul>
+        </div>
     </div>
 
-    <div id="map_card">
-        <h2>Map</h2>
-
-        <ul>
-            <li>Current Map: <strong id="map_name"></strong> (type: <strong id="map_type"></strong>)</li>
-            <li>Weather: <strong id="weather"></strong></li>
-            <li>Properties: <strong id="map_properties"></strong></li>
-        </ul>
-
-        <ul>
-            <li>Local Coordinates: <strong id="local_coords"></strong></li>
-            <li>Tile Type: <strong id="tile_type"></strong></li>
-            <li>Properties: <strong id="tile_properties"></strong></li>
-        </ul>
+    <div class="encounter-container">
+        <div id="encounter">
+            <h2>Current Encounter</h2>
+            <p>None</p>
+        </div>
     </div>
-</div>
 
-<div class="encounter-container">
-    <div id="encounter">
-        <h2>Current Encounter</h2>
-        <p>None</p>
-    </div>
-</div>
+    <h2 id="mini_map_headline">Mini Map</h2>
 
-<h2 id="mini_map_headline">Mini Map</h2>
+    <canvas id="mini_map"></canvas>
 
-<canvas id="mini_map"></canvas>
+    <h2>Event Log</h2>
 
-<h2>Event Log</h2>
+    <div id="log"></div>
 
-<div id="log"></div>
+    <script>
+        /**
+         * @type {MapLocation}
+         */
+        let mapData;
 
-<script>
-    /**
-     * @type {MapLocation}
-     */
-    let mapData;
-
-    /*
-     * Populate initial data by calling the regular API endpoints.
-     *
-     * The streaming endpoint will only send _updates_ so this is still necessary.
-     */
-    const initialDataFetchPromises = [
-        fetch("/emulator")
+        /*
+         * Populate initial data by calling the regular API endpoints.
+         *
+         * The streaming endpoint will only send _updates_ so this is still necessary.
+         */
+        const initialDataFetchPromises = [
+            fetch("/emulator")
             .then(response => response.json())
             .then(data => {
                 /** @var {PokeBotApi.GetEmulatorResponse} */
@@ -126,234 +126,231 @@
                 handleMessageChange(data.current_message);
             }),
 
-        fetch("/game_state")
+            fetch("/game_state")
             .then(response => response.json())
             .then(data => {
                 /** @var {PokeBotApi.GetGameStateResponse} */
                 handleGameStateChange(data);
             }),
 
-        fetch("/player")
+            fetch("/player")
             .then(response => response.json())
             .then(data => {
                 /** @var {PokeBotApi.GetPlayerResponse} */
                 handlePlayerChange(data);
             }),
 
-        fetch("/party")
+            fetch("/party")
             .then(response => response.json())
             .then(data => {
                 /** @var {PokeBotApi.GetPartyResponse} */
                 handlePartyChange(data);
             }),
 
-        fetch("/opponent")
+            fetch("/opponent")
             .then(response => response.json())
             .then(data => {
                 /** @var {PokeBotApi.GetOpponentResponse} */
                 handleOpponentChange(data);
             }),
 
-        fetch("/encounter_rate")
+            fetch("/encounter_rate")
             .then(response => response.json())
             .then(data => {
                 /** @var {PokeBotApi.GetEncounterRateResponse} */
                 document.getElementById("encounter_rate").innerText = data.encounter_rate + "/hr";
             }),
 
-        fetch("/map")
+            fetch("/map")
             .then(response => response.json())
             .then(data => {
                 /** @var {PokeBotApi.GetMapResponse} */
                 handleMapChange(data);
                 handleMapTileChange(data.player_position);
             }),
-    ];
+        ];
 
 
-    /*
-     * Assemble URL for streaming endpoint including all events that we want to subscribe to.
-     *
-     * For this example, we are subscribing to _all_ available topics.
-     */
-    const url = new URL(window.location.origin + "/stream_events");
-    url.searchParams.append("topic", "BotMode");
-    url.searchParams.append("topic", "EmulatorSettings");
-    url.searchParams.append("topic", "GameState");
-    url.searchParams.append("topic", "Map");
-    url.searchParams.append("topic", "MapTile");
-    url.searchParams.append("topic", "Message");
-    url.searchParams.append("topic", "Party");
-    url.searchParams.append("topic", "PerformanceData");
-    url.searchParams.append("topic", "Opponent");
+        /*
+         * Assemble URL for streaming endpoint including all events that we want to subscribe to.
+         *
+         * For this example, we are subscribing to _all_ available topics.
+         */
+        const url = new URL(window.location.origin + "/stream_events");
+        url.searchParams.append("topic", "BotMode");
+        url.searchParams.append("topic", "EmulatorSettings");
+        url.searchParams.append("topic", "GameState");
+        url.searchParams.append("topic", "Map");
+        url.searchParams.append("topic", "MapTile");
+        url.searchParams.append("topic", "Message");
+        url.searchParams.append("topic", "Party");
+        url.searchParams.append("topic", "PerformanceData");
+        url.searchParams.append("topic", "Opponent");
 
-    /*
-     * Initialise event-stream client and add event handlers for all the events we care about.
-     *
-     * In this example, we are handling all possible events.
-     */
-    Promise.all(initialDataFetchPromises).then(() => {
-        const eventSource = new EventSource(url);
-        eventSource.addEventListener("PerformanceData", event => handlePerformanceData(JSON.parse(event.data)));
-        eventSource.addEventListener("Player", event => handlePlayerChange(JSON.parse(event.data)));
-        eventSource.addEventListener("Party", event => handlePartyChange(JSON.parse(event.data)));
-        eventSource.addEventListener("Opponent", event => handleOpponentChange(JSON.parse(event.data)));
-        eventSource.addEventListener("MapChange", event => handleMapChange(JSON.parse(event.data)));
-        eventSource.addEventListener("MapTileChange", event => handleMapTileChange(JSON.parse(event.data)));
-        eventSource.addEventListener("Message", event => handleMessageChange(JSON.parse(event.data)));
-        eventSource.addEventListener("GameState", event => handleGameStateChange(JSON.parse(event.data)));
-        eventSource.addEventListener("BotMode", event => handleBotModeChange(JSON.parse(event.data)));
-        eventSource.addEventListener("EmulationSpeed", event => handleEmulationSpeedChange(JSON.parse(event.data)));
-        eventSource.addEventListener("AudioEnabled", event => handleAudioEnabledChange(JSON.parse(event.data)));
-        eventSource.addEventListener("VideoEnabled", event => handleVideoEnabledChange(JSON.parse(event.data)));
+        /*
+         * Initialise event-stream client and add event handlers for all the events we care about.
+         *
+         * In this example, we are handling all possible events.
+         */
+        Promise.all(initialDataFetchPromises).then(() => {
+            const eventSource = new EventSource(url);
+            eventSource.addEventListener("PerformanceData", event => handlePerformanceData(JSON.parse(event.data)));
+            eventSource.addEventListener("Player", event => handlePlayerChange(JSON.parse(event.data)));
+            eventSource.addEventListener("Party", event => handlePartyChange(JSON.parse(event.data)));
+            eventSource.addEventListener("Opponent", event => handleOpponentChange(JSON.parse(event.data)));
+            eventSource.addEventListener("MapChange", event => handleMapChange(JSON.parse(event.data)));
+            eventSource.addEventListener("MapTileChange", event => handleMapTileChange(JSON.parse(event.data)));
+            eventSource.addEventListener("Message", event => handleMessageChange(JSON.parse(event.data)));
+            eventSource.addEventListener("GameState", event => handleGameStateChange(JSON.parse(event.data)));
+            eventSource.addEventListener("BotMode", event => handleBotModeChange(JSON.parse(event.data)));
+            eventSource.addEventListener("EmulationSpeed", event => handleEmulationSpeedChange(JSON.parse(event.data)));
+            eventSource.addEventListener("AudioEnabled", event => handleAudioEnabledChange(JSON.parse(event.data)));
+            eventSource.addEventListener("VideoEnabled", event => handleVideoEnabledChange(JSON.parse(event.data)));
 
-        document.getElementById("screen_loading").style.display = "none";
-        eventSource.onerror = () => {
-            document.getElementById("screen_connection_lost").style.display = "flex";
-        };
-        eventSource.onopen = () => {
-            document.getElementById("screen_connection_lost").style.display = "none";
-            document.getElementById("gba_video").src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
-            document.getElementById("gba_video").src = "/stream_video?fps=30&cache_buster=" + (new Date).toString();
-        };
-    });
+            document.getElementById("screen_loading").style.display = "none";
+            eventSource.onerror = () => {
+                document.getElementById("screen_connection_lost").style.display = "flex";
+            };
+            eventSource.onopen = () => {
+                document.getElementById("screen_connection_lost").style.display = "none";
+                document.getElementById("gba_video").src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+                document.getElementById("gba_video").src = "/stream_video?fps=30&cache_buster=" + (new Date).toString();
+            };
+        });
 
-    function log(html)
-    {
-        const logContainer = document.getElementById("log");
+        function log(html) {
+            const logContainer = document.getElementById("log");
 
-        const logLine         = document.createElement("p");
-        logLine.innerHTML     = html;
-        const currentDate     = document.createElement("small");
-        currentDate.innerText = "[" + (new Date).toLocaleString("en-GB") + "]";
-        logLine.prepend(currentDate);
-        logContainer.prepend(logLine);
+            const logLine = document.createElement("p");
+            logLine.innerHTML = html;
+            const currentDate = document.createElement("small");
+            currentDate.innerText = "[" + (new Date).toLocaleString("en-GB") + "]";
+            logLine.prepend(currentDate);
+            logContainer.prepend(logLine);
 
-        while (logContainer.childElementCount > 100) {
-            logContainer.children.item(logContainer.childElementCount - 1).remove();
-        }
-    }
-
-    /**
-     * @param {StreamEvents.PerformanceData} data
-     */
-    function handlePerformanceData(data)
-    {
-        document.getElementById("fps").innerText            = data.fps.toLocaleString("en-GB");
-        document.getElementById("bot_percentage").innerText = (data.current_time_spent_in_bot_fraction * 100).toLocaleString("en-GB", {maximumFractionDigits: 1}) + "%";
-        if (data.encounter_rate > 0) {
-            document.getElementById("encounter_rate").innerText = data.encounter_rate.toLocaleString("en-GB") + "/hr";
-        }
-    }
-
-    /**
-     * @param {StreamEvents.Player} data
-     */
-    function handlePlayerChange(data)
-    {
-        document.getElementById("player_name").innerText = data.name;
-        document.getElementById("player_gender").innerText = data.gender;
-        if (data.gender === "male") {
-            document.getElementById("player_gender").style.color = "#058";
-        } else {
-            document.getElementById("player_gender").style.color = "#909";
-        }
-        document.getElementById("trainer_id").innerText = data.trainer_id.toString();
-        document.getElementById("secret_id").innerText = data.secret_id.toString();
-        document.getElementById("player_money").innerText = "$" + data.money.toLocaleString("en-GB");
-        document.getElementById("player_coins").innerText = data.coins.toLocaleString("en-GB");
-        if (data.registered_item) {
-            document.getElementById("registered_item").innerText = data.registered_item;
-            document.getElementById("registered_item").classList.remove("none");
-        } else {
-            document.getElementById("registered_item").innerText = "none";
-            document.getElementById("registered_item").classList.add("none");
-        }
-    }
-
-    /**
-     * @param {StreamEvents.Party} data
-     */
-    function handlePartyChange(data)
-    {
-        for (let index = 0; index < 6; index++) {
-            const listEntry = document.getElementById("party" + index);
-
-            const nameParts = [];
-            nameParts.push(data[index].species.name);
-
-            if (data[index].is_shiny) {
-                nameParts.push("✨");
+            while (logContainer.childElementCount > 100) {
+                logContainer.children.item(logContainer.childElementCount - 1).remove();
             }
+        }
 
-            if (data[index].nickname && data[index].nickname.toLowerCase() != data[index].species.name.toLowerCase()) {
-                nameParts.push(`“${data[index].nickname}”`);
+        /**
+         * @param {StreamEvents.PerformanceData} data
+         */
+        function handlePerformanceData(data) {
+            document.getElementById("fps").innerText = data.fps.toLocaleString("en-GB");
+            document.getElementById("bot_percentage").innerText = (data.current_time_spent_in_bot_fraction * 100).toLocaleString("en-GB", {
+                maximumFractionDigits: 1
+            }) + "%";
+            if (data.encounter_rate > 0) {
+                document.getElementById("encounter_rate").innerText = data.encounter_rate.toLocaleString("en-GB") + "/hr";
             }
+        }
 
-            nameParts.push(`(lvl. ${data[index].level}, ${data[index].gender})`)
-
-            listEntry.innerText = nameParts.join(" ");
-
-            const hpBar               = document.createElement("div");
-            hpBar.className           = "hp-bar";
-            const hpBarColoured       = document.createElement("div");
-            const hpPercentage        = (100 * data[index].current_hp / data[index].total_hp)
-            hpBarColoured.style.width = `${hpPercentage}%`;
-            if (hpPercentage < 20) {
-                hpBarColoured.style.backgroundColor = "#b00";
-            } else if (hpPercentage < 50) {
-                hpBarColoured.style.backgroundColor = "#cc0";
+        /**
+         * @param {StreamEvents.Player} data
+         */
+        function handlePlayerChange(data) {
+            document.getElementById("player_name").innerText = data.name;
+            document.getElementById("player_gender").innerText = data.gender;
+            if (data.gender === "male") {
+                document.getElementById("player_gender").style.color = "#058";
             } else {
-                hpBarColoured.style.backgroundColor = "#080";
+                document.getElementById("player_gender").style.color = "#909";
             }
-            hpBar.append(hpBarColoured);
-            listEntry.append(hpBar);
-        }
-    }
-
-    /**
-     * @param {StreamEvents.Opponent} data
-     */
-    function handleOpponentChange(data)
-    {
-        const colours = {
-            "normal": "#a8a878",
-            "fire": "#f08030",
-            "water": "#6890f0",
-            "electric": "#f8d030",
-            "grass": "#78c850",
-            "ice": "#98d8d8",
-            "fighting": "#c03028",
-            "poison": "#a040a0",
-            "ground": "#e0c068",
-            "flying": "#a890f0",
-            "psychic": "#f85888",
-            "bug": "#a8b820",
-            "rock": "#b8a038",
-            "ghost": "#705898",
-            "dragon": "#7038f8",
-            "dark": "#705848",
-            "steel": "#b8b8d0",
-        };
-
-        const box = document.getElementById("encounter");
-        if (data === null) {
-            box.innerHTML             = `<h2>Current Encounter</h2><p>None</p>`;
-            box.style.borderColor     = "transparent";
-            box.style.backgroundColor = "transparent";
-            return;
+            document.getElementById("trainer_id").innerText = data.trainer_id.toString();
+            document.getElementById("secret_id").innerText = data.secret_id.toString();
+            document.getElementById("player_money").innerText = "$" + data.money.toLocaleString("en-GB");
+            document.getElementById("player_coins").innerText = data.coins.toLocaleString("en-GB");
+            if (data.registered_item) {
+                document.getElementById("registered_item").innerText = data.registered_item;
+                document.getElementById("registered_item").classList.remove("none");
+            } else {
+                document.getElementById("registered_item").innerText = "none";
+                document.getElementById("registered_item").classList.add("none");
+            }
         }
 
-        const mainType = data.species.types[0].name.toLowerCase();
-        if (typeof colours[mainType] !== "undefined") {
-            box.style.borderColor     = colours[mainType];
-            box.style.backgroundColor = colours[mainType] + "55";
-        } else {
-            box.style.borderColor     = "transparent";
-            box.style.backgroundColor = "transparent";
+        /**
+         * @param {StreamEvents.Party} data
+         */
+        function handlePartyChange(data) {
+            for (let index = 0; index < 6; index++) {
+                const listEntry = document.getElementById("party" + index);
+
+                const nameParts = [];
+                nameParts.push(data[index].species.name);
+
+                if (data[index].is_shiny) {
+                    nameParts.push("✨");
+                }
+
+                if (data[index].nickname && data[index].nickname.toLowerCase() != data[index].species.name.toLowerCase()) {
+                    nameParts.push(`“${data[index].nickname}”`);
+                }
+
+                nameParts.push(`(lvl. ${data[index].level}, ${data[index].gender})`)
+
+                listEntry.innerText = nameParts.join(" ");
+
+                const hpBar = document.createElement("div");
+                hpBar.className = "hp-bar";
+                const hpBarColoured = document.createElement("div");
+                const hpPercentage = (100 * data[index].current_hp / data[index].total_hp)
+                hpBarColoured.style.width = `${hpPercentage}%`;
+                if (hpPercentage < 20) {
+                    hpBarColoured.style.backgroundColor = "#b00";
+                } else if (hpPercentage < 50) {
+                    hpBarColoured.style.backgroundColor = "#cc0";
+                } else {
+                    hpBarColoured.style.backgroundColor = "#080";
+                }
+                hpBar.append(hpBarColoured);
+                listEntry.append(hpBar);
+            }
         }
 
-        box.innerHTML = `
+        /**
+         * @param {StreamEvents.Opponent} data
+         */
+        function handleOpponentChange(data) {
+            const colours = {
+                "normal": "#a8a878",
+                "fire": "#f08030",
+                "water": "#6890f0",
+                "electric": "#f8d030",
+                "grass": "#78c850",
+                "ice": "#98d8d8",
+                "fighting": "#c03028",
+                "poison": "#a040a0",
+                "ground": "#e0c068",
+                "flying": "#a890f0",
+                "psychic": "#f85888",
+                "bug": "#a8b820",
+                "rock": "#b8a038",
+                "ghost": "#705898",
+                "dragon": "#7038f8",
+                "dark": "#705848",
+                "steel": "#b8b8d0",
+            };
+
+            const box = document.getElementById("encounter");
+            if (data === null) {
+                box.innerHTML = `<h2>Current Encounter</h2><p>None</p>`;
+                box.style.borderColor = "transparent";
+                box.style.backgroundColor = "transparent";
+                return;
+            }
+
+            const mainType = data.species.types[0].name.toLowerCase();
+            if (typeof colours[mainType] !== "undefined") {
+                box.style.borderColor = colours[mainType];
+                box.style.backgroundColor = colours[mainType] + "55";
+            } else {
+                box.style.borderColor = "transparent";
+                box.style.backgroundColor = "transparent";
+            }
+
+            box.innerHTML = `
     <h2>Current Encounter</h2>
     <p><strong>${data.species.name}</strong> encountered at <strong>${data.location_met}</strong></p>
     <ul>
@@ -388,224 +385,242 @@
         </thead>
     </table>
 `;
-    }
-
-    /**
-     * @param {StreamEvents.MapChange} data
-     */
-    function handleMapChange(data)
-    {
-        mapData = data;
-
-        log(`<strong>Map Changed</strong> - New map: ${data.map.name}`);
-
-        const mapProperties = [];
-        if (data.map.is_cycling_possible) {
-            mapProperties.push("Cycling possible");
-        }
-        if (data.map.is_escaping_possible) {
-            mapProperties.push("Escape Rope and Teleport possible");
-        }
-        if (data.map.is_running_possible) {
-            mapProperties.push("Running possible");
-        }
-        if (data.map.is_dark_cave) {
-            mapProperties.push("Dark Cave");
-        }
-        if (data.map.is_map_name_popup_shown) {
-            mapProperties.push("Map name popup shown when entering");
         }
 
-        document.getElementById("map_name").innerText       = data.map.name;
-        document.getElementById("map_type").innerText       = data.map.type;
-        document.getElementById("weather").innerText        = data.map.weather;
-        document.getElementById("map_properties").innerText = mapProperties.join(", ");
-    }
+        /**
+         * @param {StreamEvents.MapChange} data
+         */
+        function handleMapChange(data) {
+            mapData = data;
 
-    /**
-     * @param {StreamEvents.MapTileChange} data
-     */
-    function handleMapTileChange(data)
-    {
-        mapData.player_position = data;
-        const [x, y] = data;
-        const tile = mapData.tiles[x][y];
+            log(`<strong>Map Changed</strong> - New map: ${data.map.name}`);
 
-        log(`Moved to tile <strong>${x} / ${y}<strong>.`);
+            const mapProperties = [];
+            if (data.map.is_cycling_possible) {
+                mapProperties.push("Cycling possible");
+            }
+            if (data.map.is_escaping_possible) {
+                mapProperties.push("Escape Rope and Teleport possible");
+            }
+            if (data.map.is_running_possible) {
+                mapProperties.push("Running possible");
+            }
+            if (data.map.is_dark_cave) {
+                mapProperties.push("Dark Cave");
+            }
+            if (data.map.is_map_name_popup_shown) {
+                mapProperties.push("Map name popup shown when entering");
+            }
 
-        const tileProperties = [];
-        if (tile.collision) {
-            tileProperties.push("Collision");
+            document.getElementById("map_name").innerText = data.map.name;
+            document.getElementById("map_type").innerText = data.map.type;
+            document.getElementById("weather").innerText = data.map.weather;
+            document.getElementById("map_properties").innerText = mapProperties.join(", ");
         }
-        if (tile.has_encounters) {
-            tileProperties.push("Has Wild Encounters");
+
+        /**
+         * @param {StreamEvents.MapTileChange} data
+         */
+        function handleMapTileChange(data) {
+            mapData.player_position = data;
+            const [x, y] = data;
+            const tile = mapData.tiles[x][y];
+
+            log(`Moved to tile <strong>${x} / ${y}<strong>.`);
+
+            const tileProperties = [];
+            if (tile.collision) {
+                tileProperties.push("Collision");
+            }
+            if (tile.has_encounters) {
+                tileProperties.push("Has Wild Encounters");
+            }
+            if (tile.is_surfing_possible) {
+                tileProperties.push("Surfing Possible");
+            }
+
+            document.getElementById("local_coords").innerText = tile.local_coordinates.join(" / ");
+            document.getElementById("tile_type").innerText = tile.type;
+            document.getElementById("tile_properties").innerText = tileProperties.join(", ");
+
+            updateMiniMap();
         }
-        if (tile.is_surfing_possible) {
-            tileProperties.push("Surfing Possible");
-        }
 
-        document.getElementById("local_coords").innerText    = tile.local_coordinates.join(" / ");
-        document.getElementById("tile_type").innerText       = tile.type;
-        document.getElementById("tile_properties").innerText = tileProperties.join(", ");
-
-        updateMiniMap();
-    }
-
-    /**
-     * @param {StreamEvents.Message} data
-     */
-    function handleMessageChange(data)
-    {
-        if (data !== null && data !== "") {
-            document.getElementById("message").innerText = data;
-            document.getElementById("message").classList.remove("none");
-        } else {
-            document.getElementById("message").innerText = "none";
-            document.getElementById("message").classList.add("none");
-        }
-    }
-
-    /**
-     * @param {StreamEvents.GameState} data
-     */
-    function handleGameStateChange(data)
-    {
-        document.getElementById("game_mode").innerText = data;
-    }
-
-    /**
-     * @param {StreamEvents.BotMode} data
-     */
-    function handleBotModeChange(data)
-    {
-        log(`Bot mode changed to <strong>${data}</strong>`);
-        document.getElementById("bot_mode").innerText = data;
-    }
-
-    /**
-     * @param {StreamEvents.EmulationSpeed} data
-     */
-    function handleEmulationSpeedChange(data)
-    {
-        let newValue;
-        if (data === 0) {
-            newValue = "unthrottled";
-        } else {
-            newValue = data + "×";
-        }
-        document.getElementById("emulation_speed").innerText = newValue;
-        log(`Emulation speed changed to <strong>${newValue}</strong>`);
-    }
-
-    /**
-     * @param {StreamEvents.AudioEnabled} data
-     */
-    function handleAudioEnabledChange(data)
-    {
-        document.getElementById("audio_enabled").innerText = data ? "yes" : "no";
-
-        if (data) {
-            log(`Audio was <strong>enabled</strong>`);
-        } else {
-            log(`Audio was <strong>disabled</strong>`);
-        }
-    }
-
-    /**
-     * @param {StreamEvents.VideoEnabled} data
-     */
-    function handleVideoEnabledChange(data)
-    {
-        document.getElementById("video_enabled").innerText = data ? "yes" : "no";
-
-        if (data) {
-            log(`Video was <strong>enabled</strong>`);
-        } else {
-            log(`Video was <strong>disabled</strong>`);
-        }
-    }
-
-    function updateMiniMap() {
-        const TILE_SIZE = 5;
-
-        /** @type {HTMLCanvasElement} */
-        const canvas = document.getElementById("mini_map");
-        const context = canvas.getContext("2d");
-
-        canvas.width = TILE_SIZE * mapData.map.size[0];
-        canvas.height = TILE_SIZE * mapData.map.size[1];
-
-        // Clear canvas.
-        context.fillStyle = "#DFB";
-        context.fillRect(0, 0, canvas.width, canvas.height);
-
-        for (let x = 0; x < mapData.tiles.length; x++) {
-            for (let y = 0; y < mapData.tiles[x].length; y++) {
-                const tile = mapData.tiles[x][y];
-                let colour = null;
-                if (
-                    tile.local_coordinates[0] === mapData.player_position[0] &&
-                    tile.local_coordinates[1] === mapData.player_position[1]
-                ) {
-                    colour = "red";
-                } else if (tile.type.includes("Water") || tile.type.includes("Current")) {
-                    if (tile.has_encounters) {
-                        colour = "#08F";
-                    } else if (tile.type.includes("Deep Water")) {
-                        colour = "#05B";
-                    } else {
-                        colour = "#0FF";
-                    }
-                } else if (tile.type.includes("Warp") || tile.type === "Non-Animated Door") {
-                    colour = "#F0F";
-                } else if (tile.type.startsWith("Jump")) {
-                    colour = "#a50";
-                } else if (tile.collision) {
-                    colour = "#000";
-                } else if (tile.has_encounters) {
-                    colour = "#080";
-                } else if (tile.type === "Sand") {
-                    colour = "#ffd";
-                } else if (tile.type === "Deep Sand") {
-                    colour = "#ffb";
-                }
-
-                if (colour !== null) {
-                    context.fillStyle = colour;
-                    context.fillRect(
-                        x * TILE_SIZE,
-                        y * TILE_SIZE,
-                        TILE_SIZE,
-                        TILE_SIZE
-                    );
-                }
+        /**
+         * @param {StreamEvents.Message} data
+         */
+        function handleMessageChange(data) {
+            if (data !== null && data !== "") {
+                document.getElementById("message").innerText = data;
+                document.getElementById("message").classList.remove("none");
+            } else {
+                document.getElementById("message").innerText = "none";
+                document.getElementById("message").classList.add("none");
             }
         }
 
-        context.strokeStyle = "#F00";
-        context.lineWidth = 2;
-        context.beginPath();
-        context.arc(
-            mapData.player_position[0] * TILE_SIZE + (TILE_SIZE / 2),
-            mapData.player_position[1] * TILE_SIZE + (TILE_SIZE / 2),
-            TILE_SIZE * 1.5,
-            0,
-            2 * Math.PI
-        );
-        context.stroke();
-    }
-	
-        const themes = [
-            { '--background-color': '#333', '--text-color': '#fff', '--background-image': 'none'},
-            { '--background-color': '#fff', '--text-color': '#333', '--background-image': 'none'},
-            { '--background-color': '#333', '--text-color': '#00ff22', '--background-image': 'none'},
-            { '--background-color': '#333', '--text-color': '#0040ff', '--background-image': 'none'},
-            { '--background-color': '#333', '--text-color': '#f50505', '--background-image': 'none'},
-            { '--background-color': '#000000', '--text-color': '#fff', '--background-image': 'none'},
-            { '--background-color': '#000000', '--text-color': '#00ff22', '--background-image': 'none'},
-            { '--background-color': '#000000', '--text-color': '#0613c9', '--background-image': 'none'},
-			{ '--background-color': '#000000', '--text-color': '#f50505', '--background-image': 'none'},
-        ];
+        /**
+         * @param {StreamEvents.GameState} data
+         */
+        function handleGameStateChange(data) {
+            document.getElementById("game_mode").innerText = data;
+        }
+
+        /**
+         * @param {StreamEvents.BotMode} data
+         */
+        function handleBotModeChange(data) {
+            log(`Bot mode changed to <strong>${data}</strong>`);
+            document.getElementById("bot_mode").innerText = data;
+        }
+
+        /**
+         * @param {StreamEvents.EmulationSpeed} data
+         */
+        function handleEmulationSpeedChange(data) {
+            let newValue;
+            if (data === 0) {
+                newValue = "unthrottled";
+            } else {
+                newValue = data + "×";
+            }
+            document.getElementById("emulation_speed").innerText = newValue;
+            log(`Emulation speed changed to <strong>${newValue}</strong>`);
+        }
+
+        /**
+         * @param {StreamEvents.AudioEnabled} data
+         */
+        function handleAudioEnabledChange(data) {
+            document.getElementById("audio_enabled").innerText = data ? "yes" : "no";
+
+            if (data) {
+                log(`Audio was <strong>enabled</strong>`);
+            } else {
+                log(`Audio was <strong>disabled</strong>`);
+            }
+        }
+
+        /**
+         * @param {StreamEvents.VideoEnabled} data
+         */
+        function handleVideoEnabledChange(data) {
+            document.getElementById("video_enabled").innerText = data ? "yes" : "no";
+
+            if (data) {
+                log(`Video was <strong>enabled</strong>`);
+            } else {
+                log(`Video was <strong>disabled</strong>`);
+            }
+        }
+
+        function updateMiniMap() {
+            const TILE_SIZE = 5;
+
+            /** @type {HTMLCanvasElement} */
+            const canvas = document.getElementById("mini_map");
+            const context = canvas.getContext("2d");
+
+            canvas.width = TILE_SIZE * mapData.map.size[0];
+            canvas.height = TILE_SIZE * mapData.map.size[1];
+
+            // Clear canvas.
+            context.fillStyle = "#DFB";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let x = 0; x < mapData.tiles.length; x++) {
+                for (let y = 0; y < mapData.tiles[x].length; y++) {
+                    const tile = mapData.tiles[x][y];
+                    let colour = null;
+                    if (
+                        tile.local_coordinates[0] === mapData.player_position[0] &&
+                        tile.local_coordinates[1] === mapData.player_position[1]
+                    ) {
+                        colour = "red";
+                    } else if (tile.type.includes("Water") || tile.type.includes("Current")) {
+                        if (tile.has_encounters) {
+                            colour = "#08F";
+                        } else if (tile.type.includes("Deep Water")) {
+                            colour = "#05B";
+                        } else {
+                            colour = "#0FF";
+                        }
+                    } else if (tile.type.includes("Warp") || tile.type === "Non-Animated Door") {
+                        colour = "#F0F";
+                    } else if (tile.type.startsWith("Jump")) {
+                        colour = "#a50";
+                    } else if (tile.collision) {
+                        colour = "#000";
+                    } else if (tile.has_encounters) {
+                        colour = "#080";
+                    } else if (tile.type === "Sand") {
+                        colour = "#ffd";
+                    } else if (tile.type === "Deep Sand") {
+                        colour = "#ffb";
+                    }
+
+                    if (colour !== null) {
+                        context.fillStyle = colour;
+                        context.fillRect(
+                            x * TILE_SIZE,
+                            y * TILE_SIZE,
+                            TILE_SIZE,
+                            TILE_SIZE
+                        );
+                    }
+                }
+            }
+
+            context.strokeStyle = "#F00";
+            context.lineWidth = 2;
+            context.beginPath();
+            context.arc(
+                mapData.player_position[0] * TILE_SIZE + (TILE_SIZE / 2),
+                mapData.player_position[1] * TILE_SIZE + (TILE_SIZE / 2),
+                TILE_SIZE * 1.5,
+                0,
+                2 * Math.PI
+            );
+            context.stroke();
+        }
+
+        const themes = [{
+            '--background-color': '#333',
+            '--text-color': '#fff',
+            '--background-image': 'none'
+        }, {
+            '--background-color': '#fff',
+            '--text-color': '#333',
+            '--background-image': 'none'
+        }, {
+            '--background-color': '#333',
+            '--text-color': '#00ff22',
+            '--background-image': 'none'
+        }, {
+            '--background-color': '#333',
+            '--text-color': '#0040ff',
+            '--background-image': 'none'
+        }, {
+            '--background-color': '#333',
+            '--text-color': '#f50505',
+            '--background-image': 'none'
+        }, {
+            '--background-color': '#000000',
+            '--text-color': '#fff',
+            '--background-image': 'none'
+        }, {
+            '--background-color': '#000000',
+            '--text-color': '#00ff22',
+            '--background-image': 'none'
+        }, {
+            '--background-color': '#000000',
+            '--text-color': '#0613c9',
+            '--background-image': 'none'
+        }, {
+            '--background-color': '#000000',
+            '--text-color': '#f50505',
+            '--background-image': 'none'
+        }, ];
 
         let currentThemeIndex = 0;
 
@@ -634,186 +649,191 @@
                 root.style.setProperty(property, value);
             }
         }
-</script>
+    </script>
 
-<style id="theme-styles">
-		:root {
-		--background-color: #333;
-		--text-color: #fff;
-		--background-image: None;
-		/* Add other theme-related variables here */
-	}
-	
-	html, body {
-        margin: 0;
-        padding: 0;
-		background-image: var(--background-image);
-		background-color: var(--background-color);
-		color: var(--text-color);
-    }
-
-    #first_row > div, #second_row > div {
-        padding: 1rem;
-        box-sizing: border-box;
-    }
-
-    #second_row h2 {
-        margin-top: 0;
-    }
-
-    .none {
-        color: #aaa;
-    }
-
-    #gba_video {
-        border-right: 1px #000 solid;
-        border-bottom: 1px #000 solid;
-        margin-right: 1rem;
-        image-rendering: crisp-edges;
-        box-sizing: border-box;
-
-        aspect-ratio: 1.5;
-        width: 100%;
-        max-width: 480px;
-    }
-
-    @media screen and (max-width: 520px) {
-        #gba_video {
-            margin-right: 0;
+    <style id="theme-styles">
+         :root {
+            --background-color: #333;
+            --text-color: #fff;
+            --background-image: None;
+            /* Add other theme-related variables here */
         }
-    }
-
-    #emulator_card, #trainer_card, #party_card, #map_card {
-        display: inline-block;
-        vertical-align: top;
-        width: 100%;
-        max-width: 500px;
-    }
-
-    #emulator_card ul, #trainer_card ul, #party_card ol, #map_card ul {
-        padding-left: 1rem;
-    }
-
-    .party-entry {
-        margin-bottom: .5rem;
-    }
-
-    .party-entry .hp-bar {
-        height: 3px;
-        width: 200px;
-        background-color: #ddd;
-    }
-
-    .party-entry .hp-bar div {
-        height: 100%;
-    }
-
-    .encounter-container {
-        border: 1px #ccc solid;
-    }
-
-    #encounter {
-        height: 275px;
-        padding: calc(1rem - 5px);
-        border: 5px transparent solid;
-    }
-
-    #encounter > *:first-child {
-        margin-top: 0;
-    }
-
-    #encounter > *:last-child {
-        margin-bottom: 0;
-    }
-
-    #encounter > ul {
-        margin: 0;
-        display: inline-block;
-        width: 300px;
-        vertical-align: top;
-    }
-
-    #encounter table {
-        display: inline-block;
-        vertical-align: top;
-    }
-
-    #encounter th, #encounter td {
-        text-align: center;
-        width: 80px;
-        padding: .25rem .5rem;
-        background-color: rgba(0, 0, 0, 0.2);
-    }
-
-    @media screen and (max-width: 479px) {
-        #encounter table {
-            margin-top: .5rem;
-        }
-
-        #encounter th, #encounter td {
-            font-size: 70%;
-        }
-    }
-
-    #mini_map {
-        border: 1px #000 solid;
-        box-sizing: border-box;
-        margin: 1rem 0;
-        max-width: 100%;
-    }
-
-    @media screen and (min-width: 1400px) {
-        #mini_map_headline {
-            display: none;
-        }
-
-        #mini_map {
+        
+        html,
+        body {
             margin: 0;
-            position: absolute;
-            top: 0;
-            right: 0;
-            border-top: 0;
-            border-right: 0;
+            padding: 0;
+            background-image: var(--background-image);
+            background-color: var(--background-color);
+            color: var(--text-color);
         }
-    }
-
-    #log p {
-        margin: .5rem 0 0;
-    }
-
-    #log small {
-        font-size: 75%;
-        color: #888;
-        margin-right: 10px;
-    }
-
-
-    #screen_loading, #screen_connection_lost {
-        position: fixed;
-        z-index: 1;
-
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-		color: #000;
-
-        font-size: 3rem;
-    }
-
-    #screen_loading {
-        background-color: rgba(255, 240, 80, 0.75);
-    }
-
-    #screen_connection_lost {
-        display: none;
-        background-color: rgba(255, 120, 120, 0.75);
-    }
-</style>
+        
+        #first_row>div,
+        #second_row>div {
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        
+        #second_row h2 {
+            margin-top: 0;
+        }
+        
+        .none {
+            color: #aaa;
+        }
+        
+        #gba_video {
+            border-right: 1px #000 solid;
+            border-bottom: 1px #000 solid;
+            margin-right: 1rem;
+            image-rendering: crisp-edges;
+            box-sizing: border-box;
+            aspect-ratio: 1.5;
+            width: 100%;
+            max-width: 480px;
+        }
+        
+        @media screen and (max-width: 520px) {
+            #gba_video {
+                margin-right: 0;
+            }
+        }
+        
+        #emulator_card,
+        #trainer_card,
+        #party_card,
+        #map_card {
+            display: inline-block;
+            vertical-align: top;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        #emulator_card ul,
+        #trainer_card ul,
+        #party_card ol,
+        #map_card ul {
+            padding-left: 1rem;
+        }
+        
+        .party-entry {
+            margin-bottom: .5rem;
+        }
+        
+        .party-entry .hp-bar {
+            height: 3px;
+            width: 200px;
+            background-color: #ddd;
+        }
+        
+        .party-entry .hp-bar div {
+            height: 100%;
+        }
+        
+        .encounter-container {
+            border: 1px #ccc solid;
+        }
+        
+        #encounter {
+            height: 275px;
+            padding: calc(1rem - 5px);
+            border: 5px transparent solid;
+        }
+        
+        #encounter>*:first-child {
+            margin-top: 0;
+        }
+        
+        #encounter>*:last-child {
+            margin-bottom: 0;
+        }
+        
+        #encounter>ul {
+            margin: 0;
+            display: inline-block;
+            width: 300px;
+            vertical-align: top;
+        }
+        
+        #encounter table {
+            display: inline-block;
+            vertical-align: top;
+        }
+        
+        #encounter th,
+        #encounter td {
+            text-align: center;
+            width: 80px;
+            padding: .25rem .5rem;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        
+        @media screen and (max-width: 479px) {
+            #encounter table {
+                margin-top: .5rem;
+            }
+            #encounter th,
+            #encounter td {
+                font-size: 70%;
+            }
+        }
+        
+        #mini_map {
+            border: 1px #000 solid;
+            box-sizing: border-box;
+            margin: 1rem 0;
+            max-width: 100%;
+        }
+        
+        @media screen and (min-width: 1400px) {
+            #mini_map_headline {
+                display: none;
+            }
+            #mini_map {
+                margin: 0;
+                position: absolute;
+                top: 0;
+                right: 0;
+                border-top: 0;
+                border-right: 0;
+            }
+        }
+        
+        #log p {
+            margin: .5rem 0 0;
+        }
+        
+        #log small {
+            font-size: 75%;
+            color: #888;
+            margin-right: 10px;
+        }
+        
+        #screen_loading,
+        #screen_connection_lost {
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #000;
+            font-size: 3rem;
+        }
+        
+        #screen_loading {
+            background-color: rgba(255, 240, 80, 0.75);
+        }
+        
+        #screen_connection_lost {
+            display: none;
+            background-color: rgba(255, 120, 120, 0.75);
+        }
+    </style>
 </body>
+
 </html>
