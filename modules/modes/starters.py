@@ -327,20 +327,16 @@ class ModeStarters:
                             match get_game_state():
                                 case GameState.TITLE_SCREEN:
                                     context.emulator.press_button(random.choice(["A", "Start", "Left", "Right", "Up"]))
-                                case GameState.MAIN_MENU:  # TODO assumes trainer is in Oak's lab, facing a ball
-                                    if get_task("TASK_HANDLEMENUINPUT").get("isActive", False):
-                                        self.update_state(ModeStarterStates.OVERWORLD)
-                                        continue
-
+                                case GameState.MAIN_MENU:
+                                    context.emulator.press_button("A")
+                                case GameState.QUEST_LOG:
+                                    context.emulator.press_button("B")
+                                case GameState.OVERWORLD:
+                                    self.update_state(ModeStarterStates.OVERWORLD)
+                                    
                         case ModeStarterStates.OVERWORLD:
                             context.message = "Pathing to starter..."
-                            if get_task("TASK_HANDLEMENUINPUT").get("isActive", False):
-                                context.emulator.press_button("A")
-                            elif get_task("TASK_RUNTIMEBASEDEVENTS").get("data", False) != bytearray(
-                                b"\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                            ):
-                                context.emulator.press_button("B")
-                            elif (
+                            if (
                                 trainer.get_coords()[0]
                                 != ["Bulbasaur", "Squirtle", "Charmander"].index(context.selected_pokemon) + 8
                             ):

@@ -165,6 +165,7 @@ class GameState(IntEnum):
     TITLE_SCREEN = auto()
     MAIN_MENU = auto()
     UNKNOWN = auto()
+    QUEST_LOG = auto()
 
 
 def get_game_state_symbol() -> str:
@@ -175,6 +176,8 @@ def get_game_state_symbol() -> str:
 
 def get_game_state() -> GameState:
     match get_game_state_symbol():
+        case "CB2_SETUPOVERWORLDFORQLPLAYBACKWITHWARPEXIT" | "CB2_SETUPOVERWORLDFORQLPLAYBACK" | "CB2_LOADMAPFORQLPLAYBACK" | "CB2_ENTERFIELDFROMQUESTLOG":
+            return GameState.QUEST_LOG
         case "CB2_OVERWORLD":
             return GameState.OVERWORLD
         case "BATTLEMAINCB2":
