@@ -60,10 +60,7 @@ class ModeAncientLegendaries:
                     button_enable=conditions["Kyogre"],
                     button_tooltip="Select Kyogre"
                     if conditions["Kyogre"]
-                    else (
-                        "Invalid location:\n"
-                        "Place the player anywhere on the platform in Marine Cave, in front of Kyogre"
-                    ),
+                    else "Invalid location:\nPlace the player on the platform in Marine Cave, in front of Kyogre",
                     sprite=sprites / "Kyogre.png",
                 ),
                 Selection(
@@ -71,10 +68,7 @@ class ModeAncientLegendaries:
                     button_enable=conditions["Groudon"],
                     button_tooltip="Select Groudon"
                     if conditions["Groudon"]
-                    else (
-                        "Invalid location:\n"
-                        "Place the player anywhere on the platform in Terra Cave, in front of Groudon"
-                    ),
+                    else "Invalid location:\nPlace the player on the platform in Terra Cave, in front of Groudon",
                     sprite=sprites / "Groudon.png",
                 ),
                 Selection(

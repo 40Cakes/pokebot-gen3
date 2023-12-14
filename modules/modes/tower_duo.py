@@ -2,7 +2,7 @@ from enum import Enum, auto
 from pathlib import Path
 
 from modules.context import context
-from modules.data.map import MapRSE
+from modules.data.map import MapRSE, MapFRLG
 from modules.gui.multi_select_window import MultiSelector, Selection, MultiSelectWindow
 from modules.memory import get_game_state, GameState, get_event_flag
 from modules.navigation import follow_path
@@ -16,10 +16,6 @@ class ModeTowerDuoStates(Enum):
 
 class ModeTowerDuo:
     def __init__(self):
-        if context.rom.game_title != "POKEMON EMER":
-            context.message("Emerald only, FRLG support coming soon™")
-            return  # TODO FRLG
-
         if not context.selected_pokemon:
             player = get_player_avatar()
             sprites = Path(__file__).parent.parent.parent / "sprites" / "pokemon" / "normal"
@@ -35,7 +31,12 @@ class ModeTowerDuo:
                                 and player.local_coordinates[0] == 11
                                 and 14 <= player.local_coordinates[1] <= 20
                             )
-                            or (not get_event_flag("FLAG_FOUGHT_LUGIA") and False)  # TODO FRLG
+                            or (
+                                not get_event_flag("FLAG_FOUGHT_LUGIA")
+                                and player.map_group_and_number == MapFRLG.NAVEL_ROCK_B.value
+                                and player.local_coordinates[0] == 10
+                                and 16 <= player.local_coordinates[1] <= 21
+                            )
                         )
                     )
                 ),
@@ -47,9 +48,14 @@ class ModeTowerDuo:
                                 not get_event_flag("FLAG_CAUGHT_HO_OH")
                                 and player.map_group_and_number == MapRSE.NAVEL_ROCK_I.value
                                 and player.local_coordinates[0] == 12
-                                and 11 <= player.local_coordinates[1] <= 21
+                                and 10 <= player.local_coordinates[1] <= 21
                             )
-                            or (not get_event_flag("FLAG_FOUGHT_HO_OH") and False)  # TODO FRLG
+                            or (
+                                not get_event_flag("FLAG_FOUGHT_HO_OH")
+                                and player.map_group_and_number == MapFRLG.NAVEL_ROCK_A.value
+                                and player.local_coordinates[0] == 9
+                                and 13 <= player.local_coordinates[1] <= 19
+                            )
                         )
                     )
                 ),
@@ -61,7 +67,7 @@ class ModeTowerDuo:
                     button_enable=conditions["Lugia"],
                     button_tooltip="Select Lugia"
                     if conditions["Lugia"]
-                    else "Invalid location:\nPlace the player anywhere directly in front of Lugia, in Navel Rock",
+                    else "Invalid location:\nPlace the player directly in front of Lugia, in Navel Rock",
                     sprite=sprites / "Lugia.png",
                 ),
                 Selection(
@@ -69,7 +75,7 @@ class ModeTowerDuo:
                     button_enable=conditions["Ho-Oh"],
                     button_tooltip="Select Ho-Oh"
                     if conditions["Ho-Oh"]
-                    else "Invalid location:\nPlace the player anywhere directly in front of Ho-Oh, on Navel Rock",
+                    else "Invalid location:\nPlace the player directly in front of Ho-Oh, on Navel Rock",
                     sprite=sprites / "Ho-Oh.png",
                 ),
             ]
@@ -85,7 +91,7 @@ class ModeTowerDuo:
     def update_state(self, state: ModeTowerDuoStates) -> None:
         self.state: ModeTowerDuoStates = state
 
-    def alternate_buttons(self, buttons: tuple) -> None:
+    def alternate_buttons(self, buttons: tuple) -> None:  # TODO temporary fix for input issues
         if context.emulator.get_frame_count() % 2 == 0:
             context.emulator.press_button(buttons[0])
         else:
@@ -112,11 +118,21 @@ class ModeTowerDuo:
                         )
                         self.update_state(ModeTowerDuoStates.INTERACT)
 
-                case ModeTowerDuoStates.INTERACT, "POKEMON EMER", "Lugia":
-                    if get_game_state() != GameState.BATTLE:
-                        context.emulator.press_button("A")
+                case ModeTowerDuoStates.LEAVE_ROOM, "POKEMON FIRE" | "POKEMON LEAF", "Lugia":
+                    if player_avatar.local_coordinates == (10, 16):
+                        self.alternate_buttons(("B", "Down"))
                     else:
-                        return
+                        follow_path(  # TODO follow_path() needs reworking (not a generator)
+                            [
+                                (10, 20),
+                                (99, 20, MapFRLG.NAVEL_ROCK_Q.value),
+                                (3, 4),
+                                (99, 4, MapFRLG.NAVEL_ROCK_B.value),
+                                (10, 20),
+                                (10, 16),
+                            ]
+                        )
+                        self.update_state(ModeTowerDuoStates.INTERACT)
 
                 case ModeTowerDuoStates.LEAVE_ROOM, "POKEMON EMER", "Ho-Oh":
                     if player_avatar.local_coordinates == (12, 10):
@@ -134,9 +150,25 @@ class ModeTowerDuo:
                         )
                         self.update_state(ModeTowerDuoStates.INTERACT)
 
-                case ModeTowerDuoStates.INTERACT, "POKEMON EMER", "Ho-Oh":
+                case ModeTowerDuoStates.LEAVE_ROOM, "POKEMON FIRE" | "POKEMON LEAF", "Ho-Oh":
+                    if player_avatar.local_coordinates == (9, 12):
+                        self.alternate_buttons(("B", "Down"))
+                    else:
+                        follow_path(  # TODO follow_path() needs reworking (not a generator)
+                            [
+                                (9, 18),
+                                (99, 18, MapFRLG.NAVEL_ROCK_F.value),
+                                (3, 4),
+                                (99, 4, MapFRLG.NAVEL_ROCK_A.value),
+                                (9, 18),
+                                (9, 12),
+                            ]
+                        )
+                        self.update_state(ModeTowerDuoStates.INTERACT)
+
+                case ModeTowerDuoStates.INTERACT, "POKEMON EMER" | "POKEMON FIRE" | "POKEMON LEAF", "Lugia" | "Ho-Oh":
                     if get_game_state() != GameState.BATTLE:
-                        pass
+                        context.emulator.press_button("A")
                     else:
                         return
             yield
