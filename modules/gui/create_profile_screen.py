@@ -190,6 +190,7 @@ class CreateProfileScreen:
                         "*.ss7",
                         "*.ss8",
                         "*.ss9",
+                        "*.sav",
                     ]
                 ],
                 title="Load Existing Save",
