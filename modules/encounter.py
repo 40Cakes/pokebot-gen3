@@ -27,7 +27,22 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
 
     total_stats.log_encounter(pokemon, config.catch_block.block_list, custom_filter_result)
 
-    context.message = f"Encountered a {pokemon.species.name} with a shiny value of {pokemon.shiny_value:,}!"
+    encounter_summary = (
+        f"Encountered a {pokemon.species.name} with a shiny value of {pokemon.shiny_value:,}!\n\n"
+        f"PID: {str(hex(pokemon.personality_value)[2:]).upper()} | "
+        f"Lv: {pokemon.level:,} | "
+        f"Item: {pokemon.held_item.name if pokemon.held_item else '-'} | "
+        f"Nature: {pokemon.nature.name} | "
+        f"Ability: {pokemon.ability.name} \n"
+        f"IVs: HP: {pokemon.ivs.hp} | "
+        f"ATK: {pokemon.ivs.attack} | "
+        f"DEF: {pokemon.ivs.defence} | "
+        f"SPATK: {pokemon.ivs.special_attack} | "
+        f"SPDEF: {pokemon.ivs.special_defence} | "
+        f"SPD: {pokemon.ivs.speed} | "
+        f"Sum: {pokemon.ivs.sum()}"
+    )
+    context.message = encounter_summary
 
     battle_type_flags = get_battle_type_flags()
 
@@ -38,17 +53,19 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
                 save_pk3(pokemon)
             state_tag = "shiny"
             console.print("[bold yellow]Shiny found!")
-            context.message = "Shiny found! Bot has been switched to manual mode so you can catch it."
+            context.message = (
+                f"Shiny found! The bot has been switched to manual mode so you can catch it.\n{encounter_summary}"
+            )
 
             alert_title = "Shiny found!"
-            alert_message = f"Found a shiny {pokemon.species.name}. 🥳"
+            alert_message = f"Found a ✨shiny {pokemon.species.name}✨! 🥳"
 
         elif custom_found:
             if not config.logging.save_pk3.all and config.logging.save_pk3.custom:
                 save_pk3(pokemon)
             state_tag = "customfilter"
             console.print("[bold green]Custom filter Pokemon found!")
-            context.message = f"Custom filter triggered ({custom_filter_result})! Bot has been switched to manual mode so you can catch it."
+            context.message = f"Custom filter triggered ({custom_filter_result})! The bot has been switched to manual mode so you can catch it.\n{encounter_summary}"
 
             alert_title = "Custom filter triggered!"
             alert_message = f"Found a {pokemon.species.name} that matched one of your filters. ({custom_filter_result})"
@@ -56,7 +73,9 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
         elif BattleTypeFlag.ROAMER in battle_type_flags:
             state_tag = "roamer"
             console.print("[bold pink]Roaming Pokemon found!")
-            context.message = f"Roaming Pokemon found! Bot has been switched to manual mode so you can catch it."
+            context.message = (
+                f"Roaming Pokemon found! The bot has been switched to manual mode so you can catch it.\n{encounter_summary}"
+            )
 
             alert_title = "Roaming Pokemon found!"
             alert_message = f"Encountered a roaming {pokemon.species.name}."

@@ -116,6 +116,7 @@ class ModeAncientLegendaries:
         while True:
             player_avatar = get_player_avatar()
 
+            # Kyogre
             match self.state, context.selected_pokemon:
                 case ModeAncientLegendariesStates.INTERACT, "Kyogre":
                     match get_game_state():
@@ -127,34 +128,6 @@ class ModeAncientLegendaries:
                                 follow_path(  # TODO follow_path() needs reworking (not a generator)
                                     [(player_avatar.local_coordinates[0], 26), (9, 26)]
                                 )
-                        case GameState.BATTLE:
-                            return
-
-                case ModeAncientLegendariesStates.INTERACT, "Groudon":
-                    match get_game_state():
-                        case GameState.OVERWORLD:
-                            if get_event_flag("FLAG_HIDE_TERRA_CAVE_GROUDON"):
-                                self.update_state(ModeAncientLegendariesStates.LEAVE_ROOM)
-                                continue
-                            else:
-                                follow_path(  # TODO follow_path() needs reworking (not a generator)
-                                    [(player_avatar.local_coordinates[0], 26), (17, 26)]
-                                )
-                        case GameState.BATTLE:
-                            return
-
-                case ModeAncientLegendariesStates.INTERACT, "Rayquaza":
-                    match get_game_state():
-                        case GameState.OVERWORLD:
-                            if (
-                                get_event_flag("FLAG_HIDE_SKY_PILLAR_TOP_RAYQUAZA_STILL")
-                                and int.from_bytes(read_symbol("gObjectEvents", 0, 1))
-                                != 1  # TODO look into decoding gObjectEvents properly - https://github.com/pret/pokeemerald/blob/2304283c3ef2675be5999349673b02796db0827d/include/global.fieldmap.h#L168
-                            ):
-                                self.update_state(ModeAncientLegendariesStates.LEAVE_ROOM)
-                                continue
-                            else:
-                                context.emulator.press_button("A")
                         case GameState.BATTLE:
                             return
 
@@ -183,6 +156,19 @@ class ModeAncientLegendaries:
                         )
                         return
 
+                # Groudon
+                case ModeAncientLegendariesStates.INTERACT, "Groudon":
+                    match get_game_state():
+                        case GameState.OVERWORLD:
+                            if get_event_flag("FLAG_HIDE_TERRA_CAVE_GROUDON"):
+                                self.update_state(ModeAncientLegendariesStates.LEAVE_ROOM)
+                                continue
+                            else:
+                                follow_path(  # TODO follow_path() needs reworking (not a generator)
+                                    [(player_avatar.local_coordinates[0], 26), (17, 26)]
+                                )
+                        case GameState.BATTLE:
+                            return
                 case ModeAncientLegendariesStates.LEAVE_ROOM, "Groudon":
                     if player_avatar.local_coordinates == (17, 26):
                         context.emulator.hold_button("Left")
@@ -207,6 +193,22 @@ class ModeAncientLegendaries:
                             ]
                         )
                         return
+
+                # Rayquaza
+                case ModeAncientLegendariesStates.INTERACT, "Rayquaza":
+                    match get_game_state():
+                        case GameState.OVERWORLD:
+                            if (
+                                get_event_flag("FLAG_HIDE_SKY_PILLAR_TOP_RAYQUAZA_STILL")
+                                and int.from_bytes(read_symbol("gObjectEvents", 0, 1))
+                                != 1  # TODO look into decoding gObjectEvents properly - https://github.com/pret/pokeemerald/blob/2304283c3ef2675be5999349673b02796db0827d/include/global.fieldmap.h#L168
+                            ):
+                                self.update_state(ModeAncientLegendariesStates.LEAVE_ROOM)
+                                continue
+                            else:
+                                context.emulator.press_button("A")
+                        case GameState.BATTLE:
+                            return
 
                 case ModeAncientLegendariesStates.LEAVE_ROOM, "Rayquaza":
                     follow_path(  # TODO follow_path() needs reworking (not a generator)
