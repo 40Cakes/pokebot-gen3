@@ -7,7 +7,7 @@ pickup_threshold: 1
 pickup_check_frequency: 5
 
 # Battling
-battle: true
+battle: false
 battle_method: strongest  # `strongest`
 faint_action: flee  # `stop`, `flee`, `rotate`
 new_move: stop  # `stop`, `cancel`, `learn_best`
