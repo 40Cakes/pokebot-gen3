@@ -28,14 +28,14 @@ class ModeTowerDuo:
                             (
                                 not get_event_flag("FLAG_CAUGHT_LUGIA")
                                 and player.map_group_and_number == MapRSE.NAVEL_ROCK_U.value
-                                and player.local_coordinates[0] == 11
-                                and 14 <= player.local_coordinates[1] <= 20
+                                and player.local_coordinates[0] == 11  # Lugia Y coord
+                                and 14 <= player.local_coordinates[1] <= 20  # Anywhere on the Y coord
                             )
                             or (
                                 not get_event_flag("FLAG_FOUGHT_LUGIA")
                                 and player.map_group_and_number == MapFRLG.NAVEL_ROCK_B.value
-                                and player.local_coordinates[0] == 10
-                                and 16 <= player.local_coordinates[1] <= 21
+                                and player.local_coordinates[0] == 10  # Lugia Y coord
+                                and 16 <= player.local_coordinates[1] <= 21  # Anywhere on the Y coord
                             )
                         )
                     )
@@ -47,14 +47,14 @@ class ModeTowerDuo:
                             (
                                 not get_event_flag("FLAG_CAUGHT_HO_OH")
                                 and player.map_group_and_number == MapRSE.NAVEL_ROCK_I.value
-                                and player.local_coordinates[0] == 12
-                                and 10 <= player.local_coordinates[1] <= 21
+                                and player.local_coordinates[0] == 12  # Ho-Oh Y coord
+                                and 10 <= player.local_coordinates[1] <= 21  # Anywhere on the Y coord
                             )
                             or (
                                 not get_event_flag("FLAG_FOUGHT_HO_OH")
                                 and player.map_group_and_number == MapFRLG.NAVEL_ROCK_A.value
-                                and player.local_coordinates[0] == 9
-                                and 13 <= player.local_coordinates[1] <= 19
+                                and player.local_coordinates[0] == 9  # Ho-Oh Y coord
+                                and 13 <= player.local_coordinates[1] <= 19  # Anywhere on the Y coord
                             )
                         )
                     )
@@ -91,12 +91,6 @@ class ModeTowerDuo:
     def update_state(self, state: ModeTowerDuoStates) -> None:
         self.state: ModeTowerDuoStates = state
 
-    def alternate_buttons(self, buttons: tuple) -> None:  # TODO temporary fix for input issues
-        if context.emulator.get_frame_count() % 2 == 0:
-            context.emulator.press_button(buttons[0])
-        else:
-            context.emulator.press_button(buttons[1])
-
     def step(self):
         while True:
             player_avatar = get_player_avatar()
@@ -104,7 +98,8 @@ class ModeTowerDuo:
             match self.state, context.rom.game_title, context.selected_pokemon:
                 case ModeTowerDuoStates.LEAVE_ROOM, "POKEMON EMER", "Lugia":
                     if player_avatar.local_coordinates == (11, 14):
-                        self.alternate_buttons(("B", "Down"))
+                        context.emulator.press_button("B")
+                        context.emulator.press_button("Down")
                     else:
                         follow_path(  # TODO follow_path() needs reworking (not a generator)
                             [
@@ -120,7 +115,8 @@ class ModeTowerDuo:
 
                 case ModeTowerDuoStates.LEAVE_ROOM, "POKEMON FIRE" | "POKEMON LEAF", "Lugia":
                     if player_avatar.local_coordinates == (10, 16):
-                        self.alternate_buttons(("B", "Down"))
+                        context.emulator.press_button("B")
+                        context.emulator.press_button("Down")
                     else:
                         follow_path(  # TODO follow_path() needs reworking (not a generator)
                             [
@@ -136,7 +132,8 @@ class ModeTowerDuo:
 
                 case ModeTowerDuoStates.LEAVE_ROOM, "POKEMON EMER", "Ho-Oh":
                     if player_avatar.local_coordinates == (12, 10):
-                        self.alternate_buttons(("B", "Down"))
+                        context.emulator.press_button("B")
+                        context.emulator.press_button("Down")
                     else:
                         follow_path(  # TODO follow_path() needs reworking (not a generator)
                             [
@@ -152,7 +149,8 @@ class ModeTowerDuo:
 
                 case ModeTowerDuoStates.LEAVE_ROOM, "POKEMON FIRE" | "POKEMON LEAF", "Ho-Oh":
                     if player_avatar.local_coordinates == (9, 12):
-                        self.alternate_buttons(("B", "Down"))
+                        context.emulator.press_button("B")
+                        context.emulator.press_button("Down")
                     else:
                         follow_path(  # TODO follow_path() needs reworking (not a generator)
                             [

@@ -73,9 +73,7 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
         elif BattleTypeFlag.ROAMER in battle_type_flags:
             state_tag = "roamer"
             console.print("[bold pink]Roaming Pokemon found!")
-            context.message = (
-                f"Roaming Pokemon found! The bot has been switched to manual mode so you can catch it.\n{encounter_summary}"
-            )
+            context.message = f"Roaming Pokemon found! The bot has been switched to manual mode so you can catch it.\n{encounter_summary}"
 
             alert_title = "Roaming Pokemon found!"
             alert_message = f"Encountered a roaming {pokemon.species.name}."
