@@ -38,7 +38,7 @@ def http_server() -> None:
     CORS(server)
 
     SWAGGER_URL = "/docs"
-    API_URL = f"http://{context.config.obs.http_server.ip}:{context.config.obs.http_server.port}/swagger.json"
+    API_URL = f"http://{context.config.obs.http_server.ip}:{context.config.obs.http_server.port}/swagger"
 
     spec = APISpec(
         title=f"{pokebot_name} API",
@@ -602,11 +602,9 @@ def http_server() -> None:
         with open(index_file, "rb") as file:
             return Response(file.read(), content_type="text/html; charset=utf-8")
 
-    @server.route("/swagger.json", methods=["GET"])
-    def swagger_json():
-        index_file = Path(__file__).parent / "swagger.json"
-        with open(index_file, "rb") as file:
-            return Response(file.read(), content_type="application/json; charset=utf-8")
+    @server.route("/swagger", methods=["GET"])
+    def http_get_swagger_json():
+        return Response(json.dumps(spec.to_dict(), indent=4), content_type="application/json; charset=utf-8")
 
     with server.test_request_context():
         spec.path(view=http_get_player)
@@ -630,7 +628,6 @@ def http_server() -> None:
         spec.path(view=http_get_events_stream)
         spec.path(view=http_get_video_stream)
 
-    write_file(Path(__file__).parent / "swagger.json", json.dumps(spec.to_dict(), indent=4))
     server.register_blueprint(swaggerui_blueprint)
     server.run(
         debug=False,
