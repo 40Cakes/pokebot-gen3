@@ -91,7 +91,7 @@ def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set, encou
         case "basic":
             console.print(
                 f"{rich_name}: PID: {str(hex(pokemon.personality_value)[2:]).upper()} | "
-                f"Lv.: {pokemon.level:,} | "
+                f"Lv: {pokemon.level:,} | "
                 f"Item: {pokemon.held_item.name if pokemon.held_item else '-'} | "
                 f"Nature: {pokemon.nature.name} | "
                 f"Ability: {pokemon.ability.name} | "

@@ -39,7 +39,7 @@ class BotContext:
                 raise error
             message = (
                 "[bold red]The configuration could not be loaded, no changes have been made.[/]\n"
-                "[bold yellow]This is Probably due to a malformed file."
+                "[bold yellow]This is probably due to a malformed file."
                 "For more information run the bot with the --debug flag.[/]"
             )
         return message
