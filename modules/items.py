@@ -171,14 +171,8 @@ class ItemBag:
         if len(pocket) < pocket_size:
             return True
 
-        # In FireRed/LeafGreen, you can always put 999 items in a stack. In RSE, this only works for berries.
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"] or item.pocket == ItemPocket.Berries:
-            stack_size = 999
-        else:
-            stack_size = 99
-
         for slot in pocket:
-            if slot.item == item and slot.quantity < stack_size:
+            if slot.item == item and slot.quantity < 99:
                 return True
 
         return False
@@ -249,7 +243,7 @@ class ItemStorage:
             return True
 
         for slot in self.items:
-            if slot.item == item and slot.quantity < 999:
+            if slot.item == item and slot.quantity < 99:
                 return True
 
         return False

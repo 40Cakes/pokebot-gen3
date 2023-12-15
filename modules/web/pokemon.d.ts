@@ -45,7 +45,7 @@ export type Type = {
     index: number;
 
     // English name of this type.
-    name: TypeName;
+    name: string;
 
     kind: "???" | "Physical" | "Special";
 }

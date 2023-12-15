@@ -15,6 +15,7 @@
 <body>
     <div id="screen_loading">Loading Data&hellip;</div>
     <div id="screen_connection_lost">Connection Lost.<br/>Retrying&hellip;</div>
+    <!-- Theme switch button -->
     <!-- Theme dropdown list -->
     <label for="themeSelector">Select Theme:</label>
     <select id="themeSelector" onchange="changeTheme()">
@@ -286,7 +287,7 @@
          * @param {StreamEvents.Party} data
          */
         function handlePartyChange(data) {
-            for (let index = 0; index < data.length; index++) {
+            for (let index = 0; index < 6; index++) {
                 const listEntry = document.getElementById("party" + index);
 
                 const nameParts = [];
@@ -317,14 +318,7 @@
                     hpBarColoured.style.backgroundColor = "#080";
                 }
                 hpBar.append(hpBarColoured);
-
-                const expBar = document.createElement("div");
-                expBar.className = "exp-bar";
-                const expBarColoured = document.createElement("div");
-                expBarColoured.style.width = `${data[index].exp_fraction_to_next_level * 100}%`;
-                expBar.append(expBarColoured);
-
-                listEntry.append(hpBar, expBar);
+                listEntry.append(hpBar);
             }
         }
 
@@ -659,7 +653,7 @@
             // Save the selected theme index to localStorage
             localStorage.setItem('themeIndex', currentThemeIndex.toString());
         }
-
+		
         function changeTheme() {
             const themeSelector = document.getElementById('themeSelector');
             const selectedTheme = themeSelector.value;
@@ -689,7 +683,7 @@
 
         function getRandomColor() {
             // Generate a random hex color code
-            return '#' + Math.floor(Math.random() * 16777215).toString(16);
+            return '#' + Math.floor(Math.random()*16777215).toString(16);
         }
 
         function applyTheme(theme) {
@@ -771,27 +765,14 @@
             margin-bottom: .5rem;
         }
         
-        .party-entry .hp-bar,
-        .party-entry .exp-bar {
+        .party-entry .hp-bar {
+            height: 3px;
             width: 200px;
             background-color: #ddd;
-            border: 1px #888 solid;
         }
         
-        .party-entry .hp-bar {
-            height: 5px;
-            margin-top: 2px;
-        }
-        
-        .party-entry .exp-bar {
-            height: 3px;
-            margin-top: 1px;
-        }
-        
-        .party-entry .hp-bar div,
-        .party-entry .exp-bar div {
+        .party-entry .hp-bar div {
             height: 100%;
-            background-color: #5ae;
         }
         
         .encounter-container {

@@ -431,7 +431,7 @@ class LibmgbaEmulator:
         :param button: A GBA button to be pressed, if pressed on previous frame it will be released
         :param inputs: Alternate raw input bitfield
         """
-        self._pressed_inputs |= (self._prev_pressed_inputs & input_map[button]) ^ input_map[button]
+        self._pressed_inputs |= (input_map[button] ^ self._prev_pressed_inputs) if not inputs else inputs
 
     def hold_button(self, button: str = None, inputs: int = 0):
         """

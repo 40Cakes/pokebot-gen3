@@ -368,9 +368,9 @@ class MapRSE(Enum):
     ARTISAN_CAVE_A = (24, 100)
     UNDERWATER_L = (24, 101)
     MARINE_CAVE = (24, 102)  # Outside Kyogre Cave
-    MARINE_CAVE_A = (24, 103)  # Main Kyogre Cave
+    MARINE_CAVE_A = (24, 103)  # Kyogre Cave
     TERRA_CAVE = (24, 104)  # Outside Groudon Cave
-    TERRA_CAVE_A = (24, 105)  # Main Groudon Cave
+    TERRA_CAVE_A = (24, 105)  # Groudon Cave
     ALTERING_CAVE = (24, 106)
     METEOR_FALLS_D = (24, 107)
 
@@ -510,8 +510,8 @@ class MapRSE(Enum):
     NAVEL_ROCK_E = (26, 71)
     NAVEL_ROCK_F = (26, 72)
     NAVEL_ROCK_G = (26, 73)
-    NAVEL_ROCK_H = (26, 74)  # Below Ho-Oh Room
-    NAVEL_ROCK_I = (26, 75)  # Main Ho-Oh Room
+    NAVEL_ROCK_H = (26, 74)  # Ho-Oh
+    NAVEL_ROCK_I = (26, 75)  # Ho-Oh
     NAVEL_ROCK_J = (26, 76)
     NAVEL_ROCK_K = (26, 77)
     NAVEL_ROCK_L = (26, 78)
@@ -522,8 +522,8 @@ class MapRSE(Enum):
     NAVEL_ROCK_Q = (26, 83)
     NAVEL_ROCK_R = (26, 84)
     NAVEL_ROCK_S = (26, 85)
-    NAVEL_ROCK_T = (26, 86)  # Above Lugia Room
-    NAVEL_ROCK_U = (26, 87)  # Main Lugia Room
+    NAVEL_ROCK_T = (26, 86)  # Lugia
+    NAVEL_ROCK_U = (26, 87)  # Lugia
     TRAINER_HILL_F = (26, 88)
 
     ROUTE_104_C = (27, 0)
@@ -723,12 +723,12 @@ class MapFRLG(Enum):
     THREE_ISLE_PATH = (2, 34)
     TANOBY_KEY = (2, 35)
     NAVEL_ROCK = (2, 36)
-    NAVEL_ROCK_A = (2, 37)  # Main Ho-Oh Room
-    NAVEL_ROCK_B = (2, 38)  # Main Lugia Room
+    NAVEL_ROCK_A = (2, 37)
+    NAVEL_ROCK_B = (2, 38)
     NAVEL_ROCK_C = (2, 39)
     NAVEL_ROCK_D = (2, 40)
     NAVEL_ROCK_E = (2, 41)
-    NAVEL_ROCK_F = (2, 42)  # Below Ho-Oh Room
+    NAVEL_ROCK_F = (2, 42)
     NAVEL_ROCK_G = (2, 43)
     NAVEL_ROCK_H = (2, 44)
     NAVEL_ROCK_I = (2, 45)
@@ -739,7 +739,7 @@ class MapFRLG(Enum):
     NAVEL_ROCK_N = (2, 50)
     NAVEL_ROCK_O = (2, 51)
     NAVEL_ROCK_P = (2, 52)
-    NAVEL_ROCK_Q = (2, 53)  # Above Lugia Room
+    NAVEL_ROCK_Q = (2, 53)
     NAVEL_ROCK_R = (2, 54)
     NAVEL_ROCK_S = (2, 55)
     BIRTH_ISLAND = (2, 56)

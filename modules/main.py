@@ -33,7 +33,7 @@ def main_loop() -> None:
             Thread(target=discord_rich_presence).start()
 
         if config.obs.http_server.enable:
-            from modules.web.http import http_server
+            from modules.http import http_server
 
             Thread(target=http_server).start()
 
@@ -45,7 +45,7 @@ def main_loop() -> None:
             if (
                 not mode
                 and get_game_state() == GameState.BATTLE
-                and context.bot_mode not in ["Starters", "Static Soft Resets"]
+                and context.bot_mode not in ["Starters", "Legendary Birds"]
             ):
                 if opponent_changed():
                     encounter_pokemon(get_opponent())
@@ -78,15 +78,10 @@ def main_loop() -> None:
 
                         mode = ModeBunnyHop()
 
-                    case "Static Soft Resets":
-                        from modules.modes.soft_resets import ModeStaticSoftResets
+                    case "Legendary Birds":
+                        from modules.modes.legendary_birds import ModeLegendaryBirds
 
-                        mode = ModeStaticSoftResets()
-
-                    case "Tower Duo":
-                        from modules.modes.tower_duo import ModeTowerDuo
-
-                        mode = ModeTowerDuo()
+                        mode = ModeLegendaryBirds()
 
                     case "Ancient Legendaries":
                         from modules.modes.ancient_legendaries import ModeAncientLegendaries

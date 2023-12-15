@@ -254,15 +254,13 @@ class ModeStarters:
                 self.task_confirm: str = "TASK_STARTERCHOOSE5"
                 self.task_ball_throw: str = "SUB_814146C"
                 self.task_map_popup: str = "TASK_MAPNAMEPOPUP"
-        else:
-            return
 
         if not config.cheats.random_soft_reset_rng:
-            self.rng_history: list = get_rng_state_history()
+            self.rng_history: list = get_rng_state_history(context.selected_pokemon)
 
         self.state: ModeStarterStates = ModeStarterStates.RESET
 
-    def update_state(self, state: ModeStarterStates) -> None:
+    def update_state(self, state: ModeStarterStates):
         self.state: ModeStarterStates = state
 
     def step(self):
@@ -295,7 +293,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(self.rng_history)
+                                    save_rng_state_history(context.selected_pokemon, self.rng_history)
                                     self.update_state(ModeStarterStates.OVERWORLD)
                                     continue
 
@@ -436,7 +434,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(self.rng_history)
+                                    save_rng_state_history(context.selected_pokemon, self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
 
@@ -531,7 +529,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(self.rng_history)
+                                    save_rng_state_history(context.selected_pokemon, self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
 

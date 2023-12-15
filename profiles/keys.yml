@@ -52,9 +52,6 @@ emulator:
   # Open load save state selection menu
   load_state: Ctrl+L
 
-  # Reload config from disk
-  reload_config: Ctrl+C
-
   # -- Ignore this unless you want to do programming on the bot code --
   # Allows you to put the emulator into 'stepping mode', where frames need to be advanced manually using a button, useful for analysing memory values
   toggle_stepping_mode: Ctrl+P
