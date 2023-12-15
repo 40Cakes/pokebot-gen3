@@ -15,11 +15,11 @@ class Battle(BaseConfig):
     """Schema for the catch_block configuration."""
 
     filename: ClassVar = "battle.yml"
-    battle: bool = False
-    battle_method: Literal["strongest"] = "strongest"
     pickup: bool = False
     pickup_threshold: Annotated[int, Field(gt=0, lt=7)] = 1
     pickup_check_frequency: Annotated[int, Field(gt=0)] = 5
+    battle: bool = False
+    battle_method: Literal["strongest"] = "strongest"
     faint_action: Literal["stop", "flee", "rotate"] = "flee"
     new_move: Literal["stop", "cancel", "learn_best"] = "stop"
     stop_evolution: bool = True
