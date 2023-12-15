@@ -4,7 +4,7 @@ from pathlib import Path
 from modules.context import context
 from modules.data.map import MapRSE
 from modules.gui.multi_select_window import MultiSelector, Selection, MultiSelectWindow
-from modules.memory import get_game_state, GameState, get_event_flag, read_symbol
+from modules.memory import get_game_state, GameState, get_event_flag
 from modules.navigation import follow_path
 from modules.player import get_player_avatar
 
