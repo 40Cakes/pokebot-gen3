@@ -109,6 +109,14 @@ def http_server() -> None:
         ---
         get:
           description: Stream emulator video.
+          parameters:
+            - in: query
+              name: fps
+              schema:
+                type: integer
+              required: true
+              description: fps
+              default: 30
           responses:
             200:
               content:
