@@ -30,8 +30,6 @@ from modules.menuing import (
 from modules.pokemon import get_party, get_opponent, Pokemon, Move, LearnedMove
 from modules.tasks import get_task, get_tasks, task_is_active
 
-config = context.config
-
 
 class BattleState(IntEnum):
     # out-of-battle states
@@ -220,7 +218,7 @@ class BattleMoveLearner(BaseMenuNavigator):
             case "None":
                 self.current_step = "init_learn_move"
             case "init_learn_move":
-                match config.battle.new_move:
+                match context.config.battle.new_move:
                     case "stop":
                         context.message = "New move trying to be learned, switching to manual mode..."
                         context.bot_mode = "Manual"
@@ -434,7 +432,7 @@ class BattleOpponent:
     def handle_evolution(self):
         while self.battle_state == BattleState.EVOLVING:
             self.update_battle_state()
-            if config.battle.stop_evolution:
+            if context.config.battle.stop_evolution:
                 context.emulator.press_button("B")
                 yield
             else:
@@ -470,10 +468,10 @@ class BattleOpponent:
         :return: an ordered pair containing A) the name of the action to take (fight, switch, flee, etc.) and B) the
         index of the desired choice.
         """
-        if not config.battle.battle or not can_battle_happen():
+        if not context.config.battle.battle or not can_battle_happen():
             self.choice = "flee"
             self.idx = -1
-        elif config.battle.replace_lead_battler and self.should_rotate_lead:
+        elif context.config.battle.replace_lead_battler and self.should_rotate_lead:
             mon_to_switch = self.get_mon_to_switch()
             if mon_to_switch is None:
                 self.choice = "flee"
@@ -482,11 +480,11 @@ class BattleOpponent:
                 self.choice = "switch"
                 self.idx = mon_to_switch
         else:
-            match config.battle.battle_method:
+            match context.config.battle.battle_method:
                 case "strongest":
                     move = self.get_strongest_move()
                     if move == -1:
-                        if config.battle.replace_lead_battler:
+                        if context.config.battle.replace_lead_battler:
                             mon_to_switch = self.get_mon_to_switch()
                             if mon_to_switch is None:
                                 self.choice = "flee"
@@ -537,7 +535,7 @@ class BattleOpponent:
         Pokémon seem to be fit to fight.
         :return: the index of the Pokémon to switch with the active Pokémon
         """
-        match config.battle.switch_strategy:
+        match context.config.battle.switch_strategy:
             case "first_available":
                 for i in range(len(self.party)):
                     if self.party[i] == self.current_battler or self.party[i].is_egg:
@@ -556,7 +554,7 @@ class BattleOpponent:
 
     @staticmethod
     def is_valid_move(move: Move) -> bool:
-        return move is not None and move.name not in config.battle.banned_moves and move.base_power > 0
+        return move is not None and move.name not in context.config.battle.banned_moves and move.base_power > 0
 
     @staticmethod
     def get_move_power(move: LearnedMove, battler: Pokemon, target: Pokemon):
@@ -644,7 +642,7 @@ class BattleOpponent:
         function that handles lead battler fainting
         """
         context.message = "Lead Pokémon fainted!"
-        match config.battle.faint_action:
+        match context.config.battle.faint_action:
             case "stop":
                 context.message = "Switching to manual mode..."
                 context.bot_mode = "Manual"
@@ -671,10 +669,10 @@ class BattleOpponent:
                 new_lead = self.get_mon_to_switch()
                 if new_lead is None:
                     context.message = "No viable pokemon to switch in!"
-                    faint_action_default = str(config.battle.faint_action)
-                    config.battle.faint_action = "flee"
+                    faint_action_default = str(context.config.battle.faint_action)
+                    context.config.battle.faint_action = "flee"
                     self.handle_battler_faint()
-                    config.battle.faint_action = faint_action_default
+                    context.config.battle.faint_action = faint_action_default
                     return False
                 switcher = send_out_pokemon(new_lead)
                 for i in switcher:
@@ -858,7 +856,7 @@ def calculate_new_move_viability(mon: Pokemon, new_move: Move) -> int:
     """
 
     # exit learning move if new move is banned or has 0 power
-    if new_move.base_power == 0 or new_move.name in config.battle.banned_moves:
+    if new_move.base_power == 0 or new_move.name in context.config.battle.banned_moves:
         context.message = f"{new_move.name} has base power of 0, so {mon.name} will skip learning it."
         return 4
     # get the effective power of each move
@@ -877,7 +875,7 @@ def calculate_new_move_viability(mon: Pokemon, new_move: Move) -> int:
         power = move.base_power * attack_bonus
         if move.type in mon.species.types:
             power *= 1.5
-        if move.name in config.battle.banned_moves:
+        if move.name in context.config.battle.banned_moves:
             power = 0
         move_power.append(power)
     # find the weakest move of the bunch
@@ -907,7 +905,7 @@ def calculate_new_move_viability(mon: Pokemon, new_move: Move) -> int:
             power = move.base_power * attack_bonus
             if move.type in mon.species.types:
                 power *= 1.5
-            if move.name in config.battle.banned_moves:
+            if move.name in context.config.battle.banned_moves:
                 power = 0
             redundant_move_power.append(power)
         weakest_move_power = min(redundant_move_power)
@@ -950,7 +948,7 @@ def can_battle_happen() -> bool:
                 if (
                     move is not None
                     and move.move.base_power > 0
-                    and move.move.name not in config.battle.banned_moves
+                    and move.move.name not in context.config.battle.banned_moves
                     and move.pp > 0
                 ):
                     return True
@@ -1072,17 +1070,20 @@ def execute_menu_action(decision: tuple):
             return
 
 
-def check_lead_can_battle():
+def check_lead_can_battle() -> bool:
     """
     Determines whether the lead Pokémon is fit to fight
     """
+    if len(get_party()) < 1:
+        return False
+
     lead = get_party()[0]
     lead_has_moves = False
     for move in lead.moves:
         if (
             move is not None
             and move.move.base_power > 0
-            and move.move.name not in config.battle.banned_moves
+            and move.move.name not in context.config.battle.banned_moves
             and move.pp > 0
         ):
             lead_has_moves = True
@@ -1115,7 +1116,9 @@ def mon_has_enough_hp(mon: Pokemon) -> bool:
 
 
 def move_is_usable(m: LearnedMove) -> bool:
-    return m is not None and m.move.base_power > 0 and m.pp > 0 and m.move.name not in config.battle.banned_moves
+    return (
+        m is not None and m.move.base_power > 0 and m.pp > 0 and m.move.name not in context.config.battle.banned_moves
+    )
 
 
 class RotatePokemon(BaseMenuNavigator):

@@ -98,9 +98,12 @@ class Discord(BaseConfig):
     pokemon_encounter_milestones: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=10000))
     shiny_pokemon_encounter_milestones: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=5))
     total_encounter_milestones: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=25000))
-    phase_summary: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
+    phase_summary: DiscordWebhook = Field(
+        default_factory=lambda: DiscordWebhook(first_interval=8192, consequent_interval=5000)
+    )
     anti_shiny_pokemon_encounter: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
     custom_filter_pokemon_encounter: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
+    pickup: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=10))
 
 
 class DiscordWebhook(BaseConfig):
@@ -110,8 +113,8 @@ class DiscordWebhook(BaseConfig):
     model_config = ConfigDict(coerce_numbers_to_str=True)
 
     enable: bool = False
-    first_interval: PositiveInt | None = 0  # Only used by phase_summary.
-    consequent_interval: PositiveInt | None = 0  # Only used by phase_summary.
+    first_interval: PositiveInt | None = 0
+    consequent_interval: PositiveInt | None = 0
     interval: PositiveInt = 0
     ping_mode: Literal["user", "role", None] = None
     ping_id: str | None = None

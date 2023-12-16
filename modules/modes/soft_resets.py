@@ -15,8 +15,6 @@ from modules.memory import (
 from modules.pokemon import get_opponent, opponent_changed
 from modules.tasks import task_is_active
 
-config = context.config
-
 
 class ModeStaticSoftResetsStates(Enum):
     RESET = auto()
@@ -33,7 +31,7 @@ class ModeStaticSoftResetsStates(Enum):
 
 class ModeStaticSoftResets:
     def __init__(self) -> None:
-        if not config.cheats.random_soft_reset_rng:
+        if not context.config.cheats.random_soft_reset_rng:
             self.rng_history: list = get_rng_state_history()
 
         self.frame_count = None
@@ -78,7 +76,7 @@ class ModeStaticSoftResets:
                                 continue
 
                 case ModeStaticSoftResetsStates.RNG_CHECK:
-                    if config.cheats.random_soft_reset_rng:
+                    if context.config.cheats.random_soft_reset_rng:
                         self.update_state(ModeStaticSoftResetsStates.WAIT_FRAMES)
                     else:
                         rng = unpack_uint32(read_symbol("gRngValue"))
@@ -101,7 +99,7 @@ class ModeStaticSoftResets:
                         pass
 
                 case ModeStaticSoftResetsStates.INJECT_RNG:
-                    if config.cheats.random_soft_reset_rng:
+                    if context.config.cheats.random_soft_reset_rng:
                         write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                     self.update_state(ModeStaticSoftResetsStates.OVERWORLD)
 

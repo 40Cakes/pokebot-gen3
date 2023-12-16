@@ -63,11 +63,10 @@ def sv_colour(value: int) -> str:
 def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set, encounter_rate: int) -> None:
     type_colour = pokemon.species.types[0].name.lower()
     rich_name = f"[{type_colour}]{pokemon.species.name}[/]"
-    console.print("\n")
-    console.rule(f"{rich_name} encountered at {pokemon.location_met}", style=type_colour)
 
     match context.config.logging.console.encounter_data:
         case "verbose":
+            console.rule(f"\n{rich_name} encountered at {pokemon.location_met}", style=type_colour)
             pokemon_table = Table()
             pokemon_table.add_column("PID", justify="center", width=10)
             pokemon_table.add_column("Level", justify="center")
@@ -89,6 +88,7 @@ def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set, encou
             )
             console.print(pokemon_table)
         case "basic":
+            console.rule(f"\n{rich_name} encountered at {pokemon.location_met}", style=type_colour)
             console.print(
                 f"{rich_name}: PID: {str(hex(pokemon.personality_value)[2:]).upper()} | "
                 f"Lv: {pokemon.level:,} | "
@@ -221,8 +221,6 @@ def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set, encou
                 f"Total Encounters: {total_stats['totals'].get('encounters', 0):,} | "
                 f"Total Shiny Average: {total_stats['totals'].get('shiny_average', 'N/A')})"
             )
-
-    console.print(f"[yellow]Encounter rate[/]: {encounter_rate:,}/h")
 
 
 console = Console(theme=theme)
