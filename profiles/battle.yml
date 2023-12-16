@@ -1,0 +1,58 @@
+# Battle settings
+# See readme for documentation: https://github.com/40Cakes/pokebot-gen3/wiki/%E2%9A%94-Battling-and-Pickup
+
+# Pickup
+pickup: true
+pickup_threshold: 1
+pickup_check_frequency: 5
+
+# Battling
+battle: false
+battle_method: strongest  # `strongest`
+faint_action: flee  # `stop`, `flee`, `rotate`
+new_move: stop  # `stop`, `cancel`, `learn_best`
+stop_evolution: true
+replace_lead_battler: false
+switch_strategy: first_available  # `first_available`
+banned_moves:
+  - None
+  # 2-turn
+  - Bounce
+  - Dig
+  - Dive
+  - Fly
+  - Sky Attack
+  - Razor Wind
+  - Doom Desire
+  - Solar Beam
+  # Inconsistent
+  - Fake Out
+  - False Swipe
+  - Nature Power
+  - Present
+  - Destiny Bond
+  - Wrap
+  - Snore
+  - Spit Up
+  - Bide
+  - Bind
+  - Counter
+  - Future Sight
+  - Mirror Coat
+  - Grudge
+  - Snatch
+  - Spite
+  - Curse
+  - Endeavor
+  - Revenge
+  - Assist
+  - Focus Punch
+  - Eruption
+  - Flail
+  # Ends battle
+  - Roar
+  - Whirlwind
+  - Selfdestruct
+  - Perish Song
+  - Explosion
+  - Memento

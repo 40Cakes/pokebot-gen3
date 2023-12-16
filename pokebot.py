@@ -7,7 +7,7 @@ import platform
 from dataclasses import dataclass
 
 from modules.modes import available_bot_modes
-from modules.runtime import is_bundled_app
+from modules.runtime import is_bundled_app, get_base_path
 from modules.version import pokebot_name, pokebot_version
 
 OS_NAME = platform.system()
@@ -110,6 +110,7 @@ if __name__ == "__main__":
     from modules.gui import PokebotGui
     from modules.main import main_loop
     from modules.profiles import Profile, profile_directory_exists, load_profile_by_name
+    from updater import run_updater
 
     # This catches the signal Windows emits when the underlying console window is closed
     # by the user. We still want to save the emulator state in that case, which would not
@@ -126,6 +127,11 @@ if __name__ == "__main__":
 
     startup_settings = parse_arguments()
     console.print(f"Starting [bold cyan]{pokebot_name} {pokebot_version}![/]")
+
+    if not is_bundled_app() and not (get_base_path() / ".git").is_dir():
+        run_updater()
+
     gui = PokebotGui(main_loop, on_exit)
     context.gui = gui
+
     gui.run(startup_settings)

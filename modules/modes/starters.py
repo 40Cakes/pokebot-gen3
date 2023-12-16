@@ -14,8 +14,6 @@ from modules.player import get_player_avatar
 from modules.pokemon import get_party, opponent_changed
 from modules.tasks import get_task, task_is_active
 
-config = context.config
-
 
 class Regions(Enum):
     KANTO_STARTERS = auto()
@@ -254,13 +252,15 @@ class ModeStarters:
                 self.task_confirm: str = "TASK_STARTERCHOOSE5"
                 self.task_ball_throw: str = "SUB_814146C"
                 self.task_map_popup: str = "TASK_MAPNAMEPOPUP"
+        else:
+            return
 
-        if not config.cheats.random_soft_reset_rng:
-            self.rng_history: list = get_rng_state_history(context.selected_pokemon)
+        if not context.config.cheats.random_soft_reset_rng:
+            self.rng_history: list = get_rng_state_history()
 
         self.state: ModeStarterStates = ModeStarterStates.RESET
 
-    def update_state(self, state: ModeStarterStates):
+    def update_state(self, state: ModeStarterStates) -> None:
         self.state: ModeStarterStates = state
 
     def step(self):
@@ -285,7 +285,7 @@ class ModeStarters:
                                         continue
 
                         case ModeStarterStates.RNG_CHECK:
-                            if config.cheats.random_soft_reset_rng:
+                            if context.config.cheats.random_soft_reset_rng:
                                 self.update_state(ModeStarterStates.OVERWORLD)
                             else:
                                 rng = unpack_uint32(read_symbol("gRngValue"))
@@ -293,7 +293,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(context.selected_pokemon, self.rng_history)
+                                    save_rng_state_history(self.rng_history)
                                     self.update_state(ModeStarterStates.OVERWORLD)
                                     continue
 
@@ -306,7 +306,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.INJECT_RNG:
-                            if config.cheats.random_soft_reset_rng:
+                            if context.config.cheats.random_soft_reset_rng:
                                 write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.SELECT_STARTER)
 
@@ -332,7 +332,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.EXIT_MENUS:
-                            if not config.cheats.fast_check_starters:
+                            if not context.config.cheats.fast_check_starters:
                                 if player_avatar.facing_direction != "Down":
                                     context.emulator.press_button("B")
                                     context.emulator.hold_button("Down")
@@ -413,7 +413,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.INJECT_RNG:
-                            if config.cheats.random_soft_reset_rng:
+                            if context.config.cheats.random_soft_reset_rng:
                                 write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.YES_NO)
 
@@ -426,7 +426,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.RNG_CHECK:
-                            if config.cheats.random_soft_reset_rng:
+                            if context.config.cheats.random_soft_reset_rng:
                                 self.update_state(ModeStarterStates.CONFIRM_STARTER)
                             else:
                                 rng = unpack_uint32(read_symbol("gRngValue"))
@@ -434,7 +434,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(context.selected_pokemon, self.rng_history)
+                                    save_rng_state_history(self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
 
@@ -446,7 +446,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.EXIT_MENUS:
-                            if config.cheats.fast_check_starters:
+                            if context.config.cheats.fast_check_starters:
                                 self.update_state(ModeStarterStates.CHECK_STARTER)
                                 continue
                             else:
@@ -495,7 +495,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.INJECT_RNG:
-                            if config.cheats.random_soft_reset_rng:
+                            if context.config.cheats.random_soft_reset_rng:
                                 write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.BAG_MENU)
 
@@ -521,7 +521,7 @@ class ModeStarters:
                                 continue
 
                         case ModeStarterStates.RNG_CHECK:
-                            if config.cheats.random_soft_reset_rng:
+                            if context.config.cheats.random_soft_reset_rng:
                                 self.update_state(ModeStarterStates.CONFIRM_STARTER)
                             else:
                                 rng = unpack_uint32(read_symbol("gRngValue"))
@@ -529,12 +529,12 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(context.selected_pokemon, self.rng_history)
+                                    save_rng_state_history(self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
 
                         case ModeStarterStates.CONFIRM_STARTER:
-                            if config.cheats.fast_check_starters:
+                            if context.config.cheats.fast_check_starters:
                                 if len(get_party()) > 0:
                                     self.update_state(ModeStarterStates.LOG_STARTER)
                                 context.emulator.press_button("A")
