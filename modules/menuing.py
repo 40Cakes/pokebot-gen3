@@ -473,7 +473,12 @@ class CheckForPickup(BaseMenuNavigator):
                 yield
 
     def should_open_party_menu(self):
-        if not config.cheats.faster_pickup and self.check_threshold_met and not self.checked and self.pokemon_with_pickup > 0:
+        if (
+            not config.cheats.faster_pickup
+            and self.check_threshold_met
+            and not self.checked
+            and self.pokemon_with_pickup > 0
+        ):
             return True
         elif self.pickup_threshold_met:
             return True
