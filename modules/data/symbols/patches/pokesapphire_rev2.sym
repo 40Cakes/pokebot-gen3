@@ -1,2 +1,3 @@
-02024e60 g 00000004 gActionSelectionCursor
 020238cc g 0000012c gDisplayedStringBattle
+020239f8 g 00000004 gBattleTypeFlags
+02024e60 g 00000004 gActionSelectionCursor
