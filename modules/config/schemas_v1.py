@@ -11,6 +11,65 @@ from pydantic import ConfigDict, field_validator, Field
 from pydantic.types import Annotated, ClassVar, NonNegativeInt, PositiveInt
 
 
+class Battle(BaseConfig):
+    """Schema for the catch_block configuration."""
+
+    filename: ClassVar = "battle.yml"
+    pickup: bool = False
+    pickup_threshold: Annotated[int, Field(gt=0, lt=7)] = 1
+    pickup_check_frequency: Annotated[int, Field(gt=0)] = 5
+    battle: bool = False
+    battle_method: Literal["strongest"] = "strongest"
+    faint_action: Literal["stop", "flee", "rotate"] = "flee"
+    new_move: Literal["stop", "cancel", "learn_best"] = "stop"
+    stop_evolution: bool = True
+    replace_lead_battler: bool = False
+    switch_strategy: Literal["first_available"] = "first_available"
+    banned_moves: list[str] = [
+        "None",
+        # 2-turn
+        "Bounce",
+        "Dig",
+        "Dive",
+        "Fly",
+        "Sky Attack",
+        "Razor Wind",
+        "Doom Desire",
+        "Solar Beam",
+        # Inconsistent
+        "Fake Out",
+        "False Swipe",
+        "Nature Power",
+        "Present",
+        "Destiny Bond",
+        "Wrap",
+        "Snore",
+        "Spit Up",
+        "Bide",
+        "Bind",
+        "Counter",
+        "Future Sight",
+        "Mirror Coat",
+        "Grudge",
+        "Snatch",
+        "Spite",
+        "Curse",
+        "Endeavor",
+        "Revenge",
+        "Assist",
+        "Focus Punch",
+        "Eruption",
+        "Flail",
+        # Ends battle
+        "Roar",
+        "Whirlwind",
+        "Selfdestruct",
+        "Perish Song",
+        "Explosion",
+        "Memento",
+    ]
+
+
 class CatchBlock(BaseConfig):
     """Schema for the catch_block configuration."""
 
@@ -24,6 +83,7 @@ class Cheats(BaseConfig):
     filename: ClassVar = "cheats.yml"
     fast_check_starters: bool = False
     random_soft_reset_rng: bool = False
+    faster_pickup: bool = False
 
 
 class Discord(BaseConfig):

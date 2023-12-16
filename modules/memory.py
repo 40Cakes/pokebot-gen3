@@ -134,6 +134,8 @@ class GameState(IntEnum):
     CHANGE_MAP = auto()
     TITLE_SCREEN = auto()
     MAIN_MENU = auto()
+    GARBAGE_COLLECTION = auto()
+    EVOLUTION = auto()
     UNKNOWN = auto()
 
 
@@ -170,6 +172,8 @@ def get_game_state() -> GameState:
             result = GameState.TITLE_SCREEN
         case "CB2_MAINMENU":
             result = GameState.MAIN_MENU
+        case "CB2_EVOLUTIONSCENEUPDATE":
+            result = GameState.EVOLUTION
         case _:
             result = GameState.UNKNOWN
 

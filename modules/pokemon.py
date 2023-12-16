@@ -883,7 +883,7 @@ class Pokemon:
         return LearnedMove(move=move, total_pp=total_pp, pp=pp, added_pps=total_pp - move.pp)
 
     @property
-    def moves(self) -> tuple[Move | None, Move | None, Move | None, Move | None]:
+    def moves(self) -> tuple[LearnedMove | None, LearnedMove | None, LearnedMove | None, LearnedMove | None]:
         return self.move(0), self.move(1), self.move(2), self.move(3)
 
     @property
