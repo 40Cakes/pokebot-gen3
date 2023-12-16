@@ -15,6 +15,7 @@ class EmulatorScreen:
         self.frame: Union[ttk.Frame, None] = None
         self.canvas: Union[Canvas, None] = None
         self.current_canvas_image: Union[PhotoImage, None] = None
+        self._current_canvas_image_id: int | None = None
         self._placeholder_image: Union[PhotoImage, None] = None
         self.center_of_canvas: tuple[int, int] = (240, 160)
 
@@ -140,10 +141,14 @@ class EmulatorScreen:
         self.canvas.create_image(self.center_of_canvas, image=self.current_canvas_image, state="normal")
 
     def _update_image(self, image: PIL.Image):
+        if self._current_canvas_image_id:
+            self.canvas.delete(self._current_canvas_image_id)
         self.current_canvas_image = PIL.ImageTk.PhotoImage(
             image=image.resize((self.width * self.scale, self.height * self.scale), resample=False)
         )
-        self.canvas.create_image(self.center_of_canvas, image=self.current_canvas_image, state="normal")
+        self._current_canvas_image_id = self.canvas.create_image(
+            self.center_of_canvas, image=self.current_canvas_image, state="normal"
+        )
         self._update_window()
 
     def _update_window(self):
