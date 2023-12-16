@@ -3,23 +3,28 @@ import json
 import math
 import sys
 import time
+import random
 import importlib
 from collections import deque
 from threading import Thread
 from datetime import datetime
+from collections import Counter
 
 from modules.console import console, print_stats
 from modules.context import context
 from modules.csv import log_encounter_to_csv
+from modules.discord import discord_message
 from modules.files import read_file, write_file
 from modules.memory import get_game_state, GameState
 from modules.pokemon import Pokemon
+from modules.runtime import get_sprites_path
 
 
 class TotalStats:
     def __init__(self):
         self.session_encounters: int = 0
         self.session_pokemon: set = set()
+        self.discord_picked_up_items: dict = {}
         self.encounter_log: deque[dict] = deque(maxlen=10)
         self.encounter_timestamps: deque[float] = deque(maxlen=100)
         self.cached_timestamp: str = ""
@@ -74,6 +79,9 @@ class TotalStats:
     def append_shiny_log(self, pokemon: Pokemon) -> None:
         self.shiny_log["shiny_log"].append(self.get_log_obj(pokemon))
         write_file(self.files["shiny_log"], json.dumps(self.shiny_log, indent=4, sort_keys=True))
+
+    def get_session_encounters(self) -> int:
+        return self.session_encounters
 
     def get_total_stats(self) -> dict:
         return self.total_stats
@@ -339,7 +347,7 @@ class TotalStats:
 
         print_stats(self.total_stats, pokemon, self.session_pokemon, self.get_encounter_rate())
 
-        # Run custom code in custom_hooks in a thread
+        # Run custom code/Discord webhooks in custom_hooks in a thread to not hold up bot
         hook = (
             Pokemon(pokemon.data),
             copy.deepcopy(self.total_stats),
@@ -354,6 +362,57 @@ class TotalStats:
 
         # Save stats file
         write_file(self.files["totals"], json.dumps(self.total_stats, indent=4, sort_keys=True))
+
+    def update_pickup_items(self, picked_up_items) -> None:
+        self.total_stats["totals"]["pickup"] = self.total_stats["totals"].get("pickup", {})
+
+        item_names = [i.name for i in picked_up_items]
+
+        item_count = {}
+        for item_name in item_names:
+            item_count[item_name] = item_count.get(item_name, 0) + 1
+
+        pickup_stats = {}
+        for item, count in item_count.items():
+            pickup_stats |= {f"{item}": count}
+
+        self.total_stats["totals"]["pickup"] = Counter(self.total_stats["totals"]["pickup"]) + Counter(pickup_stats)
+
+        # Save stats file
+        write_file(self.files["totals"], json.dumps(self.total_stats, indent=4, sort_keys=True))
+
+        if context.config.discord.pickup.enable:
+            self.discord_picked_up_items = Counter(self.discord_picked_up_items) + Counter(item_count)
+
+            if sum(self.discord_picked_up_items.values()) >= context.config.discord.pickup.interval:
+                sprite_names = [i.sprite_name for i in picked_up_items]
+
+                item_list = []
+                for item, count in self.discord_picked_up_items.items():
+                    item_list.append(f"{item} ({count})")
+
+                self.discord_picked_up_items = {}
+
+                def pickup_discord_webhook():
+                    discord_ping = ""
+                    match context.config.discord.pickup.ping_mode:
+                        case "role":
+                            discord_ping = f"📢 <@&{context.config.discord.pickup.ping_id}>"
+                        case "user":
+                            discord_ping = f"📢 <@{context.config.discord.pickup.ping_id}>"
+
+                    discord_message(
+                        webhook_url=context.config.discord.pickup.webhook_url,
+                        content=discord_ping,
+                        embed=True,
+                        embed_title="🦝 Pickup notification",
+                        embed_description="New items have been picked by your team!",
+                        embed_fields={"Items:": "\n".join(item_list)},
+                        embed_thumbnail=get_sprites_path() / "items" / f"{random.choice(sprite_names)}.png",
+                        embed_color="fc6203",
+                    )
+
+                Thread(target=pickup_discord_webhook).start()
 
 
 total_stats = TotalStats()

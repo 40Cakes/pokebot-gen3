@@ -58,3 +58,12 @@ custom_filter_pokemon_encounter:
   ping_mode:
   ping_id:
   #webhook_url:
+
+# Pickup new items notification
+pickup:
+  enable: false
+  interval: 10
+  ping_mode:
+  ping_id:
+  #webhook_url:
+

@@ -23,21 +23,18 @@ def main_loop() -> None:
     """
     from modules.encounter import encounter_pokemon  # prevents instantiating TotalStats class before profile selected
 
-    encounter_counter = 0
     pickup_checked = False
     lead_rotated = False
 
     try:
         mode = None
 
-        config = context.config
-
-        if config.discord.rich_presence:
+        if context.config.discord.rich_presence:
             from modules.discord import discord_rich_presence
 
             Thread(target=discord_rich_presence).start()
 
-        if config.obs.http_server.enable:
+        if context.config.obs.http_server.enable:
             from modules.web.http import http_server
 
             Thread(target=http_server).start()
@@ -56,7 +53,6 @@ def main_loop() -> None:
                     pickup_checked = False
                     lead_rotated = False
                     encounter_pokemon(get_opponent())
-                    encounter_counter += 1
                 if context.bot_mode != "Manual":
                     mode = BattleHandler()
 
@@ -64,16 +60,18 @@ def main_loop() -> None:
                 if mode:
                     mode = None
 
-            elif (
-                not mode and config.battle.pickup and should_check_for_pickup(encounter_counter) and not pickup_checked
-            ):
-                mode = MenuWrapper(CheckForPickup(encounter_counter))
+            elif not mode and context.config.battle.pickup and should_check_for_pickup() and not pickup_checked:
                 pickup_checked = True
-                encounter_counter = 0
+                mode = MenuWrapper(CheckForPickup())
 
-            elif not mode and config.battle.replace_lead_battler and not check_lead_can_battle() and not lead_rotated:
-                mode = MenuWrapper(RotatePokemon())
+            elif (
+                not mode
+                and context.config.battle.replace_lead_battler
+                and not check_lead_can_battle()
+                and not lead_rotated
+            ):
                 lead_rotated = True
+                mode = MenuWrapper(RotatePokemon())
 
             elif not mode:
                 match context.bot_mode:

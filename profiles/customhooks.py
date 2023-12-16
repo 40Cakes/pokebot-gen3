@@ -8,9 +8,6 @@ from modules.context import context
 from modules.discord import discord_message
 from modules.pokemon import Pokemon
 from modules.runtime import get_sprites_path
-from modules.version import pokebot_version
-
-config = context.config
 
 
 def custom_hooks(hook) -> None:
@@ -32,7 +29,7 @@ def custom_hooks(hook) -> None:
         # Discord messages
         def IVField() -> str:
             # Formatted IV table
-            if config.discord.iv_format == "formatted":
+            if context.config.discord.iv_format == "formatted":
                 iv_field = (
                     "```"
                     "╔═══╤═══╤═══╤═══╤═══╤═══╗\n"
@@ -81,26 +78,23 @@ def custom_hooks(hook) -> None:
                 ),
             }
 
-        def Footer() -> str:
-            return f"ID: {config.discord.bot_id} | {context.rom.game_name}\nPokéBot {pokebot_version}"
-
         try:
             # Discord shiny Pokémon encountered
-            if config.discord.shiny_pokemon_encounter.enable and pokemon.is_shiny:
+            if context.config.discord.shiny_pokemon_encounter.enable and pokemon.is_shiny:
                 # Discord pings
                 discord_ping = ""
-                match config.discord.shiny_pokemon_encounter.ping_mode:
+                match context.config.discord.shiny_pokemon_encounter.ping_mode:
                     case "role":
-                        discord_ping = f"📢 <@&{config.discord.shiny_pokemon_encounter.ping_id}>"
+                        discord_ping = f"📢 <@&{context.config.discord.shiny_pokemon_encounter.ping_id}>"
                     case "user":
-                        discord_ping = f"📢 <@{config.discord.shiny_pokemon_encounter.ping_id}>"
+                        discord_ping = f"📢 <@{context.config.discord.shiny_pokemon_encounter.ping_id}>"
 
                 block = (
                     "\n❌Skipping catching shiny (on catch block list)!" if pokemon.species.name in block_list else ""
                 )
 
                 discord_message(
-                    webhook_url=config.discord.shiny_pokemon_encounter.webhook_url,
+                    webhook_url=context.config.discord.shiny_pokemon_encounter.webhook_url,
                     content=f"Encountered a shiny ✨ {pokemon.species.name} ✨! {block}\n{discord_ping}",
                     embed=True,
                     embed_title="Shiny encountered!",
@@ -116,7 +110,6 @@ def custom_hooks(hook) -> None:
                     }
                     | PhaseSummary(),
                     embed_thumbnail=get_sprites_path() / "pokemon" / "shiny" / f"{pokemon.species.safe_name}.png",
-                    embed_footer=Footer(),
                     embed_color="ffd242",
                 )
         except:
@@ -125,25 +118,24 @@ def custom_hooks(hook) -> None:
         try:
             # Discord Pokémon encounter milestones
             if (
-                config.discord.pokemon_encounter_milestones.enable
+                context.config.discord.pokemon_encounter_milestones.enable
                 and stats["pokemon"][pokemon.species.name].get("encounters", -1)
-                % config.discord.pokemon_encounter_milestones.interval
+                % context.config.discord.pokemon_encounter_milestones.interval
                 == 0
             ):
                 # Discord pings
                 discord_ping = ""
-                match config.discord.pokemon_encounter_milestones.ping_mode:
+                match context.config.discord.pokemon_encounter_milestones.ping_mode:
                     case "role":
-                        discord_ping = f"📢 <@&{config.discord.pokemon_encounter_milestones.ping_id}>"
+                        discord_ping = f"📢 <@&{context.config.discord.pokemon_encounter_milestones.ping_id}>"
                     case "user":
-                        discord_ping = f"📢 <@{config.discord.pokemon_encounter_milestones.ping_id}>"
+                        discord_ping = f"📢 <@{context.config.discord.pokemon_encounter_milestones.ping_id}>"
                 discord_message(
-                    webhook_url=config.discord.pokemon_encounter_milestones.webhook_url,
+                    webhook_url=context.config.discord.pokemon_encounter_milestones.webhook_url,
                     content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
                     embed_description=f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} {pokemon.species.name} encounters!",
                     embed_thumbnail=get_sprites_path() / "pokemon" / "normal" / f"{pokemon.species.safe_name}.png",
-                    embed_footer=Footer(),
                     embed_color="50C878",
                 )
         except:
@@ -152,26 +144,25 @@ def custom_hooks(hook) -> None:
         try:
             # Discord shiny Pokémon encounter milestones
             if (
-                config.discord.shiny_pokemon_encounter_milestones.enable
+                context.config.discord.shiny_pokemon_encounter_milestones.enable
                 and pokemon.is_shiny
                 and stats["pokemon"][pokemon.species.name].get("shiny_encounters", -1)
-                % config.discord.shiny_pokemon_encounter_milestones.interval
+                % context.config.discord.shiny_pokemon_encounter_milestones.interval
                 == 0
             ):
                 # Discord pings
                 discord_ping = ""
-                match config.discord.shiny_pokemon_encounter_milestones.ping_mode:
+                match context.config.discord.shiny_pokemon_encounter_milestones.ping_mode:
                     case "role":
-                        discord_ping = f"📢 <@&{config.discord.shiny_pokemon_encounter_milestones.ping_id}>"
+                        discord_ping = f"📢 <@&{context.config.discord.shiny_pokemon_encounter_milestones.ping_id}>"
                     case "user":
-                        discord_ping = f"📢 <@{config.discord.shiny_pokemon_encounter_milestones.ping_id}>"
+                        discord_ping = f"📢 <@{context.config.discord.shiny_pokemon_encounter_milestones.ping_id}>"
                 discord_message(
-                    webhook_url=config.discord.shiny_pokemon_encounter_milestones.webhook_url,
+                    webhook_url=context.config.discord.shiny_pokemon_encounter_milestones.webhook_url,
                     content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
                     embed_description=f"{stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,} shiny ✨ {pokemon.species.name} ✨ encounters!",
                     embed_thumbnail=get_sprites_path() / "pokemon" / "shiny" / f"{pokemon.species.safe_name}.png",
-                    embed_footer=Footer(),
                     embed_color="ffd242",
                 )
         except:
@@ -180,16 +171,17 @@ def custom_hooks(hook) -> None:
         try:
             # Discord total encounter milestones
             if (
-                config.discord.total_encounter_milestones.enable
-                and stats["totals"].get("encounters", -1) % config.discord.total_encounter_milestones.interval == 0
+                context.config.discord.total_encounter_milestones.enable
+                and stats["totals"].get("encounters", -1) % context.config.discord.total_encounter_milestones.interval
+                == 0
             ):
                 # Discord pings
                 discord_ping = ""
-                match config.discord.total_encounter_milestones.ping_mode:
+                match context.config.discord.total_encounter_milestones.ping_mode:
                     case "role":
-                        discord_ping = f"📢 <@&{config.discord.total_encounter_milestones.ping_id}>"
+                        discord_ping = f"📢 <@&{context.config.discord.total_encounter_milestones.ping_id}>"
                     case "user":
-                        discord_ping = f"📢 <@{config.discord.total_encounter_milestones.ping_id}>"
+                        discord_ping = f"📢 <@{context.config.discord.total_encounter_milestones.ping_id}>"
 
                 embed_thumbnail = random.choice(
                     [
@@ -211,12 +203,11 @@ def custom_hooks(hook) -> None:
                 )
 
                 discord_message(
-                    webhook_url=config.discord.total_encounter_milestones.webhook_url,
+                    webhook_url=context.config.discord.total_encounter_milestones.webhook_url,
                     content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
                     embed_description=f"{stats['totals'].get('encounters', 0):,} total encounters!",
                     embed_thumbnail=get_sprites_path() / "items" / f"{embed_thumbnail}.png",
-                    embed_footer=Footer(),
                     embed_color="50C878",
                 )
         except:
@@ -225,31 +216,31 @@ def custom_hooks(hook) -> None:
         try:
             # Discord phase encounter notifications
             if (
-                config.discord.phase_summary.enable
+                context.config.discord.phase_summary.enable
                 and not pokemon.is_shiny
                 and (
-                    stats["totals"].get("phase_encounters", -1) == config.discord.phase_summary.first_interval
+                    stats["totals"].get("phase_encounters", -1) == context.config.discord.phase_summary.first_interval
                     or (
-                        stats["totals"].get("phase_encounters", -1) > config.discord.phase_summary.first_interval
+                        stats["totals"].get("phase_encounters", -1)
+                        > context.config.discord.phase_summary.first_interval
                         and stats["totals"].get("phase_encounters", -1)
-                        % config.discord.phase_summary.consequent_interval
+                        % context.config.discord.phase_summary.consequent_interval
                         == 0
                     )
                 )
             ):
                 # Discord pings
                 discord_ping = ""
-                match config.discord.phase_summary.ping_mode:
+                match context.config.discord.phase_summary.ping_mode:
                     case "role":
-                        discord_ping = f"📢 <@&{config.discord.phase_summary.ping_id}>"
+                        discord_ping = f"📢 <@&{context.config.discord.phase_summary.ping_id}>"
                     case "user":
-                        discord_ping = f"📢 <@{config.discord.phase_summary.ping_id}>"
+                        discord_ping = f"📢 <@{context.config.discord.phase_summary.ping_id}>"
                 discord_message(
-                    webhook_url=config.discord.phase_summary.webhook_url,
+                    webhook_url=context.config.discord.phase_summary.webhook_url,
                     content=f"💀 The current phase has reached {stats['totals'].get('phase_encounters', 0):,} encounters!\n{discord_ping}",
                     embed=True,
                     embed_fields=PhaseSummary(),
-                    embed_footer=Footer(),
                     embed_color="D70040",
                 )
         except:
@@ -257,16 +248,16 @@ def custom_hooks(hook) -> None:
 
         try:
             # Discord anti-shiny Pokémon encountered
-            if config.discord.anti_shiny_pokemon_encounter.enable and pokemon.is_anti_shiny:
+            if context.config.discord.anti_shiny_pokemon_encounter.enable and pokemon.is_anti_shiny:
                 # Discord pings
                 discord_ping = ""
-                match config.discord.anti_shiny_pokemon_encounter.ping_mode:
+                match context.config.discord.anti_shiny_pokemon_encounter.ping_mode:
                     case "role":
-                        discord_ping = f"📢 <@&{config.discord.anti_shiny_pokemon_encounter.ping_id}>"
+                        discord_ping = f"📢 <@&{context.config.discord.anti_shiny_pokemon_encounter.ping_id}>"
                     case "user":
-                        discord_ping = f"📢 <@{config.discord.anti_shiny_pokemon_encounter.ping_id}>"
+                        discord_ping = f"📢 <@{context.config.discord.anti_shiny_pokemon_encounter.ping_id}>"
                 discord_message(
-                    webhook_url=config.discord.anti_shiny_pokemon_encounter.webhook_url,
+                    webhook_url=context.config.discord.anti_shiny_pokemon_encounter.webhook_url,
                     content=f"Encountered an anti-shiny 💀 {pokemon.species.name} 💀!\n{discord_ping}",
                     embed=True,
                     embed_title="Anti-Shiny encountered!",
@@ -280,7 +271,6 @@ def custom_hooks(hook) -> None:
                     }
                     | PhaseSummary(),
                     embed_thumbnail=get_sprites_path() / "pokemon" / "anti-shiny" / f"{pokemon.species.safe_name}.png",
-                    embed_footer=Footer(),
                     embed_color="000000",
                 )
         except:
@@ -288,17 +278,17 @@ def custom_hooks(hook) -> None:
 
         try:
             # Discord Pokémon matching custom filter encountered
-            if config.discord.custom_filter_pokemon_encounter.enable and isinstance(custom_filter_result, str):
+            if context.config.discord.custom_filter_pokemon_encounter.enable and isinstance(custom_filter_result, str):
                 # Discord pings
                 discord_ping = ""
-                match config.discord.custom_filter_pokemon_encounter.ping_mode:
+                match context.config.discord.custom_filter_pokemon_encounter.ping_mode:
                     case "role":
-                        discord_ping = f"📢 <@&{config.discord.custom_filter_pokemon_encounter.ping_id}>"
+                        discord_ping = f"📢 <@&{context.config.discord.custom_filter_pokemon_encounter.ping_id}>"
                     case "user":
-                        discord_ping = f"📢 <@{config.discord.custom_filter_pokemon_encounter.ping_id}>"
+                        discord_ping = f"📢 <@{context.config.discord.custom_filter_pokemon_encounter.ping_id}>"
 
                 discord_message(
-                    webhook_url=config.discord.custom_filter_pokemon_encounter.webhook_url,
+                    webhook_url=context.config.discord.custom_filter_pokemon_encounter.webhook_url,
                     content=f"Encountered a {pokemon.species.name} matching custom filter: `{custom_filter_result}`!\n{discord_ping}",
                     embed=True,
                     embed_title="Encountered Pokémon matching custom catch filter!",
@@ -312,7 +302,6 @@ def custom_hooks(hook) -> None:
                     }
                     | PhaseSummary(),
                     embed_thumbnail=get_sprites_path() / "pokemon" / "normal" / f"{pokemon.species.safe_name}.png",
-                    embed_footer=Footer(),
                     embed_color="6a89cc",
                 )
         except:
@@ -324,13 +313,13 @@ def custom_hooks(hook) -> None:
     try:
         # Post the most recent OBS stream screenshot to Discord
         # (screenshot is taken in stats.py before phase resets)
-        if config.obs.discord_webhook_url and pokemon.is_shiny:
+        if context.config.obs.discord_webhook_url and pokemon.is_shiny:
 
             def OBSDiscordScreenshot():
                 time.sleep(3)  # Give the screenshot some time to save to disk
-                images = glob.glob(f"{config.obs.replay_dir}*.png")
+                images = glob.glob(f"{context.config.obs.replay_dir}*.png")
                 image = max(images, key=os.path.getctime)
-                discord_message(webhook_url=config.obs.discord_webhook_url, image=image)
+                discord_message(webhook_url=context.config.obs.discord_webhook_url, image=image)
 
             # Run in a thread to not hold up other hooks
             Thread(target=OBSDiscordScreenshot).start()
@@ -339,12 +328,12 @@ def custom_hooks(hook) -> None:
 
     try:
         # Save OBS replay buffer n frames after encountering a shiny
-        if config.obs.replay_buffer and pokemon.is_shiny:
+        if context.config.obs.replay_buffer and pokemon.is_shiny:
 
             def OBSReplayBuffer():
                 from modules.obs import obs_hot_key
 
-                time.sleep(config.obs.replay_buffer_delay)
+                time.sleep(context.config.obs.replay_buffer_delay)
                 obs_hot_key("OBS_KEY_F12", pressCtrl=True)
 
             # Run in a thread to not hold up other hooks

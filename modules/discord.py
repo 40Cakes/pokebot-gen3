@@ -2,7 +2,9 @@ import time
 from pathlib import Path
 from pypresence import Presence
 from discord_webhook import DiscordWebhook, DiscordEmbed
+
 from modules.context import context
+from modules.version import pokebot_version
 
 
 def discord_message(
@@ -48,6 +50,10 @@ def discord_message(
 
             if embed_footer:
                 embed_obj.set_footer(text=embed_footer)
+            else:
+                embed_obj.set_footer(
+                    text=f"ID: {context.config.discord.bot_id} | {context.rom.game_name}\nPokéBot {pokebot_version}"
+                )
 
             embed_obj.set_timestamp()
             webhook.add_embed(embed_obj)
