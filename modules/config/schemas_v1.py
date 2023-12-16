@@ -83,7 +83,7 @@ class Cheats(BaseConfig):
     filename: ClassVar = "cheats.yml"
     fast_check_starters: bool = False
     random_soft_reset_rng: bool = False
-    pickup: bool = False
+    faster_pickup: bool = False
 
 
 class Discord(BaseConfig):

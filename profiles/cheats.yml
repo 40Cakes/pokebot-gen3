@@ -2,4 +2,4 @@
 
 starters: false
 random_soft_reset_rng: false
-pickup: false
+faster_pickup: false

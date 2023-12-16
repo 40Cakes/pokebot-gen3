@@ -433,7 +433,7 @@ class CheckForPickup(BaseMenuNavigator):
                     self.pokemon_with_pickup_and_item.append(i)
 
     def check_pickup_threshold(self, encounter_total):
-        if config.cheats.pickup:
+        if config.cheats.faster_pickup:
             self.check_threshold_met = True
             self.checked = True
         else:
@@ -473,7 +473,7 @@ class CheckForPickup(BaseMenuNavigator):
                 yield
 
     def should_open_party_menu(self):
-        if not config.cheats.pickup and self.check_threshold_met and not self.checked and self.pokemon_with_pickup > 0:
+        if not config.cheats.faster_pickup and self.check_threshold_met and not self.checked and self.pokemon_with_pickup > 0:
             return True
         elif self.pickup_threshold_met:
             return True
@@ -584,6 +584,6 @@ class MenuWrapper:
 
 
 def should_check_for_pickup(x: int):
-    if config.cheats.pickup or x >= config.battle.pickup_check_frequency:
+    if config.cheats.faster_pickup or x >= config.battle.pickup_check_frequency:
         return True
     return False
