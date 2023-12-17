@@ -294,7 +294,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
             if not task_is_active("Task_HandleInput"):
                 context.emulator.press_button("A")
             yield
-    
+
     def select_mon(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
             while task_is_active("TASK_HANDLECHOOSEMONINPUT"):
