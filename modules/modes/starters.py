@@ -205,7 +205,6 @@ class ModeStarters:
                 and player_avatar.map_group_and_number == MapRSE.LITTLEROOT_TOWN_E.value
             ):
                 selections = [
-                    
                     Selection(
                         button_label="Cyndaquil",
                         button_enable=conditions["Cyndaquil"],
@@ -275,8 +274,6 @@ class ModeStarters:
                     ),
                 ]
 
-            
-            
             options = MultiSelector("Select a starter...", selections)
             MultiSelectWindow(context.gui.window, options)
 
@@ -284,8 +281,7 @@ class ModeStarters:
                 return
             elif "Random" in context.selected_pokemon:
                 context.random_starter = True
-        
-        
+
         if context.selected_pokemon in ["Bulbasaur", "Charmander", "Squirtle", "Random Kanto"]:
             if context.random_starter:
                 context.selected_pokemon = random.choice(["Bulbasaur", "Charmander", "Squirtle"])
@@ -524,10 +520,10 @@ class ModeStarters:
                                         self.update_state(ModeStarterStates.PARTY_MENU)
                                         continue
                             continue
-                        
+
                         case ModeStarterStates.PARTY_MENU:
                             if self.navigator is None:
-                                self.navigator = PokemonPartyMenuNavigator(len(get_party())-1, "summary")
+                                self.navigator = PokemonPartyMenuNavigator(len(get_party()) - 1, "summary")
                             else:
                                 yield from self.navigator.step()
                                 match self.navigator.current_step:
@@ -536,7 +532,7 @@ class ModeStarters:
                                         self.update_state(ModeStarterStates.LOG_STARTER)
                                         continue
                             continue
-                        
+
                         case ModeStarterStates.LOG_STARTER:
                             party = get_party()
                             encounter_pokemon(party[len(party) - 1])
