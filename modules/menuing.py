@@ -229,6 +229,8 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
             self.primary_option = "ITEM"
         if self.mode == "switch":
             self.primary_option = "SWITCH"
+        if self.mode == "summary":
+            self.primary_option = "SUMMARY"
 
     def get_next_func(self):
         match self.current_step:
@@ -246,11 +248,13 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                         self.current_step = "select_give_item"
                     case "switch":
                         self.current_step = "navigate_to_lead"
+                    case "summary":
+                        self.current_step = "select_summary"
                     case _:
                         self.current_step = "exit"
             case "navigate_to_lead":
                 self.current_step = "confirm_lead"
-            case "select_take_item" | "select_give_item" | "confirm_lead":
+            case "select_take_item" | "select_give_item" | "confirm_lead" | "select_summary":
                 self.current_step = "exit"
 
     def update_navigator(self):
@@ -269,6 +273,8 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                 self.navigator = self.navigate_to_lead()
             case "confirm_lead":
                 self.navigator = self.switch_mon()
+            case "select_summary":
+                self.navigator = self.select_summary()
 
     def navigate_to_mon(self):
         while get_party_menu_cursor_pos(len(self.party))["slot_id"] != self.idx:
@@ -283,6 +289,12 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
             context.emulator.press_button("Left")
             yield
 
+    def select_summary(self):
+        while not task_is_active("Task_DuckBGMForPokemonCry"):
+            if not task_is_active("Task_HandleInput"):
+                context.emulator.press_button("A")
+            yield
+    
     def select_mon(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
             while task_is_active("TASK_HANDLECHOOSEMONINPUT"):
