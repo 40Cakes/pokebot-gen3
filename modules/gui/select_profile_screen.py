@@ -66,8 +66,6 @@ class SelectProfileScreen:
                 foreground=[("!active", foreground_color), ("active", "black"), ("pressed", background_color)],
                 background=[("!active", "purple"), ("active", "purple"), ("pressed", foreground_color)],
             )
-            # ... (update other style configurations as needed)
-            print(style.element_names())
 
     def enable(self) -> None:
         available_profiles = list_available_profiles()
