@@ -6,11 +6,11 @@ from modules.context import context
 from modules.pokemon import Pokemon
 
 
-def read_file(file: Path) -> str:
+def read_file(file: Path) -> str | None:
     """
     Simple function to read data from a file, return False if file doesn't exist
     :param file: File to read
-    :return: File's contents (str)
+    :return: File's contents (str) or None if any kind of error occurred
     """
     try:
         if os.path.exists(file):
@@ -38,11 +38,13 @@ def write_file(file: Path, value: str, mode: str = "w") -> bool:
         if not os.path.exists(directory):
             os.makedirs(directory)
         with open(tmp_file, mode=mode, encoding="utf-8") as save_file:
-            save_file.write(value)
-        if os.path.exists(file):
-            os.remove(file)
-        os.rename(tmp_file, file)
-        return True
+            characters_written = save_file.write(value)
+        if characters_written == len(value):
+            os.replace(tmp_file, file)
+            return True
+        else:
+            print(f"Writing {file} failed: Only {characters_written} out of {len(value)} characters written.")
+            return False
     except:
         return False
 
