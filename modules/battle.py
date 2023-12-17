@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum import IntEnum, auto
 
 from modules.context import context
 from modules.memory import (
@@ -33,18 +33,16 @@ from modules.tasks import get_task, get_tasks, task_is_active
 
 class BattleState(IntEnum):
     # out-of-battle states
-    OVERWORLD = 0
-    EVOLVING = 1
-
+    OVERWORLD = auto()
+    EVOLVING = auto()
     # battle states
-    ACTION_SELECTION = 10
-    MOVE_SELECTION = 11
-    PARTY_MENU = 12
-    SWITCH_POKEMON = 13
-    LEARNING = 14
-
+    ACTION_SELECTION = auto()
+    MOVE_SELECTION = auto()
+    PARTY_MENU = auto()
+    SWITCH_POKEMON = auto()
+    LEARNING = auto()
     # misc undetected state (move animations, buffering, etc.)
-    OTHER = 20
+    OTHER = auto()
 
 
 def flee_battle():
@@ -87,8 +85,8 @@ class BattleAction(BaseMenuNavigator):
                     case "switch":
                         self.current_step = "wait_for_party_menu"
                     case "bag":
-                        context.message = "Bag not implemented yet. Switching to manual mode."
-                        context.bot_mode = "Manual"
+                        context.message = "Bag not implemented yet, switching to manual mode."
+                        context.set_manual_mode()
             case "wait_for_party_menu":
                 self.current_step = "choose_mon"
             case "handle_flee":
@@ -110,7 +108,7 @@ class BattleAction(BaseMenuNavigator):
                     case "bag":
                         index = 1
                         context.message = "Bag not implemented yet. Switching to manual mode."
-                        context.bot_mode = "Manual"
+                        context.set_manual_mode()
                     case "flee" | _:
                         index = 3
                 self.navigator = self.select_option(index)
@@ -139,7 +137,7 @@ class BattleAction(BaseMenuNavigator):
         while get_battle_state() == BattleState.MOVE_SELECTION:
             if 0 > self.idx or self.idx > 3:
                 context.message = "Invalid move selection. Switching to manual mode..."
-                context.bot_mode = "Manual"
+                context.set_manual_mode()
             else:
                 if self.subnavigator is None and get_battle_state() == BattleState.OTHER:
                     yield
@@ -176,7 +174,7 @@ class BattleAction(BaseMenuNavigator):
             mon_to_switch = get_new_lead()
             if mon_to_switch is None:
                 context.message = "Can't find a viable switch-in. Switching to manual mode."
-                context.bot_mode = "Manual"
+                context.set_manual_mode()
             else:
                 self.subnavigator = BattlePartyMenuNavigator(idx=mon_to_switch, mode="switch").step()
         else:
@@ -221,7 +219,7 @@ class BattleMoveLearner(BaseMenuNavigator):
                 match context.config.battle.new_move:
                     case "stop":
                         context.message = "New move trying to be learned, switching to manual mode..."
-                        context.bot_mode = "Manual"
+                        context.set_manual_mode()
                         self.current_step = "exit"
                     case "cancel":
                         self.current_step = "avoid_learning"
@@ -614,7 +612,7 @@ class BattleOpponent:
         """
         if self.num_battlers > 2:
             context.message = "Double battle detected, not yet implemented. Switching to manual mode..."
-            context.bot_mode = "Manual"
+            context.set_manual_mode()
         else:
             current_opponent = get_opponent()
             move = self.find_effective_move(self.current_battler, current_opponent)
@@ -645,14 +643,14 @@ class BattleOpponent:
         match context.config.battle.faint_action:
             case "stop":
                 context.message = "Switching to manual mode..."
-                context.bot_mode = "Manual"
+                context.set_manual_mode()
             case "flee":
                 while get_battle_state() not in [BattleState.OVERWORLD, BattleState.PARTY_MENU]:
                     context.emulator.press_button("B")
                     yield
                 if get_battle_state() == BattleState.PARTY_MENU:
                     context.message = "Couldn't flee. Switching to manual mode..."
-                    context.bot_mode = "Manual"
+                    context.set_manual_mode()
                 else:
                     while not get_game_state() == GameState.OVERWORLD:
                         context.emulator.press_button("B")
@@ -662,7 +660,7 @@ class BattleOpponent:
                 party = get_party()
                 if sum([mon.current_hp for mon in party]) == 0:
                     context.message = "All Pokémon have fainted. Switching to manual mode..."
-                    context.bot_mode = "Manual"
+                    context.set_manual_mode()
                 while get_battle_state() != BattleState.PARTY_MENU:
                     context.emulator.press_button("A")
                     yield
@@ -682,7 +680,7 @@ class BattleOpponent:
                     yield
             case _:
                 context.message = "Invalid faint_action option. Switching to manual mode..."
-                context.bot_mode = "Manual"
+                context.set_manual_mode()
 
 
 def get_battle_state() -> BattleState:
@@ -1037,7 +1035,7 @@ def execute_menu_action(decision: tuple):
         case "FIGHT":
             if 0 > move or move > 3:
                 context.message = "Invalid move selection. Switching to manual mode..."
-                context.bot_mode = "Manual"
+                context.set_manual_mode()
             else:
                 match get_battle_state():
                     case BattleState.ACTION_SELECTION:
@@ -1053,13 +1051,13 @@ def execute_menu_action(decision: tuple):
                 yield
         case "BAG":
             context.message = "Bag not yet implemented. Switching to manual mode..."
-            context.bot_mode = "Manual"
+            context.set_manual_mode()
         case "SWITCH":
             if pokemon is None:
                 execute_menu_action(("RUN", -1, -1))
             elif 0 > pokemon or pokemon > 6:
                 context.message = "Invalid Pokemon selection. Switching to manual mode..."
-                context.bot_mode = "Manual"
+                context.set_manual_mode()
             else:
                 select_battle_option = SelectBattleOption(2)
                 while not get_battle_state() == BattleState.PARTY_MENU:

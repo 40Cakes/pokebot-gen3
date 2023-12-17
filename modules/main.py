@@ -117,7 +117,7 @@ def main_loop() -> None:
                 continue
             except:
                 mode = None
-                context.bot_mode = "Manual"
+                context.set_manual_mode()
 
             context.emulator.run_single_frame()
 

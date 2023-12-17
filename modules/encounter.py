@@ -110,9 +110,7 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
                         context.message = message
                         console.print(message)
 
-            context.bot_mode = "Manual"
-            context.emulation_speed = 1
-            context.video = True
+            context.set_manual_mode()
 
             if alert_title is not None and alert_message is not None:
                 desktop_notification(title=alert_title, message=alert_message)

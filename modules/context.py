@@ -92,6 +92,14 @@ class BotContext:
             self._current_bot_mode = "Manual"
         self._update_gui()
 
+    def set_manual_mode(self) -> None:
+        from modules.gui.desktop_notification import desktop_notification
+
+        self.bot_mode = "Manual"
+        self.emulation_speed = 1
+        self.video = True
+        desktop_notification(title="Manual Mode", message="The bot has switched to manual mode.")
+
     def select_pokemon(self, pokemon: str) -> None:
         self.selected_pokemon = pokemon
 

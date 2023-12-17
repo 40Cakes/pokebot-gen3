@@ -389,7 +389,7 @@ class ModeStarters:
                             console.print(
                                 "[red]Your party is full, make some room before using the Johto starters mode!"
                             )
-                            context.bot_mode = "Manual"
+                            context.set_manual_mode()
                             return
 
                         case ModeStarterStates.RESET:
