@@ -29,13 +29,13 @@ required_modules = [
     "requests~=2.31.0",
     "pyperclip3~=0.4.1",
     "plyer~=2.1.0",
+    "apispec~=6.3.0",
+    "apispec-webframeworks~=0.5.2",
+    "flask-swagger-ui~=4.11.1",
 ]
 
 if platform.system() == "Windows":
-    required_modules.extend([
-        "pywin32>=306",
-        "psutil~=5.9.5"
-    ])
+    required_modules.extend(["pywin32>=306", "psutil~=5.9.5"])
 
 
 def get_requirements_hash() -> str:

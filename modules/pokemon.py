@@ -11,9 +11,11 @@ import numpy
 
 from modules.context import context
 from modules.game import decode_string
+from modules.items import Item, get_item_by_index
 from modules.memory import unpack_uint32, unpack_uint16, read_symbol, pack_uint32
 from modules.roms import ROMLanguage
 from modules.runtime import get_data_path
+from modules.state_cache import state_cache
 
 
 DATA_DIRECTORY = Path(__file__).parent / "data"
@@ -281,9 +283,9 @@ LOCATION_MAP = [
     "Altering Cave",
     "Navel Rock",
     "Trainer Hill",
-    "(gift egg)",
-    "(in-game trade)",
-    "(fateful encounter)",
+    "Gift Egg",
+    "In-game Trade",
+    "Fateful Encounter",
 ]
 
 
@@ -457,66 +459,6 @@ class ContestConditions:
     feel: int
 
 
-class ItemType(Enum):
-    Mail = ("mail",)
-    UsableOutsideBattle = "usable_outside_battle"
-    UsableInCertainLocatiosn = "usable_in_certain_locations"
-    PokeblockCase = "pokeblock_case"
-    NotUsableOutsideBattle = "not_usable_outside_battle"
-
-    def __str__(self):
-        return self.value
-
-    @classmethod
-    def from_value(cls, value: str) -> "ItemType":
-        for name, member in ItemType.__members__.items():
-            if member.value == value:
-                return member
-
-
-class ItemPocket(Enum):
-    Items = "items"
-    PokeBalls = "poke_balls"
-    TmsAndHms = "tms_and_hms"
-    Berries = "berries"
-    KeyItems = "key_items"
-
-    def __str__(self):
-        return self.value
-
-
-@dataclass
-class Item:
-    """
-    This represents an item type in the game.
-    """
-
-    index: int
-    name: str
-    price: int
-    type: ItemType
-    pocket: ItemPocket
-    parameter: int
-    extra_parameter: int
-
-    @classmethod
-    def from_dict(cls, index: int, data: dict) -> "Item":
-        if data["pocket"] == "poke_balls":
-            item_type = data["type"]
-        else:
-            item_type = ItemType.from_value(data["type"])
-
-        return Item(
-            index=index,
-            name=data["name"],
-            price=data["price"],
-            type=item_type,
-            pocket=ItemPocket(data["pocket"]),
-            parameter=data["parameter"],
-            extra_parameter=data["extra_parameter"],
-        )
-
-
 @dataclass
 class HeldItem:
     """
@@ -663,6 +605,9 @@ class Species:
                 result += "_"
         return result
 
+    def to_dict(self) -> dict:
+        return _to_dict_helper(self)
+
     def __str__(self):
         return self.name
 
@@ -766,6 +711,18 @@ class Pokemon:
 
     def __init__(self, data: bytes):
         self.data = data
+
+    def __eq__(self, other):
+        if isinstance(other, Pokemon):
+            return other.data == self.data
+        else:
+            return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, Pokemon):
+            return other.data != self.data
+        else:
+            return NotImplemented
 
     @cached_property
     def _decrypted_data(self) -> bytes:
@@ -926,7 +883,7 @@ class Pokemon:
         return LearnedMove(move=move, total_pp=total_pp, pp=pp, added_pps=total_pp - move.pp)
 
     @property
-    def moves(self) -> tuple[Move | None, Move | None, Move | None, Move | None]:
+    def moves(self) -> tuple[LearnedMove | None, LearnedMove | None, LearnedMove | None, LearnedMove | None]:
         return self.move(0), self.move(1), self.move(2), self.move(3)
 
     @property
@@ -1023,6 +980,21 @@ class Pokemon:
         if len(self.data) <= 80:
             return self.species.level_up_type.get_level_from_total_experience(self.total_exp)
         return self.data[84]
+
+    @property
+    def exp_needed_until_next_level(self) -> int:
+        if self.level >= 100:
+            return 0
+        total_exp_for_next_level = self.species.level_up_type.get_experience_needed_for_level(self.level + 1)
+        return total_exp_for_next_level - self.total_exp
+
+    @property
+    def exp_fraction_to_next_level(self) -> float:
+        if self.level >= 100:
+            return 1
+        total_exp_for_this_level = self.species.level_up_type.get_experience_needed_for_level(self.level)
+        total_exp_for_next_level = self.species.level_up_type.get_experience_needed_for_level(self.level + 1)
+        return (self.total_exp - total_exp_for_this_level) / (total_exp_for_next_level - total_exp_for_this_level)
 
     @property
     def sleep_duration(self) -> int:
@@ -1176,6 +1148,45 @@ class Pokemon:
                 return f"{self.species.name} (lvl. {self.level})"
 
     def to_dict(self) -> dict:
+        def prepare(value) -> any:
+            if value is None:
+                return value
+
+            if type(value) is dict:
+                result = {}
+                for k in value:
+                    result[k] = prepare(value[k])
+                return result
+
+            if isinstance(value, (list, set, tuple, frozenset)):
+                result = []
+                for v in value:
+                    result.append(prepare(v))
+                return result
+
+            if isinstance(value, (bool, int, float, str)):
+                return value
+
+            if isinstance(value, Enum):
+                return value.name
+
+            result = {}
+            try:
+                for k in value.__dict__:
+                    if not k.startswith("_") and k != "data":
+                        result[k] = prepare(value.__dict__[k])
+            except AttributeError:
+                pass
+            for k in dir(value.__class__):
+                if not k.startswith("_") and isinstance(getattr(value.__class__, k), property):
+                    result[k] = prepare(getattr(value, k))
+
+            return result
+
+        result = prepare(self)
+        return result
+
+    def to_legacy_dict(self) -> dict:
         """
         Converts the Pokemon data into a simple dict, which can then be used for JSON-encoding
         the data.
@@ -1366,29 +1377,6 @@ def get_move_by_index(index: int) -> Move:
     return _moves_by_index[index]
 
 
-def _load_items() -> tuple[dict[str, Item], list[Item]]:
-    by_name: dict[str, Item] = {}
-    by_index: list[Item] = []
-    with open(get_data_path() / "items.json", "r") as file:
-        items_data = json.load(file)
-        for index in range(len(items_data)):
-            item = Item.from_dict(index, items_data[index])
-            by_name[item.name] = item
-            by_index.append(item)
-    return by_name, by_index
-
-
-_items_by_name, _items_by_index = _load_items()
-
-
-def get_item_by_name(name: str) -> Item:
-    return _items_by_name[name]
-
-
-def get_item_by_index(index: int) -> Item:
-    return _items_by_index[index]
-
-
 def _load_natures() -> tuple[dict[str, Nature], list[Nature]]:
     by_name: dict[str, Nature] = {}
     by_index: list[Nature] = []
@@ -1435,19 +1423,21 @@ def get_ability_by_index(index: int) -> Ability:
     return _abilities_by_index[index]
 
 
-def _load_species() -> tuple[dict[str, Species], list[Species]]:
+def _load_species() -> tuple[dict[str, Species], list[Species], dict[int, Species]]:
     by_name: dict[str, Species] = {}
     by_index: list[Species] = []
+    by_national_dex: dict[int, Species] = {}
     with open(get_data_path() / "species.json", "r") as file:
         species_data = json.load(file)
         for index in range(len(species_data)):
             species = Species.from_dict(index, species_data[index])
             by_name[species.name] = species
             by_index.append(species)
-    return by_name, by_index
+            by_national_dex[species.national_dex_number] = species
+    return by_name, by_index, by_national_dex
 
 
-_species_by_name, _species_by_index = _load_species()
+_species_by_name, _species_by_index, _species_by_national_dex = _load_species()
 
 
 def get_species_by_name(name: str) -> Species:
@@ -1458,17 +1448,24 @@ def get_species_by_index(index: int) -> Species:
     return _species_by_index[index]
 
 
+def get_species_by_national_dex(national_dex_number: int) -> Species:
+    return _species_by_national_dex[national_dex_number]
+
+
 def get_party() -> list[Pokemon]:
     """
     Checks how many Pokémon are in the trainer's party, decodes and returns them all.
 
     :return: party (list)
     """
+    if state_cache.party.age_in_frames == 0:
+        return state_cache.party.value
+
     party = []
     party_count = read_symbol("gPlayerPartyCount", size=1)[0]
     for p in range(party_count):
         o = p * 100
-        mon = parse_pokemon(read_symbol("gPlayerParty", o, o + 100))
+        mon = parse_pokemon(read_symbol("gPlayerParty", o, 100))
 
         # It's possible for party data to be written while we are trying to read it, in which case
         # the checksum would be wrong and `parse_pokemon()` returns `None`.
@@ -1477,11 +1474,14 @@ def get_party() -> list[Pokemon]:
         # (1) advancing the emulation by one frame, (2) reading the memory, (3) restoring the previous
         # frame's state so we don't mess with frame accuracy.
         if mon is None:
-            mon = context.emulator.peek_frame(lambda: parse_pokemon(read_symbol("gPlayerParty", o, o + 100)))
+            mon = context.emulator.peek_frame(lambda: parse_pokemon(read_symbol("gPlayerParty", o, 100)))
             if mon is None:
                 raise RuntimeError(f"Party Pokemon #{p + 1} was invalid for two frames in a row.")
 
         party.append(mon)
+
+    state_cache.party = party
+
     return party
 
 
@@ -1491,13 +1491,18 @@ def get_opponent() -> Pokemon:
 
     :return: opponent (dict)
     """
+    if state_cache.opponent.age_in_frames == 0:
+        return state_cache.opponent.value
+
     mon = parse_pokemon(read_symbol("gEnemyParty")[:100])
 
     # See comment in `GetParty()`
     if mon is None:
         mon = context.emulator.peek_frame(lambda: parse_pokemon(read_symbol("gEnemyParty")[:100]))
         if mon is None:
-            raise RuntimeError(f"Opponent Pokemon was invalid for two frames in a row.")
+            return None
+
+    state_cache.opponent = mon
 
     return mon
 
@@ -1506,7 +1511,42 @@ last_opid = pack_uint32(0)  # ReadSymbol('gEnemyParty', size=4)
 
 
 class BattleTypeFlag(Flag, boundary=KEEP):
-    BATTLE_TYPE_TRAINER = 1 << 3
+    DOUBLE = 1 << 0
+    LINK = 1 << 1
+    IS_MASTER = 1 << 2
+    TRAINER = 1 << 3
+    FIRST_BATTLE = 1 << 4
+    LINK_IN_BATTLE = 1 << 5
+    MULTI = 1 << 6
+    SAFARI = 1 << 7
+    BATTLE_TOWER = 1 << 8
+    WALLY_TUTORIAL = 1 << 9
+    ROAMER = 1 << 10
+    EREADER_TRAINER = 1 << 11
+    KYOGRE_GROUDON = 1 << 12
+    LEGENDARY = 1 << 13
+    REGI = 1 << 14
+    TWO_OPPONENTS = 1 << 15
+    DOME = 1 << 16
+    PALACE = 1 << 17
+    ARENA = 1 << 18
+    FACTORY = 1 << 19
+    PIKE = 1 << 20
+    PYRAMID = 1 << 21
+    INGAME_PARTNER = 1 << 22
+    TOWER_LINK_MULTI = 1 << 23
+    RECORDED = 1 << 24
+    RECORDED_LINK = 1 << 25
+    TRAINER_HILL = 1 << 26
+    SECRET_BASE = 1 << 27
+    GROUDON = 1 << 28
+    KYOGRE = 1 << 29
+    RAYQUAZA = 1 << 30
+    RECORDED_IS_MASTER = 1 << 31
+
+
+def get_battle_type_flags() -> BattleTypeFlag:
+    return BattleTypeFlag(unpack_uint32(read_symbol("gBattleTypeFlags")))
 
 
 def opponent_changed() -> bool:
@@ -1519,11 +1559,10 @@ def opponent_changed() -> bool:
     try:
         global last_opid
         opponent_pid = read_symbol("gEnemyParty", size=4)
-        g_battle_type_flags = read_symbol("gBattleTypeFlags", size=4)
         if (
             opponent_pid != last_opid
             and opponent_pid != b"\x00\x00\x00\x00"
-            and (BattleTypeFlag.BATTLE_TYPE_TRAINER not in BattleTypeFlag(unpack_uint32(g_battle_type_flags)))
+            and (BattleTypeFlag.TRAINER not in get_battle_type_flags())
         ):
             last_opid = opponent_pid
             return True
@@ -1533,3 +1572,39 @@ def opponent_changed() -> bool:
         raise
     except:
         return False
+
+
+def _to_dict_helper(value) -> any:
+    if value is None:
+        return value
+
+    if type(value) is dict:
+        result = {}
+        for k in value:
+            result[k] = _to_dict_helper(value[k])
+        return result
+
+    if isinstance(value, (list, set, tuple, frozenset)):
+        result = []
+        for v in value:
+            result.append(_to_dict_helper(v))
+        return result
+
+    if isinstance(value, (bool, int, float, str)):
+        return value
+
+    if isinstance(value, Enum):
+        return value.name
+
+    result = {}
+    try:
+        for k in value.__dict__:
+            if not k.startswith("_") and k != "data":
+                result[k] = _to_dict_helper(value.__dict__[k])
+    except AttributeError:
+        pass
+    for k in dir(value.__class__):
+        if not k.startswith("_") and isinstance(getattr(value.__class__, k), property):
+            result[k] = _to_dict_helper(getattr(value, k))
+
+    return result

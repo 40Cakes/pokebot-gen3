@@ -46,8 +46,9 @@ class CreateProfileScreen:
             self.frame.destroy()
 
     def _show_return_button(self, row: int = 0) -> None:
-        button = ttk.Button(self.frame, text="Back to Profile Selection", command=self.enable_profile_selection_screen,
-                            cursor="hand2")
+        button = ttk.Button(
+            self.frame, text="Back to Profile Selection", command=self.enable_profile_selection_screen, cursor="hand2"
+        )
         button.grid(sticky="NE", row=row)
 
     def _show_welcome_message(self, row: int = 0) -> None:
@@ -72,8 +73,12 @@ class CreateProfileScreen:
         icon.img1 = birch_image
         icon.img2 = flipped_birch_image
         # Very important.
-        icon.bind("<Button-1>", lambda *_: icon.config(
-            image=(flipped_birch_image if icon.cget("image")[0] == str(birch_image) else birch_image)))
+        icon.bind(
+            "<Button-1>",
+            lambda *_: icon.config(
+                image=(flipped_birch_image if icon.cget("image")[0] == str(birch_image) else birch_image)
+            ),
+        )
 
         text = ttk.Label(container, text=welcome_text, wraplength=360)
         text.grid(sticky="N", row=0, column=1)
@@ -90,8 +95,8 @@ class CreateProfileScreen:
         name_pattern = re.compile("^[-_a-zA-Z0-9 ]+$")
 
         def select_all(widget: ttk.Entry):
-            widget.select_range(0, 'end')
-            widget.icursor('end')
+            widget.select_range(0, "end")
+            widget.icursor("end")
 
         def handle_name_input_change(name, index, mode, sv=sv_name):
             value = sv.get()
@@ -128,7 +133,7 @@ class CreateProfileScreen:
 
         entry = ttk.Entry(container, textvariable=sv_name)
         entry.grid(column=1, row=0, sticky="EW")
-        entry.bind('<Control-a>', lambda e: self.window.after(50, select_all, e.widget))
+        entry.bind("<Control-a>", lambda e: self.window.after(50, select_all, e.widget))
 
         available_roms = list_available_roms()
         rom_names = []
@@ -172,10 +177,25 @@ class CreateProfileScreen:
                     message_label.grid(row=3, column=0, columnspan=2)
 
             plyer.filechooser.open_file(
-                filters=[["Save Games", "*.ss0", "*.ss1", "*.ss2", "*.ss3", "*.ss4", "*.ss5", "*.ss6", "*.ss7", "*.ss8",
-                          "*.ss9"]],
+                filters=[
+                    [
+                        "Save Games",
+                        "*.ss0",
+                        "*.ss1",
+                        "*.ss2",
+                        "*.ss3",
+                        "*.ss4",
+                        "*.ss5",
+                        "*.ss6",
+                        "*.ss7",
+                        "*.ss8",
+                        "*.ss9",
+                        "*.sav",
+                    ]
+                ],
                 title="Load Existing Save",
-                on_selection=handle_selected_file)
+                on_selection=handle_selected_file,
+            )
 
         button_container = ttk.Frame(container, padding=(0, 15, 0, 5))
         button_container.grid(row=2, column=0, columnspan=2)
@@ -183,12 +203,23 @@ class CreateProfileScreen:
         button_container.columnconfigure(1, minsize=10)
         button_container.columnconfigure(2, weight=1)
 
-        new_game_button = ttk.Button(button_container, text="Start New Game", cursor="hand2", state="disabled",
-                                     command=handle_create_new_game_press, style="Accent.TButton")
+        new_game_button = ttk.Button(
+            button_container,
+            text="Start New Game",
+            cursor="hand2",
+            state="disabled",
+            command=handle_create_new_game_press,
+            style="Accent.TButton",
+        )
         new_game_button.grid(column=0, row=0)
 
-        load_save_button = ttk.Button(button_container, text="Load Existing Save", cursor="hand2", state="disabled",
-                                      command=handle_load_save_press)
+        load_save_button = ttk.Button(
+            button_container,
+            text="Load Existing Save",
+            cursor="hand2",
+            state="disabled",
+            command=handle_load_save_press,
+        )
         load_save_button.grid(column=2, row=0)
 
         message_label = ttk.Label(container, text="", wraplength=340, padding=(0, 15, 0, 0))
@@ -197,10 +228,12 @@ class CreateProfileScreen:
         group = ttk.Frame(self.frame)
         group.grid()
 
-        error_message = ("There don't seem to be any Pokémon ROMs in the 'roms/' folder. "
-                         "Please add some and retry.\n\n"
-                         "Note that only the original ROMs for Pokémon Ruby, Sapphire, Emerald, FireRed and LeafGreen "
-                         "are supported by this bot. Any modified ROM will not be detected.")
+        error_message = (
+            "There don't seem to be any Pokémon ROMs in the 'roms/' folder. "
+            "Please add some and retry.\n\n"
+            "Note that only the original ROMs for Pokémon Ruby, Sapphire, Emerald, FireRed and LeafGreen "
+            "are supported by this bot. Any modified ROM will not be detected."
+        )
         message = ttk.Label(group, text=error_message, wraplength=300, foreground="red", padding=(0, 0, 0, 25))
         message.grid(row=0, column=0, sticky="S")
 

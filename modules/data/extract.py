@@ -588,7 +588,9 @@ def extract_moves(english_rom: ROM, localised_roms: dict[str, ROM], types_list: 
             localised_file.seek(get_address("gMoveDescriptionPointers"))
             for i in range(1, 355):
                 description_pointer = int.from_bytes(localised_file.read(4), byteorder="little") - 0x0800_0000
-                moves_list[i]["localised_descriptions"][language_code] = read_string(localised_file, description_pointer)
+                moves_list[i]["localised_descriptions"][language_code] = read_string(
+                    localised_file, description_pointer
+                )
 
     return moves_list
 

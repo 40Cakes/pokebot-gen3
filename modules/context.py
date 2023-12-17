@@ -39,7 +39,7 @@ class BotContext:
                 raise error
             message = (
                 "[bold red]The configuration could not be loaded, no changes have been made.[/]\n"
-                "[bold yellow]This is Probably due to a malformed file."
+                "[bold yellow]This is probably due to a malformed file."
                 "For more information run the bot with the --debug flag.[/]"
             )
         return message
@@ -91,6 +91,14 @@ class BotContext:
             self._previous_bot_mode = self._current_bot_mode
             self._current_bot_mode = "Manual"
         self._update_gui()
+
+    def set_manual_mode(self) -> None:
+        from modules.gui.desktop_notification import desktop_notification
+
+        self.bot_mode = "Manual"
+        self.emulation_speed = 1
+        self.video = True
+        desktop_notification(title="Manual Mode", message="The bot has switched to manual mode.")
 
     def select_pokemon(self, pokemon: str) -> None:
         self.selected_pokemon = pokemon

@@ -1,11 +1,20 @@
+import queue
 import sys
 from threading import Thread
 
+from modules.battle import BattleHandler, check_lead_can_battle, RotatePokemon
 from modules.console import console
 from modules.context import context
 from modules.memory import get_game_state, GameState
+from modules.menuing import MenuWrapper, CheckForPickup, should_check_for_pickup
 from modules.pokemon import opponent_changed, get_opponent
-from modules.temp import temp_run_from_battle
+
+
+# Contains a queue of tasks that should be run the next time a frame completes.
+# This is currently used by the HTTP server component (which runs in a separate thread) to trigger things
+# such as extracting the current party, which need to be done from the main thread.
+# Each entry here will be executed exactly once and then removed from the queue.
+work_queue: queue.Queue[callable] = queue.Queue()
 
 
 def main_loop() -> None:
@@ -14,31 +23,55 @@ def main_loop() -> None:
     """
     from modules.encounter import encounter_pokemon  # prevents instantiating TotalStats class before profile selected
 
+    pickup_checked = False
+    lead_rotated = False
+
     try:
         mode = None
 
-        config = context.config
-
-        if config.discord.rich_presence:
+        if context.config.discord.rich_presence:
             from modules.discord import discord_rich_presence
 
             Thread(target=discord_rich_presence).start()
 
-        if config.obs.http_server.enable:
-            from modules.http import http_server
+        if context.config.obs.http_server.enable:
+            from modules.web.http import http_server
 
             Thread(target=http_server).start()
 
         while True:
-            if not mode and get_game_state() == GameState.BATTLE and context.bot_mode != "Starters":
+            while not work_queue.empty():
+                callback = work_queue.get_nowait()
+                callback()
+
+            if (
+                not mode
+                and get_game_state() == GameState.BATTLE
+                and context.bot_mode not in ["Starters", "Static Soft Resets"]
+            ):
                 if opponent_changed():
+                    pickup_checked = False
+                    lead_rotated = False
                     encounter_pokemon(get_opponent())
                 if context.bot_mode != "Manual":
-                    temp_run_from_battle()
+                    mode = BattleHandler()
 
             if context.bot_mode == "Manual":
                 if mode:
                     mode = None
+
+            elif not mode and context.config.battle.pickup and should_check_for_pickup() and not pickup_checked:
+                pickup_checked = True
+                mode = MenuWrapper(CheckForPickup())
+
+            elif (
+                not mode
+                and context.config.battle.replace_lead_battler
+                and not check_lead_can_battle()
+                and not lead_rotated
+            ):
+                lead_rotated = True
+                mode = MenuWrapper(RotatePokemon())
 
             elif not mode:
                 match context.bot_mode:
@@ -62,8 +95,18 @@ def main_loop() -> None:
 
                         mode = ModeBunnyHop()
 
+                    case "Static Soft Resets":
+                        from modules.modes.soft_resets import ModeStaticSoftResets
+
+                        mode = ModeStaticSoftResets()
+
+                    case "Tower Duo":
+                        from modules.modes.tower_duo import ModeTowerDuo
+
+                        mode = ModeTowerDuo()
+
                     case "Ancient Legendaries":
-                        from modules.modes.legendaries import ModeAncientLegendaries
+                        from modules.modes.ancient_legendaries import ModeAncientLegendaries
 
                         mode = ModeAncientLegendaries()
             try:
@@ -74,7 +117,7 @@ def main_loop() -> None:
                 continue
             except:
                 mode = None
-                context.bot_mode = "Manual"
+                context.set_manual_mode()
 
             context.emulator.run_single_frame()
 

@@ -3,6 +3,7 @@ from enum import IntEnum, auto
 
 from modules.context import context
 from modules.game import get_symbol, get_symbol_name, get_event_flag_offset, _event_flags
+from modules.state_cache import state_cache
 
 
 def unpack_uint16(bytes: bytes) -> int:
@@ -66,37 +67,6 @@ def write_symbol(name: str, data: bytes, offset: int = 0x0) -> bool:
         return True
     except SystemExit:
         raise
-
-
-def parse_tasks(pretty_names: bool = False) -> list:
-    try:
-        gTasks = read_symbol("gTasks")
-        tasks = []
-        for x in range(16):
-            name = get_symbol_name(unpack_uint32(gTasks[(x * 40) : (x * 40 + 4)]) - 1, pretty_names)
-            if name == "":
-                name = "0x" + gTasks[(x * 40) : (x * 40 + 4)].hex()
-            tasks.append(
-                {
-                    "func": name,
-                    "isActive": bool(gTasks[(x * 40 + 4)]),
-                    "prev": gTasks[(x * 40 + 5)],
-                    "next": gTasks[(x * 40 + 6)],
-                    "priority": gTasks[(x * 40 + 7)],
-                    "data": gTasks[(x * 40 + 8) : (x * 40 + 40)],
-                }
-            )
-        return tasks
-    except SystemExit:
-        raise
-
-
-def get_task(func: str) -> dict:
-    tasks = parse_tasks()
-    for task in tasks:
-        if task["func"] == func:
-            return task
-    return {}
 
 
 def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
@@ -164,6 +134,8 @@ class GameState(IntEnum):
     CHANGE_MAP = auto()
     TITLE_SCREEN = auto()
     MAIN_MENU = auto()
+    GARBAGE_COLLECTION = auto()
+    EVOLUTION = auto()
     UNKNOWN = auto()
     QUEST_LOG = auto()
 
@@ -171,35 +143,45 @@ class GameState(IntEnum):
 def get_game_state_symbol() -> str:
     callback2 = read_symbol("gMain", 4, 4)  # gMain.callback2
     addr = unpack_uint32(callback2) - 1
-    return get_symbol_name(addr)
+    callback_name = get_symbol_name(addr)
+    state_cache.callback2 = callback_name
+    return callback_name
 
 
 def get_game_state() -> GameState:
+    if state_cache.game_state.age_in_frames == 0:
+        return state_cache.game_state.value
+
     match get_game_state_symbol():
         case "CB2_SETUPOVERWORLDFORQLPLAYBACKWITHWARPEXIT" | "CB2_SETUPOVERWORLDFORQLPLAYBACK" | "CB2_LOADMAPFORQLPLAYBACK" | "CB2_ENTERFIELDFROMQUESTLOG":
             return GameState.QUEST_LOG
         case "CB2_OVERWORLD":
-            return GameState.OVERWORLD
+            result = GameState.OVERWORLD
         case "BATTLEMAINCB2":
-            return GameState.BATTLE
+            result = GameState.BATTLE
         case "CB2_BAGMENURUN" | "SUB_80A3118":
-            return GameState.BAG_MENU
+            result = GameState.BAG_MENU
         case "CB2_UPDATEPARTYMENU" | "CB2_PARTYMENUMAIN":
-            return GameState.PARTY_MENU
+            result = GameState.PARTY_MENU
         case "CB2_INITBATTLE" | "CB2_HANDLESTARTBATTLE":
-            return GameState.BATTLE_STARTING
+            result = GameState.BATTLE_STARTING
         case "CB2_ENDWILDBATTLE":
-            return GameState.BATTLE_ENDING
+            result = GameState.BATTLE_ENDING
         case "CB2_LOADMAP" | "CB2_LOADMAP2" | "CB2_DOCHANGEMAP" | "SUB_810CC80":
-            return GameState.CHANGE_MAP
+            result = GameState.CHANGE_MAP
         case "CB2_STARTERCHOOSE" | "CB2_CHOOSESTARTER":
-            return GameState.CHOOSE_STARTER
+            result = GameState.CHOOSE_STARTER
         case "CB2_INITCOPYRIGHTSCREENAFTERBOOTUP" | "CB2_WAITFADEBEFORESETUPINTRO" | "CB2_SETUPINTRO" | "CB2_INTRO" | "CB2_INITTITLESCREEN" | "CB2_TITLESCREENRUN" | "CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN" | "CB2_INITMAINMENU" | "MAINCB2" | "MAINCB2_INTRO":
-            return GameState.TITLE_SCREEN
+            result = GameState.TITLE_SCREEN
         case "CB2_MAINMENU":
-            return GameState.MAIN_MENU
+            result = GameState.MAIN_MENU
+        case "CB2_EVOLUTIONSCENEUPDATE":
+            result = GameState.EVOLUTION
         case _:
-            return GameState.UNKNOWN
+            result = GameState.UNKNOWN
+
+    state_cache.game_state = result
+    return result
 
 
 def game_has_started() -> bool:

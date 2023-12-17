@@ -49,11 +49,11 @@ def _load_event_flags(flags_file: str) -> None:  # TODO Japanese ROMs not workin
     global _event_flags
 
     match flags_file:
-        case "flags_gen3rs.txt":
+        case "chkdb_gen3rs.txt":
             sav1_offset = 0x1220
-        case "flags_gen3e.txt":
+        case "chkdb_gen3e.txt":
             sav1_offset = 0x1270
-        case "flags_gen3frlg.txt":
+        case "chkdb_gen3frlg.txt":
             sav1_offset = 0x0EE0
         case _:
             raise RuntimeError("Invalid argument to _load_event_flags()")
@@ -66,11 +66,7 @@ def _load_event_flags(flags_file: str) -> None:  # TODO Japanese ROMs not workin
             if col[i] in ["", "\n"]:
                 col[i] = None
 
-        if col[4] or col[6]:
-            if col[4]:
-                _event_flags[col[4].replace("\n", "")] = ((int(col[0], 16) // 8) + sav1_offset, int(col[0], 16) % 8)
-            else:
-                _event_flags[col[6].replace("\n", "")] = ((int(col[0], 16) // 8) + sav1_offset, int(col[0], 16) % 8)
+        _event_flags[col[5].replace("\n", "")] = ((int(col[1], 16) // 8) + sav1_offset, int(col[1], 16) % 8)
 
     _event_flags = dict(sorted(_event_flags.items()))
 
@@ -141,26 +137,42 @@ def set_rom(rom: ROM) -> None:
         case "AXV":
             match rom.revision:
                 case 0:
-                    _load_symbols("pokeruby.sym", rom.language)
+                    match rom.language:
+                        case "D":
+                            _load_symbols("pokeruby_de.sym", rom.language)
+                        case _:
+                            _load_symbols("pokeruby.sym", rom.language)
                 case 1:
-                    _load_symbols("pokeruby_rev1.sym", rom.language)
+                    match rom.language:
+                        case "D":
+                            _load_symbols("pokeruby_de_rev1.sym", rom.language)
+                        case _:
+                            _load_symbols("pokeruby_rev1.sym", rom.language)
                 case 2:
                     _load_symbols("pokeruby_rev2.sym", rom.language)
-            _load_event_flags("flags_gen3rs.txt")
+            _load_event_flags("chkdb_gen3rs.txt")
 
         case "AXP":
             match rom.revision:
                 case 0:
-                    _load_symbols("pokesapphire.sym", rom.language)
+                    match rom.language:
+                        case "D":
+                            _load_symbols("pokesapphire_de.sym", rom.language)
+                        case _:
+                            _load_symbols("pokesapphire.sym", rom.language)
                 case 1:
-                    _load_symbols("pokesapphire_rev1.sym", rom.language)
+                    match rom.language:
+                        case "D":
+                            _load_symbols("pokesapphire_de_rev1.sym", rom.language)
+                        case _:
+                            _load_symbols("pokesapphire_rev1.sym", rom.language)
                 case 2:
                     _load_symbols("pokesapphire_rev2.sym", rom.language)
-            _load_event_flags("flags_gen3rs.txt")
+            _load_event_flags("chkdb_gen3rs.txt")
 
         case "BPE":
             _load_symbols("pokeemerald.sym", rom.language)
-            _load_event_flags("flags_gen3e.txt")
+            _load_event_flags("chkdb_gen3e.txt")
 
         case "BPR":
             match rom.revision:
@@ -168,7 +180,7 @@ def set_rom(rom: ROM) -> None:
                     _load_symbols("pokefirered.sym", rom.language)
                 case 1:
                     _load_symbols("pokefirered_rev1.sym", rom.language)
-            _load_event_flags("flags_gen3frlg.txt")
+            _load_event_flags("chkdb_gen3frlg.txt")
 
         case "BPG":
             match rom.revision:
@@ -176,7 +188,7 @@ def set_rom(rom: ROM) -> None:
                     _load_symbols("pokeleafgreen.sym", rom.language)
                 case 1:
                     _load_symbols("pokeleafgreen_rev1.sym", rom.language)
-            _load_event_flags("flags_gen3frlg.txt")
+            _load_event_flags("chkdb_gen3frlg.txt")
 
     _prepare_character_tables()
     if rom.language == ROMLanguage.Japanese:

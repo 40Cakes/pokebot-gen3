@@ -151,7 +151,7 @@ class LibmgbaEmulator:
         if self._audio_stream is not None:
             self._audio_stream.stop(ignore_errors=True)
             self._audio_stream.close(ignore_errors=True)
-            del self._audio_stream
+            self._audio_stream = None
 
         try:
             default_sound_device = sounddevice.query_devices(device=sounddevice.default.device, kind="output")
@@ -312,20 +312,21 @@ class LibmgbaEmulator:
         was_throttled = self._throttled
         self._throttled = is_throttled
 
-        if self._audio_stream is not None:
-            try:
-                if is_throttled and not was_throttled:
-                    self._audio_stream.start()
-                elif not is_throttled and was_throttled:
-                    self._audio_stream.stop()
-            except sounddevice.PortAudioError as error:
-                if was_throttled:
-                    action = "disabling"
-                else:
-                    action = "enabling"
-
-                console.print(f"[bold red]Error while {action} audio:[/] [red]{str(error)}[/]")
+        try:
+            if is_throttled and not was_throttled:
                 self._reset_audio()
+            elif self._audio_stream is not None and not is_throttled and was_throttled:
+                self._audio_stream.stop()
+                self._audio_stream.close()
+                self._audio_stream = None
+        except sounddevice.PortAudioError as error:
+            if was_throttled:
+                action = "disabling"
+            else:
+                action = "enabling"
+
+            console.print(f"[bold red]Error while {action} audio:[/] [red]{str(error)}[/]")
+            self._reset_audio()
 
     def get_speed_factor(self) -> float:
         return self._speed_factor
@@ -430,7 +431,7 @@ class LibmgbaEmulator:
         :param button: A GBA button to be pressed, if pressed on previous frame it will be released
         :param inputs: Alternate raw input bitfield
         """
-        self._pressed_inputs |= (input_map[button] ^ self._prev_pressed_inputs) if not inputs else inputs
+        self._pressed_inputs |= (self._prev_pressed_inputs & input_map[button]) ^ input_map[button]
 
     def hold_button(self, button: str = None, inputs: int = 0):
         """

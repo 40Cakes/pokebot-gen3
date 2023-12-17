@@ -11,6 +11,65 @@ from pydantic import ConfigDict, field_validator, Field
 from pydantic.types import Annotated, ClassVar, NonNegativeInt, PositiveInt
 
 
+class Battle(BaseConfig):
+    """Schema for the catch_block configuration."""
+
+    filename: ClassVar = "battle.yml"
+    pickup: bool = False
+    pickup_threshold: Annotated[int, Field(gt=0, lt=7)] = 1
+    pickup_check_frequency: Annotated[int, Field(gt=0)] = 5
+    battle: bool = False
+    battle_method: Literal["strongest"] = "strongest"
+    faint_action: Literal["stop", "flee", "rotate"] = "flee"
+    new_move: Literal["stop", "cancel", "learn_best"] = "stop"
+    stop_evolution: bool = True
+    replace_lead_battler: bool = False
+    switch_strategy: Literal["first_available"] = "first_available"
+    banned_moves: list[str] = [
+        "None",
+        # 2-turn
+        "Bounce",
+        "Dig",
+        "Dive",
+        "Fly",
+        "Sky Attack",
+        "Razor Wind",
+        "Doom Desire",
+        "Solar Beam",
+        # Inconsistent
+        "Fake Out",
+        "False Swipe",
+        "Nature Power",
+        "Present",
+        "Destiny Bond",
+        "Wrap",
+        "Snore",
+        "Spit Up",
+        "Bide",
+        "Bind",
+        "Counter",
+        "Future Sight",
+        "Mirror Coat",
+        "Grudge",
+        "Snatch",
+        "Spite",
+        "Curse",
+        "Endeavor",
+        "Revenge",
+        "Assist",
+        "Focus Punch",
+        "Eruption",
+        "Flail",
+        # Ends battle
+        "Roar",
+        "Whirlwind",
+        "Selfdestruct",
+        "Perish Song",
+        "Explosion",
+        "Memento",
+    ]
+
+
 class CatchBlock(BaseConfig):
     """Schema for the catch_block configuration."""
 
@@ -22,8 +81,9 @@ class Cheats(BaseConfig):
     """Schema for the cheat configuration."""
 
     filename: ClassVar = "cheats.yml"
-    starters: bool = False
-    starters_rng: bool = False
+    fast_check_starters: bool = False
+    random_soft_reset_rng: bool = False
+    faster_pickup: bool = False
 
 
 class Discord(BaseConfig):
@@ -38,9 +98,12 @@ class Discord(BaseConfig):
     pokemon_encounter_milestones: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=10000))
     shiny_pokemon_encounter_milestones: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=5))
     total_encounter_milestones: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=25000))
-    phase_summary: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
+    phase_summary: DiscordWebhook = Field(
+        default_factory=lambda: DiscordWebhook(first_interval=8192, consequent_interval=5000)
+    )
     anti_shiny_pokemon_encounter: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
     custom_filter_pokemon_encounter: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
+    pickup: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=10))
 
 
 class DiscordWebhook(BaseConfig):
@@ -50,8 +113,8 @@ class DiscordWebhook(BaseConfig):
     model_config = ConfigDict(coerce_numbers_to_str=True)
 
     enable: bool = False
-    first_interval: PositiveInt | None = 0  # Only used by phase_summary.
-    consequent_interval: PositiveInt | None = 0  # Only used by phase_summary.
+    first_interval: PositiveInt | None = 0
+    consequent_interval: PositiveInt | None = 0
     interval: PositiveInt = 0
     ping_mode: Literal["user", "role", None] = None
     ping_id: str | None = None
