@@ -13,6 +13,7 @@ from modules.navigation import follow_path
 from modules.player import get_player_avatar
 from modules.pokemon import get_party, opponent_changed
 from modules.tasks import get_task, task_is_active
+from modules.menuing import StartMenuNavigator, party_menu_is_open, PokemonPartyMenuNavigator
 
 
 class Regions(Enum):
@@ -46,11 +47,13 @@ class ModeStarterStates(Enum):
     CHECK_STARTER = auto()
     PARTY_FULL = auto()
     LOG_STARTER = auto()
+    PARTY_MENU = auto()
 
 
 class ModeStarters:
     def __init__(self) -> None:
         if not context.selected_pokemon:
+            context.random_starter = False
             player_avatar = get_player_avatar()
             sprites = Path(__file__).parent.parent.parent / "sprites" / "pokemon" / "normal"
             conditions = {
@@ -203,14 +206,6 @@ class ModeStarters:
             ):
                 selections = [
                     Selection(
-                        button_label="Chikorita",
-                        button_enable=conditions["Chikorita"],
-                        button_tooltip="Select Chikorita"
-                        if conditions["Chikorita"]
-                        else "Invalid location:\nPlace the player facing Chikorita's PokéBall in Birch's lab",
-                        sprite=sprites / "Chikorita.png",
-                    ),
-                    Selection(
                         button_label="Cyndaquil",
                         button_enable=conditions["Cyndaquil"],
                         button_tooltip="Select Cyndaquil"
@@ -225,6 +220,14 @@ class ModeStarters:
                         if conditions["Totodile"]
                         else "Invalid location:\nPlace the player facing Totodile's PokéBall in Birch's lab",
                         sprite=sprites / "Totodile.png",
+                    ),
+                    Selection(
+                        button_label="Chikorita",
+                        button_enable=conditions["Chikorita"],
+                        button_tooltip="Select Chikorita"
+                        if conditions["Chikorita"]
+                        else "Invalid location:\nPlace the player facing Chikorita's PokéBall in Birch's lab",
+                        sprite=sprites / "Chikorita.png",
                     ),
                     Selection(
                         button_label="Random Johto",
@@ -276,27 +279,24 @@ class ModeStarters:
 
             if not context.selected_pokemon:
                 return
+            elif "Random" in context.selected_pokemon:
+                context.random_starter = True
 
         if context.selected_pokemon in ["Bulbasaur", "Charmander", "Squirtle", "Random Kanto"]:
-            if "Random" in context.selected_pokemon:
+            if context.random_starter:
                 context.selected_pokemon = random.choice(["Bulbasaur", "Charmander", "Squirtle"])
             self.region: Regions = Regions.KANTO_STARTERS
 
         elif context.selected_pokemon in ["Chikorita", "Cyndaquil", "Totodile", "Random Johto"]:
-            if "Random" in context.selected_pokemon:
+            if context.random_starter:
                 context.selected_pokemon = random.choice(["Chikorita", "Cyndaquil", "Totodile"])
             self.region: Regions = Regions.JOHTO_STARTERS
             self.start_party_length: int = 0
-            console.print(
-                "[red]Notice: Johto starters enables the fast `starters` check option in `profiles/cheats.yml` by "
-                "default, the shininess of the starter is checked via memhacks while start menu navigation is WIP (in "
-                "future, shininess will be checked via the party summary menu)."
-            )
             if len(get_party()) == 6:
                 self.update_state(ModeStarterStates.PARTY_FULL)
 
         elif context.selected_pokemon in ["Treecko", "Torchic", "Mudkip", "Random Hoenn"]:
-            if "Random" in context.selected_pokemon:
+            if context.random_starter:
                 context.selected_pokemon = random.choice(["Treecko", "Torchic", "Mudkip"])
             self.bag_position: int = BagPositions[context.selected_pokemon.upper()].value
             if context.rom.game_title == "POKEMON EMER":
@@ -318,6 +318,7 @@ class ModeStarters:
             self.rng_history: list = get_rng_state_history()
 
         self.state: ModeStarterStates = ModeStarterStates.RESET
+        self.navigator = None
 
     def update_state(self, state: ModeStarterStates) -> None:
         self.state: ModeStarterStates = state
@@ -499,16 +500,37 @@ class ModeStarters:
                                 self.update_state(ModeStarterStates.CHECK_STARTER)
                                 continue
                             else:
-                                if task_is_active("Task_PokemonPicWindow"):
-                                    context.emulator.press_button("B")
-                                elif task_is_active("Task_DrawFieldMessage"):
+                                if task_is_active("ScriptMovement_MoveObjects"):
                                     context.emulator.press_button("B")
                                 else:
                                     self.update_state(ModeStarterStates.CHECK_STARTER)
                                     continue
 
                         case ModeStarterStates.CHECK_STARTER:
-                            self.update_state(ModeStarterStates.LOG_STARTER)
+                            if context.config.cheats.fast_check_starters:
+                                self.update_state(ModeStarterStates.LOG_STARTER)
+                                continue
+                            elif self.navigator is None:
+                                self.navigator = StartMenuNavigator("POKEMON")
+                            else:
+                                yield from self.navigator.step()
+                                match self.navigator.current_step:
+                                    case "exit":
+                                        self.navigator = None
+                                        self.update_state(ModeStarterStates.PARTY_MENU)
+                                        continue
+                            continue
+
+                        case ModeStarterStates.PARTY_MENU:
+                            if self.navigator is None:
+                                self.navigator = PokemonPartyMenuNavigator(len(get_party()) - 1, "summary")
+                            else:
+                                yield from self.navigator.step()
+                                match self.navigator.current_step:
+                                    case "exit":
+                                        self.navigator = None
+                                        self.update_state(ModeStarterStates.LOG_STARTER)
+                                        continue
                             continue
 
                         case ModeStarterStates.LOG_STARTER:
