@@ -1,6 +1,7 @@
 from datetime import datetime, date
 from tkinter import Tk, ttk
 from typing import Union
+from random import randint
 
 from modules.profiles import Profile, list_available_profiles
 
@@ -22,6 +23,29 @@ class SelectProfileScreen:
             {"name": "Black Green Theme", "background": "#000000", "foreground": "#00ff22"},
             {"name": "Black Blue Theme", "background": "#000000", "foreground": "#00ddff"},
             {"name": "Black Red Theme", "background": "#000000", "foreground": "#f50505"},
+            {"name": "Purple Theme", "background": "#7e1e9c", "foreground": "#ffd700"},
+            {"name": "Ocean Theme", "background": "#0077be", "foreground": "#ffffff"},
+            {"name": "Sunset Theme", "background": "#ff6f61", "foreground": "#2c3e50"},
+            {"name": "Forest Theme", "background": "#1e4d2b", "foreground": "#c3d825"},
+            {"name": "Chocolate Theme", "background": "#4c1b1b", "foreground": "#e3bb8f"},
+            {"name": "Cyan Theme", "background": "#00bcd4", "foreground": "#000000"},
+            {"name": "Magenta Theme", "background": "#e91e63", "foreground": "#ffffff"},
+            {"name": "Gold Theme", "background": "#ffd700", "foreground": "#8b4513"},
+            {"name": "Teal Theme", "background": "#008080", "foreground": "#ffffff"},
+            {"name": "Amethyst Theme", "background": "#9966cc", "foreground": "#ffffff"},
+            {"name": "Charcoal Theme", "background": "#464646", "foreground": "#c0c0c0"},
+            {"name": "Midnight Theme", "background": "#2c3e50", "foreground": "#ecf0f1"},
+            {"name": "Burgundy Theme", "background": "#800020", "foreground": "#ffd700"},
+            {"name": "Slate Theme", "background": "#2f4f4f", "foreground": "#dcdcdc"},
+            {"name": "Deep Blue Theme", "background": "#001f3f", "foreground": "#7fdbff"},
+            {"name": "Dark Plum Theme", "background": "#4e2a5a", "foreground": "#ffd700"},
+            {"name": "Navy Blue Theme", "background": "#001f3f", "foreground": "#ffffff"},
+            {"name": "Steel Theme", "background": "#4682b4", "foreground": "#ffffff"},
+            {"name": "Rustic Brown Theme", "background": "#8b4513", "foreground": "#ffffff"},
+            {"name": "Smoke Theme", "background": "#738276", "foreground": "#ffffff"},
+            {"name": "Random Theme", "background": "#{:06x}".format(randint(0, 0xFFFFFF)),
+             "foreground": "#{:06x}".format(randint(0, 0xFFFFFF))},
+
             # Add more themes as needed
         ]
         # Add the combo box for selecting color themes
