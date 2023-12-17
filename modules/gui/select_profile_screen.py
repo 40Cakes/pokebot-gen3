@@ -12,6 +12,63 @@ class SelectProfileScreen:
         self.run_profile = run_profile
         self.frame: Union[ttk.Frame, None] = None
 
+
+        self.color_themes = [
+            {"name": "Dark Theme", "background": "#333", "foreground": "#fff"},
+            {"name": "Light Theme", "background": "#fff", "foreground": "#333"},
+            {"name": "Dark Green Theme", "background": "#333", "foreground": "#00ff22"},
+            {"name": "Dark Blue Theme", "background": "#333", "foreground": "#00ddff"},
+            {"name": "Black Theme", "background": "#000000", "foreground": "#fff"},
+            {"name": "Black Green Theme", "background": "#000000", "foreground": "#00ff22"},
+            {"name": "Black Blue Theme", "background": "#000000", "foreground": "#00ddff"},
+            {"name": "Black Red Theme", "background": "#000000", "foreground": "#f50505"},
+            # Add more themes as needed
+        ]
+        # Add the combo box for selecting color themes
+        self.theme_combobox = ttk.Combobox(self.window, values=[theme["name"] for theme in self.color_themes])
+        self.theme_combobox.bind("<<ComboboxSelected>>", self._update_color_theme)
+        self.theme_combobox.set(self.color_themes[0]["name"])  # Set the default theme name
+
+    def _update_color_theme(self, event=None):
+        # Get the selected theme index
+        selected_theme_index = self.theme_combobox.current()
+
+        # Update background and foreground colors based on the selected theme
+        if selected_theme_index is not None:
+            selected_theme = self.color_themes[selected_theme_index]
+            background_color = selected_theme["background"]
+            foreground_color = selected_theme["foreground"]
+
+            # Update style configurations
+            style = ttk.Style()
+            style.configure("TFrame", background=background_color, foreground=foreground_color)
+            style.configure("TEntry", background=background_color, foreground=foreground_color)
+            style.configure("TButton", background=background_color, foreground=foreground_color)
+            style.configure("TMessage", background=background_color, foreground=foreground_color)  # Corrected name
+            style.configure("Treeview", background=background_color, foreground=foreground_color)  # Corrected name
+            style.configure("TSpinbox", background=background_color, foreground=foreground_color)
+            style.configure("TScrollbar", background=background_color, foreground=foreground_color)
+            style.configure("TBackground", background=background_color, foreground=foreground_color)
+            style.configure("TCombobox", background=background_color, foreground=foreground_color)  # Corrected name
+            style.configure("TSpinbox", background=background_color, foreground=foreground_color)
+            style.configure("TRadiobutton", background=background_color, foreground=foreground_color)
+            style.configure("Nested.TFrame", background=background_color, foreground=foreground_color)
+            style.configure("TCheckbutton", background=background_color, foreground=foreground_color)
+            style.configure("TLabel", background=background_color, foreground=foreground_color)
+            style.configure("TText", background=background_color, foreground=foreground_color)
+            style.configure("Checkbutton.indicator", background=background_color, foreground=foreground_color)
+            style.configure("Radiobutton.indicator", background=background_color, foreground=foreground_color)
+            style.configure("Menubutton.indicator", background=background_color, foreground=foreground_color)
+
+            style.theme_use("default")
+            style.map(
+                "Accent.TButton",
+                foreground=[("!active", foreground_color), ("active", "black"), ("pressed", background_color)],
+                background=[("!active", "purple"), ("active", "purple"), ("pressed", foreground_color)],
+            )
+            # ... (update other style configurations as needed)
+            print(style.element_names())
+
     def enable(self) -> None:
         available_profiles = list_available_profiles()
         if len(available_profiles) == 0:
@@ -29,6 +86,10 @@ class SelectProfileScreen:
         self._add_header_and_controls()
         self._add_profile_list(available_profiles)
 
+        # Place the combo box in the header
+        self.theme_combobox.grid(row=1, column=0, padx=0, pady=0, sticky="W")  # Adjust column and padding as needed
+
+
     def disable(self) -> None:
         if self.frame:
             self.frame.destroy()
@@ -37,6 +98,7 @@ class SelectProfileScreen:
         header = ttk.Frame(self.frame)
         header.grid(row=row, sticky="NEW")
         header.columnconfigure(0, weight=1)
+        header.columnconfigure(2, weight=1)  # Add a column for the combo box
 
         label = ttk.Label(header, text="Select a profile to run:")
         label.grid(column=0, row=0, sticky="W")
