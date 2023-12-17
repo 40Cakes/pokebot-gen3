@@ -149,8 +149,8 @@ class PokemonPartySubMenuNavigator(BaseMenuNavigator):
     def wait_for_init(self):
         while self.party_menu_internal["numActions"] > 8:
             if self.wait_counter > 30:
-                context.message = "Error navigating menu. Manual mode is now on."
-                context.bot_mode = "Manual"
+                context.message = "Error navigating menu, switching to manual mode."
+                context.set_manual_mode()
             self.update_party_menu()
             self.wait_counter += 1
             yield
@@ -162,15 +162,15 @@ class PokemonPartySubMenuNavigator(BaseMenuNavigator):
                 and get_cursor_options(self.party_menu_internal["actions"][i]) in ("SEND_OUT", "SWITCH", "SHIFT")
             ):
                 return i
-        context.message = f"Couldn't find option {self.desired_option}. Switching to manual mode."
-        context.bot_mode = "Manual"
+        context.message = f"Couldn't find option {self.desired_option}, switching to manual mode."
+        context.set_manual_mode()
 
     def select_desired_option(self):
         if isinstance(self.desired_option, str):
             self.desired_option = self.get_index_from_option()
         if self.desired_option < 0 or self.desired_option > parse_menu()["maxCursorPos"]:
-            context.message = f"Error selecting option {self.desired_option}. Switching to manual mode."
-            context.bot_mode = "Manual"
+            context.message = f"Error selecting option {self.desired_option}, switching to manual mode."
+            context.set_manual_mode()
         while parse_menu()["cursorPos"] != self.desired_option:
             if parse_menu()["cursorPos"] < self.desired_option:
                 up_presses = parse_menu()["cursorPos"] + self.party_menu_internal["numActions"] - self.desired_option
@@ -497,8 +497,8 @@ class CheckForPickup(BaseMenuNavigator):
         if self.current_mon is not None:
             pokemon = self.party[self.current_mon]
             if not get_item_bag().has_space_for(pokemon.held_item):
-                context.bot_mode = "Manual"
                 context.message = f"Item bag is full! {pokemon.species.name} (party slot #{self.current_mon + 1}) is holding a {pokemon.held_item.name} but there is no space left for it in the bag."
+                context.set_manual_mode()
 
     def get_next_func(self):
         match self.current_step:
@@ -529,8 +529,8 @@ class CheckForPickup(BaseMenuNavigator):
     def get_next_mon(self):
         next_idx = self.pokemon_with_pickup_and_item.index(self.current_mon) + 1
         if next_idx > len(self.pokemon_with_pickup_and_item) - 1:
-            context.message = "I forgot how to count. Switching to manual mode."
-            context.bot_mode = "Manual"
+            context.message = "I forgot how to count, switching to manual mode."
+            context.set_manual_mode()
         else:
             self.current_mon = self.pokemon_with_pickup_and_item[next_idx]
             self.check_space_in_bag()
@@ -579,8 +579,8 @@ class PartyMenuExit(BaseMenuNavigator):
     def wait_for_start_menu(self):
         while get_game_state() == GameState.OVERWORLD and not parse_start_menu()["open"]:
             if self.counter > 60:
-                context.message = "Error exiting to overworld. Switching to manual mode."
-                context.bot_mode = "Manual"
+                context.message = "Error exiting to overworld, switching to manual mode."
+                context.set_manual_mode()
             else:
                 context.emulator.press_button("B")
                 self.counter += 1
