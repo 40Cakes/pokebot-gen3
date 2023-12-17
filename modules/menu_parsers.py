@@ -125,8 +125,8 @@ def get_party_menu_cursor_pos(party_length: int) -> dict:
         party_menu["slot_id_2"] = party_menu["slot_id"]
 
     if party_menu["slot_id"] == -1:
-        context.message = "Error detecting cursor position. Switching to manual mode..."
-        context.bot_mode = "Manual"
+        context.message = "Error detecting cursor position, switching to manual mode..."
+        context.set_manual_mode()
     return party_menu
 
 
