@@ -25,7 +25,6 @@ class ModeSweetScentStates(Enum):
     OPPONENT_CRY_START = auto()
     OPPONENT_CRY_END = auto()
     LOG_OPPONENT = auto()
-    USE_SCENT = auto()
 
 
 class ModeSweetScent:
@@ -73,21 +72,14 @@ class ModeSweetScent:
                         break
                     else:
                         if self.navigator is None:
-                            self.navigator = PokemonPartyMenuNavigator(scent_poke, "hover_scent")
+                            self.navigator = PokemonPartyMenuNavigator(scent_poke, "select_scent")
                         else:
                             yield from self.navigator.step()
                             match self.navigator.current_step:
                                 case "exit":
                                     self.navigator = None
-                                    self.update_state(ModeSweetScentStates.USE_SCENT)
+                                    self.update_state(ModeSweetScentStates.BATTLE)
                                     continue
-                        continue
-                
-                case ModeSweetScentStates.USE_SCENT:
-                    if not opponent_changed():
-                        context.emulator.press_button("A")
-                    else:
-                        self.update_state(ModeSweetScentStates.BATTLE)
                         continue
 
                 case ModeSweetScentStates.BATTLE:
@@ -104,7 +96,6 @@ class ModeSweetScent:
                         self.update_state(ModeSweetScentStates.OPPONENT_CRY_END)
                         continue
 
-                # Ensure opponent sprite is fully visible before resetting
                 case ModeSweetScentStates.OPPONENT_CRY_END:
                     if task_is_active("Task_DuckBGMForPokemonCry"):
                         pass
