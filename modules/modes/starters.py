@@ -335,15 +335,16 @@ class ModeStarters:
                             self.update_state(ModeStarterStates.TITLE)
 
                         case ModeStarterStates.TITLE:
-                            match get_game_state():
-                                case GameState.TITLE_SCREEN:
+                            match get_game_state(), read_symbol("gQuestLogState"):
+                                case GameState.TITLE_SCREEN, _:
                                     context.emulator.press_button(random.choice(["A", "Start", "Left", "Right", "Up"]))
-                                case GameState.MAIN_MENU:
+                                case GameState.MAIN_MENU, _:
                                     context.emulator.press_button("A")
-                                case GameState.QUEST_LOG:
-                                    context.emulator.press_button("B")
-                                case GameState.OVERWORLD:
+                                case GameState.OVERWORLD, bytearray(b"\x00"):
                                     self.update_state(ModeStarterStates.OVERWORLD)
+                                case GameState.OVERWORLD, _:
+                                    context.emulator.press_button("B")
+                                
 
                         case ModeStarterStates.OVERWORLD:
                             context.message = "Pathing to starter..."

@@ -227,10 +227,8 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
     def get_primary_option(self):
         if self.mode in ["take_item", "give_item"]:
             self.primary_option = "ITEM"
-        if self.mode == "switch":
-            self.primary_option = "SWITCH"
-        if self.mode == "summary":
-            self.primary_option = "SUMMARY"
+        else:
+            self.primary_option = self.mode.upper()
 
     def get_next_func(self):
         match self.current_step:
@@ -299,7 +297,8 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
             while task_is_active("TASK_HANDLECHOOSEMONINPUT"):
                 context.emulator.press_button("A")
-                yield
+                # yield
+                context.emulator.run_single_frame()
         else:
             while not task_is_active("SUB_8089D94"):
                 context.emulator.press_button("A")
