@@ -134,12 +134,13 @@ class StartMenuNavigator(BaseMenuNavigator):
 
 
 class PokemonPartySubMenuNavigator(BaseMenuNavigator):
-    def __init__(self, desired_option: str | int):
+    def __init__(self, desired_option: str | int, confirm_option: bool = True):
         super().__init__()
         self.party_menu_internal = None
         self.update_party_menu()
         self.wait_counter = 0
         self.desired_option = desired_option
+        self.confirm_option = confirm_option
 
     def update_party_menu(self):
         party_menu_internal = parse_party_menu()
@@ -185,11 +186,12 @@ class PokemonPartySubMenuNavigator(BaseMenuNavigator):
             yield
 
     def confirm_desired_option(self):
-        while self.wait_counter < 5:
-            if self.wait_counter == 1:
-                context.emulator.press_button("A")
-            self.wait_counter += 1
-            yield
+        if self.confirm_option:
+            while self.wait_counter < 5:
+                if self.wait_counter == 1:
+                    context.emulator.press_button("A")
+                self.wait_counter += 1
+                yield
 
     def get_next_func(self):
         match self.current_step:
@@ -231,6 +233,8 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
             self.primary_option = "SWITCH"
         if self.mode == "summary":
             self.primary_option = "SUMMARY"
+        if self.mode == "hover_scent":
+            self.primary_option = "SWEET_SCENT"
 
     def get_next_func(self):
         match self.current_step:
@@ -250,6 +254,8 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                         self.current_step = "navigate_to_lead"
                     case "summary":
                         self.current_step = "select_summary"
+                    case "hover_scrent":
+                        self.current_step = "select_scent"
                     case _:
                         self.current_step = "exit"
             case "navigate_to_lead":
@@ -275,6 +281,8 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                 self.navigator = self.switch_mon()
             case "select_summary":
                 self.navigator = self.select_summary()
+            case "select_scent":
+                self.navigator = self.select_scent()
 
     def navigate_to_mon(self):
         while get_party_menu_cursor_pos(len(self.party))["slot_id"] != self.idx:
@@ -299,11 +307,13 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
             while task_is_active("TASK_HANDLECHOOSEMONINPUT"):
                 context.emulator.press_button("A")
+                print(":(")
                 yield
         else:
             while not task_is_active("SUB_8089D94"):
                 context.emulator.press_button("A")
                 yield
+        print("no?")
 
     @staticmethod
     def switch_mon():
@@ -312,10 +322,14 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
             yield
 
     def select_option(self):
+        confirm = True
+        match self.mode:
+            case "hover_scent":
+                confirm = False
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
             while parse_party_menu()["numActions"] > 3 and self.navigator is not None:
                 if not self.subnavigator:
-                    self.subnavigator = PokemonPartySubMenuNavigator(self.primary_option).step()
+                    self.subnavigator = PokemonPartySubMenuNavigator(self.primary_option, confirm).step()
                 else:
                     for _ in self.subnavigator:
                         yield _
@@ -324,7 +338,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
         else:
             while task_is_active("SUB_8089D94") and not task_is_active("SUB_808A060"):
                 if not self.subnavigator:
-                    self.subnavigator = PokemonPartySubMenuNavigator(self.primary_option).step()
+                    self.subnavigator = PokemonPartySubMenuNavigator(self.primary_option, confirm).step()
                 else:
                     for _ in self.subnavigator:
                         yield _
@@ -378,6 +392,9 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
         else:
             while task_is_active("SUB_808A060"):
                 yield from PokemonPartySubMenuNavigator(0).step()
+    
+    def select_scent(self):
+        pass
 
 
 class BattlePartyMenuNavigator(PokemonPartyMenuNavigator):

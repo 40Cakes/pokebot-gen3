@@ -99,6 +99,11 @@ def main_loop() -> None:
                         from modules.modes.soft_resets import ModeStaticSoftResets
 
                         mode = ModeStaticSoftResets()
+                        
+                    case "Sweet Scent":
+                        from modules.modes.sweet_scent import ModeSweetScent
+
+                        mode = ModeSweetScent()
 
                     case "Tower Duo":
                         from modules.modes.tower_duo import ModeTowerDuo
