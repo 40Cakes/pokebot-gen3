@@ -227,12 +227,8 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
     def get_primary_option(self):
         if self.mode in ["take_item", "give_item"]:
             self.primary_option = "ITEM"
-        if self.mode == "switch":
-            self.primary_option = "SWITCH"
-        if self.mode == "summary":
-            self.primary_option = "SUMMARY"
-        if self.mode == "select_scent":
-            self.primary_option = "SWEET_SCENT"
+        else:
+            self.primary_option = self.mode.upper()
 
     def get_next_func(self):
         match self.current_step:
@@ -277,8 +273,6 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                 self.navigator = self.switch_mon()
             case "select_summary":
                 self.navigator = self.select_summary()
-            case "select_scent":
-                self.navigator = self.select_scent()
 
     def navigate_to_mon(self):
         while get_party_menu_cursor_pos(len(self.party))["slot_id"] != self.idx:

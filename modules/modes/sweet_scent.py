@@ -72,7 +72,7 @@ class ModeSweetScent:
                         break
                     else:
                         if self.navigator is None:
-                            self.navigator = PokemonPartyMenuNavigator(scent_poke, "select_scent")
+                            self.navigator = PokemonPartyMenuNavigator(scent_poke, "SWEET_SCENT")
                         else:
                             yield from self.navigator.step()
                             match self.navigator.current_step:
