@@ -3,7 +3,6 @@ from enum import Enum, auto
 
 from modules.context import context
 from modules.encounter import encounter_pokemon
-from modules.files import get_rng_state_history, save_rng_state_history
 from modules.memory import (
     read_symbol,
     get_game_state,
@@ -20,12 +19,8 @@ from modules.pokemon import get_party
 
 class ModeSweetScentStates(Enum):
     RESET = auto()
-    TITLE = auto()
     SELECT_SCENT = auto()
-    WAIT_FRAMES = auto()
     OVERWORLD = auto()
-    INJECT_RNG = auto()
-    RNG_CHECK = auto()
     BATTLE = auto()
     OPPONENT_CRY_START = auto()
     OPPONENT_CRY_END = auto()
@@ -35,54 +30,24 @@ class ModeSweetScentStates(Enum):
 
 class ModeSweetScent:
     def __init__(self) -> None:
-        self.rng_history: list = get_rng_state_history("wild_frames")
-
-        self.frame_count = None
         self.navigator = None
         self.state: ModeSweetScentStates = ModeSweetScentStates.RESET
 
     def update_state(self, state: ModeSweetScentStates) -> None:
         self.state: ModeSweetScentStates = state
 
-    def wait_frames(self, frames: int) -> bool:
-        if not self.frame_count:
-            self.frame_count = context.emulator.get_frame_count()
-        elif context.emulator.get_frame_count() < self.frame_count + frames:
-            return False
-        else:
-            self.frame_count = 0
-            return True
-
     def step(self):
         while True:
             match self.state:
                 case ModeSweetScentStates.RESET:
-                    match context.rom.game_title:
-                        case "POKEMON FIRE" | "POKEMON LEAF":
-                            context.emulator.reset()
-                            self.update_state(ModeSweetScentStates.TITLE)
-                            continue
-                        case "POKEMON RUBY" | "POKEMON SAPP" | "POKEMON EMER":
-                            if task_is_active("Task_HandleChooseMonInput"):
-                                self.update_state(ModeSweetScentStates.SELECT_SCENT)
-                            elif not task_is_active("Task_RunPerStepCallback") or task_is_active("Task_ShowStartMenu"):
-                                context.emulator.press_button("B")
-                                yield
-                            else:
-                                self.update_state(ModeSweetScentStates.OVERWORLD)
-                    continue
-                
-                case ModeSweetScentStates.TITLE:
-                    match get_game_state(), read_symbol("gQuestLogState"):
-                        case GameState.TITLE_SCREEN, _:
-                            context.emulator.press_button(random.choice(["A", "Start", "Left", "Right", "Up"]))
-                        case GameState.MAIN_MENU, _:
-                            context.emulator.press_button("A")
-                        case GameState.OVERWORLD, bytearray(b"\x00"):
-                            self.update_state(ModeSweetScentStates.OVERWORLD)
-                        case GameState.OVERWORLD, _:
-                            context.emulator.press_button("B")
-                    yield
+                    if task_is_active("Task_HandleChooseMonInput"):
+                        self.update_state(ModeSweetScentStates.SELECT_SCENT)
+                    elif not task_is_active("Task_RunPerStepCallback") or task_is_active("Task_ShowStartMenu"):
+                        context.emulator.press_button("B")
+                        yield
+                    else:
+                        self.update_state(ModeSweetScentStates.OVERWORLD)
+                    continue 
 
                 case ModeSweetScentStates.OVERWORLD:
                     if self.navigator is None:
@@ -102,7 +67,6 @@ class ModeSweetScent:
                         if "Sweet Scent" in str(poke.moves):
                             scent_poke = num
                             break
-                    
                     if scent_poke is None:
                         raise Exception("No Pokemon with Sweet Scent in party")
                         context.set_manual_mode()
@@ -115,26 +79,9 @@ class ModeSweetScent:
                             match self.navigator.current_step:
                                 case "exit":
                                     self.navigator = None
-                                    self.update_state(ModeSweetScentStates.RNG_CHECK)
+                                    self.update_state(ModeSweetScentStates.USE_SCENT)
                                     continue
-                                    # context.set_manual_mode()
-                                    # break
                         continue
-                
-                case ModeSweetScentStates.RNG_CHECK:
-                    rng = unpack_uint32(read_symbol("gRngValue"))
-                    if rng in self.rng_history or (
-                        task_is_active("Task_ExitNonDoor")
-                        or task_is_active("task_map_chg_seq_0807E20C")
-                        or task_is_active("task_map_chg_seq_0807E2CC")
-                    ):
-                        pass
-                    else:
-                        self.rng_history.append(rng)
-                        save_rng_state_history(self.rng_history, "wild_frames")
-                        self.update_state(ModeSweetScentStates.USE_SCENT)
-                        continue
-
                 
                 case ModeSweetScentStates.USE_SCENT:
                     if not opponent_changed():

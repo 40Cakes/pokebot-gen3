@@ -315,7 +315,7 @@ class ModeStarters:
             return
 
         if not context.config.cheats.random_soft_reset_rng:
-            self.rng_history: list = get_rng_state_history("soft_reset_frames")
+            self.rng_history: list = get_rng_state_history()
 
         self.state: ModeStarterStates = ModeStarterStates.RESET
         self.navigator = None
@@ -371,7 +371,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(self.rng_history, "soft_reset_frames")
+                                    save_rng_state_history(self.rng_history)
                                     self.update_state(ModeStarterStates.SELECT_STARTER)
                                     continue
 
@@ -481,7 +481,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(self.rng_history, "soft_reset_frames")
+                                    save_rng_state_history(self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
 
@@ -598,7 +598,7 @@ class ModeStarters:
                                     pass
                                 else:
                                     self.rng_history.append(rng)
-                                    save_rng_state_history(self.rng_history, "soft_reset_frames")
+                                    save_rng_state_history(self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
 

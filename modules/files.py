@@ -77,7 +77,7 @@ def save_pk3(pokemon: Pokemon) -> None:
 def get_rng_state_history(file_name: str) -> list:
     default = []
     try:
-        file = read_file(context.profile.path / f"rng/{file_name}.json")
+        file = read_file(context.profile.path / "soft_reset_frames.json")
         data = json.loads(file) if file else default
         return data
     except SystemExit:
@@ -86,8 +86,8 @@ def get_rng_state_history(file_name: str) -> list:
         return default
 
 
-def save_rng_state_history(data: list, file_name: str) -> bool:
-    if write_file(context.profile.path / f"rng/{file_name}.json", json.dumps(data)):
+def save_rng_state_history(data: list) -> bool:
+    if write_file(context.profile.path / "soft_reset_frames.json", json.dumps(data)):
         return True
     else:
         return False
