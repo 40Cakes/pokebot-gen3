@@ -42,6 +42,7 @@ class CursorOptionE(IntEnum):
     SOFTBOILED = 31
     SWEET_SCENT = 32
 
+
 class CursorOptionFRLG(IntEnum):
     SUMMARY = 0
     SWITCH = 1
@@ -61,21 +62,18 @@ class CursorOptionFRLG(IntEnum):
     REGISTER = 15
     TRADE_1 = 16
     TRADE_2 = 17
-    TOSS = 18
+    FLASH = 18
     CUT = 19
-    FLASH = 20
-    ROCK_SMASH = 21
-    STRENGTH = 22
-    SURF = 23
-    FLY = 24
-    DIVE = 25
-    WATERFALL = 26
-    TELEPORT = 27
-    DIG = 28
+    FLY = 20
+    STRENGTH = 21
+    SURF = 22
+    ROCK_SMASH = 23
+    WATERFALL = 24
+    TELEPORT = 25
+    DIG = 26
+    MILK_DRINK = 27
+    SOFTBOILED = 28
     SWEET_SCENT = 29
-    MILK_DRINK = 30
-    SOFTBOILED = 31
-    SECRET_POWER = 32
     
 
 class CursorOptionRS(IntEnum):
