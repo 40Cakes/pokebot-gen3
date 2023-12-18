@@ -74,7 +74,7 @@ def save_pk3(pokemon: Pokemon) -> None:
         binary_file.write(pokemon.data)
 
 
-def get_rng_state_history(file_name: str) -> list:
+def get_rng_state_history() -> list:
     default = []
     try:
         file = read_file(context.profile.path / "soft_reset_frames.json")
