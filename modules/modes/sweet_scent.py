@@ -15,9 +15,7 @@ from modules.memory import (
 from modules.pokemon import get_opponent, opponent_changed
 from modules.tasks import task_is_active
 from modules.menuing import StartMenuNavigator, PokemonPartyMenuNavigator
-from modules.menu_parsers import parse_party_menu
 from modules.pokemon import get_party
-from modules.battle import get_battle_state
 
 
 class ModeSweetScentStates(Enum):
@@ -37,8 +35,7 @@ class ModeSweetScentStates(Enum):
 
 class ModeSweetScent:
     def __init__(self) -> None:
-        if not context.config.cheats.random_soft_reset_rng:
-            self.rng_history: list = get_rng_state_history()
+        self.rng_history: list = get_rng_state_history("wild_frames")
 
         self.frame_count = None
         self.navigator = None
@@ -134,7 +131,7 @@ class ModeSweetScent:
                         pass
                     else:
                         self.rng_history.append(rng)
-                        save_rng_state_history(self.rng_history)
+                        save_rng_state_history(self.rng_history, "wild_frames")
                         self.update_state(ModeSweetScentStates.USE_SCENT)
                         continue
 

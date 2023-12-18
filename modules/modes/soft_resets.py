@@ -32,7 +32,7 @@ class ModeStaticSoftResetsStates(Enum):
 class ModeStaticSoftResets:
     def __init__(self) -> None:
         if not context.config.cheats.random_soft_reset_rng:
-            self.rng_history: list = get_rng_state_history()
+            self.rng_history: list = get_rng_state_history("soft_reset_frames")
 
         self.frame_count = None
         self.state: ModeStaticSoftResetsStates = ModeStaticSoftResetsStates.RESET
@@ -88,7 +88,7 @@ class ModeStaticSoftResets:
                             pass
                         else:
                             self.rng_history.append(rng)
-                            save_rng_state_history(self.rng_history)
+                            save_rng_state_history(self.rng_history, "soft_reset_frames")
                             self.update_state(ModeStaticSoftResetsStates.WAIT_FRAMES)
                             continue
 
