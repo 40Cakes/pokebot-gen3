@@ -153,8 +153,6 @@ def get_game_state() -> GameState:
         return state_cache.game_state.value
 
     match get_game_state_symbol():
-        case "CB2_SETUPOVERWORLDFORQLPLAYBACKWITHWARPEXIT" | "CB2_SETUPOVERWORLDFORQLPLAYBACK" | "CB2_LOADMAPFORQLPLAYBACK" | "CB2_ENTERFIELDFROMQUESTLOG":
-            return GameState.QUEST_LOG
         case "CB2_OVERWORLD":
             result = GameState.OVERWORLD
         case "BATTLEMAINCB2":

@@ -307,13 +307,12 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
             while task_is_active("TASK_HANDLECHOOSEMONINPUT"):
                 context.emulator.press_button("A")
-                print(":(")
-                yield
+                # yield
+                context.emulator.run_single_frame()
         else:
             while not task_is_active("SUB_8089D94"):
                 context.emulator.press_button("A")
                 yield
-        print("no?")
 
     @staticmethod
     def switch_mon():
