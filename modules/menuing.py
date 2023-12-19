@@ -223,6 +223,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
         self.get_primary_option()
         self.subnavigator = None
         self.party = get_party()
+        self.wait_counter = 0
 
     def get_primary_option(self):
         if self.mode in ["take_item", "give_item"]:
@@ -230,9 +231,25 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
         else:
             self.primary_option = self.mode.upper()
 
+    def wait_for_init(self):
+        match self.game:
+            case "POKEMON EMER":
+                task = "TASK_HANDLECHOOSEMONINPUT"
+            case _:
+                task = ""
+        while not task_is_active(task):
+            if self.wait_counter > 60:
+                context.message = "Error loading Pokemon menu. Switching to Manual mode."
+                context.bot_mode = "manual"
+            else:
+                self.wait_counter += 1
+                yield
+
     def get_next_func(self):
         match self.current_step:
             case "None":
+                self.current_step = "wait_for_init"
+            case "wait_for_init":
                 self.current_step = "navigate_to_mon"
             case "navigate_to_mon":
                 self.current_step = "select_mon"
@@ -257,6 +274,8 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
 
     def update_navigator(self):
         match self.current_step:
+            case "wait_for_init":
+                self.navigator = self.wait_for_init()
             case "navigate_to_mon":
                 self.navigator = self.navigate_to_mon()
             case "select_mon":
@@ -297,8 +316,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
             while task_is_active("TASK_HANDLECHOOSEMONINPUT"):
                 context.emulator.press_button("A")
-                # yield
-                context.emulator.run_single_frame()
+                yield
         else:
             while not task_is_active("SUB_8089D94"):
                 context.emulator.press_button("A")
