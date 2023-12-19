@@ -378,7 +378,7 @@ class ModeStarters:
                     encounter_pokemon(get_party()[0])
                     opponent_changed()  # Prevent opponent from being logged if starter is shiny
                     return
-                    
+
                 case Regions.KANTO_STARTERS | Regions.JOHTO_STARTERS, ModeStarterStates.OPEN_START_MENU_POKEMON:
                     if context.config.cheats.fast_check_starters:
                         self.update_state(ModeStarterStates.LOG_STARTER)
