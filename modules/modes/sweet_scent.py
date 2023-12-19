@@ -61,26 +61,25 @@ class ModeSweetScent:
                     continue
                 
                 case ModeSweetScentStates.SELECT_SCENT:
-                    scent_poke = None
-                    for num, poke in enumerate(get_party()):
-                        if "Sweet Scent" in str(poke.moves):
-                            scent_poke = num
+                    if self.navigator is None:
+                        scent_poke = None
+                        for num, poke in enumerate(get_party()):
+                            if "Sweet Scent" in str(poke.moves):
+                                scent_poke = num
+                                break
+                        if scent_poke is None:
+                            raise Exception("No Pokemon with Sweet Scent in party")
+                            context.set_manual_mode()
                             break
-                    if scent_poke is None:
-                        raise Exception("No Pokemon with Sweet Scent in party")
-                        context.set_manual_mode()
-                        break
+                        self.navigator = PokemonPartyMenuNavigator(scent_poke, "sweet_scent")
                     else:
-                        if self.navigator is None:
-                            self.navigator = PokemonPartyMenuNavigator(scent_poke, "SWEET_SCENT")
-                        else:
-                            yield from self.navigator.step()
-                            match self.navigator.current_step:
-                                case "exit":
-                                    self.navigator = None
-                                    self.update_state(ModeSweetScentStates.BATTLE)
-                                    continue
-                        continue
+                        yield from self.navigator.step()
+                        match self.navigator.current_step:
+                            case "exit":
+                                self.navigator = None
+                                self.update_state(ModeSweetScentStates.BATTLE)
+                                continue
+                    continue
 
                 case ModeSweetScentStates.BATTLE:
                     if get_game_state() != GameState.BATTLE:
