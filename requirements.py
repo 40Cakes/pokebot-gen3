@@ -29,6 +29,7 @@ required_modules = [
     "requests~=2.31.0",
     "pyperclip3~=0.4.1",
     "plyer~=2.1.0",
+    "notify-py~=0.3.42",
     "apispec~=6.3.0",
     "apispec-webframeworks~=0.5.2",
     "flask-swagger-ui~=4.11.1",

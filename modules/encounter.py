@@ -4,6 +4,7 @@ from modules.files import save_pk3
 from modules.gui.desktop_notification import desktop_notification
 from modules.pokemon_storage import get_pokemon_storage
 from modules.pokemon import Pokemon, get_battle_type_flags, BattleTypeFlag
+from modules.runtime import get_sprites_path
 from modules.stats import total_stats
 
 
@@ -43,6 +44,9 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
     )
     context.message = encounter_summary
 
+    state_tag = ""
+    alert_title = None
+    alert_message = None
     battle_type_flags = get_battle_type_flags()
 
     # TODO temporary until auto-catch is ready
@@ -77,11 +81,6 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
             alert_title = "Roaming Pokemon found!"
             alert_message = f"Encountered a roaming {pokemon.species.name}."
 
-        else:
-            state_tag = ""
-            alert_title = None
-            alert_message = None
-
         if not custom_found and pokemon.species.name in context.config.catch_block.block_list:
             console.print(f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...")
         else:
@@ -113,4 +112,10 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
             context.set_manual_mode()
 
             if alert_title is not None and alert_message is not None:
-                desktop_notification(title=alert_title, message=alert_message)
+                alert_icon = (
+                    get_sprites_path()
+                    / "pokemon"
+                    / f"{'shiny' if pokemon.is_shiny else 'normal'}"
+                    / f"{pokemon.species.name}.png"
+                )
+                desktop_notification(title=alert_title, message=alert_message, icon=alert_icon)
