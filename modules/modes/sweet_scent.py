@@ -1,17 +1,11 @@
-import random
 from enum import Enum, auto
-
 from modules.context import context
 from modules.encounter import encounter_pokemon
 from modules.memory import (
-    read_symbol,
     get_game_state,
-    GameState,
-    write_symbol,
-    unpack_uint32,
-    pack_uint32,
+    GameState
 )
-from modules.pokemon import get_opponent, opponent_changed
+from modules.pokemon import get_opponent
 from modules.tasks import task_is_active
 from modules.menuing import StartMenuNavigator, PokemonPartyMenuNavigator
 from modules.pokemon import get_party
@@ -64,7 +58,7 @@ class ModeSweetScent:
                     if self.navigator is None:
                         scent_poke = None
                         for num, poke in enumerate(get_party()):
-                            if "Sweet Scent" in str(poke.moves):
+                            if "SWEET SCENT" in str(poke.moves).upper():
                                 scent_poke = num
                                 break
                         if scent_poke is None:

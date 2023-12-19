@@ -233,8 +233,10 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
 
     def wait_for_init(self):
         match self.game:
-            case "POKEMON EMER":
+            case "POKEMON EMER" | "POKEMON FIRE" | "POKEMON LEAF":
                 task = "TASK_HANDLECHOOSEMONINPUT"
+            case "POKEMON RUBY" | "POKEMON SAPPH":
+                task = "HandleDefaultPartyMenu"
             case _:
                 task = ""
         while not task_is_active(task):
