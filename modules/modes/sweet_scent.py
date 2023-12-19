@@ -93,11 +93,6 @@ class ModeSweetScent:
                     if task_is_active("Task_DuckBGMForPokemonCry"):
                         pass
                     else:
-                        self.update_state(ModeSweetScentStates.LOG_OPPONENT)
-                        continue
-
-                case ModeSweetScentStates.LOG_OPPONENT:
-                    encounter_pokemon(get_opponent())
-                    return
+                        return
 
             yield
