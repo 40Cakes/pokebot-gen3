@@ -375,8 +375,6 @@ class ModeStarters:
                                     continue
 
                         case ModeStarterStates.INJECT_RNG:
-                            if context.config.cheats.random_soft_reset_rng:
-                                write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
                             self.update_state(ModeStarterStates.SELECT_STARTER)
 
@@ -558,14 +556,10 @@ class ModeStarters:
                         case ModeStarterStates.OVERWORLD:
                             if get_game_state() != GameState.CHOOSE_STARTER:
                                 context.emulator.press_button("A")
+                                yield
                             else:
-                                self.update_state(ModeStarterStates.INJECT_RNG)
-                                continue
-
-                        case ModeStarterStates.INJECT_RNG:
-                            if context.config.cheats.random_soft_reset_rng:
-                                write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
-                            self.update_state(ModeStarterStates.BAG_MENU)
+                                self.update_state(ModeStarterStates.BAG_MENU)
+                            continue
 
                         case ModeStarterStates.BAG_MENU:
                             cursor_task = get_task(self.task_bag_cursor)
@@ -590,7 +584,8 @@ class ModeStarters:
 
                         case ModeStarterStates.RNG_CHECK:
                             if context.config.cheats.random_soft_reset_rng:
-                                self.update_state(ModeStarterStates.INJECT_RNG)
+                                write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
+                                self.update_state(ModeStarterStates.CONFIRM_STARTER)
                             else:
                                 rng = unpack_uint32(read_symbol("gRngValue"))
                                 if rng in self.rng_history:
@@ -600,10 +595,6 @@ class ModeStarters:
                                     save_rng_state_history(self.rng_history)
                                     self.update_state(ModeStarterStates.CONFIRM_STARTER)
                                     continue
-
-                        case ModeStarterStates.INJECT_RNG:
-                            write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
-                            self.update_state(ModeStarterStates.CONFIRM_STARTER)
 
                         case ModeStarterStates.CONFIRM_STARTER:
                             if context.config.cheats.fast_check_starters:
