@@ -4,6 +4,8 @@ Event streams ([server side events](https://developer.mozilla.org/en-US/docs/Web
 
 Note: Swagger UI does not support `text/event-stream`, use [Postman](https://www.postman.com/) for testing instead.
 
+[Open example event stream page](/)
+
 ## How to use in JavaScript
 
 [All modern browsers](https://caniuse.com/eventsource) have a built-in client for this data type.
@@ -44,7 +46,7 @@ So you have to call `JSON.parse(event.data)` in order to get back the actual val
 
 ## Topics
 
-This directory contains TypeScript declaration files that describe the structure of event payloads. See [stream_events.d.ts](stream_events.d.ts).
+This directory contains TypeScript declaration files that describe the structure of event payloads. See `modules/web/stream_events.d.ts`.
 
 ### Topic `Player`
 
