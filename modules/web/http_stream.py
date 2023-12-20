@@ -26,6 +26,8 @@ class DataSubscription(IntFlag):
     GameState = auto()
     Map = auto()
     MapTile = auto()
+    EncounterLog = auto()
+    ShinyLog = auto()
     BotMode = auto()
     Message = auto()
     EmulatorSettings = auto()
@@ -100,6 +102,8 @@ def run_watcher():
         "map_group_and_number": map_group_and_number,
         "map_local_coordinates": map_local_coordinates,
         "game_state": get_game_state(),
+        "last_shiny_log": state_cache.last_shiny_log.frame,
+        "last_encounter_log": state_cache.last_encounter_log.frame,
     }
     previous_emulator_state = {
         "bot_mode": context.bot_mode,
@@ -195,6 +199,26 @@ def run_watcher():
                     if current_coords != previous_game_state["map_local_coordinates"]:
                         send_message(DataSubscription.Map, data=current_coords, event_type="MapTileChange")
                         previous_game_state["map_local_coordinates"] = current_coords
+
+        if subscriptions["EncounterLog"] > 0:
+            if state_cache.last_encounter_log.age_in_seconds > 0:
+                # If the cached encounter log data is too old, tell the main thread to update it at the next
+                # possible opportunity.
+                work_queue.put_nowait(total_stats.get_encounter_log)
+            if state_cache.last_encounter_log.frame > previous_game_state["last_encounter_log"]:
+                previous_game_state["last_encounter_log"] = state_cache.last_encounter_log.frame
+                send_message(
+                    DataSubscription.EncounterLog, data=state_cache.last_encounter_log.value, event_type="EncounterLog"
+                )
+
+        if subscriptions["ShinyLog"] > 0:
+            if state_cache.last_shiny_log.age_in_seconds > 0:
+                # If the cached shiny log is too old, tell the main thread to update it at the next
+                # possible opportunity.
+                work_queue.put_nowait(total_stats.get_shiny_log)
+            if state_cache.last_shiny_log.frame > previous_game_state["last_shiny_log"]:
+                previous_game_state["last_shiny_log"] = state_cache.last_shiny_log.frame
+                send_message(DataSubscription.ShinyLog, data=state_cache.last_shiny_log.value, event_type="ShinyLog")
 
         if subscriptions["BotMode"] > 0:
             if context.bot_mode != previous_emulator_state["bot_mode"]:
