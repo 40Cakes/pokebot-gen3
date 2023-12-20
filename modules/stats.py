@@ -18,6 +18,7 @@ from modules.files import read_file, write_file
 from modules.memory import get_game_state, GameState
 from modules.pokemon import Pokemon
 from modules.runtime import get_sprites_path
+from modules.state_cache import state_cache
 
 
 class TotalStats:
@@ -74,9 +75,11 @@ class TotalStats:
         self.encounter_timestamps.append(time.time())
 
     def append_encounter_log(self, pokemon: Pokemon) -> None:
+        state_cache.last_encounter_log = self.encounter_log.pop() if self.encounter_log else None
         self.encounter_log.append(self.get_log_obj(pokemon))
 
     def append_shiny_log(self, pokemon: Pokemon) -> None:
+        state_cache.last_shiny_log = self.shiny_log["shiny_log"].pop() if self.shiny_log["shiny_log"] else None
         self.shiny_log["shiny_log"].append(self.get_log_obj(pokemon))
         write_file(self.files["shiny_log"], json.dumps(self.shiny_log, indent=4, sort_keys=True))
 
@@ -87,9 +90,13 @@ class TotalStats:
         return self.total_stats
 
     def get_encounter_log(self) -> list:
+        if state_cache.last_encounter_log.age_in_frames == 0:
+            state_cache.last_encounter_log = self.encounter_log.pop() if self.encounter_log else None
         return list(self.encounter_log)
 
     def get_shiny_log(self) -> list:
+        if state_cache.last_shiny_log.age_in_frames == 0:
+            state_cache.last_shiny_log = self.shiny_log["shiny_log"].pop() if self.shiny_log["shiny_log"] else None
         return self.shiny_log["shiny_log"]
 
     def get_encounter_rate(self) -> int:

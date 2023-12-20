@@ -57,6 +57,8 @@ class StateCache:
         self._item_storage: StateCacheItem["ItemStorage | None"] = StateCacheItem(None)
         self._tasks: StateCacheItem["TaskList | None"] = StateCacheItem(None)
         self._game_state: StateCacheItem["GameState | None"] = StateCacheItem(None)
+        self._last_encounter_log: StateCacheItem["dict | None"] = StateCacheItem(None)
+        self._last_shiny_log: StateCacheItem["dict | None"] = StateCacheItem(None)
 
     @property
     def party(self) -> StateCacheItem[list["Pokemon"]]:
@@ -173,6 +175,28 @@ class StateCache:
             self._game_state.value = new_game_state
         else:
             self._game_state.checked()
+
+    @property
+    def last_encounter_log(self) -> StateCacheItem["dict | None"]:
+        return self._last_encounter_log
+
+    @last_encounter_log.setter
+    def last_encounter_log(self, new_encounter_log: dict):
+        if self._last_encounter_log.value != new_encounter_log:
+            self._last_encounter_log.value = new_encounter_log
+        else:
+            self._last_encounter_log.checked()
+
+    @property
+    def last_shiny_log(self) -> StateCacheItem["dict | None"]:
+        return self._last_shiny_log
+
+    @last_shiny_log.setter
+    def last_shiny_log(self, new_shiny_log: dict):
+        if self._last_shiny_log.value != new_shiny_log:
+            self._last_shiny_log.value = new_shiny_log
+        else:
+            self._last_shiny_log.checked()
 
 
 state_cache: StateCache = StateCache()
