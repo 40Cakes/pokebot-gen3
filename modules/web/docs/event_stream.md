@@ -89,11 +89,11 @@ The data is exactly the same as for the `MapChange` event, but you will receive 
 
 If you subscribe to both the `Map` and `MapTile` topics, you will receive _both_ a `MapChange` and a `MapTileChange` event (with identical data) when the user enters a new map.
 
-### Topic `EncounterLog`
+### Topic `LastEncounterLog`
 
 This will send you the latest entry in the encounter log on every new encounter.
 
-### Topic `ShinyLog`
+### Topic `LastShinyLog`
 
 This will send you the latest entry in the shiny log on every new shiny encounter.
 

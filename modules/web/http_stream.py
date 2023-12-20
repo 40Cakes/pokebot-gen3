@@ -200,7 +200,7 @@ def run_watcher():
                         send_message(DataSubscription.Map, data=current_coords, event_type="MapTileChange")
                         previous_game_state["map_local_coordinates"] = current_coords
 
-        if subscriptions["EncounterLog"] > 0:
+        if subscriptions["LastEncounterLog"] > 0:
             if state_cache.last_encounter_log.age_in_seconds > 0:
                 # If the cached encounter log data is too old, tell the main thread to update it at the next
                 # possible opportunity.
@@ -213,7 +213,7 @@ def run_watcher():
                     event_type="EncounterLog",
                 )
 
-        if subscriptions["ShinyLog"] > 0:
+        if subscriptions["LastShinyLog"] > 0:
             if state_cache.last_shiny_log.age_in_seconds > 0:
                 # If the cached shiny log is too old, tell the main thread to update it at the next
                 # possible opportunity.
