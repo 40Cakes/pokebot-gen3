@@ -1,7 +1,7 @@
 # PokéBot Gen3 (libmgba)
-[![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://www.python.org/) [![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/UtxR3cazUa) [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/@40_Cakes/streams) [![Twitter](https://img.shields.io/badge/Twitter-%231DA1F2.svg?style=for-the-badge&logo=Twitter&logoColor=white)](https://twitter.com/40_Cakes)
+[![Wiki](https://img.shields.io/badge/Documentation-Wiki-blue)](https://github.com/40Cakes/pokebot-gen3/wiki) [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python)](https://www.python.org/downloads/release/python-3120/) [![Code Formatting](https://img.shields.io/badge/Formatting-Black-black)](https://github.com/psf/black)
 
-[![Wiki](https://img.shields.io/badge/Documentation-Wiki-blue)](https://github.com/40Cakes/pokebot-gen3/wiki)
+[![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/UtxR3cazUa) [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/@40_Cakes/streams) [![Twitter](https://img.shields.io/badge/Twitter-%231DA1F2.svg?style=for-the-badge&logo=Twitter&logoColor=white)](https://twitter.com/40_Cakes)
 
 **PokéBot Gen3 (libmgba)** is a bot, written in Python that automatically shiny hunts in Pokémon Ruby, Sapphire, Emerald, FireRed and LeafGreen.
 
