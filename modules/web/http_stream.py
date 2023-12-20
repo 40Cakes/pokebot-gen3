@@ -26,8 +26,8 @@ class DataSubscription(IntFlag):
     GameState = auto()
     Map = auto()
     MapTile = auto()
-    EncounterLog = auto()
-    ShinyLog = auto()
+    LastEncounterLog = auto()
+    LastShinyLog = auto()
     BotMode = auto()
     Message = auto()
     EmulatorSettings = auto()
@@ -208,7 +208,9 @@ def run_watcher():
             if state_cache.last_encounter_log.frame > previous_game_state["last_encounter_log"]:
                 previous_game_state["last_encounter_log"] = state_cache.last_encounter_log.frame
                 send_message(
-                    DataSubscription.EncounterLog, data=state_cache.last_encounter_log.value, event_type="EncounterLog"
+                    DataSubscription.LastEncounterLog,
+                    data=state_cache.last_encounter_log.value,
+                    event_type="EncounterLog",
                 )
 
         if subscriptions["ShinyLog"] > 0:
@@ -218,7 +220,9 @@ def run_watcher():
                 work_queue.put_nowait(total_stats.get_shiny_log)
             if state_cache.last_shiny_log.frame > previous_game_state["last_shiny_log"]:
                 previous_game_state["last_shiny_log"] = state_cache.last_shiny_log.frame
-                send_message(DataSubscription.ShinyLog, data=state_cache.last_shiny_log.value, event_type="ShinyLog")
+                send_message(
+                    DataSubscription.LastShinyLog, data=state_cache.last_shiny_log.value, event_type="ShinyLog"
+                )
 
         if subscriptions["BotMode"] > 0:
             if context.bot_mode != previous_emulator_state["bot_mode"]:
