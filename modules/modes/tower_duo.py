@@ -1,6 +1,8 @@
 from enum import Enum, auto
 from pathlib import Path
+from typing import Generator
 
+from ._interface import BotMode
 from modules.context import context
 from modules.data.map import MapRSE, MapFRLG
 from modules.gui.multi_select_window import MultiSelector, Selection, MultiSelectWindow
@@ -14,8 +16,12 @@ class ModeTowerDuoStates(Enum):
     LEAVE_ROOM = auto()
 
 
-class ModeTowerDuo:
-    def __init__(self):
+class ModeTowerDuo(BotMode):
+    @staticmethod
+    def name() -> str:
+        return "Tower Duo"
+
+    def setup(self):
         if not context.selected_pokemon:
             player = get_player_avatar()
             sprites = Path(__file__).parent.parent.parent / "sprites" / "pokemon" / "normal"
@@ -91,7 +97,9 @@ class ModeTowerDuo:
     def update_state(self, state: ModeTowerDuoStates) -> None:
         self.state: ModeTowerDuoStates = state
 
-    def step(self):
+    def run(self) -> Generator:
+        self.setup()
+
         while True:
             player_avatar = get_player_avatar()
 

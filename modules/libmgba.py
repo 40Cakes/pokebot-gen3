@@ -354,6 +354,17 @@ class LibmgbaEmulator:
         vfile.seek(0, whence=0)
         self._core.load_state(vfile)
 
+    def read_save_data(self) -> bytes:
+        """
+        Reads and returns the contents of the save game (SRAM/Flash)
+        :return: Save data
+        """
+        vfile = mgba.vfs.VFile.fromEmpty()
+        lib.GBASavedataClone(ffi.addressof(self._core._native.memory.savedata), vfile.handle)
+        vfile.seek(0, whence=0)
+        result = vfile.read_all()
+        return result
+
     def read_bytes(self, address: int, length: int = 1) -> bytes:
         """
         Reads a block of memory from an arbitrary address on the system

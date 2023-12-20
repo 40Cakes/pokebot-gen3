@@ -1,6 +1,8 @@
 import random
 from enum import Enum, auto
+from typing import Generator
 
+from ._interface import BotMode
 from modules.context import context
 from modules.encounter import encounter_pokemon
 from modules.files import get_rng_state_history, save_rng_state_history
@@ -29,8 +31,12 @@ class ModeStaticSoftResetsStates(Enum):
     LOG_OPPONENT = auto()
 
 
-class ModeStaticSoftResets:
-    def __init__(self) -> None:
+class ModeStaticSoftResets(BotMode):
+    @staticmethod
+    def name() -> str:
+        return "Static Soft Resets"
+
+    def setup(self) -> None:
         if not context.config.cheats.random_soft_reset_rng:
             self.rng_history: list = get_rng_state_history()
 
@@ -49,7 +55,9 @@ class ModeStaticSoftResets:
             self.frame_count = 0
             return True
 
-    def step(self):
+    def run(self) -> Generator:
+        self.setup()
+
         while True:
             match self.state:
                 case ModeStaticSoftResetsStates.RESET:

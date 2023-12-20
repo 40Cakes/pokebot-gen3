@@ -1,12 +1,45 @@
 """Contains modes of operation for the bot."""
 
-available_bot_modes = [
-    "Manual",
-    "Spin",
-    "Starters",
-    "Fishing",
-    "Bunny Hop",
-    "Static Soft Resets",
-    "Tower Duo",
-    "Ancient Legendaries",
-]
+from ._interface import BotMode, BotModeError
+from typing import Type
+
+_bot_modes: list[Type[BotMode]] = []
+
+
+def get_bot_modes() -> list[Type[BotMode]]:
+    global _bot_modes
+
+    if len(_bot_modes) == 0:
+        from .ancient_legendaries import ModeAncientLegendaries
+        from .bunny_hop import BunnyHopMode
+        from .fishing import FishingMode
+        from .soft_resets import ModeStaticSoftResets
+        from .spin import SpinMode
+        from .starters import StartersMode
+        from .tower_duo import ModeTowerDuo
+
+        _bot_modes = [
+            SpinMode,
+            StartersMode,
+            FishingMode,
+            BunnyHopMode,
+            ModeStaticSoftResets,
+            ModeTowerDuo,
+            ModeAncientLegendaries,
+        ]
+
+    return _bot_modes
+
+
+def get_bot_mode_names() -> list[str]:
+    result = ["Manual"]
+    for mode in get_bot_modes():
+        result.append(mode.name())
+    return result
+
+
+def get_bot_mode_by_name(name: str) -> Type[BotMode] | None:
+    for mode in get_bot_modes():
+        if mode.name() == name:
+            return mode
+    return None

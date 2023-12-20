@@ -1,6 +1,8 @@
 from enum import Enum, auto
 from pathlib import Path
+from typing import Generator
 
+from ._interface import BotMode
 from modules.context import context
 from modules.data.map import MapRSE
 from modules.gui.multi_select_window import MultiSelector, Selection, MultiSelectWindow
@@ -14,8 +16,12 @@ class ModeAncientLegendariesStates(Enum):
     INTERACT = auto()
 
 
-class ModeAncientLegendaries:
-    def __init__(self):
+class ModeAncientLegendaries(BotMode):
+    @staticmethod
+    def name() -> str:
+        return "Ancient Legendaries"
+
+    def setup(self):
         if context.rom.game_title != "POKEMON EMER":  # TODO add RS support
             context.message("Only Emerald is supported, RS coming soon.")
             return
@@ -91,7 +97,9 @@ class ModeAncientLegendaries:
     def update_state(self, state: ModeAncientLegendariesStates) -> None:
         self.state: ModeAncientLegendariesStates = state
 
-    def step(self):
+    def run(self) -> Generator:
+        self.setup()
+
         while True:
             player_avatar = get_player_avatar()
 

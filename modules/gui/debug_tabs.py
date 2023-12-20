@@ -287,7 +287,7 @@ class TasksTab(DebugTab):
         cb1_symbol = get_symbol_name(cb1_addr, pretty_name=True)
         if cb1_symbol == "":
             cb1_symbol = hex(cb1_addr)
-        cb2_symbol = get_symbol_name(cb1_addr, pretty_name=True)
+        cb2_symbol = get_symbol_name(cb2_addr, pretty_name=True)
         if cb2_symbol == "":
             cb2_symbol = hex(cb2_addr)
 

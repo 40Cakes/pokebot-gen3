@@ -4,6 +4,7 @@ from typing import Union
 
 from modules.context import context
 from modules.libmgba import LibmgbaEmulator
+from modules.modes import get_bot_mode_names
 from modules.version import pokebot_name, pokebot_version
 
 
@@ -56,7 +57,7 @@ class EmulatorControls:
             return
 
         if self.bot_mode_combobox.get() != context.bot_mode:
-            self.bot_mode_combobox.current(context.config.available_bot_modes.index(context.bot_mode))
+            self.bot_mode_combobox.current(get_bot_mode_names().index(context.bot_mode))
             self.last_known_bot_mode = context.bot_mode
 
         self._set_button_colour(self.speed_1x_button, active_condition=context.emulation_speed == 1)
@@ -90,9 +91,7 @@ class EmulatorControls:
             context.bot_mode = new_bot_mode
 
         ttk.Label(group, text="Bot Mode:", justify="left").grid(row=0, sticky="W")
-        self.bot_mode_combobox = ttk.Combobox(
-            group, values=context.config.available_bot_modes, width=16, state="readonly"
-        )
+        self.bot_mode_combobox = ttk.Combobox(group, values=get_bot_mode_names(), width=16, state="readonly")
         self.bot_mode_combobox.bind("<<ComboboxSelected>>", handle_bot_mode_selection)
         self.bot_mode_combobox.bind("<FocusIn>", lambda e: self.window.focus())
         self.bot_mode_combobox.grid(row=1, sticky="W", padx=0)
