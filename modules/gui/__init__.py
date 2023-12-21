@@ -38,11 +38,6 @@ class PokebotGui:
 
         style = ttk.Style()
         style.theme_use("default")
-        style.map(
-            "Accent.TButton",
-            foreground=[("!active", "white"), ("active", "white"), ("pressed", "white")],
-            background=[("!active", "green"), ("active", "darkgreen"), ("pressed", "green")],
-        )
 
         self._apply_key_config()
 
