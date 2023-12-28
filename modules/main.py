@@ -100,6 +100,11 @@ def main_loop() -> None:
 
                         mode = ModeStaticSoftResets()
 
+                    case "Sudowoodo":
+                        from modules.modes.sudowoodo import ModeSudowoodo
+
+                        mode = ModeSudowoodo()
+
                     case "Tower Duo":
                         from modules.modes.tower_duo import ModeTowerDuo
 
