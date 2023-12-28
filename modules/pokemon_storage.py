@@ -48,7 +48,7 @@ class PokemonStorageBox:
                 return potential_empty_slot_index
             else:
                 potential_empty_slot_index += 1
-        if potential_empty_slot_index > 30:
+        if potential_empty_slot_index >= 30:
             return None
         else:
             return potential_empty_slot_index
@@ -175,3 +175,4 @@ def get_pokemon_storage() -> PokemonStorage:
     pokemon_storage = PokemonStorage(offset, context.emulator.read_bytes(offset, length))
     state_cache.pokemon_storage = pokemon_storage
     return pokemon_storage
+
