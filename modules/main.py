@@ -100,6 +100,11 @@ def main_loop() -> None:
 
                         mode = ModeStaticSoftResets()
 
+                    case "Static Gift Resets":
+                        from modules.modes.gift_resets import ModeStaticGiftResets
+
+                        mode = ModeStaticGiftResets()
+
                     case "Sudowoodo":
                         from modules.modes.sudowoodo import ModeSudowoodo
 
