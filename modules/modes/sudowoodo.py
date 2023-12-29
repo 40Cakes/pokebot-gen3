@@ -66,15 +66,6 @@ class ModeSudowoodo:
                             self.update_state(ModeSudowoodoStates.RNG_CHECK)
                             continue
 
-                        case "POKEMON FIRE" | "POKEMON LEAF", GameState.TITLE_SCREEN:
-                            context.emulator.press_button(random.choice(["A", "Start", "Left", "Right", "Up"]))
-
-                        case "POKEMON FIRE" | "POKEMON LEAF", GameState.MAIN_MENU:
-                            if task_is_active("Task_HandleMenuInput"):
-                                context.message = "Waiting for a unique frame before continuing..."
-                                self.update_state(ModeSudowoodoStates.RNG_CHECK)
-                                continue
-
                 case ModeSudowoodoStates.RNG_CHECK:
                     if context.config.cheats.random_soft_reset_rng:
                         self.update_state(ModeSudowoodoStates.WAIT_FRAMES)
