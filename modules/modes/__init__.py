@@ -7,6 +7,7 @@ available_bot_modes = [
     "Fishing",
     "Bunny Hop",
     "Static Soft Resets",
+    "Static Gift Resets",
     "Sudowoodo",
     "Tower Duo",
     "Ancient Legendaries",
