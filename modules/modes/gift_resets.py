@@ -82,6 +82,9 @@ class ModeStaticGiftResets:
 
                 case ModeStaticGiftResetsStates.RNG_CHECK:
                     self.start_party_size = len(get_party())
+                    if(self.start_party_size == 6):
+                        context.message = "Please deposit a Pokemon before continuing..."
+                        context.bot_mode = "Manual"
                     if context.config.cheats.random_soft_reset_rng:
                         self.update_state(ModeStaticGiftResetsStates.WAIT_FRAMES)
                     else:
