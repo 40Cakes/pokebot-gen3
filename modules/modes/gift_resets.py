@@ -31,6 +31,7 @@ class ModeStaticGiftResetsStates(Enum):
     CLEAR_MESSAGES = auto()
     CHECK_PARTY = auto()
 
+
 class ModeStaticGiftResets:
     def __init__(self) -> None:
         if not context.config.cheats.random_soft_reset_rng:
@@ -52,7 +53,7 @@ class ModeStaticGiftResets:
         else:
             self.frame_count = 0
             return True
-    
+
     def step(self):
         while True:
             match self.state:
@@ -66,21 +67,26 @@ class ModeStaticGiftResets:
                             context.emulator.press_button("A")
 
                         case "POKEMON RUBY" | "POKEMON SAPP" | "POKEMON EMER", GameState.OVERWORLD:
-                            context.message = "Waiting for a unique frame before continuing..."
+                            context.message = (
+                                "Waiting for a unique frame before continuing..."
+                            )
                             self.update_state(ModeStaticGiftResetsStates.RNG_CHECK)
                             continue
 
                         case "POKEMON FIRE" | "POKEMON LEAF", GameState.TITLE_SCREEN:
-                            context.emulator.press_button(random.choice(["A", "Start", "Left", "Right", "Up"]))
+                            context.emulator.press_button(
+                                random.choice(["A", "Start", "Left", "Right", "Up"])
+                            )
 
                         case "POKEMON FIRE" | "POKEMON LEAF", GameState.MAIN_MENU:
                             if task_is_active("Task_HandleMenuInput"):
-                                context.message = "Waiting for a unique frame before continuing..."
+                                context.message = (
+                                    "Waiting for a unique frame before continuing..."
+                                )
                                 self.update_state(ModeStaticGiftResetsStates.RNG_CHECK)
                                 continue
 
                 case ModeStaticGiftResetsStates.RNG_CHECK:
-                    
                     self.start_party_size = len(get_party())
                     if context.config.cheats.random_soft_reset_rng:
                         self.update_state(ModeStaticGiftResetsStates.WAIT_FRAMES)
@@ -106,7 +112,9 @@ class ModeStaticGiftResets:
 
                 case ModeStaticGiftResetsStates.INJECT_RNG:
                     if context.config.cheats.random_soft_reset_rng:
-                        write_symbol("gRngValue", pack_uint32(random.randint(0, 2**32 - 1)))
+                        write_symbol(
+                            "gRngValue", pack_uint32(random.randint(0, 2**32 - 1))
+                        )
                     self.update_state(ModeStaticGiftResetsStates.OVERWORLD)
 
                 case ModeStaticGiftResetsStates.OVERWORLD:
@@ -115,12 +123,11 @@ class ModeStaticGiftResets:
                     else:
                         self.update_state(ModeStaticGiftResetsStates.CHECK_ENCOUNTER)
 
-
                 case ModeStaticGiftResetsStates.CHECK_ENCOUNTER:
                     if context.config.cheats.random_soft_reset_rng:
                         self.update_state(ModeStaticGiftResetsStates.LOG_ENCOUNTER)
                         continue
-                    else: 
+                    else:
                         self.update_state(ModeStaticGiftResetsStates.CLEAR_MESSAGES)
 
                 case ModeStaticGiftResetsStates.CLEAR_MESSAGES:
@@ -131,9 +138,15 @@ class ModeStaticGiftResets:
                         context.emulator.press_button("B")
                     elif task_is_active("Task_HandleYesNoInput"):
                         context.emulator.press_button("B")
-                    elif self.map == "SILPH CO." and get_event_flag("FLAG_GOT_LAPRAS_FROM_SILPH") == False:
+                    elif (
+                        self.map == "SILPH CO."
+                        and get_event_flag("FLAG_GOT_LAPRAS_FROM_SILPH") == False
+                    ):
                         context.emulator.press_button("B")
-                    elif self.map == "ROUTE 119" and get_event_flag("FLAG_RECEIVED_CASTFORM") == False:
+                    elif (
+                        self.map == "ROUTE 119"
+                        and get_event_flag("FLAG_RECEIVED_CASTFORM") == False
+                    ):
                         context.emulator.press_button("B")
                     elif self.navigator is None:
                         self.navigator = StartMenuNavigator("POKEMON")
@@ -142,18 +155,24 @@ class ModeStaticGiftResets:
                         match self.navigator.current_step:
                             case "exit":
                                 self.navigator = None
-                                self.update_state(ModeStaticGiftResetsStates.CHECK_PARTY)
+                                self.update_state(
+                                    ModeStaticGiftResetsStates.CHECK_PARTY
+                                )
                                 continue
-                        
+
                 case ModeStaticGiftResetsStates.CHECK_PARTY:
                     if self.navigator is None:
-                        self.navigator = PokemonPartyMenuNavigator(len(get_party()) - 1, "summary")
+                        self.navigator = PokemonPartyMenuNavigator(
+                            len(get_party()) - 1, "summary"
+                        )
                     else:
                         yield from self.navigator.step()
                         match self.navigator.current_step:
                             case "exit":
                                 self.navigator = None
-                                self.update_state(ModeStaticGiftResetsStates.LOG_ENCOUNTER)
+                                self.update_state(
+                                    ModeStaticGiftResetsStates.LOG_ENCOUNTER
+                                )
                                 continue
                     continue
                 case ModeStaticGiftResetsStates.LOG_ENCOUNTER:
