@@ -137,7 +137,6 @@ class ModeStaticGiftResets:
                                 continue
                         
                 case ModeStaticGiftResetsStates.CHECK_PARTY:
-                    #need to press up twice to get to last mon
                     if self.navigator is None:
                         self.navigator = PokemonPartyMenuNavigator(len(get_party()) - 1, "summary")
                     else:
@@ -148,9 +147,6 @@ class ModeStaticGiftResets:
                                 self.update_state(ModeStaticGiftResetsStates.LOG_ENCOUNTER)
                                 continue
                     continue
-                    #open summary
-                    #log_encounter get_party()[start_party_size]
-                    #return
                 case ModeStaticGiftResetsStates.LOG_ENCOUNTER:
                     encounter_pokemon(get_party()[len(get_party()) - 1])
                     self.update_state(ModeStaticGiftResetsStates.INJECT_RNG)
