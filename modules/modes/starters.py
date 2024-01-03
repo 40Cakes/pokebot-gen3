@@ -75,6 +75,12 @@ class StartersMode(BotMode):
             yield from wait_until_task_is_active("Task_YesNoMenu_HandleInput", button_to_press="B")
             yield from wait_until_task_is_no_longer_active("Task_YesNoMenu_HandleInput", button_to_press="B")
 
+            # If the respective 'cheat' is enabled, check the Pokemon immediately instead of 'genuinely' looking
+            # at the summary screen
+            if context.config.cheats.fast_check_starters:
+                encounter_pokemon(get_party()[0])
+                continue
+
             # Wait for the rival to pick up their starter
             yield from wait_until_task_is_active("Task_Fanfare", button_to_press="B")
 
@@ -145,6 +151,10 @@ class StartersMode(BotMode):
     def run_rse_johto(self):
         while context.bot_mode != "Manual":
             yield from soft_reset(mash_random_keys=True)
+
+            if len(get_party()) >= 6:
+                raise BotModeError("This mode requires at least one empty party slot, but your party is full.")
+
             yield from wait_for_unique_rng_value()
 
             yield from ensure_facing_direction("Up")
@@ -156,6 +166,12 @@ class StartersMode(BotMode):
             # Wait for and say no to the second question (the 'Do you want to give ... a nickname')
             yield from wait_until_task_is_active("Task_HandleYesNoInput", button_to_press="B")
             yield from wait_until_task_is_no_longer_active("Task_HandleYesNoInput", button_to_press="B")
+
+            # If the respective 'cheat' is enabled, check the Pokemon immediately instead of 'genuinely' looking
+            # at the summary screen
+            if context.config.cheats.fast_check_starters:
+                encounter_pokemon(get_party()[len(get_party()) - 1])
+                continue
 
             # Wait for the rival to pick up their starter
             yield from wait_until_task_is_no_longer_active("ScriptMovement_MoveObjects", button_to_press="B")
