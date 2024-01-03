@@ -21,6 +21,14 @@ class ModeTowerDuo(BotMode):
     def name() -> str:
         return "Tower Duo"
 
+    @staticmethod
+    def is_selectable() -> bool:
+        if context.rom.is_rse:
+            allowed_maps = [MapRSE.NAVEL_ROCK_I.value, MapRSE.NAVEL_ROCK_U.value]
+        else:
+            allowed_maps = [MapFRLG.NAVEL_ROCK_B.value, MapFRLG.NAVEL_ROCK_A.value]
+        return get_player_avatar().map_group_and_number in allowed_maps
+
     def setup(self):
         if not context.selected_pokemon:
             player = get_player_avatar()

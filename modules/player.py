@@ -89,6 +89,27 @@ class PlayerAvatar:
             self._object_event.current_coords,
         )
 
+    def map_location_in_front(self) -> MapLocation | None:
+        """
+        Returns the map tile in front of the player (i.e. the tile the player avatar
+        is looking at.
+        This only works if that tile is on the same map, otherwise `None` will be
+        returned.
+        """
+        targeted_coordinates = self.local_coordinates
+        match self.facing_direction:
+            case "Up":
+                targeted_coordinates = targeted_coordinates[0], targeted_coordinates[1] - 1
+            case "Down":
+                targeted_coordinates = targeted_coordinates[0], targeted_coordinates[1] + 1
+            case "Left":
+                targeted_coordinates = targeted_coordinates[0] - 1, targeted_coordinates[1]
+            case "Right":
+                targeted_coordinates = targeted_coordinates[0] + 1, targeted_coordinates[1]
+        open_map = self.map_location
+        if 0 <= targeted_coordinates[0] < open_map.map_size[0] and 0 <= targeted_coordinates[1] < open_map.map_size[1]:
+            return MapLocation(read_symbol("gMapHeader"), open_map.map_group, open_map.map_number, targeted_coordinates)
+
     @property
     def local_coordinates(self) -> tuple[int, int]:
         return self._object_event.current_coords

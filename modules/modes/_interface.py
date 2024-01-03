@@ -14,6 +14,26 @@ class BotMode:
         """
         ...
 
+    @staticmethod
+    def is_selectable() -> bool:
+        """
+        Indicates whether this bot mode is available for the current state of the game.
+        If this returns `False`, the bot mode will not be hidden from the bot mode selection menu.
+
+        Therefore, this should only do a very rough sanity check, such as verifying that the player
+        is at least on the correct map. It should not check for very particular things such as
+        having an empty party slot etc.
+
+        Those things should be checked within the `run()` method and raise a `BotModeError` if
+        necessary, so that the user can get a meaningful error message.
+
+        Otherwise, it might be very confusing for users if a bot mode they expect to see is missing
+        without any clear indication as to what exactly is wrong.
+
+        :return: Whether this bot mode should be selectable.
+        """
+        return True
+
     def disable_default_battle_handler(self) -> bool:
         """
         Indicates whether the default battle handler should be used in this mode, or whether

@@ -11,6 +11,10 @@ class BunnyHopMode(BotMode):
     def name() -> str:
         return "Bunny Hop"
 
+    @staticmethod
+    def is_selectable() -> bool:
+        return get_player_avatar().map_location.has_encounters
+
     def run(self) -> Generator:
         registered_item = get_player().registered_item
         if registered_item is None or registered_item.name != "Acro Bike":

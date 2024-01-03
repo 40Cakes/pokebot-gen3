@@ -3,7 +3,7 @@ from typing import Generator
 
 from modules.context import context
 from modules.memory import get_game_state, GameState
-from modules.player import get_player
+from modules.player import get_player, get_player_avatar
 from modules.tasks import get_task
 from ._interface import BotMode, BotModeError
 
@@ -32,9 +32,15 @@ class FishingMode(BotMode):
     def name() -> str:
         return "Fishing"
 
+    @staticmethod
+    def is_selectable() -> bool:
+        player = get_player_avatar()
+        targeted_tile = player.map_location_in_front()
+        return targeted_tile.is_surfable
+
     def run(self) -> Generator:
         registered_item = get_player().registered_item
-        if registered_item is None or registered_item not in ["Old Rod", "Good Rod", "Super Rod"]:
+        if registered_item is None or registered_item.name not in ["Old Rod", "Good Rod", "Super Rod"]:
             raise BotModeError("You need to register a fishing rod for the Select button.")
 
         while True:

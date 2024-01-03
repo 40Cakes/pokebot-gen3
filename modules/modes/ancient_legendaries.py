@@ -21,6 +21,12 @@ class ModeAncientLegendaries(BotMode):
     def name() -> str:
         return "Ancient Legendaries"
 
+    @staticmethod
+    def is_selectable() -> bool:
+        player = get_player_avatar()
+        allowed_maps = [MapRSE.MARINE_CAVE_A.value, MapRSE.TERRA_CAVE_A.value, MapRSE.SKY_PILLAR_G.value]
+        return context.rom.is_rse and player.map_group_and_number in allowed_maps
+
     def setup(self):
         if context.rom.game_title != "POKEMON EMER":  # TODO add RS support
             context.message("Only Emerald is supported, RS coming soon.")

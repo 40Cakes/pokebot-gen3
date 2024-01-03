@@ -25,6 +25,14 @@ class StartersMode(BotMode):
     def name() -> str:
         return "Starters"
 
+    @staticmethod
+    def is_selectable() -> bool:
+        player_avatar = get_player_avatar()
+        if context.rom.is_frlg:
+            return player_avatar.map_group_and_number == (4, 3)
+        if context.rom.is_rse:
+            return player_avatar.map_group_and_number in [(0, 16), (1, 4)]
+
     def disable_default_battle_handler(self) -> bool:
         return True
 
@@ -49,10 +57,6 @@ class StartersMode(BotMode):
             if coords in [(7, 15), (8, 14)] and map_group == 0 and map_num == 16:
                 yield from self.run_rse_hoenn()
             elif coords in [(8, 5), (9, 5), (10, 5)] and map_group == 1 and map_num == 4:
-                if len(get_party()) == 6:
-                    raise BotModeError(
-                        "There must be an empty slot in your party when soft-resetting for Johto starters."
-                    )
                 yield from self.run_rse_johto()
             else:
                 raise BotModeError(

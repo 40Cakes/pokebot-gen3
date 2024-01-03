@@ -10,11 +10,12 @@ class SpinMode(BotMode):
     def name() -> str:
         return "Spin"
 
+    @staticmethod
+    def is_selectable() -> bool:
+        return get_player_avatar().map_location.has_encounters
+
     def run(self) -> Generator:
         avatar = get_player_avatar()
-        if not avatar.map_location.has_encounters:
-            raise BotModeError("The current tile does not have any encounters, so spinning mode would not do anything.")
-
         directions = ["Up", "Right", "Down", "Left"]
         direction_index = directions.index(avatar.facing_direction)
 

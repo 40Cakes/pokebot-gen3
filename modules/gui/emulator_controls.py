@@ -2,9 +2,10 @@ import tkinter.font
 from tkinter import Tk, ttk
 from typing import Union
 
+from modules.console import console
 from modules.context import context
 from modules.libmgba import LibmgbaEmulator
-from modules.modes import get_bot_mode_names
+from modules.modes import get_bot_modes
 from modules.version import pokebot_name, pokebot_version
 
 
@@ -14,7 +15,8 @@ class EmulatorControls:
         self.last_known_bot_mode = context.bot_mode
 
         self.frame: Union[ttk.Frame, None] = None
-        self.bot_mode_combobox: ttk.Combobox
+        self.bot_mode_button: ttk.Button
+        self.bot_mode_menu: tkinter.Menu | None
         self.speed_1x_button: ttk.Button
         self.speed_2x_button: ttk.Button
         self.speed_3x_button: ttk.Button
@@ -56,9 +58,8 @@ class EmulatorControls:
         if self.frame is None:
             return
 
-        if self.bot_mode_combobox.get() != context.bot_mode:
-            self.bot_mode_combobox.current(get_bot_mode_names().index(context.bot_mode))
-            self.last_known_bot_mode = context.bot_mode
+        self.bot_mode_button.config(text=context.bot_mode)
+        self._set_button_colour(self.bot_mode_button, active_condition=context.bot_mode == "Manual")
 
         self._set_button_colour(self.speed_1x_button, active_condition=context.emulation_speed == 1)
         self._set_button_colour(self.speed_2x_button, active_condition=context.emulation_speed == 2)
@@ -86,15 +87,52 @@ class EmulatorControls:
         group = ttk.Frame(self.frame)
         group.grid(row=row, column=column, sticky="W")
 
-        def handle_bot_mode_selection(event) -> None:
-            new_bot_mode = self.bot_mode_combobox.get()
-            context.bot_mode = new_bot_mode
+        def select_bot_mode(mode: str):
+            context.bot_mode = mode
+            if self.bot_mode_menu:
+                self.bot_mode_menu.destroy()
+                self.bot_mode_menu = None
+
+        def open_bot_mode_menu():
+            bold_font = tkinter.font.Font(self.window, weight="bold", size=10)
+
+            self.bot_mode_menu = tkinter.Menu(self.window, tearoff=0)
+            if context.bot_mode == "Manual":
+                self.bot_mode_menu.add_command(label="Manual", font=bold_font)
+            else:
+                self.bot_mode_menu.add_command(label="Manual", command=lambda: select_bot_mode("Manual"))
+            self.bot_mode_menu.add_separator()
+            disabled_modes = []
+            for mode in get_bot_modes():
+                if mode.name() == context.bot_mode:
+                    self.bot_mode_menu.add_command(label=mode.name(), font=bold_font)
+                    continue
+
+                try:
+                    is_selectable = mode.is_selectable()
+                except:
+                    if context.debug:
+                        console.print_exception()
+                    is_selectable = False
+
+                if is_selectable:
+                    self.bot_mode_menu.add_command(label=mode.name(), command=lambda m=mode: select_bot_mode(m.name()))
+                else:
+                    disabled_modes.append(mode.name())
+            if len(disabled_modes) > 0:
+                self.bot_mode_menu.add_separator()
+                for mode_name in disabled_modes:
+                    self.bot_mode_menu.add_command(label=mode_name, state="disabled")
+            self.bot_mode_menu.tk_popup(
+                self.bot_mode_button.winfo_rootx(),
+                self.bot_mode_button.winfo_rooty() + self.bot_mode_button.winfo_height(),
+            )
 
         ttk.Label(group, text="Bot Mode:", justify="left").grid(row=0, sticky="W")
-        self.bot_mode_combobox = ttk.Combobox(group, values=get_bot_mode_names(), width=16, state="readonly")
-        self.bot_mode_combobox.bind("<<ComboboxSelected>>", handle_bot_mode_selection)
-        self.bot_mode_combobox.bind("<FocusIn>", lambda e: self.window.focus())
-        self.bot_mode_combobox.grid(row=1, sticky="W", padx=0)
+        self.bot_mode_button = ttk.Button(
+            group, text=context.bot_mode, width=20, padding=(0, 3), cursor="hand2", command=open_bot_mode_menu
+        )
+        self.bot_mode_button.grid(row=1, sticky="W", padx=0)
 
     def _add_speed_controls(self, row: int, column: int, sticky: str = "W"):
         group = ttk.Frame(self.frame)
