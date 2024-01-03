@@ -221,7 +221,7 @@ class MapViewer:
 
             self._map.configure(image=cached_map)
             self._map.image = cached_map
-        except TypeError | RuntimeError:
+        except (TypeError, RuntimeError):
             # If trainer data do not exists yet then ignore. eg. New game, intro, etc
             pass
 
@@ -1031,13 +1031,20 @@ class MapTab(DebugTab):
 
     def _handle_selection(self, selected_label: str) -> None:
         self._selected_object = None
-        if not selected_label.startswith("Object #"):
-            return
+        if selected_label.startswith("Object #"):
+            object_index = int(selected_label[8:])
+            map_objects = get_map_objects()
+            if len(map_objects) <= object_index:
+                return
 
-        object_index = int(selected_label[8:])
-        map_objects = get_map_objects()
-        if len(map_objects) <= object_index:
-            return
+            selected_object = map_objects[object_index]
+            self._selected_object = (selected_object.map_group, selected_object.map_num, selected_object.local_id)
+        elif selected_label.startswith("Object Template #"):
+            object_index = int(selected_label[17:])
+            current_map = get_map_data_for_current_position()
+            map_objects = current_map.objects
+            if len(map_objects) <= object_index:
+                return
 
-        selected_object = map_objects[object_index]
-        self._selected_object = (selected_object.map_group, selected_object.map_num, selected_object.local_id)
+            selected_object = map_objects[object_index]
+            self._selected_object = (current_map.map_group, current_map.map_number, selected_object.local_id)

@@ -89,6 +89,7 @@ class PlayerAvatar:
             self._object_event.current_coords,
         )
 
+    @property
     def map_location_in_front(self) -> MapLocation | None:
         """
         Returns the map tile in front of the player (i.e. the tile the player avatar

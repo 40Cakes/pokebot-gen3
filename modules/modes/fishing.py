@@ -35,7 +35,7 @@ class FishingMode(BotMode):
     @staticmethod
     def is_selectable() -> bool:
         player = get_player_avatar()
-        targeted_tile = player.map_location_in_front()
+        targeted_tile = player.map_location_in_front
         return targeted_tile.is_surfable
 
     def run(self) -> Generator:

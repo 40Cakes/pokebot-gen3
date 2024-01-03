@@ -53,15 +53,14 @@ def main_loop() -> None:
             # Handle active battle, unless the mode wants to handle it itself.
             if get_game_state() == GameState.BATTLE:
                 in_battle = True
-                if current_mode is None or not current_mode.disable_default_battle_handler():
-                    # Log encounter if a new battle starts or a new opponent Pokemon is switched in.
-                    if opponent_changed():
-                        pickup_checked = False
-                        lead_rotated = False
-                        encounter_pokemon(get_opponent())
+                # Log encounter if a new battle starts or a new opponent Pokemon is switched in.
+                if opponent_changed():
+                    pickup_checked = False
+                    lead_rotated = False
+                    encounter_pokemon(get_opponent())
 
-                    if battle_controller is None and context.bot_mode != "Manual":
-                        battle_controller = BattleHandler().step()
+                if battle_controller is None and context.bot_mode != "Manual":
+                    battle_controller = BattleHandler().step()
             elif in_battle:
                 # 'Clean-up tasks' at the end of a battle.
                 in_battle = False
@@ -73,6 +72,10 @@ def main_loop() -> None:
                     battle_controller = MenuWrapper(RotatePokemon()).step()
                 else:
                     battle_controller = None
+
+            if current_mode is not None and current_mode.disable_default_battle_handler():
+                battle_controller = None
+                in_battle = False
 
             if context.bot_mode == "Manual":
                 current_mode = None

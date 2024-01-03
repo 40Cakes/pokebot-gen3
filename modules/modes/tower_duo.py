@@ -2,7 +2,7 @@ from enum import Enum, auto
 from pathlib import Path
 from typing import Generator
 
-from ._interface import BotMode
+from ._interface import BotMode, BotModeError
 from modules.context import context
 from modules.data.map import MapRSE, MapFRLG
 from modules.gui.multi_select_window import MultiSelector, Selection, MultiSelectWindow
@@ -28,6 +28,9 @@ class ModeTowerDuo(BotMode):
         else:
             allowed_maps = [MapFRLG.NAVEL_ROCK_B.value, MapFRLG.NAVEL_ROCK_A.value]
         return get_player_avatar().map_group_and_number in allowed_maps
+
+    def disable_default_battle_handler(self) -> bool:
+        return True
 
     def setup(self):
         if not context.selected_pokemon:
@@ -96,6 +99,9 @@ class ModeTowerDuo(BotMode):
 
             options = MultiSelector("Select a tower duo legendary...", selections)
             MultiSelectWindow(context.gui.window, options)
+
+        if context.config.battle.battle:
+            raise BotModeError("This method should not be used with auto-battle enabled.")
 
         if context.selected_pokemon in ["Lugia", "Ho-Oh"]:
             self.state: ModeTowerDuoStates = ModeTowerDuoStates.LEAVE_ROOM
