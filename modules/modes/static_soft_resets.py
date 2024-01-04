@@ -74,7 +74,6 @@ class StaticSoftResetsMode(BotMode):
 
         # Verify that the game has been saved in the right location.
         if encounter[0] != (save_data.sections[1][4], save_data.sections[1][5]):
-            print(save_data.sections[1][4], save_data.sections[1][5])
             raise BotModeError("The game has not been saved on the correct map.")
 
         while context.bot_mode != "Manual":

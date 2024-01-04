@@ -1004,6 +1004,8 @@ class MapTab(DebugTab):
         return {
             "Map": {
                 "__value": map_data.map_name,
+                "Group": map_data.map_group,
+                "Number": map_data.map_number,
                 "Size": map_data.map_size,
                 "Type": map_data.map_type,
                 "Weather": map_data.weather,

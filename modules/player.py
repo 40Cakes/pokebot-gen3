@@ -82,10 +82,15 @@ class PlayerAvatar:
 
     @cached_property
     def map_location(self) -> MapLocation:
+        try:
+            map_group_and_number = get_save_block(1, 4, 2)
+        except:
+            map_group_and_number = self._object_event.map_group, self._object_event.map_num
+
         return MapLocation(
             read_symbol("gMapHeader"),
-            self._object_event.map_group,
-            self._object_event.map_num,
+            map_group_and_number[0],
+            map_group_and_number[1],
             self._object_event.current_coords,
         )
 
