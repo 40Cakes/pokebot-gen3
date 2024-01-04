@@ -50,11 +50,15 @@ def main_loop() -> None:
                 callback = work_queue.get_nowait()
                 callback()
 
+            is_default_battle_controller_disabled = (
+                current_mode is not None and current_mode.disable_default_battle_handler()
+            )
+
             # Handle active battle, unless the mode wants to handle it itself.
             if get_game_state() == GameState.BATTLE:
                 in_battle = True
                 # Log encounter if a new battle starts or a new opponent Pokemon is switched in.
-                if opponent_changed():
+                if opponent_changed() and not is_default_battle_controller_disabled:
                     pickup_checked = False
                     lead_rotated = False
                     encounter_pokemon(get_opponent())
@@ -73,14 +77,14 @@ def main_loop() -> None:
                 else:
                     battle_controller = None
 
-            if current_mode is not None and current_mode.disable_default_battle_handler():
+            if is_default_battle_controller_disabled:
                 battle_controller = None
                 in_battle = False
 
             if context.bot_mode == "Manual":
                 current_mode = None
                 battle_controller = None
-            elif current_mode is None and battle_controller is None:
+            elif current_mode is None:
                 current_mode = get_bot_mode_by_name(context.bot_mode)()
 
             try:

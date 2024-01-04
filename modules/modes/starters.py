@@ -123,7 +123,10 @@ class StartersMode(BotMode):
                 yield from ensure_facing_direction("Up")
 
             # Open bag
-            yield from wait_until_task_is_active("Task_StarterChoose2", "A")
+            if context.rom.is_rs:
+                yield from wait_until_task_is_active("Task_StarterChoose2", "A")
+            else:
+                yield from wait_until_task_is_active("Task_HandleStarterChooseInput", "A")
 
             starter = starter_choice
             if starter == "Random":
@@ -131,9 +134,11 @@ class StartersMode(BotMode):
 
             # Select the correct starter
             if starter == "Treecko":
+                yield
                 context.emulator.press_button("Left")
                 yield
             elif starter == "Mudkip":
+                yield
                 context.emulator.press_button("Right")
                 yield
 

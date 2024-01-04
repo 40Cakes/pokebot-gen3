@@ -13,7 +13,15 @@ from typing import Generator
 
 from modules.context import context
 from modules.files import get_rng_state_history, save_rng_state_history
-from modules.memory import read_symbol, write_symbol, pack_uint32, unpack_uint32, get_game_state, GameState
+from modules.memory import (
+    read_symbol,
+    write_symbol,
+    pack_uint32,
+    unpack_uint32,
+    get_game_state,
+    GameState,
+    get_event_flag,
+)
 from modules.player import get_player, get_player_avatar, TileTransitionState, RunningState
 from modules.tasks import task_is_active
 
@@ -47,6 +55,11 @@ def navigate_to(destination_coordinates: tuple[int, int]) -> Generator:
 
 
 def ensure_facing_direction(facing_direction: str) -> Generator:
+    """
+    If the player avatar is not already facing a certain direction this will make it turn
+    around, so that afterwards it definitely faces the desired direction.
+    :param facing_direction: One of "Up", "Down", "Left", or "Right"
+    """
     while True:
         avatar = get_player_avatar()
         if avatar.facing_direction == facing_direction:
@@ -67,7 +80,7 @@ def soft_reset(mash_random_keys: bool = True) -> Generator:
     get stuck in the main menu.
     :param mash_random_keys: Whether to press random keys while on the title screen, which
                              will advance the RNG value and so result in unique RNG values
-                             faster.
+                             faster (on FRLG.)
     """
     context.emulator.reset()
     yield
@@ -93,26 +106,21 @@ def soft_reset(mash_random_keys: bool = True) -> Generator:
         yield
 
 
-def wait_for_unique_rng_value(inject_value: bool = False, fast_wait: bool = False) -> Generator:
+def wait_for_unique_rng_value() -> Generator:
     """
-    Wait until the RNG value is unique.
-    :param inject_value: (Cheat) Do not wait, just generate and inject a unique value.
-    :param fast_wait: (Cheat) Run the emulator in a busy loop without showing any output
-                      until a unique value has been found.
+    Wait until the RNG value is unique. This is faster if the `random_soft_reset_rng`
+    is enabled.
     """
     rng_history = get_rng_state_history()
-    rng_value = None
+    rng_value = unpack_uint32(read_symbol("gRngValue"))
 
     context.message = "Waiting for a unique frame before continuing..."
-    while rng_value is None or rng_value in rng_history:
-        rng_value = unpack_uint32(read_symbol("gRngValue"))
-
-        if inject_value:
+    while rng_value in rng_history:
+        if context.config.cheats.random_soft_reset_rng:
+            rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
             write_symbol("gRngValue", pack_uint32(rng_value))
-        elif fast_wait:
-            context.emulator._core.run_frame()
-            rng_value = unpack_uint32(read_symbol("gRngValue"))
         else:
+            rng_value = unpack_uint32(read_symbol("gRngValue"))
             yield
     context.message = ""
 
@@ -141,6 +149,30 @@ def wait_until_task_is_no_longer_active(function_name: str, button_to_press: str
     :param button_to_press: (Optional) A button that will be continuously mashed while waiting.
     """
     while task_is_active(function_name):
+        if button_to_press is not None:
+            context.emulator.press_button(button_to_press)
+        yield
+
+
+def wait_until_event_flag_is_true(flag_name: str, button_to_press: str | None = None) -> Generator:
+    """
+    This will wait until an event flag in is set to true.
+    :param flag_name: Name of the flag to check (see possible values in `modules/data/event_flags/*.txt`)
+    :param button_to_press: (Optional) A button that will be continuously mashed while waiting.
+    """
+    while not get_event_flag(flag_name):
+        if button_to_press is not None:
+            context.emulator.press_button(button_to_press)
+        yield
+
+
+def wait_until_event_flag_is_false(flag_name: str, button_to_press: str | None = None) -> Generator:
+    """
+    This will wait until an event flag in is set to false.
+    :param flag_name: Name of the flag to check (see possible values in `modules/data/event_flags/*.txt`)
+    :param button_to_press: (Optional) A button that will be continuously mashed while waiting.
+    """
+    while get_event_flag(flag_name):
         if button_to_press is not None:
             context.emulator.press_button(button_to_press)
         yield
