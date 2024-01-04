@@ -34,7 +34,8 @@ class BotMode:
         """
         return True
 
-    def disable_default_battle_handler(self) -> bool:
+    @staticmethod
+    def disable_default_battle_handler() -> bool:
         """
         Indicates whether the default battle handler should be used in this mode, or whether
         this mode has its own battle-handling code.

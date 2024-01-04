@@ -33,7 +33,8 @@ class StartersMode(BotMode):
         if context.rom.is_rse:
             return player_avatar.map_group_and_number in [(0, 16), (1, 4)]
 
-    def disable_default_battle_handler(self) -> bool:
+    @staticmethod
+    def disable_default_battle_handler() -> bool:
         return True
 
     def run(self) -> Generator:

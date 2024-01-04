@@ -29,7 +29,8 @@ class ModeTowerDuo(BotMode):
             allowed_maps = [MapFRLG.NAVEL_ROCK_B.value, MapFRLG.NAVEL_ROCK_A.value]
         return get_player_avatar().map_group_and_number in allowed_maps
 
-    def disable_default_battle_handler(self) -> bool:
+    @staticmethod
+    def disable_default_battle_handler() -> bool:
         return True
 
     def setup(self):

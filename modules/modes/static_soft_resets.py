@@ -62,7 +62,8 @@ class StaticSoftResetsMode(BotMode):
     def is_selectable() -> bool:
         return _get_targeted_encounter() is not None
 
-    def disable_default_battle_handler(self) -> bool:
+    @staticmethod
+    def disable_default_battle_handler() -> bool:
         return True
 
     def run(self) -> Generator:
