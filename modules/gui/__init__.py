@@ -149,15 +149,15 @@ class PokebotGui:
         self._main_loop()
 
     def _handle_key_down_event(self, event):
-        if not self.inputs_enabled:
-            return
-
         keysym_with_modifier = ("ctrl+" if event.state & 4 else "") + event.keysym.lower()
 
         # This is checked here so that the key binding also works when the emulator is not running,
         # i.e. during the profile selection/creation screens.
         if keysym_with_modifier in self._emulator_keys and self._emulator_keys[keysym_with_modifier] == "exit":
             self._close_window()
+
+        if not self.inputs_enabled:
+            return
 
         # These key bindings will only be applied if the emulation has started.
         if context.emulator:
