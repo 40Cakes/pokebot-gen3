@@ -776,6 +776,7 @@ class EventFlagsTab(DebugTab):
         def select_all():
             self._search_field.select_range(0, "end")
             self._search_field.icursor("end")
+
         context.gui.window.after(50, select_all)
 
     def _toggle_flag(self, flag: str):
