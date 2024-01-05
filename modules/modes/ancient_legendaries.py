@@ -28,8 +28,8 @@ class ModeAncientLegendaries:
                 "Kyogre": bool(
                     (
                         context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
-                        and not get_event_flag("FLAG_DEFEATED_KYOGRE")
-                        and not get_event_flag("FLAG_LEGENDARY_BATTLE_COMPLETED")
+                        and not get_event_flag("DEFEATED_KYOGRE")
+                        and not get_event_flag("LEGENDARY_BATTLE_COMPLETED")
                         and player.map_group_and_number == MapRSE.MARINE_CAVE_A.value
                         and 5 <= player.local_coordinates[0] <= 14
                         and 26 <= player.local_coordinates[1] <= 27
@@ -38,8 +38,8 @@ class ModeAncientLegendaries:
                 "Groudon": bool(
                     (
                         context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
-                        and not get_event_flag("FLAG_DEFEATED_GROUDON")
-                        and not get_event_flag("FLAG_LEGENDARY_BATTLE_COMPLETED")
+                        and not get_event_flag("DEFEATED_GROUDON")
+                        and not get_event_flag("LEGENDARY_BATTLE_COMPLETED")
                         and player.map_group_and_number == MapRSE.TERRA_CAVE_A.value
                         and 11 <= player.local_coordinates[0] <= 17
                         and 26 <= player.local_coordinates[1] <= 27
@@ -48,7 +48,7 @@ class ModeAncientLegendaries:
                 "Rayquaza": bool(
                     (
                         context.rom.game_title == "POKEMON EMER"
-                        and not get_event_flag("FLAG_DEFEATED_RAYQUAZA")
+                        and not get_event_flag("DEFEATED_RAYQUAZA")
                         and player.map_group_and_number == MapRSE.SKY_PILLAR_G.value
                         and player.local_coordinates[0] == 14
                         and 4 <= player.local_coordinates[1] <= 12
@@ -125,7 +125,7 @@ class ModeAncientLegendaries:
                 case ModeAncientLegendariesStates.INTERACT, "Kyogre":
                     match get_game_state():
                         case GameState.OVERWORLD:
-                            if get_event_flag("FLAG_HIDE_MARINE_CAVE_KYOGRE"):
+                            if get_event_flag("HIDE_MARINE_CAVE_KYOGRE"):
                                 self.update_state(ModeAncientLegendariesStates.LEAVE_ROOM)
                                 continue
                             else:
@@ -164,7 +164,7 @@ class ModeAncientLegendaries:
                 case ModeAncientLegendariesStates.INTERACT, "Groudon":
                     match get_game_state():
                         case GameState.OVERWORLD:
-                            if get_event_flag("FLAG_HIDE_TERRA_CAVE_GROUDON"):
+                            if get_event_flag("HIDE_TERRA_CAVE_GROUDON"):
                                 self.update_state(ModeAncientLegendariesStates.LEAVE_ROOM)
                                 continue
                             else:

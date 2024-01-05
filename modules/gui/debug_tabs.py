@@ -747,13 +747,17 @@ class DaycareTab(DebugTab):
 
 class EventFlagsTab(DebugTab):
     _tv: FancyTreeview
+    _search_field: ttk.Entry
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
 
-        context_actions = {"Toggle Flag": self._toggle_flag}
+        context_actions = {"Copy Name": self._copy_name, "Toggle Flag": self._toggle_flag}
 
-        self._tv = FancyTreeview(frame, additional_context_actions=context_actions)
+        self._search_phrase = ""
+        self._search_field = ttk.Entry(frame)
+        self._search_field.grid(row=0, column=0, sticky="NWE")
+        self._tv = FancyTreeview(frame, additional_context_actions=context_actions, height=21, row=1)
         root.add(frame, text="Event Flags")
 
     def update(self, emulator: "LibmgbaEmulator"):
@@ -762,11 +766,18 @@ class EventFlagsTab(DebugTab):
     def _toggle_flag(self, flag: str):
         set_event_flag(flag)
 
+    def _copy_name(self, flag: str):
+        import pyperclip3
+
+        pyperclip3.copy(flag)
+
     def _get_data(self):
         result = {}
+        search_phrase = self._search_field.get().upper()
 
         for flag in _event_flags:
-            result[flag] = get_event_flag(flag)
+            if len(search_phrase) == 0 or search_phrase in flag:
+                result[flag] = get_event_flag(flag)
 
         return result
 
