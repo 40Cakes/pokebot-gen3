@@ -25,12 +25,7 @@ with open("vars.c", "w") as outfile:
                 continue
             name, value = match.groups()
 
-            if (
-                name.startswith("NUM_")
-                or name.endswith("_START")
-                or name.endswith("_END")
-                or name == "VARS_COUNT"
-            ):
+            if name.startswith("NUM_") or name.endswith("_START") or name.endswith("_END") or name == "VARS_COUNT":
                 continue
 
             if name.startswith("VAR_"):
@@ -38,7 +33,9 @@ with open("vars.c", "w") as outfile:
             else:
                 short_name = name
 
-            outfile.write('    if ('+name+' < 0x8000) printf("%d %s\\n", ' + name + ' - 0x4000, "' + short_name + '");\n')
+            outfile.write(
+                "    if (" + name + ' < 0x8000) printf("%d %s\\n", ' + name + ' - 0x4000, "' + short_name + '");\n'
+            )
     outfile.write("    return 0;\n")
     outfile.write("}\n")
 
