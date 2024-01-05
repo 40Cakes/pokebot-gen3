@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Union, Optional
 
 from modules.context import context
 from modules.daycare import get_daycare_data
-from modules.game import decode_string, _symbols, _reverse_symbols, _event_flags
+from modules.game import decode_string, _symbols, _reverse_symbols, _event_flags, get_event_flag_name
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_item_bag, get_item_storage
 from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects, get_map_all_tiles
@@ -982,7 +982,7 @@ class MapTab(DebugTab):
                 "__value": str(obj),
                 "coordinates": obj.local_coordinates,
                 "script": obj.script_symbol,
-                "flag_id": obj.flag_id,
+                "flag": get_event_flag_name(obj.flag_id),
             }
             if obj.kind == "normal":
                 object_templates_list[key]["movement_type"] = obj.movement_type
@@ -1018,7 +1018,7 @@ class MapTab(DebugTab):
                 bg_events_list[key] = {
                     "__value": f"Hidden Item: {event.hidden_item.name}",
                     "Item": event.hidden_item.name,
-                    "Flag": event.hidden_item_flag_id,
+                    "Flag": get_event_flag_name(event.hidden_item_flag_id),
                 }
             elif kind == "Secret Base":
                 bg_events_list[key] = {

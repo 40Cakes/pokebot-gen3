@@ -63,7 +63,7 @@ def _load_event_flags(flags_file: str) -> None:  # TODO Japanese ROMs not workin
     for s in open(get_data_path() / "event_flags" / flags_file).readlines():
         number, name = s.strip().split(" ")
         _event_flags[name] = (int(number) // 8) + sav1_offset, int(number) % 8
-        _reverse_event_flags[number] = name
+        _reverse_event_flags[int(number)] = name
 
 
 def _prepare_character_tables() -> None:
@@ -216,7 +216,9 @@ def get_event_flag_offset(flag_name: str) -> tuple[int, int]:
 
 
 def get_event_flag_name(flag_number: int) -> str | None:
-    return _reverse_event_flags.get(flag_number, None)
+    if flag_number == 0:
+        return ""
+    return _reverse_event_flags.get(flag_number, str(flag_number))
 
 
 def decode_string(
