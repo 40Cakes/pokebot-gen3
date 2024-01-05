@@ -16,7 +16,7 @@ class BunnyHopMode(BotMode):
         return get_player_avatar().map_location.has_encounters
 
     def run(self) -> Generator:
-        assert_registered_item(["Acro Bike"], error_message="You need to register a fishing rod for the Select button.")
+        assert_registered_item(["Acro Bike"], error_message="You need to register the Acro Bike for the Select button.")
 
         while True:
             player = get_player_avatar()
