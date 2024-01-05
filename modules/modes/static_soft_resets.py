@@ -6,14 +6,9 @@ from modules.context import context
 from modules.encounter import encounter_pokemon
 from modules.player import get_player_avatar
 from modules.pokemon import get_opponent
-from modules.save_data import get_save_data
-from ._interface import BotMode, BotModeError
-from ._util import (
-    soft_reset,
-    wait_for_unique_rng_value,
-    wait_until_task_is_no_longer_active,
-    wait_until_task_is_active,
-)
+from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
+from ._interface import BotMode
+from ._util import soft_reset, wait_for_unique_rng_value, wait_until_task_is_active, wait_for_task_to_start_and_finish
 
 
 def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | None:
@@ -69,21 +64,17 @@ class StaticSoftResetsMode(BotMode):
     def run(self) -> Generator:
         encounter = _get_targeted_encounter()
 
-        save_data = get_save_data()
-        if save_data is None:
-            raise BotModeError("There is no saved game. Cannot soft reset.")
-
-        # Verify that the game has been saved in the right location.
-        if encounter[0] != (save_data.sections[1][4], save_data.sections[1][5]):
-            raise BotModeError("The game has not been saved on the correct map.")
+        assert_save_game_exists("There is no saved game. Cannot soft reset.")
+        assert_saved_on_map(
+            SavedMapLocation(encounter[0], encounter[1], facing=True), "The game has not been saved on this tile."
+        )
 
         while context.bot_mode != "Manual":
             yield from soft_reset(mash_random_keys=True)
             yield from wait_for_unique_rng_value()
 
             # The first cry happens before the battle starts.
-            yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")
-            yield from wait_until_task_is_no_longer_active("Task_DuckBGMForPokemonCry", "A")
+            yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", button_to_press="A")
 
             # At the start of the next cry the opponent is fully visible.
             yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")

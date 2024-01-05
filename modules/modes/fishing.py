@@ -3,9 +3,10 @@ from typing import Generator
 
 from modules.context import context
 from modules.memory import get_game_state, GameState
-from modules.player import get_player, get_player_avatar
+from modules.player import get_player_avatar
 from modules.tasks import get_task
-from ._interface import BotMode, BotModeError
+from ._asserts import assert_registered_item
+from ._interface import BotMode
 
 
 class TaskFishing(Enum):
@@ -39,9 +40,9 @@ class FishingMode(BotMode):
         return targeted_tile.is_surfable
 
     def run(self) -> Generator:
-        registered_item = get_player().registered_item
-        if registered_item is None or registered_item.name not in ["Old Rod", "Good Rod", "Super Rod"]:
-            raise BotModeError("You need to register a fishing rod for the Select button.")
+        assert_registered_item(
+            ["Old Rod", "Good Rod", "Super Rod"], "You need to register a fishing rod for the Select button."
+        )
 
         while True:
             task_fishing = get_task("Task_Fishing")

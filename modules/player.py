@@ -4,7 +4,7 @@ from typing import Literal
 
 from modules.context import context
 from modules.game import decode_string
-from modules.map import MapLocation, ObjectEvent
+from modules.map import MapLocation, ObjectEvent, calculate_targeted_coords
 from modules.memory import get_save_block, read_symbol, unpack_uint16, unpack_uint32
 from modules.pokemon import get_item_by_index, Item
 from modules.state_cache import state_cache
@@ -102,16 +102,7 @@ class PlayerAvatar:
         This only works if that tile is on the same map, otherwise `None` will be
         returned.
         """
-        targeted_coordinates = self.local_coordinates
-        match self.facing_direction:
-            case "Up":
-                targeted_coordinates = targeted_coordinates[0], targeted_coordinates[1] - 1
-            case "Down":
-                targeted_coordinates = targeted_coordinates[0], targeted_coordinates[1] + 1
-            case "Left":
-                targeted_coordinates = targeted_coordinates[0] - 1, targeted_coordinates[1]
-            case "Right":
-                targeted_coordinates = targeted_coordinates[0] + 1, targeted_coordinates[1]
+        targeted_coordinates = calculate_targeted_coords(self.local_coordinates, self.facing_direction)
         open_map = self.map_location
         if 0 <= targeted_coordinates[0] < open_map.map_size[0] and 0 <= targeted_coordinates[1] < open_map.map_size[1]:
             return MapLocation(read_symbol("gMapHeader"), open_map.map_group, open_map.map_number, targeted_coordinates)

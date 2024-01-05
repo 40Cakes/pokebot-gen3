@@ -1,20 +1,23 @@
 import random
 from typing import Generator
 
+from modules.data.map import MapFRLG, MapRSE
+
 from modules.context import context
 from modules.encounter import encounter_pokemon
 from modules.gui.multi_select_window import Selection, ask_for_choice
-from modules.memory import unpack_uint16
 from modules.menuing import StartMenuNavigator, PokemonPartyMenuNavigator
 from modules.player import get_player_avatar
 from modules.pokemon import get_party
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
+from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
 from ._interface import BotMode, BotModeError
 from ._util import (
     soft_reset,
     wait_for_unique_rng_value,
-    wait_until_task_is_no_longer_active,
+    wait_for_task_to_start_and_finish,
+    wait_until_task_is_not_active,
     wait_until_task_is_active,
     ensure_facing_direction,
 )
@@ -38,31 +41,35 @@ class StartersMode(BotMode):
         return True
 
     def run(self) -> Generator:
-        save_data = get_save_data()
-        if save_data is None:
-            raise BotModeError("There is no saved game. Cannot soft reset.")
-
-        # Verify that the game has been saved in the right location.
-        coords = unpack_uint16(save_data.sections[1][0:2]), unpack_uint16(save_data.sections[1][2:4])
-        map_group = save_data.sections[1][4]
-        map_num = save_data.sections[1][5]
+        assert_save_game_exists("There is no saved game. Cannot soft reset.")
 
         if context.rom.is_frlg:
-            if coords in [(8, 5), (9, 5), (10, 5)] and map_group == 4 and map_num == 3:
-                yield from self.run_frlg()
-            else:
-                raise BotModeError(
-                    "The game has not been saved while standing in front of one of the starter Poké balls."
-                )
+            assert_saved_on_map(
+                [
+                    SavedMapLocation(MapFRLG.PALLET_TOWN_D, (8, 4), facing=True),
+                    SavedMapLocation(MapFRLG.PALLET_TOWN_D, (9, 4), facing=True),
+                    SavedMapLocation(MapFRLG.PALLET_TOWN_D, (10, 4), facing=True),
+                ],
+                error_message="The game has not been saved while standing in front of one of the starter Poké balls.",
+            )
+            yield from self.run_frlg()
         elif context.rom.is_rse:
-            if coords in [(7, 15), (8, 14)] and map_group == 0 and map_num == 16:
+            assert_saved_on_map(
+                [
+                    # Hoenn Starter Bag
+                    SavedMapLocation(MapRSE.ROUTE_101, (7, 14), facing=True),
+                    # Johto Starters (on table)
+                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_E, (8, 4), facing=True),
+                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_E, (9, 4), facing=True),
+                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_E, (10, 4), facing=True),
+                ],
+                error_message="The game has not been saved in front of the starter Pokémon bag (for Hoenn starters) or in front of one of the starter Poké balls (for Johto starters.)",
+            )
+
+            if get_save_data().get_map_group_and_number() == MapRSE.ROUTE_101.value:
                 yield from self.run_rse_hoenn()
-            elif coords in [(8, 5), (9, 5), (10, 5)] and map_group == 1 and map_num == 4:
-                yield from self.run_rse_johto()
             else:
-                raise BotModeError(
-                    "The game has not been saved in front of the starter Pokémon bag (for Hoenn starters) or in front of one of the starter Poké balls (for Johto starters.)"
-                )
+                yield from self.run_rse_johto()
 
     def run_frlg(self) -> Generator:
         while context.bot_mode != "Manual":
@@ -77,8 +84,7 @@ class StartersMode(BotMode):
                 yield
 
             # Wait for and say no to the second question (the 'Do you want to give ... a nickname')
-            yield from wait_until_task_is_active("Task_YesNoMenu_HandleInput", button_to_press="B")
-            yield from wait_until_task_is_no_longer_active("Task_YesNoMenu_HandleInput", button_to_press="B")
+            yield from wait_for_task_to_start_and_finish("Task_YesNoMenu_HandleInput", button_to_press="B")
 
             # If the respective 'cheat' is enabled, check the Pokemon immediately instead of 'genuinely' looking
             # at the summary screen
@@ -145,16 +151,13 @@ class StartersMode(BotMode):
             yield from wait_for_unique_rng_value()
 
             # Wait for Pokemon cry in selection menu
-            yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", "A")
-            yield from wait_until_task_is_no_longer_active("Task_DuckBGMForPokemonCry", "A")
+            yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
 
             # Wait for Pokemon cry of opponent Poochyena
-            yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", "A")
-            yield from wait_until_task_is_no_longer_active("Task_DuckBGMForPokemonCry", "A")
+            yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
 
             # Wait for Pokemon cry of starter Pokemon (after which the sprite is fully visible)
-            yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", "A")
-            yield from wait_until_task_is_no_longer_active("Task_DuckBGMForPokemonCry", "A")
+            yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
 
             encounter_pokemon(get_party()[0])
 
@@ -170,12 +173,10 @@ class StartersMode(BotMode):
             yield from ensure_facing_direction("Up")
 
             # Wait for and confirm the first question (the 'Do you choose ...')
-            yield from wait_until_task_is_active("Task_HandleYesNoInput", button_to_press="A")
-            yield from wait_until_task_is_no_longer_active("Task_HandleYesNoInput", button_to_press="A")
+            yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", button_to_press="A")
 
             # Wait for and say no to the second question (the 'Do you want to give ... a nickname')
-            yield from wait_until_task_is_active("Task_HandleYesNoInput", button_to_press="B")
-            yield from wait_until_task_is_no_longer_active("Task_HandleYesNoInput", button_to_press="B")
+            yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", button_to_press="B")
 
             # If the respective 'cheat' is enabled, check the Pokemon immediately instead of 'genuinely' looking
             # at the summary screen
@@ -184,7 +185,7 @@ class StartersMode(BotMode):
                 continue
 
             # Wait for the rival to pick up their starter
-            yield from wait_until_task_is_no_longer_active("ScriptMovement_MoveObjects", button_to_press="B")
+            yield from wait_until_task_is_not_active("ScriptMovement_MoveObjects", button_to_press="B")
 
             # Navigate to the summary screen to check for shininess
             yield from StartMenuNavigator("POKEMON").step()

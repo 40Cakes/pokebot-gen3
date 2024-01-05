@@ -99,8 +99,7 @@ def soft_reset(mash_random_keys: bool = True) -> Generator:
                     while read_symbol("gQuestLogState") != b"\x00":
                         context.emulator.press_button("B")
                         yield
-                    yield from wait_until_task_is_active("Task_EndQuestLog", "B")
-                    yield from wait_until_task_is_no_longer_active("Task_EndQuestLog", "B")
+                    yield from wait_for_task_to_start_and_finish("Task_EndQuestLog", "B")
                 return
 
         yield
@@ -141,10 +140,11 @@ def wait_until_task_is_active(function_name: str, button_to_press: str | None = 
         yield
 
 
-def wait_until_task_is_no_longer_active(function_name: str, button_to_press: str | None = None) -> Generator:
+def wait_until_task_is_not_active(function_name: str, button_to_press: str | None = None) -> Generator:
     """
     This will wait until an in-game task finishes (i.e. is no longer part of the task list, or
     has its 'active' bit set to zero.)
+    If the task is not running to begin with, this will return immediately.
     :param function_name: Function name of the task to wait for.
     :param button_to_press: (Optional) A button that will be continuously mashed while waiting.
     """
@@ -152,6 +152,17 @@ def wait_until_task_is_no_longer_active(function_name: str, button_to_press: str
         if button_to_press is not None:
             context.emulator.press_button(button_to_press)
         yield
+
+
+def wait_for_task_to_start_and_finish(function_name: str, button_to_press: str | None = None) -> Generator:
+    """
+    This will wait until an in-game task starts (if it is not yet running) and finishes (i.e.
+    is no longer part of the task list, or has its 'active' bit set to zero.)
+    :param function_name: Function name of the task to wait for.
+    :param button_to_press: (Optional) A button that will be continuously mashed while waiting.
+    """
+    yield from wait_until_task_is_active(function_name, button_to_press)
+    yield from wait_until_task_is_not_active(function_name, button_to_press)
 
 
 def wait_until_event_flag_is_true(flag_name: str, button_to_press: str | None = None) -> Generator:

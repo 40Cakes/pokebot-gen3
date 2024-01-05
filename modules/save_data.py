@@ -10,6 +10,12 @@ class SaveData:
     block_index: int
     sections: list[bytes]
 
+    def get_map_group_and_number(self) -> tuple[int, int]:
+        return self.sections[1][4], self.sections[1][5]
+
+    def get_map_local_coordinates(self) -> tuple[int, int]:
+        return unpack_uint16(self.sections[1][0:2]), unpack_uint16(self.sections[1][2:4])
+
 
 _section_sizes = [3884, 3968, 3968, 3968, 3848, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 2000]
 

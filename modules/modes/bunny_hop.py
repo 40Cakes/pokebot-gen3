@@ -1,8 +1,9 @@
 from typing import Generator
 
-from ._interface import BotMode, BotModeError
 from modules.context import context
-from modules.player import get_player, get_player_avatar, TileTransitionState, AcroBikeState
+from modules.player import get_player_avatar, TileTransitionState, AcroBikeState
+from ._asserts import assert_registered_item
+from ._interface import BotMode
 
 
 class BunnyHopMode(BotMode):
@@ -15,9 +16,7 @@ class BunnyHopMode(BotMode):
         return get_player_avatar().map_location.has_encounters
 
     def run(self) -> Generator:
-        registered_item = get_player().registered_item
-        if registered_item is None or registered_item.name != "Acro Bike":
-            raise BotModeError("You need to register the Acro Bike for the Select button.")
+        assert_registered_item(["Acro Bike"], "You need to register a fishing rod for the Select button.")
 
         while True:
             player = get_player_avatar()
