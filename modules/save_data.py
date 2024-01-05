@@ -70,7 +70,7 @@ def get_save_data() -> SaveData | None:
     elif save_block_1 is not None and save_block_0 is None:
         return save_block_1
     elif save_block_0 is not None and save_block_1 is not None:
-        if save_block_0.save_index > save_block_1.block_index:
+        if save_block_0.save_index > save_block_1.save_index:
             return save_block_0
         else:
             return save_block_1
