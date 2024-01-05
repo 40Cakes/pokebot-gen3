@@ -41,7 +41,8 @@ class FishingMode(BotMode):
 
     def run(self) -> Generator:
         assert_registered_item(
-            ["Old Rod", "Good Rod", "Super Rod"], "You need to register a fishing rod for the Select button."
+            expected_items=["Old Rod", "Good Rod", "Super Rod"],
+            error_message="You need to register a fishing rod for the Select button."
         )
 
         while True:

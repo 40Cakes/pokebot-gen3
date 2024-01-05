@@ -21,6 +21,10 @@ _section_sizes = [3884, 3968, 3968, 3968, 3848, 3968, 3968, 3968, 3968, 3968, 39
 
 
 def get_save_data() -> SaveData | None:
+    """
+    Extracts and normalises the save game data.
+    :return: Save game data, or `None` if the game has not been saved yet.
+    """
     save_data = context.emulator.read_save_data()
 
     def get_save_data_block(block_index: int) -> SaveData | None:
