@@ -29,6 +29,7 @@ class PokebotGui:
         self._main_loop = main_loop
         self._on_exit = on_exit
         self._startup_settings: "StartupSettings | None" = None
+        self.inputs_enabled = True
 
         self.window.geometry("540x400")
         self.window.resizable(context.debug, True)
@@ -148,6 +149,9 @@ class PokebotGui:
         self._main_loop()
 
     def _handle_key_down_event(self, event):
+        if not self.inputs_enabled:
+            return
+
         keysym_with_modifier = ("ctrl+" if event.state & 4 else "") + event.keysym.lower()
 
         # This is checked here so that the key binding also works when the emulator is not running,
@@ -201,6 +205,9 @@ class PokebotGui:
         return "break"
 
     def _handle_key_up_event(self, event):
+        if not self.inputs_enabled:
+            return
+
         keysym_with_modifier = ("ctrl+" if event.state & 4 else "") + event.keysym.lower()
         if context.emulator:
             if keysym_with_modifier in self._gba_keys and (context.bot_mode == "Manual"):

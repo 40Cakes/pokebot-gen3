@@ -757,11 +757,26 @@ class EventFlagsTab(DebugTab):
         self._search_phrase = ""
         self._search_field = ttk.Entry(frame)
         self._search_field.grid(row=0, column=0, sticky="NWE")
+        self._search_field.bind("<FocusIn>", self._handle_focus_in)
+        self._search_field.bind("<FocusOut>", self._handle_focus_out)
+        self._search_field.bind("<Control-a>", self._handle_ctrl_a)
         self._tv = FancyTreeview(frame, additional_context_actions=context_actions, height=21, row=1)
         root.add(frame, text="Event Flags")
 
     def update(self, emulator: "LibmgbaEmulator"):
         self._tv.update_data(self._get_data())
+
+    def _handle_focus_in(self, _):
+        context.gui.inputs_enabled = False
+
+    def _handle_focus_out(self, _):
+        context.gui.inputs_enabled = True
+
+    def _handle_ctrl_a(self, _):
+        def select_all():
+            self._search_field.select_range(0, "end")
+            self._search_field.icursor("end")
+        context.gui.window.after(50, select_all)
 
     def _toggle_flag(self, flag: str):
         set_event_flag(flag)
