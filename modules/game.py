@@ -8,6 +8,8 @@ _symbols: dict[str, tuple[int, int]] = {}
 _reverse_symbols: dict[int, tuple[str, str, int]] = {}
 _event_flags: dict[str, tuple[int, int]] = {}
 _reverse_event_flags: dict[int, str] = {}
+_event_vars: dict[str, int] = {}
+_reverse_event_vars: dict[int, str] = {}
 _character_table_international: list[str] = []
 _character_table_japanese: list[str] = []
 _current_character_table: list[str] = []
@@ -46,24 +48,35 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
                 )
 
 
-def _load_event_flags(flags_file: str) -> None:  # TODO Japanese ROMs not working
-    global _event_flags, _reverse_event_flags
+def _load_event_flags_and_vars(file_name: str) -> None:  # TODO Japanese ROMs not working
+    global _event_flags, _reverse_event_flags, _event_vars, _reverse_event_vars
 
-    match flags_file:
+    match file_name:
         case "rs.txt":
-            sav1_offset = 0x1220
+            flags_offset = 0x1220
+            vars_offset = 0x1340
         case "emerald.txt":
-            sav1_offset = 0x1270
+            flags_offset = 0x1270
+            vars_offset = 0x139C
         case "frlg.txt":
-            sav1_offset = 0x0EE0
+            flags_offset = 0x0EE0
+            vars_offset = 0x1000
         case _:
-            raise RuntimeError("Invalid argument to _load_event_flags()")
+            raise RuntimeError("Invalid argument to _load_event_flags_and_vars()")
 
     _event_flags.clear()
-    for s in open(get_data_path() / "event_flags" / flags_file).readlines():
+    _reverse_event_flags.clear()
+    for s in open(get_data_path() / "event_flags" / file_name).readlines():
         number, name = s.strip().split(" ")
-        _event_flags[name] = (int(number) // 8) + sav1_offset, int(number) % 8
+        _event_flags[name] = (int(number) // 8) + flags_offset, int(number) % 8
         _reverse_event_flags[int(number)] = name
+
+    _event_vars.clear()
+    _reverse_event_vars.clear()
+    for s in open(get_data_path() / "event_vars" / file_name).readlines():
+        number, name = s.strip().split(" ")
+        _event_vars[name] = int(number) + vars_offset
+        _reverse_event_vars[int(number)] = name
 
 
 def _prepare_character_tables() -> None:
@@ -145,7 +158,7 @@ def set_rom(rom: ROM) -> None:
                             _load_symbols("pokeruby_rev1.sym", rom.language)
                 case 2:
                     _load_symbols("pokeruby_rev2.sym", rom.language)
-            _load_event_flags("rs.txt")
+            _load_event_flags_and_vars("rs.txt")
 
         case "AXP":
             match rom.revision:
@@ -163,11 +176,11 @@ def set_rom(rom: ROM) -> None:
                             _load_symbols("pokesapphire_rev1.sym", rom.language)
                 case 2:
                     _load_symbols("pokesapphire_rev2.sym", rom.language)
-            _load_event_flags("rs.txt")
+            _load_event_flags_and_vars("rs.txt")
 
         case "BPE":
             _load_symbols("pokeemerald.sym", rom.language)
-            _load_event_flags("emerald.txt")
+            _load_event_flags_and_vars("emerald.txt")
 
         case "BPR":
             match rom.revision:
@@ -175,7 +188,7 @@ def set_rom(rom: ROM) -> None:
                     _load_symbols("pokefirered.sym", rom.language)
                 case 1:
                     _load_symbols("pokefirered_rev1.sym", rom.language)
-            _load_event_flags("frlg.txt")
+            _load_event_flags_and_vars("frlg.txt")
 
         case "BPG":
             match rom.revision:
@@ -183,7 +196,7 @@ def set_rom(rom: ROM) -> None:
                     _load_symbols("pokeleafgreen.sym", rom.language)
                 case 1:
                     _load_symbols("pokeleafgreen_rev1.sym", rom.language)
-            _load_event_flags("frlg.txt")
+            _load_event_flags_and_vars("frlg.txt")
 
     _prepare_character_tables()
     if rom.language == ROMLanguage.Japanese:
@@ -215,10 +228,14 @@ def get_event_flag_offset(flag_name: str) -> tuple[int, int]:
     return _event_flags[flag_name]
 
 
-def get_event_flag_name(flag_number: int) -> str | None:
+def get_event_flag_name(flag_number: int) -> str:
     if flag_number == 0:
         return ""
     return _reverse_event_flags.get(flag_number, str(flag_number))
+
+
+def get_event_var_name(var_number: int) -> str:
+    return _reverse_event_vars.get(var_number, str(var_number))
 
 
 def decode_string(

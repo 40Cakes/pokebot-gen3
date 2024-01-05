@@ -7,7 +7,14 @@ from typing import TYPE_CHECKING, Union, Optional
 
 from modules.context import context
 from modules.daycare import get_daycare_data
-from modules.game import decode_string, _symbols, _reverse_symbols, _event_flags, get_event_flag_name
+from modules.game import (
+    decode_string,
+    _symbols,
+    _reverse_symbols,
+    _event_flags,
+    get_event_flag_name,
+    get_event_var_name,
+)
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_item_bag, get_item_storage
 from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects, get_map_all_tiles
@@ -18,6 +25,7 @@ from modules.memory import (
     game_has_started,
     unpack_uint16,
     unpack_uint32,
+    get_save_block,
     set_event_flag,
     get_event_flag,
 )
@@ -761,7 +769,7 @@ class EventFlagsTab(DebugTab):
         self._search_field.bind("<FocusOut>", self._handle_focus_out)
         self._search_field.bind("<Control-a>", self._handle_ctrl_a)
         self._tv = FancyTreeview(frame, additional_context_actions=context_actions, height=21, row=1)
-        root.add(frame, text="Event Flags")
+        root.add(frame, text="Flags")
 
     def update(self, emulator: "LibmgbaEmulator"):
         self._tv.update_data(self._get_data())
@@ -794,6 +802,66 @@ class EventFlagsTab(DebugTab):
         for flag in _event_flags:
             if len(search_phrase) == 0 or search_phrase in flag:
                 result[flag] = get_event_flag(flag)
+
+        return result
+
+
+class EventVarsTab(DebugTab):
+    _tv: FancyTreeview
+    _search_field: ttk.Entry
+
+    def draw(self, root: ttk.Notebook):
+        frame = ttk.Frame(root, padding=10)
+
+        context_actions = {"Copy Name": self._copy_name}
+
+        self._search_phrase = ""
+        self._search_field = ttk.Entry(frame)
+        self._search_field.grid(row=0, column=0, sticky="NWE")
+        self._search_field.bind("<FocusIn>", self._handle_focus_in)
+        self._search_field.bind("<FocusOut>", self._handle_focus_out)
+        self._search_field.bind("<Control-a>", self._handle_ctrl_a)
+        self._tv = FancyTreeview(frame, additional_context_actions=context_actions, height=21, row=1)
+        root.add(frame, text="Vars")
+
+    def update(self, emulator: "LibmgbaEmulator"):
+        self._tv.update_data(self._get_data())
+
+    def _handle_focus_in(self, _):
+        context.gui.inputs_enabled = False
+
+    def _handle_focus_out(self, _):
+        context.gui.inputs_enabled = True
+
+    def _handle_ctrl_a(self, _):
+        def select_all():
+            self._search_field.select_range(0, "end")
+            self._search_field.icursor("end")
+
+        context.gui.window.after(50, select_all)
+
+    def _copy_name(self, flag: str):
+        import pyperclip3
+
+        pyperclip3.copy(flag)
+
+    def _get_data(self):
+        result = {}
+        search_phrase = self._search_field.get().upper()
+
+        if context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
+            offset = 0x1340
+        elif context.rom.game_title == "POKEMON EMER":
+            offset = 0x139C
+        else:
+            offset = 0x1000
+
+        data = get_save_block(1, offset=offset, size=0x200)
+        for index in range(len(data) // 2):
+            name = get_event_var_name(index)
+            if search_phrase == "" or search_phrase in name:
+                value = unpack_uint16(data[index * 2 : (index + 1) * 2])
+                result[name] = value
 
         return result
 
