@@ -6,6 +6,7 @@ from modules.context import context
 from modules.map import get_map_objects
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
+from ._asserts import assert_no_auto_battle
 from ._interface import BotMode, BotModeError
 from ._util import follow_path
 
@@ -22,6 +23,8 @@ class AncientLegendariesMode(BotMode):
         return context.rom.is_rse and player.map_group_and_number in allowed_maps
 
     def run(self) -> Generator:
+        assert_no_auto_battle("This mode should not be used with auto-battle.")
+
         if not context.rom.is_emerald:  # TODO add RS support
             raise BotModeError("Only Emerald is supported, RS coming soon.")
 
@@ -99,9 +102,6 @@ class AncientLegendariesMode(BotMode):
             or allowed_coordinates_rect[1][1] < y
         ):
             raise BotModeError(f"You are too far away from {pokemon_name}. Get a bit closer.")
-
-        if context.config.battle.battle:
-            raise BotModeError("This method should not be used with auto-battle enabled.")
 
         while True:
             yield from follow_path(path)

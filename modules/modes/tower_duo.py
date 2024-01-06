@@ -6,6 +6,7 @@ from modules.context import context
 from modules.map import get_map_objects
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
+from ._asserts import assert_no_auto_battle
 from ._interface import BotMode, BotModeError
 from ._util import follow_path
 
@@ -24,6 +25,8 @@ class TowerDuoMode(BotMode):
         return get_player_avatar().map_group_and_number in allowed_maps
 
     def run(self) -> Generator:
+        assert_no_auto_battle("This mode should not be used with auto-battle.")
+
         match get_player_avatar().map_group_and_number:
             # Lugia on Emerald
             case MapRSE.NAVEL_ROCK_U.value:
@@ -50,9 +53,6 @@ class TowerDuoMode(BotMode):
 
         if get_event_flag(flag_to_check):
             raise BotModeError(f"{pokemon_name} has already been caught.")
-
-        if context.config.battle.battle:
-            raise BotModeError("This method should not be used with auto-battle enabled.")
 
         while True:
             yield from follow_path(path)
