@@ -1,4 +1,3 @@
-from enum import Enum, auto
 from typing import Generator
 
 from modules.data.map import MapRSE, MapFRLG
