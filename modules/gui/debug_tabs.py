@@ -612,6 +612,8 @@ class PlayerTab(DebugTab):
 
         game_stats = {}
         for member in GameStat:
+            if member.value > 49 and context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
+                continue
             game_stats[member.name] = get_game_stat(member)
 
         result: dict[str, any] = {
