@@ -15,6 +15,7 @@ from modules.game import (
     get_event_flag_name,
     get_event_var_name,
 )
+from modules.game_stats import GameStat, get_game_stat
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_item_bag, get_item_storage
 from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects, get_map_all_tiles
@@ -609,6 +610,10 @@ class PlayerTab(DebugTab):
         for species in owned_species:
             pokedex_owned[species.national_dex_number] = species.name
 
+        game_stats = {}
+        for member in GameStat:
+            game_stats[member.name] = get_game_stat(member)
+
         result: dict[str, any] = {
             "Name": player.name,
             "Gender": player.gender,
@@ -625,6 +630,7 @@ class PlayerTab(DebugTab):
             "Acro Bike State": player_avatar.acro_bike_state.name,
             "Tile Transition State": player_avatar.tile_transition_state.name,
             "Facing Direction": player_avatar.facing_direction,
+            "Game Stats": game_stats,
             "Pokedex Seen": pokedex_seen,
             "Pokedex Owned": pokedex_owned,
         }
