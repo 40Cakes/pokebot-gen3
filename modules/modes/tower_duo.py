@@ -11,12 +11,7 @@ from ._interface import BotMode, BotModeError
 from ._util import follow_path
 
 
-class ModeTowerDuoStates(Enum):
-    INTERACT = auto()
-    LEAVE_ROOM = auto()
-
-
-class ModeTowerDuo(BotMode):
+class TowerDuoMode(BotMode):
     @staticmethod
     def name() -> str:
         return "Tower Duo"

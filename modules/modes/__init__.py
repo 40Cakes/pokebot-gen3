@@ -10,13 +10,13 @@ def get_bot_modes() -> list[Type[BotMode]]:
     global _bot_modes
 
     if len(_bot_modes) == 0:
-        from .ancient_legendaries import ModeAncientLegendaries
+        from .ancient_legendaries import AncientLegendariesMode
         from .bunny_hop import BunnyHopMode
         from .fishing import FishingMode
-        from .static_soft_resets import StaticSoftResetsMode
         from .spin import SpinMode
         from .starters import StartersMode
-        from .tower_duo import ModeTowerDuo
+        from .static_soft_resets import StaticSoftResetsMode
+        from .tower_duo import TowerDuoMode
 
         _bot_modes = [
             SpinMode,
@@ -24,8 +24,8 @@ def get_bot_modes() -> list[Type[BotMode]]:
             FishingMode,
             BunnyHopMode,
             StaticSoftResetsMode,
-            ModeTowerDuo,
-            ModeAncientLegendaries,
+            TowerDuoMode,
+            AncientLegendariesMode,
         ]
 
     return _bot_modes

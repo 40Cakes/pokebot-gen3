@@ -45,9 +45,14 @@ def navigate_to(destination_coordinates: tuple[int, int], run: bool = True) -> G
     else:
         context.emulator.release_button("B")
 
+    initial_map = get_player_avatar().map_group_and_number
     while True:
         avatar = get_player_avatar()
         if avatar.local_coordinates == destination_coordinates:
+            break
+        if avatar.map_group_and_number != initial_map:
+            while get_game_state() != GameState.OVERWORLD:
+                yield
             break
 
         # Check whether there is a PokéNav call active and close it.
