@@ -7,7 +7,15 @@ from typing import TYPE_CHECKING, Union, Optional
 
 from modules.context import context
 from modules.daycare import get_daycare_data
-from modules.game import decode_string, _symbols, _reverse_symbols, _event_flags
+from modules.game import (
+    decode_string,
+    _symbols,
+    _reverse_symbols,
+    _event_flags,
+    get_event_flag_name,
+    get_event_var_name,
+)
+from modules.game_stats import GameStat, get_game_stat
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_item_bag, get_item_storage
 from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects, get_map_all_tiles
@@ -18,6 +26,7 @@ from modules.memory import (
     game_has_started,
     unpack_uint16,
     unpack_uint32,
+    get_save_block,
     set_event_flag,
     get_event_flag,
 )
@@ -601,6 +610,12 @@ class PlayerTab(DebugTab):
         for species in owned_species:
             pokedex_owned[species.national_dex_number] = species.name
 
+        game_stats = {}
+        for member in GameStat:
+            if member.value > 49 and context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
+                continue
+            game_stats[member.name] = get_game_stat(member)
+
         result: dict[str, any] = {
             "Name": player.name,
             "Gender": player.gender,
@@ -617,6 +632,7 @@ class PlayerTab(DebugTab):
             "Acro Bike State": player_avatar.acro_bike_state.name,
             "Tile Transition State": player_avatar.tile_transition_state.name,
             "Facing Direction": player_avatar.facing_direction,
+            "Game Stats": game_stats,
             "Pokedex Seen": pokedex_seen,
             "Pokedex Owned": pokedex_owned,
         }
@@ -747,26 +763,113 @@ class DaycareTab(DebugTab):
 
 class EventFlagsTab(DebugTab):
     _tv: FancyTreeview
+    _search_field: ttk.Entry
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
 
-        context_actions = {"Toggle Flag": self._toggle_flag}
+        context_actions = {"Copy Name": self._copy_name, "Toggle Flag": self._toggle_flag}
 
-        self._tv = FancyTreeview(frame, additional_context_actions=context_actions)
-        root.add(frame, text="Event Flags")
+        self._search_phrase = ""
+        self._search_field = ttk.Entry(frame)
+        self._search_field.grid(row=0, column=0, sticky="NWE")
+        self._search_field.bind("<FocusIn>", self._handle_focus_in)
+        self._search_field.bind("<FocusOut>", self._handle_focus_out)
+        self._search_field.bind("<Control-a>", self._handle_ctrl_a)
+        self._tv = FancyTreeview(frame, additional_context_actions=context_actions, height=21, row=1)
+        root.add(frame, text="Flags")
 
     def update(self, emulator: "LibmgbaEmulator"):
         self._tv.update_data(self._get_data())
 
+    def _handle_focus_in(self, _):
+        context.gui.inputs_enabled = False
+
+    def _handle_focus_out(self, _):
+        context.gui.inputs_enabled = True
+
+    def _handle_ctrl_a(self, _):
+        def select_all():
+            self._search_field.select_range(0, "end")
+            self._search_field.icursor("end")
+
+        context.gui.window.after(50, select_all)
+
     def _toggle_flag(self, flag: str):
         set_event_flag(flag)
 
+    def _copy_name(self, flag: str):
+        import pyperclip3
+
+        pyperclip3.copy(flag)
+
     def _get_data(self):
         result = {}
+        search_phrase = self._search_field.get().upper()
 
         for flag in _event_flags:
-            result[flag] = get_event_flag(flag)
+            if len(search_phrase) == 0 or search_phrase in flag:
+                result[flag] = get_event_flag(flag)
+
+        return result
+
+
+class EventVarsTab(DebugTab):
+    _tv: FancyTreeview
+    _search_field: ttk.Entry
+
+    def draw(self, root: ttk.Notebook):
+        frame = ttk.Frame(root, padding=10)
+
+        context_actions = {"Copy Name": self._copy_name}
+
+        self._search_phrase = ""
+        self._search_field = ttk.Entry(frame)
+        self._search_field.grid(row=0, column=0, sticky="NWE")
+        self._search_field.bind("<FocusIn>", self._handle_focus_in)
+        self._search_field.bind("<FocusOut>", self._handle_focus_out)
+        self._search_field.bind("<Control-a>", self._handle_ctrl_a)
+        self._tv = FancyTreeview(frame, additional_context_actions=context_actions, height=21, row=1)
+        root.add(frame, text="Vars")
+
+    def update(self, emulator: "LibmgbaEmulator"):
+        self._tv.update_data(self._get_data())
+
+    def _handle_focus_in(self, _):
+        context.gui.inputs_enabled = False
+
+    def _handle_focus_out(self, _):
+        context.gui.inputs_enabled = True
+
+    def _handle_ctrl_a(self, _):
+        def select_all():
+            self._search_field.select_range(0, "end")
+            self._search_field.icursor("end")
+
+        context.gui.window.after(50, select_all)
+
+    def _copy_name(self, flag: str):
+        import pyperclip3
+
+        pyperclip3.copy(flag)
+
+    def _get_data(self):
+        result = {}
+        search_phrase = self._search_field.get().upper()
+
+        if context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
+            offset = 0x1340
+        elif context.rom.game_title == "POKEMON EMER":
+            offset = 0x139C
+        else:
+            offset = 0x1000
+
+        data = get_save_block(1, offset=offset, size=0x200)
+        for index in range(len(data) // 2):
+            name = get_event_var_name(index)
+            if search_phrase == "" or search_phrase in name:
+                value = unpack_uint16(data[index * 2 : (index + 1) * 2])
+                result[name] = value
 
         return result
 
@@ -955,7 +1058,7 @@ class MapTab(DebugTab):
                 "__value": str(obj),
                 "coordinates": obj.local_coordinates,
                 "script": obj.script_symbol,
-                "flag_id": obj.flag_id,
+                "flag": get_event_flag_name(obj.flag_id),
             }
             if obj.kind == "normal":
                 object_templates_list[key]["movement_type"] = obj.movement_type
@@ -991,7 +1094,7 @@ class MapTab(DebugTab):
                 bg_events_list[key] = {
                     "__value": f"Hidden Item: {event.hidden_item.name}",
                     "Item": event.hidden_item.name,
-                    "Flag": event.hidden_item_flag_id,
+                    "Flag": get_event_flag_name(event.hidden_item_flag_id),
                 }
             elif kind == "Secret Base":
                 bg_events_list[key] = {

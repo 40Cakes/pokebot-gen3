@@ -4,7 +4,7 @@ from functools import cached_property
 from typing import Literal
 
 from modules.context import context
-from modules.game import decode_string
+from modules.game import decode_string, get_event_flag_name
 from modules.memory import unpack_uint16, unpack_uint32, read_symbol, get_symbol_name
 from modules.pokemon import get_item_by_index, Item
 
@@ -660,6 +660,7 @@ class MapBgEvent:
                 data["script"] = self.script_symbol
             case "Hidden Item":
                 data["item"] = self.hidden_item.name
+                data["flag"] = get_event_flag_name(self.hidden_item_flag_id)
             case "Secret Base":
                 data["secret_base_id"] = self.secret_base_id
 
@@ -1524,6 +1525,8 @@ class ObjectEventTemplate:
 
     @property
     def script_symbol(self) -> str:
+        if self.script_pointer == 0:
+            return ""
         symbol = get_symbol_name(self.script_pointer, pretty_name=True)
         if symbol == "":
             return hex(self.script_pointer)
@@ -1561,6 +1564,7 @@ class ObjectEventTemplate:
             "local_coordinates": self.local_coordinates,
             "kind": kind,
             "script": self.script_symbol,
+            "flag": get_event_flag_name(self.flag_id),
         }
 
         if kind == "normal":

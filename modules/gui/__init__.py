@@ -29,6 +29,7 @@ class PokebotGui:
         self._main_loop = main_loop
         self._on_exit = on_exit
         self._startup_settings: "StartupSettings | None" = None
+        self.inputs_enabled = True
 
         self.window.geometry("540x400")
         self.window.resizable(context.debug, True)
@@ -155,6 +156,9 @@ class PokebotGui:
         if keysym_with_modifier in self._emulator_keys and self._emulator_keys[keysym_with_modifier] == "exit":
             self._close_window()
 
+        if not self.inputs_enabled:
+            return
+
         # These key bindings will only be applied if the emulation has started.
         if context.emulator:
             if keysym_with_modifier in self._gba_keys and context.bot_mode == "Manual":
@@ -201,6 +205,9 @@ class PokebotGui:
         return "break"
 
     def _handle_key_up_event(self, event):
+        if not self.inputs_enabled:
+            return
+
         keysym_with_modifier = ("ctrl+" if event.state & 4 else "") + event.keysym.lower()
         if context.emulator:
             if keysym_with_modifier in self._gba_keys and (context.bot_mode == "Manual"):
