@@ -451,6 +451,13 @@ class LibmgbaEmulator:
         """
         self._held_inputs |= input_map[button] if not inputs else inputs
 
+    def is_button_held(self, button: str = None) -> bool:
+        """
+        :param button: The GBA button to be queried
+        :return: Whether that button is currently being held down
+        """
+        return bool(input_map[button] & self._held_inputs)
+
     def release_button(self, button: str = None, inputs: int = 0):
         """
         :param button: A GBA button to be release if held

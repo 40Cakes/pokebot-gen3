@@ -13,6 +13,7 @@ from typing import Generator
 
 from modules.context import context
 from modules.files import get_rng_state_history, save_rng_state_history
+from modules.map import get_map_objects
 from modules.memory import (
     read_symbol,
     write_symbol,
@@ -26,31 +27,81 @@ from modules.player import get_player, get_player_avatar, TileTransitionState, R
 from modules.tasks import task_is_active
 
 
-def navigate_to(destination_coordinates: tuple[int, int]) -> Generator:
+def navigate_to(destination_coordinates: tuple[int, int], run: bool = True) -> Generator:
     """
     Moves the player to a set of coordinates on the same map. Does absolutely no
-    collision checking and _will_ get stuck.
+    collision checking and _will_ get stuck all the time.
+    This returns control back to the calling functions _while the player is still moving_.
+    To prevent this, you might want to use the `follow_path()` utility function instead.
     :param destination_coordinates: Tuple (x, y) of map-local coordinates of the destination
+    :param run: Whether the player should run (hold down B)
     """
 
     if get_game_state() != GameState.OVERWORLD:
         return
 
+    if run:
+        context.emulator.hold_button("B")
+    else:
+        context.emulator.release_button("B")
+
     while True:
         avatar = get_player_avatar()
         if avatar.local_coordinates == destination_coordinates:
-            return
+            break
 
-        if avatar.tile_transition_state != TileTransitionState.TRANSITIONING:
-            if destination_coordinates[0] < avatar.local_coordinates[0]:
-                context.emulator.press_button("Left")
-            elif destination_coordinates[0] > avatar.local_coordinates[0]:
-                context.emulator.press_button("Right")
-            elif destination_coordinates[1] < avatar.local_coordinates[1]:
-                context.emulator.press_button("Up")
-            elif destination_coordinates[1] > avatar.local_coordinates[1]:
-                context.emulator.press_button("Down")
+        # Check whether there is a PokéNav call active and close it.
+        while task_is_active("Task_SpinPokenavIcon"):
+            context.emulator.release_button("B")
+            context.emulator.press_button("B")
+            yield
+            if run:
+                context.emulator.hold_button("B")
 
+        context.emulator.release_button("Up")
+        context.emulator.release_button("Down")
+        context.emulator.release_button("Left")
+        context.emulator.release_button("Right")
+        if destination_coordinates[0] < avatar.local_coordinates[0]:
+            context.emulator.hold_button("Left")
+        elif destination_coordinates[0] > avatar.local_coordinates[0]:
+            context.emulator.hold_button("Right")
+        elif destination_coordinates[1] < avatar.local_coordinates[1]:
+            context.emulator.hold_button("Up")
+        elif destination_coordinates[1] > avatar.local_coordinates[1]:
+            context.emulator.hold_button("Down")
+
+        yield
+
+    context.emulator.release_button("Up")
+    context.emulator.release_button("Down")
+    context.emulator.release_button("Left")
+    context.emulator.release_button("Right")
+    context.emulator.release_button("B")
+
+
+def follow_path(waypoints: list[tuple[int, int]], run: bool = True) -> Generator:
+    """
+    Moves the player along a given path.
+
+    There is no collision checking, so the path needs to be chosen carefully to ensure it
+    doesn't get stuck.
+
+    :param waypoints: List of tuples (x, y) of map-local coordinates of the destination
+    :param run: Whether the player should run (hold down B)
+    """
+    if get_game_state() != GameState.OVERWORLD:
+        return
+
+    # Make sure that the player avatar can actually be controlled/moved right now.
+    if "heldMovementActive" not in get_map_objects()[0].flags:
+        return
+
+    for waypoint in waypoints:
+        yield from navigate_to(waypoint, run)
+
+    # Wait for player to come to a full stop.
+    while get_player_avatar().running_state != RunningState.NOT_MOVING:
         yield
 
 
