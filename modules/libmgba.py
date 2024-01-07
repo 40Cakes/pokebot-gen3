@@ -354,6 +354,17 @@ class LibmgbaEmulator:
         vfile.seek(0, whence=0)
         self._core.load_state(vfile)
 
+    def read_save_data(self) -> bytes:
+        """
+        Reads and returns the contents of the save game (SRAM/Flash)
+        :return: Save data
+        """
+        vfile = mgba.vfs.VFile.fromEmpty()
+        lib.GBASavedataClone(ffi.addressof(self._core._native.memory.savedata), vfile.handle)
+        vfile.seek(0, whence=0)
+        result = vfile.read_all()
+        return result
+
     def read_bytes(self, address: int, length: int = 1) -> bytes:
         """
         Reads a block of memory from an arbitrary address on the system
@@ -440,12 +451,31 @@ class LibmgbaEmulator:
         """
         self._held_inputs |= input_map[button] if not inputs else inputs
 
+    def is_button_held(self, button: str = None) -> bool:
+        """
+        :param button: The GBA button to be queried
+        :return: Whether that button is currently being held down
+        """
+        return bool(input_map[button] & self._held_inputs)
+
     def release_button(self, button: str = None, inputs: int = 0):
         """
         :param button: A GBA button to be release if held
         :param inputs: Alternate raw input bitfield
         """
         self._held_inputs &= ~input_map[button] if not inputs else ~inputs
+
+    def reset_held_buttons(self) -> int:
+        """
+        Releases all held buttons and returns the bitfield of previously held ones.
+        :return: Bitfield of all previously held buttons, can be used with `restore_held_buttons()`
+        """
+        previously_held_inputs = self._held_inputs
+        self._held_inputs = 0
+        return previously_held_inputs
+
+    def restore_held_buttons(self, held_buttons: int) -> None:
+        self._held_inputs = held_buttons
 
     def get_current_screen_image(self) -> PIL.Image.Image:
         return self._screen.to_pil()

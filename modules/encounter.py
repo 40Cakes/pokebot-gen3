@@ -5,7 +5,6 @@ from modules.gui.desktop_notification import desktop_notification
 from modules.pokemon_storage import get_pokemon_storage
 from modules.pokemon import Pokemon, get_battle_type_flags, BattleTypeFlag
 from modules.runtime import get_sprites_path
-from modules.stats import total_stats
 
 
 def encounter_pokemon(pokemon: Pokemon) -> None:
@@ -16,6 +15,8 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
 
     :return:
     """
+    from modules.stats import total_stats
+
     if context.config.logging.save_pk3.all:
         save_pk3(pokemon)
 

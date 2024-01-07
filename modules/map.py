@@ -1633,3 +1633,17 @@ def get_map_all_tiles() -> list[MapLocation]:
         for x in range(map_width):
             tiles.append(get_map_data(map_group, map_number, (x, y)))
     return tiles
+
+
+def calculate_targeted_coords(current_coordinates: tuple[int, int], facing_direction: str) -> tuple[int, int]:
+    match facing_direction:
+        case "Up":
+            return current_coordinates[0], current_coordinates[1] - 1
+        case "Down":
+            return current_coordinates[0], current_coordinates[1] + 1
+        case "Left":
+            return current_coordinates[0] - 1, current_coordinates[1]
+        case "Right":
+            return current_coordinates[0] + 1, current_coordinates[1]
+        case _:
+            raise ValueError(f"Invalid facing direction: {facing_direction}")
