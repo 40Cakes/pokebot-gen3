@@ -16,17 +16,6 @@ class Selection:
     button_enable: bool = True
 
 
-@dataclass
-class MultiSelector:
-    window_title: str
-    selections: List[Selection]
-
-
-class MultiSelectWindow:
-    def __init__(self, window: Tk, options: MultiSelector):
-        context.selected_pokemon = ask_for_choice(options.selections, options.window_title)
-
-
 def ask_for_choice(choices: list[Selection], window_title: str = "Choose...") -> str | None:
     window = Toplevel(context.gui.window)
     selected_value: str | None = None
