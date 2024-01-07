@@ -83,7 +83,6 @@ class TowerDuoMode(BotMode):
             raise BotModeError(f"{pokemon_name} has already been caught.")
 
         while True:
-            # yield from follow_path(path)
             yield from path()
 
             while len(get_map_objects()) > 1:
