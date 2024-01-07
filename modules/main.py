@@ -28,6 +28,8 @@ def main_loop() -> None:
     pickup_checked = False
     lead_rotated = False
 
+    previously_held_inputs = 0
+
     try:
         current_mode: BotMode | None = None
         battle_controller: Generator | None = None
@@ -64,27 +66,35 @@ def main_loop() -> None:
                     encounter_pokemon(get_opponent())
 
                 if battle_controller is None and context.bot_mode != "Manual":
+                    previously_held_inputs = context.emulator.reset_held_buttons()
                     battle_controller = BattleHandler().step()
             elif in_battle:
                 # 'Clean-up tasks' at the end of a battle.
                 in_battle = False
                 if context.config.battle.pickup and should_check_for_pickup() and not pickup_checked:
                     pickup_checked = True
+                    previously_held_inputs = context.emulator.reset_held_buttons()
                     battle_controller = MenuWrapper(CheckForPickup()).step()
                 elif context.config.battle.replace_lead_battler and not check_lead_can_battle() and not lead_rotated:
                     lead_rotated = True
+                    previously_held_inputs = context.emulator.reset_held_buttons()
                     battle_controller = MenuWrapper(RotatePokemon()).step()
                 else:
+                    context.emulator.restore_held_buttons(previously_held_inputs)
                     battle_controller = None
 
             if is_default_battle_controller_disabled:
+                context.emulator.restore_held_buttons(previously_held_inputs)
                 battle_controller = None
                 in_battle = False
 
             if context.bot_mode == "Manual":
                 current_mode = None
                 battle_controller = None
+                previously_held_inputs = 0
             elif current_mode is None:
+                context.emulator.reset_held_buttons()
+                previously_held_inputs = 0
                 current_mode = get_bot_mode_by_name(context.bot_mode)()
 
             try:
@@ -94,17 +104,20 @@ def main_loop() -> None:
                     next(current_mode)
             except (StopIteration, GeneratorExit):
                 if battle_controller is not None:
+                    context.emulator.restore_held_buttons(previously_held_inputs)
                     battle_controller = None
                 else:
                     current_mode = None
             except BotModeError as e:
                 current_mode = None
                 battle_controller = None
+                context.emulator.reset_held_buttons()
                 context.message = str(e)
                 context.set_manual_mode()
             except Exception as e:
                 console.print_exception()
                 current_mode = None
+                context.emulator.reset_held_buttons()
                 battle_controller = None
                 context.message = "Internal Bot Error: " + str(e)
                 context.set_manual_mode()

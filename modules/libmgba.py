@@ -465,6 +465,18 @@ class LibmgbaEmulator:
         """
         self._held_inputs &= ~input_map[button] if not inputs else ~inputs
 
+    def reset_held_buttons(self) -> int:
+        """
+        Releases all held buttons and returns the bitfield of previously held ones.
+        :return: Bitfield of all previously held buttons, can be used with `restore_held_buttons()`
+        """
+        previously_held_inputs = self._held_inputs
+        self._held_inputs = 0
+        return previously_held_inputs
+
+    def restore_held_buttons(self, held_buttons: int) -> None:
+        self._held_inputs = held_buttons
+
     def get_current_screen_image(self) -> PIL.Image.Image:
         return self._screen.to_pil()
 

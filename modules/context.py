@@ -98,6 +98,7 @@ class BotContext:
         self.bot_mode = "Manual"
         self.emulation_speed = 1
         self.video = True
+        self.emulator.reset_held_buttons()
         desktop_notification(title="Manual Mode", message="The bot has switched to manual mode.")
 
     def select_pokemon(self, pokemon: str) -> None:
