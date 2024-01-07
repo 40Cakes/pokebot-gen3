@@ -2,8 +2,7 @@ import time
 from dataclasses import dataclass
 from idlelib.tooltip import Hovertip
 from pathlib import Path
-from tkinter import Tk, ttk, Toplevel, Canvas, PhotoImage
-from typing import List
+from tkinter import ttk, Toplevel, Canvas, PhotoImage
 
 from modules.context import context
 

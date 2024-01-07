@@ -8,7 +8,7 @@ from modules.memory import get_event_flag
 from modules.player import get_player_avatar
 from ._asserts import assert_no_auto_battle
 from ._interface import BotMode, BotModeError
-from ._util import follow_path, navigate_to, walk_one_tile
+from ._util import navigate_to, walk_one_tile
 
 
 class AncientLegendariesMode(BotMode):
@@ -32,27 +32,33 @@ class AncientLegendariesMode(BotMode):
             case MapRSE.MARINE_CAVE_A.value:
                 pokemon_name = "Kyogre"
                 flags_to_check = ("FLAG_DEFEATED_KYOGRE", "FLAG_LEGENDARY_BATTLE_COMPLETED")
+
                 def path():
                     yield from navigate_to(20, 4)
                     yield from walk_one_tile("Down")
                     yield from walk_one_tile("Up")
                     yield from navigate_to(9, 26)
+
             case MapRSE.TERRA_CAVE_A.value:
                 pokemon_name = "Groudon"
                 flags_to_check = ("FLAG_DEFEATED_GROUDON", "FLAG_LEGENDARY_BATTLE_COMPLETED")
+
                 def path():
                     yield from navigate_to(5, 4)
                     yield from walk_one_tile("Down")
                     yield from walk_one_tile("Up")
                     yield from navigate_to(17, 26)
+
             case MapRSE.SKY_PILLAR_G.value:
                 pokemon_name = "Rayquaza"
                 flags_to_check = ("FLAG_DEFEATED_RAYQUAZA",)
+
                 def path():
                     yield from navigate_to(16, 15)
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
                     yield from navigate_to(14, 7)
+
             case _:
                 raise BotModeError("You are not on the right map.")
 
