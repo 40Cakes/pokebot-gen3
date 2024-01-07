@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>PokéBot</title>
+    <!--
+    Note: This is just an example page, showing how to use the streaming API.
+          It is not meant to be used as a productive interface, so don't
+          expect too much of it.
+    -->
+</head>
+
+<body>
+<p id="loading_message">Loading&hellip;</p>
+<canvas id="map"></canvas>
+
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+    }
+    p {
+        padding: .25rem 1rem;
+    }
+</style>
+
+<script>
+    const TILE_SIZE = 5;
+
+    /**
+     * @type {Object.<string, {offset: [number, number], map: Pokemon.MapData, tiles: Pokemon.MapTileData[][]}>}
+     */
+    const mapData = {};
+
+    /**
+     * @param {number} map_group
+     * @param {number} map_number
+     * @returns {Promise<{offset: [number, number], map: Pokemon.MapData, tiles: Pokemon.MapTileData[][]}>}
+     */
+    async function fetchMap(map_group, map_number)
+    {
+        const response = await fetch(`/map/${map_group}/${map_number}`);
+        const data     = await response.json();
+        data.offset    = [0, 0];
+        return data;
+    }
+
+    /**
+     * @param {Object} map_data
+     * @returns {string}
+     */
+    function mapKey(map_data)
+    {
+        return `${map_data.map.map_group}/${map_data.map.map_number}`;
+    }
+
+    async function main()
+    {
+        /**
+         * @type {HTMLParagraphElement}
+         */
+        const loadingMessage = document.getElementById("loading_message");
+
+        const response                 = await fetch(`/map`);
+        const activeMapData            = await response.json();
+        const player_position          = activeMapData.player_position;
+        const player_map_group         = activeMapData.map.map_group;
+        const player_map_number        = activeMapData.map.map_number;
+        activeMapData.offset           = [0, 0];
+        mapData[mapKey(activeMapData)] = activeMapData;
+
+        /**
+         * @type {Array<{offset: [number, number], map: Pokemon.MapData, tiles: Pokemon.MapTileData[][]}>}
+         */
+        const mapQueue = [activeMapData];
+
+        while (mapQueue.length > 0) {
+            const map = mapQueue.shift();
+
+            for (const connection of map.map.connections) {
+                if (mapData[`${connection.destination.map_group}/${connection.destination.map_number}`]) {
+                    continue;
+                }
+
+                const targetMap  = await fetchMap(connection.destination.map_group, connection.destination.map_number);
+                loadingMessage.innerText = `Loading all maps connected to your current map… ${Object.values(mapData).length} maps so far`;
+                targetMap.offset = [map.offset[0], map.offset[1]];
+
+                if (connection.direction === "North") {
+                    targetMap.offset[1] -= targetMap.map.size[1];
+                    targetMap.offset[0] += connection.offset;
+                } else if (connection.direction === "South") {
+                    targetMap.offset[1] += map.map.size[1];
+                    targetMap.offset[0] += connection.offset;
+                } else if (connection.direction === "West") {
+                    targetMap.offset[0] -= targetMap.map.size[0];
+                    targetMap.offset[1] += connection.offset;
+                } else if (connection.direction === "East") {
+                    targetMap.offset[0] += map.map.size[0];
+                    targetMap.offset[1] += connection.offset;
+                } else {
+                    break;
+                }
+
+                mapData[mapKey(targetMap)] = targetMap;
+                mapQueue.push(targetMap);
+            }
+        }
+
+        let lowestX  = 0;
+        let largestX = 0;
+        let lowestY  = 0;
+        let largestY = 0;
+        for (const map of Object.values(mapData)) {
+            lowestX  = Math.min(lowestX, map.offset[0]);
+            largestX = Math.max(largestX, map.offset[0] + map.map.size[0]);
+            lowestY  = Math.min(lowestY, map.offset[1]);
+            largestY = Math.max(largestY, map.offset[1] + map.map.size[1]);
+        }
+
+        /** @type {HTMLCanvasElement} */
+        const canvas  = document.getElementById("map");
+        const context = canvas.getContext("2d");
+
+        canvas.width  = TILE_SIZE * (largestX - lowestX);
+        canvas.height = TILE_SIZE * (largestY - lowestY);
+
+        context.fillStyle = "#333";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        for (const map of Object.values(mapData)) {
+            for (let x = 0; x < map.tiles.length; x++) {
+                for (let y = 0; y < map.tiles[x].length; y++) {
+                    const tile = map.tiles[x][y];
+                    let colour = null;
+                    if (
+                        tile.local_coordinates[0] === player_position[0] &&
+                        tile.local_coordinates[1] === player_position[1] &&
+                        map.map.map_group === player_map_group &&
+                        map.map.map_number === player_map_number
+                    ) {
+                        colour = "red";
+                    } else if (tile.type.includes("Water") || tile.type.includes("Current")) {
+                        if (tile.has_encounters) {
+                            colour = "#08F";
+                        } else if (tile.type.includes("Deep Water")) {
+                            colour = "#05B";
+                        } else {
+                            colour = "#0FF";
+                        }
+                    } else if (tile.type.includes("Warp") || tile.type === "Non-Animated Door") {
+                        colour = "#F0F";
+                    } else if (tile.type.startsWith("Jump")) {
+                        colour = "#a50";
+                    } else if (tile.collision) {
+                        colour = "#000";
+                    } else if (tile.has_encounters) {
+                        colour = "#080";
+                    } else if (tile.type === "Sand") {
+                        colour = "#ffd";
+                    } else if (tile.type === "Deep Sand") {
+                        colour = "#ffb";
+                    } else {
+                        colour = "#dfb";
+                    }
+
+                    for (const objectTemplate of map.map.object_templates) {
+                        if (
+                            objectTemplate.local_coordinates[0] === tile.local_coordinates[0] &&
+                            objectTemplate.local_coordinates[1] === tile.local_coordinates[1]
+                        ) {
+                            colour = "#80f";
+                        }
+                    }
+
+                    context.fillStyle = colour;
+                    context.fillRect(
+                        (map.offset[0] - lowestX + x) * TILE_SIZE,
+                        (map.offset[1] - lowestY + y) * TILE_SIZE,
+                        TILE_SIZE,
+                        TILE_SIZE
+                    );
+                }
+            }
+        }
+
+        context.strokeStyle = "#F00";
+        context.lineWidth = 6;
+        context.beginPath();
+        const playerMap = mapData[`${player_map_group}/${player_map_number}`];
+        context.arc(
+            (playerMap.offset[0] - lowestX + player_position[0]) * TILE_SIZE + (TILE_SIZE / 2),
+            (playerMap.offset[1] - lowestY + player_position[1]) * TILE_SIZE + (TILE_SIZE / 2),
+            TILE_SIZE * 2.5,
+            0,
+            2 * Math.PI
+        );
+        context.stroke();
+
+        loadingMessage.style.display = "none";
+    }
+
+    main();
+</script>
+</body>
+
+</html>
