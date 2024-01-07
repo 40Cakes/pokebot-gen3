@@ -651,8 +651,14 @@ def http_server() -> None:
 
     @server.route("/", methods=["GET"])
     def http_index():
-        index_file = Path(__file__).parent / "http_example.html"
+        index_file = Path(__file__).parent / "index.html"
         with open(index_file, "rb") as file:
+            return Response(file.read(), content_type="text/html; charset=utf-8")
+
+    @server.route("/world_map", methods=["GET"])
+    def http_world_map():
+        html_file = Path(__file__).parent / "world_map.html"
+        with open(html_file, "rb") as file:
             return Response(file.read(), content_type="text/html; charset=utf-8")
 
     @server.route("/swagger", methods=["GET"])
