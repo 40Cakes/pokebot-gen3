@@ -208,6 +208,21 @@ def navigate_to(x: int, y: int, run: bool = True) -> Generator:
 
 
 def walk_one_tile(direction: str, run: bool = True) -> Generator:
+    """
+    Moves the player one tile in a given direction, and then waiting for the movement
+    to finish and any map transitions to complete before returning.
+
+    Note that this will not check whether the destination tile is actually accessible
+    so making sure of that is the responsibility of the calling code. It will create
+    an endless loop if trying to run into a wall because the player's coordinates will
+    never change.
+
+    :param direction: One of "Up", "Down", "Left", "Right"
+    :param run: Whether the player should run (hold down B)
+    """
+    if direction not in ("Up", "Down", "Left", "Right"):
+        raise ValueError(f"'{direction}' is not a valid direction.")
+
     if run:
         context.emulator.hold_button("B")
 
