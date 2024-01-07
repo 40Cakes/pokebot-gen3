@@ -104,7 +104,7 @@
 
     <h2 id="mini_map_headline">Mini Map</h2>
 
-    <canvas id="mini_map"></canvas>
+    <a href="/world_map" id="mini_map_link"><canvas id="mini_map"></canvas></a>
 
     <h2>Event Log</h2>
 
@@ -710,7 +710,7 @@
             --background-image: None;
             /* Add other theme-related variables here */
         }
-        
+
         html,
         body {
             margin: 0;
@@ -719,21 +719,21 @@
             background-color: var(--background-color);
             color: var(--text-color);
         }
-        
+
         #first_row>div,
         #second_row>div {
             padding: 1rem;
             box-sizing: border-box;
         }
-        
+
         #second_row h2 {
             margin-top: 0;
         }
-        
+
         .none {
             color: #aaa;
         }
-        
+
         #gba_video {
             border-right: 1px #000 solid;
             border-bottom: 1px #000 solid;
@@ -744,13 +744,13 @@
             width: 100%;
             max-width: 480px;
         }
-        
+
         @media screen and (max-width: 520px) {
             #gba_video {
                 margin-right: 0;
             }
         }
-        
+
         #emulator_card,
         #trainer_card,
         #party_card,
@@ -760,71 +760,71 @@
             width: 100%;
             max-width: 500px;
         }
-        
+
         #emulator_card ul,
         #trainer_card ul,
         #party_card ol,
         #map_card ul {
             padding-left: 1rem;
         }
-        
+
         .party-entry {
             margin-bottom: .5rem;
         }
-        
+
         .party-entry .hp-bar,
         .party-entry .exp-bar {
             width: 200px;
             background-color: #ddd;
             border: 1px #888 solid;
         }
-        
+
         .party-entry .hp-bar {
             height: 5px;
             margin-top: 2px;
         }
-        
+
         .party-entry .exp-bar {
             height: 3px;
             margin-top: 1px;
         }
-        
+
         .party-entry .hp-bar div,
         .party-entry .exp-bar div {
             height: 100%;
             background-color: #5ae;
         }
-        
+
         .encounter-container {
             border: 1px #ccc solid;
         }
-        
+
         #encounter {
             height: 275px;
             padding: calc(1rem - 5px);
             border: 5px transparent solid;
         }
-        
+
         #encounter>*:first-child {
             margin-top: 0;
         }
-        
+
         #encounter>*:last-child {
             margin-bottom: 0;
         }
-        
+
         #encounter>ul {
             margin: 0;
             display: inline-block;
             width: 300px;
             vertical-align: top;
         }
-        
+
         #encounter table {
             display: inline-block;
             vertical-align: top;
         }
-        
+
         #encounter th,
         #encounter td {
             text-align: center;
@@ -832,7 +832,7 @@
             padding: .25rem .5rem;
             background-color: rgba(0, 0, 0, 0.2);
         }
-        
+
         @media screen and (max-width: 479px) {
             #encounter table {
                 margin-top: .5rem;
@@ -842,14 +842,14 @@
                 font-size: 70%;
             }
         }
-        
+
         #mini_map {
             border: 1px #000 solid;
             box-sizing: border-box;
             margin: 1rem 0;
             max-width: 100%;
         }
-        
+
         @media screen and (min-width: 1400px) {
             #mini_map_headline {
                 display: none;
@@ -863,17 +863,17 @@
                 border-right: 0;
             }
         }
-        
+
         #log p {
             margin: .5rem 0 0;
         }
-        
+
         #log small {
             font-size: 75%;
             color: #888;
             margin-right: 10px;
         }
-        
+
         #screen_loading,
         #screen_connection_lost {
             position: fixed;
@@ -889,11 +889,11 @@
             color: #000;
             font-size: 3rem;
         }
-        
+
         #screen_loading {
             background-color: rgba(255, 240, 80, 0.75);
         }
-        
+
         #screen_connection_lost {
             display: none;
             background-color: rgba(255, 120, 120, 0.75);
