@@ -86,17 +86,18 @@ class BotContext:
             self._previous_bot_mode = "Manual"
         else:
             self._previous_bot_mode = self._current_bot_mode
-            self._current_bot_mode = "Manual"
+            self.set_manual_mode(enable_video_and_slow_down=False)
         self._update_gui()
 
-    def set_manual_mode(self) -> None:
-        from modules.gui.desktop_notification import desktop_notification
-
+    def set_manual_mode(self, enable_video_and_slow_down: bool = True) -> None:
         self.bot_mode = "Manual"
-        self.emulation_speed = 1
-        self.video = True
         self.emulator.reset_held_buttons()
-        desktop_notification(title="Manual Mode", message="The bot has switched to manual mode.")
+        if enable_video_and_slow_down:
+            from modules.gui.desktop_notification import desktop_notification
+
+            self.emulation_speed = 1
+            self.video = True
+            desktop_notification(title="Manual Mode", message="The bot has switched to manual mode.")
 
     @property
     def audio(self) -> bool:

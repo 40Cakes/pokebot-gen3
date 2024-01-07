@@ -88,7 +88,10 @@ class EmulatorControls:
         group.grid(row=row, column=column, sticky="W")
 
         def select_bot_mode(mode: str):
-            context.bot_mode = mode
+            if mode == "Manual":
+                context.set_manual_mode(enable_video_and_slow_down=False)
+            else:
+                context.bot_mode = mode
             if self.bot_mode_menu:
                 self.bot_mode_menu.destroy()
                 self.bot_mode_menu = None
