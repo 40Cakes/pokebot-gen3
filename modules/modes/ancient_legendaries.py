@@ -8,7 +8,7 @@ from modules.memory import get_event_flag
 from modules.player import get_player_avatar
 from ._asserts import assert_no_auto_battle
 from ._interface import BotMode, BotModeError
-from ._util import follow_path
+from ._util import follow_path, navigate_to, walk_one_tile
 
 
 class AncientLegendariesMode(BotMode):
@@ -32,61 +32,27 @@ class AncientLegendariesMode(BotMode):
             case MapRSE.MARINE_CAVE_A.value:
                 pokemon_name = "Kyogre"
                 flags_to_check = ("FLAG_DEFEATED_KYOGRE", "FLAG_LEGENDARY_BATTLE_COMPLETED")
-                allowed_coordinates_rect = ((5, 26), (17, 27))
-                path = [
-                    (14, 27),
-                    (18, 27),
-                    (18, 14),
-                    (14, 14),
-                    (14, 4),
-                    (20, 4),
-                    (20, 5),  # Door outside
-                    (14, 2),
-                    (14, 1),  # Door back inside
-                    (14, 4),
-                    (14, 14),
-                    (18, 14),
-                    (18, 27),
-                    (9, 27),
-                    (9, 26),
-                ]
+                def path():
+                    yield from navigate_to(20, 4)
+                    yield from walk_one_tile("Down")
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(9, 26)
             case MapRSE.TERRA_CAVE_A.value:
                 pokemon_name = "Groudon"
                 flags_to_check = ("FLAG_DEFEATED_GROUDON", "FLAG_LEGENDARY_BATTLE_COMPLETED")
-                allowed_coordinates_rect = ((11, 24), (20, 27))
-                path = [
-                    (11, 26),
-                    (7, 26),
-                    (7, 12),
-                    (9, 12),
-                    (9, 4),
-                    (5, 4),
-                    (5, 5),  # Door outside
-                    (14, 2),
-                    (14, 1),  # Door back inside
-                    (9, 4),
-                    (9, 15),
-                    (7, 15),
-                    (7, 26),
-                    (17, 26),
-                ]
+                def path():
+                    yield from navigate_to(5, 4)
+                    yield from walk_one_tile("Down")
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(17, 26)
             case MapRSE.SKY_PILLAR_G.value:
                 pokemon_name = "Rayquaza"
                 flags_to_check = ("FLAG_DEFEATED_RAYQUAZA",)
-                allowed_coordinates_rect = ((13, 7), (15, 12))
-                path = [
-                    (14, 11),
-                    (12, 11),
-                    (12, 15),
-                    (16, 15),
-                    (16, 14),  # Door outside
-                    (10, 2),
-                    (10, 1),  # Door back inside
-                    (12, 15),
-                    (12, 11),
-                    (14, 11),
-                    (14, 7),
-                ]
+                def path():
+                    yield from navigate_to(16, 15)
+                    yield from walk_one_tile("Up")
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(14, 7)
             case _:
                 raise BotModeError("You are not on the right map.")
 
@@ -94,17 +60,8 @@ class AncientLegendariesMode(BotMode):
             if get_event_flag(flag):
                 raise BotModeError(f"{pokemon_name} has already been caught or defeated.")
 
-        x, y = get_player_avatar().local_coordinates
-        if (
-            allowed_coordinates_rect[0][0] > x
-            or allowed_coordinates_rect[1][0] < x
-            or allowed_coordinates_rect[0][1] > y
-            or allowed_coordinates_rect[1][1] < y
-        ):
-            raise BotModeError(f"You are too far away from {pokemon_name}. Get a bit closer.")
-
         while True:
-            yield from follow_path(path)
+            yield from path()
 
             while len(get_map_objects()) > 1:
                 context.emulator.press_button("A")

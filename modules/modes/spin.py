@@ -2,7 +2,7 @@ from typing import Generator
 
 from modules.context import context
 from modules.player import get_player_avatar, RunningState, TileTransitionState
-from ._interface import BotMode, BotModeError
+from ._interface import BotMode
 
 
 class SpinMode(BotMode):

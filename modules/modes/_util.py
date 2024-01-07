@@ -8,12 +8,13 @@ function until it finishes.
 For example: `yield from utils.navigate_to((3, 3))`
 """
 
+import queue
 import random
 from typing import Generator
 
 from modules.context import context
 from modules.files import get_rng_state_history, save_rng_state_history
-from modules.map import get_map_objects
+from modules.map import get_map_objects, get_map_all_tiles
 from modules.memory import (
     read_symbol,
     write_symbol,
@@ -22,12 +23,14 @@ from modules.memory import (
     get_game_state,
     GameState,
     get_event_flag,
+    get_event_flag_by_number,
 )
 from modules.player import get_player, get_player_avatar, TileTransitionState, RunningState
 from modules.tasks import task_is_active
+from ._interface import BotModeError
 
 
-def navigate_to(destination_coordinates: tuple[int, int], run: bool = True) -> Generator:
+def walk_to(destination_coordinates: tuple[int, int], run: bool = True) -> Generator:
     """
     Moves the player to a set of coordinates on the same map. Does absolutely no
     collision checking and _will_ get stuck all the time.
@@ -103,11 +106,133 @@ def follow_path(waypoints: list[tuple[int, int]], run: bool = True) -> Generator
         return
 
     for waypoint in waypoints:
-        yield from navigate_to(waypoint, run)
+        yield from walk_to(waypoint, run)
 
     # Wait for player to come to a full stop.
     while get_player_avatar().running_state != RunningState.NOT_MOVING:
         yield
+
+
+def navigate_to(x: int, y: int, run: bool = True) -> Generator:
+    """
+    Tries to walk the player to a given location while circumventing obstacles.
+
+    This is a pretty primitive implementation and only works within a map. If you need to cross
+    maps, you have to use this to get to the edge of the first map, then use `walk_one_tile()`
+    to cross the map border, and then call this function again to navigate within the second map.
+
+    It attempts to avoid tiles that have encounters (tall grass etc.) but does not currently
+    avoid trainers.
+
+    It only works _either_ on land _or_ on water, but won't start or stop to surf.
+
+    :param x: Map-local X coordinate of the destination
+    :param y: Map-local Y coordinate of the destination
+    :param run: Whether the player should run (hold down B)
+    """
+    destination_coordinates = x, y
+    tiles = get_map_all_tiles()
+    map_width, map_height = tiles[0].map_size
+
+    starting_point = get_player_avatar().local_coordinates
+    visited_nodes: dict[tuple[int, int], tuple[int, tuple[int, int]]] = {starting_point: (0, starting_point)}
+    node_queue = queue.SimpleQueue()
+    node_queue.put(starting_point)
+
+    while not node_queue.empty():
+        coords = node_queue.get()
+        tile = tiles[coords[1] * map_width + coords[0]]
+        potential_neighbours = {
+            "North": (coords[0], coords[1] - 1),
+            "West": (coords[0] + 1, coords[1]),
+            "South": (coords[0], coords[1] + 1),
+            "East": (coords[0] - 1, coords[1]),
+        }
+        for direction in potential_neighbours:
+            n_coords = potential_neighbours[direction]
+            if 0 <= n_coords[0] < map_width and 0 <= n_coords[1] < map_height:
+                neighbour = tiles[n_coords[1] * map_width + n_coords[0]]
+                if neighbour.collision:
+                    may_pass = False
+                    if (
+                        neighbour.tile_type.startswith("Jump ")
+                        or neighbour.tile_type.startswith("Walk ")
+                        or neighbour.tile_type.startswith("Slide ")
+                    ):
+                        _, passable_direction = neighbour.tile_type.split(" ")
+                        if direction in passable_direction.split("/"):
+                            may_pass = True
+                    if not may_pass:
+                        continue
+                if neighbour.elevation not in (0, 15) and tile.elevation != 0 and tile.elevation != neighbour.elevation:
+                    continue
+                tile_blocked_by_object = False
+                object_event_ids = []
+                for map_object in get_map_objects():
+                    object_event_ids.append(map_object.local_id)
+                    if map_object.current_coords == n_coords:
+                        tile_blocked_by_object = True
+                        break
+                for object_template in tiles[0].objects:
+                    if object_template.local_id in object_event_ids:
+                        continue
+                    if object_template.flag_id != 0 and get_event_flag_by_number(object_template.flag_id):
+                        continue
+                    if object_template.local_coordinates == n_coords:
+                        tile_blocked_by_object = True
+                        break
+                if tile_blocked_by_object:
+                    continue
+
+                if neighbour.has_encounters:
+                    distance = visited_nodes[coords][0] + 1000
+                else:
+                    distance = visited_nodes[coords][0] + 1
+
+                if n_coords not in visited_nodes or visited_nodes[n_coords][0] > distance:
+                    visited_nodes[n_coords] = (distance, coords)
+                    node_queue.put(n_coords)
+                    if n_coords == destination_coordinates:
+                        break
+
+    if destination_coordinates not in visited_nodes:
+        raise BotModeError(f"Could not find a path to ({destination_coordinates[0]}, {destination_coordinates[1]}).")
+
+    current_node = visited_nodes[destination_coordinates]
+    waypoints = [destination_coordinates]
+    while current_node[1] != starting_point:
+        waypoints.append(current_node[1])
+        current_node = visited_nodes[current_node[1]]
+
+    yield from follow_path(list(reversed(waypoints)), run)
+
+
+def walk_one_tile(direction: str, run: bool = True) -> Generator:
+    if run:
+        context.emulator.hold_button("B")
+
+    starting_position = get_player_avatar().local_coordinates
+    context.emulator.hold_button(direction)
+    while get_player_avatar().local_coordinates == starting_position:
+        yield
+    context.emulator.release_button(direction)
+    context.emulator.release_button("B")
+
+    if get_game_state() == GameState.CHANGE_MAP:
+        while get_game_state() == GameState.CHANGE_MAP:
+            yield
+        while "heldMovementFinished" not in get_map_objects()[0].flags:
+            yield
+
+    # Wait for player to come to a full stop.
+    while get_player_avatar().running_state != RunningState.NOT_MOVING:
+        yield
+
+    if get_game_state() == GameState.CHANGE_MAP:
+        while get_game_state() == GameState.CHANGE_MAP:
+            yield
+        while "heldMovementFinished" not in get_map_objects()[0].flags:
+            yield
 
 
 def ensure_facing_direction(facing_direction: str) -> Generator:
