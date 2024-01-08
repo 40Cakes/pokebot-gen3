@@ -19,6 +19,7 @@ from modules.memory import get_game_state, GameState
 from modules.pokemon import Pokemon
 from modules.runtime import get_sprites_path
 from modules.state_cache import state_cache
+import time
 
 
 class TotalStats:
@@ -40,6 +41,7 @@ class TotalStats:
             self.files = {
                 "shiny_log": self.stats_dir_path / "shiny_log.json",
                 "totals": self.stats_dir_path / "totals.json",
+                "temp_totals": self.stats_dir_path / "temp_totals.json",
             }
 
             if (self.config_dir_path / "customcatchfilters.py").is_file():
@@ -61,7 +63,17 @@ class TotalStats:
                 self.custom_hooks = custom_hooks
 
             f_total_stats = read_file(self.files["totals"])
-            self.total_stats = json.loads(f_total_stats) if f_total_stats else {}
+            try:
+                json.loads(f_total_stats)
+                self.total_stats = json.loads(f_total_stats) if f_total_stats else {}
+            except ValueError:
+                try:
+                    f_total_stats = read_file(self.files["temp_totals"])
+                    self.total_stats = json.loads(f_total_stats) if f_total_stats else {}
+                    print("totals.json is invalid, loading temp_totals.json instead")
+                except ValueError:
+                    self.total_stats = {}
+                    print("totals.json and temp_totals.json is invalid, loading empty stats :(")
 
             f_shiny_log = read_file(self.files["shiny_log"])
             self.shiny_log = json.loads(f_shiny_log) if f_shiny_log else {"shiny_log": []}
@@ -368,7 +380,7 @@ class TotalStats:
             self.reset_phase_stats()
 
         # Save stats file
-        write_file(self.files["totals"], json.dumps(self.total_stats, indent=4, sort_keys=True))
+        save_total_stats(self)
 
     def update_pickup_items(self, picked_up_items) -> None:
         self.total_stats["totals"]["pickup"] = self.total_stats["totals"].get("pickup", {})
@@ -386,7 +398,7 @@ class TotalStats:
         self.total_stats["totals"]["pickup"] = Counter(self.total_stats["totals"]["pickup"]) + Counter(pickup_stats)
 
         # Save stats file
-        write_file(self.files["totals"], json.dumps(self.total_stats, indent=4, sort_keys=True))
+        save_total_stats(self)
 
         if context.config.discord.pickup.enable:
             self.discord_picked_up_items = Counter(self.discord_picked_up_items) + Counter(item_count)
@@ -423,3 +435,22 @@ class TotalStats:
 
 
 total_stats = TotalStats()
+
+last_backup = -1
+
+
+def save_total_stats(self):
+    write_file(self.files["totals"], json.dumps(self.total_stats, indent=4, sort_keys=True))
+
+    if context.config.auto_save.stats.enable:
+        current_ms = int(time.time() * 1000)
+        global last_backup
+        if last_backup == -1:
+            last_backup = current_ms
+            write_file(self.files["temp_totals"], json.dumps(self.total_stats, indent=4, sort_keys=True))
+            return
+        ms = context.config.auto_save.stats.seconds_interval * 1000
+
+        if current_ms - last_backup > ms:
+            write_file(self.files["temp_totals"], json.dumps(self.total_stats, indent=4, sort_keys=True))
+            last_backup = current_ms

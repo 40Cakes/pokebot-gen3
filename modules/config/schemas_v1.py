@@ -247,3 +247,23 @@ class ProfileMetadataROM(BaseConfig):
     game_code: str = ""
     revision: NonNegativeInt = 0
     language: Literal["E", "F", "D", "I", "J", "S"] = ""
+
+
+class AutoSave(BaseConfig):
+    """Schema for the auto save configuration."""
+    filename: ClassVar = "auto_save.yml"
+    stats: AutoSaveStats = Field(default_factory=lambda: AutoSaveStats())
+    save_state: AutoSaveState = Field(default_factory=lambda: AutoSaveState())
+
+
+class AutoSaveStats(BaseConfig):
+    """Schema for the auto saving stats section in the auto save config."""
+    enable: bool = False
+    seconds_interval: PositiveInt | None = 60
+
+
+class AutoSaveState(BaseConfig):
+    """Schema for the auto saving save state section in the auto save config."""
+    enable: bool = False
+    seconds_interval: PositiveInt | None = 300
+    save_as_backups: bool = True

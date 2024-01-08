@@ -1,5 +1,6 @@
 import queue
 import sys
+import time
 from threading import Thread
 
 from modules.battle import BattleHandler, check_lead_can_battle, RotatePokemon
@@ -120,9 +121,30 @@ def main_loop() -> None:
                 context.set_manual_mode()
 
             context.emulator.run_single_frame()
+            if context.config.auto_save.save_state.enable:
+                auto_save_state()
 
     except SystemExit:
         raise
     except:
         console.print_exception(show_locals=True)
         sys.exit(1)
+
+
+last_saved = -1
+
+
+def auto_save_state():
+    current_ms = int(time.time() * 1000)
+    save_backups = context.config.auto_save.save_state.save_as_backups
+    global last_saved
+    if last_saved == -1:
+        last_saved = current_ms
+        context.emulator.create_save_state(make_backup=save_backups)
+        return
+    ms = context.config.auto_save.save_state.seconds_interval * 1000
+
+    if current_ms - last_saved > ms:
+        context.emulator.create_save_state(make_backup=save_backups)
+        last_saved = current_ms
+
