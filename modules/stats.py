@@ -63,7 +63,17 @@ class TotalStats:
                 self.custom_hooks = custom_hooks
 
             f_total_stats = read_file(self.files["totals"])
-            self.total_stats = json.loads(f_total_stats) if f_total_stats else {}
+            try:
+                json.loads(f_total_stats)
+                self.total_stats = json.loads(f_total_stats) if f_total_stats else {}
+            except ValueError:
+                try:
+                    f_total_stats = read_file(self.files["temp_totals"])
+                    self.total_stats = json.loads(f_total_stats) if f_total_stats else {}
+                    print("totals.json is invalid, loading temp_totals.json instead")
+                except ValueError:
+                    self.total_stats = {}
+                    print("totals.json and temp_totals.json is invalid, loading empty stats :(")
 
             f_shiny_log = read_file(self.files["shiny_log"])
             self.shiny_log = json.loads(f_shiny_log) if f_shiny_log else {"shiny_log": []}
