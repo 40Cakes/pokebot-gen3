@@ -1,0 +1,10 @@
+# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/wiki/
+
+stats:
+  enable: false
+  seconds_interval: 60
+
+save_state:
+  enable: false
+  seconds_interval: 300
+  save_as_backups: true

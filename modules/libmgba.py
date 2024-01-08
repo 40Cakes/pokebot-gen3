@@ -1,4 +1,5 @@
 import atexit
+import os
 import PIL.Image
 import PIL.PngImagePlugin
 import time
@@ -174,7 +175,7 @@ class LibmgbaEmulator:
     def reset(self) -> None:
         self._core.reset()
 
-    def create_save_state(self, suffix: str = "") -> None:
+    def create_save_state(self, suffix: str = "", make_backup: bool = True) -> None:
         states_directory = self._profile.path / "states"
         if not states_directory.exists():
             states_directory.mkdir()
@@ -195,13 +196,17 @@ class LibmgbaEmulator:
         with open(backup_path, "wb") as state_file:
             screenshot.save(state_file, format="PNG", pnginfo=extra_chunks)
 
-        console.print(f"Save state {backup_path} created!")
+        if make_backup:
+            console.print(f"Save state {backup_path} created!")
 
         # Once that succeeds, override `current_state.ss1` (which is what the bot loads on startup.)
         if backup_path.stat().st_size > 0:
             with open(self._current_state_path, "wb") as state_file:
                 screenshot.save(state_file, format="PNG", pnginfo=extra_chunks)
 
+        # We are making the backup and then deleting it, so we can catch errors before overriding `current_state.ss1`
+        if not make_backup:
+            os.remove(backup_path)
         console.print(f"Updated `current_state.ss1`!")
 
     def shutdown(self) -> None:
