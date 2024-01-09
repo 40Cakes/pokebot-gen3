@@ -290,7 +290,8 @@ class TotalStats:
 
     def update_same_pokemon_streak_record(self, pokemon: Pokemon) -> None:
         # Same Pokémon encounter streak records
-        if len(self.encounter_log) > 1 and self.encounter_log[-2]["pokemon"]["name"] == pokemon.species.name:
+        if (state_cache.last_encounter_log.value is not None and
+                state_cache.last_encounter_log.value["pokemon"]["name"] == pokemon.species.name):
             self.total_stats["totals"]["current_streak"] = self.total_stats["totals"].get("current_streak", 0) + 1
         else:
             self.total_stats["totals"]["current_streak"] = 1
