@@ -65,7 +65,7 @@ def main_loop() -> None:
                     lead_rotated = False
                     encounter_pokemon(get_opponent())
 
-                if battle_controller is None and context.bot_mode != "Manual":
+                if battle_controller is None and context.bot_mode != "Manual" and not is_default_battle_controller_disabled:
                     previously_held_inputs = context.emulator.reset_held_buttons()
                     battle_controller = BattleHandler().step()
             elif in_battle:
@@ -84,7 +84,8 @@ def main_loop() -> None:
                     battle_controller = None
 
             if is_default_battle_controller_disabled:
-                context.emulator.restore_held_buttons(previously_held_inputs)
+                if battle_controller is not None:
+                    context.emulator.restore_held_buttons(previously_held_inputs)
                 battle_controller = None
                 in_battle = False
 
