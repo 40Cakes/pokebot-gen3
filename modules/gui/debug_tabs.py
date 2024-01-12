@@ -35,7 +35,13 @@ from modules.pokedex import get_pokedex
 from modules.pokemon import get_party, get_species_by_index
 from modules.pokemon_storage import get_pokemon_storage
 from modules.roamer import get_roamer
-from modules.tasks import get_tasks, task_is_active, get_global_script_context, get_immediate_script_context, ScriptContext
+from modules.tasks import (
+    get_tasks,
+    task_is_active,
+    get_global_script_context,
+    get_immediate_script_context,
+    ScriptContext,
+)
 
 if TYPE_CHECKING:
     from modules.libmgba import LibmgbaEmulator
@@ -324,7 +330,7 @@ class TasksTab(DebugTab):
                     "Stack": stack,
                     "Data": ctx.data,
                     "Bytecode Pointer": hex(ctx.bytecode_pointer),
-                    "Native Pointer": hex(ctx.native_pointer)
+                    "Native Pointer": hex(ctx.native_pointer),
                 }
 
         data = {
@@ -780,6 +786,7 @@ class MiscTab(DebugTab):
             }
 
         from modules.region_map import get_map_cursor
+
         return {
             "Daycare": {
                 "__value": data.compatibility[0].name,

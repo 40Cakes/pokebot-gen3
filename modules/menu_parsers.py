@@ -39,6 +39,7 @@ class CursorOptionFRLG(IntEnum):
     SOFT_BOILED = 28
     SWEET_SCENT = 29
 
+
 class CursorOptionEmerald(IntEnum):
     SUMMARY = 0
     SWITCH = 1
