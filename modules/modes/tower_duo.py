@@ -31,7 +31,7 @@ class TowerDuoMode(BotMode):
             # Lugia on Emerald
             case MapRSE.NAVEL_ROCK_U.value:
                 pokemon_name = "Lugia"
-                flag_to_check = "FLAG_CAUGHT_LUGIA"
+                flag_to_check = "CAUGHT_LUGIA"
 
                 def path():
                     yield from navigate_to(13, 19)
@@ -43,7 +43,7 @@ class TowerDuoMode(BotMode):
             # Lugia on FR/LG
             case MapFRLG.NAVEL_ROCK_B.value:
                 pokemon_name = "Lugia"
-                flag_to_check = "FLAG_CAUGHT_LUGIA"
+                flag_to_check = "CAUGHT_LUGIA"
 
                 def path():
                     yield from navigate_to(12, 20)
@@ -55,7 +55,7 @@ class TowerDuoMode(BotMode):
             # Ho-Oh on Emerald
             case MapRSE.NAVEL_ROCK_I.value:
                 pokemon_name = "Ho-Oh"
-                flag_to_check = "FLAG_CAUGHT_HO_OH"
+                flag_to_check = "CAUGHT_HO_OH"
 
                 def path():
                     yield from navigate_to(12, 20)
@@ -67,7 +67,7 @@ class TowerDuoMode(BotMode):
             # Ho-Oh on FR/LG
             case MapFRLG.NAVEL_ROCK_A.value:
                 pokemon_name = "Ho-Oh"
-                flag_to_check = "FLAG_CAUGHT_HO_OH"
+                flag_to_check = "CAUGHT_HO_OH"
 
                 def path():
                     yield from navigate_to(9, 18)

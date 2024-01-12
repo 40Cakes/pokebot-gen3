@@ -31,7 +31,7 @@ class AncientLegendariesMode(BotMode):
         match get_player_avatar().map_group_and_number:
             case MapRSE.MARINE_CAVE_A.value:
                 pokemon_name = "Kyogre"
-                flags_to_check = ("FLAG_DEFEATED_KYOGRE", "FLAG_LEGENDARY_BATTLE_COMPLETED")
+                flags_to_check = ("DEFEATED_KYOGRE", "LEGENDARY_BATTLE_COMPLETED")
 
                 def path():
                     yield from navigate_to(20, 4)
@@ -41,7 +41,7 @@ class AncientLegendariesMode(BotMode):
 
             case MapRSE.TERRA_CAVE_A.value:
                 pokemon_name = "Groudon"
-                flags_to_check = ("FLAG_DEFEATED_GROUDON", "FLAG_LEGENDARY_BATTLE_COMPLETED")
+                flags_to_check = ("DEFEATED_GROUDON", "LEGENDARY_BATTLE_COMPLETED")
 
                 def path():
                     yield from navigate_to(5, 4)
@@ -51,7 +51,7 @@ class AncientLegendariesMode(BotMode):
 
             case MapRSE.SKY_PILLAR_G.value:
                 pokemon_name = "Rayquaza"
-                flags_to_check = ("FLAG_DEFEATED_RAYQUAZA",)
+                flags_to_check = ("DEFEATED_RAYQUAZA",)
 
                 def path():
                     yield from navigate_to(16, 15)
