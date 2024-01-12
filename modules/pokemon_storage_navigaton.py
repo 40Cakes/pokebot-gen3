@@ -58,14 +58,21 @@ class MenuNavigator(BaseMenuNavigator):
         self.current_step = None
         
     def get_next_func(self):
-        match self.current_step:
-            case None:
+        match self.current_step, self.desired_option:
+            case None, _:
                 self.current_step = "wait_for_menu"
-            case "wait_for_menu":
+            case "wait_for_menu", "YES":
+                self.current_step = "select_yes"
+            case "wait_for_menu", _:
                 self.current_step = "navigate_to_option"
-            case "navigate_to_option":
+            case "select_yes", _:
+                self.current_step = "exit"
+            case "navigate_to_option", _:
                 self.current_step = "confirm_option"
-            case "confirm_option":
+            case "confirm_option", "RELEASE":
+                self.current_step = "wait_for_menu"
+                self.desired_option = "YES"
+            case "confirm_option", _:
                 self.current_step = "exit"
             
     def update_navigator(self):
@@ -76,6 +83,8 @@ class MenuNavigator(BaseMenuNavigator):
                 self.navigator = self.navigate_to_option()
             case "confirm_option":
                 self.navigator = self.confirm_option()
+            case "select_yes":
+                self.navigator = self.select_yes()
             
     def wait_for_menu(self):
         while self.cursor.menu_cur_pos is None and self.wait_counter < 20:
@@ -85,9 +94,22 @@ class MenuNavigator(BaseMenuNavigator):
             raise ValueError("Menu did not open")
         self.wait_counter = 0
     
+    def select_yes(self):
+        while self.wait_counter < 6:
+            context.emulator.press_button("Up")
+            self.wait_counter += 1
+            yield
+        while task_is_active("Task_ReleaseMon"):
+            context.emulator.press_button("A")
+            yield
+        self.wait_counter = 0
+    
     def navigate_to_option(self):
         while not self.cursor.menu_cur_pos == self.menu.index(self.desired_option):
-            context.emulator.press_button("Down")
+            if self.cursor.menu_cur_pos != -1:
+                context.emulator.press_button("Down")
+            else:
+                context.emulator.press_button("Up")
             yield
             
     def confirm_option(self):
@@ -96,6 +118,7 @@ class MenuNavigator(BaseMenuNavigator):
                 context.emulator.press_button("A")
             self.wait_counter += 1
             yield
+        self.wait_counter = 0
 
 class BoxNavigator(BaseMenuNavigator):
     """
