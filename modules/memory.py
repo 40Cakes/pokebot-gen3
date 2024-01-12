@@ -2,7 +2,7 @@ import struct
 from enum import IntEnum, auto
 
 from modules.context import context
-from modules.game import get_symbol, get_symbol_name, get_event_flag_offset, _event_flags
+from modules.game import get_symbol, get_symbol_name, get_event_flag_offset, _event_flags, _event_vars
 from modules.state_cache import state_cache
 
 
@@ -213,3 +213,10 @@ def set_event_flag(flag_name: str) -> bool:
 
     write_to_save_block(int.to_bytes(int.from_bytes(flag_byte) ^ (1 << flag_offset[1])), 1, offset=flag_offset[0])
     return True
+
+
+def get_event_var(var_name: str) -> int:
+    if var_name not in _event_vars:
+        return -1
+    else:
+        return unpack_uint16(get_save_block(1, offset=_event_vars[var_name], size=2))
