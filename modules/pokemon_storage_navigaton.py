@@ -12,13 +12,11 @@ PokeInBoxOptions = [
     "CANCEL"
 ]
 
-#Not implemented yet
 PCPokeOptions = [
     "WITHDRAW_POKEMON",
     "DEPOSIT_POKEMON",
     "MOVE_POKEMON",
-    "MOVE_ITEMS",
-    "EXIT"
+    "MOVE_ITEMS"
 ]
 
 #Not implemented yet
@@ -44,6 +42,62 @@ def pc_slot_from_number(slot: int) -> tuple[int, int]:
     if slot > 29:
         raise ValueError("Slot must be between 0 and 29")
     return [slot % 6, slot // 6]
+
+class PCMainMenuNavigator(BaseMenuNavigator):
+    def __init__(self, desired_option: str):
+        super().__init__()
+        if desired_option.upper() in PCPokeOptions:
+            self.desired_option = desired_option.upper()
+            self.cursor = StorageCursor()
+            self.wait_counter = 0
+            match context.rom.game_title:
+                case "POKEMON EMER" | "POKEMON FIRE" | "POKEMON LEAF":
+                    self.pc_task = "Task_PCMainMenu"
+                case "POKEMON RUBY" | "POKEMON SAPP":
+                    self.pc_task = "Task_PokemonStorageSystem"
+                case _:
+                    raise ValueError("Game not supported")
+        else:
+            raise ValueError(f"Option not in PC Main Menu, options are {PCPokeOptions}")
+        self.current_step = None
+        
+    def get_next_func(self):
+        match self.current_step:
+            case None:
+                self.current_step = "wait_for_pc"
+            case "wait_for_pc":
+                self.current_step = "navigate_to_option"
+            case "navigate_to_option":
+                self.current_step = "confirm_option"
+            case "confirm_option":
+                self.current_step = "exit"
+                
+    def update_navigator(self):
+        match self.current_step:
+            case "wait_for_pc":
+                self.navigator = self.wait_for_pc()
+            case "navigate_to_option":
+                self.navigator = self.navigate_to_option()
+            case "confirm_option":
+                self.navigator = self.confirm_option()
+
+    def wait_for_pc(self):
+        while not task_is_active(self.pc_task) and self.wait_counter < 20:
+            self.wait_counter += 1
+            yield
+        if self.wait_counter >= 20:
+            raise ValueError("PC did not open")
+        self.wait_counter = 0
+    
+    def navigate_to_option(self):
+        while get_task(self.pc_task).data[2] != PCPokeOptions.index(self.desired_option):
+            context.emulator.press_button("Down")
+            yield
+            
+    def confirm_option(self):
+        while task_is_active(self.pc_task):
+            context.emulator.press_button("A")
+            yield
 
 class MenuNavigator(BaseMenuNavigator):
     def __init__(self, desired_option: str, menu: list):
@@ -106,10 +160,7 @@ class MenuNavigator(BaseMenuNavigator):
     
     def navigate_to_option(self):
         while not self.cursor.menu_cur_pos == self.menu.index(self.desired_option):
-            if self.cursor.menu_cur_pos != -1:
-                context.emulator.press_button("Down")
-            else:
-                context.emulator.press_button("Up")
+            context.emulator.press_button("Down")
             yield
             
     def confirm_option(self):
