@@ -175,4 +175,3 @@ def get_pokemon_storage() -> PokemonStorage:
     pokemon_storage = PokemonStorage(offset, context.emulator.read_bytes(offset, length))
     state_cache.pokemon_storage = pokemon_storage
     return pokemon_storage
-
