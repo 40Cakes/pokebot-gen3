@@ -140,7 +140,7 @@ def get_party_menu_cursor_pos(party_length: int) -> dict:
         "slot_id_2": -1,
     }
 
-    if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+    if not context.rom.is_rs:
         p_menu = read_symbol("gPartyMenu")
         party_menu["main_cb"] = get_symbol_name(unpack_uint32(p_menu[0:4]) - 1)
         party_menu["taskfunc"] = get_symbol_name(unpack_uint32(p_menu[4:8]) - 1)
@@ -167,7 +167,7 @@ def parse_menu() -> dict:
     """
     Function to parse the currently displayed menu and return usable information.
     """
-    if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+    if not context.rom.is_rs:
         menu = read_symbol("sMenu")
         cursor_pos = struct.unpack("<b", menu[2:3])[0]
         min_cursor_pos = struct.unpack("<b", menu[3:4])[0]
@@ -188,7 +188,7 @@ def parse_party_menu() -> dict:
     """
     Function to parse info about the party menu
     """
-    if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+    if not context.rom.is_rs:
         pmi_pointer = read_symbol("sPartyMenuInternal")
         addr = int(struct.unpack("<I", pmi_pointer)[0]) - 1
         party_menu_internal = context.emulator.read_bytes(addr, length=30)
@@ -219,7 +219,7 @@ def get_learning_mon() -> Pokemon:
     :return: The Pokémon trying to learn a move after evolution.
     """
     index = 0
-    if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+    if not context.rom.is_rs:
         index = int.from_bytes(get_task("TASK_EVOLUTIONSCENE").data[20:22], "little")
     else:
         for i, member in enumerate(get_party()):
@@ -265,7 +265,7 @@ def parse_start_menu() -> dict:
     """
     is_open = False
 
-    if context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]:
+    if context.rom.is_rse:
         start_menu_options_symbol = "sCurrentStartMenuActions"
         num_actions_symbol = "sNumStartMenuActions"
         start_menu_enum = StartMenuOptionHoenn

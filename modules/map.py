@@ -10,11 +10,11 @@ from modules.pokemon import get_item_by_index, Item
 
 
 def _get_tile_type_name(tile_type: int):
-    if context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
+    if context.rom.is_rs:
         rse = True
         frlg = False
         emerald = False
-    elif context.rom.game_title == "POKEMON EMER":
+    elif context.rom.is_emerald:
         rse = True
         frlg = False
         emerald = True
@@ -705,7 +705,7 @@ class MapLocation:
         collision = (map_grid_block & 0x0C00) >> 10
         elevation = (map_grid_block & 0xF000) >> 12
 
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             metatiles_in_primary = 640
             metatiles_in_secondary = 1024
             metatiles_attributes_size = 4
@@ -751,7 +751,7 @@ class MapLocation:
     @property
     def map_name(self) -> str:
         region_map_section_id = self._map_header[0x14]
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             map_index = region_map_section_id - 0x58
             if 0 <= map_index < 0xC4 - 0x58:
                 # The game special-cases the Celadon Department Store by map number
@@ -794,14 +794,14 @@ class MapLocation:
 
     @property
     def has_encounters(self) -> bool:
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON SAPP"]:
+        if context.rom.is_frlg:
             return bool(self._metatile_attributes[0] & 0x0700_0000)
         else:
             return bool(self._tile_behaviour & 1)
 
     @property
     def is_surfable(self) -> bool:
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON SAPP"]:
+        if context.rom.is_frlg:
             return self.tile_type in [
                 "Pond Water",
                 "Fast Water",
@@ -834,14 +834,14 @@ class MapLocation:
         ]:
             return False
 
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             return bool(self._map_header[0x18])
         else:
             return bool(self._map_header[0x1A] & 0b0001)
 
     @property
     def is_escaping_possible(self) -> bool:
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             return bool(self._map_header[0x19] & 0b0001)
         else:
             return bool(self._map_header[0x1A] & 0b0010)
@@ -863,14 +863,14 @@ class MapLocation:
         ]:
             return False
 
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             return bool(self._map_header[0x19] & 0b0010)
         else:
             return bool(self._map_header[0x1A] & 0b0100)
 
     @property
     def is_map_name_popup_shown(self) -> bool:
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             return bool(self._map_header[0x19] & 0b0100)
         else:
             return bool(self._map_header[0x1A] & 0b1000)

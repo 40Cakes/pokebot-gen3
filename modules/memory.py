@@ -86,7 +86,7 @@ def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     try:
         if not size:
             size = get_symbol(f"GSAVEBLOCK{num}")[1]
-        if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+        if not context.rom.is_rs:
             p_Trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
             if p_Trainer == 0:
                 return None
@@ -109,7 +109,7 @@ def write_to_save_block(data: bytes, num: int = 1, offset: int = 0) -> bool:
     """
     # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
     try:
-        if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+        if not context.rom.is_rs:
             p_Trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
             if p_Trainer == 0:
                 return False

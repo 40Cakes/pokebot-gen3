@@ -75,7 +75,7 @@ def _load_event_flags_and_vars(file_name: str) -> None:  # TODO Japanese ROMs no
     _reverse_event_vars.clear()
     for s in open(get_data_path() / "event_vars" / file_name).readlines():
         number, name = s.strip().split(" ")
-        _event_vars[name] = int(number) + vars_offset
+        _event_vars[name] = int(number) * 2 + vars_offset
         _reverse_event_vars[int(number)] = name
 
 

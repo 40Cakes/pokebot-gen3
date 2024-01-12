@@ -299,7 +299,7 @@ def http_server() -> None:
             - map
         """
 
-        if context.rom.game_title in ["POKEMON EMER", "POKEMON RUBY", "POKEMON SAPP"]:
+        if context.rom.is_rse:
             maps_enum = MapRSE
         else:
             maps_enum = MapFRLG

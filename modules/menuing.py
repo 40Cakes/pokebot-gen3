@@ -20,7 +20,7 @@ def party_menu_is_open() -> bool:
 
     :return: True if the party menu is active, false otherwise.
     """
-    if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+    if not context.rom.is_rs:
         return get_game_state() == GameState.PARTY_MENU
     else:
         return (

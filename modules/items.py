@@ -174,7 +174,7 @@ class ItemBag:
             return True
 
         # In FireRed/LeafGreen, you can always put 999 items in a stack. In RSE, this only works for berries.
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"] or item.pocket == ItemPocket.Berries:
+        if context.rom.is_frlg or item.pocket == ItemPocket.Berries:
             stack_size = 999
         else:
             stack_size = 99
@@ -295,7 +295,7 @@ def get_item_bag() -> ItemBag:
     if state_cache.item_bag.age_in_frames == 0:
         return state_cache.item_bag.value
 
-    if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+    if context.rom.is_frlg:
         items_count = 42
         key_items_count = 30
         poke_balls_count = 13
@@ -303,7 +303,7 @@ def get_item_bag() -> ItemBag:
         berries_count = 43
         offset = 0x310
         encryption_key = get_save_block(2, offset=0xF20, size=4)
-    elif context.rom.game_title == "POKEMON EMER":
+    elif context.rom.is_emerald:
         items_count = 30
         key_items_count = 30
         poke_balls_count = 16
@@ -334,7 +334,7 @@ def get_item_storage() -> ItemStorage:
     if state_cache.item_storage.age_in_frames == 0:
         return state_cache.item_storage.value
 
-    if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+    if context.rom.is_frlg:
         items_count = 30
         offset = 0x298
     else:

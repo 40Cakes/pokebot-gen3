@@ -7,7 +7,15 @@ from modules.encounter import encounter_pokemon
 from modules.gui.multi_select_window import ask_for_choice, Selection
 from modules.items import get_item_bag, get_item_by_name
 from modules.map import get_map_objects
-from modules.memory import get_game_state, GameState, unpack_uint16, get_save_block, read_symbol, get_game_state_symbol
+from modules.memory import (
+    get_game_state,
+    GameState,
+    unpack_uint16,
+    get_save_block,
+    read_symbol,
+    get_game_state_symbol,
+    get_event_var,
+)
 from modules.menu_parsers import CursorOptionFRLG, CursorOptionEmerald
 from modules.menuing import StartMenuNavigator, PokemonPartyMenuNavigator
 from modules.player import get_player, get_player_avatar
@@ -42,6 +50,10 @@ def _get_allowed_starting_map() -> tuple[int, int]:
         return -1, -1
 
 
+def _get_repel_steps_remaining():
+    return get_event_var("REPEL_STEP_COUNT")
+
+
 class RoamerResetMode(BotMode):
     @staticmethod
     def name() -> str:
@@ -49,6 +61,9 @@ class RoamerResetMode(BotMode):
 
     @staticmethod
     def is_selectable() -> bool:
+        if context.rom.is_emerald and get_event_var("LITTLEROOT_HOUSES_STATE_MAY") != 3:
+            return False
+
         return get_player_avatar().map_group_and_number == _get_allowed_starting_map()
 
     @staticmethod
@@ -213,9 +228,6 @@ class RoamerResetMode(BotMode):
             yield from wait_for_task_to_start_and_finish("Task_ShowStartMenu", "B")
             yield
 
-        def get_repel_steps_remaining():
-            return unpack_uint16(get_save_block(1, offset=0x139C + (0x21 * 2), size=2))
-
         while get_game_state() != GameState.BATTLE:
             for _ in inner_loop():
                 if get_game_state() == GameState.BATTLE:
@@ -231,7 +243,7 @@ class RoamerResetMode(BotMode):
                         global_ctx = get_global_script_context()
                     context.emulator.restore_held_buttons(previous_inputs)
                     yield
-                if get_repel_steps_remaining() <= 0:
+                if _get_repel_steps_remaining() <= 0:
                     previous_inputs = context.emulator.reset_held_buttons()
                     yield
                     for __ in apply_repel():
@@ -364,14 +376,11 @@ class RoamerResetMode(BotMode):
                 yield from wait_for_task_to_start_and_finish("Task_ContinueTaskAfterMessagePrints", "A")
                 yield from wait_for_task_to_start_and_finish("Task_StartMenuHandleInput", "B")
 
-            def get_repel_steps_remaining():
-                return unpack_uint16(get_save_block(1, offset=0x1000 + (0x20 * 2), size=2))
-
             while get_game_state() != GameState.BATTLE:
                 for _ in inner_loop():
                     if get_game_state() == GameState.BATTLE:
                         break
-                    steps_remaining = get_repel_steps_remaining()
+                    steps_remaining = _get_repel_steps_remaining()
                     if steps_remaining == 0:
                         previous_inputs = context.emulator.reset_held_buttons()
                         yield

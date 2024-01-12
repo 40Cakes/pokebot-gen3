@@ -68,10 +68,10 @@ def get_pokedex() -> Pokedex:
     if state_cache.pokedex.age_in_frames == 0:
         return state_cache.pokedex.value
 
-    if context.rom.game_title == "POKEMON EMER":
+    if context.rom.is_emerald:
         seen1_offset = 0x988
         seen2_offset = 0x3B24
-    elif context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
+    elif context.rom.is_rs:
         seen1_offset = 0x938
         seen2_offset = 0x3A8C
     else:

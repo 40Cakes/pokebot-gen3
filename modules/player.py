@@ -221,7 +221,7 @@ def get_player() -> Player:
     if state_cache.player.age_in_frames == 0:
         return state_cache.player.value
 
-    if context.rom.game_title in ["POKEMON EMER", "POKEMON RUBY", "POKEMON SAPP"]:
+    if context.rom.is_rse:
         save_block_1_offset = 0x490
         encryption_key_offset = 0xAC
     else:

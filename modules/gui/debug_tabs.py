@@ -646,7 +646,7 @@ class PlayerTab(DebugTab):
 
         game_stats = {}
         for member in GameStat:
-            if member.value > 49 and context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
+            if member.value > 49 and context.rom.is_rs:
                 continue
             game_stats[member.name] = get_game_stat(member)
 
@@ -898,9 +898,9 @@ class EventVarsTab(DebugTab):
         result = {}
         search_phrase = self._search_field.get().upper()
 
-        if context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
+        if context.rom.is_rs:
             offset = 0x1340
-        elif context.rom.game_title == "POKEMON EMER":
+        elif context.rom.is_emerald:
             offset = 0x139C
         else:
             offset = 0x1000
