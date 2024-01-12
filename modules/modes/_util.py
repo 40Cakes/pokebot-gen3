@@ -164,13 +164,19 @@ def navigate_to(x: int, y: int, run: bool = True) -> Generator:
                             may_pass = True
                     if not may_pass:
                         continue
+                if tile.tile_type.startswith("Impassable "):
+                    impassable_directions = tile.tile_type[11:].split(" and ")
+                    if direction in impassable_directions:
+                        continue
                 if neighbour.elevation not in (0, 15) and tile.elevation != 0 and tile.elevation != neighbour.elevation:
+                    continue
+                if neighbour.tile_type == "Door Warp":
                     continue
                 tile_blocked_by_object = False
                 object_event_ids = []
                 for map_object in get_map_objects():
                     object_event_ids.append(map_object.local_id)
-                    if map_object.current_coords == n_coords:
+                    if map_object.current_coords == n_coords or map_object.previous_coords == n_coords:
                         tile_blocked_by_object = True
                         break
                 for object_template in tiles[0].objects:

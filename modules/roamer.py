@@ -154,7 +154,7 @@ def get_roamer() -> Roamer | None:
 
     data = get_save_block(1, offset, size=0x14)
     location = read_symbol("sRoamerLocation")
-    if data[0x13]:
+    if data[0x13] and (data[0x08] or data[0x09]):
         trainer_id = get_save_block(2, offset=0xA, size=4)
         return Roamer(data, location, unpack_uint16(trainer_id[0:2]), unpack_uint16(trainer_id[2:4]))
     else:
