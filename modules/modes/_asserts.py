@@ -77,6 +77,8 @@ def assert_saved_on_map(expected_locations: SavedMapLocation | list[SavedMapLoca
                         return
                 elif expected_location.local_coordinates == save_data.get_map_local_coordinates():
                     return
+            else:
+                return
 
     raise BotModeError(error_message)
 

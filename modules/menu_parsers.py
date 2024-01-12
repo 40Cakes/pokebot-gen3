@@ -7,7 +7,39 @@ from modules.pokemon import get_party, parse_pokemon, Pokemon, get_move_by_index
 from modules.tasks import get_task, task_is_active
 
 
-class CursorOptionEFRLG(IntEnum):
+class CursorOptionFRLG(IntEnum):
+    SUMMARY = 0
+    SWITCH = 1
+    CANCEL_1 = 2
+    ITEM = 3
+    GIVE_ITEM = 4
+    TAKE_ITEM = 5
+    MAIL = 6
+    TAKE_MAIL = 7
+    READ = 8
+    CANCEL_2 = 9
+    SHIFT = 10
+    SEND_OUT = 11
+    ENTER = 12
+    NO_ENTRY = 13
+    STORE = 14
+    REGISTER = 15
+    TRADE_1 = 16
+    TRADE_2 = 17
+    FLASH = 18
+    CUT = 19
+    FLY = 20
+    STRENGTH = 21
+    SURF = 22
+    ROCK_SMASH = 23
+    WATERFALL = 24
+    TELEPORT = 25
+    DIG = 26
+    MILK_DRINK = 27
+    SOFT_BOILED = 28
+    SWEET_SCENT = 29
+
+class CursorOptionEmerald(IntEnum):
     SUMMARY = 0
     SWITCH = 1
     CANCEL_1 = 2
@@ -311,8 +343,9 @@ def switch_requested() -> bool:
 
 
 def get_cursor_options(idx: int) -> str:
-    match context.rom.game_title:
-        case "POKEMON FIRE" | "POKEMON LEAF" | "POKEMON EMER":
-            return CursorOptionEFRLG(idx).name
-        case _:
-            return CursorOptionRS(idx).name
+    if context.rom.is_frlg:
+        return CursorOptionFRLG(idx).name
+    elif context.rom.is_emerald:
+        return CursorOptionEmerald(idx).name
+    else:
+        return CursorOptionRS(idx).name

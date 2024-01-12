@@ -34,7 +34,8 @@ from modules.player import get_player, get_player_avatar, AvatarFlags, TileTrans
 from modules.pokedex import get_pokedex
 from modules.pokemon import get_party, get_species_by_index
 from modules.pokemon_storage import get_pokemon_storage
-from modules.tasks import get_tasks, task_is_active
+from modules.roamer import get_roamer
+from modules.tasks import get_tasks, task_is_active, get_global_script_context, get_immediate_script_context, ScriptContext
 
 if TYPE_CHECKING:
     from modules.libmgba import LibmgbaEmulator
@@ -303,7 +304,34 @@ class TasksTab(DebugTab):
         self._cb1_label.config(text=cb1_symbol)
         self._cb2_label.config(text=cb2_symbol)
 
-        data = {}
+        def render_script_context(ctx: ScriptContext) -> dict | str:
+            if not ctx.is_active:
+                return "None"
+            else:
+                if ctx.stack_depth == 0:
+                    stack = "Empty"
+                else:
+                    stack_entries = ctx.stack
+                    stack = {"__value": ", ".join(stack_entries[0:2]) + ("..." if len(stack_entries) > 2 else "")}
+                    for index in range(len(stack_entries)):
+                        stack[index] = stack_entries[index]
+
+                return {
+                    "__value": ctx.script_function_name + " / " + ctx.native_function_name,
+                    "Mode": ctx.mode,
+                    "Script Function": ctx.script_function_name,
+                    "Native Function": ctx.native_function_name,
+                    "Stack": stack,
+                    "Data": ctx.data,
+                    "Bytecode Pointer": hex(ctx.bytecode_pointer),
+                    "Native Pointer": hex(ctx.native_pointer)
+                }
+
+        data = {
+            "Global Script Context": render_script_context(get_global_script_context()),
+            "Immediate Script Context": render_script_context(get_immediate_script_context()),
+        }
+
         index = 0
         for task in get_tasks():
             data[task.symbol] = {
@@ -709,13 +737,13 @@ class PlayerTab(DebugTab):
         return result
 
 
-class DaycareTab(DebugTab):
+class MiscTab(DebugTab):
     _tv: FancyTreeview
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
         self._tv = FancyTreeview(frame)
-        root.add(frame, text="Daycare")
+        root.add(frame, text="Misc")
 
     def update(self, emulator: "LibmgbaEmulator"):
         self._tv.update_data(self._get_data())
@@ -751,13 +779,19 @@ class DaycareTab(DebugTab):
                 "egg_groups": ", ".join(set(data.pokemon2_egg_groups)),
             }
 
+        from modules.region_map import get_map_cursor
         return {
-            "Pokémon #1": pokemon1,
-            "Pokémon #2": pokemon2,
-            "Offspring Personality": data.offspring_personality,
-            "Step Counter": data.step_counter,
-            "Compatibility": data.compatibility[0].name,
-            "Compatibility Reason": data.compatibility[1],
+            "Daycare": {
+                "__value": data.compatibility[0].name,
+                "Pokémon #1": pokemon1,
+                "Pokémon #2": pokemon2,
+                "Offspring Personality": data.offspring_personality,
+                "Step Counter": data.step_counter,
+                "Compatibility": data.compatibility[0].name,
+                "Compatibility Reason": data.compatibility[1],
+            },
+            "Roamer": get_roamer(),
+            "Region Map Cursor": get_map_cursor(),
         }
 
 

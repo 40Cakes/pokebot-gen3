@@ -9,7 +9,7 @@ from modules.context import context
 from modules.memory import get_game_state, GameState
 from modules.menuing import MenuWrapper, CheckForPickup, should_check_for_pickup
 from modules.modes import get_bot_mode_by_name, BotMode, BotModeError
-from modules.pokemon import opponent_changed, get_opponent
+from modules.pokemon import opponent_changed, get_opponent, clear_opponent
 
 
 # Contains a queue of tasks that should be run the next time a frame completes.
@@ -75,6 +75,7 @@ def main_loop() -> None:
             elif in_battle:
                 # 'Clean-up tasks' at the end of a battle.
                 in_battle = False
+                clear_opponent()
                 if context.config.battle.pickup and should_check_for_pickup() and not pickup_checked:
                     pickup_checked = True
                     previously_held_inputs = context.emulator.reset_held_buttons()

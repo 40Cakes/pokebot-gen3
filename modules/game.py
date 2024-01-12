@@ -218,10 +218,29 @@ def get_symbol_name(address: int, pretty_name: bool = False) -> str:
     Get the name of a symbol based on the address
 
     :param address: address of the symbol
+    :param pretty_name: Whether to return the symbol name all-uppercase (False) or
+                        with 'natural' case (True)
 
     :return: name of the symbol (str)
     """
     return _reverse_symbols.get(address, ("", ""))[0 if not pretty_name else 1]
+
+
+def get_symbol_name_before(address: int, pretty_name: bool = False) -> str:
+    """
+    Looks up the name of the symbol that comes at or before a memory address (i.e.
+    the name of the symbol that this address supposedly belongs to.)
+
+    :param address: Address to look up
+    :param pretty_name: Whether to return the symbol name all-uppercase (False) or
+                        with 'natural' case (True)
+    :return: name of the symbol (str)
+    """
+    maximum_lookahead = 1024
+    for lookahead in range(maximum_lookahead):
+        if address - lookahead in _reverse_symbols:
+            return _reverse_symbols[address - lookahead][0 if not pretty_name else 1]
+    return hex(address)
 
 
 def get_event_flag_offset(flag_name: str) -> tuple[int, int]:

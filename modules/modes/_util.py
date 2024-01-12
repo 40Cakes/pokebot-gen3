@@ -234,13 +234,12 @@ def walk_one_tile(direction: str, run: bool = True) -> Generator:
     context.emulator.release_button("B")
 
     # Wait for player to come to a full stop.
-    while get_player_avatar().running_state != RunningState.NOT_MOVING:
-        if get_game_state() == GameState.CHANGE_MAP:
-            while get_game_state() == GameState.CHANGE_MAP:
-                yield
-        while "heldMovementFinished" not in get_map_objects()[0].flags:
-            yield
-
+    while (
+        get_game_state() != GameState.OVERWORLD
+        or "heldMovementFinished" not in get_map_objects()[0].flags
+        or get_player_avatar().running_state != RunningState.NOT_MOVING
+        or get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING
+    ):
         # Check whether there is a PokéNav call active and close it.
         while task_is_active("Task_SpinPokenavIcon"):
             context.emulator.release_button("B")
