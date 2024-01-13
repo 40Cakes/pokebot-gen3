@@ -785,11 +785,22 @@ class MiscTab(DebugTab):
                 "egg_groups": ", ".join(set(data.pokemon2_egg_groups)),
             }
 
+        if pokemon1 == "n/a" and pokemon2 == "n/a":
+            daycare_value = "None"
+        elif pokemon2 == "n/a" and pokemon1 != "n/a":
+            daycare_value = pokemon1["__value"]
+        elif pokemon1 == "n/a" and pokemon2 != "n/a":
+            daycare_value = pokemon2["__value"]
+        else:
+            daycare_value = (
+                f"{data.compatibility[0].name}: {data.pokemon1.species.name} and {data.pokemon2.species.name}"
+            )
+
         from modules.region_map import get_map_cursor
 
         return {
             "Daycare": {
-                "__value": data.compatibility[0].name,
+                "__value": daycare_value,
                 "Pokémon #1": pokemon1,
                 "Pokémon #2": pokemon2,
                 "Offspring Personality": data.offspring_personality,
