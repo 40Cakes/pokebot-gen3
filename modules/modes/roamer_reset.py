@@ -11,7 +11,6 @@ from modules.memory import (
     get_game_state,
     GameState,
     unpack_uint16,
-    get_save_block,
     read_symbol,
     get_game_state_symbol,
     get_event_var,
@@ -76,9 +75,19 @@ class RoamerResetMode(BotMode):
 
         if context.rom.is_frlg:
             location_error = "The game has not been saved while standing in the Pokemon Net Center on One Island."
+            roamer_level = 50
+            level_error = "The first Pokémon in your party has to be level 50 or lower in order for Repel to work."
         else:
             location_error = "The game has not been saved while standing on the top floor of the player's house."
+            roamer_level = 40
+            level_error = "The first Pokémon in your party has to be level 40 or lower in order for Repel to work."
         assert_saved_on_map(SavedMapLocation(_get_allowed_starting_map()), error_message=location_error)
+
+        if get_party()[0].level > roamer_level:
+            raise BotModeError(level_error)
+
+        if get_party()[0].is_egg:
+            raise BotModeError("The first Pokémon in your party must not be an egg in order for Repel to work.")
 
         item_bag = get_item_bag()
         number_of_repels = (
@@ -89,25 +98,25 @@ class RoamerResetMode(BotMode):
         if number_of_repels == 0:
             raise BotModeError("You do not have any repels in your item bag. Go and get some first!")
 
-        has_flying_pokemon = False
+        flying_pokemon_index = None
         move_fly = get_move_by_name("Fly")
-        for party_member in get_party():
-            for learned_move in party_member.moves:
+        for index in range(len(get_party())):
+            for learned_move in get_party()[index].moves:
                 if learned_move is not None and learned_move.move == move_fly:
-                    has_flying_pokemon = True
+                    flying_pokemon_index = index
                     break
-        if not has_flying_pokemon:
+        if flying_pokemon_index is None:
             raise BotModeError("None of your party Pokémon know the move Fly. Please teach it to someone.")
 
         if context.rom.is_frlg:
-            yield from self.run_frlg()
+            yield from self.run_frlg(flying_pokemon_index)
         elif context.rom.is_emerald:
-            yield from self.run_emerald()
+            yield from self.run_emerald(flying_pokemon_index)
         else:
             context.message = "This game is not yet supported."
             context.set_manual_mode()
 
-    def run_emerald(self):
+    def run_emerald(self, flying_pokemon_index: int):
         roamer_choice = ask_for_choice(
             [
                 Selection("Latias", get_sprites_path() / "pokemon" / "normal" / "Latias.png"),
@@ -156,7 +165,7 @@ class RoamerResetMode(BotMode):
 
             # Select field move FLY
             yield from StartMenuNavigator("POKEMON").step()
-            yield from PokemonPartyMenuNavigator(1, "", CursorOptionEmerald.FLY).step()
+            yield from PokemonPartyMenuNavigator(flying_pokemon_index, "", CursorOptionEmerald.FLY).step()
 
             while get_game_state_symbol() != "CB2_FLYMAP":
                 yield
@@ -187,7 +196,7 @@ class RoamerResetMode(BotMode):
                 yield from walk_one_tile("Up")
                 yield from follow_path([(15, 97), (14, 97)])
                 directions = ["Down", "Right", "Up", "Left"]
-                for index in range(10):
+                for index in range(22):
                     yield from ensure_facing_direction(directions[index % 4])
                 yield from follow_path([(15, 97), (15, 99)])
 
@@ -271,7 +280,7 @@ class RoamerResetMode(BotMode):
             else:
                 encounter_pokemon(get_opponent(), log_only=True)
 
-    def run_frlg(self):
+    def run_frlg(self, flying_pokemon_index: int):
         while True:
             yield from soft_reset(mash_random_keys=True)
             yield from wait_for_unique_rng_value()
@@ -310,7 +319,7 @@ class RoamerResetMode(BotMode):
 
             # Select field move FLY
             yield from StartMenuNavigator("POKEMON").step()
-            yield from PokemonPartyMenuNavigator(1, "", CursorOptionFRLG.FLY).step()
+            yield from PokemonPartyMenuNavigator(flying_pokemon_index, "", CursorOptionFRLG.FLY).step()
             yield from wait_until_task_is_active("Task_FlyMap")
 
             # Select Pallet Town on the region map
