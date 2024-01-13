@@ -139,7 +139,7 @@ def navigate_to(x: int, y: int, run: bool = True) -> Generator:
     node_queue = queue.SimpleQueue()
     node_queue.put(starting_point)
 
-    while not node_queue.empty():
+    while not node_queue.empty() and destination_coordinates not in visited_nodes:
         coords = node_queue.get()
         tile = tiles[coords[1] * map_width + coords[0]]
         potential_neighbours = {
