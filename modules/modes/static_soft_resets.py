@@ -41,6 +41,9 @@ def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | 
         ]
 
     targeted_tile = get_player_avatar().map_location_in_front
+    if targeted_tile is None:
+        return None
+
     for entry in encounters:
         if entry[0] == (targeted_tile.map_group, targeted_tile.map_number) and entry[1] == targeted_tile.local_position:
             return entry
