@@ -26,13 +26,13 @@ class ModeTowerDuo:
                         context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]
                         and (
                             (
-                                not get_event_flag("FLAG_CAUGHT_LUGIA")
+                                not get_event_flag("CAUGHT_LUGIA")
                                 and player.map_group_and_number == MapRSE.NAVEL_ROCK_U.value
                                 and player.local_coordinates[0] == 11  # Lugia Y coord
                                 and 14 <= player.local_coordinates[1] <= 20  # Anywhere on the Y coord
                             )
                             or (
-                                not get_event_flag("FLAG_FOUGHT_LUGIA")
+                                not get_event_flag("FOUGHT_LUGIA")
                                 and player.map_group_and_number == MapFRLG.NAVEL_ROCK_B.value
                                 and player.local_coordinates[0] == 10  # Lugia Y coord
                                 and 16 <= player.local_coordinates[1] <= 21  # Anywhere on the Y coord
@@ -45,13 +45,13 @@ class ModeTowerDuo:
                         context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]
                         and (
                             (
-                                not get_event_flag("FLAG_CAUGHT_HO_OH")
+                                not get_event_flag("CAUGHT_HO_OH")
                                 and player.map_group_and_number == MapRSE.NAVEL_ROCK_I.value
                                 and player.local_coordinates[0] == 12  # Ho-Oh Y coord
                                 and 10 <= player.local_coordinates[1] <= 21  # Anywhere on the Y coord
                             )
                             or (
-                                not get_event_flag("FLAG_FOUGHT_HO_OH")
+                                not get_event_flag("FOUGHT_HO_OH")
                                 and player.map_group_and_number == MapFRLG.NAVEL_ROCK_A.value
                                 and player.local_coordinates[0] == 9  # Ho-Oh Y coord
                                 and 13 <= player.local_coordinates[1] <= 19  # Anywhere on the Y coord
