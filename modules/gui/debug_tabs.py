@@ -317,10 +317,11 @@ class TasksTab(DebugTab):
                 if ctx.stack_depth == 0:
                     stack = "Empty"
                 else:
-                    stack_entries = ctx.stack
-                    stack = {"__value": ", ".join(stack_entries[1:3]) + ("..." if len(stack_entries) > 3 else "")}
-                    for index in range(len(stack_entries)):
-                        stack[index] = stack_entries[index]
+                    stack = {"__value": ", ".join(ctx.stack[0 : min(2, len(ctx.stack) - 1)])}
+                    if len(ctx.stack) > 3:
+                        stack["__value"] += ", ..."
+                    for index in range(len(ctx.stack)):
+                        stack[index] = ctx.stack[index]
 
                 return {
                     "__value": ctx.script_function_name + " / " + ctx.native_function_name,
