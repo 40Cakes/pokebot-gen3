@@ -137,6 +137,20 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
                 )
 
             case "Darwin":
+                try:
+                    # Run the "brew" command with the "--version" option to check if Homebrew is installed
+                    subprocess.check_output(["brew", "--version"], stderr=subprocess.STDOUT, text=True)
+                    try:
+                        installed_packages = subprocess.check_output(["brew", "list"], stderr=subprocess.STDOUT, text=True)
+                        if "mgba" not in installed_packages.splitlines():
+                            print("ERROR: 'mgba' is not installed, install it with 'brew install mgba'")
+                            sys.exit(1)
+                    except subprocess.CalledProcessError:
+                        print("ERROR: 'mgba' is (probably) not installed, install it with 'brew install mgba'")
+                        sys.exit(1)
+                except subprocess.CalledProcessError:
+                    print("ERROR: Homebrew is not installed, install it from: https://brew.sh/")
+                    sys.exit(1)
                 if platform.machine() == "arm64":
                     # ARM-based Macs
                     libmgba_url = (
