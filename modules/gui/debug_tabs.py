@@ -314,14 +314,14 @@ class TasksTab(DebugTab):
             if not ctx.is_active:
                 return "None"
             else:
-                if ctx.stack_depth == 0:
-                    stack = "Empty"
+                if len(ctx.stack) == 1:
+                    stack = {"__value": "Empty"}
                 else:
                     stack = {"__value": ", ".join(ctx.stack[0 : min(2, len(ctx.stack) - 1)])}
-                    if len(ctx.stack) > 3:
-                        stack["__value"] += ", ..."
-                    for index in range(len(ctx.stack)):
-                        stack[index] = ctx.stack[index]
+                if len(ctx.stack) > 3:
+                    stack["__value"] += ", ..."
+                for index in range(len(ctx.stack)):
+                    stack[index] = ctx.stack[index]
 
                 return {
                     "__value": ctx.script_function_name + " / " + ctx.native_function_name,

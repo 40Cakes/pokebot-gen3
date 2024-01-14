@@ -72,7 +72,7 @@ def main_loop() -> None:
                 ):
                     previously_held_inputs = context.emulator.reset_held_buttons()
                     battle_controller = BattleHandler().step()
-            elif in_battle:
+            elif in_battle and get_game_state() == GameState.OVERWORLD:
                 # 'Clean-up tasks' at the end of a battle.
                 in_battle = False
                 clear_opponent()
