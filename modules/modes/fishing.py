@@ -60,5 +60,5 @@ class FishingMode(BotMode):
             elif get_game_state() == GameState.BATTLE:
                 return
             else:
-                context.emulator.press_button("Select")  # TODO assumes player has a rod registered
+                context.emulator.press_button("Select")
             yield

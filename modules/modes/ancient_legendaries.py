@@ -25,8 +25,8 @@ class AncientLegendariesMode(BotMode):
     def run(self) -> Generator:
         assert_no_auto_battle("This mode should not be used with auto-battle.")
 
-        if not context.rom.is_emerald:  # TODO add RS support
-            raise BotModeError("Only Emerald is supported, RS coming soon.")
+        if not context.rom.is_emerald:
+            raise BotModeError("This mode only works on Emerald")
 
         match get_player_avatar().map_group_and_number:
             case MapRSE.MARINE_CAVE_A.value:
