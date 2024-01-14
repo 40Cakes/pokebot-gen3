@@ -54,6 +54,10 @@ def _get_repel_steps_remaining():
     return get_event_var("REPEL_STEP_COUNT")
 
 
+class RanOutOfRepels(Exception):
+    pass
+
+
 class RoamerResetMode(BotMode):
     @staticmethod
     def name() -> str:
@@ -237,7 +241,7 @@ class RoamerResetMode(BotMode):
                 elif first_repel is not None:
                     slot_to_use = first_repel
                 else:
-                    raise BotModeError("You've run out of repels.")
+                    raise RanOutOfRepels()
 
                 # Open item bag and select the best Repel item there is (Max > Super > Regular)
                 yield from StartMenuNavigator("BAG").step()
@@ -260,7 +264,8 @@ class RoamerResetMode(BotMode):
                 yield from wait_for_task_to_start_and_finish("Task_ShowStartMenu", "B")
                 yield
 
-            while get_game_state() != GameState.BATTLE:
+            skip_run = False
+            while get_game_state() != GameState.BATTLE and not skip_run:
                 for _ in inner_loop():
                     if get_game_state() == GameState.BATTLE:
                         break
@@ -280,12 +285,20 @@ class RoamerResetMode(BotMode):
                     ):
                         previous_inputs = context.emulator.reset_held_buttons()
                         yield
-                        for __ in apply_repel():
-                            if get_game_state() == GameState.BATTLE:
-                                break
-                            yield
-                        context.emulator.restore_held_buttons(previous_inputs)
+                        try:
+                            for __ in apply_repel():
+                                if get_game_state() == GameState.BATTLE:
+                                    break
+                                yield
+                        except RanOutOfRepels:
+                            context.message = "Soft resetting after running out of repels."
+                            skip_run = True
+                            break
+                        finally:
+                            context.emulator.restore_held_buttons(previous_inputs)
                     yield
+            if skip_run:
+                continue
 
             yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry")
             if get_opponent().is_shiny:
@@ -399,7 +412,7 @@ class RoamerResetMode(BotMode):
                 elif first_repel is not None:
                     slot_to_use = first_repel
                 else:
-                    raise BotModeError("You've run out of repels.")
+                    raise RanOutOfRepels()
 
                 # Open item bag and select the best Repel item there is (Max > Super > Regular)
                 yield from StartMenuNavigator("BAG").step()
@@ -417,7 +430,8 @@ class RoamerResetMode(BotMode):
                 yield from wait_for_task_to_start_and_finish("Task_ContinueTaskAfterMessagePrints", "A")
                 yield from wait_for_task_to_start_and_finish("Task_StartMenuHandleInput", "B")
 
-            while get_game_state() != GameState.BATTLE:
+            skip_run = False
+            while get_game_state() != GameState.BATTLE and not skip_run:
                 for _ in inner_loop():
                     if get_game_state() == GameState.BATTLE:
                         break
@@ -428,13 +442,20 @@ class RoamerResetMode(BotMode):
                         context.emulator.press_button("B")
                         yield
 
-                        for __ in apply_repel():
-                            if get_game_state() == GameState.BATTLE:
-                                break
-                            yield
-
-                        context.emulator.restore_held_buttons(previous_inputs)
+                        try:
+                            for __ in apply_repel():
+                                if get_game_state() == GameState.BATTLE:
+                                    break
+                                yield
+                        except RanOutOfRepels:
+                            context.message = "Soft resetting after running out of repels."
+                            skip_run = True
+                            break
+                        finally:
+                            context.emulator.restore_held_buttons(previous_inputs)
                     yield
+            if skip_run:
+                continue
 
             yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry")
             if get_opponent().is_shiny:
