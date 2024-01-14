@@ -122,7 +122,7 @@ class MenuNavigator(BaseMenuNavigator):
                 self.navigator = self.select_yes()
 
     def wait_for_menu(self):
-        while self.cursor.menu_cur_pos is None and self.wait_counter < 20:
+        while self.cursor.menu_cur_pos is None and self.wait_counter < 20 or self.wait_counter <= 4:
             self.wait_counter += 1
             yield
         if self.wait_counter >= 20:
