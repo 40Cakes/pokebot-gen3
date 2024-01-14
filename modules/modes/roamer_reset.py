@@ -108,15 +108,17 @@ class RoamerResetMode(BotMode):
         if flying_pokemon_index is None:
             raise BotModeError("None of your party Pokémon know the move Fly. Please teach it to someone.")
 
+        has_good_ability = not get_party()[0].is_egg and get_party()[0].ability.name in ("Illuminate", "Arena Trap")
+
         if context.rom.is_frlg:
-            yield from self.run_frlg(flying_pokemon_index)
+            yield from self.run_frlg(flying_pokemon_index, has_good_ability)
         elif context.rom.is_emerald:
-            yield from self.run_emerald(flying_pokemon_index)
+            yield from self.run_emerald(flying_pokemon_index, has_good_ability)
         else:
-            context.message = "This game is not yet supported."
+            context.message = "Ruby/Sapphire are not supported by this mode."
             context.set_manual_mode()
 
-    def run_emerald(self, flying_pokemon_index: int):
+    def run_emerald(self, flying_pokemon_index: int, has_good_ability: bool):
         roamer_choice = ask_for_choice(
             [
                 Selection("Latias", get_sprites_path() / "pokemon" / "normal" / "Latias.png"),
@@ -128,6 +130,8 @@ class RoamerResetMode(BotMode):
             return
 
         while True:
+            context.emulator.reset_held_buttons()
+
             yield from soft_reset(mash_random_keys=True)
             yield from wait_for_unique_rng_value()
 
@@ -186,21 +190,30 @@ class RoamerResetMode(BotMode):
                 yield
             context.emulator.reset_held_buttons()
 
-            # Fly to Pallet Town
+            # Fly to Slateport City
             yield from wait_for_task_to_start_and_finish("Task_FlyIntoMap", "A")
             yield
 
+            # Walk to Slateport's border with Route 110
             yield from navigate_to(15, 0)
 
             def inner_loop():
+                # Walk up to tall grass, spin, return
                 yield from walk_one_tile("Up")
                 yield from follow_path([(15, 97), (14, 97)])
                 directions = ["Down", "Right", "Up", "Left"]
-                for index in range(22):
+                for index in range(42 if has_good_ability else 62):
                     yield from ensure_facing_direction(directions[index % 4])
                 yield from follow_path([(15, 97), (15, 99)])
-
                 yield from walk_one_tile("Down")
+
+                # Run to Battle Tent, enter, leave, go back to Route 110
+                # This is necessary because the game saves the last 3 locations the player
+                # has been in and avoids them, so we need additional map transitions.
+                yield from follow_path([(17, 0), (17, 13), (10, 13)])
+                yield from walk_one_tile("Up")
+                yield from walk_one_tile("Down")
+                yield from follow_path([(17, 13), (17, 0), (15, 0)])
 
             def apply_repel():
                 # Look up location of a Repel item in the item bag
@@ -261,7 +274,10 @@ class RoamerResetMode(BotMode):
                             yield
                             global_ctx = get_global_script_context()
                         context.emulator.restore_held_buttons(previous_inputs)
-                    if _get_repel_steps_remaining() <= 0:
+                    if (
+                        _get_repel_steps_remaining() <= 0
+                        and get_player_avatar().map_group_and_number == MapRSE.ROUTE_110.value
+                    ):
                         previous_inputs = context.emulator.reset_held_buttons()
                         yield
                         for __ in apply_repel():
@@ -280,8 +296,10 @@ class RoamerResetMode(BotMode):
             else:
                 encounter_pokemon(get_opponent(), log_only=True)
 
-    def run_frlg(self, flying_pokemon_index: int):
+    def run_frlg(self, flying_pokemon_index: int, has_good_ability: bool):
         while True:
+            context.emulator.reset_held_buttons()
+
             yield from soft_reset(mash_random_keys=True)
             yield from wait_for_unique_rng_value()
 
@@ -300,13 +318,14 @@ class RoamerResetMode(BotMode):
                 yield
 
             # Leave the building
-            yield from navigate_to(9, 9)
-            yield from walk_one_tile("Down")
+            while get_player_avatar().map_group_and_number != MapFRLG.ONE_ISLAND.value:
+                yield from follow_path([(14, 9), (9, 9)])
+                yield from walk_one_tile("Down")
 
             # Walk to the ferry terminal and up to the sailor
-            yield from navigate_to(12, 18)
+            yield from follow_path([(14, 12), (12, 12), (12, 18)])
             yield from walk_one_tile("Down")
-            yield from navigate_to(8, 5)
+            yield from follow_path([(8, 5)])
 
             # Talk to the sailor
             while get_game_state() == GameState.OVERWORLD:
@@ -349,9 +368,14 @@ class RoamerResetMode(BotMode):
             def inner_loop():
                 yield from walk_one_tile("Up")
                 directions = ["Left", "Down", "Right", "Up"]
-                for index in range(10):
+                for index in range(18 if has_good_ability else 36):
                     yield from ensure_facing_direction(directions[index % 4])
                 yield from walk_one_tile("Down")
+
+                yield from follow_path([(12, 8), (15, 8)])
+                yield from walk_one_tile("Up")
+                yield from walk_one_tile("Down")
+                yield from follow_path([(12, 8), (12, 0)])
 
             def apply_repel():
                 # Look up location of a Repel item in the item bag

@@ -269,7 +269,8 @@ def ensure_facing_direction(facing_direction: str) -> Generator:
             return
 
         if (
-            avatar.tile_transition_state == TileTransitionState.NOT_MOVING
+            get_game_state() == GameState.OVERWORLD
+            and avatar.tile_transition_state == TileTransitionState.NOT_MOVING
             and avatar.running_state == RunningState.NOT_MOVING
         ):
             context.emulator.press_button(facing_direction)

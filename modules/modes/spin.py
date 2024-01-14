@@ -1,6 +1,7 @@
 from typing import Generator
 
 from modules.context import context
+from modules.memory import get_game_state, GameState
 from modules.player import get_player_avatar, RunningState, TileTransitionState
 from ._interface import BotMode
 
@@ -22,7 +23,8 @@ class SpinMode(BotMode):
         while True:
             avatar = get_player_avatar()
             if (
-                avatar.tile_transition_state == TileTransitionState.NOT_MOVING
+                get_game_state() == GameState.OVERWORLD
+                and avatar.tile_transition_state == TileTransitionState.NOT_MOVING
                 and avatar.running_state == RunningState.NOT_MOVING
             ):
                 direction_index += 1

@@ -40,7 +40,7 @@ class EmulatorScreen:
             controls.add_tab(SymbolsTab())
             controls.add_tab(EventFlagsTab())
             controls.add_tab(EventVarsTab())
-            controls.add_tab(InputsTab())
+            controls.add_tab(EmulatorTab())
         else:
             controls = EmulatorControls(self.window)
         self._controls = controls

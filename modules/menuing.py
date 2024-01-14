@@ -306,6 +306,10 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
 
     def select_mon(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+            # This is required so that selecting the first party member doesn't fail.
+            if not task_is_active("Task_HandleChooseMonInput"):
+                while not task_is_active("Task_HandleChooseMonInput"):
+                    yield
             while task_is_active("TASK_HANDLECHOOSEMONINPUT"):
                 context.emulator.press_button("A")
                 yield

@@ -29,7 +29,7 @@ class Roamer:
         return self._location[0], self._location[1]
 
     @property
-    def map_name(self):
+    def map_name(self) -> str:
         return get_map_data(self._location[0], self._location[1], (0, 0)).map_name
 
     @property
@@ -39,6 +39,10 @@ class Roamer:
     @property
     def ivs(self) -> StatsValues:
         packed_data = unpack_uint32(self._data[0:4])
+        # There is an in-game bug in FR/LG where most of the IV values are discarded,
+        # resulting in Pokemon with very bad IVs. The following replicates that.
+        if context.rom.is_frlg:
+            packed_data &= 0xFF
         return StatsValues(
             hp=(packed_data >> 0) & 0b11111,
             attack=(packed_data >> 5) & 0b11111,
@@ -60,15 +64,15 @@ class Roamer:
         )
 
     @property
-    def current_hp(self):
+    def current_hp(self) -> int:
         return unpack_uint16(self._data[0x0A:0x0C])
 
     @property
-    def level(self):
+    def level(self) -> int:
         return self._data[0x0C]
 
     @property
-    def status_condition(self):
+    def status_condition(self) -> StatusCondition:
         return StatusCondition.from_bitfield(self._data[0x0D])
 
     @property
@@ -159,6 +163,15 @@ def get_roamer() -> Roamer | None:
         return Roamer(data, location, unpack_uint16(trainer_id[0:2]), unpack_uint16(trainer_id[2:4]))
     else:
         return None
+
+
+def get_roamer_location_history() -> list[str]:
+    data = read_symbol("sLocationHistory")
+    result = []
+    for index in range(3):
+        if data[index * 2] != 0 or data[index * 2 + 1] != 0:
+            result.append(get_map_data(data[index * 2], data[index * 2 + 1], (0, 0)).map_name)
+    return result
 
 
 def dangerous_set_roamer_location(location: tuple[int, int]) -> None:

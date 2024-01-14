@@ -34,7 +34,7 @@ from modules.player import get_player, get_player_avatar, AvatarFlags, TileTrans
 from modules.pokedex import get_pokedex
 from modules.pokemon import get_party, get_species_by_index
 from modules.pokemon_storage import get_pokemon_storage
-from modules.roamer import get_roamer
+from modules.roamer import get_roamer, get_roamer_location_history
 from modules.tasks import (
     get_tasks,
     task_is_active,
@@ -809,6 +809,7 @@ class MiscTab(DebugTab):
                 "Compatibility Reason": data.compatibility[1],
             },
             "Roamer": get_roamer(),
+            "Roamer History": get_roamer_location_history(),
             "Region Map Cursor": get_map_cursor(),
         }
 
@@ -885,7 +886,9 @@ class EventVarsTab(DebugTab):
         root.add(frame, text="Vars")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        self._tv.update_data(self._get_data())
+        data = self._get_data()
+        if data is not None:
+            self._tv.update_data(data)
 
     def _handle_focus_in(self, _):
         context.gui.inputs_enabled = False
@@ -917,6 +920,9 @@ class EventVarsTab(DebugTab):
             offset = 0x1000
 
         data = get_save_block(1, offset=offset, size=0x200)
+        if data is None:
+            return None
+
         for index in range(len(data) // 2):
             name = get_event_var_name(index)
             if search_phrase == "" or search_phrase in name:
@@ -926,13 +932,13 @@ class EventVarsTab(DebugTab):
         return result
 
 
-class InputsTab(DebugTab):
+class EmulatorTab(DebugTab):
     _tv: FancyTreeview
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
         self._tv = FancyTreeview(frame)
-        root.add(frame, text="Inputs")
+        root.add(frame, text="Emulator")
 
     def update(self, emulator: "LibmgbaEmulator"):
         self._tv.update_data(self._get_data())
@@ -940,11 +946,27 @@ class InputsTab(DebugTab):
     def _get_data(self):
         from modules.libmgba import input_map
 
-        result = {}
-        inputs = context.emulator.get_inputs()
-
+        current_inputs = context.emulator.get_inputs()
+        inputs_dict = {"__value": []}
         for input in input_map:
-            result[input] = True if input_map[input] & inputs else False
+            if input_map[input] & context.emulator._held_inputs:
+                inputs_dict[input] = "Held"
+            elif input_map[input] & current_inputs:
+                inputs_dict[input] = "Pressed"
+            else:
+                inputs_dict[input] = "-"
+            if inputs_dict[input] != "-":
+                inputs_dict["__value"].append(input)
+        if len(inputs_dict["__value"]) > 0:
+            inputs_dict["__value"] = ", ".join(inputs_dict["__value"])
+        else:
+            inputs_dict["__value"] = "-"
+
+        result = {
+            "Inputs": inputs_dict,
+            "Frame": f"{context.emulator.get_frame_count():,}",
+            "RNG Seed": hex(unpack_uint32(read_symbol("gRngValue"))),
+        }
 
         return result
 
