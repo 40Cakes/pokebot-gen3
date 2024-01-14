@@ -318,7 +318,7 @@ class TasksTab(DebugTab):
                     stack = "Empty"
                 else:
                     stack_entries = ctx.stack
-                    stack = {"__value": ", ".join(stack_entries[0:2]) + ("..." if len(stack_entries) > 2 else "")}
+                    stack = {"__value": ", ".join(stack_entries[1:3]) + ("..." if len(stack_entries) > 3 else "")}
                     for index in range(len(stack_entries)):
                         stack[index] = stack_entries[index]
 

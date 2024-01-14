@@ -144,7 +144,7 @@ class ScriptContext:
 
     @property
     def stack(self) -> list[str]:
-        result = []
+        result = [self.script_function_name]
         for index in range(self.stack_depth):
             offset = 12 + (index * 4)
             pointer = unpack_uint32(self._data[offset : offset + 4])
