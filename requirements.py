@@ -165,7 +165,7 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
                     )
 
             case _:
-                print(f"ERROR: {platform.system()} is unsupported. Only Windows and Linux are currently supported.")
+                print(f"ERROR: {platform.system()} is unsupported. Only Windows, Mac and Linux are currently supported.")
                 sys.exit(1)
 
         import io
