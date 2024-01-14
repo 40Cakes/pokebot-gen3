@@ -29,6 +29,8 @@ from modules.memory import (
     get_save_block,
     set_event_flag,
     get_event_flag,
+    get_game_state,
+    GameState,
 )
 from modules.player import get_player, get_player_avatar, AvatarFlags, TileTransitionState
 from modules.pokedex import get_pokedex
@@ -1068,6 +1070,9 @@ class MapTab(DebugTab):
         self._marker_rectangle = ((start_x, start_y), (end_x, end_y))
 
     def _get_data(self, show_different_tile: bool):
+        if get_game_state() in (GameState.TITLE_SCREEN, GameState.MAIN_MENU):
+            return {}
+
         if show_different_tile:
             map_group, map_number = self._selected_map
             map_data = get_map_data(map_group, map_number, self._selected_tile)

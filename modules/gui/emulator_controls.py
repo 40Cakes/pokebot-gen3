@@ -6,6 +6,7 @@ from modules.console import console
 from modules.context import context
 from modules.libmgba import LibmgbaEmulator
 from modules.modes import get_bot_modes
+from modules.memory import get_game_state, GameState
 from modules.version import pokebot_name, pokebot_version
 
 
@@ -111,11 +112,14 @@ class EmulatorControls:
                     self.bot_mode_menu.add_command(label=mode.name(), font=bold_font)
                     continue
 
-                try:
-                    is_selectable = mode.is_selectable()
-                except:
-                    if context.debug:
-                        console.print_exception()
+                if get_game_state() not in (GameState.TITLE_SCREEN, GameState.MAIN_MENU):
+                    try:
+                        is_selectable = mode.is_selectable()
+                    except:
+                        if context.debug:
+                            console.print_exception()
+                        is_selectable = False
+                else:
                     is_selectable = False
 
                 if is_selectable:
@@ -123,7 +127,8 @@ class EmulatorControls:
                 else:
                     disabled_modes.append(mode.name())
             if len(disabled_modes) > 0:
-                self.bot_mode_menu.add_separator()
+                if len(disabled_modes) < len(get_bot_modes()):
+                    self.bot_mode_menu.add_separator()
                 for mode_name in disabled_modes:
                     self.bot_mode_menu.add_command(label=mode_name, state="disabled")
             self.bot_mode_menu.tk_popup(
