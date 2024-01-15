@@ -11,7 +11,6 @@ from apispec_webframeworks.flask import FlaskPlugin
 from flask_swagger_ui import get_swaggerui_blueprint
 from jinja2 import Template
 
-from modules.config import available_bot_modes
 from modules.context import context
 from modules.data.map import MapRSE, MapFRLG
 from modules.files import read_file
@@ -21,6 +20,7 @@ from modules.items import get_item_bag, get_item_storage
 from modules.main import work_queue
 from modules.map import get_map_data
 from modules.memory import get_event_flag, get_game_state, GameState
+from modules.modes import get_bot_mode_names
 from modules.pokemon import get_party
 from modules.pokemon_storage import get_pokemon_storage
 from modules.stats import total_stats
@@ -299,7 +299,7 @@ def http_server() -> None:
             - map
         """
 
-        if context.rom.game_title in ["POKEMON EMER", "POKEMON RUBY", "POKEMON SAPP"]:
+        if context.rom.is_rse:
             maps_enum = MapRSE
         else:
             maps_enum = MapFRLG
@@ -531,9 +531,9 @@ def http_server() -> None:
                     )
                 context.emulation_speed = new_settings["emulation_speed"]
             elif key == "bot_mode":
-                if new_settings["bot_mode"] not in available_bot_modes:
+                if new_settings["bot_mode"] not in get_bot_mode_names():
                     return Response(
-                        f"Setting `bot_mode` contains an invalid value ('{new_settings['bot_mode']}'). Possible values are: {', '.join(available_bot_modes)}",
+                        f"Setting `bot_mode` contains an invalid value ('{new_settings['bot_mode']}'). Possible values are: {', '.join(get_bot_mode_names())}",
                         status=422,
                     )
                 context.bot_mode = new_settings["bot_mode"]

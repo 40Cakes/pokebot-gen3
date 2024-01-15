@@ -166,7 +166,7 @@ def get_pokemon_storage() -> PokemonStorage:
     if state_cache.pokemon_storage.age_in_frames == 0:
         return state_cache.pokemon_storage.value
 
-    if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+    if not context.rom.is_rs:
         offset = unpack_uint32(read_symbol("gPokemonStoragePtr"))
         length = get_symbol("gPokemonStorage")[1]
     else:

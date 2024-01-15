@@ -86,7 +86,7 @@ def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     try:
         if not size:
             size = get_symbol(f"GSAVEBLOCK{num}")[1]
-        if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+        if not context.rom.is_rs:
             p_Trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
             if p_Trainer == 0:
                 return None
@@ -109,7 +109,7 @@ def write_to_save_block(data: bytes, num: int = 1, offset: int = 0) -> bool:
     """
     # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
     try:
-        if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+        if not context.rom.is_rs:
             p_Trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
             if p_Trainer == 0:
                 return False
@@ -202,6 +202,21 @@ def get_event_flag(flag_name: str) -> bool:
     flag_byte = get_save_block(1, offset=flag_offset[0], size=1)
 
     return bool((flag_byte[0] >> (flag_offset[1])) & 1)
+
+
+def get_event_flag_by_number(flag_number: int) -> bool:
+    if context.rom.is_rs:
+        offset = 0x1220
+    elif context.rom.is_emerald:
+        offset = 0x1270
+    else:
+        offset = 0x0EE0
+
+    flag_offset = offset + (flag_number // 8)
+    flag_bit = 1 << (flag_number % 8)
+    flag_byte = get_save_block(1, offset=flag_offset, size=1)[0]
+
+    return bool(flag_byte & flag_bit)
 
 
 def set_event_flag(flag_name: str) -> bool:
