@@ -48,15 +48,6 @@ class RockSmashMode(BotMode):
         if context.config.battle.pickup:
             raise BotModeError("This mode should not be used while auto-pickup is enabled.")
 
-        def smash(flag_name):
-            if not get_event_flag(flag_name):
-                yield from wait_for_script_to_start_and_finish("EventScript_RockSmash", "A")
-                while get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING:
-                    yield
-                if task_is_active("Task_ReturnToFieldNoScript"):
-                    yield from wait_until_task_is_not_active("Task_ReturnToFieldNoScript")
-            yield
-
         while True:
             match get_player_avatar().map_group_and_number:
                 case MapRSE.GRANITE_CAVE_B.value:
