@@ -5,7 +5,7 @@ from typing import Literal
 
 from modules.context import context
 from modules.game import decode_string, get_event_flag_name
-from modules.memory import unpack_uint16, unpack_uint32, read_symbol, get_symbol_name
+from modules.memory import unpack_uint16, unpack_uint32, read_symbol, get_symbol_name, get_save_block
 from modules.pokemon import get_item_by_index, Item
 
 
@@ -510,9 +510,24 @@ class MapWarp:
 
     @property
     def destination_location(self) -> "MapLocation":
-        destination_map = get_map_data(self.destination_map_group, self.destination_map_number, (0, 0))
-        destination_warp = destination_map.warps[self.destination_warp_id]
-        destination_map.local_position = destination_warp.local_coordinates
+        map_group = self.destination_map_group
+        map_number = self.destination_map_number
+        warp_id = self.destination_warp_id
+
+        # There is a special case for 'dynamic warps' that have their destination set
+        # in the player's save data.
+        if map_group == 127 and map_number == 127:
+            map_group, map_number, warp_id = get_save_block(1, offset=0x14, size=3)
+
+        destination_map = get_map_data(map_group, map_number, (0, 0))
+
+        # Another special case is when there is no corresponding target warp on the
+        # destination map we use _this_ warp's coordinates as the destination.
+        if warp_id == 0xFF:
+            destination_map.local_position = self.local_coordinates
+        else:
+            destination_warp = destination_map.warps[warp_id]
+            destination_map.local_position = destination_warp.local_coordinates
         return destination_map
 
     def to_dict(self) -> dict:
