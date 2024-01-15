@@ -1549,6 +1549,11 @@ def get_battle_type_flags() -> BattleTypeFlag:
     return BattleTypeFlag(unpack_uint32(read_symbol("gBattleTypeFlags")))
 
 
+def clear_opponent() -> None:
+    global last_opid
+    last_opid = pack_uint32(0)
+
+
 def opponent_changed() -> bool:
     """
     Checks if the current opponent/encounter from `gEnemyParty` has changed since the function was last called.

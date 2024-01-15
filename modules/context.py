@@ -22,7 +22,6 @@ class BotContext:
 
         self._current_bot_mode: str = initial_bot_mode
         self._previous_bot_mode: str = "Manual"
-        self.selected_pokemon: str = None
 
     def reload_config(self) -> str:
         """Triggers a config reload, reload the global config then specific profile config.
@@ -79,29 +78,26 @@ class BotContext:
         if self._current_bot_mode != new_bot_mode:
             self._previous_bot_mode = self._current_bot_mode
             self._current_bot_mode = new_bot_mode
-            self.selected_pokemon = None
             self._update_gui()
 
     def toggle_manual_mode(self) -> None:
-        self.selected_pokemon = None
         if self._current_bot_mode == "Manual":
             self._current_bot_mode = self._previous_bot_mode
             self._previous_bot_mode = "Manual"
         else:
             self._previous_bot_mode = self._current_bot_mode
-            self._current_bot_mode = "Manual"
+            self.set_manual_mode(enable_video_and_slow_down=False)
         self._update_gui()
 
-    def set_manual_mode(self) -> None:
-        from modules.gui.desktop_notification import desktop_notification
-
+    def set_manual_mode(self, enable_video_and_slow_down: bool = True) -> None:
         self.bot_mode = "Manual"
-        self.emulation_speed = 1
-        self.video = True
-        desktop_notification(title="Manual Mode", message="The bot has switched to manual mode.")
+        self.emulator.reset_held_buttons()
+        if enable_video_and_slow_down:
+            from modules.gui.desktop_notification import desktop_notification
 
-    def select_pokemon(self, pokemon: str) -> None:
-        self.selected_pokemon = pokemon
+            self.emulation_speed = 1
+            self.video = True
+            desktop_notification(title="Manual Mode", message="The bot has switched to manual mode.")
 
     @property
     def audio(self) -> bool:
