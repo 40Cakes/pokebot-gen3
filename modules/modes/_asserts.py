@@ -5,6 +5,7 @@ from modules.data.map import MapRSE, MapFRLG
 from modules.context import context
 from modules.map import ObjectEvent, calculate_targeted_coords
 from modules.player import get_player
+from modules.pokemon import get_party
 from modules.save_data import get_save_data
 from ._interface import BotModeError
 
@@ -95,3 +96,19 @@ def assert_registered_item(expected_items: str | list[str], error_message: str) 
     registered_item = get_player().registered_item
     if registered_item is None or registered_item.name not in expected_items:
         raise BotModeError(error_message)
+
+
+def assert_has_pokemon_with_move(move: str, error_message: str) -> int:
+    """
+    Raises an exception if the player has no Pokemon that knows a given move in their
+    party.
+    :param move: Name of the move to look for.
+    :param error_message: Error message to display if the assertion fails.
+    :return: The party index of the first Pokemon that knows this move.
+    """
+    for pokemon in get_party():
+        if not pokemon.is_egg and not pokemon.is_empty:
+            for learned_move in pokemon.moves:
+                if learned_move.move.name == move:
+                    return
+    raise BotModeError(error_message)
