@@ -5,17 +5,20 @@ from modules.gui.desktop_notification import desktop_notification
 from modules.pokemon_storage import get_pokemon_storage
 from modules.pokemon import Pokemon, get_battle_type_flags, BattleTypeFlag
 from modules.runtime import get_sprites_path
-from modules.stats import total_stats
 
 
-def encounter_pokemon(pokemon: Pokemon) -> None:
+def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
     """
     Call when a Pokémon is encountered, decides whether to battle, flee or catch.
     Expects the player's state to be MISC_MENU (battle started, no longer in the overworld).
     It also calls the function to save the pokemon as a pk file if required in the config.
 
-    :return:
+    :param pokemon: The Pokemon that has been encountered
+    :param log_only: If true, this will not stop even if the encountered Pokemon is shiny or
+                     otherwise matches one of the catch rules.
     """
+    from modules.stats import total_stats
+
     if context.config.logging.save_pk3.all:
         save_pk3(pokemon)
 
@@ -43,6 +46,9 @@ def encounter_pokemon(pokemon: Pokemon) -> None:
         f"Sum: {pokemon.ivs.sum()}"
     )
     context.message = encounter_summary
+
+    if log_only:
+        return
 
     state_tag = ""
     alert_title = None

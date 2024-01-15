@@ -6,7 +6,6 @@ from confz import BaseConfig, FileSource
 from ruamel.yaml import YAML
 
 from modules import exceptions
-from modules.modes import available_bot_modes
 from modules.runtime import get_base_path
 from modules.config.schemas_v1 import Battle, CatchBlock, Cheats, Discord, Keys, Logging, OBS, ProfileMetadata
 
@@ -24,8 +23,6 @@ CONFIG_ATTRS = {
 
 class Config:
     """Initializes a config directory and provides access to the different settings."""
-
-    available_bot_modes = available_bot_modes
 
     def __init__(self, config_dir: str | Path | None = None, is_profile: bool = False, strict: bool = False) -> None:
         """Initialize the configuration folder, loading all config files.

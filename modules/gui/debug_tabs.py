@@ -7,7 +7,15 @@ from typing import TYPE_CHECKING, Union, Optional
 
 from modules.context import context
 from modules.daycare import get_daycare_data
-from modules.game import decode_string, _symbols, _reverse_symbols, _event_flags
+from modules.game import (
+    decode_string,
+    _symbols,
+    _reverse_symbols,
+    _event_flags,
+    get_event_flag_name,
+    get_event_var_name,
+)
+from modules.game_stats import GameStat, get_game_stat
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_item_bag, get_item_storage
 from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects, get_map_all_tiles
@@ -18,14 +26,24 @@ from modules.memory import (
     game_has_started,
     unpack_uint16,
     unpack_uint32,
+    get_save_block,
     set_event_flag,
     get_event_flag,
+    get_game_state,
+    GameState,
 )
 from modules.player import get_player, get_player_avatar, AvatarFlags, TileTransitionState
 from modules.pokedex import get_pokedex
 from modules.pokemon import get_party, get_species_by_index
 from modules.pokemon_storage import get_pokemon_storage
-from modules.tasks import get_tasks, task_is_active
+from modules.roamer import get_roamer, get_roamer_location_history
+from modules.tasks import (
+    get_tasks,
+    task_is_active,
+    get_global_script_context,
+    get_immediate_script_context,
+    ScriptContext,
+)
 
 if TYPE_CHECKING:
     from modules.libmgba import LibmgbaEmulator
@@ -221,7 +239,7 @@ class MapViewer:
 
             self._map.configure(image=cached_map)
             self._map.image = cached_map
-        except TypeError | RuntimeError:
+        except (TypeError, RuntimeError):
             # If trainer data do not exists yet then ignore. eg. New game, intro, etc
             pass
 
@@ -287,14 +305,42 @@ class TasksTab(DebugTab):
         cb1_symbol = get_symbol_name(cb1_addr, pretty_name=True)
         if cb1_symbol == "":
             cb1_symbol = hex(cb1_addr)
-        cb2_symbol = get_symbol_name(cb1_addr, pretty_name=True)
+        cb2_symbol = get_symbol_name(cb2_addr, pretty_name=True)
         if cb2_symbol == "":
             cb2_symbol = hex(cb2_addr)
 
         self._cb1_label.config(text=cb1_symbol)
         self._cb2_label.config(text=cb2_symbol)
 
-        data = {}
+        def render_script_context(ctx: ScriptContext) -> dict | str:
+            if not ctx.is_active:
+                return "None"
+            else:
+                if len(ctx.stack) == 1:
+                    stack = {"__value": "Empty"}
+                else:
+                    stack = {"__value": ", ".join(ctx.stack[0 : min(2, len(ctx.stack) - 1)])}
+                if len(ctx.stack) > 3:
+                    stack["__value"] += ", ..."
+                for index in range(len(ctx.stack)):
+                    stack[index] = ctx.stack[index]
+
+                return {
+                    "__value": ctx.script_function_name + " / " + ctx.native_function_name,
+                    "Mode": ctx.mode,
+                    "Script Function": ctx.script_function_name,
+                    "Native Function": ctx.native_function_name,
+                    "Stack": stack,
+                    "Data": ctx.data,
+                    "Bytecode Pointer": hex(ctx.bytecode_pointer),
+                    "Native Pointer": hex(ctx.native_pointer),
+                }
+
+        data = {
+            "Global Script Context": render_script_context(get_global_script_context()),
+            "Immediate Script Context": render_script_context(get_immediate_script_context()),
+        }
+
         index = 0
         for task in get_tasks():
             data[task.symbol] = {
@@ -601,6 +647,12 @@ class PlayerTab(DebugTab):
         for species in owned_species:
             pokedex_owned[species.national_dex_number] = species.name
 
+        game_stats = {}
+        for member in GameStat:
+            if member.value > 49 and context.rom.is_rs:
+                continue
+            game_stats[member.name] = get_game_stat(member)
+
         result: dict[str, any] = {
             "Name": player.name,
             "Gender": player.gender,
@@ -617,6 +669,7 @@ class PlayerTab(DebugTab):
             "Acro Bike State": player_avatar.acro_bike_state.name,
             "Tile Transition State": player_avatar.tile_transition_state.name,
             "Facing Direction": player_avatar.facing_direction,
+            "Game Stats": game_stats,
             "Pokedex Seen": pokedex_seen,
             "Pokedex Owned": pokedex_owned,
         }
@@ -693,13 +746,13 @@ class PlayerTab(DebugTab):
         return result
 
 
-class DaycareTab(DebugTab):
+class MiscTab(DebugTab):
     _tv: FancyTreeview
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
         self._tv = FancyTreeview(frame)
-        root.add(frame, text="Daycare")
+        root.add(frame, text="Misc")
 
     def update(self, emulator: "LibmgbaEmulator"):
         self._tv.update_data(self._get_data())
@@ -735,49 +788,160 @@ class DaycareTab(DebugTab):
                 "egg_groups": ", ".join(set(data.pokemon2_egg_groups)),
             }
 
+        if pokemon1 == "n/a" and pokemon2 == "n/a":
+            daycare_value = "None"
+        elif pokemon2 == "n/a" and pokemon1 != "n/a":
+            daycare_value = pokemon1["__value"]
+        elif pokemon1 == "n/a" and pokemon2 != "n/a":
+            daycare_value = pokemon2["__value"]
+        else:
+            daycare_value = (
+                f"{data.compatibility[0].name}: {data.pokemon1.species.name} and {data.pokemon2.species.name}"
+            )
+
+        from modules.region_map import get_map_cursor
+
         return {
-            "Pokémon #1": pokemon1,
-            "Pokémon #2": pokemon2,
-            "Offspring Personality": data.offspring_personality,
-            "Step Counter": data.step_counter,
-            "Compatibility": data.compatibility[0].name,
-            "Compatibility Reason": data.compatibility[1],
+            "Daycare": {
+                "__value": daycare_value,
+                "Pokémon #1": pokemon1,
+                "Pokémon #2": pokemon2,
+                "Offspring Personality": data.offspring_personality,
+                "Step Counter": data.step_counter,
+                "Compatibility": data.compatibility[0].name,
+                "Compatibility Reason": data.compatibility[1],
+            },
+            "Roamer": get_roamer(),
+            "Roamer History": get_roamer_location_history(),
+            "Region Map Cursor": get_map_cursor(),
         }
 
 
 class EventFlagsTab(DebugTab):
     _tv: FancyTreeview
+    _search_field: ttk.Entry
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
 
-        context_actions = {"Toggle Flag": self._toggle_flag}
+        context_actions = {"Copy Name": self._copy_name, "Toggle Flag": self._toggle_flag}
 
-        self._tv = FancyTreeview(frame, additional_context_actions=context_actions)
-        root.add(frame, text="Event Flags")
+        self._search_phrase = ""
+        self._search_field = ttk.Entry(frame)
+        self._search_field.grid(row=0, column=0, sticky="NWE")
+        self._search_field.bind("<FocusIn>", self._handle_focus_in)
+        self._search_field.bind("<FocusOut>", self._handle_focus_out)
+        self._search_field.bind("<Control-a>", self._handle_ctrl_a)
+        self._tv = FancyTreeview(frame, additional_context_actions=context_actions, height=21, row=1)
+        root.add(frame, text="Flags")
 
     def update(self, emulator: "LibmgbaEmulator"):
         self._tv.update_data(self._get_data())
 
+    def _handle_focus_in(self, _):
+        context.gui.inputs_enabled = False
+
+    def _handle_focus_out(self, _):
+        context.gui.inputs_enabled = True
+
+    def _handle_ctrl_a(self, _):
+        def select_all():
+            self._search_field.select_range(0, "end")
+            self._search_field.icursor("end")
+
+        context.gui.window.after(50, select_all)
+
     def _toggle_flag(self, flag: str):
         set_event_flag(flag)
 
+    def _copy_name(self, flag: str):
+        import pyperclip3
+
+        pyperclip3.copy(flag)
+
     def _get_data(self):
         result = {}
+        search_phrase = self._search_field.get().upper()
 
         for flag in _event_flags:
-            result[flag] = get_event_flag(flag)
+            if len(search_phrase) == 0 or search_phrase in flag:
+                result[flag] = get_event_flag(flag)
 
         return result
 
 
-class InputsTab(DebugTab):
+class EventVarsTab(DebugTab):
+    _tv: FancyTreeview
+    _search_field: ttk.Entry
+
+    def draw(self, root: ttk.Notebook):
+        frame = ttk.Frame(root, padding=10)
+
+        context_actions = {"Copy Name": self._copy_name}
+
+        self._search_phrase = ""
+        self._search_field = ttk.Entry(frame)
+        self._search_field.grid(row=0, column=0, sticky="NWE")
+        self._search_field.bind("<FocusIn>", self._handle_focus_in)
+        self._search_field.bind("<FocusOut>", self._handle_focus_out)
+        self._search_field.bind("<Control-a>", self._handle_ctrl_a)
+        self._tv = FancyTreeview(frame, additional_context_actions=context_actions, height=21, row=1)
+        root.add(frame, text="Vars")
+
+    def update(self, emulator: "LibmgbaEmulator"):
+        data = self._get_data()
+        if data is not None:
+            self._tv.update_data(data)
+
+    def _handle_focus_in(self, _):
+        context.gui.inputs_enabled = False
+
+    def _handle_focus_out(self, _):
+        context.gui.inputs_enabled = True
+
+    def _handle_ctrl_a(self, _):
+        def select_all():
+            self._search_field.select_range(0, "end")
+            self._search_field.icursor("end")
+
+        context.gui.window.after(50, select_all)
+
+    def _copy_name(self, flag: str):
+        import pyperclip3
+
+        pyperclip3.copy(flag)
+
+    def _get_data(self):
+        result = {}
+        search_phrase = self._search_field.get().upper()
+
+        if context.rom.is_rs:
+            offset = 0x1340
+        elif context.rom.is_emerald:
+            offset = 0x139C
+        else:
+            offset = 0x1000
+
+        data = get_save_block(1, offset=offset, size=0x200)
+        if data is None:
+            return None
+
+        for index in range(len(data) // 2):
+            name = get_event_var_name(index)
+            if search_phrase == "" or search_phrase in name:
+                value = unpack_uint16(data[index * 2 : (index + 1) * 2])
+                result[name] = value
+
+        return result
+
+
+class EmulatorTab(DebugTab):
     _tv: FancyTreeview
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
         self._tv = FancyTreeview(frame)
-        root.add(frame, text="Inputs")
+        root.add(frame, text="Emulator")
 
     def update(self, emulator: "LibmgbaEmulator"):
         self._tv.update_data(self._get_data())
@@ -785,11 +949,27 @@ class InputsTab(DebugTab):
     def _get_data(self):
         from modules.libmgba import input_map
 
-        result = {}
-        inputs = context.emulator.get_inputs()
-
+        current_inputs = context.emulator.get_inputs()
+        inputs_dict = {"__value": []}
         for input in input_map:
-            result[input] = True if input_map[input] & inputs else False
+            if input_map[input] & context.emulator._held_inputs:
+                inputs_dict[input] = "Held"
+            elif input_map[input] & current_inputs:
+                inputs_dict[input] = "Pressed"
+            else:
+                inputs_dict[input] = "-"
+            if inputs_dict[input] != "-":
+                inputs_dict["__value"].append(input)
+        if len(inputs_dict["__value"]) > 0:
+            inputs_dict["__value"] = ", ".join(inputs_dict["__value"])
+        else:
+            inputs_dict["__value"] = "-"
+
+        result = {
+            "Inputs": inputs_dict,
+            "Frame": f"{context.emulator.get_frame_count():,}",
+            "RNG Seed": hex(unpack_uint32(read_symbol("gRngValue"))),
+        }
 
         return result
 
@@ -890,6 +1070,9 @@ class MapTab(DebugTab):
         self._marker_rectangle = ((start_x, start_y), (end_x, end_y))
 
     def _get_data(self, show_different_tile: bool):
+        if get_game_state() in (GameState.TITLE_SCREEN, GameState.MAIN_MENU):
+            return {}
+
         if show_different_tile:
             map_group, map_number = self._selected_map
             map_data = get_map_data(map_group, map_number, self._selected_tile)
@@ -955,7 +1138,7 @@ class MapTab(DebugTab):
                 "__value": str(obj),
                 "coordinates": obj.local_coordinates,
                 "script": obj.script_symbol,
-                "flag_id": obj.flag_id,
+                "flag": get_event_flag_name(obj.flag_id),
             }
             if obj.kind == "normal":
                 object_templates_list[key]["movement_type"] = obj.movement_type
@@ -991,7 +1174,7 @@ class MapTab(DebugTab):
                 bg_events_list[key] = {
                     "__value": f"Hidden Item: {event.hidden_item.name}",
                     "Item": event.hidden_item.name,
-                    "Flag": event.hidden_item_flag_id,
+                    "Flag": get_event_flag_name(event.hidden_item_flag_id),
                 }
             elif kind == "Secret Base":
                 bg_events_list[key] = {
@@ -1004,6 +1187,8 @@ class MapTab(DebugTab):
         return {
             "Map": {
                 "__value": map_data.map_name,
+                "Group": map_data.map_group,
+                "Number": map_data.map_number,
                 "Size": map_data.map_size,
                 "Type": map_data.map_type,
                 "Weather": map_data.weather,
@@ -1031,13 +1216,20 @@ class MapTab(DebugTab):
 
     def _handle_selection(self, selected_label: str) -> None:
         self._selected_object = None
-        if not selected_label.startswith("Object #"):
-            return
+        if selected_label.startswith("Object #"):
+            object_index = int(selected_label[8:])
+            map_objects = get_map_objects()
+            if len(map_objects) <= object_index:
+                return
 
-        object_index = int(selected_label[8:])
-        map_objects = get_map_objects()
-        if len(map_objects) <= object_index:
-            return
+            selected_object = map_objects[object_index]
+            self._selected_object = (selected_object.map_group, selected_object.map_num, selected_object.local_id)
+        elif selected_label.startswith("Object Template #"):
+            object_index = int(selected_label[17:])
+            current_map = get_map_data_for_current_position()
+            map_objects = current_map.objects
+            if len(map_objects) <= object_index:
+                return
 
-        selected_object = map_objects[object_index]
-        self._selected_object = (selected_object.map_group, selected_object.map_num, selected_object.local_id)
+            selected_object = map_objects[object_index]
+            self._selected_object = (current_map.map_group, current_map.map_number, selected_object.local_id)
