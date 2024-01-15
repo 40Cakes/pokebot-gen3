@@ -18,7 +18,14 @@ from modules.game import (
 from modules.game_stats import GameStat, get_game_stat
 from modules.gui.emulator_controls import DebugTab
 from modules.items import get_item_bag, get_item_storage
-from modules.map import get_map_data_for_current_position, get_map_data, get_map_objects, get_map_all_tiles
+from modules.map import (
+    get_map_data_for_current_position,
+    get_map_data,
+    get_map_objects,
+    get_map_all_tiles,
+    get_wild_encounters_for_map,
+    WildEncounter,
+)
 from modules.memory import (
     get_symbol,
     read_symbol,
@@ -1184,6 +1191,57 @@ class MapTab(DebugTab):
             else:
                 bg_events_list[key] = "???"
 
+        encounter_list = get_wild_encounters_for_map(map_data.map_group, map_data.map_number)
+        if encounter_list is None:
+            encounters = None
+        else:
+
+            def list_encounters(encounter_list: list[WildEncounter], rate: int) -> tuple[dict, int]:
+                result = {"__value": {}, "Encounter Rate": rate}
+                index = 0
+                number_of_species = 0
+                for encounter in encounter_list:
+                    if encounter.species.name not in result["__value"]:
+                        result["__value"][encounter.species.name] = encounter.encounter_rate
+                        number_of_species += 1
+                    else:
+                        result["__value"][encounter.species.name] += encounter.encounter_rate
+                    result[str(index)] = encounter
+                    index += 1
+                v = map(lambda i: f"{i[1]}% {i[0]}", reversed(sorted(result["__value"].items(), key=lambda i: i[1])))
+                result["__value"] = ", ".join(v)
+                return result, number_of_species
+
+            encounters = {"__value": []}
+            if encounter_list.land_encounter_rate > 0:
+                encounters["Land"], n = list_encounters(
+                    encounter_list.land_encounters, encounter_list.land_encounter_rate
+                )
+                encounters["__value"].append(str(n) + " Land")
+            if encounter_list.surf_encounter_rate > 0:
+                encounters["Surfing"], n = list_encounters(
+                    encounter_list.surf_encounters, encounter_list.surf_encounter_rate
+                )
+                encounters["__value"].append(str(n) + " Surfing")
+            if encounter_list.rock_smash_encounter_rate > 0:
+                encounters["Rock Smash"], n = list_encounters(
+                    encounter_list.rock_smash_encounters, encounter_list.rock_smash_encounter_rate
+                )
+                encounters["__value"].append(str(n) + " Rock Smash")
+            if encounter_list.fishing_encounter_rate > 0:
+                encounters["Fishing (Old Rod)"], n1 = list_encounters(
+                    encounter_list.old_rod_encounters, encounter_list.fishing_encounter_rate
+                )
+                encounters["Fishing (Good Rod)"], n2 = list_encounters(
+                    encounter_list.good_rod_encounters, encounter_list.fishing_encounter_rate
+                )
+                encounters["Fishing (Super Rod)"], n3 = list_encounters(
+                    encounter_list.super_rod_encounters, encounter_list.fishing_encounter_rate
+                )
+                encounters["__value"].append(f"{n1}/{n2}/{n3} Fishing")
+
+            encounters["__value"] = ", ".join(encounters["__value"])
+
         return {
             "Map": {
                 "__value": map_data.map_name,
@@ -1198,6 +1256,7 @@ class MapTab(DebugTab):
                 "Show Map Name Popup": map_data.is_map_name_popup_shown,
                 "Is Dark Cave": map_data.is_dark_cave,
             },
+            "Encounters": encounters,
             "Tile": {
                 "__value": f"{map_data.local_position[0]}/{map_data.local_position[1]} ({map_data.tile_type})",
                 "Elevation": map_data.elevation,
