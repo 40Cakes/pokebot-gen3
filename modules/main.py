@@ -1,13 +1,15 @@
 import queue
 import sys
 from threading import Thread
+from typing import Generator
 
 from modules.battle import BattleHandler, check_lead_can_battle, RotatePokemon
 from modules.console import console
 from modules.context import context
 from modules.memory import get_game_state, GameState
 from modules.menuing import MenuWrapper, CheckForPickup, should_check_for_pickup
-from modules.pokemon import opponent_changed, get_opponent
+from modules.modes import get_bot_mode_by_name, BotMode, BotModeError
+from modules.pokemon import opponent_changed, get_opponent, clear_opponent
 
 
 # Contains a queue of tasks that should be run the next time a frame completes.
@@ -26,8 +28,12 @@ def main_loop() -> None:
     pickup_checked = False
     lead_rotated = False
 
+    previously_held_inputs = 0
+
     try:
-        mode = None
+        current_mode: BotMode | None = None
+        battle_controller: Generator | None = None
+        in_battle: bool = False
 
         if context.config.discord.rich_presence:
             from modules.discord import discord_rich_presence
@@ -40,83 +46,86 @@ def main_loop() -> None:
             Thread(target=http_server).start()
 
         while True:
+            # Process work queue, which can be used to get the main thread to access the emulator
+            # at a 'safe' time (i.e. not in the middle of emulating a frame.)
             while not work_queue.empty():
                 callback = work_queue.get_nowait()
                 callback()
 
-            if (
-                not mode
-                and get_game_state() == GameState.BATTLE
-                and context.bot_mode not in ["Starters", "Static Soft Resets"]
-            ):
-                if opponent_changed():
+            is_default_battle_controller_disabled = (
+                current_mode is not None and current_mode.disable_default_battle_handler()
+            )
+
+            # Handle active battle, unless the mode wants to handle it itself.
+            if get_game_state() == GameState.BATTLE:
+                in_battle = True
+                # Log encounter if a new battle starts or a new opponent Pokemon is switched in.
+                if opponent_changed() and not is_default_battle_controller_disabled:
                     pickup_checked = False
                     lead_rotated = False
                     encounter_pokemon(get_opponent())
-                if context.bot_mode != "Manual":
-                    mode = BattleHandler()
+
+                if (
+                    battle_controller is None
+                    and context.bot_mode != "Manual"
+                    and not is_default_battle_controller_disabled
+                ):
+                    previously_held_inputs = context.emulator.reset_held_buttons()
+                    battle_controller = BattleHandler().step()
+            elif in_battle and get_game_state() == GameState.OVERWORLD:
+                # 'Clean-up tasks' at the end of a battle.
+                in_battle = False
+                clear_opponent()
+                if context.config.battle.pickup and should_check_for_pickup() and not pickup_checked:
+                    pickup_checked = True
+                    previously_held_inputs = context.emulator.reset_held_buttons()
+                    battle_controller = MenuWrapper(CheckForPickup()).step()
+                elif context.config.battle.replace_lead_battler and not check_lead_can_battle() and not lead_rotated:
+                    lead_rotated = True
+                    previously_held_inputs = context.emulator.reset_held_buttons()
+                    battle_controller = MenuWrapper(RotatePokemon()).step()
+                else:
+                    context.emulator.restore_held_buttons(previously_held_inputs)
+                    battle_controller = None
+
+            if is_default_battle_controller_disabled:
+                if battle_controller is not None:
+                    context.emulator.restore_held_buttons(previously_held_inputs)
+                battle_controller = None
+                in_battle = False
 
             if context.bot_mode == "Manual":
-                if mode:
-                    mode = None
+                current_mode = None
+                battle_controller = None
+                previously_held_inputs = 0
+            elif current_mode is None:
+                context.emulator.reset_held_buttons()
+                previously_held_inputs = 0
+                current_mode = get_bot_mode_by_name(context.bot_mode)()
 
-            elif not mode and context.config.battle.pickup and should_check_for_pickup() and not pickup_checked:
-                pickup_checked = True
-                mode = MenuWrapper(CheckForPickup())
-
-            elif (
-                not mode
-                and context.config.battle.replace_lead_battler
-                and not check_lead_can_battle()
-                and not lead_rotated
-            ):
-                lead_rotated = True
-                mode = MenuWrapper(RotatePokemon())
-
-            elif not mode:
-                match context.bot_mode:
-                    case "Spin":
-                        from modules.modes.general import ModeSpin
-
-                        mode = ModeSpin()
-
-                    case "Starters":
-                        from modules.modes.starters import ModeStarters
-
-                        mode = ModeStarters()
-
-                    case "Fishing":
-                        from modules.modes.general import ModeFishing
-
-                        mode = ModeFishing()
-
-                    case "Bunny Hop":
-                        from modules.modes.general import ModeBunnyHop
-
-                        mode = ModeBunnyHop()
-
-                    case "Static Soft Resets":
-                        from modules.modes.soft_resets import ModeStaticSoftResets
-
-                        mode = ModeStaticSoftResets()
-
-                    case "Tower Duo":
-                        from modules.modes.tower_duo import ModeTowerDuo
-
-                        mode = ModeTowerDuo()
-
-                    case "Ancient Legendaries":
-                        from modules.modes.ancient_legendaries import ModeAncientLegendaries
-
-                        mode = ModeAncientLegendaries()
             try:
-                if mode:
-                    next(mode.step())
-            except StopIteration:
-                mode = None
-                continue
-            except:
-                mode = None
+                if battle_controller is not None:
+                    next(battle_controller)
+                elif current_mode is not None:
+                    next(current_mode)
+            except (StopIteration, GeneratorExit):
+                if battle_controller is not None:
+                    context.emulator.restore_held_buttons(previously_held_inputs)
+                    battle_controller = None
+                else:
+                    current_mode = None
+            except BotModeError as e:
+                current_mode = None
+                battle_controller = None
+                context.emulator.reset_held_buttons()
+                context.message = str(e)
+                context.set_manual_mode()
+            except Exception as e:
+                console.print_exception()
+                current_mode = None
+                context.emulator.reset_held_buttons()
+                battle_controller = None
+                context.message = "Internal Bot Error: " + str(e)
                 context.set_manual_mode()
 
             context.emulator.run_single_frame()
