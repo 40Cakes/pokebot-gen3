@@ -419,3 +419,11 @@ def set_guaranteed_shiny_rng_seed() -> None:
                 _guaranteed_shiny_rng_seed = pack_uint32(seed)
 
     write_symbol("gRngValue", _guaranteed_shiny_rng_seed)
+
+
+def wait_for_n_frames(number_of_frames: int) -> Generator:
+    """
+    This will wait for a certain number of frames to pass.
+    """
+    for _ in range(number_of_frames):
+        yield
