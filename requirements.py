@@ -136,8 +136,24 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
                     f"libmgba-py_{libmgba_ver}_ubuntu-lunar.zip"
                 )
 
+            case "Darwin":
+                if platform.machine() == "arm64":
+                    # ARM-based Macs
+                    libmgba_url = (
+                        f"https://github.com/hanzi/libmgba-py/releases/download/{libmgba_tag}/"
+                        f"libmgba-py_{libmgba_ver}_macos-arm64.zip"
+                    )
+                else:
+                    # Intel-based Macs
+                    libmgba_url = (
+                        f"https://github.com/hanzi/libmgba-py/releases/download/{libmgba_tag}/"
+                        f"libmgba-py_{libmgba_ver}_macos-x86_64.zip"
+                    )
+
             case _:
-                print(f"ERROR: {platform.system()} is unsupported. Only Windows and Linux are currently supported.")
+                print(
+                    f"ERROR: {platform.system()} is unsupported. Only Windows, Linux, and MacOS are currently supported."
+                )
                 sys.exit(1)
 
         import io
