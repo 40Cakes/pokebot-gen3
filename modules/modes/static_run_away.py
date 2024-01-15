@@ -6,26 +6,33 @@ from modules.context import context
 from modules.map import get_map_objects
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
-from ._asserts import assert_no_auto_battle
+from ._asserts import assert_no_auto_battle, assert_no_auto_pickup
 from ._interface import BotMode, BotModeError
 from ._util import navigate_to, walk_one_tile
 
 
-class TowerDuoMode(BotMode):
+class StaticRunAway(BotMode):
     @staticmethod
     def name() -> str:
-        return "Tower Duo"
+        return "Static Run Away"
 
     @staticmethod
     def is_selectable() -> bool:
         if context.rom.is_rse:
-            allowed_maps = [MapRSE.NAVEL_ROCK_I.value, MapRSE.NAVEL_ROCK_U.value]
+            allowed_maps = [
+                MapRSE.NAVEL_ROCK_I.value,
+                MapRSE.NAVEL_ROCK_U.value,
+                MapRSE.ISLAND_CAVE.value,
+                MapRSE.ANCIENT_TOMB.value,
+                MapRSE.DESERT_RUINS.value,
+            ]
         else:
             allowed_maps = [MapFRLG.NAVEL_ROCK_B.value, MapFRLG.NAVEL_ROCK_A.value]
         return get_player_avatar().map_group_and_number in allowed_maps
 
     def run(self) -> Generator:
         assert_no_auto_battle("This mode should not be used with auto-battle.")
+        assert_no_auto_pickup("This mode should not be used while auto-pickup is enabled.")
 
         match get_player_avatar().map_group_and_number:
             # Lugia on Emerald
@@ -75,6 +82,39 @@ class TowerDuoMode(BotMode):
                     yield from walk_one_tile("Left")
                     yield from walk_one_tile("Right")
                     yield from navigate_to(9, 12)
+
+            # Regice on Emerald
+            case MapRSE.ISLAND_CAVE.value:
+                pokemon_name = "Regice"
+                flag_to_check = "DEFEATED_REGICE"
+
+                def path():
+                    yield from navigate_to(8, 11)
+                    yield from walk_one_tile("Down")
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(8, 8)
+
+            # Registeel on Emerald
+            case MapRSE.ANCIENT_TOMB.value:
+                pokemon_name = "Registeel"
+                flag_to_check = "DEFEATED_REGISTEEL"
+
+                def path():
+                    yield from navigate_to(8, 11)
+                    yield from walk_one_tile("Down")
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(8, 8)
+
+            # Registeel on Emerald
+            case MapRSE.DESERT_RUINS.value:
+                pokemon_name = "Regirock"
+                flag_to_check = "DEFEATED_REGIROCK"
+
+                def path():
+                    yield from navigate_to(8, 11)
+                    yield from walk_one_tile("Down")
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(8, 8)
 
             case _:
                 raise BotModeError("You are not on the right map.")

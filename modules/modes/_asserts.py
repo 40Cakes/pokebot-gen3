@@ -19,6 +19,15 @@ def assert_no_auto_battle(error_message: str) -> None:
         raise BotModeError(error_message)
 
 
+def assert_no_auto_pickup(error_message: str) -> None:
+    """
+    Raises an exception if auto pickup enabled, which may interfere with scripted encounters.
+    :param error_message: Error message to display if the assertion fails.
+    """
+    if context.config.battle.pickup:
+        raise BotModeError(error_message)
+
+
 def assert_save_game_exists(error_message: str) -> None:
     """
     Raises an exception if there is no saved game.
