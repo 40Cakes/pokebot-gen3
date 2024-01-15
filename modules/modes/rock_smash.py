@@ -3,12 +3,15 @@ from typing import Generator
 from modules.data.map import MapRSE
 
 from modules.context import context
+from modules.map import get_map_objects
 from modules.memory import get_event_flag
 from modules.player import get_player, get_player_avatar, TileTransitionState
 from modules.tasks import task_is_active, get_global_script_context
-from ._asserts import assert_has_pokemon_with_move
+from ._asserts import assert_has_pokemon_with_move, assert_save_game_exists, assert_saved_on_map, SavedMapLocation
 from ._interface import BotMode, BotModeError
 from ._util import (
+    soft_reset,
+    wait_for_unique_rng_value,
     navigate_to,
     follow_path,
     walk_one_tile,
@@ -30,6 +33,7 @@ class RockSmashMode(BotMode):
 
         return get_player_avatar().map_group_and_number in (
             MapRSE.GRANITE_CAVE_B.value,
+            MapRSE.ROUTE_121_A.value,
             MapRSE.SAFARI_ZONE_C.value,
             MapRSE.SAFARI_ZONE_E.value,
             MapRSE.SAFARI_ZONE_F.value,
@@ -48,10 +52,32 @@ class RockSmashMode(BotMode):
         if context.config.battle.pickup:
             raise BotModeError("This mode should not be used while auto-pickup is enabled.")
 
+        if get_player_avatar().map_group_and_number in (
+            MapRSE.ROUTE_121_A.value,
+            MapRSE.SAFARI_ZONE_C.value,
+            MapRSE.SAFARI_ZONE_E.value,
+            MapRSE.SAFARI_ZONE_F.value,
+        ):
+            assert_save_game_exists("There is no saved game. Cannot soft reset.")
+            assert_saved_on_map(
+                SavedMapLocation(MapRSE.ROUTE_121_A.value),
+                "In order to rock smash for Shuckle you should save in the entrance building to the Safari Zone.",
+            )
+
+        starting_cash = get_player().money
         while True:
             match get_player_avatar().map_group_and_number:
                 case MapRSE.GRANITE_CAVE_B.value:
                     yield from self.granite_cave()
+                case MapRSE.ROUTE_121_A.value:
+                    current_cash = get_player().money
+                    if current_cash < 500 or starting_cash - current_cash > 25000:
+                        yield from soft_reset()
+                        yield from wait_for_unique_rng_value()
+                        for _ in range(5):
+                            yield
+                        starting_cash = get_player().money
+                    yield from self.enter_safari_zone()
                 case MapRSE.SAFARI_ZONE_E.value:
                     for _ in self.safari_zone():
                         ctx = get_global_script_context()
@@ -63,25 +89,9 @@ class RockSmashMode(BotMode):
                             ):
                                 context.emulator.press_button("B")
                                 yield
-                            if get_player().money < 500:
-                                raise BotModeError("You do not have enough cash to re-enter the Safari Zone.")
-                            yield from ensure_facing_direction("Left")
-                            context.emulator.hold_button("Left")
-                            for _ in range(10):
+                            while "heldMovementFinished" not in get_map_objects()[0].flags:
                                 yield
-                            context.emulator.release_button("Left")
                             yield
-                            yield from wait_for_script_to_start_and_finish(
-                                "Route121_SafariZoneEntrance_EventScript_EntranceCounterTrigger", "A"
-                            )
-                            yield from wait_for_script_to_start_and_finish(
-                                "Route121_SafariZoneEntrance_EventScript_TryEnterSafariZone", "A"
-                            )
-                            while (
-                                get_player_avatar().local_coordinates != (32, 35)
-                                or get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING
-                            ):
-                                yield
                             break
                         yield
                 case MapRSE.SAFARI_ZONE_C.value:
@@ -164,6 +174,28 @@ class RockSmashMode(BotMode):
         yield from walk_one_tile("Down")
         yield from walk_one_tile("Down")
         yield from walk_one_tile("Up")
+
+    def enter_safari_zone(self):
+        if get_player().money < 500:
+            raise BotModeError("You do not have enough cash to re-enter the Safari Zone.")
+        yield from navigate_to(9, 4)
+        yield from ensure_facing_direction("Left")
+        context.emulator.hold_button("Left")
+        for _ in range(10):
+            yield
+        context.emulator.release_button("Left")
+        yield
+        yield from wait_for_script_to_start_and_finish(
+            "Route121_SafariZoneEntrance_EventScript_EntranceCounterTrigger", "A"
+        )
+        yield from wait_for_script_to_start_and_finish(
+            "Route121_SafariZoneEntrance_EventScript_TryEnterSafariZone", "A"
+        )
+        while (
+            get_player_avatar().local_coordinates != (32, 35)
+            or get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING
+        ):
+            yield
 
     def safari_zone(self):
         yield from navigate_to(12, 7)
