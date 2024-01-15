@@ -1,5 +1,3 @@
-from enum import IntEnum
-
 from modules.context import context
 from modules.items import get_item_bag
 from modules.memory import get_game_state, GameState
@@ -20,7 +18,7 @@ def party_menu_is_open() -> bool:
 
     :return: True if the party menu is active, false otherwise.
     """
-    if not context.rom.is_rs:
+    if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
         return get_game_state() == GameState.PARTY_MENU
     else:
         return (
@@ -159,10 +157,7 @@ class PokemonPartySubMenuNavigator(BaseMenuNavigator):
 
     def get_index_from_option(self) -> int:
         for i in range(self.party_menu_internal["numActions"]):
-            if isinstance(self.desired_option, IntEnum):
-                if self.party_menu_internal["actions"][i] == self.desired_option.value:
-                    return i
-            elif get_cursor_options(self.party_menu_internal["actions"][i]) == self.desired_option or (
+            if get_cursor_options(self.party_menu_internal["actions"][i]) == self.desired_option or (
                 self.desired_option in ("SHIFT", "SWITCH", "SEND_OUT")
                 and get_cursor_options(self.party_menu_internal["actions"][i]) in ("SEND_OUT", "SWITCH", "SHIFT")
             ):
@@ -171,10 +166,9 @@ class PokemonPartySubMenuNavigator(BaseMenuNavigator):
         context.set_manual_mode()
 
     def select_desired_option(self):
-        if isinstance(self.desired_option, (str, IntEnum)):
+        if isinstance(self.desired_option, str):
             self.desired_option = self.get_index_from_option()
         if self.desired_option < 0 or self.desired_option > parse_menu()["maxCursorPos"]:
-            x = parse_menu()
             context.message = f"Error selecting option {self.desired_option}, switching to manual mode."
             context.set_manual_mode()
         while parse_menu()["cursorPos"] != self.desired_option:
@@ -220,16 +214,13 @@ class PokemonPartySubMenuNavigator(BaseMenuNavigator):
 
 
 class PokemonPartyMenuNavigator(BaseMenuNavigator):
-    def __init__(self, idx: int, mode: str, cursor_option: IntEnum | None = None):
+    def __init__(self, idx: int, mode: str):
         super().__init__()
         self.idx = idx
         self.game = context.rom.game_title
         self.mode = mode
-        if cursor_option is None:
-            self.primary_option = None
-            self.get_primary_option()
-        else:
-            self.primary_option = cursor_option
+        self.primary_option = None
+        self.get_primary_option()
         self.subnavigator = None
         self.party = get_party()
 
@@ -306,10 +297,6 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
 
     def select_mon(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-            # This is required so that selecting the first party member doesn't fail.
-            if not task_is_active("Task_HandleChooseMonInput"):
-                while not task_is_active("Task_HandleChooseMonInput"):
-                    yield
             while task_is_active("TASK_HANDLECHOOSEMONINPUT"):
                 context.emulator.press_button("A")
                 yield

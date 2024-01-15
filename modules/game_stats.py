@@ -60,10 +60,10 @@ class GameStat(Enum):
 
 
 def get_game_stat(game_stat: GameStat) -> int:
-    if context.rom.is_rs:
+    if context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
         game_stats_offset = 0x1540
         encryption_key_offset = 0xAC
-    elif context.rom.is_emerald:
+    elif context.rom.game_title == "POKEMON EMER":
         game_stats_offset = 0x159C
         encryption_key_offset = 0xAC
     else:

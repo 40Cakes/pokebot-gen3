@@ -7,40 +7,7 @@ from modules.pokemon import get_party, parse_pokemon, Pokemon, get_move_by_index
 from modules.tasks import get_task, task_is_active
 
 
-class CursorOptionFRLG(IntEnum):
-    SUMMARY = 0
-    SWITCH = 1
-    CANCEL_1 = 2
-    ITEM = 3
-    GIVE_ITEM = 4
-    TAKE_ITEM = 5
-    MAIL = 6
-    TAKE_MAIL = 7
-    READ = 8
-    CANCEL_2 = 9
-    SHIFT = 10
-    SEND_OUT = 11
-    ENTER = 12
-    NO_ENTRY = 13
-    STORE = 14
-    REGISTER = 15
-    TRADE_1 = 16
-    TRADE_2 = 17
-    FLASH = 18
-    CUT = 19
-    FLY = 20
-    STRENGTH = 21
-    SURF = 22
-    ROCK_SMASH = 23
-    WATERFALL = 24
-    TELEPORT = 25
-    DIG = 26
-    MILK_DRINK = 27
-    SOFT_BOILED = 28
-    SWEET_SCENT = 29
-
-
-class CursorOptionEmerald(IntEnum):
+class CursorOptionEFRLG(IntEnum):
     SUMMARY = 0
     SWITCH = 1
     CANCEL_1 = 2
@@ -140,7 +107,7 @@ def get_party_menu_cursor_pos(party_length: int) -> dict:
         "slot_id_2": -1,
     }
 
-    if not context.rom.is_rs:
+    if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
         p_menu = read_symbol("gPartyMenu")
         party_menu["main_cb"] = get_symbol_name(unpack_uint32(p_menu[0:4]) - 1)
         party_menu["taskfunc"] = get_symbol_name(unpack_uint32(p_menu[4:8]) - 1)
@@ -167,7 +134,7 @@ def parse_menu() -> dict:
     """
     Function to parse the currently displayed menu and return usable information.
     """
-    if not context.rom.is_rs:
+    if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
         menu = read_symbol("sMenu")
         cursor_pos = struct.unpack("<b", menu[2:3])[0]
         min_cursor_pos = struct.unpack("<b", menu[3:4])[0]
@@ -188,7 +155,7 @@ def parse_party_menu() -> dict:
     """
     Function to parse info about the party menu
     """
-    if not context.rom.is_rs:
+    if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
         pmi_pointer = read_symbol("sPartyMenuInternal")
         addr = int(struct.unpack("<I", pmi_pointer)[0]) - 1
         party_menu_internal = context.emulator.read_bytes(addr, length=30)
@@ -219,7 +186,7 @@ def get_learning_mon() -> Pokemon:
     :return: The Pokémon trying to learn a move after evolution.
     """
     index = 0
-    if not context.rom.is_rs:
+    if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
         index = int.from_bytes(get_task("TASK_EVOLUTIONSCENE").data[20:22], "little")
     else:
         for i, member in enumerate(get_party()):
@@ -265,7 +232,7 @@ def parse_start_menu() -> dict:
     """
     is_open = False
 
-    if context.rom.is_rse:
+    if context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]:
         start_menu_options_symbol = "sCurrentStartMenuActions"
         num_actions_symbol = "sNumStartMenuActions"
         start_menu_enum = StartMenuOptionHoenn
@@ -344,9 +311,8 @@ def switch_requested() -> bool:
 
 
 def get_cursor_options(idx: int) -> str:
-    if context.rom.is_frlg:
-        return CursorOptionFRLG(idx).name
-    elif context.rom.is_emerald:
-        return CursorOptionEmerald(idx).name
-    else:
-        return CursorOptionRS(idx).name
+    match context.rom.game_title:
+        case "POKEMON FIRE" | "POKEMON LEAF" | "POKEMON EMER":
+            return CursorOptionEFRLG(idx).name
+        case _:
+            return CursorOptionRS(idx).name

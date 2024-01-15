@@ -36,11 +36,11 @@ class EmulatorScreen:
             controls.add_tab(BattleTab())
             controls.add_tab(PlayerTab())
             controls.add_tab(MapTab(self.canvas))
-            controls.add_tab(MiscTab())
+            controls.add_tab(DaycareTab())
             controls.add_tab(SymbolsTab())
             controls.add_tab(EventFlagsTab())
             controls.add_tab(EventVarsTab())
-            controls.add_tab(EmulatorTab())
+            controls.add_tab(InputsTab())
         else:
             controls = EmulatorControls(self.window)
         self._controls = controls
