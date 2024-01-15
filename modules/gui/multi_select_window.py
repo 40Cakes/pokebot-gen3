@@ -1,6 +1,5 @@
 import time
 from dataclasses import dataclass
-from idlelib.tooltip import Hovertip
 from pathlib import Path
 from tkinter import ttk, Toplevel, Canvas, PhotoImage
 
@@ -11,7 +10,6 @@ from modules.context import context
 class Selection:
     button_label: str
     sprite: Path
-    button_tooltip: str = ""
     button_enable: bool = True
 
 
@@ -68,8 +66,6 @@ def ask_for_choice(choices: list[Selection], window_title: str = "Choose...") ->
         )
         button.grid(sticky="NSWE")
         button.state(["!disabled"] if selection.button_enable else ["disabled"])
-        if selection.button_tooltip:
-            Hovertip(button, selection.button_tooltip)
         column += 1
 
     while window is not None:
