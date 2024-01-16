@@ -109,6 +109,6 @@ def assert_has_pokemon_with_move(move: str, error_message: str) -> int:
     for pokemon in get_party():
         if not pokemon.is_egg and not pokemon.is_empty:
             for learned_move in pokemon.moves:
-                if learned_move.move.name == move:
+                if learned_move is not None and learned_move.move.name == move:
                     return
     raise BotModeError(error_message)
