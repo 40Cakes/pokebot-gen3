@@ -1,7 +1,8 @@
 """Contains modes of operation for the bot."""
 
-from ._interface import BotMode, BotModeError
 from typing import Type
+
+from ._interface import BotMode, BotModeError
 
 _bot_modes: list[Type[BotMode]] = []
 
@@ -18,7 +19,6 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .spin import SpinMode
         from .starters import StartersMode
         from .sudowoodo import SudowoodoMode
-        from .tower_duo import TowerDuoMode
         from .static_run_away import StaticRunAway
         from .static_gift_resets import StaticGiftResetsMode
         from .static_soft_resets import StaticSoftResetsMode
@@ -32,7 +32,6 @@ def get_bot_modes() -> list[Type[BotMode]]:
             StaticGiftResetsMode,
             GameCornerMode,
             SudowoodoMode,
-            TowerDuoMode,
             StaticRunAway,
             AncientLegendariesMode,
             RoamerResetMode,
