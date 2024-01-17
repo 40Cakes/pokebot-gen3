@@ -25,7 +25,7 @@ from modules.memory import (
     get_event_flag,
     get_event_flag_by_number,
 )
-from modules.player import get_player_avatar, TileTransitionState, RunningState
+from modules.player import get_player, get_player_avatar, TileTransitionState, RunningState
 from modules.tasks import task_is_active
 from ._interface import BotModeError
 
@@ -390,4 +390,40 @@ def wait_until_event_flag_is_false(flag_name: str, button_to_press: str | None =
     while get_event_flag(flag_name):
         if button_to_press is not None:
             context.emulator.press_button(button_to_press)
+        yield
+
+
+_guaranteed_shiny_rng_seed: str | None = None
+
+
+def set_guaranteed_shiny_rng_seed() -> None:
+    """
+    This can be used for testing purposes, and if used in the frame before an encounter
+    it will seed the RNG in a way that guarantees a shiny for the current player.
+    """
+
+    global _guaranteed_shiny_rng_seed
+    if _guaranteed_shiny_rng_seed is None:
+        player = get_player()
+        while _guaranteed_shiny_rng_seed is None:
+            seed = random.randint(0, 0xFFFF_FFFF)
+
+            rng_value = seed
+            rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
+            rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
+            personality_value_upper = rng_value >> 16
+            rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
+            personality_value_lower = rng_value >> 16
+
+            if player.trainer_id ^ player.secret_id ^ personality_value_upper ^ personality_value_lower < 8:
+                _guaranteed_shiny_rng_seed = pack_uint32(seed)
+
+    write_symbol("gRngValue", _guaranteed_shiny_rng_seed)
+
+
+def wait_for_n_frames(number_of_frames: int) -> Generator:
+    """
+    This will wait for a certain number of frames to pass.
+    """
+    for _ in range(number_of_frames):
         yield
