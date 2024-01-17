@@ -105,7 +105,7 @@ class StaticRunAway(BotMode):
                     yield from walk_one_tile("Up")
                     yield from navigate_to(8, 8)
 
-            # Registeel on Emerald
+            # Regirock on Emerald
             case MapRSE.DESERT_RUINS.value:
                 pokemon_name = "Regirock"
                 flag_to_check = "DEFEATED_REGIROCK"
