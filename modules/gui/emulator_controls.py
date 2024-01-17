@@ -219,7 +219,8 @@ class EmulatorControls:
             from modules.stats import total_stats  # TODO prevent instantiating TotalStats class before profile selected
 
             stats.append(f"{total_stats.get_encounter_rate():,}/h")
-        stats.append(f"{round(current_load * 100, 1)}%")
+        if context.debug:
+            stats.append(f"{round(current_load * 100, 1)}%")
         self.stats_label.config(text=" | ".join(stats))
 
 

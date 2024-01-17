@@ -25,7 +25,7 @@ from modules.memory import (
     get_event_flag,
     get_event_flag_by_number,
 )
-from modules.player import get_player, get_player_avatar, TileTransitionState, RunningState
+from modules.player import get_player_avatar, TileTransitionState, RunningState
 from modules.tasks import task_is_active
 from ._interface import BotModeError
 
@@ -391,7 +391,6 @@ def wait_until_event_flag_is_false(flag_name: str, button_to_press: str | None =
         if button_to_press is not None:
             context.emulator.press_button(button_to_press)
         yield
-
 
 _guaranteed_shiny_rng_seed: str | None = None
 
