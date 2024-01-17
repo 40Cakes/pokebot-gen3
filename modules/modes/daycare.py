@@ -93,7 +93,7 @@ class DaycareMode(BotMode):
                 if get_player_avatar().is_on_bike:
                     context.emulator.press_button("Select")
                 # navigate back to daycare man on R117
-                yield from follow_path([(47,8), (47,7)], False)
+                yield from follow_path([(47, 8), (47, 7)], False)
 
                 # go through dialogue to get egg
                 # if cheats are removed, the "B" button path can be removed
@@ -135,7 +135,7 @@ class DaycareMode(BotMode):
             # move to PC
             yield from wait_for_task_to_start_and_finish("Task_ExitNonDoor")
             yield from wait_for_n_frames(60)
-            yield from follow_path([(2,4), (10,4), (10,2)])
+            yield from follow_path([(2, 4), (10, 4), (10, 2)])
             # interact with PC
             yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessage", "A")
             yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessage", "A")
@@ -144,24 +144,24 @@ class DaycareMode(BotMode):
             yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessage", "A")
             yield from wait_until_task_is_active("Task_PCMainMenu", "A")
             yield from wait_for_n_frames(30)
-            #context.message = "Depositing Pokémon..."
-            #self.navigator = PCMainMenuNavigator("Deposit_Pokemon")
-            #while self.navigator.current_step != "exit":
+            # context.message = "Depositing Pokémon..."
+            # self.navigator = PCMainMenuNavigator("Deposit_Pokemon")
+            # while self.navigator.current_step != "exit":
             #    yield from self.navigator.step()
-            #yield from wait_until_task_is_active("Task_PokeStorageMain")
+            # yield from wait_until_task_is_active("Task_PokeStorageMain")
             ## deposit all except lead
-            #context.emulator.press_button("Right")
-            #yield from wait_for_n_frames(60)
-            #yield from wait_until_task_is_active("Task_OnSelectedMon", "A")
-            #yield from wait_until_task_is_active("Task_DepositMenu", "A")
-            #yield from wait_for_n_frames(30)
-            #context.emulator.press_button("Left")
-            #yield from wait_for_n_frames(2)
-            #context.emulator.press_button("A")
-            #for _ in range(4):
+            # context.emulator.press_button("Right")
+            # yield from wait_for_n_frames(60)
+            # yield from wait_until_task_is_active("Task_OnSelectedMon", "A")
+            # yield from wait_until_task_is_active("Task_DepositMenu", "A")
+            # yield from wait_for_n_frames(30)
+            # context.emulator.press_button("Left")
+            # yield from wait_for_n_frames(2)
+            # context.emulator.press_button("A")
+            # for _ in range(4):
             #    yield from wait_for_task_to_start_and_finish("Task_DepositMenu", "A")
-            #yield from wait_until_task_is_active("Task_PCMainMenu", "B")
-            #yield from wait_for_n_frames(30)
+            # yield from wait_until_task_is_active("Task_PCMainMenu", "B")
+            # yield from wait_for_n_frames(30)
             self.navigator = PCMainMenuNavigator("Move_Pokemon")
             while self.navigator.current_step != "exit":
                 yield from self.navigator.step()
@@ -192,18 +192,18 @@ class DaycareMode(BotMode):
                 yield from wait_until_task_is_active("Task_PokeStorageMain", "A")
 
             ## release all matched pokemon in box
-            #pc_storage = get_pokemon_storage()
-            #to_release = []
-            #for slot in pc_storage.boxes[13].slots:
+            # pc_storage = get_pokemon_storage()
+            # to_release = []
+            # for slot in pc_storage.boxes[13].slots:
             #    if (
             #        slot.pokemon.species.name == pokemon
             #        and not slot.pokemon.is_shiny
             #        and total_stats.custom_catch_filters(slot.pokemon) is False
             #    ):
             #        to_release.append([slot.column, slot.row])
-            #yield from wait_until_task_is_active("Task_PokeStorageMain", "A")
-            #yield from wait_for_n_frames(30)
-            #for pkm in to_release:
+            # yield from wait_until_task_is_active("Task_PokeStorageMain", "A")
+            # yield from wait_for_n_frames(30)
+            # for pkm in to_release:
             #    self.navigator = BoxNavigator(pkm, 13, "RELEASE")
             #    while self.navigator.current_step != "exit":
             #        yield from self.navigator.step()
@@ -235,7 +235,7 @@ class DaycareMode(BotMode):
             if party_size == 6 and egg_in_party() == 0:
                 pokemon_hunting = get_party()[party_size - 1].species.name
                 yield from pc_release(pokemon_hunting)
-                yield from follow_path([(51,8), (47,8)])
+                yield from follow_path([(51, 8), (47, 8)])
 
             # collect eggs from daycare as soon as they are ready
             while daycare_egg_ready and party_size < 6:
@@ -259,8 +259,8 @@ class DaycareMode(BotMode):
                         script_ctx = get_global_script_context()
                         if "EventScript_EggHatch" in script_ctx.stack:
                             if not task_is_active("Task_WaitForFadeAndEnableScriptCtx"):
-                                #yield from wait_for_task_to_start_and_finish("Task_Fanfare", "B")
-                                #yield from wait_until_task_is_active("Task_WeatherMain", "B")
+                                # yield from wait_for_task_to_start_and_finish("Task_Fanfare", "B")
+                                # yield from wait_until_task_is_active("Task_WeatherMain", "B")
                                 yield from wait_for_task_to_start_and_finish("Task_WaitForFadeAndEnableScriptCtx", "B")
                                 pokemon_hatched = None
                                 for pokemon in get_party():
@@ -280,8 +280,8 @@ class DaycareMode(BotMode):
                     script_ctx = get_global_script_context()
                     if "EventScript_EggHatch" in script_ctx.stack:
                         if not task_is_active("Task_WaitForFadeAndEnableScriptCtx"):
-                            #yield from wait_for_task_to_start_and_finish("Task_Fanfare", "B")
-                            #yield from wait_until_task_is_active("Task_WeatherMain", "B")
+                            # yield from wait_for_task_to_start_and_finish("Task_Fanfare", "B")
+                            # yield from wait_until_task_is_active("Task_WeatherMain", "B")
                             yield from wait_for_task_to_start_and_finish("Task_WaitForFadeAndEnableScriptCtx", "B")
                             pokemon_hatched = None
                             for pokemon in get_party():
