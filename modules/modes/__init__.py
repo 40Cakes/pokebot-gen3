@@ -13,6 +13,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
     if len(_bot_modes) == 0:
         from .ancient_legendaries import AncientLegendariesMode
         from .bunny_hop import BunnyHopMode
+        from .daycare import DaycareMode
         from .fishing import FishingMode
         from .game_corner import GameCornerMode
         from .roamer_reset import RoamerResetMode
@@ -26,6 +27,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
         _bot_modes = [
             SpinMode,
             StartersMode,
+            DaycareMode,
             FishingMode,
             BunnyHopMode,
             StaticSoftResetsMode,

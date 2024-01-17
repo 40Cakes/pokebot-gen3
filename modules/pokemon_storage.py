@@ -48,7 +48,7 @@ class PokemonStorageBox:
                 return potential_empty_slot_index
             else:
                 potential_empty_slot_index += 1
-        if potential_empty_slot_index > 30:
+        if potential_empty_slot_index >= 30:
             return None
         else:
             return potential_empty_slot_index
@@ -166,7 +166,7 @@ def get_pokemon_storage() -> PokemonStorage:
     if state_cache.pokemon_storage.age_in_frames == 0:
         return state_cache.pokemon_storage.value
 
-    if not context.rom.is_rs:
+    if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
         offset = unpack_uint32(read_symbol("gPokemonStoragePtr"))
         length = get_symbol("gPokemonStorage")[1]
     else:
