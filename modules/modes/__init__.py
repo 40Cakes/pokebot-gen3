@@ -28,7 +28,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
             StartersMode,
             FishingMode,
             BunnyHopMode,
-            StaticSoftResetsMode
+            StaticSoftResetsMode,
             StaticGiftResetsMode,
             GameCornerMode,
             SudowoodoMode,
