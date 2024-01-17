@@ -1,12 +1,13 @@
 import string
 import struct
+from dataclasses import dataclass
 from functools import cached_property
 from typing import Literal
 
 from modules.context import context
 from modules.game import decode_string, get_event_flag_name
 from modules.memory import unpack_uint16, unpack_uint32, read_symbol, get_symbol_name, get_save_block
-from modules.pokemon import get_item_by_index, Item
+from modules.pokemon import get_item_by_index, Item, get_species_by_index, Species
 
 
 def _get_tile_type_name(tile_type: int):
@@ -1652,6 +1653,98 @@ def get_map_all_tiles() -> list[MapLocation]:
         for x in range(map_width):
             tiles.append(get_map_data(map_group, map_number, (x, y)))
     return tiles
+
+
+@dataclass
+class WildEncounter:
+    species: Species
+    min_level: int
+    max_level: int
+    encounter_rate: int
+
+    def __str__(self):
+        if self.min_level == self.max_level:
+            return f"{self.species.name} (lvl. {self.min_level}; {self.encounter_rate}%)"
+        else:
+            return f"{self.species.name} (lvl. {self.min_level}-{self.max_level}; {self.encounter_rate}%)"
+
+
+@dataclass
+class WildEncounterList:
+    land_encounter_rate: int
+    surf_encounter_rate: int
+    rock_smash_encounter_rate: int
+    fishing_encounter_rate: int
+
+    land_encounters: list[WildEncounter]
+    surf_encounters: list[WildEncounter]
+    rock_smash_encounters: list[WildEncounter]
+    old_rod_encounters: list[WildEncounter]
+    good_rod_encounters: list[WildEncounter]
+    super_rod_encounters: list[WildEncounter]
+
+
+_wild_encounters_cache: dict[tuple[int, int], WildEncounterList] = {}
+
+
+def get_wild_encounters_for_map(map_group: int, map_number: int) -> WildEncounterList | None:
+    global _wild_encounters_cache
+    if len(_wild_encounters_cache) == 0:
+        types = (
+            (4, 8, "land", 12, (20, 20, 10, 10, 10, 10, 5, 5, 4, 4, 1, 1)),
+            (8, 12, "surf", 5, (60, 30, 5, 4, 1)),
+            (12, 16, "rock_smash", 5, (60, 30, 5, 4, 1)),
+            (16, 20, "fishing", 10, (70, 30, 60, 20, 20, 40, 40, 15, 4, 1)),
+        )
+        headers = read_symbol("gWildMonHeaders")
+        for index in range(len(headers) // 20):
+            offset = index * 20
+            group = headers[offset]
+            number = headers[offset + 1]
+            if group == 0xFF:
+                break
+
+            def get_encounters_list(address: int, length: int, encounter_rates: list[int]) -> list[WildEncounter]:
+                if address == 0:
+                    return []
+
+                raw_list = context.emulator.read_bytes(address, length=length * 4)
+                result = []
+                for n in range(length):
+                    min_level = raw_list[4 * n]
+                    max_level = raw_list[4 * n + 1]
+                    if min_level > max_level:
+                        temp = max_level
+                        max_level = min_level
+                        min_level = temp
+                    species = get_species_by_index(unpack_uint16(raw_list[4 * n + 2 : 4 * n + 4]))
+                    result.append(WildEncounter(species, min_level, max_level, encounter_rates[n]))
+                return result
+
+            data = {}
+            for start, end, key, count, rates in types:
+                pointer = unpack_uint32(headers[offset + start : offset + end])
+                data[key + "_encounter_rate"] = 0
+                if key != "fishing":
+                    data[key + "_encounters"] = []
+                else:
+                    data["old_rod_encounters"] = []
+                    data["good_rod_encounters"] = []
+                    data["super_rod_encounters"] = []
+                if pointer > 0:
+                    encounter_info = context.emulator.read_bytes(pointer, length=8)
+                    data[key + "_encounter_rate"] = encounter_info[0]
+                    if data[key + "_encounter_rate"] > 0:
+                        list_pointer = unpack_uint32(encounter_info[4:8])
+                        if key != "fishing":
+                            data[key + "_encounters"] = get_encounters_list(list_pointer, count, rates)
+                        else:
+                            data["old_rod_encounters"] = get_encounters_list(list_pointer, 2, rates[0:2])
+                            data["good_rod_encounters"] = get_encounters_list(list_pointer + 8, 3, rates[2:5])
+                            data["super_rod_encounters"] = get_encounters_list(list_pointer + 20, 5, rates[5:10])
+            _wild_encounters_cache[(group, number)] = WildEncounterList(**data)
+
+    return _wild_encounters_cache.get((map_group, map_number), None)
 
 
 def calculate_targeted_coords(current_coordinates: tuple[int, int], facing_direction: str) -> tuple[int, int]:

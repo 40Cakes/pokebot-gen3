@@ -2,7 +2,7 @@ from typing import Literal
 
 from modules.context import context
 from modules.map import get_map_data
-from modules.memory import unpack_uint16, unpack_uint32, get_save_block, read_symbol, write_symbol
+from modules.memory import unpack_uint16, unpack_uint32, get_save_block, read_symbol
 from modules.pokemon import (
     StatsValues,
     ContestConditions,
@@ -172,29 +172,3 @@ def get_roamer_location_history() -> list[str]:
         if data[index * 2] != 0 or data[index * 2 + 1] != 0:
             result.append(get_map_data(data[index * 2], data[index * 2 + 1], (0, 0)).map_name)
     return result
-
-
-def dangerous_set_roamer_location(location: tuple[int, int]) -> None:
-    write_symbol("sRoamerLocation", bytes([location[0], location[1]]))
-
-
-def dangerous_make_roamer_shiny() -> None:
-    import random
-    from modules.memory import write_to_save_block, pack_uint32
-
-    data = get_save_block(2, offset=0xA, size=4)
-    trainer_id, secret_trainer_id = unpack_uint16(data[0:2]), unpack_uint16(data[2:4])
-
-    while True:
-        pv = random.randint(0, 0xFFFF_FFFF)
-        upper = pv >> 16
-        lower = pv & 0xFFFF
-        if upper ^ lower ^ trainer_id ^ secret_trainer_id < 8:
-            if context.rom.is_frlg:
-                offset = 0x30D0
-            elif context.rom.is_emerald:
-                offset = 0x31DC
-            else:
-                offset = 0x3144
-            write_to_save_block(pack_uint32(pv), 1, offset + 4)
-            break
