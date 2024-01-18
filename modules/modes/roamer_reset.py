@@ -171,6 +171,19 @@ class RoamerResetMode(BotMode):
 
             yield from walk_one_tile("Down")
 
+            # Cut scene where you get the National Dex
+            script_name = "LittlerootTown_ProfessorBirchsLab_EventScript_UpgradeToNationalDex"
+            while script_name not in get_global_script_context().stack:
+                context.emulator.press_button("B")
+                yield
+            while script_name in get_global_script_context().stack:
+                context.emulator.press_button("B")
+                yield
+            yield
+            yield
+            yield from navigate_to(6, 12)
+            yield from walk_one_tile("Down")
+
             # Select field move FLY
             yield from StartMenuNavigator("POKEMON").step()
             yield from PokemonPartyMenuNavigator(flying_pokemon_index, "", CursorOptionEmerald.FLY).step()
