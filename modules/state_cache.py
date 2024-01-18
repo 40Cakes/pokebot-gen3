@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from modules.pokemon import Pokemon
     from modules.pokemon_storage import PokemonStorage
     from modules.pokedex import Pokedex
-    from modules.tasks import TaskList
+    from modules.tasks import TaskList, ScriptContext
 
 T = TypeVar("T")
 
@@ -56,7 +56,11 @@ class StateCache:
         self._item_bag: StateCacheItem["ItemBag | None"] = StateCacheItem(None)
         self._item_storage: StateCacheItem["ItemStorage | None"] = StateCacheItem(None)
         self._tasks: StateCacheItem["TaskList | None"] = StateCacheItem(None)
+        self._global_script_context: StateCacheItem["ScriptContext | None"] = StateCacheItem(None)
+        self._immediate_script_context: StateCacheItem["ScriptContext | None"] = StateCacheItem(None)
         self._game_state: StateCacheItem["GameState | None"] = StateCacheItem(None)
+        self._last_encounter_log: StateCacheItem["dict | None"] = StateCacheItem(None)
+        self._last_shiny_log: StateCacheItem["dict | None"] = StateCacheItem(None)
 
     @property
     def party(self) -> StateCacheItem[list["Pokemon"]]:
@@ -164,6 +168,28 @@ class StateCache:
             self._tasks.checked()
 
     @property
+    def global_script_context(self) -> StateCacheItem["ScriptContext | None"]:
+        return self._global_script_context
+
+    @global_script_context.setter
+    def global_script_context(self, script_context: "ScriptContext"):
+        if self._global_script_context.value != script_context:
+            self._global_script_context.value = script_context
+        else:
+            self._global_script_context.checked()
+
+    @property
+    def immediate_script_context(self) -> StateCacheItem["ScriptContext | None"]:
+        return self._immediate_script_context
+
+    @immediate_script_context.setter
+    def immediate_script_context(self, script_context: "ScriptContext"):
+        if self._immediate_script_context.value != script_context:
+            self._immediate_script_context.value = script_context
+        else:
+            self._immediate_script_context.checked()
+
+    @property
     def game_state(self) -> StateCacheItem["GameState | None"]:
         return self._game_state
 
@@ -173,6 +199,28 @@ class StateCache:
             self._game_state.value = new_game_state
         else:
             self._game_state.checked()
+
+    @property
+    def last_encounter_log(self) -> StateCacheItem["dict | None"]:
+        return self._last_encounter_log
+
+    @last_encounter_log.setter
+    def last_encounter_log(self, new_encounter_log: dict):
+        if self._last_encounter_log.value != new_encounter_log:
+            self._last_encounter_log.value = new_encounter_log
+        else:
+            self._last_encounter_log.checked()
+
+    @property
+    def last_shiny_log(self) -> StateCacheItem["dict | None"]:
+        return self._last_shiny_log
+
+    @last_shiny_log.setter
+    def last_shiny_log(self, new_shiny_log: dict):
+        if self._last_shiny_log.value != new_shiny_log:
+            self._last_shiny_log.value = new_shiny_log
+        else:
+            self._last_shiny_log.checked()
 
 
 state_cache: StateCache = StateCache()

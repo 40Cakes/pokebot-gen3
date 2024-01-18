@@ -2,7 +2,7 @@ import struct
 from enum import IntEnum, auto
 
 from modules.context import context
-from modules.game import get_symbol, get_symbol_name, get_event_flag_offset, _event_flags
+from modules.game import get_symbol, get_symbol_name, get_event_flag_offset, _event_flags, _event_vars
 from modules.state_cache import state_cache
 
 
@@ -86,7 +86,7 @@ def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     try:
         if not size:
             size = get_symbol(f"GSAVEBLOCK{num}")[1]
-        if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+        if not context.rom.is_rs:
             p_Trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
             if p_Trainer == 0:
                 return None
@@ -109,7 +109,7 @@ def write_to_save_block(data: bytes, num: int = 1, offset: int = 0) -> bool:
     """
     # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
     try:
-        if context.rom.game_title in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
+        if not context.rom.is_rs:
             p_Trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
             if p_Trainer == 0:
                 return False
@@ -204,6 +204,21 @@ def get_event_flag(flag_name: str) -> bool:
     return bool((flag_byte[0] >> (flag_offset[1])) & 1)
 
 
+def get_event_flag_by_number(flag_number: int) -> bool:
+    if context.rom.is_rs:
+        offset = 0x1220
+    elif context.rom.is_emerald:
+        offset = 0x1270
+    else:
+        offset = 0x0EE0
+
+    flag_offset = offset + (flag_number // 8)
+    flag_bit = 1 << (flag_number % 8)
+    flag_byte = get_save_block(1, offset=flag_offset, size=1)[0]
+
+    return bool(flag_byte & flag_bit)
+
+
 def set_event_flag(flag_name: str) -> bool:
     if flag_name not in _event_flags:
         return False
@@ -213,3 +228,10 @@ def set_event_flag(flag_name: str) -> bool:
 
     write_to_save_block(int.to_bytes(int.from_bytes(flag_byte) ^ (1 << flag_offset[1])), 1, offset=flag_offset[0])
     return True
+
+
+def get_event_var(var_name: str) -> int:
+    if var_name not in _event_vars:
+        return -1
+    else:
+        return unpack_uint16(get_save_block(1, offset=_event_vars[var_name], size=2))

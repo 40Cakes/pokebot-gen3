@@ -1,20 +1,21 @@
 import string
 import struct
+from dataclasses import dataclass
 from functools import cached_property
 from typing import Literal
 
 from modules.context import context
-from modules.game import decode_string
-from modules.memory import unpack_uint16, unpack_uint32, read_symbol, get_symbol_name
-from modules.pokemon import get_item_by_index, Item
+from modules.game import decode_string, get_event_flag_name
+from modules.memory import unpack_uint16, unpack_uint32, read_symbol, get_symbol_name, get_save_block
+from modules.pokemon import get_item_by_index, Item, get_species_by_index, Species
 
 
 def _get_tile_type_name(tile_type: int):
-    if context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
+    if context.rom.is_rs:
         rse = True
         frlg = False
         emerald = False
-    elif context.rom.game_title == "POKEMON EMER":
+    elif context.rom.is_emerald:
         rse = True
         frlg = False
         emerald = True
@@ -510,9 +511,24 @@ class MapWarp:
 
     @property
     def destination_location(self) -> "MapLocation":
-        destination_map = get_map_data(self.destination_map_group, self.destination_map_number, (0, 0))
-        destination_warp = destination_map.warps[self.destination_warp_id]
-        destination_map.local_position = destination_warp.local_coordinates
+        map_group = self.destination_map_group
+        map_number = self.destination_map_number
+        warp_id = self.destination_warp_id
+
+        # There is a special case for 'dynamic warps' that have their destination set
+        # in the player's save data.
+        if map_group == 127 and map_number == 127:
+            map_group, map_number, warp_id = get_save_block(1, offset=0x14, size=3)
+
+        destination_map = get_map_data(map_group, map_number, (0, 0))
+
+        # Another special case is when there is no corresponding target warp on the
+        # destination map we use _this_ warp's coordinates as the destination.
+        if warp_id == 0xFF:
+            destination_map.local_position = self.local_coordinates
+        else:
+            destination_warp = destination_map.warps[warp_id]
+            destination_map.local_position = destination_warp.local_coordinates
         return destination_map
 
     def to_dict(self) -> dict:
@@ -660,6 +676,7 @@ class MapBgEvent:
                 data["script"] = self.script_symbol
             case "Hidden Item":
                 data["item"] = self.hidden_item.name
+                data["flag"] = get_event_flag_name(self.hidden_item_flag_id)
             case "Secret Base":
                 data["secret_base_id"] = self.secret_base_id
 
@@ -704,7 +721,7 @@ class MapLocation:
         collision = (map_grid_block & 0x0C00) >> 10
         elevation = (map_grid_block & 0xF000) >> 12
 
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             metatiles_in_primary = 640
             metatiles_in_secondary = 1024
             metatiles_attributes_size = 4
@@ -750,7 +767,7 @@ class MapLocation:
     @property
     def map_name(self) -> str:
         region_map_section_id = self._map_header[0x14]
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             map_index = region_map_section_id - 0x58
             if 0 <= map_index < 0xC4 - 0x58:
                 # The game special-cases the Celadon Department Store by map number
@@ -793,14 +810,14 @@ class MapLocation:
 
     @property
     def has_encounters(self) -> bool:
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON SAPP"]:
+        if context.rom.is_frlg:
             return bool(self._metatile_attributes[0] & 0x0700_0000)
         else:
             return bool(self._tile_behaviour & 1)
 
     @property
     def is_surfable(self) -> bool:
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON SAPP"]:
+        if context.rom.is_frlg:
             return self.tile_type in [
                 "Pond Water",
                 "Fast Water",
@@ -833,14 +850,14 @@ class MapLocation:
         ]:
             return False
 
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             return bool(self._map_header[0x18])
         else:
             return bool(self._map_header[0x1A] & 0b0001)
 
     @property
     def is_escaping_possible(self) -> bool:
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             return bool(self._map_header[0x19] & 0b0001)
         else:
             return bool(self._map_header[0x1A] & 0b0010)
@@ -862,14 +879,14 @@ class MapLocation:
         ]:
             return False
 
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             return bool(self._map_header[0x19] & 0b0010)
         else:
             return bool(self._map_header[0x1A] & 0b0100)
 
     @property
     def is_map_name_popup_shown(self) -> bool:
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             return bool(self._map_header[0x19] & 0b0100)
         else:
             return bool(self._map_header[0x1A] & 0b1000)
@@ -1524,6 +1541,8 @@ class ObjectEventTemplate:
 
     @property
     def script_symbol(self) -> str:
+        if self.script_pointer == 0:
+            return ""
         symbol = get_symbol_name(self.script_pointer, pretty_name=True)
         if symbol == "":
             return hex(self.script_pointer)
@@ -1561,6 +1580,7 @@ class ObjectEventTemplate:
             "local_coordinates": self.local_coordinates,
             "kind": kind,
             "script": self.script_symbol,
+            "flag": get_event_flag_name(self.flag_id),
         }
 
         if kind == "normal":
@@ -1633,3 +1653,109 @@ def get_map_all_tiles() -> list[MapLocation]:
         for x in range(map_width):
             tiles.append(get_map_data(map_group, map_number, (x, y)))
     return tiles
+
+
+@dataclass
+class WildEncounter:
+    species: Species
+    min_level: int
+    max_level: int
+    encounter_rate: int
+
+    def __str__(self):
+        if self.min_level == self.max_level:
+            return f"{self.species.name} (lvl. {self.min_level}; {self.encounter_rate}%)"
+        else:
+            return f"{self.species.name} (lvl. {self.min_level}-{self.max_level}; {self.encounter_rate}%)"
+
+
+@dataclass
+class WildEncounterList:
+    land_encounter_rate: int
+    surf_encounter_rate: int
+    rock_smash_encounter_rate: int
+    fishing_encounter_rate: int
+
+    land_encounters: list[WildEncounter]
+    surf_encounters: list[WildEncounter]
+    rock_smash_encounters: list[WildEncounter]
+    old_rod_encounters: list[WildEncounter]
+    good_rod_encounters: list[WildEncounter]
+    super_rod_encounters: list[WildEncounter]
+
+
+_wild_encounters_cache: dict[tuple[int, int], WildEncounterList] = {}
+
+
+def get_wild_encounters_for_map(map_group: int, map_number: int) -> WildEncounterList | None:
+    global _wild_encounters_cache
+    if len(_wild_encounters_cache) == 0:
+        types = (
+            (4, 8, "land", 12, (20, 20, 10, 10, 10, 10, 5, 5, 4, 4, 1, 1)),
+            (8, 12, "surf", 5, (60, 30, 5, 4, 1)),
+            (12, 16, "rock_smash", 5, (60, 30, 5, 4, 1)),
+            (16, 20, "fishing", 10, (70, 30, 60, 20, 20, 40, 40, 15, 4, 1)),
+        )
+        headers = read_symbol("gWildMonHeaders")
+        for index in range(len(headers) // 20):
+            offset = index * 20
+            group = headers[offset]
+            number = headers[offset + 1]
+            if group == 0xFF:
+                break
+
+            def get_encounters_list(address: int, length: int, encounter_rates: list[int]) -> list[WildEncounter]:
+                if address == 0:
+                    return []
+
+                raw_list = context.emulator.read_bytes(address, length=length * 4)
+                result = []
+                for n in range(length):
+                    min_level = raw_list[4 * n]
+                    max_level = raw_list[4 * n + 1]
+                    if min_level > max_level:
+                        temp = max_level
+                        max_level = min_level
+                        min_level = temp
+                    species = get_species_by_index(unpack_uint16(raw_list[4 * n + 2 : 4 * n + 4]))
+                    result.append(WildEncounter(species, min_level, max_level, encounter_rates[n]))
+                return result
+
+            data = {}
+            for start, end, key, count, rates in types:
+                pointer = unpack_uint32(headers[offset + start : offset + end])
+                data[key + "_encounter_rate"] = 0
+                if key != "fishing":
+                    data[key + "_encounters"] = []
+                else:
+                    data["old_rod_encounters"] = []
+                    data["good_rod_encounters"] = []
+                    data["super_rod_encounters"] = []
+                if pointer > 0:
+                    encounter_info = context.emulator.read_bytes(pointer, length=8)
+                    data[key + "_encounter_rate"] = encounter_info[0]
+                    if data[key + "_encounter_rate"] > 0:
+                        list_pointer = unpack_uint32(encounter_info[4:8])
+                        if key != "fishing":
+                            data[key + "_encounters"] = get_encounters_list(list_pointer, count, rates)
+                        else:
+                            data["old_rod_encounters"] = get_encounters_list(list_pointer, 2, rates[0:2])
+                            data["good_rod_encounters"] = get_encounters_list(list_pointer + 8, 3, rates[2:5])
+                            data["super_rod_encounters"] = get_encounters_list(list_pointer + 20, 5, rates[5:10])
+            _wild_encounters_cache[(group, number)] = WildEncounterList(**data)
+
+    return _wild_encounters_cache.get((map_group, map_number), None)
+
+
+def calculate_targeted_coords(current_coordinates: tuple[int, int], facing_direction: str) -> tuple[int, int]:
+    match facing_direction:
+        case "Up":
+            return current_coordinates[0], current_coordinates[1] - 1
+        case "Down":
+            return current_coordinates[0], current_coordinates[1] + 1
+        case "Left":
+            return current_coordinates[0] - 1, current_coordinates[1]
+        case "Right":
+            return current_coordinates[0] + 1, current_coordinates[1]
+        case _:
+            raise ValueError(f"Invalid facing direction: {facing_direction}")
