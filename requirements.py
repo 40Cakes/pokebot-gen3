@@ -126,11 +126,14 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
 
             case "Linux":
                 linux_release = platform.freedesktop_os_release()
+                if "VERSION_ID" not in linux_release:
+                    linux_release["VERSION_ID"] = "none"
                 supported_linux_releases = [
                     ("ubuntu", "23.04"),
                     ("ubuntu", "23.10"),
                     ("debian", "12"),
                     ("pop", "22.04"),
+                    ("arch", "none"),
                 ]
                 if (
                     linux_release["ID"],
