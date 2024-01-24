@@ -28,7 +28,7 @@ from modules.menuing import (
     PartyMenuExit,
 )
 from modules.pokemon import get_party, get_opponent, Pokemon, Move, LearnedMove
-from modules.tasks import get_task, get_tasks, task_is_active
+from modules.tasks import get_global_script_context, get_task, get_tasks, task_is_active
 
 
 class BattleState(IntEnum):
@@ -466,12 +466,26 @@ class BattleOpponent:
         :return: an ordered pair containing A) the name of the action to take (fight, switch, flee, etc.) and B) the
         index of the desired choice.
         """
-        if not context.config.battle.battle or not can_battle_happen():
+
+        # prevent attempting to flee if in trainer battle
+        script_ctx = get_global_script_context()
+        is_trainer_battle = False
+        if "EventScript_DoNoIntroTrainerBattle" in script_ctx.stack:
+            is_trainer_battle = True
+        if "EventScript_DoTrainerBattle" in script_ctx.stack:
+            is_trainer_battle = True
+
+        if (
+            not context.config.battle.battle
+            and not is_trainer_battle
+            or not can_battle_happen()
+            and not is_trainer_battle
+        ):
             self.choice = "flee"
             self.idx = -1
         elif context.config.battle.replace_lead_battler and self.should_rotate_lead:
             mon_to_switch = self.get_mon_to_switch()
-            if mon_to_switch is None:
+            if mon_to_switch is None and not is_trainer_battle:
                 self.choice = "flee"
                 self.idx = -1
             else:
@@ -484,7 +498,7 @@ class BattleOpponent:
                     if move == -1:
                         if context.config.battle.replace_lead_battler:
                             mon_to_switch = self.get_mon_to_switch()
-                            if mon_to_switch is None:
+                            if mon_to_switch is None and not is_trainer_battle:
                                 self.choice = "flee"
                                 self.idx = -1
                             else:
