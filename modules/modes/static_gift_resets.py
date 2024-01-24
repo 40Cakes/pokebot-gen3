@@ -31,6 +31,7 @@ def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | 
     if context.rom.is_rse:
         encounters = [
             (MapRSE.ROUTE_119_B.value, (2, 2), "Castform"),
+            (MapRSE.ROUTE_119_B.value, (18, 6), "Castform"),
             (MapRSE.RUSTBORO_CITY_B.value, (14, 8), "Hoenn Fossils"),
             (MapRSE.MOSSDEEP_CITY_H.value, (4, 3), "Beldum"),
         ]
