@@ -18,10 +18,11 @@ from modules.memory import (
 from modules.menu_parsers import CursorOptionFRLG, CursorOptionEmerald
 from modules.menuing import StartMenuNavigator, PokemonPartyMenuNavigator
 from modules.player import get_player, get_player_avatar
-from modules.pokemon import get_party, get_move_by_name, get_opponent
+from modules.pokemon import get_move_by_name, get_opponent
 from modules.region_map import get_map_cursor
 from modules.roamer import get_roamer
 from modules.runtime import get_sprites_path
+from modules.save_data import get_save_data
 from modules.tasks import get_global_script_context
 from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
 from ._interface import BotMode, BotModeError
@@ -80,20 +81,30 @@ class RoamerResetMode(BotMode):
         if context.rom.is_frlg:
             location_error = "The game has not been saved while standing in the Pokemon Net Center on One Island."
             roamer_level = 50
-            level_error = "The first Pokémon in your party has to be level 50 or lower in order for Repel to work."
+            highest_encounter_level = 6
         else:
             location_error = "The game has not been saved while standing on the top floor of the player's house."
             roamer_level = 40
-            level_error = "The first Pokémon in your party has to be level 40 or lower in order for Repel to work."
+            highest_encounter_level = 13
         assert_saved_on_map(SavedMapLocation(_get_allowed_starting_map()), error_message=location_error)
 
-        if get_party()[0].level > roamer_level:
-            raise BotModeError(level_error)
+        save_data = get_save_data()
+        saved_party = save_data.get_party()
 
-        if get_party()[0].is_egg:
+        if saved_party[0].is_egg:
             raise BotModeError("The first Pokémon in your party must not be an egg in order for Repel to work.")
 
-        item_bag = get_item_bag()
+        if saved_party[0].level > roamer_level:
+            raise BotModeError(
+                f"The first Pokémon in your party has to be level {roamer_level} or lower in order for Repel to work."
+            )
+
+        if saved_party[0].level <= highest_encounter_level:
+            raise BotModeError(
+                f"The first Pokémon in your party has to be at least level {highest_encounter_level + 1} in order for Repel to work."
+            )
+
+        item_bag = save_data.get_item_bag()
         number_of_repels = (
             item_bag.quantity_of(get_item_by_name("Max Repel"))
             + item_bag.quantity_of(get_item_by_name("Super Repel"))
@@ -104,15 +115,15 @@ class RoamerResetMode(BotMode):
 
         flying_pokemon_index = None
         move_fly = get_move_by_name("Fly")
-        for index in range(len(get_party())):
-            for learned_move in get_party()[index].moves:
+        for index in range(len(saved_party)):
+            for learned_move in saved_party[index].moves:
                 if learned_move is not None and learned_move.move == move_fly:
                     flying_pokemon_index = index
                     break
         if flying_pokemon_index is None:
             raise BotModeError("None of your party Pokémon know the move Fly. Please teach it to someone.")
 
-        has_good_ability = not get_party()[0].is_egg and get_party()[0].ability.name in ("Illuminate", "Arena Trap")
+        has_good_ability = not saved_party[0].is_egg and saved_party[0].ability.name in ("Illuminate", "Arena Trap")
 
         if context.rom.is_frlg:
             yield from self.run_frlg(flying_pokemon_index, has_good_ability)
@@ -139,8 +150,7 @@ class RoamerResetMode(BotMode):
             yield from soft_reset(mash_random_keys=True)
             yield from wait_for_unique_rng_value()
 
-            # No idea.
-            for _ in range(5):
+            while "heldMovementFinished" not in get_map_objects()[0].flags:
                 yield
 
             if get_player().gender == "female":
@@ -170,6 +180,20 @@ class RoamerResetMode(BotMode):
                 yield from navigate_to(8, 8)
 
             yield from walk_one_tile("Down")
+
+            # Cut scene where you get the National Dex
+            if get_event_var("DEX_UPGRADE_JOHTO_STARTER_STATE") == 1:
+                script_name = "LittlerootTown_ProfessorBirchsLab_EventScript_UpgradeToNationalDex"
+                while script_name not in get_global_script_context().stack:
+                    context.emulator.press_button("B")
+                    yield
+                while script_name in get_global_script_context().stack:
+                    context.emulator.press_button("B")
+                    yield
+                yield
+                yield
+                yield from navigate_to(6, 12)
+                yield from walk_one_tile("Down")
 
             # Select field move FLY
             yield from StartMenuNavigator("POKEMON").step()
@@ -316,8 +340,7 @@ class RoamerResetMode(BotMode):
             yield from soft_reset(mash_random_keys=True)
             yield from wait_for_unique_rng_value()
 
-            # No idea.
-            for _ in range(5):
+            while "heldMovementFinished" not in get_map_objects()[0].flags:
                 yield
 
             yield from navigate_to(14, 6)

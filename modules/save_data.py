@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 
 from modules.context import context
+from modules.items import ItemBag
 from modules.memory import unpack_uint16, unpack_uint32
+from modules.pokemon import Pokemon, parse_pokemon
 
 
 @dataclass
@@ -15,6 +17,52 @@ class SaveData:
 
     def get_map_local_coordinates(self) -> tuple[int, int]:
         return unpack_uint16(self.sections[1][0:2]), unpack_uint16(self.sections[1][2:4])
+
+    def get_party(self) -> list[Pokemon]:
+        party = []
+        if context.rom.is_frlg:
+            party_count = self.sections[1][0x034]
+            party_offset = 0x038
+        else:
+            party_count = self.sections[1][0x234]
+            party_offset = 0x238
+        for index in range(party_count):
+            offset = party_offset + index * 100
+            party.append(parse_pokemon(self.sections[1][offset : offset + 100]))
+        return party
+
+    def get_item_bag(self) -> ItemBag:
+        if context.rom.is_frlg:
+            items_count = 42
+            key_items_count = 30
+            poke_balls_count = 13
+            tms_hms_count = 58
+            berries_count = 43
+            offset = 0x310
+            encryption_key = self.sections[1][0xF20:0xF24]
+        elif context.rom.is_emerald:
+            items_count = 30
+            key_items_count = 30
+            poke_balls_count = 16
+            tms_hms_count = 64
+            berries_count = 46
+            offset = 0x560
+            encryption_key = self.sections[0][0xAC:0xB0]
+        else:
+            items_count = 20
+            key_items_count = 20
+            poke_balls_count = 16
+            tms_hms_count = 64
+            berries_count = 46
+            offset = 0x560
+            encryption_key = b"\x00\x00\x00\x00"
+
+        data_size = 4 * (items_count + key_items_count + poke_balls_count + tms_hms_count + berries_count)
+        data = self.sections[1][offset : offset + data_size]
+
+        return ItemBag(
+            data, items_count, key_items_count, poke_balls_count, tms_hms_count, berries_count, encryption_key
+        )
 
 
 _section_sizes = [3884, 3968, 3968, 3968, 3848, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 2000]
