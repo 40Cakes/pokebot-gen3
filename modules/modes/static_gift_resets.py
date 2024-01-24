@@ -27,6 +27,7 @@ def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | 
             (MapFRLG.CINNABAR_ISLAND_E.value, (11, 2), "Kanto Fossils"),
             (MapFRLG.CINNABAR_ISLAND_E.value, (13, 4), "Kanto Fossils"),
             (MapFRLG.CELADON_CITY_L.value, (7, 3), "Eevee"),
+            (MapFRLG.ROUTE_4_A.value, (1, 3), "Magikarp"),
         ]
     if context.rom.is_rse:
         encounters = [
@@ -79,7 +80,7 @@ class StaticGiftResetsMode(BotMode):
                 yield from wait_until_task_is_not_active("Task_DrawFieldMessage", "B")
 
             # accept the pokemon
-            if encounter[2] in ["Beldum", "Hitmonchan", "Hitmonlee"]:
+            if encounter[2] in ["Beldum", "Hitmonchan", "Hitmonlee", "Magikarp"]:
                 if context.rom.is_rse:
                     yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", "A")
                     yield from wait_for_task_to_start_and_finish("Task_Fanfare", "B")
