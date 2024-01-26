@@ -29,8 +29,7 @@ def on_exit() -> None:
             if gui is not None and gui.window is not None:
                 gui.window.withdraw()
 
-            print("")
-            input("Press Enter to close...")
+            input("\nPress Enter to close...")
 
 
 atexit.register(on_exit)

@@ -33,6 +33,7 @@ required_modules = [
     "apispec~=6.3.0",
     "apispec-webframeworks~=0.5.2",
     "flask-swagger-ui~=4.11.1",
+    "darkdetect~=0.8.0",
 ]
 
 if platform.system() == "Windows":
