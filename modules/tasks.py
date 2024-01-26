@@ -2,6 +2,7 @@
 'Tasks' are the game's implementation of coroutines. This files contains
 abstractions and utilities for working with them.
 """
+
 from functools import cached_property
 from typing import Iterator
 
