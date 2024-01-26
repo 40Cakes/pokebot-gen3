@@ -16,6 +16,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .fishing import FishingMode
         from .game_corner import GameCornerMode
         from .roamer_reset import RoamerResetMode
+        from .rock_smash import RockSmashMode
         from .spin import SpinMode
         from .starters import StartersMode
         from .sudowoodo import SudowoodoMode
@@ -35,6 +36,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
             StaticRunAway,
             AncientLegendariesMode,
             RoamerResetMode,
+            RockSmashMode,
         ]
 
     return _bot_modes

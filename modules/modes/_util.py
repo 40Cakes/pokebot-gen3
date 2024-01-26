@@ -26,7 +26,7 @@ from modules.memory import (
     get_event_flag_by_number,
 )
 from modules.player import get_player, get_player_avatar, TileTransitionState, RunningState
-from modules.tasks import task_is_active
+from modules.tasks import task_is_active, get_global_script_context
 from ._interface import BotModeError
 
 
@@ -367,6 +367,32 @@ def wait_for_task_to_start_and_finish(function_name: str, button_to_press: str |
     """
     yield from wait_until_task_is_active(function_name, button_to_press)
     yield from wait_until_task_is_not_active(function_name, button_to_press)
+
+
+def wait_until_script_is_active(function_name: str, button_to_press: str | None = None) -> Generator:
+    while not get_global_script_context().is_active or function_name not in get_global_script_context().stack:
+        if button_to_press is not None:
+            context.emulator.press_button(button_to_press)
+        yield
+
+
+def wait_until_script_is_no_longer_active(function_name: str, button_to_press: str | None = None) -> Generator:
+    while get_global_script_context().is_active and function_name in get_global_script_context().stack:
+        if button_to_press is not None:
+            context.emulator.press_button(button_to_press)
+        yield
+
+
+def wait_for_script_to_start_and_finish(function_name: str, button_to_press: str | None = None) -> Generator:
+    yield from wait_until_script_is_active(function_name, button_to_press)
+    yield from wait_until_script_is_no_longer_active(function_name, button_to_press)
+
+
+def wait_for_no_script_to_run(button_to_press: str | None = None) -> Generator:
+    while get_global_script_context().is_active:
+        if button_to_press is not None:
+            context.emulator.press_button(button_to_press)
+        yield
 
 
 def wait_until_event_flag_is_true(flag_name: str, button_to_press: str | None = None) -> Generator:
