@@ -1121,9 +1121,9 @@ class MapTab(DebugTab):
         map_connections = map_data.connections
         connections_list = {"__value": set()}
         for i in range(len(map_connections)):
-            connections_list[
-                map_connections[i].direction
-            ] = f"to {map_connections[i].destination_map.map_name} (offset: {str(map_connections[i].offset)})"
+            connections_list[map_connections[i].direction] = (
+                f"to {map_connections[i].destination_map.map_name} (offset: {str(map_connections[i].offset)})"
+            )
             connections_list["__value"].add(map_connections[i].direction)
         connections_list["__value"] = ", ".join(connections_list["__value"])
 
@@ -1132,9 +1132,9 @@ class MapTab(DebugTab):
         for i in range(len(map_warps)):
             warp = map_warps[i]
             d = warp.destination_location
-            warps_list[
-                format_coordinates(warp.local_coordinates)
-            ] = f"to ({format_coordinates(d.local_position)}) on [{d.map_group}, {d.map_number}] ({d.map_name})"
+            warps_list[format_coordinates(warp.local_coordinates)] = (
+                f"to ({format_coordinates(d.local_position)}) on [{d.map_group}, {d.map_number}] ({d.map_name})"
+            )
 
         map_object_templates = map_data.objects
         object_templates_list = {"__value": len(map_object_templates)}

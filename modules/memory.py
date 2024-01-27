@@ -153,7 +153,12 @@ def get_game_state() -> GameState:
         return state_cache.game_state.value
 
     match get_game_state_symbol():
-        case "CB2_SETUPOVERWORLDFORQLPLAYBACKWITHWARPEXIT" | "CB2_SETUPOVERWORLDFORQLPLAYBACK" | "CB2_LOADMAPFORQLPLAYBACK" | "CB2_ENTERFIELDFROMQUESTLOG":
+        case (
+            "CB2_SETUPOVERWORLDFORQLPLAYBACKWITHWARPEXIT"
+            | "CB2_SETUPOVERWORLDFORQLPLAYBACK"
+            | "CB2_LOADMAPFORQLPLAYBACK"
+            | "CB2_ENTERFIELDFROMQUESTLOG"
+        ):
             return GameState.QUEST_LOG
         case "CB2_OVERWORLD":
             result = GameState.OVERWORLD
@@ -171,7 +176,18 @@ def get_game_state() -> GameState:
             result = GameState.CHANGE_MAP
         case "CB2_STARTERCHOOSE" | "CB2_CHOOSESTARTER":
             result = GameState.CHOOSE_STARTER
-        case "CB2_INITCOPYRIGHTSCREENAFTERBOOTUP" | "CB2_WAITFADEBEFORESETUPINTRO" | "CB2_SETUPINTRO" | "CB2_INTRO" | "CB2_INITTITLESCREEN" | "CB2_TITLESCREENRUN" | "CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN" | "CB2_INITMAINMENU" | "MAINCB2" | "MAINCB2_INTRO":
+        case (
+            "CB2_INITCOPYRIGHTSCREENAFTERBOOTUP"
+            | "CB2_WAITFADEBEFORESETUPINTRO"
+            | "CB2_SETUPINTRO"
+            | "CB2_INTRO"
+            | "CB2_INITTITLESCREEN"
+            | "CB2_TITLESCREENRUN"
+            | "CB2_INITCOPYRIGHTSCREENAFTERTITLESCREEN"
+            | "CB2_INITMAINMENU"
+            | "MAINCB2"
+            | "MAINCB2_INTRO"
+        ):
             result = GameState.TITLE_SCREEN
         case "CB2_MAINMENU":
             result = GameState.MAIN_MENU

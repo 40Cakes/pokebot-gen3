@@ -1,20 +1,48 @@
+import time
+from pathlib import Path
+from threading import Thread
+
 from modules.console import console
 from modules.context import context
+from modules.discord import discord_message
 from modules.files import save_pk3
 from modules.gui.desktop_notification import desktop_notification
 from modules.pokemon_storage import get_pokemon_storage
-from modules.pokemon import Pokemon, get_battle_type_flags, BattleTypeFlag
+from modules.pokemon import Pokemon, get_battle_type_flags, BattleTypeFlag, get_opponent
 from modules.runtime import get_sprites_path
+
+
+def send_discord_encounter_gif(gif_path: Path, wait: int = 0) -> None:
+    """
+    Intended to be called in a thread, use the wait parameter to post the GIF after the embed webhook
+
+    :param gif_path: Path to GIF file
+    :param wait: n seconds to wait before posting
+    """
+    time.sleep(wait)
+    discord_message(image=gif_path)
+
+
+def wild_encounter_gif(post_to_discord: bool = False) -> None:
+    """
+    Generates a GIF from frames 220-260 after wild encounter is logged to capture the shiny sparkles
+    TODO add GIFs for other modes if applicable
+    """
+    if get_opponent().is_shiny:  # Disables GIF generation for daycare/gift modes
+        gif = context.emulator.generate_gif(start_frame=220, duration=37)
+
+        if post_to_discord:
+            Thread(target=send_discord_encounter_gif, args=(gif, 3)).start()
 
 
 def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
     """
     Call when a Pokémon is encountered, decides whether to battle, flee or catch.
     Expects the player's state to be MISC_MENU (battle started, no longer in the overworld).
-    It also calls the function to save the pokemon as a pk file if required in the config.
+    It also calls the function to save the Pokémon as a pk file if required in the config.
 
-    :param pokemon: The Pokemon that has been encountered
-    :param log_only: If true, this will not stop even if the encountered Pokemon is shiny or
+    :param pokemon: The Pokémon that has been encountered
+    :param log_only: If true, this will not stop even if the encountered Pokémon is shiny or
                      otherwise matches one of the catch rules.
     """
     from modules.stats import total_stats
@@ -68,6 +96,7 @@ def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
 
             alert_title = "Shiny found!"
             alert_message = f"Found a ✨shiny {pokemon.species.name}✨! 🥳"
+            wild_encounter_gif(post_to_discord=context.config.discord.shiny_pokemon_encounter.enable)
 
         elif custom_found:
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.custom:
@@ -78,6 +107,7 @@ def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
 
             alert_title = "Custom filter triggered!"
             alert_message = f"Found a {pokemon.species.name} that matched one of your filters. ({custom_filter_result})"
+            wild_encounter_gif(post_to_discord=context.config.discord.custom_filter_pokemon_encounter.enable)
 
         elif BattleTypeFlag.ROAMER in battle_type_flags:
             state_tag = "roamer"

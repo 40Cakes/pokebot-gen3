@@ -1,4 +1,6 @@
 import atexit
+from pathlib import Path
+
 import PIL.Image
 import PIL.PngImagePlugin
 import time
@@ -585,3 +587,34 @@ class LibmgbaEmulator:
 
         self._performance_tracker.time_spent_total -= time.time_ns() - begin
         self._performance_tracker.track_frame()
+
+    def generate_gif(self, start_frame: int, duration: int) -> Path:
+        """
+        Uses peek_frame to run the emulation from (current frame + start frame) to (current frame +  + start frame + duration),
+        taking a screenshot and stitching them together into an animated GIF.
+        """
+
+        frames = []
+        current_timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
+        gif_dir = self._profile.path / "screenshots" / "gifs"
+        gif_filename = gif_dir / f"{current_timestamp}.gif"
+        if not gif_dir.exists():
+            gif_dir.mkdir(parents=True)
+
+        console.print(f"Generating a {duration:,} frame GIF...")
+        for i in range(start_frame, start_frame + duration):
+            frame = self.peek_frame(self.get_screenshot, i)
+            if frame.getbbox():
+                frames.append(frame)
+
+        frames[0].save(
+            gif_filename,
+            format="GIF",
+            append_images=frames[1:],
+            save_all=True,
+            duration=duration,
+            loop=0,
+        )
+        console.print(f"GIF {gif_filename} saved!")
+
+        return gif_filename
