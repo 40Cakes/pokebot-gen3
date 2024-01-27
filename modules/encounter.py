@@ -28,7 +28,7 @@ def wild_encounter_gif(post_to_discord: bool = False) -> None:
     Generates a GIF from frames 220-260 after wild encounter is logged to capture the shiny sparkles
     TODO add GIFs for other modes if applicable
     """
-    if get_opponent().is_shiny:  # Disables GIF generation for daycare/gift modes
+    if get_opponent() is not None and get_opponent().is_shiny:  # Disables GIF generation for daycare/gift modes
         gif = context.emulator.generate_gif(start_frame=220, duration=37)
 
         if post_to_discord:
