@@ -1474,7 +1474,8 @@ def get_party() -> list[Pokemon]:
         # (1) advancing the emulation by one frame, (2) reading the memory, (3) restoring the previous
         # frame's state so we don't mess with frame accuracy.
         if mon is None:
-            mon = context.emulator.peek_frame(lambda: parse_pokemon(read_symbol("gPlayerParty", o, 100)))
+            with context.emulator.peek_frame():
+                mon = parse_pokemon(read_symbol("gPlayerParty", o, 100))
             if mon is None:
                 raise RuntimeError(f"Party Pokemon #{p + 1} was invalid for two frames in a row.")
 
@@ -1498,7 +1499,8 @@ def get_opponent() -> Pokemon:
 
     # See comment in `GetParty()`
     if mon is None:
-        mon = context.emulator.peek_frame(lambda: parse_pokemon(read_symbol("gEnemyParty")[:100]))
+        with context.emulator.peek_frame():
+            mon = parse_pokemon(read_symbol("gEnemyParty")[:100])
         if mon is None:
             return None
 

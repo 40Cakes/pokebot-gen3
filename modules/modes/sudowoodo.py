@@ -26,6 +26,8 @@ def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | 
         encounters = [
             (MapRSE.BATTLE_FRONTIER_E.value, (54, 62), "Sudowoodo"),
         ]
+    else:
+        encounters = []
 
     targeted_tile = get_player_avatar().map_location_in_front
     for entry in encounters:
