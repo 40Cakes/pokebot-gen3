@@ -107,7 +107,6 @@ def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
 
             alert_title = "Custom filter triggered!"
             alert_message = f"Found a {pokemon.species.name} that matched one of your filters. ({custom_filter_result})"
-            wild_encounter_gif(post_to_discord=context.config.discord.custom_filter_pokemon_encounter.enable)
 
         elif BattleTypeFlag.ROAMER in battle_type_flags:
             state_tag = "roamer"
