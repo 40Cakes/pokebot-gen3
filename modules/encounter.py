@@ -23,7 +23,7 @@ def send_discord_encounter_gif(gif_path: Path, wait: int = 0) -> None:
     discord_message(image=gif_path)
 
 
-def wild_encounter_gif() -> None:
+def wild_encounter_gif(post_to_discord: bool = False) -> None:
     """
     Generates a GIF from frames 220-260 after wild encounter is logged to capture the shiny sparkles
     TODO add GIFs for other modes if applicable
@@ -31,7 +31,7 @@ def wild_encounter_gif() -> None:
     if get_opponent().is_shiny:  # Disables GIF generation for daycare/gift modes
         gif = context.emulator.generate_gif(start_frame=220, duration=37)
 
-        if context.config.discord.shiny_pokemon_encounter.enable:
+        if post_to_discord:
             Thread(target=send_discord_encounter_gif, args=(gif, 3)).start()
 
 
@@ -96,7 +96,7 @@ def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
 
             alert_title = "Shiny found!"
             alert_message = f"Found a ✨shiny {pokemon.species.name}✨! 🥳"
-            wild_encounter_gif()
+            wild_encounter_gif(post_to_discord=context.config.discord.shiny_pokemon_encounter.enable)
 
         elif custom_found:
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.custom:
@@ -107,7 +107,7 @@ def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
 
             alert_title = "Custom filter triggered!"
             alert_message = f"Found a {pokemon.species.name} that matched one of your filters. ({custom_filter_result})"
-            wild_encounter_gif()
+            wild_encounter_gif(post_to_discord=context.config.discord.custom_filter_pokemon_encounter.enable)
 
         elif BattleTypeFlag.ROAMER in battle_type_flags:
             state_tag = "roamer"
