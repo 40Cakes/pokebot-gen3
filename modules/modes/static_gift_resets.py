@@ -4,6 +4,7 @@ from modules.data.map import MapRSE, MapFRLG
 from modules.context import context
 from modules.console import console
 from modules.encounter import encounter_pokemon
+from modules.memory import get_event_flag
 from modules.save_data import get_save_data
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.pokemon import get_party
@@ -79,6 +80,8 @@ class StaticGiftResetsMode(BotMode):
                 ["Mach Bike"],
                 "You need to register the Mach Bike for the Select button.",
             )
+            if get_event_flag("RECEIVED_LAVARIDGE_EGG"):
+                raise BotModeError("You have already received the Wynaut egg.")
             if get_party()[0].ability.name not in ["Flame Body", "Magma Armor"]:
                 console.print(
                     "[bold yellow]WARNING: First Pokemon in party does not have Flame Body / Magma Armor ability."
