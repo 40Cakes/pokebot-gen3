@@ -2,11 +2,16 @@ from typing import Generator
 
 from modules.data.map import MapRSE, MapFRLG
 from modules.context import context
+from modules.console import console
 from modules.encounter import encounter_pokemon
 from modules.save_data import get_save_data
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.pokemon import get_party
 from modules.player import get_player_avatar
+from modules.tasks import get_global_script_context, task_is_active
+from ._asserts import (
+    assert_registered_item,
+)
 from ._interface import BotMode, BotModeError
 from ._util import (
     soft_reset,
@@ -15,6 +20,8 @@ from ._util import (
     wait_until_task_is_not_active,
     wait_for_task_to_start_and_finish,
     wait_until_event_flag_is_true,
+    navigate_to,
+    wait_for_n_frames,
 )
 
 
@@ -35,6 +42,7 @@ def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | 
             (MapRSE.ROUTE_119_B.value, (18, 6), "Castform"),
             (MapRSE.RUSTBORO_CITY_B.value, (14, 8), "Hoenn Fossils"),
             (MapRSE.MOSSDEEP_CITY_H.value, (4, 3), "Beldum"),
+            (MapRSE.LAVARIDGE_TOWN.value, (4, 7), "Wynaut"),
         ]
 
     targeted_tile = get_player_avatar().map_location_in_front
@@ -45,6 +53,7 @@ def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | 
     return None
 
 
+
 class StaticGiftResetsMode(BotMode):
     @staticmethod
     def name() -> str:
@@ -53,6 +62,7 @@ class StaticGiftResetsMode(BotMode):
     @staticmethod
     def is_selectable() -> bool:
         return _get_targeted_encounter() is not None
+    
 
     def run(self) -> Generator:
         encounter = _get_targeted_encounter()
@@ -63,6 +73,17 @@ class StaticGiftResetsMode(BotMode):
 
         if encounter[0] != (save_data.sections[1][4], save_data.sections[1][5]):
             raise BotModeError("The targeted encounter is not in the current map. Cannot soft reset.")
+        
+        if encounter[2] == "Wynaut":
+            assert_registered_item(
+                ["Mach Bike"],
+                "You need to register the Mach Bike for the Select button.",
+            )
+            if get_party()[0].ability.name not in ["Flame Body", "Magma Armor"]:
+                console.print(
+                    "[bold yellow]WARNING: First Pokemon in party does not have Flame Body / Magma Armor ability."
+                )
+                console.print("[bold yellow]This will slow down the egg hatching process.")
 
         while context.bot_mode != "Manual":
             yield from soft_reset(mash_random_keys=True)
@@ -80,7 +101,7 @@ class StaticGiftResetsMode(BotMode):
                 yield from wait_until_task_is_not_active("Task_DrawFieldMessage", "B")
 
             # accept the pokemon
-            if encounter[2] in ["Beldum", "Hitmonchan", "Hitmonlee", "Magikarp"]:
+            if encounter[2] in ["Beldum", "Hitmonchan", "Hitmonlee", "Magikarp", "Wynaut"]:
                 if context.rom.is_rse:
                     yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", "A")
                     yield from wait_for_task_to_start_and_finish("Task_Fanfare", "B")
@@ -94,7 +115,7 @@ class StaticGiftResetsMode(BotMode):
                 if encounter[2] in ["Hitmonchan", "Hitmonlee"]:
                     yield from wait_until_event_flag_is_true("GOT_HITMON_FROM_DOJO", "B")
                 yield from wait_for_task_to_start_and_finish("Task_YesNoMenu_HandleInput", "B")
-            if context.rom.is_emerald:
+            if context.rom.is_emerald and encounter[2] not in ["Wynaut"]:
                 yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessage", "B")
                 yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", "B")
 
@@ -103,6 +124,36 @@ class StaticGiftResetsMode(BotMode):
                 yield from wait_until_event_flag_is_true("GOT_LAPRAS_FROM_SILPH", "B")
             if encounter[2] == "Castform":
                 yield from wait_until_event_flag_is_true("RECEIVED_CASTFORM", "B")
+            
+            def egg_in_party() -> int:
+                total_eggs = 0
+                for pokemon in get_party():
+                    if pokemon.is_egg:
+                        total_eggs += 1
+                return total_eggs
+            
+            def hatch_egg() -> Generator:
+                if not get_player_avatar().is_on_bike:
+                    context.emulator.press_button("Select")
+                yield from navigate_to(3, 10, False)
+                yield from navigate_to(16, 10, False)
+
+            if encounter[2] == "Wynaut":
+                yield from wait_until_task_is_not_active("Task_Fanfare", "B")
+                while egg_in_party() == 0:
+                    context.emulator.press_button("B")
+                    yield
+                while egg_in_party() > 0:
+                    yield from wait_for_n_frames(20)
+                    for _ in hatch_egg():
+                        script_ctx = get_global_script_context()
+                        if "EventScript_EggHatch" in script_ctx.stack:
+                            if not task_is_active("Task_WaitForFadeAndEnableScriptCtx"):
+                                yield from wait_for_task_to_start_and_finish("Task_WaitForFadeAndEnableScriptCtx", "B")
+                        yield
+                        if task_is_active("Task_SpinPokenavIcon"):
+                            yield from wait_until_task_is_not_active("Task_SpinPokenavIcon", "B")
+                        yield
 
             # If the respective 'cheat' is enabled, check the Pokemon immediately
             # instead of 'genuinely' looking at the summary screen
