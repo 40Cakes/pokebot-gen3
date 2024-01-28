@@ -54,7 +54,6 @@ def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | 
     return None
 
 
-
 class StaticGiftResetsMode(BotMode):
     @staticmethod
     def name() -> str:
@@ -63,7 +62,6 @@ class StaticGiftResetsMode(BotMode):
     @staticmethod
     def is_selectable() -> bool:
         return _get_targeted_encounter() is not None
-    
 
     def run(self) -> Generator:
         encounter = _get_targeted_encounter()
@@ -74,7 +72,7 @@ class StaticGiftResetsMode(BotMode):
 
         if encounter[0] != (save_data.sections[1][4], save_data.sections[1][5]):
             raise BotModeError("The targeted encounter is not in the current map. Cannot soft reset.")
-        
+
         if encounter[2] == "Wynaut":
             assert_registered_item(
                 ["Mach Bike"],
@@ -127,14 +125,14 @@ class StaticGiftResetsMode(BotMode):
                 yield from wait_until_event_flag_is_true("GOT_LAPRAS_FROM_SILPH", "B")
             if encounter[2] == "Castform":
                 yield from wait_until_event_flag_is_true("RECEIVED_CASTFORM", "B")
-            
+
             def egg_in_party() -> int:
                 total_eggs = 0
                 for pokemon in get_party():
                     if pokemon.is_egg:
                         total_eggs += 1
                 return total_eggs
-            
+
             def hatch_egg() -> Generator:
                 if not get_player_avatar().is_on_bike:
                     context.emulator.press_button("Select")
