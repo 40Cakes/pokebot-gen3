@@ -36,6 +36,12 @@ class SelectProfileScreen:
 
     def _add_header_and_controls(self, row: int = 0) -> None:
         header = ttk.Frame(self.frame)
+        style = ttk.Style()
+        style.map(
+            "Accent.TButton",
+            foreground=[("!active", "white"), ("active", "white"), ("pressed", "white")],
+            background=[("!active", "green"), ("active", "darkgreen"), ("pressed", "green")],
+        )
         header.grid(row=row, sticky="NEW")
         header.columnconfigure(0, weight=1)
 

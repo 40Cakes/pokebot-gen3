@@ -168,6 +168,12 @@ class EmulatorControls:
 
     def _add_settings_controls(self, row: int, column: int):
         group = ttk.Frame(self.frame)
+        style = ttk.Style()
+        style.map(
+            "Accent.TButton",
+            foreground=[("!active", "white"), ("active", "white"), ("pressed", "white")],
+            background=[("!active", "purple1"), ("active", "purple3"), ("pressed", "purple1")],
+        )
         group.grid(row=row, column=column, sticky="W")
 
         ttk.Label(group, text="Other Settings:").grid(row=0, columnspan=2, sticky="W")
