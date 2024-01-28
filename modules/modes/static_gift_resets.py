@@ -76,7 +76,7 @@ class StaticGiftResetsMode(BotMode):
         if encounter[2] == "Wynaut":
             assert_registered_item(
                 ["Mach Bike"],
-                "You need to register the Mach Bike for the Select button.",
+                "You need to register the Mach Bike for the Select button, then save again.",
             )
             if get_event_flag("RECEIVED_LAVARIDGE_EGG"):
                 raise BotModeError("You have already received the Wynaut egg.")
