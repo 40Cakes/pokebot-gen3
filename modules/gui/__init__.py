@@ -1,10 +1,11 @@
 import os
 import platform
-from tkinter import Tk, ttk
+from ttkthemes import ThemedTk
 from typing import TYPE_CHECKING
 
 import PIL.Image
 import PIL.ImageTk
+import darkdetect
 
 from modules.console import console
 from modules.context import context
@@ -24,7 +25,8 @@ if TYPE_CHECKING:
 
 class PokebotGui:
     def __init__(self, main_loop: callable, on_exit: callable):
-        self.window = Tk(className="PokeBot")
+        theme = "equilux" if darkdetect.isDark() else "clam"
+        self.window = ThemedTk(className="PokeBot", theme=theme)
         self._current_screen = None
         self._main_loop = main_loop
         self._on_exit = on_exit
@@ -36,14 +38,6 @@ class PokebotGui:
         self.window.protocol("WM_DELETE_WINDOW", self._close_window)
         self.window.bind("<KeyPress>", self._handle_key_down_event)
         self.window.bind("<KeyRelease>", self._handle_key_up_event)
-
-        style = ttk.Style()
-        style.theme_use("default")
-        style.map(
-            "Accent.TButton",
-            foreground=[("!active", "white"), ("active", "white"), ("pressed", "white")],
-            background=[("!active", "green"), ("active", "darkgreen"), ("pressed", "green")],
-        )
 
         self._apply_key_config()
 

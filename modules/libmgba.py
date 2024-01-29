@@ -1,9 +1,12 @@
 import atexit
+from pathlib import Path
+
 import PIL.Image
 import PIL.PngImagePlugin
 import time
 import zlib
 from collections import deque
+from contextlib import contextmanager
 
 import sounddevice
 
@@ -517,7 +520,8 @@ class LibmgbaEmulator:
         with open(png_path, "wb") as file:
             self.get_screenshot().save(file, format="PNG")
 
-    def peek_frame(self, callback: callable, frames_to_advance: int = 1) -> any:
+    @contextmanager
+    def peek_frame(self, frames_to_advance: int = 1) -> any:
         """
         Runs the emulation for a number of frames and then runs {callback()}, after which it restores
         the original emulator state.
@@ -525,16 +529,15 @@ class LibmgbaEmulator:
         This can be used to check the emulator state in a given number of frames without actually
         advancing the emulation.
 
-        :param callback: A function to run after the emulation has progressed
         :param frames_to_advance: Optional number of frames to advance (defaults to 1)
-        :return: The return value of the callback function
         """
         original_emulator_state = self.get_save_state()
         for i in range(frames_to_advance):
             self._core.run_frame()
-        result = callback()
-        self.load_save_state(original_emulator_state)
-        return result
+        try:
+            yield
+        finally:
+            self.load_save_state(original_emulator_state)
 
     def run_single_frame(self) -> None:
         """
@@ -585,3 +588,46 @@ class LibmgbaEmulator:
 
         self._performance_tracker.time_spent_total -= time.time_ns() - begin
         self._performance_tracker.track_frame()
+
+    def generate_gif(self, start_frame: int, duration: int) -> Path:
+        """
+        Uses peek_frame to run the emulation from (current frame + start frame) to (current frame +  + start frame + duration),
+        taking a screenshot and stitching them together into an animated GIF.
+        """
+
+        frames: list[PIL.Image.Image] = []
+        current_timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
+        gif_dir = self._profile.path / "screenshots" / "gifs"
+        gif_filename = gif_dir / f"{current_timestamp}.gif"
+        if not gif_dir.exists():
+            gif_dir.mkdir(parents=True)
+
+        video_was_enabled = self._video_enabled
+        self.set_video_enabled(True)
+
+        with self.peek_frame(start_frame):
+            for i in range(duration):
+                screenshot = self.get_screenshot()
+                if screenshot.getbbox():
+                    frames.append(screenshot)
+                self._core.run_frame()
+
+        self.set_video_enabled(video_was_enabled)
+
+        if len(frames) < 1:
+            raise RuntimeError("GIF generation did not result in any frames.")
+
+        # Closest to 60 fps we can get, as Pillow only seems to support 10ms steps.
+        milliseconds_per_frame = 20
+
+        frames[0].save(
+            gif_filename,
+            format="GIF",
+            append_images=frames[1:],
+            save_all=True,
+            duration=milliseconds_per_frame,
+            loop=0,
+        )
+        console.print(f"GIF {gif_filename} saved!")
+
+        return gif_filename

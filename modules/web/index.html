@@ -17,18 +17,10 @@
     <div id="screen_connection_lost">Connection Lost.<br/>Retrying&hellip;</div>
     <!-- Theme dropdown list -->
     <label for="themeSelector">Select Theme:</label>
-    <select id="themeSelector" onchange="changeTheme()">
+    <select id="themeSelector" onchange="changeTheme()"></select>
         <option value="0">Dark Theme</option>
         <option value="1">Light Theme</option>
-        <option value="2">Dark Green Theme</option>
-        <option value="3">Dark Blue Theme</option>
-        <option value="4">Dark Red Theme</option>
-        <option value="5">Black Theme</option>
-        <option value="6">Black Green Theme</option>
-        <option value="7">Black Blue Theme</option>
-        <option value="8">Black Red Theme</option>
-		<option value="random">Random Theme</option>
-    </select>
+
     <button onclick="window.open('/docs','_blank')">API Documentation</button>
 
     <div id="first_row">
@@ -604,45 +596,30 @@
             context.stroke();
         }
 
-        const themes = [{
-            '--background-color': '#333',
-            '--text-color': '#fff',
-            '--background-image': 'none'
-        }, {
-            '--background-color': '#fff',
-            '--text-color': '#333',
-            '--background-image': 'none'
-        }, {
-            '--background-color': '#333',
-            '--text-color': '#00ff22',
-            '--background-image': 'none'
-        }, {
-            '--background-color': '#333',
-            '--text-color': '#0040ff',
-            '--background-image': 'none'
-        }, {
-            '--background-color': '#333',
-            '--text-color': '#f50505',
-            '--background-image': 'none'
-        }, {
-            '--background-color': '#000000',
-            '--text-color': '#fff',
-            '--background-image': 'none'
-        }, {
-            '--background-color': '#000000',
-            '--text-color': '#00ff22',
-            '--background-image': 'none'
-        }, {
-            '--background-color': '#000000',
-            '--text-color': '#0613c9',
-            '--background-image': 'none'
-        }, {
-            '--background-color': '#000000',
-            '--text-color': '#f50505',
-            '--background-image': 'none'
-        }, ];
-
+        const themes = [
+            {
+                name: "Dark Theme",
+                '--background-color': '#333',
+                '--text-color': '#fff',
+                '--background-image': 'none'
+            },
+            {
+                name: "Light Theme",
+                '--background-color': '#fff',
+                '--text-color': '#333',
+                '--background-image': 'none'
+            }
+        ];
         let currentThemeIndex = 0;
+
+        // Populate the dropdown with theme names
+        const themeSelector = document.getElementById('themeSelector');
+        themes.forEach((theme, index) => {
+            const option = document.createElement('option');
+            option.value = index.toString();
+            option.textContent = theme.name;
+            themeSelector.appendChild(option);
+        });
 
         // Check if a theme preference is stored in localStorage
         const storedThemeIndex = localStorage.getItem('themeIndex');
@@ -653,44 +630,18 @@
         // Apply the theme on initial load
         applyTheme(themes[currentThemeIndex]);
 
-        function toggleTheme() {
-            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
-            applyTheme(themes[currentThemeIndex]);
+        // Function to change the theme
+        function changeTheme() {
+            const selectedTheme = themes[themeSelector.value];
 
             // Save the selected theme index to localStorage
-            localStorage.setItem('themeIndex', currentThemeIndex.toString());
-        }
+            localStorage.setItem('themeIndex', themeSelector.value);
 
-        function changeTheme() {
-            const themeSelector = document.getElementById('themeSelector');
-            const selectedTheme = themeSelector.value;
-
-            if (selectedTheme === 'random') {
-                // Generate two random colors for the background and text
-                const randomBackgroundColor = getRandomColor();
-                const randomTextColor = getRandomColor();
-
-                const randomTheme = {
-                    '--background-color': randomBackgroundColor,
-                    '--text-color': randomTextColor,
-                    '--background-image': 'none'
-                };
-
-                applyTheme(randomTheme);
-            } else {
-                const selectedThemeIndex = parseInt(selectedTheme, 10);
-                const predefinedTheme = themes[selectedThemeIndex];
-
-                applyTheme(predefinedTheme);
+            for (const property in selectedTheme) {
+                if (property !== 'name') {
+                    document.documentElement.style.setProperty(property, selectedTheme[property]);
+                }
             }
-
-            // Save the selected theme to localStorage
-            localStorage.setItem('themeIndex', selectedTheme.toString());
-        }
-
-        function getRandomColor() {
-            // Generate a random hex color code
-            return '#' + Math.floor(Math.random() * 16777215).toString(16);
         }
 
         function applyTheme(theme) {

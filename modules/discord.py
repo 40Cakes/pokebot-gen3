@@ -10,7 +10,7 @@ from modules.version import pokebot_version
 def discord_message(
     webhook_url: str = None,
     content: str = None,
-    image: str = None,
+    image: Path = None,
     embed: bool = False,
     embed_title: str = None,
     embed_description: str = None,
@@ -26,7 +26,7 @@ def discord_message(
 
         if image:
             with open(image, "rb") as f:
-                webhook.add_file(file=f.read(), filename="image.png")
+                webhook.add_file(file=f.read(), filename=image.name)
 
         if embed:
             embed_obj = DiscordEmbed(title=embed_title, color=embed_color)

@@ -1,4 +1,5 @@
-from tkinter import Tk, Button, PhotoImage
+from tkinter import Button, PhotoImage
+from ttkthemes import ThemedTk
 
 import PIL.Image
 import PIL.ImageTk
@@ -10,7 +11,7 @@ from modules.version import pokebot_name, pokebot_version
 
 
 class EmulatorScreen:
-    def __init__(self, window: Tk):
+    def __init__(self, window: ThemedTk):
         self.window = window
         self.frame: Union[ttk.Frame, None] = None
         self.canvas: Union[Canvas, None] = None
