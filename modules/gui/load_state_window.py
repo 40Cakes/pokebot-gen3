@@ -2,7 +2,8 @@ import random
 import re
 import time
 from pathlib import Path
-from tkinter import Tk, ttk, Toplevel, Canvas, PhotoImage, TclError
+from tkinter import ttk, Toplevel, Canvas, PhotoImage, TclError
+from ttkthemes import ThemedTk
 
 import PIL.Image
 import PIL.ImageDraw
@@ -13,7 +14,7 @@ from modules.runtime import get_sprites_path
 
 
 class LoadStateWindow:
-    def __init__(self, window: Tk):
+    def __init__(self, window: ThemedTk):
         state_directory = context.profile.path / "states"
         if not state_directory.is_dir():
             return
