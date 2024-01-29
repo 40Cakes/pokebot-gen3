@@ -326,7 +326,9 @@ class TotalStats:
             self.total_stats["pokemon"][pokemon.species.name] = {}
 
         if self.total_stats["totals"].get("last_encounter_pid") == pokemon.personality_value:
-            console.print(f"PID {str(hex(pokemon.personality_value)[2:]).upper()} was the last encounter logged, skipping...")
+            console.print(
+                f"PID {str(hex(pokemon.personality_value)[2:]).upper()} was the last encounter logged, skipping..."
+            )
         else:
             self.total_stats["totals"]["last_encounter_pid"] = pokemon.personality_value
             self.update_incremental_stats(pokemon)
