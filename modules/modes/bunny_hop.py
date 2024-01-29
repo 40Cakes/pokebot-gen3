@@ -9,7 +9,7 @@ from ._interface import BotMode
 class BunnyHopMode(BotMode):
     @staticmethod
     def name() -> str:
-        return "Kangaroo Hop"
+        return "Acro Bike Bunny Hop"
 
     @staticmethod
     def is_selectable() -> bool:
