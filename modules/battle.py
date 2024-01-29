@@ -475,7 +475,7 @@ class BattleOpponent:
         if "EventScript_DoTrainerBattle" in script_ctx.stack:
             is_trainer_battle = True
 
-        if not context.config.battle.battle and not is_trainer_battle or not can_battle_happen():
+        if not is_trainer_battle and (not context.config.battle.battle or not can_battle_happen()):
             self.choice = "flee"
             self.idx = -1
         elif context.config.battle.replace_lead_battler and self.should_rotate_lead:
