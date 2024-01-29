@@ -1,5 +1,6 @@
 import os
 import platform
+from tkinter import Tk, ttk
 from ttkthemes import ThemedTk
 from typing import TYPE_CHECKING
 
@@ -25,8 +26,12 @@ if TYPE_CHECKING:
 
 class PokebotGui:
     def __init__(self, main_loop: callable, on_exit: callable):
-        theme = "equilux" if darkdetect.isDark() else "clam"
-        self.window = ThemedTk(className="PokeBot", theme=theme)
+        if os.getenv("POKEBOT_UNTHEMED") != "1":
+            theme = "equilux" if darkdetect.isDark() else "clam"
+            self.window = ThemedTk(className="PokeBot", theme=theme)
+        else:
+            self.window = Tk(className="PokeBot")
+            ttk.Style().theme_use("default")
         self._current_screen = None
         self._main_loop = main_loop
         self._on_exit = on_exit
