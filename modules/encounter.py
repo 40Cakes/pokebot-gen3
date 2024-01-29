@@ -59,19 +59,8 @@ def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
     total_stats.log_encounter(pokemon, context.config.catch_block.block_list, custom_filter_result)
 
     encounter_summary = (
-        f"Encountered a {pokemon.species.name} with a shiny value of {pokemon.shiny_value:,}!\n\n"
-        f"PID: {str(hex(pokemon.personality_value)[2:]).upper()} | "
-        f"Lv: {pokemon.level:,} | "
-        f"Item: {pokemon.held_item.name if pokemon.held_item else '-'} | "
-        f"Nature: {pokemon.nature.name} | "
-        f"Ability: {pokemon.ability.name} \n"
-        f"IVs: HP: {pokemon.ivs.hp} | "
-        f"ATK: {pokemon.ivs.attack} | "
-        f"DEF: {pokemon.ivs.defence} | "
-        f"SPATK: {pokemon.ivs.special_attack} | "
-        f"SPDEF: {pokemon.ivs.special_defence} | "
-        f"SPD: {pokemon.ivs.speed} | "
-        f"Sum: {pokemon.ivs.sum()}"
+        f"(PID: {str(hex(pokemon.personality_value)[2:]).upper()}) "
+        f"Encountered an SV {pokemon.shiny_value:,} {pokemon.species.name}!"
     )
     context.message = encounter_summary
 

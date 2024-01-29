@@ -1,5 +1,6 @@
 import re
-from tkinter import Tk, ttk, StringVar
+from tkinter import ttk, StringVar
+from ttkthemes import ThemedTk
 from typing import Union
 
 import plyer
@@ -13,7 +14,7 @@ from modules.version import pokebot_name
 
 
 class CreateProfileScreen:
-    def __init__(self, window: Tk, enable_profile_selection_screen: callable, run_profile: callable):
+    def __init__(self, window: ThemedTk, enable_profile_selection_screen: callable, run_profile: callable):
         self.window = window
         self.enable_profile_selection_screen = enable_profile_selection_screen
         self.run_profile = run_profile
