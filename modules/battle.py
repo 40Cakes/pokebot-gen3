@@ -479,7 +479,6 @@ class BattleOpponent:
             not context.config.battle.battle
             and not is_trainer_battle
             or not can_battle_happen()
-            and not is_trainer_battle
         ):
             self.choice = "flee"
             self.idx = -1
