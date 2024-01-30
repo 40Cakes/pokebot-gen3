@@ -12,33 +12,35 @@ def get_bot_modes() -> list[Type[BotMode]]:
 
     if len(_bot_modes) == 0:
         from .bunny_hop import BunnyHopMode
+        from .daycare import DaycareMode
         from .fishing import FishingMode
         from .game_corner import GameCornerMode
         from .nugget_bridge import NuggetBridgeMode
+        from .random import RandomMode
         from .roamer_reset import RoamerResetMode
         from .rock_smash import RockSmashMode
         from .spin import SpinMode
         from .starters import StartersMode
-        from .sudowoodo import SudowoodoMode
         from .static_run_away import StaticRunAway
         from .static_gift_resets import StaticGiftResetsMode
         from .static_soft_resets import StaticSoftResetsMode
-        from .random import RandomMode
+        from .sudowoodo import SudowoodoMode
 
         _bot_modes = [
-            SpinMode,
-            StartersMode,
-            FishingMode,
             BunnyHopMode,
-            StaticSoftResetsMode,
-            StaticGiftResetsMode,
+            DaycareMode,
+            FishingMode,
             GameCornerMode,
             NuggetBridgeMode,
-            SudowoodoMode,
-            StaticRunAway,
+            RandomMode,
             RoamerResetMode,
             RockSmashMode,
-            RandomMode,
+            SpinMode,
+            StartersMode,
+            StaticRunAway,
+            StaticGiftResetsMode,
+            StaticSoftResetsMode,
+            SudowoodoMode,
         ]
 
     return _bot_modes
