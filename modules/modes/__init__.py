@@ -23,6 +23,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .static_run_away import StaticRunAway
         from .static_gift_resets import StaticGiftResetsMode
         from .static_soft_resets import StaticSoftResetsMode
+        from .random import RandomMode
 
         _bot_modes = [
             SpinMode,
@@ -37,6 +38,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
             StaticRunAway,
             RoamerResetMode,
             RockSmashMode,
+            RandomMode,
         ]
 
     return _bot_modes
