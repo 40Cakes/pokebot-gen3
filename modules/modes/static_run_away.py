@@ -26,9 +26,9 @@ class StaticRunAway(BotMode):
                 MapRSE.ANCIENT_TOMB.value,
                 MapRSE.DESERT_RUINS.value,
                 MapRSE.SOUTHERN_ISLAND_A.value,
-                MapRSE.MARINE_CAVE_A.value, 
-                MapRSE.TERRA_CAVE_A.value, 
-                MapRSE.SKY_PILLAR_G.value
+                MapRSE.MARINE_CAVE_A.value,
+                MapRSE.TERRA_CAVE_A.value,
+                MapRSE.SKY_PILLAR_G.value,
             ]
         else:
             allowed_maps = [MapFRLG.NAVEL_ROCK_B.value, MapFRLG.NAVEL_ROCK_A.value]
@@ -132,29 +132,29 @@ class StaticRunAway(BotMode):
                     yield from navigate_to(13, 12)
                     context.emulator.press_button("A")
                     yield from wait_until_script_is_active("Common_EventScript_LegendaryFlewAway", "B")
-        
+
             # Kyorge in Emerald
             case MapRSE.MARINE_CAVE_A.value:
                 pokemon_name = "Kyogre"
-                flag_to_check = ("DEFEATED_KYOGRE")
+                flag_to_check = "DEFEATED_KYOGRE"
 
                 def path():
                     yield from navigate_to(20, 4)
                     yield from walk_one_tile("Down")
                     yield from walk_one_tile("Up")
                     yield from navigate_to(9, 26)
-                    
+
             # Groudon in Emerald
             case MapRSE.TERRA_CAVE_A.value:
                 pokemon_name = "Groudon"
-                flag_to_check = ("DEFEATED_GROUDON")
+                flag_to_check = "DEFEATED_GROUDON"
 
                 def path():
                     yield from navigate_to(5, 4)
                     yield from walk_one_tile("Down")
                     yield from walk_one_tile("Up")
                     yield from navigate_to(17, 26)
-                    
+
             # Rayquaza on Emerald
             case MapRSE.SKY_PILLAR_G.value:
                 pokemon_name = "Rayquaza"
@@ -165,7 +165,6 @@ class StaticRunAway(BotMode):
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
                     yield from navigate_to(14, 7)
-
 
             case _:
                 raise BotModeError("You are not on the right map.")
