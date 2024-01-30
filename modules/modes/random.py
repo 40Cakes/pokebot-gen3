@@ -25,5 +25,7 @@ class RandomMode(BotMode):
                 if get_game_state() == GameState.BATTLE:
                     if opponent_changed():
                         encounter_pokemon(get_opponent(), log_only=True)
-                context.emulator.press_button(random.choice(["A", "B", "Select", "Start", "Right", "Left", "Up", "Down", "R", "L"]))
+                context.emulator.press_button(
+                    random.choice(["A", "B", "Select", "Start", "Right", "Left", "Up", "Down", "R", "L"])
+                )
             context.emulator.run_single_frame()

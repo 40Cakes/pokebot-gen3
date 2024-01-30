@@ -38,7 +38,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
             StaticRunAway,
             RoamerResetMode,
             RockSmashMode,
-            RandomMode
+            RandomMode,
         ]
 
     return _bot_modes
