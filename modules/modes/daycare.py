@@ -145,9 +145,6 @@ class DaycareMode(BotMode):
             for n in range(2):
                 context.emulator.press_button("Down")
                 yield from wait_for_n_frames(5)
-            # self.navigator = PCMainMenuNavigator("Move_Pokemon")
-            # while self.navigator.current_step != "exit":
-            #    yield from self.navigator.step()
             yield from wait_until_task_is_active("Task_PokeStorageMain", "A")
             # navigate to party list
             yield from wait_for_n_frames(30)
@@ -174,22 +171,6 @@ class DaycareMode(BotMode):
                 context.emulator.press_button("A")
                 yield from wait_until_task_is_active("Task_PokeStorageMain", "A")
 
-            ## release all matched pokemon in box
-            # pc_storage = get_pokemon_storage()
-            # to_release = []
-            # for slot in pc_storage.boxes[13].slots:
-            #    if (
-            #        slot.pokemon.species.name == pokemon
-            #        and not slot.pokemon.is_shiny
-            #        and total_stats.custom_catch_filters(slot.pokemon) is False
-            #    ):
-            #        to_release.append([slot.column, slot.row])
-            # yield from wait_until_task_is_active("Task_PokeStorageMain", "A")
-            # yield from wait_for_n_frames(30)
-            # for pkm in to_release:
-            #    self.navigator = BoxNavigator(pkm, 13, "RELEASE")
-            #    while self.navigator.current_step != "exit":
-            #        yield from self.navigator.step()
             # leave daycare
             context.emulator.press_button("B")
             yield from wait_for_n_frames(20)
