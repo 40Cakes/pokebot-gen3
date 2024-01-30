@@ -8,7 +8,7 @@ from modules.memory import get_event_flag
 from modules.player import get_player_avatar
 from ._asserts import assert_no_auto_battle, assert_no_auto_pickup
 from ._interface import BotMode, BotModeError
-from ._util import navigate_to, walk_one_tile
+from ._util import navigate_to, walk_one_tile, wait_until_script_is_active
 
 
 class StaticRunAway(BotMode):
@@ -25,6 +25,10 @@ class StaticRunAway(BotMode):
                 MapRSE.ISLAND_CAVE.value,
                 MapRSE.ANCIENT_TOMB.value,
                 MapRSE.DESERT_RUINS.value,
+                MapRSE.SOUTHERN_ISLAND_A.value,
+                MapRSE.MARINE_CAVE_A.value, 
+                MapRSE.TERRA_CAVE_A.value, 
+                MapRSE.SKY_PILLAR_G.value
             ]
         else:
             allowed_maps = [MapFRLG.NAVEL_ROCK_B.value, MapFRLG.NAVEL_ROCK_A.value]
@@ -115,6 +119,53 @@ class StaticRunAway(BotMode):
                     yield from walk_one_tile("Down")
                     yield from walk_one_tile("Up")
                     yield from navigate_to(8, 8)
+
+            # Lati@s on Emerald
+            case MapRSE.SOUTHERN_ISLAND_A.value:
+                pokemon_name = "Lati@s"
+                flag_to_check = "DEFEATED_LATIAS_OR_LATIOS"
+
+                def path():
+                    yield from navigate_to(13, 18)
+                    yield from walk_one_tile("Down")
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(13, 12)
+                    context.emulator.press_button("A")
+                    yield from wait_until_script_is_active("Common_EventScript_LegendaryFlewAway", "B")
+        
+            # Kyorge in Emerald
+            case MapRSE.MARINE_CAVE_A.value:
+                pokemon_name = "Kyogre"
+                flag_to_check = ("DEFEATED_KYOGRE")
+
+                def path():
+                    yield from navigate_to(20, 4)
+                    yield from walk_one_tile("Down")
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(9, 26)
+                    
+            # Groudon in Emerald
+            case MapRSE.TERRA_CAVE_A.value:
+                pokemon_name = "Groudon"
+                flag_to_check = ("DEFEATED_GROUDON")
+
+                def path():
+                    yield from navigate_to(5, 4)
+                    yield from walk_one_tile("Down")
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(17, 26)
+                    
+            # Rayquaza on Emerald
+            case MapRSE.SKY_PILLAR_G.value:
+                pokemon_name = "Rayquaza"
+                flag_to_check = ("DEFEATED_RAYQUAZA",)
+
+                def path():
+                    yield from navigate_to(16, 15)
+                    yield from walk_one_tile("Up")
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(14, 7)
+
 
             case _:
                 raise BotModeError("You are not on the right map.")

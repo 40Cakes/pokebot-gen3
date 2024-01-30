@@ -11,7 +11,6 @@ def get_bot_modes() -> list[Type[BotMode]]:
     global _bot_modes
 
     if len(_bot_modes) == 0:
-        from .ancient_legendaries import AncientLegendariesMode
         from .bunny_hop import BunnyHopMode
         from .fishing import FishingMode
         from .game_corner import GameCornerMode
@@ -36,7 +35,6 @@ def get_bot_modes() -> list[Type[BotMode]]:
             NuggetBridgeMode,
             SudowoodoMode,
             StaticRunAway,
-            AncientLegendariesMode,
             RoamerResetMode,
             RockSmashMode,
         ]
