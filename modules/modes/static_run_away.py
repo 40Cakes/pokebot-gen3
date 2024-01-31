@@ -8,7 +8,14 @@ from modules.memory import get_event_flag
 from modules.player import get_player_avatar
 from ._asserts import assert_no_auto_battle, assert_no_auto_pickup
 from ._interface import BotMode, BotModeError
-from ._util import navigate_to, walk_one_tile, wait_until_script_is_active
+from ._util import (
+    wait_for_task_to_start_and_finish,
+    navigate_to,
+    walk_one_tile,
+    wait_until_script_is_no_longer_active,
+    wait_until_script_is_active,
+    follow_path,
+)
 
 
 class StaticRunAway(BotMode):
@@ -29,6 +36,7 @@ class StaticRunAway(BotMode):
                 MapRSE.MARINE_CAVE_A.value,
                 MapRSE.TERRA_CAVE_A.value,
                 MapRSE.SKY_PILLAR_G.value,
+                MapRSE.FARAWAY_ISLAND.value,
             ]
         else:
             allowed_maps = [MapFRLG.NAVEL_ROCK_B.value, MapFRLG.NAVEL_ROCK_A.value]
@@ -131,7 +139,7 @@ class StaticRunAway(BotMode):
                     yield from walk_one_tile("Up")
                     yield from navigate_to(13, 12)
                     context.emulator.press_button("A")
-                    yield from wait_until_script_is_active("Common_EventScript_LegendaryFlewAway", "B")
+                    yield from wait_until_script_is_no_longer_active("Common_EventScript_LegendaryFlewAway", "B")
 
             # Kyorge in Emerald
             case MapRSE.MARINE_CAVE_A.value:
@@ -158,13 +166,29 @@ class StaticRunAway(BotMode):
             # Rayquaza on Emerald
             case MapRSE.SKY_PILLAR_G.value:
                 pokemon_name = "Rayquaza"
-                flag_to_check = ("DEFEATED_RAYQUAZA",)
+                flag_to_check = "DEFEATED_RAYQUAZA"
 
                 def path():
                     yield from navigate_to(16, 15)
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
                     yield from navigate_to(14, 7)
+
+            # Mew on Emerald
+            case MapRSE.FARAWAY_ISLAND.value:
+                pokemon_name = "Mew"
+                flag_to_check = "DEFEATED MEW"
+
+                def path():
+                    yield from walk_one_tile("Up")
+                    yield from follow_path([(12, 16), (16, 16), (16, 13)])
+                    context.emulator.press_button("A")
+                    yield from wait_for_task_to_start_and_finish("Task_WaitForFadeAndEnableScriptCtx", "B")
+                    yield from wait_until_script_is_active("Common_EventScript_LegendaryFlewAway", "B")
+                    yield from wait_until_script_is_no_longer_active("Common_EventScript_LegendaryFlewAway", "B")
+                    yield from walk_one_tile("Down")
+                    yield from follow_path([(16, 16), (12, 16), (12, 19)])
+                    yield from walk_one_tile("Down")
 
             case _:
                 raise BotModeError("You are not on the right map.")
