@@ -6,10 +6,8 @@ from modules.context import context
 from modules.items import get_item_bag, get_item_by_name
 from modules.map import get_map_objects
 from modules.memory import get_event_flag, get_event_var, read_symbol, unpack_uint16
-from modules.menu_parsers import CursorOptionEmerald, CursorOptionFRLG, CursorOptionRS
-from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
+from modules.menuing import StartMenuNavigator, use_party_hm_move
 from modules.player import get_player_avatar
-from modules.pokemon import get_move_by_name, get_party
 from modules.save_data import get_save_data
 from ._asserts import assert_no_auto_battle, assert_no_auto_pickup, assert_registered_item, assert_has_pokemon_with_move
 from ._interface import BotMode, BotModeError
@@ -47,128 +45,6 @@ class PuzzleSolverMode(BotMode):
         assert_no_auto_pickup("This mode should not be used while auto-pickup is enabled.")
         useRepel = False
 
-        # could probably move this into PokemonPartyMenuNavigator and use globally as I coded for all RSEFRLG HMs
-        def use_hm_move(move_name: str):
-            move_name_upper = move_name.upper()
-            # badge checks
-            if context.rom.is_rse:
-                match move_name_upper:
-                    case "CUT":
-                        if not get_event_flag("BADGE01_GET"):
-                            raise BotModeError("You do not have the Stone Badge to use Cut outside of battle.")
-                    case "FLASH":
-                        if not get_event_flag("BADGE02_GET"):
-                            raise BotModeError("You do not have the Knuckle Badge to use Flash outside of battle.")
-                    case "ROCK SMASH":
-                        if not get_event_flag("BADGE03_GET"):
-                            raise BotModeError("You do not have the Dynamo Badge to use Rock Smash outside of battle.")
-                    case "STRENGTH":
-                        if not get_event_flag("BADGE04_GET"):
-                            raise BotModeError("You do not have the Heat Badge to use Strength outside of battle.")
-                    case "SURF":
-                        if not get_event_flag("BADGE05_GET"):
-                            raise BotModeError("You do not have the Balance Badge to use Surf outside of battle.")
-                    case "FLY":
-                        if not get_event_flag("BADGE06_GET"):
-                            raise BotModeError("You do not have the Feather Badge to use Fly outside of battle.")
-                    case "DIVE":
-                        if not get_event_flag("BADGE07_GET"):
-                            raise BotModeError("You do not have the Mind Badge to use Dive outside of battle.")
-                    case "WATERFALL":
-                        if not get_event_flag("BADGE08_GET"):
-                            raise BotModeError("You do not have the Rain Badge to use Waterfall outside of battle.")
-            if context.rom.is_frlg:
-                match move_name_upper:
-                    case "FLASH":
-                        if not get_event_flag("BADGE01_GET"):
-                            raise BotModeError("You do not have the Boulder Badge to use Flash outside of battle.")
-                    case "CUT":
-                        if not get_event_flag("BADGE02_GET"):
-                            raise BotModeError("You do not have the Cascade Badge to use Cut outside of battle.")
-                    case "FLY":
-                        if not get_event_flag("BADGE03_GET"):
-                            raise BotModeError("You do not have the Thunder Badge to use Fly outside of battle.")
-                    case "STRENGTH":
-                        if not get_event_flag("BADGE04_GET"):
-                            raise BotModeError("You do not have the Rainbow Badge to use Strength outside of battle.")
-                    case "SURF":
-                        if not get_event_flag("BADGE05_GET"):
-                            raise BotModeError("You do not have the Soul Badge to use Surf outside of battle.")
-                    case "ROCK SMASH":
-                        if not get_event_flag("BADGE06_GET"):
-                            raise BotModeError("You do not have the Marsh Badge to use Rock Smash outside of battle.")
-                    case "WATERFALL":
-                        if not get_event_flag("BADGE07_GET"):
-                            raise BotModeError("You do not have the Volcano Badge to use Waterfall outside of battle.")
-
-            yield from StartMenuNavigator("POKEMON").step()
-
-            # find pokemon with desired HM move
-            move_pokemon = None
-            move_wanted = get_move_by_name(move_name)
-            for index in range(len(get_party())):
-                for learned_move in get_party()[index].moves:
-                    if learned_move is not None and learned_move.move == move_wanted:
-                        move_pokemon = index
-                        break
-            # use the move
-            if move_name_upper == "CUT":  # hm01
-                if context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.CUT).step()
-                elif context.rom.is_rse and not context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.CUT).step()
-                elif context.rom.is_frlg:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.CUT).step()
-            elif move_name_upper == "FLY":  # hm02
-                if context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.FLY).step()
-                elif context.rom.is_rse and not context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.FLY).step()
-                elif context.rom.is_frlg:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.FLY).step()
-            elif move_name_upper == "SURF":  # hm03
-                if context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.SURF).step()
-                elif context.rom.is_rse and not context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.SURF).step()
-                elif context.rom.is_frlg:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.SURF).step()
-            elif move_name_upper == "STRENGTH":  # hm04
-                if context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.STRENGTH).step()
-                elif context.rom.is_rse and not context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.STRENGTH).step()
-                elif context.rom.is_frlg:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.STRENGTH).step()
-            elif move_name_upper == "FLASH":  # hm05
-                if context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.FLASH).step()
-                elif context.rom.is_rse and not context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.FLASH).step()
-                elif context.rom.is_frlg:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.FLASH).step()
-            elif move_name_upper == "ROCK SMASH":  # hm06
-                if context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.ROCK_SMASH).step()
-                elif context.rom.is_rse and not context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.ROCK_SMASH).step()
-                elif context.rom.is_frlg:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.ROCK_SMASH).step()
-            elif move_name_upper == "WATERFALL":  # hm07
-                if context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.WATERFALL).step()
-                elif context.rom.is_rse and not context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.WATERFALL).step()
-                elif context.rom.is_frlg:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.WATERFALL).step()
-            elif move_name_upper == "DIVE":  # hm08
-                if context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.DIVE).step()
-                elif context.rom.is_rse and not context.rom.is_emerald:
-                    yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.DIVE).step()
-                # no Dive in FRLG
-            return
-
         match get_player_avatar().map_group_and_number:
             # Mirage Tower
             case MapRSE.MIRAGE_TOWER.value:
@@ -194,15 +70,15 @@ class PuzzleSolverMode(BotMode):
                         context.emulator.press_button("Select")
                         yield
                     yield from follow_path([(15, 12), (15, 14), (14, 14), (4, 9), (3, 9), (3, 8)])
-                    yield from use_hm_move("Rock Smash")
+                    yield from use_party_hm_move("Rock Smash")
                     yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
                     yield from follow_path([(3, 4), (2, 4)])
                     yield from wait_for_task_to_start_and_finish("Task_ExitNonDoor")
                     yield from wait_for_n_frames(10)
                     yield from follow_path([(2, 4), (2, 7), (5, 7)])
-                    yield from use_hm_move("Rock Smash")
+                    yield from use_party_hm_move("Rock Smash")
                     yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
-                    yield from wait_for_n_frames(540)
+                    yield from wait_for_n_frames(180)
                     yield from navigate_to(6, 6)
                     if get_player_avatar().local_coordinates == (6, 6):
                         context.message = "Mirage Tower puzzle complete."
@@ -281,7 +157,7 @@ class PuzzleSolverMode(BotMode):
                         context.message = "Two Left, Two Down, Rock Smash..."
                         yield from follow_path([(6, 21), (6, 23)])
                         # use rock smash
-                        yield from use_hm_move("Rock Smash")
+                        yield from use_party_hm_move("Rock Smash")
                         yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
                         if get_event_flag("SYS_REGIROCK_PUZZLE_COMPLETED"):
                             context.message = "Regirock puzzle complete."
@@ -296,7 +172,7 @@ class PuzzleSolverMode(BotMode):
                         )
                         context.message = "Two Right, Two Down, Strength..."
                         yield from follow_path([(10, 21), (10, 23)])
-                        yield from use_hm_move("Strength")
+                        yield from use_party_hm_move("Strength")
                         yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry")
                         yield from navigate_to(8, 21)
                         yield from walk_one_tile("Up")
@@ -368,7 +244,7 @@ class PuzzleSolverMode(BotMode):
                         assert_has_pokemon_with_move("Flash", "Registeel Puzzle (Emerald) requires Pokemon with Flash.")
                         context.message = "Using Flash..."
                         yield from navigate_to(8, 25)
-                        yield from use_hm_move("Flash")
+                        yield from use_party_hm_move("Flash")
                         yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
                         if get_event_flag("SYS_REGISTEEL_PUZZLE_COMPLETED"):
                             context.message = "Registeel puzzle complete."
@@ -383,7 +259,7 @@ class PuzzleSolverMode(BotMode):
                             "Fly", "Regirock Puzzle (Ruby/Sapphire) requires Pokemon with Fly."
                         )
                         yield from navigate_to(8, 25)
-                        yield from use_hm_move("Fly")
+                        yield from use_party_hm_move("Fly")
                         yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry")
                         yield from navigate_to(8, 21)
                         yield from walk_one_tile("Up")
@@ -424,8 +300,8 @@ class PuzzleSolverMode(BotMode):
                     context.emulator.press_button("Down")
                     yield
                     context.emulator.press_button("A")
-                    yield from navigate_to(15, 11)
-
+                    # yield from navigate_to(15, 11)
+                    yield from wait_for_n_frames(60)
                     if get_map_objects()[1].current_coords == (15, 10):
                         context.message = "Deoxys puzzle complete."
                         context.bot_mode = "Manual"

@@ -2,15 +2,19 @@ from enum import IntEnum
 
 from modules.context import context
 from modules.items import get_item_bag
-from modules.memory import get_game_state, GameState
+from modules.modes._interface import BotModeError
+from modules.memory import get_event_flag, get_game_state, GameState
 from modules.menu_parsers import (
+    CursorOptionEmerald,
+    CursorOptionFRLG,
+    CursorOptionRS,
     parse_start_menu,
     parse_party_menu,
     get_cursor_options,
     parse_menu,
     get_party_menu_cursor_pos,
 )
-from modules.pokemon import get_party
+from modules.pokemon import get_move_by_name, get_party
 from modules.tasks import task_is_active
 
 
@@ -630,3 +634,125 @@ def should_check_for_pickup():
     ):
         return True
     return False
+
+
+def use_party_hm_move(move_name: str):
+    move_name_upper = move_name.upper()
+    # badge checks
+    if context.rom.is_rse:
+        match move_name_upper:
+            case "CUT":
+                if not get_event_flag("BADGE01_GET"):
+                    raise BotModeError("You do not have the Stone Badge to use Cut outside of battle.")
+            case "FLASH":
+                if not get_event_flag("BADGE02_GET"):
+                    raise BotModeError("You do not have the Knuckle Badge to use Flash outside of battle.")
+            case "ROCK SMASH":
+                if not get_event_flag("BADGE03_GET"):
+                    raise BotModeError("You do not have the Dynamo Badge to use Rock Smash outside of battle.")
+            case "STRENGTH":
+                if not get_event_flag("BADGE04_GET"):
+                    raise BotModeError("You do not have the Heat Badge to use Strength outside of battle.")
+            case "SURF":
+                if not get_event_flag("BADGE05_GET"):
+                    raise BotModeError("You do not have the Balance Badge to use Surf outside of battle.")
+            case "FLY":
+                if not get_event_flag("BADGE06_GET"):
+                    raise BotModeError("You do not have the Feather Badge to use Fly outside of battle.")
+            case "DIVE":
+                if not get_event_flag("BADGE07_GET"):
+                    raise BotModeError("You do not have the Mind Badge to use Dive outside of battle.")
+            case "WATERFALL":
+                if not get_event_flag("BADGE08_GET"):
+                    raise BotModeError("You do not have the Rain Badge to use Waterfall outside of battle.")
+    if context.rom.is_frlg:
+        match move_name_upper:
+            case "FLASH":
+                if not get_event_flag("BADGE01_GET"):
+                    raise BotModeError("You do not have the Boulder Badge to use Flash outside of battle.")
+            case "CUT":
+                if not get_event_flag("BADGE02_GET"):
+                    raise BotModeError("You do not have the Cascade Badge to use Cut outside of battle.")
+            case "FLY":
+                if not get_event_flag("BADGE03_GET"):
+                    raise BotModeError("You do not have the Thunder Badge to use Fly outside of battle.")
+            case "STRENGTH":
+                if not get_event_flag("BADGE04_GET"):
+                    raise BotModeError("You do not have the Rainbow Badge to use Strength outside of battle.")
+            case "SURF":
+                if not get_event_flag("BADGE05_GET"):
+                    raise BotModeError("You do not have the Soul Badge to use Surf outside of battle.")
+            case "ROCK SMASH":
+                if not get_event_flag("BADGE06_GET"):
+                    raise BotModeError("You do not have the Marsh Badge to use Rock Smash outside of battle.")
+            case "WATERFALL":
+                if not get_event_flag("BADGE07_GET"):
+                    raise BotModeError("You do not have the Volcano Badge to use Waterfall outside of battle.")
+
+    yield from StartMenuNavigator("POKEMON").step()
+
+    # find pokemon with desired HM move
+    move_pokemon = None
+    move_wanted = get_move_by_name(move_name)
+    for index in range(len(get_party())):
+        for learned_move in get_party()[index].moves:
+            if learned_move is not None and learned_move.move == move_wanted:
+                move_pokemon = index
+                break
+    # use the move
+    if move_name_upper == "CUT":  # hm01
+        if context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.CUT).step()
+        elif context.rom.is_rse and not context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.CUT).step()
+        elif context.rom.is_frlg:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.CUT).step()
+    elif move_name_upper == "FLY":  # hm02
+        if context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.FLY).step()
+        elif context.rom.is_rse and not context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.FLY).step()
+        elif context.rom.is_frlg:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.FLY).step()
+    elif move_name_upper == "SURF":  # hm03
+        if context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.SURF).step()
+        elif context.rom.is_rse and not context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.SURF).step()
+        elif context.rom.is_frlg:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.SURF).step()
+    elif move_name_upper == "STRENGTH":  # hm04
+        if context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.STRENGTH).step()
+        elif context.rom.is_rse and not context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.STRENGTH).step()
+        elif context.rom.is_frlg:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.STRENGTH).step()
+    elif move_name_upper == "FLASH":  # hm05
+        if context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.FLASH).step()
+        elif context.rom.is_rse and not context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.FLASH).step()
+        elif context.rom.is_frlg:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.FLASH).step()
+    elif move_name_upper == "ROCK SMASH":  # hm06
+        if context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.ROCK_SMASH).step()
+        elif context.rom.is_rse and not context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.ROCK_SMASH).step()
+        elif context.rom.is_frlg:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.ROCK_SMASH).step()
+    elif move_name_upper == "WATERFALL":  # hm07
+        if context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.WATERFALL).step()
+        elif context.rom.is_rse and not context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.WATERFALL).step()
+        elif context.rom.is_frlg:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.WATERFALL).step()
+    elif move_name_upper == "DIVE":  # hm08
+        if context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.DIVE).step()
+        elif context.rom.is_rse and not context.rom.is_emerald:
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.DIVE).step()
+        # no Dive in FRLG
+    return
