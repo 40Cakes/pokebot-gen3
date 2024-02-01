@@ -708,11 +708,11 @@ def use_party_hm_move(move_name: str):
 
     cursor = None
     if context.rom.is_emerald:
-        CursorOptionEmerald
+        cursor = CursorOptionEmerald
     elif context.rom.is_rs:
-        CursorOptionRS
+        cursor = CursorOptionRS
     elif context.rom.is_frlg:
-        CursorOptionFRLG
+        cursor = CursorOptionFRLG
 
     match move_name_upper:
         case "CUT":
