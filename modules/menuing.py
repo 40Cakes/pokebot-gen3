@@ -667,6 +667,8 @@ def use_party_hm_move(move_name: str):
             case "WATERFALL":
                 if not get_event_flag("BADGE08_GET"):
                     raise BotModeError("You do not have the Rain Badge to use Waterfall outside of battle.")
+            case _:
+                raise BotModeError("Invalid HM move name.")
     if context.rom.is_frlg:
         match move_name_upper:
             case "FLASH":
@@ -690,6 +692,8 @@ def use_party_hm_move(move_name: str):
             case "WATERFALL":
                 if not get_event_flag("BADGE07_GET"):
                     raise BotModeError("You do not have the Volcano Badge to use Waterfall outside of battle.")
+            case _:
+                raise BotModeError("Invalid HM move name.")
 
     yield from StartMenuNavigator("POKEMON").step()
 
@@ -704,26 +708,29 @@ def use_party_hm_move(move_name: str):
 
     cursor = None
     if context.rom.is_emerald:
-        cursor = CursorOptionEmerald
+        CursorOptionEmerald
     elif context.rom.is_rs:
-        cursor = CursorOptionRS
+        CursorOptionRS
     elif context.rom.is_frlg:
-        cursor = CursorOptionFRLG
+        CursorOptionFRLG
 
-    if move_name_upper == "CUT":  # hm01
-        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.CUT).step()
-    elif move_name_upper == "FLY":  # hm02
-        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.FLY).step()
-    elif move_name_upper == "SURF":  # hm03
-        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.SURF).step()
-    elif move_name_upper == "STRENGTH":  # hm04
-        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.STRENGTH).step()
-    elif move_name_upper == "FLASH":  # hm05
-        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.FLASH).step()
-    elif move_name_upper == "ROCK SMASH":  # hm06
-        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.ROCK_SMASH).step()
-    elif move_name_upper == "WATERFALL":  # hm07
-        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.WATERFALL).step()
-    elif move_name_upper == "DIVE":  # hm08
-        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.DIVE).step()
+    match move_name_upper:
+        case "CUT":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.CUT).step()
+        case "FLY":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.FLY).step()
+        case "SURF":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.SURF).step()
+        case "STRENGTH":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.STRENGTH).step()
+        case "FLASH":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.FLASH).step()
+        case "ROCK SMASH":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.ROCK_SMASH).step()
+        case "WATERFALL":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.WATERFALL).step()
+        case "DIVE":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.DIVE).step()
+        case _:
+            raise BotModeError("Invalid HM move name.")
     return
