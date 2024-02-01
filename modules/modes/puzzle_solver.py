@@ -9,6 +9,7 @@ from modules.memory import get_event_flag, get_event_var, read_symbol, unpack_ui
 from modules.menuing import StartMenuNavigator, use_party_hm_move
 from modules.player import get_player_avatar
 from modules.save_data import get_save_data
+from modules.tasks import get_global_script_context
 from ._asserts import assert_no_auto_battle, assert_no_auto_pickup, assert_registered_item, assert_has_pokemon_with_move
 from ._interface import BotMode, BotModeError
 from ._util import (
@@ -367,7 +368,12 @@ class PuzzleSolverMode(BotMode):
             if useRepel == True:
                 yield from repelCheck()
 
-            yield from path()
+            for _ in path():
+                script_ctx = get_global_script_context()
+                if "EventScript_RepelWoreOff" in script_ctx.stack:
+                    context.emulator.press_button("A")
+                    yield
+                yield
 
             while len(get_map_objects()) > 1:
                 context.emulator.press_button("A")
