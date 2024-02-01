@@ -167,7 +167,7 @@ class PuzzleSolverMode(BotMode):
                             yield from navigate_to(8, 29)
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
-                    if context.rom.is_rse and not context.rom.is_emerald:
+                    if context.rom.is_rs:
                         assert_has_pokemon_with_move(
                             "Strength", "Regirock Puzzle (Ruby/Sapphire) requires Pokémon with Strength."
                         )
@@ -220,7 +220,7 @@ class PuzzleSolverMode(BotMode):
                             yield from navigate_to(8, 29)
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
-                    if context.rom.is_rse and not context.rom.is_emerald:
+                    if context.rom.is_rs:
                         context.message = "Waiting 2 minutes game time..."
                         yield from wait_for_n_frames(7300)
                         yield from walk_one_tile("Up")
@@ -255,7 +255,7 @@ class PuzzleSolverMode(BotMode):
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
 
-                    if context.rom.is_rse and not context.rom.is_emerald:
+                    if context.rom.is_rs:
                         assert_has_pokemon_with_move(
                             "Fly", "Regirock Puzzle (Ruby/Sapphire) requires Pokémon with Fly."
                         )
