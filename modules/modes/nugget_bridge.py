@@ -19,12 +19,13 @@ class NuggetBridgeMode(BotMode):
     @staticmethod
     def is_selectable() -> bool:
         if context.rom.is_frlg:
-            allowed_maps = [
+            return get_player_avatar().map_group_and_number in [
                 MapFRLG.ROUTE_24.value,
                 MapFRLG.CERULEAN_CITY.value,
                 MapFRLG.CERULEAN_CITY_D.value,
             ]
-        return get_player_avatar().map_group_and_number in allowed_maps
+        else:
+            return False
 
     def run(self) -> Generator:
         if get_event_flag("HIDE_NUGGET_BRIDGE_ROCKET"):
