@@ -701,7 +701,7 @@ def use_party_hm_move(move_name: str):
             if learned_move is not None and learned_move.move == move_wanted:
                 move_pokemon = index
                 break
-            
+
     cursor = None
     if context.rom.is_emerald:
         cursor = CursorOptionEmerald
