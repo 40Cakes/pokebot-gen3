@@ -87,12 +87,14 @@ def discord_rich_presence() -> None:
         encounter_log = total_stats.get_encounter_log()
         totals = total_stats.get_total_stats()
         location = encounter_log[-1]["pokemon"]["metLocation"] if len(encounter_log) > 0 else "N/A"
+        current_fps = context.emulator.get_current_fps()
 
         RPC.update(
             state=f"{location} | {context.rom.game_name}",
             details=(
-                f'{totals.get("totals", {}).get("encounters", 0):,} ({totals.get("totals", {}).get("shiny_encounters", 0):,}✨) |'
-                f" {total_stats.get_encounter_rate():,}/h"
+                f"{totals.get('totals', {}).get('encounters', 0):,} ({totals.get('totals', {}).get('shiny_encounters', 0):,}✨) | "
+                f"{total_stats.get_encounter_rate():,}/h | "
+                f"{current_fps:,}fps ({current_fps / 59.73:0.2f}x)"
             ),
             large_image=large_image,
             start=start,
