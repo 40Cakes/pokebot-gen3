@@ -701,60 +701,29 @@ def use_party_hm_move(move_name: str):
             if learned_move is not None and learned_move.move == move_wanted:
                 move_pokemon = index
                 break
-    # use the move
+            
+    cursor = None
+    if context.rom.is_emerald:
+        cursor = CursorOptionEmerald
+    elif context.rom.is_rs:
+        cursor = CursorOptionRS
+    elif context.rom.is_frlg:
+        cursor = CursorOptionFRLG
+
     if move_name_upper == "CUT":  # hm01
-        if context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.CUT).step()
-        elif context.rom.is_rse and not context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.CUT).step()
-        elif context.rom.is_frlg:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.CUT).step()
+        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.CUT).step()
     elif move_name_upper == "FLY":  # hm02
-        if context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.FLY).step()
-        elif context.rom.is_rse and not context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.FLY).step()
-        elif context.rom.is_frlg:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.FLY).step()
+        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.FLY).step()
     elif move_name_upper == "SURF":  # hm03
-        if context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.SURF).step()
-        elif context.rom.is_rse and not context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.SURF).step()
-        elif context.rom.is_frlg:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.SURF).step()
+        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.SURF).step()
     elif move_name_upper == "STRENGTH":  # hm04
-        if context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.STRENGTH).step()
-        elif context.rom.is_rse and not context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.STRENGTH).step()
-        elif context.rom.is_frlg:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.STRENGTH).step()
+        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.STRENGTH).step()
     elif move_name_upper == "FLASH":  # hm05
-        if context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.FLASH).step()
-        elif context.rom.is_rse and not context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.FLASH).step()
-        elif context.rom.is_frlg:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.FLASH).step()
+        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.FLASH).step()
     elif move_name_upper == "ROCK SMASH":  # hm06
-        if context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.ROCK_SMASH).step()
-        elif context.rom.is_rse and not context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.ROCK_SMASH).step()
-        elif context.rom.is_frlg:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.ROCK_SMASH).step()
+        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.ROCK_SMASH).step()
     elif move_name_upper == "WATERFALL":  # hm07
-        if context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.WATERFALL).step()
-        elif context.rom.is_rse and not context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.WATERFALL).step()
-        elif context.rom.is_frlg:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionFRLG.WATERFALL).step()
+        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.WATERFALL).step()
     elif move_name_upper == "DIVE":  # hm08
-        if context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionEmerald.DIVE).step()
-        elif context.rom.is_rse and not context.rom.is_emerald:
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", CursorOptionRS.DIVE).step()
-        # no Dive in FRLG
+        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.DIVE).step()
     return
