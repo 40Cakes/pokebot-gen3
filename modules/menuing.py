@@ -16,6 +16,7 @@ from modules.menu_parsers import (
 )
 from modules.pokemon import get_move_by_name, get_party
 from modules.tasks import task_is_active
+from modules.modes._asserts import assert_has_pokemon_with_move
 
 
 def party_menu_is_open() -> bool:
@@ -637,6 +638,7 @@ def should_check_for_pickup():
 
 
 def use_party_hm_move(move_name: str):
+    assert_has_pokemon_with_move(move_name, "No Pokémon with move {move_name} in party.")
     move_name_upper = move_name.upper()
     # badge checks
     if context.rom.is_rse:

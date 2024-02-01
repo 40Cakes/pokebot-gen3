@@ -51,7 +51,7 @@ class PuzzleSolverMode(BotMode):
                 context.message = "Solving Mirage Tower..."
                 useRepel = True
                 assert_registered_item("Mach Bike", "This mode requires the Mach Bike.")
-                assert_has_pokemon_with_move("Rock Smash", "This mode requires Pokemon with Rock Smash.")
+                assert_has_pokemon_with_move("Rock Smash", "This mode requires Pokémon with Rock Smash.")
 
                 def path():
                     # floor 1
@@ -152,7 +152,7 @@ class PuzzleSolverMode(BotMode):
                     context.emulator.press_button("B")
                     if context.rom.is_emerald:
                         assert_has_pokemon_with_move(
-                            "Rock Smash", "Regirock Puzzle (Emerald) requires Pokemon with Rock Smash."
+                            "Rock Smash", "Regirock Puzzle (Emerald) requires Pokémon with Rock Smash."
                         )
                         context.message = "Two Left, Two Down, Rock Smash..."
                         yield from follow_path([(6, 21), (6, 23)])
@@ -168,7 +168,7 @@ class PuzzleSolverMode(BotMode):
                             yield from walk_one_tile("Up")
                     if context.rom.is_rse and not context.rom.is_emerald:
                         assert_has_pokemon_with_move(
-                            "Strength", "Regirock Puzzle (Ruby/Sapphire) requires Pokemon with Strength."
+                            "Strength", "Regirock Puzzle (Ruby/Sapphire) requires Pokémon with Strength."
                         )
                         context.message = "Two Right, Two Down, Strength..."
                         yield from follow_path([(10, 21), (10, 23)])
@@ -241,7 +241,7 @@ class PuzzleSolverMode(BotMode):
                     yield from wait_for_n_frames(5)
                     context.emulator.press_button("B")
                     if context.rom.is_emerald:
-                        assert_has_pokemon_with_move("Flash", "Registeel Puzzle (Emerald) requires Pokemon with Flash.")
+                        assert_has_pokemon_with_move("Flash", "Registeel Puzzle (Emerald) requires Pokémon with Flash.")
                         context.message = "Using Flash..."
                         yield from navigate_to(8, 25)
                         yield from use_party_hm_move("Flash")
@@ -256,7 +256,7 @@ class PuzzleSolverMode(BotMode):
 
                     if context.rom.is_rse and not context.rom.is_emerald:
                         assert_has_pokemon_with_move(
-                            "Fly", "Regirock Puzzle (Ruby/Sapphire) requires Pokemon with Fly."
+                            "Fly", "Regirock Puzzle (Ruby/Sapphire) requires Pokémon with Fly."
                         )
                         yield from navigate_to(8, 25)
                         yield from use_party_hm_move("Fly")
