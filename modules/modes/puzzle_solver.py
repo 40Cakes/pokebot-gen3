@@ -369,8 +369,11 @@ class PuzzleSolverMode(BotMode):
                 yield from repelCheck()
 
             for _ in path():
-                script_ctx = get_global_script_context()
-                if "EventScript_RepelWoreOff" in script_ctx.stack:
+                if context.rom.is_rs:
+                    repel_script = "S_RepelWoreOff"
+                if context.rom.is_emerald:
+                    repel_script = "EventScript_RepelWoreOff"
+                if repel_script in get_global_script_context().stack:
                     context.emulator.press_button("A")
                     yield
                 yield
