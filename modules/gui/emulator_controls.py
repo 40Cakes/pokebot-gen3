@@ -1,6 +1,5 @@
 import tkinter.font
-from tkinter import ttk
-from ttkthemes import ThemedTk
+from tkinter import ttk, Tk
 from typing import Union
 
 from modules.console import console
@@ -12,7 +11,7 @@ from modules.version import pokebot_name, pokebot_version
 
 
 class EmulatorControls:
-    def __init__(self, window: ThemedTk):
+    def __init__(self, window: Tk):
         self.window = window
         self.last_known_bot_mode = context.bot_mode
 
@@ -243,7 +242,7 @@ class DebugTab:
 
 
 class DebugEmulatorControls(EmulatorControls):
-    def __init__(self, window: ThemedTk):
+    def __init__(self, window: Tk):
         super().__init__(window)
         self.debug_frame: Union[ttk.Frame, None] = None
         self.debug_notebook: ttk.Notebook
