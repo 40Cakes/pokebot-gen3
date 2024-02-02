@@ -25,7 +25,7 @@ from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
 from modules.tasks import get_global_script_context
 from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
-from ._interface import BotMode, BotModeError
+from ._interface import BotMode, BotModeError, BattleAction
 from ._util import (
     soft_reset,
     wait_for_unique_rng_value,
@@ -71,9 +71,8 @@ class RoamerResetMode(BotMode):
 
         return get_player_avatar().map_group_and_number == _get_allowed_starting_map()
 
-    @staticmethod
-    def disable_default_battle_handler() -> bool:
-        return True
+    def on_battle_started(self) -> BattleAction | None:
+        return BattleAction.CustomAction
 
     def run(self) -> Generator:
         assert_save_game_exists("There is no saved game. Cannot soft reset.")
@@ -293,16 +292,6 @@ class RoamerResetMode(BotMode):
                 for _ in inner_loop():
                     if get_game_state() == GameState.BATTLE:
                         break
-                    global_ctx = get_global_script_context()
-                    if global_ctx.is_active:
-                        previous_inputs = context.emulator.reset_held_buttons()
-                        yield
-                        while global_ctx.is_active:
-                            if global_ctx.native_function_name == "WaitForAorBPress":
-                                context.emulator.press_button("A")
-                            yield
-                            global_ctx = get_global_script_context()
-                        context.emulator.restore_held_buttons(previous_inputs)
                     if (
                         _get_repel_steps_remaining() <= 0
                         and get_player_avatar().map_group_and_number == MapRSE.ROUTE_110.value
@@ -346,6 +335,7 @@ class RoamerResetMode(BotMode):
             yield from navigate_to(14, 6)
             yield from ensure_facing_direction("Right")
 
+            yield
             context.emulator.press_button("A")
             yield
 
@@ -459,12 +449,9 @@ class RoamerResetMode(BotMode):
                     if get_game_state() == GameState.BATTLE:
                         break
                     steps_remaining = _get_repel_steps_remaining()
-                    if steps_remaining == 0:
+                    if steps_remaining <= 0:
                         previous_inputs = context.emulator.reset_held_buttons()
                         yield
-                        context.emulator.press_button("B")
-                        yield
-
                         try:
                             for __ in apply_repel():
                                 if get_game_state() == GameState.BATTLE:

@@ -136,6 +136,8 @@ class GameState(IntEnum):
     MAIN_MENU = auto()
     GARBAGE_COLLECTION = auto()
     EVOLUTION = auto()
+    EGG_HATCH = auto()
+    WHITEOUT = auto()
     UNKNOWN = auto()
     QUEST_LOG = auto()
 
@@ -193,6 +195,10 @@ def get_game_state() -> GameState:
             result = GameState.MAIN_MENU
         case "CB2_EVOLUTIONSCENEUPDATE":
             result = GameState.EVOLUTION
+        case "CB2_EGGHATCH" | "CB2_LOADEGGHATCH":
+            result = GameState.EGG_HATCH
+        case "CB2_WHITEOUT":
+            result = GameState.WHITEOUT
         case _:
             result = GameState.UNKNOWN
 

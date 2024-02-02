@@ -7,7 +7,7 @@ from modules.encounter import encounter_pokemon
 from modules.player import get_player_avatar
 from modules.pokemon import get_opponent
 from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
-from ._interface import BotMode
+from ._interface import BotMode, BattleAction
 from ._util import soft_reset, wait_for_unique_rng_value, wait_until_task_is_active, wait_for_task_to_start_and_finish
 
 
@@ -60,9 +60,8 @@ class StaticSoftResetsMode(BotMode):
     def is_selectable() -> bool:
         return _get_targeted_encounter() is not None
 
-    @staticmethod
-    def disable_default_battle_handler() -> bool:
-        return True
+    def on_battle_started(self) -> BattleAction | None:
+        return BattleAction.CustomAction
 
     def run(self) -> Generator:
         encounter = _get_targeted_encounter()

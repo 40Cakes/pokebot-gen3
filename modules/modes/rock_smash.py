@@ -3,12 +3,11 @@ from typing import Generator
 from modules.data.map import MapRSE
 
 from modules.context import context
-from modules.map import get_map_objects
 from modules.memory import get_event_flag
 from modules.player import get_player, get_player_avatar, TileTransitionState
-from modules.tasks import task_is_active, get_global_script_context
+from modules.tasks import task_is_active
 from ._asserts import assert_has_pokemon_with_move, assert_save_game_exists, assert_saved_on_map, SavedMapLocation
-from ._interface import BotMode, BotModeError
+from ._interface import BotMode, BotModeError, BattleAction
 from ._util import (
     soft_reset,
     wait_for_unique_rng_value,
@@ -39,7 +38,20 @@ class RockSmashMode(BotMode):
             MapRSE.SAFARI_ZONE_F.value,
         )
 
+    def __init__(self):
+        super().__init__()
+        self._in_safari_zone = False
+
+    def on_battle_started(self) -> BattleAction | None:
+        return BattleAction.RunAway
+
+    def on_safari_zone_timeout(self) -> bool:
+        self._in_safari_zone = False
+        return True
+
     def run(self) -> Generator:
+        self._in_safari_zone = False
+
         if not get_event_flag("BADGE03_GET"):
             raise BotModeError(
                 "You do not have the Dynamo Badge, which is necessary to use Rock Smash outside of battle."
@@ -79,25 +91,18 @@ class RockSmashMode(BotMode):
                         starting_cash = get_player().money
                     yield from self.enter_safari_zone()
                 case MapRSE.SAFARI_ZONE_E.value:
+                    self._in_safari_zone = True
                     for _ in self.safari_zone():
-                        ctx = get_global_script_context()
-                        if ctx.is_active and ctx.script_function_name == "SafariZone_EventScript_TimesUp":
-                            context.emulator.reset_held_buttons()
-                            while (
-                                get_player_avatar().local_coordinates != (9, 4)
-                                or get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING
-                            ):
-                                context.emulator.press_button("B")
-                                yield
-                            while "heldMovementFinished" not in get_map_objects()[0].flags:
-                                yield
+                        if self._in_safari_zone:
                             yield
+                        else:
                             break
-                        yield
                 case MapRSE.SAFARI_ZONE_C.value:
+                    self._in_safari_zone = True
                     yield from navigate_to(39, 16)
                     yield from walk_one_tile("Right")
                 case MapRSE.SAFARI_ZONE_F.value:
+                    self._in_safari_zone = True
                     yield from navigate_to(8, 0)
                     yield from walk_one_tile("Up")
 

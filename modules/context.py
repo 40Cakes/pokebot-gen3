@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Generator
 
 if TYPE_CHECKING:
     from modules.gui import PokebotGui
@@ -20,6 +20,7 @@ class BotContext:
 
         self._current_message: str = ""
 
+        self.controller_stack: list[Generator] = []
         self._current_bot_mode: str = initial_bot_mode
         self._previous_bot_mode: str = "Manual"
 

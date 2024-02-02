@@ -1,4 +1,4 @@
-from enum import IntEnum, auto
+from enum import Enum, IntEnum, auto
 
 from modules.context import context
 from modules.memory import (
@@ -29,6 +29,20 @@ from modules.menuing import (
 )
 from modules.pokemon import get_party, get_opponent, Pokemon, Move, LearnedMove
 from modules.tasks import get_global_script_context, get_task, get_tasks, task_is_active
+
+
+class BattleOutcome(Enum):
+    Won = 1
+    Lost = 2
+    Draw = 3
+    RanAway = 4
+    PlayerTeleported = 5
+    OpponentFled = 6
+    Caught = 7
+    NoSafariBallsLeft = 8
+    Forfeited = 9
+    OpponentTeleported = 10
+    LinkBattleRanAway = 128
 
 
 class BattleState(IntEnum):

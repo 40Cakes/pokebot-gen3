@@ -12,7 +12,7 @@ from modules.pokemon import get_party
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
 from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
-from ._interface import BotMode, BotModeError
+from ._interface import BotMode, BotModeError, BattleAction
 from ._util import (
     soft_reset,
     wait_for_unique_rng_value,
@@ -36,9 +36,8 @@ class StartersMode(BotMode):
         if context.rom.is_rse:
             return player_avatar.map_group_and_number in [(0, 16), (1, 4)]
 
-    @staticmethod
-    def disable_default_battle_handler() -> bool:
-        return True
+    def on_battle_started(self) -> BattleAction | None:
+        return BattleAction.CustomAction
 
     def run(self) -> Generator:
         assert_save_game_exists("There is no saved game. Cannot soft reset.")

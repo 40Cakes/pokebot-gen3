@@ -37,7 +37,7 @@ def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | 
             (MapFRLG.CELADON_CITY_L.value, (7, 3), "Eevee"),
             (MapFRLG.ROUTE_4_A.value, (1, 3), "Magikarp"),
         ]
-    if context.rom.is_rse:
+    else:
         encounters = [
             (MapRSE.ROUTE_119_B.value, (2, 2), "Castform"),
             (MapRSE.ROUTE_119_B.value, (18, 6), "Castform"),
@@ -151,9 +151,6 @@ class StaticGiftResetsMode(BotMode):
                         if "EventScript_EggHatch" in script_ctx.stack:
                             if not task_is_active("Task_WaitForFadeAndEnableScriptCtx"):
                                 yield from wait_for_task_to_start_and_finish("Task_WaitForFadeAndEnableScriptCtx", "B")
-                        yield
-                        if task_is_active("Task_SpinPokenavIcon"):
-                            yield from wait_until_task_is_not_active("Task_SpinPokenavIcon", "B")
                         yield
 
             # If the respective 'cheat' is enabled, check the Pokemon immediately

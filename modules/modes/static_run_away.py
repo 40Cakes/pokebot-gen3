@@ -6,8 +6,7 @@ from modules.context import context
 from modules.map import get_map_objects
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
-from ._asserts import assert_no_auto_battle, assert_no_auto_pickup
-from ._interface import BotMode, BotModeError
+from ._interface import BotMode, BotModeError, BattleAction
 from ._util import (
     wait_for_task_to_start_and_finish,
     navigate_to,
@@ -41,10 +40,10 @@ class StaticRunAway(BotMode):
             allowed_maps = [MapFRLG.NAVEL_ROCK_B.value, MapFRLG.NAVEL_ROCK_A.value]
         return get_player_avatar().map_group_and_number in allowed_maps
 
-    def run(self) -> Generator:
-        assert_no_auto_battle("This mode should not be used with auto-battle.")
-        assert_no_auto_pickup("This mode should not be used while auto-pickup is enabled.")
+    def on_battle_started(self) -> BattleAction | None:
+        return BattleAction.RunAway
 
+    def run(self) -> Generator:
         match get_player_avatar().map_group_and_number:
             # Lugia on Emerald
             case MapRSE.NAVEL_ROCK_U.value:

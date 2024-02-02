@@ -12,7 +12,7 @@ from ._asserts import (
     assert_registered_item,
     SavedMapLocation,
 )
-from ._interface import BotMode
+from ._interface import BotMode, BattleAction
 from ._util import (
     soft_reset,
     wait_for_unique_rng_value,
@@ -46,9 +46,8 @@ class SudowoodoMode(BotMode):
     def is_selectable() -> bool:
         return _get_targeted_encounter() is not None
 
-    @staticmethod
-    def disable_default_battle_handler() -> bool:
-        return True
+    def on_battle_started(self) -> BattleAction | None:
+        return BattleAction.CustomAction
 
     def run(self) -> Generator:
         encounter = _get_targeted_encounter()

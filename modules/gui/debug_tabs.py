@@ -1,9 +1,10 @@
 import time
 import tkinter
 from enum import Enum
-from PIL import Image, ImageDraw, ImageTk, ImageOps
 from tkinter import ttk, Canvas
 from typing import TYPE_CHECKING, Union, Optional
+
+from PIL import Image, ImageDraw, ImageTk, ImageOps
 
 from modules.context import context
 from modules.daycare import get_daycare_data
@@ -14,6 +15,7 @@ from modules.game import (
     _event_flags,
     get_event_flag_name,
     get_event_var_name,
+    get_symbol_name_before,
 )
 from modules.game_stats import GameStat, get_game_stat
 from modules.gui.emulator_controls import DebugTab
@@ -29,7 +31,6 @@ from modules.map import (
 from modules.memory import (
     get_symbol,
     read_symbol,
-    get_symbol_name,
     game_has_started,
     unpack_uint16,
     unpack_uint32,
@@ -303,18 +304,12 @@ class TasksTab(DebugTab):
         root.add(frame, text="Tasks")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        callback1 = read_symbol("gMain", 0, 4)
-        callback2 = read_symbol("gMain", 4, 4)
+        def get_callback_name(symbol: str, offset: int = 0) -> str:
+            pointer = max(0, unpack_uint32(read_symbol(symbol, offset, 4)))
+            return get_symbol_name_before(pointer, pretty_name=True)
 
-        cb1_addr = max(0, unpack_uint32(callback1) - 1)
-        cb2_addr = max(0, unpack_uint32(callback2) - 1)
-
-        cb1_symbol = get_symbol_name(cb1_addr, pretty_name=True)
-        if cb1_symbol == "":
-            cb1_symbol = hex(cb1_addr)
-        cb2_symbol = get_symbol_name(cb2_addr, pretty_name=True)
-        if cb2_symbol == "":
-            cb2_symbol = hex(cb2_addr)
+        cb1_symbol = get_callback_name("gMain")
+        cb2_symbol = get_callback_name("gMain", offset=4)
 
         self._cb1_label.config(text=cb1_symbol)
         self._cb2_label.config(text=cb2_symbol)
@@ -347,6 +342,24 @@ class TasksTab(DebugTab):
             "Global Script Context": render_script_context(get_global_script_context()),
             "Immediate Script Context": render_script_context(get_immediate_script_context()),
         }
+
+        if get_game_state() == GameState.BATTLE:
+            controller_data = read_symbol("gBattleControllerData", size=4)
+            number_of_battlers = read_symbol("gBattlersCount")[0]
+
+            main_battle_function = get_callback_name("gBattleMainFunc")
+            player_controller_function = get_callback_name("gBattlerControllerFuncs", offset=0)
+
+            data["Battle Callbacks"] = {
+                "__value": f"{main_battle_function} / {player_controller_function}",
+                "Main Battle Function": main_battle_function,
+                "Battler Controller #1": f"{player_controller_function} [{controller_data[0]}]",
+            }
+
+            for index in range(1, number_of_battlers):
+                function = get_callback_name("gBattlerControllerFuncs", offset=4 * index)
+                key = f"Battler Controller #{index + 1}"
+                data["Battle Callbacks"][key] = f"{function} [{str(controller_data[index])}]"
 
         index = 0
         for task in get_tasks():
@@ -972,10 +985,15 @@ class EmulatorTab(DebugTab):
         else:
             inputs_dict["__value"] = "-"
 
+        controller_names = []
+        for entry in context.controller_stack:
+            controller_names.append(entry.__qualname__)
+
         result = {
             "Inputs": inputs_dict,
             "Frame": f"{context.emulator.get_frame_count():,}",
             "RNG Seed": hex(unpack_uint32(read_symbol("gRngValue"))),
+            "Controller": controller_names,
         }
 
         return result
@@ -1121,9 +1139,9 @@ class MapTab(DebugTab):
         map_connections = map_data.connections
         connections_list = {"__value": set()}
         for i in range(len(map_connections)):
-            connections_list[map_connections[i].direction] = (
-                f"to {map_connections[i].destination_map.map_name} (offset: {str(map_connections[i].offset)})"
-            )
+            connections_list[
+                map_connections[i].direction
+            ] = f"to {map_connections[i].destination_map.map_name} (offset: {str(map_connections[i].offset)})"
             connections_list["__value"].add(map_connections[i].direction)
         connections_list["__value"] = ", ".join(connections_list["__value"])
 
@@ -1132,9 +1150,8 @@ class MapTab(DebugTab):
         for i in range(len(map_warps)):
             warp = map_warps[i]
             d = warp.destination_location
-            warps_list[format_coordinates(warp.local_coordinates)] = (
-                f"to ({format_coordinates(d.local_position)}) on [{d.map_group}, {d.map_number}] ({d.map_name})"
-            )
+            label = f"to ({format_coordinates(d.local_position)}) on [{d.map_group}, {d.map_number}] ({d.map_name})"
+            warps_list[format_coordinates(warp.local_coordinates)] = label
 
         map_object_templates = map_data.objects
         object_templates_list = {"__value": len(map_object_templates)}

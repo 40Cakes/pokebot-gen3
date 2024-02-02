@@ -10,6 +10,7 @@ For example: `yield from utils.navigate_to((3, 3))`
 
 import queue
 import random
+from functools import wraps
 from typing import Generator
 
 from modules.context import context
@@ -57,14 +58,6 @@ def walk_to(destination_coordinates: tuple[int, int], run: bool = True) -> Gener
             while get_game_state() != GameState.OVERWORLD:
                 yield
             break
-
-        # Check whether there is a PokéNav call active and close it.
-        while task_is_active("Task_SpinPokenavIcon"):
-            context.emulator.release_button("B")
-            context.emulator.press_button("B")
-            yield
-            if run:
-                context.emulator.hold_button("B")
 
         context.emulator.release_button("Up")
         context.emulator.release_button("Down")
@@ -246,14 +239,6 @@ def walk_one_tile(direction: str, run: bool = True) -> Generator:
         or get_player_avatar().running_state != RunningState.NOT_MOVING
         or get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING
     ):
-        # Check whether there is a PokéNav call active and close it.
-        while task_is_active("Task_SpinPokenavIcon"):
-            context.emulator.release_button("B")
-            context.emulator.press_button("B")
-            yield
-            if run:
-                context.emulator.hold_button("B")
-
         yield
 
 
@@ -453,3 +438,13 @@ def wait_for_n_frames(number_of_frames: int) -> Generator:
     """
     for _ in range(number_of_frames):
         yield
+
+
+def isolate_inputs(generator_function):
+    @wraps(generator_function)
+    def wrapper_function(*args, **kwargs):
+        previous_inputs = context.emulator.reset_held_buttons()
+        yield from generator_function(*args, **kwargs)
+        context.emulator.restore_held_buttons(previous_inputs)
+
+    return wrapper_function

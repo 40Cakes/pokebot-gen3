@@ -1,8 +1,11 @@
 """Contains modes of operation for the bot."""
 
-from typing import Type
+from typing import Type, TYPE_CHECKING
 
-from ._interface import BotMode, BotModeError
+from ._interface import BotMode, BotModeError, FrameInfo, BotListener
+
+if TYPE_CHECKING:
+    from modules.roms import ROM
 
 _bot_modes: list[Type[BotMode]] = []
 
@@ -58,3 +61,29 @@ def get_bot_mode_by_name(name: str) -> Type[BotMode] | None:
         if mode.name() == name:
             return mode
     return None
+
+
+def get_bot_listeners(rom: "ROM") -> list[BotListener]:
+    from ._listeners import (
+        BattleListener,
+        PokenavListener,
+        EggHatchListener,
+        TrainerApproachListener,
+        RepelListener,
+        PoisonListener,
+        SafariZoneListener,
+        WhiteoutListener,
+    )
+
+    listeners = [
+        BattleListener(),
+        EggHatchListener(),
+        TrainerApproachListener(),
+        RepelListener(),
+        PoisonListener(),
+        SafariZoneListener(),
+        WhiteoutListener(),
+    ]
+    if rom.is_rse:
+        listeners.append(PokenavListener())
+    return listeners
