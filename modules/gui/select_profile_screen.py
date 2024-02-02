@@ -1,13 +1,12 @@
 from datetime import datetime, date
-from tkinter import ttk
-from ttkthemes import ThemedTk
+from tkinter import ttk, Tk
 from typing import Union
 
 from modules.profiles import Profile, list_available_profiles
 
 
 class SelectProfileScreen:
-    def __init__(self, window: ThemedTk, enable_profile_creation_screen: callable, run_profile: callable):
+    def __init__(self, window: Tk, enable_profile_creation_screen: callable, run_profile: callable):
         self.window = window
         self.enable_profile_creation_screen = enable_profile_creation_screen
         self.run_profile = run_profile
