@@ -15,6 +15,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .fishing import FishingMode
         from .game_corner import GameCornerMode
         from .nugget_bridge import NuggetBridgeMode
+        from .puzzle_solver import PuzzleSolverMode
         from .roamer_reset import RoamerResetMode
         from .rock_smash import RockSmashMode
         from .spin import SpinMode
@@ -26,19 +27,20 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .random import RandomMode
 
         _bot_modes = [
-            SpinMode,
-            StartersMode,
-            FishingMode,
             BunnyHopMode,
-            StaticSoftResetsMode,
-            StaticGiftResetsMode,
+            FishingMode,
             GameCornerMode,
             NuggetBridgeMode,
-            SudowoodoMode,
-            StaticRunAway,
+            PuzzleSolverMode,
+            RandomMode,
             RoamerResetMode,
             RockSmashMode,
-            RandomMode,
+            SpinMode,
+            StartersMode,
+            StaticRunAway,
+            StaticGiftResetsMode,
+            StaticSoftResetsMode,
+            SudowoodoMode,
         ]
 
     return _bot_modes
