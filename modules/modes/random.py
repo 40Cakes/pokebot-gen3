@@ -18,6 +18,14 @@ class RandomMode(BotMode):
         return True
 
     def run(self) -> None:
+        inputs = ["Start", "Select"]
+        inputs.extend(["A"] * 150)
+        inputs.extend(["B"] * 50)
+        inputs.extend(["Right"] * 150)
+        inputs.extend(["Left"] * 150)
+        inputs.extend(["Up"] * 150)
+        inputs.extend(["Down"] * 150)
+
         while True:
             # Some checks are copy pasted from the main.py loop as this mode never yields to avoid battle handlers
             # and encounter handles taking control of the inputs
@@ -31,7 +39,7 @@ class RandomMode(BotMode):
             if get_game_state() == GameState.BATTLE:
                 if opponent_changed():
                     encounter_pokemon(get_opponent(), log_only=True)
-            context.emulator.press_button(random.choice(["A", "B", "Start", "Right", "Left", "Up", "Down"]))
+            context.emulator.press_button(random.choice(inputs))
 
             for _ in range(4):  # Press 1 random button every 5 frames
                 context.emulator.run_single_frame()

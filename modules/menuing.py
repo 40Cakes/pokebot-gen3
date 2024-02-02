@@ -2,16 +2,21 @@ from enum import IntEnum
 
 from modules.context import context
 from modules.items import get_item_bag
-from modules.memory import get_game_state, GameState
+from modules.modes._interface import BotModeError
+from modules.memory import get_event_flag, get_game_state, GameState
 from modules.menu_parsers import (
+    CursorOptionEmerald,
+    CursorOptionFRLG,
+    CursorOptionRS,
     parse_start_menu,
     parse_party_menu,
     get_cursor_options,
     parse_menu,
     get_party_menu_cursor_pos,
 )
-from modules.pokemon import get_party
+from modules.pokemon import get_move_by_name, get_party
 from modules.tasks import task_is_active
+from modules.modes._asserts import assert_has_pokemon_with_move
 
 
 def party_menu_is_open() -> bool:
@@ -630,3 +635,102 @@ def should_check_for_pickup():
     ):
         return True
     return False
+
+
+def use_party_hm_move(move_name: str):
+    assert_has_pokemon_with_move(move_name, "No Pokémon with move {move_name} in party.")
+    move_name_upper = move_name.upper()
+    # badge checks
+    if context.rom.is_rse:
+        match move_name_upper:
+            case "CUT":
+                if not get_event_flag("BADGE01_GET"):
+                    raise BotModeError("You do not have the Stone Badge to use Cut outside of battle.")
+            case "FLASH":
+                if not get_event_flag("BADGE02_GET"):
+                    raise BotModeError("You do not have the Knuckle Badge to use Flash outside of battle.")
+            case "ROCK SMASH":
+                if not get_event_flag("BADGE03_GET"):
+                    raise BotModeError("You do not have the Dynamo Badge to use Rock Smash outside of battle.")
+            case "STRENGTH":
+                if not get_event_flag("BADGE04_GET"):
+                    raise BotModeError("You do not have the Heat Badge to use Strength outside of battle.")
+            case "SURF":
+                if not get_event_flag("BADGE05_GET"):
+                    raise BotModeError("You do not have the Balance Badge to use Surf outside of battle.")
+            case "FLY":
+                if not get_event_flag("BADGE06_GET"):
+                    raise BotModeError("You do not have the Feather Badge to use Fly outside of battle.")
+            case "DIVE":
+                if not get_event_flag("BADGE07_GET"):
+                    raise BotModeError("You do not have the Mind Badge to use Dive outside of battle.")
+            case "WATERFALL":
+                if not get_event_flag("BADGE08_GET"):
+                    raise BotModeError("You do not have the Rain Badge to use Waterfall outside of battle.")
+            case _:
+                raise BotModeError("Invalid HM move name.")
+    if context.rom.is_frlg:
+        match move_name_upper:
+            case "FLASH":
+                if not get_event_flag("BADGE01_GET"):
+                    raise BotModeError("You do not have the Boulder Badge to use Flash outside of battle.")
+            case "CUT":
+                if not get_event_flag("BADGE02_GET"):
+                    raise BotModeError("You do not have the Cascade Badge to use Cut outside of battle.")
+            case "FLY":
+                if not get_event_flag("BADGE03_GET"):
+                    raise BotModeError("You do not have the Thunder Badge to use Fly outside of battle.")
+            case "STRENGTH":
+                if not get_event_flag("BADGE04_GET"):
+                    raise BotModeError("You do not have the Rainbow Badge to use Strength outside of battle.")
+            case "SURF":
+                if not get_event_flag("BADGE05_GET"):
+                    raise BotModeError("You do not have the Soul Badge to use Surf outside of battle.")
+            case "ROCK SMASH":
+                if not get_event_flag("BADGE06_GET"):
+                    raise BotModeError("You do not have the Marsh Badge to use Rock Smash outside of battle.")
+            case "WATERFALL":
+                if not get_event_flag("BADGE07_GET"):
+                    raise BotModeError("You do not have the Volcano Badge to use Waterfall outside of battle.")
+            case _:
+                raise BotModeError("Invalid HM move name.")
+
+    yield from StartMenuNavigator("POKEMON").step()
+
+    # find pokemon with desired HM move
+    move_pokemon = None
+    move_wanted = get_move_by_name(move_name)
+    for index in range(len(get_party())):
+        for learned_move in get_party()[index].moves:
+            if learned_move is not None and learned_move.move == move_wanted:
+                move_pokemon = index
+                break
+
+    cursor = None
+    if context.rom.is_emerald:
+        cursor = CursorOptionEmerald
+    elif context.rom.is_rs:
+        cursor = CursorOptionRS
+    elif context.rom.is_frlg:
+        cursor = CursorOptionFRLG
+
+    match move_name_upper:
+        case "CUT":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.CUT).step()
+        case "FLY":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.FLY).step()
+        case "SURF":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.SURF).step()
+        case "STRENGTH":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.STRENGTH).step()
+        case "FLASH":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.FLASH).step()
+        case "ROCK SMASH":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.ROCK_SMASH).step()
+        case "WATERFALL":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.WATERFALL).step()
+        case "DIVE":
+            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.DIVE).step()
+        case _:
+            raise BotModeError("Invalid HM move name.")
+    return
