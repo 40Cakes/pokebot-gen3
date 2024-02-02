@@ -48,7 +48,7 @@ class PokemonStorageBox:
                 return potential_empty_slot_index
             else:
                 potential_empty_slot_index += 1
-        if potential_empty_slot_index > 30:
+        if potential_empty_slot_index >= 30:
             return None
         else:
             return potential_empty_slot_index
