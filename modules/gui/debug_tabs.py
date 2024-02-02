@@ -1139,9 +1139,9 @@ class MapTab(DebugTab):
         map_connections = map_data.connections
         connections_list = {"__value": set()}
         for i in range(len(map_connections)):
-            connections_list[
-                map_connections[i].direction
-            ] = f"to {map_connections[i].destination_map.map_name} (offset: {str(map_connections[i].offset)})"
+            connections_list[map_connections[i].direction] = (
+                f"to {map_connections[i].destination_map.map_name} (offset: {str(map_connections[i].offset)})"
+            )
             connections_list["__value"].add(map_connections[i].direction)
         connections_list["__value"] = ", ".join(connections_list["__value"])
 
