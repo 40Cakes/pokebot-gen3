@@ -69,7 +69,7 @@ class BattleListener(BotListener):
         elif self._in_battle and get_game_state() not in self.battle_states and not task_is_active("Task_BattleStart"):
             if not self._reported_end_of_battle:
                 self._reported_end_of_battle = True
-                outcome = BattleOutcome(read_symbol("gBattleOutcome")[0])
+                outcome = BattleOutcome(read_symbol("gBattleOutcome", size=1)[0])
                 clear_opponent()
                 bot_mode.on_battle_ended(outcome)
 
@@ -78,6 +78,7 @@ class BattleListener(BotListener):
                 and get_game_state_symbol() != "CB2_RETURNTOFIELDLOCAL"
                 and not task_is_active("Task_ReturnToFieldNoScript")
                 and not task_is_active("Task_ReturnToFieldContinueScriptPlayMapMusic")
+                and not task_is_active("task_mpl_807E3C8")
                 and "heldMovementFinished" in get_map_objects()[0].flags
             ):
                 self._in_battle = False
@@ -121,6 +122,7 @@ class TrainerApproachListener(BotListener):
         if frame.game_state == GameState.OVERWORLD:
             if not self._trainer_is_approaching and (
                 "EventScript_TrainerApproach" in get_global_script_context().stack
+                or "EventScript_StartTrainerBattle" in get_global_script_context().stack
                 or "EventScript_DoTrainerBattle" in get_global_script_context().stack
             ):
                 self._trainer_is_approaching = True

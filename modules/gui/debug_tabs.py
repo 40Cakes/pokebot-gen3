@@ -344,8 +344,7 @@ class TasksTab(DebugTab):
         }
 
         if get_game_state() == GameState.BATTLE:
-            controller_data = read_symbol("gBattleControllerData", size=4)
-            number_of_battlers = read_symbol("gBattlersCount")[0]
+            number_of_battlers = read_symbol("gBattlersCount", size=1)[0]
 
             main_battle_function = get_callback_name("gBattleMainFunc")
             player_controller_function = get_callback_name("gBattlerControllerFuncs", offset=0)
@@ -353,13 +352,12 @@ class TasksTab(DebugTab):
             data["Battle Callbacks"] = {
                 "__value": f"{main_battle_function} / {player_controller_function}",
                 "Main Battle Function": main_battle_function,
-                "Battler Controller #1": f"{player_controller_function} [{controller_data[0]}]",
+                "Battler Controller #1": player_controller_function,
             }
 
             for index in range(1, number_of_battlers):
                 function = get_callback_name("gBattlerControllerFuncs", offset=4 * index)
-                key = f"Battler Controller #{index + 1}"
-                data["Battle Callbacks"][key] = f"{function} [{str(controller_data[index])}]"
+                data["Battle Callbacks"][f"Battler Controller #{index + 1}"] = function
 
         index = 0
         for task in get_tasks():
