@@ -25,28 +25,36 @@ def read_file(file: Path) -> str | None:
 def write_file(file: Path, value: str, mode: str = "w") -> bool:
     """
     Simple function to write data to a file, will create the file if doesn't exist.
-    Writes to a temp file, then performs os.remove + os.rename to prevent corruption of files (atomic operations).
+    Writes to a temp file, then performs os.replace to prevent corruption of files (atomic operations).
 
     :param file: File to write to
     :param value: Value to write to file
     :param mode: Write mode
     :return: True if file was written to successfully, otherwise False (bool)
     """
+
+    tmp_file = str(f"{file}.tmp")
     try:
-        tmp_file = str(f"{file}.tmp")
         directory = os.path.dirname(tmp_file)
         if not os.path.exists(directory):
             os.makedirs(directory)
         with open(tmp_file, mode=mode, encoding="utf-8") as save_file:
-            characters_written = save_file.write(value)
-        if characters_written == len(value):
-            os.replace(tmp_file, file)
-            return True
-        else:
-            print(f"Writing {file} failed: Only {characters_written} out of {len(value)} characters written.")
-            return False
+            save_file.write(value)
+            save_file.flush()
+            os.fsync(save_file.fileno())
+
+        os.replace(tmp_file, file)
+
     except:
         return False
+
+    finally:
+        if os.path.exists(tmp_file):
+            try:
+                os.unlink(tmp_file)
+            except:
+                pass
+        return True
 
 
 def save_pk3(pokemon: Pokemon) -> None:
