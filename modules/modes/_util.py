@@ -101,10 +101,6 @@ def follow_path(waypoints: list[tuple[int, int]], run: bool = True) -> Generator
     if get_game_state() != GameState.OVERWORLD:
         return
 
-    # Make sure that the player avatar can actually be controlled/moved right now.
-    if "heldMovementActive" not in get_map_objects()[0].flags:
-        return
-
     for waypoint in waypoints:
         yield from walk_to(waypoint, run)
 
