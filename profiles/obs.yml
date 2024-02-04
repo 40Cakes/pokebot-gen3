@@ -1,4 +1,4 @@
-# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3#obsyml---obs-config
+# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/tree/main/wiki/pages/Configuration%20-%20OBS%20and%20HTTP%20Server.md
 
 obs_websocket:
   host: 127.0.0.1

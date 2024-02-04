@@ -1,4 +1,4 @@
-# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/wiki/%F0%9F%93%A2-Discord-Integration
+# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/tree/main/wiki/pages/Configuration%20-%20Discord%20Integration.md
 
 rich_presence: false
 global_webhook_url: ""
@@ -66,4 +66,3 @@ pickup:
   ping_mode:
   ping_id:
   #webhook_url:
-

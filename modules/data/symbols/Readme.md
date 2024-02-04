@@ -4,8 +4,6 @@ These tables are sourced from the [pret GitHub](https://github.com/pret).
 - [Pokémon Ruby and Sapphire](https://github.com/pret/pokeruby) ([symbols](https://github.com/pret/pokeruby/tree/symbols))
 - [Pokémon FireRed and LeafGreen](https://github.com/pret/pokefirered) ([symbols](https://github.com/pret/pokefirered/tree/symbols))
 
-Symbol tables are loaded and parsed as a dict in the `Emulator` class in `Memory.py`.
-
 The `patches/` directory contains minor adjustments that will override the base symbol table for each game, some symbols have missing data sizes that need to be adjusted without modifying the base table (to allow us to import newer versions of the tables directly from source).
 
 Format of symbol tables:

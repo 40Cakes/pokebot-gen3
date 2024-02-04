@@ -5,7 +5,7 @@ from modules.pokemon import Pokemon
 
 def custom_catch_filters(pokemon: Pokemon) -> str | bool:
     """
-    See readme for documentation: https://github.com/40Cakes/pokebot-gen3#customcatchfilterspy---custom-catch-filters
+    See readme for documentation: https://github.com/40Cakes/pokebot-gen3/tree/main/wiki/pages/Configuration%20-%20Custom%20Catch%20Filters.md
 
     :param pokemon: Pokémon object of the current encounter
     """
