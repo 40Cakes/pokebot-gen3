@@ -12,8 +12,6 @@ from ._util import (
     wait_for_task_to_start_and_finish,
     navigate_to,
     walk_one_tile,
-    wait_until_script_is_no_longer_active,
-    wait_until_script_is_active,
     follow_path,
     wait_for_script_to_start_and_finish,
 )
@@ -185,8 +183,7 @@ class StaticRunAway(BotMode):
                     yield from follow_path([(12, 16), (16, 16), (16, 13)])
                     context.emulator.press_button("A")
                     yield from wait_for_task_to_start_and_finish("Task_WaitForFadeAndEnableScriptCtx", "B")
-                    yield from wait_until_script_is_active("Common_EventScript_LegendaryFlewAway", "B")
-                    yield from wait_until_script_is_no_longer_active("Common_EventScript_LegendaryFlewAway", "B")
+                    yield from wait_for_script_to_start_and_finish("Common_EventScript_LegendaryFlewAway", "B")
                     yield from walk_one_tile("Down")
                     yield from follow_path([(16, 16), (12, 16), (12, 19)])
                     yield from walk_one_tile("Down")
