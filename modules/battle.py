@@ -663,7 +663,35 @@ class BattleOpponent:
         self.idx = selected_poke_ball
 
         catch_chance = self.calculate_catch_chance(self.opponent, selected_poke_ball)
+
+        if context.debug:
+            print(f"Catch chance is {round(100 * catch_chance, 1)}%.")
+            if self.opponent_might_end_battle_next_turn():
+                print("Opponent might end battle next turn, skipping checks for False Swipe/status-inflicting moves.")
+
         if catch_chance < 0.8 and not self.opponent_might_end_battle_next_turn():
+            # Try to paralyse/put to sleep opponent
+            if self.opponent.status_condition == StatusCondition.Healthy:
+                status_move_index: int = -1
+                status_move_value: float = 0
+                for index in range(len(self.current_battler.moves)):
+                    learned_move = self.current_battler.moves[index]
+                    if learned_move is None or learned_move.pp == 0:
+                        continue
+                    value = 0
+                    if learned_move.move.effect == "SLEEP":
+                        if self.opponent.ability.name not in ("Insomnia", "Vital Spirit"):
+                            value = 2 * learned_move.move.accuracy
+                    if learned_move.move.effect == "PARALYZE":
+                        if self.opponent.ability.name != "Limber":
+                            value = 1.5 * learned_move.move.accuracy
+                    if status_move_value < value:
+                        status_move_index = index
+                        status_move_value = value
+                if status_move_index >= 0:
+                    self.choice = "fight"
+                    self.idx = status_move_index
+
             # False Swipe if possible
             if self.opponent.current_hp > 1:
                 false_swipe_index = -1
@@ -677,24 +705,6 @@ class BattleOpponent:
                 if false_swipe_index >= 0:
                     self.choice = "fight"
                     self.idx = false_swipe_index
-
-            # Try to paralyse/put to sleep opponent
-            elif self.opponent.status_condition == StatusCondition.Healthy:
-                status_move_index: int = -1
-                status_move_value: float = 0
-                for index in range(len(self.current_battler.moves)):
-                    learned_move = self.current_battler.moves[index]
-                    if learned_move is None:
-                        continue
-                    if learned_move.move.effect in ("SLEEP", "PARALYZE") and learned_move.pp > 0:
-                        value = 2 if learned_move.move.effect == "SLEEP" else 1.5
-                        value *= learned_move.move.accuracy
-                        if status_move_value < value:
-                            status_move_index = index
-                            status_move_value = value
-                if status_move_index >= 0:
-                    self.choice = "fight"
-                    self.idx = status_move_index
 
     def opponent_might_end_battle_next_turn(self) -> bool:
         if BattleTypeFlag.ROAMER in get_battle_type_flags():
