@@ -15,6 +15,7 @@ from ._util import (
     wait_until_script_is_no_longer_active,
     wait_until_script_is_active,
     follow_path,
+    wait_for_script_to_start_and_finish,
 )
 
 
@@ -139,7 +140,7 @@ class StaticRunAway(BotMode):
                     yield from walk_one_tile("Up")
                     yield from navigate_to(13, 12)
                     context.emulator.press_button("A")
-                    yield from wait_until_script_is_no_longer_active("Common_EventScript_LegendaryFlewAway", "B")
+                    yield from wait_for_script_to_start_and_finish("Common_EventScript_LegendaryFlewAway", "B")
 
             # Kyorge in Emerald
             case MapRSE.MARINE_CAVE_A.value:
