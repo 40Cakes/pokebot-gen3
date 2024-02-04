@@ -83,6 +83,7 @@ class BattleListener(BotListener):
                 and "Task_ReturnToFieldNoScript" not in frame.active_tasks
                 and "Task_ReturnToFieldContinueScriptPlayMapMusic" not in frame.active_tasks
                 and "task_mpl_807E3C8" not in frame.active_tasks
+                and len(get_map_objects()) > 0
                 and "heldMovementFinished" in get_map_objects()[0].flags
             ):
                 self._in_battle = False
@@ -147,18 +148,17 @@ class PokenavListener(BotListener):
 
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
         if frame.game_state == GameState.OVERWORLD:
-            if not self._in_call and frame.script_is_active("ExecuteMatchCall"):
+            if not self._in_call and frame.task_is_active("ExecuteMatchCall"):
                 self._in_call = True
                 bot_mode.on_pokenav_call()
                 context.controller_stack.append(self.ignore_call())
-            elif self._in_call and not frame.script_is_active("ExecuteMatchCall"):
-                self._in_call = False
 
     @isolate_inputs
     def ignore_call(self):
         while task_is_active("ExecuteMatchCall"):
             context.emulator.press_button("B")
             yield
+        self._in_call = False
 
 
 class EggHatchListener(BotListener):
@@ -244,7 +244,6 @@ class PoisonListener(BotListener):
                     and pokemon.current_hp == 0
                     and pokemon.status_condition in (StatusCondition.Poison, StatusCondition.BadPoison)
                 ):
-                    print("Fainted: " + str(pokemon))
                     bot_mode.on_pokemon_fainted_due_to_poison(pokemon, index)
             context.controller_stack.append(self.handle_fainting_message())
 
