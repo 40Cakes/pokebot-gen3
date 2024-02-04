@@ -9,7 +9,7 @@ For quick help and support, reach out in Discord [#pokebot-gen3-support❔](http
 - ❓ [Getting Started](pages/Getting%20Started.md)
 - 🌍 [Supported Games and Languages](pages/Supported%20Games%20and%20Languages.md)
 - 🔎 [Pokémon by Method](pages/Pokemon%20By%20Method.md)
-- 🆘 [Report an Issue](pages/Reporting%20an%20Issue.md)
+- 🆘 [Report an Issue](pages/Report%20an%20Issue.md)
 - ✨ [Stream FAQ](pages/Stream%20FAQ.md)
 
 ### Bot Modes
