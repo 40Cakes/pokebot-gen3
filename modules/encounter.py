@@ -7,6 +7,7 @@ from modules.context import context
 from modules.discord import discord_message
 from modules.files import save_pk3
 from modules.gui.desktop_notification import desktop_notification
+from modules.modes import BattleAction
 from modules.pokemon_storage import get_pokemon_storage
 from modules.pokemon import Pokemon, get_battle_type_flags, BattleTypeFlag, get_opponent
 from modules.runtime import get_sprites_path
@@ -35,7 +36,14 @@ def wild_encounter_gif(post_to_discord: bool = False) -> None:
             Thread(target=send_discord_encounter_gif, args=(gif, 3)).start()
 
 
-def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
+def _default_battle_action() -> BattleAction:
+    if context.config.battle.battle:
+        return BattleAction.Fight
+    else:
+        return BattleAction.RunAway
+
+
+def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> BattleAction | None:
     """
     Call when a Pokémon is encountered, decides whether to battle, flee or catch.
     Expects the player's state to be MISC_MENU (battle started, no longer in the overworld).
@@ -44,6 +52,9 @@ def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
     :param pokemon: The Pokémon that has been encountered
     :param log_only: If true, this will not stop even if the encountered Pokémon is shiny or
                      otherwise matches one of the catch rules.
+    :return: Decision on what to do about this battle (fight/flee/catch.) If `None` or
+             `BattleAction.CustomAction` are returned, the bot will be switched to manual
+             mode.
     """
     from modules.stats import total_stats
 
@@ -65,7 +76,7 @@ def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
     context.message = encounter_summary
 
     if log_only:
-        return
+        return None
 
     state_tag = ""
     alert_title = None
@@ -79,23 +90,24 @@ def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
                 save_pk3(pokemon)
             state_tag = "shiny"
             console.print("[bold yellow]Shiny found!")
-            context.message = (
-                f"Shiny found! The bot has been switched to manual mode so you can catch it.\n{encounter_summary}"
-            )
 
             alert_title = "Shiny found!"
             alert_message = f"Found a ✨shiny {pokemon.species.name}✨! 🥳"
             wild_encounter_gif(post_to_discord=context.config.discord.shiny_pokemon_encounter.enable)
+
+            decision = BattleAction.Catch
 
         elif custom_found:
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.custom:
                 save_pk3(pokemon)
             state_tag = "customfilter"
             console.print("[bold green]Custom filter Pokemon found!")
-            context.message = f"Custom filter triggered ({custom_filter_result})! The bot has been switched to manual mode so you can catch it.\n{encounter_summary}"
+            context.message = f"Custom filter triggered ({custom_filter_result})!"
 
             alert_title = "Custom filter triggered!"
             alert_message = f"Found a {pokemon.species.name} that matched one of your filters. ({custom_filter_result})"
+
+            decision = BattleAction.Catch
 
         elif BattleTypeFlag.ROAMER in battle_type_flags:
             state_tag = "roamer"
@@ -105,8 +117,14 @@ def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
             alert_title = "Roaming Pokemon found!"
             alert_message = f"Encountered a roaming {pokemon.species.name}."
 
+            decision = BattleAction.CustomAction
+
+        else:
+            decision = _default_battle_action()
+
         if not custom_found and pokemon.species.name in context.config.catch_block.block_list:
             console.print(f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...")
+            return _default_battle_action()
         else:
             filename_suffix = f"{state_tag}_{pokemon.species.safe_name}"
             context.emulator.create_save_state(suffix=filename_suffix)
@@ -133,8 +151,6 @@ def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
                         context.message = message
                         console.print(message)
 
-            context.set_manual_mode()
-
             if alert_title is not None and alert_message is not None:
                 alert_icon = (
                     get_sprites_path()
@@ -143,3 +159,8 @@ def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
                     / f"{pokemon.species.name}.png"
                 )
                 desktop_notification(title=alert_title, message=alert_message, icon=alert_icon)
+
+            return decision
+
+    else:
+        return _default_battle_action()

@@ -48,21 +48,16 @@ class BattleListener(BotListener):
                         )
                         context.set_manual_mode()
                 else:
-                    encounter_pokemon(opponent)
-                    if context.bot_mode != "Manual":
-                        if context.config.battle.battle:
-                            action = BattleAction.Fight
-                        else:
-                            action = BattleAction.RunAway
+                    action = encounter_pokemon(opponent)
+                    if context.bot_mode != "Manual" and (action is None or action == BattleAction.CustomAction):
+                        context.set_manual_mode()
 
             if action == BattleAction.Fight:
                 context.controller_stack.append(self.fight())
             elif action == BattleAction.RunAway:
                 context.controller_stack.append(self.run_away_from_battle())
             elif action == BattleAction.Catch:
-                # todo
-                context.message = "Auto catching is not implemented yet."
-                context.set_manual_mode()
+                context.controller_stack.append(self.catch())
 
             self._current_action = action
 
@@ -70,6 +65,7 @@ class BattleListener(BotListener):
             self._in_battle
             and get_game_state() not in self.battle_states
             and not frame.task_is_active("Task_BattleStart")
+            and read_symbol("gBattleOutcome", size=1)[0] != 0
         ):
             if not self._reported_end_of_battle:
                 self._reported_end_of_battle = True
@@ -102,6 +98,11 @@ class BattleListener(BotListener):
             context.controller_stack.append(self.check_for_pickup())
         elif context.config.battle.replace_lead_battler and not check_lead_can_battle():
             context.controller_stack.append(self.rotate_lead_pokemon())
+
+    @isolate_inputs
+    def catch(self):
+        yield from BattleHandler(try_to_catch=True).step()
+        yield from self._wait_until_battle_is_over()
 
     @isolate_inputs
     def run_away_from_battle(self):

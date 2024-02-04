@@ -1,6 +1,8 @@
 from enum import Enum, IntEnum, auto
 
 from modules.context import context
+from modules.items import get_item_bag, Item
+from modules.map import get_map_data_for_current_position
 from modules.memory import (
     get_game_state,
     read_symbol,
@@ -9,7 +11,6 @@ from modules.memory import (
     unpack_uint32,
     GameState,
 )
-
 from modules.menu_parsers import (
     get_party_menu_cursor_pos,
     get_battle_menu,
@@ -27,7 +28,9 @@ from modules.menuing import (
     BattlePartyMenuNavigator,
     PartyMenuExit,
 )
-from modules.pokemon import get_party, get_opponent, Pokemon, Move, LearnedMove
+from modules.modes import BotModeError
+from modules.pokedex import get_pokedex
+from modules.pokemon import get_party, get_opponent, Pokemon, Move, LearnedMove, get_type_by_name
 from modules.tasks import get_global_script_context, get_task, get_tasks, task_is_active
 
 
@@ -53,6 +56,7 @@ class BattleState(IntEnum):
     ACTION_SELECTION = auto()
     MOVE_SELECTION = auto()
     PARTY_MENU = auto()
+    BAG_MENU = auto()
     SWITCH_POKEMON = auto()
     LEARNING = auto()
     # misc undetected state (move animations, buffering, etc.)
@@ -98,17 +102,21 @@ class BattleAction(BaseMenuNavigator):
                         self.current_step = "choose_move"
                     case "switch":
                         self.current_step = "wait_for_party_menu"
+                    case "catch":
+                        self.current_step = "wait_for_bag_menu"
                     case "bag":
                         context.message = "Bag not implemented yet, switching to manual mode."
                         context.set_manual_mode()
             case "wait_for_party_menu":
                 self.current_step = "choose_mon"
+            case "wait_for_bag_menu":
+                self.current_step = "throw_poke_ball"
             case "handle_flee":
                 if not self.choice_was_successful:
                     self.current_step = "handle_no_escape"
                 else:
                     self.current_step = "return_to_overworld"
-            case "choose_move" | "choose_mon" | "return_to_overworld":
+            case "choose_move" | "choose_mon" | "throw_poke_ball" | "return_to_overworld":
                 self.current_step = "exit"
 
     def update_navigator(self):
@@ -119,6 +127,8 @@ class BattleAction(BaseMenuNavigator):
                         index = 0
                     case "switch":
                         index = 2
+                    case "catch":
+                        index = 1
                     case "bag":
                         index = 1
                         context.message = "Bag not implemented yet. Switching to manual mode."
@@ -132,8 +142,12 @@ class BattleAction(BaseMenuNavigator):
                 self.navigator = self.choose_move()
             case "wait_for_party_menu":
                 self.navigator = self.wait_for_party_menu()
+            case "wait_for_bag_menu":
+                self.navigator = self.wait_for_bag_menu()
             case "choose_mon":
                 self.navigator = self.choose_mon()
+            case "throw_poke_ball":
+                self.navigator = self.throw_poke_ball()
             case "handle_no_escape":
                 self.navigator = self.handle_no_escape()
             case "return_to_overworld":
@@ -179,6 +193,78 @@ class BattleAction(BaseMenuNavigator):
                 self.navigator = None
                 self.subnavigator = None
 
+    def throw_poke_ball(self):
+        while True:
+            fade_mode = unpack_uint16(read_symbol("gPaletteFade", offset=0x07, size=0x02))
+            if fade_mode & 0x80 == 0:
+                break
+            else:
+                yield
+
+        if context.rom.is_emerald:
+            def is_poke_balls_bag_open():
+                return read_symbol("gBagPosition", offset=0x05, size=1)[0] == 1
+
+            def currently_selected_slot() -> int:
+                cursor_position = unpack_uint16(read_symbol("gBagPosition", offset=10, size=2))
+                scroll_position = unpack_uint16(read_symbol("gBagPosition", offset=20, size=2))
+                return cursor_position + scroll_position
+
+            ball_throw_task_name = "AnimTask_ThrowBall_Step"
+        elif context.rom.is_rs:
+            def is_poke_balls_bag_open():
+                return read_symbol("sCurrentBagPocket")[0] == 1
+
+            def currently_selected_slot() -> int:
+                bag_position = read_symbol("gBagPocketScrollStates", offset=4, size=2)
+                return bag_position[0] + bag_position[1]
+
+            ball_throw_task_name = "sub_813FB7C"
+        else:
+            def is_poke_balls_bag_open():
+                return read_symbol("gBagMenuState", offset=0x06, size=1)[0] == 2
+
+            def currently_selected_slot() -> int:
+                cursor_position = unpack_uint16(read_symbol("gBagMenuState", offset=12, size=2))
+                scroll_position = unpack_uint16(read_symbol("gBagMenuState", offset=18, size=2))
+                return cursor_position + scroll_position
+
+            ball_throw_task_name = "AnimTask_ThrowBall_WaitAnimObjComplete"
+
+        while not is_poke_balls_bag_open():
+            context.emulator.press_button("Right")
+            for _ in range(26):
+                yield
+
+        slot_index = -1
+        bag = get_item_bag().poke_balls
+        for index in range(len(bag)):
+            if bag[index].item == self.idx:
+                slot_index = index
+                break
+        if slot_index == -1:
+            raise BotModeError("No more Poke balls")
+
+        while currently_selected_slot() != slot_index:
+            if currently_selected_slot() < slot_index:
+                context.emulator.press_button("Down")
+            else:
+                context.emulator.press_button("Up")
+            yield
+            yield
+            yield
+
+        while not task_is_active(ball_throw_task_name):
+            context.emulator.press_button("A")
+            yield
+
+        while task_is_active(ball_throw_task_name):
+            context.emulator.press_button("B")
+            yield
+
+        yield
+
+
     def handle_no_escape(self):
         if self.subnavigator is None and not party_menu_is_open():
             while not party_menu_is_open():
@@ -216,6 +302,11 @@ class BattleAction(BaseMenuNavigator):
     @staticmethod
     def wait_for_party_menu():
         while get_battle_state() != BattleState.PARTY_MENU:
+            yield
+
+    @staticmethod
+    def wait_for_bag_menu():
+        while get_battle_state() != BattleState.BAG_MENU:
             yield
 
 
@@ -354,8 +445,8 @@ class BattleHandler:
     Wrapper for the BattleOpponent class that makes it compatible with the current structure of the main loop.
     """
 
-    def __init__(self):
-        self.battler = BattleOpponent().step()
+    def __init__(self, try_to_catch: bool = False):
+        self.battler = BattleOpponent(try_to_catch).step()
 
     def step(self):
         for _ in self.battler:
@@ -368,7 +459,7 @@ class BattleOpponent:
     or runs out of PP.
     """
 
-    def __init__(self):
+    def __init__(self, try_to_catch: bool = False):
         """
         Initializes the battle handler
         """
@@ -384,6 +475,7 @@ class BattleOpponent:
         self.choice = None
         self.idx = None
         self.battle_action = None
+        self.try_to_catch = try_to_catch
 
     @property
     def foe_fainted(self):
@@ -489,7 +581,13 @@ class BattleOpponent:
         if "EventScript_DoTrainerBattle" in script_ctx.stack:
             is_trainer_battle = True
 
-        if not is_trainer_battle and (not context.config.battle.battle or not can_battle_happen()):
+        if not is_trainer_battle and self.try_to_catch:
+            selected_poke_ball = self.get_best_poke_ball_for(self.opponent)
+            if selected_poke_ball is None:
+                raise BotModeError("Player does not have any Poke balls. Cannot catch.")
+            self.choice = "catch"
+            self.idx = selected_poke_ball
+        elif not is_trainer_battle and (not context.config.battle.battle or not can_battle_happen()):
             self.choice = "flee"
             self.idx = -1
         elif context.config.battle.replace_lead_battler and self.should_rotate_lead:
@@ -649,6 +747,57 @@ class BattleOpponent:
 
             return move["index"]
 
+    def get_best_poke_ball_for(self, opponent: Pokemon) -> Item | None:
+        best_poke_ball: Item | None = None
+        best_catch_rate_multiplier: float = 0
+        for ball in get_item_bag().poke_balls:
+            catch_rate_multiplier = 1
+            match ball.item.index:
+                # Master Ball -- we never choose to throw this one, should be the player's choice
+                case 1:
+                    catch_rate_multiplier = -1
+
+                # Ultra Ball
+                case 2:
+                    catch_rate_multiplier = 2
+
+                # Great Ball:
+                case 3:
+                    catch_rate_multiplier = 1.5
+
+                # Net Ball
+                case 6:
+                    water = get_type_by_name("Water")
+                    bug = get_type_by_name("Bug")
+                    if opponent.species.has_type(water) or opponent.species.has_type(bug):
+                        catch_rate_multiplier = 3
+
+                # Dive Ball
+                case 7:
+                    if get_map_data_for_current_position().map_type == "Underwater":
+                        catch_rate_multiplier = 3.5
+
+                # Nest Ball
+                case 8:
+                    if opponent.level < 40:
+                        catch_rate_multiplier = max(1.0, (40 - opponent.level) / 10)
+
+                # Repeat Ball
+                case 9:
+                    if opponent.species in get_pokedex().owned_species:
+                        catch_rate_multiplier = 3
+
+                # Timer Ball
+                case 10:
+                    battle_turn_counter = read_symbol("gBattleResults", offset=0x13, size=1)[0]
+                    catch_rate_multiplier = (10 + battle_turn_counter) / 10
+
+            if best_catch_rate_multiplier < catch_rate_multiplier:
+                best_poke_ball = ball.item
+                best_catch_rate_multiplier = catch_rate_multiplier
+
+        return best_poke_ball
+
     @property
     def should_rotate_lead(self) -> bool:
         """
@@ -721,6 +870,8 @@ def get_battle_state() -> BattleState:
                     return BattleState.EVOLVING
         case GameState.PARTY_MENU:
             return BattleState.PARTY_MENU
+        case GameState.BAG_MENU:
+            return BattleState.BAG_MENU
         case _:
             match get_learn_move_state():
                 case "LEARN_YN" | "MOVEMENU" | "STOP_LEARNING":
