@@ -4,7 +4,7 @@ from threading import Thread
 
 from modules.console import console
 from modules.context import context
-from modules.memory import get_game_state
+from modules.memory import get_game_state, GameState
 from modules.modes import (
     BotMode,
     BotModeError,
@@ -13,6 +13,7 @@ from modules.modes import (
     get_bot_mode_by_name,
     get_bot_listeners,
 )
+from modules.tasks import get_tasks, get_global_script_context
 
 # Contains a queue of tasks that should be run the next time a frame completes.
 # This is currently used by the HTTP server component (which runs in a separate thread) to trigger things
@@ -48,9 +49,21 @@ def main_loop() -> None:
                 callback = work_queue.get_nowait()
                 callback()
 
+            if context.bot_mode != "Manual":
+                game_state = get_game_state()
+                script_context = get_global_script_context()
+                script_stack = script_context.stack if script_context.is_active else []
+                active_tasks = [task.symbol.lower() for task in get_tasks()]
+            else:
+                game_state = GameState.UNKNOWN
+                script_stack = []
+                active_tasks = []
+
             frame_info = FrameInfo(
                 frame_count=context.emulator.get_frame_count(),
-                game_state=get_game_state(),
+                game_state=game_state,
+                active_tasks=active_tasks,
+                script_stack=script_stack,
                 previous_frame=previous_frame_info,
             )
 

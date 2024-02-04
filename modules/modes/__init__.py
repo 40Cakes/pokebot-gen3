@@ -84,6 +84,6 @@ def get_bot_listeners(rom: "ROM") -> list[BotListener]:
         SafariZoneListener(),
         WhiteoutListener(),
     ]
-    if rom.is_rse:
+    if rom.is_emerald:
         listeners.append(PokenavListener())
     return listeners
