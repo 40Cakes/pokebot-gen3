@@ -664,8 +664,22 @@ class BattleOpponent:
 
         catch_chance = self.calculate_catch_chance(self.opponent, selected_poke_ball)
         if catch_chance < 0.8 and not self.opponent_might_end_battle_next_turn():
+            # False Swipe if possible
+            if self.opponent.current_hp > 1:
+                false_swipe_index = -1
+                for index in range(len(self.current_battler.moves)):
+                    learned_move = self.current_battler.moves[index]
+                    if learned_move is None:
+                        continue
+                    if learned_move.move.name == "False Swipe" and learned_move.pp > 0:
+                        false_swipe_index = index
+                        break
+                if false_swipe_index >= 0:
+                    self.choice = "fight"
+                    self.idx = false_swipe_index
+
             # Try to paralyse/put to sleep opponent
-            if self.opponent.status_condition == StatusCondition.Healthy:
+            elif self.opponent.status_condition == StatusCondition.Healthy:
                 status_move_index: int = -1
                 status_move_value: float = 0
                 for index in range(len(self.current_battler.moves)):
@@ -681,20 +695,6 @@ class BattleOpponent:
                 if status_move_index >= 0:
                     self.choice = "fight"
                     self.idx = status_move_index
-
-            # False Swipe if possible
-            elif self.opponent.current_hp > 1:
-                false_swipe_index = -1
-                for index in range(len(self.current_battler.moves)):
-                    learned_move = self.current_battler.moves[index]
-                    if learned_move is None:
-                        continue
-                    if learned_move.move.name in ("SLEEP", "PARALYZE") == "False Swipe":
-                        false_swipe_index = index
-                        break
-                if false_swipe_index >= 0:
-                    self.choice = "fight"
-                    self.idx = false_swipe_index
 
     def opponent_might_end_battle_next_turn(self) -> bool:
         if BattleTypeFlag.ROAMER in get_battle_type_flags():
