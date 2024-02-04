@@ -202,6 +202,7 @@ class BattleAction(BaseMenuNavigator):
                 yield
 
         if context.rom.is_emerald:
+
             def is_poke_balls_bag_open():
                 return read_symbol("gBagPosition", offset=0x05, size=1)[0] == 1
 
@@ -212,6 +213,7 @@ class BattleAction(BaseMenuNavigator):
 
             ball_throw_task_name = "AnimTask_ThrowBall_Step"
         elif context.rom.is_rs:
+
             def is_poke_balls_bag_open():
                 return read_symbol("sCurrentBagPocket")[0] == 1
 
@@ -221,6 +223,7 @@ class BattleAction(BaseMenuNavigator):
 
             ball_throw_task_name = "sub_813FB7C"
         else:
+
             def is_poke_balls_bag_open():
                 return read_symbol("gBagMenuState", offset=0x06, size=1)[0] == 2
 
@@ -263,7 +266,6 @@ class BattleAction(BaseMenuNavigator):
             yield
 
         yield
-
 
     def handle_no_escape(self):
         if self.subnavigator is None and not party_menu_is_open():
