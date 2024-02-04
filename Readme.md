@@ -22,17 +22,21 @@ Visit the [wiki](wiki/Readme.md) for information getting started, keybinds/input
 
 # 😎 Showcase
 
-|              Main Interface              |              Load Save State              |              Debug Mode              |
+|              Main interface              |              Load save state              |              Debug mode              |
 |:----------------------------------------:|:-----------------------------------------:|:------------------------------------:|
 | ![image](wiki/images/main_interface.png) | ![image](wiki/images/load_save_state.png) | ![image](wiki/images/debug_mode.png) |
 
-| Save GIF of Shiny Encounter              | Automatically saves PKHeX .pk3 File                            | HTTP API                                                      |
-|------------------------------------------|----------------------------------------------------------------|---------------------------------------------------------------|
-| ![image](wiki/images/shiny_rayquaza.gif) | <img src="wiki/images/pk3_files.png" style="max-width: 250px"> | <img src="wiki/images/http_api.png" style="max-width: 250px"> |
+| Capture GIF of shiny encounters          |
+|------------------------------------------|
+| ![image](wiki/images/shiny_rayquaza.gif) |
 
-|             Discord Shiny Notifications              |              Discord Phase Stats              |              Discord Milestones              |
+|             Discord shiny notifications              |              Discord phase stats              |              Discord milestones              |
 |:----------------------------------------------------:|:---------------------------------------------:|:--------------------------------------------:|
 | ![image](wiki/images/discord_shiny_notification.png) | ![image](wiki/images/discord_phase_stats.png) | ![image](wiki/images/discord_milestones.png) |
+
+| Automatically saves PKHeX .pk3 file | HTTP API                           |
+|-------------------------------------|------------------------------------|
+| ![image](wiki/images/pk3_files.png) | ![image](wiki/images/http_api.png) |
 
 # ❤ Attributions
 
