@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 🎁 Static Gift Reset Mode
 
 Soft reset for a static gift Pokémon that are directly added to your party without a battle.

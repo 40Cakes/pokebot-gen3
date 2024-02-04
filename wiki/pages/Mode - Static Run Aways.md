@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 🏃🏼 Static Run Away Mode
 
 Static run away mode will hunt the [Tower duo Pokémon](https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_(FireRed_and_LeafGreen)#Lugia_and_Ho-Oh), the [Regi Trio](https://bulbapedia.bulbagarden.net/wiki/Legendary_giants#Pok.C3.A9mon_Ruby.2C_Sapphire.2C_Emerald.2C_Omega_Ruby.2C_and_Alpha_Sapphire), [Super-Ancient Pokémon](https://bulbapedia.bulbagarden.net/wiki/Legendary_Pok%C3%A9mon#Super-ancient_Pok.C3.A9mon), and the [Eon Duo](https://bulbapedia.bulbagarden.net/wiki/Eon_duo) on Southern Isle.

@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 🎰 Game Corner Mode
 
 ![](../../sprites/pokemon/normal/Abra.png) ![](../../sprites/pokemon/normal/Clefairy.png) ![](../../sprites/pokemon/normal/Dratini.png) ![](../../sprites/pokemon/normal/Scyther.png) ![](../../sprites/pokemon/normal/Porygon.png)

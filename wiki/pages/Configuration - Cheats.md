@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 💎 Cheats Config
 
 [`profiles/cheats.yml`](../../profiles/cheats.yml)

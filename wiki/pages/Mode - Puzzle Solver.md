@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 🧩 Puzzle Solver Mode
 
 Puzzle solver mode was created because we all hate Sky Pillar. That is all.

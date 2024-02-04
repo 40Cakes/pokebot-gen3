@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 This page contains answers to questions frequently asked in the live chat of the stream, please check that your question hasn't already been answered here before asking anything. Any questions about running the bot for yourself should be asked in Discord [#pokebot-gen3-support❔](https://discord.com/channels/1057088810950860850/1139190426834833528).
 
 **If you're on desktop, use CTRL+F to search for keywords related to your question!** For example, if you're wondering about something related to breeding, you could search 'breed' or 'egg'. Many mobile browsers also have search features in their menus.

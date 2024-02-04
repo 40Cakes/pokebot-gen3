@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 🏃 Roamer Reset Mode
 Roamer reset mode helps with finding shiny roaming Pokémon via soft-resetting.
 

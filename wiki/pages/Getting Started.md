@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # ❓ Getting Started
 
 ## Supported Operating Systems

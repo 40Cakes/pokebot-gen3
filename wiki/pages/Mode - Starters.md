@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 💼 Starters Mode
 
 Soft resets for starter Pokémon.

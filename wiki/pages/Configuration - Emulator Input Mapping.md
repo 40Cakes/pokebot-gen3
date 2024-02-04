@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 🎮 Emulator Input Mapping Config
 
 [`profiles/keys.yml`](../../profiles/keys.yml)

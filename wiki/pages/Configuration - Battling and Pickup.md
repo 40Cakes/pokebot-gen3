@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # ⚔ Battling and Pickup Config
 
 [`profiles/battle.yml`](../../profiles/battle.yml)

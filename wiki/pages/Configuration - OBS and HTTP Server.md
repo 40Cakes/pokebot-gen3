@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 🎥 OBS and HTTP Server Config
 
 [`profiles/obs.yml`](https://github.com/40Cakes/pokebot-gen3/blob/main/profiles/obs.yml)

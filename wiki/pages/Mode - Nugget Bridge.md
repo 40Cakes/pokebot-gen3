@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 🟡 Nugget Bridge Mode
 
 Nugget Bridge mode takes advantage of a coding oversight in Generation 3 Kanto games.     

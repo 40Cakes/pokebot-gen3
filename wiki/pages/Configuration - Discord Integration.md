@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 📢 Discord Integration Config
 
 [`profiles/discord.yml`](../../profiles/discord.yml)

@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 🛠 Configuration Overview
 
 The bot stores all profile information, such as save games, screenshots, statistics, etc. in the profile `profiles/<profile name>/`) folder, which is automatically created once you create a new profile.

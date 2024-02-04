@@ -1,4 +1,4 @@
-Welcome to the `pokebot-gen3` wiki!
+Welcome to the [`pokebot-gen3`](https://github.com/40Cakes/pokebot-gen3) wiki!
 
 [Report an issue](pages/Report%20an%20Issue.md) or [raise a pull request](https://github.com/40Cakes/pokebot-gen3/pulls) if you find any missing/incorrect information in these docs.
 

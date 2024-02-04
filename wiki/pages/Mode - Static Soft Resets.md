@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # ♻ Static Soft Reset Mode
 
 ![](../../sprites/pokemon/normal/Snorlax.png)

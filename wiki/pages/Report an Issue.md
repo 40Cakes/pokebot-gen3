@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 🆘 Reporting an Issue
 
 If you're having issues with the bot, please follow the below steps to report an issue.

@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 🔧 Manual Mode
 
 Manual mode simply disables all automatic bot control, allowing you to play the game normally while continuing to log encounters and increment stats.

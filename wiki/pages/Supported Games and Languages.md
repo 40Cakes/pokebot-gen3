@@ -1,3 +1,7 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
+# 🌍 Supported Games and Languages
+
 **Do NOT request or distribute ROMs in the Discord under any circumstances! You will be banned from the server.**
 
 Variations of games, languages and revisions may have different memory offsets, there will be a table of supported/tested variations under each bot mode listed on this wiki.

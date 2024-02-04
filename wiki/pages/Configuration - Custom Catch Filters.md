@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 🥅 Custom Catch Filters Config
 
 [`profiles/customcatchfilters.py`](../../profiles/customcatchfilters.py)

@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 🎲 Random Inputs Mode
 
 ⚠️ Warning: proceed with caution as anything is possible with this mode such as selling items or releasing your Pokémon from the PC!

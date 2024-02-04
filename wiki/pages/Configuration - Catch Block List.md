@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # ❌ Catch Block List Config
 
 [`profiles/catch_block.yml`](../../profiles/catch_block.yml)

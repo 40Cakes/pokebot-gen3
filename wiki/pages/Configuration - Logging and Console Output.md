@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 📄 Logging and Console Output Config
 
 [`profiles/logging.yml`](https://github.com/40Cakes/pokebot-gen3/blob/main/profiles/logging.yml)

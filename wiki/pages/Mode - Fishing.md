@@ -1,3 +1,5 @@
+🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
+
 # 🎣 Fishing Mode
 
 ![](../../sprites/pokemon/normal/Tentacool.png)
