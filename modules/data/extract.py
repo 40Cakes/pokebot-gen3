@@ -726,8 +726,9 @@ def extract_species(
                 info = edition_file.read(28)
 
                 species_list[i]["catch_rate"] = max(species_list[i]["catch_rate"], info[8])
-                species_list[i]["safari_zone_flee_probability"] = max(species_list[i]["safari_zone_flee_probability"], info[24])
-
+                species_list[i]["safari_zone_flee_probability"] = max(
+                    species_list[i]["safari_zone_flee_probability"], info[24]
+                )
 
     return species_list
 
