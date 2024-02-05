@@ -3,7 +3,7 @@ from typing import Generator
 from modules.data.map import MapRSE
 
 from modules.context import context
-from modules.encounter import handle_encounter
+from modules.encounter import handle_encounter, judge_encounter, log_encounter, EncounterValue
 from modules.player import get_player_avatar
 from modules.pokemon import get_opponent
 from ._asserts import (
@@ -47,7 +47,12 @@ class SudowoodoMode(BotMode):
         return _get_targeted_encounter() is not None
 
     def on_battle_started(self) -> BattleAction | None:
-        return handle_encounter(get_opponent(), disable_auto_catch=True)
+        opponent = get_opponent()
+        if judge_encounter(opponent) in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch):
+            return handle_encounter(get_opponent(), disable_auto_catch=True)
+        else:
+            log_encounter(opponent)
+            return BattleAction.CustomAction
 
     def run(self) -> Generator:
         encounter = _get_targeted_encounter()

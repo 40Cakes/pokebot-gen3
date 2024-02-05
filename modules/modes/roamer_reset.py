@@ -469,3 +469,7 @@ class RoamerResetMode(BotMode):
                         finally:
                             context.emulator.restore_held_buttons(previous_inputs)
                     yield
+            if skip_run:
+                continue
+
+            yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry")
