@@ -128,7 +128,7 @@ def log_encounter(pokemon: Pokemon, action: BattleAction | None = None) -> None:
         fun_facts.append(f"Evo: {pokemon.wurmple_evolution.title()}")
 
     match action:
-        case BattleAction.RunAway:
+        case BattleAction.Catch:
             message_action = "Will try to catch it."
         case BattleAction.CustomAction:
             message_action = "Switched to manual mode so you can catch it."
