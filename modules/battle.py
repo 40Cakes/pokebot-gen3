@@ -934,7 +934,7 @@ class BattleOpponent:
 
     @staticmethod
     def calculate_catch_chance(opponent: Pokemon, ball: Item) -> float:
-        catch_rate = opponent.species.catch_rate
+        catch_rate = max(1, opponent.species.catch_rate)
         catch_rate *= BattleOpponent.get_poke_ball_catch_rate_multiplier(opponent, ball)
         catch_rate *= (3 * opponent.total_hp - 2 * opponent.current_hp) / (3 * opponent.total_hp)
         if opponent.status_condition in (StatusCondition.Sleep, StatusCondition.Freeze):

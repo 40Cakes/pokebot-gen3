@@ -68,7 +68,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -116,7 +116,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -164,7 +164,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -211,12 +211,12 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Dragon"
+            "Dragon",
+            "Monster"
         ],
         "base_experience_yield": 65,
         "ev_yield": {
@@ -258,12 +258,12 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Dragon"
+            "Dragon",
+            "Monster"
         ],
         "base_experience_yield": 142,
         "ev_yield": {
@@ -306,12 +306,12 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Dragon"
+            "Dragon",
+            "Monster"
         ],
         "base_experience_yield": 209,
         "ev_yield": {
@@ -353,7 +353,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -400,7 +400,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -447,7 +447,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -494,7 +494,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -540,7 +540,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -587,7 +587,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -634,7 +634,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -681,7 +681,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -728,7 +728,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -775,7 +775,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -822,7 +822,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -869,7 +869,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -916,7 +916,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -963,7 +963,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 127,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -1010,7 +1010,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -1057,7 +1057,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -1104,12 +1104,12 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Field",
-            "Dragon"
+            "Dragon",
+            "Field"
         ],
         "base_experience_yield": 62,
         "ev_yield": {
@@ -1152,12 +1152,12 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Field",
-            "Dragon"
+            "Dragon",
+            "Field"
         ],
         "base_experience_yield": 147,
         "ev_yield": {
@@ -1208,12 +1208,12 @@
         "gender_ratio": 127,
         "egg_cycles": 10,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 6,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Field",
-            "Fairy"
+            "Fairy",
+            "Field"
         ],
         "base_experience_yield": 82,
         "ev_yield": {
@@ -1255,12 +1255,12 @@
         "gender_ratio": 127,
         "egg_cycles": 10,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Field",
-            "Fairy"
+            "Fairy",
+            "Field"
         ],
         "base_experience_yield": 122,
         "ev_yield": {
@@ -1302,7 +1302,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -1348,7 +1348,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -1394,8 +1394,8 @@
         "gender_ratio": 254,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 235,
+        "safari_zone_flee_probability": 50,
         "level_up_type": "Medium Slow",
         "egg_groups": [
             "Field",
@@ -1441,8 +1441,8 @@
         "gender_ratio": 254,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 120,
+        "safari_zone_flee_probability": 75,
         "level_up_type": "Medium Slow",
         "egg_groups": [
             "No Eggs"
@@ -1488,7 +1488,7 @@
         "gender_ratio": 254,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -1534,8 +1534,8 @@
         "gender_ratio": 0,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 235,
+        "safari_zone_flee_probability": 50,
         "level_up_type": "Medium Slow",
         "egg_groups": [
             "Field",
@@ -1581,8 +1581,8 @@
         "gender_ratio": 0,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 120,
+        "safari_zone_flee_probability": 75,
         "level_up_type": "Medium Slow",
         "egg_groups": [
             "Field",
@@ -1629,7 +1629,7 @@
         "gender_ratio": 0,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -1685,7 +1685,7 @@
         "gender_ratio": 191,
         "egg_cycles": 10,
         "base_friendship": 140,
-        "catch_rate": 0,
+        "catch_rate": 150,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -1740,7 +1740,7 @@
         "gender_ratio": 191,
         "egg_cycles": 10,
         "base_friendship": 140,
-        "catch_rate": 0,
+        "catch_rate": 25,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -1791,7 +1791,7 @@
         "gender_ratio": 191,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -1842,7 +1842,7 @@
         "gender_ratio": 191,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -1888,7 +1888,7 @@
         "gender_ratio": 191,
         "egg_cycles": 10,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 170,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -1934,7 +1934,7 @@
         "gender_ratio": 191,
         "egg_cycles": 10,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 50,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -1981,7 +1981,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 3,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -2028,7 +2028,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 3,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -2075,7 +2075,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 4,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -2122,7 +2122,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 6,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -2169,7 +2169,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -2225,8 +2225,8 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 6,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 190,
+        "safari_zone_flee_probability": 50,
         "level_up_type": "Medium Fast",
         "egg_groups": [
             "Bug",
@@ -2282,8 +2282,8 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 6,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 75,
+        "safari_zone_flee_probability": 75,
         "level_up_type": "Medium Fast",
         "egg_groups": [
             "Bug",
@@ -2330,8 +2330,8 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 6,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 190,
+        "safari_zone_flee_probability": 50,
         "level_up_type": "Medium Fast",
         "egg_groups": [
             "Bug"
@@ -2377,8 +2377,8 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 6,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 75,
+        "safari_zone_flee_probability": 75,
         "level_up_type": "Medium Fast",
         "egg_groups": [
             "Bug"
@@ -2424,7 +2424,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -2471,7 +2471,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 50,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -2517,7 +2517,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -2563,7 +2563,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -2610,8 +2610,8 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
-        "safari_zone_flee_probability": 6,
+        "catch_rate": 190,
+        "safari_zone_flee_probability": 50,
         "level_up_type": "Medium Fast",
         "egg_groups": [
             "Field",
@@ -2658,7 +2658,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 8,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -2705,7 +2705,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 1,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -2751,7 +2751,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 1,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -2803,7 +2803,7 @@
         "gender_ratio": 63,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -2855,7 +2855,7 @@
         "gender_ratio": 63,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -2902,8 +2902,8 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 255,
+        "safari_zone_flee_probability": 50,
         "level_up_type": "Medium Slow",
         "egg_groups": [
             "Water 1"
@@ -2949,7 +2949,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -2978,8 +2978,8 @@
         "national_dex_number": 62,
         "hoenn_dex_number": 249,
         "types": [
-            "Water",
-            "Fighting"
+            "Fighting",
+            "Water"
         ],
         "abilities": [
             "Water Absorb",
@@ -2997,7 +2997,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -3044,7 +3044,7 @@
         "gender_ratio": 63,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 200,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -3091,7 +3091,7 @@
         "gender_ratio": 63,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 100,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -3138,7 +3138,7 @@
         "gender_ratio": 63,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 50,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -3184,7 +3184,7 @@
         "gender_ratio": 63,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 1,
+        "catch_rate": 180,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -3230,7 +3230,7 @@
         "gender_ratio": 63,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 1,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -3276,7 +3276,7 @@
         "gender_ratio": 63,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 1,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -3323,7 +3323,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -3370,7 +3370,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -3417,7 +3417,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -3446,8 +3446,8 @@
         "national_dex_number": 72,
         "hoenn_dex_number": 66,
         "types": [
-            "Water",
-            "Poison"
+            "Poison",
+            "Water"
         ],
         "abilities": [
             "Clear Body",
@@ -3465,7 +3465,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -3494,8 +3494,8 @@
         "national_dex_number": 73,
         "hoenn_dex_number": 67,
         "types": [
-            "Water",
-            "Poison"
+            "Poison",
+            "Water"
         ],
         "abilities": [
             "Clear Body",
@@ -3513,7 +3513,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -3561,7 +3561,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 4,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -3609,7 +3609,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -3657,7 +3657,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -3704,7 +3704,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -3751,7 +3751,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -3780,8 +3780,8 @@
         "national_dex_number": 79,
         "hoenn_dex_number": 255,
         "types": [
-            "Water",
-            "Psychic"
+            "Psychic",
+            "Water"
         ],
         "abilities": [
             "Oblivious",
@@ -3799,8 +3799,8 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 190,
+        "safari_zone_flee_probability": 50,
         "level_up_type": "Medium Fast",
         "egg_groups": [
             "Monster",
@@ -3829,8 +3829,8 @@
         "national_dex_number": 80,
         "hoenn_dex_number": 256,
         "types": [
-            "Water",
-            "Psychic"
+            "Psychic",
+            "Water"
         ],
         "abilities": [
             "Oblivious",
@@ -3848,7 +3848,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -3897,7 +3897,7 @@
         "gender_ratio": 255,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -3945,7 +3945,7 @@
         "gender_ratio": 255,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -3993,7 +3993,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -4042,8 +4042,8 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
-        "safari_zone_flee_probability": 8,
+        "catch_rate": 190,
+        "safari_zone_flee_probability": 50,
         "level_up_type": "Medium Fast",
         "egg_groups": [
             "Flying"
@@ -4090,7 +4090,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 10,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -4136,7 +4136,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -4166,8 +4166,8 @@
         "national_dex_number": 87,
         "hoenn_dex_number": 259,
         "types": [
-            "Water",
-            "Ice"
+            "Ice",
+            "Water"
         ],
         "abilities": [
             "Thick Fat"
@@ -4184,7 +4184,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -4232,7 +4232,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -4279,7 +4279,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -4334,7 +4334,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -4363,8 +4363,8 @@
         "national_dex_number": 91,
         "hoenn_dex_number": 261,
         "types": [
-            "Water",
-            "Ice"
+            "Ice",
+            "Water"
         ],
         "abilities": [
             "Shell Armor"
@@ -4390,7 +4390,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -4437,7 +4437,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 7,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -4484,7 +4484,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 7,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -4531,7 +4531,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 7,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -4579,7 +4579,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -4625,7 +4625,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -4671,7 +4671,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -4718,7 +4718,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 225,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -4765,7 +4765,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -4812,7 +4812,7 @@
         "gender_ratio": 255,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -4859,7 +4859,7 @@
         "gender_ratio": 255,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -4906,8 +4906,8 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 90,
+        "safari_zone_flee_probability": 75,
         "level_up_type": "Slow",
         "egg_groups": [
             "Grass"
@@ -4953,7 +4953,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -5000,7 +5000,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -5047,7 +5047,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -5093,7 +5093,7 @@
         "gender_ratio": 0,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 1,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -5139,7 +5139,7 @@
         "gender_ratio": 0,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 1,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -5186,7 +5186,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -5232,7 +5232,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -5278,7 +5278,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -5326,8 +5326,8 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
-        "safari_zone_flee_probability": 4,
+        "catch_rate": 120,
+        "safari_zone_flee_probability": 75,
         "level_up_type": "Slow",
         "egg_groups": [
             "Field",
@@ -5375,7 +5375,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -5423,8 +5423,8 @@
         "gender_ratio": 254,
         "egg_cycles": 40,
         "base_friendship": 140,
-        "catch_rate": 0,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 30,
+        "safari_zone_flee_probability": 125,
         "level_up_type": "Fast",
         "egg_groups": [
             "Fairy"
@@ -5469,7 +5469,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -5515,8 +5515,8 @@
         "gender_ratio": 254,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 45,
+        "safari_zone_flee_probability": 125,
         "level_up_type": "Medium Fast",
         "egg_groups": [
             "Monster"
@@ -5561,7 +5561,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 225,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -5608,7 +5608,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -5656,8 +5656,8 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
-        "safari_zone_flee_probability": 4,
+        "catch_rate": 225,
+        "safari_zone_flee_probability": 50,
         "level_up_type": "Medium Fast",
         "egg_groups": [
             "Water 2"
@@ -5703,8 +5703,8 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
-        "safari_zone_flee_probability": 6,
+        "catch_rate": 60,
+        "safari_zone_flee_probability": 75,
         "level_up_type": "Medium Fast",
         "egg_groups": [
             "Water 2"
@@ -5759,7 +5759,7 @@
         "gender_ratio": 255,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 225,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -5788,8 +5788,8 @@
         "national_dex_number": 121,
         "hoenn_dex_number": 144,
         "types": [
-            "Water",
-            "Psychic"
+            "Psychic",
+            "Water"
         ],
         "abilities": [
             "Illuminate",
@@ -5816,7 +5816,7 @@
         "gender_ratio": 255,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -5862,7 +5862,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -5909,8 +5909,8 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 6,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 45,
+        "safari_zone_flee_probability": 125,
         "level_up_type": "Medium Fast",
         "egg_groups": [
             "Bug"
@@ -5938,8 +5938,8 @@
         "national_dex_number": 124,
         "hoenn_dex_number": 282,
         "types": [
-            "Psychic",
-            "Ice"
+            "Ice",
+            "Psychic"
         ],
         "abilities": [
             "Oblivious"
@@ -5961,7 +5961,7 @@
         "gender_ratio": 254,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 15,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -6007,7 +6007,7 @@
         "gender_ratio": 63,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -6058,7 +6058,7 @@
         "gender_ratio": 63,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -6104,8 +6104,8 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 6,
-        "safari_zone_flee_probability": 8,
+        "catch_rate": 45,
+        "safari_zone_flee_probability": 125,
         "level_up_type": "Slow",
         "egg_groups": [
             "Bug"
@@ -6150,8 +6150,8 @@
         "gender_ratio": 0,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 45,
+        "safari_zone_flee_probability": 125,
         "level_up_type": "Slow",
         "egg_groups": [
             "Field"
@@ -6196,12 +6196,12 @@
         "gender_ratio": 127,
         "egg_cycles": 5,
         "base_friendship": 70,
-        "catch_rate": 11,
-        "safari_zone_flee_probability": 4,
+        "catch_rate": 255,
+        "safari_zone_flee_probability": 25,
         "level_up_type": "Slow",
         "egg_groups": [
-            "Water 2",
-            "Dragon"
+            "Dragon",
+            "Water 2"
         ],
         "base_experience_yield": 20,
         "ev_yield": {
@@ -6226,8 +6226,8 @@
         "national_dex_number": 130,
         "hoenn_dex_number": 53,
         "types": [
-            "Water",
-            "Flying"
+            "Flying",
+            "Water"
         ],
         "abilities": [
             "Intimidate"
@@ -6244,12 +6244,12 @@
         "gender_ratio": 127,
         "egg_cycles": 5,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
-            "Water 2",
-            "Dragon"
+            "Dragon",
+            "Water 2"
         ],
         "base_experience_yield": 214,
         "ev_yield": {
@@ -6274,8 +6274,8 @@
         "national_dex_number": 131,
         "hoenn_dex_number": 286,
         "types": [
-            "Water",
-            "Ice"
+            "Ice",
+            "Water"
         ],
         "abilities": [
             "Water Absorb",
@@ -6293,7 +6293,7 @@
         "gender_ratio": 127,
         "egg_cycles": 40,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -6340,7 +6340,7 @@
         "gender_ratio": 255,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 35,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -6386,7 +6386,7 @@
         "gender_ratio": 31,
         "egg_cycles": 35,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -6432,7 +6432,7 @@
         "gender_ratio": 31,
         "egg_cycles": 35,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -6478,7 +6478,7 @@
         "gender_ratio": 31,
         "egg_cycles": 35,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -6524,7 +6524,7 @@
         "gender_ratio": 31,
         "egg_cycles": 35,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -6570,7 +6570,7 @@
         "gender_ratio": 255,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -6599,8 +6599,8 @@
         "national_dex_number": 138,
         "hoenn_dex_number": 293,
         "types": [
-            "Water",
-            "Rock"
+            "Rock",
+            "Water"
         ],
         "abilities": [
             "Swift Swim",
@@ -6618,12 +6618,12 @@
         "gender_ratio": 31,
         "egg_cycles": 30,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 3",
-            "Water 1"
+            "Water 1",
+            "Water 3"
         ],
         "base_experience_yield": 120,
         "ev_yield": {
@@ -6648,8 +6648,8 @@
         "national_dex_number": 139,
         "hoenn_dex_number": 294,
         "types": [
-            "Water",
-            "Rock"
+            "Rock",
+            "Water"
         ],
         "abilities": [
             "Swift Swim",
@@ -6667,12 +6667,12 @@
         "gender_ratio": 31,
         "egg_cycles": 30,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 3",
-            "Water 1"
+            "Water 1",
+            "Water 3"
         ],
         "base_experience_yield": 199,
         "ev_yield": {
@@ -6697,8 +6697,8 @@
         "national_dex_number": 140,
         "hoenn_dex_number": 295,
         "types": [
-            "Water",
-            "Rock"
+            "Rock",
+            "Water"
         ],
         "abilities": [
             "Swift Swim",
@@ -6716,12 +6716,12 @@
         "gender_ratio": 31,
         "egg_cycles": 30,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 3",
-            "Water 1"
+            "Water 1",
+            "Water 3"
         ],
         "base_experience_yield": 119,
         "ev_yield": {
@@ -6746,8 +6746,8 @@
         "national_dex_number": 141,
         "hoenn_dex_number": 296,
         "types": [
-            "Water",
-            "Rock"
+            "Rock",
+            "Water"
         ],
         "abilities": [
             "Swift Swim",
@@ -6765,12 +6765,12 @@
         "gender_ratio": 31,
         "egg_cycles": 30,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 3",
-            "Water 1"
+            "Water 1",
+            "Water 3"
         ],
         "base_experience_yield": 201,
         "ev_yield": {
@@ -6814,7 +6814,7 @@
         "gender_ratio": 31,
         "egg_cycles": 35,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -6866,7 +6866,7 @@
         "gender_ratio": 31,
         "egg_cycles": 40,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 25,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -6913,7 +6913,7 @@
         "gender_ratio": 255,
         "egg_cycles": 80,
         "base_friendship": 35,
-        "catch_rate": 15,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -6960,7 +6960,7 @@
         "gender_ratio": 255,
         "egg_cycles": 80,
         "base_friendship": 35,
-        "catch_rate": 13,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -7007,7 +7007,7 @@
         "gender_ratio": 255,
         "egg_cycles": 80,
         "base_friendship": 35,
-        "catch_rate": 10,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -7053,8 +7053,8 @@
         "gender_ratio": 127,
         "egg_cycles": 40,
         "base_friendship": 35,
-        "catch_rate": 16,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 45,
+        "safari_zone_flee_probability": 100,
         "level_up_type": "Slow",
         "egg_groups": [
             "Dragon",
@@ -7100,8 +7100,8 @@
         "gender_ratio": 127,
         "egg_cycles": 40,
         "base_friendship": 35,
-        "catch_rate": 16,
-        "safari_zone_flee_probability": 0,
+        "catch_rate": 45,
+        "safari_zone_flee_probability": 125,
         "level_up_type": "Slow",
         "egg_groups": [
             "Dragon",
@@ -7130,8 +7130,8 @@
         "national_dex_number": 149,
         "hoenn_dex_number": 304,
         "types": [
-            "Flying",
-            "Dragon"
+            "Dragon",
+            "Flying"
         ],
         "abilities": [
             "Inner Focus"
@@ -7148,7 +7148,7 @@
         "gender_ratio": 127,
         "egg_cycles": 40,
         "base_friendship": 35,
-        "catch_rate": 16,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -7195,7 +7195,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 14,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -7246,7 +7246,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 100,
-        "catch_rate": 14,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -7292,7 +7292,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -7339,7 +7339,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -7386,7 +7386,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -7433,7 +7433,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -7479,7 +7479,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -7525,7 +7525,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -7571,7 +7571,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -7618,7 +7618,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -7665,7 +7665,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -7713,7 +7713,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -7769,7 +7769,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -7817,7 +7817,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -7865,7 +7865,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -7913,7 +7913,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -7961,7 +7961,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -8009,7 +8009,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -8057,7 +8057,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -8104,7 +8104,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 3,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -8152,7 +8152,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -8200,7 +8200,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -8246,7 +8246,7 @@
         "gender_ratio": 127,
         "egg_cycles": 10,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -8301,7 +8301,7 @@
         "gender_ratio": 191,
         "egg_cycles": 10,
         "base_friendship": 140,
-        "catch_rate": 0,
+        "catch_rate": 150,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -8347,7 +8347,7 @@
         "gender_ratio": 191,
         "egg_cycles": 10,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 170,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -8394,7 +8394,7 @@
         "gender_ratio": 31,
         "egg_cycles": 10,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -8442,12 +8442,12 @@
         "gender_ratio": 31,
         "egg_cycles": 10,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Flying",
-            "Fairy"
+            "Fairy",
+            "Flying"
         ],
         "base_experience_yield": 114,
         "ev_yield": {
@@ -8491,7 +8491,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 6,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -8539,7 +8539,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 8,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -8585,7 +8585,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 235,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -8632,7 +8632,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -8679,7 +8679,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -8726,7 +8726,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -8773,7 +8773,7 @@
         "gender_ratio": 127,
         "egg_cycles": 10,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -8821,7 +8821,7 @@
         "gender_ratio": 127,
         "egg_cycles": 10,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -8869,7 +8869,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 65,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -8916,7 +8916,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -8945,8 +8945,8 @@
         "national_dex_number": 187,
         "hoenn_dex_number": 332,
         "types": [
-            "Grass",
-            "Flying"
+            "Flying",
+            "Grass"
         ],
         "abilities": [
             "Chlorophyll"
@@ -8963,12 +8963,12 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Grass",
-            "Fairy"
+            "Fairy",
+            "Grass"
         ],
         "base_experience_yield": 74,
         "ev_yield": {
@@ -8993,8 +8993,8 @@
         "national_dex_number": 188,
         "hoenn_dex_number": 333,
         "types": [
-            "Grass",
-            "Flying"
+            "Flying",
+            "Grass"
         ],
         "abilities": [
             "Chlorophyll"
@@ -9011,12 +9011,12 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Grass",
-            "Fairy"
+            "Fairy",
+            "Grass"
         ],
         "base_experience_yield": 136,
         "ev_yield": {
@@ -9041,8 +9041,8 @@
         "national_dex_number": 189,
         "hoenn_dex_number": 334,
         "types": [
-            "Grass",
-            "Flying"
+            "Flying",
+            "Grass"
         ],
         "abilities": [
             "Chlorophyll"
@@ -9059,12 +9059,12 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Grass",
-            "Fairy"
+            "Fairy",
+            "Grass"
         ],
         "base_experience_yield": 176,
         "ev_yield": {
@@ -9107,7 +9107,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -9153,7 +9153,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 235,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -9199,7 +9199,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -9247,7 +9247,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -9295,7 +9295,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -9344,7 +9344,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -9391,7 +9391,7 @@
         "gender_ratio": 31,
         "egg_cycles": 35,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -9437,7 +9437,7 @@
         "gender_ratio": 31,
         "egg_cycles": 35,
         "base_friendship": 35,
-        "catch_rate": 17,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -9484,7 +9484,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 35,
-        "catch_rate": 17,
+        "catch_rate": 30,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -9513,8 +9513,8 @@
         "national_dex_number": 199,
         "hoenn_dex_number": 344,
         "types": [
-            "Water",
-            "Psychic"
+            "Psychic",
+            "Water"
         ],
         "abilities": [
             "Oblivious",
@@ -9532,7 +9532,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 70,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -9579,7 +9579,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 35,
-        "catch_rate": 7,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -9625,7 +9625,7 @@
         "gender_ratio": 255,
         "egg_cycles": 40,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 225,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -9671,7 +9671,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 4,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -9700,8 +9700,8 @@
         "national_dex_number": 203,
         "hoenn_dex_number": 164,
         "types": [
-            "Psychic",
-            "Normal"
+            "Normal",
+            "Psychic"
         ],
         "abilities": [
             "Inner Focus",
@@ -9719,7 +9719,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 4,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -9765,7 +9765,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -9812,7 +9812,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -9859,7 +9859,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -9888,8 +9888,8 @@
         "national_dex_number": 207,
         "hoenn_dex_number": 350,
         "types": [
-            "Ground",
-            "Flying"
+            "Flying",
+            "Ground"
         ],
         "abilities": [
             "Hyper Cutter",
@@ -9907,7 +9907,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -9955,7 +9955,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 8,
+        "catch_rate": 25,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -10002,12 +10002,12 @@
         "gender_ratio": 191,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Field",
-            "Fairy"
+            "Fairy",
+            "Field"
         ],
         "base_experience_yield": 63,
         "ev_yield": {
@@ -10050,12 +10050,12 @@
         "gender_ratio": 191,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Field",
-            "Fairy"
+            "Fairy",
+            "Field"
         ],
         "base_experience_yield": 178,
         "ev_yield": {
@@ -10080,8 +10080,8 @@
         "national_dex_number": 211,
         "hoenn_dex_number": 354,
         "types": [
-            "Water",
-            "Poison"
+            "Poison",
+            "Water"
         ],
         "abilities": [
             "Poison Point",
@@ -10099,7 +10099,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -10146,7 +10146,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 25,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -10198,7 +10198,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -10246,7 +10246,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 8,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -10294,7 +10294,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 35,
-        "catch_rate": 17,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -10340,7 +10340,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -10386,7 +10386,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -10433,7 +10433,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -10481,7 +10481,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -10528,7 +10528,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 15,
+        "catch_rate": 225,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -10575,7 +10575,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 15,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -10604,8 +10604,8 @@
         "national_dex_number": 222,
         "hoenn_dex_number": 180,
         "types": [
-            "Water",
-            "Rock"
+            "Rock",
+            "Water"
         ],
         "abilities": [
             "Hustle",
@@ -10623,12 +10623,12 @@
         "gender_ratio": 191,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Water 3",
-            "Water 1"
+            "Water 1",
+            "Water 3"
         ],
         "base_experience_yield": 113,
         "ev_yield": {
@@ -10670,12 +10670,12 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 2",
-            "Water 1"
+            "Water 1",
+            "Water 2"
         ],
         "base_experience_yield": 78,
         "ev_yield": {
@@ -10717,12 +10717,12 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Water 2",
-            "Water 1"
+            "Water 1",
+            "Water 2"
         ],
         "base_experience_yield": 164,
         "ev_yield": {
@@ -10766,7 +10766,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 15,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -10796,8 +10796,8 @@
         "national_dex_number": 226,
         "hoenn_dex_number": 365,
         "types": [
-            "Water",
-            "Flying"
+            "Flying",
+            "Water"
         ],
         "abilities": [
             "Swift Swim",
@@ -10815,7 +10815,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 25,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -10844,8 +10844,8 @@
         "national_dex_number": 227,
         "hoenn_dex_number": 115,
         "types": [
-            "Steel",
-            "Flying"
+            "Flying",
+            "Steel"
         ],
         "abilities": [
             "Keen Eye",
@@ -10863,7 +10863,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 8,
+        "catch_rate": 25,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -10911,7 +10911,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 35,
-        "catch_rate": 17,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -10959,7 +10959,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 35,
-        "catch_rate": 17,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -10988,8 +10988,8 @@
         "national_dex_number": 230,
         "hoenn_dex_number": 186,
         "types": [
-            "Water",
-            "Dragon"
+            "Dragon",
+            "Water"
         ],
         "abilities": [
             "Swift Swim"
@@ -11006,7 +11006,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -11053,7 +11053,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 10,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -11099,7 +11099,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -11145,7 +11145,7 @@
         "gender_ratio": 255,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -11191,7 +11191,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -11237,7 +11237,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -11283,7 +11283,7 @@
         "gender_ratio": 0,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 1,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -11329,7 +11329,7 @@
         "gender_ratio": 0,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 1,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -11358,8 +11358,8 @@
         "national_dex_number": 238,
         "hoenn_dex_number": 373,
         "types": [
-            "Psychic",
-            "Ice"
+            "Ice",
+            "Psychic"
         ],
         "abilities": [
             "Oblivious"
@@ -11381,7 +11381,7 @@
         "gender_ratio": 254,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 15,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -11427,7 +11427,7 @@
         "gender_ratio": 63,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -11478,7 +11478,7 @@
         "gender_ratio": 63,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -11529,7 +11529,7 @@
         "gender_ratio": 254,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -11576,7 +11576,7 @@
         "gender_ratio": 254,
         "egg_cycles": 40,
         "base_friendship": 140,
-        "catch_rate": 0,
+        "catch_rate": 30,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -11622,7 +11622,7 @@
         "gender_ratio": 255,
         "egg_cycles": 80,
         "base_friendship": 35,
-        "catch_rate": 13,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -11668,7 +11668,7 @@
         "gender_ratio": 255,
         "egg_cycles": 80,
         "base_friendship": 35,
-        "catch_rate": 10,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -11714,7 +11714,7 @@
         "gender_ratio": 255,
         "egg_cycles": 80,
         "base_friendship": 35,
-        "catch_rate": 11,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -11761,7 +11761,7 @@
         "gender_ratio": 127,
         "egg_cycles": 40,
         "base_friendship": 35,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -11808,7 +11808,7 @@
         "gender_ratio": 127,
         "egg_cycles": 40,
         "base_friendship": 35,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -11855,7 +11855,7 @@
         "gender_ratio": 127,
         "egg_cycles": 40,
         "base_friendship": 35,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -11902,7 +11902,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 14,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -11954,7 +11954,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 10,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -12006,7 +12006,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 100,
-        "catch_rate": 14,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -12052,7 +12052,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12098,7 +12098,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12144,7 +12144,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12190,7 +12190,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12236,7 +12236,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12282,7 +12282,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12328,7 +12328,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12374,7 +12374,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12420,7 +12420,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12466,7 +12466,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12512,7 +12512,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12558,7 +12558,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12604,7 +12604,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12650,7 +12650,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12696,7 +12696,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12742,7 +12742,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12788,7 +12788,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12834,7 +12834,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12880,7 +12880,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12926,7 +12926,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -12972,7 +12972,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -13018,7 +13018,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -13064,7 +13064,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -13110,7 +13110,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -13156,7 +13156,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 0,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -13202,12 +13202,12 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Dragon"
+            "Dragon",
+            "Monster"
         ],
         "base_experience_yield": 65,
         "ev_yield": {
@@ -13249,12 +13249,12 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Dragon"
+            "Dragon",
+            "Monster"
         ],
         "base_experience_yield": 141,
         "ev_yield": {
@@ -13296,12 +13296,12 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Monster",
-            "Dragon"
+            "Dragon",
+            "Monster"
         ],
         "base_experience_yield": 208,
         "ev_yield": {
@@ -13343,7 +13343,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -13372,8 +13372,8 @@
         "national_dex_number": 256,
         "hoenn_dex_number": 5,
         "types": [
-            "Fire",
-            "Fighting"
+            "Fighting",
+            "Fire"
         ],
         "abilities": [
             "Blaze"
@@ -13390,7 +13390,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -13419,8 +13419,8 @@
         "national_dex_number": 257,
         "hoenn_dex_number": 6,
         "types": [
-            "Fire",
-            "Fighting"
+            "Fighting",
+            "Fire"
         ],
         "abilities": [
             "Blaze"
@@ -13437,7 +13437,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -13483,7 +13483,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -13531,7 +13531,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -13579,7 +13579,7 @@
         "gender_ratio": 31,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -13626,7 +13626,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 17,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -13672,7 +13672,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 17,
+        "catch_rate": 127,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -13718,7 +13718,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -13773,7 +13773,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -13819,7 +13819,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -13865,7 +13865,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -13912,7 +13912,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -13958,7 +13958,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -14005,7 +14005,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -14053,7 +14053,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -14102,7 +14102,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -14151,7 +14151,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -14199,7 +14199,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -14248,7 +14248,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -14297,7 +14297,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -14327,8 +14327,8 @@
         "national_dex_number": 290,
         "hoenn_dex_number": 42,
         "types": [
-            "Ground",
-            "Bug"
+            "Bug",
+            "Ground"
         ],
         "abilities": [
             "Compoundeyes"
@@ -14345,7 +14345,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
@@ -14392,7 +14392,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
@@ -14439,7 +14439,7 @@
         "gender_ratio": 255,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
@@ -14486,7 +14486,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 200,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -14533,7 +14533,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -14579,12 +14579,12 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
-            "Grass",
-            "Fairy"
+            "Fairy",
+            "Grass"
         ],
         "base_experience_yield": 65,
         "ev_yield": {
@@ -14609,8 +14609,8 @@
         "national_dex_number": 286,
         "hoenn_dex_number": 35,
         "types": [
-            "Grass",
-            "Fighting"
+            "Fighting",
+            "Grass"
         ],
         "abilities": [
             "Effect Spore"
@@ -14627,12 +14627,12 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
-            "Grass",
-            "Fairy"
+            "Fairy",
+            "Grass"
         ],
         "base_experience_yield": 165,
         "ev_yield": {
@@ -14674,7 +14674,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -14704,8 +14704,8 @@
         "national_dex_number": 278,
         "hoenn_dex_number": 27,
         "types": [
-            "Water",
-            "Flying"
+            "Flying",
+            "Water"
         ],
         "abilities": [
             "Keen Eye"
@@ -14722,7 +14722,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -14752,8 +14752,8 @@
         "national_dex_number": 279,
         "hoenn_dex_number": 28,
         "types": [
-            "Water",
-            "Flying"
+            "Flying",
+            "Water"
         ],
         "abilities": [
             "Keen Eye"
@@ -14770,7 +14770,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -14818,7 +14818,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 200,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -14866,7 +14866,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -14914,7 +14914,7 @@
         "gender_ratio": 127,
         "egg_cycles": 40,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 125,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
@@ -14962,7 +14962,7 @@
         "gender_ratio": 127,
         "egg_cycles": 40,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
@@ -15009,12 +15009,12 @@
         "gender_ratio": 191,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Field",
-            "Fairy"
+            "Fairy",
+            "Field"
         ],
         "base_experience_yield": 65,
         "ev_yield": {
@@ -15056,12 +15056,12 @@
         "gender_ratio": 191,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Field",
-            "Fairy"
+            "Fairy",
+            "Field"
         ],
         "base_experience_yield": 138,
         "ev_yield": {
@@ -15103,7 +15103,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 200,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -15150,7 +15150,7 @@
         "gender_ratio": 255,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -15197,7 +15197,7 @@
         "gender_ratio": 255,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -15244,7 +15244,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -15290,7 +15290,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -15337,7 +15337,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 35,
-        "catch_rate": 17,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -15384,7 +15384,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -15431,7 +15431,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -15482,7 +15482,7 @@
         "gender_ratio": 191,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 225,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -15529,12 +15529,12 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 205,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
-            "Water 3",
-            "Water 1"
+            "Water 1",
+            "Water 3"
         ],
         "base_experience_yield": 111,
         "ev_yield": {
@@ -15578,12 +15578,12 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 155,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
-            "Water 3",
-            "Water 1"
+            "Water 1",
+            "Water 3"
         ],
         "base_experience_yield": 161,
         "ev_yield": {
@@ -15625,7 +15625,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
@@ -15672,7 +15672,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
@@ -15720,7 +15720,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 35,
-        "catch_rate": 11,
+        "catch_rate": 225,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -15767,7 +15767,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 35,
-        "catch_rate": 11,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -15814,7 +15814,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -15843,8 +15843,8 @@
         "national_dex_number": 329,
         "hoenn_dex_number": 117,
         "types": [
-            "Ground",
-            "Dragon"
+            "Dragon",
+            "Ground"
         ],
         "abilities": [
             "Levitate",
@@ -15862,7 +15862,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -15891,8 +15891,8 @@
         "national_dex_number": 330,
         "hoenn_dex_number": 118,
         "types": [
-            "Ground",
-            "Dragon"
+            "Dragon",
+            "Ground"
         ],
         "abilities": [
             "Levitate",
@@ -15910,7 +15910,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 4,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -15957,7 +15957,7 @@
         "gender_ratio": 63,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 1,
+        "catch_rate": 180,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
@@ -16004,7 +16004,7 @@
         "gender_ratio": 63,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 1,
+        "catch_rate": 200,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
@@ -16051,7 +16051,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -16098,7 +16098,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -16127,8 +16127,8 @@
         "national_dex_number": 322,
         "hoenn_dex_number": 101,
         "types": [
-            "Ground",
-            "Fire"
+            "Fire",
+            "Ground"
         ],
         "abilities": [
             "Oblivious"
@@ -16150,7 +16150,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -16179,8 +16179,8 @@
         "national_dex_number": 323,
         "hoenn_dex_number": 102,
         "types": [
-            "Ground",
-            "Fire"
+            "Fire",
+            "Ground"
         ],
         "abilities": [
             "Magma Armor"
@@ -16202,7 +16202,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 10,
+        "catch_rate": 150,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -16231,8 +16231,8 @@
         "national_dex_number": 363,
         "hoenn_dex_number": 173,
         "types": [
-            "Water",
-            "Ice"
+            "Ice",
+            "Water"
         ],
         "abilities": [
             "Thick Fat"
@@ -16249,7 +16249,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 15,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -16279,8 +16279,8 @@
         "national_dex_number": 364,
         "hoenn_dex_number": 174,
         "types": [
-            "Water",
-            "Ice"
+            "Ice",
+            "Water"
         ],
         "abilities": [
             "Thick Fat"
@@ -16297,7 +16297,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 15,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -16327,8 +16327,8 @@
         "national_dex_number": 365,
         "hoenn_dex_number": 175,
         "types": [
-            "Water",
-            "Ice"
+            "Ice",
+            "Water"
         ],
         "abilities": [
             "Thick Fat"
@@ -16345,7 +16345,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 15,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -16392,7 +16392,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 35,
-        "catch_rate": 12,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -16440,7 +16440,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 35,
-        "catch_rate": 12,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -16487,12 +16487,12 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 15,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Mineral",
-            "Fairy"
+            "Fairy",
+            "Mineral"
         ],
         "base_experience_yield": 74,
         "ev_yield": {
@@ -16534,12 +16534,12 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 15,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
-            "Mineral",
-            "Fairy"
+            "Fairy",
+            "Mineral"
         ],
         "base_experience_yield": 187,
         "ev_yield": {
@@ -16564,8 +16564,8 @@
         "national_dex_number": 337,
         "hoenn_dex_number": 125,
         "types": [
-            "Rock",
-            "Psychic"
+            "Psychic",
+            "Rock"
         ],
         "abilities": [
             "Levitate"
@@ -16582,7 +16582,7 @@
         "gender_ratio": 255,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -16611,8 +16611,8 @@
         "national_dex_number": 338,
         "hoenn_dex_number": 126,
         "types": [
-            "Rock",
-            "Psychic"
+            "Psychic",
+            "Rock"
         ],
         "abilities": [
             "Levitate"
@@ -16629,7 +16629,7 @@
         "gender_ratio": 255,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -16676,7 +16676,7 @@
         "gender_ratio": 191,
         "egg_cycles": 10,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 150,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -16723,7 +16723,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -16770,7 +16770,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -16816,7 +16816,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 200,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -16862,7 +16862,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 13,
+        "catch_rate": 200,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -16909,12 +16909,12 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 8,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
-            "Field",
-            "Fairy"
+            "Fairy",
+            "Field"
         ],
         "base_experience_yield": 98,
         "ev_yield": {
@@ -16957,7 +16957,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 1,
+        "catch_rate": 180,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -17004,7 +17004,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 1,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -17051,12 +17051,12 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
-            "Flying",
-            "Dragon"
+            "Dragon",
+            "Flying"
         ],
         "base_experience_yield": 74,
         "ev_yield": {
@@ -17081,8 +17081,8 @@
         "national_dex_number": 334,
         "hoenn_dex_number": 122,
         "types": [
-            "Flying",
-            "Dragon"
+            "Dragon",
+            "Flying"
         ],
         "abilities": [
             "Natural Cure"
@@ -17099,12 +17099,12 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 16,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
-            "Flying",
-            "Dragon"
+            "Dragon",
+            "Flying"
         ],
         "base_experience_yield": 188,
         "ev_yield": {
@@ -17146,7 +17146,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 125,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -17192,7 +17192,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 35,
-        "catch_rate": 7,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -17238,7 +17238,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 35,
-        "catch_rate": 7,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -17286,12 +17286,12 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 150,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
-            "Grass",
-            "Fairy"
+            "Fairy",
+            "Grass"
         ],
         "base_experience_yield": 152,
         "ev_yield": {
@@ -17333,7 +17333,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -17379,7 +17379,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -17425,7 +17425,7 @@
         "gender_ratio": 127,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -17472,7 +17472,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
+        "catch_rate": 225,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
@@ -17519,7 +17519,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
+        "catch_rate": 75,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
@@ -17548,8 +17548,8 @@
         "national_dex_number": 357,
         "hoenn_dex_number": 150,
         "types": [
-            "Grass",
-            "Flying"
+            "Flying",
+            "Grass"
         ],
         "abilities": [
             "Chlorophyll"
@@ -17566,7 +17566,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 12,
+        "catch_rate": 200,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -17613,7 +17613,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 190,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -17660,7 +17660,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -17707,7 +17707,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -17754,7 +17754,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 255,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
@@ -17800,7 +17800,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
@@ -17846,7 +17846,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 60,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
@@ -17892,7 +17892,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 35,
-        "catch_rate": 17,
+        "catch_rate": 30,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Slow",
         "egg_groups": [
@@ -17938,7 +17938,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 35,
-        "catch_rate": 7,
+        "catch_rate": 225,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -17984,7 +17984,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 35,
-        "catch_rate": 7,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
@@ -18030,12 +18030,12 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 3,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
-            "Field",
-            "Dragon"
+            "Dragon",
+            "Field"
         ],
         "base_experience_yield": 165,
         "ev_yield": {
@@ -18077,7 +18077,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
@@ -18106,8 +18106,8 @@
         "national_dex_number": 369,
         "hoenn_dex_number": 179,
         "types": [
-            "Water",
-            "Rock"
+            "Rock",
+            "Water"
         ],
         "abilities": [
             "Swift Swim",
@@ -18125,12 +18125,12 @@
         "gender_ratio": 31,
         "egg_cycles": 40,
         "base_friendship": 70,
-        "catch_rate": 11,
+        "catch_rate": 25,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
-            "Water 2",
-            "Water 1"
+            "Water 1",
+            "Water 2"
         ],
         "base_experience_yield": 198,
         "ev_yield": {
@@ -18155,8 +18155,8 @@
         "national_dex_number": 304,
         "hoenn_dex_number": 70,
         "types": [
-            "Steel",
-            "Rock"
+            "Rock",
+            "Steel"
         ],
         "abilities": [
             "Sturdy",
@@ -18174,7 +18174,7 @@
         "gender_ratio": 127,
         "egg_cycles": 35,
         "base_friendship": 35,
-        "catch_rate": 8,
+        "catch_rate": 180,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -18203,8 +18203,8 @@
         "national_dex_number": 305,
         "hoenn_dex_number": 71,
         "types": [
-            "Steel",
-            "Rock"
+            "Rock",
+            "Steel"
         ],
         "abilities": [
             "Sturdy",
@@ -18222,7 +18222,7 @@
         "gender_ratio": 127,
         "egg_cycles": 35,
         "base_friendship": 35,
-        "catch_rate": 8,
+        "catch_rate": 90,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -18251,8 +18251,8 @@
         "national_dex_number": 306,
         "hoenn_dex_number": 72,
         "types": [
-            "Steel",
-            "Rock"
+            "Rock",
+            "Steel"
         ],
         "abilities": [
             "Sturdy",
@@ -18270,7 +18270,7 @@
         "gender_ratio": 127,
         "egg_cycles": 35,
         "base_friendship": 35,
-        "catch_rate": 8,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -18321,7 +18321,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 0,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Medium Fast",
         "egg_groups": [
@@ -18369,7 +18369,7 @@
         "gender_ratio": 0,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 150,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
@@ -18416,7 +18416,7 @@
         "gender_ratio": 254,
         "egg_cycles": 15,
         "base_friendship": 70,
-        "catch_rate": 6,
+        "catch_rate": 150,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fluctuating",
         "egg_groups": [
@@ -18464,7 +18464,7 @@
         "gender_ratio": 31,
         "egg_cycles": 30,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
@@ -18511,7 +18511,7 @@
         "gender_ratio": 31,
         "egg_cycles": 30,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
@@ -18558,7 +18558,7 @@
         "gender_ratio": 31,
         "egg_cycles": 30,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
@@ -18605,7 +18605,7 @@
         "gender_ratio": 31,
         "egg_cycles": 30,
         "base_friendship": 70,
-        "catch_rate": 5,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Erratic",
         "egg_groups": [
@@ -18652,7 +18652,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 35,
-        "catch_rate": 14,
+        "catch_rate": 235,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -18699,7 +18699,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 35,
-        "catch_rate": 14,
+        "catch_rate": 120,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -18746,7 +18746,7 @@
         "gender_ratio": 127,
         "egg_cycles": 20,
         "base_friendship": 35,
-        "catch_rate": 14,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -18792,7 +18792,7 @@
         "gender_ratio": 127,
         "egg_cycles": 40,
         "base_friendship": 35,
-        "catch_rate": 16,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -18838,7 +18838,7 @@
         "gender_ratio": 127,
         "egg_cycles": 40,
         "base_friendship": 35,
-        "catch_rate": 16,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -18867,8 +18867,8 @@
         "national_dex_number": 373,
         "hoenn_dex_number": 189,
         "types": [
-            "Flying",
-            "Dragon"
+            "Dragon",
+            "Flying"
         ],
         "abilities": [
             "Intimidate"
@@ -18885,7 +18885,7 @@
         "gender_ratio": 127,
         "egg_cycles": 40,
         "base_friendship": 35,
-        "catch_rate": 16,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -18914,8 +18914,8 @@
         "national_dex_number": 374,
         "hoenn_dex_number": 190,
         "types": [
-            "Steel",
-            "Psychic"
+            "Psychic",
+            "Steel"
         ],
         "abilities": [
             "Clear Body"
@@ -18932,7 +18932,7 @@
         "gender_ratio": 255,
         "egg_cycles": 40,
         "base_friendship": 35,
-        "catch_rate": 8,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -18961,8 +18961,8 @@
         "national_dex_number": 375,
         "hoenn_dex_number": 191,
         "types": [
-            "Steel",
-            "Psychic"
+            "Psychic",
+            "Steel"
         ],
         "abilities": [
             "Clear Body"
@@ -18979,7 +18979,7 @@
         "gender_ratio": 255,
         "egg_cycles": 40,
         "base_friendship": 35,
-        "catch_rate": 8,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -19008,8 +19008,8 @@
         "national_dex_number": 376,
         "hoenn_dex_number": 192,
         "types": [
-            "Steel",
-            "Psychic"
+            "Psychic",
+            "Steel"
         ],
         "abilities": [
             "Clear Body"
@@ -19026,7 +19026,7 @@
         "gender_ratio": 255,
         "egg_cycles": 40,
         "base_friendship": 35,
-        "catch_rate": 8,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -19072,7 +19072,7 @@
         "gender_ratio": 255,
         "egg_cycles": 80,
         "base_friendship": 35,
-        "catch_rate": 5,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -19118,7 +19118,7 @@
         "gender_ratio": 255,
         "egg_cycles": 80,
         "base_friendship": 35,
-        "catch_rate": 15,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -19164,7 +19164,7 @@
         "gender_ratio": 255,
         "egg_cycles": 80,
         "base_friendship": 35,
-        "catch_rate": 8,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -19210,7 +19210,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 11,
+        "catch_rate": 5,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -19256,7 +19256,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 4,
+        "catch_rate": 5,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -19285,8 +19285,8 @@
         "national_dex_number": 384,
         "hoenn_dex_number": 200,
         "types": [
-            "Flying",
-            "Dragon"
+            "Dragon",
+            "Flying"
         ],
         "abilities": [
             "Air Lock"
@@ -19303,7 +19303,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 16,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -19332,8 +19332,8 @@
         "national_dex_number": 380,
         "hoenn_dex_number": 196,
         "types": [
-            "Psychic",
-            "Dragon"
+            "Dragon",
+            "Psychic"
         ],
         "abilities": [
             "Levitate"
@@ -19350,7 +19350,7 @@
         "gender_ratio": 254,
         "egg_cycles": 120,
         "base_friendship": 90,
-        "catch_rate": 16,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -19379,8 +19379,8 @@
         "national_dex_number": 381,
         "hoenn_dex_number": 197,
         "types": [
-            "Psychic",
-            "Dragon"
+            "Dragon",
+            "Psychic"
         ],
         "abilities": [
             "Levitate"
@@ -19397,7 +19397,7 @@
         "gender_ratio": 0,
         "egg_cycles": 120,
         "base_friendship": 90,
-        "catch_rate": 16,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -19426,8 +19426,8 @@
         "national_dex_number": 385,
         "hoenn_dex_number": 201,
         "types": [
-            "Steel",
-            "Psychic"
+            "Psychic",
+            "Steel"
         ],
         "abilities": [
             "Serene Grace"
@@ -19449,7 +19449,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 100,
-        "catch_rate": 8,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -19495,7 +19495,7 @@
         "gender_ratio": 255,
         "egg_cycles": 120,
         "base_friendship": 0,
-        "catch_rate": 14,
+        "catch_rate": 3,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Slow",
         "egg_groups": [
@@ -19541,7 +19541,7 @@
         "gender_ratio": 127,
         "egg_cycles": 25,
         "base_friendship": 70,
-        "catch_rate": 14,
+        "catch_rate": 45,
         "safari_zone_flee_probability": 0,
         "level_up_type": "Fast",
         "egg_groups": [
