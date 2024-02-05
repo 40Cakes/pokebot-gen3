@@ -1,14 +1,15 @@
 from typing import Generator
 
 from modules.data.map import MapRSE, MapFRLG
-from modules.context import context
+
 from modules.console import console
-from modules.encounter import encounter_pokemon
+from modules.context import context
+from modules.encounter import handle_encounter
 from modules.memory import get_event_flag
-from modules.save_data import get_save_data
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
-from modules.pokemon import get_party
 from modules.player import get_player_avatar
+from modules.pokemon import get_party
+from modules.save_data import get_save_data
 from modules.tasks import get_global_script_context, task_is_active
 from ._asserts import (
     assert_registered_item,
@@ -153,14 +154,8 @@ class StaticGiftResetsMode(BotMode):
                                 yield from wait_for_task_to_start_and_finish("Task_WaitForFadeAndEnableScriptCtx", "B")
                         yield
 
-            # If the respective 'cheat' is enabled, check the Pokemon immediately
-            # instead of 'genuinely' looking at the summary screen
-            if context.config.cheats.fast_check_starters:
-                encounter_pokemon(get_party()[len(get_party()) - 1])
-                continue
-            else:
-                # Navigate to the summary screen to check for shininess
-                yield from StartMenuNavigator("POKEMON").step()
-                yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
+            # Navigate to the summary screen to check for shininess
+            yield from StartMenuNavigator("POKEMON").step()
+            yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
 
-                encounter_pokemon(get_party()[len(get_party()) - 1])
+            handle_encounter(get_party()[len(get_party()) - 1], disable_auto_catch=True)

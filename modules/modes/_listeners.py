@@ -4,7 +4,7 @@ from modules.data.map import MapRSE, MapFRLG
 
 from modules.battle import BattleOutcome, flee_battle, BattleHandler, check_lead_can_battle, RotatePokemon
 from modules.context import context
-from modules.encounter import encounter_pokemon
+from modules.encounter import handle_encounter
 from modules.map import get_map_objects
 from modules.memory import get_game_state, GameState, read_symbol, unpack_uint32, get_game_state_symbol
 from modules.menuing import MenuWrapper, CheckForPickup, should_check_for_pickup
@@ -27,30 +27,38 @@ class BattleListener(BotListener):
 
     def __init__(self):
         self._in_battle = False
+        self._reported_start_of_battle = False
         self._reported_end_of_battle = False
         self._current_action: BattleAction | None = None
 
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
         if not self._in_battle and (frame.game_state in self.battle_states or frame.task_is_active("Task_BattleStart")):
             self._in_battle = True
+            self._reported_start_of_battle = False
             self._reported_end_of_battle = False
-            action = bot_mode.on_battle_started()
-            if action is None:
-                opponent = get_opponent()
-                battle_type = get_battle_type_flags()
+            self._current_action = None
 
-                if BattleTypeFlag.TRAINER in battle_type:
-                    if context.config.battle.battle:
-                        action = BattleAction.Fight
-                    else:
-                        context.message = (
-                            "We ran into a trainer, but automatic battling is disabled. Switching to manual mode."
-                        )
-                        context.set_manual_mode()
-                else:
-                    action = encounter_pokemon(opponent)
-                    if context.bot_mode != "Manual" and (action is None or action == BattleAction.CustomAction):
-                        context.set_manual_mode()
+        elif self._in_battle and not self._reported_start_of_battle and get_game_state() == GameState.BATTLE:
+            self._reported_start_of_battle = True
+            action = bot_mode.on_battle_started()
+            battle_type = get_battle_type_flags()
+            opponent = get_opponent()
+
+            if BattleTypeFlag.DOUBLE in battle_type:
+                context.message = "A double battle has started, which is not yet supported by the bot."
+                context.set_manual_mode()
+                action = BattleAction.CustomAction
+            elif BattleTypeFlag.TRAINER in battle_type:
+                if (not context.config.battle.battle and action is None) or action == BattleAction.RunAway:
+                    context.message = (
+                        "We ran into a trainer, but automatic battling is disabled. Switching to manual mode."
+                    )
+                    context.set_manual_mode()
+                    action = BattleAction.CustomAction
+                if action is None:
+                    action = BattleAction.Fight
+            elif action is None:
+                action = handle_encounter(opponent)
 
             if action == BattleAction.Fight:
                 context.controller_stack.append(self.fight())
@@ -192,8 +200,8 @@ class EggHatchListener(BotListener):
                 party_index = egg_data[4]
                 break
         hatched_pokemon = get_party()[party_index]
-        encounter_pokemon(hatched_pokemon)
         bot_mode.on_egg_hatched(hatched_pokemon, party_index)
+        handle_encounter(hatched_pokemon)
         while "EventScript_EggHatch" in get_global_script_context().stack:
             context.emulator.press_button("B")
             yield
@@ -337,7 +345,11 @@ class SafariZoneListener(BotListener):
             )
 
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
-        if not self._times_up and get_player_avatar().map_group_and_number in self._safari_zone_maps:
+        if (
+            not self._times_up
+            and frame.game_state == GameState.OVERWORLD
+            and get_player_avatar().map_group_and_number in self._safari_zone_maps
+        ):
             if frame.script_is_active("SafariZone_EventScript_TimesUp") or frame.script_is_active("gUnknown_081C3448"):
                 context.controller_stack.append(self.handle_safari_zone_timeout(bot_mode, "steps"))
                 self._times_up = True

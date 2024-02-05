@@ -2,7 +2,7 @@ from typing import Generator
 
 from modules.data.map import MapFRLG
 from modules.context import context
-from modules.encounter import encounter_pokemon
+from modules.encounter import handle_encounter
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.runtime import get_sprites_path
@@ -142,10 +142,7 @@ class GameCornerMode(BotMode):
             yield from wait_for_task_to_start_and_finish("Task_YesNoMenu_HandleInput", "B")
 
             # log the encounter
-            if context.config.cheats.fast_check_starters:
-                encounter_pokemon(get_party()[len(get_party()) - 1])
-            else:
-                yield from StartMenuNavigator("POKEMON").step()
-                yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
+            yield from StartMenuNavigator("POKEMON").step()
+            yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
 
-                encounter_pokemon(get_party()[len(get_party()) - 1])
+            handle_encounter(get_party()[len(get_party()) - 1])

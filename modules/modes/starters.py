@@ -4,7 +4,7 @@ from typing import Generator
 from modules.data.map import MapFRLG, MapRSE
 
 from modules.context import context
-from modules.encounter import encounter_pokemon
+from modules.encounter import handle_encounter
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.menuing import StartMenuNavigator, PokemonPartyMenuNavigator
 from modules.player import get_player_avatar
@@ -85,12 +85,6 @@ class StartersMode(BotMode):
             # Wait for and say no to the second question (the 'Do you want to give ... a nickname')
             yield from wait_for_task_to_start_and_finish("Task_YesNoMenu_HandleInput", button_to_press="B")
 
-            # If the respective 'cheat' is enabled, check the Pokemon immediately instead of 'genuinely' looking
-            # at the summary screen
-            if context.config.cheats.fast_check_starters:
-                encounter_pokemon(get_party()[0])
-                continue
-
             # Wait for the rival to pick up their starter
             yield from wait_until_task_is_active("Task_Fanfare", button_to_press="B")
 
@@ -100,7 +94,7 @@ class StartersMode(BotMode):
             # Spam 'A' until we see the summary screen
             yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")
 
-            encounter_pokemon(get_party()[0])
+            handle_encounter(get_party()[0], disable_auto_catch=True)
 
     def run_rse_hoenn(self) -> Generator:
         # Set up: Ask for starter choice because we cannot deduce that from the player location.
@@ -158,7 +152,7 @@ class StartersMode(BotMode):
             # Wait for Pokemon cry of starter Pokemon (after which the sprite is fully visible)
             yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
 
-            encounter_pokemon(get_party()[0])
+            handle_encounter(get_party()[0])
 
     def run_rse_johto(self):
         while context.bot_mode != "Manual":
@@ -177,12 +171,6 @@ class StartersMode(BotMode):
             # Wait for and say no to the second question (the 'Do you want to give ... a nickname')
             yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", button_to_press="B")
 
-            # If the respective 'cheat' is enabled, check the Pokemon immediately instead of 'genuinely' looking
-            # at the summary screen
-            if context.config.cheats.fast_check_starters:
-                encounter_pokemon(get_party()[len(get_party()) - 1])
-                continue
-
             # Wait for the rival to pick up their starter
             yield from wait_until_task_is_not_active("ScriptMovement_MoveObjects", button_to_press="B")
 
@@ -190,4 +178,4 @@ class StartersMode(BotMode):
             yield from StartMenuNavigator("POKEMON").step()
             yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
 
-            encounter_pokemon(get_party()[len(get_party()) - 1])
+            handle_encounter(get_party()[len(get_party()) - 1])

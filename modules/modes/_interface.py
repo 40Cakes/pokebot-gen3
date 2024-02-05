@@ -70,8 +70,13 @@ class BotMode:
 
         When this method is called, the game state is already `GameState.BATTLE`.
 
-        :return: What to do when the battle starts, or `None` if this mode wants to handle
-                 the battle itself.
+        :return: What to do when the battle starts:
+                 - `None` will lead to the default behaviour of `handle_encounter()`
+                 - `BattleAction.RunAway` will run away from the battle, unless it is a trainer.
+                 - `BattleAction.Fight` will attempt to battle the encounter/trainer.
+                 - `BattleAction.Catch` will attempt to catch the encounter, unless it is a trainer.
+                 - `BattleAction.CustomAction` will prevent the BattleListener from doing
+                   anything and instead pass all in-battle frames on to the mode's `run()` method.
         """
         return None
 

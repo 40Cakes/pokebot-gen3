@@ -3,7 +3,7 @@ from typing import Generator
 from modules.data.map import MapFRLG, MapRSE
 
 from modules.context import context
-from modules.encounter import encounter_pokemon
+from modules.encounter import handle_encounter, log_encounter, judge_encounter, EncounterValue
 from modules.gui.multi_select_window import ask_for_choice, Selection
 from modules.items import get_item_bag, get_item_by_name
 from modules.map import get_map_objects
@@ -71,8 +71,18 @@ class RoamerResetMode(BotMode):
 
         return get_player_avatar().map_group_and_number == _get_allowed_starting_map()
 
+    def __init__(self):
+        super().__init__()
+        self._should_reset = False
+
     def on_battle_started(self) -> BattleAction | None:
-        return BattleAction.CustomAction
+        opponent = get_opponent()
+        if judge_encounter(opponent) in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch):
+            return handle_encounter(opponent, disable_auto_catch=True)
+        else:
+            self._should_reset = True
+            log_encounter(opponent)
+            return BattleAction.CustomAction
 
     def run(self) -> Generator:
         assert_save_game_exists("There is no saved game. Cannot soft reset.")
@@ -144,6 +154,7 @@ class RoamerResetMode(BotMode):
             return
 
         while True:
+            self._should_reset = False
             context.emulator.reset_held_buttons()
 
             yield from soft_reset(mash_random_keys=True)
@@ -288,7 +299,7 @@ class RoamerResetMode(BotMode):
                 yield
 
             skip_run = False
-            while get_game_state() != GameState.BATTLE and not skip_run:
+            while not self._should_reset and not skip_run:
                 for _ in inner_loop():
                     if get_game_state() == GameState.BATTLE:
                         break
@@ -314,16 +325,10 @@ class RoamerResetMode(BotMode):
                 continue
 
             yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry")
-            if get_opponent().is_shiny:
-                encounter_pokemon(get_opponent())
-                if context.bot_mode != "Manual":
-                    context.set_manual_mode()
-                return
-            else:
-                encounter_pokemon(get_opponent(), log_only=True)
 
     def run_frlg(self, flying_pokemon_index: int, has_good_ability: bool):
         while True:
+            self._should_reset = False
             context.emulator.reset_held_buttons()
 
             yield from soft_reset(mash_random_keys=True)
@@ -444,7 +449,7 @@ class RoamerResetMode(BotMode):
                 yield from wait_for_task_to_start_and_finish("Task_StartMenuHandleInput", "B")
 
             skip_run = False
-            while get_game_state() != GameState.BATTLE and not skip_run:
+            while not self._should_reset and not skip_run:
                 for _ in inner_loop():
                     if get_game_state() == GameState.BATTLE:
                         break
@@ -464,14 +469,3 @@ class RoamerResetMode(BotMode):
                         finally:
                             context.emulator.restore_held_buttons(previous_inputs)
                     yield
-            if skip_run:
-                continue
-
-            yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry")
-            if get_opponent().is_shiny:
-                encounter_pokemon(get_opponent())
-                if context.bot_mode != "Manual":
-                    context.set_manual_mode()
-                return
-            else:
-                encounter_pokemon(get_opponent(), log_only=True)

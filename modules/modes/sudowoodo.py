@@ -3,7 +3,7 @@ from typing import Generator
 from modules.data.map import MapRSE
 
 from modules.context import context
-from modules.encounter import encounter_pokemon
+from modules.encounter import handle_encounter
 from modules.player import get_player_avatar
 from modules.pokemon import get_opponent
 from ._asserts import (
@@ -47,7 +47,7 @@ class SudowoodoMode(BotMode):
         return _get_targeted_encounter() is not None
 
     def on_battle_started(self) -> BattleAction | None:
-        return BattleAction.CustomAction
+        return handle_encounter(get_opponent(), disable_auto_catch=True)
 
     def run(self) -> Generator:
         encounter = _get_targeted_encounter()
@@ -73,5 +73,3 @@ class SudowoodoMode(BotMode):
             yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessage", button_to_press="B")
             yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", button_to_press="A")
             yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")
-
-            encounter_pokemon(get_opponent())

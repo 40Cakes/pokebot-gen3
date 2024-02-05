@@ -3,7 +3,7 @@ from typing import Generator
 from modules.data.map import MapRSE, MapFRLG
 
 from modules.context import context
-from modules.encounter import encounter_pokemon
+from modules.encounter import handle_encounter
 from modules.player import get_player_avatar
 from modules.pokemon import get_opponent
 from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
@@ -61,7 +61,7 @@ class StaticSoftResetsMode(BotMode):
         return _get_targeted_encounter() is not None
 
     def on_battle_started(self) -> BattleAction | None:
-        return BattleAction.CustomAction
+        return handle_encounter(get_opponent(), disable_auto_catch=True)
 
     def run(self) -> Generator:
         encounter = _get_targeted_encounter()
@@ -80,5 +80,3 @@ class StaticSoftResetsMode(BotMode):
 
             # At the start of the next cry the opponent is fully visible.
             yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")
-
-            encounter_pokemon(get_opponent())
