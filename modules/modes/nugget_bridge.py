@@ -8,7 +8,7 @@ from modules.memory import get_event_flag
 from modules.player import get_player_avatar
 from modules.pokemon import get_party
 from ._interface import BotMode, BotModeError
-from ._util import navigate_to, walk_one_tile, follow_path, wait_for_task_to_start_and_finish, wait_for_n_frames
+from ._util import navigate_to, walk_one_tile, follow_path, wait_for_n_frames
 
 
 class NuggetBridgeMode(BotMode):
@@ -26,6 +26,14 @@ class NuggetBridgeMode(BotMode):
             ]
         else:
             return False
+
+    def __init__(self):
+        super().__init__()
+        self._has_whited_out = False
+
+    def on_whiteout(self) -> bool:
+        self._has_whited_out = True
+        return True
 
     def run(self) -> Generator:
         if get_event_flag("HIDE_NUGGET_BRIDGE_ROCKET"):
@@ -54,6 +62,8 @@ class NuggetBridgeMode(BotMode):
                 yield from walk_one_tile("Up")
             if get_player_avatar().map_group_and_number == MapFRLG.ROUTE_24.value:
                 yield from navigate_to(11, 16)
+                self._has_whited_out = False
                 context.emulator.press_button("Up")
-                yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessageBox", "B")
-                yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessageBox", "B")
+                while not self._has_whited_out:
+                    context.emulator.press_button("B")
+                    yield
