@@ -10,6 +10,15 @@ Rock smash mode will continuously farm Rock Smash encounters in Granite Cave (No
 - Go to the bottom floor of Granite Cave (B2F)
 - Start mode
 
+If your first party Pokémon is between levels 13 and 19 (inclusive) and you have some Repel in your inventory,
+this mode will automatically use that.
+
+For best encounter rates, it is recommended that you get yourself a Level-13 Volbeat on Route 117 that has
+the ability **Illuminate** (for higher encounter rates.)
+
+And then stock up on Max Repels. Lots of them.
+Expect to use about one Max Repel per encounter on average when using the Repel strategy.
+
 ![image](../images/granite_cave.png)
 
 
