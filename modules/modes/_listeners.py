@@ -341,7 +341,9 @@ class SafariZoneListener(BotListener):
             if frame.script_is_active("SafariZone_EventScript_TimesUp") or frame.script_is_active("gUnknown_081C3448"):
                 context.controller_stack.append(self.handle_safari_zone_timeout(bot_mode, "steps"))
                 self._times_up = True
-            if frame.script_is_active("SafariZone_EventScript_OutOfBalls") or frame.script_is_active("gUnknown_081C3459"):
+            if frame.script_is_active("SafariZone_EventScript_OutOfBalls") or frame.script_is_active(
+                "gUnknown_081C3459"
+            ):
                 context.controller_stack.append(self.handle_safari_zone_timeout(bot_mode, "Safari balls"))
                 self._times_up = True
 
@@ -359,8 +361,8 @@ class SafariZoneListener(BotListener):
             local_coordinates_after_leaving = (4, 4)
 
         while (
-                get_player_avatar().local_coordinates != local_coordinates_after_leaving
-                or get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING
+            get_player_avatar().local_coordinates != local_coordinates_after_leaving
+            or get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING
         ):
             context.emulator.press_button("B")
             yield
