@@ -104,7 +104,9 @@ def log_encounter(pokemon: Pokemon) -> None:
         save_pk3(pokemon)
 
 
-def handle_encounter(pokemon: Pokemon, disable_auto_catch: bool = False) -> BattleAction:
+def handle_encounter(
+    pokemon: Pokemon, disable_auto_catch: bool = False, disable_auto_battle: bool = False
+) -> BattleAction:
     fun_facts = "\n\n" + " | ".join(
         (
             f"Nature: {pokemon.nature.name}",
@@ -150,10 +152,10 @@ def handle_encounter(pokemon: Pokemon, disable_auto_catch: bool = False) -> Batt
 
     if alert is not None:
         alert_icon = (
-                get_sprites_path()
-                / "pokemon"
-                / f"{'shiny' if pokemon.is_shiny else 'normal'}"
-                / f"{pokemon.species.name}.png"
+            get_sprites_path()
+            / "pokemon"
+            / f"{'shiny' if pokemon.is_shiny else 'normal'}"
+            / f"{pokemon.species.name}.png"
         )
         desktop_notification(title=alert[0], message=alert[1], icon=alert_icon)
 
@@ -172,7 +174,7 @@ def handle_encounter(pokemon: Pokemon, disable_auto_catch: bool = False) -> Batt
             context.message = f"Encountered a {species_name}. Switched to manual mode so you can catch it. {fun_facts}"
             context.set_manual_mode()
             return BattleAction.CustomAction
-    elif context.config.battle.battle:
+    elif context.config.battle.battle and not disable_auto_battle:
         context.message = f"Encountered a {species_name}, will fight it. {fun_facts}"
         return BattleAction.Fight
     else:

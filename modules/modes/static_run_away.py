@@ -3,9 +3,11 @@ from typing import Generator
 from modules.data.map import MapRSE, MapFRLG
 
 from modules.context import context
+from modules.encounter import judge_encounter, handle_encounter, log_encounter, EncounterValue
 from modules.map import get_map_objects
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
+from modules.pokemon import get_opponent
 from ._interface import BotMode, BotModeError, BattleAction
 from ._util import (
     wait_for_task_to_start_and_finish,
@@ -41,7 +43,7 @@ class StaticRunAway(BotMode):
         return get_player_avatar().map_group_and_number in allowed_maps
 
     def on_battle_started(self) -> BattleAction | None:
-        return BattleAction.RunAway
+        return handle_encounter(get_opponent(), disable_auto_catch=True, disable_auto_battle=True)
 
     def run(self) -> Generator:
         match get_player_avatar().map_group_and_number:
