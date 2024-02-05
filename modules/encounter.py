@@ -61,6 +61,10 @@ class EncounterValue(Enum):
     CustomFilterMatch = auto()
     NotOfInterest = auto()
 
+    @property
+    def is_of_interest(self):
+        return self in (EncounterValue.Shiny, EncounterValue.Roamer, EncounterValue.CustomFilterMatch)
+
 
 def judge_encounter(pokemon: Pokemon) -> EncounterValue:
     """
@@ -96,28 +100,51 @@ def judge_encounter(pokemon: Pokemon) -> EncounterValue:
     return EncounterValue.NotOfInterest
 
 
-def log_encounter(pokemon: Pokemon) -> None:
+def log_encounter(pokemon: Pokemon, action: BattleAction | None = None) -> None:
     from modules.stats import total_stats
 
     total_stats.log_encounter(pokemon, context.config.catch_block.block_list, run_custom_catch_filters(pokemon))
     if context.config.logging.save_pk3.all:
         save_pk3(pokemon)
 
+    fun_facts = [
+            f"Nature: {pokemon.nature.name}",
+            f"Ability: {pokemon.ability.name}",
+            f"Item: {pokemon.held_item.name if pokemon.held_item is not None else '-'}",
+            f"IV sum: {pokemon.ivs.sum()}",
+            f"SV: {pokemon.shiny_value}",
+        ]
+
+    species_name = pokemon.species.name
+    if pokemon.is_shiny:
+        species_name = "Shiny " + species_name
+    if pokemon.gender == "male":
+        species_name += " ♂"
+    elif pokemon.gender == "female":
+        species_name += " ♀"
+    if pokemon.species.name == "Unown":
+        species_name += f" ({pokemon.unown_letter})"
+    if pokemon.species.name == "Wurmple":
+        fun_facts.append(f"Evo: {pokemon.wurmple_evolution.title()}")
+
+    match action:
+        case BattleAction.RunAway:
+            message_action = "Will try to catch it."
+        case BattleAction.CustomAction:
+            message_action = "Switched to manual mode so you can catch it."
+        case BattleAction.Fight:
+            message_action = "Will fight it."
+        case BattleAction.RunAway:
+            message_action = "Trying to run away."
+        case _:
+            message_action = ""
+
+    context.message = f"Encountered {species_name}. {message_action}\n\n{' | '.join(fun_facts)}"
+
 
 def handle_encounter(
     pokemon: Pokemon, disable_auto_catch: bool = False, disable_auto_battle: bool = False
 ) -> BattleAction:
-    fun_facts = "\n\n" + " | ".join(
-        (
-            f"Nature: {pokemon.nature.name}",
-            f"IV sum: {pokemon.ivs.sum()}",
-            f"Ability: {pokemon.ability.name}",
-            f"SV: {pokemon.shiny_value}",
-        )
-    )
-
-    log_encounter(pokemon)
-
     encounter_value = judge_encounter(pokemon)
     match encounter_value:
         case EncounterValue.Shiny:
@@ -159,24 +186,19 @@ def handle_encounter(
         )
         desktop_notification(title=alert[0], message=alert[1], icon=alert_icon)
 
-    species_name = pokemon.species.name
-    if pokemon.is_shiny:
-        species_name = "Shiny " + species_name
-
     if is_of_interest:
         filename_suffix = f"{encounter_value.name}_{pokemon.species.safe_name}"
         context.emulator.create_save_state(suffix=filename_suffix)
 
         if context.config.battle.auto_catch and not disable_auto_catch:
-            context.message = f"Encountered a {species_name}, will try to catch it! {fun_facts}"
-            return BattleAction.Catch
+            decision = BattleAction.Catch
         else:
-            context.message = f"Encountered a {species_name}. Switched to manual mode so you can catch it. {fun_facts}"
             context.set_manual_mode()
-            return BattleAction.CustomAction
+            decision = BattleAction.CustomAction
     elif context.config.battle.battle and not disable_auto_battle:
-        context.message = f"Encountered a {species_name}, will fight it. {fun_facts}"
-        return BattleAction.Fight
+        decision = BattleAction.Fight
     else:
-        context.message = f"Encountered a {species_name}, trying to run away. {fun_facts}"
-        return BattleAction.RunAway
+        decision = BattleAction.RunAway
+
+    log_encounter(pokemon, decision)
+    return decision

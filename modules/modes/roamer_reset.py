@@ -78,6 +78,8 @@ class RoamerResetMode(BotMode):
 
     def on_battle_started(self) -> BattleAction | None:
         opponent = get_opponent()
+        # This excludes `EncounterValue.Roamer` which should not lead to a notification being
+        # triggered. _All_ encounters in this mode should be roamers.
         if judge_encounter(opponent) in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch):
             return handle_encounter(opponent, disable_auto_catch=True)
         else:
