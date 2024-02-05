@@ -11,22 +11,29 @@ For example: `yield from utils.navigate_to((3, 3))`
 import queue
 import random
 from functools import wraps
-from typing import Generator
+from typing import Generator, Union
 
 from modules.context import context
 from modules.files import get_rng_state_history, save_rng_state_history
+from modules.items import get_item_bag, Item, get_item_by_name
 from modules.map import get_map_objects, get_map_all_tiles
 from modules.memory import (
     read_symbol,
     write_symbol,
     pack_uint32,
     unpack_uint32,
+    unpack_uint16,
     get_game_state,
+    get_game_state_symbol,
     GameState,
     get_event_flag,
     get_event_flag_by_number,
 )
+from modules.menu_parsers import CursorOptionEmerald, CursorOptionRS, CursorOptionFRLG
+from modules.menuing import StartMenuNavigator, PokemonPartyMenuNavigator
 from modules.player import get_player, get_player_avatar, TileTransitionState, RunningState
+from modules.pokemon import get_party
+from modules.region_map import get_map_region, get_map_cursor, FlyDestinationRSE, FlyDestinationFRLG
 from modules.tasks import task_is_active, get_global_script_context
 from ._interface import BotModeError
 
@@ -92,11 +99,11 @@ def follow_path(waypoints: list[tuple[int, int]], run: bool = True) -> Generator
     :param run: Whether the player should run (hold down B)
     """
     if get_game_state() != GameState.OVERWORLD:
-        return
+        raise RuntimeError("The game is currently not in the overworld. Cannot navigate.")
 
     # Make sure that the player avatar can actually be controlled/moved right now.
     if "heldMovementActive" not in get_map_objects()[0].flags:
-        return
+        raise RuntimeError("The player avatar is currently not controllable. Cannot navigate.")
 
     for waypoint in waypoints:
         yield from walk_to(waypoint, run)
@@ -440,6 +447,70 @@ def wait_for_n_frames(number_of_frames: int) -> Generator:
         yield
 
 
+def scroll_to_item_in_bag(item: Item) -> Generator:
+    """
+    This will select the correct bag pocket and scroll to the correct position therein.
+
+    It will _not_ activate the item (pressing A) and it does _not_ open the bag menu.
+    It is assumed that the bag menu is already open.
+
+    :param item: Item to scroll to
+    """
+    if get_item_bag().quantity_of(item) == 0:
+        raise BotModeError(f"Cannot use {item.name} because there is none in the item bag.")
+
+    def open_pocket_index() -> int:
+        if context.rom.is_emerald:
+            return read_symbol("gBagPosition", offset=0x05, size=1)[0]
+        elif context.rom.is_rs:
+            return read_symbol("sCurrentBagPocket")[0]
+        else:
+            return read_symbol("gBagMenuState", offset=0x06, size=1)[0]
+
+    def currently_selected_slot() -> int:
+        bag_index = open_pocket_index()
+        if context.rom.is_emerald:
+            cursor_position = unpack_uint16(read_symbol("gBagPosition", offset=8 + (bag_index * 2), size=2))
+            scroll_position = unpack_uint16(read_symbol("gBagPosition", offset=18 + (bag_index * 2), size=2))
+        elif context.rom.is_rs:
+            cursor_position, scroll_position = read_symbol("gBagPocketScrollStates", offset=4 * bag_index, size=2)
+        else:
+            cursor_position = unpack_uint16(read_symbol("gBagMenuState", offset=8 + (bag_index * 2), size=2))
+            scroll_position = unpack_uint16(read_symbol("gBagMenuState", offset=14 + (bag_index * 2), size=2))
+        return cursor_position + scroll_position
+
+    # Wait for fade-in to finish (happens when the bag is opened, during which time inputs
+    # are not yet active.)
+    while (
+        get_game_state() != GameState.BAG_MENU
+        or unpack_uint16(read_symbol("gPaletteFade", offset=0x07, size=0x02)) & 0x80 != 0
+    ):
+        yield
+
+    # Select the correct pocket
+    target_pocket_index = item.pocket.index
+    while open_pocket_index() != target_pocket_index:
+        if open_pocket_index() < target_pocket_index:
+            context.emulator.press_button("Right")
+        else:
+            context.emulator.press_button("Left")
+        for _ in range(26):
+            yield
+
+    # Scroll to the item
+    slot_index = get_item_bag().first_slot_index_for(item)
+    if slot_index is None:
+        raise RuntimeError(f"Could not find any {item.name}")
+    while currently_selected_slot() != slot_index:
+        if currently_selected_slot() < slot_index:
+            context.emulator.press_button("Down")
+        else:
+            context.emulator.press_button("Up")
+        yield
+        yield
+        yield
+
+
 def isolate_inputs(generator_function):
     @wraps(generator_function)
     def wrapper_function(*args, **kwargs):
@@ -448,3 +519,121 @@ def isolate_inputs(generator_function):
         context.emulator.restore_held_buttons(previous_inputs)
 
     return wrapper_function
+
+
+class RanOutOfRepels(BotModeError):
+    pass
+
+
+@isolate_inputs
+def apply_repel() -> Generator:
+    """
+    Tries to use the strongest Repel available in the player's item bag (i.e. it will
+    prefer Max Repel over Super Repel over Repel.)
+
+    If the player does not have any Repel items, it raises a `RanOutOfRepels` error.
+    """
+    item_bag = get_item_bag()
+    repel_item = get_item_by_name("Max Repel")
+    repel_slot = item_bag.first_slot_index_for(repel_item)
+    if repel_slot is None:
+        repel_item = get_item_by_name("Super Repel")
+        repel_slot = item_bag.first_slot_index_for(repel_item)
+    if repel_slot is None:
+        repel_item = get_item_by_name("Repel")
+        repel_slot = item_bag.first_slot_index_for(repel_item)
+    if repel_slot is None:
+        raise RanOutOfRepels("Player is out or Repels.")
+
+    # Open item bag and select the best Repel item there is (Max > Super > Regular)
+    yield from StartMenuNavigator("BAG").step()
+    yield from scroll_to_item_in_bag(repel_item)
+
+    yield from wait_for_task_to_start_and_finish("Task_ContinueTaskAfterMessagePrints", "A")
+    if context.rom.is_rse:
+        yield from wait_for_task_to_start_and_finish("Task_ShowStartMenu", "B")
+    else:
+        yield from wait_for_task_to_start_and_finish("Task_StartMenuHandleInput", "B")
+    yield
+
+
+def replenish_repel() -> None:
+    """
+    This can be used in a bot mode's `on_repel_effect_ended()` callback to re-enable the repel
+    effect as soon as it expires.
+
+    It should not be used anywhere else.
+    """
+
+    item_bag = get_item_bag()
+    number_of_repels = (
+        item_bag.quantity_of(get_item_by_name("Max Repel"))
+        + item_bag.quantity_of(get_item_by_name("Super Repel"))
+        + item_bag.quantity_of(get_item_by_name("Repel"))
+    )
+    if number_of_repels == 0:
+        raise RanOutOfRepels("Player ran out of repels")
+    else:
+        context.controller_stack.insert(len(context.controller_stack) - 1, apply_repel())
+
+
+@isolate_inputs
+def fly_to(destination: Union[FlyDestinationRSE, FlyDestinationFRLG]) -> Generator:
+    if context.rom.is_frlg:
+        has_necessary_badge = get_event_flag("BADGE03_GET")
+        menu_index = CursorOptionFRLG.FLY
+    else:
+        has_necessary_badge = get_event_flag("BADGE03_GET")
+        if context.rom.is_rs:
+            menu_index = CursorOptionRS.FLY
+        else:
+            menu_index = CursorOptionEmerald.FLY
+
+    if not has_necessary_badge:
+        raise BotModeError("Player does not have the badge required for flying.")
+
+    if not get_event_flag(destination.get_flag_name()):
+        raise BotModeError(f"Player cannot fly to {destination.name} because that location is not yet available.")
+
+    flying_pokemon_index = -1
+    for index in range(len(get_party())):
+        pokemon = get_party()[index]
+        for learned_move in pokemon.moves:
+            if learned_move is not None and learned_move.move.name == "Fly":
+                flying_pokemon_index = index
+                break
+        if flying_pokemon_index > -1:
+            break
+    if flying_pokemon_index == -1:
+        raise BotModeError("Player does not have any Pokémon that knows Fly in their party.")
+
+    # Select field move FLY
+    yield from StartMenuNavigator("POKEMON").step()
+    yield from PokemonPartyMenuNavigator(flying_pokemon_index, "", menu_index).step()
+
+    # Wait for region map to load.
+    while get_game_state_symbol() not in ("CB2_FLYMAP", "CB2_REGIONMAP") or get_map_cursor() is None:
+        yield
+
+    destination_region = destination.get_map_region()
+    if get_map_region() != destination_region:
+        raise BotModeError(f"Player cannot fly to {destination.name} because they are in the wrong region.")
+
+    # Select destination on the region map
+    x, y = destination.value
+    while get_map_cursor() != (x, y):
+        context.emulator.reset_held_buttons()
+        if get_map_cursor()[0] < x:
+            context.emulator.hold_button("Right")
+        elif get_map_cursor()[0] > x:
+            context.emulator.hold_button("Left")
+        elif get_map_cursor()[1] < y:
+            context.emulator.hold_button("Down")
+        elif get_map_cursor()[1] > y:
+            context.emulator.hold_button("Up")
+        yield
+    context.emulator.reset_held_buttons()
+
+    # Wait for journey to finish
+    yield from wait_for_task_to_start_and_finish("Task_FlyIntoMap", "A")
+    yield

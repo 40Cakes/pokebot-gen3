@@ -1,7 +1,7 @@
 from enum import Enum, IntEnum, auto
 
 from modules.context import context
-from modules.items import get_item_bag, get_item_by_name, Item
+from modules.items import get_item_bag, get_item_by_index, get_item_by_name, Item
 from modules.map import get_map_data_for_current_position
 from modules.memory import (
     get_game_state,
@@ -29,6 +29,7 @@ from modules.menuing import (
     PartyMenuExit,
 )
 from modules.modes import BotModeError
+from modules.modes._util import scroll_to_item_in_bag
 from modules.pokedex import get_pokedex
 from modules.pokemon import (
     get_party,
@@ -217,93 +218,34 @@ class BattleAction(BaseMenuNavigator):
                 self.navigator = None
                 self.subnavigator = None
 
-    def throw_poke_ball(self):
-        while True:
-            fade_mode = unpack_uint16(read_symbol("gPaletteFade", offset=0x07, size=0x02))
-            if fade_mode & 0x80 == 0:
-                break
-            else:
-                yield
-
+    @staticmethod
+    def _ball_throwing_task_name() -> str:
         if context.rom.is_emerald:
-
-            def is_poke_balls_bag_open():
-                return read_symbol("gBagPosition", offset=0x05, size=1)[0] == 1
-
-            def currently_selected_slot() -> int:
-                cursor_position = unpack_uint16(read_symbol("gBagPosition", offset=10, size=2))
-                scroll_position = unpack_uint16(read_symbol("gBagPosition", offset=20, size=2))
-                return cursor_position + scroll_position
-
-            ball_throw_task_name = "AnimTask_ThrowBall_Step"
+            return "AnimTask_ThrowBall_Step"
         elif context.rom.is_rs:
-
-            def is_poke_balls_bag_open():
-                return read_symbol("sCurrentBagPocket")[0] == 1
-
-            def currently_selected_slot() -> int:
-                bag_position = read_symbol("gBagPocketScrollStates", offset=4, size=2)
-                return bag_position[0] + bag_position[1]
-
-            ball_throw_task_name = "sub_813FB7C"
+            return "sub_813FB7C"
         else:
+            return "AnimTask_ThrowBall_WaitAnimObjComplete"
 
-            def is_poke_balls_bag_open():
-                return read_symbol("gBagMenuState", offset=0x06, size=1)[0] == 2
+    def throw_poke_ball(self):
+        yield from scroll_to_item_in_bag(get_item_by_index(self.idx))
 
-            def currently_selected_slot() -> int:
-                cursor_position = unpack_uint16(read_symbol("gBagMenuState", offset=12, size=2))
-                scroll_position = unpack_uint16(read_symbol("gBagMenuState", offset=18, size=2))
-                return cursor_position + scroll_position
-
-            ball_throw_task_name = "AnimTask_ThrowBall_WaitAnimObjComplete"
-
-        while not is_poke_balls_bag_open():
-            context.emulator.press_button("Right")
-            for _ in range(26):
-                yield
-
-        slot_index = -1
-        bag = get_item_bag().poke_balls
-        for index in range(len(bag)):
-            if bag[index].item == self.idx:
-                slot_index = index
-                break
-        if slot_index == -1:
-            raise BotModeError("No more Poke balls")
-
-        while currently_selected_slot() != slot_index:
-            if currently_selected_slot() < slot_index:
-                context.emulator.press_button("Down")
-            else:
-                context.emulator.press_button("Up")
-            yield
-            yield
-            yield
-
-        while not task_is_active(ball_throw_task_name):
+        while not task_is_active(self._ball_throwing_task_name()):
             context.emulator.press_button("A")
             yield
 
-        while task_is_active(ball_throw_task_name):
+        while task_is_active(self._ball_throwing_task_name()):
             context.emulator.press_button("B")
             yield
 
         yield
 
     def throw_safari_ball(self):
-        if context.rom.is_emerald:
-            ball_throw_task_name = "AnimTask_ThrowBall_Step"
-        elif context.rom.is_rs:
-            ball_throw_task_name = "sub_813FB7C"
-        else:
-            ball_throw_task_name = "AnimTask_ThrowBall_WaitAnimObjComplete"
-
-        while not task_is_active(ball_throw_task_name):
+        while not task_is_active(self._ball_throwing_task_name()):
             context.emulator.press_button("A")
             yield
 
-        while task_is_active(ball_throw_task_name):
+        while task_is_active(self._ball_throwing_task_name()):
             context.emulator.press_button("B")
             yield
 
@@ -700,7 +642,7 @@ class BattleOpponent:
             raise BotModeError("Player does not have any Poke balls. Cannot catch.")
 
         self.choice = "catch"
-        self.idx = selected_poke_ball
+        self.idx = selected_poke_ball.index
 
         if (
             BattleTypeFlag.SAFARI not in get_battle_type_flags()

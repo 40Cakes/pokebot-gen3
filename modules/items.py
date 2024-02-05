@@ -33,6 +33,21 @@ class ItemPocket(Enum):
     Berries = "berries"
     KeyItems = "key_items"
 
+    @property
+    def rse_index(self) -> int:
+        return {self.Items: 0, self.PokeBalls: 1, self.TmsAndHms: 2, self.Berries: 3, self.KeyItems: 4}[self]
+
+    @property
+    def frlg_index(self) -> int:
+        return {self.Items: 0, self.KeyItems: 1, self.PokeBalls: 2}[self]
+
+    @property
+    def index(self) -> int:
+        if context.rom.is_rse:
+            return self.rse_index
+        else:
+            return self.frlg_index
+
     def __str__(self):
         return self.value
 
@@ -185,27 +200,35 @@ class ItemBag:
 
         return False
 
-    def quantity_of(self, item: Item) -> int:
+    def pocket_for(self, item: Item) -> list[ItemSlot]:
         match item.pocket:
             case ItemPocket.Items:
-                pocket = self.items
+                return self.items
             case ItemPocket.KeyItems:
-                pocket = self.key_items
+                return self.key_items
             case ItemPocket.PokeBalls:
-                pocket = self.poke_balls
+                return self.poke_balls
             case ItemPocket.TmsAndHms:
-                pocket = self.tms_hms
+                return self.tms_hms
             case ItemPocket.Berries:
-                pocket = self.berries
+                return self.berries
             case _:
-                pocket = []
+                raise RuntimeError(f"Invalid bag pocket: {str(item.pocket)}")
 
+    def quantity_of(self, item: Item) -> int:
         quantity = 0
-        for slot in pocket:
+        for slot in self.pocket_for(item):
             if slot.item == item:
                 quantity += slot.quantity
 
         return quantity
+
+    def first_slot_index_for(self, item: Item) -> int | None:
+        pocket = self.pocket_for(item)
+        for slot_index in range(len(pocket)):
+            if pocket[slot_index].item == item:
+                return slot_index
+        return None
 
     def to_dict(self) -> dict:
         return {
