@@ -3,11 +3,12 @@ from typing import Generator
 from modules.data.map import MapRSE
 
 from modules.context import context
-from modules.memory import get_event_flag
+from modules.memory import get_event_flag, get_event_var
 from modules.player import get_player, get_player_avatar, TileTransitionState
+from modules.pokemon import get_party
 from modules.tasks import task_is_active
 from ._asserts import assert_has_pokemon_with_move, assert_save_game_exists, assert_saved_on_map, SavedMapLocation
-from ._interface import BotMode, BotModeError, BattleAction
+from ._interface import BotMode, BotModeError
 from ._util import (
     soft_reset,
     wait_for_unique_rng_value,
@@ -17,6 +18,9 @@ from ._util import (
     ensure_facing_direction,
     wait_until_task_is_not_active,
     wait_for_script_to_start_and_finish,
+    apply_repel,
+    replenish_repel,
+    RanOutOfRepels,
 )
 
 
@@ -42,12 +46,15 @@ class RockSmashMode(BotMode):
         super().__init__()
         self._in_safari_zone = False
 
-    def on_battle_started(self) -> BattleAction | None:
-        return BattleAction.RunAway
-
     def on_safari_zone_timeout(self) -> bool:
         self._in_safari_zone = False
         return True
+
+    def on_repel_effect_ended(self) -> None:
+        try:
+            replenish_repel()
+        except RanOutOfRepels:
+            pass
 
     def run(self) -> Generator:
         self._in_safari_zone = False
@@ -119,6 +126,13 @@ class RockSmashMode(BotMode):
         yield
 
     def granite_cave(self) -> Generator:
+        may_use_repel = 13 <= get_party()[0].level < 20
+        if get_event_var("REPEL_STEP_COUNT") <= 0 and may_use_repel:
+            try:
+                yield from apply_repel()
+            except RanOutOfRepels:
+                pass
+
         yield from navigate_to(6, 21)
         yield from ensure_facing_direction("Down")
         yield from self.smash("TEMP_16")
