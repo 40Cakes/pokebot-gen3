@@ -67,9 +67,9 @@ class BattleListener(BotListener):
             and not frame.task_is_active("Task_BattleStart")
             and read_symbol("gBattleOutcome", size=1)[0] != 0
         ):
+            outcome = BattleOutcome(read_symbol("gBattleOutcome", size=1)[0])
             if not self._reported_end_of_battle:
                 self._reported_end_of_battle = True
-                outcome = BattleOutcome(read_symbol("gBattleOutcome", size=1)[0])
                 clear_opponent()
                 bot_mode.on_battle_ended(outcome)
 
@@ -83,6 +83,10 @@ class BattleListener(BotListener):
                 and "heldMovementFinished" in get_map_objects()[0].flags
             ):
                 self._in_battle = False
+                if outcome == BattleOutcome.NoSafariBallsLeft:
+                    context.controller_stack.append(
+                        SafariZoneListener.handle_safari_zone_timeout_global(bot_mode, "Safari balls")
+                    )
 
     def _wait_until_battle_is_over(self):
         while self._in_battle:
@@ -310,7 +314,6 @@ class SafariZoneListener(BotListener):
     def __init__(self):
         self._times_up = False
         if context.rom.is_rse:
-            self._local_coordinates_after_leaving = (9, 4)
             self._safari_zone_maps = (
                 MapRSE.SAFARI_ZONE.value,
                 MapRSE.SAFARI_ZONE_A.value,
@@ -321,7 +324,6 @@ class SafariZoneListener(BotListener):
                 MapRSE.SAFARI_ZONE_F.value,
             )
         else:
-            self._local_coordinates_after_leaving = (4, 4)
             self._safari_zone_maps = (
                 MapFRLG.SAFARI_ZONE.value,
                 MapFRLG.SAFARI_ZONE_A.value,
@@ -337,14 +339,28 @@ class SafariZoneListener(BotListener):
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
         if not self._times_up and get_player_avatar().map_group_and_number in self._safari_zone_maps:
             if frame.script_is_active("SafariZone_EventScript_TimesUp") or frame.script_is_active("gUnknown_081C3448"):
-                context.controller_stack.append(self.handle_safari_zone_timeout(bot_mode))
+                context.controller_stack.append(self.handle_safari_zone_timeout(bot_mode, "steps"))
+                self._times_up = True
+            if frame.script_is_active("SafariZone_EventScript_OutOfBalls") or frame.script_is_active("gUnknown_081C3459"):
+                context.controller_stack.append(self.handle_safari_zone_timeout(bot_mode, "Safari balls"))
                 self._times_up = True
 
-    def handle_safari_zone_timeout(self, bot_mode: BotMode):
+    def handle_safari_zone_timeout(self, bot_mode: BotMode, limited_by: str):
+        yield from SafariZoneListener.handle_safari_zone_timeout_global(bot_mode, limited_by)
+        self._times_up = False
+
+    @staticmethod
+    def handle_safari_zone_timeout_global(bot_mode: BotMode, limited_by: str):
         context.emulator.reset_held_buttons()
+
+        if context.rom.is_rse:
+            local_coordinates_after_leaving = (9, 4)
+        else:
+            local_coordinates_after_leaving = (4, 4)
+
         while (
-            get_player_avatar().local_coordinates != self._local_coordinates_after_leaving
-            or get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING
+                get_player_avatar().local_coordinates != local_coordinates_after_leaving
+                or get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING
         ):
             context.emulator.press_button("B")
             yield
@@ -353,9 +369,10 @@ class SafariZoneListener(BotListener):
 
         custom_handling = bot_mode.on_safari_zone_timeout()
         if not custom_handling:
-            context.message = "The player used up all their steps in the Safari Zone. Switched back to manual mode."
+            context.message = (
+                f"The player used up all their {limited_by} in the Safari Zone. Switched back to manual mode."
+            )
             context.set_manual_mode()
-        self._times_up = False
 
 
 class LinuxTimeoutListener(BotListener):

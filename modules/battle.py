@@ -105,18 +105,24 @@ class BattleAction(BaseMenuNavigator):
             case "None":
                 self.current_step = "select_action"
             case "select_action":
-                match self.choice:
-                    case "flee":
+                if BattleTypeFlag.SAFARI in get_battle_type_flags():
+                    if self.choice == "catch":
+                        self.current_step = "exit"
+                    else:
                         self.current_step = "handle_flee"
-                    case "fight":
-                        self.current_step = "choose_move"
-                    case "switch":
-                        self.current_step = "wait_for_party_menu"
-                    case "catch":
-                        self.current_step = "wait_for_bag_menu"
-                    case "bag":
-                        context.message = "Bag not implemented yet, switching to manual mode."
-                        context.set_manual_mode()
+                else:
+                    match self.choice:
+                        case "flee":
+                            self.current_step = "handle_flee"
+                        case "fight":
+                            self.current_step = "choose_move"
+                        case "switch":
+                            self.current_step = "wait_for_party_menu"
+                        case "catch":
+                            self.current_step = "wait_for_bag_menu"
+                        case "bag":
+                            context.message = "Bag not implemented yet, switching to manual mode."
+                            context.set_manual_mode()
             case "wait_for_party_menu":
                 self.current_step = "choose_mon"
             case "wait_for_bag_menu":
@@ -126,26 +132,32 @@ class BattleAction(BaseMenuNavigator):
                     self.current_step = "handle_no_escape"
                 else:
                     self.current_step = "return_to_overworld"
-            case "choose_move" | "choose_mon" | "throw_poke_ball" | "return_to_overworld":
+            case "choose_move" | "choose_mon" | "throw_poke_ball" | "throw_safari_ball" | "return_to_overworld":
                 self.current_step = "exit"
 
     def update_navigator(self):
         match self.current_step:
             case "select_action":
-                match self.choice:
-                    case "fight":
-                        index = 0
-                    case "switch":
-                        index = 2
-                    case "catch":
-                        index = 1
-                    case "bag":
-                        index = 1
-                        context.message = "Bag not implemented yet. Switching to manual mode."
-                        context.set_manual_mode()
-                    case "flee" | _:
-                        index = 3
-                self.navigator = self.select_option(index)
+                if BattleTypeFlag.SAFARI in get_battle_type_flags():
+                    if self.choice == "catch":
+                        self.navigator = self.throw_safari_ball()
+                    else:
+                        self.navigator = self.select_option(3)
+                else:
+                    match self.choice:
+                        case "fight":
+                            index = 0
+                        case "switch":
+                            index = 2
+                        case "catch":
+                            index = 1
+                        case "bag":
+                            index = 1
+                            context.message = "Bag not implemented yet. Switching to manual mode."
+                            context.set_manual_mode()
+                        case "flee" | _:
+                            index = 3
+                    self.navigator = self.select_option(index)
             case "handle_flee":
                 self.navigator = self.handle_flee()
             case "choose_move":
@@ -158,6 +170,8 @@ class BattleAction(BaseMenuNavigator):
                 self.navigator = self.choose_mon()
             case "throw_poke_ball":
                 self.navigator = self.throw_poke_ball()
+            case "throw_safari_ball":
+                self.navigator = self.throw_safari_ball()
             case "handle_no_escape":
                 self.navigator = self.handle_no_escape()
             case "return_to_overworld":
@@ -274,6 +288,29 @@ class BattleAction(BaseMenuNavigator):
         while task_is_active(ball_throw_task_name):
             context.emulator.press_button("B")
             yield
+
+        yield
+
+    def throw_safari_ball(self):
+        if context.rom.is_emerald:
+            ball_throw_task_name = "AnimTask_ThrowBall_Step"
+        elif context.rom.is_rs:
+            ball_throw_task_name = "sub_813FB7C"
+        else:
+            ball_throw_task_name = "AnimTask_ThrowBall_WaitAnimObjComplete"
+
+        while not task_is_active(ball_throw_task_name):
+            context.emulator.press_button("A")
+            yield
+
+        while task_is_active(ball_throw_task_name):
+            context.emulator.press_button("B")
+            yield
+
+        if task_is_active("sub_81414BC"):
+            while task_is_active("sub_81414BC"):
+                context.emulator.press_button("B")
+                yield
 
         yield
 
@@ -645,6 +682,9 @@ class BattleOpponent:
         """
         Determines which Pokémon is battling.
         """
+        if BattleTypeFlag.SAFARI in get_battle_type_flags():
+            return
+
         # TODO: someday support double battles maybe idk
         battler_indices = [
             int.from_bytes(read_symbol("gBattlerPartyIndexes", size=12)[2 * i : 2 * i + 2], "little")
@@ -662,14 +702,11 @@ class BattleOpponent:
         self.choice = "catch"
         self.idx = selected_poke_ball
 
-        catch_chance = self.calculate_catch_chance(self.opponent, selected_poke_ball)
-
-        if context.debug:
-            print(f"Catch chance is {round(100 * catch_chance, 1)}%.")
-            if self.opponent_might_end_battle_next_turn():
-                print("Opponent might end battle next turn, skipping checks for False Swipe/status-inflicting moves.")
-
-        if catch_chance < 0.8 and not self.opponent_might_end_battle_next_turn():
+        if (
+            BattleTypeFlag.SAFARI not in get_battle_type_flags()
+            and self.calculate_catch_chance(self.opponent, selected_poke_ball) < 0.7
+            and not self.opponent_might_end_battle_next_turn()
+        ):
             # Try to paralyse/put to sleep opponent
             if self.opponent.status_condition == StatusCondition.Healthy:
                 status_move_index: int = -1

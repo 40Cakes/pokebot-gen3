@@ -2,7 +2,7 @@
 
 from typing import Type, TYPE_CHECKING
 
-from ._interface import BotMode, BotModeError, FrameInfo, BotListener
+from ._interface import BotMode, BotModeError, FrameInfo, BotListener, BattleAction
 
 if TYPE_CHECKING:
     from modules.roms import ROM
