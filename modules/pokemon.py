@@ -1111,11 +1111,10 @@ class Pokemon:
     @property
     def unown_letter(self) -> str:
         letter_index = (
-            (self.data[0] & 0b11)
-            << 6 + (self.data[1] & 0b11)
-            << 4 + (self.data[2] & 0b11)
-            << 2 + (self.data[3] & 0b11)
-            << 0
+            ((self.personality_value & (0b11 << 24)) >> 18)
+            | ((self.personality_value & (0b11 << 16)) >> 12)
+            | ((self.personality_value & (0b11 << 8)) >> 6)
+            | self.personality_value & 0b11
         )
         letter_index %= 28
         if letter_index == 26:
@@ -1127,7 +1126,7 @@ class Pokemon:
 
     @property
     def wurmple_evolution(self) -> Literal["silcoon", "cascoon"]:
-        value = unpack_uint16(self.data[0:2]) % 10
+        value = unpack_uint16(self.data[2:4]) % 10
         if value <= 4:
             return "silcoon"
         else:
