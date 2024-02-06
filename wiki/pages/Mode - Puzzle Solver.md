@@ -114,7 +114,8 @@ Ensure you have a Pokémon which knows [Strength](<https://bulbapedia.bulbagarde
 
 ### Starting Location
 
-Start mode inside Tanoby Key
+Start mode inside Tanoby Key.
+
 ![image](../images/puzzle_tanoby.png)
 
 # Game Support
