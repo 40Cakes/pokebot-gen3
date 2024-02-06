@@ -1205,12 +1205,15 @@ def check_for_level_up(old_party: list[Pokemon], new_party: list[Pokemon], level
     return leveled_mon
 
 
-def can_battle_happen() -> bool:
+def can_battle_happen(check_lead_only: bool = False) -> bool:
     """
     Determines whether the bot can battle with the state of the current party
     :return: True if the party is capable of having a battle, False otherwise
     """
-    party = get_party()
+    if check_lead_only:
+        party = [get_party()[0]]
+    else:
+        party = get_party()
     for mon in party:
         if mon.current_hp / mon.stats.hp > 0.2 and not mon.is_egg:
             for move in mon.moves:

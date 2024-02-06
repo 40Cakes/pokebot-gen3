@@ -137,7 +137,10 @@ class StartMenuNavigator(BaseMenuNavigator):
         while self.start_menu["open"]:
             self.update_start_menu()
             context.emulator.press_button("A")
-            yield
+            if self.desired_option == "SAVE":
+                break
+            else:
+                yield
 
 
 class PokemonPartySubMenuNavigator(BaseMenuNavigator):
