@@ -1121,7 +1121,7 @@ class Pokemon:
 
     @property
     def wurmple_evolution(self) -> Literal["silcoon", "cascoon"]:
-        value = unpack_uint16(self.data[0:2]) % 10
+        value = unpack_uint16(self.data[2:4]) % 10
         if value <= 4:
             return "silcoon"
         else:
