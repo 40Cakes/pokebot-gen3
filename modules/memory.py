@@ -252,6 +252,20 @@ def set_event_flag(flag_name: str) -> bool:
     return True
 
 
+def set_event_flag_by_number(flag_number: int) -> None:
+    if context.rom.is_rs:
+        offset = 0x1220
+    elif context.rom.is_emerald:
+        offset = 0x1270
+    else:
+        offset = 0x0EE0
+
+    flag_offset = offset + (flag_number // 8)
+    flag_bit = 1 << (flag_number % 8)
+    flag_byte = get_save_block(1, offset=flag_offset, size=1)[0]
+    write_to_save_block(bytes([flag_byte ^ flag_bit]), num=1, offset=flag_offset)
+
+
 def get_event_var(var_name: str) -> int:
     if var_name not in _event_vars:
         return -1

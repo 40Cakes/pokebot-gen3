@@ -106,10 +106,16 @@ class BattleListener(BotListener):
         yield from BattleHandler().step()
         yield from self._wait_until_battle_is_over()
 
-        if context.config.battle.pickup and should_check_for_pickup():
-            yield from MenuWrapper(CheckForPickup()).step()
-        elif context.config.battle.replace_lead_battler and not check_lead_can_battle():
-            yield from MenuWrapper(RotatePokemon()).step()
+        map_objects = get_map_objects()
+        if (
+            len(map_objects) > 0
+            and "heldMovementActive" in map_objects[0].flags
+            and "heldMovementFinished" in map_objects[0].flags
+        ):
+            if context.config.battle.pickup and should_check_for_pickup():
+                yield from MenuWrapper(CheckForPickup()).step()
+            elif context.config.battle.replace_lead_battler and not check_lead_can_battle():
+                yield from MenuWrapper(RotatePokemon()).step()
 
     @isolate_inputs
     def catch(self):

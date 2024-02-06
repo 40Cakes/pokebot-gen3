@@ -281,12 +281,25 @@ def walk_one_tile(direction: str, run: bool = True) -> Generator:
         yield
 
 
-def ensure_facing_direction(facing_direction: str) -> Generator:
+def ensure_facing_direction(facing_direction: str | tuple[int, int]) -> Generator:
     """
     If the player avatar is not already facing a certain direction this will make it turn
     around, so that afterwards it definitely faces the desired direction.
     :param facing_direction: One of "Up", "Down", "Left", or "Right"
     """
+    if isinstance(facing_direction, tuple):
+        x, y = get_player_avatar().local_coordinates
+        if (x - 1, y) == facing_direction:
+            facing_direction = "Left"
+        elif (x + 1, y) == facing_direction:
+            facing_direction = "Right"
+        elif (x, y - 1) == facing_direction:
+            facing_direction = "Up"
+        elif (x, y + 1) == facing_direction:
+            facing_direction = "Down"
+        else:
+            raise BotModeError(f"Tile ({x}, {y}) is not adjacent to the player.")
+
     while True:
         avatar = get_player_avatar()
         if avatar.facing_direction == facing_direction:
