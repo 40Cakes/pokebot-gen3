@@ -1,5 +1,4 @@
 # See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/tree/main/wiki/pages/Configuration%20-%20Cheats.md
 
-starters: false
 random_soft_reset_rng: false
 faster_pickup: false
