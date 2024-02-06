@@ -16,7 +16,7 @@ from typing import Generator, Union
 from modules.context import context
 from modules.files import get_rng_state_history, save_rng_state_history
 from modules.items import get_item_bag, Item, get_item_by_name
-from modules.map import get_map_objects, get_map_all_tiles
+from modules.map import get_map_objects, get_map_all_tiles, MapLocation
 from modules.memory import (
     read_symbol,
     write_symbol,
@@ -130,87 +130,119 @@ def navigate_to(x: int, y: int, run: bool = True) -> Generator:
     :param y: Map-local Y coordinate of the destination
     :param run: Whether the player should run (hold down B)
     """
-    destination_coordinates = x, y
     tiles = get_map_all_tiles()
     map_width, map_height = tiles[0].map_size
 
-    starting_point = get_player_avatar().local_coordinates
-    visited_nodes: dict[tuple[int, int], tuple[int, tuple[int, int]]] = {starting_point: (0, starting_point)}
-    node_queue = queue.SimpleQueue()
-    node_queue.put(starting_point)
+    def is_tile_accessible(destination: MapLocation, source: MapLocation) -> bool:
+        if source.local_position[0] < destination.local_position[0]:
+            direction = "East"
+        elif source.local_position[0] > destination.local_position[0]:
+            direction = "West"
+        elif source.local_position[1] < destination.local_position[1]:
+            direction = "South"
+        else:
+            direction = "North"
 
-    while not node_queue.empty() and destination_coordinates not in visited_nodes:
-        coords = node_queue.get()
-        tile = tiles[coords[1] * map_width + coords[0]]
-        potential_neighbours = {
-            "North": (coords[0], coords[1] - 1),
-            "West": (coords[0] + 1, coords[1]),
-            "South": (coords[0], coords[1] + 1),
-            "East": (coords[0] - 1, coords[1]),
-        }
-        for direction in potential_neighbours:
-            n_coords = potential_neighbours[direction]
-            if 0 <= n_coords[0] < map_width and 0 <= n_coords[1] < map_height:
-                neighbour = tiles[n_coords[1] * map_width + n_coords[0]]
-                if neighbour.collision:
-                    may_pass = False
-                    if (
-                        neighbour.tile_type.startswith("Jump ")
-                        or neighbour.tile_type.startswith("Walk ")
-                        or neighbour.tile_type.startswith("Slide ")
-                    ):
-                        _, passable_direction = neighbour.tile_type.split(" ")
-                        if direction in passable_direction.split("/"):
-                            may_pass = True
-                    if not may_pass:
-                        continue
-                if tile.tile_type.startswith("Impassable "):
-                    impassable_directions = tile.tile_type[11:].split(" and ")
-                    if direction in impassable_directions:
-                        continue
-                if neighbour.elevation not in (0, 15) and tile.elevation != 0 and tile.elevation != neighbour.elevation:
-                    continue
-                if neighbour.tile_type == "Door Warp":
-                    continue
-                tile_blocked_by_object = False
-                object_event_ids = []
-                for map_object in get_map_objects():
-                    object_event_ids.append(map_object.local_id)
-                    if map_object.current_coords == n_coords or map_object.previous_coords == n_coords:
-                        tile_blocked_by_object = True
-                        break
-                for object_template in tiles[0].objects:
-                    if object_template.local_id in object_event_ids:
-                        continue
-                    if object_template.flag_id != 0 and get_event_flag_by_number(object_template.flag_id):
-                        continue
-                    if object_template.local_coordinates == n_coords:
-                        tile_blocked_by_object = True
-                        break
-                if tile_blocked_by_object:
-                    continue
+        if destination.collision:
+            may_pass = False
+            if (
+                destination.tile_type.startswith("Jump ")
+                or destination.tile_type.startswith("Walk ")
+                or destination.tile_type.startswith("Slide ")
+            ):
+                _, passable_direction = destination.tile_type.split(" ")
+                if direction in passable_direction.split("/"):
+                    may_pass = True
+            if not may_pass:
+                return False
+        if source.tile_type.startswith("Impassable "):
+            impassable_directions = source.tile_type[11:].split(" and ")
+            if direction in impassable_directions:
+                return False
+        if destination.elevation not in (0, 15) and source.elevation != 0 and source.elevation != destination.elevation:
+            return False
+        if destination.tile_type == "Door Warp":
+            return False
+        tile_blocked_by_object = False
+        object_event_ids = []
+        for map_object in get_map_objects():
+            object_event_ids.append(map_object.local_id)
+            if (
+                map_object.current_coords == destination.local_position
+                or map_object.previous_coords == destination.local_position
+            ):
+                tile_blocked_by_object = True
+                break
+        for object_template in tiles[0].objects:
+            if object_template.local_id in object_event_ids:
+                continue
+            if object_template.flag_id != 0 and get_event_flag_by_number(object_template.flag_id):
+                continue
+            if object_template.local_coordinates == destination.local_position:
+                tile_blocked_by_object = True
+                break
+        if tile_blocked_by_object:
+            return False
+        return True
 
-                if neighbour.has_encounters:
-                    distance = visited_nodes[coords][0] + 1000
+    def calculate_path(end_point: tuple[int, int], starting_point: tuple[int, int]) -> list[tuple[int, int]]:
+        visited_nodes: dict[tuple[int, int], tuple[int, tuple[int, int]]] = {starting_point: (0, starting_point)}
+        node_queue = queue.SimpleQueue()
+        node_queue.put(starting_point)
+
+        while not node_queue.empty() and end_point not in visited_nodes:
+            coords = node_queue.get()
+            tile = tiles[coords[1] * map_width + coords[0]]
+            potential_neighbours = {
+                "North": (coords[0], coords[1] - 1),
+                "West": (coords[0] - 1, coords[1]),
+                "South": (coords[0], coords[1] + 1),
+                "East": (coords[0] + 1, coords[1]),
+            }
+            for direction in potential_neighbours:
+                n_coords = potential_neighbours[direction]
+                if 0 <= n_coords[0] < map_width and 0 <= n_coords[1] < map_height:
+                    neighbour = tiles[n_coords[1] * map_width + n_coords[0]]
+                    if not is_tile_accessible(neighbour, tile):
+                        continue
+
+                    if neighbour.has_encounters:
+                        distance = visited_nodes[coords][0] + 1000
+                    else:
+                        distance = visited_nodes[coords][0] + 1
+
+                    if n_coords not in visited_nodes or visited_nodes[n_coords][0] > distance:
+                        visited_nodes[n_coords] = (distance, coords)
+                        node_queue.put(n_coords)
+                        if n_coords == end_point:
+                            break
+
+        if end_point not in visited_nodes:
+            raise BotModeError(f"Could not find a path to ({end_point[0]}, {end_point[1]}).")
+
+        current_node = visited_nodes[end_point]
+        waypoints = [end_point]
+        while current_node[1] != starting_point:
+            waypoints.append(current_node[1])
+            current_node = visited_nodes[current_node[1]]
+
+        return list(reversed(waypoints))
+
+    while get_player_avatar().local_coordinates != (x, y):
+        timeout = 60
+        last_known_location = get_player_avatar().local_coordinates
+        for _ in follow_path(calculate_path((x, y), last_known_location), run):
+            timeout -= 1
+            if timeout <= 0 and get_game_state() == GameState.OVERWORLD:
+                current_location = get_player_avatar().local_coordinates
+                if current_location == last_known_location:
+                    for __ in range(16):
+                        yield
+                    break
                 else:
-                    distance = visited_nodes[coords][0] + 1
-
-                if n_coords not in visited_nodes or visited_nodes[n_coords][0] > distance:
-                    visited_nodes[n_coords] = (distance, coords)
-                    node_queue.put(n_coords)
-                    if n_coords == destination_coordinates:
-                        break
-
-    if destination_coordinates not in visited_nodes:
-        raise BotModeError(f"Could not find a path to ({destination_coordinates[0]}, {destination_coordinates[1]}).")
-
-    current_node = visited_nodes[destination_coordinates]
-    waypoints = [destination_coordinates]
-    while current_node[1] != starting_point:
-        waypoints.append(current_node[1])
-        current_node = visited_nodes[current_node[1]]
-
-    yield from follow_path(list(reversed(waypoints)), run)
+                    last_known_location = current_location
+                    timeout += 60
+            yield
 
 
 def walk_one_tile(direction: str, run: bool = True) -> Generator:
