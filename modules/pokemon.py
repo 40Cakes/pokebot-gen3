@@ -1105,7 +1105,7 @@ class Pokemon:
     @property
     def unown_letter(self) -> str:
         letter_index = (
-            (self.data[0] & 0b11)
+            (self.personality_value & 0b11)
             << 6 + (self.data[1] & 0b11)
             << 4 + (self.data[2] & 0b11)
             << 2 + (self.data[3] & 0b11)
