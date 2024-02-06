@@ -296,6 +296,8 @@ def soft_reset(mash_random_keys: bool = True) -> Generator:
                         context.emulator.press_button("B")
                         yield
                     yield from wait_for_task_to_start_and_finish("Task_EndQuestLog", "B")
+                while "heldMovementActive" not in get_map_objects()[0].flags:
+                    yield
                 return
 
         yield
