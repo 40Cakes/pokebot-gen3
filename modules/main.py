@@ -75,6 +75,8 @@ def main_loop() -> None:
 
             if context.bot_mode == "Manual":
                 context.controller_stack = []
+                if current_mode is not None:
+                    context.emulator.reset_held_buttons()
                 current_mode = None
                 listeners = []
             elif len(context.controller_stack) == 0:

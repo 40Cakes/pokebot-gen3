@@ -3,7 +3,7 @@ from typing import Generator
 from modules.data.map import MapRSE
 
 from modules.context import context
-from modules.items import get_item_bag, get_item_by_name
+from modules.items import get_item_bag
 from modules.map import get_map_objects
 from modules.memory import get_event_flag, get_event_var, read_symbol, unpack_uint16
 from modules.menuing import StartMenuNavigator, use_party_hm_move
@@ -316,13 +316,7 @@ class PuzzleSolverMode(BotMode):
 
         def repelCheck():
             repel_steps = get_event_var("REPEL_STEP_COUNT")
-            item_bag = get_save_data().get_item_bag()
-            repels_in_bag = (
-                item_bag.quantity_of(get_item_by_name("Max Repel"))
-                + item_bag.quantity_of(get_item_by_name("Super Repel"))
-                + item_bag.quantity_of(get_item_by_name("Repel"))
-            )
-            if repel_steps < 1 and repels_in_bag > 0:
+            if repel_steps < 1 and get_save_data().get_item_bag().number_of_repels > 0:
                 # use repel
                 first_max_repel = None
                 first_super_repel = None

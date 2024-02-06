@@ -230,6 +230,14 @@ class ItemBag:
                 return slot_index
         return None
 
+    @property
+    def number_of_repels(self) -> int:
+        quantity = 0
+        for slot in self.items:
+            if slot.item.name in ("Repel", "Super Repel", "Max Repel"):
+                quantity += slot.quantity
+        return quantity
+
     def to_dict(self) -> dict:
         return {
             "items": [s.to_dict() for s in self.items],

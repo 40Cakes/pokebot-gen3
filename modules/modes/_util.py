@@ -580,13 +580,7 @@ def replenish_repel() -> None:
     It should not be used anywhere else.
     """
 
-    item_bag = get_item_bag()
-    number_of_repels = (
-        item_bag.quantity_of(get_item_by_name("Max Repel"))
-        + item_bag.quantity_of(get_item_by_name("Super Repel"))
-        + item_bag.quantity_of(get_item_by_name("Repel"))
-    )
-    if number_of_repels == 0:
+    if get_item_bag().number_of_repels == 0:
         raise RanOutOfRepels("Player ran out of repels")
     else:
         context.controller_stack.insert(len(context.controller_stack) - 1, apply_repel())

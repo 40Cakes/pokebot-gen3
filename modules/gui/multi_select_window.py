@@ -51,6 +51,8 @@ def ask_for_choice(choices: list[Selection], window_title: str = "Choose...") ->
     column = 0
     for selection in choices:
         photo = PhotoImage(master=canvas, file=selection.sprite)
+        if photo.width() < 128:
+            photo = photo.zoom(128 // photo.width())
 
         photo_buffer.append(photo)
         button_frame = ttk.Frame(frame, padding=5)

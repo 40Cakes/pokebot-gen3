@@ -5,7 +5,6 @@ from modules.data.map import MapFRLG, MapRSE
 from modules.context import context
 from modules.encounter import handle_encounter, log_encounter, judge_encounter, EncounterValue
 from modules.gui.multi_select_window import ask_for_choice, Selection
-from modules.items import get_item_by_name
 from modules.map import get_map_objects
 from modules.memory import (
     get_game_state,
@@ -116,13 +115,7 @@ class RoamerResetMode(BotMode):
                 f"The first Pokémon in your party has to be at least level {highest_encounter_level + 1} in order for Repel to work."
             )
 
-        item_bag = save_data.get_item_bag()
-        number_of_repels = (
-            item_bag.quantity_of(get_item_by_name("Max Repel"))
-            + item_bag.quantity_of(get_item_by_name("Super Repel"))
-            + item_bag.quantity_of(get_item_by_name("Repel"))
-        )
-        if number_of_repels == 0:
+        if save_data.get_item_bag().number_of_repels == 0:
             raise BotModeError("You do not have any repels in your item bag. Go and get some first!")
 
         flying_pokemon_index = None
