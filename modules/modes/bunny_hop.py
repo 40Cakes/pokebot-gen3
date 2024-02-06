@@ -4,6 +4,7 @@ from modules.context import context
 from modules.player import get_player_avatar, TileTransitionState, AcroBikeState
 from ._asserts import assert_registered_item
 from ._interface import BotMode
+from ._util import apply_white_flute_if_available
 
 
 class BunnyHopMode(BotMode):
@@ -18,6 +19,7 @@ class BunnyHopMode(BotMode):
     def run(self) -> Generator:
         assert_registered_item(["Acro Bike"], error_message="You need to register the Acro Bike for the Select button.")
 
+        apply_white_flute_if_available()
         while True:
             player = get_player_avatar()
 

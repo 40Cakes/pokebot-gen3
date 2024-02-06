@@ -18,6 +18,7 @@ from ._util import (
     ensure_facing_direction,
     wait_until_task_is_not_active,
     wait_for_script_to_start_and_finish,
+    apply_white_flute_if_available,
     apply_repel,
     replenish_repel,
     RanOutOfRepels,
@@ -133,6 +134,8 @@ class RockSmashMode(BotMode):
             except RanOutOfRepels:
                 pass
 
+        yield from apply_white_flute_if_available()
+
         yield from navigate_to(6, 21)
         yield from ensure_facing_direction("Down")
         yield from self.smash("TEMP_16")
@@ -163,6 +166,7 @@ class RockSmashMode(BotMode):
         yield from walk_one_tile("Up")
         yield from walk_one_tile("Up")
         yield from walk_one_tile("Down")
+        yield from apply_white_flute_if_available()
         yield from navigate_to(7, 13)
         yield from ensure_facing_direction("Up")
         yield from self.smash("TEMP_14")

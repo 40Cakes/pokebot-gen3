@@ -526,6 +526,25 @@ class RanOutOfRepels(BotModeError):
 
 
 @isolate_inputs
+def use_item_from_bag(item: Item) -> Generator:
+    yield from StartMenuNavigator("BAG").step()
+    yield from scroll_to_item_in_bag(item)
+
+    yield from wait_for_task_to_start_and_finish("Task_ContinueTaskAfterMessagePrints", "A")
+    if context.rom.is_rse:
+        yield from wait_for_task_to_start_and_finish("Task_ShowStartMenu", "B")
+    else:
+        yield from wait_for_task_to_start_and_finish("Task_StartMenuHandleInput", "B")
+    yield
+
+
+def apply_white_flute_if_available() -> Generator:
+    white_flute = get_item_by_name("White Flute")
+    if get_item_bag().quantity_of(white_flute) > 0:
+        yield from use_item_from_bag(white_flute)
+
+
+@isolate_inputs
 def apply_repel() -> Generator:
     """
     Tries to use the strongest Repel available in the player's item bag (i.e. it will
@@ -545,16 +564,7 @@ def apply_repel() -> Generator:
     if repel_slot is None:
         raise RanOutOfRepels("Player is out or Repels.")
 
-    # Open item bag and select the best Repel item there is (Max > Super > Regular)
-    yield from StartMenuNavigator("BAG").step()
-    yield from scroll_to_item_in_bag(repel_item)
-
-    yield from wait_for_task_to_start_and_finish("Task_ContinueTaskAfterMessagePrints", "A")
-    if context.rom.is_rse:
-        yield from wait_for_task_to_start_and_finish("Task_ShowStartMenu", "B")
-    else:
-        yield from wait_for_task_to_start_and_finish("Task_StartMenuHandleInput", "B")
-    yield
+    yield from use_item_from_bag(repel_item)
 
 
 def replenish_repel() -> None:
