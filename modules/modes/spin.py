@@ -19,7 +19,7 @@ class SpinMode(BotMode):
     def run(self) -> Generator:
         directions = ["Up", "Right", "Down", "Left"]
 
-        apply_white_flute_if_available()
+        yield from apply_white_flute_if_available()
         while True:
             avatar = get_player_avatar()
             if (

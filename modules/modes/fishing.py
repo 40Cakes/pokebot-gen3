@@ -7,7 +7,6 @@ from modules.player import get_player_avatar
 from modules.tasks import get_task
 from ._asserts import assert_registered_item
 from ._interface import BotMode
-from ._util import apply_white_flute_if_available
 
 
 class TaskFishing(Enum):
@@ -48,7 +47,6 @@ class FishingMode(BotMode):
             error_message="You need to register a fishing rod for the Select button.",
         )
 
-        apply_white_flute_if_available()
         while True:
             task_fishing = get_task("Task_Fishing")
             if task_fishing is not None:

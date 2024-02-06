@@ -539,6 +539,11 @@ def use_item_from_bag(item: Item) -> Generator:
 
 
 def apply_white_flute_if_available() -> Generator:
+    if context.rom.is_frlg and get_event_flag("SYS_WHITE_FLUTE_ACTIVE"):
+        return
+    elif context.rom.is_rse and get_event_flag("SYS_ENC_UP_ITEM"):
+        return
+
     white_flute = get_item_by_name("White Flute")
     if get_item_bag().quantity_of(white_flute) > 0:
         yield from use_item_from_bag(white_flute)

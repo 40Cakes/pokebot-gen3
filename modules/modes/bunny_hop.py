@@ -19,7 +19,7 @@ class BunnyHopMode(BotMode):
     def run(self) -> Generator:
         assert_registered_item(["Acro Bike"], error_message="You need to register the Acro Bike for the Select button.")
 
-        apply_white_flute_if_available()
+        yield from apply_white_flute_if_available()
         while True:
             player = get_player_avatar()
 
