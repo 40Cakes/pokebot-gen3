@@ -13,10 +13,12 @@ For quick help and support, reach out in Discord [#pokebot-gen3-support❔](http
 - ✨ [Stream FAQ](pages/Stream%20FAQ.md)
 
 ### Bot Modes
+
 - 🔧 [Manual](pages/Mode%20-%20Manual.md)
 - 🚲 [Acro Bike Bunny Hop](pages/Mode%20-%20Acro%20Bike%20Bunny%20Hop.md)
 - 🎣 [Fishing](pages/Mode%20-%20Fishing.md)
 - 🎰 [Game Corner](pages/Mode%20-%20Game%20Corner.md)
+- 🎨 [Kecleon](pages/Mode%20-%20Kecleon.md)
 - 🟡 [Nugget Bridge](pages/Mode%20-%20Nugget%20Bridge.md)
 - 🧩 [Puzzle Solver](pages/Mode%20-%20Puzzle%20Solver.md)
 - 🎲 [Random Inputs](pages/Mode%20-%20Random%20Inputs.md)
@@ -30,6 +32,7 @@ For quick help and support, reach out in Discord [#pokebot-gen3-support❔](http
 - 🥦 [Sudowoodo](pages/Mode%20-%20Sudowoodo.md)
 
 ### Configuration
+
 - 🛠 [Configuration Overview](pages/Configuration%20-%20Overview.md)
 - 🎮 [Emulator Input Mapping](pages/Configuration%20-%20Emulator%20Input%20Mapping.md)
 - ⚔ [Battling and Pickup](pages/Configuration%20-%20Battling%20and%20Pickup.md)
