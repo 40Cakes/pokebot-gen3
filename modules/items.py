@@ -4,7 +4,7 @@ from enum import Enum
 from functools import cached_property
 
 from modules.context import context
-from modules.memory import get_save_block, unpack_uint16, write_to_save_block, pack_uint16
+from modules.memory import get_save_block, unpack_uint16
 from modules.runtime import get_data_path
 from modules.state_cache import state_cache
 
