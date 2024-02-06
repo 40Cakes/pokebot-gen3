@@ -966,6 +966,7 @@ class EmulatorTab(DebugTab):
 
     def _get_data(self):
         from modules.libmgba import input_map
+        from modules.stats import total_stats
 
         current_inputs = context.emulator.get_inputs()
         inputs_dict = {"__value": []}
@@ -987,10 +988,19 @@ class EmulatorTab(DebugTab):
         for entry in context.controller_stack:
             controller_names.append(entry.__qualname__)
 
+        session_total_seconds = context.frame / 59.727500569606
+        session_hours = int(session_total_seconds / 3600)
+        session_minutes = int((session_total_seconds % 3600) / 60)
+        session_seconds = int(session_total_seconds % 60)
+        session_time_at_1x = f"{session_hours:,}:{session_minutes:02}:{session_seconds:02}"
+
         result = {
             "Inputs": inputs_dict,
-            "Frame": f"{context.emulator.get_frame_count():,}",
+            "Emulator Frame": f"{context.emulator.get_frame_count():,}",
+            "Session Frame": f"{context.frame:,}",
+            "Session Time at 1×": f"{session_time_at_1x}",
             "RNG Seed": hex(unpack_uint32(read_symbol("gRngValue"))),
+            "Encounters/h (at 1×)": total_stats.get_encounter_rate_at_1x(),
             "Controller": controller_names,
         }
 

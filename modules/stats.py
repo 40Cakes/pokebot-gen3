@@ -28,6 +28,7 @@ class TotalStats:
         self.discord_picked_up_items: dict = {}
         self.encounter_log: deque[dict] = deque(maxlen=10)
         self.encounter_timestamps: deque[float] = deque(maxlen=100)
+        self.encounter_frames: deque[int] = deque(maxlen=100)
         self.cached_timestamp: str = ""
         self.cached_encounter_rate: int = 0
 
@@ -73,6 +74,9 @@ class TotalStats:
 
     def append_encounter_timestamps(self) -> None:
         self.encounter_timestamps.append(time.time())
+
+    def append_encounter_frames(self) -> None:
+        self.encounter_frames.append(context.frame)
 
     def append_encounter_log(self, pokemon: Pokemon) -> None:
         state_cache.last_encounter_log = self.encounter_log.pop() if self.encounter_log else None
@@ -122,6 +126,14 @@ class TotalStats:
                 return encounter_rate
             else:
                 return self.cached_encounter_rate
+        return 0
+
+    def get_encounter_rate_at_1x(self) -> float:
+        if len(self.encounter_frames) >= 2:
+            difference = self.encounter_frames[-1] - self.encounter_frames[0]
+            average_frames_per_encounter = difference / len(self.encounter_frames)
+            average_seconds_per_encounter = average_frames_per_encounter / 59.727500569606
+            return round(3600 / average_seconds_per_encounter, 1)
         return 0
 
     def update_incremental_stats(self, pokemon: Pokemon) -> None:
@@ -340,6 +352,7 @@ class TotalStats:
 
             self.update_shiny_averages(pokemon)
             self.append_encounter_timestamps()
+            self.append_encounter_frames()
             self.append_encounter_log(pokemon)
             self.update_same_pokemon_streak_record(pokemon)
 

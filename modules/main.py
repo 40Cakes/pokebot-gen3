@@ -49,6 +49,8 @@ def main_loop() -> None:
                 callback = work_queue.get_nowait()
                 callback()
 
+            context.frame += 1
+
             if context.bot_mode != "Manual":
                 game_state = get_game_state()
                 script_context = get_global_script_context()
