@@ -107,9 +107,9 @@ class BattleListener(BotListener):
         yield from self._wait_until_battle_is_over()
 
         if context.config.battle.pickup and should_check_for_pickup():
-            context.controller_stack.append(self.check_for_pickup())
+            yield from MenuWrapper(CheckForPickup()).step()
         elif context.config.battle.replace_lead_battler and not check_lead_can_battle():
-            context.controller_stack.append(self.rotate_lead_pokemon())
+            yield from MenuWrapper(RotatePokemon()).step()
 
     @isolate_inputs
     def catch(self):
@@ -122,14 +122,6 @@ class BattleListener(BotListener):
             yield
         yield from flee_battle()
         yield from self._wait_until_battle_is_over()
-
-    @isolate_inputs
-    def check_for_pickup(self):
-        yield from MenuWrapper(CheckForPickup()).step()
-
-    @isolate_inputs
-    def rotate_lead_pokemon(self):
-        yield from MenuWrapper(RotatePokemon()).step()
 
 
 class TrainerApproachListener(BotListener):
