@@ -19,7 +19,7 @@ from ._util import (
     follow_path,
     wait_until_task_is_active,
     wait_for_n_frames,
-    wait_for_script_to_start_and_finish
+    wait_for_script_to_start_and_finish,
 )
 
 
@@ -319,6 +319,7 @@ class PuzzleSolverMode(BotMode):
             # Tanoby Key
             case MapFRLG.TANOBY_KEY.value:
                 context.message = "Solving Tanoby Key..."
+
                 def path():
                     yield from navigate_to(7, 8)
                     yield from navigate_to(7, 7)
@@ -333,7 +334,7 @@ class PuzzleSolverMode(BotMode):
                     yield from follow_path([(6, 7), (7, 7)])
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
-                    yield from follow_path([(7, 6), (5, 6), (5, 4), (6,4)])
+                    yield from follow_path([(7, 6), (5, 6), (5, 4), (6, 4)])
                     yield from walk_one_tile("Right")
                     yield from walk_one_tile("Right")
                     yield from walk_one_tile("Right")
@@ -366,18 +367,23 @@ class PuzzleSolverMode(BotMode):
                     yield from walk_one_tile("Up")
                     yield from follow_path([(7, 12), (5, 12), (5, 11)])
                     yield from walk_one_tile("Up")
-                    while "SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved" not in get_global_script_context().stack:
+                    while (
+                        "SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved"
+                        not in get_global_script_context().stack
+                    ):
                         context.emulator.press_button("Up")
                         yield
-                    yield from wait_for_script_to_start_and_finish("SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved", "B")
-                    if(get_event_flag("SYS_UNLOCKED_TANOBY_RUINS")):
+                    yield from wait_for_script_to_start_and_finish(
+                        "SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved", "B"
+                    )
+                    if get_event_flag("SYS_UNLOCKED_TANOBY_RUINS"):
                         context.message = "Tanoby Key puzzle complete."
                         context.bot_mode = "Manual"
                     else:
                         yield from navigate_to(7, 13)
                         yield from walk_one_tile("Down")
                         yield from walk_one_tile("Up")
-            
+
             case _:
                 raise BotModeError("You are not on the right map.")
 
