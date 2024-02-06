@@ -101,7 +101,7 @@ class RockSmashMode(BotMode):
                         Selection("Use Repel", get_sprites_path() / "items" / "Repel.png"),
                         Selection("Don't use Repel", get_sprites_path() / "items" / "None.png"),
                     ],
-                    window_title="Choose Method..."
+                    window_title="Choose Method...",
                 )
 
                 if mode == "Use Repel":
