@@ -15,7 +15,7 @@ class BunnyHopMode(BotMode):
     def is_selectable() -> bool:
         if context.rom.is_rse:
             return get_player_avatar().map_location.has_encounters
-        else: 
+        else:
             return False
 
     def run(self) -> Generator:

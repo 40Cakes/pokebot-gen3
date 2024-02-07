@@ -61,7 +61,8 @@ class GameCornerMode(BotMode):
                 coincase >= coins,
             )
             available_options.append(selection)
-        game_corner_choice = ask_for_choice(available_options,
+        game_corner_choice = ask_for_choice(
+            available_options,
             window_title="Select which one to buy...",
         )
         if game_corner_choice is None:
