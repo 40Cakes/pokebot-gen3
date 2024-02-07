@@ -6,7 +6,8 @@ from modules.context import context
 from modules.encounter import encounter_pokemon
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
-from modules.pokemon import get_opponent
+from modules.pokemon import get_opponent, get_party
+from modules.save_data import get_save_data
 from ._asserts import (
     assert_has_pokemon_with_move,
     assert_item_exists_in_bag,
@@ -52,6 +53,11 @@ class KecleonMode(BotMode):
             raise BotModeError("This mode requires the Devon Scope.")
         if get_event_flag("HIDE_ROUTE_119_KECLEON_1"):
             raise BotModeError("This Kecleon has already been encountered.")
+        last_heal_group, last_heal_map = get_save_data().get_last_heal_location()
+        if (last_heal_group, last_heal_map) != (MapRSE.FORTREE_CITY.value):
+            raise BotModeError("This mode requires the last heal location to be Fortree City.")
+        if len(get_party()) > 1:
+            raise BotModeError("This mode requires only one Pokémon in the party.")
 
         while context.bot_mode != "Manual":
             if get_player_avatar().map_group_and_number == MapRSE.ROUTE_119.value:
