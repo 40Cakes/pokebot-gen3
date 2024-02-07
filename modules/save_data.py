@@ -63,7 +63,7 @@ class SaveData:
         return ItemBag(
             data, items_count, key_items_count, poke_balls_count, tms_hms_count, berries_count, encryption_key
         )
-    
+
     def get_last_heal_location(self) -> tuple[int, int]:
         return get_save_block(1, offset=0x1C, size=2)
 
