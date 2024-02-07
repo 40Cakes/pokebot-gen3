@@ -10,6 +10,7 @@ The mode checks that you have not already defeated this one, if you have, you wi
 - Received the [Devon Scope](https://bulbapedia.bulbagarden.net/wiki/Devon_Scope)
 - Single Pokémon in your party with [Selfdestruct](<https://bulbapedia.bulbagarden.net/wiki/Self-Destruct_(move)>) in the _first_ move slot.
 - Have not defeated/captured the Kecleon on Route 119.
+- Last healed Pokémon center is Fortree City
 
 ### Where to start
 
