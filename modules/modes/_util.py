@@ -22,7 +22,6 @@ from modules.memory import (
     write_symbol,
     pack_uint32,
     unpack_uint32,
-    unpack_uint16,
     get_game_state,
     get_game_state_symbol,
     GameState,
@@ -528,11 +527,18 @@ def use_item_from_bag(item: Item) -> Generator:
     yield from StartMenuNavigator("BAG").step()
     yield from scroll_to_item_in_bag(item)
 
-    yield from wait_for_task_to_start_and_finish("Task_ContinueTaskAfterMessagePrints", "A")
-    if context.rom.is_rse:
-        yield from wait_for_task_to_start_and_finish("Task_ShowStartMenu", "B")
+    if context.rom.is_rs:
+        confirmation_after_use_item_task = "sub_80F9090"
+        start_menu_task = "sub_80712B4"
+    elif context.rom.is_emerald:
+        confirmation_after_use_item_task = "Task_ContinueTaskAfterMessagePrints"
+        start_menu_task = "Task_ShowStartMenu"
     else:
-        yield from wait_for_task_to_start_and_finish("Task_StartMenuHandleInput", "B")
+        confirmation_after_use_item_task = "Task_ContinueTaskAfterMessagePrints"
+        start_menu_task = "Task_StartMenuHandleInput"
+
+    yield from wait_for_task_to_start_and_finish(confirmation_after_use_item_task, "A")
+    yield from wait_for_task_to_start_and_finish(start_menu_task, "B")
     yield
 
 

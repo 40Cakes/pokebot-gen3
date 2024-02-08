@@ -2,7 +2,7 @@ from enum import IntEnum
 from typing import Generator
 
 from modules.context import context
-from modules.items import get_item_bag, Item, ItemPocket
+from modules.items import get_item_bag, Item
 from modules.memory import get_event_flag, get_game_state, GameState, read_symbol, unpack_uint16
 from modules.menu_parsers import (
     CursorOptionEmerald,
@@ -96,6 +96,8 @@ def scroll_to_item_in_bag(item: Item) -> Generator:
         yield
         yield
         yield
+        if context.rom.is_rs:
+            yield
 
 
 class BaseMenuNavigator:
