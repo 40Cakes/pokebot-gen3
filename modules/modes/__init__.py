@@ -15,6 +15,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
 
     if len(_bot_modes) == 0:
         from .bunny_hop import BunnyHopMode
+        from modules.modes.daycare import DaycareMode
         from .fishing import FishingMode
         from .game_corner import GameCornerMode
         from .kecleon import KecleonMode
@@ -32,6 +33,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
 
         _bot_modes = [
             BunnyHopMode,
+            DaycareMode,
             FishingMode,
             GameCornerMode,
             KecleonMode,
