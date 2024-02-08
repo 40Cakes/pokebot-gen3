@@ -14,8 +14,6 @@ from ._asserts import (
 )
 from ._interface import BotMode, BotModeError
 from ._util import (
-    wait_until_script_is_no_longer_active,
-    wait_for_task_to_start_and_finish,
     walk_one_tile,
     navigate_to,
 )
@@ -43,10 +41,16 @@ class KecleonMode(BotMode):
     def is_selectable() -> bool:
         return _get_targeted_encounter() is not None
 
+    def __init__(self):
+        super().__init__()
+        self._has_whited_out = False
+
     def on_battle_started(self) -> BattleAction | None:
+        handle_encounter(get_opponent(), disable_auto_catch=True)
         return BattleAction.CustomAction
 
     def on_whiteout(self) -> bool:
+        self._has_whited_out = True
         return True
 
     def run(self) -> Generator:
@@ -62,16 +66,15 @@ class KecleonMode(BotMode):
             raise BotModeError("This mode requires only one Pokémon in the party.")
 
         while context.bot_mode != "Manual":
+            self._has_whited_out = False
             if get_player_avatar().map_group_and_number == MapRSE.ROUTE_119.value:
                 yield from navigate_to(31, 7)
                 while get_player_avatar().facing_direction != "Up":
                     context.emulator.press_button("Up")
                     yield
-                yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
-                yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
-                handle_encounter(get_opponent())
-                yield from wait_until_script_is_no_longer_active("EventScript_BattleKecleon", "A")
-                yield from wait_for_task_to_start_and_finish("Task_ExitNonDoor")
+                while not self._has_whited_out:
+                    context.emulator.press_button("A")
+                    yield
             if get_player_avatar().map_group_and_number == MapRSE.FORTREE_CITY.value:
                 yield from navigate_to(0, 7)
                 yield from walk_one_tile("Left")
