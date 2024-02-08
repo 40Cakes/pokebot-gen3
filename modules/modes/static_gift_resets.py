@@ -82,6 +82,7 @@ class StaticGiftResetsMode(BotMode):
             )
             if get_event_flag("RECEIVED_LAVARIDGE_EGG"):
                 raise BotModeError("You have already received the Wynaut egg.")
+        if encounter[2] in ["Wynaut", "Togepi"]:
             if get_party()[0].ability.name not in ["Flame Body", "Magma Armor"]:
                 console.print(
                     "[bold yellow]WARNING: First Pokemon in party does not have Flame Body / Magma Armor ability."
