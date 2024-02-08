@@ -195,7 +195,7 @@ def get_game_state() -> GameState:
             result = GameState.MAIN_MENU
         case "CB2_EVOLUTIONSCENEUPDATE":
             result = GameState.EVOLUTION
-        case "CB2_EGGHATCH" | "CB2_LOADEGGHATCH":
+        case "CB2_EGGHATCH" | "CB2_LOADEGGHATCH" | "CB2_EGGHATCH_0" | "CB2_EGGHATCH_1":
             result = GameState.EGG_HATCH
         case "CB2_WHITEOUT":
             result = GameState.WHITEOUT

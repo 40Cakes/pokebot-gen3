@@ -143,7 +143,10 @@ def log_encounter(pokemon: Pokemon, action: BattleAction | None = None) -> None:
 
 
 def handle_encounter(
-    pokemon: Pokemon, disable_auto_catch: bool = False, disable_auto_battle: bool = False
+    pokemon: Pokemon,
+    disable_auto_catch: bool = False,
+    disable_auto_battle: bool = False,
+    do_not_log_action: bool = False,
 ) -> BattleAction:
     encounter_value = judge_encounter(pokemon)
     match encounter_value:
@@ -200,5 +203,9 @@ def handle_encounter(
     else:
         decision = BattleAction.RunAway
 
-    log_encounter(pokemon, decision)
+    if do_not_log_action:
+        log_encounter(pokemon, None)
+    else:
+        log_encounter(pokemon, decision)
+
     return decision
