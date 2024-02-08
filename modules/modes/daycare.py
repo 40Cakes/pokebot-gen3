@@ -108,8 +108,6 @@ class DaycareMode(BotMode):
             yield from follow_path([(10, 8), (20, 8), (30, 8), (40, 8), (50, 8), (56, 8)], False)
 
         def pc_release(pokemon: str):
-            from modules.stats import total_stats
-
             if get_player_avatar().is_on_bike:
                 context.emulator.press_button("Select")
             # enter daycare
