@@ -94,7 +94,7 @@ class StaticGiftResetsMode(BotMode):
             )
             if get_party()[0].friendship < 255:
                 raise BotModeError("The first Pokemon in your party must have max friendship (255) to receive the egg.")
-            
+
         if get_event_flag("GOT_TOGEPI_EGG"):
             raise BotModeError("You have already received the Togepi egg.")
         while context.bot_mode != "Manual":
