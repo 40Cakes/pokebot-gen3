@@ -1,9 +1,9 @@
 from enum import IntEnum
+from typing import Generator
 
 from modules.context import context
-from modules.items import get_item_bag
-from modules.modes._interface import BotModeError
-from modules.memory import get_event_flag, get_game_state, GameState
+from modules.items import get_item_bag, Item, ItemPocket
+from modules.memory import get_event_flag, get_game_state, GameState, read_symbol, unpack_uint16
 from modules.menu_parsers import (
     CursorOptionEmerald,
     CursorOptionFRLG,
@@ -14,9 +14,10 @@ from modules.menu_parsers import (
     parse_menu,
     get_party_menu_cursor_pos,
 )
-from modules.pokemon import get_move_by_name, get_party
-from modules.tasks import task_is_active
 from modules.modes._asserts import assert_has_pokemon_with_move
+from modules.modes._interface import BotModeError
+from modules.pokemon import get_move_by_name, get_party
+from modules.tasks import task_is_active, get_task
 
 
 def party_menu_is_open() -> bool:
@@ -33,6 +34,67 @@ def party_menu_is_open() -> bool:
             or task_is_active("HANDLEPARTYMENUSWITCHPOKEMONINPUT")
             or task_is_active("HANDLEBATTLEPARTYMENU")
         )
+
+
+def scroll_to_item_in_bag(item: Item) -> Generator:
+    """
+    This will select the correct bag pocket and scroll to the correct position therein.
+
+    It will _not_ activate the item (pressing A) and it does _not_ open the bag menu.
+    It is assumed that the bag menu is already open.
+
+    :param item: Item to scroll to
+    """
+    def open_pocket_index() -> int:
+        if context.rom.is_emerald:
+            return read_symbol("gBagPosition", offset=0x05, size=1)[0]
+        elif context.rom.is_rs:
+            return read_symbol("sCurrentBagPocket")[0]
+        else:
+            return read_symbol("gBagMenuState", offset=0x06, size=1)[0]
+
+    def currently_selected_slot() -> int:
+        bag_index = open_pocket_index()
+        if context.rom.is_emerald:
+            cursor_position = unpack_uint16(read_symbol("gBagPosition", offset=8 + (bag_index * 2), size=2))
+            scroll_position = unpack_uint16(read_symbol("gBagPosition", offset=18 + (bag_index * 2), size=2))
+        elif context.rom.is_rs:
+            cursor_position, scroll_position = read_symbol("gBagPocketScrollStates", offset=4 * bag_index, size=2)
+        else:
+            cursor_position = unpack_uint16(read_symbol("gBagMenuState", offset=8 + (bag_index * 2), size=2))
+            scroll_position = unpack_uint16(read_symbol("gBagMenuState", offset=14 + (bag_index * 2), size=2))
+        return cursor_position + scroll_position
+
+    # Wait for fade-in to finish (happens when the bag is opened, during which time inputs
+    # are not yet active.)
+    while (
+        get_game_state() != GameState.BAG_MENU
+        or unpack_uint16(read_symbol("gPaletteFade", offset=0x07, size=0x02)) & 0x80 != 0
+    ):
+        yield
+
+    # Select the correct pocket
+    target_pocket_index = item.pocket.index
+    while open_pocket_index() != target_pocket_index:
+        if open_pocket_index() < target_pocket_index:
+            context.emulator.press_button("Right")
+        else:
+            context.emulator.press_button("Left")
+        for _ in range(26):
+            yield
+
+    # Scroll to the item
+    slot_index = get_item_bag().first_slot_index_for(item)
+    if slot_index is None:
+        raise RuntimeError(f"Could not find any {item.name}")
+    while currently_selected_slot() != slot_index:
+        if currently_selected_slot() < slot_index:
+            context.emulator.press_button("Down")
+        else:
+            context.emulator.press_button("Up")
+        yield
+        yield
+        yield
 
 
 class BaseMenuNavigator:
@@ -144,12 +206,13 @@ class StartMenuNavigator(BaseMenuNavigator):
 
 
 class PokemonPartySubMenuNavigator(BaseMenuNavigator):
-    def __init__(self, desired_option: str | int):
+    def __init__(self, desired_option: str | int, item_to_give: Item | None = None):
         super().__init__()
         self.party_menu_internal = None
         self.update_party_menu()
         self.wait_counter = 0
         self.desired_option = desired_option
+        self.item_to_give = item_to_give
 
     def update_party_menu(self):
         party_menu_internal = parse_party_menu()
@@ -205,6 +268,19 @@ class PokemonPartySubMenuNavigator(BaseMenuNavigator):
             self.wait_counter += 1
             yield
 
+        if self.item_to_give is not None:
+            while not task_is_active("Task_BagMenu_HandleInput") or get_task("Task_BagMenu_HandleInput").data[0] != 1:
+                yield
+            yield from scroll_to_item_in_bag(self.item_to_give)
+            while not task_is_active("Task_PrintAndWaitForText"):
+                context.emulator.press_button("A")
+                yield
+            while task_is_active("Task_PrintAndWaitForText"):
+                context.emulator.press_button("A")
+                yield
+            for _ in range(5):
+                yield
+
     def get_next_func(self):
         match self.current_step:
             case "None":
@@ -228,7 +304,7 @@ class PokemonPartySubMenuNavigator(BaseMenuNavigator):
 
 
 class PokemonPartyMenuNavigator(BaseMenuNavigator):
-    def __init__(self, idx: int, mode: str, cursor_option: IntEnum | None = None):
+    def __init__(self, idx: int, mode: str, cursor_option: IntEnum | None = None, item_to_give: Item | None = None):
         super().__init__()
         self.idx = idx
         self.game = context.rom.game_title
@@ -238,6 +314,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
             self.get_primary_option()
         else:
             self.primary_option = cursor_option
+        self.item_to_give = item_to_give
         self.subnavigator = None
         self.party = get_party()
 
@@ -395,7 +472,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
     def select_give_item(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
             while get_party()[self.idx].held_item is None:
-                yield from PokemonPartySubMenuNavigator("GIVE_ITEM").step()
+                yield from PokemonPartySubMenuNavigator("GIVE_ITEM", self.item_to_give).step()
         else:
             while task_is_active("SUB_808A060"):
                 yield from PokemonPartySubMenuNavigator(0).step()
@@ -461,7 +538,7 @@ class CheckForPickup(BaseMenuNavigator):
         for i, mon in enumerate(self.party):
             if mon.ability.name == "Pickup":
                 self.pokemon_with_pickup += 1
-                if mon.held_item is not None:
+                if mon.held_item is not None and mon.held_item.name != "Exp. Share":
                     self.pokemon_with_pickup_and_item.append(i)
                     self.picked_up_items.append(mon.held_item)
 
@@ -542,7 +619,7 @@ class CheckForPickup(BaseMenuNavigator):
                     self.current_step = "exit"
             case "open_party_menu":
                 self.checked = True
-                if self.pickup_threshold_met:
+                if self.pickup_threshold_met and len(self.pokemon_with_pickup_and_item) > 0:
                     self.current_mon = self.pokemon_with_pickup_and_item[0]
                     self.check_space_in_bag()
                     self.current_step = "take_mon_item"

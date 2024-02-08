@@ -30,7 +30,7 @@ from modules.memory import (
     get_event_flag_by_number,
 )
 from modules.menu_parsers import CursorOptionEmerald, CursorOptionRS, CursorOptionFRLG
-from modules.menuing import StartMenuNavigator, PokemonPartyMenuNavigator
+from modules.menuing import StartMenuNavigator, PokemonPartyMenuNavigator, scroll_to_item_in_bag as real_scroll_to_item
 from modules.player import get_player, get_player_avatar, TileTransitionState, RunningState
 from modules.pokemon import get_party
 from modules.region_map import get_map_region, get_map_cursor, FlyDestinationRSE, FlyDestinationFRLG
@@ -506,56 +506,7 @@ def scroll_to_item_in_bag(item: Item) -> Generator:
     if get_item_bag().quantity_of(item) == 0:
         raise BotModeError(f"Cannot use {item.name} because there is none in the item bag.")
 
-    def open_pocket_index() -> int:
-        if context.rom.is_emerald:
-            return read_symbol("gBagPosition", offset=0x05, size=1)[0]
-        elif context.rom.is_rs:
-            return read_symbol("sCurrentBagPocket")[0]
-        else:
-            return read_symbol("gBagMenuState", offset=0x06, size=1)[0]
-
-    def currently_selected_slot() -> int:
-        bag_index = open_pocket_index()
-        if context.rom.is_emerald:
-            cursor_position = unpack_uint16(read_symbol("gBagPosition", offset=8 + (bag_index * 2), size=2))
-            scroll_position = unpack_uint16(read_symbol("gBagPosition", offset=18 + (bag_index * 2), size=2))
-        elif context.rom.is_rs:
-            cursor_position, scroll_position = read_symbol("gBagPocketScrollStates", offset=4 * bag_index, size=2)
-        else:
-            cursor_position = unpack_uint16(read_symbol("gBagMenuState", offset=8 + (bag_index * 2), size=2))
-            scroll_position = unpack_uint16(read_symbol("gBagMenuState", offset=14 + (bag_index * 2), size=2))
-        return cursor_position + scroll_position
-
-    # Wait for fade-in to finish (happens when the bag is opened, during which time inputs
-    # are not yet active.)
-    while (
-        get_game_state() != GameState.BAG_MENU
-        or unpack_uint16(read_symbol("gPaletteFade", offset=0x07, size=0x02)) & 0x80 != 0
-    ):
-        yield
-
-    # Select the correct pocket
-    target_pocket_index = item.pocket.index
-    while open_pocket_index() != target_pocket_index:
-        if open_pocket_index() < target_pocket_index:
-            context.emulator.press_button("Right")
-        else:
-            context.emulator.press_button("Left")
-        for _ in range(26):
-            yield
-
-    # Scroll to the item
-    slot_index = get_item_bag().first_slot_index_for(item)
-    if slot_index is None:
-        raise RuntimeError(f"Could not find any {item.name}")
-    while currently_selected_slot() != slot_index:
-        if currently_selected_slot() < slot_index:
-            context.emulator.press_button("Down")
-        else:
-            context.emulator.press_button("Up")
-        yield
-        yield
-        yield
+    yield from real_scroll_to_item(item)
 
 
 def isolate_inputs(generator_function):
