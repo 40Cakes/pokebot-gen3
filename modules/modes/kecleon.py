@@ -11,7 +11,6 @@ from modules.save_data import get_save_data
 from . import BattleAction
 from ._asserts import (
     assert_has_pokemon_with_move,
-    assert_item_exists_in_bag,
 )
 from ._interface import BotMode, BotModeError
 from ._util import (
@@ -46,6 +45,9 @@ class KecleonMode(BotMode):
 
     def on_battle_started(self) -> BattleAction | None:
         return BattleAction.CustomAction
+
+    def on_whiteout(self) -> bool:
+        return True
 
     def run(self) -> Generator:
         assert_has_pokemon_with_move("Selfdestruct", "This mode requires a Pokémon with the move Selfdestruct.")
