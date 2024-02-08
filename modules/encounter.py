@@ -23,16 +23,48 @@ def send_discord_encounter_gif(gif_path: Path, wait: int = 0) -> None:
     discord_message(image=gif_path)
 
 
-def wild_encounter_gif(post_to_discord: bool = False) -> None:
+def wild_encounter_gif(pokemon: Pokemon, post_to_discord: bool = False) -> None:
     """
     Generates a GIF from frames 220-260 after wild encounter is logged to capture the shiny sparkles
     TODO add GIFs for other modes if applicable
     """
     if get_opponent() is not None and get_opponent().is_shiny:  # Disables GIF generation for daycare/gift modes
-        gif = context.emulator.generate_gif(start_frame=220, duration=37)
+        start_frame = 220
+        duration = 37
+
+        ivs_list = (
+            f"HP: {pokemon.ivs.hp}\n"
+            f"ATK: {pokemon.ivs.attack}\n"
+            f"DEF: {pokemon.ivs.defence}\n"
+            f"SPA: {pokemon.ivs.special_attack}\n"
+            f"SPD: {pokemon.ivs.special_defence}\n"
+            f"SPE: {pokemon.ivs.speed}"
+        )
+
+        # Generate a GIF with subtitle text of encounter data
+        context.emulator.generate_gif(
+            start_frame=start_frame,
+            duration=duration,
+            subtitles=[
+                (
+                    (20, 240),
+                    f"{pokemon.location_met}\n" f"Nature: {pokemon.nature}, Ability: {pokemon.ability}",
+                    "normal",
+                ),
+                (
+                    (435, 15),
+                    ivs_list,
+                    "small",
+                ),
+            ],
+            filename_suffix="_detailed",
+        )
+
+        # Generate a GIF with no subtitle text
+        discord_gif = context.emulator.generate_gif(start_frame=start_frame, duration=duration)
 
         if post_to_discord:
-            Thread(target=send_discord_encounter_gif, args=(gif, 3)).start()
+            Thread(target=send_discord_encounter_gif, args=(discord_gif, 3)).start()
 
 
 def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
@@ -85,7 +117,7 @@ def encounter_pokemon(pokemon: Pokemon, log_only: bool = False) -> None:
 
             alert_title = "Shiny found!"
             alert_message = f"Found a ✨shiny {pokemon.species.name}✨! 🥳"
-            wild_encounter_gif(post_to_discord=context.config.discord.shiny_pokemon_encounter.enable)
+            wild_encounter_gif(pokemon=pokemon, post_to_discord=context.config.discord.shiny_pokemon_encounter.enable)
 
         elif custom_found:
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.custom:

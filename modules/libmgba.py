@@ -3,6 +3,8 @@ from pathlib import Path
 
 import PIL.Image
 import PIL.PngImagePlugin
+import PIL.ImageFont
+import PIL.ImageDraw
 import time
 import zlib
 from collections import deque
@@ -589,16 +591,27 @@ class LibmgbaEmulator:
         self._performance_tracker.time_spent_total -= time.time_ns() - begin
         self._performance_tracker.track_frame()
 
-    def generate_gif(self, start_frame: int, duration: int) -> Path:
+    def generate_gif(
+        self,
+        start_frame: int,
+        duration: int,
+        subtitles: list[tuple[tuple[int], str, str]] | None = None,
+        filename_suffix: str = "",
+    ) -> Path:
         """
         Uses peek_frame to run the emulation from (current frame + start frame) to (current frame +  + start frame + duration),
         taking a screenshot and stitching them together into an animated GIF.
+
+        :param start_frame: start recording from nth frame ahead of current frame
+        :param duration: record GIF for n frames
+        :param subtitles: adds text to GIF ((x, y), text, font_size) (font size: "small", "large", "normal")
+        :param filename_suffix: append text suffix to filename
         """
 
         frames: list[PIL.Image.Image] = []
         current_timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
         gif_dir = self._profile.path / "screenshots" / "gifs"
-        gif_filename = gif_dir / f"{current_timestamp}.gif"
+        gif_filename = gif_dir / f"{current_timestamp}{filename_suffix}.gif"
         if not gif_dir.exists():
             gif_dir.mkdir(parents=True)
 
@@ -606,15 +619,49 @@ class LibmgbaEmulator:
         self.set_video_enabled(True)
 
         with self.peek_frame(start_frame):
-            for i in range(duration):
+            for _ in range(duration):
                 screenshot = self.get_screenshot()
                 if screenshot.getbbox():
+                    # Resize image 2x
+                    screenshot = screenshot.resize(
+                        size=tuple(2 * x for x in screenshot.size), resample=PIL.Image.NEAREST
+                    )
+
+                    if subtitles:
+                        draw = PIL.ImageDraw.Draw(screenshot)
+
+                        for subtitle in subtitles:
+                            match subtitle[2]:
+                                # Pixel style font anti-alias horribly unless font set to exact intervals of 15
+                                case "small":
+                                    font_size = 15
+                                    shadow_offset = 1
+                                case "large":
+                                    font_size = 45
+                                    shadow_offset = 3
+                                case _:
+                                    font_size = 30
+                                    shadow_offset = 2
+
+                            font = PIL.ImageFont.truetype(font="modules/data/fonts/pokemon-rs.ttf", size=font_size)
+
+                            # Draw black text shadow
+                            draw.text(
+                                xy=(subtitle[0][0] + shadow_offset, subtitle[0][1] + shadow_offset),
+                                text=subtitle[1],
+                                fill="#000",
+                                font=font,
+                            )
+
+                            # Draw white text at coords
+                            draw.text(xy=subtitle[0], text=subtitle[1], fill="#FFF", font=font)
+
                     frames.append(screenshot)
                 self._core.run_frame()
 
         self.set_video_enabled(video_was_enabled)
 
-        if len(frames) < 1:
+        if not frames:
             raise RuntimeError("GIF generation did not result in any frames.")
 
         # Closest to 60 fps we can get, as Pillow only seems to support 10ms steps.
