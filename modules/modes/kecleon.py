@@ -3,11 +3,12 @@ from typing import Generator
 from modules.data.map import MapRSE
 
 from modules.context import context
-from modules.encounter import encounter_pokemon
+from modules.encounter import handle_encounter
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
 from modules.pokemon import get_opponent, get_party
 from modules.save_data import get_save_data
+from . import BattleAction
 from ._asserts import (
     assert_has_pokemon_with_move,
     assert_item_exists_in_bag,
@@ -43,9 +44,8 @@ class KecleonMode(BotMode):
     def is_selectable() -> bool:
         return _get_targeted_encounter() is not None
 
-    @staticmethod
-    def disable_default_battle_handler() -> bool:
-        return True
+    def on_battle_started(self) -> BattleAction | None:
+        return BattleAction.CustomAction
 
     def run(self) -> Generator:
         assert_has_pokemon_with_move("Selfdestruct", "This mode requires a Pokémon with the move Selfdestruct.")
@@ -67,7 +67,7 @@ class KecleonMode(BotMode):
                     yield
                 yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
                 yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
-                encounter_pokemon(get_opponent())
+                handle_encounter(get_opponent())
                 yield from wait_until_script_is_no_longer_active("EventScript_BattleKecleon", "A")
                 yield from wait_for_task_to_start_and_finish("Task_ExitNonDoor")
             if get_player_avatar().map_group_and_number == MapRSE.FORTREE_CITY.value:
