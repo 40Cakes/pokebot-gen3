@@ -15,7 +15,7 @@ from typing import Generator, Union
 
 from modules.context import context
 from modules.files import get_rng_state_history, save_rng_state_history
-from modules.items import get_item_bag, Item, get_item_by_name
+from modules.items import get_item_bag, Item, ItemPocket, get_item_by_name
 from modules.map import get_map_objects, get_map_all_tiles, MapLocation
 from modules.memory import (
     read_symbol,
@@ -538,6 +538,50 @@ def use_item_from_bag(item: Item) -> Generator:
         start_menu_task = "Task_StartMenuHandleInput"
 
     yield from wait_for_task_to_start_and_finish(confirmation_after_use_item_task, "A")
+    yield from wait_for_task_to_start_and_finish(start_menu_task, "B")
+    yield
+
+
+def register_key_item(item: Item) -> Generator:
+    """
+    Ensures that a Key Item is registered to the Select button.
+    :param item: The item to register
+    """
+    if item.pocket != ItemPocket.KeyItems:
+        raise BotModeError(f"Cannot register {item.name} as it is not a Key Item.")
+
+    if get_item_bag().quantity_of(item) <= 0:
+        raise BotModeError(f"Cannot register {item.name} as it is not in the item bag.")
+
+    previously_registerd_item = get_player().registered_item
+    if previously_registerd_item is not None and previously_registerd_item.index == item.index:
+        return
+
+    yield from StartMenuNavigator("BAG").step()
+    yield from scroll_to_item_in_bag(item)
+    context.emulator.press_button("A")
+    if context.rom.is_rs:
+        yield from wait_for_n_frames(4)
+        context.emulator.press_button("Right")
+        yield from wait_for_n_frames(3)
+    elif context.rom.is_emerald:
+        yield from wait_for_n_frames(3)
+        context.emulator.press_button("Right")
+        yield from wait_for_n_frames(3)
+    else:
+        yield from wait_for_n_frames(6)
+        context.emulator.press_button("Down")
+        yield from wait_for_n_frames(2)
+
+    context.emulator.press_button("A")
+
+    if context.rom.is_rs:
+        start_menu_task = "sub_80712B4"
+    elif context.rom.is_emerald:
+        start_menu_task = "Task_ShowStartMenu"
+    else:
+        start_menu_task = "Task_StartMenuHandleInput"
+
     yield from wait_for_task_to_start_and_finish(start_menu_task, "B")
     yield
 
