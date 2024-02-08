@@ -97,13 +97,19 @@ def main_loop() -> None:
                 context.message = str(e)
                 context.set_manual_mode()
             except TimeoutError:
-                console.print_exception(show_locals=True)
+                console.print_exception()
                 sys.exit(1)
             except Exception as e:
-                console.print_exception(show_locals=True)
+                console.print_exception()
                 context.emulator.reset_held_buttons()
                 context.message = "Internal Bot Error: " + str(e)
-                context.set_manual_mode()
+                if context.debug:
+                    context.debug_stepping_mode()
+                    if hasattr(sys, 'gettrace') and sys.gettrace() is not None:
+                        breakpoint()
+                        pass
+                else:
+                    context.set_manual_mode()
 
             context.emulator.run_single_frame()
             previous_frame_info = frame_info

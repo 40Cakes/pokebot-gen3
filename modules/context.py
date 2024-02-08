@@ -103,7 +103,11 @@ class BotContext:
 
     def debug_stepping_mode(self) -> None:
         if self.debug and self.gui and self.gui._emulator_screen:
+            from modules.gui.desktop_notification import desktop_notification
+
             self.gui._emulator_screen.toggle_stepping_mode()
+            self.video = True
+            desktop_notification(title="Manual Mode", message="The bot has switched to stepping mode.")
 
     @property
     def audio(self) -> bool:
