@@ -45,6 +45,7 @@ def scroll_to_item_in_bag(item: Item) -> Generator:
 
     :param item: Item to scroll to
     """
+
     def open_pocket_index() -> int:
         if context.rom.is_emerald:
             return read_symbol("gBagPosition", offset=0x05, size=1)[0]

@@ -16,6 +16,7 @@ from ._util import (
     wait_for_task_to_start_and_finish,
 )
 
+
 def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | None:
     if context.rom.is_frlg:
         encounters = [
