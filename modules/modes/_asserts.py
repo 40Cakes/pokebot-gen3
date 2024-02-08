@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 
 from modules.data.map import MapRSE, MapFRLG
+
 from modules.context import context
-from modules.items import get_item_by_name
+from modules.items import get_item_bag, get_item_by_name
 from modules.map import ObjectEvent, calculate_targeted_coords
 from modules.player import get_player
 from modules.pokemon import get_party
@@ -107,13 +108,12 @@ def assert_registered_item(expected_items: str | list[str], error_message: str) 
         raise BotModeError(error_message)
 
 
-def assert_has_pokemon_with_move(move: str, error_message: str) -> int:
+def assert_has_pokemon_with_move(move: str, error_message: str) -> None:
     """
     Raises an exception if the player has no Pokemon that knows a given move in their
     party.
     :param move: Name of the move to look for.
     :param error_message: Error message to display if the assertion fails.
-    :return: The party index of the first Pokemon that knows this move.
     """
     for pokemon in get_party():
         if not pokemon.is_egg and not pokemon.is_empty:
@@ -123,13 +123,26 @@ def assert_has_pokemon_with_move(move: str, error_message: str) -> int:
     raise BotModeError(error_message)
 
 
-def assert_item_exists_in_bag(items: tuple, error_message: str) -> None:
+def assert_item_exists_in_bag(
+    expected_items: str | list[str] | tuple[str], error_message: str, check_in_saved_game: bool = False
+) -> None:
     """
     Raises an exception if the player does not have the given item in their bag.
-    :param items: List of item names to look for.
+    :param expected_items: Item name, or list of item names, to look for. If supplied with more
+                           than one item name, this assertion checks that _at least one of them_
+                           is present.
     :param error_message: Error message to display if the assertion fails.
+    :param check_in_saved_game: If True, this assertion will check the saved game instead of the
+                                current item bag (which is the default.)
     """
-    item_bag = get_save_data().get_item_bag()
-    total_quantity = sum(item_bag.quantity_of(get_item_by_name(item)) for item in items)
+    if check_in_saved_game is None:
+        item_bag = get_save_data().get_item_bag()
+    else:
+        item_bag = get_item_bag()
+
+    if not isinstance(expected_items, (list, tuple)):
+        expected_items = [expected_items]
+
+    total_quantity = sum(item_bag.quantity_of(get_item_by_name(item)) for item in expected_items)
     if total_quantity == 0:
         raise BotModeError(error_message)
