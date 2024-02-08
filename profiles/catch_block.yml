@@ -1,4 +1,4 @@
-# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/wiki/%E2%9D%8C-Catch-Block-List
+# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/tree/main/wiki/pages/Configuration%20-%20Catch%20Block%20List.md
 
 block_list:
   - MissingNo
