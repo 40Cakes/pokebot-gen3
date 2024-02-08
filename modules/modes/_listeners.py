@@ -180,17 +180,23 @@ class PokenavListener(BotListener):
 class EggHatchListener(BotListener):
     def __init__(self):
         self._is_hatching = False
+        if context.rom.is_rs:
+            self._script_name = "S_EggHatch"
+            self._symbol_name = "gEggHatchData"
+        else:
+            self._script_name = "EventScript_EggHatch"
+            self._symbol_name = "sEggHatchData"
 
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
         if frame.game_state == GameState.OVERWORLD or frame.game_state == GameState.EGG_HATCH:
-            if not self._is_hatching and frame.script_is_active("EventScript_EggHatch"):
+            if not self._is_hatching and frame.script_is_active(self._script_name):
                 self._is_hatching = True
                 context.controller_stack.append(self.handle_hatching_egg(bot_mode))
 
     @isolate_inputs
     def handle_hatching_egg(self, bot_mode: BotMode):
         while True:
-            egg_data_pointer = unpack_uint32(read_symbol("sEggHatchData"))
+            egg_data_pointer = unpack_uint32(read_symbol(self._symbol_name))
             if egg_data_pointer & 0x0200_0000:
                 egg_data = context.emulator.read_bytes(egg_data_pointer, length=16)
             else:
@@ -204,8 +210,8 @@ class EggHatchListener(BotListener):
                 break
         hatched_pokemon = get_party()[party_index]
         bot_mode.on_egg_hatched(hatched_pokemon, party_index)
-        handle_encounter(hatched_pokemon)
-        while "EventScript_EggHatch" in get_global_script_context().stack:
+        handle_encounter(hatched_pokemon, do_not_log_action=True)
+        while self._script_name in get_global_script_context().stack:
             context.emulator.press_button("B")
             yield
         self._is_hatching = False

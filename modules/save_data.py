@@ -65,7 +65,8 @@ class SaveData:
         )
 
     def get_last_heal_location(self) -> tuple[int, int]:
-        return get_save_block(1, offset=0x1C, size=2)
+        heal_location = get_save_block(1, offset=0x1C, size=2)
+        return heal_location[0], heal_location[1]
 
 
 _section_sizes = [3884, 3968, 3968, 3968, 3848, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 2000]

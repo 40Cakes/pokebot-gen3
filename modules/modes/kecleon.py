@@ -16,6 +16,7 @@ from ._interface import BotMode, BotModeError
 from ._util import (
     walk_one_tile,
     navigate_to,
+    ensure_facing_direction,
 )
 
 
@@ -60,7 +61,7 @@ class KecleonMode(BotMode):
         if get_event_flag("HIDE_ROUTE_119_KECLEON_1"):
             raise BotModeError("This Kecleon has already been encountered.")
         last_heal_group, last_heal_map = get_save_data().get_last_heal_location()
-        if (last_heal_group, last_heal_map) != (MapRSE.FORTREE_CITY.value):
+        if (last_heal_group, last_heal_map) != MapRSE.FORTREE_CITY.value:
             raise BotModeError("This mode requires the last heal location to be Fortree City.")
         if len(get_party()) > 1:
             raise BotModeError("This mode requires only one Pokémon in the party.")
@@ -69,9 +70,7 @@ class KecleonMode(BotMode):
             self._has_whited_out = False
             if get_player_avatar().map_group_and_number == MapRSE.ROUTE_119.value:
                 yield from navigate_to(31, 7)
-                while get_player_avatar().facing_direction != "Up":
-                    context.emulator.press_button("Up")
-                    yield
+                yield from ensure_facing_direction("Up")
                 while not self._has_whited_out:
                     context.emulator.press_button("A")
                     yield
