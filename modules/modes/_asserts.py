@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 from modules.data.map import MapRSE, MapFRLG
-
 from modules.context import context
+from modules.items import get_item_by_name
 from modules.map import ObjectEvent, calculate_targeted_coords
 from modules.player import get_player
 from modules.pokemon import get_party
@@ -121,3 +121,15 @@ def assert_has_pokemon_with_move(move: str, error_message: str) -> int:
                 if learned_move is not None and learned_move.move.name == move:
                     return
     raise BotModeError(error_message)
+
+
+def assert_item_exists_in_bag(items: tuple, error_message: str) -> None:
+    """
+    Raises an exception if the player does not have the given item in their bag.
+    :param items: List of item names to look for.
+    :param error_message: Error message to display if the assertion fails.
+    """
+    item_bag = get_save_data().get_item_bag()
+    total_quantity = sum(item_bag.quantity_of(get_item_by_name(item)) for item in items)
+    if total_quantity == 0:
+        raise BotModeError(error_message)
