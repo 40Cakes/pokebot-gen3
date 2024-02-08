@@ -171,7 +171,10 @@ class PokenavListener(BotListener):
 
     @isolate_inputs
     def ignore_call(self):
-        while task_is_active("ExecuteMatchCall") or get_global_script_context().is_active:
+        while task_is_active("ExecuteMatchCall") or (
+            get_global_script_context().is_active
+            and "Route104_EventScript_SailToDewfordDadCalls" not in get_global_script_context().stack
+        ):
             context.emulator.press_button("B")
             yield
         self._in_call = False
