@@ -68,6 +68,8 @@ class Battle(BaseConfig):
         "Explosion",
         "Memento",
     ]
+    avoided_pokemon: list[str] = []
+    targeted_pokemon: list[str] = []
 
 
 class CatchBlock(BaseConfig):

@@ -475,7 +475,7 @@ class BattleOpponent:
         if "EventScript_DoTrainerBattle" in script_ctx.stack:
             is_trainer_battle = True
 
-        if not is_trainer_battle and (not context.config.battle.battle or not can_battle_happen()):
+        if not is_trainer_battle and (not context.config.battle.battle or not can_battle_happen(self)):
             self.choice = "flee"
             self.idx = -1
         elif context.config.battle.replace_lead_battler and self.should_rotate_lead:
@@ -943,13 +943,17 @@ def check_for_level_up(old_party: list[Pokemon], new_party: list[Pokemon], level
     return leveled_mon
 
 
-def can_battle_happen() -> bool:
+def can_battle_happen(battle_opponent: BattleOpponent) -> bool:
     """
     Determines whether the bot can battle with the state of the current party
     :return: True if the party is capable of having a battle, False otherwise
     """
+    can_battle = False
+
     party = get_party()
     for mon in party:
+        if can_battle:
+            break
         if mon.current_hp / mon.stats.hp > 0.2 and not mon.is_egg:
             for move in mon.moves:
                 if (
@@ -958,8 +962,17 @@ def can_battle_happen() -> bool:
                     and move.move.name not in context.config.battle.banned_moves
                     and move.pp > 0
                 ):
-                    return True
-    return False
+                    can_battle = True
+                    break
+    
+    wanted_opponent = True
+
+    if any(context.config.battle.targeted_pokemon) and battle_opponent.opponent.species.name not in context.config.battle.targeted_pokemon:
+        wanted_opponent = False
+    if any(context.config.battle.avoided_pokemon) and battle_opponent.opponent.species.name in context.config.battle.avoided_pokemon:
+        wanted_opponent = False
+
+    return can_battle and wanted_opponent
 
 
 class BattleMenu:

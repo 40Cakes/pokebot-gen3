@@ -55,3 +55,8 @@ banned_moves:
   - Perish Song
   - Explosion
   - Memento
+# avoided_pokemon:
+#   - Weedle
+# targeted_pokemon:
+#   - Rattata
+#   - Pidgey
