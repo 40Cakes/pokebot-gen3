@@ -100,7 +100,7 @@ def main_loop() -> None:
                 console.print_exception(show_locals=True)
                 sys.exit(1)
             except Exception as e:
-                console.print_exception()
+                console.print_exception(show_locals=True)
                 context.emulator.reset_held_buttons()
                 context.message = "Internal Bot Error: " + str(e)
                 context.set_manual_mode()
