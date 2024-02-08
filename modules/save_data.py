@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from modules.context import context
 from modules.items import ItemBag
-from modules.memory import unpack_uint16, unpack_uint32
+from modules.memory import get_save_block, unpack_uint16, unpack_uint32
 from modules.pokemon import Pokemon, parse_pokemon
 
 
@@ -63,6 +63,9 @@ class SaveData:
         return ItemBag(
             data, items_count, key_items_count, poke_balls_count, tms_hms_count, berries_count, encryption_key
         )
+
+    def get_last_heal_location(self) -> tuple[int, int]:
+        return get_save_block(1, offset=0x1C, size=2)
 
 
 _section_sizes = [3884, 3968, 3968, 3968, 3848, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 2000]
