@@ -32,7 +32,9 @@ class BattleListener(BotListener):
         self._current_action: BattleAction | None = None
 
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
-        if not self._in_battle and (frame.game_state in self.battle_states or frame.task_is_active("Task_BattleStart")):
+        if (not self._in_battle or self._reported_end_of_battle) and (
+            frame.game_state in self.battle_states or frame.task_is_active("Task_BattleStart")
+        ):
             self._in_battle = True
             self._reported_start_of_battle = False
             self._reported_end_of_battle = False
@@ -108,9 +110,12 @@ class BattleListener(BotListener):
 
         map_objects = get_map_objects()
         if (
-            len(map_objects) > 0
+            get_game_state() != GameState.BATTLE
+            and not get_global_script_context().is_active
+            and len(map_objects) > 0
             and "heldMovementActive" in map_objects[0].flags
             and "heldMovementFinished" in map_objects[0].flags
+            and "frozen" not in get_map_objects()[0].flags
         ):
             if context.config.battle.pickup and should_check_for_pickup():
                 yield from MenuWrapper(CheckForPickup()).step()
@@ -166,7 +171,7 @@ class PokenavListener(BotListener):
 
     @isolate_inputs
     def ignore_call(self):
-        while task_is_active("ExecuteMatchCall"):
+        while task_is_active("ExecuteMatchCall") or get_global_script_context().is_active:
             context.emulator.press_button("B")
             yield
         self._in_call = False
