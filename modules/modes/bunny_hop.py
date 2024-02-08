@@ -14,7 +14,10 @@ class BunnyHopMode(BotMode):
 
     @staticmethod
     def is_selectable() -> bool:
-        return get_player_avatar().map_location.has_encounters
+        if context.rom.is_rse:
+            return get_player_avatar().map_location.has_encounters
+        else:
+            return False
 
     def run(self) -> Generator:
         assert_registered_item(["Acro Bike"], error_message="You need to register the Acro Bike for the Select button.")

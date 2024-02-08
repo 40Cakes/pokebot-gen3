@@ -48,34 +48,21 @@ class GameCornerMode(BotMode):
         if coincase < 180:
             raise BotModeError("You don't have enough coins to buy anything.")
 
+        if context.rom.is_fr:
+            choices = [("Abra", 180), ("Clefairy", 500), ("Dratini", 2800), ("Scyther", 5500), ("Porygon", 9999)]
+        if context.rom.is_lg:
+            choices = [("Abra", 120), ("Clefairy", 750), ("Pinsir", 2500), ("Dratini", 4600), ("Porygon", 9999)]
+
+        available_options = []
+        for pokemon, coins in choices:
+            selection = Selection(
+                pokemon,
+                get_sprites_path() / "pokemon" / "normal" / f"{pokemon}.png",
+                coincase >= coins,
+            )
+            available_options.append(selection)
         game_corner_choice = ask_for_choice(
-            [
-                Selection(
-                    "Abra",
-                    get_sprites_path() / "pokemon" / "normal" / "Abra.png",
-                    coincase >= 180,
-                ),
-                Selection(
-                    "Clefairy",
-                    get_sprites_path() / "pokemon" / "normal" / "Clefairy.png",
-                    coincase >= 500,
-                ),
-                Selection(
-                    "Dratini",
-                    get_sprites_path() / "pokemon" / "normal" / "Dratini.png",
-                    coincase >= 2800,
-                ),
-                Selection(
-                    "Scyther",
-                    get_sprites_path() / "pokemon" / "normal" / "Scyther.png",
-                    coincase >= 5500,
-                ),
-                Selection(
-                    "Porygon",
-                    get_sprites_path() / "pokemon" / "normal" / "Porygon.png",
-                    coincase >= 9999,
-                ),
-            ],
+            available_options,
             window_title="Select which one to buy...",
         )
         if game_corner_choice is None:
@@ -108,32 +95,33 @@ class GameCornerMode(BotMode):
                 case "Abra":
                     yield from wait_until_task_is_active("Task_DrawFieldMessageBox", "A")
                 case "Clefairy":
-                    context.emulator.press_button("Down")
-                    yield from wait_for_n_frames(2)
+                    for _ in range(1):
+                        context.emulator.press_button("Down")
+                        yield from wait_for_n_frames(2)
+                    yield from wait_until_task_is_active("Task_DrawFieldMessageBox", "A")
+                case "Pinsir":
+                    for _ in range(2):
+                        context.emulator.press_button("Down")
+                        yield from wait_for_n_frames(2)
                     yield from wait_until_task_is_active("Task_DrawFieldMessageBox", "A")
                 case "Dratini":
-                    context.emulator.press_button("Down")
-                    yield from wait_for_n_frames(2)
-                    context.emulator.press_button("Down")
-                    yield from wait_for_n_frames(2)
-                    yield from wait_until_task_is_active("Task_DrawFieldMessageBox", "A")
+                    if context.rom.is_fr:
+                        for _ in range(2):
+                            context.emulator.press_button("Down")
+                            yield from wait_for_n_frames(2)
+                    if context.rom.is_lg:
+                        for _ in range(3):
+                            context.emulator.press_button("Down")
+                            yield from wait_for_n_frames(2)
                 case "Scyther":
-                    context.emulator.press_button("Down")
-                    yield from wait_for_n_frames(2)
-                    context.emulator.press_button("Down")
-                    yield from wait_for_n_frames(2)
-                    context.emulator.press_button("Down")
-                    yield from wait_for_n_frames(2)
+                    for _ in range(3):
+                        context.emulator.press_button("Down")
+                        yield from wait_for_n_frames(2)
                     yield from wait_until_task_is_active("Task_DrawFieldMessageBox", "A")
                 case "Porygon":
-                    context.emulator.press_button("Down")
-                    yield from wait_for_n_frames(2)
-                    context.emulator.press_button("Down")
-                    yield from wait_for_n_frames(2)
-                    context.emulator.press_button("Down")
-                    yield from wait_for_n_frames(2)
-                    context.emulator.press_button("Down")
-                    yield from wait_for_n_frames(2)
+                    for _ in range(4):
+                        context.emulator.press_button("Down")
+                        yield from wait_for_n_frames(2)
                     yield from wait_until_task_is_active("Task_DrawFieldMessageBox", "A")
 
             # accept the pokemon

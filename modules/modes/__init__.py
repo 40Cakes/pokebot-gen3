@@ -17,6 +17,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .bunny_hop import BunnyHopMode
         from .fishing import FishingMode
         from .game_corner import GameCornerMode
+        from .kecleon import KecleonMode
         from .nugget_bridge import NuggetBridgeMode
         from .puzzle_solver import PuzzleSolverMode
         from .roamer_reset import RoamerResetMode
@@ -33,6 +34,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
             BunnyHopMode,
             FishingMode,
             GameCornerMode,
+            KecleonMode,
             NuggetBridgeMode,
             PuzzleSolverMode,
             RandomMode,

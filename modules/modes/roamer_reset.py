@@ -256,9 +256,7 @@ class RoamerResetMode(BotMode):
             yield from navigate_to(14, 6)
             yield from ensure_facing_direction("Right")
 
-            yield
-            context.emulator.press_button("A")
-            yield
+            yield from wait_until_task_is_active("Task_DrawFieldMessageBox", "A")
 
             while get_roamer() is None:
                 context.emulator.press_button("B")

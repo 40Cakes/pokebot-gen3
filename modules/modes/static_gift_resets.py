@@ -22,6 +22,7 @@ from ._util import (
     wait_until_task_is_not_active,
     wait_for_task_to_start_and_finish,
     wait_until_event_flag_is_true,
+    wait_for_script_to_start_and_finish,
     navigate_to,
     wait_for_n_frames,
 )
@@ -37,6 +38,7 @@ def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | 
             (MapFRLG.CINNABAR_ISLAND_E.value, (13, 4), "Kanto Fossils"),
             (MapFRLG.CELADON_CITY_L.value, (7, 3), "Eevee"),
             (MapFRLG.ROUTE_4_A.value, (1, 3), "Magikarp"),
+            (MapFRLG.WATER_LABYRINTH.value, (14, 11), "Togepi"),
         ]
     else:
         encounters = [
@@ -86,7 +88,12 @@ class StaticGiftResetsMode(BotMode):
                     "[bold yellow]WARNING: First Pokemon in party does not have Flame Body / Magma Armor ability."
                 )
                 console.print("[bold yellow]This will slow down the egg hatching process.")
-
+        if encounter[2] == "Togepi":
+            assert_registered_item(
+                ["Bicycle"], "You need to register the Bicycle for the Select button, then save again."
+            )
+        if get_event_flag("GOT_TOGEPI_EGG"):
+            raise BotModeError("You have already received the Togepi egg.")
         while context.bot_mode != "Manual":
             yield from soft_reset(mash_random_keys=True)
             yield from wait_for_unique_rng_value()
@@ -113,10 +120,13 @@ class StaticGiftResetsMode(BotMode):
                     yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessageBox", "B")
 
             # don't rename pokemon
-            if context.rom.is_frlg:
+            if context.rom.is_frlg and encounter[2] not in ["Togepi"]:
                 if encounter[2] in ["Hitmonchan", "Hitmonlee"]:
                     yield from wait_until_event_flag_is_true("GOT_HITMON_FROM_DOJO", "B")
                 yield from wait_for_task_to_start_and_finish("Task_YesNoMenu_HandleInput", "B")
+            elif context.rom.is_frlg and encounter[2] in ["Togepi"]:
+                yield from wait_until_event_flag_is_true("GOT_TOGEPI_EGG", "B")
+                yield from wait_for_script_to_start_and_finish("Std_MsgboxDefault", "B")
             if context.rom.is_emerald and encounter[2] not in ["Wynaut"]:
                 yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessage", "B")
                 yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", "B")
@@ -137,10 +147,14 @@ class StaticGiftResetsMode(BotMode):
             def hatch_egg() -> Generator:
                 if not get_player_avatar().is_on_bike:
                     context.emulator.press_button("Select")
-                yield from navigate_to(3, 10, False)
-                yield from navigate_to(16, 10, False)
+                if encounter[2] == "Wynaut":
+                    yield from navigate_to(3, 10, False)
+                    yield from navigate_to(16, 10, False)
+                elif encounter[2] == "Togepi":
+                    yield from navigate_to(17, 9, False)
+                    yield from navigate_to(8, 9, False)
 
-            if encounter[2] == "Wynaut":
+            if encounter[2] in ["Wynaut", "Togepi"]:
                 yield from wait_until_task_is_not_active("Task_Fanfare", "B")
                 while egg_in_party() == 0:
                     context.emulator.press_button("B")
@@ -150,8 +164,10 @@ class StaticGiftResetsMode(BotMode):
                     for _ in hatch_egg():
                         script_ctx = get_global_script_context()
                         if "EventScript_EggHatch" in script_ctx.stack:
-                            if not task_is_active("Task_WaitForFadeAndEnableScriptCtx"):
+                            if context.rom.is_rse and not task_is_active("Task_WaitForFadeAndEnableScriptCtx"):
                                 yield from wait_for_task_to_start_and_finish("Task_WaitForFadeAndEnableScriptCtx", "B")
+                            elif context.rom.is_frlg and not task_is_active("Task_ContinueScript"):
+                                yield from wait_for_task_to_start_and_finish("Task_ContinueScript", "B")
                         yield
 
             # Navigate to the summary screen to check for shininess

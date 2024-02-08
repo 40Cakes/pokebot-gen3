@@ -8,8 +8,13 @@ from modules.player import get_player_avatar
 from modules.pokemon import get_opponent
 from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
 from ._interface import BotMode, BattleAction
-from ._util import soft_reset, wait_for_unique_rng_value, wait_until_task_is_active, wait_for_task_to_start_and_finish
-
+from ._util import (
+    soft_reset,
+    wait_for_n_frames,
+    wait_for_unique_rng_value,
+    wait_until_task_is_active,
+    wait_for_task_to_start_and_finish,
+)
 
 def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | None:
     if context.rom.is_frlg:
@@ -38,6 +43,7 @@ def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | 
             (MapRSE.DESERT_RUINS.value, (8, 7), "Regirock"),
             (MapRSE.ISLAND_CAVE.value, (8, 7), "Regice"),
             (MapRSE.ANCIENT_TOMB.value, (8, 7), "Registeel"),
+            (MapRSE.CAVE_OF_ORIGIN_E.value, (9, 13), "Groudon/Kyogre"),
         ]
 
     targeted_tile = get_player_avatar().map_location_in_front
@@ -80,8 +86,16 @@ class StaticSoftResetsMode(BotMode):
             yield from soft_reset(mash_random_keys=True)
             yield from wait_for_unique_rng_value()
 
-            # The first cry happens before the battle starts.
-            yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", button_to_press="A")
+            if encounter[2] != "Groudon/Kyogre":
+                # The first cry happens before the battle starts.
+                yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", button_to_press="A")
 
-            # At the start of the next cry the opponent is fully visible.
-            yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")
+                # At the start of the next cry the opponent is fully visible.
+                yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")
+            else:
+                yield from wait_for_task_to_start_and_finish("Task_MapNamePopup")
+                context.emulator.press_button("Left")
+                yield from wait_for_n_frames(2)
+                yield from wait_for_task_to_start_and_finish("Task_BattleStart", "B")
+                yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", button_to_press="A")
+                yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")
