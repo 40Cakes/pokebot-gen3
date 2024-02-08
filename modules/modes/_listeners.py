@@ -196,13 +196,13 @@ class EggHatchListener(BotListener):
     @isolate_inputs
     def handle_hatching_egg(self, bot_mode: BotMode):
         while True:
-            egg_data_pointer = unpack_uint32(read_symbol(self._symbol_name))
-            if egg_data_pointer & 0x0200_0000:
-                egg_data = context.emulator.read_bytes(egg_data_pointer, length=16)
-            else:
-                egg_data = b"\x00\x00\x00\x00\x00"
-            state = egg_data[2]
-            if state < 4:
+            egg_data = None
+            if get_game_state() == GameState.EGG_HATCH:
+                yield
+                egg_data_pointer = unpack_uint32(read_symbol(self._symbol_name))
+                if egg_data_pointer & 0x0200_0000:
+                    egg_data = context.emulator.read_bytes(egg_data_pointer, length=16)
+            if egg_data is None or egg_data[2] < 4:
                 context.emulator.press_button("B")
                 yield
             else:
