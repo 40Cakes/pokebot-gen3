@@ -105,7 +105,7 @@ def main_loop() -> None:
                 context.message = "Internal Bot Error: " + str(e)
                 if context.debug:
                     context.debug_stepping_mode()
-                    if hasattr(sys, 'gettrace') and sys.gettrace() is not None:
+                    if hasattr(sys, "gettrace") and sys.gettrace() is not None:
                         breakpoint()
                         pass
                 else:
