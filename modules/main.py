@@ -80,7 +80,7 @@ def main_loop() -> None:
                     pickup_checked = True
                     previously_held_inputs = context.emulator.reset_held_buttons()
                     battle_controller = MenuWrapper(CheckForPickup()).step()
-                elif context.config.battle.replace_lead_battler and not check_lead_can_battle() and not lead_rotated:
+                elif context.config.battle.lead_cannot_battle_action == "rotate" and not check_lead_can_battle() and not lead_rotated:
                     lead_rotated = True
                     previously_held_inputs = context.emulator.reset_held_buttons()
                     battle_controller = MenuWrapper(RotatePokemon()).step()
