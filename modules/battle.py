@@ -488,7 +488,7 @@ class BattleOpponent:
         if not is_trainer_battle and (not context.config.battle.battle or not can_battle_happen(self)):
             self.choice = "flee"
             self.idx = -1
-        elif not check_lead_can_battle():
+        elif not check_mon_can_battle(self.current_battler):
             match context.config.battle.lead_cannot_battle_action:
                 case "flee":
                     self.choice = "flee"
@@ -1115,18 +1115,19 @@ def check_lead_can_battle() -> bool:
         return False
 
     lead = get_party()[0]
-    lead_has_moves = False
-    for move in lead.moves:
-        if (
-            move is not None
-            and move.move.base_power > 0
-            and move.move.name not in context.config.battle.banned_moves
-            and move.pp > 0
-        ):
-            lead_has_moves = True
+    return check_mon_can_battle(lead)
+
+
+def check_mon_can_battle(mon: Pokemon) -> bool:
+    """
+    Determines whether a Pokémon is fit to fight
+    """
+    mon_has_moves = False
+    for move in mon.moves:
+        if move_is_usable(move):
+            mon_has_moves = True
             break
-    lead_has_hp = mon_has_enough_hp(lead)
-    return lead_has_hp and lead_has_moves
+    return mon_has_enough_hp(mon) and mon_has_moves
 
 
 def get_new_lead() -> int | None:
