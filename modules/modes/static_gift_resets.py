@@ -1,10 +1,9 @@
 from typing import Generator
 
-from modules.data.map import MapRSE, MapFRLG
-
 from modules.console import console
 from modules.context import context
 from modules.encounter import handle_encounter
+from modules.map_data import MapRSE, MapFRLG
 from modules.memory import get_event_flag
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.player import get_player_avatar
@@ -28,25 +27,25 @@ from ._util import (
 )
 
 
-def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | None:
+def _get_targeted_encounter() -> tuple[MapFRLG | MapRSE, tuple[int, int], str] | None:
     if context.rom.is_frlg:
         encounters = [
-            (MapFRLG.SILPH_CO_F.value, (0, 7), "Lapras"),
-            (MapFRLG.SAFFRON_CITY_D.value, (5, 3), "Hitmonlee"),
-            (MapFRLG.SAFFRON_CITY_D.value, (7, 3), "Hitmonchan"),
-            (MapFRLG.CINNABAR_ISLAND_E.value, (11, 2), "Kanto Fossils"),
-            (MapFRLG.CINNABAR_ISLAND_E.value, (13, 4), "Kanto Fossils"),
-            (MapFRLG.CELADON_CITY_L.value, (7, 3), "Eevee"),
-            (MapFRLG.ROUTE_4_A.value, (1, 3), "Magikarp"),
-            (MapFRLG.WATER_LABYRINTH.value, (14, 11), "Togepi"),
+            (MapFRLG.SILPH_CO_7F, (0, 7), "Lapras"),
+            (MapFRLG.SAFFRON_CITY_DOJO, (5, 3), "Hitmonlee"),
+            (MapFRLG.SAFFRON_CITY_DOJO, (7, 3), "Hitmonchan"),
+            (MapFRLG.CINNABAR_ISLAND_POKEMON_LAB_EXPERIMENT_ROOM, (11, 2), "Kanto Fossils"),
+            (MapFRLG.CINNABAR_ISLAND_POKEMON_LAB_EXPERIMENT_ROOM, (13, 4), "Kanto Fossils"),
+            (MapFRLG.CELADON_CITY_CONDOMINIUMS_ROOF_ROOM, (7, 3), "Eevee"),
+            (MapFRLG.ROUTE4_POKEMON_CENTER_1F, (1, 3), "Magikarp"),
+            (MapFRLG.FIVE_ISLAND_WATER_LABYRINTH, (14, 11), "Togepi"),
         ]
     else:
         encounters = [
-            (MapRSE.ROUTE_119_B.value, (2, 2), "Castform"),
-            (MapRSE.ROUTE_119_B.value, (18, 6), "Castform"),
-            (MapRSE.RUSTBORO_CITY_B.value, (14, 8), "Hoenn Fossils"),
-            (MapRSE.MOSSDEEP_CITY_H.value, (4, 3), "Beldum"),
-            (MapRSE.LAVARIDGE_TOWN.value, (4, 7), "Wynaut"),
+            (MapRSE.ROUTE119_WEATHER_INSTITUTE_2F, (2, 2), "Castform"),
+            (MapRSE.ROUTE119_WEATHER_INSTITUTE_2F, (18, 6), "Castform"),
+            (MapRSE.RUSTBORO_CITY_DEVON_CORP_2F, (14, 8), "Hoenn Fossils"),
+            (MapRSE.MOSSDEEP_CITY_STEVENS_HOUSE, (4, 3), "Beldum"),
+            (MapRSE.LAVARIDGE_TOWN, (4, 7), "Wynaut"),
         ]
 
     targeted_tile = get_player_avatar().map_location_in_front

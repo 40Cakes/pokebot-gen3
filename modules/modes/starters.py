@@ -1,11 +1,10 @@
 import random
 from typing import Generator
 
-from modules.data.map import MapFRLG, MapRSE
-
 from modules.context import context
 from modules.encounter import handle_encounter
 from modules.gui.multi_select_window import Selection, ask_for_choice
+from modules.map_data import MapFRLG, MapRSE
 from modules.menuing import StartMenuNavigator, PokemonPartyMenuNavigator
 from modules.player import get_player_avatar
 from modules.pokemon import get_party
@@ -45,9 +44,9 @@ class StartersMode(BotMode):
         if context.rom.is_frlg:
             assert_saved_on_map(
                 [
-                    SavedMapLocation(MapFRLG.PALLET_TOWN_D, (8, 4), facing=True),
-                    SavedMapLocation(MapFRLG.PALLET_TOWN_D, (9, 4), facing=True),
-                    SavedMapLocation(MapFRLG.PALLET_TOWN_D, (10, 4), facing=True),
+                    SavedMapLocation(MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, (8, 4), facing=True),
+                    SavedMapLocation(MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, (9, 4), facing=True),
+                    SavedMapLocation(MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, (10, 4), facing=True),
                 ],
                 error_message="The game has not been saved while standing in front of one of the starter Poké balls.",
             )
@@ -56,16 +55,16 @@ class StartersMode(BotMode):
             assert_saved_on_map(
                 [
                     # Hoenn Starter Bag
-                    SavedMapLocation(MapRSE.ROUTE_101, (7, 14), facing=True),
+                    SavedMapLocation(MapRSE.ROUTE101, (7, 14), facing=True),
                     # Johto Starters (on table)
-                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_E, (8, 4), facing=True),
-                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_E, (9, 4), facing=True),
-                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_E, (10, 4), facing=True),
+                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, (8, 4), facing=True),
+                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, (9, 4), facing=True),
+                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, (10, 4), facing=True),
                 ],
                 error_message="The game has not been saved in front of the starter Pokémon bag (for Hoenn starters) or in front of one of the starter Poké balls (for Johto starters.)",
             )
 
-            if get_save_data().get_map_group_and_number() == MapRSE.ROUTE_101.value:
+            if get_save_data().get_map_group_and_number() == MapRSE.ROUTE101:
                 yield from self.run_rse_hoenn()
             else:
                 yield from self.run_rse_johto()

@@ -1,9 +1,8 @@
 from typing import Generator
 
-from modules.data.map import MapRSE, MapFRLG
-
 from modules.context import context
-from modules.encounter import handle_encounter, log_encounter, judge_encounter, EncounterValue
+from modules.encounter import handle_encounter, log_encounter, judge_encounter
+from modules.map_data import MapRSE, MapFRLG
 from modules.player import get_player_avatar
 from modules.pokemon import get_opponent
 from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
@@ -17,34 +16,34 @@ from ._util import (
 )
 
 
-def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | None:
+def _get_targeted_encounter() -> tuple[MapFRLG | MapRSE, tuple[int, int], str] | None:
     if context.rom.is_frlg:
         encounters = [
-            (MapFRLG.ROUTE_12.value, (14, 70), "Snorlax"),
-            (MapFRLG.ROUTE_16.value, (31, 13), "Snorlax"),
-            (MapFRLG.SEAFOAM_ISLANDS_D.value, (9, 2), "Articuno"),
-            (MapFRLG.POWER_PLANT.value, (5, 11), "Zapdos"),
-            (MapFRLG.MT_EMBER_E.value, (9, 6), "Moltres"),
-            (MapFRLG.CERULEAN_CAVE_B.value, (7, 12), "Mewtwo"),
-            (MapFRLG.NAVEL_ROCK_B.value, (10, 15), "Lugia"),
-            (MapFRLG.BIRTH_ISLAND.value, (15, 10), "Deoxys"),
+            (MapFRLG.ROUTE12, (14, 70), "Snorlax"),
+            (MapFRLG.ROUTE16, (31, 13), "Snorlax"),
+            (MapFRLG.SEAFOAM_ISLANDS_B4F, (9, 2), "Articuno"),
+            (MapFRLG.POWER_PLANT, (5, 11), "Zapdos"),
+            (MapFRLG.MT_EMBER_SUMMIT, (9, 6), "Moltres"),
+            (MapFRLG.CERULEAN_CAVE_B1F, (7, 12), "Mewtwo"),
+            (MapFRLG.NAVEL_ROCK_BASE, (10, 15), "Lugia"),
+            (MapFRLG.BIRTH_ISLAND_EXTERIOR, (15, 10), "Deoxys"),
         ]
     elif context.rom.is_emerald:
         encounters = [
-            (MapRSE.NAVEL_ROCK_U.value, (11, 13), "Lugia"),
-            (MapRSE.SKY_PILLAR_G.value, (14, 6), "Rayquaza"),
-            (MapRSE.BIRTH_ISLAND.value, (15, 10), "Deoxys"),
-            (MapRSE.DESERT_RUINS.value, (8, 7), "Regirock"),
-            (MapRSE.ISLAND_CAVE.value, (8, 7), "Regice"),
-            (MapRSE.ANCIENT_TOMB.value, (8, 7), "Registeel"),
+            (MapRSE.NAVEL_ROCK_BOTTOM, (11, 13), "Lugia"),
+            (MapRSE.SKY_PILLAR_TOP, (14, 6), "Rayquaza"),
+            (MapRSE.BIRTH_ISLAND_EXTERIOR, (15, 10), "Deoxys"),
+            (MapRSE.DESERT_RUINS, (8, 7), "Regirock"),
+            (MapRSE.ISLAND_CAVE, (8, 7), "Regice"),
+            (MapRSE.ANCIENT_TOMB, (8, 7), "Registeel"),
         ]
     else:
         encounters = [
-            (MapRSE.SKY_PILLAR_G.value, (14, 6), "Rayquaza"),
-            (MapRSE.DESERT_RUINS.value, (8, 7), "Regirock"),
-            (MapRSE.ISLAND_CAVE.value, (8, 7), "Regice"),
-            (MapRSE.ANCIENT_TOMB.value, (8, 7), "Registeel"),
-            (MapRSE.CAVE_OF_ORIGIN_E.value, (9, 13), "Groudon/Kyogre"),
+            (MapRSE.SKY_PILLAR_TOP, (14, 6), "Rayquaza"),
+            (MapRSE.DESERT_RUINS, (8, 7), "Regirock"),
+            (MapRSE.ISLAND_CAVE, (8, 7), "Regice"),
+            (MapRSE.ANCIENT_TOMB, (8, 7), "Registeel"),
+            (MapRSE.CAVE_OF_ORIGIN_B1F, (9, 13), "Groudon/Kyogre"),
         ]
 
     targeted_tile = get_player_avatar().map_location_in_front

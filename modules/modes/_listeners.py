@@ -1,11 +1,10 @@
 import signal
 
-from modules.data.map import MapRSE, MapFRLG
-
 from modules.battle import BattleOutcome, flee_battle, BattleHandler, check_lead_can_battle, RotatePokemon
 from modules.context import context
 from modules.encounter import handle_encounter
 from modules.map import get_map_objects
+from modules.map_data import MapRSE, MapFRLG
 from modules.memory import get_game_state, GameState, read_symbol, unpack_uint32, get_game_state_symbol
 from modules.menuing import MenuWrapper, CheckForPickup, should_check_for_pickup
 from modules.player import get_player_avatar, TileTransitionState
@@ -335,25 +334,25 @@ class SafariZoneListener(BotListener):
         self._times_up = False
         if context.rom.is_rse:
             self._safari_zone_maps = (
-                MapRSE.SAFARI_ZONE.value,
-                MapRSE.SAFARI_ZONE_A.value,
-                MapRSE.SAFARI_ZONE_B.value,
-                MapRSE.SAFARI_ZONE_C.value,
-                MapRSE.SAFARI_ZONE_D.value,
-                MapRSE.SAFARI_ZONE_E.value,
-                MapRSE.SAFARI_ZONE_F.value,
+                MapRSE.SAFARI_ZONE_NORTHWEST,
+                MapRSE.SAFARI_ZONE_NORTH,
+                MapRSE.SAFARI_ZONE_SOUTHWEST,
+                MapRSE.SAFARI_ZONE_SOUTH,
+                MapRSE.SAFARI_ZONE_NORTHEAST,
+                MapRSE.SAFARI_ZONE_SOUTHEAST,
+                MapRSE.SAFARI_ZONE_REST_HOUSE,
             )
         else:
             self._safari_zone_maps = (
-                MapFRLG.SAFARI_ZONE.value,
-                MapFRLG.SAFARI_ZONE_A.value,
-                MapFRLG.SAFARI_ZONE_B.value,
-                MapFRLG.SAFARI_ZONE_C.value,
-                MapFRLG.SAFARI_ZONE_D.value,
-                MapFRLG.SAFARI_ZONE_E.value,
-                MapFRLG.SAFARI_ZONE_F.value,
-                MapFRLG.SAFARI_ZONE_G.value,
-                MapFRLG.SAFARI_ZONE_H.value,
+                MapFRLG.SAFARI_ZONE_CENTER,
+                MapFRLG.SAFARI_ZONE_EAST,
+                MapFRLG.SAFARI_ZONE_NORTH,
+                MapFRLG.SAFARI_ZONE_WEST,
+                MapFRLG.SAFARI_ZONE_CENTER_REST_HOUSE,
+                MapFRLG.SAFARI_ZONE_EAST_REST_HOUSE,
+                MapFRLG.SAFARI_ZONE_NORTH_REST_HOUSE,
+                MapFRLG.SAFARI_ZONE_WEST_REST_HOUSE,
+                MapFRLG.SAFARI_ZONE_SECRET_HOUSE,
             )
 
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):

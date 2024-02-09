@@ -1,11 +1,10 @@
 from typing import Generator
 
-from modules.data.map import MapFRLG, MapRSE
-
 from modules.context import context
 from modules.encounter import handle_encounter, log_encounter, judge_encounter, EncounterValue
 from modules.gui.multi_select_window import ask_for_choice, Selection
 from modules.map import get_map_objects
+from modules.map_data import MapFRLG, MapRSE
 from modules.memory import (
     get_game_state,
     GameState,
@@ -35,17 +34,17 @@ from ._util import (
 )
 
 
-def _get_allowed_starting_map() -> tuple[int, int]:
+def _get_allowed_starting_map() -> MapFRLG | MapRSE | None:
     if context.rom.is_frlg:
-        return MapFRLG.ONE_ISLAND_A.value
+        return MapFRLG.ONE_ISLAND_POKEMON_CENTER_1F
     elif context.rom.is_emerald:
         if get_player().gender == "female":
-            return MapRSE.LITTLEROOT_TOWN_D.value
+            return MapRSE.LITTLEROOT_TOWN_MAYS_HOUSE_2F
         else:
-            return MapRSE.LITTLEROOT_TOWN_B.value
+            return MapRSE.LITTLEROOT_TOWN_BRENDANS_HOUSE_2F
     else:
         # No R/S yet
-        return -1, -1
+        return None
 
 
 def _get_repel_steps_remaining():
@@ -263,7 +262,7 @@ class RoamerResetMode(BotMode):
                 yield
 
             # Leave the building
-            while get_player_avatar().map_group_and_number != MapFRLG.ONE_ISLAND.value:
+            while get_player_avatar().map_group_and_number != MapFRLG.ONE_ISLAND_POKEMON_CENTER_1F:
                 yield from follow_path([(14, 9), (9, 9)])
                 yield from walk_one_tile("Down")
 

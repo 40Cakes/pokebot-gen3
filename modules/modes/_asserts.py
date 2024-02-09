@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 
-from modules.data.map import MapRSE, MapFRLG
-
 from modules.context import context
 from modules.items import get_item_bag, get_item_by_name
 from modules.map import ObjectEvent, calculate_targeted_coords
+from modules.map_data import MapRSE, MapFRLG
 from modules.player import get_player
 from modules.pokemon import get_party
 from modules.save_data import get_save_data
@@ -42,7 +41,7 @@ def assert_save_game_exists(error_message: str) -> None:
 
 @dataclass
 class SavedMapLocation:
-    map_group_and_number: tuple[int, int] | MapRSE | MapFRLG
+    map_group_and_number: tuple[int, int] | MapRSE | MapFRLG | None
     local_coordinates: tuple[int, int] | None = None
     facing: bool = False
 
@@ -75,9 +74,6 @@ def assert_saved_on_map(expected_locations: SavedMapLocation | list[SavedMapLoca
         expected_locations = [expected_locations]
 
     for expected_location in expected_locations:
-        if isinstance(expected_location.map_group_and_number, (MapRSE, MapFRLG)):
-            expected_location.map_group_and_number = expected_location.map_group_and_number.value
-
         if expected_location.map_group_and_number == save_data.get_map_group_and_number():
             if expected_location.local_coordinates is not None:
                 if expected_location.facing:

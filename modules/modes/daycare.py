@@ -1,13 +1,12 @@
 from typing import Generator
 
-from modules.data.map import MapRSE, MapFRLG
-
 from modules.console import console
 from modules.context import context
 from modules.daycare import DaycareCompatibility, get_daycare_data
 from modules.encounter import judge_encounter
 from modules.items import get_item_bag, get_item_storage, get_item_by_name
 from modules.map import get_map_objects
+from modules.map_data import MapRSE, MapFRLG
 from modules.memory import get_event_flag, get_game_state_symbol, get_game_state, GameState
 from modules.player import get_player_avatar
 from modules.pokemon import get_party, Pokemon
@@ -37,9 +36,9 @@ class DaycareMode(BotMode):
 
         player_map = get_player_avatar().map_group_and_number
         if context.rom.is_rse:
-            return player_map == MapRSE.ROUTE_117.value
+            return player_map == MapRSE.ROUTE117
         else:
-            return player_map == MapFRLG.FOUR_ISLAND.value
+            return player_map == MapFRLG.FOUR_ISLAND
 
     def __init__(self):
         super().__init__()

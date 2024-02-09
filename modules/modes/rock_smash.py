@@ -1,12 +1,11 @@
 from typing import Generator
 
-from modules.data.map import MapRSE
-
 from modules.context import context
 from modules.encounter import handle_encounter
 from modules.gui.multi_select_window import ask_for_choice, Selection
 from modules.items import get_item_bag
 from modules.map import get_map_objects
+from modules.map_data import MapRSE
 from modules.memory import get_event_flag, get_event_var
 from modules.player import get_player, get_player_avatar, TileTransitionState
 from modules.pokemon import get_opponent
@@ -43,11 +42,11 @@ class RockSmashMode(BotMode):
             return False
 
         return get_player_avatar().map_group_and_number in (
-            MapRSE.GRANITE_CAVE_B.value,
-            MapRSE.ROUTE_121_A.value,
-            MapRSE.SAFARI_ZONE_C.value,
-            MapRSE.SAFARI_ZONE_E.value,
-            MapRSE.SAFARI_ZONE_F.value,
+            MapRSE.GRANITE_CAVE_B2F,
+            MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE,
+            MapRSE.SAFARI_ZONE_SOUTH,
+            MapRSE.SAFARI_ZONE_NORTHEAST,
+            MapRSE.SAFARI_ZONE_SOUTHEAST,
         )
 
     def __init__(self):
@@ -83,18 +82,18 @@ class RockSmashMode(BotMode):
         )
 
         if get_player_avatar().map_group_and_number in (
-            MapRSE.ROUTE_121_A.value,
-            MapRSE.SAFARI_ZONE_C.value,
-            MapRSE.SAFARI_ZONE_E.value,
-            MapRSE.SAFARI_ZONE_F.value,
+            MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE,
+            MapRSE.SAFARI_ZONE_SOUTH,
+            MapRSE.SAFARI_ZONE_NORTHEAST,
+            MapRSE.SAFARI_ZONE_SOUTHEAST,
         ):
             assert_save_game_exists("There is no saved game. Cannot soft reset.")
             assert_saved_on_map(
-                SavedMapLocation(MapRSE.ROUTE_121_A.value),
+                SavedMapLocation(MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE),
                 "In order to rock smash for Shuckle you should save in the entrance building to the Safari Zone.",
             )
 
-        if get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B.value:
+        if get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F:
             if get_item_bag().number_of_repels > 0:
                 mode = ask_for_choice(
                     [
@@ -107,7 +106,7 @@ class RockSmashMode(BotMode):
                 if mode == "Use Repel":
                     assert_save_game_exists("There is no saved game. Cannot soft reset.")
                     assert_saved_on_map(
-                        SavedMapLocation(MapRSE.GRANITE_CAVE_B.value),
+                        SavedMapLocation(MapRSE.GRANITE_CAVE_B2F),
                         "In order to use Repel, you need to save on this map.",
                     )
 
@@ -127,14 +126,14 @@ class RockSmashMode(BotMode):
         starting_cash = get_player().money
         while True:
             match get_player_avatar().map_group_and_number:
-                case MapRSE.GRANITE_CAVE_B.value:
+                case MapRSE.GRANITE_CAVE_B2F:
                     starting_frame = context.emulator.get_frame_count()
                     for _ in self.granite_cave():
                         # Detect reset
                         if context.emulator.get_frame_count() < starting_frame:
                             break
                         yield
-                case MapRSE.ROUTE_121_A.value:
+                case MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE:
                     current_cash = get_player().money
                     if current_cash < 500 or starting_cash - current_cash > 25000:
                         yield from soft_reset()
@@ -143,18 +142,18 @@ class RockSmashMode(BotMode):
                             yield
                         starting_cash = get_player().money
                     yield from self.enter_safari_zone()
-                case MapRSE.SAFARI_ZONE_E.value:
+                case MapRSE.SAFARI_ZONE_NORTHEAST:
                     self._in_safari_zone = True
                     for _ in self.safari_zone():
                         if self._in_safari_zone:
                             yield
                         else:
                             break
-                case MapRSE.SAFARI_ZONE_C.value:
+                case MapRSE.SAFARI_ZONE_SOUTH:
                     self._in_safari_zone = True
                     yield from navigate_to(39, 16)
                     yield from walk_one_tile("Right")
-                case MapRSE.SAFARI_ZONE_F.value:
+                case MapRSE.SAFARI_ZONE_SOUTHEAST:
                     self._in_safari_zone = True
                     yield from navigate_to(8, 0)
                     yield from walk_one_tile("Up")
