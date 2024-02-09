@@ -167,9 +167,9 @@ def navigate_to(x: int, y: int, run: bool = True) -> Generator:
         object_event_ids = []
         for map_object in get_map_objects():
             object_event_ids.append(map_object.local_id)
-            if (
-                "player" not in map_object.flags
-                and destination.local_position in (map_object.current_coords, map_object.previous_coords)
+            if "player" not in map_object.flags and destination.local_position in (
+                map_object.current_coords,
+                map_object.previous_coords,
             ):
                 tile_blocked_by_object = True
                 break
@@ -760,9 +760,9 @@ def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int 
     # 'Pokemon already knows this move' error appeared.)
     press_a = True
     while (
-            not task_is_active("Task_DuckBGMForPokemonCry")
-            and get_game_state() != GameState.BAG_MENU
-            and not task_is_active("Task_HandleListInput")
+        not task_is_active("Task_DuckBGMForPokemonCry")
+        and get_game_state() != GameState.BAG_MENU
+        and not task_is_active("Task_HandleListInput")
     ):
         if press_a:
             context.emulator.press_button("A")
