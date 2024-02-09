@@ -56,8 +56,7 @@ def _might_be_map_coordinates(value) -> bool:
         for map_group in map_group_names:
             out.write(f"    {map_group_names[map_group]} = {map_group}\n")
         out.write(
-            f"""
-    def __contains__(self, item):
+            f"""    def __contains__(self, item):
         if _might_be_map_coordinates(item):
             return self.value == item[0]
         elif isinstance(item, Map{game_code}):

@@ -587,7 +587,7 @@ class MapFRLG(Enum):
             return not equals
         else:
             return NotImplemented
-            
+
     def __contains__(self, item):
         if item is None:
             return False
@@ -1243,7 +1243,7 @@ class MapRSE(Enum):
             return not equals
         else:
             return NotImplemented
-            
+
     def __contains__(self, item):
         if item is None:
             return False
