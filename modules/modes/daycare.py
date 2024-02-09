@@ -133,7 +133,7 @@ class DaycareMode(BotMode):
                     yield from wait_for_n_frames(5)
                 break
 
-        def pc_release(pokemon: str):
+        def pc_release():
             party_indices_to_release = []
             for index in range(len(get_party())):
                 pokemon = get_party()[index]
