@@ -8,7 +8,8 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 - Save the game (**in-game, not a save state**)
 
 ## FireRed/LeafGreen
-### Fossils: [Omanyte](https://bulbapedia.bulbagarden.net/wiki/Omanyte_(Pok%C3%A9mon)), [Kabuto](https://bulbapedia.bulbagarden.net/wiki/Kabuto_(Pok%C3%A9mon)), [Aerodactyl](https://bulbapedia.bulbagarden.net/wiki/Aerodactyl_(Pok%C3%A9mon))
+
+### Fossils: [Omanyte](<https://bulbapedia.bulbagarden.net/wiki/Omanyte_(Pok%C3%A9mon)>), [Kabuto](<https://bulbapedia.bulbagarden.net/wiki/Kabuto_(Pok%C3%A9mon)>), [Aerodactyl](<https://bulbapedia.bulbagarden.net/wiki/Aerodactyl_(Pok%C3%A9mon)>)
 
 ![](../../sprites/pokemon/normal/Omanyte.png)
 ![](../../sprites/pokemon/normal/Kabuto.png)
@@ -22,7 +23,7 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 
 ![image](../images/gift_frlg_fossils.png)
 
-### [Eevee](https://bulbapedia.bulbagarden.net/wiki/Eevee_(Pok%C3%A9mon))
+### [Eevee](<https://bulbapedia.bulbagarden.net/wiki/Eevee_(Pok%C3%A9mon)>)
 
 ![](../../sprites/pokemon/normal/Eevee.png)
 
@@ -32,18 +33,18 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 
 ![image](../images/gift_eevee.png)
 
-### [Hitmonchan](https://bulbapedia.bulbagarden.net/wiki/Hitmonchan_(Pok%C3%A9mon)), [Hitmonlee](https://bulbapedia.bulbagarden.net/wiki/Hitmonlee_(Pok%C3%A9mon))
+### [Hitmonchan](<https://bulbapedia.bulbagarden.net/wiki/Hitmonchan_(Pok%C3%A9mon)>), [Hitmonlee](<https://bulbapedia.bulbagarden.net/wiki/Hitmonlee_(Pok%C3%A9mon)>)
 
 ![](../../sprites/pokemon/normal/Hitmonchan.png)
 ![](../../sprites/pokemon/normal/Hitmonlee.png)
 
-- Place the player in front of the respective Pokéball  in the [Fighting Dojo](https://bulbapedia.bulbagarden.net/wiki/Fighting_Dojo)
+- Place the player in front of the respective Pokéball in the [Fighting Dojo](https://bulbapedia.bulbagarden.net/wiki/Fighting_Dojo)
 - Save the game (**in-game, not a save state**)
 - Start mode
 
 ![image](../images/gift_hitmons.png)
 
-### [Lapras](https://bulbapedia.bulbagarden.net/wiki/Lapras_(Pok%C3%A9mon))
+### [Lapras](<https://bulbapedia.bulbagarden.net/wiki/Lapras_(Pok%C3%A9mon)>)
 
 ![](../../sprites/pokemon/normal/Lapras.png)
 
@@ -53,7 +54,7 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 
 ![image](../images/gift_lapras.png)
 
-### [Magikarp](https://bulbapedia.bulbagarden.net/wiki/Magikarp_(Pok%C3%A9mon))
+### [Magikarp](<https://bulbapedia.bulbagarden.net/wiki/Magikarp_(Pok%C3%A9mon)>)
 
 ![](../../sprites/pokemon/normal/Magikarp.png)
 
@@ -64,11 +65,13 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 ![image](../images/gift_magikarp.png)
 
 ## Emerald
-### [Castform](https://bulbapedia.bulbagarden.net/wiki/Castform_(Pok%C3%A9mon))
+
+### [Castform](<https://bulbapedia.bulbagarden.net/wiki/Castform_(Pok%C3%A9mon)>)
 
 ![](../../sprites/pokemon/normal/Castform.png)
 
-**Note**:    
+**Note**:
+
 > In order to get the game into a state for soft resetting, you must save before the Team Aqua battle, and fill BOTH your PC and party.
 > If any spaces are in your party or any PC box, Castform will be force gifted to you upon completion of the fight.
 >
@@ -81,7 +84,7 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 
 ![image](../images/gift_castform.png)
 
-### [Beldum](https://bulbapedia.bulbagarden.net/wiki/Beldum_(Pok%C3%A9mon))
+### [Beldum](<https://bulbapedia.bulbagarden.net/wiki/Beldum_(Pok%C3%A9mon)>)
 
 ![](../../sprites/pokemon/normal/Beldum.png)
 
@@ -91,7 +94,7 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 
 ![image](../images/gift_beldum.png)
 
-### [Lileep](https://bulbapedia.bulbagarden.net/wiki/Lileep_(Pok%C3%A9mon)), [Anorith](https://bulbapedia.bulbagarden.net/wiki/Anorith_(Pok%C3%A9mon))
+### [Lileep](<https://bulbapedia.bulbagarden.net/wiki/Lileep_(Pok%C3%A9mon)>), [Anorith](<https://bulbapedia.bulbagarden.net/wiki/Anorith_(Pok%C3%A9mon)>)
 
 ![](../../sprites/pokemon/normal/Anorith.png)
 ![](../../sprites/pokemon/normal/Lileep.png)
@@ -103,27 +106,37 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 
 ![image](../images/gift_rse_fossils.png)
 
-### [Wynaut](https://bulbapedia.bulbagarden.net/wiki/Wynaut_(Pok%C3%A9mon))
+### [Wynaut](<https://bulbapedia.bulbagarden.net/wiki/Wynaut_(Pok%C3%A9mon)>)
 
 ![](../../sprites/pokemon/normal/Wynaut.png)
 
 - Place the player in front of the old biddy in [Lavaridge Town](https://bulbapedia.bulbagarden.net/wiki/Lavaridge_Town)
 - Register [Mach Bike](https://bulbapedia.bulbagarden.net/wiki/Mach_Bike) to the `Select` button
-- **Note**: You will get a warning if you do not have a Pokémon with [Flame Body](https://bulbapedia.bulbagarden.net/wiki/Flame_Body_(Ability)) or [Magma Armor](https://bulbapedia.bulbagarden.net/wiki/Magma_Armor_(Ability)) ability in your party
+- **Note**: You will get a warning if you do not have a Pokémon with [Flame Body](<https://bulbapedia.bulbagarden.net/wiki/Flame_Body_(Ability)>) or [Magma Armor](<https://bulbapedia.bulbagarden.net/wiki/Magma_Armor_(Ability)>) ability in your party
 - Save the game (**in-game, not a save state**)
 - Start mode
 
 ![image](../images/gift_wynaut.png)
 
+### [Togepi](<https://bulbapedia.bulbagarden.net/wiki/Togepi_(Pok%C3%A9mon)>)
+
+- Place the player in front of the Old Man in the [Water Labyrinth](https://bulbapedia.bulbagarden.net/wiki/Water_Labyrinth) just west of [Five Island](https://bulbapedia.bulbagarden.net/wiki/Five_Island)
+- Register [Bicycle]() to the `Select` button
+- Make sure you have defeated the female trainer on the island
+- **Note**: This mode will be low encounters per hour. For optimal hatching rates, it is recommended to use the Daycare Mode in Emerald, once released.
+
+![image](../images/gift_togepi.png)
+
 ## Game Support
+
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
-|:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
-| English  |   🟨    |     🟨      |     ✅      |     ✅      |      ✅       |
-| Japanese |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| German   |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| Spanish  |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| French   |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| Italian  |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
+| :------- | :-----: | :---------: | :--------: | :--------: | :----------: |
+| English  |   🟨    |     🟨      |     ✅     |     ✅     |      ✅      |
+| Japanese |   ❌    |     ❌      |     ❌     |     ❌     |      ❌      |
+| German   |   ❌    |     ❌      |     ❌     |     ❌     |      ❌      |
+| Spanish  |   ❌    |     ❌      |     ❌     |     ❌     |      ❌      |
+| French   |   ❌    |     ❌      |     ❌     |     ❌     |      ❌      |
+| Italian  |   ❌    |     ❌      |     ❌     |     ❌     |      ❌      |
 
 ✅ Supported (tested)
 

@@ -112,8 +112,24 @@ class ROM:
         return self.game_title == "POKEMON EMER"
 
     @property
+    def is_ruby(self) -> bool:
+        return self.game_title == "POKEMON RUBY"
+
+    @property
+    def is_sapphire(self) -> bool:
+        return self.game_title == "POKEMON SAPP"
+
+    @property
     def is_frlg(self) -> bool:
         return self.game_title in ["POKEMON FIRE", "POKEMON LEAF"]
+
+    @property
+    def is_fr(self) -> bool:
+        return self.game_title == "POKEMON FIRE"
+
+    @property
+    def is_lg(self) -> bool:
+        return self.game_title == "POKEMON LEAF"
 
 
 class InvalidROMError(Exception):
