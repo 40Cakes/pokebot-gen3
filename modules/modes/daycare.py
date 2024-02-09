@@ -103,7 +103,7 @@ class DaycareMode(BotMode):
             console.print(f"[bold yellow]{get_daycare_data().compatibility[1]}")
             console.print("[bold yellow]Egg generation rates may be affected.")
 
-        if get_party()[0].ability.name not in ["Flame Body", "Magma Armor"]:
+        if context.rom.is_emerald and get_party()[0].ability.name not in ["Flame Body", "Magma Armor"]:
             console.print(
                 "[bold yellow]WARNING: First Pokemon in party does not have Flame Body / Magma Armor ability."
             )
