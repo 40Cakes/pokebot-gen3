@@ -11,7 +11,7 @@ For example: `yield from utils.navigate_to((3, 3))`
 import queue
 import random
 from functools import wraps
-from typing import Generator, Union
+from typing import Generator, Iterable, Union
 
 from modules.context import context
 from modules.files import get_rng_state_history, save_rng_state_history
@@ -87,7 +87,7 @@ def walk_to(destination_coordinates: tuple[int, int], run: bool = True) -> Gener
     context.emulator.release_button("B")
 
 
-def follow_path(waypoints: list[tuple[int, int]], run: bool = True) -> Generator:
+def follow_path(waypoints: Iterable[tuple[int, int]], run: bool = True) -> Generator:
     """
     Moves the player along a given path.
 
