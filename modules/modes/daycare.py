@@ -11,7 +11,7 @@ from modules.map import get_map_objects
 from modules.memory import get_event_flag, get_game_state_symbol, get_game_state, GameState
 from modules.player import get_player_avatar
 from modules.pokemon import get_party, Pokemon
-from modules.tasks import task_is_active
+from modules.tasks import task_is_active, get_global_script_context
 from ._interface import BotMode, BotModeError
 from ._util import (
     walk_one_tile,
@@ -96,6 +96,34 @@ class DaycareMode(BotMode):
         item_bag = get_item_bag()
         if item_bag.quantity_of(get_item_by_name("Mach Bike")) > 0:
             yield from register_key_item(get_item_by_name("Mach Bike"))
+            self._use_bike = True
+        elif context.rom.is_rse:
+            # Get the Mach Bike in Mauville City
+            yield from navigate_to(59, 8)
+            yield from walk_one_tile("Right")
+
+            # Go to bike shop and walk up to the guy
+            yield from navigate_to(35, 6)
+            yield from walk_one_tile("Up")
+            yield from navigate_to(3, 5)
+            yield from ensure_facing_direction("Left")
+
+            # Talk to him. If the player didn't have any bike, the first option will be
+            # the Mach Bike, and if they already have the Acro Bike it will just switch
+            # it. So spamming A works either way.
+            context.emulator.press_button("A")
+            yield
+            while get_global_script_context().is_active:
+                context.emulator.press_button("A")
+                yield
+            yield
+
+            # Go outside, and back to Route 117
+            yield from navigate_to(3, 8)
+            yield from walk_one_tile("Down")
+            yield from navigate_to(0, 8)
+            yield from walk_one_tile("Left")
+
             self._use_bike = True
         elif item_bag.quantity_of(get_item_by_name("Bicycle")) > 0:
             yield from register_key_item(get_item_by_name("Bicycle"))
@@ -243,8 +271,7 @@ class DaycareMode(BotMode):
             yield from follow_path(get_path())
 
             if self.egg_in_party() == 0 and len(get_party()) == 6:
-                pokemon_hunting = get_party()[len(get_party()) - 1].species.name
-                yield from pc_release(pokemon_hunting)
+                yield from pc_release()
                 yield from follow_path([daycare_house])
 
             if get_event_flag("PENDING_DAYCARE_EGG") and len(get_party()) < 6:
