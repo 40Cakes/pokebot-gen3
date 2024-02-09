@@ -83,6 +83,7 @@ class StaticGiftResetsMode(BotMode):
             )
             if get_event_flag("RECEIVED_LAVARIDGE_EGG"):
                 raise BotModeError("You have already received the Wynaut egg.")
+        if encounter[2] in ["Wynaut", "Togepi"]:
             if get_party()[0].ability.name not in ["Flame Body", "Magma Armor"]:
                 console.print(
                     "[bold yellow]WARNING: First Pokemon in party does not have Flame Body / Magma Armor ability."
@@ -92,6 +93,9 @@ class StaticGiftResetsMode(BotMode):
             assert_registered_item(
                 ["Bicycle"], "You need to register the Bicycle for the Select button, then save again."
             )
+            if get_party()[0].friendship < 255:
+                raise BotModeError("The first Pokemon in your party must have max friendship (255) to receive the egg.")
+
         if get_event_flag("GOT_TOGEPI_EGG"):
             raise BotModeError("You have already received the Togepi egg.")
         while context.bot_mode != "Manual":
