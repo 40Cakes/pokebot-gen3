@@ -59,7 +59,7 @@ class EncounterValue(Enum):
     Roamer = auto()
     RoamerOnBlockList = auto()
     CustomFilterMatch = auto()
-    NotOfInterest = auto()
+    Trash = auto()
 
     @property
     def is_of_interest(self):
@@ -97,7 +97,7 @@ def judge_encounter(pokemon: Pokemon) -> EncounterValue:
         else:
             return EncounterValue.Roamer
 
-    return EncounterValue.NotOfInterest
+    return EncounterValue.Trash
 
 
 def log_encounter(pokemon: Pokemon, action: BattleAction | None = None) -> None:
@@ -176,7 +176,7 @@ def handle_encounter(
             alert = None
             is_of_interest = False
 
-        case EncounterValue.NotOfInterest | _:
+        case EncounterValue.Trash | _:
             alert = None
             is_of_interest = False
 
