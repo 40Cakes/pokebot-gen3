@@ -25,22 +25,6 @@ from ._util import (
 )
 
 
-def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | None:
-    if context.rom.is_rse:
-        encounters = [
-            (MapRSE.ROUTE_117.value, (47, 6), "Daycare"),
-        ]
-    else:
-        encounters = []
-
-    targeted_tile = get_player_avatar().map_location_in_front
-    for entry in encounters:
-        if entry[0] == (targeted_tile.map_group, targeted_tile.map_number) and entry[1] == targeted_tile.local_position:
-            return entry
-
-    return None
-
-
 class DaycareMode(BotMode):
     @staticmethod
     def name() -> str:
