@@ -113,6 +113,7 @@ def main_loop() -> None:
 
             context.emulator.run_single_frame()
             previous_frame_info = frame_info
+            previous_frame_info.previous_frame = None
 
     except SystemExit:
         raise
