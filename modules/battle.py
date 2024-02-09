@@ -613,12 +613,19 @@ class BattleOpponent:
         """
         Updates the variable Party in the battle handler.
         """
-        party = get_party()
-        if party != self.party:
-            self.most_recent_leveled_mon_index = check_for_level_up(
-                self.party, party, self.most_recent_leveled_mon_index
-            )
-            self.party = party
+        try:
+            party = get_party()
+            if party != self.party:
+                self.most_recent_leveled_mon_index = check_for_level_up(
+                    self.party, party, self.most_recent_leveled_mon_index
+                )
+                self.party = party
+        except RuntimeError:
+            # Especially during battles, the party data in memory is sometimes garbled for
+            # a bit. If that happens two frames in a row, `get_party()` will throw an error.
+            # Rather than crashing the bot, we'll just keep working with the last known-good
+            # state of the party and hope that nothing too important happened in the meantime.
+            pass
 
     def update_current_battler(self):
         """

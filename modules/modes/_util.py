@@ -21,6 +21,7 @@ from modules.memory import (
     read_symbol,
     write_symbol,
     pack_uint32,
+    unpack_uint16,
     unpack_uint32,
     get_game_state,
     get_game_state_symbol,
@@ -167,8 +168,8 @@ def navigate_to(x: int, y: int, run: bool = True) -> Generator:
         for map_object in get_map_objects():
             object_event_ids.append(map_object.local_id)
             if (
-                map_object.current_coords == destination.local_position
-                or map_object.previous_coords == destination.local_position
+                "player" not in map_object.flags
+                and destination.local_position in (map_object.current_coords, map_object.previous_coords)
             ):
                 tile_blocked_by_object = True
                 break
@@ -242,6 +243,8 @@ def navigate_to(x: int, y: int, run: bool = True) -> Generator:
                     last_known_location = current_location
                     timeout += 60
             yield
+
+    context.emulator.reset_held_buttons()
 
 
 def walk_one_tile(direction: str, run: bool = True) -> Generator:
@@ -693,4 +696,93 @@ def fly_to(destination: Union[FlyDestinationRSE, FlyDestinationFRLG]) -> Generat
 
     # Wait for journey to finish
     yield from wait_for_task_to_start_and_finish("Task_FlyIntoMap", "A")
+    yield
+
+
+def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int = 3) -> Generator:
+    """
+    Attempts to teach an HM or TM move to a party Pokemon.
+
+    This assumes that the game is currently in the overworld and the player is controllable.
+
+    :param hm_or_tm: Item reference of the HM/TM to teach.
+    :param party_index: Party index (0-5) of the Pokemon that this move should be taught to.
+    :param move_index_to_replace: Index of a move (0-3) that should be replaced. If the
+                                  Pokemon still has an empty move slot, this is not used.
+    """
+
+    yield from StartMenuNavigator("BAG").step()
+
+    if context.rom.is_rse:
+        yield from scroll_to_item_in_bag(hm_or_tm)
+    else:
+        # On FR/LG, there is a special 'TM Case' item which contains the actual HM/TM bag.
+        # Open it, then scroll to the right position.
+        yield from scroll_to_item_in_bag(get_item_by_name("TM Case"))
+        yield from wait_until_task_is_active("Task_HandleListInput", "A")
+        yield from wait_for_n_frames(25)
+        target_slot_index = get_item_bag().first_slot_index_for(hm_or_tm)
+        while True:
+            tm_case_state = read_symbol("sTMCaseStaticResources", offset=8, size=4)
+            cursor_offset = unpack_uint16(tm_case_state[0:2])
+            scroll_offset = unpack_uint16(tm_case_state[2:4])
+            current_slot_index = cursor_offset + scroll_offset
+            if current_slot_index < target_slot_index:
+                context.emulator.press_button("Down")
+                yield
+            elif current_slot_index > target_slot_index:
+                context.emulator.press_button("Up")
+                yield
+            else:
+                break
+
+    while get_game_state() != GameState.PARTY_MENU:
+        context.emulator.press_button("A")
+        yield
+
+    # Select the target Pokemon in Party Menu
+    while True:
+        if context.rom.is_rs:
+            current_slot_index = context.emulator.read_bytes(0x0202002F + len(get_party()) * 136 + 3, length=1)[0]
+        else:
+            current_slot_index = read_symbol("gPartyMenu", offset=9, size=1)[0]
+        if current_slot_index < party_index:
+            context.emulator.press_button("Down")
+            yield
+        elif current_slot_index > party_index:
+            context.emulator.press_button("Up")
+            yield
+        else:
+            break
+
+    # Wait for either the 'Which move should be replaced' screen or for being
+    # back at the item bag screen (if no move needed to be replaced, or if an
+    # 'Pokemon already knows this move' error appeared.)
+    press_a = True
+    while (
+            not task_is_active("Task_DuckBGMForPokemonCry")
+            and get_game_state() != GameState.BAG_MENU
+            and not task_is_active("Task_HandleListInput")
+    ):
+        if press_a:
+            context.emulator.press_button("A")
+        if task_is_active("sub_809E260"):
+            press_a = False
+        yield
+
+    # Handle move replacing.
+    if task_is_active("Task_DuckBGMForPokemonCry"):
+        for _ in range(move_index_to_replace):
+            context.emulator.press_button("Down")
+            yield from wait_for_n_frames(3 if context.rom.is_rse else 15)
+        context.emulator.press_button("A")
+        yield
+
+    # Back to overworld.
+    if context.rom.is_rs:
+        yield from wait_for_task_to_start_and_finish("sub_80712B4", "B")
+    elif context.rom.is_frlg:
+        yield from wait_for_task_to_start_and_finish("Task_StartMenuHandleInput", "B")
+    else:
+        yield from wait_for_task_to_start_and_finish("Task_ShowStartMenu", "B")
     yield

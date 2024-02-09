@@ -639,7 +639,10 @@ class PlayerTab(DebugTab):
     def _get_data(self):
         player = get_player()
         player_avatar = get_player_avatar()
-        party = get_party()
+        try:
+            party = get_party()
+        except RuntimeError:
+            party = []
 
         flags = {}
         active_flags = []
@@ -700,58 +703,61 @@ class PlayerTab(DebugTab):
 
             result[key] = party[i]
 
-        item_bag = get_item_bag()
-        bag_data = {
-            "Items": {"__value": f"{len(item_bag.items)}/{item_bag.items_size} Slots"},
-            "Key Items": {"__value": f"{len(item_bag.key_items)}/{item_bag.key_items_size} Slots"},
-            "Poké Balls": {"__value": f"{len(item_bag.poke_balls)}/{item_bag.poke_balls_size} Slots"},
-            "TMs and HMs": {"__value": f"{len(item_bag.tms_hms)}/{item_bag.tms_hms_size} Slots"},
-            "Berries": {"__value": f"{len(item_bag.berries)}/{item_bag.berries_size} Slots"},
-        }
-        total_slots = (
-            item_bag.items_size
-            + item_bag.key_items_size
-            + item_bag.poke_balls_size
-            + item_bag.tms_hms_size
-            + item_bag.berries_size
-        )
-        used_slots = (
-            len(item_bag.items)
-            + len(item_bag.key_items)
-            + len(item_bag.poke_balls)
-            + len(item_bag.tms_hms)
-            + len(item_bag.berries)
-        )
-        bag_data["__value"] = f"{used_slots}/{total_slots} Slots"
-        n = 0
-        for slot in item_bag.items:
-            n += 1
-            bag_data["Items"][n] = f"{slot.quantity}× {slot.item.name}"
-        n = 0
-        for slot in item_bag.key_items:
-            n += 1
-            bag_data["Key Items"][n] = f"{slot.quantity}× {slot.item.name}"
-        n = 0
-        for slot in item_bag.poke_balls:
-            n += 1
-            bag_data["Poké Balls"][n] = f"{slot.quantity}× {slot.item.name}"
-        n = 0
-        for slot in item_bag.tms_hms:
-            n += 1
-            bag_data["TMs and HMs"][n] = f"{slot.quantity}× {slot.item.name}"
-        n = 0
-        for slot in item_bag.berries:
-            n += 1
-            bag_data["Berries"][n] = f"{slot.quantity}× {slot.item.name}"
-        result["Item Bag"] = bag_data
+        try:
+            item_bag = get_item_bag()
+            bag_data = {
+                "Items": {"__value": f"{len(item_bag.items)}/{item_bag.items_size} Slots"},
+                "Key Items": {"__value": f"{len(item_bag.key_items)}/{item_bag.key_items_size} Slots"},
+                "Poké Balls": {"__value": f"{len(item_bag.poke_balls)}/{item_bag.poke_balls_size} Slots"},
+                "TMs and HMs": {"__value": f"{len(item_bag.tms_hms)}/{item_bag.tms_hms_size} Slots"},
+                "Berries": {"__value": f"{len(item_bag.berries)}/{item_bag.berries_size} Slots"},
+            }
+            total_slots = (
+                item_bag.items_size
+                + item_bag.key_items_size
+                + item_bag.poke_balls_size
+                + item_bag.tms_hms_size
+                + item_bag.berries_size
+            )
+            used_slots = (
+                len(item_bag.items)
+                + len(item_bag.key_items)
+                + len(item_bag.poke_balls)
+                + len(item_bag.tms_hms)
+                + len(item_bag.berries)
+            )
+            bag_data["__value"] = f"{used_slots}/{total_slots} Slots"
+            n = 0
+            for slot in item_bag.items:
+                n += 1
+                bag_data["Items"][n] = f"{slot.quantity}× {slot.item.name}"
+            n = 0
+            for slot in item_bag.key_items:
+                n += 1
+                bag_data["Key Items"][n] = f"{slot.quantity}× {slot.item.name}"
+            n = 0
+            for slot in item_bag.poke_balls:
+                n += 1
+                bag_data["Poké Balls"][n] = f"{slot.quantity}× {slot.item.name}"
+            n = 0
+            for slot in item_bag.tms_hms:
+                n += 1
+                bag_data["TMs and HMs"][n] = f"{slot.quantity}× {slot.item.name}"
+            n = 0
+            for slot in item_bag.berries:
+                n += 1
+                bag_data["Berries"][n] = f"{slot.quantity}× {slot.item.name}"
+            result["Item Bag"] = bag_data
 
-        item_storage = get_item_storage()
-        storage_data = {"__value": f"{len(item_storage.items)}/{item_storage.number_of_slots} Slots"}
-        n = 0
-        for slot in item_storage.items:
-            n += 1
-            storage_data[n] = f"{slot.quantity}× {slot.item.name}"
-        result["Item Storage"] = storage_data
+            item_storage = get_item_storage()
+            storage_data = {"__value": f"{len(item_storage.items)}/{item_storage.number_of_slots} Slots"}
+            n = 0
+            for slot in item_storage.items:
+                n += 1
+                storage_data[n] = f"{slot.quantity}× {slot.item.name}"
+            result["Item Storage"] = storage_data
+        except (IndexError, KeyError):
+            result["Item Storage"] = "???"
 
         pokemon_storage = get_pokemon_storage()
         result["Pokemon Storage"] = {"__value": f"{pokemon_storage.pokemon_count} Pokémon"}
