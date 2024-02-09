@@ -6,7 +6,7 @@ from modules.console import console
 from modules.context import context
 from modules.daycare import DaycareCompatibility, get_daycare_data
 from modules.encounter import judge_encounter
-from modules.items import get_item_bag, get_item_by_name
+from modules.items import get_item_bag, get_item_storage, get_item_by_name
 from modules.map import get_map_objects
 from modules.memory import get_event_flag, get_game_state_symbol, get_game_state, GameState
 from modules.player import get_player_avatar
@@ -98,6 +98,12 @@ class DaycareMode(BotMode):
             yield from register_key_item(get_item_by_name("Mach Bike"))
             self._use_bike = True
         elif context.rom.is_rse:
+            if (
+                get_item_storage().quantity_of(get_item_by_name("Mach Bike")) > 0
+                or get_item_storage().quantity_of(get_item_by_name("Acro Bike")) > 0
+            ):
+                raise BotModeError("Your bicycle is stored in the PC storage system. Please go and get it.")
+
             # Get the Mach Bike in Mauville City
             yield from navigate_to(59, 8)
             yield from walk_one_tile("Right")
@@ -124,6 +130,7 @@ class DaycareMode(BotMode):
             yield from navigate_to(0, 8)
             yield from walk_one_tile("Left")
 
+            yield from register_key_item(get_item_by_name("Mach Bike"))
             self._use_bike = True
         elif item_bag.quantity_of(get_item_by_name("Bicycle")) > 0:
             yield from register_key_item(get_item_by_name("Bicycle"))
