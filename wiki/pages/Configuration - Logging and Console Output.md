@@ -10,6 +10,9 @@ This file allows you to control logging certain data to files and the output of 
 ### Options
 `log_encounters` - log all encounters to .csv (`stats/encounters/` folder), each phase is logged to a separate file
 
+`desktop_notifications` - Show a desktop notification if a shiny, roamer, or Pokémon matching your
+Custom Catch Filters is encountered, or the bot is switched to manual mode.
+
 ### Console output
 Console options will control how much data is displayed in the Python terminal/console, valid options are `verbose`, `basic` or `disable`.
 

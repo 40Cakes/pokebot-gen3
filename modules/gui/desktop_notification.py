@@ -8,6 +8,9 @@ from modules.version import pokebot_name, pokebot_version
 
 
 def desktop_notification(title: str, message: str, icon: Path = None) -> None:
+    if not context.config.logging.desktop_notifications:
+        return
+
     try:
         if not icon:
             icon = choose_random_sprite()
