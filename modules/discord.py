@@ -39,7 +39,7 @@ def discord_message(
                     embed_obj.add_embed_field(name=key, value=value, inline=False)
 
             if embed_thumbnail:
-                filename = "thumb.gif" if embed_image.name.endswith(".gif") else "thumb.png"
+                filename = "thumb.gif" if str(embed_thumbnail).endswith(".gif") else "thumb.png"
                 with open(embed_thumbnail, "rb") as f:
                     webhook.add_file(file=f.read(), filename=filename)
                 embed_obj.set_thumbnail(url="attachment://" + filename)
