@@ -212,7 +212,7 @@ class EggHatchListener(BotListener):
                 break
         hatched_pokemon = get_party()[party_index]
         bot_mode.on_egg_hatched(hatched_pokemon, party_index)
-        handle_encounter(hatched_pokemon, do_not_log_action=True)
+        handle_encounter(hatched_pokemon, do_not_log_battle_action=True)
         while self._script_name in get_global_script_context().stack:
             context.emulator.press_button("B")
             yield

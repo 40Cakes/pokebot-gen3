@@ -172,6 +172,7 @@ class Logging(BaseConfig):
     save_pk3: LoggingSavePK3 = Field(default_factory=lambda: LoggingSavePK3())
     import_pk3: bool = False
     log_encounters: bool = False
+    desktop_notifications: bool = False
 
 
 class LoggingConsole(BaseConfig):
@@ -189,6 +190,7 @@ class LoggingSavePK3(BaseConfig):
     all: bool = False
     shiny: bool = False
     custom: bool = False
+    roamer: bool = False
 
 
 class OBS(BaseConfig):
