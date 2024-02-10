@@ -1,10 +1,12 @@
 import os
 import platform
 from tkinter import Tk, ttk
+from ttkthemes import ThemedTk
 from typing import TYPE_CHECKING
 
 import PIL.Image
 import PIL.ImageTk
+import darkdetect
 
 from modules.console import console
 from modules.context import context
@@ -24,25 +26,23 @@ if TYPE_CHECKING:
 
 class PokebotGui:
     def __init__(self, main_loop: callable, on_exit: callable):
-        self.window = Tk(className="PokeBot")
+        if os.getenv("POKEBOT_UNTHEMED") != "1":
+            theme = "equilux" if darkdetect.isDark() else "clam"
+            self.window = ThemedTk(className="PokeBot", theme=theme)
+        else:
+            self.window = Tk(className="PokeBot")
+            ttk.Style().theme_use("default")
         self._current_screen = None
         self._main_loop = main_loop
         self._on_exit = on_exit
         self._startup_settings: "StartupSettings | None" = None
+        self.inputs_enabled = True
 
         self.window.geometry("540x400")
         self.window.resizable(context.debug, True)
         self.window.protocol("WM_DELETE_WINDOW", self._close_window)
         self.window.bind("<KeyPress>", self._handle_key_down_event)
         self.window.bind("<KeyRelease>", self._handle_key_up_event)
-
-        style = ttk.Style()
-        style.theme_use("default")
-        style.map(
-            "Accent.TButton",
-            foreground=[("!active", "white"), ("active", "white"), ("pressed", "white")],
-            background=[("!active", "green"), ("active", "darkgreen"), ("pressed", "green")],
-        )
 
         self._apply_key_config()
 
@@ -155,6 +155,9 @@ class PokebotGui:
         if keysym_with_modifier in self._emulator_keys and self._emulator_keys[keysym_with_modifier] == "exit":
             self._close_window()
 
+        if not self.inputs_enabled:
+            return
+
         # These key bindings will only be applied if the emulation has started.
         if context.emulator:
             if keysym_with_modifier in self._gba_keys and context.bot_mode == "Manual":
@@ -201,6 +204,9 @@ class PokebotGui:
         return "break"
 
     def _handle_key_up_event(self, event):
+        if not self.inputs_enabled:
+            return
+
         keysym_with_modifier = ("ctrl+" if event.state & 4 else "") + event.keysym.lower()
         if context.emulator:
             if keysym_with_modifier in self._gba_keys and (context.bot_mode == "Manual"):

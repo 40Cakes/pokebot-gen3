@@ -1,4 +1,4 @@
-# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/wiki/%F0%9F%93%A2-Discord-Integration
+# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/tree/main/wiki/pages/Configuration%20-%20Discord%20Integration.md
 
 rich_presence: false
 global_webhook_url: ""
@@ -55,6 +55,14 @@ anti_shiny_pokemon_encounter:
 # Custom filter Pokémon encountered
 custom_filter_pokemon_encounter:
   enable: false
+  ping_mode:
+  ping_id:
+  #webhook_url:
+
+# Pickup new items notification
+pickup:
+  enable: false
+  interval: 10
   ping_mode:
   ping_id:
   #webhook_url:

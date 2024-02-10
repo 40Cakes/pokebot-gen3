@@ -29,13 +29,16 @@ required_modules = [
     "requests~=2.31.0",
     "pyperclip3~=0.4.1",
     "plyer~=2.1.0",
+    "notify-py~=0.3.42",
+    "apispec~=6.3.0",
+    "apispec-webframeworks~=0.5.2",
+    "flask-swagger-ui~=4.11.1",
+    "ttkthemes~=3.2.2",
+    "darkdetect~=0.8.0",
 ]
 
 if platform.system() == "Windows":
-    required_modules.extend([
-        "pywin32>=306",
-        "psutil~=5.9.5"
-    ])
+    required_modules.extend(["pywin32>=306", "psutil~=5.9.5"])
 
 
 def get_requirements_hash() -> str:
@@ -107,7 +110,9 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
     pip_flags = ["--disable-pip-version-check", "--no-python-version-warning"]
     for module in required_modules:
         subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", *pip_flags, module], stderr=sys.stderr, stdout=sys.stdout
+            [sys.executable, "-m", "pip", "install", *pip_flags, module],
+            stderr=sys.stderr,
+            stdout=sys.stdout,
         )
 
     # Make sure that `libmgba-py` is installed.
@@ -123,8 +128,19 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
 
             case "Linux":
                 linux_release = platform.freedesktop_os_release()
-                supported_linux_releases = [("ubuntu", "23.04"), ("ubuntu", "23.10"), ("debian", "12")]
-                if (linux_release["ID"], linux_release["VERSION_ID"]) not in supported_linux_releases:
+                if "VERSION_ID" not in linux_release:
+                    linux_release["VERSION_ID"] = "none"
+                supported_linux_releases = [
+                    ("ubuntu", "23.04"),
+                    ("ubuntu", "23.10"),
+                    ("debian", "12"),
+                    ("pop", "22.04"),
+                    ("arch", "none"),
+                ]
+                if (
+                    linux_release["ID"],
+                    linux_release["VERSION_ID"],
+                ) not in supported_linux_releases:
                     print(
                         f'You are running an untested version of Linux ({linux_release["PRETTY_NAME"]}). '
                         f"Currently, only {supported_linux_releases} have been tested and confirmed working."
@@ -135,8 +151,24 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
                     f"libmgba-py_{libmgba_ver}_ubuntu-lunar.zip"
                 )
 
+            case "Darwin":
+                if platform.machine() == "arm64":
+                    # ARM-based Macs
+                    libmgba_url = (
+                        f"https://github.com/hanzi/libmgba-py/releases/download/{libmgba_tag}/"
+                        f"libmgba-py_{libmgba_ver}_macos-arm64.zip"
+                    )
+                else:
+                    # Intel-based Macs
+                    libmgba_url = (
+                        f"https://github.com/hanzi/libmgba-py/releases/download/{libmgba_tag}/"
+                        f"libmgba-py_{libmgba_ver}_macos-x86_64.zip"
+                    )
+
             case _:
-                print(f"ERROR: {platform.system()} is unsupported. Only Windows and Linux are currently supported.")
+                print(
+                    f"ERROR: {platform.system()} is unsupported. Only Windows, Linux, and MacOS are currently supported."
+                )
                 sys.exit(1)
 
         import io

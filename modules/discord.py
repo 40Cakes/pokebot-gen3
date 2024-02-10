@@ -2,13 +2,15 @@ import time
 from pathlib import Path
 from pypresence import Presence
 from discord_webhook import DiscordWebhook, DiscordEmbed
+
 from modules.context import context
+from modules.version import pokebot_version
 
 
 def discord_message(
     webhook_url: str = None,
     content: str = None,
-    image: str = None,
+    image: Path = None,
     embed: bool = False,
     embed_title: str = None,
     embed_description: str = None,
@@ -24,7 +26,7 @@ def discord_message(
 
         if image:
             with open(image, "rb") as f:
-                webhook.add_file(file=f.read(), filename="image.png")
+                webhook.add_file(file=f.read(), filename=image.name)
 
         if embed:
             embed_obj = DiscordEmbed(title=embed_title, color=embed_color)
@@ -48,6 +50,10 @@ def discord_message(
 
             if embed_footer:
                 embed_obj.set_footer(text=embed_footer)
+            else:
+                embed_obj.set_footer(
+                    text=f"ID: {context.config.discord.bot_id} | {context.rom.game_name}\nPokéBot {pokebot_version}"
+                )
 
             embed_obj.set_timestamp()
             webhook.add_embed(embed_obj)
@@ -81,12 +87,14 @@ def discord_rich_presence() -> None:
         encounter_log = total_stats.get_encounter_log()
         totals = total_stats.get_total_stats()
         location = encounter_log[-1]["pokemon"]["metLocation"] if len(encounter_log) > 0 else "N/A"
+        current_fps = context.emulator.get_current_fps()
 
         RPC.update(
             state=f"{location} | {context.rom.game_name}",
             details=(
-                f'{totals.get("totals", {}).get("encounters", 0):,} ({totals.get("totals", {}).get("shiny_encounters", 0):,}✨) |'
-                f" {total_stats.get_encounter_rate():,}/h"
+                f"{totals.get('totals', {}).get('encounters', 0):,} ({totals.get('totals', {}).get('shiny_encounters', 0):,}✨) | "
+                f"{total_stats.get_encounter_rate():,}/h | "
+                f"{current_fps:,}fps ({current_fps / 59.727500569606:0.2f}x)"
             ),
             large_image=large_image,
             start=start,

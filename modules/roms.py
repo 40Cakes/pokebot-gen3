@@ -99,6 +99,38 @@ class ROM:
     def short_game_name(self) -> str:
         return self.game_name.replace("Pokémon ", "")
 
+    @property
+    def is_rse(self) -> bool:
+        return self.game_title in ["POKEMON RUBY", "POKEMON SAPP", "POKEMON EMER"]
+
+    @property
+    def is_rs(self) -> bool:
+        return self.game_title in ["POKEMON RUBY", "POKEMON SAPP"]
+
+    @property
+    def is_emerald(self) -> bool:
+        return self.game_title == "POKEMON EMER"
+
+    @property
+    def is_ruby(self) -> bool:
+        return self.game_title == "POKEMON RUBY"
+
+    @property
+    def is_sapphire(self) -> bool:
+        return self.game_title == "POKEMON SAPP"
+
+    @property
+    def is_frlg(self) -> bool:
+        return self.game_title in ["POKEMON FIRE", "POKEMON LEAF"]
+
+    @property
+    def is_fr(self) -> bool:
+        return self.game_title == "POKEMON FIRE"
+
+    @property
+    def is_lg(self) -> bool:
+        return self.game_title == "POKEMON LEAF"
+
 
 class InvalidROMError(Exception):
     pass

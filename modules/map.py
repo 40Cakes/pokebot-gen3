@@ -1,17 +1,21 @@
 import string
+import struct
+from dataclasses import dataclass
 from functools import cached_property
+from typing import Literal
 
 from modules.context import context
-from modules.game import decode_string
-from modules.memory import unpack_uint16, unpack_uint32, read_symbol
+from modules.game import decode_string, get_event_flag_name
+from modules.memory import unpack_uint16, unpack_uint32, read_symbol, get_symbol_name, get_save_block
+from modules.pokemon import get_item_by_index, Item, get_species_by_index, Species
 
 
 def _get_tile_type_name(tile_type: int):
-    if context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
+    if context.rom.is_rs:
         rse = True
         frlg = False
         emerald = False
-    elif context.rom.game_title == "POKEMON EMER":
+    elif context.rom.is_emerald:
         rse = True
         frlg = False
         emerald = True
@@ -431,6 +435,254 @@ WEATHER_TYPES = [
 ]
 
 
+class MapConnection:
+    def __init__(self, data: bytes):
+        self._data = data
+
+    @property
+    def direction(self) -> str:
+        match self._data[0]:
+            case 1:
+                return "South"
+            case 2:
+                return "North"
+            case 3:
+                return "West"
+            case 4:
+                return "East"
+            case 5:
+                return "Dive"
+            case 6:
+                return "Emerge"
+            case _:
+                return "???"
+
+    @property
+    def offset(self) -> int:
+        return struct.unpack("<i", self._data[4:8])[0]
+
+    @property
+    def destination_map_group(self) -> int:
+        return self._data[8]
+
+    @property
+    def destination_map_number(self) -> int:
+        return self._data[9]
+
+    @property
+    def destination_map(self) -> "MapLocation":
+        return get_map_data(self.destination_map_group, self.destination_map_number, (0, 0))
+
+    def to_dict(self) -> dict:
+        return {
+            "direction": self.direction,
+            "offset": self.offset,
+            "destination": {
+                "map_group": self.destination_map_group,
+                "map_number": self.destination_map_number,
+                "map_name": self.destination_map.map_name,
+            },
+        }
+
+
+class MapWarp:
+    def __init__(self, data: bytes):
+        self._data = data
+
+    @property
+    def local_coordinates(self) -> tuple[int, int]:
+        return unpack_uint16(self._data[0:2]), unpack_uint16(self._data[2:4])
+
+    @property
+    def elevation(self) -> int:
+        return self._data[4]
+
+    @property
+    def destination_warp_id(self) -> int:
+        return self._data[5]
+
+    @property
+    def destination_map_group(self) -> int:
+        return self._data[7]
+
+    @property
+    def destination_map_number(self) -> int:
+        return self._data[6]
+
+    @property
+    def destination_location(self) -> "MapLocation":
+        map_group = self.destination_map_group
+        map_number = self.destination_map_number
+        warp_id = self.destination_warp_id
+
+        # There is a special case for 'dynamic warps' that have their destination set
+        # in the player's save data.
+        if map_group == 127 and map_number == 127:
+            map_group, map_number, warp_id = get_save_block(1, offset=0x14, size=3)
+
+        destination_map = get_map_data(map_group, map_number, (0, 0))
+
+        # Another special case is when there is no corresponding target warp on the
+        # destination map we use _this_ warp's coordinates as the destination.
+        if warp_id == 0xFF:
+            destination_map.local_position = self.local_coordinates
+        else:
+            destination_warp = destination_map.warps[warp_id]
+            destination_map.local_position = destination_warp.local_coordinates
+        return destination_map
+
+    def to_dict(self) -> dict:
+        return {
+            "local_coordinates": self.local_coordinates,
+            "elevation": self.elevation,
+            "destination": {
+                "warp_id": self.destination_warp_id,
+                "map_group": self.destination_map_group,
+                "map_number": self.destination_map_number,
+                "map_name": self.destination_location.map_name,
+            },
+        }
+
+
+class MapCoordEvent:
+    """
+    A 'coord event' is an event that gets triggered by entering a tile.
+    """
+
+    def __init__(self, data: bytes):
+        self._data = data
+
+    @property
+    def local_coordinates(self) -> tuple[int, int]:
+        return unpack_uint16(self._data[0:2]), unpack_uint16(self._data[2:4])
+
+    @property
+    def elevation(self) -> int:
+        return self._data[4]
+
+    @property
+    def trigger(self) -> int:
+        return unpack_uint16(self._data[8:10])
+
+    @property
+    def index(self) -> int:
+        return unpack_uint16(self._data[10:12])
+
+    @property
+    def script_pointer(self) -> int:
+        return unpack_uint32(self._data[12:16])
+
+    @property
+    def script_symbol(self) -> str:
+        symbol = get_symbol_name(self.script_pointer, pretty_name=True)
+        if symbol == "":
+            return hex(self.script_pointer)
+        else:
+            return symbol
+
+    def to_dict(self) -> dict:
+        return {
+            "local_coordinates": self.local_coordinates,
+            "elevation": self.elevation,
+            "script": self.script_symbol,
+        }
+
+
+class MapBgEvent:
+    """
+    A 'BG event' is an event that triggers when interacting with a tile.
+    """
+
+    def __init__(self, data: bytes):
+        self._data = data
+
+    @property
+    def local_coordinates(self) -> tuple[int, int]:
+        return unpack_uint16(self._data[0:2]), unpack_uint16(self._data[2:4])
+
+    @property
+    def elevation(self) -> int:
+        return self._data[4]
+
+    @property
+    def kind(self) -> Literal["Script", "Hidden Item", "Secret Base", "???"]:
+        match self._data[5]:
+            case 0 | 1 | 2 | 3 | 4:
+                return "Script"
+            case 7:
+                return "Hidden Item"
+            case 8:
+                return "Secret Base"
+            case _:
+                return "???"
+
+    @property
+    def player_facing_direction(self) -> str:
+        """This only has meaning if `kind` is 'Script'."""
+        match self._data[5]:
+            case 0:
+                return "Any"
+            case 1:
+                return "Up"
+            case 2:
+                return "Down"
+            case 3:
+                return "Right"
+            case 4:
+                return "Left"
+            case _:
+                return "???"
+
+    @property
+    def script_pointer(self) -> int:
+        """This only has meaning if `kind` is 'Script'."""
+        return unpack_uint32(self._data[8:12])
+
+    @property
+    def script_symbol(self) -> str:
+        """This only has meaning if `kind` is 'Script'."""
+        symbol = get_symbol_name(self.script_pointer, pretty_name=True)
+        if symbol == "":
+            return hex(self.script_pointer)
+        else:
+            return symbol
+
+    @property
+    def hidden_item(self) -> Item:
+        """This only has meaning if `kind` is 'Hidden Item'."""
+        return get_item_by_index(unpack_uint16(self._data[8:10]))
+
+    @property
+    def hidden_item_flag_id(self) -> int:
+        """This only has meaning if `kind` is 'Hidden Item'."""
+        return unpack_uint16(self._data[10:12])
+
+    @property
+    def secret_base_id(self) -> int:
+        """This only has meaning if `kind` is 'Secret Base'."""
+        return unpack_uint32(self._data[8:12])
+
+    def to_dict(self) -> dict:
+        kind = self.kind
+        data = {
+            "local_coordinates": self.local_coordinates,
+            "elevation": self.elevation,
+            "kind": kind,
+        }
+
+        match kind:
+            case "Script":
+                data["player_facing_direction"] = self.player_facing_direction
+                data["script"] = self.script_symbol
+            case "Hidden Item":
+                data["item"] = self.hidden_item.name
+                data["flag"] = get_event_flag_name(self.hidden_item_flag_id)
+            case "Secret Base":
+                data["secret_base_id"] = self.secret_base_id
+
+        return data
+
+
 class MapLocation:
     def __init__(self, map_header: bytes, map_group: int, map_number: int, local_position: tuple[int, int]):
         self._map_header = map_header
@@ -469,7 +721,7 @@ class MapLocation:
         collision = (map_grid_block & 0x0C00) >> 10
         elevation = (map_grid_block & 0xF000) >> 12
 
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             metatiles_in_primary = 640
             metatiles_in_secondary = 1024
             metatiles_attributes_size = 4
@@ -504,10 +756,18 @@ class MapLocation:
     def _tile_behaviour(self) -> int:
         return read_symbol("sTileBitAttributes", self._metatile_attributes[0] & 0x3FF, 1)[0]
 
+    @cached_property
+    def _event_list(self) -> bytes | None:
+        events_list_pointer = unpack_uint32(self._map_header[0x04:0x08])
+        if events_list_pointer == 0:
+            return None
+        else:
+            return context.emulator.read_bytes(events_list_pointer, 20)
+
     @property
     def map_name(self) -> str:
         region_map_section_id = self._map_header[0x14]
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             map_index = region_map_section_id - 0x58
             if 0 <= map_index < 0xC4 - 0x58:
                 # The game special-cases the Celadon Department Store by map number
@@ -550,14 +810,14 @@ class MapLocation:
 
     @property
     def has_encounters(self) -> bool:
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON SAPP"]:
+        if context.rom.is_frlg:
             return bool(self._metatile_attributes[0] & 0x0700_0000)
         else:
             return bool(self._tile_behaviour & 1)
 
     @property
     def is_surfable(self) -> bool:
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON SAPP"]:
+        if context.rom.is_frlg:
             return self.tile_type in [
                 "Pond Water",
                 "Fast Water",
@@ -590,14 +850,14 @@ class MapLocation:
         ]:
             return False
 
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             return bool(self._map_header[0x18])
         else:
             return bool(self._map_header[0x1A] & 0b0001)
 
     @property
     def is_escaping_possible(self) -> bool:
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             return bool(self._map_header[0x19] & 0b0001)
         else:
             return bool(self._map_header[0x1A] & 0b0010)
@@ -619,14 +879,14 @@ class MapLocation:
         ]:
             return False
 
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             return bool(self._map_header[0x19] & 0b0010)
         else:
             return bool(self._map_header[0x1A] & 0b0100)
 
     @property
     def is_map_name_popup_shown(self) -> bool:
-        if context.rom.game_title in ["POKEMON FIRE", "POKEMON LEAF"]:
+        if context.rom.is_frlg:
             return bool(self._map_header[0x19] & 0b0100)
         else:
             return bool(self._map_header[0x1A] & 0b1000)
@@ -634,6 +894,86 @@ class MapLocation:
     @property
     def is_dark_cave(self) -> bool:
         return bool(self._map_header[0x15] & 0b0001)
+
+    @property
+    def connections(self) -> list[MapConnection]:
+        list_of_connections_pointer = unpack_uint32(self._map_header[0x0C:0x10])
+        if list_of_connections_pointer == 0:
+            return []
+
+        list_of_connections = context.emulator.read_bytes(list_of_connections_pointer, 0x08)
+        count = unpack_uint32(list_of_connections[0:4])
+        connection_pointer = unpack_uint32(list_of_connections[4:8])
+        if connection_pointer == 0:
+            return []
+
+        size_of_struct = 12
+        data = context.emulator.read_bytes(connection_pointer, size_of_struct * count)
+
+        result = []
+        for index in range(count):
+            result.append(MapConnection(data[size_of_struct * index : size_of_struct * (index + 1)]))
+        return result
+
+    @property
+    def warps(self) -> list[MapWarp]:
+        warp_count = self._event_list[1]
+        warp_pointer = unpack_uint32(self._event_list[8:12])
+        if warp_count == 0 or warp_pointer == 0:
+            return []
+
+        size_of_struct = 8
+        data = context.emulator.read_bytes(warp_pointer, warp_count * size_of_struct)
+
+        result = []
+        for index in range(warp_count):
+            result.append(MapWarp(data[size_of_struct * index : size_of_struct * (index + 1)]))
+        return result
+
+    @property
+    def objects(self) -> list["ObjectEventTemplate"]:
+        object_event_count = self._event_list[0]
+        object_event_pointer = unpack_uint32(self._event_list[4:8])
+        if object_event_count == 0 or object_event_pointer == 0:
+            return []
+
+        size_of_struct = 24
+        data = context.emulator.read_bytes(object_event_pointer, size_of_struct * object_event_count)
+
+        result = []
+        for index in range(object_event_count):
+            result.append(ObjectEventTemplate(data[size_of_struct * index : size_of_struct * (index + 1)]))
+        return result
+
+    @property
+    def coord_events(self) -> list[MapCoordEvent]:
+        coord_event_count = self._event_list[2]
+        coord_event_pointer = unpack_uint32(self._event_list[12:16])
+        if coord_event_count == 0 or coord_event_pointer == 0:
+            return []
+
+        size_of_struct = 16
+        data = context.emulator.read_bytes(coord_event_pointer, size_of_struct * coord_event_count)
+
+        result = []
+        for index in range(coord_event_count):
+            result.append(MapCoordEvent(data[size_of_struct * index : size_of_struct * (index + 1)]))
+        return result
+
+    @property
+    def bg_events(self) -> list[MapBgEvent]:
+        bg_event_count = self._event_list[3]
+        bg_event_pointer = unpack_uint32(self._event_list[16:20])
+        if bg_event_count == 0 or bg_event_pointer == 0:
+            return []
+
+        size_of_struct = 12
+        data = context.emulator.read_bytes(bg_event_pointer, size_of_struct * bg_event_count)
+
+        result = []
+        for index in range(bg_event_count):
+            result.append(MapBgEvent(data[size_of_struct * index : size_of_struct * (index + 1)]))
+        return result
 
     def all_tiles(self) -> list[list["MapLocation"]]:
         result = []
@@ -659,6 +999,11 @@ class MapLocation:
             "is_running_possible": self.is_running_possible,
             "is_map_name_popup_shown": self.is_map_name_popup_shown,
             "is_dark_cave": self.is_dark_cave,
+            "connections": [c.to_dict() for c in self.connections],
+            "warps": [w.to_dict() for w in self.warps],
+            "tile_enter_events": [e.to_dict() for e in self.coord_events],
+            "tile_interact_events": [e.to_dict() for e in self.bg_events],
+            "object_templates": [t.to_dict() for t in self.objects],
         }
 
     def dict_for_tile(self) -> dict:
@@ -1133,10 +1478,148 @@ class ObjectEvent:
             return f"Entity at {self.current_coords}"
 
 
-def get_map_data_for_current_position() -> MapLocation:
-    from modules.player import get_player
+class ObjectEventTemplate:
+    def __init__(self, data: bytes):
+        self._data = data
 
-    player = get_player()
+    @property
+    def local_id(self) -> int:
+        return self._data[0]
+
+    @property
+    def graphics_id(self) -> int:
+        return self._data[1]
+
+    @property
+    def kind(self) -> Literal["normal", "clone"]:
+        if self._data[2] == 255:
+            return "clone"
+        else:
+            return "normal"
+
+    @property
+    def local_coordinates(self) -> tuple[int, int]:
+        return unpack_uint16(self._data[4:6]), unpack_uint16(self._data[6:8])
+
+    @property
+    def elevation(self) -> int:
+        return self._data[8]
+
+    @property
+    def movement_type(self) -> str:
+        return ObjectEvent.MOVEMENT_TYPES[self._data[9]]
+
+    @property
+    def movement_range(self) -> tuple[int, int]:
+        return (self._data[10] & 0xF0) >> 4, self._data[10] & 0x0F
+
+    @property
+    def trainer_type(self) -> Literal["None", "Normal", "See All Directions", "Buried", "???"]:
+        match unpack_uint16(self._data[12:14]):
+            case 0:
+                return "None"
+            case 1:
+                return "Normal"
+            case 2:
+                return "See All Directions"
+            case 3:
+                return "Buried"
+            case _:
+                return "???"
+
+    @property
+    def trainer_range(self) -> int:
+        return unpack_uint16(self._data[14:16])
+
+    @property
+    def berry_tree_id(self) -> int:
+        return unpack_uint16(self._data[14:16])
+
+    @property
+    def script_pointer(self) -> int:
+        return unpack_uint32(self._data[16:20])
+
+    @property
+    def script_symbol(self) -> str:
+        if self.script_pointer == 0:
+            return ""
+        symbol = get_symbol_name(self.script_pointer, pretty_name=True)
+        if symbol == "":
+            return hex(self.script_pointer)
+        else:
+            return symbol
+
+    @property
+    def flag_id(self) -> int:
+        return unpack_uint16(self._data[20:22])
+
+    @property
+    def clone_target_local_id(self) -> int:
+        """This only has meaning if `kind` is 'clone' on FRLG."""
+        return self.elevation
+
+    @property
+    def clone_target_map_group(self) -> int:
+        """This only has meaning if `kind` is 'clone' on FRLG."""
+        return unpack_uint16(self._data[12:14])
+
+    @property
+    def clone_target_map_number(self) -> int:
+        """This only has meaning if `kind` is 'clone' on FRLG."""
+        return unpack_uint16(self._data[14:16])
+
+    @property
+    def clone_target_map(self) -> MapLocation:
+        """This only has meaning if `kind` is 'clone' on FRLG."""
+        return get_map_data(self.clone_target_map_group, self.clone_target_map_number, (0, 0))
+
+    def to_dict(self) -> dict:
+        kind = self.kind
+        data = {
+            "local_id": self.local_id,
+            "local_coordinates": self.local_coordinates,
+            "kind": kind,
+            "script": self.script_symbol,
+            "flag": get_event_flag_name(self.flag_id),
+        }
+
+        if kind == "normal":
+            trainer = None
+            if self.trainer_type != "None":
+                trainer = {
+                    "type": self.trainer_type,
+                    "range": self.trainer_range,
+                }
+
+            data["elevation"] = self.elevation
+            data["trainer"] = trainer
+            data["movement"] = {
+                "type": self.movement_type,
+                "range": self.movement_range,
+            }
+        else:
+            data["target"] = {
+                "map_group": self.clone_target_map_group,
+                "map_number": self.clone_target_map_number,
+                "map_name": self.clone_target_map.map_name,
+                "local_id": self.local_id,
+            }
+
+        return data
+
+    def __str__(self) -> str:
+        if self.trainer_type == "Buried":
+            return f"Buried Trainer at {self.local_coordinates}"
+        elif self.trainer_type != "None":
+            return f"Trainer at {self.local_coordinates}"
+        else:
+            return f"Entity at {self.local_coordinates}"
+
+
+def get_map_data_for_current_position() -> MapLocation:
+    from modules.player import get_player_avatar
+
+    player = get_player_avatar()
 
     map_group, map_number = player.map_group_and_number
     return MapLocation(read_symbol("gMapHeader"), map_group, map_number, player.local_coordinates)
@@ -1170,3 +1653,109 @@ def get_map_all_tiles() -> list[MapLocation]:
         for x in range(map_width):
             tiles.append(get_map_data(map_group, map_number, (x, y)))
     return tiles
+
+
+@dataclass
+class WildEncounter:
+    species: Species
+    min_level: int
+    max_level: int
+    encounter_rate: int
+
+    def __str__(self):
+        if self.min_level == self.max_level:
+            return f"{self.species.name} (lvl. {self.min_level}; {self.encounter_rate}%)"
+        else:
+            return f"{self.species.name} (lvl. {self.min_level}-{self.max_level}; {self.encounter_rate}%)"
+
+
+@dataclass
+class WildEncounterList:
+    land_encounter_rate: int
+    surf_encounter_rate: int
+    rock_smash_encounter_rate: int
+    fishing_encounter_rate: int
+
+    land_encounters: list[WildEncounter]
+    surf_encounters: list[WildEncounter]
+    rock_smash_encounters: list[WildEncounter]
+    old_rod_encounters: list[WildEncounter]
+    good_rod_encounters: list[WildEncounter]
+    super_rod_encounters: list[WildEncounter]
+
+
+_wild_encounters_cache: dict[tuple[int, int], WildEncounterList] = {}
+
+
+def get_wild_encounters_for_map(map_group: int, map_number: int) -> WildEncounterList | None:
+    global _wild_encounters_cache
+    if len(_wild_encounters_cache) == 0:
+        types = (
+            (4, 8, "land", 12, (20, 20, 10, 10, 10, 10, 5, 5, 4, 4, 1, 1)),
+            (8, 12, "surf", 5, (60, 30, 5, 4, 1)),
+            (12, 16, "rock_smash", 5, (60, 30, 5, 4, 1)),
+            (16, 20, "fishing", 10, (70, 30, 60, 20, 20, 40, 40, 15, 4, 1)),
+        )
+        headers = read_symbol("gWildMonHeaders")
+        for index in range(len(headers) // 20):
+            offset = index * 20
+            group = headers[offset]
+            number = headers[offset + 1]
+            if group == 0xFF:
+                break
+
+            def get_encounters_list(address: int, length: int, encounter_rates: list[int]) -> list[WildEncounter]:
+                if address == 0:
+                    return []
+
+                raw_list = context.emulator.read_bytes(address, length=length * 4)
+                result = []
+                for n in range(length):
+                    min_level = raw_list[4 * n]
+                    max_level = raw_list[4 * n + 1]
+                    if min_level > max_level:
+                        temp = max_level
+                        max_level = min_level
+                        min_level = temp
+                    species = get_species_by_index(unpack_uint16(raw_list[4 * n + 2 : 4 * n + 4]))
+                    result.append(WildEncounter(species, min_level, max_level, encounter_rates[n]))
+                return result
+
+            data = {}
+            for start, end, key, count, rates in types:
+                pointer = unpack_uint32(headers[offset + start : offset + end])
+                data[key + "_encounter_rate"] = 0
+                if key != "fishing":
+                    data[key + "_encounters"] = []
+                else:
+                    data["old_rod_encounters"] = []
+                    data["good_rod_encounters"] = []
+                    data["super_rod_encounters"] = []
+                if pointer > 0:
+                    encounter_info = context.emulator.read_bytes(pointer, length=8)
+                    data[key + "_encounter_rate"] = encounter_info[0]
+                    if data[key + "_encounter_rate"] > 0:
+                        list_pointer = unpack_uint32(encounter_info[4:8])
+                        if key != "fishing":
+                            data[key + "_encounters"] = get_encounters_list(list_pointer, count, rates)
+                        else:
+                            data["old_rod_encounters"] = get_encounters_list(list_pointer, 2, rates[0:2])
+                            data["good_rod_encounters"] = get_encounters_list(list_pointer + 8, 3, rates[2:5])
+                            data["super_rod_encounters"] = get_encounters_list(list_pointer + 20, 5, rates[5:10])
+            _wild_encounters_cache[(group, number)] = WildEncounterList(**data)
+
+    return _wild_encounters_cache.get((map_group, map_number), None)
+
+
+def calculate_targeted_coords(current_coordinates: tuple[int, int], facing_direction: str) -> tuple[int, int]:
+    match facing_direction:
+        case "Up":
+            return current_coordinates[0], current_coordinates[1] - 1
+        case "Down":
+            return current_coordinates[0], current_coordinates[1] + 1
+        case "Left":
+            return current_coordinates[0] - 1, current_coordinates[1]
+        case "Right":
+            return current_coordinates[0] + 1, current_coordinates[1]
+        case _:
+            raise ValueError(f"Invalid facing direction: {facing_direction}")

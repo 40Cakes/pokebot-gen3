@@ -1,4 +1,4 @@
-# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/wiki/%F0%9F%93%84-Logging-and-Console-Output
+# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/tree/main/wiki/pages/Configuration%20-%20Logging%20and%20Console%20Output.md
 
 # Log all encounters to .csv (`stats/encounters/` folder), each phase is logged to a separate file
 log_encounters: false # `true`, `false`

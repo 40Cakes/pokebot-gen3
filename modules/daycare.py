@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from enum import IntEnum
 
-from modules.memory import get_save_block, unpack_uint32
+from modules.context import context
+from modules.memory import get_save_block, unpack_uint32, unpack_uint16
 from modules.pokemon import Pokemon, parse_pokemon
 
 
@@ -73,12 +74,34 @@ class DaycareData:
 
 
 def get_daycare_data() -> DaycareData | None:
-    data = get_save_block(1, 0x3030, 0x120)
+    if context.rom.is_rs:
+        offset = 0x2F9C
+    elif context.rom.is_emerald:
+        offset = 0x3030
+    else:
+        offset = 0x2F80
+
+    data = get_save_block(1, offset, 0x120)
     if data is None:
         return None
 
-    pokemon1 = parse_pokemon(data[0x00:0x50])
-    pokemon2 = parse_pokemon(data[0x8C:0xDC])
+    if context.rom.is_rs:
+        pokemon1 = parse_pokemon(data[0x00:0x50])
+        pokemon2 = parse_pokemon(data[0x50:0xA0])
+        steps1 = unpack_uint32(data[0x110:0x114])
+        steps2 = unpack_uint32(data[0x114:0x118])
+    else:
+        pokemon1 = parse_pokemon(data[0x00:0x50])
+        pokemon2 = parse_pokemon(data[0x8C:0xDC])
+        steps1 = unpack_uint32(data[0x88:0x8C])
+        steps2 = unpack_uint32(data[0x114:0x118])
+
+    if context.rom.is_emerald:
+        personality_value = unpack_uint32(data[0x118:0x11C])
+        step_counter = int(data[0x11C])
+    else:
+        personality_value = unpack_uint16(data[0x118:0x11A])
+        step_counter = int(data[0x11A])
 
     if pokemon1 is None:
         egg_groups1 = []
@@ -93,11 +116,11 @@ def get_daycare_data() -> DaycareData | None:
     return DaycareData(
         pokemon1=pokemon1,
         pokemon1_egg_groups=egg_groups1,
-        pokemon1_steps=unpack_uint32(data[0x88:0x8C]),
+        pokemon1_steps=steps1,
         pokemon2=pokemon2,
         pokemon2_egg_groups=egg_groups2,
-        pokemon2_steps=unpack_uint32(data[0x114:0x118]),
-        offspring_personality=unpack_uint32(data[0x118:0x11C]),
-        step_counter=int(data[0x11C]),
+        pokemon2_steps=steps2,
+        offspring_personality=personality_value,
+        step_counter=step_counter,
         compatibility=DaycareCompatibility.calculate_for(pokemon1, pokemon2),
     )

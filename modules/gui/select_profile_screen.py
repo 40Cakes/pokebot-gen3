@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from tkinter import Tk, ttk
+from tkinter import ttk, Tk
 from typing import Union
 
 from modules.profiles import Profile, list_available_profiles
@@ -35,14 +35,25 @@ class SelectProfileScreen:
 
     def _add_header_and_controls(self, row: int = 0) -> None:
         header = ttk.Frame(self.frame)
+        style = ttk.Style()
+        style.map(
+            "Accent.TButton",
+            foreground=[("!active", "white"), ("active", "white"), ("pressed", "white")],
+            background=[("!active", "green"), ("active", "darkgreen"), ("pressed", "green")],
+        )
         header.grid(row=row, sticky="NEW")
         header.columnconfigure(0, weight=1)
 
         label = ttk.Label(header, text="Select a profile to run:")
         label.grid(column=0, row=0, sticky="W")
 
-        new_profile_button = ttk.Button(header, text="+ New profile", command=self.enable_profile_creation_screen,
-                                        style="Accent.TButton", cursor="hand2")
+        new_profile_button = ttk.Button(
+            header,
+            text="+ New profile",
+            command=self.enable_profile_creation_screen,
+            style="Accent.TButton",
+            cursor="hand2",
+        )
         new_profile_button.grid(column=1, row=0, sticky="E")
 
     def _add_profile_list(self, available_profiles: list[Profile], row: int = 1) -> None:
@@ -51,8 +62,9 @@ class SelectProfileScreen:
         container.rowconfigure(0, weight=1)
         container.grid(row=row, sticky="NSEW")
 
-        treeview = ttk.Treeview(container, columns=("profile_name", "game", "last_played"), show="headings",
-                                selectmode="browse")
+        treeview = ttk.Treeview(
+            container, columns=("profile_name", "game", "last_played"), show="headings", selectmode="browse"
+        )
         treeview.column("profile_name", width=200)
         treeview.heading("profile_name", text="Profile Name")
         treeview.column("game", width=150)

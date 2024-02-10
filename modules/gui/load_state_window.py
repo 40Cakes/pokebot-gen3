@@ -2,7 +2,7 @@ import random
 import re
 import time
 from pathlib import Path
-from tkinter import Tk, ttk, Toplevel, Canvas, PhotoImage, TclError
+from tkinter import ttk, Tk, Toplevel, Canvas, PhotoImage, TclError
 
 import PIL.Image
 import PIL.ImageDraw
@@ -28,6 +28,9 @@ class LoadStateWindow:
 
         def load_state(state: Path):
             context.emulator.load_save_state(state.read_bytes())
+            context.frame = 0
+            if context.bot_mode != "Manual":
+                context.toggle_manual_mode()
             self._load_save_window.after(50, remove_window)
 
         self._load_save_window = Toplevel(window)

@@ -6,8 +6,8 @@ import pathlib
 import platform
 from dataclasses import dataclass
 
-from modules.modes import available_bot_modes
-from modules.runtime import is_bundled_app
+from modules.modes import get_bot_mode_names
+from modules.runtime import is_bundled_app, get_base_path
 from modules.version import pokebot_name, pokebot_version
 
 OS_NAME = platform.system()
@@ -29,8 +29,7 @@ def on_exit() -> None:
             if gui is not None and gui.window is not None:
                 gui.window.withdraw()
 
-            print("")
-            input("Press Enter to close...")
+            input("\nPress Enter to close...")
 
 
 atexit.register(on_exit)
@@ -55,6 +54,8 @@ def directory_arg(value: str) -> pathlib.Path:
     """
     path_obj = pathlib.Path(value)
     if not path_obj.is_dir() or not path_obj.exists():
+        from modules import exceptions
+
         raise exceptions.CriticalDirectoryMissing(value)
     return path_obj
 
@@ -67,7 +68,7 @@ def parse_arguments() -> StartupSettings:
         nargs="?",
         help="Profile to initialize. Otherwise, the profile selection menu will appear.",
     )
-    parser.add_argument("-m", "--bot-mode", choices=available_bot_modes, help="Initial bot mode (default: Manual).")
+    parser.add_argument("-m", "--bot-mode", choices=get_bot_mode_names(), help="Initial bot mode (default: Manual).")
     parser.add_argument(
         "-s",
         "--emulation-speed",
@@ -104,12 +105,15 @@ if __name__ == "__main__":
         from requirements import check_requirements
 
         check_requirements()
-    from modules import exceptions  # Import base module to ensure the custom exception hook is applied.
     from modules.context import context
     from modules.console import console
+    from modules.exceptions_hook import register_exception_hook
     from modules.gui import PokebotGui
     from modules.main import main_loop
     from modules.profiles import Profile, profile_directory_exists, load_profile_by_name
+    from updater import run_updater
+
+    register_exception_hook()
 
     # This catches the signal Windows emits when the underlying console window is closed
     # by the user. We still want to save the emulator state in that case, which would not
@@ -126,6 +130,11 @@ if __name__ == "__main__":
 
     startup_settings = parse_arguments()
     console.print(f"Starting [bold cyan]{pokebot_name} {pokebot_version}![/]")
+
+    if not is_bundled_app() and not (get_base_path() / ".git").is_dir():
+        run_updater()
+
     gui = PokebotGui(main_loop, on_exit)
     context.gui = gui
+
     gui.run(startup_settings)

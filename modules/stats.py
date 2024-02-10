@@ -3,25 +3,32 @@ import json
 import math
 import sys
 import time
+import random
 import importlib
 from collections import deque
 from threading import Thread
 from datetime import datetime
+from collections import Counter
 
 from modules.console import console, print_stats
 from modules.context import context
 from modules.csv import log_encounter_to_csv
+from modules.discord import discord_message
 from modules.files import read_file, write_file
 from modules.memory import get_game_state, GameState
 from modules.pokemon import Pokemon
+from modules.runtime import get_sprites_path
+from modules.state_cache import state_cache
 
 
 class TotalStats:
     def __init__(self):
         self.session_encounters: int = 0
         self.session_pokemon: set = set()
+        self.discord_picked_up_items: dict = {}
         self.encounter_log: deque[dict] = deque(maxlen=10)
         self.encounter_timestamps: deque[float] = deque(maxlen=100)
+        self.encounter_frames: deque[int] = deque(maxlen=100)
         self.cached_timestamp: str = ""
         self.cached_encounter_rate: int = 0
 
@@ -68,20 +75,32 @@ class TotalStats:
     def append_encounter_timestamps(self) -> None:
         self.encounter_timestamps.append(time.time())
 
+    def append_encounter_frames(self) -> None:
+        self.encounter_frames.append(context.frame)
+
     def append_encounter_log(self, pokemon: Pokemon) -> None:
+        state_cache.last_encounter_log = self.encounter_log.pop() if self.encounter_log else None
         self.encounter_log.append(self.get_log_obj(pokemon))
 
     def append_shiny_log(self, pokemon: Pokemon) -> None:
+        state_cache.last_shiny_log = self.shiny_log["shiny_log"].pop() if self.shiny_log["shiny_log"] else None
         self.shiny_log["shiny_log"].append(self.get_log_obj(pokemon))
         write_file(self.files["shiny_log"], json.dumps(self.shiny_log, indent=4, sort_keys=True))
+
+    def get_session_encounters(self) -> int:
+        return self.session_encounters
 
     def get_total_stats(self) -> dict:
         return self.total_stats
 
     def get_encounter_log(self) -> list:
+        if state_cache.last_encounter_log.age_in_frames == 0:
+            state_cache.last_encounter_log = self.encounter_log.pop() if self.encounter_log else None
         return list(self.encounter_log)
 
     def get_shiny_log(self) -> list:
+        if state_cache.last_shiny_log.age_in_frames == 0:
+            state_cache.last_shiny_log = self.shiny_log["shiny_log"].pop() if self.shiny_log["shiny_log"] else None
         return self.shiny_log["shiny_log"]
 
     def get_encounter_rate(self) -> int:
@@ -107,6 +126,14 @@ class TotalStats:
                 return encounter_rate
             else:
                 return self.cached_encounter_rate
+        return 0
+
+    def get_encounter_rate_at_1x(self) -> float:
+        if len(self.encounter_frames) >= 2:
+            difference = self.encounter_frames[-1] - self.encounter_frames[0]
+            average_frames_per_encounter = difference / len(self.encounter_frames)
+            average_seconds_per_encounter = average_frames_per_encounter / 59.727500569606
+            return round(3600 / average_seconds_per_encounter, 1)
         return 0
 
     def update_incremental_stats(self, pokemon: Pokemon) -> None:
@@ -275,7 +302,10 @@ class TotalStats:
 
     def update_same_pokemon_streak_record(self, pokemon: Pokemon) -> None:
         # Same Pokémon encounter streak records
-        if len(self.encounter_log) > 1 and self.encounter_log[-2]["pokemon"]["name"] == pokemon.species.name:
+        if (
+            state_cache.last_encounter_log.value is not None
+            and state_cache.last_encounter_log.value["pokemon"]["name"] == pokemon.species.name
+        ):
             self.total_stats["totals"]["current_streak"] = self.total_stats["totals"].get("current_streak", 0) + 1
         else:
             self.total_stats["totals"]["current_streak"] = 1
@@ -307,53 +337,111 @@ class TotalStats:
         if pokemon.species.name not in self.total_stats["pokemon"]:  # Set up a Pokémon stats if first encounter
             self.total_stats["pokemon"][pokemon.species.name] = {}
 
-        self.update_incremental_stats(pokemon)
-        self.update_sv_records(pokemon)
-        self.update_iv_records(pokemon)
+        if self.total_stats["totals"].get("last_encounter_pid") == pokemon.personality_value:
+            console.print(
+                f"PID {str(hex(pokemon.personality_value)[2:]).upper()} was the last encounter logged, skipping..."
+            )
+        else:
+            self.total_stats["totals"]["last_encounter_pid"] = pokemon.personality_value
+            self.update_incremental_stats(pokemon)
+            self.update_sv_records(pokemon)
+            self.update_iv_records(pokemon)
 
-        if context.config.logging.log_encounters:
-            log_encounter_to_csv(self.total_stats, pokemon.to_legacy_dict(), self.stats_dir_path)
+            if context.config.logging.log_encounters:
+                log_encounter_to_csv(self.total_stats, pokemon.to_legacy_dict(), self.stats_dir_path)
 
-        self.update_shiny_averages(pokemon)
-        self.append_encounter_timestamps()
-        self.append_encounter_log(pokemon)
-        self.update_same_pokemon_streak_record(pokemon)
+            self.update_shiny_averages(pokemon)
+            self.append_encounter_timestamps()
+            self.append_encounter_frames()
+            self.append_encounter_log(pokemon)
+            self.update_same_pokemon_streak_record(pokemon)
 
-        if pokemon.is_shiny:
-            self.append_shiny_log(pokemon)
-            self.update_shiny_incremental_stats(pokemon)
+            if pokemon.is_shiny:
+                self.append_shiny_log(pokemon)
+                self.update_shiny_incremental_stats(pokemon)
 
-            #  TODO fix all this OBS crap
-            for i in range(context.config.obs.shiny_delay):
-                context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-
-            if context.config.obs.screenshot:
-                from modules.obs import obs_hot_key
-
-                while get_game_state() != GameState.BATTLE:
-                    context.emulator.press_button("B")  # Throw out Pokémon for screenshot
+                #  TODO fix all this OBS crap
+                for i in range(context.config.obs.shiny_delay):
                     context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-                for i in range(180):
-                    context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-                obs_hot_key("OBS_KEY_F11", pressCtrl=True)
 
-        print_stats(self.total_stats, pokemon, self.session_pokemon, self.get_encounter_rate())
+                if context.config.obs.screenshot:
+                    from modules.obs import obs_hot_key
 
-        # Run custom code in custom_hooks in a thread
-        hook = (
-            Pokemon(pokemon.data),
-            copy.deepcopy(self.total_stats),
-            copy.deepcopy(block_list),
-            copy.deepcopy(custom_filter_result),
-        )
-        Thread(target=self.custom_hooks, args=(hook,)).start()
+                    while get_game_state() != GameState.BATTLE:
+                        context.emulator.press_button("B")  # Throw out Pokémon for screenshot
+                        context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+                    for i in range(180):
+                        context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
+                    obs_hot_key("OBS_KEY_F11", pressCtrl=True)
 
-        if pokemon.is_shiny:
-            self.update_phase_records(pokemon)
-            self.reset_phase_stats()
+            print_stats(self.total_stats, pokemon, self.session_pokemon, self.get_encounter_rate())
+
+            # Run custom code/Discord webhooks in custom_hooks in a thread to not hold up bot
+            hook = (
+                Pokemon(pokemon.data),
+                copy.deepcopy(self.total_stats),
+                copy.deepcopy(block_list),
+                copy.deepcopy(custom_filter_result),
+            )
+            Thread(target=self.custom_hooks, args=(hook,)).start()
+
+            if pokemon.is_shiny:
+                self.update_phase_records(pokemon)
+                self.reset_phase_stats()
+
+            # Save stats file
+            write_file(self.files["totals"], json.dumps(self.total_stats, indent=4, sort_keys=True))
+
+    def update_pickup_items(self, picked_up_items) -> None:
+        self.total_stats["totals"]["pickup"] = self.total_stats["totals"].get("pickup", {})
+
+        item_names = [i.name for i in picked_up_items]
+
+        item_count = {}
+        for item_name in item_names:
+            item_count[item_name] = item_count.get(item_name, 0) + 1
+
+        pickup_stats = {}
+        for item, count in item_count.items():
+            pickup_stats |= {f"{item}": count}
+
+        self.total_stats["totals"]["pickup"] = Counter(self.total_stats["totals"]["pickup"]) + Counter(pickup_stats)
 
         # Save stats file
         write_file(self.files["totals"], json.dumps(self.total_stats, indent=4, sort_keys=True))
+
+        if context.config.discord.pickup.enable:
+            self.discord_picked_up_items = Counter(self.discord_picked_up_items) + Counter(item_count)
+
+            if sum(self.discord_picked_up_items.values()) >= context.config.discord.pickup.interval:
+                sprite_names = [i.sprite_name for i in picked_up_items]
+
+                item_list = []
+                for item, count in self.discord_picked_up_items.items():
+                    item_list.append(f"{item} ({count})")
+
+                self.discord_picked_up_items = {}
+
+                def pickup_discord_webhook():
+                    discord_ping = ""
+                    match context.config.discord.pickup.ping_mode:
+                        case "role":
+                            discord_ping = f"📢 <@&{context.config.discord.pickup.ping_id}>"
+                        case "user":
+                            discord_ping = f"📢 <@{context.config.discord.pickup.ping_id}>"
+
+                    discord_message(
+                        webhook_url=context.config.discord.pickup.webhook_url,
+                        content=discord_ping,
+                        embed=True,
+                        embed_title="🦝 Pickup notification",
+                        embed_description="New items have been picked by your team!",
+                        embed_fields={"Items:": "\n".join(item_list)},
+                        embed_thumbnail=get_sprites_path() / "items" / f"{random.choice(sprite_names)}.png",
+                        embed_color="fc6203",
+                    )
+
+                Thread(target=pickup_discord_webhook).start()
 
 
 total_stats = TotalStats()
