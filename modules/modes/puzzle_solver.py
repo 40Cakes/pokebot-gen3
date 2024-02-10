@@ -1,10 +1,9 @@
 from typing import Generator
 
-from modules.data.map import MapFRLG, MapRSE
-
 from modules.context import context
-from modules.items import get_item_bag, get_item_by_name
+from modules.items import get_item_bag
 from modules.map import get_map_objects
+from modules.map_data import MapFRLG, MapRSE
 from modules.memory import get_event_flag, get_event_var, read_symbol, unpack_uint16
 from modules.menuing import StartMenuNavigator, use_party_hm_move
 from modules.player import get_player_avatar
@@ -32,16 +31,16 @@ class PuzzleSolverMode(BotMode):
     def is_selectable() -> bool:
         if context.rom.is_rse:
             return get_player_avatar().map_group_and_number in [
-                MapRSE.SKY_PILLAR_A.value,
-                MapRSE.ISLAND_CAVE.value,
-                MapRSE.DESERT_RUINS.value,
-                MapRSE.ANCIENT_TOMB.value,
-                MapRSE.BIRTH_ISLAND.value,
-                MapRSE.MIRAGE_TOWER.value,
+                MapRSE.SKY_PILLAR_OUTSIDE,
+                MapRSE.ISLAND_CAVE,
+                MapRSE.DESERT_RUINS,
+                MapRSE.ANCIENT_TOMB,
+                MapRSE.BIRTH_ISLAND_EXTERIOR,
+                MapRSE.MIRAGE_TOWER_1F,
             ]
         elif context.rom.is_frlg:
             return get_player_avatar().map_group_and_number in [
-                MapFRLG.TANOBY_KEY.value,
+                MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY,
             ]
         else:
             return False
@@ -53,7 +52,7 @@ class PuzzleSolverMode(BotMode):
 
         match get_player_avatar().map_group_and_number:
             # Mirage Tower
-            case MapRSE.MIRAGE_TOWER.value:
+            case MapRSE.MIRAGE_TOWER_1F:
                 context.message = "Solving Mirage Tower..."
                 useRepel = True
                 assert_registered_item("Mach Bike", "This mode requires the Mach Bike.")
@@ -87,11 +86,11 @@ class PuzzleSolverMode(BotMode):
                     yield from wait_for_n_frames(180)
                     yield from navigate_to(6, 6)
                     if get_player_avatar().local_coordinates == (6, 6):
-                        context.message = "Mirage Tower puzzle complete."
+                        context.message = "Mirage Tower puzzle complete!"
                         context.bot_mode = "Manual"
 
             # Sky Pillar
-            case MapRSE.SKY_PILLAR_A.value:
+            case MapRSE.SKY_PILLAR_OUTSIDE:
                 context.message = "Solving Sky Pillar..."
                 useRepel = True
                 assert_registered_item("Mach Bike", "This mode requires the Mach Bike.")
@@ -144,11 +143,11 @@ class PuzzleSolverMode(BotMode):
                         ]
                     )
                     yield from walk_one_tile("Up")
-                    context.message = "Sky Pillar puzzle complete."
+                    context.message = "Sky Pillar puzzle complete!"
                     context.bot_mode = "Manual"
 
             # Regirock
-            case MapRSE.DESERT_RUINS.value:
+            case MapRSE.DESERT_RUINS:
                 context.message = "Solving Regirock Puzzle..."
 
                 def path():
@@ -166,7 +165,7 @@ class PuzzleSolverMode(BotMode):
                         yield from use_party_hm_move("Rock Smash")
                         yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
                         if get_event_flag("SYS_REGIROCK_PUZZLE_COMPLETED"):
-                            context.message = "Regirock puzzle complete."
+                            context.message = "Regirock puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
                             yield from navigate_to(8, 29)
@@ -183,7 +182,7 @@ class PuzzleSolverMode(BotMode):
                         yield from navigate_to(8, 21)
                         yield from walk_one_tile("Up")
                         if get_player_avatar().local_coordinates == (8, 11):
-                            context.message = "Regirock puzzle complete."
+                            context.message = "Regirock puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
                             yield from navigate_to(8, 29)
@@ -191,7 +190,7 @@ class PuzzleSolverMode(BotMode):
                             yield from walk_one_tile("Up")
 
             # Regice
-            case MapRSE.ISLAND_CAVE.value:
+            case MapRSE.ISLAND_CAVE:
                 context.message = "Solving Regice Puzzle..."
 
                 def path():
@@ -219,18 +218,18 @@ class PuzzleSolverMode(BotMode):
                             ]
                         )
                         if get_event_flag("SYS_BRAILLE_REGICE_COMPLETED"):
-                            context.message = "Regice puzzle complete."
+                            context.message = "Regice puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
                             yield from navigate_to(8, 29)
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
                     if context.rom.is_rs:
-                        context.message = "Waiting 2 minutes game time..."
+                        context.message = "Waiting 2 minutes in-game time..."
                         yield from wait_for_n_frames(7300)
                         yield from walk_one_tile("Up")
                         if get_player_avatar().local_coordinates == (8, 11):
-                            context.message = "Regice puzzle complete."
+                            context.message = "Regice puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
                             yield from navigate_to(8, 29)
@@ -238,7 +237,7 @@ class PuzzleSolverMode(BotMode):
                             yield from walk_one_tile("Up")
 
             # Registeel
-            case MapRSE.ANCIENT_TOMB.value:
+            case MapRSE.ANCIENT_TOMB:
                 context.message = "Solving Registeel Puzzle..."
 
                 def path():
@@ -253,7 +252,7 @@ class PuzzleSolverMode(BotMode):
                         yield from use_party_hm_move("Flash")
                         yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
                         if get_event_flag("SYS_REGISTEEL_PUZZLE_COMPLETED"):
-                            context.message = "Registeel puzzle complete."
+                            context.message = "Registeel puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
                             yield from navigate_to(8, 29)
@@ -270,7 +269,7 @@ class PuzzleSolverMode(BotMode):
                         yield from navigate_to(8, 21)
                         yield from walk_one_tile("Up")
                         if get_player_avatar().local_coordinates == (8, 11):
-                            context.message = "Registeel puzzle complete."
+                            context.message = "Registeel puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
                             yield from navigate_to(8, 29)
@@ -278,7 +277,7 @@ class PuzzleSolverMode(BotMode):
                             yield from walk_one_tile("Up")
 
             # Deoxys
-            case MapRSE.BIRTH_ISLAND.value:
+            case MapRSE.BIRTH_ISLAND_EXTERIOR:
                 context.message = "Solving Deoxys Puzzle..."
 
                 def path():
@@ -309,7 +308,7 @@ class PuzzleSolverMode(BotMode):
                     # yield from navigate_to(15, 11)
                     yield from wait_for_n_frames(60)
                     if get_map_objects()[1].current_coords == (15, 10):
-                        context.message = "Deoxys puzzle complete."
+                        context.message = "Deoxys puzzle complete!"
                         context.bot_mode = "Manual"
                     else:
                         yield from navigate_to(15, 24)
@@ -317,7 +316,7 @@ class PuzzleSolverMode(BotMode):
                         yield from walk_one_tile("Up")
 
             # Tanoby Key
-            case MapFRLG.TANOBY_KEY.value:
+            case MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY:
                 context.message = "Solving Tanoby Key..."
 
                 def path():
@@ -377,7 +376,7 @@ class PuzzleSolverMode(BotMode):
                         "SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved", "B"
                     )
                     if get_event_flag("SYS_UNLOCKED_TANOBY_RUINS"):
-                        context.message = "Tanoby Key puzzle complete."
+                        context.message = "Tanoby Key puzzle complete!"
                         context.bot_mode = "Manual"
                     else:
                         yield from navigate_to(7, 13)
@@ -389,13 +388,7 @@ class PuzzleSolverMode(BotMode):
 
         def repelCheck():
             repel_steps = get_event_var("REPEL_STEP_COUNT")
-            item_bag = get_save_data().get_item_bag()
-            repels_in_bag = (
-                item_bag.quantity_of(get_item_by_name("Max Repel"))
-                + item_bag.quantity_of(get_item_by_name("Super Repel"))
-                + item_bag.quantity_of(get_item_by_name("Repel"))
-            )
-            if repel_steps < 1 and repels_in_bag > 0:
+            if repel_steps < 1 and get_save_data().get_item_bag().number_of_repels > 0:
                 # use repel
                 first_max_repel = None
                 first_super_repel = None

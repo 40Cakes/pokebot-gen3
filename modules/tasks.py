@@ -46,7 +46,7 @@ class Task:
 
     @property
     def data(self) -> bytes:
-        return self._data[8:16]
+        return self._data[8:]
 
 
 class TaskList:

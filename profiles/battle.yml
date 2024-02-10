@@ -1,5 +1,8 @@
 # See readme for documentation: https://github.com/40Cakes/pokebot-gen3/tree/main/wiki/pages/Configuration%20-%20Battling%20and%20Pickup.md
 
+# Auto Catching
+auto_catch: true
+
 # Pickup
 pickup: true
 pickup_threshold: 1

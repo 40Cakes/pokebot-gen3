@@ -128,32 +128,6 @@ class PokemonStorage:
                     return True
         return False
 
-    def dangerous_import_into_storage(self, pokemon: Pokemon) -> tuple[int, str] | None:
-        # Check whether PC storage is completely full.
-        if self.pokemon_count >= 14 * 30:
-            return None
-
-        # Find the first empty slot in the current box.
-        active_box = self.active_box
-        empty_slot_index = active_box.first_empty_slot_index
-
-        # If this active box is full, find any empty space.
-        if empty_slot_index is None:
-            for box in self.boxes:
-                empty_slot_index = box.first_empty_slot_index
-                if empty_slot_index is not None:
-                    active_box = box
-                    break
-
-        # Could not find any empty slot.
-        if empty_slot_index is None:
-            return None
-
-        offset = self._offset + 0x4 + (active_box.number * 30 * 80) + (empty_slot_index * 80)
-        context.emulator.write_bytes(offset, pokemon.data[0:80])
-
-        return active_box.number, active_box.name
-
     def to_dict(self) -> dict:
         return {
             "active_box_index": self.active_box_index,

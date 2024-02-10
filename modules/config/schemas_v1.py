@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from enum import Enum
 from pathlib import Path
 from typing import Literal
 
@@ -15,6 +14,7 @@ class Battle(BaseConfig):
     """Schema for the catch_block configuration."""
 
     filename: ClassVar = "battle.yml"
+    auto_catch: bool = False
     pickup: bool = False
     pickup_threshold: Annotated[int, Field(gt=0, lt=7)] = 1
     pickup_check_frequency: Annotated[int, Field(gt=0)] = 5
@@ -81,7 +81,6 @@ class Cheats(BaseConfig):
     """Schema for the cheat configuration."""
 
     filename: ClassVar = "cheats.yml"
-    fast_check_starters: bool = False
     random_soft_reset_rng: bool = False
     faster_pickup: bool = False
 
@@ -173,6 +172,7 @@ class Logging(BaseConfig):
     save_pk3: LoggingSavePK3 = Field(default_factory=lambda: LoggingSavePK3())
     import_pk3: bool = False
     log_encounters: bool = False
+    desktop_notifications: bool = False
 
 
 class LoggingConsole(BaseConfig):
@@ -190,6 +190,7 @@ class LoggingSavePK3(BaseConfig):
     all: bool = False
     shiny: bool = False
     custom: bool = False
+    roamer: bool = False
 
 
 class OBS(BaseConfig):

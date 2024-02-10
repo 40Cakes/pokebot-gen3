@@ -1,6 +1,8 @@
-from enum import IntEnum, auto
+from enum import Enum, IntEnum, auto
 
 from modules.context import context
+from modules.items import get_item_bag, get_item_by_index, get_item_by_name, Item
+from modules.map import get_map_data_for_current_position
 from modules.memory import (
     get_game_state,
     read_symbol,
@@ -9,7 +11,6 @@ from modules.memory import (
     unpack_uint32,
     GameState,
 )
-
 from modules.menu_parsers import (
     get_party_menu_cursor_pos,
     get_battle_menu,
@@ -27,8 +28,35 @@ from modules.menuing import (
     BattlePartyMenuNavigator,
     PartyMenuExit,
 )
-from modules.pokemon import get_party, get_opponent, Pokemon, Move, LearnedMove
+from modules.modes import BotModeError
+from modules.modes._util import scroll_to_item_in_bag
+from modules.pokedex import get_pokedex
+from modules.pokemon import (
+    get_party,
+    get_opponent,
+    Pokemon,
+    Move,
+    LearnedMove,
+    get_type_by_name,
+    StatusCondition,
+    get_battle_type_flags,
+    BattleTypeFlag,
+)
 from modules.tasks import get_global_script_context, get_task, get_tasks, task_is_active
+
+
+class BattleOutcome(Enum):
+    Won = 1
+    Lost = 2
+    Draw = 3
+    RanAway = 4
+    PlayerTeleported = 5
+    OpponentFled = 6
+    Caught = 7
+    NoSafariBallsLeft = 8
+    Forfeited = 9
+    OpponentTeleported = 10
+    LinkBattleRanAway = 128
 
 
 class BattleState(IntEnum):
@@ -39,6 +67,7 @@ class BattleState(IntEnum):
     ACTION_SELECTION = auto()
     MOVE_SELECTION = auto()
     PARTY_MENU = auto()
+    BAG_MENU = auto()
     SWITCH_POKEMON = auto()
     LEARNING = auto()
     # misc undetected state (move animations, buffering, etc.)
@@ -77,49 +106,73 @@ class BattleAction(BaseMenuNavigator):
             case "None":
                 self.current_step = "select_action"
             case "select_action":
-                match self.choice:
-                    case "flee":
+                if BattleTypeFlag.SAFARI in get_battle_type_flags():
+                    if self.choice == "catch":
+                        self.current_step = "exit"
+                    else:
                         self.current_step = "handle_flee"
-                    case "fight":
-                        self.current_step = "choose_move"
-                    case "switch":
-                        self.current_step = "wait_for_party_menu"
-                    case "bag":
-                        context.message = "Bag not implemented yet, switching to manual mode."
-                        context.set_manual_mode()
+                else:
+                    match self.choice:
+                        case "flee":
+                            self.current_step = "handle_flee"
+                        case "fight":
+                            self.current_step = "choose_move"
+                        case "switch":
+                            self.current_step = "wait_for_party_menu"
+                        case "catch":
+                            self.current_step = "wait_for_bag_menu"
+                        case "bag":
+                            context.message = "Bag not implemented yet, switching to manual mode..."
+                            context.set_manual_mode()
             case "wait_for_party_menu":
                 self.current_step = "choose_mon"
+            case "wait_for_bag_menu":
+                self.current_step = "throw_poke_ball"
             case "handle_flee":
                 if not self.choice_was_successful:
                     self.current_step = "handle_no_escape"
                 else:
                     self.current_step = "return_to_overworld"
-            case "choose_move" | "choose_mon" | "return_to_overworld":
+            case "choose_move" | "choose_mon" | "throw_poke_ball" | "throw_safari_ball" | "return_to_overworld":
                 self.current_step = "exit"
 
     def update_navigator(self):
         match self.current_step:
             case "select_action":
-                match self.choice:
-                    case "fight":
-                        index = 0
-                    case "switch":
-                        index = 2
-                    case "bag":
-                        index = 1
-                        context.message = "Bag not implemented yet. Switching to manual mode."
-                        context.set_manual_mode()
-                    case "flee" | _:
-                        index = 3
-                self.navigator = self.select_option(index)
+                if BattleTypeFlag.SAFARI in get_battle_type_flags():
+                    if self.choice == "catch":
+                        self.navigator = self.throw_safari_ball()
+                    else:
+                        self.navigator = self.select_option(3)
+                else:
+                    match self.choice:
+                        case "fight":
+                            index = 0
+                        case "switch":
+                            index = 2
+                        case "catch":
+                            index = 1
+                        case "bag":
+                            index = 1
+                            context.message = "Bag not implemented yet, switching to manual mode..."
+                            context.set_manual_mode()
+                        case "flee" | _:
+                            index = 3
+                    self.navigator = self.select_option(index)
             case "handle_flee":
                 self.navigator = self.handle_flee()
             case "choose_move":
                 self.navigator = self.choose_move()
             case "wait_for_party_menu":
                 self.navigator = self.wait_for_party_menu()
+            case "wait_for_bag_menu":
+                self.navigator = self.wait_for_bag_menu()
             case "choose_mon":
                 self.navigator = self.choose_mon()
+            case "throw_poke_ball":
+                self.navigator = self.throw_poke_ball()
+            case "throw_safari_ball":
+                self.navigator = self.throw_safari_ball()
             case "handle_no_escape":
                 self.navigator = self.handle_no_escape()
             case "return_to_overworld":
@@ -136,7 +189,7 @@ class BattleAction(BaseMenuNavigator):
     def choose_move(self):
         while get_battle_state() == BattleState.MOVE_SELECTION:
             if 0 > self.idx or self.idx > 3:
-                context.message = "Invalid move selection. Switching to manual mode..."
+                context.message = "Invalid move selection, switching to manual mode..."
                 context.set_manual_mode()
             else:
                 if self.subnavigator is None and get_battle_state() == BattleState.OTHER:
@@ -165,6 +218,44 @@ class BattleAction(BaseMenuNavigator):
                 self.navigator = None
                 self.subnavigator = None
 
+    @staticmethod
+    def _ball_throwing_task_name() -> str:
+        if context.rom.is_emerald:
+            return "AnimTask_ThrowBall_Step"
+        elif context.rom.is_rs:
+            return "sub_813FB7C"
+        else:
+            return "AnimTask_ThrowBall_WaitAnimObjComplete"
+
+    def throw_poke_ball(self):
+        yield from scroll_to_item_in_bag(get_item_by_index(self.idx))
+
+        while not task_is_active(self._ball_throwing_task_name()):
+            context.emulator.press_button("A")
+            yield
+
+        while task_is_active(self._ball_throwing_task_name()):
+            context.emulator.press_button("B")
+            yield
+
+        yield
+
+    def throw_safari_ball(self):
+        while not task_is_active(self._ball_throwing_task_name()):
+            context.emulator.press_button("A")
+            yield
+
+        while task_is_active(self._ball_throwing_task_name()):
+            context.emulator.press_button("B")
+            yield
+
+        if task_is_active("sub_81414BC"):
+            while task_is_active("sub_81414BC"):
+                context.emulator.press_button("B")
+                yield
+
+        yield
+
     def handle_no_escape(self):
         if self.subnavigator is None and not party_menu_is_open():
             while not party_menu_is_open():
@@ -173,7 +264,7 @@ class BattleAction(BaseMenuNavigator):
         elif party_menu_is_open() and self.subnavigator is None:
             mon_to_switch = get_new_lead()
             if mon_to_switch is None:
-                context.message = "Can't find a viable switch-in. Switching to manual mode."
+                context.message = "Can't find a viable switch-in, switching to manual mode..."
                 context.set_manual_mode()
             else:
                 self.subnavigator = BattlePartyMenuNavigator(idx=mon_to_switch, mode="switch").step()
@@ -202,6 +293,11 @@ class BattleAction(BaseMenuNavigator):
     @staticmethod
     def wait_for_party_menu():
         while get_battle_state() != BattleState.PARTY_MENU:
+            yield
+
+    @staticmethod
+    def wait_for_bag_menu():
+        while get_battle_state() != BattleState.BAG_MENU:
             yield
 
 
@@ -340,8 +436,8 @@ class BattleHandler:
     Wrapper for the BattleOpponent class that makes it compatible with the current structure of the main loop.
     """
 
-    def __init__(self):
-        self.battler = BattleOpponent().step()
+    def __init__(self, try_to_catch: bool = False):
+        self.battler = BattleOpponent(try_to_catch).step()
 
     def step(self):
         for _ in self.battler:
@@ -354,7 +450,7 @@ class BattleOpponent:
     or runs out of PP.
     """
 
-    def __init__(self):
+    def __init__(self, try_to_catch: bool = False):
         """
         Initializes the battle handler
         """
@@ -370,6 +466,7 @@ class BattleOpponent:
         self.choice = None
         self.idx = None
         self.battle_action = None
+        self.try_to_catch = try_to_catch
 
     @property
     def foe_fainted(self):
@@ -475,7 +572,9 @@ class BattleOpponent:
         if "EventScript_DoTrainerBattle" in script_ctx.stack:
             is_trainer_battle = True
 
-        if not is_trainer_battle and (not context.config.battle.battle or not can_battle_happen()):
+        if not is_trainer_battle and self.try_to_catch:
+            self.choose_action_for_auto_catch()
+        elif not is_trainer_battle and (not context.config.battle.battle or not can_battle_happen()):
             self.choice = "flee"
             self.idx = -1
         elif context.config.battle.replace_lead_battler and self.should_rotate_lead:
@@ -506,7 +605,7 @@ class BattleOpponent:
                         self.choice = "fight"
                         self.idx = move
                 case _:
-                    context.message = "Not yet implemented"
+                    context.message = "Not yet implemented."
                     self.choice = "flee"
                     self.idx = -1
 
@@ -514,17 +613,27 @@ class BattleOpponent:
         """
         Updates the variable Party in the battle handler.
         """
-        party = get_party()
-        if party != self.party:
-            self.most_recent_leveled_mon_index = check_for_level_up(
-                self.party, party, self.most_recent_leveled_mon_index
-            )
-            self.party = party
+        try:
+            party = get_party()
+            if party != self.party:
+                self.most_recent_leveled_mon_index = check_for_level_up(
+                    self.party, party, self.most_recent_leveled_mon_index
+                )
+                self.party = party
+        except RuntimeError:
+            # Especially during battles, the party data in memory is sometimes garbled for
+            # a bit. If that happens two frames in a row, `get_party()` will throw an error.
+            # Rather than crashing the bot, we'll just keep working with the last known-good
+            # state of the party and hope that nothing too important happened in the meantime.
+            pass
 
     def update_current_battler(self):
         """
         Determines which Pokémon is battling.
         """
+        if BattleTypeFlag.SAFARI in get_battle_type_flags():
+            return
+
         # TODO: someday support double battles maybe idk
         battler_indices = [
             int.from_bytes(read_symbol("gBattlerPartyIndexes", size=12)[2 * i : 2 * i + 2], "little")
@@ -533,6 +642,86 @@ class BattleOpponent:
         if len(self.party) == 1:
             self.current_battler = self.party[0]
         self.current_battler = [self.party[battler_indices[i * 2]] for i in range(self.num_battlers // 2)][0]
+
+    def choose_action_for_auto_catch(self) -> None:
+        selected_poke_ball = self.get_best_poke_ball_for(self.opponent)
+        if selected_poke_ball is None:
+            raise BotModeError("Player does not have any Poké Balls, cannot catch.")
+
+        self.choice = "catch"
+        self.idx = selected_poke_ball.index
+
+        if (
+            BattleTypeFlag.SAFARI not in get_battle_type_flags()
+            and self.calculate_catch_chance(self.opponent, selected_poke_ball) < 0.7
+            and not self.opponent_might_end_battle_next_turn()
+        ):
+            # Try to paralyse/put to sleep opponent
+            if self.opponent.status_condition == StatusCondition.Healthy:
+                status_move_index: int = -1
+                status_move_value: float = 0
+                for index in range(len(self.current_battler.moves)):
+                    learned_move = self.current_battler.moves[index]
+                    if learned_move is None or learned_move.pp == 0:
+                        continue
+                    value = 0
+                    if learned_move.move.effect == "SLEEP":
+                        if self.opponent.ability.name not in ("Insomnia", "Vital Spirit"):
+                            value = 2 * learned_move.move.accuracy
+                    if learned_move.move.effect == "PARALYZE":
+                        if self.opponent.ability.name != "Limber":
+                            value = 1.5 * learned_move.move.accuracy
+                    if status_move_value < value:
+                        status_move_index = index
+                        status_move_value = value
+                if status_move_index >= 0:
+                    self.choice = "fight"
+                    self.idx = status_move_index
+
+            # False Swipe if possible
+            if self.opponent.current_hp > 1:
+                false_swipe_index = -1
+                for index in range(len(self.current_battler.moves)):
+                    learned_move = self.current_battler.moves[index]
+                    if learned_move is None:
+                        continue
+                    if learned_move.move.name == "False Swipe" and learned_move.pp > 0:
+                        false_swipe_index = index
+                        break
+                if false_swipe_index >= 0:
+                    self.choice = "fight"
+                    self.idx = false_swipe_index
+
+    def opponent_might_end_battle_next_turn(self) -> bool:
+        if BattleTypeFlag.ROAMER in get_battle_type_flags():
+            return True
+
+        smoke_ball = get_item_by_name("Smoke Ball")
+        for move in self.opponent.moves:
+            if move is None:
+                continue
+
+            match move.move.name:
+                case "Selfdestruct" | "Perish Song" | "Explosion" | "Memento":
+                    return True
+
+                case "Curse":
+                    if self.opponent.current_hp / self.opponent.total_hp <= 0.5:
+                        return True
+
+                case "Substitute":
+                    if self.opponent.current_hp / self.opponent.total_hp <= 0.25:
+                        return True
+
+                case "Teleport":
+                    if self.opponent.ability.name == "Run Away" or self.opponent.held_item == smoke_ball:
+                        return True
+
+                case "Whirlwind" | "Roar":
+                    if self.current_battler.ability.name != "Suction Cups":
+                        return True
+
+        return False
 
     def get_mon_to_switch(self, show_messages=True) -> int | None:
         """
@@ -620,7 +809,7 @@ class BattleOpponent:
         Function that determines the strongest move to use given the current battler and the current
         """
         if self.num_battlers > 2:
-            context.message = "Double battle detected, not yet implemented. Switching to manual mode..."
+            context.message = "Double battle detected, not yet implemented, switching to manual mode..."
             context.set_manual_mode()
         else:
             current_opponent = get_opponent()
@@ -634,6 +823,84 @@ class BattleOpponent:
             )
 
             return move["index"]
+
+    def get_best_poke_ball_for(self, opponent: Pokemon) -> Item | None:
+        best_poke_ball: Item | None = None
+        best_catch_rate_multiplier: float = 0
+        for ball in get_item_bag().poke_balls:
+            catch_rate_multiplier = self.get_poke_ball_catch_rate_multiplier(opponent, ball.item)
+
+            if best_catch_rate_multiplier < catch_rate_multiplier:
+                best_poke_ball = ball.item
+                best_catch_rate_multiplier = catch_rate_multiplier
+
+        return best_poke_ball
+
+    @staticmethod
+    def get_poke_ball_catch_rate_multiplier(opponent: Pokemon, ball: Item) -> float:
+        catch_rate_multiplier = 1
+        match ball.index:
+            # Master Ball -- we never choose to throw this one, should be the player's choice
+            case 1:
+                catch_rate_multiplier = -1
+
+            # Ultra Ball
+            case 2:
+                catch_rate_multiplier = 2
+
+            # Great Ball, Safari Ball:
+            case 3 | 5:
+                catch_rate_multiplier = 1.5
+
+            # Net Ball
+            case 6:
+                water = get_type_by_name("Water")
+                bug = get_type_by_name("Bug")
+                if opponent.species.has_type(water) or opponent.species.has_type(bug):
+                    catch_rate_multiplier = 3
+
+            # Dive Ball
+            case 7:
+                if get_map_data_for_current_position().map_type == "Underwater":
+                    catch_rate_multiplier = 3.5
+
+            # Nest Ball
+            case 8:
+                if opponent.level < 40:
+                    catch_rate_multiplier = max(1.0, (40 - opponent.level) / 10)
+
+            # Repeat Ball
+            case 9:
+                if opponent.species in get_pokedex().owned_species:
+                    catch_rate_multiplier = 3
+
+            # Timer Ball
+            case 10:
+                battle_turn_counter = read_symbol("gBattleResults", offset=0x13, size=1)[0]
+                catch_rate_multiplier = (10 + battle_turn_counter) / 10
+
+        return catch_rate_multiplier
+
+    @staticmethod
+    def calculate_catch_chance(opponent: Pokemon, ball: Item) -> float:
+        catch_rate = max(1, opponent.species.catch_rate)
+        catch_rate *= BattleOpponent.get_poke_ball_catch_rate_multiplier(opponent, ball)
+        catch_rate *= (3 * opponent.total_hp - 2 * opponent.current_hp) / (3 * opponent.total_hp)
+        if opponent.status_condition in (StatusCondition.Sleep, StatusCondition.Freeze):
+            catch_rate *= 2
+        elif opponent.status_condition in (StatusCondition.Paralysis, StatusCondition.Poison, StatusCondition.Burn):
+            catch_rate *= 1.5
+        elif opponent.status_condition == StatusCondition.BadPoison and not context.rom.is_rs:
+            catch_rate *= 1.5
+
+        if catch_rate > 254:
+            return 1
+
+        chance = 16711680 // int(catch_rate)
+        chance = int(chance**0.5)
+        chance = int(chance**0.5)
+        chance = 1048560 // chance
+        return ((65535 - chance) / 65535) ** 4
 
     @property
     def should_rotate_lead(self) -> bool:
@@ -658,7 +925,7 @@ class BattleOpponent:
                     context.emulator.press_button("B")
                     yield
                 if get_battle_state() == BattleState.PARTY_MENU:
-                    context.message = "Couldn't flee. Switching to manual mode..."
+                    context.message = "Couldn't flee, switching to manual mode..."
                     context.set_manual_mode()
                 else:
                     while not get_game_state() == GameState.OVERWORLD:
@@ -668,7 +935,7 @@ class BattleOpponent:
             case "rotate":
                 party = get_party()
                 if sum([mon.current_hp for mon in party]) == 0:
-                    context.message = "All Pokémon have fainted. Switching to manual mode..."
+                    context.message = "All Pokémon have fainted, switching to manual mode..."
                     context.set_manual_mode()
                 while get_battle_state() != BattleState.PARTY_MENU:
                     context.emulator.press_button("A")
@@ -688,7 +955,7 @@ class BattleOpponent:
                     context.emulator.press_button("A")
                     yield
             case _:
-                context.message = "Invalid faint_action option. Switching to manual mode..."
+                context.message = "Invalid faint_action option, switching to manual mode..."
                 context.set_manual_mode()
 
 
@@ -707,6 +974,8 @@ def get_battle_state() -> BattleState:
                     return BattleState.EVOLVING
         case GameState.PARTY_MENU:
             return BattleState.PARTY_MENU
+        case GameState.BAG_MENU:
+            return BattleState.BAG_MENU
         case _:
             match get_learn_move_state():
                 case "LEARN_YN" | "MOVEMENU" | "STOP_LEARNING":
@@ -943,12 +1212,15 @@ def check_for_level_up(old_party: list[Pokemon], new_party: list[Pokemon], level
     return leveled_mon
 
 
-def can_battle_happen() -> bool:
+def can_battle_happen(check_lead_only: bool = False) -> bool:
     """
     Determines whether the bot can battle with the state of the current party
     :return: True if the party is capable of having a battle, False otherwise
     """
-    party = get_party()
+    if check_lead_only:
+        party = [get_party()[0]]
+    else:
+        party = get_party()
     for mon in party:
         if mon.current_hp / mon.stats.hp > 0.2 and not mon.is_egg:
             for move in mon.moves:

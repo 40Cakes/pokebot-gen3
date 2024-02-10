@@ -1,14 +1,14 @@
 from typing import Generator
 
-from modules.data.map import MapRSE, MapFRLG
-from modules.context import context
 from modules.console import console
-from modules.encounter import encounter_pokemon
+from modules.context import context
+from modules.encounter import handle_encounter
+from modules.map_data import MapRSE, MapFRLG
 from modules.memory import get_event_flag
-from modules.save_data import get_save_data
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
-from modules.pokemon import get_party
 from modules.player import get_player_avatar
+from modules.pokemon import get_party
+from modules.save_data import get_save_data
 from modules.tasks import get_global_script_context, task_is_active
 from ._asserts import (
     assert_registered_item,
@@ -27,25 +27,25 @@ from ._util import (
 )
 
 
-def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | None:
+def _get_targeted_encounter() -> tuple[MapFRLG | MapRSE, tuple[int, int], str] | None:
     if context.rom.is_frlg:
         encounters = [
-            (MapFRLG.SILPH_CO_F.value, (0, 7), "Lapras"),
-            (MapFRLG.SAFFRON_CITY_D.value, (5, 3), "Hitmonlee"),
-            (MapFRLG.SAFFRON_CITY_D.value, (7, 3), "Hitmonchan"),
-            (MapFRLG.CINNABAR_ISLAND_E.value, (11, 2), "Kanto Fossils"),
-            (MapFRLG.CINNABAR_ISLAND_E.value, (13, 4), "Kanto Fossils"),
-            (MapFRLG.CELADON_CITY_L.value, (7, 3), "Eevee"),
-            (MapFRLG.ROUTE_4_A.value, (1, 3), "Magikarp"),
-            (MapFRLG.WATER_LABYRINTH.value, (14, 11), "Togepi"),
+            (MapFRLG.SILPH_CO_7F, (0, 7), "Lapras"),
+            (MapFRLG.SAFFRON_CITY_DOJO, (5, 3), "Hitmonlee"),
+            (MapFRLG.SAFFRON_CITY_DOJO, (7, 3), "Hitmonchan"),
+            (MapFRLG.CINNABAR_ISLAND_POKEMON_LAB_EXPERIMENT_ROOM, (11, 2), "Kanto Fossils"),
+            (MapFRLG.CINNABAR_ISLAND_POKEMON_LAB_EXPERIMENT_ROOM, (13, 4), "Kanto Fossils"),
+            (MapFRLG.CELADON_CITY_CONDOMINIUMS_ROOF_ROOM, (7, 3), "Eevee"),
+            (MapFRLG.ROUTE4_POKEMON_CENTER_1F, (1, 3), "Magikarp"),
+            (MapFRLG.FIVE_ISLAND_WATER_LABYRINTH, (14, 11), "Togepi"),
         ]
-    if context.rom.is_rse:
+    else:
         encounters = [
-            (MapRSE.ROUTE_119_B.value, (2, 2), "Castform"),
-            (MapRSE.ROUTE_119_B.value, (18, 6), "Castform"),
-            (MapRSE.RUSTBORO_CITY_B.value, (14, 8), "Hoenn Fossils"),
-            (MapRSE.MOSSDEEP_CITY_H.value, (4, 3), "Beldum"),
-            (MapRSE.LAVARIDGE_TOWN.value, (4, 7), "Wynaut"),
+            (MapRSE.ROUTE119_WEATHER_INSTITUTE_2F, (2, 2), "Castform"),
+            (MapRSE.ROUTE119_WEATHER_INSTITUTE_2F, (18, 6), "Castform"),
+            (MapRSE.RUSTBORO_CITY_DEVON_CORP_2F, (14, 8), "Hoenn Fossils"),
+            (MapRSE.MOSSDEEP_CITY_STEVENS_HOUSE, (4, 3), "Beldum"),
+            (MapRSE.LAVARIDGE_TOWN, (4, 7), "Wynaut"),
         ]
 
     targeted_tile = get_player_avatar().map_location_in_front
@@ -172,18 +172,9 @@ class StaticGiftResetsMode(BotMode):
                             elif context.rom.is_frlg and not task_is_active("Task_ContinueScript"):
                                 yield from wait_for_task_to_start_and_finish("Task_ContinueScript", "B")
                         yield
-                        if task_is_active("Task_SpinPokenavIcon"):
-                            yield from wait_until_task_is_not_active("Task_SpinPokenavIcon", "B")
-                        yield
 
-            # If the respective 'cheat' is enabled, check the Pokemon immediately
-            # instead of 'genuinely' looking at the summary screen
-            if context.config.cheats.fast_check_starters:
-                encounter_pokemon(get_party()[len(get_party()) - 1])
-                continue
-            else:
-                # Navigate to the summary screen to check for shininess
-                yield from StartMenuNavigator("POKEMON").step()
-                yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
+            # Navigate to the summary screen to check for shininess
+            yield from StartMenuNavigator("POKEMON").step()
+            yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
 
-                encounter_pokemon(get_party()[len(get_party()) - 1])
+            handle_encounter(get_party()[len(get_party()) - 1], disable_auto_catch=True)

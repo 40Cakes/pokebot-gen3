@@ -1,9 +1,10 @@
 import time
 import tkinter
 from enum import Enum
-from PIL import Image, ImageDraw, ImageTk, ImageOps
 from tkinter import ttk, Canvas
 from typing import TYPE_CHECKING, Union, Optional
+
+from PIL import Image, ImageDraw, ImageTk, ImageOps
 
 from modules.context import context
 from modules.daycare import get_daycare_data
@@ -14,6 +15,7 @@ from modules.game import (
     _event_flags,
     get_event_flag_name,
     get_event_var_name,
+    get_symbol_name_before,
 )
 from modules.game_stats import GameStat, get_game_stat
 from modules.gui.emulator_controls import DebugTab
@@ -29,7 +31,6 @@ from modules.map import (
 from modules.memory import (
     get_symbol,
     read_symbol,
-    get_symbol_name,
     game_has_started,
     unpack_uint16,
     unpack_uint32,
@@ -303,18 +304,12 @@ class TasksTab(DebugTab):
         root.add(frame, text="Tasks")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        callback1 = read_symbol("gMain", 0, 4)
-        callback2 = read_symbol("gMain", 4, 4)
+        def get_callback_name(symbol: str, offset: int = 0) -> str:
+            pointer = max(0, unpack_uint32(read_symbol(symbol, offset, 4)))
+            return get_symbol_name_before(pointer, pretty_name=True)
 
-        cb1_addr = max(0, unpack_uint32(callback1) - 1)
-        cb2_addr = max(0, unpack_uint32(callback2) - 1)
-
-        cb1_symbol = get_symbol_name(cb1_addr, pretty_name=True)
-        if cb1_symbol == "":
-            cb1_symbol = hex(cb1_addr)
-        cb2_symbol = get_symbol_name(cb2_addr, pretty_name=True)
-        if cb2_symbol == "":
-            cb2_symbol = hex(cb2_addr)
+        cb1_symbol = get_callback_name("gMain")
+        cb2_symbol = get_callback_name("gMain", offset=4)
 
         self._cb1_label.config(text=cb1_symbol)
         self._cb2_label.config(text=cb2_symbol)
@@ -347,6 +342,22 @@ class TasksTab(DebugTab):
             "Global Script Context": render_script_context(get_global_script_context()),
             "Immediate Script Context": render_script_context(get_immediate_script_context()),
         }
+
+        if get_game_state() == GameState.BATTLE:
+            number_of_battlers = read_symbol("gBattlersCount", size=1)[0]
+
+            main_battle_function = get_callback_name("gBattleMainFunc")
+            player_controller_function = get_callback_name("gBattlerControllerFuncs", offset=0)
+
+            data["Battle Callbacks"] = {
+                "__value": f"{main_battle_function} / {player_controller_function}",
+                "Main Battle Function": main_battle_function,
+                "Battler Controller #1": player_controller_function,
+            }
+
+            for index in range(1, number_of_battlers):
+                function = get_callback_name("gBattlerControllerFuncs", offset=4 * index)
+                data["Battle Callbacks"][f"Battler Controller #{index + 1}"] = function
 
         index = 0
         for task in get_tasks():
@@ -628,7 +639,10 @@ class PlayerTab(DebugTab):
     def _get_data(self):
         player = get_player()
         player_avatar = get_player_avatar()
-        party = get_party()
+        try:
+            party = get_party()
+        except RuntimeError:
+            party = []
 
         flags = {}
         active_flags = []
@@ -689,58 +703,61 @@ class PlayerTab(DebugTab):
 
             result[key] = party[i]
 
-        item_bag = get_item_bag()
-        bag_data = {
-            "Items": {"__value": f"{len(item_bag.items)}/{item_bag.items_size} Slots"},
-            "Key Items": {"__value": f"{len(item_bag.key_items)}/{item_bag.key_items_size} Slots"},
-            "Poké Balls": {"__value": f"{len(item_bag.poke_balls)}/{item_bag.poke_balls_size} Slots"},
-            "TMs and HMs": {"__value": f"{len(item_bag.tms_hms)}/{item_bag.tms_hms_size} Slots"},
-            "Berries": {"__value": f"{len(item_bag.berries)}/{item_bag.berries_size} Slots"},
-        }
-        total_slots = (
-            item_bag.items_size
-            + item_bag.key_items_size
-            + item_bag.poke_balls_size
-            + item_bag.tms_hms_size
-            + item_bag.berries_size
-        )
-        used_slots = (
-            len(item_bag.items)
-            + len(item_bag.key_items)
-            + len(item_bag.poke_balls)
-            + len(item_bag.tms_hms)
-            + len(item_bag.berries)
-        )
-        bag_data["__value"] = f"{used_slots}/{total_slots} Slots"
-        n = 0
-        for slot in item_bag.items:
-            n += 1
-            bag_data["Items"][n] = f"{slot.quantity}× {slot.item.name}"
-        n = 0
-        for slot in item_bag.key_items:
-            n += 1
-            bag_data["Key Items"][n] = f"{slot.quantity}× {slot.item.name}"
-        n = 0
-        for slot in item_bag.poke_balls:
-            n += 1
-            bag_data["Poké Balls"][n] = f"{slot.quantity}× {slot.item.name}"
-        n = 0
-        for slot in item_bag.tms_hms:
-            n += 1
-            bag_data["TMs and HMs"][n] = f"{slot.quantity}× {slot.item.name}"
-        n = 0
-        for slot in item_bag.berries:
-            n += 1
-            bag_data["Berries"][n] = f"{slot.quantity}× {slot.item.name}"
-        result["Item Bag"] = bag_data
+        try:
+            item_bag = get_item_bag()
+            bag_data = {
+                "Items": {"__value": f"{len(item_bag.items)}/{item_bag.items_size} Slots"},
+                "Key Items": {"__value": f"{len(item_bag.key_items)}/{item_bag.key_items_size} Slots"},
+                "Poké Balls": {"__value": f"{len(item_bag.poke_balls)}/{item_bag.poke_balls_size} Slots"},
+                "TMs and HMs": {"__value": f"{len(item_bag.tms_hms)}/{item_bag.tms_hms_size} Slots"},
+                "Berries": {"__value": f"{len(item_bag.berries)}/{item_bag.berries_size} Slots"},
+            }
+            total_slots = (
+                item_bag.items_size
+                + item_bag.key_items_size
+                + item_bag.poke_balls_size
+                + item_bag.tms_hms_size
+                + item_bag.berries_size
+            )
+            used_slots = (
+                len(item_bag.items)
+                + len(item_bag.key_items)
+                + len(item_bag.poke_balls)
+                + len(item_bag.tms_hms)
+                + len(item_bag.berries)
+            )
+            bag_data["__value"] = f"{used_slots}/{total_slots} Slots"
+            n = 0
+            for slot in item_bag.items:
+                n += 1
+                bag_data["Items"][n] = f"{slot.quantity}× {slot.item.name}"
+            n = 0
+            for slot in item_bag.key_items:
+                n += 1
+                bag_data["Key Items"][n] = f"{slot.quantity}× {slot.item.name}"
+            n = 0
+            for slot in item_bag.poke_balls:
+                n += 1
+                bag_data["Poké Balls"][n] = f"{slot.quantity}× {slot.item.name}"
+            n = 0
+            for slot in item_bag.tms_hms:
+                n += 1
+                bag_data["TMs and HMs"][n] = f"{slot.quantity}× {slot.item.name}"
+            n = 0
+            for slot in item_bag.berries:
+                n += 1
+                bag_data["Berries"][n] = f"{slot.quantity}× {slot.item.name}"
+            result["Item Bag"] = bag_data
 
-        item_storage = get_item_storage()
-        storage_data = {"__value": f"{len(item_storage.items)}/{item_storage.number_of_slots} Slots"}
-        n = 0
-        for slot in item_storage.items:
-            n += 1
-            storage_data[n] = f"{slot.quantity}× {slot.item.name}"
-        result["Item Storage"] = storage_data
+            item_storage = get_item_storage()
+            storage_data = {"__value": f"{len(item_storage.items)}/{item_storage.number_of_slots} Slots"}
+            n = 0
+            for slot in item_storage.items:
+                n += 1
+                storage_data[n] = f"{slot.quantity}× {slot.item.name}"
+            result["Item Storage"] = storage_data
+        except (IndexError, KeyError):
+            result["Item Storage"] = "???"
 
         pokemon_storage = get_pokemon_storage()
         result["Pokemon Storage"] = {"__value": f"{pokemon_storage.pokemon_count} Pokémon"}
@@ -955,6 +972,7 @@ class EmulatorTab(DebugTab):
 
     def _get_data(self):
         from modules.libmgba import input_map
+        from modules.stats import total_stats
 
         current_inputs = context.emulator.get_inputs()
         inputs_dict = {"__value": []}
@@ -972,10 +990,24 @@ class EmulatorTab(DebugTab):
         else:
             inputs_dict["__value"] = "-"
 
+        controller_names = []
+        for entry in context.controller_stack:
+            controller_names.append(entry.__qualname__)
+
+        session_total_seconds = context.frame / 59.727500569606
+        session_hours = int(session_total_seconds / 3600)
+        session_minutes = int((session_total_seconds % 3600) / 60)
+        session_seconds = int(session_total_seconds % 60)
+        session_time_at_1x = f"{session_hours:,}:{session_minutes:02}:{session_seconds:02}"
+
         result = {
             "Inputs": inputs_dict,
-            "Frame": f"{context.emulator.get_frame_count():,}",
+            "Emulator Frame": f"{context.emulator.get_frame_count():,}",
+            "Session Frame": f"{context.frame:,}",
+            "Session Time at 1×": f"{session_time_at_1x}",
             "RNG Seed": hex(unpack_uint32(read_symbol("gRngValue"))),
+            "Encounters/h (at 1×)": total_stats.get_encounter_rate_at_1x(),
+            "Controller": controller_names,
         }
 
         return result
@@ -1132,9 +1164,8 @@ class MapTab(DebugTab):
         for i in range(len(map_warps)):
             warp = map_warps[i]
             d = warp.destination_location
-            warps_list[format_coordinates(warp.local_coordinates)] = (
-                f"to ({format_coordinates(d.local_position)}) on [{d.map_group}, {d.map_number}] ({d.map_name})"
-            )
+            label = f"to ({format_coordinates(d.local_position)}) on [{d.map_group}, {d.map_number}] ({d.map_name})"
+            warps_list[format_coordinates(warp.local_coordinates)] = label
 
         map_object_templates = map_data.objects
         object_templates_list = {"__value": len(map_object_templates)}

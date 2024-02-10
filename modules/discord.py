@@ -94,7 +94,7 @@ def discord_rich_presence() -> None:
             details=(
                 f"{totals.get('totals', {}).get('encounters', 0):,} ({totals.get('totals', {}).get('shiny_encounters', 0):,}✨) | "
                 f"{total_stats.get_encounter_rate():,}/h | "
-                f"{current_fps:,}fps ({current_fps / 59.73:0.2f}x)"
+                f"{current_fps:,}fps ({current_fps / 59.727500569606:0.2f}x)"
             ),
             large_image=large_image,
             start=start,

@@ -4,6 +4,7 @@ from modules.context import context
 from modules.memory import get_game_state, GameState
 from modules.player import get_player_avatar, RunningState, TileTransitionState
 from ._interface import BotMode
+from ._util import apply_white_flute_if_available
 
 
 class SpinMode(BotMode):
@@ -18,6 +19,7 @@ class SpinMode(BotMode):
     def run(self) -> Generator:
         directions = ["Up", "Right", "Down", "Left"]
 
+        yield from apply_white_flute_if_available()
         while True:
             avatar = get_player_avatar()
             if (

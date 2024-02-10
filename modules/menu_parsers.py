@@ -299,7 +299,7 @@ def get_battle_menu() -> str:
     match context.rom.game_title:
         case "POKEMON RUBY" | "POKEMON SAPP":
             battle_funcs = get_battle_controller()["battler_controller_funcs"]
-            if "SUB_802C098" in battle_funcs:
+            if "SUB_802C098" in battle_funcs or "BX_BATTLE_MENU_T6_2" in battle_funcs:
                 return "ACTION"
             elif "HANDLEACTION_CHOOSEMOVE" in battle_funcs:
                 return "MOVE"

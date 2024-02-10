@@ -11,7 +11,7 @@ from modules.game import set_rom, decode_string, get_symbol
 from modules.roms import list_available_roms, ROMLanguage, ROM
 
 
-def find_roms() -> tuple[ROM, dict[str, ROM]]:
+def find_roms() -> tuple[ROM, dict[str, ROM], dict[str, ROM]]:
     """
     Ensures that we have a valid Emerald ROM for every possible language.
     To make things easier, we only support rev. 0 so we don't have to manage
@@ -24,8 +24,12 @@ def find_roms() -> tuple[ROM, dict[str, ROM]]:
     english_rom = None
     matched_languages = set([])
     language_roms: dict[str, ROM] = {}
+    other_editions_roms: dict[str, ROM] = {}
 
     for rom in list_available_roms():
+        if rom.game_title != "POKEMON EMER" and rom.revision == 1 and rom.language == ROMLanguage.English:
+            other_editions_roms[rom.game_title[8:]] = rom
+
         if rom.game_title != "POKEMON EMER" or rom.revision != 0:
             continue
 
@@ -44,7 +48,11 @@ def find_roms() -> tuple[ROM, dict[str, ROM]]:
             "Could not find all languages of Emerald (rev 0). Languages found: " + ", ".join(language_roms.keys())
         )
 
-    return english_rom, language_roms
+    if len(other_editions_roms) != 4:
+        missing_editions = ", ".join(("RUBY", "SAPP", "FIRE", "LEAF") - other_editions_roms.keys())
+        raise Exception("Could not find rev 1 ROMs for all other editions. Missing: " + missing_editions)
+
+    return english_rom, language_roms, other_editions_roms
 
 
 def initialise_localised_string() -> dict[str, str]:
@@ -598,6 +606,7 @@ def extract_moves(english_rom: ROM, localised_roms: dict[str, ROM], types_list: 
 def extract_species(
     english_rom: ROM,
     localised_roms: dict[str, ROM],
+    other_editions_roms: dict[str, ROM],
     type_list: list[dict],
     ability_list: list[dict],
     item_list: list[dict],
@@ -660,7 +669,7 @@ def extract_species(
                     "name": name,
                     "national_dex_number": national_dex_number,
                     "hoenn_dex_number": hoenn_dex_number,
-                    "types": list({type_list[info[6]]["name"], type_list[info[7]]["name"]}),
+                    "types": list(sorted({type_list[info[6]]["name"], type_list[info[7]]["name"]})),
                     "abilities": abilities,
                     "held_items": held_items,
                     "base_stats": {
@@ -674,10 +683,10 @@ def extract_species(
                     "gender_ratio": info[16],
                     "egg_cycles": info[17],
                     "base_friendship": info[18],
-                    "catch_rate": info[6],
+                    "catch_rate": info[8],
                     "safari_zone_flee_probability": info[24],
                     "level_up_type": level_up_type_map[info[19]],
-                    "egg_groups": list({egg_group_map[info[20]], egg_group_map[info[21]]}),
+                    "egg_groups": list(sorted({egg_group_map[info[20]], egg_group_map[info[21]]})),
                     "base_experience_yield": info[9],
                     "ev_yield": {
                         "hp": (info[10] & 0b00000011) >> 0,
@@ -705,11 +714,27 @@ def extract_species(
             for i in range(412):
                 species_list[i]["localised_names"][language_code] = decode_string(localised_file.read(length_of_name))
 
+    for edition_code in ("RUBY", "SAPP", "FIRE", "LEAF"):
+        edition_rom = other_editions_roms[edition_code]
+        with open(edition_rom.file, "rb") as edition_file:
+            set_rom(edition_rom)
+            for i in range(412):
+                if edition_code in ("RUBY", "SAPP"):
+                    edition_file.seek(get_address("gBaseStats") + (i * 28))
+                else:
+                    edition_file.seek(get_address("gSpeciesInfo") + (i * 28))
+                info = edition_file.read(28)
+
+                species_list[i]["catch_rate"] = max(species_list[i]["catch_rate"], info[8])
+                species_list[i]["safari_zone_flee_probability"] = max(
+                    species_list[i]["safari_zone_flee_probability"], info[24]
+                )
+
     return species_list
 
 
 if __name__ == "__main__":
-    english_rom, localised_roms = find_roms()
+    english_rom, localised_roms, other_editions_roms = find_roms()
 
     extracted_data = {}
     extracted_data["items"] = extract_items(english_rom, localised_roms)
@@ -718,7 +743,12 @@ if __name__ == "__main__":
     extracted_data["natures"] = extract_natures(english_rom, localised_roms)
     extracted_data["moves"] = extract_moves(english_rom, localised_roms, extracted_data["types"])
     extracted_data["species"] = extract_species(
-        english_rom, localised_roms, extracted_data["types"], extracted_data["abilities"], extracted_data["items"]
+        english_rom,
+        localised_roms,
+        other_editions_roms,
+        extracted_data["types"],
+        extracted_data["abilities"],
+        extracted_data["items"],
     )
     for key in extracted_data:
         file_path = Path(__file__).parent / f"{key}.json"

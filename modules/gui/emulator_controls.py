@@ -220,7 +220,7 @@ class EmulatorControls:
         current_fps = context.emulator.get_current_fps()
         current_load = context.emulator.get_current_time_spent_in_bot_fraction()
         if current_fps:
-            stats.append(f"{current_fps:,}fps ({current_fps / 59.73:0.2f}x)")
+            stats.append(f"{current_fps:,}fps ({current_fps / 59.727500569606:0.2f}x)")
         if context.profile:
             from modules.stats import total_stats  # TODO prevent instantiating TotalStats class before profile selected
 
