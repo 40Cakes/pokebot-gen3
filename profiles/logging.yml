@@ -3,6 +3,11 @@
 # Log all encounters to .csv (`stats/encounters/` folder), each phase is logged to a separate file
 log_encounters: false # `true`, `false`
 
+# Show a desktop notification if a shiny, roamer, or Pokémon matching your
+# Custom Catch Filters is encountered, or the bot is switched to manual
+# mode.
+desktop_notifications: true
+
 # Console output
 # `verbose`, `basic`, `disable`
 console:
