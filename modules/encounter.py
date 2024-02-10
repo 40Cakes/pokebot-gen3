@@ -9,6 +9,7 @@ from modules.discord import discord_message
 from modules.files import save_pk3
 from modules.gui.desktop_notification import desktop_notification
 from modules.modes import BattleAction
+from modules.pokedex import get_pokedex
 from modules.pokemon import Pokemon, get_opponent
 from modules.roamer import get_roamer
 from modules.runtime import get_sprites_path
@@ -146,7 +147,7 @@ def handle_encounter(
     pokemon: Pokemon,
     disable_auto_catch: bool = False,
     disable_auto_battle: bool = False,
-    do_not_log_action: bool = False,
+    do_not_log_battle_action: bool = False,
 ) -> BattleAction:
     encounter_value = judge_encounter(pokemon)
     match encounter_value:
@@ -162,16 +163,29 @@ def handle_encounter(
             filter_result = run_custom_catch_filters(pokemon)
             console.print(f"[pink green]Custom filter triggered for {pokemon.species.name}: '{filter_result}'[/]")
             alert = "Custom filter triggered!", f"Found a {pokemon.species.name} that matched one of your filters."
+            if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.custom:
+                save_pk3(pokemon)
             is_of_interest = True
 
         case EncounterValue.Roamer:
             console.print(f"[pink yellow]Roaming {pokemon.species.name} found![/]")
             alert = "Roaming Pokémon found!", f"Encountered a roaming {pokemon.species.name}."
-            if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.custom:
-                save_pk3(pokemon)
+            # If this is the first time the Roamer is encountered
+            if pokemon.species not in get_pokedex().seen_species:
+                wild_encounter_gif(post_to_discord=False)
+                if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.roamer:
+                    save_pk3(pokemon)
             is_of_interest = True
 
-        case EncounterValue.ShinyOnBlockList | EncounterValue.RoamerOnBlockList:
+        case EncounterValue.ShinyOnBlockList:
+            console.print(f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...[/]")
+            alert = None
+            wild_encounter_gif(post_to_discord=context.config.discord.shiny_pokemon_encounter.enable)
+            if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.shiny:
+                save_pk3(pokemon)
+            is_of_interest = False
+
+        case EncounterValue.RoamerOnBlockList:
             console.print(f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...[/]")
             alert = None
             is_of_interest = False
@@ -203,7 +217,7 @@ def handle_encounter(
     else:
         decision = BattleAction.RunAway
 
-    if do_not_log_action:
+    if do_not_log_battle_action:
         log_encounter(pokemon, None)
     else:
         log_encounter(pokemon, decision)

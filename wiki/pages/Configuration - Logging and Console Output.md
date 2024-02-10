@@ -10,6 +10,9 @@ This file allows you to control logging certain data to files and the output of 
 ### Options
 `log_encounters` - log all encounters to .csv (`stats/encounters/` folder), each phase is logged to a separate file
 
+`desktop_notifications` - Show a desktop notification if a shiny, roamer, or Pokémon matching your
+Custom Catch Filters is encountered, or the bot is switched to manual mode.
+
 ### Console output
 Console options will control how much data is displayed in the Python terminal/console, valid options are `verbose`, `basic` or `disable`.
 
@@ -31,5 +34,7 @@ The Pokémon are dumped to the `pokemon/` folder in your profile, in the followi
 - `all` - dump all encounters
 - `shiny` - dump shiny encounters
 - `custom` - dump custom catch filter encounters
+- `roamer` - dump (non-shiny) roamers (Latias, Latios, Entei, Suicune, Raikou) -- this will only be done
+  if the Pokémon is not yet marked as 'seen' in the Pokédex
 
 Feel free to share any rare/interesting .pk3 files in [#pkhexchange💱](https://discord.com/channels/1057088810950860850/1123523909745135616)!
