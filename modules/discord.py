@@ -14,9 +14,9 @@ def discord_message(
     embed: bool = False,
     embed_title: str = None,
     embed_description: str = None,
-    embed_fields: object = None,
+    embed_fields: dict = None,
     embed_thumbnail: str | Path = None,
-    embed_image: str | Path = None,
+    embed_image: Path = None,
     embed_footer: str = None,
     embed_color: str = "FFFFFF",
 ) -> None:
@@ -39,14 +39,16 @@ def discord_message(
                     embed_obj.add_embed_field(name=key, value=value, inline=False)
 
             if embed_thumbnail:
+                filename = "thumb.gif" if embed_image.name.endswith(".gif") else "thumb.png"
                 with open(embed_thumbnail, "rb") as f:
-                    webhook.add_file(file=f.read(), filename="thumb.png")
-                embed_obj.set_thumbnail(url="attachment://thumb.png")
+                    webhook.add_file(file=f.read(), filename=filename)
+                embed_obj.set_thumbnail(url="attachment://" + filename)
 
             if embed_image:
+                filename = "embed.gif" if embed_image.name.endswith(".gif") else "embed.png"
                 with open(embed_image, "rb") as f:
-                    webhook.add_file(file=f.read(), filename="embed.png")
-                embed_obj.set_image(url="attachment://embed.png")
+                    webhook.add_file(file=f.read(), filename=filename)
+                embed_obj.set_image(url="attachment://" + filename)
 
             if embed_footer:
                 embed_obj.set_footer(text=embed_footer)
@@ -82,6 +84,8 @@ def discord_rich_presence() -> None:
             large_image = "charizard"
         case "POKEMON LEAF":
             large_image = "venusaur"
+        case _:
+            large_image = None
 
     while True:
         encounter_log = total_stats.get_encounter_log()
@@ -97,7 +101,7 @@ def discord_rich_presence() -> None:
                 f"{current_fps:,}fps ({current_fps / 59.727500569606:0.2f}x)"
             ),
             large_image=large_image,
-            start=start,
+            start=int(start),
             buttons=[{"label": "⏬ Download PokéBot", "url": "https://github.com/40Cakes/pokebot-gen3"}],
         )
 
