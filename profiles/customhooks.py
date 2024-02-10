@@ -1,8 +1,10 @@
-import os
 import glob
-import time
+import os
 import random
+import time
+from pathlib import Path
 from threading import Thread
+
 from modules.console import console
 from modules.context import context
 from modules.discord import discord_message
@@ -17,13 +19,14 @@ def custom_hooks(hook) -> None:
 
     Note: this function runs in a thread and will not hold up the bot if you need to run any slow hooks
     """
-    try:
-        # Deep copy of Pokémon and stats dictionaries when the thread was called to avoid main thread overwriting vars
-        pokemon: Pokemon = hook[0]
-        stats = hook[1]
-        block_list = hook[2]
-        custom_filter_result = hook[3]
+    # Deep copy of Pokémon and stats dictionaries when the thread was called to avoid main thread overwriting vars
+    pokemon: Pokemon = hook[0]
+    stats = hook[1]
+    block_list = hook[2]
+    custom_filter_result = hook[3]
+    gif_path = hook[4]
 
+    try:
         ### Your custom code goes here ###
 
         # Discord messages
@@ -111,6 +114,7 @@ def custom_hooks(hook) -> None:
                     | PhaseSummary(),
                     embed_thumbnail=get_sprites_path() / "pokemon" / "shiny" / f"{pokemon.species.safe_name}.png",
                     embed_color="ffd242",
+                    embed_image=gif_path,
                 )
         except:
             console.print_exception(show_locals=True)
@@ -303,6 +307,7 @@ def custom_hooks(hook) -> None:
                     | PhaseSummary(),
                     embed_thumbnail=get_sprites_path() / "pokemon" / "normal" / f"{pokemon.species.safe_name}.png",
                     embed_color="6a89cc",
+                    embed_image=gif_path,
                 )
         except:
             console.print_exception(show_locals=True)
@@ -319,7 +324,7 @@ def custom_hooks(hook) -> None:
                 time.sleep(3)  # Give the screenshot some time to save to disk
                 images = glob.glob(f"{context.config.obs.replay_dir}*.png")
                 image = max(images, key=os.path.getctime)
-                discord_message(webhook_url=context.config.obs.discord_webhook_url, image=image)
+                discord_message(webhook_url=context.config.obs.discord_webhook_url, image=Path(image))
 
             # Run in a thread to not hold up other hooks
             Thread(target=OBSDiscordScreenshot).start()
