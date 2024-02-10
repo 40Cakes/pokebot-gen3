@@ -257,12 +257,13 @@ class RoamerResetMode(BotMode):
 
             yield from wait_until_task_is_active("Task_DrawFieldMessageBox", "A")
 
-            while get_roamer() is None:
+            while get_global_script_context().is_active:
                 context.emulator.press_button("B")
                 yield
+            yield
 
             # Leave the building
-            while get_player_avatar().map_group_and_number != MapFRLG.ONE_ISLAND_POKEMON_CENTER_1F:
+            while get_player_avatar().map_group_and_number != MapFRLG.ONE_ISLAND:
                 yield from follow_path([(14, 9), (9, 9)])
                 yield from walk_one_tile("Down")
 
