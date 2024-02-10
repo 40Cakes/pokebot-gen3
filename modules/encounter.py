@@ -129,7 +129,7 @@ def log_encounter(pokemon: Pokemon, action: BattleAction | None = None) -> None:
 
     match action:
         case BattleAction.Catch:
-            message_action = "catchinh..."
+            message_action = "catching..."
         case BattleAction.CustomAction:
             message_action = "switched to manual mode so you can catch it."
         case BattleAction.Fight:
