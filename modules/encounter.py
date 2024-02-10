@@ -1,48 +1,26 @@
-import time
 from enum import Enum, auto
 from pathlib import Path
-from threading import Thread
 
 from modules.console import console
 from modules.context import context
-from modules.discord import discord_message
 from modules.files import save_pk3
 from modules.gui.desktop_notification import desktop_notification
 from modules.modes import BattleAction
 from modules.pokedex import get_pokedex
-from modules.pokemon import Pokemon, get_opponent
+from modules.pokemon import Pokemon, get_opponent, get_battle_type_flags, BattleTypeFlag
 from modules.roamer import get_roamer
 from modules.runtime import get_sprites_path
 
 
-def send_discord_encounter_gif(gif_path: Path, wait: int = 0) -> None:
-    """
-    Intended to be called in a thread, use the wait parameter to post the GIF after the embed webhook
-
-    :param gif_path: Path to GIF file
-    :param wait: n seconds to wait before posting
-    """
-    time.sleep(wait)
-    discord_message(image=gif_path)
-
-
-def wild_encounter_gif(post_to_discord: bool = False) -> None:
+def wild_encounter_gif() -> Path | None:
     """
     Generates a GIF from frames 220-260 after wild encounter is logged to capture the shiny sparkles
-    TODO add GIFs for other modes if applicable
     """
-    if get_opponent() is not None and get_opponent().is_shiny:  # Disables GIF generation for daycare/gift modes
-        gif = context.emulator.generate_gif(start_frame=220, duration=37)
+    # Disables GIF generation for daycare/gift modes
+    if get_opponent() is None or BattleTypeFlag.TRAINER in get_battle_type_flags():
+        return None
 
-        if post_to_discord:
-            Thread(target=send_discord_encounter_gif, args=(gif, 3)).start()
-
-
-def _default_battle_action() -> BattleAction:
-    if context.config.battle.battle:
-        return BattleAction.Fight
-    else:
-        return BattleAction.RunAway
+    return context.emulator.generate_gif(start_frame=220, duration=37)
 
 
 def run_custom_catch_filters(pokemon: Pokemon) -> str | bool:
@@ -101,10 +79,12 @@ def judge_encounter(pokemon: Pokemon) -> EncounterValue:
     return EncounterValue.Trash
 
 
-def log_encounter(pokemon: Pokemon, action: BattleAction | None = None) -> None:
+def log_encounter(pokemon: Pokemon, action: BattleAction | None = None, gif_path: Path | None = None) -> None:
     from modules.stats import total_stats
 
-    total_stats.log_encounter(pokemon, context.config.catch_block.block_list, run_custom_catch_filters(pokemon))
+    total_stats.log_encounter(
+        pokemon, context.config.catch_block.block_list, run_custom_catch_filters(pokemon), gif_path
+    )
     if context.config.logging.save_pk3.all:
         save_pk3(pokemon)
 
@@ -150,11 +130,12 @@ def handle_encounter(
     do_not_log_battle_action: bool = False,
 ) -> BattleAction:
     encounter_value = judge_encounter(pokemon)
+    gif_path = None
     match encounter_value:
         case EncounterValue.Shiny:
             console.print(f"[bold yellow]Shiny {pokemon.species.name} found![/]")
             alert = "Shiny found!", f"Found a ✨shiny {pokemon.species.name}✨! 🥳"
-            wild_encounter_gif(post_to_discord=context.config.discord.shiny_pokemon_encounter.enable)
+            gif_path = wild_encounter_gif()
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.shiny:
                 save_pk3(pokemon)
             is_of_interest = True
@@ -172,7 +153,7 @@ def handle_encounter(
             alert = "Roaming Pokémon found!", f"Encountered a roaming {pokemon.species.name}."
             # If this is the first time the Roamer is encountered
             if pokemon.species not in get_pokedex().seen_species:
-                wild_encounter_gif(post_to_discord=False)
+                gif_path = wild_encounter_gif()
                 if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.roamer:
                     save_pk3(pokemon)
             is_of_interest = True
@@ -180,7 +161,7 @@ def handle_encounter(
         case EncounterValue.ShinyOnBlockList:
             console.print(f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...[/]")
             alert = None
-            wild_encounter_gif(post_to_discord=context.config.discord.shiny_pokemon_encounter.enable)
+            gif_path = wild_encounter_gif()
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.shiny:
                 save_pk3(pokemon)
             is_of_interest = False
@@ -218,8 +199,8 @@ def handle_encounter(
         decision = BattleAction.RunAway
 
     if do_not_log_battle_action:
-        log_encounter(pokemon, None)
+        log_encounter(pokemon, None, gif_path)
     else:
-        log_encounter(pokemon, decision)
+        log_encounter(pokemon, decision, gif_path)
 
     return decision

@@ -1,14 +1,15 @@
 import copy
+import importlib
 import json
 import math
+import random
 import sys
 import time
-import random
-import importlib
-from collections import deque
-from threading import Thread
-from datetime import datetime
 from collections import Counter
+from collections import deque
+from datetime import datetime
+from pathlib import Path
+from threading import Thread
 
 from modules.console import console, print_stats
 from modules.context import context
@@ -328,7 +329,9 @@ class TotalStats:
             },
         }
 
-    def log_encounter(self, pokemon: Pokemon, block_list: list, custom_filter_result: str | bool) -> None:
+    def log_encounter(
+        self, pokemon: Pokemon, block_list: list, custom_filter_result: str | bool, gif_path: Path | None = None
+    ) -> None:
         if "pokemon" not in self.total_stats:
             self.total_stats["pokemon"] = {}
         if "totals" not in self.total_stats:
@@ -382,6 +385,7 @@ class TotalStats:
                 copy.deepcopy(self.total_stats),
                 copy.deepcopy(block_list),
                 copy.deepcopy(custom_filter_result),
+                copy.deepcopy(gif_path),
             )
             Thread(target=self.custom_hooks, args=(hook,)).start()
 
