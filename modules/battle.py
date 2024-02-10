@@ -757,7 +757,9 @@ class BattleOpponent:
                     # check to see that the party member has enough HP to be subbed out
                     elif mon_has_enough_hp(self.party[i]):
                         if show_messages:
-                            context.message = f"Pokémon {self.party[i].name} has more than {context.config.battle.hp_threshold}% hp!"
+                            context.message = (
+                                f"Pokémon {self.party[i].name} has more than {context.config.battle.hp_threshold}% hp!"
+                            )
                         for move in self.party[i].moves:
                             if move_is_usable(move):
                                 if show_messages:
@@ -1253,12 +1255,18 @@ def can_battle_happen(battle_opponent: BattleOpponent, check_lead_only: bool = F
                     break
         if can_battle:
             break
-    
+
     wanted_opponent = True
 
-    if any(context.config.battle.targeted_pokemon) and battle_opponent.opponent.species.name not in context.config.battle.targeted_pokemon:
+    if (
+        any(context.config.battle.targeted_pokemon)
+        and battle_opponent.opponent.species.name not in context.config.battle.targeted_pokemon
+    ):
         wanted_opponent = False
-    if any(context.config.battle.avoided_pokemon) and battle_opponent.opponent.species.name in context.config.battle.avoided_pokemon:
+    if (
+        any(context.config.battle.avoided_pokemon)
+        and battle_opponent.opponent.species.name in context.config.battle.avoided_pokemon
+    ):
         wanted_opponent = False
 
     return can_battle and wanted_opponent
