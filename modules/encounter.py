@@ -129,17 +129,17 @@ def log_encounter(pokemon: Pokemon, action: BattleAction | None = None) -> None:
 
     match action:
         case BattleAction.Catch:
-            message_action = "Will try to catch it."
+            message_action = "catchinh..."
         case BattleAction.CustomAction:
-            message_action = "Switched to manual mode so you can catch it."
+            message_action = "switched to manual mode so you can catch it."
         case BattleAction.Fight:
-            message_action = "Will fight it."
+            message_action = "FIGHT!"
         case BattleAction.RunAway:
-            message_action = "Trying to run away."
+            message_action = "running away..."
         case _:
             message_action = ""
 
-    context.message = f"Encountered {species_name}. {message_action}\n\n{' | '.join(fun_facts)}"
+    context.message = f"Encountered {species_name}, {message_action}\n\n{' | '.join(fun_facts)}"
 
 
 def handle_encounter(
@@ -166,7 +166,7 @@ def handle_encounter(
 
         case EncounterValue.Roamer:
             console.print(f"[pink yellow]Roaming {pokemon.species.name} found![/]")
-            alert = "Roaming Pokemon found!", f"Encountered a roaming {pokemon.species.name}."
+            alert = "Roaming Pokémon found!", f"Encountered a roaming {pokemon.species.name}."
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.custom:
                 save_pk3(pokemon)
             is_of_interest = True

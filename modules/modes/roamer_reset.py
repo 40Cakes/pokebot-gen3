@@ -235,7 +235,7 @@ class RoamerResetMode(BotMode):
                         break
                     yield
             if self._ran_out_of_repels:
-                context.message = "Soft resetting after running out of repels."
+                context.message = "Soft resetting after running out of repels..."
                 continue
 
             yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry")
@@ -309,7 +309,7 @@ class RoamerResetMode(BotMode):
                         break
                     yield
             if self._ran_out_of_repels:
-                context.message = "Soft resetting after running out of repels."
+                context.message = "Soft resetting after running out of repels..."
                 continue
 
             yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry")

@@ -122,7 +122,7 @@ class BattleAction(BaseMenuNavigator):
                         case "catch":
                             self.current_step = "wait_for_bag_menu"
                         case "bag":
-                            context.message = "Bag not implemented yet, switching to manual mode."
+                            context.message = "Bag not implemented yet, switching to manual mode..."
                             context.set_manual_mode()
             case "wait_for_party_menu":
                 self.current_step = "choose_mon"
@@ -154,7 +154,7 @@ class BattleAction(BaseMenuNavigator):
                             index = 1
                         case "bag":
                             index = 1
-                            context.message = "Bag not implemented yet. Switching to manual mode."
+                            context.message = "Bag not implemented yet, switching to manual mode..."
                             context.set_manual_mode()
                         case "flee" | _:
                             index = 3
@@ -189,7 +189,7 @@ class BattleAction(BaseMenuNavigator):
     def choose_move(self):
         while get_battle_state() == BattleState.MOVE_SELECTION:
             if 0 > self.idx or self.idx > 3:
-                context.message = "Invalid move selection. Switching to manual mode..."
+                context.message = "Invalid move selection, switching to manual mode..."
                 context.set_manual_mode()
             else:
                 if self.subnavigator is None and get_battle_state() == BattleState.OTHER:
@@ -264,7 +264,7 @@ class BattleAction(BaseMenuNavigator):
         elif party_menu_is_open() and self.subnavigator is None:
             mon_to_switch = get_new_lead()
             if mon_to_switch is None:
-                context.message = "Can't find a viable switch-in. Switching to manual mode."
+                context.message = "Can't find a viable switch-in, switching to manual mode..."
                 context.set_manual_mode()
             else:
                 self.subnavigator = BattlePartyMenuNavigator(idx=mon_to_switch, mode="switch").step()
@@ -605,7 +605,7 @@ class BattleOpponent:
                         self.choice = "fight"
                         self.idx = move
                 case _:
-                    context.message = "Not yet implemented"
+                    context.message = "Not yet implemented."
                     self.choice = "flee"
                     self.idx = -1
 
@@ -646,7 +646,7 @@ class BattleOpponent:
     def choose_action_for_auto_catch(self) -> None:
         selected_poke_ball = self.get_best_poke_ball_for(self.opponent)
         if selected_poke_ball is None:
-            raise BotModeError("Player does not have any Poke balls. Cannot catch.")
+            raise BotModeError("Player does not have any Poké Balls, cannot catch.")
 
         self.choice = "catch"
         self.idx = selected_poke_ball.index
@@ -809,7 +809,7 @@ class BattleOpponent:
         Function that determines the strongest move to use given the current battler and the current
         """
         if self.num_battlers > 2:
-            context.message = "Double battle detected, not yet implemented. Switching to manual mode..."
+            context.message = "Double battle detected, not yet implemented, switching to manual mode..."
             context.set_manual_mode()
         else:
             current_opponent = get_opponent()
@@ -925,7 +925,7 @@ class BattleOpponent:
                     context.emulator.press_button("B")
                     yield
                 if get_battle_state() == BattleState.PARTY_MENU:
-                    context.message = "Couldn't flee. Switching to manual mode..."
+                    context.message = "Couldn't flee, switching to manual mode..."
                     context.set_manual_mode()
                 else:
                     while not get_game_state() == GameState.OVERWORLD:
@@ -935,7 +935,7 @@ class BattleOpponent:
             case "rotate":
                 party = get_party()
                 if sum([mon.current_hp for mon in party]) == 0:
-                    context.message = "All Pokémon have fainted. Switching to manual mode..."
+                    context.message = "All Pokémon have fainted, switching to manual mode..."
                     context.set_manual_mode()
                 while get_battle_state() != BattleState.PARTY_MENU:
                     context.emulator.press_button("A")
@@ -955,7 +955,7 @@ class BattleOpponent:
                     context.emulator.press_button("A")
                     yield
             case _:
-                context.message = "Invalid faint_action option. Switching to manual mode..."
+                context.message = "Invalid faint_action option, switching to manual mode..."
                 context.set_manual_mode()
 
 

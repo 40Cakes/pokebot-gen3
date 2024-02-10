@@ -225,7 +225,7 @@ class PokemonPartySubMenuNavigator(BaseMenuNavigator):
     def wait_for_init(self):
         while self.party_menu_internal["numActions"] > 8:
             if self.wait_counter > 30:
-                context.message = "Error navigating menu, switching to manual mode."
+                context.message = "Error navigating menu, switching to manual mode..."
                 context.set_manual_mode()
             self.update_party_menu()
             self.wait_counter += 1
@@ -241,7 +241,7 @@ class PokemonPartySubMenuNavigator(BaseMenuNavigator):
                 and get_cursor_options(self.party_menu_internal["actions"][i]) in ("SEND_OUT", "SWITCH", "SHIFT")
             ):
                 return i
-        context.message = f"Couldn't find option {self.desired_option}, switching to manual mode."
+        context.message = f"Couldn't find option {self.desired_option}, switching to manual mode..."
         context.set_manual_mode()
 
     def select_desired_option(self):
@@ -249,7 +249,7 @@ class PokemonPartySubMenuNavigator(BaseMenuNavigator):
             self.desired_option = self.get_index_from_option()
         if self.desired_option < 0 or self.desired_option > parse_menu()["maxCursorPos"]:
             x = parse_menu()
-            context.message = f"Error selecting option {self.desired_option}, switching to manual mode."
+            context.message = f"Error selecting option {self.desired_option}, switching to manual mode..."
             context.set_manual_mode()
         while parse_menu()["cursorPos"] != self.desired_option:
             if parse_menu()["cursorPos"] < self.desired_option:
@@ -567,7 +567,7 @@ class CheckForPickup(BaseMenuNavigator):
         self.pickup_threshold_met = self.check_threshold_met and len(self.pokemon_with_pickup_and_item) >= threshold
         if self.pickup_threshold_met:
             total_stats.update_pickup_items(self.picked_up_items)
-            context.message = "Pickup threshold is met! Gathering items."
+            context.message = "Pickup threshold is met! Gathering items..."
 
     def open_party_menu(self):
         while not party_menu_is_open():
@@ -642,7 +642,7 @@ class CheckForPickup(BaseMenuNavigator):
     def get_next_mon(self):
         next_idx = self.pokemon_with_pickup_and_item.index(self.current_mon) + 1
         if next_idx > len(self.pokemon_with_pickup_and_item) - 1:
-            context.message = "I forgot how to count, switching to manual mode."
+            context.message = "I forgot how to count, switching to manual mode..."
             context.set_manual_mode()
         else:
             self.current_mon = self.pokemon_with_pickup_and_item[next_idx]
@@ -692,7 +692,7 @@ class PartyMenuExit(BaseMenuNavigator):
     def wait_for_start_menu(self):
         while get_game_state() == GameState.OVERWORLD and not parse_start_menu()["open"]:
             if self.counter > 60:
-                context.message = "Error exiting to overworld, switching to manual mode."
+                context.message = "Error exiting to overworld, switching to manual mode..."
                 context.set_manual_mode()
             else:
                 context.emulator.press_button("B")

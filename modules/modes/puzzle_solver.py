@@ -86,7 +86,7 @@ class PuzzleSolverMode(BotMode):
                     yield from wait_for_n_frames(180)
                     yield from navigate_to(6, 6)
                     if get_player_avatar().local_coordinates == (6, 6):
-                        context.message = "Mirage Tower puzzle complete."
+                        context.message = "Mirage Tower puzzle complete!"
                         context.bot_mode = "Manual"
 
             # Sky Pillar
@@ -143,7 +143,7 @@ class PuzzleSolverMode(BotMode):
                         ]
                     )
                     yield from walk_one_tile("Up")
-                    context.message = "Sky Pillar puzzle complete."
+                    context.message = "Sky Pillar puzzle complete!"
                     context.bot_mode = "Manual"
 
             # Regirock
@@ -165,7 +165,7 @@ class PuzzleSolverMode(BotMode):
                         yield from use_party_hm_move("Rock Smash")
                         yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
                         if get_event_flag("SYS_REGIROCK_PUZZLE_COMPLETED"):
-                            context.message = "Regirock puzzle complete."
+                            context.message = "Regirock puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
                             yield from navigate_to(8, 29)
@@ -182,7 +182,7 @@ class PuzzleSolverMode(BotMode):
                         yield from navigate_to(8, 21)
                         yield from walk_one_tile("Up")
                         if get_player_avatar().local_coordinates == (8, 11):
-                            context.message = "Regirock puzzle complete."
+                            context.message = "Regirock puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
                             yield from navigate_to(8, 29)
@@ -218,18 +218,18 @@ class PuzzleSolverMode(BotMode):
                             ]
                         )
                         if get_event_flag("SYS_BRAILLE_REGICE_COMPLETED"):
-                            context.message = "Regice puzzle complete."
+                            context.message = "Regice puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
                             yield from navigate_to(8, 29)
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
                     if context.rom.is_rs:
-                        context.message = "Waiting 2 minutes game time..."
+                        context.message = "Waiting 2 minutes in-game time..."
                         yield from wait_for_n_frames(7300)
                         yield from walk_one_tile("Up")
                         if get_player_avatar().local_coordinates == (8, 11):
-                            context.message = "Regice puzzle complete."
+                            context.message = "Regice puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
                             yield from navigate_to(8, 29)
@@ -252,7 +252,7 @@ class PuzzleSolverMode(BotMode):
                         yield from use_party_hm_move("Flash")
                         yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
                         if get_event_flag("SYS_REGISTEEL_PUZZLE_COMPLETED"):
-                            context.message = "Registeel puzzle complete."
+                            context.message = "Registeel puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
                             yield from navigate_to(8, 29)
@@ -269,7 +269,7 @@ class PuzzleSolverMode(BotMode):
                         yield from navigate_to(8, 21)
                         yield from walk_one_tile("Up")
                         if get_player_avatar().local_coordinates == (8, 11):
-                            context.message = "Registeel puzzle complete."
+                            context.message = "Registeel puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
                             yield from navigate_to(8, 29)
@@ -308,7 +308,7 @@ class PuzzleSolverMode(BotMode):
                     # yield from navigate_to(15, 11)
                     yield from wait_for_n_frames(60)
                     if get_map_objects()[1].current_coords == (15, 10):
-                        context.message = "Deoxys puzzle complete."
+                        context.message = "Deoxys puzzle complete!"
                         context.bot_mode = "Manual"
                     else:
                         yield from navigate_to(15, 24)
@@ -376,7 +376,7 @@ class PuzzleSolverMode(BotMode):
                         "SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved", "B"
                     )
                     if get_event_flag("SYS_UNLOCKED_TANOBY_RUINS"):
-                        context.message = "Tanoby Key puzzle complete."
+                        context.message = "Tanoby Key puzzle complete!"
                         context.bot_mode = "Manual"
                     else:
                         yield from navigate_to(7, 13)
