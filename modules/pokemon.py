@@ -17,7 +17,6 @@ from modules.roms import ROMLanguage
 from modules.runtime import get_data_path
 from modules.state_cache import state_cache
 
-
 DATA_DIRECTORY = Path(__file__).parent / "data"
 
 # Some substructures in the data are in a different order each time, depending
@@ -604,6 +603,12 @@ class Species:
             else:
                 result += "_"
         return result
+
+    def has_type(self, type_to_find: Type) -> bool:
+        for t in self.types:
+            if t.index == type_to_find.index:
+                return True
+        return False
 
     def to_dict(self) -> dict:
         return _to_dict_helper(self)
@@ -1476,7 +1481,10 @@ def get_party() -> list[Pokemon]:
             with context.emulator.peek_frame():
                 mon = parse_pokemon(read_symbol("gPlayerParty", o, 100))
             if mon is None:
-                raise RuntimeError(f"Party Pokemon #{p + 1} was invalid for two frames in a row.")
+                if read_symbol("gPlayerParty", o, 100).count(b"\x00") >= 99:
+                    continue
+                else:
+                    raise RuntimeError(f"Party Pokemon #{p + 1} was invalid for two frames in a row.")
 
         party.append(mon)
 
@@ -1485,7 +1493,7 @@ def get_party() -> list[Pokemon]:
     return party
 
 
-def get_opponent() -> Pokemon:
+def get_opponent() -> Pokemon | None:
     """
     Gets the current opponent/encounter from `gEnemyParty`, decodes and returns.
 

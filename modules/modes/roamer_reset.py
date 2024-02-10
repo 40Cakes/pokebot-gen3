@@ -1,31 +1,24 @@
 from typing import Generator
 
-from modules.data.map import MapFRLG, MapRSE
-
 from modules.context import context
-from modules.encounter import encounter_pokemon
+from modules.encounter import handle_encounter, log_encounter, judge_encounter, EncounterValue
 from modules.gui.multi_select_window import ask_for_choice, Selection
-from modules.items import get_item_bag, get_item_by_name
 from modules.map import get_map_objects
+from modules.map_data import MapFRLG, MapRSE
 from modules.memory import (
     get_game_state,
     GameState,
-    unpack_uint16,
-    read_symbol,
-    get_game_state_symbol,
     get_event_var,
 )
-from modules.menu_parsers import CursorOptionFRLG, CursorOptionEmerald
-from modules.menuing import StartMenuNavigator, PokemonPartyMenuNavigator
 from modules.player import get_player, get_player_avatar
 from modules.pokemon import get_move_by_name, get_opponent
-from modules.region_map import get_map_cursor
+from modules.region_map import FlyDestinationRSE, FlyDestinationFRLG
 from modules.roamer import get_roamer
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
 from modules.tasks import get_global_script_context
 from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
-from ._interface import BotMode, BotModeError
+from ._interface import BotMode, BotModeError, BattleAction
 from ._util import (
     soft_reset,
     wait_for_unique_rng_value,
@@ -34,29 +27,28 @@ from ._util import (
     ensure_facing_direction,
     walk_one_tile,
     wait_until_task_is_active,
-    wait_for_task_to_start_and_finish,
+    apply_repel,
+    replenish_repel,
+    RanOutOfRepels,
+    fly_to,
 )
 
 
-def _get_allowed_starting_map() -> tuple[int, int]:
+def _get_allowed_starting_map() -> MapFRLG | MapRSE | None:
     if context.rom.is_frlg:
-        return MapFRLG.ONE_ISLAND_A.value
+        return MapFRLG.ONE_ISLAND_POKEMON_CENTER_1F
     elif context.rom.is_emerald:
         if get_player().gender == "female":
-            return MapRSE.LITTLEROOT_TOWN_D.value
+            return MapRSE.LITTLEROOT_TOWN_MAYS_HOUSE_2F
         else:
-            return MapRSE.LITTLEROOT_TOWN_B.value
+            return MapRSE.LITTLEROOT_TOWN_BRENDANS_HOUSE_2F
     else:
         # No R/S yet
-        return -1, -1
+        return None
 
 
 def _get_repel_steps_remaining():
     return get_event_var("REPEL_STEP_COUNT")
-
-
-class RanOutOfRepels(Exception):
-    pass
 
 
 class RoamerResetMode(BotMode):
@@ -71,9 +63,27 @@ class RoamerResetMode(BotMode):
 
         return get_player_avatar().map_group_and_number == _get_allowed_starting_map()
 
-    @staticmethod
-    def disable_default_battle_handler() -> bool:
-        return True
+    def __init__(self):
+        super().__init__()
+        self._should_reset = False
+        self._ran_out_of_repels = False
+
+    def on_repel_effect_ended(self) -> None:
+        try:
+            replenish_repel()
+        except RanOutOfRepels:
+            self._ran_out_of_repels = True
+
+    def on_battle_started(self) -> BattleAction | None:
+        opponent = get_opponent()
+        # This excludes `EncounterValue.Roamer` which should not lead to a notification being
+        # triggered. _All_ encounters in this mode should be roamers.
+        if judge_encounter(opponent) in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch):
+            return handle_encounter(opponent, disable_auto_catch=True)
+        else:
+            self._should_reset = True
+            log_encounter(opponent)
+            return BattleAction.CustomAction
 
     def run(self) -> Generator:
         assert_save_game_exists("There is no saved game. Cannot soft reset.")
@@ -104,13 +114,7 @@ class RoamerResetMode(BotMode):
                 f"The first Pokémon in your party has to be at least level {highest_encounter_level + 1} in order for Repel to work."
             )
 
-        item_bag = save_data.get_item_bag()
-        number_of_repels = (
-            item_bag.quantity_of(get_item_by_name("Max Repel"))
-            + item_bag.quantity_of(get_item_by_name("Super Repel"))
-            + item_bag.quantity_of(get_item_by_name("Repel"))
-        )
-        if number_of_repels == 0:
+        if save_data.get_item_bag().number_of_repels == 0:
             raise BotModeError("You do not have any repels in your item bag. Go and get some first!")
 
         flying_pokemon_index = None
@@ -145,6 +149,8 @@ class RoamerResetMode(BotMode):
             return
 
         while True:
+            self._should_reset = False
+            self._ran_out_of_repels = False
             context.emulator.reset_held_buttons()
 
             yield from soft_reset(mash_random_keys=True)
@@ -195,37 +201,17 @@ class RoamerResetMode(BotMode):
                 yield from navigate_to(6, 12)
                 yield from walk_one_tile("Down")
 
-            # Select field move FLY
-            yield from StartMenuNavigator("POKEMON").step()
-            yield from PokemonPartyMenuNavigator(flying_pokemon_index, "", CursorOptionEmerald.FLY).step()
-
-            while get_game_state_symbol() != "CB2_FLYMAP":
-                yield
-
-            # Select Pallet Town on the region map
-            while get_map_cursor() is None:
-                yield
-            while get_map_cursor() != (9, 13) and get_map_cursor() != (9, 12):
-                context.emulator.reset_held_buttons()
-                if get_map_cursor()[0] < 9:
-                    context.emulator.hold_button("Right")
-                elif get_map_cursor()[0] > 9:
-                    context.emulator.hold_button("Left")
-                elif get_map_cursor()[1] < 12:
-                    context.emulator.hold_button("Down")
-                elif get_map_cursor()[1] > 13:
-                    context.emulator.hold_button("Up")
-                yield
-            context.emulator.reset_held_buttons()
-
-            # Fly to Slateport City
-            yield from wait_for_task_to_start_and_finish("Task_FlyIntoMap", "A")
-            yield
+            # Fly to Slateport City, as the most efficient place to do this seems to be between
+            # there and Route 110
+            yield from fly_to(FlyDestinationRSE.SlateportCity)
 
             # Walk to Slateport's border with Route 110
             yield from navigate_to(15, 0)
 
             def inner_loop():
+                if _get_repel_steps_remaining() <= 0:
+                    yield from apply_repel()
+
                 # Walk up to tall grass, spin, return
                 yield from walk_one_tile("Up")
                 yield from follow_path([(15, 97), (14, 97)])
@@ -243,98 +229,21 @@ class RoamerResetMode(BotMode):
                 yield from walk_one_tile("Down")
                 yield from follow_path([(17, 13), (17, 0), (15, 0)])
 
-            def apply_repel():
-                # Look up location of a Repel item in the item bag
-                first_max_repel = None
-                first_super_repel = None
-                first_repel = None
-                index = 0
-                for slot in get_item_bag().items:
-                    if first_max_repel is None and slot.item.name == "Max Repel":
-                        first_max_repel = index
-                    elif first_super_repel is None and slot.item.name == "Super Repel":
-                        first_super_repel = index
-                    elif first_repel is None and slot.item.name == "Repel":
-                        first_repel = index
-                    index += 1
-
-                if first_max_repel is not None:
-                    slot_to_use = first_max_repel
-                elif first_super_repel is not None:
-                    slot_to_use = first_super_repel
-                elif first_repel is not None:
-                    slot_to_use = first_repel
-                else:
-                    raise RanOutOfRepels()
-
-                # Open item bag and select the best Repel item there is (Max > Super > Regular)
-                yield from StartMenuNavigator("BAG").step()
-                yield from wait_until_task_is_active("Task_BagMenu_HandleInput")
-                while read_symbol("gBagPosition")[5] != 0:
-                    context.emulator.press_button("Left")
-                    yield
-                while True:
-                    bag_position = read_symbol("gBagPosition")
-                    current_slot = unpack_uint16(bag_position[8:10]) + unpack_uint16(bag_position[18:20])
-                    if current_slot == slot_to_use:
-                        break
-                    if current_slot < slot_to_use:
-                        context.emulator.press_button("Down")
-                    else:
-                        context.emulator.press_button("Up")
-                    yield
-
-                yield from wait_for_task_to_start_and_finish("Task_ContinueTaskAfterMessagePrints", "A")
-                yield from wait_for_task_to_start_and_finish("Task_ShowStartMenu", "B")
-                yield
-
-            skip_run = False
-            while get_game_state() != GameState.BATTLE and not skip_run:
+            while not self._should_reset and not self._ran_out_of_repels:
                 for _ in inner_loop():
-                    if get_game_state() == GameState.BATTLE:
+                    if self._should_reset or self._ran_out_of_repels:
                         break
-                    global_ctx = get_global_script_context()
-                    if global_ctx.is_active:
-                        previous_inputs = context.emulator.reset_held_buttons()
-                        yield
-                        while global_ctx.is_active:
-                            if global_ctx.native_function_name == "WaitForAorBPress":
-                                context.emulator.press_button("A")
-                            yield
-                            global_ctx = get_global_script_context()
-                        context.emulator.restore_held_buttons(previous_inputs)
-                    if (
-                        _get_repel_steps_remaining() <= 0
-                        and get_player_avatar().map_group_and_number == MapRSE.ROUTE_110.value
-                    ):
-                        previous_inputs = context.emulator.reset_held_buttons()
-                        yield
-                        try:
-                            for __ in apply_repel():
-                                if get_game_state() == GameState.BATTLE:
-                                    break
-                                yield
-                        except RanOutOfRepels:
-                            context.message = "Soft resetting after running out of repels."
-                            skip_run = True
-                            break
-                        finally:
-                            context.emulator.restore_held_buttons(previous_inputs)
                     yield
-            if skip_run:
+            if self._ran_out_of_repels:
+                context.message = "Soft resetting after running out of repels..."
                 continue
 
             yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry")
-            if get_opponent().is_shiny:
-                encounter_pokemon(get_opponent())
-                if context.bot_mode != "Manual":
-                    context.set_manual_mode()
-                return
-            else:
-                encounter_pokemon(get_opponent(), log_only=True)
 
     def run_frlg(self, flying_pokemon_index: int, has_good_ability: bool):
         while True:
+            self._should_reset = False
+            self._ran_out_of_repels = False
             context.emulator.reset_held_buttons()
 
             yield from soft_reset(mash_random_keys=True)
@@ -353,7 +262,7 @@ class RoamerResetMode(BotMode):
                 yield
 
             # Leave the building
-            while get_player_avatar().map_group_and_number != MapFRLG.ONE_ISLAND.value:
+            while get_player_avatar().map_group_and_number != MapFRLG.ONE_ISLAND_POKEMON_CENTER_1F:
                 yield from follow_path([(14, 9), (9, 9)])
                 yield from walk_one_tile("Down")
 
@@ -371,36 +280,18 @@ class RoamerResetMode(BotMode):
             while get_game_state() != GameState.OVERWORLD:
                 yield
 
-            # Select field move FLY
-            yield from StartMenuNavigator("POKEMON").step()
-            yield from PokemonPartyMenuNavigator(flying_pokemon_index, "", CursorOptionFRLG.FLY).step()
-            yield from wait_until_task_is_active("Task_FlyMap")
-
-            # Select Pallet Town on the region map
-            while get_map_cursor() is None:
-                yield
-            while get_map_cursor() != (4, 11):
-                context.emulator.reset_held_buttons()
-                if get_map_cursor()[0] < 4:
-                    context.emulator.hold_button("Right")
-                elif get_map_cursor()[0] > 4:
-                    context.emulator.hold_button("Left")
-                elif get_map_cursor()[1] < 11:
-                    context.emulator.hold_button("Down")
-                elif get_map_cursor()[1] > 11:
-                    context.emulator.hold_button("Up")
-                yield
-            context.emulator.reset_held_buttons()
-
-            # Fly to Pallet Town
-            yield from wait_for_task_to_start_and_finish("Task_UseFly", "A")
-            yield from wait_for_task_to_start_and_finish("Task_FlyIntoMap")
+            # Fly to Pallet Town, as the most efficient place to do this seems to be between there
+            # and Route 1
+            yield from fly_to(FlyDestinationFRLG.PalletTown)
 
             # Go to the north of the map, just before Route 1 starts
             yield from walk_one_tile("Right")
             yield from navigate_to(12, 0)
 
             def inner_loop():
+                if _get_repel_steps_remaining() <= 0:
+                    yield from apply_repel()
+
                 yield from walk_one_tile("Up")
                 directions = ["Left", "Down", "Right", "Up"]
                 for index in range(18 if has_good_ability else 36):
@@ -412,78 +303,13 @@ class RoamerResetMode(BotMode):
                 yield from walk_one_tile("Down")
                 yield from follow_path([(12, 8), (12, 0)])
 
-            def apply_repel():
-                # Look up location of a Repel item in the item bag
-                first_max_repel = None
-                first_super_repel = None
-                first_repel = None
-                index = 0
-                for slot in get_item_bag().items:
-                    if first_max_repel is None and slot.item.name == "Max Repel":
-                        first_max_repel = index
-                    elif first_super_repel is None and slot.item.name == "Super Repel":
-                        first_super_repel = index
-                    elif first_repel is None and slot.item.name == "Repel":
-                        first_repel = index
-                    index += 1
-
-                if first_max_repel is not None:
-                    slot_to_use = first_max_repel
-                elif first_super_repel is not None:
-                    slot_to_use = first_super_repel
-                elif first_repel is not None:
-                    slot_to_use = first_repel
-                else:
-                    raise RanOutOfRepels()
-
-                # Open item bag and select the best Repel item there is (Max > Super > Regular)
-                yield from StartMenuNavigator("BAG").step()
-                yield from wait_until_task_is_active("Task_BagMenu_HandleInput")
-                while read_symbol("gBagMenuState")[6] != 0:
-                    context.emulator.press_button("Left")
-                    yield
-                while read_symbol("gBagMenuState")[8] != slot_to_use:
-                    if read_symbol("gBagMenuState")[8] < slot_to_use:
-                        context.emulator.press_button("Down")
-                    else:
-                        context.emulator.press_button("Up")
-                    yield
-
-                yield from wait_for_task_to_start_and_finish("Task_ContinueTaskAfterMessagePrints", "A")
-                yield from wait_for_task_to_start_and_finish("Task_StartMenuHandleInput", "B")
-
-            skip_run = False
-            while get_game_state() != GameState.BATTLE and not skip_run:
+            while not self._should_reset and not self._ran_out_of_repels:
                 for _ in inner_loop():
-                    if get_game_state() == GameState.BATTLE:
+                    if self._should_reset or self._ran_out_of_repels:
                         break
-                    steps_remaining = _get_repel_steps_remaining()
-                    if steps_remaining == 0:
-                        previous_inputs = context.emulator.reset_held_buttons()
-                        yield
-                        context.emulator.press_button("B")
-                        yield
-
-                        try:
-                            for __ in apply_repel():
-                                if get_game_state() == GameState.BATTLE:
-                                    break
-                                yield
-                        except RanOutOfRepels:
-                            context.message = "Soft resetting after running out of repels."
-                            skip_run = True
-                            break
-                        finally:
-                            context.emulator.restore_held_buttons(previous_inputs)
                     yield
-            if skip_run:
+            if self._ran_out_of_repels:
+                context.message = "Soft resetting after running out of repels..."
                 continue
 
             yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry")
-            if get_opponent().is_shiny:
-                encounter_pokemon(get_opponent())
-                if context.bot_mode != "Manual":
-                    context.set_manual_mode()
-                return
-            else:
-                encounter_pokemon(get_opponent(), log_only=True)

@@ -6,6 +6,16 @@
 
 The bot can automatically battle Pokémon that don't meet any catch criteria.
 
+## Auto Catching
+
+`auto_catch` - enable automatic catching of encounters-of-interest (shinies and those that match your custom catch filters.)
+
+If your lead Pokémon knows False Swipe, the bot may use that. It will also try to use sleep-inducing or paralysing moves
+where it makes sense.
+
+Other than that, it will just throw Poké balls at the opponent. It chooses the most effective ball from the inventory
+(but will never use Master balls.)
+
 ## Pickup
 `pickup` - enable pickup farming, the bot will use [Pickup (ability)](https://bulbapedia.bulbagarden.net/wiki/Pickup_(Ability)) to items from Pokémon who have picked up items. See [Pickup items](https://bulbapedia.bulbagarden.net/wiki/Pickup_(Ability)#Items_received).
 

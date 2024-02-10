@@ -1,18 +1,17 @@
 import random
 from typing import Generator
 
-from modules.data.map import MapFRLG, MapRSE
-
 from modules.context import context
-from modules.encounter import encounter_pokemon
+from modules.encounter import handle_encounter
 from modules.gui.multi_select_window import Selection, ask_for_choice
+from modules.map_data import MapFRLG, MapRSE
 from modules.menuing import StartMenuNavigator, PokemonPartyMenuNavigator
 from modules.player import get_player_avatar
 from modules.pokemon import get_party
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
 from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
-from ._interface import BotMode, BotModeError
+from ._interface import BotMode, BotModeError, BattleAction
 from ._util import (
     soft_reset,
     wait_for_unique_rng_value,
@@ -36,9 +35,8 @@ class StartersMode(BotMode):
         if context.rom.is_rse:
             return player_avatar.map_group_and_number in [(0, 16), (1, 4)]
 
-    @staticmethod
-    def disable_default_battle_handler() -> bool:
-        return True
+    def on_battle_started(self) -> BattleAction | None:
+        return BattleAction.CustomAction
 
     def run(self) -> Generator:
         assert_save_game_exists("There is no saved game. Cannot soft reset.")
@@ -46,9 +44,9 @@ class StartersMode(BotMode):
         if context.rom.is_frlg:
             assert_saved_on_map(
                 [
-                    SavedMapLocation(MapFRLG.PALLET_TOWN_D, (8, 4), facing=True),
-                    SavedMapLocation(MapFRLG.PALLET_TOWN_D, (9, 4), facing=True),
-                    SavedMapLocation(MapFRLG.PALLET_TOWN_D, (10, 4), facing=True),
+                    SavedMapLocation(MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, (8, 4), facing=True),
+                    SavedMapLocation(MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, (9, 4), facing=True),
+                    SavedMapLocation(MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, (10, 4), facing=True),
                 ],
                 error_message="The game has not been saved while standing in front of one of the starter Poké balls.",
             )
@@ -57,16 +55,16 @@ class StartersMode(BotMode):
             assert_saved_on_map(
                 [
                     # Hoenn Starter Bag
-                    SavedMapLocation(MapRSE.ROUTE_101, (7, 14), facing=True),
+                    SavedMapLocation(MapRSE.ROUTE101, (7, 14), facing=True),
                     # Johto Starters (on table)
-                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_E, (8, 4), facing=True),
-                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_E, (9, 4), facing=True),
-                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_E, (10, 4), facing=True),
+                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, (8, 4), facing=True),
+                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, (9, 4), facing=True),
+                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, (10, 4), facing=True),
                 ],
                 error_message="The game has not been saved in front of the starter Pokémon bag (for Hoenn starters) or in front of one of the starter Poké balls (for Johto starters.)",
             )
 
-            if get_save_data().get_map_group_and_number() == MapRSE.ROUTE_101.value:
+            if get_save_data().get_map_group_and_number() == MapRSE.ROUTE101:
                 yield from self.run_rse_hoenn()
             else:
                 yield from self.run_rse_johto()
@@ -86,12 +84,6 @@ class StartersMode(BotMode):
             # Wait for and say no to the second question (the 'Do you want to give ... a nickname')
             yield from wait_for_task_to_start_and_finish("Task_YesNoMenu_HandleInput", button_to_press="B")
 
-            # If the respective 'cheat' is enabled, check the Pokemon immediately instead of 'genuinely' looking
-            # at the summary screen
-            if context.config.cheats.fast_check_starters:
-                encounter_pokemon(get_party()[0])
-                continue
-
             # Wait for the rival to pick up their starter
             yield from wait_until_task_is_active("Task_Fanfare", button_to_press="B")
 
@@ -101,7 +93,7 @@ class StartersMode(BotMode):
             # Spam 'A' until we see the summary screen
             yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")
 
-            encounter_pokemon(get_party()[0])
+            handle_encounter(get_party()[0], disable_auto_catch=True)
 
     def run_rse_hoenn(self) -> Generator:
         # Set up: Ask for starter choice because we cannot deduce that from the player location.
@@ -159,7 +151,7 @@ class StartersMode(BotMode):
             # Wait for Pokemon cry of starter Pokemon (after which the sprite is fully visible)
             yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
 
-            encounter_pokemon(get_party()[0])
+            handle_encounter(get_party()[0])
 
     def run_rse_johto(self):
         while context.bot_mode != "Manual":
@@ -178,12 +170,6 @@ class StartersMode(BotMode):
             # Wait for and say no to the second question (the 'Do you want to give ... a nickname')
             yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", button_to_press="B")
 
-            # If the respective 'cheat' is enabled, check the Pokemon immediately instead of 'genuinely' looking
-            # at the summary screen
-            if context.config.cheats.fast_check_starters:
-                encounter_pokemon(get_party()[len(get_party()) - 1])
-                continue
-
             # Wait for the rival to pick up their starter
             yield from wait_until_task_is_not_active("ScriptMovement_MoveObjects", button_to_press="B")
 
@@ -191,4 +177,4 @@ class StartersMode(BotMode):
             yield from StartMenuNavigator("POKEMON").step()
             yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
 
-            encounter_pokemon(get_party()[len(get_party()) - 1])
+            handle_encounter(get_party()[len(get_party()) - 1])

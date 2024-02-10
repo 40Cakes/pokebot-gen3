@@ -1,9 +1,11 @@
 from typing import Generator
 
 from modules.context import context
+from modules.items import get_item_by_name
 from modules.player import get_player_avatar, TileTransitionState, AcroBikeState
-from ._asserts import assert_registered_item
+from ._asserts import assert_item_exists_in_bag
 from ._interface import BotMode
+from ._util import apply_white_flute_if_available, register_key_item
 
 
 class BunnyHopMode(BotMode):
@@ -19,8 +21,10 @@ class BunnyHopMode(BotMode):
             return False
 
     def run(self) -> Generator:
-        assert_registered_item(["Acro Bike"], error_message="You need to register the Acro Bike for the Select button.")
+        assert_item_exists_in_bag(("Acro Bike",), "You need to have the Acro Bike in order to use this mode.")
+        yield from register_key_item(get_item_by_name("Acro Bike"))
 
+        yield from apply_white_flute_if_available()
         while True:
             player = get_player_avatar()
 
