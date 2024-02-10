@@ -1,9 +1,8 @@
 from typing import Generator
 
-from modules.data.map import MapRSE
-
 from modules.context import context
-from modules.encounter import encounter_pokemon
+from modules.encounter import handle_encounter, judge_encounter, log_encounter
+from modules.map_data import MapRSE
 from modules.player import get_player_avatar
 from modules.pokemon import get_opponent
 from ._asserts import (
@@ -12,29 +11,13 @@ from ._asserts import (
     assert_registered_item,
     SavedMapLocation,
 )
-from ._interface import BotMode
+from ._interface import BotMode, BattleAction
 from ._util import (
     soft_reset,
     wait_for_unique_rng_value,
     wait_until_task_is_active,
     wait_for_task_to_start_and_finish,
 )
-
-
-def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | None:
-    if context.rom.is_emerald:
-        encounters = [
-            (MapRSE.BATTLE_FRONTIER_E.value, (54, 62), "Sudowoodo"),
-        ]
-    else:
-        encounters = []
-
-    targeted_tile = get_player_avatar().map_location_in_front
-    for entry in encounters:
-        if entry[0] == (targeted_tile.map_group, targeted_tile.map_number) and entry[1] == targeted_tile.local_position:
-            return entry
-
-    return None
 
 
 class SudowoodoMode(BotMode):
@@ -44,18 +27,24 @@ class SudowoodoMode(BotMode):
 
     @staticmethod
     def is_selectable() -> bool:
-        return _get_targeted_encounter() is not None
+        if context.rom.is_emerald:
+            targeted_tile = get_player_avatar().map_location_in_front
+            return targeted_tile in MapRSE.BATTLE_FRONTIER_OUTSIDE_EAST and targeted_tile.local_position == (54, 62)
+        else:
+            return False
 
-    @staticmethod
-    def disable_default_battle_handler() -> bool:
-        return True
+    def on_battle_started(self) -> BattleAction | None:
+        opponent = get_opponent()
+        if judge_encounter(opponent).is_of_interest:
+            return handle_encounter(get_opponent(), disable_auto_catch=True)
+        else:
+            log_encounter(opponent)
+            return BattleAction.CustomAction
 
     def run(self) -> Generator:
-        encounter = _get_targeted_encounter()
-
         assert_save_game_exists("This is no saved game. Cannot soft reset.")
         assert_saved_on_map(
-            SavedMapLocation(encounter[0], encounter[1], facing=True),
+            SavedMapLocation(MapRSE.BATTLE_FRONTIER_OUTSIDE_EAST, (54, 62), facing=True),
             "The game has not been saved on this tile.",
         )
         assert_registered_item(
@@ -74,5 +63,3 @@ class SudowoodoMode(BotMode):
             yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessage", button_to_press="B")
             yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", button_to_press="A")
             yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")
-
-            encounter_pokemon(get_opponent())

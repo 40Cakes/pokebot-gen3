@@ -1,13 +1,13 @@
 from typing import Generator
 
-from modules.data.map import MapRSE, MapFRLG
-
 from modules.context import context
+from modules.encounter import handle_encounter
 from modules.map import get_map_objects
+from modules.map_data import MapRSE, MapFRLG
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
-from ._asserts import assert_no_auto_battle, assert_no_auto_pickup
-from ._interface import BotMode, BotModeError
+from modules.pokemon import get_opponent
+from ._interface import BotMode, BotModeError, BattleAction
 from ._util import (
     wait_for_task_to_start_and_finish,
     navigate_to,
@@ -26,28 +26,28 @@ class StaticRunAway(BotMode):
     def is_selectable() -> bool:
         if context.rom.is_rse:
             allowed_maps = [
-                MapRSE.NAVEL_ROCK_I.value,
-                MapRSE.NAVEL_ROCK_U.value,
-                MapRSE.ISLAND_CAVE.value,
-                MapRSE.ANCIENT_TOMB.value,
-                MapRSE.DESERT_RUINS.value,
-                MapRSE.SOUTHERN_ISLAND_A.value,
-                MapRSE.MARINE_CAVE_A.value,
-                MapRSE.TERRA_CAVE_A.value,
-                MapRSE.SKY_PILLAR_G.value,
-                MapRSE.FARAWAY_ISLAND.value,
+                MapRSE.NAVEL_ROCK_TOP,
+                MapRSE.NAVEL_ROCK_BOTTOM,
+                MapRSE.ISLAND_CAVE,
+                MapRSE.ANCIENT_TOMB,
+                MapRSE.DESERT_RUINS,
+                MapRSE.SOUTHERN_ISLAND_INTERIOR,
+                MapRSE.MARINE_CAVE_END,
+                MapRSE.TERRA_CAVE_END,
+                MapRSE.SKY_PILLAR_TOP,
+                MapRSE.FARAWAY_ISLAND_ENTRANCE,
             ]
         else:
-            allowed_maps = [MapFRLG.NAVEL_ROCK_B.value, MapFRLG.NAVEL_ROCK_A.value]
+            allowed_maps = [MapFRLG.NAVEL_ROCK_BASE, MapFRLG.NAVEL_ROCK_SUMMIT]
         return get_player_avatar().map_group_and_number in allowed_maps
 
-    def run(self) -> Generator:
-        assert_no_auto_battle("This mode should not be used with auto-battle.")
-        assert_no_auto_pickup("This mode should not be used while auto-pickup is enabled.")
+    def on_battle_started(self) -> BattleAction | None:
+        return handle_encounter(get_opponent(), disable_auto_catch=True, disable_auto_battle=True)
 
+    def run(self) -> Generator:
         match get_player_avatar().map_group_and_number:
             # Lugia on Emerald
-            case MapRSE.NAVEL_ROCK_U.value:
+            case MapRSE.NAVEL_ROCK_BOTTOM:
                 pokemon_name = "Lugia"
                 flag_to_check = "CAUGHT_LUGIA"
 
@@ -59,7 +59,7 @@ class StaticRunAway(BotMode):
                     yield from navigate_to(11, 14)
 
             # Lugia on FR/LG
-            case MapFRLG.NAVEL_ROCK_B.value:
+            case MapFRLG.NAVEL_ROCK_BASE:
                 pokemon_name = "Lugia"
                 flag_to_check = "CAUGHT_LUGIA"
 
@@ -71,7 +71,7 @@ class StaticRunAway(BotMode):
                     yield from navigate_to(10, 16)
 
             # Ho-Oh on Emerald
-            case MapRSE.NAVEL_ROCK_I.value:
+            case MapRSE.NAVEL_ROCK_TOP:
                 pokemon_name = "Ho-Oh"
                 flag_to_check = "CAUGHT_HO_OH"
 
@@ -83,7 +83,7 @@ class StaticRunAway(BotMode):
                     yield from navigate_to(12, 10)
 
             # Ho-Oh on FR/LG
-            case MapFRLG.NAVEL_ROCK_A.value:
+            case MapFRLG.NAVEL_ROCK_SUMMIT:
                 pokemon_name = "Ho-Oh"
                 flag_to_check = "CAUGHT_HO_OH"
 
@@ -95,7 +95,7 @@ class StaticRunAway(BotMode):
                     yield from navigate_to(9, 12)
 
             # Regice on Emerald
-            case MapRSE.ISLAND_CAVE.value:
+            case MapRSE.ISLAND_CAVE:
                 pokemon_name = "Regice"
                 flag_to_check = "DEFEATED_REGICE"
 
@@ -106,7 +106,7 @@ class StaticRunAway(BotMode):
                     yield from navigate_to(8, 8)
 
             # Registeel on Emerald
-            case MapRSE.ANCIENT_TOMB.value:
+            case MapRSE.ANCIENT_TOMB:
                 pokemon_name = "Registeel"
                 flag_to_check = "DEFEATED_REGISTEEL"
 
@@ -117,7 +117,7 @@ class StaticRunAway(BotMode):
                     yield from navigate_to(8, 8)
 
             # Regirock on Emerald
-            case MapRSE.DESERT_RUINS.value:
+            case MapRSE.DESERT_RUINS:
                 pokemon_name = "Regirock"
                 flag_to_check = "DEFEATED_REGIROCK"
 
@@ -128,7 +128,7 @@ class StaticRunAway(BotMode):
                     yield from navigate_to(8, 8)
 
             # Lati@s on Emerald
-            case MapRSE.SOUTHERN_ISLAND_A.value:
+            case MapRSE.SOUTHERN_ISLAND_INTERIOR:
                 pokemon_name = "Lati@s"
                 flag_to_check = "DEFEATED_LATIAS_OR_LATIOS"
 
@@ -141,7 +141,7 @@ class StaticRunAway(BotMode):
                     yield from wait_for_script_to_start_and_finish("Common_EventScript_LegendaryFlewAway", "B")
 
             # Kyorge in Emerald
-            case MapRSE.MARINE_CAVE_A.value:
+            case MapRSE.MARINE_CAVE_END:
                 pokemon_name = "Kyogre"
                 flag_to_check = "DEFEATED_KYOGRE"
 
@@ -152,7 +152,7 @@ class StaticRunAway(BotMode):
                     yield from navigate_to(9, 26)
 
             # Groudon in Emerald
-            case MapRSE.TERRA_CAVE_A.value:
+            case MapRSE.TERRA_CAVE_END:
                 pokemon_name = "Groudon"
                 flag_to_check = "DEFEATED_GROUDON"
 
@@ -163,7 +163,7 @@ class StaticRunAway(BotMode):
                     yield from navigate_to(17, 26)
 
             # Rayquaza on Emerald
-            case MapRSE.SKY_PILLAR_G.value:
+            case MapRSE.SKY_PILLAR_TOP:
                 pokemon_name = "Rayquaza"
                 flag_to_check = "DEFEATED_RAYQUAZA"
 
@@ -174,7 +174,7 @@ class StaticRunAway(BotMode):
                     yield from navigate_to(14, 7)
 
             # Mew on Emerald
-            case MapRSE.FARAWAY_ISLAND.value:
+            case MapRSE.FARAWAY_ISLAND_ENTRANCE:
                 pokemon_name = "Mew"
                 flag_to_check = "DEFEATED MEW"
 

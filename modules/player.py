@@ -200,7 +200,7 @@ class Player:
     @property
     def registered_item(self) -> Item | None:
         item_index = unpack_uint16(self._save_block_1[6:8])
-        if item_index == 0:
+        if item_index == 0 or item_index > 376:
             return None
         else:
             return get_item_by_index(item_index)

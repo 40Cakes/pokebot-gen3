@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Generator
 
 if TYPE_CHECKING:
     from modules.gui import PokebotGui
@@ -20,6 +20,8 @@ class BotContext:
 
         self._current_message: str = ""
 
+        self.controller_stack: list[Generator] = []
+        self.frame: int = 0
         self._current_bot_mode: str = initial_bot_mode
         self._previous_bot_mode: str = "Manual"
 
@@ -98,6 +100,14 @@ class BotContext:
             self.emulation_speed = 1
             self.video = True
             desktop_notification(title="Manual Mode", message="The bot has switched to manual mode.")
+
+    def debug_stepping_mode(self) -> None:
+        if self.debug and self.gui and self.gui._emulator_screen:
+            from modules.gui.desktop_notification import desktop_notification
+
+            self.gui._emulator_screen.toggle_stepping_mode()
+            self.video = True
+            desktop_notification(title="Manual Mode", message="The bot has switched to stepping mode.")
 
     @property
     def audio(self) -> bool:

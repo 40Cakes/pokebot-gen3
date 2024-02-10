@@ -1,15 +1,15 @@
 from typing import Generator
 
-from modules.data.map import MapFRLG
 from modules.context import context
-from modules.encounter import encounter_pokemon
+from modules.encounter import handle_encounter
 from modules.gui.multi_select_window import Selection, ask_for_choice
+from modules.map_data import MapFRLG
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
-from modules.runtime import get_sprites_path
-from modules.save_data import get_save_data
-from modules.pokemon import get_party
 from modules.player import get_player, get_player_avatar
+from modules.pokemon import get_party
+from modules.runtime import get_sprites_path
 from modules.tasks import task_is_active
+from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
 from ._interface import BotMode, BotModeError
 from ._util import (
     soft_reset,
@@ -20,20 +20,6 @@ from ._util import (
 )
 
 
-def _get_targeted_encounter() -> tuple[tuple[int, int], tuple[int, int], str] | None:
-    encounters = [
-        (MapFRLG.CELADON_CITY_P.value, (4, 3), "Game Corner"),
-    ]
-
-    targeted_tile = get_player_avatar().map_location_in_front
-
-    for entry in encounters:
-        if entry[0] == (targeted_tile.map_group, targeted_tile.map_number) and entry[1] == targeted_tile.local_position:
-            return entry
-
-    return None
-
-
 class GameCornerMode(BotMode):
     @staticmethod
     def name() -> str:
@@ -41,7 +27,14 @@ class GameCornerMode(BotMode):
 
     @staticmethod
     def is_selectable() -> bool:
-        return _get_targeted_encounter() is not None
+        if context.rom.is_frlg:
+            targeted_tile = get_player_avatar().map_location_in_front
+            return targeted_tile in MapFRLG.CELADON_CITY_GAME_CORNER_PRIZE_ROOM and targeted_tile.local_position == (
+                4,
+                3,
+            )
+        else:
+            return False
 
     def run(self) -> Generator:
         coincase = get_player().coins
@@ -50,8 +43,10 @@ class GameCornerMode(BotMode):
 
         if context.rom.is_fr:
             choices = [("Abra", 180), ("Clefairy", 500), ("Dratini", 2800), ("Scyther", 5500), ("Porygon", 9999)]
-        if context.rom.is_lg:
+        elif context.rom.is_lg:
             choices = [("Abra", 120), ("Clefairy", 750), ("Pinsir", 2500), ("Dratini", 4600), ("Porygon", 9999)]
+        else:
+            raise BotModeError("This mode is not supported on RSE.")
 
         available_options = []
         for pokemon, coins in choices:
@@ -68,14 +63,11 @@ class GameCornerMode(BotMode):
         if game_corner_choice is None:
             return
 
-        encounter = _get_targeted_encounter()
-
-        save_data = get_save_data()
-        if save_data is None:
-            raise BotModeError("There is no saved game. Cannot soft reset.")
-
-        if encounter[0] != (save_data.sections[1][4], save_data.sections[1][5]):
-            raise BotModeError("The targeted encounter is not in the current map. Cannot soft reset.")
+        assert_save_game_exists("There is no saved game. Cannot soft reset.")
+        assert_saved_on_map(
+            SavedMapLocation(MapFRLG.CELADON_CITY_GAME_CORNER_PRIZE_ROOM, (4, 3), facing=True),
+            "The targeted encounter is not in the current map. Cannot soft reset.",
+        )
 
         while context.bot_mode != "Manual":
             yield from soft_reset(mash_random_keys=True)
@@ -130,10 +122,7 @@ class GameCornerMode(BotMode):
             yield from wait_for_task_to_start_and_finish("Task_YesNoMenu_HandleInput", "B")
 
             # log the encounter
-            if context.config.cheats.fast_check_starters:
-                encounter_pokemon(get_party()[len(get_party()) - 1])
-            else:
-                yield from StartMenuNavigator("POKEMON").step()
-                yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
+            yield from StartMenuNavigator("POKEMON").step()
+            yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
 
-                encounter_pokemon(get_party()[len(get_party()) - 1])
+            handle_encounter(get_party()[len(get_party()) - 1])

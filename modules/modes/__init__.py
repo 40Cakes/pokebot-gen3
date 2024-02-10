@@ -1,8 +1,11 @@
 """Contains modes of operation for the bot."""
 
-from typing import Type
+from typing import Type, TYPE_CHECKING
 
-from ._interface import BotMode, BotModeError
+from ._interface import BotMode, BotModeError, FrameInfo, BotListener, BattleAction
+
+if TYPE_CHECKING:
+    from modules.roms import ROM
 
 _bot_modes: list[Type[BotMode]] = []
 
@@ -12,6 +15,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
 
     if len(_bot_modes) == 0:
         from .bunny_hop import BunnyHopMode
+        from modules.modes.daycare import DaycareMode
         from .fishing import FishingMode
         from .game_corner import GameCornerMode
         from .kecleon import KecleonMode
@@ -29,6 +33,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
 
         _bot_modes = [
             BunnyHopMode,
+            DaycareMode,
             FishingMode,
             GameCornerMode,
             KecleonMode,
@@ -60,3 +65,29 @@ def get_bot_mode_by_name(name: str) -> Type[BotMode] | None:
         if mode.name() == name:
             return mode
     return None
+
+
+def get_bot_listeners(rom: "ROM") -> list[BotListener]:
+    from ._listeners import (
+        BattleListener,
+        PokenavListener,
+        EggHatchListener,
+        TrainerApproachListener,
+        RepelListener,
+        PoisonListener,
+        SafariZoneListener,
+        WhiteoutListener,
+    )
+
+    listeners = [
+        BattleListener(),
+        EggHatchListener(),
+        TrainerApproachListener(),
+        RepelListener(),
+        PoisonListener(),
+        SafariZoneListener(),
+        WhiteoutListener(),
+    ]
+    if rom.is_emerald:
+        listeners.append(PokenavListener())
+    return listeners
