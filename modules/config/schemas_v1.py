@@ -189,6 +189,7 @@ class LoggingSavePK3(BaseConfig):
     all: bool = False
     shiny: bool = False
     custom: bool = False
+    roamer: bool = False
 
 
 class OBS(BaseConfig):

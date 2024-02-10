@@ -9,6 +9,7 @@ from modules.discord import discord_message
 from modules.files import save_pk3
 from modules.gui.desktop_notification import desktop_notification
 from modules.modes import BattleAction
+from modules.pokedex import get_pokedex
 from modules.pokemon import Pokemon, get_opponent
 from modules.roamer import get_roamer
 from modules.runtime import get_sprites_path
@@ -169,8 +170,11 @@ def handle_encounter(
         case EncounterValue.Roamer:
             console.print(f"[pink yellow]Roaming {pokemon.species.name} found![/]")
             alert = "Roaming Pokémon found!", f"Encountered a roaming {pokemon.species.name}."
-            if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.custom:
-                save_pk3(pokemon)
+            # If this is the first time the Roamer is encountered
+            if pokemon.species not in get_pokedex().seen_species:
+                wild_encounter_gif(post_to_discord=False)
+                if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.roamer:
+                    save_pk3(pokemon)
             is_of_interest = True
 
         case EncounterValue.ShinyOnBlockList:

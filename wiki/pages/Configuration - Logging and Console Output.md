@@ -31,5 +31,7 @@ The Pokémon are dumped to the `pokemon/` folder in your profile, in the followi
 - `all` - dump all encounters
 - `shiny` - dump shiny encounters
 - `custom` - dump custom catch filter encounters
+- `roamer` - dump (non-shiny) roamers (Latias, Latios, Entei, Suicune, Raikou) -- this will only be done
+  if the Pokémon is not yet marked as 'seen' in the Pokédex
 
 Feel free to share any rare/interesting .pk3 files in [#pkhexchange💱](https://discord.com/channels/1057088810950860850/1123523909745135616)!
