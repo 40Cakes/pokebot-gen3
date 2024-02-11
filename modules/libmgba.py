@@ -519,6 +519,7 @@ class LibmgbaEmulator:
         png_path = png_directory / f"{current_timestamp}_{str(self.get_frame_count())}{suffix}.png"
         with open(png_path, "wb") as file:
             self.get_screenshot().save(file, format="PNG")
+            console.print(f"Screenshot saved to: {png_path}")
 
     @contextmanager
     def peek_frame(self, frames_to_advance: int = 1) -> any:

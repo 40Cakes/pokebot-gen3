@@ -147,6 +147,7 @@ class KeysEmulator(BaseConfig):
     save_state: str = "Ctrl+S"
     load_state: str = "Ctrl+L"
     toggle_stepping_mode: str = "Ctrl+P"
+    screenshot: str = "F12"
 
 
 class KeysGBA(BaseConfig):

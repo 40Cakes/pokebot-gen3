@@ -198,6 +198,8 @@ class PokebotGui:
                         context.emulation_speed = 4
                     case "set_speed_unthrottled":
                         context.emulation_speed = 0
+                    case "screenshot":
+                        context.emulator.take_screenshot(suffix="manual")
 
         # This prevents the default action for that key to be executed, which is important for
         # the Tab key (which normally moves focus to the next GUI element.)
