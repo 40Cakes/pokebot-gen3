@@ -584,13 +584,18 @@ class BattleOpponent:
 
         if not is_trainer_battle and self.try_to_catch:
             self.choose_action_for_auto_catch()
-        elif not is_trainer_battle and (not context.config.battle.battle or not can_battle_happen(self)):
+        elif not is_trainer_battle and (
+            not context.config.battle.battle or not (can_battle_happen() and should_mon_be_battled(self.opponent))
+        ):
             self.choice = "flee"
             self.idx = -1
         elif not check_mon_can_battle(self.current_battler):
             match context.config.battle.lead_cannot_battle_action:
                 case "flee":
-                    self.choice = "flee"
+                    if not is_trainer_battle:
+                        self.choice = "flee"
+                    else:
+                        self.choice = "stop"
                     self.idx = -1
                 case "stop":
                     self.choice = "stop"
@@ -1231,45 +1236,31 @@ def check_for_level_up(old_party: list[Pokemon], new_party: list[Pokemon], level
     return leveled_mon
 
 
-def can_battle_happen(battle_opponent: BattleOpponent, check_lead_only: bool = False) -> bool:
+def can_battle_happen(check_lead_only: bool = False) -> bool:
     """
     Determines whether the bot can battle with the state of the current party
     :return: True if the party is capable of having a battle, False otherwise
     """
-    can_battle = False
-
     if check_lead_only:
         party = [get_party()[0]]
     else:
         party = get_party()
     for mon in party:
-        if mon_has_enough_hp(mon) and not mon.is_egg:
-            for move in mon.moves:
-                if (
-                    move is not None
-                    and move.move.base_power > 0
-                    and move.move.name not in context.config.battle.banned_moves
-                    and move.pp > 0
-                ):
-                    can_battle = True
-                    break
-        if can_battle:
-            break
+        if check_mon_can_battle(mon):
+            return True
+    return False
 
-    wanted_opponent = True
 
+def should_mon_be_battled(mon: Pokemon) -> bool:
+    """
+    Determines whether an opponent Pokémon should be battled
+    :return: True if the Pokémon should be battled, False otherwise
+    """
     if (
-        any(context.config.battle.targeted_pokemon)
-        and battle_opponent.opponent.species.name not in context.config.battle.targeted_pokemon
-    ):
-        wanted_opponent = False
-    if (
-        any(context.config.battle.avoided_pokemon)
-        and battle_opponent.opponent.species.name in context.config.battle.avoided_pokemon
-    ):
-        wanted_opponent = False
-
-    return can_battle and wanted_opponent
+        any(context.config.battle.targeted_pokemon) and mon.species.name not in context.config.battle.targeted_pokemon
+    ) or (any(context.config.battle.avoided_pokemon) and mon.species.name in context.config.battle.avoided_pokemon):
+        return False
+    return True
 
 
 class BattleMenu:
@@ -1402,12 +1393,13 @@ def check_mon_can_battle(mon: Pokemon) -> bool:
     """
     Determines whether a Pokémon is fit to fight
     """
-    mon_has_moves = False
+    if mon.is_egg or not mon_has_enough_hp(mon):
+        return False
+
     for move in mon.moves:
         if move_is_usable(move):
-            mon_has_moves = True
-            break
-    return mon_has_enough_hp(mon) and mon_has_moves
+            return True
+    return False
 
 
 def get_new_lead() -> int | None:
