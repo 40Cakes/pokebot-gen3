@@ -4,8 +4,8 @@
 Roamer reset mode helps with finding shiny roaming Pokémon via soft-resetting.
 
 ## Emerald
-![](../../sprites/pokemon/normal/Latias.png)
-![](../../sprites/pokemon/normal/Latios.png)
+![](../../sprites/pokemon/shiny/Latias.png)
+![](../../sprites/pokemon/shiny/Latios.png)
 
 On Emerald, this mode needs some preparation **before defeating the Elite Four for the first time!**
 
@@ -21,9 +21,9 @@ On Emerald, this mode needs some preparation **before defeating the Elite Four f
 
 
 ## FireRed/LeafGreen
-![](../../sprites/pokemon/normal/Raikou.png)
-![](../../sprites/pokemon/normal/Entei.png)
-![](../../sprites/pokemon/normal/Suicune.png)
+![](../../sprites/pokemon/shiny/Raikou.png)
+![](../../sprites/pokemon/shiny/Entei.png)
+![](../../sprites/pokemon/shiny/Suicune.png)
 
 - Make sure you have a Pokémon that knows **Fly** in your party
 - Make sure you have a Pokémon **between level 5 and 50** in your party (in order for Repel to work properly)
