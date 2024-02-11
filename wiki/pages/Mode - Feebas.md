@@ -2,7 +2,7 @@
 
 # 🐟 Feebas Mode
 
-![](../../sprites/pokemon/normal/Feebas.png)
+![](../../sprites/pokemon/shiny/Feebas.png)
 
 Feebas mode will search for the illusive fish by navigating to and fishing on all tiles in the current body of water. Once Feebas is found, the bot will stay at the tile and continue to hunt for shiny [Feebas](https://bulbapedia.bulbagarden.net/wiki/Feebas_(Pok%C3%A9mon)).
 
