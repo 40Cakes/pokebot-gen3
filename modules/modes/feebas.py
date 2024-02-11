@@ -68,10 +68,10 @@ class FeebasMode(BotMode):
                 get_player_avatar().map_group_and_number[0], get_player_avatar().map_group_and_number[1], check
             ).local_position
             for check in [
-                (tile[0] - 1, tile[1]),
-                (tile[0], tile[1] - 1),
                 (tile[0] + 1, tile[1]),
                 (tile[0], tile[1] + 1),
+                (tile[0] - 1, tile[1]),
+                (tile[0], tile[1] - 1),
             ]
             if get_map_data(
                 get_player_avatar().map_group_and_number[0], get_player_avatar().map_group_and_number[1], check
@@ -114,15 +114,14 @@ class FeebasMode(BotMode):
 
         while True:
             if self.feebas_moved >= 20:
-                self.tile_checked = 0
                 self.feebas_found = False
-                self.checked_tiles = bad_tiles
 
             if self.tile_checked < self.tile_threshold or self.feebas_found:
                 total_encounters = total_stats.get_total_stats()["totals"]["encounters"]
                 while total_encounters == total_stats.get_total_stats()["totals"]["encounters"]:
                     yield from fish()
                 if get_opponent().species.name == "Feebas":
+                    self.checked_tiles = bad_tiles
                     self.feebas_found = True
                     self.feebas_moved = 0
                 self.tile_checked += 1
