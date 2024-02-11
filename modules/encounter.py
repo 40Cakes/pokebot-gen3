@@ -93,7 +93,7 @@ def log_encounter(pokemon: Pokemon, action: BattleAction | None = None, gif_path
         f"Ability:\xa0{pokemon.ability.name}",
         f"Item:\xa0{pokemon.held_item.name if pokemon.held_item is not None else '-'}",
         f"IV\xa0sum:\xa0{pokemon.ivs.sum()}",
-        f"SV:\xa0{pokemon.shiny_value}",
+        f"SV:\xa0{pokemon.shiny_value:,}",
     ]
 
     species_name = pokemon.species.name

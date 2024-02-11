@@ -16,7 +16,6 @@ from ._util import (
     register_key_item,
     fish,
 )
-from ..console import console
 from ..map import get_map_all_tiles, get_map_data
 
 # Bad tiles such as cliffs marked as surfable, but can't surf or fish on it
@@ -42,6 +41,7 @@ class FeebasMode(BotMode):
 
     def __init__(self):
         self.feebas_found: bool = False
+        self.feebas_moved: int = 0
         self.tile_threshold: int = 3
         self.tile_checked: int = 0
         self.checked_tiles: list[tuple[int, int]] = bad_tiles
@@ -54,35 +54,29 @@ class FeebasMode(BotMode):
         return handle_encounter(get_opponent(), disable_auto_battle=True)
 
     def get_closest_tile(self, tiles: list[tuple[int, int]]) -> tuple[int, int] | None:
-        console.print("Finding closest tile...")
-        closest = min(
+        return min(
             tiles,
             key=lambda tile: math.hypot(
                 get_player_avatar().local_coordinates[1] - tile[1],
                 get_player_avatar().local_coordinates[0] - tile[0],
             ),
         )
-        console.print(f"Closest tile is: ({closest[0]}, {closest[1]})")
-        return closest
 
     def get_closest_surrounding_tile(self, tile: tuple[int, int]) -> tuple[int, int] | None:
-        console.print(f"Finding surfable, surrounding tiles for tile: {tile}...")
         if valid_surrounding_tiles := [
             get_map_data(
                 get_player_avatar().map_group_and_number[0], get_player_avatar().map_group_and_number[1], check
             ).local_position
             for check in [
-                (tile[0] + 1, tile[1]),
-                (tile[0], tile[1] + 1),
                 (tile[0] - 1, tile[1]),
                 (tile[0], tile[1] - 1),
+                (tile[0] + 1, tile[1]),
+                (tile[0], tile[1] + 1),
             ]
             if get_map_data(
                 get_player_avatar().map_group_and_number[0], get_player_avatar().map_group_and_number[1], check
             ).is_surfable
         ]:
-            for surrounding_tile in valid_surrounding_tiles:
-                console.print(f"Found valid surrounding tile: {surrounding_tile}")
             return self.get_closest_tile(valid_surrounding_tiles)
         else:
             return None
@@ -101,7 +95,6 @@ class FeebasMode(BotMode):
         if tile_coords[1] > player_coords[1]:
             direction = "Down"
 
-        console.print(f"The player needs to look {direction} to face {tile_coords} from {player_coords}...")
         return direction
 
     def run(self) -> Generator:
@@ -119,22 +112,24 @@ class FeebasMode(BotMode):
                     yield from register_key_item(get_item_by_name(rod_name))
                     break
 
-        total_stats.remove_session_pokemon("Feebas")
-
         while True:
+            if self.feebas_moved >= 20:
+                self.tile_checked = 0
+                self.feebas_found = False
+                self.checked_tiles = bad_tiles
+
             if self.tile_checked < self.tile_threshold or self.feebas_found:
                 total_encounters = total_stats.get_total_stats()["totals"]["encounters"]
                 while total_encounters == total_stats.get_total_stats()["totals"]["encounters"]:
                     yield from fish()
+                if get_opponent().species.name == "Feebas":
+                    self.feebas_found = True
+                    self.feebas_moved = 0
                 self.tile_checked += 1
 
-            elif "Feebas" in total_stats.get_session_pokemon():
-                console.print("Found a Feebas tile!")
-                self.feebas_found = True
-
             else:
+                self.feebas_moved += 1
                 self.tile_checked = 0
-                console.print(f"Feebas not on tile: {get_player_avatar().map_location_in_front.local_position}")
                 self.checked_tiles.append(get_player_avatar().map_location_in_front.local_position)
 
                 closest_tile = self.get_closest_tile(
