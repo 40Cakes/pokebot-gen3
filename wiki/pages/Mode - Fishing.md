@@ -2,9 +2,9 @@
 
 # 🎣 Fishing Mode
 
-![](../../sprites/pokemon/normal/Tentacool.png)
-![](../..//sprites/pokemon/normal/Corsola.png)
-![](../..//sprites/pokemon/normal/Relicanth.png)
+![](../../sprites/pokemon/shiny/Tentacool.png)
+![](../..//sprites/pokemon/shiny/Corsola.png)
+![](../..//sprites/pokemon/shiny/Relicanth.png)
 
 Fishing is a way to use a fishing rod to catch wild Pokémon in the water. Some Pokémon can only be caught by using a fishing rod.
 

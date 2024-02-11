@@ -2,20 +2,20 @@
 
 # ♻ Static Soft Reset Mode
 
-![](../../sprites/pokemon/normal/Snorlax.png)
-![](../../sprites/pokemon/normal/Articuno.png)
-![](../../sprites/pokemon/normal/Zapdos.png)
-![](../../sprites/pokemon/normal/Moltres.png)
-![](../../sprites/pokemon/normal/Mewtwo.png)
-![](../../sprites/pokemon/normal/Lugia.png)
-![](../../sprites/pokemon/normal/Ho-Oh.png)
-![](../../sprites/pokemon/normal/Regirock.png)
-![](../../sprites/pokemon/normal/Regice.png)
-![](../../sprites/pokemon/normal/Registeel.png)
-![](../../sprites/pokemon/normal/Rayquaza.png)
-![](../../sprites/pokemon/normal/Deoxys.png)
-![](../../sprites/pokemon/normal/Kyogre.png)
-![](../../sprites/pokemon/normal/Groudon.png)
+![](../../sprites/pokemon/shiny/Snorlax.png)
+![](../../sprites/pokemon/shiny/Articuno.png)
+![](../../sprites/pokemon/shiny/Zapdos.png)
+![](../../sprites/pokemon/shiny/Moltres.png)
+![](../../sprites/pokemon/shiny/Mewtwo.png)
+![](../../sprites/pokemon/shiny/Lugia.png)
+![](../../sprites/pokemon/shiny/Ho-Oh.png)
+![](../../sprites/pokemon/shiny/Regirock.png)
+![](../../sprites/pokemon/shiny/Regice.png)
+![](../../sprites/pokemon/shiny/Registeel.png)
+![](../../sprites/pokemon/shiny/Rayquaza.png)
+![](../../sprites/pokemon/shiny/Deoxys.png)
+![](../../sprites/pokemon/shiny/Kyogre.png)
+![](../../sprites/pokemon/shiny/Groudon.png)
 
 > For modes that use soft resets such as starters, the bot will track RNG to ensure a unique frame is hit after every reset, this is to prevent repeatedly generating an identical Pokémon, this will cause soft resets to take progressively longer over time
 >

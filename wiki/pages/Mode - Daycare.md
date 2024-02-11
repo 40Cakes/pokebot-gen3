@@ -2,6 +2,15 @@
 
 # 🥚 Daycare Mode
 
+![](../../sprites/pokemon/shiny/Pichu.png)
+![](../../sprites/pokemon/shiny/Cleffa.png)
+![](../../sprites/pokemon/shiny/Igglybuff.png)
+![](../../sprites/pokemon/shiny/Togepi.png)
+![](../../sprites/pokemon/shiny/Smoochum.png)
+![](../../sprites/pokemon/shiny/Elekid.png)
+![](../../sprites/pokemon/shiny/Magby.png)
+![](../../sprites/pokemon/shiny/Wynaut.png)
+
 ## Requirements
 
 - A compatible breeding couple in the Daycare
