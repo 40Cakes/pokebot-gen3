@@ -91,6 +91,13 @@ class TotalStats:
     def get_session_encounters(self) -> int:
         return self.session_encounters
 
+    def get_session_pokemon(self) -> set:
+        return self.session_pokemon
+
+    def remove_session_pokemon(self, pokemon: str) -> None:
+        if pokemon in self.session_pokemon:
+            self.session_pokemon.remove(pokemon)
+
     def get_total_stats(self) -> dict:
         return self.total_stats
 

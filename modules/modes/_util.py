@@ -10,6 +10,7 @@ For example: `yield from utils.navigate_to((3, 3))`
 
 import queue
 import random
+from enum import Enum
 from functools import wraps
 from typing import Generator, Iterable, Union
 
@@ -34,7 +35,7 @@ from modules.menuing import StartMenuNavigator, PokemonPartyMenuNavigator, scrol
 from modules.player import get_player, get_player_avatar, TileTransitionState, RunningState
 from modules.pokemon import get_party
 from modules.region_map import get_map_region, get_map_cursor, FlyDestinationRSE, FlyDestinationFRLG
-from modules.tasks import task_is_active, get_global_script_context
+from modules.tasks import task_is_active, get_global_script_context, get_task
 from ._interface import BotModeError
 
 
@@ -785,4 +786,38 @@ def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int 
         yield from wait_for_task_to_start_and_finish("Task_StartMenuHandleInput", "B")
     else:
         yield from wait_for_task_to_start_and_finish("Task_ShowStartMenu", "B")
+    yield
+
+
+class TaskFishing(Enum):
+    INIT = 0
+    GET_ROD_OUT = 1
+    WAIT_BEFORE_DOTS = 2
+    INIT_DOTS = 3
+    SHOW_DOTS = 4
+    CHECK_FOR_BITE = 5
+    GOT_BITE = 6
+    WAIT_FOR_A = 7
+    CHECK_MORE_DOTS = 8
+    MON_ON_HOOK = 9
+    START_ENCOUNTER = 10
+    NOT_EVEN_NIBBLE = 11
+    GOT_AWAY = 12
+    NO_MON = 13
+    PUT_ROD_AWAY = 14
+    END_NO_MON = 15
+
+
+def fish() -> Generator:
+    task_fishing = get_task("Task_Fishing")
+    if task_fishing is not None:
+        match task_fishing.data[0]:
+            case TaskFishing.WAIT_FOR_A.value | TaskFishing.END_NO_MON.value:
+                context.emulator.press_button("A")
+            case TaskFishing.NOT_EVEN_NIBBLE.value:
+                context.emulator.press_button("B")
+            case TaskFishing.START_ENCOUNTER.value:
+                context.emulator.press_button("A")
+    else:
+        context.emulator.press_button("Select")
     yield
