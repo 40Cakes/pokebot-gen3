@@ -1035,7 +1035,7 @@ def get_learn_move_state() -> str:
                     )
                     stop_learn_move_yes_no = (
                         unpack_uint16(task_evolution_scene.data[0:2]) == 22
-                        and unpack_uint16(task_evolution_scene.data[12:14]) == [3, 4]
+                        and unpack_uint16(task_evolution_scene.data[12:14]) in [3, 4]
                         and unpack_uint16(task_evolution_scene.data[14:16]) == 11
                         and unpack_uint16(task_evolution_scene.data[16:18]) == 0
                     )

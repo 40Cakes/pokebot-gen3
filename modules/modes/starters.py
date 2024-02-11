@@ -151,7 +151,7 @@ class StartersMode(BotMode):
             # Wait for Pokemon cry of starter Pokemon (after which the sprite is fully visible)
             yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
 
-            handle_encounter(get_party()[0])
+            handle_encounter(get_party()[0], do_not_log_battle_action=True, disable_auto_catch=True)
 
     def run_rse_johto(self):
         while context.bot_mode != "Manual":
@@ -177,4 +177,4 @@ class StartersMode(BotMode):
             yield from StartMenuNavigator("POKEMON").step()
             yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
 
-            handle_encounter(get_party()[len(get_party()) - 1])
+            handle_encounter(get_party()[len(get_party()) - 1], disable_auto_catch=True)
