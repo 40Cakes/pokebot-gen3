@@ -20,7 +20,7 @@ Use `CTRL` + `F` to find the Pokémon you're trying to hunt, and then check the 
 ## Encounter Table
 
 | Sprite                                                                         | Pokémon    | Method                                                                                                                       |
-| ------------------------------------------------------------------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------------------- |
+|--------------------------------------------------------------------------------|------------|------------------------------------------------------------------------------------------------------------------------------|
 | <img src="../../sprites/pokemon/shiny/Bulbasaur.png" style="max-width: 80px">  | Bulbasaur  | [Starters](Mode%20-%20Starters.md)                                                                                           |
 | <img src="../../sprites/pokemon/shiny/Charmander.png" style="max-width: 80px"> | Charmander | [Starters](Mode%20-%20Starters.md)                                                                                           |
 | <img src="../../sprites/pokemon/shiny/Squirtle.png" style="max-width: 80px">   | Squirtle   | [Starters](Mode%20-%20Starters.md)                                                                                           |
@@ -72,7 +72,7 @@ Use `CTRL` + `F` to find the Pokémon you're trying to hunt, and then check the 
 | <img src="../../sprites/pokemon/shiny/Nosepass.png" style="max-width: 80px">   | Nosepass   | [Rock Smash](Mode%20-%20Rock%20Smash.md)                                                                                     |
 | <img src="../../sprites/pokemon/shiny/Lileep.png" style="max-width: 80px">     | Lileep     | [Static Gift Resets](Mode%20-%20Static%20Gift%20Resets.md)                                                                   |
 | <img src="../../sprites/pokemon/shiny/Anorith.png" style="max-width: 80px">    | Anorith    | [Static Gift Resets](Mode%20-%20Static%20Gift%20Resets.md)                                                                   |
-| <img src="../../sprites/pokemon/shiny/Feebas.png" style="max-width: 80px">     | Feebas     | For now - [Fishing](Mode%20-%20Fishing.md), but a dedicated mode in future                                                   |
+| <img src="../../sprites/pokemon/shiny/Feebas.png" style="max-width: 80px">     | Feebas     | [Feebas](Mode%20-%20Feebas.md) or [Fishing](Mode%20-%20Fishing.md) (if you know the tile)                                    |
 | <img src="../../sprites/pokemon/shiny/Castform.png" style="max-width: 80px">   | Castform   | [Static Gift Resets](Mode%20-%20Static%20Gift%20Resets.md)                                                                   |
 | <img src="../../sprites/pokemon/shiny/Kecleon.png" style="max-width: 80px">    | Kecleon    | [Kecleon](Mode%20-%20Kecleon)                                                                                                |
 | <img src="../../sprites/pokemon/shiny/Wynaut.png" style="max-width: 80px">     | Wynaut     | [Static Gift Resets](Mode%20-%20Static%20Gift%20Resets.md)\*\*                                                               |
