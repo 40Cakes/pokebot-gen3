@@ -125,6 +125,7 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 - Place the player in front of the Old Man in the [Water Labyrinth](https://bulbapedia.bulbagarden.net/wiki/Water_Labyrinth) just west of [Five Island](https://bulbapedia.bulbagarden.net/wiki/Five_Island)
 - Register [Bicycle]() to the `Select` button
 - Make sure you have defeated the female trainer on the island
+- Lead Pokémon must have max friendship (255) to receive the egg
 - **Note**: This mode will be low encounters per hour. For optimal hatching rates, it is recommended to use the Daycare Mode in Emerald, once released.
 
 ![image](../images/gift_togepi.png)
