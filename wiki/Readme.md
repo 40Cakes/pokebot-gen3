@@ -17,6 +17,7 @@ For quick help and support, reach out in Discord [#pokebot-gen3-support❔](http
 - 🔧 [Manual](pages/Mode%20-%20Manual.md)
 - 🚲 [Acro Bike Bunny Hop](pages/Mode%20-%20Acro%20Bike%20Bunny%20Hop.md)
 - 🥚 [Daycare](pages/Mode%20-%20Daycare.md)
+- 🐟 [Feebas](pages/Mode%20-%20Feebas.md)
 - 🎣 [Fishing](pages/Mode%20-%20Fishing.md)
 - 🎰 [Game Corner](pages/Mode%20-%20Game%20Corner.md)
 - 🎨 [Kecleon](pages/Mode%20-%20Kecleon.md)
