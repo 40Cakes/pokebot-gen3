@@ -25,7 +25,9 @@ If Feebas is not encountered for `20` encounters after the last, it will be assu
 | `4`        | `93.75%`   |
 | `5`        | `96.875%`  |
 
-- Have any fishing rod (the bot will automatically register one to `Select` button)
+- (Recommended) The first Pokémon in the party (can be fainted) should have the ability [Sticky Hold](https://bulbapedia.bulbagarden.net/wiki/Sticky_Hold_(Ability)) or [Suction Cups](https://bulbapedia.bulbagarden.net/wiki/Suction_Cups_(Ability)) to increase the bite rate while fishing
+- Old Rod (the bot will automatically register Old Rod to `Select` button)
+  - The Old Rod has the advantage of immediately giving you an encounter as soon as you get a bite
 - Place the player on any body of water (surf) on Route 119 and face a fishable tile
 - Start mode
 
