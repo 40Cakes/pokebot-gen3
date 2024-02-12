@@ -24,8 +24,8 @@ The following GBA buttons cannot be pressed:
 | French   |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
 | Italian  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
 
-✅ Supported (tested)
+✅ Tested, working
 
-🟨 Supported (not tested)
+🟨 Untested, may not work
 
-❌ Not supported
+❌ Untested, not working

@@ -13,14 +13,14 @@
 |          | 🟢 Emerald |
 |:---------|:----------:|
 | English  |     ✅      |
-| Japanese |     🟨     |
-| German   |     🟨     |
-| Spanish  |     🟨     |
-| French   |     🟨     |
-| Italian  |     🟨     |
+| Japanese |     ❌      |
+| German   |     ❌      |
+| Spanish  |     ❌      |
+| French   |     ❌      |
+| Italian  |     ❌      |
 
-✅ Supported (tested)
+✅ Tested, working
 
-🟨 Supported (not tested)
+🟨 Untested, may not work
 
-❌ Not supported
+❌ Untested, not working

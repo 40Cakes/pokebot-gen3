@@ -31,27 +31,27 @@ Static soft reset mode targets static Pokémon by simply spamming the A button u
 
 - Place the Player in the Cave of Origin facing the tile _before_ the encounter triggers.
 
-![image](../images/kyogre-sapphire.png)
+![image](../images/kyogre_sapphire.png)
 
 ### Groudon (Ruby Only)
 
 - Place the Player in the Cave of Origin facing the tile _before_ the encounter triggers.
 
-![image](../images/groudon-ruby.png)
+![image](../images/groudon_ruby.png)
 
 # Game Support
 
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
-| :------- | :-----: | :---------: | :--------: | :--------: | :----------: |
-| English  |   🟨    |     🟨      |     ✅     |     ✅     |      ✅      |
-| Japanese |   🟨    |     🟨      |     🟨     |     🟨     |      🟨      |
-| German   |   🟨    |     🟨      |     🟨     |     🟨     |      🟨      |
-| Spanish  |   🟨    |     🟨      |     🟨     |     🟨     |      🟨      |
-| French   |   🟨    |     🟨      |     🟨     |     🟨     |      🟨      |
-| Italian  |   🟨    |     🟨      |     🟨     |     🟨     |      🟨      |
+|:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
+| English  |   🟨    |     🟨      |     ✅      |     ✅      |      ✅       |
+| Japanese |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
+| German   |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
+| Spanish  |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
+| French   |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
+| Italian  |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
 
-✅ Supported (tested)
+✅ Tested, working
 
-🟨 Supported (not tested)
+🟨 Untested, may not work
 
-❌ Not supported
+❌ Untested, not working

@@ -31,14 +31,14 @@ Soft resets for a Pokémon purchased from the [Celadon Game Corner](https://bulb
 |          | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:----------:|:------------:|
 | English  |     ✅      |      ✅       |
-| Japanese |     🟨     |      🟨      |
-| German   |     🟨     |      🟨      |
-| Spanish  |     🟨     |      🟨      |
-| French   |     🟨     |      🟨      |
-| Italian  |     🟨     |      🟨      |
+| Japanese |     ❌      |      ❌       |
+| German   |     ❌      |      ❌       |
+| Spanish  |     ❌      |      ❌       |
+| French   |     ❌      |      ❌       |
+| Italian  |     ❌      |      ❌       |
 
-✅ Supported (tested)
+✅ Tested, working
 
-🟨 Supported (not tested)
+🟨 Untested, may not work
 
-❌ Not supported
+❌ Untested, not working
