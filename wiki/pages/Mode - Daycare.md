@@ -37,8 +37,8 @@ Start this mode while being on Route 117 (in R/S/E) or Sevii Island Four (FR/LG)
 | French   |   ❌    |     ❌      |     ❌     |     ❌     |      ❌      |
 | Italian  |   ❌    |     ❌      |     ❌     |     ❌     |      ❌      |
 
-✅ Supported (tested)
+✅ Tested, working
 
-🟨 Supported (not tested)
+🟨 Untested, may not work
 
-❌ Not supported
+❌ Untested, not working

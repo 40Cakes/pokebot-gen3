@@ -141,8 +141,8 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 | French   |   ❌    |     ❌      |     ❌     |     ❌     |      ❌      |
 | Italian  |   ❌    |     ❌      |     ❌     |     ❌     |      ❌      |
 
-✅ Supported (tested)
+✅ Tested, working
 
-🟨 Supported (not tested)
+🟨 Untested, may not work
 
-❌ Not supported
+❌ Untested, not working

@@ -105,14 +105,14 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 |          | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:----------:|:----------:|:------------:|
 | English  |     ✅      |     ✅      |      ✅       |
-| Japanese |    🟨    |    🟨    |     🟨     |
-| German   |    🟨    |    🟨    |     🟨     |
-| Spanish  |    🟨    |    🟨    |     🟨     |
-| French   |    🟨    |    🟨    |     🟨     |
-| Italian  |    🟨    |    🟨    |     🟨     |
+| Japanese |     ❌      |     ❌      |      ❌       |
+| German   |     ❌      |     ❌      |      ❌       |
+| Spanish  |     ❌      |     ❌      |      ❌       |
+| French   |     ❌      |     ❌      |      ❌       |
+| Italian  |     ❌      |     ❌      |      ❌       |
 
-✅ Supported (tested)
+✅ Tested, working
 
-🟨 Supported (not tested)
+🟨 Untested, may not work
 
-❌ Not supported
+❌ Untested, not working

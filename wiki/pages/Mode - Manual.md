@@ -16,8 +16,8 @@ Press `Tab` at any time to switch between manual mode and the most recently sele
 | French   |   🟨    |     🟨      |     🟨     |     🟨     |      🟨      |
 | Italian  |   🟨    |     🟨      |     🟨     |     🟨     |      🟨      |
 
-✅ Supported (tested)
+✅ Tested, working
 
-🟨 Supported (not tested)
+🟨 Untested, may not work
 
-❌ Not supported
+❌ Untested, not working

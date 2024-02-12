@@ -16,8 +16,8 @@ Register the Acro Bike and start the mode while in the overworld, in any patch o
 | French   |    ❌    |      ❌      |     ❌      |
 | Italian  |    ❌    |      ❌      |     ❌      |
 
-✅ Supported (tested)
+✅ Tested, working
 
-🟨 Supported (not tested)
+🟨 Untested, may not work
 
-❌ Not supported
+❌ Untested, not working
