@@ -23,7 +23,7 @@ from ._util import (
     wait_until_event_flag_is_true,
     wait_for_script_to_start_and_finish,
     navigate_to,
-    wait_for_n_frames,
+    follow_path,
 )
 
 
@@ -151,8 +151,8 @@ class StaticGiftResetsMode(BotMode):
                 if not get_player_avatar().is_on_bike:
                     context.emulator.press_button("Select")
                 if encounter[2] == "Wynaut":
-                    yield from navigate_to(3, 10, False)
-                    yield from navigate_to(16, 10, False)
+                    yield from navigate_to(3, 10)
+                    yield from follow_path([(3, 10), (16, 10)])
                 elif encounter[2] == "Togepi":
                     yield from navigate_to(17, 9, False)
                     yield from navigate_to(8, 9, False)
@@ -163,15 +163,7 @@ class StaticGiftResetsMode(BotMode):
                     context.emulator.press_button("B")
                     yield
                 while egg_in_party() > 0:
-                    yield from wait_for_n_frames(20)
-                    for _ in hatch_egg():
-                        script_ctx = get_global_script_context()
-                        if "EventScript_EggHatch" in script_ctx.stack:
-                            if context.rom.is_rse and not task_is_active("Task_WaitForFadeAndEnableScriptCtx"):
-                                yield from wait_for_task_to_start_and_finish("Task_WaitForFadeAndEnableScriptCtx", "B")
-                            elif context.rom.is_frlg and not task_is_active("Task_ContinueScript"):
-                                yield from wait_for_task_to_start_and_finish("Task_ContinueScript", "B")
-                        yield
+                    yield from hatch_egg()
 
             # Navigate to the summary screen to check for shininess
             yield from StartMenuNavigator("POKEMON").step()
