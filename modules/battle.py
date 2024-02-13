@@ -514,6 +514,16 @@ class BattleOpponent:
             while self.choice is None or self.idx is None:
                 self.determine_battle_menu_action()
             else:
+                if self.choice == "stop":
+                    context.message = "Switching to manual mode..."
+                    context.set_manual_mode()
+                    self.subnavigator = None
+                    self.navigator = None
+                    self.choice = None
+                    self.idx = None
+                    self.battle_action = None
+                    self.action = None
+                    break
                 while self.battle_action is None:
                     self.battle_action = BattleAction(choice=self.choice, idx=self.idx).step()
                 else:
@@ -574,23 +584,36 @@ class BattleOpponent:
 
         if not is_trainer_battle and self.try_to_catch:
             self.choose_action_for_auto_catch()
-        elif not is_trainer_battle and (not context.config.battle.battle or not can_battle_happen()):
+        elif not is_trainer_battle and (
+            not context.config.battle.battle or not (can_battle_happen() and should_mon_be_battled(self.opponent))
+        ):
             self.choice = "flee"
             self.idx = -1
-        elif context.config.battle.replace_lead_battler and self.should_rotate_lead:
-            mon_to_switch = self.get_mon_to_switch()
-            if mon_to_switch is None and not is_trainer_battle:
-                self.choice = "flee"
-                self.idx = -1
-            else:
-                self.choice = "switch"
-                self.idx = mon_to_switch
+        elif not check_mon_can_battle(self.current_battler):
+            match context.config.battle.lead_cannot_battle_action:
+                case "flee":
+                    if not is_trainer_battle:
+                        self.choice = "flee"
+                    else:
+                        self.choice = "stop"
+                    self.idx = -1
+                case "stop":
+                    self.choice = "stop"
+                    self.idx = -1
+                case "rotate":
+                    mon_to_switch = self.get_mon_to_switch()
+                    if mon_to_switch is None and not is_trainer_battle:
+                        self.choice = "flee"
+                        self.idx = -1
+                    else:
+                        self.choice = "switch"
+                        self.idx = mon_to_switch
         else:
             match context.config.battle.battle_method:
                 case "strongest":
                     move = self.get_strongest_move()
                     if move == -1:
-                        if context.config.battle.replace_lead_battler:
+                        if context.config.battle.lead_cannot_battle_action == "rotate":
                             mon_to_switch = self.get_mon_to_switch()
                             if mon_to_switch is None and not is_trainer_battle:
                                 self.choice = "flee"
@@ -739,7 +762,9 @@ class BattleOpponent:
                     # check to see that the party member has enough HP to be subbed out
                     elif mon_has_enough_hp(self.party[i]):
                         if show_messages:
-                            context.message = f"Pokémon {self.party[i].name} has more than 20% hp!"
+                            context.message = (
+                                f"Pokémon {self.party[i].name} has more than {context.config.battle.hp_threshold}% hp!"
+                            )
                         for move in self.party[i].moves:
                             if move_is_usable(move):
                                 if show_messages:
@@ -907,8 +932,7 @@ class BattleOpponent:
         """
         Determines whether the battle engine should swap out the lead Pokémon.
         """
-        battler_health_percentage = self.current_battler.current_hp / self.current_battler.stats.hp
-        return battler_health_percentage < 0.2
+        return mon_has_enough_hp(self.current_battler)
 
     # TODO
     def handle_battler_faint(self):
@@ -1222,16 +1246,21 @@ def can_battle_happen(check_lead_only: bool = False) -> bool:
     else:
         party = get_party()
     for mon in party:
-        if mon.current_hp / mon.stats.hp > 0.2 and not mon.is_egg:
-            for move in mon.moves:
-                if (
-                    move is not None
-                    and move.move.base_power > 0
-                    and move.move.name not in context.config.battle.banned_moves
-                    and move.pp > 0
-                ):
-                    return True
+        if check_mon_can_battle(mon):
+            return True
     return False
+
+
+def should_mon_be_battled(mon: Pokemon) -> bool:
+    """
+    Determines whether an opponent Pokémon should be battled
+    :return: True if the Pokémon should be battled, False otherwise
+    """
+    if (
+        any(context.config.battle.targeted_pokemon) and mon.species.name not in context.config.battle.targeted_pokemon
+    ) or (any(context.config.battle.avoided_pokemon) and mon.species.name in context.config.battle.avoided_pokemon):
+        return False
+    return True
 
 
 class BattleMenu:
@@ -1357,18 +1386,20 @@ def check_lead_can_battle() -> bool:
         return False
 
     lead = get_party()[0]
-    lead_has_moves = False
-    for move in lead.moves:
-        if (
-            move is not None
-            and move.move.base_power > 0
-            and move.move.name not in context.config.battle.banned_moves
-            and move.pp > 0
-        ):
-            lead_has_moves = True
-            break
-    lead_has_hp = lead.current_hp > 0.2 * lead.stats.hp
-    return lead_has_hp and lead_has_moves
+    return check_mon_can_battle(lead)
+
+
+def check_mon_can_battle(mon: Pokemon) -> bool:
+    """
+    Determines whether a Pokémon is fit to fight
+    """
+    if mon.is_egg or not mon_has_enough_hp(mon):
+        return False
+
+    for move in mon.moves:
+        if move_is_usable(move):
+            return True
+    return False
 
 
 def get_new_lead() -> int | None:
@@ -1391,7 +1422,7 @@ def get_new_lead() -> int | None:
 
 
 def mon_has_enough_hp(mon: Pokemon) -> bool:
-    return mon.current_hp / mon.stats.hp > 0.2
+    return mon.current_hp / mon.stats.hp > context.config.battle.hp_threshold / 100
 
 
 def move_is_usable(m: LearnedMove) -> bool:
