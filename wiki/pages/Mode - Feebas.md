@@ -4,7 +4,7 @@
 
 ![](../../sprites/pokemon/shiny/Feebas.png)
 
-Feebas mode will search for the illusive fish by navigating to and fishing on all tiles in the current body of water. Once Feebas is found, the bot will stay at the tile and continue to hunt for shiny [Feebas](https://bulbapedia.bulbagarden.net/wiki/Feebas_(Pok%C3%A9mon)).
+[Feebas](https://bulbapedia.bulbagarden.net/wiki/Feebas_(Pok%C3%A9mon)) mode will search for the illusive fish by navigating to and fishing on all tiles in the current body of water. Once found, the bot will stay at the tile and continue to hunt for shiny.
 
 The fishing spots Feebas is found in are randomly generated in Generation 3. In Ruby, Sapphire, and Emerald they randomly change whenever the [trend](https://bulbapedia.bulbagarden.net/wiki/Trend) in [Dewford Town](https://bulbapedia.bulbagarden.net/wiki/Dewford_Town) changes.
 
