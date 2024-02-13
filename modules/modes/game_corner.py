@@ -43,7 +43,7 @@ class GameCornerMode(BotMode):
 
         if context.rom.is_fr:
             choices = [("Abra", 180), ("Clefairy", 500), ("Dratini", 2800), ("Scyther", 5500), ("Porygon", 9999)]
-        if context.rom.is_lg:
+        elif context.rom.is_lg:
             choices = [("Abra", 120), ("Clefairy", 750), ("Pinsir", 2500), ("Dratini", 4600), ("Porygon", 6500)]
         else:
             raise BotModeError("This mode is not supported on RSE.")

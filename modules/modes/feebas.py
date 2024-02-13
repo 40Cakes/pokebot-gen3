@@ -6,7 +6,7 @@ from modules.encounter import handle_encounter
 from modules.items import get_item_bag, get_item_by_name
 from modules.map_data import MapRSE
 from modules.player import get_player, get_player_avatar
-from modules.pokemon import get_opponent
+from modules.pokemon import get_opponent, get_party
 from . import BattleAction
 from ._asserts import assert_item_exists_in_bag
 from ._interface import BotMode, BotModeError
@@ -16,6 +16,7 @@ from ._util import (
     register_key_item,
     fish,
 )
+from ..console import console
 from ..map import get_map_all_tiles, get_map_data
 
 # Bad tiles such as cliffs marked as surfable, but can't surf or fish on it
@@ -103,14 +104,16 @@ class FeebasMode(BotMode):
         if not get_player_avatar().flags.Surfing:
             raise BotModeError("Player is not surfing, only start this mode while surfing in any water at Route 119.")
 
-        rod_names = ("Old Rod", "Good Rod", "Super Rod")
-        assert_item_exists_in_bag(rod_names, "You do not own any fishing rod, so you cannot fish.")
-        # Register any rod, doesn't matter with Feebas
-        if get_player().registered_item is None or get_player().registered_item.name not in rod_names:
-            for rod_name in rod_names:
-                if get_item_bag().quantity_of(get_item_by_name(rod_name)) > 0:
-                    yield from register_key_item(get_item_by_name(rod_name))
-                    break
+        if context.rom.is_emerald and get_party()[0].ability.name not in ["Sticky Hold", "Suction Cups"]:
+            console.print("[bold yellow]WARNING: First Pokemon in party does not have Sticky Hold / Suction Cups.")
+            console.print(
+                "[bold yellow]It is highly recommended to lead with these abilities to increase fishing bite rate."
+            )
+
+        # The Old Rod has the advantage of immediately giving you an encounter as soon as you get a bite
+        assert_item_exists_in_bag("Old Rod", "You do not own the Old Rod, so you cannot fish.")
+        if get_player().registered_item is None or get_player().registered_item.name != "Old Rod":
+            yield from register_key_item(get_item_by_name("Old Rod"))
 
         while True:
             if self.feebas_moved >= 20:

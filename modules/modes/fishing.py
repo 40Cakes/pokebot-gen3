@@ -37,4 +37,5 @@ class FishingMode(BotMode):
 
             yield from register_key_item(rod_to_use)
 
-        yield from fish()
+        while True:
+            yield from fish()
