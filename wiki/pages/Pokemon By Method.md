@@ -83,8 +83,8 @@ Use `CTRL` + `F` to find the Pokémon you're trying to hunt, and then check the 
 | <img src="../../sprites/pokemon/shiny/Registeel.png" style="max-width: 80px">  | Registeel  | [Static Run Away](Mode%20-%20Static%20Run%20Aways.md)\*                                                                      |
 | <img src="../../sprites/pokemon/shiny/Latias.png" style="max-width: 80px">     | Latias     | [Roamer Reset](Mode%20-%20Roamer%20Resets.md) & [Static Run Away](Mode%20-%20Static%20Run%20Aways.md)\*                      |
 | <img src="../../sprites/pokemon/shiny/Latios.png" style="max-width: 80px">     | Latios     | [Roamer Reset](Mode%20-%20Roamer%20Resets.md) & [Static Run Away](Mode%20-%20Static%20Run%20Aways.md)\*                      |
-| <img src="../../sprites/pokemon/shiny/Kyogre.png" style="max-width: 80px">     | Kyogre     | [Static Run Away](Mode%20-%20Static%20Run%20Aways.md)\*(E) or [Static Soft Resets]((Mode%20-%20Static%20Soft%20Resets.md)(S) |
-| <img src="../../sprites/pokemon/shiny/Groudon.png" style="max-width: 80px">    | Groudon    | [Static Run Away](Mode%20-%20Static%20Run%20Aways.md)\*(E) or [Static Soft Resets]((Mode%20-%20Static%20Soft%20Resets.md)(R) |
+| <img src="../../sprites/pokemon/shiny/Kyogre.png" style="max-width: 80px">     | Kyogre     | [Static Run Away](Mode%20-%20Static%20Run%20Aways.md)\* (E) or [Static Soft Resets](Mode%20-%20Static%20Soft%20Resets.md) (S) |
+| <img src="../../sprites/pokemon/shiny/Groudon.png" style="max-width: 80px">    | Groudon    | [Static Run Away](Mode%20-%20Static%20Run%20Aways.md)\* (E) or [Static Soft Resets](Mode%20-%20Static%20Soft%20Resets.md) (R) |
 | <img src="../../sprites/pokemon/shiny/Rayquaza.png" style="max-width: 80px">   | Rayquaza   | [Static Run Away](Mode%20-%20Static%20Run%20Aways.md)\*                                                                      |
 | <img src="../../sprites/pokemon/shiny/Deoxys.png" style="max-width: 80px">     | Deoxys     | [Static Soft Resets](Mode%20-%20Static%20Soft%20Resets.md)                                                                   |
 
