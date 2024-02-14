@@ -1,0 +1,4 @@
+﻿The FontStruction “Pokemon RS”
+(https://fontstruct.com/fontstructions/show/1964382) by “aztecwarrior28” is
+licensed under a Creative Commons Attribution Share Alike license
+(http://creativecommons.org/licenses/by-sa/3.0/).
