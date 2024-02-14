@@ -201,7 +201,7 @@ def generate_tcg_card(pokemon: Pokemon, gif_path: Path) -> None:
     draw = draw_text(draw, text=f"Nature: {pokemon.nature.name}", coords=(525, 360), size=30, anchor="rm")
     draw = draw_text(draw, text=f"Ability: {pokemon.ability.name}", coords=(525, 395), size=30, anchor="rm")
     draw = draw_text(draw, text=f"OT: {pokemon.original_trainer.name}", coords=(95, 360), size=30, anchor="lm")
-    draw = draw_text(draw, text=f"OTID: {pokemon.original_trainer.id}", coords=(95, 395), size=30, anchor="lm")
+    draw = draw_text(draw, text=f"OTID: {pokemon.original_trainer.id:05}", coords=(95, 395), size=30, anchor="lm")
 
     # Exp bar
     draw.rectangle((386, 321, 386 + ((pokemon.ivs.sum() / 186) * 128), 324), fill="#42CEFF")
