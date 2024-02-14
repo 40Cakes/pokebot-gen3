@@ -322,6 +322,7 @@ class Move:
 
     index: int
     name: str
+    description: str
     type: Type
     accuracy: float
     # This is the accuracy for a secondary effect, such as optional
@@ -347,6 +348,7 @@ class Move:
         return Move(
             index=index,
             name=data["name"],
+            description=data["localised_descriptions"]["E"],
             type=get_type_by_name(data["type"]),
             accuracy=float(data["accuracy"]),
             secondary_accuracy=float(data["secondary_accuracy"]),
