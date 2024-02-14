@@ -80,19 +80,20 @@ def generate_tcg_card(pokemon: Pokemon, gif_path: Path) -> None:
     draw = ImageDraw.Draw(card)
 
     # Game of origin badge
+    game_badge = (572, 36, 584, 48)
     match pokemon.game_of_origin:
         case "Sapphire":
-            draw.rectangle((572, 36, 584, 48), fill="#0021F3")
+            draw.rectangle(game_badge, fill="#0021F3")
         case "Ruby":
-            draw.rectangle((572, 36, 584, 48), fill="#9B111E")
+            draw.rectangle(game_badge, fill="#9B111E")
         case "Emerald":
-            draw.rectangle((572, 36, 584, 48), fill="#009C4A")
+            draw.rectangle(game_badge, fill="#009C4A")
         case "FireRed":
-            draw.ellipse((572, 36, 584, 48), fill="#FFAC1C")
+            draw.ellipse(game_badge, fill="#FFAC1C")
         case "LeafGreen":
-            draw.ellipse((572, 36, 584, 48), fill="#AAFF00")
+            draw.ellipse(game_badge, fill="#AAFF00")
         case _:
-            draw.rectangle((572, 36, 584, 48), fill="#000")
+            draw.rectangle(game_badge, fill="#000")
 
     # Shiny badge
     if pokemon.is_shiny:
