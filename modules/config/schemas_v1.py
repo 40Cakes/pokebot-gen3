@@ -91,7 +91,7 @@ class Discord(BaseConfig):
     filename: ClassVar = "discord.yml"
     rich_presence: bool = False
     iv_format: Literal["basic", "formatted"] = "formatted"
-    bot_id: str = "PokéBot"
+    bot_id: str = "PokéBot Gen3"
     global_webhook_url: str = ""
     shiny_pokemon_encounter: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
     pokemon_encounter_milestones: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=10000))

@@ -10,7 +10,7 @@
 import os
 from modules.runtime import get_base_path
 
-pokebot_name = "PokéBot"
+pokebot_name = "PokéBot Gen3"
 pokebot_version = "dev"
 
 try:

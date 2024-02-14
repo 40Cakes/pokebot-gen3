@@ -19,7 +19,7 @@ jobs:
 
       - name: Update version.py and remove unnecessary files
         run: |
-          echo "pokebot_name = \"PokéBot\"" > modules/version.py
+          echo "pokebot_name = \"PokéBot Gen3\"" > modules/version.py
           echo "pokebot_version = \"${{ github.ref_name }}\"" >> modules/version.py
           rm -rf .git .github .gitattributes .gitignore pokebot.spec
           mv LICENSE LICENSE.txt
