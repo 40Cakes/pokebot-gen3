@@ -164,6 +164,7 @@ def handle_encounter(
             console.print(f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...[/]")
             alert = None
             gif_path = wild_encounter_gif()
+            generate_tcg_card(pokemon, gif_path=gif_path)
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.shiny:
                 save_pk3(pokemon)
             is_of_interest = False
