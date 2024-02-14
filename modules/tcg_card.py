@@ -10,6 +10,9 @@ from modules.runtime import get_sprites_path
 from modules.version import pokebot_name
 
 
+TCG_REVISION = "Rev. 1.0"
+
+
 def suffix(d):
     return {1: "st", 2: "nd", 3: "rd"}.get(d % 20, "th")
 
@@ -115,7 +118,7 @@ def generate_tcg_card(pokemon: Pokemon, gif_path: Path) -> None:
     # Bot version + date
     draw = draw_text(
         draw,
-        text=f"{pokebot_name} ~ {custom_strftime('%b {S}, %Y', datetime.now())}",
+        text=f"{pokebot_name} ~ {TCG_REVISION} ~ {custom_strftime('%b {S}, %Y', datetime.now())}",
         coords=(33, 804),
         shadow_colour="#000",
         anchor="lm",
