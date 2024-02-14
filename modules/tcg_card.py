@@ -50,7 +50,6 @@ def generate_tcg_card(pokemon: Pokemon, gif_path: Path) -> None:
     # Set up base, transparent card image, add border
     card = Image.new("RGBA", (620, 850), (255, 255, 255, 0))
     card_border = Image.open(tcg_sprites / "border.png")
-    card_border.save("border.png")
     card.paste(card_border, (0, 0), mask=card_border)
 
     # Type background
