@@ -136,8 +136,13 @@ def generate_tcg_card(pokemon: Pokemon, gif_path: Path) -> None:
     # Moves
     for i, move in enumerate(pokemon.moves):
         if move:
+            if move.move.name == "???":
+                move_name = "Unknown"
+            else:
+                move_name = move.move.name
+
             draw = draw_text(
-                draw, text=move.move.name, coords=(130, 480 + (i * 80)), size=30, shadow_colour="#000", anchor="lm"
+                draw, text=move_name, coords=(130, 480 + (i * 80)), size=30, shadow_colour="#000", anchor="lm"
             )
             draw = draw_text(
                 draw,
