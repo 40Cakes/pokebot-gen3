@@ -20,10 +20,11 @@ class Battle(BaseConfig):
     pickup_check_frequency: Annotated[int, Field(gt=0)] = 5
     battle: bool = False
     battle_method: Literal["strongest"] = "strongest"
+    hp_threshold: Annotated[float, Field(ge=0, le=100)] = 20
+    lead_cannot_battle_action: Literal["stop", "flee", "rotate"] = "flee"
     faint_action: Literal["stop", "flee", "rotate"] = "flee"
     new_move: Literal["stop", "cancel", "learn_best"] = "stop"
     stop_evolution: bool = True
-    replace_lead_battler: bool = False
     switch_strategy: Literal["first_available"] = "first_available"
     banned_moves: list[str] = [
         "None",
@@ -68,6 +69,8 @@ class Battle(BaseConfig):
         "Explosion",
         "Memento",
     ]
+    avoided_pokemon: list[str] = []
+    targeted_pokemon: list[str] = []
 
 
 class CatchBlock(BaseConfig):

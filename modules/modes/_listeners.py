@@ -118,7 +118,7 @@ class BattleListener(BotListener):
         ):
             if context.config.battle.pickup and should_check_for_pickup():
                 yield from MenuWrapper(CheckForPickup()).step()
-            elif context.config.battle.replace_lead_battler and not check_lead_can_battle():
+            elif context.config.battle.lead_cannot_battle_action == "rotate" and not check_lead_can_battle():
                 yield from MenuWrapper(RotatePokemon()).step()
 
     @isolate_inputs
