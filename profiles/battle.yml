@@ -11,10 +11,11 @@ pickup_check_frequency: 5
 # Battling
 battle: false
 battle_method: strongest  # `strongest`
+hp_threshold: 20
+lead_cannot_battle_action: flee  # `stop`, `flee`, `rotate`
 faint_action: flee  # `stop`, `flee`, `rotate`
 new_move: stop  # `stop`, `cancel`, `learn_best`
 stop_evolution: true
-replace_lead_battler: false
 switch_strategy: first_available  # `first_available`
 banned_moves:
   - None
@@ -58,3 +59,7 @@ banned_moves:
   - Perish Song
   - Explosion
   - Memento
+#avoided_pokemon:
+#  - Zubat
+#targeted_pokemon:
+#  - Geodude

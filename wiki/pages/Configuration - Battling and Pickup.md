@@ -29,10 +29,17 @@ Other than that, it will just throw Poké balls at the opponent. It chooses the 
 
 `battle_method` - placeholder for an intelligent battle engine in the future.
 
-`faint_action` - how to behave if lead Pokémon faints. 
+`hp_threshold` - minimum HP percentage for a Pokémon to battle.
+
+`lead_cannot_battle_action` - how to behave if lead Pokémon cannot battle.
 - `stop` - go into manual mode
 - `flee` - run from the encounter
-- `rotate` - send out the next Pokémon in the party (must have at least 20% of its health and at least 1 usable move)
+- `rotate` - send out the next Pokémon in the party (must have at least {hp_threshold}% of its health and at least 1 usable move)
+
+`faint_action` - how to behave if lead Pokémon faints.
+- `stop` - go into manual mode
+- `flee` - run from the encounter
+- `rotate` - send out the next Pokémon in the party (must have at least {hp_threshold}% of its health and at least 1 usable move)
 
 `new_move` - how to behave if a Pokémon attempts to learn a new move.
 - `stop` - go into manual mode
@@ -41,8 +48,10 @@ Other than that, it will just throw Poké balls at the opponent. It chooses the 
 
 `stop_evolution` - prevent Pokémon from evolving
 
-`replace_lead_battler` - switch the order of Pokémon in the party to replace a lead Pokémon that runs out of PP or runs low on HP. Helpful for leveling the whole team.
-
 `switch_strategy` - Placeholder for future functionality for more intelligent switching in battle.
 
 `banned_moves` - list of moves for the battle engine to never select. Moves that are banned will not be selected in combat.
+
+`avoided_pokemon` - list of Pokémon for the battle engine to never fight. Pokémon that are avoided will be fled from.
+
+`targeted_pokemon` - list of Pokémon for the battle engine to fight. Pokémon that are not targeted will be fled from.
