@@ -18,7 +18,7 @@ console:
 
 # Save .pk3 files
 save_pk3:
-  all: true
+  all: false
   shiny: true
   custom: true
   roamer: true
