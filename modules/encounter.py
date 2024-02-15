@@ -10,6 +10,7 @@ from modules.pokedex import get_pokedex
 from modules.pokemon import Pokemon, get_opponent, get_battle_type_flags, BattleTypeFlag
 from modules.roamer import get_roamer
 from modules.runtime import get_sprites_path
+from modules.tcg_card import generate_tcg_card
 
 
 def wild_encounter_gif() -> Path | None:
@@ -136,6 +137,7 @@ def handle_encounter(
             console.print(f"[bold yellow]Shiny {pokemon.species.name} found![/]")
             alert = "Shiny found!", f"Found a ✨shiny {pokemon.species.name}✨! 🥳"
             gif_path = wild_encounter_gif()
+            generate_tcg_card(pokemon, gif_path=gif_path)
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.shiny:
                 save_pk3(pokemon)
             is_of_interest = True
@@ -162,6 +164,7 @@ def handle_encounter(
             console.print(f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...[/]")
             alert = None
             gif_path = wild_encounter_gif()
+            generate_tcg_card(pokemon, gif_path=gif_path)
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.shiny:
                 save_pk3(pokemon)
             is_of_interest = False

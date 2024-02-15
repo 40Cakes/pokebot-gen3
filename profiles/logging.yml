@@ -22,6 +22,3 @@ save_pk3:
   shiny: true
   custom: true
   roamer: true
-
-# Automatically load .pk3 file into PC storage
-import_pk3: false

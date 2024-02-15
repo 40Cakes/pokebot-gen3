@@ -54,7 +54,7 @@ def discord_message(
                 embed_obj.set_footer(text=embed_footer)
             else:
                 embed_obj.set_footer(
-                    text=f"ID: {context.config.discord.bot_id} | {context.rom.game_name}\nPokéBot {pokebot_version}"
+                    text=f"ID: {context.config.discord.bot_id} | {context.rom.game_name}\nPokéBot Gen3 {pokebot_version}"
                 )
 
             embed_obj.set_timestamp()
@@ -102,7 +102,7 @@ def discord_rich_presence() -> None:
             ),
             large_image=large_image,
             start=int(start),
-            buttons=[{"label": "⏬ Download PokéBot", "url": "https://github.com/40Cakes/pokebot-gen3"}],
+            buttons=[{"label": "⏬ Download PokéBot Gen3", "url": "https://github.com/40Cakes/pokebot-gen3"}],
         )
 
         time.sleep(15)

@@ -1,4 +1,4 @@
-# PokéBot Event Stream
+# PokéBot Gen3 Event Stream
 
 Event streams ([server side events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format) (SSE)) are a way to receive continuous updates by the bot in JavaScript or any other client that is capable of handling `text/event-stream` content.
 

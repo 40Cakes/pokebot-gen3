@@ -3,7 +3,7 @@
 rich_presence: false
 global_webhook_url: ""
 iv_format: formatted # `basic`, `formatted`
-bot_id: PokéBot
+bot_id: PokéBot Gen3
 
 # Shiny Pokémon encounters
 shiny_pokemon_encounter:
