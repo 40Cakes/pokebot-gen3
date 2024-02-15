@@ -21,8 +21,8 @@ def custom_strftime(format, t):
     return t.strftime(format).replace("{S}", str(t.day) + suffix(t.day))
 
 
-def enlarge_image(image: Image, f) -> Image:
-    return image.resize(size=tuple(f * x for x in image.size), resample=Image.NEAREST)
+def resize_image(image: Image, factor: int) -> Image:
+    return image.resize(size=tuple(factor * x for x in image.size), resample=Image.NEAREST)
 
 
 def draw_text(
@@ -72,12 +72,12 @@ def generate_tcg_card(pokemon: Pokemon, gif_path: Path) -> None:
     card.paste(name_plate, (67, 58), mask=name_plate)
 
     # Primary type
-    type_1 = enlarge_image(Image.open(get_sprites_path() / "types" / f"{pokemon.species.types[0]}.png"), 2)
+    type_1 = resize_image(Image.open(get_sprites_path() / "types" / f"{pokemon.species.types[0]}.png"), 2)
     card.paste(type_1, (480, 74), mask=type_1)
 
     # Secondary type
     if len(pokemon.species.types) > 1:
-        type_2 = enlarge_image(Image.open(get_sprites_path() / "types" / f"{pokemon.species.types[1]}.png"), 2)
+        type_2 = resize_image(Image.open(get_sprites_path() / "types" / f"{pokemon.species.types[1]}.png"), 2)
         card.paste(type_2, (480, 46), mask=type_2)
 
     draw = ImageDraw.Draw(card)
@@ -137,12 +137,12 @@ def generate_tcg_card(pokemon: Pokemon, gif_path: Path) -> None:
     for i, move in enumerate(pokemon.moves):
         if move:
             draw = draw_text(
-                draw, text=move.move.name, coords=(95, 480 + (i * 80)), size=30, shadow_colour="#000", anchor="lm"
+                draw, text=move.move.name, coords=(130, 480 + (i * 80)), size=30, shadow_colour="#000", anchor="lm"
             )
             draw = draw_text(
                 draw,
                 text=move.move.description,
-                coords=(95, 505 + (i * 80)),
+                coords=(130, 505 + (i * 80)),
                 size=15,
                 shadow_colour="#000",
                 anchor="lm",
@@ -150,18 +150,18 @@ def generate_tcg_card(pokemon: Pokemon, gif_path: Path) -> None:
             draw = draw_text(
                 draw,
                 text=str(move.move.base_power),
-                coords=(525, 480 + (i * 80)),
+                coords=(525, 496 + (i * 80)),
                 size=30,
                 shadow_colour="#000",
                 anchor="rm",
             )
-            move_type = Image.open(get_sprites_path() / "types" / f"{move.move.type}.png")
-            card.paste(move_type, (493, 502 + (i * 80)), mask=move_type)
+            move_type = Image.open(get_sprites_path() / "types" / "swsh" / f"{move.move.type}.png")
+            card.paste(move_type, (80, 473 + (i * 80)), mask=move_type)
 
     # Portrait image screenshot
     gif = Image.open(gif_path)
     gif = ImageSequence.Iterator(gif)
-    first_frame = enlarge_image(gif[0], 2).convert("RGBA")
+    first_frame = resize_image(gif[0], 2).convert("RGBA")
     card.paste(first_frame, (70, 105), mask=first_frame)
 
     # IVs
