@@ -66,7 +66,7 @@ class GameCornerMode(BotMode):
         assert_save_game_exists("There is no saved game. Cannot soft reset.")
         assert_saved_on_map(
             SavedMapLocation(MapFRLG.CELADON_CITY_GAME_CORNER_PRIZE_ROOM, (4, 3), facing=True),
-            "The targeted encounter is not in the current map. Cannot soft reset.",
+            "Please save in-game, facing the counter before starting this mode.",
         )
 
         while context.bot_mode != "Manual":
