@@ -64,6 +64,18 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 
 ![image](../images/gift_magikarp.png)
 
+### [Togepi](<https://bulbapedia.bulbagarden.net/wiki/Togepi_(Pok%C3%A9mon)>)
+
+![](../../sprites/pokemon/shiny/Togepi.png)
+
+- Place the player in front of the Old Man in the [Water Labyrinth](https://bulbapedia.bulbagarden.net/wiki/Water_Labyrinth) just west of [Five Island](https://bulbapedia.bulbagarden.net/wiki/Five_Island)
+- Register [Bicycle]() to the `Select` button
+- Make sure you have defeated the female trainer on the island
+- Lead Pokémon must have max friendship (255) to receive the egg
+- **Note**: This mode will be low encounters per hour. For optimal hatching rates, it is recommended to use the Daycare Mode in Emerald, once released.
+
+![image](../images/gift_togepi.png)
+
 ## Emerald
 
 ### [Castform](<https://bulbapedia.bulbagarden.net/wiki/Castform_(Pok%C3%A9mon)>)
@@ -117,18 +129,6 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 - Start mode
 
 ![image](../images/gift_wynaut.png)
-
-### [Togepi](<https://bulbapedia.bulbagarden.net/wiki/Togepi_(Pok%C3%A9mon)>)
-
-![](../../sprites/pokemon/shiny/Togepi.png)
-
-- Place the player in front of the Old Man in the [Water Labyrinth](https://bulbapedia.bulbagarden.net/wiki/Water_Labyrinth) just west of [Five Island](https://bulbapedia.bulbagarden.net/wiki/Five_Island)
-- Register [Bicycle]() to the `Select` button
-- Make sure you have defeated the female trainer on the island
-- Lead Pokémon must have max friendship (255) to receive the egg
-- **Note**: This mode will be low encounters per hour. For optimal hatching rates, it is recommended to use the Daycare Mode in Emerald, once released.
-
-![image](../images/gift_togepi.png)
 
 ## Game Support
 
