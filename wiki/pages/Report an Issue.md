@@ -14,7 +14,7 @@ If you're having issues with the bot, please follow the below steps to report an
 
 
 - For Discord config issues (`discord.yml`) - **make sure you remove any sensitive `webhook_url` values if you're providing this screenshot**
-- A screenshot of your profiles folder structure `./profiles/40Cakes/`, showing where the files are located
+- A screenshot of your profiles folder structure `./profiles/<profile_name>/`, showing where the files are located
 - An explanation of both expected behaviour, and what your bot is doing. If you can screen record it, even better!
 - Wait for a response (please be patient), the volunteers who support do so in their free time, across multiple timezones
 

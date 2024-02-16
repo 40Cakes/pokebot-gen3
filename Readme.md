@@ -26,9 +26,9 @@ Visit the [wiki](wiki/Readme.md) for information getting started, keybinds/input
 |:----------------------------------------:|:-----------------------------------------:|:------------------------------------:|
 | ![image](wiki/images/main_interface.png) | ![image](wiki/images/load_save_state.png) | ![image](wiki/images/debug_mode.png) |
 
-| Capture GIF of shiny encounters          |
-|------------------------------------------|
-| ![image](wiki/images/shiny_rayquaza.gif) |
+| Shiny encounter GIFs            |
+|---------------------------------|
+| ![image](wiki/images/shiny.gif) |
 
 |             Discord shiny notifications              |              Discord phase stats              |              Discord milestones              |
 |:----------------------------------------------------:|:---------------------------------------------:|:--------------------------------------------:|
