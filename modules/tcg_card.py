@@ -139,10 +139,8 @@ def generate_tcg_card(pokemon: Pokemon, location: str = "") -> Path | None:
             # Moves
             for i, move in enumerate(pokemon.moves):
                 if move:
-                    if move.move.name == "???":
-                        move_name = "Unknown"
-                    else:
-                        move_name = move.move.name
+                    move_name = "Unknown" if move.move.name == "???" else move.move.name
+                    move_power = "-" if move.move.base_power == 0 else str(move.move.base_power)
 
                     draw = draw_text(
                         draw, text=move_name, coords=(130, 480 + (i * 80)), size=30, shadow_colour="#000", anchor="lm"
@@ -157,7 +155,7 @@ def generate_tcg_card(pokemon: Pokemon, location: str = "") -> Path | None:
                     )
                     draw = draw_text(
                         draw,
-                        text=str(move.move.base_power),
+                        text=move_power,
                         coords=(525, 496 + (i * 80)),
                         size=30,
                         shadow_colour="#000",
