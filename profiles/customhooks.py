@@ -332,8 +332,6 @@ def custom_hooks(hook) -> None:
         except:
             console.print_exception(show_locals=True)
 
-
-
     except:
         console.print_exception(show_locals=True)
 

@@ -85,7 +85,9 @@ def judge_encounter(pokemon: Pokemon) -> EncounterValue:
     return EncounterValue.Trash
 
 
-def log_encounter(pokemon: Pokemon, action: BattleAction | None = None, gif_path: Path | None = None, tcg_path: Path | None = None) -> None:
+def log_encounter(
+    pokemon: Pokemon, action: BattleAction | None = None, gif_path: Path | None = None, tcg_path: Path | None = None
+) -> None:
     from modules.stats import total_stats
 
     total_stats.log_encounter(
@@ -159,7 +161,9 @@ def handle_encounter(
             console.print(f"[pink yellow]Roaming {pokemon.species.name} found![/]")
             alert = "Roaming Pokémon found!", f"Encountered a roaming {pokemon.species.name}."
             # If this is the first time the Roamer is encountered
-            if pokemon.species not in get_pokedex().seen_species and (not context.config.logging.save_pk3.all and context.config.logging.save_pk3.roamer):
+            if pokemon.species not in get_pokedex().seen_species and (
+                not context.config.logging.save_pk3.all and context.config.logging.save_pk3.roamer
+            ):
                 save_pk3(pokemon)
             is_of_interest = True
 
