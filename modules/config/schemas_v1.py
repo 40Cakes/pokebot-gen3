@@ -106,6 +106,7 @@ class Discord(BaseConfig):
     anti_shiny_pokemon_encounter: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
     custom_filter_pokemon_encounter: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
     pickup: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=10))
+    tcg_cards: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
 
 
 class DiscordWebhook(BaseConfig):

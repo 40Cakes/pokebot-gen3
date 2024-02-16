@@ -48,7 +48,7 @@ def draw_text(
     return draw
 
 
-def generate_tcg_card(pokemon: Pokemon, location: str = "") -> None:
+def generate_tcg_card(pokemon: Pokemon, location: str = "") -> Path | None:
     try:
         if context.config.logging.tcg_cards:
             tcg_sprites = get_sprites_path() / "tcg"
@@ -303,9 +303,10 @@ def generate_tcg_card(pokemon: Pokemon, location: str = "") -> None:
             if not cards_dir.exists():
                 cards_dir.mkdir(parents=True)
 
-            card_file = str(cards_dir / card_file)
+            card_file = cards_dir / card_file
+            card.save(str(card_file))
 
-            card.save(card_file)
+            return card_file
 
     except Exception:
-        pass
+        return None

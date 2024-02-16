@@ -66,3 +66,10 @@ pickup:
   ping_mode:
   ping_id:
   #webhook_url:
+
+# TCG cards
+tcg_cards:
+  enable: false
+  ping_mode:
+  ping_id:
+  #webhook_url:
