@@ -176,6 +176,8 @@ class Logging(BaseConfig):
     save_pk3: LoggingSavePK3 = Field(default_factory=lambda: LoggingSavePK3())
     log_encounters: bool = False
     desktop_notifications: bool = False
+    shiny_gifs: bool = True
+    tcg_cards: bool = True
 
 
 class LoggingConsole(BaseConfig):

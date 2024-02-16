@@ -1,4 +1,4 @@
-# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/tree/main/wiki/pages/Configuration%20-%20Logging%20and%20Console%20Output.md
+# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/tree/main/wiki/pages/Console,%20Logging%20and%20Image%20Config.md
 
 # Log all encounters to .csv (`stats/encounters/` folder), each phase is logged to a separate file
 log_encounters: false # `true`, `false`
@@ -22,3 +22,9 @@ save_pk3:
   shiny: true
   custom: true
   roamer: true
+
+# Save shiny GIFs
+shiny_gifs: true
+
+# Generate TCG cards
+tcg_cards: true

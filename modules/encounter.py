@@ -15,16 +15,18 @@ from modules.tcg_card import generate_tcg_card
 
 def shiny_encounter_gif() -> Path | None:
     """
-    Attempts to generate a GIF of an encounter.
+    Attempts to generate a GIF of a shiny encounter.
     """
-    if context.rom.is_rs:
-        shiny_task = "sub_8141AD8"
-    elif context.rom.is_emerald:
-        shiny_task = "Task_ShinyStars_Wait"
-    else:
-        shiny_task = "AnimTask_ShinySparkles_WaitSparkles"
-    shiny_stars = context.emulator.get_task_look_ahead(shiny_task)
-    return context.emulator.generate_gif((0, shiny_stars[1] + 180)) if shiny_stars else None
+    if context.config.logging.shiny_gifs:
+        if context.rom.is_rs:
+            shiny_task = "sub_8141AD8"
+        elif context.rom.is_emerald:
+            shiny_task = "Task_ShinyStars_Wait"
+        else:
+            shiny_task = "AnimTask_ShinySparkles_WaitSparkles"
+        shiny_stars = context.emulator.get_task_look_ahead(shiny_task)
+        return context.emulator.generate_gif((0, shiny_stars[1] + 180)) if shiny_stars else None
+    return None
 
 
 def run_custom_catch_filters(pokemon: Pokemon) -> str | bool:
