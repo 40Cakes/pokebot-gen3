@@ -25,6 +25,7 @@ def custom_hooks(hook) -> None:
     block_list = hook[2]
     custom_filter_result = hook[3]
     gif_path = hook[4]
+    tcg_path = hook[5]
 
     try:
         ### Your custom code goes here ###
@@ -308,6 +309,25 @@ def custom_hooks(hook) -> None:
                     embed_thumbnail=get_sprites_path() / "pokemon" / "normal" / f"{pokemon.species.safe_name}.png",
                     embed_color="6a89cc",
                     embed_image=gif_path,
+                )
+        except:
+            console.print_exception(show_locals=True)
+
+        try:
+            # Discord TCG cards
+            if context.config.discord.tcg_cards.enable and tcg_path:
+                # Discord pings
+                discord_ping = ""
+                match context.config.discord.tcg_cards.ping_mode:
+                    case "role":
+                        discord_ping = f"📢 <@&{context.config.discord.tcg_cards.ping_id}>"
+                    case "user":
+                        discord_ping = f"📢 <@{context.config.discord.tcg_cards.ping_id}>"
+
+                discord_message(
+                    webhook_url=context.config.discord.tcg_cards.webhook_url,
+                    content=discord_ping,
+                    image=tcg_path,
                 )
         except:
             console.print_exception(show_locals=True)

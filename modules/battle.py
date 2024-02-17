@@ -1,48 +1,43 @@
 from enum import Enum, IntEnum, auto
 
 from modules.context import context
-from modules.items import get_item_bag, get_item_by_index, get_item_by_name, Item
+from modules.items import Item, get_item_bag, get_item_by_index, get_item_by_name
 from modules.map import get_map_data_for_current_position
-from modules.memory import (
-    get_game_state,
-    read_symbol,
-    get_symbol_name,
-    unpack_uint16,
-    unpack_uint32,
-    GameState,
-)
+from modules.memory import GameState, get_game_state, get_symbol_name, read_symbol, unpack_uint16, unpack_uint32
 from modules.menu_parsers import (
-    get_party_menu_cursor_pos,
-    get_battle_menu,
-    switch_requested,
-    get_learning_move_cursor_pos,
     get_battle_cursor,
+    get_battle_menu,
     get_learning_move,
+    get_learning_move_cursor_pos,
+    get_party_menu_cursor_pos,
+    switch_requested,
 )
 from modules.menuing import (
-    party_menu_is_open,
     BaseMenuNavigator,
-    StartMenuNavigator,
-    PokemonPartySubMenuNavigator,
-    PokemonPartyMenuNavigator,
     BattlePartyMenuNavigator,
     PartyMenuExit,
+    PokemonPartyMenuNavigator,
+    PokemonPartySubMenuNavigator,
+    StartMenuNavigator,
+    party_menu_is_open,
 )
 from modules.modes import BotModeError
 from modules.modes._util import scroll_to_item_in_bag
+from modules.player import get_player_avatar
 from modules.pokedex import get_pokedex
 from modules.pokemon import (
-    get_party,
-    get_opponent,
-    Pokemon,
-    Move,
+    BattleTypeFlag,
     LearnedMove,
-    get_type_by_name,
+    Move,
+    Pokemon,
     StatusCondition,
     get_battle_type_flags,
-    BattleTypeFlag,
+    get_opponent,
+    get_party,
+    get_type_by_name,
 )
 from modules.tasks import get_global_script_context, get_task, get_tasks, task_is_active
+from modules.tcg_card import generate_tcg_card
 
 
 class BattleOutcome(Enum):
@@ -535,6 +530,9 @@ class BattleOpponent:
                     self.action = None
 
     def handle_evolution(self):
+        before_party_list: list[Pokemon] = []
+        for party_member in get_party():
+            before_party_list.append(party_member)
         while self.battle_state == BattleState.EVOLVING:
             self.update_battle_state()
             if context.config.battle.stop_evolution:
@@ -544,6 +542,10 @@ class BattleOpponent:
                 context.emulator.press_button("A")
                 yield
         else:
+            for i, party_member in enumerate(get_party()):
+                if party_member.is_shiny and party_member != before_party_list[i]:
+                    generate_tcg_card(party_member, location=f"Evolved at {get_player_avatar().map_location.map_name}")
+                    break
             self.action = None
 
     def step(self):

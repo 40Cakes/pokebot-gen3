@@ -39,7 +39,7 @@ def crop_sprite_square(path: Path) -> PIL.Image:
     bbox_width = bbox[2] - bbox[0]
     bbox_height = bbox[3] - bbox[1]
 
-    # Make sure the image is sqare (width == height)
+    # Make sure the image is square (width == height)
     if bbox_width - bbox_height:
         # Wider than high
         missing_height = bbox_width - bbox_height

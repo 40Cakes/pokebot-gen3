@@ -2,6 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from modules.context import context
+from modules.player import get_player, get_player_avatar
 from modules.pokemon import Pokemon
 
 from PIL import Image, ImageDraw, ImageFont, ImageSequence
@@ -10,7 +11,7 @@ from modules.runtime import get_sprites_path
 from modules.version import pokebot_name
 
 
-TCG_REVISION = "Rev. 1.0"
+TCG_REVISION = "Rev. 1.1"
 
 
 def suffix(d):
@@ -47,9 +48,9 @@ def draw_text(
     return draw
 
 
-def generate_tcg_card(pokemon: Pokemon, gif_path: Path | None) -> None:
+def generate_tcg_card(pokemon: Pokemon, location: str = "") -> Path | None:
     try:
-        if gif_path:
+        if context.config.logging.tcg_cards:
             tcg_sprites = get_sprites_path() / "tcg"
 
             # Set up base, transparent card image, add border
@@ -117,7 +118,7 @@ def generate_tcg_card(pokemon: Pokemon, gif_path: Path | None) -> None:
                 anchor="rm",
             )
 
-            # Bot version + date
+            # Bot name, card rev + date
             draw = draw_text(
                 draw,
                 text=f"{pokebot_name} ~ {TCG_REVISION} ~ {custom_strftime('%b {S}, %Y', datetime.now())}",
@@ -138,10 +139,8 @@ def generate_tcg_card(pokemon: Pokemon, gif_path: Path | None) -> None:
             # Moves
             for i, move in enumerate(pokemon.moves):
                 if move:
-                    if move.move.name == "???":
-                        move_name = "Unknown"
-                    else:
-                        move_name = move.move.name
+                    move_name = "Unknown" if move.move.name == "???" else move.move.name
+                    move_power = "-" if move.move.base_power == 0 else str(move.move.base_power)
 
                     draw = draw_text(
                         draw, text=move_name, coords=(130, 480 + (i * 80)), size=30, shadow_colour="#000", anchor="lm"
@@ -156,7 +155,7 @@ def generate_tcg_card(pokemon: Pokemon, gif_path: Path | None) -> None:
                     )
                     draw = draw_text(
                         draw,
-                        text=str(move.move.base_power),
+                        text=move_power,
                         coords=(525, 496 + (i * 80)),
                         size=30,
                         shadow_colour="#000",
@@ -165,13 +164,65 @@ def generate_tcg_card(pokemon: Pokemon, gif_path: Path | None) -> None:
                     move_type = Image.open(get_sprites_path() / "types" / "swsh" / f"{move.move.type}.png")
                     card.paste(move_type, (80, 473 + (i * 80)), mask=move_type)
 
-            # Portrait image screenshot
-            gif = Image.open(gif_path)
-            gif = ImageSequence.Iterator(gif)
-            first_frame = resize_image(gif[0], 2).convert("RGBA")
-            card.paste(first_frame, (70, 105), mask=first_frame)
+            # Portrait background
+            arena = resize_image(Image.open(tcg_sprites / "arena" / f"{pokemon.species.types[0]}.png"), 2)
+            card.paste(arena, (70, 105), mask=arena)
 
-            # IVs
+            # Encounter HP
+            hp = resize_image(Image.open(tcg_sprites / f"box.png"), 2)
+            card.paste(hp, (96, 137), mask=hp)
+
+            if location == "":
+                match context.bot_mode:
+                    case "Daycare":
+                        location = f"Hatched at {get_player_avatar().map_location.map_name}"
+                    case "Feebas" | "Fishing":
+                        location = f"Caught at {get_player_avatar().map_location.map_name}"
+                    case "Game Corner":
+                        location = f"Bought at {get_player_avatar().map_location.map_name}"
+                    case "Starters":
+                        location = f"Chosen at {get_player_avatar().map_location.map_name}"
+                    case "Static Gift Resets":
+                        location = f"Received at {get_player_avatar().map_location.map_name}"
+                    case _:
+                        location = get_player_avatar().map_location.map_name
+
+            draw = draw_text(
+                draw,
+                text=f"LOCATION:\n{location}",
+                coords=(108, 161),
+                size=15,
+                text_colour="#000",
+                shadow_colour="#DED7B5",
+                anchor="lm",
+            )
+
+            # Encounter sprite
+            sprite_type = "shiny" if pokemon.is_shiny else "normal"
+            sprite = Image.open(get_sprites_path() / "pokemon" / sprite_type / f"{pokemon.species.name}.png")
+            card.paste(
+                sprite,
+                (int(425 - (sprite.width / 2)), int(250 - (sprite.height - (sprite.height - sprite.getbbox()[3])))),
+                mask=sprite,
+            )
+
+            # Chat box
+            game_type = "RSE" if context.rom.is_rse else "FRLG"
+            chat = resize_image(Image.open(tcg_sprites / f"chat_{game_type}.png"), 2)
+            card.paste(chat, (70, 329), mask=chat)
+
+            # Player
+            if context.rom.is_rs:
+                player_file = f"{get_player().gender}_RS.png"
+            elif context.rom.is_emerald:
+                player_file = f"{get_player().gender}_E.png"
+            else:
+                player_file = f"{get_player().gender}_FRLG.png"
+
+            player = resize_image(Image.open(tcg_sprites / "player" / player_file), 2)
+            card.paste(player, (int(180 - (player.width / 2)), int(329 - player.height)), mask=player)
+
+            # Portrait IVs
             ivs = Image.open(tcg_sprites / "ivs.png")
             card.paste(ivs, (324, 255), mask=ivs)
             draw = draw_text(
@@ -224,7 +275,6 @@ def generate_tcg_card(pokemon: Pokemon, gif_path: Path | None) -> None:
             )
 
             # Game text box
-            # draw.rectangle((89, 342, 531, 412), fill="#6BA5A5")  # Blanks text box on Emerald screenshot, useful for testing
             draw = draw_text(draw, text=f"Nature: {pokemon.nature.name}", coords=(525, 360), size=30, anchor="rm")
             draw = draw_text(draw, text=f"Ability: {pokemon.ability.name}", coords=(525, 395), size=30, anchor="rm")
             draw = draw_text(draw, text=f"OT: {pokemon.original_trainer.name}", coords=(95, 360), size=30, anchor="lm")
@@ -251,9 +301,10 @@ def generate_tcg_card(pokemon: Pokemon, gif_path: Path | None) -> None:
             if not cards_dir.exists():
                 cards_dir.mkdir(parents=True)
 
-            card_file = str(cards_dir / card_file)
+            card_file = cards_dir / card_file
+            card.save(str(card_file))
 
-            card.save(card_file)
+            return card_file
 
     except Exception:
-        pass
+        return None

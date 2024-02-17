@@ -46,37 +46,37 @@ Each webhook type also supports pinging @users or @roles.
 - Right click **user/role** > **Copy ID**
 
 ### Webhook types
-`shiny_pokemon_encounter` - Shiny Pokémon encounters
+`shiny_pokemon_encounter` - Post shiny Pokémon encounters
 
 ![image](../images/discord_config_shiny_encounter.png)
 
 ***
 
-`pokemon_encounter_milestones` - Pokémon encounter milestones messages every `interval` encounters
+`pokemon_encounter_milestones` - Post Pokémon encounter milestones messages every `interval` encounters
 
 ![image](../images/discord_config_milestones.png)
 
 ***
 
-`shiny_pokemon_encounter_milestones` - Shiny Pokémon encounter milestones every `interval` encounters
+`shiny_pokemon_encounter_milestones` - Post shiny Pokémon encounter milestones every `interval` encounters
 
 ![image](../images/discord_config_shiny_milestone.png)
 
 ***
 
-`total_encounter_milestones` - Total encounter milestones every `interval` encounters
+`total_encounter_milestones` - Post total encounter milestones every `interval` encounters
 
 ![image](../images/discord_config_total_milestone.png)
 
 ***
 
-`phase_summary` - Phase summary, first summary at `first_interval`, then every `consequent_interval` after that
+`phase_summary` - Post phase summary, first summary at `first_interval`, then every `consequent_interval` after that
 
 ![image](../images/discord_config_phase_summary.png)
 
 ***
 
-`anti_shiny_pokemon_encounter` - Anti-shiny Pokémon encounters
+`anti_shiny_pokemon_encounter` - Post anti-shiny Pokémon encounters
 - Anti-shinies are just a bit of fun, they are mathematically, the complete opposite of a shiny
 - An [SV](https://bulbapedia.bulbagarden.net/wiki/Personality_value#Shininess) of `65,528` to `65,535` is considered anti-shiny
 
@@ -90,6 +90,14 @@ Each webhook type also supports pinging @users or @roles.
 
 ***
 
-`pickup` - Pickup notification + summary of items every `interval` new items
+`pickup` - Post Pickup notification + summary of items every `interval` new items
 
 ![image](../images/discord_config_pickup.png)
+
+
+***
+
+`tcg_cards` - Post a copy of new [TCG cards](Console,%20Logging%20and%20Image%20Config.md#tcg-cards)
+
+![image](../images/tcg_example.png)
+
