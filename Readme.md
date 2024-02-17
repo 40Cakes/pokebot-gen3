@@ -26,9 +26,9 @@ Visit the [wiki](wiki/Readme.md) for information getting started, keybinds/input
 |:----------------------------------------:|:-----------------------------------------:|:------------------------------------:|
 | ![image](wiki/images/main_interface.png) | ![image](wiki/images/load_save_state.png) | ![image](wiki/images/debug_mode.png) |
 
-| Shiny encounter GIFs            | Mock TCG cards                                                   |
-|---------------------------------|------------------------------------------------------------------|
-| ![image](wiki/images/shiny.gif) | <img src="wiki/images/tcg_example.png" style="max-width: 300px"> |
+| Shiny encounter GIFs            | Mock TCG cards                                                    |
+|---------------------------------|-------------------------------------------------------------------|
+| ![image](wiki/images/shiny.gif) | <img src="wiki/images/tcg_example.png" style="max-height: 380px"> |
 
 |             Discord shiny notifications              |              Discord phase stats              |              Discord milestones              |
 |:----------------------------------------------------:|:---------------------------------------------:|:--------------------------------------------:|
