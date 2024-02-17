@@ -337,7 +337,12 @@ class TotalStats:
         }
 
     def log_encounter(
-        self, pokemon: Pokemon, block_list: list, custom_filter_result: str | bool, gif_path: Path | None = None
+        self,
+        pokemon: Pokemon,
+        block_list: list,
+        custom_filter_result: str | bool,
+        gif_path: Path | None = None,
+        tcg_path: Path | None = None,
     ) -> None:
         if "pokemon" not in self.total_stats:
             self.total_stats["pokemon"] = {}
@@ -393,6 +398,7 @@ class TotalStats:
                 copy.deepcopy(block_list),
                 copy.deepcopy(custom_filter_result),
                 copy.deepcopy(gif_path),
+                copy.deepcopy(tcg_path),
             )
             Thread(target=self.custom_hooks, args=(hook,)).start()
 

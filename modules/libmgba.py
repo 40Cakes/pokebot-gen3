@@ -1,13 +1,12 @@
 import atexit
-from pathlib import Path
-
-import PIL.Image
-import PIL.PngImagePlugin
 import time
 import zlib
 from collections import deque
 from contextlib import contextmanager
+from pathlib import Path
 
+import PIL.Image
+import PIL.PngImagePlugin
 import sounddevice
 
 import mgba.audio
@@ -20,6 +19,7 @@ import mgba.vfs
 from mgba import ffi, lib, libmgba_version_string
 from modules.console import console
 from modules.profiles import Profile
+from modules.tasks import task_is_active
 
 input_map = {
     "A": 0x1,
@@ -590,10 +590,30 @@ class LibmgbaEmulator:
         self._performance_tracker.time_spent_total -= time.time_ns() - begin
         self._performance_tracker.track_frame()
 
-    def generate_gif(self, start_frame: int, duration: int) -> Path:
+    def get_task_look_ahead(self, task: str, limit: int = 1000) -> tuple[int, int] | None:
         """
-        Uses peek_frame to run the emulation from (current frame + start frame) to (current frame +  + start frame + duration),
-        taking a screenshot and stitching them together into an animated GIF.
+        Uses peek_frame to run the emulation ahead to get a range of when certain tasks become active, then inactive
+
+        :param start_task: name of the task to check when active
+        :param limit: stop searching frames after limit emulated when looking ahead
+        :return: tuple of frame range while task active
+        """
+        task_started = None
+        with self.peek_frame(0):
+            for i in range(limit):
+                if not task_started and task_is_active(task):
+                    task_started = i
+                if task_started and task_is_active(task):
+                    while task_is_active(task) and i < limit:
+                        i += 1
+                        self._core.run_frame()
+                    return task_started, i
+                self._core.run_frame()
+        return None
+
+    def generate_gif(self, record_range=tuple[int, int]) -> Path:
+        """
+        Uses peek_frame to run the emulation between record_range, taking a screenshot and stitching them together into an animated GIF.
         """
 
         frames: list[PIL.Image.Image] = []
@@ -606,8 +626,8 @@ class LibmgbaEmulator:
         video_was_enabled = self._video_enabled
         self.set_video_enabled(True)
 
-        with self.peek_frame(start_frame):
-            for i in range(duration):
+        with self.peek_frame(record_range[0]):
+            for i in range(record_range[1] - record_range[0]):
                 screenshot = self.get_screenshot()
                 if screenshot.getbbox():
                     frames.append(screenshot)

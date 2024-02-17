@@ -1,4 +1,5 @@
-# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/tree/main/wiki/pages/Configuration%20-%20Emulator%20Input%20Mapping.md
+# See here for valid keys: https://www.tcl.tk/man/tcl8.4/TkCmd/keysyms.html
+# or: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/key-names.html (column `.keysym`)
 
 # Default mGBA mapping
 gba:

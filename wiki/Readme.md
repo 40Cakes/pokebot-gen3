@@ -36,9 +36,9 @@ For quick help and support, reach out in Discord [#pokebot-gen3-support❔](http
 ### Configuration
 
 - 🛠 [Configuration Overview](pages/Configuration%20-%20Overview.md)
-- 🎮 [Emulator Input Mapping](pages/Configuration%20-%20Emulator%20Input%20Mapping.md)
+- 🎮 [Emulator Input Mapping](../profiles/logging.yml)
 - ⚔ [Battling and Pickup](pages/Configuration%20-%20Battling%20and%20Pickup.md)
-- 📄 [Logging and Console Output](pages/Configuration%20-%20Logging%20and%20Console%20Output.md)
+- 📄 [Console, Logging and Image Config](pages/Console,%20Logging%20and%20Image%20Config.md)
 - 📢 [Discord Integration](pages/Configuration%20-%20Discord%20Integration.md)
 - ❌ [Catch Block List](pages/Configuration%20-%20Catch%20Block%20List.md)
 - 🥅 [Custom Catch Filters](pages/Configuration%20-%20Custom%20Catch%20Filters.md)
