@@ -1,12 +1,12 @@
 import tkinter.font
-from tkinter import ttk, Tk
+from tkinter import Tk, ttk
 from typing import Union
 
 from modules.console import console
 from modules.context import context
 from modules.libmgba import LibmgbaEmulator
+from modules.memory import GameState, get_game_state
 from modules.modes import get_bot_modes
-from modules.memory import get_game_state, GameState
 from modules.version import pokebot_name, pokebot_version
 
 
@@ -115,7 +115,7 @@ class EmulatorControls:
                 if get_game_state() not in (GameState.TITLE_SCREEN, GameState.MAIN_MENU):
                     try:
                         is_selectable = mode.is_selectable()
-                    except:
+                    except Exception:
                         if context.debug:
                             console.print_exception()
                         is_selectable = False
@@ -126,7 +126,7 @@ class EmulatorControls:
                     self.bot_mode_menu.add_command(label=mode.name(), command=lambda m=mode: select_bot_mode(m.name()))
                 else:
                     disabled_modes.append(mode.name())
-            if len(disabled_modes) > 0:
+            if disabled_modes:
                 if len(disabled_modes) < len(get_bot_modes()):
                     self.bot_mode_menu.add_separator()
                 for mode_name in disabled_modes:
@@ -244,6 +244,7 @@ class DebugTab:
 class DebugEmulatorControls(EmulatorControls):
     def __init__(self, window: Tk):
         super().__init__(window)
+        self.debug_notebook = None
         self.debug_frame: Union[ttk.Frame, None] = None
         self.debug_notebook: ttk.Notebook
         self.debug_tabs: list[DebugTab] = []

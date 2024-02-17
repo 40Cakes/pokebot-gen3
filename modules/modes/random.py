@@ -5,8 +5,8 @@ from . import BattleAction
 from ._interface import BotMode
 from ..encounter import log_encounter
 from ..main import work_queue
-from ..memory import get_game_state, GameState
-from ..pokemon import opponent_changed, get_opponent
+from ..memory import GameState, get_game_state
+from ..pokemon import get_opponent, opponent_changed
 
 
 class RandomMode(BotMode):
@@ -40,9 +40,8 @@ class RandomMode(BotMode):
                 callback = work_queue.get_nowait()
                 callback()
 
-            if get_game_state() == GameState.BATTLE:
-                if opponent_changed():
-                    log_encounter(get_opponent())
+            if get_game_state() == GameState.BATTLE and opponent_changed():
+                log_encounter(get_opponent())
             context.emulator.press_button(random.choice(inputs))
 
             for _ in range(4):  # Press 1 random button every 5 frames

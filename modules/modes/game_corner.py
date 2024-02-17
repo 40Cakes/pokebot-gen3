@@ -9,14 +9,14 @@ from modules.player import get_player, get_player_avatar
 from modules.pokemon import get_party
 from modules.runtime import get_sprites_path
 from modules.tasks import task_is_active
-from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
+from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map
 from ._interface import BotMode, BotModeError
 from ._util import (
     soft_reset,
+    wait_for_n_frames,
+    wait_for_task_to_start_and_finish,
     wait_for_unique_rng_value,
     wait_until_task_is_active,
-    wait_for_task_to_start_and_finish,
-    wait_for_n_frames,
 )
 
 
@@ -27,18 +27,17 @@ class GameCornerMode(BotMode):
 
     @staticmethod
     def is_selectable() -> bool:
-        if context.rom.is_frlg:
-            targeted_tile = get_player_avatar().map_location_in_front
-            return targeted_tile in MapFRLG.CELADON_CITY_GAME_CORNER_PRIZE_ROOM and targeted_tile.local_position == (
-                4,
-                3,
-            )
-        else:
+        if not context.rom.is_frlg:
             return False
+        targeted_tile = get_player_avatar().map_location_in_front
+        return targeted_tile in MapFRLG.CELADON_CITY_GAME_CORNER_PRIZE_ROOM and targeted_tile.local_position == (
+            4,
+            3,
+        )
 
     def run(self) -> Generator:
-        coincase = get_player().coins
-        if coincase < 180:
+        coin_case = get_player().coins
+        if coin_case < 180:
             raise BotModeError("You don't have enough coins to buy anything.")
 
         if context.rom.is_fr:
@@ -53,7 +52,7 @@ class GameCornerMode(BotMode):
             selection = Selection(
                 pokemon,
                 get_sprites_path() / "pokemon" / "normal" / f"{pokemon}.png",
-                coincase >= coins,
+                coin_case >= coins,
             )
             available_options.append(selection)
         game_corner_choice = ask_for_choice(
@@ -76,8 +75,8 @@ class GameCornerMode(BotMode):
             if len(get_party()) >= 6:
                 raise BotModeError("This mode requires at least one empty party slot, but your party is full.")
 
-            # spam A until choice appears
-            if task_is_active("Task_MultichoiceMenu_HandleInput") == False:
+            # Spam A until choice appears
+            if not task_is_active("Task_MultichoiceMenu_HandleInput"):
                 yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessageBox", "A")
                 yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessageBox", "A")
                 yield from wait_until_task_is_active("Task_MultichoiceMenu_HandleInput")
@@ -116,7 +115,7 @@ class GameCornerMode(BotMode):
                         yield from wait_for_n_frames(2)
                     yield from wait_until_task_is_active("Task_DrawFieldMessageBox", "A")
 
-            # accept the pokemon
+            # Accept the Pokémon
             yield from wait_for_task_to_start_and_finish("Task_YesNoMenu_HandleInput", "A")
             # don't rename pokemon
             yield from wait_for_task_to_start_and_finish("Task_YesNoMenu_HandleInput", "B")

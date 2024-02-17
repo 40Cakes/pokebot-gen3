@@ -1,12 +1,12 @@
 from typing import Generator
 
-from modules.gui.multi_select_window import ask_for_choice, Selection
+from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.items import get_item_bag, get_item_by_name
 from modules.player import get_player, get_player_avatar
 from modules.runtime import get_sprites_path
 from ._asserts import assert_item_exists_in_bag
 from ._interface import BotMode
-from ._util import register_key_item, fish
+from ._util import fish, register_key_item
 
 
 class FishingMode(BotMode):
@@ -22,7 +22,7 @@ class FishingMode(BotMode):
 
     def run(self) -> Generator:
         # Ask player to register a rod if they have one
-        rod_names = ("Old Rod", "Good Rod", "Super Rod")
+        rod_names = ["Old Rod", "Good Rod", "Super Rod"]
         assert_item_exists_in_bag(rod_names, "You do not own any fishing rod, so you cannot fish.")
 
         if get_player().registered_item is None or get_player().registered_item.name not in rod_names:

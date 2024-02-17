@@ -65,7 +65,7 @@ class BotMode:
 
     def on_battle_started(self) -> BattleAction | None:
         """
-        This is called when a battle starts, i.e. a wild Pokemon is encountered or a trainer
+        This is called when a battle starts, i.e. a wild Pokémon is encountered or a trainer
         battle commenced.
 
         When this method is called, the game state is already `GameState.BATTLE`.
@@ -117,11 +117,11 @@ class BotMode:
 
     def on_pokemon_fainted_due_to_poison(self, pokemon: "Pokemon", party_index: int) -> None:
         """
-        This is called when a Pokemon faints due to poison while walking around the overworld
+        This is called when a Pokémon faints due to poison while walking around the overworld
         (i.e. this will not be called if it happens during a battle.)
 
-        :param pokemon: Data of the Pokemon that fainted.
-        :param party_index: Party index (0-5) of the Pokemon that fainted.
+        :param pokemon: Data of the Pokémon that fainted.
+        :param party_index: Party index (0-5) of the Pokémon that fainted.
         """
         pass
 
@@ -134,7 +134,7 @@ class BotMode:
         party member succumbs to poison.
 
         :return: Indicates whether the bot mode would like to handle this event.
-                 By default (False), the bot will be switched back to manual mode
+                 By default, (False), the bot will be switched back to manual mode
                  so the user can handle this case.
         """
         return False
@@ -149,7 +149,7 @@ class BotMode:
         Safari Zone entrance and can be controlled again.
 
         :return: Indicates whether the bot mode would like to handle this event.
-                 By default (False), the bot will be switched back to manual mode
+                 By default, (False), the bot will be switched back to manual mode
                  so the user can handle this case.
         """
         return False
@@ -158,11 +158,11 @@ class BotMode:
         """
         This is called when an egg is hatching.
 
-        The bot will call this method when the hatched Pokemon's sprite is
+        The bot will call this method when the hatched Pokémon's sprite is
         visible during the cutscene.
 
-        :param pokemon: The Pokemon that has hatched.
-        :param party_index: Party index (0-5) of the Pokemon that has hatched.
+        :param pokemon: The Pokémon that has hatched.
+        :param party_index: Party index (0-5) of the Pokémon that has hatched.
         """
         pass
 

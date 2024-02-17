@@ -1,10 +1,10 @@
-from tkinter import Tk, Button, PhotoImage
+from tkinter import Button, PhotoImage, Tk
 
 import PIL.Image
 import PIL.ImageTk
 
 from modules.gui.debug_tabs import *
-from modules.gui.emulator_controls import EmulatorControls, DebugEmulatorControls
+from modules.gui.emulator_controls import DebugEmulatorControls, EmulatorControls
 from modules.sprites import generate_placeholder_image
 from modules.version import pokebot_name, pokebot_version
 

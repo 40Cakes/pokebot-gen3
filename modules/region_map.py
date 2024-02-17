@@ -1,7 +1,7 @@
 from enum import Enum
 
 from modules.context import context
-from modules.memory import read_symbol, unpack_uint32, unpack_uint16
+from modules.memory import read_symbol, unpack_uint16, unpack_uint32
 
 
 def get_map_cursor() -> tuple[int, int] | None:
@@ -20,18 +20,18 @@ def get_map_cursor() -> tuple[int, int] | None:
         return None
 
     data = context.emulator.read_bytes(pointer + offset, 4)
-    return unpack_uint16(data[0:2]), unpack_uint16(data[2:4])
+    return unpack_uint16(data[:2]), unpack_uint16(data[2:4])
 
 
 def get_map_region() -> int:
     if context.rom.is_rse:
         return 0
 
-    offset = 19 + 19 + 3000 + 2048 * 3 + 4
     pointer = unpack_uint32(read_symbol("sRegionMap"))
     if pointer == 0:
         return 0
 
+    offset = 19 + 19 + 3000 + 2048 * 3 + 4
     return context.emulator.read_bytes(pointer + offset, 1)[0]
 
 

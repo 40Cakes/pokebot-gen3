@@ -1,18 +1,18 @@
 from typing import Generator
 
 from modules.context import context
-from modules.encounter import handle_encounter, log_encounter, judge_encounter
-from modules.map_data import MapRSE, MapFRLG
+from modules.encounter import handle_encounter, judge_encounter, log_encounter
+from modules.map_data import MapFRLG, MapRSE
 from modules.player import get_player_avatar
 from modules.pokemon import get_opponent
-from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
-from ._interface import BotMode, BattleAction
+from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map
+from ._interface import BattleAction, BotMode
 from ._util import (
     soft_reset,
     wait_for_n_frames,
+    wait_for_task_to_start_and_finish,
     wait_for_unique_rng_value,
     wait_until_task_is_active,
-    wait_for_task_to_start_and_finish,
 )
 
 
@@ -50,11 +50,15 @@ def _get_targeted_encounter() -> tuple[MapFRLG | MapRSE, tuple[int, int], str] |
     if targeted_tile is None:
         return None
 
-    for entry in encounters:
-        if entry[0] == (targeted_tile.map_group, targeted_tile.map_number) and entry[1] == targeted_tile.local_position:
-            return entry
-
-    return None
+    return next(
+        (
+            entry
+            for entry in encounters
+            if entry[0] == (targeted_tile.map_group, targeted_tile.map_number)
+            and entry[1] == targeted_tile.local_position
+        ),
+        None,
+    )
 
 
 class StaticSoftResetsMode(BotMode):
@@ -70,9 +74,8 @@ class StaticSoftResetsMode(BotMode):
         opponent = get_opponent()
         if judge_encounter(opponent).is_of_interest:
             return handle_encounter(opponent, disable_auto_catch=True)
-        else:
-            log_encounter(opponent)
-            return BattleAction.CustomAction
+        log_encounter(opponent)
+        return BattleAction.CustomAction
 
     def run(self) -> Generator:
         encounter = _get_targeted_encounter()
@@ -86,16 +89,13 @@ class StaticSoftResetsMode(BotMode):
             yield from soft_reset(mash_random_keys=True)
             yield from wait_for_unique_rng_value()
 
-            if encounter[2] != "Groudon/Kyogre":
-                # The first cry happens before the battle starts.
-                yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", button_to_press="A")
-
-                # At the start of the next cry the opponent is fully visible.
-                yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")
-            else:
+            if encounter[2] == "Groudon/Kyogre":
                 yield from wait_for_task_to_start_and_finish("Task_MapNamePopup")
                 context.emulator.press_button("Left")
                 yield from wait_for_n_frames(2)
                 yield from wait_for_task_to_start_and_finish("Task_BattleStart", "B")
-                yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", button_to_press="A")
-                yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")
+            # The first cry happens before the battle starts.
+            yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", button_to_press="A")
+
+            # At the start of the next cry the opponent is fully visible.
+            yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")

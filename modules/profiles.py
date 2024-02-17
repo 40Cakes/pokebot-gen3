@@ -1,3 +1,4 @@
+import contextlib
 import sys
 from dataclasses import dataclass
 from datetime import datetime
@@ -7,7 +8,7 @@ from modules import exceptions
 from modules.config import load_config_file, save_config_file
 from modules.config.schemas_v1 import ProfileMetadata, ProfileMetadataROM
 from modules.console import console
-from modules.roms import ROMS_DIRECTORY, ROM, list_available_roms, load_rom_data
+from modules.roms import ROM, ROMS_DIRECTORY, list_available_roms, load_rom_data
 from modules.runtime import get_base_path
 
 PROFILES_DIRECTORY = get_base_path() / "profiles"
@@ -40,11 +41,8 @@ def list_available_profiles() -> list[Profile]:
     for entry in PROFILES_DIRECTORY.iterdir():
         if entry.name.startswith("_"):
             continue
-        try:
+        with contextlib.suppress(RuntimeError):
             profiles.append(load_profile(entry))
-        except RuntimeError:
-            pass
-
     return profiles
 
 
@@ -90,7 +88,7 @@ def profile_directory_exists(name: str) -> bool:
 
 def create_profile(name: str, rom: ROM) -> Profile:
     if name.startswith("_"):
-        raise exceptions.PrettyValueError(f'Profile names cannot start with the underscore "_" character.')
+        raise exceptions.PrettyValueError('Profile names cannot start with the underscore "_" character.')
     profile_directory = PROFILES_DIRECTORY / name
     if profile_directory.exists():
         raise RuntimeError(f'There already is a profile called "{name}", cannot create a new one with that name.')

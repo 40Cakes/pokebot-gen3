@@ -3,17 +3,17 @@ from typing import Generator
 from modules.context import context
 from modules.encounter import handle_encounter
 from modules.map import get_map_objects
-from modules.map_data import MapRSE, MapFRLG
+from modules.map_data import MapFRLG, MapRSE
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
 from modules.pokemon import get_opponent
-from ._interface import BotMode, BotModeError, BattleAction
+from ._interface import BattleAction, BotMode, BotModeError
 from ._util import (
-    wait_for_task_to_start_and_finish,
-    navigate_to,
-    walk_one_tile,
     follow_path,
+    navigate_to,
     wait_for_script_to_start_and_finish,
+    wait_for_task_to_start_and_finish,
+    walk_one_tile,
 )
 
 

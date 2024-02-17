@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Literal
 
 from confz import BaseConfig
-from pydantic import ConfigDict, field_validator, Field
+from pydantic import ConfigDict, Field, field_validator
 from pydantic.types import Annotated, ClassVar, NonNegativeInt, PositiveInt
 
 
@@ -125,7 +125,7 @@ class DiscordWebhook(BaseConfig):
 
 
 class Keys(BaseConfig):
-    """Schema for the keys configuration."""
+    """Schema for GBA key configuration."""
 
     filename: ClassVar = "keys.yml"
     gba: KeysGBA = Field(default_factory=lambda: KeysGBA())

@@ -1,3 +1,4 @@
+import itertools
 import string
 import struct
 from dataclasses import dataclass
@@ -6,8 +7,8 @@ from typing import Literal
 
 from modules.context import context
 from modules.game import decode_string, get_event_flag_name
-from modules.memory import unpack_uint16, unpack_uint32, read_symbol, get_symbol_name, get_save_block
-from modules.pokemon import get_item_by_index, Item, get_species_by_index, Species
+from modules.memory import get_save_block, get_symbol_name, read_symbol, unpack_uint16, unpack_uint32
+from modules.pokemon import Item, Species, get_item_by_index, get_species_by_index
 
 
 def _get_tile_type_name(tile_type: int):
@@ -491,7 +492,7 @@ class MapWarp:
 
     @property
     def local_coordinates(self) -> tuple[int, int]:
-        return unpack_uint16(self._data[0:2]), unpack_uint16(self._data[2:4])
+        return unpack_uint16(self._data[:2]), unpack_uint16(self._data[2:4])
 
     @property
     def elevation(self) -> int:
@@ -554,7 +555,7 @@ class MapCoordEvent:
 
     @property
     def local_coordinates(self) -> tuple[int, int]:
-        return unpack_uint16(self._data[0:2]), unpack_uint16(self._data[2:4])
+        return unpack_uint16(self._data[:2]), unpack_uint16(self._data[2:4])
 
     @property
     def elevation(self) -> int:
@@ -575,10 +576,7 @@ class MapCoordEvent:
     @property
     def script_symbol(self) -> str:
         symbol = get_symbol_name(self.script_pointer, pretty_name=True)
-        if symbol == "":
-            return hex(self.script_pointer)
-        else:
-            return symbol
+        return hex(self.script_pointer) if symbol == "" else symbol
 
     def to_dict(self) -> dict:
         return {
@@ -598,7 +596,7 @@ class MapBgEvent:
 
     @property
     def local_coordinates(self) -> tuple[int, int]:
-        return unpack_uint16(self._data[0:2]), unpack_uint16(self._data[2:4])
+        return unpack_uint16(self._data[:2]), unpack_uint16(self._data[2:4])
 
     @property
     def elevation(self) -> int:
@@ -642,10 +640,7 @@ class MapBgEvent:
     def script_symbol(self) -> str:
         """This only has meaning if `kind` is 'Script'."""
         symbol = get_symbol_name(self.script_pointer, pretty_name=True)
-        if symbol == "":
-            return hex(self.script_pointer)
-        else:
-            return symbol
+        return hex(self.script_pointer) if symbol == "" else symbol
 
     @property
     def hidden_item(self) -> Item:
@@ -692,7 +687,7 @@ class MapLocation:
 
     @cached_property
     def _map_layout(self) -> bytes:
-        map_layout_pointer = unpack_uint32(self._map_header[0:4])
+        map_layout_pointer = unpack_uint32(self._map_header[:4])
         return context.emulator.read_bytes(map_layout_pointer, 24)
 
     @cached_property
@@ -723,15 +718,14 @@ class MapLocation:
 
         if context.rom.is_frlg:
             metatiles_in_primary = 640
-            metatiles_in_secondary = 1024
             metatiles_attributes_size = 4
             metatiles_attributes_offset = 0x14
         else:
             metatiles_in_primary = 512
-            metatiles_in_secondary = 1024
             metatiles_attributes_size = 2
             metatiles_attributes_offset = 0x10
 
+        metatiles_in_secondary = 1024
         attributes_pointer = None
         attribute_offset = None
         if metatile < metatiles_in_primary:
@@ -786,7 +780,7 @@ class MapLocation:
 
     @property
     def map_size(self) -> tuple[int, int]:
-        return unpack_uint32(self._map_layout[0:4]), unpack_uint32(self._map_layout[4:8])
+        return unpack_uint32(self._map_layout[:4]), unpack_uint32(self._map_layout[4:8])
 
     @property
     def map_type(self) -> str:
@@ -902,7 +896,7 @@ class MapLocation:
             return []
 
         list_of_connections = context.emulator.read_bytes(list_of_connections_pointer, 0x08)
-        count = unpack_uint32(list_of_connections[0:4])
+        count = unpack_uint32(list_of_connections[:4])
         connection_pointer = unpack_uint32(list_of_connections[4:8])
         if connection_pointer == 0:
             return []
@@ -910,10 +904,7 @@ class MapLocation:
         size_of_struct = 12
         data = context.emulator.read_bytes(connection_pointer, size_of_struct * count)
 
-        result = []
-        for index in range(count):
-            result.append(MapConnection(data[size_of_struct * index : size_of_struct * (index + 1)]))
-        return result
+        return [MapConnection(data[size_of_struct * index : size_of_struct * (index + 1)]) for index in range(count)]
 
     @property
     def warps(self) -> list[MapWarp]:
@@ -925,10 +916,7 @@ class MapLocation:
         size_of_struct = 8
         data = context.emulator.read_bytes(warp_pointer, warp_count * size_of_struct)
 
-        result = []
-        for index in range(warp_count):
-            result.append(MapWarp(data[size_of_struct * index : size_of_struct * (index + 1)]))
-        return result
+        return [MapWarp(data[size_of_struct * index : size_of_struct * (index + 1)]) for index in range(warp_count)]
 
     @property
     def objects(self) -> list["ObjectEventTemplate"]:
@@ -940,10 +928,10 @@ class MapLocation:
         size_of_struct = 24
         data = context.emulator.read_bytes(object_event_pointer, size_of_struct * object_event_count)
 
-        result = []
-        for index in range(object_event_count):
-            result.append(ObjectEventTemplate(data[size_of_struct * index : size_of_struct * (index + 1)]))
-        return result
+        return [
+            ObjectEventTemplate(data[size_of_struct * index : size_of_struct * (index + 1)])
+            for index in range(object_event_count)
+        ]
 
     @property
     def coord_events(self) -> list[MapCoordEvent]:
@@ -955,10 +943,10 @@ class MapLocation:
         size_of_struct = 16
         data = context.emulator.read_bytes(coord_event_pointer, size_of_struct * coord_event_count)
 
-        result = []
-        for index in range(coord_event_count):
-            result.append(MapCoordEvent(data[size_of_struct * index : size_of_struct * (index + 1)]))
-        return result
+        return [
+            MapCoordEvent(data[size_of_struct * index : size_of_struct * (index + 1)])
+            for index in range(coord_event_count)
+        ]
 
     @property
     def bg_events(self) -> list[MapBgEvent]:
@@ -970,18 +958,17 @@ class MapLocation:
         size_of_struct = 12
         data = context.emulator.read_bytes(bg_event_pointer, size_of_struct * bg_event_count)
 
-        result = []
-        for index in range(bg_event_count):
-            result.append(MapBgEvent(data[size_of_struct * index : size_of_struct * (index + 1)]))
-        return result
+        return [
+            MapBgEvent(data[size_of_struct * index : size_of_struct * (index + 1)]) for index in range(bg_event_count)
+        ]
 
     def all_tiles(self) -> list[list["MapLocation"]]:
         result = []
 
         for x in range(self.map_size[0]):
-            row = []
-            for y in range(self.map_size[1]):
-                row.append(MapLocation(self._map_header, self.map_group, self.map_number, (x, y)))
+            row = [
+                MapLocation(self._map_header, self.map_group, self.map_number, (x, y)) for y in range(self.map_size[1])
+            ]
             result.append(row)
 
         return result
@@ -1019,9 +1006,7 @@ class MapLocation:
     def dicts_for_all_tiles(self) -> list[list[dict]]:
         result = []
         for row in self.all_tiles():
-            result_row = []
-            for tile in row:
-                result_row.append(tile.dict_for_tile())
+            result_row = [tile.dict_for_tile() for tile in row]
             result.append(result_row)
         return result
 
@@ -1334,12 +1319,8 @@ class ObjectEvent:
             "hideReflection",
         ]
 
-        flags = []
-        bitmap = unpack_uint32(self._data[0:4])
-        for i in range(len(flag_names)):
-            if (bitmap >> i) & 0x01:
-                flags.append(flag_names[i])
-        return flags
+        bitmap = unpack_uint32(self._data[:4])
+        return [flag_names[i] for i in range(len(flag_names)) if (bitmap >> i) & 0x01]
 
     @property
     def sprite_id(self) -> int:
@@ -1492,10 +1473,7 @@ class ObjectEventTemplate:
 
     @property
     def kind(self) -> Literal["normal", "clone"]:
-        if self._data[2] == 255:
-            return "clone"
-        else:
-            return "normal"
+        return "clone" if self._data[2] == 255 else "normal"
 
     @property
     def local_coordinates(self) -> tuple[int, int]:
@@ -1544,10 +1522,7 @@ class ObjectEventTemplate:
         if self.script_pointer == 0:
             return ""
         symbol = get_symbol_name(self.script_pointer, pretty_name=True)
-        if symbol == "":
-            return hex(self.script_pointer)
-        else:
-            return symbol
+        return hex(self.script_pointer) if symbol == "" else symbol
 
     @property
     def flag_id(self) -> int:
@@ -1648,11 +1623,9 @@ def get_map_all_tiles() -> list[MapLocation]:
     current_map_data = get_map_data_for_current_position()
     map_group, map_number = current_map_data.map_group, current_map_data.map_number
     map_width, map_height = current_map_data.map_size
-    tiles = []
-    for y in range(map_height):
-        for x in range(map_width):
-            tiles.append(get_map_data(map_group, map_number, (x, y)))
-    return tiles
+    return [
+        get_map_data(map_group, map_number, (x, y)) for y, x in itertools.product(range(map_height), range(map_width))
+    ]
 
 
 @dataclass
@@ -1714,9 +1687,7 @@ def get_wild_encounters_for_map(map_group: int, map_number: int) -> WildEncounte
                     min_level = raw_list[4 * n]
                     max_level = raw_list[4 * n + 1]
                     if min_level > max_level:
-                        temp = max_level
-                        max_level = min_level
-                        min_level = temp
+                        max_level, min_level = min_level, max_level
                     species = get_species_by_index(unpack_uint16(raw_list[4 * n + 2 : 4 * n + 4]))
                     result.append(WildEncounter(species, min_level, max_level, encounter_rates[n]))
                 return result
@@ -1724,27 +1695,27 @@ def get_wild_encounters_for_map(map_group: int, map_number: int) -> WildEncounte
             data = {}
             for start, end, key, count, rates in types:
                 pointer = unpack_uint32(headers[offset + start : offset + end])
-                data[key + "_encounter_rate"] = 0
+                data[f"{key}_encounter_rate"] = 0
                 if key != "fishing":
-                    data[key + "_encounters"] = []
+                    data[f"{key}_encounters"] = []
                 else:
                     data["old_rod_encounters"] = []
                     data["good_rod_encounters"] = []
                     data["super_rod_encounters"] = []
                 if pointer > 0:
                     encounter_info = context.emulator.read_bytes(pointer, length=8)
-                    data[key + "_encounter_rate"] = encounter_info[0]
-                    if data[key + "_encounter_rate"] > 0:
+                    data[f"{key}_encounter_rate"] = encounter_info[0]
+                    if data[f"{key}_encounter_rate"] > 0:
                         list_pointer = unpack_uint32(encounter_info[4:8])
                         if key != "fishing":
-                            data[key + "_encounters"] = get_encounters_list(list_pointer, count, rates)
+                            data[f"{key}_encounters"] = get_encounters_list(list_pointer, count, rates)
                         else:
-                            data["old_rod_encounters"] = get_encounters_list(list_pointer, 2, rates[0:2])
+                            data["old_rod_encounters"] = get_encounters_list(list_pointer, 2, rates[:2])
                             data["good_rod_encounters"] = get_encounters_list(list_pointer + 8, 3, rates[2:5])
                             data["super_rod_encounters"] = get_encounters_list(list_pointer + 20, 5, rates[5:10])
             _wild_encounters_cache[(group, number)] = WildEncounterList(**data)
 
-    return _wild_encounters_cache.get((map_group, map_number), None)
+    return _wild_encounters_cache.get((map_group, map_number))
 
 
 def calculate_targeted_coords(current_coordinates: tuple[int, int], facing_direction: str) -> tuple[int, int]:

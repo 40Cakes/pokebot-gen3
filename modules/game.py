@@ -21,7 +21,7 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
     _symbols.clear()
     _reverse_symbols.clear()
     for d in [get_data_path() / "symbols", get_data_path() / "symbols" / "patches"]:
-        for s in open(d / symbols_file).readlines():
+        for s in open(d / symbols_file):
             address, _, length, label = s.split(" ")
 
             address = int(address, 16)
@@ -35,7 +35,7 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
     language_code = str(language)
     language_patch_file = symbols_file.replace(".sym", ".json")
     language_patch_path = get_data_path() / "symbols" / "patches" / "language" / language_patch_file
-    if language_code in ["D", "I", "S", "F", "J"] and language_patch_path.is_file():
+    if language_code in {"D", "I", "S", "F", "J"} and language_patch_path.is_file():
         with open(language_patch_path, "r") as file:
             language_patches = json.load(file)
         for item in language_patches:
@@ -66,14 +66,14 @@ def _load_event_flags_and_vars(file_name: str) -> None:  # TODO Japanese ROMs no
 
     _event_flags.clear()
     _reverse_event_flags.clear()
-    for s in open(get_data_path() / "event_flags" / file_name).readlines():
+    for s in open(get_data_path() / "event_flags" / file_name):
         number, name = s.strip().split(" ")
         _event_flags[name] = (int(number) // 8) + flags_offset, int(number) % 8
         _reverse_event_flags[int(number)] = name
 
     _event_vars.clear()
     _reverse_event_vars.clear()
-    for s in open(get_data_path() / "event_vars" / file_name).readlines():
+    for s in open(get_data_path() / "event_vars" / file_name):
         number, name = s.strip().split(" ")
         _event_vars[name] = int(number) * 2 + vars_offset
         _reverse_event_vars[int(number)] = name
@@ -85,7 +85,7 @@ def _prepare_character_tables() -> None:
     _character_table_international.clear()
     _character_table_japanese.clear()
 
-    CHARACTER_TABLE_JAPANESE = (
+    character_table_japanese = (
         " あいうえおかきくけこさしすせそ"
         "たちつてとなにぬねのはひふへほま"
         "みむめもやゆよらりるれろわをんぁ"
@@ -103,10 +103,10 @@ def _prepare_character_tables() -> None:
         "lmnopqrstuvwxyz▶"
         ":ÄÖÜäöü⬆⬇⬅      "
     )
-    for i in CHARACTER_TABLE_JAPANESE:
+    for i in character_table_japanese:
         _character_table_japanese.append(i)
 
-    CHARACTER_TABLE_INTERNATIONAL = (
+    character_table_international = (
         " ÀÁÂÇÈÉÊËÌ ÎÏÒÓÔ"
         + "ŒÙÚÛÑßàá çèéêëì "
         + "îïòóôœùúûñºªᵉ&+ "
@@ -125,7 +125,7 @@ def _prepare_character_tables() -> None:
         + ":ÄÖÜäöü         "
     )
 
-    for i in CHARACTER_TABLE_INTERNATIONAL:
+    for i in character_table_international:
         _character_table_international.append(i)
     _character_table_international[0x34] = "Lv"
     _character_table_international[0x53] = "Pk"
@@ -223,7 +223,7 @@ def get_symbol_name(address: int, pretty_name: bool = False) -> str:
 
     :return: name of the symbol (str)
     """
-    return _reverse_symbols.get(address, ("", ""))[0 if not pretty_name else 1]
+    return _reverse_symbols.get(address, ("", ""))[(1 if pretty_name else 0)]
 
 
 def get_symbol_name_before(address: int, pretty_name: bool = False) -> str:
@@ -237,10 +237,14 @@ def get_symbol_name_before(address: int, pretty_name: bool = False) -> str:
     :return: name of the symbol (str)
     """
     maximum_lookahead = 1024
-    for lookahead in range(maximum_lookahead):
-        if address - lookahead in _reverse_symbols:
-            return _reverse_symbols[address - lookahead][0 if not pretty_name else 1]
-    return hex(address)
+    return next(
+        (
+            _reverse_symbols[address - lookahead][(1 if pretty_name else 0)]
+            for lookahead in range(maximum_lookahead)
+            if address - lookahead in _reverse_symbols
+        ),
+        hex(address),
+    )
 
 
 def get_event_flag_offset(flag_name: str) -> tuple[int, int]:
@@ -285,9 +289,6 @@ def decode_string(
     string = ""
     cursor = 0
     while cursor < len(encoded_string):
-        if cursor >= len(encoded_string):
-            return
-
         i = encoded_string[cursor]
         cursor += 1
         if i == 0xFF:
@@ -298,12 +299,10 @@ def decode_string(
             # so by default we replace them with a space.
             if not replace_newline:
                 string += "\n"
-            elif len(string) > 0 and string[-1] == "-":
-                # If the previous character was a '-', the words before and after
-                # the newline probably belong together (such as 'red-\nglowing'),
-                # so we should not add a space in that case.
-                pass
-            else:
+            # If the previous character was a '-', the words before and after
+            # the newline probably belong together (such as 'red-\nglowing'),
+            # so we should not add a space in that case.
+            elif len(string) <= 0 or string[-1] != "-":
                 string += " "
         elif i == 0xFD:
             if cursor >= len(encoded_string):
@@ -331,7 +330,7 @@ def decode_string(
                 cursor += 2
             else:
                 cursor += 1
-        elif i == 0xFB or i == 0xFA:
+        elif i in [0xFB, 0xFA]:
             # Controls text box behaviour which we do not care about.
             continue
         else:

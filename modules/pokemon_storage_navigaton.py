@@ -1,7 +1,7 @@
 from modules.context import context
 from modules.memory import read_symbol, unpack_uint32
-from modules.tasks import get_task, task_is_active
 from modules.menuing import BaseMenuNavigator
+from modules.tasks import get_task, task_is_active
 
 PokeInBoxOptions = ["MOVE", "SUMMARY", "WITHDRAW", "MARK", "RELEASE", "CANCEL"]
 
@@ -20,25 +20,24 @@ def pc_slot_from_number(slot: int) -> tuple[int, int]:
     """
     if slot > 29:
         raise ValueError("Slot must be between 0 and 29")
-    return [slot % 6, slot // 6]
+    return slot % 6, slot // 6
 
 
 class PCMainMenuNavigator(BaseMenuNavigator):
     def __init__(self, desired_option: str):
         super().__init__()
-        if desired_option.upper() in PCPokeOptions:
-            self.desired_option = desired_option.upper()
-            self.cursor = StorageCursor()
-            self.wait_counter = 0
-            match context.rom.game_title:
-                case "POKEMON EMER" | "POKEMON FIRE" | "POKEMON LEAF":
-                    self.pc_task = "Task_PCMainMenu"
-                case "POKEMON RUBY" | "POKEMON SAPP":
-                    self.pc_task = "Task_PokemonStorageSystem"
-                case _:
-                    raise ValueError("Game not supported")
-        else:
+        if desired_option.upper() not in PCPokeOptions:
             raise ValueError(f"Option not in PC Main Menu, options are {PCPokeOptions}")
+        self.desired_option = desired_option.upper()
+        self.cursor = StorageCursor()
+        self.wait_counter = 0
+        match context.rom.game_title:
+            case "POKEMON EMER" | "POKEMON FIRE" | "POKEMON LEAF":
+                self.pc_task = "Task_PCMainMenu"
+            case "POKEMON RUBY" | "POKEMON SAPP":
+                self.pc_task = "Task_PokemonStorageSystem"
+            case _:
+                raise ValueError("Game not supported")
         self.current_step = None
 
     def get_next_func(self):
@@ -140,7 +139,7 @@ class MenuNavigator(BaseMenuNavigator):
         self.wait_counter = 0
 
     def navigate_to_option(self):
-        while not self.cursor.menu_cur_pos == self.menu.index(self.desired_option):
+        while self.cursor.menu_cur_pos != self.menu.index(self.desired_option):
             context.emulator.press_button("Down")
             yield
 
@@ -167,12 +166,11 @@ class BoxNavigator(BaseMenuNavigator):
             goto_pos = pc_slot_from_number(goto_pos)
         if goto_pos[0] > 7:
             raise ValueError("Not implemented yet")
-        else:
-            self.goto_pos = goto_pos
-            self.desired_option = desired_option.upper()
-            self.cursor = StorageCursor()
-            self.wait_counter = 0
-            self.goto_box = goto_box
+        self.goto_pos = goto_pos
+        self.desired_option = desired_option.upper()
+        self.cursor = StorageCursor()
+        self.wait_counter = 0
+        self.goto_box = goto_box
         self.subnavigator = None
         self.current_step = None
 
@@ -267,10 +265,7 @@ class BoxNavigator(BaseMenuNavigator):
 class StorageCursor:
     @property
     def box_mode_enabled(self) -> bool:
-        if self.box_cur_pos:
-            return True
-        else:
-            return False
+        return bool(self.box_cur_pos)
 
     @property
     def current_box(self) -> int:
@@ -296,14 +291,11 @@ class StorageCursor:
                             start_cur = 67
                             offset = 0x03007CFC
                         cur_pos = int(context.emulator.read_bytes(offset, 1)[0])
-                        if cur_pos == start_cur:
-                            cur_pos = 0
-                        else:
-                            cur_pos = cur_pos // 16 - 1
+                        cur_pos = 0 if cur_pos == start_cur else cur_pos // 16 - 1
                 case "POKEMON RUBY" | "POKEMON SAPP":
                     cur_pos = int(context.emulator.read_bytes(0x030006B2, 1)[0])
             return cur_pos
-        except:
+        except Exception:
             return None
 
     @property
@@ -334,13 +326,13 @@ class StorageCursor:
                     y_with_offset = 0x030017CC
             x_pos = x_pos_bytes.index(context.emulator.read_bytes(x_without_offset, 1)[0])
             if x_pos == 6:
-                # This means the box slot has a pokemon in it
+                # This means the box slot has a Pokémon in it
                 x_pos = x_pos_bytes.index(context.emulator.read_bytes(x_with_offset, 1)[0])
                 y_pos = y_pos_bytes.index(context.emulator.read_bytes(y_with_offset, 1)[0])
             elif x_pos < 6:
                 y_pos = y_pos_bytes.index(context.emulator.read_bytes(y_without_offset, 1)[0])
             else:
                 y_pos = -1
-            return [x_pos, y_pos]
-        except:
+            return x_pos, y_pos
+        except Exception:
             return None

@@ -2,17 +2,21 @@ import requests
 
 
 def download_file(url):
-    response = requests.get(url)
+    try:
+        response = requests.get(url, allow_redirects=False, timeout=10)
 
-    if response.status_code == 200:
-        filename = url.split("/")[-1]
+        if response.status_code == 200:
+            filename = url.split("/")[-1]
 
-        with open(filename, "wb") as file:
-            file.write(response.content)
+            with open(filename, "wb") as file:
+                file.write(response.content)
 
-        print(f"File '{filename}' downloaded successfully.")
-    else:
-        print(f"Failed to download file. Status code: {response.status_code}")
+            print(f"File '{filename}' downloaded successfully.")
+        else:
+            print(f"Failed to download file. Status code: {response.status_code}")
+
+    except requests.exceptions.Timeout as e:
+        print(e)
 
 
 urls = [
@@ -33,5 +37,5 @@ urls = [
     "https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen_rev1.sym",
 ]
 
-for url in urls:
-    download_file(url)
+for u in urls:
+    download_file(u)

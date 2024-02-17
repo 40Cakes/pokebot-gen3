@@ -2,7 +2,7 @@ import struct
 from enum import IntEnum, auto
 
 from modules.context import context
-from modules.game import get_symbol, get_symbol_name, get_event_flag_offset, _event_flags, _event_vars
+from modules.game import _event_flags, _event_vars, get_event_flag_offset, get_symbol, get_symbol_name
 from modules.state_cache import state_cache
 
 
@@ -69,7 +69,7 @@ def write_symbol(name: str, data: bytes, offset: int = 0x0) -> bool:
         raise
 
 
-def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
+def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes | None:
     """
     The Generation III save file is broken up into two game save blocks, this function will return sections from these
     save blocks. Emerald, FireRed and LeafGreen SaveBlocks will randomly move around in memory, which requires following
@@ -86,13 +86,12 @@ def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     try:
         if not size:
             size = get_symbol(f"GSAVEBLOCK{num}")[1]
-        if not context.rom.is_rs:
-            p_Trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
-            if p_Trainer == 0:
-                return None
-            return context.emulator.read_bytes(p_Trainer + offset, size)
-        else:
+        if context.rom.is_rs:
             return read_symbol(f"gSaveBlock{num}", offset, size)
+        p_trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
+        if p_trainer == 0:
+            return None
+        return context.emulator.read_bytes(p_trainer + offset, size)
     except SystemExit:
         raise
 
@@ -109,13 +108,12 @@ def write_to_save_block(data: bytes, num: int = 1, offset: int = 0) -> bool:
     """
     # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
     try:
-        if not context.rom.is_rs:
-            p_Trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
-            if p_Trainer == 0:
-                return False
-            return context.emulator.write_bytes(p_Trainer + offset, data)
-        else:
+        if context.rom.is_rs:
             return write_symbol(f"gSaveBlock{num}", data, offset)
+        p_trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
+        if p_trainer == 0:
+            return False
+        return context.emulator.write_bytes(p_trainer + offset, data)
     except SystemExit:
         raise
 
@@ -211,8 +209,9 @@ def game_has_started() -> bool:
     Reports whether the game has progressed past the main menu (save loaded
     or new game started.)
     """
-    return read_symbol("sPlayTimeCounterState") != b"\x00" and 0 != int.from_bytes(
-        read_symbol("gObjectEvents", 0x10, 9), byteorder="little"
+    return (
+        read_symbol("sPlayTimeCounterState") != b"\x00"
+        and int.from_bytes(read_symbol("gObjectEvents", 0x10, 9), byteorder="little") != 0
     )
 
 

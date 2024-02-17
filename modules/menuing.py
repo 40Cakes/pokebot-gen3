@@ -2,22 +2,22 @@ from enum import IntEnum
 from typing import Generator
 
 from modules.context import context
-from modules.items import get_item_bag, Item
-from modules.memory import get_event_flag, get_game_state, GameState, read_symbol, unpack_uint16
+from modules.items import Item, get_item_bag
+from modules.memory import GameState, get_event_flag, get_game_state, read_symbol, unpack_uint16
 from modules.menu_parsers import (
     CursorOptionEmerald,
     CursorOptionFRLG,
     CursorOptionRS,
-    parse_start_menu,
-    parse_party_menu,
     get_cursor_options,
-    parse_menu,
     get_party_menu_cursor_pos,
+    parse_menu,
+    parse_party_menu,
+    parse_start_menu,
 )
 from modules.modes._asserts import assert_has_pokemon_with_move
 from modules.modes._interface import BotModeError
 from modules.pokemon import get_move_by_name, get_party
-from modules.tasks import task_is_active, get_task
+from modules.tasks import get_task, task_is_active
 
 
 def party_menu_is_open() -> bool:
@@ -109,13 +109,12 @@ class BaseMenuNavigator:
         """
         Iterates through the steps of navigating the menu for the desired outcome.
         """
-        while not self.current_step == "exit":
+        while self.current_step != "exit":
             if not self.navigator:
                 self.get_next_func()
                 self.update_navigator()
             else:
-                for _ in self.navigator:
-                    yield _
+                yield from self.navigator
                 self.navigator = None
 
     def get_next_func(self):
@@ -248,7 +247,6 @@ class PokemonPartySubMenuNavigator(BaseMenuNavigator):
         if isinstance(self.desired_option, (str, IntEnum)):
             self.desired_option = self.get_index_from_option()
         if self.desired_option < 0 or self.desired_option > parse_menu()["maxCursorPos"]:
-            x = parse_menu()
             context.message = f"Error selecting option {self.desired_option}, switching to manual mode..."
             context.set_manual_mode()
         while parse_menu()["cursorPos"] != self.desired_option:
@@ -324,10 +322,10 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
     def get_primary_option(self):
         if self.mode in ["take_item", "give_item"]:
             self.primary_option = "ITEM"
-        if self.mode == "switch":
-            self.primary_option = "SWITCH"
         if self.mode == "summary":
             self.primary_option = "SUMMARY"
+        elif self.mode == "switch":
+            self.primary_option = "SWITCH"
 
     def get_next_func(self):
         match self.current_step:
@@ -418,8 +416,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator(self.primary_option).step()
                 else:
-                    for _ in self.subnavigator:
-                        yield _
+                    yield from self.subnavigator
                     self.navigator = None
                     self.subnavigator = None
         else:
@@ -427,8 +424,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator(self.primary_option).step()
                 else:
-                    for _ in self.subnavigator:
-                        yield _
+                    yield from self.subnavigator
                     self.navigator = None
                     self.subnavigator = None
 
@@ -438,8 +434,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator("SHIFT").step()
                 else:
-                    for _ in self.subnavigator:
-                        yield _
+                    yield from self.subnavigator
                     self.navigator = None
                     self.subnavigator = None
         else:
@@ -447,8 +442,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator(0).step()
                 else:
-                    for _ in self.subnavigator:
-                        yield _
+                    yield from self.subnavigator
                     self.navigator = None
                     self.subnavigator = None
 
@@ -458,8 +452,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator("TAKE_ITEM").step()
                 else:
-                    for _ in self.subnavigator:
-                        yield _
+                    yield from self.subnavigator
                     self.navigator = None
                     self.subnavigator = None
         else:
@@ -467,8 +460,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator(1).step()
                 else:
-                    for _ in self.subnavigator:
-                        yield _
+                    yield from self.subnavigator
                     self.navigator = None
                     self.subnavigator = None
 
@@ -610,7 +602,10 @@ class CheckForPickup(BaseMenuNavigator):
         if self.current_mon is not None:
             pokemon = self.party[self.current_mon]
             if not get_item_bag().has_space_for(pokemon.held_item):
-                context.message = f"Item bag is full! {pokemon.species.name} (party slot #{self.current_mon + 1}) is holding a {pokemon.held_item.name} but there is no space left for it in the bag."
+                context.message = (
+                    f"Item bag is full! {pokemon.species.name} (party slot #{self.current_mon + 1}) is holding a "
+                    f"{pokemon.held_item.name} but there is no space left for it in the bag."
+                )
                 context.set_manual_mode()
 
     def get_next_func(self):
@@ -705,8 +700,7 @@ class MenuWrapper:
         self.menu_handler = menu_handler.step()
 
     def step(self):
-        for _ in self.menu_handler:
-            yield _
+        yield from self.menu_handler
 
 
 def should_check_for_pickup():
@@ -780,7 +774,7 @@ def use_party_hm_move(move_name: str):
 
     yield from StartMenuNavigator("POKEMON").step()
 
-    # find pokemon with desired HM move
+    # find Pokémon with desired HM move
     move_pokemon = None
     move_wanted = get_move_by_name(move_name)
     for index in range(len(get_party())):

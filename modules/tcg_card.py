@@ -1,15 +1,13 @@
 from datetime import datetime
 from pathlib import Path
 
+from PIL import Image, ImageDraw, ImageFont
+
 from modules.context import context
 from modules.player import get_player, get_player_avatar
 from modules.pokemon import Pokemon
-
-from PIL import Image, ImageDraw, ImageFont, ImageSequence
-
 from modules.runtime import get_sprites_path
 from modules.version import pokebot_name
-
 
 TCG_REVISION = "Rev. 1.1"
 

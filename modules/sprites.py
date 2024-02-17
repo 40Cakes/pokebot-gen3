@@ -9,7 +9,7 @@ from modules.runtime import get_sprites_path
 
 def choose_random_sprite() -> Path:
     """
-    :return: Path to a random Pokemon sprite file
+    :return: Path to a random Pokémon sprite file
     """
     rand = random.randint(0, 99)
     match rand:
