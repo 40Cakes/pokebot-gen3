@@ -98,7 +98,7 @@ class CreateProfileScreen:
             widget.select_range(0, "end")
             widget.icursor("end")
 
-        def handle_name_input_change(sv=sv_name):
+        def handle_name_input_change(name, index, mode, sv=sv_name):
             value = sv.get()
             message_label.grid(row=3, column=0, columnspan=2)
             if value == "":
