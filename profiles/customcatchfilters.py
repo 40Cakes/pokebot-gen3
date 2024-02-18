@@ -1,5 +1,6 @@
 from modules.console import console
 from modules.files import save_pk3
+from modules.pokedex import get_pokedex
 from modules.pokemon import Pokemon
 
 
@@ -65,15 +66,6 @@ def custom_catch_filters(pokemon: Pokemon) -> str | bool:
         ]
 
         if pokemon.species.name not in exceptions:
-            # Shiny Wurmple evolving based on evolution
-            if pokemon.is_shiny and pokemon.species.name == "Wurmple":
-                if pokemon.wurmple_evolution == "silcoon":
-                    # return "Shiny Wurmple evolving into Silcoon/Beautifly"
-                    pass
-                if pokemon.wurmple_evolution == "cascoon":
-                    # return "Shiny Wurmple evolving into Cascoon/Dustox"
-                    pass
-
             # Pokémon with perfect IVs
             if pokemon.ivs.sum() == (6 * 31):
                 return "Pokémon with perfect IVs"
@@ -89,8 +81,28 @@ def custom_catch_filters(pokemon: Pokemon) -> str | bool:
                 return "Pokémon with 6 identical IVs of any value"
                 # pass
 
+            # New Pokémon species that has not been registered in the Pokédex
+            if all(species != pokemon.species for species in get_pokedex().seen_species):
+                # return "New Pokémon species"
+                pass
+
+            # Specific shiny Unown letters
+            wanted_unown = ["A", "B", "C"]
+            if pokemon.is_shiny and pokemon.species.name == "Unown" and pokemon.unown_letter in wanted_unown:
+                # return f'Shiny "{pokemon.unown_letter}" Unown'
+                pass
+
+            # Shiny Wurmple evolving based on evolution
+            if pokemon.is_shiny and pokemon.species.name == "Wurmple":
+                if pokemon.wurmple_evolution == "silcoon":
+                    # return "Shiny Wurmple evolving into Silcoon/Beautifly"
+                    pass
+                if pokemon.wurmple_evolution == "cascoon":
+                    # return "Shiny Wurmple evolving into Cascoon/Dustox"
+                    pass
+
             # Pokémon with 4 or more max IVs in any stat
-            max_ivs = sum(1 for v in ivs if v == 31)
+            max_ivs = sum(bool(v == 31) for v in ivs)
             if max_ivs > 4:
                 # return "Pokémon with 4 or more max IVs in any stat"
                 pass
@@ -113,7 +125,7 @@ def custom_catch_filters(pokemon: Pokemon) -> str | bool:
         ### Edit above this line ###
 
         return False
-    except:
+    except Exception:
         console.print_exception(show_locals=True)
         console.print("[red bold]Failed to check Pokemon, potentially due to invalid custom catch filter...")
         return False
