@@ -81,20 +81,22 @@ Once activated, run the bot (your shell should show `(venv)` if activated correc
 </details>
 
 ## Run the Bot
-- Place some **official** Pokémon .gba ROMs into the `roms/` folder
+- Place some **official** Pokémon .gba ROMs into the `./roms/` folder
 - Double click `pokebot.py` or run `python pokebot.py` in a terminal and follow the on-screen steps to create and/or select a profile
 
 The bot ships with the default mGBA input mapping, see [here](../../profiles/keys.yml) for the default mapping, or customise them to your preference.
 
-The bot will pause once a shiny is encountered. You **must** ensure you are able to escape battle **100% of the time**, otherwise the bot will get stuck. Auto-catching and other features will be added in due time.
+You **must** ensure you are able to escape battle **100% of the time**, otherwise the bot will get stuck.
 If you have a save from mGBA that you'd like to import and use with the bot, then you will need to import the save state.
+
+This bot is still in development, as such, functionality is subject to change - always make sure you back up your `./profiles/` folder before updating your bot! 
 
 ## Import a Save
 - In mGBA (standalone), run a game and load into the save file
 - **File** > **Save State File...** > **Save**
 - Double click `pokebot.py` or run `python pokebot.py` in a terminal > type a profile **name** > click **Load Existing Save**
 - Open the save state file you just saved
-- A new bot profile will be created in the `profiles/` folder, and launched
+- A new bot profile will be created in the `./profiles/` folder, and launched
 
 ## Tips/Tricks
 - Set in-game **TEXT SPEED** to **FAST**
