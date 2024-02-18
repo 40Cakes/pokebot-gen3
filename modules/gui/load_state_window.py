@@ -2,7 +2,7 @@ import random
 import re
 import time
 from pathlib import Path
-from tkinter import ttk, Tk, Toplevel, Canvas, PhotoImage, TclError
+from tkinter import Canvas, PhotoImage, TclError, Tk, Toplevel, ttk
 
 import PIL.Image
 import PIL.ImageDraw
@@ -18,8 +18,8 @@ class LoadStateWindow:
         if not state_directory.is_dir():
             return
 
-        state_files: list[Path] = [file for file in state_directory.glob("*.ss1")]
-        if len(state_files) < 1:
+        state_files: list[Path] = list(state_directory.glob("*.ss1"))
+        if not state_files:
             return
 
         def remove_window(event=None):
@@ -90,24 +90,24 @@ class LoadStateWindow:
                 draw = PIL.ImageDraw.Draw(placeholder)
                 draw.rectangle(xy=[(0, 0), (placeholder.width, placeholder.height)], fill="#000000FF")
                 possible_sprites = [
-                    "TM01.png",
-                    "TM26.png",
-                    "TM44.png",
-                    "TM Dark.png",
-                    "TM Dragon.png",
-                    "TM Electric.png",
-                    "TM Fire.png",
-                    "TM Flying.png",
-                    "TM Ghost.png",
-                    "TM Grass.png",
-                    "TM Ice.png",
-                    "TM Normal.png",
-                    "TM Poison.png",
-                    "TM Rock.png",
-                    "TM Steel.png",
-                    "TM Water.png",
+                    "TM01",
+                    "TM26",
+                    "TM44",
+                    "TM Dark",
+                    "TM Dragon",
+                    "TM Electric",
+                    "TM Fire",
+                    "TM Flying",
+                    "TM Ghost",
+                    "TM Grass",
+                    "TM Ice",
+                    "TM Normal",
+                    "TM Poison",
+                    "TM Rock",
+                    "TM Steel",
+                    "TM Water",
                 ]
-                sprite = PIL.Image.open(get_sprites_path() / "items" / random.choice(possible_sprites))
+                sprite = PIL.Image.open(get_sprites_path() / "items" / f"{random.choice(possible_sprites)}.png")
                 if sprite.mode != "RGBA":
                     sprite = sprite.convert("RGBA")
                 sprite = sprite.resize((sprite.width * 3, sprite.height * 3), resample=False)
@@ -117,7 +117,7 @@ class LoadStateWindow:
                 )
                 placeholder.paste(sprite, sprite_position, sprite)
                 photo_buffer.append(placeholder)
-                photo = PIL.ImageTk.PhotoImage(master=canvas, image=placeholder)
+                photo = PIL.ImageTk.PhotoImage(image=placeholder)
 
             photo_buffer.append(photo)
             button_frame = ttk.Frame(frame, padding=5)

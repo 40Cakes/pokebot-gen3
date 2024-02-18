@@ -1,3 +1,4 @@
+import contextlib
 import time
 import tkinter
 from enum import Enum
@@ -64,7 +65,7 @@ class FancyTreeview:
         height=22,
         row=0,
         column=0,
-        columnspan=1,
+        column_span=1,
         additional_context_actions: Optional[dict[str, callable]] = None,
         on_highlight: Optional[callable] = None,
     ):
@@ -73,7 +74,7 @@ class FancyTreeview:
 
         treeview_scrollbar_combo = ttk.Frame(root)
         treeview_scrollbar_combo.columnconfigure(0, weight=1)
-        treeview_scrollbar_combo.grid(row=row, column=column, columnspan=columnspan, sticky="NSWE")
+        treeview_scrollbar_combo.grid(row=row, column=column, columnspan=column_span, sticky="NSWE")
 
         self._items = {}
         self._tv = ttk.Treeview(
@@ -105,7 +106,7 @@ class FancyTreeview:
 
         if on_highlight is not None:
 
-            def handle_selection(e):
+            def handle_selection():
                 selected_item = self._tv.focus()
                 on_highlight(self._tv.item(selected_item)["text"])
 
@@ -115,10 +116,8 @@ class FancyTreeview:
         found_items = self._update_dict(data, "", "")
         missing_items = set(self._items.keys()) - set(found_items)
         for key in missing_items:
-            try:
+            with contextlib.suppress(tkinter.TclError):
                 self._tv.delete(self._items[key])
-            except tkinter.TclError:
-                pass
             del self._items[key]
 
     def _update_dict(self, data: any, key_prefix: str, parent: str) -> list[str]:
@@ -150,10 +149,7 @@ class FancyTreeview:
                     self._items[item_key] = item
                 found_items.append(item_key)
 
-                d = {}
-                for i in range(0, len(data[key])):
-                    d[str(i)] = data[key][i]
-
+                d = {str(i): data[key][i] for i in range(len(data[key]))}
                 found_items.extend(self._update_dict(d, f"{key_prefix}{key}.", item))
             elif isinstance(data[key], (bool, int, float, complex, str, bytes, bytearray)):
                 if item_key in self._items:
@@ -186,11 +182,9 @@ class FancyTreeview:
                 found_items.append(item_key)
 
                 properties = {}
-                try:
+                with contextlib.suppress(AttributeError):
                     for k in data[key].__dict__:
                         properties[k] = data[key].__dict__[k]
-                except AttributeError:
-                    pass
                 for k in dir(data[key].__class__):
                     if isinstance(getattr(data[key].__class__, k), property):
                         properties[k] = getattr(data[key], k)
@@ -200,8 +194,7 @@ class FancyTreeview:
         return found_items
 
     def _handle_right_click(self, event) -> None:
-        item = self._tv.identify_row(event.y)
-        if item:
+        if item := self._tv.identify_row(event.y):
             self._tv.selection_set(item)
             self._context_menu.tk_popup(event.x_root, event.y_root)
 
@@ -237,7 +230,8 @@ class MapViewer:
         self._cache: dict[tuple[int, int], ImageTk.PhotoImage] = {}
 
     def update(self):
-        try:
+        # If trainer data do not exists yet then ignore. eg. New game, intro, etc
+        with contextlib.suppress(TypeError, RuntimeError):
             current_map_data = get_map_data_for_current_position()
 
             cached_map = self._cache.get((current_map_data.map_group, current_map_data.map_number), False)
@@ -247,9 +241,6 @@ class MapViewer:
 
             self._map.configure(image=cached_map)
             self._map.image = cached_map
-        except (TypeError, RuntimeError):
-            # If trainer data do not exists yet then ignore. eg. New game, intro, etc
-            pass
 
     def _get_map_bitmap(self) -> Image:
         tiles = get_map_all_tiles()
@@ -299,7 +290,7 @@ class TasksTab(DebugTab):
         self._cb2_label = ttk.Label(frame, text="", padding=(10, 10))
         self._cb2_label.grid(row=1, column=1, sticky="W")
 
-        self._tv = FancyTreeview(frame, height=19, row=2, columnspan=2)
+        self._tv = FancyTreeview(frame, height=19, row=2, column_span=2)
 
         root.add(frame, text="Tasks")
 
@@ -317,26 +308,26 @@ class TasksTab(DebugTab):
         def render_script_context(ctx: ScriptContext) -> dict | str:
             if not ctx.is_active:
                 return "None"
-            else:
-                if len(ctx.stack) == 1:
-                    stack = {"__value": "Empty"}
-                else:
-                    stack = {"__value": ", ".join(ctx.stack[0 : min(2, len(ctx.stack) - 1)])}
-                if len(ctx.stack) > 3:
-                    stack["__value"] += ", ..."
-                for index in range(len(ctx.stack)):
-                    stack[index] = ctx.stack[index]
+            stack = (
+                {"__value": "Empty"}
+                if len(ctx.stack) == 1
+                else {"__value": ", ".join(ctx.stack[: min(2, len(ctx.stack) - 1)])}
+            )
+            if len(ctx.stack) > 3:
+                stack["__value"] += ", ..."
+            for index in range(len(ctx.stack)):
+                stack[index] = ctx.stack[index]
 
-                return {
-                    "__value": ctx.script_function_name + " / " + ctx.native_function_name,
-                    "Mode": ctx.mode,
-                    "Script Function": ctx.script_function_name,
-                    "Native Function": ctx.native_function_name,
-                    "Stack": stack,
-                    "Data": ctx.data,
-                    "Bytecode Pointer": hex(ctx.bytecode_pointer),
-                    "Native Pointer": hex(ctx.native_pointer),
-                }
+            return {
+                "__value": f"{ctx.script_function_name} / {ctx.native_function_name}",
+                "Mode": ctx.mode,
+                "Script Function": ctx.script_function_name,
+                "Native Function": ctx.native_function_name,
+                "Stack": stack,
+                "Data": ctx.data,
+                "Bytecode Pointer": hex(ctx.bytecode_pointer),
+                "Native Pointer": hex(ctx.native_pointer),
+            }
 
         data = {
             "Global Script Context": render_script_context(get_global_script_context()),
@@ -392,10 +383,10 @@ class BattleTab(DebugTab):
             "Opponent Faint Counter": int(data[1]),
             "Player Switch Counter": int(data[2]),
             "Count Healing Items used": int(data[3]),
-            "Player Mon Damaged": bool(data[5] & 0x1),  #:1; // 0x5
-            "Master Ball used": bool(data[5] & 0x2),  #:1;      // 0x5
-            "Caught Mon Ball used": int(data[5] & 0x30),  #:4;       // 0x5
-            "Wild Mon was Shiny": bool(data[5] & 0x40),  #:1;       // 0x5
+            "Player Mon Damaged": bool(data[5] & 0x1),  # :1;   // 0x5
+            "Master Ball used": bool(data[5] & 0x2),  # :1;     // 0x5
+            "Caught Mon Ball used": int(data[5] & 0x30),  # :4; // 0x5
+            "Wild Mon was Shiny": bool(data[5] & 0x40),  # :1;  // 0x5
             "Count Revives used": int(data[4]),
             "Player Mon 1 Species": unpack_uint16(data[6:8]),
             "Player Mon 1 Name": decode_string(data[8:19]),  # SpeciesName(battleResult.playerMon1Species)
@@ -407,14 +398,15 @@ class BattleTab(DebugTab):
             "Last Opponent Name": get_species_by_index(unpack_uint16(data[32:34])).name,
             "Last used Move Player": unpack_uint16(data[34:36]),
             "Last used Move Opponent": unpack_uint16(data[36:38]),
-            "Cought Mon Species": unpack_uint16(data[40:42]),
-            "Cought Mon Name": decode_string(data[42:53]),
+            "Caught Mon Species": unpack_uint16(data[40:42]),
+            "Caught Mon Name": decode_string(data[42:53]),
             "Catch Attempts": int(data[54]),
         }
 
 
 class SymbolsTab(DebugTab):
     def __init__(self):
+        self._tv = None
         self.symbols_to_display = {
             "gObjectEvents",
             "sChat",
@@ -538,22 +530,23 @@ class SymbolsTab(DebugTab):
         search_input.bind("<KeyRelease>", handle_input)
 
         def handle_double_click(event):
-            if self._mini_window is not None:
-                item = tv.identify_row(event.y)
-                col = tv.identify_column(event.x)
-                if item:
-                    symbol_name = tv.item(item)["text"]
-                    symbol_length = int(tv.item(item).get("values")[2], 16)
-                    if tv.item(item)["text"].startswith("s"):
-                        self.display_mode[symbol_name] = "str"
-                    elif symbol_length == 2 or symbol_length == 4:
-                        self.display_mode[symbol_name] = "dec"
-                    else:
-                        self.display_mode[symbol_name] = "hex"
-                    self.symbols_to_display.add(tv.item(item)["text"])
-                    self.update(context.emulator)
-                elif col:
-                    sort_treeview(tv, col, False)
+            if self._mini_window is None:
+                return
+            item = tv.identify_row(event.y)
+            col = tv.identify_column(event.x)
+            if item:
+                symbol_name = tv.item(item)["text"]
+                symbol_length = int(tv.item(item).get("values")[2], 16)
+                if tv.item(item)["text"].startswith("s"):
+                    self.display_mode[symbol_name] = "str"
+                elif symbol_length in {2, 4}:
+                    self.display_mode[symbol_name] = "dec"
+                else:
+                    self.display_mode[symbol_name] = "hex"
+                self.symbols_to_display.add(tv.item(item)["text"])
+                self.update(context.emulator)
+            elif col:
+                sort_treeview(tv, col, False)
 
         tv.bind("<Double-Button-1>", handle_double_click)
 
@@ -651,11 +644,7 @@ class PlayerTab(DebugTab):
             if flag in player_avatar.flags:
                 active_flags.append(flag.name)
 
-        if len(active_flags) == 0:
-            flags["__value"] = "None"
-        else:
-            flags["__value"] = ", ".join(active_flags)
-
+        flags["__value"] = ", ".join(active_flags) if active_flags else "None"
         pokedex = get_pokedex()
 
         seen_species = pokedex.seen_species
@@ -668,12 +657,9 @@ class PlayerTab(DebugTab):
         for species in owned_species:
             pokedex_owned[species.national_dex_number] = species.name
 
-        game_stats = {}
-        for member in GameStat:
-            if member.value > 49 and context.rom.is_rs:
-                continue
-            game_stats[member.name] = get_game_stat(member)
-
+        game_stats = {
+            member.name: get_game_stat(member) for member in GameStat if member.value <= 49 or not context.rom.is_rs
+        }
         result: dict[str, any] = {
             "Name": player.name,
             "Gender": player.gender,
@@ -691,11 +677,11 @@ class PlayerTab(DebugTab):
             "Tile Transition State": player_avatar.tile_transition_state.name,
             "Facing Direction": player_avatar.facing_direction,
             "Game Stats": game_stats,
-            "Pokedex Seen": pokedex_seen,
-            "Pokedex Owned": pokedex_owned,
+            "Pokédex Seen": pokedex_seen,
+            "Pokédex Owned": pokedex_owned,
         }
 
-        for i in range(0, 6):
+        for i in range(6):
             key = f"Party Pokémon #{i + 1}"
             if len(party) <= i or party[i].is_empty:
                 result[key] = {"__value": "n/a"}
@@ -727,33 +713,21 @@ class PlayerTab(DebugTab):
                 + len(item_bag.berries)
             )
             bag_data["__value"] = f"{used_slots}/{total_slots} Slots"
-            n = 0
-            for slot in item_bag.items:
-                n += 1
+            for n, slot in enumerate(item_bag.items, start=1):
                 bag_data["Items"][n] = f"{slot.quantity}× {slot.item.name}"
-            n = 0
-            for slot in item_bag.key_items:
-                n += 1
+            for n, slot in enumerate(item_bag.key_items, start=1):
                 bag_data["Key Items"][n] = f"{slot.quantity}× {slot.item.name}"
-            n = 0
-            for slot in item_bag.poke_balls:
-                n += 1
+            for n, slot in enumerate(item_bag.poke_balls, start=1):
                 bag_data["Poké Balls"][n] = f"{slot.quantity}× {slot.item.name}"
-            n = 0
-            for slot in item_bag.tms_hms:
-                n += 1
+            for n, slot in enumerate(item_bag.tms_hms, start=1):
                 bag_data["TMs and HMs"][n] = f"{slot.quantity}× {slot.item.name}"
-            n = 0
-            for slot in item_bag.berries:
-                n += 1
+            for n, slot in enumerate(item_bag.berries, start=1):
                 bag_data["Berries"][n] = f"{slot.quantity}× {slot.item.name}"
             result["Item Bag"] = bag_data
 
             item_storage = get_item_storage()
             storage_data = {"__value": f"{len(item_storage.items)}/{item_storage.number_of_slots} Slots"}
-            n = 0
-            for slot in item_storage.items:
-                n += 1
+            for n, slot in enumerate(item_storage.items, start=1):
                 storage_data[n] = f"{slot.quantity}× {slot.item.name}"
             result["Item Storage"] = storage_data
         except (IndexError, KeyError):
@@ -801,10 +775,7 @@ class MiscTab(DebugTab):
 
         pokemon2 = "n/a"
         if data.pokemon2 is not None and not data.pokemon2.is_empty:
-            gender = ""
-            if data.pokemon2.gender is not None:
-                gender = f" ({data.pokemon2.gender})"
-
+            gender = "" if data.pokemon2.gender is None else f" ({data.pokemon2.gender})"
             pokemon2 = {
                 "__value": f"{data.pokemon2.species.name}{gender}; {data.pokemon1_steps:,} steps",
                 "pokemon": data.pokemon2,
@@ -814,9 +785,9 @@ class MiscTab(DebugTab):
 
         if pokemon1 == "n/a" and pokemon2 == "n/a":
             daycare_value = "None"
-        elif pokemon2 == "n/a" and pokemon1 != "n/a":
+        elif pokemon2 == "n/a":
             daycare_value = pokemon1["__value"]
-        elif pokemon1 == "n/a" and pokemon2 != "n/a":
+        elif pokemon1 == "n/a":
             daycare_value = pokemon2["__value"]
         else:
             daycare_value = (
@@ -844,6 +815,9 @@ class MiscTab(DebugTab):
 class EventFlagsTab(DebugTab):
     _tv: FancyTreeview
     _search_field: ttk.Entry
+
+    def __init__(self):
+        self._search_phrase = None
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
@@ -884,19 +858,17 @@ class EventFlagsTab(DebugTab):
         pyperclip3.copy(flag)
 
     def _get_data(self):
-        result = {}
         search_phrase = self._search_field.get().upper()
 
-        for flag in _event_flags:
-            if len(search_phrase) == 0 or search_phrase in flag:
-                result[flag] = get_event_flag(flag)
-
-        return result
+        return {flag: get_event_flag(flag) for flag in _event_flags if len(search_phrase) == 0 or search_phrase in flag}
 
 
 class EventVarsTab(DebugTab):
     _tv: FancyTreeview
     _search_field: ttk.Entry
+
+    def __init__(self):
+        self._search_phrase = None
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
@@ -990,17 +962,14 @@ class EmulatorTab(DebugTab):
         else:
             inputs_dict["__value"] = "-"
 
-        controller_names = []
-        for entry in context.controller_stack:
-            controller_names.append(entry.__qualname__)
-
+        controller_names = [entry.__qualname__ for entry in context.controller_stack]
         session_total_seconds = context.frame / 59.727500569606
         session_hours = int(session_total_seconds / 3600)
         session_minutes = int((session_total_seconds % 3600) / 60)
         session_seconds = int(session_total_seconds % 60)
         session_time_at_1x = f"{session_hours:,}:{session_minutes:02}:{session_seconds:02}"
 
-        result = {
+        return {
             "Inputs": inputs_dict,
             "Emulator Frame": f"{context.emulator.get_frame_count():,}",
             "Session Frame": f"{context.frame:,}",
@@ -1009,8 +978,6 @@ class EmulatorTab(DebugTab):
             "Encounters/h (at 1×)": total_stats.get_encounter_rate_at_1x(),
             "Controller": controller_names,
         }
-
-        return result
 
 
 class MapTab(DebugTab):
@@ -1127,7 +1094,7 @@ class MapTab(DebugTab):
             elif len(flags) <= 3:
                 flags_value = ", ".join(flags)
             else:
-                flags_value = ", ".join(flags[0:3]) + "... +" + str(len(flags) - 3)
+                flags_value = ", ".join(flags[:3]) + "... +" + str(len(flags) - 3)
 
             flags_list = {"__value": flags_value}
             for j in range(len(flags)):
@@ -1248,17 +1215,17 @@ class MapTab(DebugTab):
                 encounters["Land"], n = list_encounters(
                     encounter_list.land_encounters, encounter_list.land_encounter_rate
                 )
-                encounters["__value"].append(str(n) + " Land")
+                encounters["__value"].append(f"{str(n)} Land")
             if encounter_list.surf_encounter_rate > 0:
                 encounters["Surfing"], n = list_encounters(
                     encounter_list.surf_encounters, encounter_list.surf_encounter_rate
                 )
-                encounters["__value"].append(str(n) + " Surfing")
+                encounters["__value"].append(f"{str(n)} Surfing")
             if encounter_list.rock_smash_encounter_rate > 0:
                 encounters["Rock Smash"], n = list_encounters(
                     encounter_list.rock_smash_encounters, encounter_list.rock_smash_encounter_rate
                 )
-                encounters["__value"].append(str(n) + " Rock Smash")
+                encounters["__value"].append(f"{str(n)} Rock Smash")
             if encounter_list.fishing_encounter_rate > 0:
                 encounters["Fishing (Old Rod)"], n1 = list_encounters(
                     encounter_list.old_rod_encounters, encounter_list.fishing_encounter_rate

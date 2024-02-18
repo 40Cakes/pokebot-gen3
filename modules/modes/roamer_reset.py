@@ -1,36 +1,31 @@
 from typing import Generator
 
 from modules.context import context
-from modules.encounter import handle_encounter, log_encounter, judge_encounter, EncounterValue
-from modules.gui.multi_select_window import ask_for_choice, Selection
+from modules.encounter import EncounterValue, handle_encounter, judge_encounter, log_encounter
+from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.map import get_map_objects
 from modules.map_data import MapFRLG, MapRSE
-from modules.memory import (
-    get_game_state,
-    GameState,
-    get_event_var,
-)
+from modules.memory import GameState, get_event_var, get_game_state
 from modules.player import get_player, get_player_avatar
-from modules.pokemon import get_move_by_name, get_opponent
-from modules.region_map import FlyDestinationRSE, FlyDestinationFRLG
-from modules.roamer import get_roamer
+from modules.pokemon import get_opponent
+from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
 from modules.tasks import get_global_script_context
-from ._asserts import assert_save_game_exists, assert_saved_on_map, SavedMapLocation
-from ._interface import BotMode, BotModeError, BattleAction
+from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map
+from ._interface import BattleAction, BotMode, BotModeError
 from ._util import (
+    RanOutOfRepels,
+    apply_repel,
+    ensure_facing_direction,
+    fly_to,
+    follow_path,
+    navigate_to,
+    replenish_repel,
     soft_reset,
     wait_for_unique_rng_value,
-    navigate_to,
-    follow_path,
-    ensure_facing_direction,
-    walk_one_tile,
     wait_until_task_is_active,
-    apply_repel,
-    replenish_repel,
-    RanOutOfRepels,
-    fly_to,
+    walk_one_tile,
 )
 
 
@@ -75,15 +70,14 @@ class RoamerResetMode(BotMode):
             self._ran_out_of_repels = True
 
     def on_battle_started(self) -> BattleAction | None:
-        opponent = get_opponent()
         # This excludes `EncounterValue.Roamer` which should not lead to a notification being
         # triggered. _All_ encounters in this mode should be roamers.
+        opponent = get_opponent()
         if judge_encounter(opponent) in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch):
             return handle_encounter(opponent, disable_auto_catch=True)
-        else:
-            self._should_reset = True
-            log_encounter(opponent)
-            return BattleAction.CustomAction
+        self._should_reset = True
+        log_encounter(opponent)
+        return BattleAction.CustomAction
 
     def run(self) -> Generator:
         assert_save_game_exists("There is no saved game. Cannot soft reset.")
@@ -111,33 +105,24 @@ class RoamerResetMode(BotMode):
 
         if saved_party[0].level <= highest_encounter_level:
             raise BotModeError(
-                f"The first Pokémon in your party has to be at least level {highest_encounter_level + 1} in order for Repel to work."
+                "The first Pokémon in your party has to be at least level "
+                f"{highest_encounter_level + 1} in order for Repel to work."
             )
 
         if save_data.get_item_bag().number_of_repels == 0:
             raise BotModeError("You do not have any repels in your item bag. Go and get some first!")
 
-        flying_pokemon_index = None
-        move_fly = get_move_by_name("Fly")
-        for index in range(len(saved_party)):
-            for learned_move in saved_party[index].moves:
-                if learned_move is not None and learned_move.move == move_fly:
-                    flying_pokemon_index = index
-                    break
-        if flying_pokemon_index is None:
-            raise BotModeError("None of your party Pokémon know the move Fly. Please teach it to someone.")
-
         has_good_ability = not saved_party[0].is_egg and saved_party[0].ability.name in ("Illuminate", "Arena Trap")
 
         if context.rom.is_frlg:
-            yield from self.run_frlg(flying_pokemon_index, has_good_ability)
+            yield from self.run_frlg(has_good_ability)
         elif context.rom.is_emerald:
-            yield from self.run_emerald(flying_pokemon_index, has_good_ability)
+            yield from self.run_emerald(has_good_ability)
         else:
             context.message = "Ruby/Sapphire are not supported by this mode."
             context.set_manual_mode()
 
-    def run_emerald(self, flying_pokemon_index: int, has_good_ability: bool):
+    def run_emerald(self, has_good_ability: bool):
         roamer_choice = ask_for_choice(
             [
                 Selection("Latias", get_sprites_path() / "pokemon" / "normal" / "Latias.png"),
@@ -240,7 +225,7 @@ class RoamerResetMode(BotMode):
 
             yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry")
 
-    def run_frlg(self, flying_pokemon_index: int, has_good_ability: bool):
+    def run_frlg(self, has_good_ability: bool):
         while True:
             self._should_reset = False
             self._ran_out_of_repels = False

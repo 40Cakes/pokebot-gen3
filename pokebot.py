@@ -122,9 +122,8 @@ if __name__ == "__main__":
         import win32api
 
         def win32_signal_handler(signal_type):
-            if signal_type == 2:
-                if context.emulator is not None:
-                    context.emulator.shutdown()
+            if signal_type == 2 and context.emulator is not None:
+                context.emulator.shutdown()
 
         win32api.SetConsoleCtrlHandler(win32_signal_handler, True)
 

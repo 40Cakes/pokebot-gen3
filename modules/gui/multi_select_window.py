@@ -1,7 +1,7 @@
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from tkinter import ttk, Toplevel, Canvas, PhotoImage
+from tkinter import Canvas, PhotoImage, Toplevel, ttk
 
 from modules.context import context
 
@@ -43,7 +43,7 @@ def ask_for_choice(choices: list[Selection], window_title: str = "Choose...") ->
     canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
     frame = ttk.Frame(canvas, width=window_geometry[1])
-    for i in range(0, len(choices)):
+    for i in range(len(choices)):
         frame.columnconfigure(i, weight=1)
     canvas.create_window((0, 0), window=frame, anchor="nw")
 

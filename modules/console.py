@@ -35,9 +35,7 @@ def iv_colour(value: int) -> str:
         return "purple"
     if value >= 26:
         return "green"
-    if value <= 5:
-        return "red"
-    return "white"
+    return "red" if value <= 5 else "white"
 
 
 def iv_sum_colour(value: int) -> str:
@@ -47,20 +45,16 @@ def iv_sum_colour(value: int) -> str:
         return "purple"
     if value >= 140:
         return "green"
-    if value <= 50:
-        return "red"
-    return "white"
+    return "red" if value <= 50 else "white"
 
 
 def sv_colour(value: int) -> str:
     if value <= 7:
         return "yellow"
-    if value >= 65528:
-        return "purple"
-    return "red"
+    return "purple" if value >= 65528 else "red"
 
 
-def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set, encounter_rate: int) -> None:
+def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set) -> None:
     type_colour = pokemon.species.types[0].name.lower()
     rich_name = f"[{type_colour}]{pokemon.species.name}[/]"
 

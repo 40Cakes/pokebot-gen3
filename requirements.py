@@ -1,7 +1,7 @@
 import platform
 import sys
 
-from modules.runtime import is_bundled_app, is_virtualenv, get_base_path
+from modules.runtime import get_base_path, is_bundled_app, is_virtualenv
 from modules.version import pokebot_name, pokebot_version
 
 recommended_python_version = "3.12"
@@ -70,7 +70,7 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
     It will throw an error _and exit the program_ if an incompatibility is found.
 
     :param ask_for_confirmation: Whether the user should be asked for confirmation before
-                                 installing any packages. This option is here so we can
+                                 installing any packages. This option is here, so we can
                                  install requirements non-interactively in the pyinstaller
                                  build process.
     :return: Whether updating the requirements succeeded.
@@ -167,7 +167,8 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
 
             case _:
                 print(
-                    f"ERROR: {platform.system()} is unsupported. Only Windows, Linux, and MacOS are currently supported."
+                    f"ERROR: {platform.system()} is unsupported. "
+                    "Only Windows, Linux, and MacOS are currently supported."
                 )
                 sys.exit(1)
 

@@ -75,18 +75,17 @@ def assert_saved_on_map(expected_locations: SavedMapLocation | list[SavedMapLoca
 
     for expected_location in expected_locations:
         if expected_location.map_group_and_number == save_data.get_map_group_and_number():
-            if expected_location.local_coordinates is not None:
-                if expected_location.facing:
-                    saved_facing_coordinates = calculate_targeted_coords(
-                        save_data.get_map_local_coordinates(), player_object_event.facing_direction
-                    )
-                    if expected_location.local_coordinates == saved_facing_coordinates:
-                        return
-                elif expected_location.local_coordinates == save_data.get_map_local_coordinates():
-                    return
-            else:
+            if expected_location.local_coordinates is None:
                 return
 
+            if expected_location.facing:
+                saved_facing_coordinates = calculate_targeted_coords(
+                    save_data.get_map_local_coordinates(), player_object_event.facing_direction
+                )
+                if expected_location.local_coordinates == saved_facing_coordinates:
+                    return
+            elif expected_location.local_coordinates == save_data.get_map_local_coordinates():
+                return
     raise BotModeError(error_message)
 
 
@@ -106,7 +105,7 @@ def assert_registered_item(expected_items: str | list[str], error_message: str) 
 
 def assert_has_pokemon_with_move(move: str, error_message: str) -> None:
     """
-    Raises an exception if the player has no Pokemon that knows a given move in their
+    Raises an exception if the player has no Pokémon that knows a given move in their
     party.
     :param move: Name of the move to look for.
     :param error_message: Error message to display if the assertion fails.

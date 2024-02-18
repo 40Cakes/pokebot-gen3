@@ -8,6 +8,7 @@ function until it finishes.
 For example: `yield from utils.navigate_to((3, 3))`
 """
 
+import math
 import queue
 import random
 from enum import Enum
@@ -16,26 +17,26 @@ from typing import Generator, Iterable, Union
 
 from modules.context import context
 from modules.files import get_rng_state_history, save_rng_state_history
-from modules.items import get_item_bag, Item, ItemPocket, get_item_by_name
-from modules.map import get_map_objects, get_map_all_tiles, MapLocation
+from modules.items import Item, ItemPocket, get_item_bag, get_item_by_name
+from modules.map import MapLocation, get_map_all_tiles, get_map_data, get_map_objects
 from modules.memory import (
-    read_symbol,
-    write_symbol,
-    pack_uint32,
-    unpack_uint16,
-    unpack_uint32,
-    get_game_state,
-    get_game_state_symbol,
     GameState,
     get_event_flag,
     get_event_flag_by_number,
+    get_game_state,
+    get_game_state_symbol,
+    pack_uint32,
+    read_symbol,
+    unpack_uint16,
+    unpack_uint32,
+    write_symbol,
 )
-from modules.menu_parsers import CursorOptionEmerald, CursorOptionRS, CursorOptionFRLG
-from modules.menuing import StartMenuNavigator, PokemonPartyMenuNavigator, scroll_to_item_in_bag as real_scroll_to_item
-from modules.player import get_player, get_player_avatar, TileTransitionState, RunningState
+from modules.menu_parsers import CursorOptionEmerald, CursorOptionFRLG, CursorOptionRS
+from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator, scroll_to_item_in_bag as real_scroll_to_item
+from modules.player import RunningState, TileTransitionState, get_player, get_player_avatar
 from modules.pokemon import get_party
-from modules.region_map import get_map_region, get_map_cursor, FlyDestinationRSE, FlyDestinationFRLG
-from modules.tasks import task_is_active, get_global_script_context, get_task
+from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE, get_map_cursor, get_map_region
+from modules.tasks import get_global_script_context, get_task, task_is_active
 from ._interface import BotModeError
 
 
@@ -182,9 +183,7 @@ def navigate_to(x: int, y: int, run: bool = True) -> Generator:
             if object_template.local_coordinates == destination.local_position:
                 tile_blocked_by_object = True
                 break
-        if tile_blocked_by_object:
-            return False
-        return True
+        return not tile_blocked_by_object
 
     def calculate_path(end_point: tuple[int, int], starting_point: tuple[int, int]) -> list[tuple[int, int]]:
         visited_nodes: dict[tuple[int, int], tuple[int, tuple[int, int]]] = {starting_point: (0, starting_point)}
@@ -557,8 +556,8 @@ def register_key_item(item: Item) -> Generator:
     if get_item_bag().quantity_of(item) <= 0:
         raise BotModeError(f"Cannot register {item.name} as it is not in the item bag.")
 
-    previously_registerd_item = get_player().registered_item
-    if previously_registerd_item is not None and previously_registerd_item.index == item.index:
+    previously_registered_item = get_player().registered_item
+    if previously_registered_item is not None and previously_registered_item.index == item.index:
         return
 
     yield from StartMenuNavigator("BAG").step()
@@ -702,14 +701,14 @@ def fly_to(destination: Union[FlyDestinationRSE, FlyDestinationFRLG]) -> Generat
 
 def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int = 3) -> Generator:
     """
-    Attempts to teach an HM or TM move to a party Pokemon.
+    Attempts to teach an HM or TM move to a party Pokémon.
 
     This assumes that the game is currently in the overworld and the player is controllable.
 
     :param hm_or_tm: Item reference of the HM/TM to teach.
-    :param party_index: Party index (0-5) of the Pokemon that this move should be taught to.
+    :param party_index: Party index (0-5) of the Pokémon that this move should be taught to.
     :param move_index_to_replace: Index of a move (0-3) that should be replaced. If the
-                                  Pokemon still has an empty move slot, this is not used.
+                                  Pokémon still has an empty move slot, this is not used.
     """
 
     yield from StartMenuNavigator("BAG").step()
@@ -725,7 +724,7 @@ def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int 
         target_slot_index = get_item_bag().first_slot_index_for(hm_or_tm)
         while True:
             tm_case_state = read_symbol("sTMCaseStaticResources", offset=8, size=4)
-            cursor_offset = unpack_uint16(tm_case_state[0:2])
+            cursor_offset = unpack_uint16(tm_case_state[:2])
             scroll_offset = unpack_uint16(tm_case_state[2:4])
             current_slot_index = cursor_offset + scroll_offset
             if current_slot_index < target_slot_index:
@@ -741,7 +740,7 @@ def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int 
         context.emulator.press_button("A")
         yield
 
-    # Select the target Pokemon in Party Menu
+    # Select the target Pokémon in Party Menu
     while True:
         if context.rom.is_rs:
             current_slot_index = context.emulator.read_bytes(0x0202002F + len(get_party()) * 136 + 3, length=1)[0]
@@ -758,7 +757,7 @@ def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int 
 
     # Wait for either the 'Which move should be replaced' screen or for being
     # back at the item bag screen (if no move needed to be replaced, or if an
-    # 'Pokemon already knows this move' error appeared.)
+    # 'Pokémon already knows this move' error appeared.)
     press_a = True
     while (
         not task_is_active("Task_DuckBGMForPokemonCry")
@@ -821,3 +820,50 @@ def fish() -> Generator:
     else:
         context.emulator.press_button("Select")
     yield
+
+
+def get_closest_tile(tiles: list[tuple[int, int]]) -> tuple[int, int] | None:
+    return min(
+        tiles,
+        key=lambda tile: math.hypot(
+            get_player_avatar().local_coordinates[1] - tile[1],
+            get_player_avatar().local_coordinates[0] - tile[0],
+        ),
+    )
+
+
+def get_closest_surrounding_tile(tile: tuple[int, int]) -> tuple[int, int] | None:
+    if valid_surrounding_tiles := [
+        get_map_data(
+            get_player_avatar().map_group_and_number[0], get_player_avatar().map_group_and_number[1], check
+        ).local_position
+        for check in [
+            (tile[0] + 1, tile[1]),
+            (tile[0], tile[1] + 1),
+            (tile[0] - 1, tile[1]),
+            (tile[0], tile[1] - 1),
+        ]
+        if get_map_data(
+            get_player_avatar().map_group_and_number[0], get_player_avatar().map_group_and_number[1], check
+        ).is_surfable
+    ]:
+        return get_closest_tile(valid_surrounding_tiles)
+    else:
+        return None
+
+
+def get_tile_direction(tile: tuple[int, int]) -> str | None:
+    tile_coords = tile
+    player_coords = get_player_avatar().local_coordinates
+
+    direction = None
+    if tile_coords[0] < player_coords[0]:
+        direction = "Left"
+    if tile_coords[1] < player_coords[1]:
+        direction = "Up"
+    if tile_coords[0] > player_coords[0]:
+        direction = "Right"
+    if tile_coords[1] > player_coords[1]:
+        direction = "Down"
+
+    return direction

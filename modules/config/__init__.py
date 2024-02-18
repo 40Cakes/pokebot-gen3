@@ -6,8 +6,8 @@ from confz import BaseConfig, FileSource
 from ruamel.yaml import YAML
 
 from modules import exceptions
-from modules.runtime import get_base_path
 from modules.config.schemas_v1 import Battle, CatchBlock, Cheats, Discord, Keys, Logging, OBS, ProfileMetadata
+from modules.runtime import get_base_path
 
 # Defines which class attributes of the Config class are meant to hold required configuration data.
 CONFIG_ATTRS = {
@@ -32,7 +32,7 @@ class Config:
         :param strict: Whether to allow files to be missing.
         """
         self.battle: Battle = Battle()
-        self.config_dir = get_base_path() / "profiles" if not config_dir else Path(config_dir)
+        self.config_dir = Path(config_dir) if config_dir else get_base_path() / "profiles"
         self.catch_block: CatchBlock = CatchBlock()
         self.cheats: Cheats = Cheats()
         self.discord: Discord = Discord()
@@ -85,8 +85,7 @@ class Config:
         if not isinstance(config_inst, BaseConfig):
             raise exceptions.PrettyValueError(f"Config.{attr} is not a valid configuration to load.")
         file_path = self.config_dir / config_inst.filename
-        config_inst = load_config_file(file_path, config_inst.__class__, strict=strict)
-        if config_inst:
+        if config_inst := load_config_file(file_path, config_inst.__class__, strict=strict):
             setattr(self, attr, config_inst)
 
     def save_file(self, attr: str, strict: bool = False) -> None:
@@ -112,11 +111,10 @@ def load_config_file(file_path: Path, config_cls: type[BaseConfig], strict: bool
     if not file_path.is_file():
         if strict:
             raise exceptions.CriticalFileMissing(file_path)
-        config_inst = None
+        return None
     else:
         sources = [FileSource(file_path)]
-        config_inst = config_cls(config_sources=sources)
-    return config_inst
+        return config_cls(config_sources=sources)
 
 
 def save_config_file(config_dir: Path, config_inst: BaseConfig, strict: bool = False) -> None:
@@ -131,7 +129,7 @@ def save_config_file(config_dir: Path, config_inst: BaseConfig, strict: bool = F
             raise exceptions.CriticalDirectoryMissing(config_dir)
         config_dir.mkdir()
     if not isinstance(config_inst, BaseConfig):
-        raise exceptions.PrettyValueError(f"The provided config is not a valid config instance.")
+        raise exceptions.PrettyValueError("The provided config is not a valid config instance.")
     config_file = config_dir / config_inst.filename
     if strict and config_file.is_file():
         raise exceptions.PrettyValueError(f"The file {config_file} already exists. Refusing to overwrite it.")

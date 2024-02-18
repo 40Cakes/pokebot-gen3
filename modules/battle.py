@@ -1,3 +1,4 @@
+import contextlib
 from enum import Enum, IntEnum, auto
 
 from modules.context import context
@@ -102,10 +103,7 @@ class BattleAction(BaseMenuNavigator):
                 self.current_step = "select_action"
             case "select_action":
                 if BattleTypeFlag.SAFARI in get_battle_type_flags():
-                    if self.choice == "catch":
-                        self.current_step = "exit"
-                    else:
-                        self.current_step = "handle_flee"
+                    self.current_step = "exit" if self.choice == "catch" else "handle_flee"
                 else:
                     match self.choice:
                         case "flee":
@@ -176,31 +174,27 @@ class BattleAction(BaseMenuNavigator):
     def handle_flee(self):
         if self.subnavigator is None:
             self.subnavigator = flee_battle()
-        for _ in self.subnavigator:
-            yield _
+        yield from self.subnavigator
         self.subnavigator = None
         self.navigator = None
 
     def choose_move(self):
         while get_battle_state() == BattleState.MOVE_SELECTION:
-            if 0 > self.idx or self.idx > 3:
+            if self.idx < 0 or self.idx > 3:
                 context.message = "Invalid move selection, switching to manual mode..."
                 context.set_manual_mode()
+            elif self.subnavigator is None and get_battle_state() == BattleState.OTHER:
+                yield
+            elif self.subnavigator is None:
+                select_battle_option = SelectBattleOption(self.idx).step()
+                self.subnavigator = select_battle_option
+                yield
             else:
-                if self.subnavigator is None and get_battle_state() == BattleState.OTHER:
-                    yield
-                elif self.subnavigator is None:
-                    select_battle_option = SelectBattleOption(self.idx).step()
-                    self.subnavigator = select_battle_option
-                    yield
-                else:
-                    for _ in self.subnavigator:
-                        yield _
-                    self.subnavigator = None
-                    self.navigator = None
-        else:
-            self.subnavigator = None
-            self.navigator = None
+                yield from self.subnavigator
+                self.subnavigator = None
+                self.navigator = None
+        self.subnavigator = None
+        self.navigator = None
 
     def choose_mon(self):
         while self.navigator is not None:
@@ -208,8 +202,7 @@ class BattleAction(BaseMenuNavigator):
                 self.subnavigator = BattlePartyMenuNavigator(idx=self.idx, mode="switch").step()
                 yield
             else:
-                for _ in self.subnavigator:
-                    yield _
+                yield from self.subnavigator
                 self.navigator = None
                 self.subnavigator = None
 
@@ -268,7 +261,7 @@ class BattleAction(BaseMenuNavigator):
 
     @staticmethod
     def return_to_overworld():
-        while not get_game_state() == GameState.OVERWORLD:
+        while get_game_state() != GameState.OVERWORLD:
             context.emulator.press_button("B")
             yield
 
@@ -277,13 +270,11 @@ class BattleAction(BaseMenuNavigator):
             if self.subnavigator is None:
                 self.subnavigator = SelectBattleOption(index).step()
             else:
-                for _ in self.subnavigator:
-                    yield _
+                yield from self.subnavigator
                 self.subnavigator = None
                 self.navigator = None
-        else:
-            self.subnavigator = None
-            self.navigator = None
+        self.subnavigator = None
+        self.navigator = None
 
     @staticmethod
     def wait_for_party_menu():
@@ -359,7 +350,7 @@ class BattleMoveLearner(BaseMenuNavigator):
                 self.navigator = self.wait_for_next_state()
 
     def wait_for_next_state(self):
-        for i in range(300):
+        for _ in range(300):
             if get_battle_state() == BattleState.LEARNING:
                 break
             yield
@@ -371,21 +362,18 @@ class BattleMoveLearner(BaseMenuNavigator):
         while get_learn_move_state() == "LEARN_YN":
             context.emulator.press_button("A")
             yield
-        else:
-            self.navigator = None
+        self.navigator = None
 
     def confirm_replace(self):
         while get_learn_move_state() == "MOVE_MENU":
             context.emulator.press_button("A")
             yield
-        else:
-            self.navigator = None
+        self.navigator = None
 
     def wait_for_move_learn_menu(self):
-        while not get_learn_move_state() == "MOVE_MENU":
+        while get_learn_move_state() != "MOVE_MENU":
             yield
-        else:
-            self.navigator = None
+        self.navigator = None
 
     def navigate_move_learn_menu(self):
         while get_learn_move_state() == "MOVE_MENU":
@@ -409,21 +397,18 @@ class BattleMoveLearner(BaseMenuNavigator):
         while get_learn_move_state() == "LEARN_YN":
             context.emulator.press_button("B")
             yield
-        else:
-            self.navigator = None
+        self.navigator = None
 
     def wait_for_stop_learning(self):
         while get_learn_move_state() != "STOP_LEARNING":
             yield
-        else:
-            self.navigator = None
+        self.navigator = None
 
     def confirm_no_learn(self):
         while get_learn_move_state() == "STOP_LEARNING":
             context.emulator.press_button("A")
             yield
-        else:
-            self.navigator = None
+        self.navigator = None
 
 
 class BattleHandler:
@@ -435,8 +420,7 @@ class BattleHandler:
         self.battler = BattleOpponent(try_to_catch).step()
 
     def step(self):
-        for _ in self.battler:
-            yield _
+        yield from self.battler
 
 
 class BattleOpponent:
@@ -449,6 +433,8 @@ class BattleOpponent:
         """
         Initializes the battle handler
         """
+        self.navigator = None
+        self.subnavigator = None
         self.battle_ended = False
         self.opponent = get_opponent()
         self.prev_battle_state = get_battle_state()
@@ -521,26 +507,21 @@ class BattleOpponent:
                     break
                 while self.battle_action is None:
                     self.battle_action = BattleAction(choice=self.choice, idx=self.idx).step()
-                else:
-                    for _ in self.battle_action:
-                        yield _
-                    self.choice = None
-                    self.idx = None
-                    self.battle_action = None
-                    self.action = None
+                yield from self.battle_action
+                self.choice = None
+                self.idx = None
+                self.battle_action = None
+                self.action = None
 
     def handle_evolution(self):
-        before_party_list: list[Pokemon] = []
-        for party_member in get_party():
-            before_party_list.append(party_member)
+        before_party_list: list[Pokemon] = list(get_party())
         while self.battle_state == BattleState.EVOLVING:
             self.update_battle_state()
             if context.config.battle.stop_evolution:
                 context.emulator.press_button("B")
-                yield
             else:
                 context.emulator.press_button("A")
-                yield
+            yield
         else:
             for i, party_member in enumerate(get_party()):
                 if party_member.is_shiny and party_member != before_party_list[i]:
@@ -564,15 +545,14 @@ class BattleOpponent:
                 self.update_battle_action()
                 yield
             else:
-                for _ in self.action:
-                    yield _
+                yield from self.action
                 self.action = None
 
     def determine_battle_menu_action(self):
         """
         Determines which action to select from the action menu
 
-        :return: an ordered pair containing A) the name of the action to take (fight, switch, flee, etc.) and B) the
+        :return: an ordered pair containing 1, the name of the action to take (fight, switch, flee, etc.) and 2, the
         index of the desired choice.
         """
 
@@ -587,17 +567,14 @@ class BattleOpponent:
         if not is_trainer_battle and self.try_to_catch:
             self.choose_action_for_auto_catch()
         elif not is_trainer_battle and (
-            not context.config.battle.battle or not (can_battle_happen() and should_mon_be_battled(self.opponent))
+            not context.config.battle.battle or not can_battle_happen() or not should_mon_be_battled(self.opponent)
         ):
             self.choice = "flee"
             self.idx = -1
         elif not check_mon_can_battle(self.current_battler):
             match context.config.battle.lead_cannot_battle_action:
                 case "flee":
-                    if not is_trainer_battle:
-                        self.choice = "flee"
-                    else:
-                        self.choice = "stop"
+                    self.choice = "stop" if is_trainer_battle else "flee"
                     self.idx = -1
                 case "stop":
                     self.choice = "stop"
@@ -637,20 +614,19 @@ class BattleOpponent:
     def update_party(self):
         """
         Updates the variable Party in the battle handler.
+
+        Especially during battles, the party data in memory is sometimes garbled for
+        a bit. If that happens two frames in a row, `get_party()` will throw an error.
+        Rather than crashing the bot, we'll just keep working with the last known-good
+        state of the party and hope that nothing too important happened in the meantime.
         """
-        try:
+        with contextlib.suppress(RuntimeError):
             party = get_party()
             if party != self.party:
                 self.most_recent_leveled_mon_index = check_for_level_up(
                     self.party, party, self.most_recent_leveled_mon_index
                 )
                 self.party = party
-        except RuntimeError:
-            # Especially during battles, the party data in memory is sometimes garbled for
-            # a bit. If that happens two frames in a row, `get_party()` will throw an error.
-            # Rather than crashing the bot, we'll just keep working with the last known-good
-            # state of the party and hope that nothing too important happened in the meantime.
-            pass
 
     def update_current_battler(self):
         """
@@ -690,12 +666,13 @@ class BattleOpponent:
                     if learned_move is None or learned_move.pp == 0:
                         continue
                     value = 0
-                    if learned_move.move.effect == "SLEEP":
-                        if self.opponent.ability.name not in ("Insomnia", "Vital Spirit"):
-                            value = 2 * learned_move.move.accuracy
-                    if learned_move.move.effect == "PARALYZE":
-                        if self.opponent.ability.name != "Limber":
-                            value = 1.5 * learned_move.move.accuracy
+                    if learned_move.move.effect == "SLEEP" and self.opponent.ability.name not in (
+                        "Insomnia",
+                        "Vital Spirit",
+                    ):
+                        value = 2 * learned_move.move.accuracy
+                    if learned_move.move.effect == "PARALYZE" and self.opponent.ability.name != "Limber":
+                        value = 1.5 * learned_move.move.accuracy
                     if status_move_value < value:
                         status_move_index = index
                         status_move_value = value
@@ -947,20 +924,23 @@ class BattleOpponent:
                 context.message = "Switching to manual mode..."
                 context.set_manual_mode()
             case "flee":
-                while get_battle_state() not in [BattleState.OVERWORLD, BattleState.PARTY_MENU]:
+                while get_battle_state() not in [
+                    BattleState.OVERWORLD,
+                    BattleState.PARTY_MENU,
+                ]:
                     context.emulator.press_button("B")
                     yield
                 if get_battle_state() == BattleState.PARTY_MENU:
                     context.message = "Couldn't flee, switching to manual mode..."
                     context.set_manual_mode()
                 else:
-                    while not get_game_state() == GameState.OVERWORLD:
+                    while get_game_state() != GameState.OVERWORLD:
                         context.emulator.press_button("B")
                         yield
                     return False
             case "rotate":
                 party = get_party()
-                if sum([mon.current_hp for mon in party]) == 0:
+                if sum(mon.current_hp for mon in party) == 0:
                     context.message = "All Pokémon have fainted, switching to manual mode..."
                     context.set_manual_mode()
                 while get_battle_state() != BattleState.PARTY_MENU:
@@ -974,10 +954,11 @@ class BattleOpponent:
                     self.handle_battler_faint()
                     context.config.battle.faint_action = faint_action_default
                     return False
-                switcher = send_out_pokemon(new_lead)
-                for i in switcher:
-                    yield i
-                while get_battle_state() in (BattleState.SWITCH_POKEMON, BattleState.PARTY_MENU):
+                yield from send_out_pokemon(new_lead)
+                while get_battle_state() in (
+                    BattleState.SWITCH_POKEMON,
+                    BattleState.PARTY_MENU,
+                ):
                     context.emulator.press_button("A")
                     yield
             case _:
@@ -1013,10 +994,7 @@ def get_battle_state() -> BattleState:
                         case "MOVE":
                             return BattleState.MOVE_SELECTION
                         case _:
-                            if switch_requested():
-                                return BattleState.SWITCH_POKEMON
-                            else:
-                                return BattleState.OTHER
+                            return BattleState.SWITCH_POKEMON if switch_requested() else BattleState.OTHER
 
 
 def get_learn_move_state() -> str:
@@ -1041,26 +1019,26 @@ def get_learn_move_state() -> str:
             match context.rom.game_title:
                 case "POKEMON RUBY" | "POKEMON SAPP":
                     learn_move_yes_no = (
-                        unpack_uint16(task_evolution_scene.data[0:2]) == 21
+                        unpack_uint16(task_evolution_scene.data[:2]) == 21
                         and unpack_uint16(task_evolution_scene.data[16:18]) == 4
                         and unpack_uint16(task_evolution_scene.data[18:20]) == 5
                         and unpack_uint16(task_evolution_scene.data[20:22]) == 9
                     )
                     stop_learn_move_yes_no = (
-                        unpack_uint16(task_evolution_scene.data[0:2]) == 21
+                        unpack_uint16(task_evolution_scene.data[:2]) == 21
                         and unpack_uint16(task_evolution_scene.data[16:18]) == 4
                         and unpack_uint16(task_evolution_scene.data[18:20]) == 10
                         and unpack_uint16(task_evolution_scene.data[20:22]) == 0
                     )
                 case "POKEMON EMER":
                     learn_move_yes_no = (
-                        unpack_uint16(task_evolution_scene.data[0:2]) == 22
+                        unpack_uint16(task_evolution_scene.data[:2]) == 22
                         and unpack_uint16(task_evolution_scene.data[12:14]) in [3, 4]
                         and unpack_uint16(task_evolution_scene.data[14:16]) == 5
                         and unpack_uint16(task_evolution_scene.data[16:18]) == 10
                     )
                     stop_learn_move_yes_no = (
-                        unpack_uint16(task_evolution_scene.data[0:2]) == 22
+                        unpack_uint16(task_evolution_scene.data[:2]) == 22
                         and unpack_uint16(task_evolution_scene.data[12:14]) in [3, 4]
                         and unpack_uint16(task_evolution_scene.data[14:16]) == 11
                         and unpack_uint16(task_evolution_scene.data[16:18]) == 0
@@ -1068,13 +1046,13 @@ def get_learn_move_state() -> str:
 
                 case "POKEMON FIRE" | "POKEMON LEAF":
                     learn_move_yes_no = (
-                        unpack_uint16(task_evolution_scene.data[0:2]) == 24
+                        unpack_uint16(task_evolution_scene.data[:2]) == 24
                         and unpack_uint16(task_evolution_scene.data[12:14]) == 4
                         and unpack_uint16(task_evolution_scene.data[14:16]) == 5
                         and unpack_uint16(task_evolution_scene.data[16:18]) == 10
                     )
                     stop_learn_move_yes_no = (
-                        unpack_uint16(task_evolution_scene.data[0:2]) == 24
+                        unpack_uint16(task_evolution_scene.data[:2]) == 24
                         and unpack_uint16(task_evolution_scene.data[12:14]) == 4
                         and unpack_uint16(task_evolution_scene.data[14:16]) == 11
                         and unpack_uint16(task_evolution_scene.data[16:18]) == 0
@@ -1129,7 +1107,7 @@ def send_out_pokemon(index):
 
     match context.rom.game_title:
         case "POKEMON EMER" | "POKEMON FIRE" | "POKEMON LEAF":
-            for i in range(60):
+            for _ in range(60):
                 if "TASK_HANDLESELECTIONMENUINPUT" not in [task.symbol for task in get_tasks()]:
                     context.emulator.press_button("A")
                 else:
@@ -1138,7 +1116,7 @@ def send_out_pokemon(index):
             while "TASK_HANDLESELECTIONMENUINPUT" in [task.symbol for task in get_tasks()]:
                 yield from PokemonPartySubMenuNavigator("SHIFT").step()
         case _:
-            for i in range(60):
+            for _ in range(60):
                 if "TASK_HANDLEPOPUPMENUINPUT" not in [task.symbol for task in get_tasks()]:
                     context.emulator.press_button("A")
                 yield
@@ -1232,10 +1210,10 @@ def check_for_level_up(old_party: list[Pokemon], new_party: list[Pokemon], level
     """
     if len(old_party) != len(new_party):
         context.message = "Party length has changed. Assuming a pokemon was just caught."
-    for i in range(len(old_party)):
-        if old_party[i].level < new_party[i].level:
-            return i
-    return leveled_mon
+    return next(
+        (i for i in range(len(old_party)) if old_party[i].level < new_party[i].level),
+        leveled_mon,
+    )
 
 
 def can_battle_happen(check_lead_only: bool = False) -> bool:
@@ -1243,14 +1221,8 @@ def can_battle_happen(check_lead_only: bool = False) -> bool:
     Determines whether the bot can battle with the state of the current party
     :return: True if the party is capable of having a battle, False otherwise
     """
-    if check_lead_only:
-        party = [get_party()[0]]
-    else:
-        party = get_party()
-    for mon in party:
-        if check_mon_can_battle(mon):
-            return True
-    return False
+    party = [get_party()[0]] if check_lead_only else get_party()
+    return any(check_mon_can_battle(mon) for mon in party)
 
 
 def should_mon_be_battled(mon: Pokemon) -> bool:
@@ -1258,11 +1230,11 @@ def should_mon_be_battled(mon: Pokemon) -> bool:
     Determines whether an opponent Pokémon should be battled
     :return: True if the Pokémon should be battled, False otherwise
     """
-    if (
-        any(context.config.battle.targeted_pokemon) and mon.species.name not in context.config.battle.targeted_pokemon
-    ) or (any(context.config.battle.avoided_pokemon) and mon.species.name in context.config.battle.avoided_pokemon):
-        return False
-    return True
+    return (
+        not any(context.config.battle.targeted_pokemon) or mon.species.name in context.config.battle.targeted_pokemon
+    ) and (
+        not any(context.config.battle.avoided_pokemon) or mon.species.name not in context.config.battle.avoided_pokemon
+    )
 
 
 class BattleMenu:
@@ -1326,10 +1298,9 @@ class SelectBattleOption:
                 case 1:
                     context.emulator.press_button("Up")
             yield
-        else:
-            while get_battle_cursor(self.cursor_type) == self.index and get_battle_state() == self.battle_state:
-                context.emulator.press_button("A")
-                yield
+        while get_battle_cursor(self.cursor_type) == self.index and get_battle_state() == self.battle_state:
+            context.emulator.press_button("A")
+            yield
 
 
 # TODO
@@ -1345,7 +1316,7 @@ def execute_menu_action(decision: tuple):
             flee_battle()
             return
         case "FIGHT":
-            if 0 > move or move > 3:
+            if move < 0 or move > 3:
                 context.message = "Invalid move selection. Switching to manual mode..."
                 context.set_manual_mode()
             else:
@@ -1367,12 +1338,12 @@ def execute_menu_action(decision: tuple):
         case "SWITCH":
             if pokemon is None:
                 execute_menu_action(("RUN", -1, -1))
-            elif 0 > pokemon or pokemon > 6:
+            elif pokemon < 0 or pokemon > 6:
                 context.message = "Invalid Pokemon selection. Switching to manual mode..."
                 context.set_manual_mode()
             else:
                 select_battle_option = SelectBattleOption(2)
-                while not get_battle_state() == BattleState.PARTY_MENU:
+                while get_battle_state() != BattleState.PARTY_MENU:
                     yield from select_battle_option.step()
                 switcher = send_out_pokemon(pokemon)
                 for _ in switcher:
@@ -1398,10 +1369,7 @@ def check_mon_can_battle(mon: Pokemon) -> bool:
     if mon.is_egg or not mon_has_enough_hp(mon):
         return False
 
-    for move in mon.moves:
-        if move_is_usable(move):
-            return True
-    return False
+    return any(move_is_usable(move) for move in mon.moves)
 
 
 def get_new_lead() -> int | None:

@@ -7,7 +7,7 @@ from modules.memory import get_event_flag
 from modules.player import get_player_avatar
 from modules.pokemon import get_party
 from ._interface import BotMode, BotModeError
-from ._util import navigate_to, walk_one_tile, follow_path, wait_for_n_frames
+from ._util import follow_path, navigate_to, wait_for_n_frames, walk_one_tile
 
 
 class NuggetBridgeMode(BotMode):
@@ -36,22 +36,22 @@ class NuggetBridgeMode(BotMode):
 
     def run(self) -> Generator:
         if get_event_flag("HIDE_NUGGET_BRIDGE_ROCKET"):
-            raise BotModeError(f"Unfortunately, you've already received the nugget. You cannot use this mode.")
+            raise BotModeError("Unfortunately, you've already received the nugget. You cannot use this mode.")
         if not context.config.battle.battle:
-            raise BotModeError(f'Please set "battle: true" in battle.yml to use this mode.')
+            raise BotModeError('Please set "battle: true" in battle.yml to use this mode.')
         if len(get_party()) > 1:
-            raise BotModeError(f"Deposit all but one Pokémon to use this mode.")
+            raise BotModeError("Deposit all but one Pokémon to use this mode.")
         if get_party()[0].level > 6:
             raise BotModeError(
-                f"Please use a Pokémon that is level 6 or lower.\nThis means you will lose to the rocket instead of defeating him.\nYou can find level 6 Pokémon on Route 4."
+                "Please use a Pokémon that is level 6 or lower.\n"
+                "This means you will lose to the rocket instead of defeating him.\n"
+                "You can find level 6 Pokémon on Route 4."
             )
 
         while True:
             if get_player_avatar().map_group_and_number == MapFRLG.CERULEAN_CITY_POKEMON_CENTER_1F:
                 nugget_count = get_item_bag().quantity_of(get_item_by_name("Nugget"))
-                context.message = (
-                    "Bag contains " + str(nugget_count) + " nuggets.\nTotal value: ₽" + f"{nugget_count * 5000:,}"
-                )
+                context.message = f"Bag contains {str(nugget_count)} nuggets.\nTotal value: ₽{nugget_count * 5000:,}"
                 yield from wait_for_n_frames(30)
                 context.emulator.press_button("B")
                 yield from navigate_to(7, 8)

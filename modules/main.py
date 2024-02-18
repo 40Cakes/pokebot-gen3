@@ -4,16 +4,9 @@ from threading import Thread
 
 from modules.console import console
 from modules.context import context
-from modules.memory import get_game_state, GameState
-from modules.modes import (
-    BotMode,
-    BotModeError,
-    FrameInfo,
-    BotListener,
-    get_bot_mode_by_name,
-    get_bot_listeners,
-)
-from modules.tasks import get_tasks, get_global_script_context
+from modules.memory import GameState, get_game_state
+from modules.modes import BotListener, BotMode, BotModeError, FrameInfo, get_bot_listeners, get_bot_mode_by_name
+from modules.tasks import get_global_script_context, get_tasks
 
 # Contains a queue of tasks that should be run the next time a frame completes.
 # This is currently used by the HTTP server component (which runs in a separate thread) to trigger things
@@ -102,12 +95,11 @@ def main_loop() -> None:
             except Exception as e:
                 console.print_exception()
                 context.emulator.reset_held_buttons()
-                context.message = "Internal Bot Error: " + str(e)
+                context.message = f"Internal Bot Error: {str(e)}"
                 if context.debug:
                     context.debug_stepping_mode()
                     if hasattr(sys, "gettrace") and sys.gettrace() is not None:
                         breakpoint()
-                        pass
                 else:
                     context.set_manual_mode()
 
@@ -117,6 +109,6 @@ def main_loop() -> None:
 
     except SystemExit:
         raise
-    except:
+    except Exception:
         console.print_exception(show_locals=True)
         sys.exit(1)

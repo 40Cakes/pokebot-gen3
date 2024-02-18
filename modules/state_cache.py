@@ -1,5 +1,5 @@
 import time
-from typing import Generic, TypeVar, TYPE_CHECKING
+from typing import Generic, TYPE_CHECKING, TypeVar
 
 from modules.context import context
 

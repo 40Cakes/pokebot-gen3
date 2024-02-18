@@ -31,7 +31,7 @@ def custom_hooks(hook) -> None:
         ### Your custom code goes here ###
 
         # Discord messages
-        def IVField() -> str:
+        def iv_field() -> str:
             # Formatted IV table
             if context.config.discord.iv_format == "formatted":
                 iv_field = (
@@ -60,7 +60,7 @@ def custom_hooks(hook) -> None:
                 )
             return iv_field
 
-        def PhaseSummary() -> dict:
+        def phase_summary() -> dict:
             from modules.stats import total_stats  # TODO prevent instantiating TotalStats class before profile selected
 
             sparkle = "✨" if stats["totals"].get("phase_lowest_sv", -1) < 8 else ""
@@ -107,17 +107,17 @@ def custom_hooks(hook) -> None:
                     ),
                     embed_fields={
                         "Shiny Value": f"{pokemon.shiny_value:,}",
-                        f"IVs ({pokemon.ivs.sum()})": IVField(),
+                        f"IVs ({pokemon.ivs.sum()})": iv_field(),
                         "Held item": pokemon.held_item.name if pokemon.held_item else "None",
                         f"{pokemon.species.name} Encounters": f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} ({stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,}✨)",
                         f"{pokemon.species.name} Phase Encounters": f"{stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,}",
                     }
-                    | PhaseSummary(),
+                    | phase_summary(),
                     embed_thumbnail=get_sprites_path() / "pokemon" / "shiny" / f"{pokemon.species.safe_name}.png",
                     embed_color="ffd242",
                     embed_image=gif_path,
                 )
-        except:
+        except Exception:
             console.print_exception(show_locals=True)
 
         try:
@@ -143,7 +143,7 @@ def custom_hooks(hook) -> None:
                     embed_thumbnail=get_sprites_path() / "pokemon" / "normal" / f"{pokemon.species.safe_name}.png",
                     embed_color="50C878",
                 )
-        except:
+        except Exception:
             console.print_exception(show_locals=True)
 
         try:
@@ -170,7 +170,7 @@ def custom_hooks(hook) -> None:
                     embed_thumbnail=get_sprites_path() / "pokemon" / "shiny" / f"{pokemon.species.safe_name}.png",
                     embed_color="ffd242",
                 )
-        except:
+        except Exception:
             console.print_exception(show_locals=True)
 
         try:
@@ -215,7 +215,7 @@ def custom_hooks(hook) -> None:
                     embed_thumbnail=get_sprites_path() / "items" / f"{embed_thumbnail}.png",
                     embed_color="50C878",
                 )
-        except:
+        except Exception:
             console.print_exception(show_locals=True)
 
         try:
@@ -245,10 +245,10 @@ def custom_hooks(hook) -> None:
                     webhook_url=context.config.discord.phase_summary.webhook_url,
                     content=f"💀 The current phase has reached {stats['totals'].get('phase_encounters', 0):,} encounters!\n{discord_ping}",
                     embed=True,
-                    embed_fields=PhaseSummary(),
+                    embed_fields=phase_summary(),
                     embed_color="D70040",
                 )
-        except:
+        except Exception:
             console.print_exception(show_locals=True)
 
         try:
@@ -269,16 +269,16 @@ def custom_hooks(hook) -> None:
                     embed_description=f"{pokemon.nature.name} {pokemon.species.name} (Lv. {pokemon.level:,}) at {pokemon.location_met}!",
                     embed_fields={
                         "Shiny Value": f"{pokemon.shiny_value:,}",
-                        f"IVs ({pokemon.ivs.sum()})": IVField(),
+                        f"IVs ({pokemon.ivs.sum()})": iv_field(),
                         "Held item": pokemon.held_item.name if pokemon.held_item else "None",
                         f"{pokemon.species.name} Encounters": f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} ({stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,}✨)",
                         f"{pokemon.species.name} Phase Encounters": f"{stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,}",
                     }
-                    | PhaseSummary(),
+                    | phase_summary(),
                     embed_thumbnail=get_sprites_path() / "pokemon" / "anti-shiny" / f"{pokemon.species.safe_name}.png",
                     embed_color="000000",
                 )
-        except:
+        except Exception:
             console.print_exception(show_locals=True)
 
         try:
@@ -300,17 +300,17 @@ def custom_hooks(hook) -> None:
                     embed_description=f"{pokemon.nature.name} {pokemon.species.name} (Lv. {pokemon.level:,}) at {pokemon.location_met}!\nMatching custom filter **{custom_filter_result}**",
                     embed_fields={
                         "Shiny Value": f"{pokemon.shiny_value:,}",
-                        f"IVs ({pokemon.ivs.sum()})": IVField(),
+                        f"IVs ({pokemon.ivs.sum()})": iv_field(),
                         "Held item": pokemon.held_item.name if pokemon.held_item else "None",
                         f"{pokemon.species.name} Encounters": f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} ({stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,}✨)",
                         f"{pokemon.species.name} Phase Encounters": f"{stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,}",
                     }
-                    | PhaseSummary(),
+                    | phase_summary(),
                     embed_thumbnail=get_sprites_path() / "pokemon" / "normal" / f"{pokemon.species.safe_name}.png",
                     embed_color="6a89cc",
                     embed_image=gif_path,
                 )
-        except:
+        except Exception:
             console.print_exception(show_locals=True)
 
         try:
@@ -329,10 +329,10 @@ def custom_hooks(hook) -> None:
                     content=discord_ping,
                     image=tcg_path,
                 )
-        except:
+        except Exception:
             console.print_exception(show_locals=True)
 
-    except:
+    except Exception:
         console.print_exception(show_locals=True)
 
     try:
@@ -348,7 +348,7 @@ def custom_hooks(hook) -> None:
 
             # Run in a thread to not hold up other hooks
             Thread(target=OBSDiscordScreenshot).start()
-    except:
+    except Exception:
         console.print_exception(show_locals=True)
 
     try:
@@ -363,5 +363,5 @@ def custom_hooks(hook) -> None:
 
             # Run in a thread to not hold up other hooks
             Thread(target=OBSReplayBuffer).start()
-    except:
+    except Exception:
         console.print_exception(show_locals=True)

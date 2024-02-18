@@ -583,10 +583,7 @@ class MapFRLG(Enum):
 
     def __ne__(self, other):
         equals = self.__eq__(other)
-        if isinstance(equals, bool):
-            return not equals
-        else:
-            return NotImplemented
+        return not equals if isinstance(equals, bool) else NotImplemented
 
     def __contains__(self, item):
         if item is None:
@@ -1239,10 +1236,7 @@ class MapRSE(Enum):
 
     def __ne__(self, other):
         equals = self.__eq__(other)
-        if isinstance(equals, bool):
-            return not equals
-        else:
-            return NotImplemented
+        return not equals if isinstance(equals, bool) else NotImplemented
 
     def __contains__(self, item):
         if item is None:

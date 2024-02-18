@@ -9,16 +9,23 @@ Initially created to complete a Prof. Oak and Living ✨Shiny✨ Dex Challenge i
 
 [![🔴24/7✨Shiny✨Hunting Bot](https://img.youtube.com/vi/W6OOnrx8g58/0.jpg)](https://www.youtube.com/watch?v=W6OOnrx8g58)
 
-# ✨ Preamble
-This bot is still in development, as such, functionality is subject to change - always make sure you back up your `./profiles` folders before updating your bot! 
-
-The bot is frame perfect and can _technically_ cheat by reading data from any point in memory and manipulating RNG. By default it will attempt to perform actions as if a human were playing to make gameplay as representative as possible, some examples:
-- Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible before resetting
-- It's possible to peek inside un-hatched eggs to view stats and shininess as soon as they're received from the daycare, the bot will wait until the eggs are fully hatched before checking and logging
-- Feebas tile locations could be instantly located by reading memory, the bot will attempt to locate the tiles by searching each tile individually
-
 # ❓ Getting Started
-Visit the [wiki](wiki/Readme.md) for information getting started, keybinds/inputs, bot modes, configuration files and more!
+
+Visit the [wiki](wiki/Readme.md) for information:
+- ❓ [Getting Started](wiki/pages/Getting%20Started.md)
+- 🎮 [Emulator Input Mapping](profiles/keys.yml)
+- 🔎 [Pokémon by Bot Mode](wiki/pages/Pokemon%20By%20Bot%20Mode.md)
+
+# ✨ Preamble
+
+You are welcome to use or stream the bot in any way you want, including streaming your own 24/7 Prof. Oak challenge streams.
+
+The intent of this bot is not to _cheat_ for shinies or complete the game as fast as possible, but instead to transform generation 3 Pokémon games into somewhat of an idle game, stacking up millions of encounters searching for that one encounter, or completing an absurd challenge.
+
+The bot is frame perfect and can _technically_ cheat by reading data from any point in memory and manipulating RNG. By default, it will attempt to perform actions as if a human were playing to make gameplay as representative as possible, some examples:
+- Starter Pokémon are generated just _1 frame_ after confirming the starter selection, the bot will wait until the battle begins, and the starter Pokémon sprite is visible before soft resetting
+- It's possible to peek inside un-hatched eggs to view stats and shininess as soon as they're received from the daycare, the bot will wait until the eggs are fully hatched before checking and logging
+- Feebas tile locations _could_ be instantly located by reading memory, instead, the bot will attempt to locate the tiles by searching each tile individually
 
 # 😎 Showcase
 

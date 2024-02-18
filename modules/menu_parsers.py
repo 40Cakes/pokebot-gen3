@@ -3,7 +3,7 @@ from enum import IntEnum
 
 from modules.context import context
 from modules.memory import get_symbol_name, read_symbol, unpack_uint32
-from modules.pokemon import get_party, parse_pokemon, Pokemon, get_move_by_index, Move
+from modules.pokemon import Move, Pokemon, get_move_by_index, get_party, parse_pokemon
 from modules.tasks import get_task, task_is_active
 
 
@@ -142,7 +142,7 @@ def get_party_menu_cursor_pos(party_length: int) -> dict:
 
     if not context.rom.is_rs:
         p_menu = read_symbol("gPartyMenu")
-        party_menu["main_cb"] = get_symbol_name(unpack_uint32(p_menu[0:4]) - 1)
+        party_menu["main_cb"] = get_symbol_name(unpack_uint32(p_menu[:4]) - 1)
         party_menu["taskfunc"] = get_symbol_name(unpack_uint32(p_menu[4:8]) - 1)
         party_menu["menu_type_and_layout"] = struct.unpack("<B", p_menu[8:9])[0]
         party_menu["slot_id"] = struct.unpack("<b", p_menu[9:10])[0]
@@ -192,20 +192,15 @@ def parse_party_menu() -> dict:
         pmi_pointer = read_symbol("sPartyMenuInternal")
         addr = int(struct.unpack("<I", pmi_pointer)[0]) - 1
         party_menu_internal = context.emulator.read_bytes(addr, length=30)
-        party_menu_info = {
+        return {
             "actions": [struct.unpack("<B", party_menu_internal[16 + i : 17 + i])[0] for i in range(8)],
             "numActions": struct.unpack("<B", party_menu_internal[24:25])[0],
         }
     else:
-        actions = []
         num_actions = int.from_bytes(read_symbol("sPokeMenuOptionsNo"), "little")
 
-        for i in range(num_actions):
-            actions.append(read_symbol("sPokeMenuOptionsOrder")[i])
-
-        party_menu_info = {"actions": actions, "numActions": num_actions}
-
-    return party_menu_info
+        actions = [read_symbol("sPokeMenuOptionsOrder")[i] for i in range(num_actions)]
+        return {"actions": actions, "numActions": num_actions}
 
 
 def get_battle_cursor(cursor_type: str) -> int:
@@ -263,8 +258,6 @@ def parse_start_menu() -> dict:
     """
     Helper function that decodes the state of the start menu.
     """
-    is_open = False
-
     if context.rom.is_rse:
         start_menu_options_symbol = "sCurrentStartMenuActions"
         num_actions_symbol = "sNumStartMenuActions"
@@ -274,17 +267,18 @@ def parse_start_menu() -> dict:
         num_actions_symbol = "sNumStartMenuItems"
         start_menu_enum = StartMenuOptionKanto
 
-    item_indices = [i for i in read_symbol(start_menu_options_symbol)]
-    actions = []
-
-    for i in range(int.from_bytes(read_symbol(num_actions_symbol), "little")):
-        actions.append(start_menu_enum(item_indices[i]).name)
-
-    for task in ["SUB_80712B4", "TASK_SHOWSTARTMENU", "TASK_STARTMENUHANDLEINPUT"]:
-        if task_is_active(task):
-            is_open = True
-            break
-
+    item_indices = list(read_symbol(start_menu_options_symbol))
+    actions = [
+        start_menu_enum(item_indices[i]).name for i in range(int.from_bytes(read_symbol(num_actions_symbol), "little"))
+    ]
+    is_open = any(
+        task_is_active(task)
+        for task in [
+            "SUB_80712B4",
+            "TASK_SHOWSTARTMENU",
+            "TASK_STARTMENUHANDLEINPUT",
+        ]
+    )
     return {
         "open": is_open,
         "cursor_pos": struct.unpack("<B", read_symbol("sStartMenuCursorPos"))[0],

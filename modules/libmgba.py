@@ -205,7 +205,7 @@ class LibmgbaEmulator:
             with open(self._current_state_path, "wb") as state_file:
                 screenshot.save(state_file, format="PNG", pnginfo=extra_chunks)
 
-        console.print(f"Updated `current_state.ss1`!")
+        console.print("Updated `current_state.ss1`!")
 
     def shutdown(self) -> None:
         """
@@ -258,7 +258,7 @@ class LibmgbaEmulator:
         class) compared
 
         Note that this only compares bot processing time to emulation time, while entirely ignoring video rendering
-        and audio output. This is so the number stays consistent whether or not throttling is enabled and video is
+        and audio output. This is so the number stays consistent whether throttling is enabled and video is
         turned on or off.
 
         But it means that this number does not necessarily reflect how much _actual_ time is being spent in bot code,
@@ -323,11 +323,7 @@ class LibmgbaEmulator:
                 self._audio_stream.close()
                 self._audio_stream = None
         except sounddevice.PortAudioError as error:
-            if was_throttled:
-                action = "disabling"
-            else:
-                action = "enabling"
-
+            action = "disabling" if was_throttled else "enabling"
             console.print(f"[bold red]Error while {action} audio:[/] [red]{str(error)}[/]")
             self._reset_audio()
 
@@ -365,8 +361,7 @@ class LibmgbaEmulator:
         vfile = mgba.vfs.VFile.fromEmpty()
         lib.GBASavedataClone(ffi.addressof(self._core._native.memory.savedata), vfile.handle)
         vfile.seek(0, whence=0)
-        result = vfile.read_all()
-        return result
+        return vfile.read_all()
 
     def read_bytes(self, address: int, length: int = 1) -> bytes:
         """
@@ -452,7 +447,7 @@ class LibmgbaEmulator:
         :param button: A GBA button to be held, will be held until ReleaseInput called
         :param inputs: Alternate raw input bitfield
         """
-        self._held_inputs |= input_map[button] if not inputs else inputs
+        self._held_inputs |= inputs or input_map[button]
 
     def is_button_held(self, button: str = None) -> bool:
         """
@@ -466,7 +461,7 @@ class LibmgbaEmulator:
         :param button: A GBA button to be release if held
         :param inputs: Alternate raw input bitfield
         """
-        self._held_inputs &= ~input_map[button] if not inputs else ~inputs
+        self._held_inputs &= ~inputs if inputs else ~input_map[button]
 
     def reset_held_buttons(self) -> int:
         """
@@ -533,7 +528,7 @@ class LibmgbaEmulator:
         :param frames_to_advance: Optional number of frames to advance (defaults to 1)
         """
         original_emulator_state = self.get_save_state()
-        for i in range(frames_to_advance):
+        for _ in range(frames_to_advance):
             self._core.run_frame()
         try:
             yield
@@ -574,10 +569,9 @@ class LibmgbaEmulator:
                 try:
                     if self._audio_enabled:
                         ffi.memmove(audio_data, self._gba_audio.read(samples_available), len(audio_data))
-                        self._audio_stream.write(audio_data)
                     else:
                         self._gba_audio.clear()
-                        self._audio_stream.write(audio_data)
+                    self._audio_stream.write(audio_data)
                 except sounddevice.PortAudioError as error:
                     console.print(f"[bold red]Error while playing audio:[/] [red]{str(error)}[/]")
                     self._reset_audio()
@@ -594,7 +588,7 @@ class LibmgbaEmulator:
         """
         Uses peek_frame to run the emulation ahead to get a range of when certain tasks become active, then inactive
 
-        :param start_task: name of the task to check when active
+        :param task: name of the task to check when active
         :param limit: stop searching frames after limit emulated when looking ahead
         :return: tuple of frame range while task active
         """
@@ -613,7 +607,8 @@ class LibmgbaEmulator:
 
     def generate_gif(self, record_range=tuple[int, int]) -> Path:
         """
-        Uses peek_frame to run the emulation between record_range, taking a screenshot and stitching them together into an animated GIF.
+        Uses peek_frame to run the emulation between record_range, taking a screenshot and
+        stitching them together into an animated GIF.
         """
 
         frames: list[PIL.Image.Image] = []
@@ -627,7 +622,7 @@ class LibmgbaEmulator:
         self.set_video_enabled(True)
 
         with self.peek_frame(record_range[0]):
-            for i in range(record_range[1] - record_range[0]):
+            for _ in range(record_range[1] - record_range[0]):
                 screenshot = self.get_screenshot()
                 if screenshot.getbbox():
                     frames.append(screenshot)
@@ -635,7 +630,7 @@ class LibmgbaEmulator:
 
         self.set_video_enabled(video_was_enabled)
 
-        if len(frames) < 1:
+        if not frames:
             raise RuntimeError("GIF generation did not result in any frames.")
 
         # Closest to 60 fps we can get, as Pillow only seems to support 10ms steps.

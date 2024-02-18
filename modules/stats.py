@@ -16,7 +16,7 @@ from modules.context import context
 from modules.csv import log_encounter_to_csv
 from modules.discord import discord_message
 from modules.files import read_file, write_file
-from modules.memory import get_game_state, GameState
+from modules.memory import GameState, get_game_state
 from modules.pokemon import Pokemon
 from modules.runtime import get_sprites_path
 from modules.state_cache import state_cache
@@ -69,7 +69,7 @@ class TotalStats:
             self.shiny_log = json.loads(f_shiny_log) if f_shiny_log else {"shiny_log": []}
         except SystemExit:
             raise
-        except:
+        except Exception:
             console.print_exception()
             sys.exit(1)
 
@@ -113,27 +113,24 @@ class TotalStats:
 
     def get_encounter_rate(self) -> int:
         if len(self.encounter_timestamps) > 1 and self.session_encounters > 1:
-            if self.cached_timestamp != self.encounter_timestamps[-1]:
-                self.cached_timestamp = self.encounter_timestamps[-1]
-                encounter_rate = int(
-                    (
-                        3600000
-                        / (
-                            (
-                                self.encounter_timestamps[-1]
-                                - self.encounter_timestamps[
-                                    -min(self.session_encounters, len(self.encounter_timestamps))
-                                ]
-                            )
-                            * 1000
-                        )
-                    )
-                    * (min(self.session_encounters, len(self.encounter_timestamps)))
-                )
-                self.cached_encounter_rate = encounter_rate
-                return encounter_rate
-            else:
+            if self.cached_timestamp == self.encounter_timestamps[-1]:
                 return self.cached_encounter_rate
+            self.cached_timestamp = self.encounter_timestamps[-1]
+            encounter_rate = int(
+                (
+                    3600000
+                    / (
+                        (
+                            self.encounter_timestamps[-1]
+                            - self.encounter_timestamps[-min(self.session_encounters, len(self.encounter_timestamps))]
+                        )
+                        * 1000
+                    )
+                )
+                * (min(self.session_encounters, len(self.encounter_timestamps)))
+            )
+            self.cached_encounter_rate = encounter_rate
+            return encounter_rate
         return 0
 
     def get_encounter_rate_at_1x(self) -> float:
@@ -376,7 +373,7 @@ class TotalStats:
                 self.update_shiny_incremental_stats(pokemon)
 
                 #  TODO fix all this OBS crap
-                for i in range(context.config.obs.shiny_delay):
+                for _ in range(context.config.obs.shiny_delay):
                     context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
 
                 if context.config.obs.screenshot:
@@ -385,11 +382,11 @@ class TotalStats:
                     while get_game_state() != GameState.BATTLE:
                         context.emulator.press_button("B")  # Throw out Pokémon for screenshot
                         context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-                    for i in range(180):
+                    for _ in range(180):
                         context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
                     obs_hot_key("OBS_KEY_F11", pressCtrl=True)
 
-            print_stats(self.total_stats, pokemon, self.session_pokemon, self.get_encounter_rate())
+            print_stats(self.total_stats, pokemon, self.session_pokemon)
 
             # Run custom code/Discord webhooks in custom_hooks in a thread to not hold up bot
             hook = (

@@ -1,3 +1,4 @@
+import contextlib
 import hashlib
 from dataclasses import dataclass
 from enum import Enum
@@ -142,7 +143,7 @@ rom_cache: dict[str, ROM] = {}
 def list_available_roms(force_recheck: bool = False) -> list[ROM]:
     """
     This scans all files in the `roms/` directory and returns any entry that might
-    be a valid GBA ROM, along with some meta data that could be extracted from the
+    be a valid GBA ROM, along with some metadata that could be extracted from the
     ROM header.
 
     The ROM (header) structure is described on this website:
@@ -165,16 +166,13 @@ def list_available_roms(force_recheck: bool = False) -> list[ROM]:
     result = []
     for file in ROMS_DIRECTORY.iterdir():
         if file.is_file():
-            try:
+            with contextlib.suppress(InvalidROMError):
                 result.append(load_rom_data(file))
-            except InvalidROMError:
-                pass
-
     return result
 
 
 def load_rom_data(file: Path) -> ROM:
-    # Prefer cached data so we can skip the expensive stuff below
+    # Prefer cached data, so we can skip the expensive stuff below
     global rom_cache
     if str(file) in rom_cache:
         return rom_cache[str(file)]

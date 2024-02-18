@@ -36,7 +36,7 @@ def find_roms() -> tuple[ROM, dict[str, ROM], dict[str, ROM]]:
         if rom.language == ROMLanguage.English and english_rom is None:
             english_rom = rom
 
-        if not str(rom.language) in matched_languages:
+        if str(rom.language) not in matched_languages:
             matched_languages.add(str(rom.language))
             language_roms[str(rom.language)] = rom
 
@@ -50,7 +50,7 @@ def find_roms() -> tuple[ROM, dict[str, ROM], dict[str, ROM]]:
 
     if len(other_editions_roms) != 4:
         missing_editions = ", ".join(("RUBY", "SAPP", "FIRE", "LEAF") - other_editions_roms.keys())
-        raise Exception("Could not find rev 1 ROMs for all other editions. Missing: " + missing_editions)
+        raise Exception(f"Could not find rev 1 ROMs for all other editions. Missing: {missing_editions}")
 
     return english_rom, language_roms, other_editions_roms
 
@@ -120,16 +120,16 @@ def extract_items(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict
             english_file.seek(offset + (i * 44))
             item_data = english_file.read(44)
 
-            name = decode_string(item_data[0:14])
+            name = decode_string(item_data[:14])
             pretty_name = string.capwords(name)
             if pretty_name.startswith(("Tm", "Hm", "Pp", "Hp", "Vs")):
-                pretty_name = pretty_name[0:2].upper() + pretty_name[2:]
+                pretty_name = pretty_name[:2].upper() + pretty_name[2:]
             if pretty_name.startswith("S.s."):
-                pretty_name = "S.S." + pretty_name[4:]
+                pretty_name = f"S.S.{pretty_name[4:]}"
 
             pocket = int.from_bytes(item_data[26:27], byteorder="little")
 
-            # Poke Balls use the 'item type' field to indicate the Poke Ball type instead.
+            # Poké Balls use the 'item type' field to indicate the Poké Ball type instead.
             if pocket == 2:
                 item_type = int.from_bytes(item_data[27:28], byteorder="little")
             else:
@@ -168,7 +168,7 @@ def extract_items(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict
 
             for i in range(377):
                 item_data = localised_file.read(length_of_item)
-                name = decode_string(item_data[0:length_of_name])
+                name = decode_string(item_data[:length_of_name])
 
                 description_pointer = int.from_bytes(
                     item_data[description_pointer_offset : description_pointer_offset + 4], byteorder="little"
@@ -188,15 +188,14 @@ def extract_abilities(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[
     offset = get_address("gAbilityNames")
 
     with open(english_rom.file, "rb") as english_file:
-        for i in range(78):
-            abilities_list.append(
-                {
-                    "name": string.capwords(read_string(english_file, offset + (i * 13))),
-                    "localised_names": initialise_localised_string(),
-                    "localised_descriptions": initialise_localised_string(),
-                }
-            )
-
+        abilities_list.extend(
+            {
+                "name": string.capwords(read_string(english_file, offset + (i * 13))),
+                "localised_names": initialise_localised_string(),
+                "localised_descriptions": initialise_localised_string(),
+            }
+            for i in range(78)
+        )
     for language_code in "DEFIJS":
         localised_rom = localised_roms[language_code]
         with open(localised_rom.file, "rb") as localised_file:
@@ -258,10 +257,7 @@ def extract_types(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict
 
             localised_file.seek(get_address("gTypeNames"))
             for i in range(18):
-                if language_code == "J":
-                    name_length = 5
-                else:
-                    name_length = 7
+                name_length = 5 if language_code == "J" else 7
                 types_list[i]["localised_names"][language_code] = decode_string(localised_file.read(name_length))
 
     return types_list
@@ -273,14 +269,13 @@ def extract_natures(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[di
     set_rom(english_rom)
     with open(english_rom.file, "rb") as english_file:
         english_file.seek(get_address("sHardyNatureName"))
-        for i in range(25):
-            natures_list.append(
-                {
-                    "name": string.capwords(read_string(english_file)),
-                    "localised_names": initialise_localised_string(),
-                }
-            )
-
+        natures_list.extend(
+            {
+                "name": string.capwords(read_string(english_file)),
+                "localised_names": initialise_localised_string(),
+            }
+            for _ in range(25)
+        )
         english_file.seek(get_address("gNatureStatTable"))
         for i in range(25):
             modifiers = english_file.read(5)
@@ -540,19 +535,11 @@ def extract_moves(english_rom: ROM, localised_roms: dict[str, ROM], types_list: 
 
     with open(english_rom.file, "rb") as english_file:
         english_file.seek(get_address("gBattleMoves"))
-        for i in range(355):
+        for _ in range(355):
             move_data = english_file.read(12)
 
-            if move_data[3] == 0:
-                accuracy = 1
-            else:
-                accuracy = move_data[3] / 100
-
-            if move_data[5] == 0:
-                secondary_accuracy = 1
-            else:
-                secondary_accuracy = move_data[5] / 100
-
+            accuracy = 1 if move_data[3] == 0 else move_data[3] / 100
+            secondary_accuracy = 1 if move_data[5] == 0 else move_data[5] / 100
             moves_list.append(
                 {
                     "name": "",
@@ -584,11 +571,7 @@ def extract_moves(english_rom: ROM, localised_roms: dict[str, ROM], types_list: 
         with open(localised_rom.file, "rb") as localised_file:
             set_rom(localised_rom)
 
-            if language_code == "J":
-                length_of_name = 8
-            else:
-                length_of_name = 13
-
+            length_of_name = 8 if language_code == "J" else 13
             localised_file.seek(get_address("gMoveNames"))
             for i in range(355):
                 moves_list[i]["localised_names"][language_code] = decode_string(localised_file.read(length_of_name))
@@ -705,11 +688,7 @@ def extract_species(
         with open(localised_rom.file, "rb") as localised_file:
             set_rom(localised_rom)
 
-            if language_code == "J":
-                length_of_name = 6
-            else:
-                length_of_name = 11
-
+            length_of_name = 6 if language_code == "J" else 11
             localised_file.seek(get_address("gSpeciesNames"))
             for i in range(412):
                 species_list[i]["localised_names"][language_code] = decode_string(localised_file.read(length_of_name))
@@ -736,11 +715,12 @@ def extract_species(
 if __name__ == "__main__":
     english_rom, localised_roms, other_editions_roms = find_roms()
 
-    extracted_data = {}
-    extracted_data["items"] = extract_items(english_rom, localised_roms)
-    extracted_data["abilities"] = extract_abilities(english_rom, localised_roms)
-    extracted_data["types"] = extract_types(english_rom, localised_roms)
-    extracted_data["natures"] = extract_natures(english_rom, localised_roms)
+    extracted_data = {
+        "items": extract_items(english_rom, localised_roms),
+        "abilities": extract_abilities(english_rom, localised_roms),
+        "types": extract_types(english_rom, localised_roms),
+        "natures": extract_natures(english_rom, localised_roms),
+    }
     extracted_data["moves"] = extract_moves(english_rom, localised_roms, extracted_data["types"])
     extracted_data["species"] = extract_species(
         english_rom,

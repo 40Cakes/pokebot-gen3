@@ -7,10 +7,10 @@ from time import sleep, time
 from modules.console import console
 from modules.context import context
 from modules.main import work_queue
-from modules.memory import get_game_state, GameState
+from modules.memory import GameState, get_game_state
 from modules.player import get_player, get_player_avatar
-from modules.pokemon import get_party, get_opponent
 from modules.pokedex import get_pokedex
+from modules.pokemon import get_opponent, get_party
 from modules.state_cache import state_cache
 from modules.stats import total_stats
 
@@ -40,9 +40,7 @@ class DataSubscription(IntFlag):
 
 timer_thread: Thread
 subscribers: list[tuple[int, queue.Queue, int, callable]] = []
-subscriptions = {}
-for name in DataSubscription.all_names():
-    subscriptions[name] = 0
+subscriptions = {name: 0 for name in DataSubscription.all_names()}
 max_client_id: int = 0
 
 
@@ -150,7 +148,7 @@ def run_watcher():
 
         if subscriptions["Pokedex"] > 0:
             if state_cache.pokedex.age_in_seconds > 0:
-                # If the cached Pokedex data is too old, tell the main thread to update it at the next
+                # If the cached Pokédex data is too old, tell the main thread to update it at the next
                 # possible opportunity.
                 work_queue.put_nowait(get_pokedex)
             if state_cache.pokedex.frame > previous_game_state["pokedex"]:
@@ -172,33 +170,31 @@ def run_watcher():
             elif previous_game_state["game_state"] == GameState.BATTLE:
                 send_message(DataSubscription.Opponent, data=None, event_type="Opponent")
 
-        if subscriptions["GameState"] > 0:
-            if current_game_state != previous_game_state["game_state"]:
-                send_message(DataSubscription.GameState, data=current_game_state.name, event_type="GameState")
+        if subscriptions["GameState"] > 0 and current_game_state != previous_game_state["game_state"]:
+            send_message(DataSubscription.GameState, data=current_game_state.name, event_type="GameState")
 
-        if subscriptions["Map"] > 0 or subscriptions["MapTile"] > 0:
-            if current_game_state == GameState.OVERWORLD:
-                if state_cache.player_avatar.age_in_frames > 4:
-                    # If the cached player avatar data is too old, tell the main thread to update it at the next
-                    # possible opportunity.
-                    work_queue.put_nowait(get_player_avatar)
-                elif state_cache.player_avatar.value is not None:
-                    previous_game_state["player_avatar"] = state_cache.player_avatar.frame
-                    current_map = state_cache.player_avatar.value.map_group_and_number
-                    current_coords = state_cache.player_avatar.value.local_coordinates
-                    if current_map != previous_game_state["map_group_and_number"]:
-                        map_data = state_cache.player_avatar.value.map_location
-                        data = {
-                            "map": map_data.dict_for_map(),
-                            "player_position": map_data.local_position,
-                            "tiles": map_data.dicts_for_all_tiles(),
-                        }
+        if (subscriptions["Map"] > 0 or subscriptions["MapTile"] > 0) and current_game_state == GameState.OVERWORLD:
+            if state_cache.player_avatar.age_in_frames > 4:
+                # If the cached player avatar data is too old, tell the main thread to update it at the next
+                # possible opportunity.
+                work_queue.put_nowait(get_player_avatar)
+            elif state_cache.player_avatar.value is not None:
+                previous_game_state["player_avatar"] = state_cache.player_avatar.frame
+                current_map = state_cache.player_avatar.value.map_group_and_number
+                current_coords = state_cache.player_avatar.value.local_coordinates
+                if current_map != previous_game_state["map_group_and_number"]:
+                    map_data = state_cache.player_avatar.value.map_location
+                    data = {
+                        "map": map_data.dict_for_map(),
+                        "player_position": map_data.local_position,
+                        "tiles": map_data.dicts_for_all_tiles(),
+                    }
 
-                        send_message(DataSubscription.Map, data=data, event_type="MapChange")
-                        previous_game_state["map_group_and_number"] = current_map
-                    if current_coords != previous_game_state["map_local_coordinates"]:
-                        send_message(DataSubscription.Map, data=current_coords, event_type="MapTileChange")
-                        previous_game_state["map_local_coordinates"] = current_coords
+                    send_message(DataSubscription.Map, data=data, event_type="MapChange")
+                    previous_game_state["map_group_and_number"] = current_map
+                if current_coords != previous_game_state["map_local_coordinates"]:
+                    send_message(DataSubscription.Map, data=current_coords, event_type="MapTileChange")
+                    previous_game_state["map_local_coordinates"] = current_coords
 
         if subscriptions["LastEncounterLog"] > 0:
             if state_cache.last_encounter_log.age_in_seconds > 0:
@@ -224,15 +220,13 @@ def run_watcher():
                     DataSubscription.LastShinyLog, data=state_cache.last_shiny_log.value, event_type="ShinyLog"
                 )
 
-        if subscriptions["BotMode"] > 0:
-            if context.bot_mode != previous_emulator_state["bot_mode"]:
-                previous_emulator_state["bot_mode"] = context.bot_mode
-                send_message(DataSubscription.BotMode, data=context.bot_mode, event_type="BotMode")
+        if subscriptions["BotMode"] > 0 and context.bot_mode != previous_emulator_state["bot_mode"]:
+            previous_emulator_state["bot_mode"] = context.bot_mode
+            send_message(DataSubscription.BotMode, data=context.bot_mode, event_type="BotMode")
 
-        if subscriptions["Message"] > 0:
-            if context.message != previous_emulator_state["message"]:
-                previous_emulator_state["message"] = context.message
-                send_message(DataSubscription.Message, data=context.message, event_type="Message")
+        if subscriptions["Message"] > 0 and context.message != previous_emulator_state["message"]:
+            previous_emulator_state["message"] = context.message
+            send_message(DataSubscription.Message, data=context.message, event_type="Message")
 
         if subscriptions["EmulatorSettings"] > 0:
             if context.emulation_speed != previous_emulator_state["emulation_speed"]:
