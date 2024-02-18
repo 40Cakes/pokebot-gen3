@@ -44,28 +44,24 @@ class EmulatorControls:
         self.menu_bar = Menu(self.window)
 
         emulator_menu = Menu(self.window, tearoff=0)
-        emulator_menu.add_command(label="Load save state...", command=lambda: LoadStateWindow(self.window))
-        emulator_menu.add_command(
-            label="New save state...", command=lambda: context.emulator.create_save_state("Manual")
-        )
-        emulator_menu.add_command(
-            label="Take screenshot...", command=lambda: context.emulator.take_screenshot("manual")
-        )
+        emulator_menu.add_command(label="Load Save State", command=lambda: LoadStateWindow(self.window))
+        emulator_menu.add_command(label="New Save State", command=lambda: context.emulator.create_save_state("Manual"))
+        emulator_menu.add_command(label="Take Screenshot", command=lambda: context.emulator.take_screenshot("manual"))
         emulator_menu.add_separator()
-        emulator_menu.add_command(label="Reset...", command=context.emulator.reset)
+        emulator_menu.add_command(label="Reset", command=context.emulator.reset)
 
         profile_menu = Menu(self.window, tearoff=0)
         profile_menu.add_command(
-            label="Open profile folder...", command=lambda: show_in_file_manager(str(context.profile.path))
+            label="Open Profile Folder", command=lambda: show_in_file_manager(str(context.profile.path))
         )
 
         help_menu = Menu(self.window, tearoff=0)
         help_menu.add_command(
-            label="Open wiki...",
+            label=f"{pokebot_name} Wiki",
             command=lambda: webbrowser.open_new_tab("https://github.com/40Cakes/pokebot-gen3/tree/main/wiki"),
         )
         help_menu.add_command(
-            label="Support Discord...",
+            label="Discord #pokebot-gen3-support",
             command=lambda: webbrowser.open_new_tab(
                 "https://discord.com/channels/1057088810950860850/1139190426834833528"
             ),
