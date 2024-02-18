@@ -35,6 +35,7 @@ required_modules = [
     "flask-swagger-ui~=4.11.1",
     "ttkthemes~=3.2.2",
     "darkdetect~=0.8.0",
+    "show-in-file-manager~=1.1.4",
 ]
 
 if platform.system() == "Windows":

@@ -1,6 +1,9 @@
 import tkinter.font
-from tkinter import Tk, ttk
+import webbrowser
+from tkinter import Menu, Tk, ttk
 from typing import Union
+
+from showinfm import show_in_file_manager
 
 from modules.console import console
 from modules.context import context
@@ -16,6 +19,7 @@ class EmulatorControls:
         self.last_known_bot_mode = context.bot_mode
 
         self.frame: Union[ttk.Frame, None] = None
+        self.menu_bar: Union[Menu, None] = None
         self.bot_mode_button: ttk.Button
         self.bot_mode_menu: tkinter.Menu | None
         self.speed_1x_button: ttk.Button
@@ -35,6 +39,39 @@ class EmulatorControls:
         return 200
 
     def add_to_window(self) -> None:
+        from modules.gui import LoadStateWindow
+
+        self.menu_bar = Menu(self.window)
+
+        emulator_menu = Menu(self.window, tearoff=0)
+        emulator_menu.add_command(label="Load Save State", command=lambda: LoadStateWindow(self.window))
+        emulator_menu.add_command(label="New Save State", command=lambda: context.emulator.create_save_state("Manual"))
+        emulator_menu.add_command(label="Take Screenshot", command=lambda: context.emulator.take_screenshot("manual"))
+        emulator_menu.add_separator()
+        emulator_menu.add_command(label="Reset", command=context.emulator.reset)
+
+        profile_menu = Menu(self.window, tearoff=0)
+        profile_menu.add_command(
+            label="Open Profile Folder", command=lambda: show_in_file_manager(str(context.profile.path))
+        )
+
+        help_menu = Menu(self.window, tearoff=0)
+        help_menu.add_command(
+            label=f"{pokebot_name} Wiki",
+            command=lambda: webbrowser.open_new_tab("https://github.com/40Cakes/pokebot-gen3/tree/main/wiki"),
+        )
+        help_menu.add_command(
+            label="Discord #pokebot-gen3-support",
+            command=lambda: webbrowser.open_new_tab(
+                "https://discord.com/channels/1057088810950860850/1139190426834833528"
+            ),
+        )
+
+        self.menu_bar.add_cascade(label="Emulator", menu=emulator_menu)
+        self.menu_bar.add_cascade(label="Profile", menu=profile_menu)
+        self.menu_bar.add_cascade(label="Help", menu=help_menu)
+        self.window.config(menu=self.menu_bar)
+
         self.frame = ttk.Frame(self.window, padding=5)
         self.frame.grid(row=1, sticky="NSWE")
         self.frame.columnconfigure(1, weight=1)
@@ -222,7 +259,7 @@ class EmulatorControls:
         if current_fps:
             stats.append(f"{current_fps:,}fps ({current_fps / 59.727500569606:0.2f}x)")
         if context.profile:
-            from modules.stats import total_stats  # TODO prevent instantiating TotalStats class before profile selected
+            from modules.stats import total_stats
 
             stats.append(f"{total_stats.get_encounter_rate():,}/h")
         if context.debug:

@@ -179,9 +179,8 @@ class PokebotGui:
                         console.print(f"Now in [cyan]{context.bot_mode}[/] mode")
                         context.emulator.set_inputs(0)
                     case "reload_config":
-                        message = context.reload_config()
+                        context.reload_config()
                         self._apply_key_config()
-                        console.print(message)
                     case "toggle_video":
                         context.toggle_video()
                     case "toggle_audio":
@@ -197,7 +196,7 @@ class PokebotGui:
                     case "set_speed_unthrottled":
                         context.emulation_speed = 0
                     case "screenshot":
-                        context.emulator.take_screenshot(suffix="manual")
+                        context.emulator.take_screenshot("manual")
 
         # This prevents the default action for that key to be executed, which is important for
         # the Tab key (which normally moves focus to the next GUI element.)

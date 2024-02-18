@@ -25,25 +25,26 @@ class BotContext:
         self._current_bot_mode: str = initial_bot_mode
         self._previous_bot_mode: str = "Manual"
 
-    def reload_config(self) -> str:
-        """Triggers a config reload, reload the global config then specific profile config.
-
-        :return: A user-facing message
+    def reload_config(self) -> None:
         """
+        Triggers a config reload, reload the global config then specific profile config.
+        """
+        from modules.console import console
+
         try:
             new_config = Config()
             new_config.load(self.config.config_dir, strict=False)
             self.config = new_config
-            message = "[cyan]Profile settings loaded.[/]"
+            console.print("[cyan]Profile settings loaded.[/]")
         except Exception as error:
             if self.debug:
                 raise error
-            message = (
+            console.print(
                 "[bold red]The configuration could not be loaded, no changes have been made.[/]\n"
                 "[bold yellow]This is probably due to a malformed file."
                 "For more information run the bot with the --debug flag.[/]"
             )
-        return message
+        return
 
     @property
     def message(self) -> str:
