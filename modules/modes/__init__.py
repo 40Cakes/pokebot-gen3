@@ -1,8 +1,8 @@
 """Contains modes of operation for the bot."""
 
-from typing import Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
-from ._interface import BotMode, BotModeError, FrameInfo, BotListener, BattleAction
+from ._interface import BattleAction, BotListener, BotMode, BotModeError, FrameInfo
 
 if TYPE_CHECKING:
     from modules.roms import ROM
@@ -57,16 +57,12 @@ def get_bot_modes() -> list[Type[BotMode]]:
 
 def get_bot_mode_names() -> list[str]:
     result = ["Manual"]
-    for mode in get_bot_modes():
-        result.append(mode.name())
+    result.extend(mode.name() for mode in get_bot_modes())
     return result
 
 
 def get_bot_mode_by_name(name: str) -> Type[BotMode] | None:
-    for mode in get_bot_modes():
-        if mode.name() == name:
-            return mode
-    return None
+    return next((mode for mode in get_bot_modes() if mode.name() == name), None)
 
 
 def get_bot_listeners(rom: "ROM") -> list[BotListener]:

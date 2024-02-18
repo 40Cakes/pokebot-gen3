@@ -53,14 +53,20 @@ class Pokedex:
         return result
 
     def to_dict(self) -> dict[str, list[dict]]:
-        seen = []
-        for species in self.seen_species:
-            seen.append({"national_dex_number": species.national_dex_number, "name": species.name})
-
-        owned = []
-        for species in self.owned_species:
-            owned.append({"national_dex_number": species.national_dex_number, "name": species.name})
-
+        seen = [
+            {
+                "national_dex_number": species.national_dex_number,
+                "name": species.name,
+            }
+            for species in self.seen_species
+        ]
+        owned = [
+            {
+                "national_dex_number": species.national_dex_number,
+                "name": species.name,
+            }
+            for species in self.owned_species
+        ]
         return {"seen": seen, "owned": owned}
 
 

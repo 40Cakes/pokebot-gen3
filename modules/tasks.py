@@ -8,7 +8,7 @@ from typing import Iterator
 
 from modules.context import context
 from modules.game import get_symbol_name_before
-from modules.memory import unpack_uint32, read_symbol, get_symbol_name
+from modules.memory import get_symbol_name, read_symbol, unpack_uint32
 from modules.state_cache import state_cache
 
 
@@ -17,28 +17,19 @@ class Task:
         self._data = data
 
     def __eq__(self, other):
-        if isinstance(other, Task):
-            return other._data == self._data
-        else:
-            return NotImplemented
+        return other._data == self._data if isinstance(other, Task) else NotImplemented
 
     def __ne__(self, other):
-        if isinstance(other, Task):
-            return other._data != self._data
-        else:
-            return NotImplemented
+        return other._data != self._data if isinstance(other, Task) else NotImplemented
 
     @property
     def function_pointer(self) -> int:
-        return unpack_uint32(self._data[0:4]) - 1
+        return unpack_uint32(self._data[:4]) - 1
 
     @cached_property
     def symbol(self) -> str:
         symbol = get_symbol_name(self.function_pointer, True)
-        if symbol == "":
-            return hex(self.function_pointer)
-        else:
-            return symbol
+        return hex(self.function_pointer) if symbol == "" else symbol
 
     @property
     def priority(self) -> int:
@@ -80,7 +71,7 @@ class TaskList:
         for index in range(16):
             task_data = self._data[index * 40 : (index + 1) * 40]
             # offset 4 is `is_active` and offsets 0 through 3 are the function pointer
-            if task_data[4] != 0 and task_data[0:4] != b"\x00\x00\x00\x00":
+            if task_data[4] != 0 and task_data[:4] != b"\x00\x00\x00\x00":
                 task = Task(task_data)
                 if task.symbol != "TaskDummy":
                     tasks[task.symbol.lower()] = task
@@ -105,7 +96,7 @@ class ScriptContext:
 
     @property
     def is_active(self) -> bool:
-        return bool(self._data[1] != 0)
+        return self._data[1] != 0
 
     @property
     def mode(self) -> str:
@@ -184,7 +175,7 @@ def get_global_script_context() -> ScriptContext:
     if state_cache.global_script_context.age_in_frames == 0:
         return state_cache.global_script_context.value
 
-    ctx = ScriptContext(read_symbol("sGlobalScriptContext" if not context.rom.is_rs else "sScriptContext1"))
+    ctx = ScriptContext(read_symbol("sScriptContext1" if context.rom.is_rs else "sGlobalScriptContext"))
     state_cache.global_script_context = ctx
     return ctx
 
@@ -193,6 +184,6 @@ def get_immediate_script_context() -> ScriptContext:
     if state_cache.immediate_script_context.age_in_frames == 0:
         return state_cache.immediate_script_context.value
 
-    ctx = ScriptContext(read_symbol("sImmediateScriptContext" if not context.rom.is_rs else "sScriptContext2"))
+    ctx = ScriptContext(read_symbol("sScriptContext2" if context.rom.is_rs else "sImmediateScriptContext"))
     state_cache.immediate_script_context = ctx
     return ctx

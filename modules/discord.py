@@ -1,7 +1,8 @@
 import time
 from pathlib import Path
+
+from discord_webhook import DiscordEmbed, DiscordWebhook
 from pypresence import Presence
-from discord_webhook import DiscordWebhook, DiscordEmbed
 
 from modules.context import context
 from modules.version import pokebot_version
@@ -20,48 +21,48 @@ def discord_message(
     embed_footer: str = None,
     embed_color: str = "FFFFFF",
 ) -> None:
-    webhook_url = webhook_url or context.config.discord.global_webhook_url
-    if webhook_url:
-        webhook, embed_obj = DiscordWebhook(url=webhook_url, content=content), None
+    if not (webhook_url := webhook_url or context.config.discord.global_webhook_url):
+        return
+    webhook, embed_obj = DiscordWebhook(url=webhook_url, content=content), None
 
-        if image:
-            with open(image, "rb") as f:
-                webhook.add_file(file=f.read(), filename=image.name)
+    if image:
+        with open(image, "rb") as f:
+            webhook.add_file(file=f.read(), filename=image.name)
 
-        if embed:
-            embed_obj = DiscordEmbed(title=embed_title, color=embed_color)
+    if embed:
+        embed_obj = DiscordEmbed(title=embed_title, color=embed_color)
 
-            if embed_description:
-                embed_obj.description = embed_description
+        if embed_description:
+            embed_obj.description = embed_description
 
-            if embed_fields:
-                for key, value in embed_fields.items():
-                    embed_obj.add_embed_field(name=key, value=value, inline=False)
+        if embed_fields:
+            for key, value in embed_fields.items():
+                embed_obj.add_embed_field(name=key, value=value, inline=False)
 
-            if embed_thumbnail:
-                filename = "thumb.gif" if str(embed_thumbnail).endswith(".gif") else "thumb.png"
-                with open(embed_thumbnail, "rb") as f:
-                    webhook.add_file(file=f.read(), filename=filename)
-                embed_obj.set_thumbnail(url="attachment://" + filename)
+        if embed_thumbnail:
+            filename = "thumb.gif" if str(embed_thumbnail).endswith(".gif") else "thumb.png"
+            with open(embed_thumbnail, "rb") as f:
+                webhook.add_file(file=f.read(), filename=filename)
+            embed_obj.set_thumbnail(url=f"attachment://{filename}")
 
-            if embed_image:
-                filename = "embed.gif" if embed_image.name.endswith(".gif") else "embed.png"
-                with open(embed_image, "rb") as f:
-                    webhook.add_file(file=f.read(), filename=filename)
-                embed_obj.set_image(url="attachment://" + filename)
+        if embed_image:
+            filename = "embed.gif" if embed_image.name.endswith(".gif") else "embed.png"
+            with open(embed_image, "rb") as f:
+                webhook.add_file(file=f.read(), filename=filename)
+            embed_obj.set_image(url=f"attachment://{filename}")
 
-            if embed_footer:
-                embed_obj.set_footer(text=embed_footer)
-            else:
-                embed_obj.set_footer(
-                    text=f"ID: {context.config.discord.bot_id} | {context.rom.game_name}\nPokéBot Gen3 {pokebot_version}"
-                )
+        if embed_footer:
+            embed_obj.set_footer(text=embed_footer)
+        else:
+            embed_obj.set_footer(
+                text=f"ID: {context.config.discord.bot_id} | {context.rom.game_name}\nPokéBot Gen3 {pokebot_version}"
+            )
 
-            embed_obj.set_timestamp()
-            webhook.add_embed(embed_obj)
+        embed_obj.set_timestamp()
+        webhook.add_embed(embed_obj)
 
-        time.sleep(context.config.obs.discord_delay)
-        webhook.execute()
+    time.sleep(context.config.obs.discord_delay)
+    webhook.execute()
 
 
 def discord_rich_presence() -> None:
@@ -69,8 +70,8 @@ def discord_rich_presence() -> None:
     from asyncio import new_event_loop as new_loop, set_event_loop as set_loop
 
     set_loop(new_loop())
-    RPC = Presence("1125400717054713866")
-    RPC.connect()
+    rpc = Presence("1125400717054713866")
+    rpc.connect()
     start = time.time()
 
     match context.rom.game_title:
@@ -93,7 +94,7 @@ def discord_rich_presence() -> None:
         location = encounter_log[-1]["pokemon"]["metLocation"] if len(encounter_log) > 0 else "N/A"
         current_fps = context.emulator.get_current_fps()
 
-        RPC.update(
+        rpc.update(
             state=f"{location} | {context.rom.game_name}",
             details=(
                 f"{totals.get('totals', {}).get('encounters', 0):,} ({totals.get('totals', {}).get('shiny_encounters', 0):,}✨) | "

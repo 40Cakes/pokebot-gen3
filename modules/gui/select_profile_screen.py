@@ -1,5 +1,5 @@
-from datetime import datetime, date
-from tkinter import ttk, Tk
+from datetime import date, datetime
+from tkinter import Tk, ttk
 from typing import Union
 
 from modules.profiles import Profile, list_available_profiles

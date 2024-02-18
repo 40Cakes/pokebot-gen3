@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 import pandas as pd
 
 
@@ -66,8 +67,8 @@ def log_encounter_to_csv(total_stats: dict, pokemon_dict: dict, stats_dir_path: 
             .sort_index()
             .transpose()
         )
-        header = False if os.path.exists(csv_file) else True
+        header = not os.path.exists(csv_file)
         pd_pokemon.to_csv(csv_file, mode="a", encoding="utf-8", index=False, header=header)
         return True
-    except:
+    except Exception:
         return False

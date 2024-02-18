@@ -2,18 +2,18 @@ from typing import Literal
 
 from modules.context import context
 from modules.map import get_map_data
-from modules.memory import unpack_uint16, unpack_uint32, get_save_block, read_symbol
+from modules.memory import get_save_block, read_symbol, unpack_uint16, unpack_uint32
 from modules.pokemon import (
-    StatsValues,
     ContestConditions,
-    Nature,
-    get_nature_by_index,
-    Species,
-    get_species_by_index,
-    StatusCondition,
-    get_type_by_name,
-    Type,
     HIDDEN_POWER_MAP,
+    Nature,
+    Species,
+    StatsValues,
+    StatusCondition,
+    Type,
+    get_nature_by_index,
+    get_species_by_index,
+    get_type_by_name,
 )
 
 
@@ -38,9 +38,9 @@ class Roamer:
 
     @property
     def ivs(self) -> StatsValues:
-        packed_data = unpack_uint32(self._data[0:4])
+        packed_data = unpack_uint32(self._data[:4])
         # There is an in-game bug in FR/LG where most of the IV values are discarded,
-        # resulting in Pokemon with very bad IVs. The following replicates that.
+        # resulting in Pokémon with very bad IVs. The following replicates that.
         if context.rom.is_frlg:
             packed_data &= 0xFF
         return StatsValues(
@@ -86,18 +86,15 @@ class Roamer:
     @property
     def gender(self) -> Literal["male", "female", None]:
         ratio = self.species.gender_ratio
-        if ratio == 255:
-            return None
-        elif ratio == 254:
-            return "female"
-        elif ratio == 0:
+        if ratio == 0:
             return "male"
 
-        value = self.personality_value & 0xFF
-        if value >= ratio:
-            return "male"
-        else:
+        elif ratio == 254:
             return "female"
+        elif ratio == 255:
+            return None
+        value = self.personality_value & 0xFF
+        return "male" if value >= ratio else "female"
 
     @property
     def shiny_value(self) -> int:
@@ -138,14 +135,13 @@ class Roamer:
             + ((ivs.special_attack & 2) << 3)
             + ((ivs.special_defence & 2) << 4)
         )
-        value = (value * 40) // 63 + 30
-        return value
+        return (value * 40) // 63 + 30
 
     def __str__(self):
         output = f"{self.species.name}, lvl. {self.level}, {self.current_hp} HP"
         if self.status_condition != StatusCondition.Healthy:
-            output += ", " + str(self.status_condition)
-        return output + " @ " + self.map_name
+            output += f", {str(self.status_condition)}"
+        return f"{output} @ {self.map_name}"
 
 
 def get_roamer() -> Roamer | None:
@@ -160,15 +156,20 @@ def get_roamer() -> Roamer | None:
     location = read_symbol("sRoamerLocation")
     if data[0x13] and (data[0x08] or data[0x09]):
         trainer_id = get_save_block(2, offset=0xA, size=4)
-        return Roamer(data, location, unpack_uint16(trainer_id[0:2]), unpack_uint16(trainer_id[2:4]))
+        return Roamer(
+            data,
+            location,
+            unpack_uint16(trainer_id[:2]),
+            unpack_uint16(trainer_id[2:4]),
+        )
     else:
         return None
 
 
 def get_roamer_location_history() -> list[str]:
     data = read_symbol("sLocationHistory")
-    result = []
-    for index in range(3):
-        if data[index * 2] != 0 or data[index * 2 + 1] != 0:
-            result.append(get_map_data(data[index * 2], data[index * 2 + 1], (0, 0)).map_name)
-    return result
+    return [
+        get_map_data(data[index * 2], data[index * 2 + 1], (0, 0)).map_name
+        for index in range(3)
+        if data[index * 2] != 0 or data[index * 2 + 1] != 0
+    ]

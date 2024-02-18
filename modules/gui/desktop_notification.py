@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from notifypy import Notify
 
 from modules.console import console
@@ -12,8 +13,7 @@ def desktop_notification(title: str, message: str, icon: Path = None) -> None:
         return
 
     try:
-        if not icon:
-            icon = choose_random_sprite()
+        icon = icon or choose_random_sprite()
 
         notification = Notify(
             default_notification_application_name=f"{context.profile.path.name} | {pokebot_name} {pokebot_version}"
@@ -23,6 +23,5 @@ def desktop_notification(title: str, message: str, icon: Path = None) -> None:
         notification.icon = icon
 
         notification.send()
-    except:
+    except Exception:
         console.print_exception()
-        pass

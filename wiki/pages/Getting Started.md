@@ -32,11 +32,15 @@ Note: `brew` requires [Homebrew](https://brew.sh/) to be installed.
 
 ## Download the Bot
 ### Stable Releases
-Visit the [releases](https://github.com/40Cakes/pokebot-gen3/releases) page for the latest stable releases, download the **pokebot-vX.X.X.zip** file.
+
+Visit the [releases](https://github.com/40Cakes/pokebot-gen3/releases) page for the latest stable releases, download the **pokebot-DATE.zip** file.
 
 The bot has an auto-updater that will check for new stable releases, once a day.
 
 ### Dev Releases
+<details>
+<summary>Expand</summary>
+
 To download the latest dev releases, go to the top of the repo page > click the green **Code** button > **Download ZIP**.
 
 Alternatively, if you'd like to be able to easily pull the latest dev releases, use git:
@@ -46,11 +50,15 @@ Alternatively, if you'd like to be able to easily pull the latest dev releases, 
 - Click **Clone**
 - Any time there's a new update, you can pull the latest changes by clicking **Fetch origin**, then **Pull origin**
 
+</details>
+
 ### Optional
 - [Windows Terminal](https://github.com/microsoft/terminal/releases) - recommended for full 🌈<span style="color:#FF0000">c</span><span style="color:#FF7F00">o</span><span style="color:#FFFF00">l</span><span style="color:#00FF00">o</span><span style="color:#00FFFF">u</span><span style="color:#CF9FFF">r</span>🌈 and  ✨emoji support✨ in the console output
 - [Notepad++](https://notepad-plus-plus.org/) - recommended for syntax highlighting while editing `.yml` config files
 
 ### Use a `venv` (optional)
+<details>
+<summary>Expand</summary>
 If you're using Python for any other projects, it is **highly recommended** to use a virtual environment (`venv`) to isolate these packages from your base environment.
 
 Once Python is installed, set up a `venv`, open a shell in the bot directory and enter the following command:
@@ -70,21 +78,25 @@ Once activated, run the bot (your shell should show `(venv)` if activated correc
 
 `(venv) PS C:\> python ./pokebot.py` (Windows)
 
+</details>
+
 ## Run the Bot
-- Place some **official** Pokémon .gba ROMs into the `roms/` folder
+- Place some **official** Pokémon .gba ROMs into the `./roms/` folder
 - Double click `pokebot.py` or run `python pokebot.py` in a terminal and follow the on-screen steps to create and/or select a profile
 
 The bot ships with the default mGBA input mapping, see [here](../../profiles/keys.yml) for the default mapping, or customise them to your preference.
 
-The bot will pause once a shiny is encountered. You **must** ensure you are able to escape battle **100% of the time**, otherwise the bot will get stuck. Auto-catching and other features will be added in due time.
+You **must** ensure you are able to escape battle **100% of the time**, otherwise the bot will get stuck.
 If you have a save from mGBA that you'd like to import and use with the bot, then you will need to import the save state.
+
+This bot is still in development, as such, functionality is subject to change - always make sure you back up your `./profiles/` folder before updating your bot! 
 
 ## Import a Save
 - In mGBA (standalone), run a game and load into the save file
 - **File** > **Save State File...** > **Save**
 - Double click `pokebot.py` or run `python pokebot.py` in a terminal > type a profile **name** > click **Load Existing Save**
 - Open the save state file you just saved
-- A new bot profile will be created in the `profiles/` folder, and launched
+- A new bot profile will be created in the `./profiles/` folder, and launched
 
 ## Tips/Tricks
 - Set in-game **TEXT SPEED** to **FAST**
@@ -97,6 +109,8 @@ If you have a save from mGBA that you'd like to import and use with the bot, the
 - Don't use a shiny lead Pokémon (shiny animation takes a few frames at the start of every battle)
 
 ## Debugging (advanced)
+<details>
+<summary>Expand</summary>
 
 The bot supports auto-starting a profile and can also be launched into a "debug" mode which will open an extra pane next to the emulator to aid bot development.
 
@@ -119,3 +133,5 @@ options:
 ```
 
 Use environment variable `POKEBOT_UNTHEMED=1` with debug mode as `ttkthemes` causes major lag with complex UIs.
+
+</details>

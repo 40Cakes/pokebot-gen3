@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import IntEnum
 
 from modules.context import context
-from modules.memory import get_save_block, unpack_uint32, unpack_uint16
+from modules.memory import get_save_block, unpack_uint16, unpack_uint32
 from modules.pokemon import Pokemon, parse_pokemon
 
 
@@ -48,15 +48,15 @@ class DaycareCompatibility(IntEnum):
             return DaycareCompatibility.Incompatible, "No overlapping egg groups"
 
         if pokemon1.species == pokemon2.species:
-            if pokemon1.original_trainer.id == pokemon2.original_trainer.id:
-                return DaycareCompatibility.Medium, "Same species, same OT"
-            else:
-                return DaycareCompatibility.High, "Same species, different OT"
+            return (
+                (DaycareCompatibility.Medium, "Same species, same OT")
+                if pokemon1.original_trainer.id == pokemon2.original_trainer.id
+                else (DaycareCompatibility.High, "Same species, different OT")
+            )
+        if pokemon1.original_trainer.id == pokemon2.original_trainer.id:
+            return DaycareCompatibility.Low, "Different species, same OT"
         else:
-            if pokemon1.original_trainer.id == pokemon2.original_trainer.id:
-                return DaycareCompatibility.Low, "Different species, same OT"
-            else:
-                return DaycareCompatibility.Medium, "Different species, different OT"
+            return DaycareCompatibility.Medium, "Different species, different OT"
 
 
 @dataclass
@@ -86,16 +86,14 @@ def get_daycare_data() -> DaycareData | None:
         return None
 
     if context.rom.is_rs:
-        pokemon1 = parse_pokemon(data[0x00:0x50])
+        pokemon1 = parse_pokemon(data[:0x50])
         pokemon2 = parse_pokemon(data[0x50:0xA0])
         steps1 = unpack_uint32(data[0x110:0x114])
-        steps2 = unpack_uint32(data[0x114:0x118])
     else:
-        pokemon1 = parse_pokemon(data[0x00:0x50])
+        pokemon1 = parse_pokemon(data[:0x50])
         pokemon2 = parse_pokemon(data[0x8C:0xDC])
         steps1 = unpack_uint32(data[0x88:0x8C])
-        steps2 = unpack_uint32(data[0x114:0x118])
-
+    steps2 = unpack_uint32(data[0x114:0x118])
     if context.rom.is_emerald:
         personality_value = unpack_uint32(data[0x118:0x11C])
         step_counter = int(data[0x11C])
@@ -103,16 +101,8 @@ def get_daycare_data() -> DaycareData | None:
         personality_value = unpack_uint16(data[0x118:0x11A])
         step_counter = int(data[0x11A])
 
-    if pokemon1 is None:
-        egg_groups1 = []
-    else:
-        egg_groups1 = pokemon1.species.egg_groups
-
-    if pokemon2 is None:
-        egg_groups2 = []
-    else:
-        egg_groups2 = pokemon2.species.egg_groups
-
+    egg_groups1 = [] if pokemon1 is None else pokemon1.species.egg_groups
+    egg_groups2 = [] if pokemon2 is None else pokemon2.species.egg_groups
     return DaycareData(
         pokemon1=pokemon1,
         pokemon1_egg_groups=egg_groups1,

@@ -1,6 +1,6 @@
 🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
 
-# 🔎 Pokémon by Method
+# 🔎 Pokémon by Bot Mode
 
 Below is a table of the encounters in Kanto, Johto and Hoenn with a link to the Wiki pages which give information on how to set up the bot mode.
 

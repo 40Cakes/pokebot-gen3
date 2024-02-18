@@ -6,6 +6,11 @@ from modules.memory import get_save_block, unpack_uint16, unpack_uint32
 from modules.pokemon import Pokemon, parse_pokemon
 
 
+def get_last_heal_location() -> tuple[int, int]:
+    heal_location = get_save_block(1, offset=0x1C, size=2)
+    return heal_location[0], heal_location[1]
+
+
 @dataclass
 class SaveData:
     save_index: int
@@ -16,7 +21,7 @@ class SaveData:
         return self.sections[1][4], self.sections[1][5]
 
     def get_map_local_coordinates(self) -> tuple[int, int]:
-        return unpack_uint16(self.sections[1][0:2]), unpack_uint16(self.sections[1][2:4])
+        return unpack_uint16(self.sections[1][:2]), unpack_uint16(self.sections[1][2:4])
 
     def get_party(self) -> list[Pokemon]:
         party = []
@@ -64,10 +69,6 @@ class SaveData:
             data, items_count, key_items_count, poke_balls_count, tms_hms_count, berries_count, encryption_key
         )
 
-    def get_last_heal_location(self) -> tuple[int, int]:
-        heal_location = get_save_block(1, offset=0x1C, size=2)
-        return heal_location[0], heal_location[1]
-
 
 _section_sizes = [3884, 3968, 3968, 3968, 3848, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 3968, 2000]
 
@@ -80,11 +81,7 @@ def get_save_data() -> SaveData | None:
     save_data = context.emulator.read_save_data()
 
     def get_save_data_block(block_index: int) -> SaveData | None:
-        if block_index == 1:
-            block_offset = 0xE000
-        else:
-            block_offset = 0x0
-
+        block_offset = 0xE000 if block_index == 1 else 0x0
         sections = [b"", b"", b"", b"", b"", b"", b"", b"", b"", b"", b"", b"", b"", b""]
         save_index = -1
         for section_index in range(14):

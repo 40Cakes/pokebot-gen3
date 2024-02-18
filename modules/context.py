@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Generator
+from typing import Generator, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from modules.gui import PokebotGui
@@ -56,10 +56,7 @@ class BotContext:
 
     @property
     def emulation_speed(self) -> float:
-        if not self.emulator.get_throttle():
-            return 0
-        else:
-            return self.emulator.get_speed_factor()
+        return self.emulator.get_speed_factor() if self.emulator.get_throttle() else 0
 
     @emulation_speed.setter
     def emulation_speed(self, new_speed: float) -> None:
@@ -111,10 +108,7 @@ class BotContext:
 
     @property
     def audio(self) -> bool:
-        if self.emulator:
-            return self.emulator.get_audio_enabled()
-        else:
-            return False
+        return self.emulator.get_audio_enabled() if self.emulator else False
 
     @audio.setter
     def audio(self, audio_on: bool) -> None:
@@ -129,10 +123,7 @@ class BotContext:
 
     @property
     def video(self) -> bool:
-        if self.emulator:
-            return self.emulator.get_video_enabled()
-        else:
-            return False
+        return self.emulator.get_video_enabled() if self.emulator else False
 
     @video.setter
     def video(self, video_on: bool) -> None:
@@ -147,10 +138,7 @@ class BotContext:
 
     @property
     def rom(self) -> Optional["ROM"]:
-        if self.profile:
-            return self.profile.rom
-        else:
-            return None
+        return self.profile.rom if self.profile else None
 
     def _update_gui(self) -> None:
         if self.gui:

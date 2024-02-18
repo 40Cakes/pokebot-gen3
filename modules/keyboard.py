@@ -1,9 +1,11 @@
-from modules.context import context
-from modules.memory import unpack_uint32, read_symbol
-from modules.game import decode_string
-from modules.tasks import task_is_active
-from pathlib import Path
+import contextlib
 import json
+from pathlib import Path
+
+from modules.context import context
+from modules.game import decode_string
+from modules.memory import read_symbol, unpack_uint32
+from modules.tasks import task_is_active
 
 DATA_DIRECTORY = Path(__file__).parent / "data"
 
@@ -14,7 +16,7 @@ with open(f"{DATA_DIRECTORY}/keyboard.json", "r", encoding="utf-8") as f:
 lang = "en"
 
 valid_characters = []
-for num, page in enumerate(key_layout[lang]):
+for page in key_layout[lang]:
     for row in page["array"]:
         valid_characters.extend(row)
 
@@ -66,19 +68,24 @@ class Keyboard:
             else:
                 y_val = int(context.emulator.read_bytes(0x030031D8, 1)[0] / 16) - 5
         else:
-            try:
-                if self.cur_page == 2:
-                    x_val = [0x1B, 0x33, 0x4B, 0x63, 0x7B, 0x93, 0xBC].index(
-                        context.emulator.read_bytes(0x0300185E, 1)[0]
-                    )
-                else:
-                    x_val = [0x1B, 0x2B, 0x3B, 0x53, 0x63, 0x73, 0x83, 0x9B, 0xBC].index(
-                        context.emulator.read_bytes(0x0300185E, 1)[0]
-                    )
-            except Exception:
-                pass
+            with contextlib.suppress(Exception):
+                x_val = (
+                    [0x1B, 0x33, 0x4B, 0x63, 0x7B, 0x93, 0xBC].index(context.emulator.read_bytes(0x0300185E, 1)[0])
+                    if self.cur_page == 2
+                    else [
+                        0x1B,
+                        0x2B,
+                        0x3B,
+                        0x53,
+                        0x63,
+                        0x73,
+                        0x83,
+                        0x9B,
+                        0xBC,
+                    ].index(context.emulator.read_bytes(0x0300185E, 1)[0])
+                )
             y_val = int(context.emulator.read_bytes(0x0300185C, 1)[0] / 16) - 4
-        return (x_val, y_val)
+        return x_val, y_val
 
 
 class BaseMenuNavigator:
@@ -90,13 +97,12 @@ class BaseMenuNavigator:
         """
         Iterates through the steps of navigating the menu for the desired outcome.
         """
-        while not self.current_step == "exit":
+        while self.current_step != "exit":
             if not self.navigator:
                 self.get_next_func()
                 self.update_navigator()
             else:
-                for _ in self.navigator:
-                    yield _
+                yield from self.navigator
                 self.navigator = None
 
     def get_next_func(self):
@@ -163,7 +169,6 @@ class KeyboardNavigator(BaseMenuNavigator):
             yield
 
     def navigate_keyboard(self):
-        press = None
         last_pos = None
         cur_char = 0
         goto = [0, 0, 0]
@@ -172,7 +177,7 @@ class KeyboardNavigator(BaseMenuNavigator):
                 if self.name[0] in row:
                     goto = [row.index(self.name[0]), num, page]
                     break
-        while True and context.bot_mode != "Manual":
+        while context.bot_mode != "Manual":
             page = self.keyboard.cur_page
             if page <= 3:
                 if self.h != key_layout[lang][page]["height"] or self.w != key_layout[lang][page]["width"]:
@@ -194,29 +199,28 @@ class KeyboardNavigator(BaseMenuNavigator):
                         cur_char += 1
                         if len(self.keyboard.text_buffer) >= len(self.name):
                             break
-                        else:
-                            found = False
-                            for num, row in enumerate(key_layout[lang][page]["array"]):
-                                if self.name[cur_char] in row:
-                                    goto = [row.index(self.name[cur_char]), num, page]
-                                    found = True
-                                    break
-                            if not found:
-                                for page_num, new_page in enumerate(key_layout[lang]):
-                                    for num, row in enumerate(new_page["array"]):
-                                        if self.name[cur_char] in row:
-                                            goto = [row.index(self.name[cur_char]), num, page_num]
-                                            found = True
-                                            break
-                                    if found:
+                        found = False
+                        for num, row in enumerate(key_layout[lang][page]["array"]):
+                            if self.name[cur_char] in row:
+                                goto = [row.index(self.name[cur_char]), num, page]
+                                found = True
+                                break
+                        if not found:
+                            for page_num, new_page in enumerate(key_layout[lang]):
+                                for num, row in enumerate(new_page["array"]):
+                                    if self.name[cur_char] in row:
+                                        goto = [row.index(self.name[cur_char]), num, page_num]
+                                        found = True
                                         break
+                                if found:
+                                    break
                     else:
                         if spot[0] < goto[0]:
                             press = "Right"
                         elif spot[0] > goto[0]:
                             press = "Left"
-                        elif (spot[1] < goto[1] or (spot[1] == self.h - 1 and goto[1] == 0)) and not (
-                            spot[1] == 0 and goto[1] == self.h - 1
+                        elif (spot[1] < goto[1] or (spot[1] == self.h - 1 and goto[1] == 0)) and (
+                            spot[1] != 0 or goto[1] != self.h - 1
                         ):
                             press = "Down"
                         else:
@@ -246,7 +250,7 @@ class KeyboardNavigator(BaseMenuNavigator):
                 self.keyboard.cur_pos == (8, 0) and context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]
             ):
                 context.emulator.press_button("A")
-                yield
             else:
                 context.emulator.press_button("Start")
-                yield
+
+            yield

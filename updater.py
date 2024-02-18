@@ -8,13 +8,13 @@ from zipfile import ZipFile
 
 import requests
 
-# This is not being used, but it needs to be imported because otherwise `modules.console`
-# runs into a circular import issue.
-from modules import exceptions
-
 from modules.console import console
 from modules.runtime import get_base_path
 from modules.version import pokebot_version
+
+
+# Module `exceptions` is not being used, but it needs to be imported because otherwise `modules.console`
+# runs into a circular import issue.
 
 
 @dataclass
@@ -35,7 +35,7 @@ def get_last_update_check_datetime() -> datetime | None:
         with open(check_file_path, "r") as file:
             result = datetime.fromisoformat(file.read())
         return result
-    except:
+    except Exception:
         return None
 
 
@@ -97,15 +97,15 @@ def run_updater(ignore_last_update: bool = False) -> None:
         if release_info is not None and release_info.tag_name != pokebot_version:
             console.print("\n[green bold]There is a new update available![/]\n")
             console.print(
-                f"The most recent version is [cyan bold]{release_info.tag_name}[/], released on [yellow]{str(release_info.created_at)}[/].\n"
+                f"The most recent version is [cyan bold]{release_info.tag_name}[/], "
+                f"released on [yellow]{str(release_info.created_at)}[/].\n"
             )
             response = input("Download now? [y/N] ")
             if response in ["y", "Y"]:
-                if fetch_release_from_github(release_info):
-                    if extract_update_file(release_info):
-                        console.print("\n[green]Update successful![/]")
-                        console.print("[green bold]Restart the bot to apply.[/]")
-                        sys.exit(0)
+                if fetch_release_from_github(release_info) and extract_update_file(release_info):
+                    console.print("\n[green]Update successful![/]")
+                    console.print("[green bold]Restart the bot to apply.[/]")
+                    sys.exit(0)
             else:
                 console.print("\n[yellow]Ignoring update.[/] Will ask again tomorrow.")
                 console.print(

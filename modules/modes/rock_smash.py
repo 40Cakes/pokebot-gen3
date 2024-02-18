@@ -1,33 +1,34 @@
+import contextlib
 from typing import Generator
 
 from modules.context import context
 from modules.encounter import handle_encounter
-from modules.gui.multi_select_window import ask_for_choice, Selection
+from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.items import get_item_bag
 from modules.map import get_map_objects
 from modules.map_data import MapRSE
 from modules.memory import get_event_flag, get_event_var
-from modules.player import get_player, get_player_avatar, TileTransitionState
+from modules.player import TileTransitionState, get_player, get_player_avatar
 from modules.pokemon import get_opponent
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
 from modules.tasks import task_is_active
 from . import BattleAction
-from ._asserts import assert_has_pokemon_with_move, assert_save_game_exists, assert_saved_on_map, SavedMapLocation
+from ._asserts import SavedMapLocation, assert_has_pokemon_with_move, assert_save_game_exists, assert_saved_on_map
 from ._interface import BotMode, BotModeError
 from ._util import (
-    soft_reset,
-    wait_for_unique_rng_value,
-    navigate_to,
-    follow_path,
-    walk_one_tile,
-    ensure_facing_direction,
-    wait_until_task_is_not_active,
-    wait_for_script_to_start_and_finish,
-    apply_white_flute_if_available,
-    apply_repel,
-    replenish_repel,
     RanOutOfRepels,
+    apply_repel,
+    apply_white_flute_if_available,
+    ensure_facing_direction,
+    follow_path,
+    navigate_to,
+    replenish_repel,
+    soft_reset,
+    wait_for_script_to_start_and_finish,
+    wait_for_unique_rng_value,
+    wait_until_task_is_not_active,
+    walk_one_tile,
 )
 
 
@@ -93,35 +94,35 @@ class RockSmashMode(BotMode):
                 "In order to rock smash for Shuckle you should save in the entrance building to the Safari Zone.",
             )
 
-        if get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F:
-            if get_item_bag().number_of_repels > 0:
-                mode = ask_for_choice(
-                    [
-                        Selection("Use Repel", get_sprites_path() / "items" / "Repel.png"),
-                        Selection("No Repel", get_sprites_path() / "other" / "No Repel.png"),
-                    ],
-                    window_title="Choose Method...",
+        if get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F and get_item_bag().number_of_repels > 0:
+            mode = ask_for_choice(
+                [
+                    Selection("Use Repel", get_sprites_path() / "items" / "Repel.png"),
+                    Selection("No Repel", get_sprites_path() / "other" / "No Repel.png"),
+                ],
+                window_title="Use Repel?",
+            )
+
+            if mode == "Use Repel":
+                assert_save_game_exists("There is no saved game. Cannot soft reset.")
+                assert_saved_on_map(
+                    SavedMapLocation(MapRSE.GRANITE_CAVE_B2F),
+                    "In order to use Repel, you need to save on this map.",
                 )
 
-                if mode == "Use Repel":
-                    assert_save_game_exists("There is no saved game. Cannot soft reset.")
-                    assert_saved_on_map(
-                        SavedMapLocation(MapRSE.GRANITE_CAVE_B2F),
-                        "In order to use Repel, you need to save on this map.",
+                save_data = get_save_data()
+                party = save_data.get_party()
+                if len(party) == 0 or party[0].is_egg or party[0].level < 13 or party[0].level > 16:
+                    raise BotModeError(
+                        "In order to use Repel, you must have a lead Pokémon with level 13-16. "
+                        "For best encounter rates, use Level 13!"
                     )
 
-                    save_data = get_save_data()
-                    party = save_data.get_party()
-                    if len(party) == 0 or party[0].is_egg or party[0].level < 13 or party[0].level > 16:
-                        raise BotModeError(
-                            "In order to use Repel, you must have a lead Pokémon with level 13-16. For best encounter rates, use Level 13!"
-                        )
+                if save_data.get_item_bag().number_of_repels == 0:
+                    raise BotModeError("In your saved game, you do not have any Repels.")
 
-                    if save_data.get_item_bag().number_of_repels == 0:
-                        raise BotModeError("In your saved game, you do not have any Repels.")
-
-                    self._using_repel = True
-                    yield from self.reset_and_wait()
+                self._using_repel = True
+                yield from self.reset_and_wait()
 
         starting_cash = get_player().money
         while True:
@@ -184,11 +185,8 @@ class RockSmashMode(BotMode):
 
     def granite_cave(self) -> Generator:
         if self._using_repel and get_event_var("REPEL_STEP_COUNT") <= 0:
-            try:
+            with contextlib.suppress(RanOutOfRepels):
                 yield from apply_repel()
-            except RanOutOfRepels:
-                pass
-
         yield from navigate_to(6, 21)
         yield from ensure_facing_direction("Down")
         # With Repel active, White Flute boosts encounters by 30-40%, but without Repel it

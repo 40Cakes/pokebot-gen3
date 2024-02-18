@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from functools import cached_property
 
 from modules.context import context
-from modules.game import get_symbol, decode_string
+from modules.game import decode_string, get_symbol
 from modules.memory import read_symbol, unpack_uint32
 from modules.pokemon import Pokemon, Species
 from modules.state_cache import state_cache
@@ -48,10 +48,7 @@ class PokemonStorageBox:
                 return potential_empty_slot_index
             else:
                 potential_empty_slot_index += 1
-        if potential_empty_slot_index >= 30:
-            return None
-        else:
-            return potential_empty_slot_index
+        return None if potential_empty_slot_index >= 30 else potential_empty_slot_index
 
     def to_dict(self) -> dict:
         return {
@@ -109,10 +106,7 @@ class PokemonStorage:
 
     @property
     def pokemon_count(self) -> int:
-        count = 0
-        for box in self.boxes:
-            count += len(box.slots)
-        return count
+        return sum(len(box.slots) for box in self.boxes)
 
     def contains_species(self, species: Species) -> bool:
         for box in self.boxes:
@@ -124,7 +118,7 @@ class PokemonStorage:
     def contains_pokemon(self, pokemon: Pokemon) -> bool:
         for box in self.boxes:
             for slot in box.slots:
-                if slot.pokemon.data[0:4] == pokemon.data[0:4]:
+                if slot.pokemon.data[:4] == pokemon.data[:4]:
                     return True
         return False
 

@@ -1,9 +1,8 @@
-import math
 from typing import Generator
 
 from modules.context import context
 from modules.encounter import handle_encounter
-from modules.items import get_item_bag, get_item_by_name
+from modules.items import get_item_by_name
 from modules.map_data import MapRSE
 from modules.player import get_player, get_player_avatar
 from modules.pokemon import get_opponent, get_party
@@ -11,13 +10,16 @@ from . import BattleAction
 from ._asserts import assert_item_exists_in_bag
 from ._interface import BotMode, BotModeError
 from ._util import (
-    navigate_to,
     ensure_facing_direction,
-    register_key_item,
     fish,
+    get_closest_surrounding_tile,
+    get_closest_tile,
+    get_tile_direction,
+    navigate_to,
+    register_key_item,
 )
 from ..console import console
-from ..map import get_map_all_tiles, get_map_data
+from ..map import get_map_all_tiles
 
 # Bad tiles such as cliffs marked as surfable, but can't surf or fish on it
 bad_tiles = [(19, 44), (20, 45), (23, 46), (27, 47)]
@@ -53,50 +55,6 @@ class FeebasMode(BotMode):
 
     def on_battle_started(self) -> BattleAction | None:
         return handle_encounter(get_opponent(), disable_auto_battle=True)
-
-    def get_closest_tile(self, tiles: list[tuple[int, int]]) -> tuple[int, int] | None:
-        return min(
-            tiles,
-            key=lambda tile: math.hypot(
-                get_player_avatar().local_coordinates[1] - tile[1],
-                get_player_avatar().local_coordinates[0] - tile[0],
-            ),
-        )
-
-    def get_closest_surrounding_tile(self, tile: tuple[int, int]) -> tuple[int, int] | None:
-        if valid_surrounding_tiles := [
-            get_map_data(
-                get_player_avatar().map_group_and_number[0], get_player_avatar().map_group_and_number[1], check
-            ).local_position
-            for check in [
-                (tile[0] + 1, tile[1]),
-                (tile[0], tile[1] + 1),
-                (tile[0] - 1, tile[1]),
-                (tile[0], tile[1] - 1),
-            ]
-            if get_map_data(
-                get_player_avatar().map_group_and_number[0], get_player_avatar().map_group_and_number[1], check
-            ).is_surfable
-        ]:
-            return self.get_closest_tile(valid_surrounding_tiles)
-        else:
-            return None
-
-    def get_tile_direction(self, tile: tuple[int, int]) -> str | None:
-        tile_coords = tile
-        player_coords = get_player_avatar().local_coordinates
-
-        direction = None
-        if tile_coords[0] < player_coords[0]:
-            direction = "Left"
-        if tile_coords[1] < player_coords[1]:
-            direction = "Up"
-        if tile_coords[0] > player_coords[0]:
-            direction = "Right"
-        if tile_coords[1] > player_coords[1]:
-            direction = "Down"
-
-        return direction
 
     def run(self) -> Generator:
         from ..stats import total_stats
@@ -134,7 +92,7 @@ class FeebasMode(BotMode):
                 self.tile_checked = 0
                 self.checked_tiles.append(get_player_avatar().map_location_in_front.local_position)
 
-                closest_tile = self.get_closest_tile(
+                closest_tile = get_closest_tile(
                     list(
                         filter(
                             lambda x: x not in self.checked_tiles,
@@ -148,9 +106,9 @@ class FeebasMode(BotMode):
                         "Feebas could not be found in this water, please move to a different body of water."
                     )
 
-                closest_surrounding_tile = self.get_closest_surrounding_tile(closest_tile)
+                closest_surrounding_tile = get_closest_surrounding_tile(closest_tile)
                 try:
                     yield from navigate_to(closest_surrounding_tile[0], closest_surrounding_tile[1], run=False)
-                    yield from ensure_facing_direction(self.get_tile_direction(closest_tile))
+                    yield from ensure_facing_direction(get_tile_direction(closest_tile))
                 except BotModeError:
                     self.checked_tiles.append(closest_tile)

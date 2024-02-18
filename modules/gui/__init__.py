@@ -1,12 +1,13 @@
 import os
 import platform
 from tkinter import Tk, ttk
-from ttkthemes import ThemedTk
 from typing import TYPE_CHECKING
 
 import PIL.Image
 import PIL.ImageTk
+import contextlib
 import darkdetect
+from ttkthemes import ThemedTk
 
 from modules.console import console
 from modules.context import context
@@ -103,13 +104,10 @@ class PokebotGui:
     def _set_app_icon(self):
         # This forces the app icon to be used in the task bar on Windows
         if platform.system() == "Windows":
-            try:
+            with contextlib.suppress(ImportError):
                 from win32com.shell import shell
 
                 shell.SetCurrentProcessExplicitAppUserModelID("40cakes.pokebot-gen3")
-            except ImportError:
-                pass
-
         sprite = crop_sprite_square(choose_random_sprite())
         self.icon = PIL.ImageTk.PhotoImage(sprite)
         self.window.iconphoto(False, self.icon)
@@ -210,6 +208,5 @@ class PokebotGui:
             return
 
         keysym_with_modifier = ("ctrl+" if event.state & 4 else "") + event.keysym.lower()
-        if context.emulator:
-            if keysym_with_modifier in self._gba_keys and (context.bot_mode == "Manual"):
-                context.emulator.release_button(inputs=self._gba_keys[keysym_with_modifier])
+        if context.emulator and (keysym_with_modifier in self._gba_keys and (context.bot_mode == "Manual")):
+            context.emulator.release_button(inputs=self._gba_keys[keysym_with_modifier])

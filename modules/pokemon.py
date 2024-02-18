@@ -1,8 +1,9 @@
+import contextlib
 import json
 import string
 import struct
 from dataclasses import dataclass
-from enum import KEEP, Enum, Flag
+from enum import Enum, Flag, KEEP
 from functools import cached_property
 from pathlib import Path
 from typing import Literal
@@ -12,7 +13,7 @@ import numpy
 from modules.context import context
 from modules.game import decode_string
 from modules.items import Item, get_item_by_index
-from modules.memory import unpack_uint32, unpack_uint16, read_symbol, pack_uint32
+from modules.memory import pack_uint32, read_symbol, unpack_uint16, unpack_uint32
 from modules.roms import ROMLanguage
 from modules.runtime import get_data_path
 from modules.state_cache import state_cache
@@ -297,10 +298,7 @@ class Type:
         self.index: int = index
         self.name: str = name
         self.kind: str = "???"
-        if index < 9:
-            self.kind = "Physical"
-        else:
-            self.kind = "Special"
+        self.kind = "Physical" if index < 9 else "Special"
         self._effectiveness: dict["Type", float] = {}
 
     def set_effectiveness(self, other_type: "Type", effectiveness: float):
@@ -316,7 +314,7 @@ class Type:
 @dataclass
 class Move:
     """
-    This represents a battle move, but not the connection to any particular Pokemon.
+    This represents a battle move, but not the connection to any particular Pokémon.
     Think of it as the 'move species'.
     """
 
@@ -369,7 +367,7 @@ class Move:
 @dataclass
 class LearnedMove:
     """
-    This represents a move slot for an individual Pokemon.
+    This represents a move slot for an individual Pokémon.
     """
 
     move: Move
@@ -385,7 +383,7 @@ class LearnedMove:
 class StatsValues:
     """
     A collection class for all 6 stats; can be used as a convenience thing wherever a list of
-    stats is required (IVs, EVs, Pokemon stats, EV yields, ...)
+    stats is required (IVs, EVs, Pokémon stats, EV yields, ...)
     """
 
     hp: int
@@ -414,14 +412,14 @@ class StatsValues:
         cls, species: "Species", ivs: "StatsValues", evs: "StatsValues", nature: "Nature", level: int
     ) -> "StatsValues":
         """
-        Re-calculates the current effective stats of a Pokemon. This is needed for boxed
-        Pokemon, that do not store their current stats anywhere.
+        Re-calculates the current effective stats of a Pokémon. This is needed for boxed
+        Pokémon, that do not store their current stats anywhere.
         :param species:
         :param ivs:
         :param evs:
         :param nature:
         :param level:
-        :return: The calculated set of battle stats for the Pokemon
+        :return: The calculated set of battle stats for the Pokémon
         """
         if species.national_dex_number == 292:
             # Shedinja always has 1 HP
@@ -429,10 +427,16 @@ class StatsValues:
         else:
             hp = ((2 * species.base_stats.hp + ivs.hp + (evs.hp // 4)) * level) / 100 + 5 + level
 
-        stats = {}
-        for i in ["attack", "defence", "speed", "special_attack", "special_defence"]:
-            stats[i] = (((2 * species.base_stats[i] + ivs[i] + (evs[i] // 4)) * level) // 100 + 5) * nature.modifiers[i]
-
+        stats = {
+            i: (((2 * species.base_stats[i] + ivs[i] + (evs[i] // 4)) * level) // 100 + 5) * nature.modifiers[i]
+            for i in [
+                "attack",
+                "defence",
+                "speed",
+                "special_attack",
+                "special_defence",
+            ]
+        }
         return cls(
             hp=hp,
             attack=stats["attack"],
@@ -463,7 +467,7 @@ class ContestConditions:
 @dataclass
 class HeldItem:
     """
-    Represents a possible held item for a Pokemon encounter, along with the probability of it
+    Represents a possible held item for a Pokémon encounter, along with the probability of it
     being held.
     """
 
@@ -474,7 +478,7 @@ class HeldItem:
 @dataclass
 class Nature:
     """
-    Represents a Pokemon nature and its stats modifiers.
+    Represents a Pokémon nature and its stats modifiers.
     """
 
     index: int
@@ -558,10 +562,10 @@ class LevelUpType(Enum):
 
     def get_level_from_total_experience(self, total_experience: int) -> int:
         """
-        Calculates which level a Pokemon should be, given a number of total EXP.
-        This is required for box pokemon, that do not actually store their level.
+        Calculates which level a Pokémon should be, given a number of total EXP.
+        This is required for box Pokémon, that do not actually store their level.
         :param total_experience: Total number of experience points
-        :return: The level a Pokemon would have with that amount of EXP
+        :return: The level a Pokémon would have with that amount of EXP
         """
         level = 0
         while total_experience >= self.get_experience_needed_for_level(level + 1):
@@ -607,10 +611,7 @@ class Species:
         return result
 
     def has_type(self, type_to_find: Type) -> bool:
-        for t in self.types:
-            if t.index == type_to_find.index:
-                return True
-        return False
+        return any(t.index == type_to_find.index for t in self.types)
 
     def to_dict(self) -> dict:
         return _to_dict_helper(self)
@@ -707,12 +708,12 @@ class PokerusStatus:
 
 class Pokemon:
     """
-    Represents an individual Pokemon.
+    Represents an individual Pokémon.
 
-    The only real data in here is the `self.data` property, which contains the 100-byte (party Pokemon)
-    or 80-byte (box Pokemon) string of data that everything else can be computed from.
+    The only real data in here is the `self.data` property, which contains the 100-byte (party Pokémon)
+    or 80-byte (box Pokémon) string of data that everything else can be computed from.
 
-    So serialising or copying a Pokemon only requires to store/copy this property and nothing else.
+    So serialising or copying a Pokémon only requires to store/copy this property and nothing else.
     The class will calculate everything else on-the-fly.
     """
 
@@ -734,7 +735,7 @@ class Pokemon:
     @cached_property
     def _decrypted_data(self) -> bytes:
         """
-        Returns the decrypted Pokemon data and also puts the substructures in a consistent order.
+        Returns the decrypted Pokémon data and also puts the substructures in a consistent order.
 
         For more information regarding encryption and substructure ordering, see:
         https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Format
@@ -744,7 +745,7 @@ class Pokemon:
         It puts the substructures in the same order as they are listed on Bulbapedia, to make working
         with offsets a bit easier.
 
-        :return: The decrypted and re-ordered data for this Pokemon.
+        :return: The decrypted and re-ordered data for this Pokémon.
         """
         order = POKEMON_DATA_SUBSTRUCTS_ORDER[self.personality_value % 24]
         u32le = numpy.dtype("<u4")
@@ -756,19 +757,16 @@ class Pokemon:
         decrypted = numpy.concatenate(
             [numpy.frombuffer(self.data, count=3, offset=32 + (order[i] * 12), dtype=u32le) ^ key for i in range(4)]
         )
-        return self.data[0:32] + decrypted.tobytes() + self.data[80:100]
+        return self.data[:32] + decrypted.tobytes() + self.data[80:100]
 
     @property
     def _character_set(self) -> Literal["international", "japanese"]:
         """
         Figures out which character set needs to be used for decoding nickname and
-        original trainer name of this Pokemon.
+        original trainer name of this Pokémon.
         :return: The character table name as supported by `DecodeString()`
         """
-        if self.language == ROMLanguage.Japanese:
-            return "japanese"
-        else:
-            return "international"
+        return "japanese" if self.language == ROMLanguage.Japanese else "international"
 
     def calculate_checksum(self) -> int:
         words = struct.unpack("<24H", self._decrypted_data[32:80])
@@ -784,9 +782,9 @@ class Pokemon:
     @property
     def is_empty(self) -> bool:
         """
-        Since many places in memory _might_ contain a Pokemon but also might not (all zeros or something),
-        this checks whether a given block of data is actually a Pokemon the same way the game does.
-        :return: Whether or not the data represents a Pokemon or is just an empty slot.
+        Since many places in memory _might_ contain a Pokémon but also might not (all zeros or something),
+        this checks whether a given block of data is actually a Pokémon the same way the game does.
+        :return: Whether the data represents a Pokémon or is just an empty slot.
         """
         return self.data[19] & 0x02 == 0
 
@@ -796,16 +794,12 @@ class Pokemon:
 
     @property
     def personality_value(self) -> int:
-        return unpack_uint32(self.data[0:4])
+        return unpack_uint32(self.data[:4])
 
     @property
     def original_trainer(self) -> OriginalTrainer:
         origin_data = unpack_uint16(self._decrypted_data[70:72])
-        if origin_data & 0xF000:
-            gender = "female"
-        else:
-            gender = "male"
-
+        gender = "female" if origin_data & 0xF000 else "male"
         return OriginalTrainer(
             id=unpack_uint16(self.data[4:6]),
             secret_id=unpack_uint16(self.data[6:8]),
@@ -821,11 +815,7 @@ class Pokemon:
     def name(self) -> str:
         if self.is_egg:
             return "EGG"
-        nickname = self.nickname
-        if nickname:
-            return nickname
-        else:
-            return self.species.name.upper()
+        return nickname if (nickname := self.nickname) else self.species.name.upper()
 
     @property
     def language(self) -> ROMLanguage | None:
@@ -865,10 +855,7 @@ class Pokemon:
     @property
     def held_item(self) -> Item | None:
         item_index = unpack_uint16(self._decrypted_data[34:36])
-        if item_index == 0:
-            return None
-        else:
-            return get_item_by_index(item_index)
+        return None if item_index == 0 else get_item_by_index(item_index)
 
     @property
     def total_exp(self) -> int:
@@ -1006,17 +993,12 @@ class Pokemon:
     @property
     def sleep_duration(self) -> int:
         """Returns the remaining turns on the sleep condition."""
-        turns = self.data[80] & 0b0111 if len(self.data) > 80 else 0
-        return turns
+        return self.data[80] & 0b0111 if len(self.data) > 80 else 0
 
     @property
     def status_condition(self) -> StatusCondition:
         """Returns the StatusCondition of a pokémon."""
-        status = StatusCondition.Healthy
-        # This property is not available for boxed Pokémon.
-        if len(self.data) > 80:
-            status = StatusCondition.from_bitfield(self.data[80])
-        return status
+        return StatusCondition.from_bitfield(self.data[80]) if len(self.data) > 80 else StatusCondition.Healthy
 
     @property
     def stats(self) -> StatsValues:
@@ -1055,23 +1037,20 @@ class Pokemon:
     @property
     def gender(self) -> Literal["male", "female", None]:
         ratio = self.species.gender_ratio
-        if ratio == 255:
-            return None
-        elif ratio == 254:
-            return "female"
-        elif ratio == 0:
+        if ratio == 0:
             return "male"
 
-        value = self.personality_value & 0xFF
-        if value >= ratio:
-            return "male"
-        else:
+        elif ratio == 254:
             return "female"
+        elif ratio == 255:
+            return None
+        value = self.personality_value & 0xFF
+        return "male" if value >= ratio else "female"
 
     @property
     def shiny_value(self) -> int:
         ot = self.original_trainer
-        return ot.id ^ ot.secret_id ^ unpack_uint16(self.data[0:2]) ^ unpack_uint16(self.data[2:4])
+        return ot.id ^ ot.secret_id ^ unpack_uint16(self.data[:2]) ^ unpack_uint16(self.data[2:4])
 
     @property
     def is_shiny(self) -> bool:
@@ -1106,8 +1085,7 @@ class Pokemon:
             + ((ivs.special_attack & 2) << 3)
             + ((ivs.special_defence & 2) << 4)
         )
-        value = (value * 40) // 63 + 30
-        return value
+        return (value * 40) // 63 + 30
 
     @property
     def unown_letter(self) -> str:
@@ -1128,10 +1106,7 @@ class Pokemon:
     @property
     def wurmple_evolution(self) -> Literal["silcoon", "cascoon"]:
         value = unpack_uint16(self.data[2:4]) % 10
-        if value <= 4:
-            return "silcoon"
-        else:
-            return "cascoon"
+        return "silcoon" if value <= 4 else "cascoon"
 
     # ==============
     # Debug helpers
@@ -1177,12 +1152,10 @@ class Pokemon:
                 return value.name
 
             result = {}
-            try:
+            with contextlib.suppress(AttributeError):
                 for k in value.__dict__:
                     if not k.startswith("_") and k != "data":
                         result[k] = prepare(value.__dict__[k])
-            except AttributeError:
-                pass
             for k in dir(value.__class__):
                 if not k.startswith("_") and isinstance(getattr(value.__class__, k), property):
                     result[k] = prepare(getattr(value, k))
@@ -1194,14 +1167,14 @@ class Pokemon:
 
     def to_legacy_dict(self) -> dict:
         """
-        Converts the Pokemon data into a simple dict, which can then be used for JSON-encoding
+        Converts the Pokémon data into a simple dict, which can then be used for JSON-encoding
         the data.
 
-        This is not meant to be used in new code unless truly necessary. It is mainly here so
+        This is not meant to be used in new code unless truly necessary. It is mainly here, so
         we can continue to provide external consumers with the same data structures as before
         (it is currently being used for the WebServer and for `shiny_log.json`.)
 
-        :return: A legacy-format dictionary containing data about this Pokemon
+        :return: A legacy-format dictionary containing data about this Pokémon
         """
         moves = []
         for i in range(4):
@@ -1326,10 +1299,7 @@ class Pokemon:
 
 def parse_pokemon(data: bytes) -> Pokemon | None:
     pokemon = Pokemon(data)
-    if not pokemon.is_empty and pokemon.is_valid:
-        return pokemon
-    else:
-        return None
+    return pokemon if not pokemon.is_empty and pokemon.is_valid else None
 
 
 def _load_types() -> tuple[dict[str, Type], list[Type]]:
@@ -1458,6 +1428,10 @@ def get_species_by_national_dex(national_dex_number: int) -> Species:
     return _species_by_national_dex[national_dex_number]
 
 
+def get_eggs_in_party() -> int:
+    return sum(bool(pokemon.is_egg) for pokemon in get_party())
+
+
 def get_party() -> list[Pokemon]:
     """
     Checks how many Pokémon are in the trainer's party, decodes and returns them all.
@@ -1478,15 +1452,15 @@ def get_party() -> list[Pokemon]:
         #
         # In order to still get a valid result, we will 'peek' into next frame's memory by
         # (1) advancing the emulation by one frame, (2) reading the memory, (3) restoring the previous
-        # frame's state so we don't mess with frame accuracy.
+        # frame's state, so we don't mess with frame accuracy.
         if mon is None:
             with context.emulator.peek_frame():
                 mon = parse_pokemon(read_symbol("gPlayerParty", o, 100))
-            if mon is None:
-                if read_symbol("gPlayerParty", o, 100).count(b"\x00") >= 99:
-                    continue
-                else:
-                    raise RuntimeError(f"Party Pokemon #{p + 1} was invalid for two frames in a row.")
+        if mon is None:
+            if read_symbol("gPlayerParty", o, 100).count(b"\x00") >= 99:
+                continue
+            else:
+                raise RuntimeError(f"Party Pokémon #{p + 1} was invalid for two frames in a row.")
 
         party.append(mon)
 
@@ -1510,8 +1484,8 @@ def get_opponent() -> Pokemon | None:
     if mon is None:
         with context.emulator.peek_frame():
             mon = parse_pokemon(read_symbol("gEnemyParty")[:100])
-        if mon is None:
-            return None
+    if mon is None:
+        return None
 
     state_cache.opponent = mon
 
@@ -1586,7 +1560,7 @@ def opponent_changed() -> bool:
             return False
     except SystemExit:
         raise
-    except:
+    except Exception:
         return False
 
 
@@ -1595,17 +1569,9 @@ def _to_dict_helper(value) -> any:
         return value
 
     if type(value) is dict:
-        result = {}
-        for k in value:
-            result[k] = _to_dict_helper(value[k])
-        return result
-
+        return {k: _to_dict_helper(value[k]) for k in value}
     if isinstance(value, (list, set, tuple, frozenset)):
-        result = []
-        for v in value:
-            result.append(_to_dict_helper(v))
-        return result
-
+        return [_to_dict_helper(v) for v in value]
     if isinstance(value, (bool, int, float, str)):
         return value
 
@@ -1613,12 +1579,10 @@ def _to_dict_helper(value) -> any:
         return value.name
 
     result = {}
-    try:
+    with contextlib.suppress(AttributeError):
         for k in value.__dict__:
             if not k.startswith("_") and k != "data":
                 result[k] = _to_dict_helper(value.__dict__[k])
-    except AttributeError:
-        pass
     for k in dir(value.__class__):
         if not k.startswith("_") and isinstance(getattr(value.__class__, k), property):
             result[k] = _to_dict_helper(getattr(value, k))

@@ -9,16 +9,16 @@ from modules.menuing import StartMenuNavigator, use_party_hm_move
 from modules.player import get_player_avatar
 from modules.save_data import get_save_data
 from modules.tasks import get_global_script_context
-from ._asserts import assert_no_auto_battle, assert_no_auto_pickup, assert_registered_item, assert_has_pokemon_with_move
+from ._asserts import assert_has_pokemon_with_move, assert_no_auto_battle, assert_no_auto_pickup, assert_registered_item
 from ._interface import BotMode, BotModeError
 from ._util import (
-    wait_for_task_to_start_and_finish,
-    navigate_to,
-    walk_one_tile,
     follow_path,
-    wait_until_task_is_active,
+    navigate_to,
     wait_for_n_frames,
     wait_for_script_to_start_and_finish,
+    wait_for_task_to_start_and_finish,
+    wait_until_task_is_active,
+    walk_one_tile,
 )
 
 
@@ -48,13 +48,13 @@ class PuzzleSolverMode(BotMode):
     def run(self) -> Generator:
         assert_no_auto_battle("This mode should not be used with auto-battle.")
         assert_no_auto_pickup("This mode should not be used while auto-pickup is enabled.")
-        useRepel = False
+        use_repel = False
 
         match get_player_avatar().map_group_and_number:
             # Mirage Tower
             case MapRSE.MIRAGE_TOWER_1F:
                 context.message = "Solving Mirage Tower..."
-                useRepel = True
+                use_repel = True
                 assert_registered_item("Mach Bike", "This mode requires the Mach Bike.")
                 assert_has_pokemon_with_move("Rock Smash", "This mode requires Pokémon with Rock Smash.")
 
@@ -92,7 +92,7 @@ class PuzzleSolverMode(BotMode):
             # Sky Pillar
             case MapRSE.SKY_PILLAR_OUTSIDE:
                 context.message = "Solving Sky Pillar..."
-                useRepel = True
+                use_repel = True
                 assert_registered_item("Mach Bike", "This mode requires the Mach Bike.")
 
                 def path():
@@ -386,7 +386,7 @@ class PuzzleSolverMode(BotMode):
             case _:
                 raise BotModeError("You are not on the right map.")
 
-        def repelCheck():
+        def repel_check():
             repel_steps = get_event_var("REPEL_STEP_COUNT")
             if repel_steps < 1 and get_save_data().get_item_bag().number_of_repels > 0:
                 # use repel
@@ -431,15 +431,15 @@ class PuzzleSolverMode(BotMode):
                 yield
 
         while True and context.bot_mode != "Manual":
-            if useRepel == True:
-                yield from repelCheck()
+            if use_repel:
+                yield from repel_check()
 
             for _ in path():
                 if context.rom.is_rs:
                     repel_script = "S_RepelWoreOff"
-                if context.rom.is_emerald:
+                elif context.rom.is_emerald:
                     repel_script = "EventScript_RepelWoreOff"
-                if context.rom.is_frlg:
+                else:
                     repel_script = "EventScript_RepelWoreOff"
                 if repel_script in get_global_script_context().stack:
                     context.emulator.press_button("A")

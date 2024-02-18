@@ -3,27 +3,26 @@ from typing import Generator
 from modules.console import console
 from modules.context import context
 from modules.encounter import handle_encounter
-from modules.map_data import MapRSE, MapFRLG
+from modules.map_data import MapFRLG, MapRSE
 from modules.memory import get_event_flag
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.player import get_player_avatar
 from modules.pokemon import get_party
 from modules.save_data import get_save_data
-from modules.tasks import get_global_script_context, task_is_active
 from ._asserts import (
     assert_registered_item,
 )
 from ._interface import BotMode, BotModeError
 from ._util import (
+    follow_path,
+    navigate_to,
     soft_reset,
+    wait_for_script_to_start_and_finish,
+    wait_for_task_to_start_and_finish,
     wait_for_unique_rng_value,
+    wait_until_event_flag_is_true,
     wait_until_task_is_active,
     wait_until_task_is_not_active,
-    wait_for_task_to_start_and_finish,
-    wait_until_event_flag_is_true,
-    wait_for_script_to_start_and_finish,
-    navigate_to,
-    follow_path,
 )
 
 
@@ -49,11 +48,15 @@ def _get_targeted_encounter() -> tuple[MapFRLG | MapRSE, tuple[int, int], str] |
         ]
 
     targeted_tile = get_player_avatar().map_location_in_front
-    for entry in encounters:
-        if entry[0] == (targeted_tile.map_group, targeted_tile.map_number) and entry[1] == targeted_tile.local_position:
-            return entry
-
-    return None
+    return next(
+        (
+            entry
+            for entry in encounters
+            if entry[0] == (targeted_tile.map_group, targeted_tile.map_number)
+            and entry[1] == targeted_tile.local_position
+        ),
+        None,
+    )
 
 
 class StaticGiftResetsMode(BotMode):
@@ -82,12 +85,11 @@ class StaticGiftResetsMode(BotMode):
             )
             if get_event_flag("RECEIVED_LAVARIDGE_EGG"):
                 raise BotModeError("You have already received the Wynaut egg.")
-        if encounter[2] in ["Wynaut", "Togepi"]:
-            if get_party()[0].ability.name not in ["Flame Body", "Magma Armor"]:
-                console.print(
-                    "[bold yellow]WARNING: First Pokemon in party does not have Flame Body / Magma Armor ability."
-                )
-                console.print("[bold yellow]This will slow down the egg hatching process.")
+        if encounter[2] in ["Wynaut", "Togepi"] and get_party()[0].ability.name not in ["Flame Body", "Magma Armor"]:
+            console.print(
+                "[bold yellow]WARNING: First Pokemon in party does not have Flame Body / Magma Armor ability."
+            )
+            console.print("[bold yellow]This will slow down the egg hatching process.")
         if encounter[2] == "Togepi":
             assert_registered_item(
                 ["Bicycle"], "You need to register the Bicycle for the Select button, then save again."
@@ -104,7 +106,7 @@ class StaticGiftResetsMode(BotMode):
             if len(get_party()) >= 6:
                 raise BotModeError("This mode requires at least one empty party slot, but your party is full.")
 
-            # spam A through chat boxes
+            # Spam A through chat boxes
             if context.rom.is_frlg:
                 yield from wait_until_task_is_active("Task_DrawFieldMessageBox", "A")
                 yield from wait_until_task_is_not_active("Task_DrawFieldMessageBox", "B")
@@ -112,7 +114,7 @@ class StaticGiftResetsMode(BotMode):
                 yield from wait_until_task_is_active("Task_DrawFieldMessage", "A")
                 yield from wait_until_task_is_not_active("Task_DrawFieldMessage", "B")
 
-            # accept the pokemon
+            # Accept the Pokémon
             if encounter[2] in ["Beldum", "Hitmonchan", "Hitmonlee", "Magikarp", "Wynaut"]:
                 if context.rom.is_rse:
                     yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", "A")
@@ -122,7 +124,7 @@ class StaticGiftResetsMode(BotMode):
                     yield from wait_for_task_to_start_and_finish("Task_Fanfare", "B")
                     yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessageBox", "B")
 
-            # don't rename pokemon
+            # Don't rename pokemon
             if context.rom.is_frlg and encounter[2] not in ["Togepi"]:
                 if encounter[2] in ["Hitmonchan", "Hitmonlee"]:
                     yield from wait_until_event_flag_is_true("GOT_HITMON_FROM_DOJO", "B")
@@ -134,7 +136,7 @@ class StaticGiftResetsMode(BotMode):
                 yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessage", "B")
                 yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", "B")
 
-            # extra check for lapras and castform and clear extra message boxes
+            # Extra check for lapras and castform and clear extra message boxes
             if encounter[2] == "Lapras":
                 yield from wait_until_event_flag_is_true("GOT_LAPRAS_FROM_SILPH", "B")
             if encounter[2] == "Castform":

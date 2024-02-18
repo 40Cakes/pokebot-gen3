@@ -1,23 +1,23 @@
 import signal
 
-from modules.battle import BattleOutcome, flee_battle, BattleHandler, check_lead_can_battle, RotatePokemon
+from modules.battle import BattleHandler, BattleOutcome, RotatePokemon, check_lead_can_battle, flee_battle
 from modules.context import context
 from modules.encounter import handle_encounter
 from modules.map import get_map_objects
-from modules.map_data import MapRSE, MapFRLG
-from modules.memory import get_game_state, GameState, read_symbol, unpack_uint32, get_game_state_symbol
-from modules.menuing import MenuWrapper, CheckForPickup, should_check_for_pickup
-from modules.player import get_player_avatar, TileTransitionState
+from modules.map_data import MapFRLG, MapRSE
+from modules.memory import GameState, get_game_state, get_game_state_symbol, read_symbol, unpack_uint32
+from modules.menuing import CheckForPickup, MenuWrapper, should_check_for_pickup
+from modules.player import TileTransitionState, get_player_avatar
 from modules.pokemon import (
-    get_party,
-    get_opponent,
-    clear_opponent,
-    get_battle_type_flags,
     BattleTypeFlag,
     StatusCondition,
+    clear_opponent,
+    get_battle_type_flags,
+    get_opponent,
+    get_party,
 )
-from modules.tasks import task_is_active, get_global_script_context
-from ._interface import BattleAction, BotMode, FrameInfo, BotListener
+from modules.tasks import get_global_script_context, task_is_active
+from ._interface import BattleAction, BotListener, BotMode, FrameInfo
 from ._util import isolate_inputs
 
 
@@ -128,7 +128,7 @@ class BattleListener(BotListener):
 
     @isolate_inputs
     def run_away_from_battle(self):
-        while not get_game_state() == GameState.BATTLE:
+        while get_game_state() != GameState.BATTLE:
             yield
         yield from flee_battle()
         yield from self._wait_until_battle_is_over()
@@ -139,15 +139,17 @@ class TrainerApproachListener(BotListener):
         self._trainer_is_approaching = False
 
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
-        if frame.game_state == GameState.OVERWORLD:
-            if not self._trainer_is_approaching and (
+        if frame.game_state == GameState.OVERWORLD and (
+            not self._trainer_is_approaching
+            and (
                 frame.script_is_active("EventScript_TrainerApproach")
                 or frame.script_is_active("EventScript_StartTrainerBattle")
                 or frame.script_is_active("EventScript_DoTrainerBattle")
-            ):
-                self._trainer_is_approaching = True
-                bot_mode.on_spotted_by_trainer()
-                context.controller_stack.append(self.handle_trainer_approach())
+            )
+        ):
+            self._trainer_is_approaching = True
+            bot_mode.on_spotted_by_trainer()
+            context.controller_stack.append(self.handle_trainer_approach())
 
     @isolate_inputs
     def handle_trainer_approach(self):
@@ -162,11 +164,10 @@ class PokenavListener(BotListener):
         self._in_call = False
 
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
-        if frame.game_state == GameState.OVERWORLD:
-            if not self._in_call and frame.task_is_active("ExecuteMatchCall"):
-                self._in_call = True
-                bot_mode.on_pokenav_call()
-                context.controller_stack.append(self.ignore_call())
+        if frame.game_state == GameState.OVERWORLD and (not self._in_call and frame.task_is_active("ExecuteMatchCall")):
+            self._in_call = True
+            bot_mode.on_pokenav_call()
+            context.controller_stack.append(self.ignore_call())
 
     @isolate_inputs
     def ignore_call(self):
@@ -190,10 +191,11 @@ class EggHatchListener(BotListener):
             self._symbol_name = "sEggHatchData"
 
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
-        if frame.game_state == GameState.OVERWORLD or frame.game_state == GameState.EGG_HATCH:
-            if not self._is_hatching and frame.script_is_active(self._script_name):
-                self._is_hatching = True
-                context.controller_stack.append(self.handle_hatching_egg(bot_mode))
+        if frame.game_state in [GameState.OVERWORLD, GameState.EGG_HATCH] and (
+            not self._is_hatching and frame.script_is_active(self._script_name)
+        ):
+            self._is_hatching = True
+            context.controller_stack.append(self.handle_hatching_egg(bot_mode))
 
     @isolate_inputs
     def handle_hatching_egg(self, bot_mode: BotMode):
@@ -378,11 +380,7 @@ class SafariZoneListener(BotListener):
     def handle_safari_zone_timeout_global(bot_mode: BotMode, limited_by: str):
         context.emulator.reset_held_buttons()
 
-        if context.rom.is_rse:
-            local_coordinates_after_leaving = (9, 4)
-        else:
-            local_coordinates_after_leaving = (4, 4)
-
+        local_coordinates_after_leaving = (9, 4) if context.rom.is_rse else (4, 4)
         while (
             get_player_avatar().local_coordinates != local_coordinates_after_leaving
             or get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING

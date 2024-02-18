@@ -1,3 +1,4 @@
+import contextlib
 import json
 import os
 from pathlib import Path
@@ -18,7 +19,7 @@ def read_file(file: Path) -> str | None:
                 return open_file.read()
         else:
             return None
-    except:
+    except Exception:
         return None
 
 
@@ -45,15 +46,13 @@ def write_file(file: Path, value: str, mode: str = "w") -> bool:
 
         os.replace(tmp_file, file)
 
-    except:
+    except Exception:
         return False
 
     finally:
         if os.path.exists(tmp_file):
-            try:
+            with contextlib.suppress(Exception):
                 os.unlink(tmp_file)
-            except:
-                pass
         return True
 
 
@@ -86,16 +85,12 @@ def get_rng_state_history() -> list:
     default = []
     try:
         file = read_file(context.profile.path / "soft_reset_frames.json")
-        data = json.loads(file) if file else default
-        return data
+        return json.loads(file) if file else default
     except SystemExit:
         raise
-    except:
+    except Exception:
         return default
 
 
 def save_rng_state_history(data: list) -> bool:
-    if write_file(context.profile.path / "soft_reset_frames.json", json.dumps(data)):
-        return True
-    else:
-        return False
+    return bool(write_file(context.profile.path / "soft_reset_frames.json", json.dumps(data)))

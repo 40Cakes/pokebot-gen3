@@ -7,24 +7,26 @@
 # It will try to get the current commit hash and use it as the
 # version number, prefixed by `dev-` (e.g. `dev-a1b2c3d`.)
 
-import os
+import contextlib
 from modules.runtime import get_base_path
 
 pokebot_name = "PokéBot Gen3"
 pokebot_version = "dev"
 
-try:
+with contextlib.suppress(Exception):
     # If someone managed to get a copy of the repository without actually having
     # Git installed, this should still be able to get the commit hash of the current
     # HEAD.
     # It's probably not the _best_ way to do this... but it works.
+    # If any issue occurred while trying to figure out the current commit hash,
+    # just default to showing 'dev' for the version.
     git_dir = get_base_path() / ".git"
     if git_dir.is_dir():
         with open(git_dir / "HEAD", "r") as head_file:
             head = head_file.read().strip()
             if head.startswith("ref: "):
                 # If the head of a branch is checked out
-                full_path = git_dir.as_posix() + "/" + head[5:]
+                full_path = f"{git_dir.as_posix()}/{head[5:]}"
                 with open(full_path, "r") as ref_file:
                     head = ref_file.read().strip()
 
@@ -40,8 +42,4 @@ try:
 
                 # If some regular non-head commit is checked out
                 if pokebot_version == "dev":
-                    pokebot_version = f"dev-{head[0:7]}"
-except:
-    # If any issue occurred while trying to figure out the current commit hash,
-    # just default to showing 'dev' for the version.
-    pass
+                    pokebot_version = f"dev-{head[:7]}"

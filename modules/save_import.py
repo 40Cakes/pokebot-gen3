@@ -30,15 +30,14 @@ def migrate_save_state(file: IO, profile_name: str, selected_rom: ROM) -> Profil
             file.seek(0xFF8)
             magic = file.read(4)
             file.seek(0)
-        except:
+        except Exception:
             magic = b""
 
-        if magic == b"\x25\x20\x01\x08":
-            state_data = None
-            savegame_data = file.read()
-        else:
+        if magic != b"\x25\x20\x01\x08":
             raise MigrationError("This does not appear to be a supported save state file.")
 
+        state_data = None
+        savegame_data = file.read()
     # Importing a save state only makes sense if the ROM for that state is already in
     # the `roms/` directory, otherwise starting the bot would result in an immediate
     # 'ROM not found' error.
@@ -55,7 +54,8 @@ def migrate_save_state(file: IO, profile_name: str, selected_rom: ROM) -> Profil
                 break
         if matching_rom is None:
             raise MigrationError(
-                'Could not find a compatible ROM for this save state... Please place your .gba ROMs in the "roms/" folder.'
+                "Could not find a compatible ROM for this save state... "
+                'Please place your .gba ROMs in the "roms/" folder.'
             )
         selected_rom = matching_rom
 

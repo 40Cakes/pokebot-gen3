@@ -1,4 +1,4 @@
-from enum import IntFlag, IntEnum, Enum
+from enum import Enum, IntEnum, IntFlag
 from functools import cached_property
 from typing import Literal
 
@@ -6,7 +6,7 @@ from modules.context import context
 from modules.game import decode_string
 from modules.map import MapLocation, ObjectEvent, calculate_targeted_coords
 from modules.memory import get_save_block, read_symbol, unpack_uint16, unpack_uint32
-from modules.pokemon import get_item_by_index, Item
+from modules.pokemon import Item, get_item_by_index
 from modules.state_cache import state_cache
 
 
@@ -84,7 +84,7 @@ class PlayerAvatar:
     def map_location(self) -> MapLocation:
         try:
             map_group_and_number = get_save_block(1, 4, 2)
-        except:
+        except Exception:
             map_group_and_number = self._object_event.map_group, self._object_event.map_num
 
         return MapLocation(
@@ -97,7 +97,7 @@ class PlayerAvatar:
     @property
     def map_location_in_front(self) -> MapLocation | None:
         """
-        Returns the map tile in front of the player (i.e. the tile the player avatar
+        Returns the map tile in front of the player i.e. the tile the player avatar
         is looking at.
         This only works if that tile is on the same map, otherwise `None` will be
         returned.
@@ -136,10 +136,7 @@ class PlayerAvatar:
         return self._object_event.facing_direction
 
     def to_dict(self) -> dict:
-        flags = {}
-        for flag in AvatarFlags:
-            flags[flag.name] = flag in self.flags
-
+        flags = {flag.name: flag in self.flags for flag in AvatarFlags}
         return {
             "map_group_and_number": self.map_group_and_number,
             "local_coordinates": self.local_coordinates,
@@ -172,14 +169,11 @@ class Player:
 
     @property
     def name(self) -> str:
-        return decode_string(self._save_block_2[0:8])
+        return decode_string(self._save_block_2[:8])
 
     @property
     def gender(self) -> Literal["male", "female"]:
-        if self._save_block_2[8] == 0:
-            return "male"
-        else:
-            return "female"
+        return "male" if self._save_block_2[8] == 0 else "female"
 
     @property
     def trainer_id(self) -> int:
@@ -191,7 +185,7 @@ class Player:
 
     @property
     def money(self) -> int:
-        return unpack_uint32(self._save_block_1[0:4]) ^ unpack_uint32(self._encryption_key)
+        return unpack_uint32(self._save_block_1[:4]) ^ unpack_uint32(self._encryption_key)
 
     @property
     def coins(self) -> int:

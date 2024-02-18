@@ -1,14 +1,14 @@
 import re
-from tkinter import ttk, Tk, StringVar
+from tkinter import StringVar, Tk, ttk
 from typing import Union
 
 import plyer
-from PIL import Image, ImageTk, ImageOps
+from PIL import Image, ImageOps, ImageTk
 
-from modules.profiles import list_available_profiles, profile_directory_exists, create_profile
+from modules.profiles import create_profile, list_available_profiles, profile_directory_exists
 from modules.roms import ROM, list_available_roms
 from modules.runtime import get_sprites_path
-from modules.save_import import migrate_save_state, MigrationError
+from modules.save_import import MigrationError, migrate_save_state
 from modules.version import pokebot_name
 
 
@@ -98,7 +98,7 @@ class CreateProfileScreen:
             widget.select_range(0, "end")
             widget.icursor("end")
 
-        def handle_name_input_change(name, index, mode, sv=sv_name):
+        def handle_name_input_change(sv=sv_name):
             value = sv.get()
             message_label.grid(row=3, column=0, columnspan=2)
             if value == "":
@@ -147,9 +147,9 @@ class CreateProfileScreen:
 
         def get_selected_rom() -> Union[ROM, None]:
             selected_rom_name = rom_input.get()
-            for rom in available_roms:
-                if rom.short_game_name == selected_rom_name:
-                    return rom
+            for available_rom in available_roms:
+                if available_rom.short_game_name == selected_rom_name:
+                    return available_rom
             return None
 
         def handle_create_new_game_press():
@@ -163,7 +163,7 @@ class CreateProfileScreen:
 
         def handle_load_save_press():
             def handle_selected_file(selection: list[str]) -> None:
-                if selection is None or len(selection) < 1:
+                if selection is None or not selection:
                     return
                 selected_rom = get_selected_rom()
                 if selected_rom is None:

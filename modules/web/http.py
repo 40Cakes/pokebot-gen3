@@ -3,31 +3,30 @@ import json
 import time
 from pathlib import Path
 
-from flask import Flask, jsonify, request, Response
-from flask_cors import CORS
-
 from apispec import APISpec
 from apispec_webframeworks.flask import FlaskPlugin
+from flask import Flask, Response, jsonify, request
+from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from jinja2 import Template
 
 from modules.context import context
-from modules.data.map import MapRSE, MapFRLG
 from modules.files import read_file
 from modules.game import _event_flags
-from modules.web.http_stream import add_subscriber, DataSubscription
 from modules.items import get_item_bag, get_item_storage
 from modules.main import work_queue
 from modules.map import get_map_data
-from modules.memory import get_event_flag, get_game_state, GameState
+from modules.map_data import MapFRLG, MapRSE
+from modules.memory import GameState, get_event_flag, get_game_state
 from modules.modes import get_bot_mode_names
-from modules.pokemon import get_party
-from modules.pokemon_storage import get_pokemon_storage
-from modules.stats import total_stats
-from modules.state_cache import state_cache
 from modules.player import get_player, get_player_avatar
 from modules.pokedex import get_pokedex
+from modules.pokemon import get_party
+from modules.pokemon_storage import get_pokemon_storage
+from modules.state_cache import state_cache
+from modules.stats import total_stats
 from modules.version import pokebot_name, pokebot_version
+from modules.web.http_stream import DataSubscription, add_subscriber
 
 
 def http_server() -> None:
@@ -85,10 +84,7 @@ def http_server() -> None:
             while cached_player.age_in_frames > 5:
                 time.sleep(0.05)
 
-        if cached_player.value is not None:
-            data = cached_player.value.to_dict()
-        else:
-            data = {}
+        data = cached_player.value.to_dict() if cached_player.value is not None else {}
         return jsonify(data)
 
     @server.route("/player_avatar", methods=["GET"])
@@ -111,10 +107,7 @@ def http_server() -> None:
             while cached_avatar.age_in_frames > 5:
                 time.sleep(0.05)
 
-        if cached_avatar.value is not None:
-            data = cached_avatar.value.to_dict()
-        else:
-            data = {}
+        data = cached_avatar.value.to_dict() if cached_avatar.value is not None else {}
         return jsonify(data)
 
     @server.route("/items", methods=["GET"])
@@ -299,15 +292,11 @@ def http_server() -> None:
             - map
         """
 
-        if context.rom.is_rse:
-            maps_enum = MapRSE
-        else:
-            maps_enum = MapFRLG
-
+        maps_enum = MapRSE if context.rom.is_rse else MapFRLG
         try:
             maps_enum((map_group, map_number))
         except ValueError:
-            return Response(f"No such map: {str(map_group)}, {str(map_number)}", status=404)
+            return Response(f"No such map: {map_group}, {map_number}", status=404)
 
         map_data = get_map_data(map_group, map_number, local_position=(0, 0))
         return jsonify(
@@ -358,13 +347,12 @@ def http_server() -> None:
 
         if flag and flag in _event_flags:
             return jsonify({flag: get_event_flag(flag)})
-        else:
-            result = {}
+        result = {}
 
-            for flag in _event_flags:
-                result[flag] = get_event_flag(flag)
+        for flag in _event_flags:
+            result[flag] = get_event_flag(flag)
 
-            return result
+        return result
 
     @server.route("/encounter_log", methods=["GET"])
     def http_get_encounter_log():
@@ -600,7 +588,7 @@ def http_server() -> None:
 
     http_get_events_stream.__doc__ = Template(doc_http_get_events_stream).render(
         readme=read_file(docs_dir / "event_stream.md"),
-        DataSubscription=[topic for topic in DataSubscription.all_names()],
+        DataSubscription=list(DataSubscription.all_names()),
     )
 
     @server.route("/stream_video", methods=["GET"])
@@ -627,10 +615,7 @@ def http_server() -> None:
             - streams
         """
         fps = request.args.get("fps", "30")
-        if not fps.isdigit():
-            fps = 30
-        else:
-            fps = int(fps)
+        fps = int(fps) if fps.isdigit() else 30
         fps = min(fps, 60)
 
         def stream():

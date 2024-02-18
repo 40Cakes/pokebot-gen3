@@ -43,10 +43,7 @@ class ItemPocket(Enum):
 
     @property
     def index(self) -> int:
-        if context.rom.is_rse:
-            return self.rse_index
-        else:
-            return self.frlg_index
+        return self.rse_index if context.rom.is_rse else self.frlg_index
 
     def __str__(self):
         return self.value
@@ -134,7 +131,7 @@ class ItemBag:
         for index in range(number_of_slots):
             offset = (slot_offset + index) * 4
             item_index = unpack_uint16(self._data[offset : offset + 2])
-            quantity = unpack_uint16(self._data[offset + 2 : offset + 4]) ^ unpack_uint16(self._encryption_key[0:2])
+            quantity = unpack_uint16(self._data[offset + 2 : offset + 4]) ^ unpack_uint16(self._encryption_key[:2])
             if item_index != 0 and quantity > 0:
                 item = get_item_by_index(item_index)
                 result.append(ItemSlot(item, quantity))
@@ -194,11 +191,7 @@ class ItemBag:
         else:
             stack_size = 99
 
-        for slot in pocket:
-            if slot.item == item and slot.quantity < stack_size:
-                return True
-
-        return False
+        return any(slot.item == item and slot.quantity < stack_size for slot in pocket)
 
     def pocket_for(self, item: Item) -> list[ItemSlot]:
         match item.pocket:
@@ -216,27 +209,18 @@ class ItemBag:
                 raise RuntimeError(f"Invalid bag pocket: {str(item.pocket)}")
 
     def quantity_of(self, item: Item) -> int:
-        quantity = 0
-        for slot in self.pocket_for(item):
-            if slot.item == item:
-                quantity += slot.quantity
-
-        return quantity
+        return sum(slot.quantity for slot in self.pocket_for(item) if slot.item == item)
 
     def first_slot_index_for(self, item: Item) -> int | None:
         pocket = self.pocket_for(item)
-        for slot_index in range(len(pocket)):
-            if pocket[slot_index].item == item:
-                return slot_index
-        return None
+        return next(
+            (slot_index for slot_index in range(len(pocket)) if pocket[slot_index].item == item),
+            None,
+        )
 
     @property
     def number_of_repels(self) -> int:
-        quantity = 0
-        for slot in self.items:
-            if slot.item.name in ("Repel", "Super Repel", "Max Repel"):
-                quantity += slot.quantity
-        return quantity
+        return sum(slot.quantity for slot in self.items if slot.item.name in ("Repel", "Super Repel", "Max Repel"))
 
     def to_dict(self) -> dict:
         return {
@@ -281,22 +265,13 @@ class ItemStorage:
         if len(self.items) < self.number_of_slots:
             return True
 
-        for slot in self.items:
-            if slot.item == item and slot.quantity < 999:
-                return True
-
-        return False
+        return any(slot.item == item and slot.quantity < 999 for slot in self.items)
 
     def quantity_of(self, item: Item) -> int:
-        quantity = 0
-        for slot in self.items:
-            if slot.item == item:
-                quantity += slot.quantity
-
-        return quantity
+        return sum(slot.quantity for slot in self.items if slot.item == item)
 
     def to_list(self) -> list[dict]:
-        return list([s.to_dict() for s in self.items])
+        return [s.to_dict() for s in self.items]
 
 
 def _load_items() -> tuple[dict[str, Item], list[Item]]:
