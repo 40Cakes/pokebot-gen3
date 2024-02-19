@@ -719,6 +719,10 @@ class Pokemon:
 
     def __init__(self, data: bytes):
         self.data = data
+        if "Unown" in self.species.name and self.species.name != f"Unown ({self.unown_letter})":
+            self.species.name = f"Unown ({self.unown_letter})"
+        else:
+            self.species.name = self.species.name
 
     def __eq__(self, other):
         if isinstance(other, Pokemon):
