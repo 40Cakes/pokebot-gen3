@@ -82,11 +82,6 @@ def custom_catch_filters(pokemon: Pokemon) -> str | bool:
             # if all(species != pokemon.species for species in get_pokedex().seen_species):
             #     return "New Pokémon species"
 
-            # Specific shiny Unown letters
-            # wanted_unown = ["A", "B", "C"]
-            # if pokemon.is_shiny and "Unown" in pokemon.species.name and pokemon.unown_letter in wanted_unown:
-            #     return f'Shiny "{pokemon.unown_letter}" Unown'
-
             # Shiny Wurmple evolving based on evolution
             # if pokemon.is_shiny and pokemon.species.name == "Wurmple":
             #     if pokemon.wurmple_evolution == "silcoon":
