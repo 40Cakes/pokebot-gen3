@@ -61,8 +61,11 @@ def sv_colour(value: int) -> str:
 
 
 def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set, encounter_rate: int) -> None:
+    species_name = pokemon.species.name
+    if pokemon.species.name == "Unown":
+        species_name += f" ({pokemon.unown_letter})"
     type_colour = pokemon.species.types[0].name.lower()
-    rich_name = f"[{type_colour}]{pokemon.species.name}[/]"
+    rich_name = f"[{type_colour}]{species_name}[/]"
 
     match context.config.logging.console.encounter_data:
         case "verbose":
@@ -100,7 +103,7 @@ def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set, encou
 
     match context.config.logging.console.encounter_ivs:
         case "verbose":
-            iv_table = Table(title=f"{pokemon.species.name} IVs")
+            iv_table = Table(title=f"{species_name} IVs")
             iv_table.add_column("HP", justify="center", style=iv_colour(pokemon.ivs.hp))
             iv_table.add_column("ATK", justify="center", style=iv_colour(pokemon.ivs.attack))
             iv_table.add_column("DEF", justify="center", style=iv_colour(pokemon.ivs.defence))
@@ -131,7 +134,7 @@ def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set, encou
 
     match context.config.logging.console.encounter_moves:
         case "verbose":
-            move_table = Table(title=f"{pokemon.species.name} Moves")
+            move_table = Table(title=f"{species_name} Moves")
             move_table.add_column("Name", justify="left", width=20)
             move_table.add_column("Kind", justify="center", width=10)
             move_table.add_column("Type", justify="center", width=10)
@@ -202,14 +205,14 @@ def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set, encou
             console.print(stats_table)
         case "basic":
             console.print(
-                f"{rich_name} Phase Encounters: {total_stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,} | "
-                f"{rich_name} Total Encounters: {total_stats['pokemon'][pokemon.species.name].get('encounters', 0):,} | "
-                f"{rich_name} Shiny Encounters: {total_stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,}"
+                f"{rich_name} Phase Encounters: {total_stats['pokemon'][species_name].get('phase_encounters', 0):,} | "
+                f"{rich_name} Total Encounters: {total_stats['pokemon'][species_name].get('encounters', 0):,} | "
+                f"{rich_name} Shiny Encounters: {total_stats['pokemon'][species_name].get('shiny_encounters', 0):,}"
             )
             console.print(
-                f"{rich_name} Phase IV Records [red]{total_stats['pokemon'][pokemon.species.name].get('phase_lowest_iv_sum', -1)}[/]/[green]{total_stats['pokemon'][pokemon.species.name].get('phase_highest_iv_sum', -1)}[/] | "
-                f"{rich_name} Phase SV Records [green]{total_stats['pokemon'][pokemon.species.name].get('phase_lowest_sv', -1):,}[/]/[{sv_colour(total_stats['pokemon'][pokemon.species.name].get('phase_highest_sv', -1))}]{total_stats['pokemon'][pokemon.species.name].get('phase_highest_sv', -1):,}[/] | "
-                f"{rich_name} Shiny Average: {total_stats['pokemon'][pokemon.species.name].get('shiny_average', 'N/A')}"
+                f"{rich_name} Phase IV Records [red]{total_stats['pokemon'][species_name].get('phase_lowest_iv_sum', -1)}[/]/[green]{total_stats['pokemon'][species_name].get('phase_highest_iv_sum', -1)}[/] | "
+                f"{rich_name} Phase SV Records [green]{total_stats['pokemon'][species_name].get('phase_lowest_sv', -1):,}[/]/[{sv_colour(total_stats['pokemon'][species_name].get('phase_highest_sv', -1))}]{total_stats['pokemon'][species_name].get('phase_highest_sv', -1):,}[/] | "
+                f"{rich_name} Shiny Average: {total_stats['pokemon'][species_name].get('shiny_average', 'N/A')}"
             )
             console.print(
                 f"Phase Encounters: {total_stats['totals'].get('phase_encounters', 0):,} | "

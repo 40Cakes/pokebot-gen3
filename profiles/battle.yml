@@ -4,19 +4,19 @@
 auto_catch: true
 
 # Pickup
-pickup: true
+pickup: false
 pickup_threshold: 1
 pickup_check_frequency: 5
 
 # Battling
 battle: false
-battle_method: strongest  # `strongest`
+battle_method: strongest # `strongest`
 hp_threshold: 20
-lead_cannot_battle_action: flee  # `stop`, `flee`, `rotate`
-faint_action: flee  # `stop`, `flee`, `rotate`
-new_move: stop  # `stop`, `cancel`, `learn_best`
+lead_cannot_battle_action: flee # `stop`, `flee`, `rotate`
+faint_action: flee # `stop`, `flee`, `rotate`
+new_move: stop # `stop`, `cancel`, `learn_best`
 stop_evolution: true
-switch_strategy: first_available  # `first_available`
+switch_strategy: first_available # `first_available`
 banned_moves:
   - None
   # 2-turn
