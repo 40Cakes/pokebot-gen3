@@ -353,9 +353,7 @@ class TotalStats:
             "snapshot_stats": {
                 "phase_encounters": self.total_stats["totals"]["phase_encounters"],
                 "species_encounters": self.total_stats["pokemon"][species_name]["encounters"],
-                "species_shiny_encounters": self.total_stats["pokemon"][species_name].get(
-                    "shiny_encounters", 0
-                ),
+                "species_shiny_encounters": self.total_stats["pokemon"][species_name].get("shiny_encounters", 0),
                 "total_encounters": self.total_stats["totals"]["encounters"],
                 "total_shiny_encounters": self.total_stats["totals"].get("shiny_encounters", 0),
             },
