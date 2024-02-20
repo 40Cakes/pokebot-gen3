@@ -14,7 +14,7 @@
 
 <!-- Pre-merge checks that should be completed -->
 
-- [ ] [Black Linter](https://github.com/psf/black) has been ran, using `line-length 120` argument
+- [ ] [Black Linter](https://github.com/psf/black) has been ran, using `--line-length 120` argument
 - [ ] Wiki has been updated (if relevant)
 
 <!-- Any further information can be added below here such as images/videos -->
