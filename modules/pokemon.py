@@ -606,6 +606,10 @@ class Species:
                 result += "_m"
             elif self.name[i] == "♀":
                 result += "_f"
+            elif self.name[i] == "!":
+                result += "em"
+            elif self.name[i] == "?":
+                result += "qm"
             else:
                 result += "_"
         return result
