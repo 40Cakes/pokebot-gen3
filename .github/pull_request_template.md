@@ -12,7 +12,7 @@
 
 ### Checklist
 
-<!-- Pre-merch checks that should be completed -->
+<!-- Pre-merge checks that should be completed -->
 
 - [ ] [Black Linter](https://github.com/psf/black) has been ran, using `line-length 120` argument
 - [ ] Wiki has been updated (if relevant)
