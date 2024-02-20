@@ -235,10 +235,9 @@ class DaycareMode(BotMode):
                     context.emulator.press_button("Down")
                     yield from wait_for_n_frames(20)
                 else:
-                    while not task_is_active("Task_OnSelectedMon"):
-                        context.emulator.press_button("A")
-                        yield
-                    yield from wait_until_task_is_active("Task_OnSelectedMon")
+                    yield from wait_for_n_frames(5)
+                    context.emulator.press_button("A")
+                    yield from wait_for_n_frames(5)
                     for _ in range(2):
                         yield from wait_for_n_frames(10)
                         context.emulator.press_button("Up")
