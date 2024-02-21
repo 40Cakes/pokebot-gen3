@@ -139,6 +139,8 @@ def generate_tcg_card(pokemon: Pokemon, location: str = "") -> Path | None:
                 if move:
                     move_name = "Unknown" if move.move.name == "???" else move.move.name
                     move_power = "-" if move.move.base_power == 0 else str(move.move.base_power)
+                    if move_name == "Hidden Power":
+                        move_power = str(pokemon.hidden_power_damage)
 
                     draw = draw_text(
                         draw, text=move_name, coords=(130, 480 + (i * 80)), size=30, shadow_colour="#000", anchor="lm"
@@ -160,6 +162,10 @@ def generate_tcg_card(pokemon: Pokemon, location: str = "") -> Path | None:
                         anchor="rm",
                     )
                     move_type = Image.open(get_sprites_path() / "types" / "swsh" / f"{move.move.type}.png")
+                    if move.move.name == "Hidden Power":
+                        move_type = Image.open(
+                            get_sprites_path() / "types" / "swsh" / f"{pokemon.hidden_power_type}.png"
+                        )
                     card.paste(move_type, (80, 473 + (i * 80)), mask=move_type)
 
             # Portrait background

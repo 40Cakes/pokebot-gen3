@@ -69,7 +69,7 @@ def save_pk3(pokemon: Pokemon) -> None:
         pk3_file = f"{pk3_file} ★"
 
     pk3_file = pokemon_dir_path / (
-        f"{pk3_file} - {pokemon.name} - {pokemon.nature} "
+        f"{pk3_file} - {pokemon.species.safe_name} - {pokemon.nature} "
         f"[{pokemon.ivs.sum()}] - {hex(pokemon.personality_value)[2:].upper()}.pk3"
     )
 
