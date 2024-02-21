@@ -222,7 +222,7 @@ class RockSmashMode(BotMode):
         yield from walk_one_tile("Up")
         yield from walk_one_tile("Up")
         yield from walk_one_tile("Down")
-        yield from navigate_to(7, 13)
+        yield from follow_path([(29, 14), (7, 13)])
         yield from ensure_facing_direction("Up")
         if self._using_repel:
             yield from apply_white_flute_if_available()
