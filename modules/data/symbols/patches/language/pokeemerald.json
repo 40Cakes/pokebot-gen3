@@ -151,15 +151,6 @@
     "gMapHeader":{
       "J":"2036FB8"
     },
-    "gMapGroups":{
-      "J":"845E998"
-    },
-    "gWildMonHeaders":{
-      "J":"852d9f4"
-    },
-    "gRegionMapEntries":{
-      "J":"857cd6c"
-    },
     "gActionSelectionCursor":{
       "J":"2024150"
     },
@@ -225,6 +216,31 @@
       "S": "831e82c"
     },
     "sTileBitAttributes":{
-      "J": "845F31c"
+      "D": "8498c2c",
+      "F": "848bde8",
+      "I": "8483c40",
+      "J": "845F31c",
+      "S": "848a558"
+    },
+    "gMapGroups":{
+      "D":"84982a8",
+      "F":"848b464",
+      "I":"84832bc",
+      "J":"845E998",
+      "S":"8489bd4"
+    },
+    "gWildMonHeaders":{
+      "D":"8564a78",
+      "F":"8557c34",
+      "I":"854fa8c",
+      "J":"852d9f4",
+      "S":"85563a4"
+    },
+    "gRegionMapEntries":{
+      "D":"85b24b4",
+      "F":"85a5adc",
+      "I":"859dee8",
+      "J":"857cd6c",
+      "S":"85a41e4"
     }
   }
