@@ -133,6 +133,9 @@
     "GTASKS":{
       "J":"3005b60"
     },
+    "gSaveBlock1Ptr":{
+      "J":"3005aec"
+    },
     "gSaveBlock2Ptr":{
       "J":"3005af0"
     },
@@ -141,6 +144,15 @@
     },
     "gEnemyParty":{
       "J":"20243e8"
+    },
+    "gPlayerAvatar":{
+      "J":"2037230"
+    },
+    "gMapHeader":{
+      "J":"2036FB8"
+    },
+    "gMapGroups":{
+      "J":"845E998"
     },
     "gActionSelectionCursor":{
       "J":"2024150"
@@ -205,5 +217,8 @@
       "I": "8317f8c",
       "J": "82ea31c",
       "S": "831e82c"
+    },
+    "sTileBitAttributes":{
+      "J": "845F31c"
     }
   }
