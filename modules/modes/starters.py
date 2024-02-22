@@ -10,7 +10,7 @@ from modules.player import get_player_avatar
 from modules.pokemon import get_party
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
-from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map
+from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map, assert_no_auto_battle
 from ._interface import BattleAction, BotMode, BotModeError
 from ._util import (
     ensure_facing_direction,
@@ -56,7 +56,7 @@ def run_rse_hoenn() -> Generator:
             Selection("Treecko", get_sprites_path() / "pokemon" / "normal" / "Treecko.png"),
             Selection("Torchic", get_sprites_path() / "pokemon" / "normal" / "Torchic.png"),
             Selection("Mudkip", get_sprites_path() / "pokemon" / "normal" / "Mudkip.png"),
-            Selection("Random", get_sprites_path() / "pokemon" / "normal" / "Unown.png"),
+            Selection("Random", get_sprites_path() / "pokemon" / "normal" / "Unown (qm).png"),
         ],
         window_title="Select a starter...",
     )

@@ -20,6 +20,65 @@
       "J":"816cc90",
       "S":"816cc14"
     },
+    "MAINCB2_INTRO":{
+      "D":"816c868",
+      "F":"816c990",
+      "I":"816c858",
+      "J":"816ca10",
+      "S":"816c968"
+    },
+    "MAINCB2_ENDINTRO":{
+      "D":"816c8bc",
+      "F":"816c9e4",
+      "I":"16c8ac",
+      "J":"816ca64",
+      "S":"816c9bc"
+    },
+    "CB2_INITTITLESCREEN":{
+      "D":"80aa7c0",
+      "F":"80aa7b8",
+      "I":"80aa7b8",
+      "J":"80aa06c",
+      "S":"80aa7b8"
+    },
+    "MAINCB2":{
+      "D":"80aab48",
+      "F":"80aab40",
+      "I":"80aab40",
+      "J":"80aa400",
+      "S":"80aab40"
+    },
+    "CB2_GOTOMAINMENU":{
+      "D":"80aaed4",
+      "F":"80aaecc",
+      "I":"80aaecc",
+      "J":"80aa7b4",
+      "S":"80aaecc"
+    },
+    "CB2_INITMAINMENU":{
+      "D":"802f6e0",
+      "I":"802f6e0",
+      "J":"802f340"
+    },
+    "CB2_MAINMENU":{
+      "D":"802f6b4",
+      "I":"802f6b4",
+      "J":"802f314"
+    },
+    "CB2_CONTINUESAVEDGAME":{
+      "D":"808624c",
+      "F":"8086240",
+      "I":"8086244",
+      "J":"8085b98",
+      "S":"8086244"
+    },
+    "CB2_RETURNTOFIELDLOCAL":{
+      "D":"8086110",
+      "F":"8086104",
+      "I":"8086108",
+      "J":"8085a5c",
+      "S":"8086108"
+    },
     "BATTLEMAINCB2":{
       "D":"8038424",
       "F":"8038420",
@@ -53,6 +112,13 @@
       "I":"8133e6c",
       "J":"8134214",
       "S":"8133e74"
+    },
+    "Task_DUCKBGMFORPOKEMONCRY":{
+      "D":"0x80a3728",
+      "F":"0x80a3720",
+      "I":"0x80a3720",
+      "J":"0x80a2fd4",
+      "S":"0x80a3720"
     },
     "TASK_HANDLECONFIRMSTARTERINPUT":{
       "D":"8134024",
