@@ -20,6 +20,65 @@
       "J":"816cc90",
       "S":"816cc14"
     },
+    "MAINCB2_INTRO":{
+      "D":"816c868",
+      "F":"816c990",
+      "I":"816c858",
+      "J":"816ca10",
+      "S":"816c968"
+    },
+    "MAINCB2_ENDINTRO":{
+      "D":"816c8bc",
+      "F":"816c9e4",
+      "I":"16c8ac",
+      "J":"816ca64",
+      "S":"816c9bc"
+    },
+    "CB2_INITTITLESCREEN":{
+      "D":"80aa7c0",
+      "F":"80aa7b8",
+      "I":"80aa7b8",
+      "J":"80aa06c",
+      "S":"80aa7b8"
+    },
+    "MAINCB2":{
+      "D":"80aab48",
+      "F":"80aab40",
+      "I":"80aab40",
+      "J":"80aa400",
+      "S":"80aab40"
+    },
+    "CB2_GOTOMAINMENU":{
+      "D":"80aaed4",
+      "F":"80aaecc",
+      "I":"80aaecc",
+      "J":"80aa7b4",
+      "S":"80aaecc"
+    },
+    "CB2_INITMAINMENU":{
+      "D":"802f6e0",
+      "I":"802f6e0",
+      "J":"802f340"
+    },
+    "CB2_MAINMENU":{
+      "D":"802f6b4",
+      "I":"802f6b4",
+      "J":"802f314"
+    },
+    "CB2_CONTINUESAVEDGAME":{
+      "D":"808624c",
+      "F":"8086240",
+      "I":"8086244",
+      "J":"8085b98",
+      "S":"8086244"
+    },
+    "CB2_RETURNTOFIELDLOCAL":{
+      "D":"8086110",
+      "F":"8086104",
+      "I":"8086108",
+      "J":"8085a5c",
+      "S":"8086108"
+    },
     "BATTLEMAINCB2":{
       "D":"8038424",
       "F":"8038420",
@@ -54,6 +113,13 @@
       "J":"8134214",
       "S":"8133e74"
     },
+    "Task_DUCKBGMFORPOKEMONCRY":{
+      "D":"0x80a3728",
+      "F":"0x80a3720",
+      "I":"0x80a3720",
+      "J":"0x80a2fd4",
+      "S":"0x80a3720"
+    },
     "TASK_HANDLECONFIRMSTARTERINPUT":{
       "D":"8134024",
       "F":"8134044",
@@ -67,6 +133,9 @@
     "GTASKS":{
       "J":"3005b60"
     },
+    "gSaveBlock1Ptr":{
+      "J":"3005aec"
+    },
     "gSaveBlock2Ptr":{
       "J":"3005af0"
     },
@@ -75,6 +144,12 @@
     },
     "gEnemyParty":{
       "J":"20243e8"
+    },
+    "gPlayerAvatar":{
+      "J":"2037230"
+    },
+    "gMapHeader":{
+      "J":"2036FB8"
     },
     "gActionSelectionCursor":{
       "J":"2024150"
@@ -139,5 +214,33 @@
       "I": "8317f8c",
       "J": "82ea31c",
       "S": "831e82c"
+    },
+    "sTileBitAttributes":{
+      "D": "8498c2c",
+      "F": "848bde8",
+      "I": "8483c40",
+      "J": "845F31c",
+      "S": "848a558"
+    },
+    "gMapGroups":{
+      "D":"84982a8",
+      "F":"848b464",
+      "I":"84832bc",
+      "J":"845E998",
+      "S":"8489bd4"
+    },
+    "gWildMonHeaders":{
+      "D":"8564a78",
+      "F":"8557c34",
+      "I":"854fa8c",
+      "J":"852d9f4",
+      "S":"85563a4"
+    },
+    "gRegionMapEntries":{
+      "D":"85b24b4",
+      "F":"85a5adc",
+      "I":"859dee8",
+      "J":"857cd6c",
+      "S":"85a41e4"
     }
   }
