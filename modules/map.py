@@ -1619,6 +1619,14 @@ def get_map_objects() -> list[ObjectEvent]:
     return objects
 
 
+def get_player_map_object() -> ObjectEvent | None:
+    data = read_symbol("gObjectEvents", 0, 0x24)
+    if data[0] & 0x01:
+        return ObjectEvent(data)
+    else:
+        return None
+
+
 def get_map_all_tiles() -> list[MapLocation]:
     current_map_data = get_map_data_for_current_position()
     map_group, map_number = current_map_data.map_group, current_map_data.map_number

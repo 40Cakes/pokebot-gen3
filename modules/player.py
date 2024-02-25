@@ -4,8 +4,8 @@ from typing import Literal
 
 from modules.context import context
 from modules.game import decode_string
-from modules.map import MapLocation, ObjectEvent, calculate_targeted_coords
-from modules.memory import get_save_block, read_symbol, unpack_uint16, unpack_uint32
+from modules.map import MapLocation, ObjectEvent, calculate_targeted_coords, get_player_map_object
+from modules.memory import get_save_block, read_symbol, unpack_uint16, unpack_uint32, get_game_state, GameState
 from modules.pokemon import Item, get_item_by_index
 from modules.state_cache import state_cache
 
@@ -244,3 +244,26 @@ def get_player_avatar() -> PlayerAvatar:
     state_cache.player_avatar = player_avatar
 
     return player_avatar
+
+
+def player_avatar_is_controllable() -> bool:
+    if get_game_state() != GameState.OVERWORLD:
+        return False
+
+    player_map_object = get_player_map_object()
+    if player_map_object is None:
+        return False
+
+    player_map_object_flags = player_map_object.flags
+    if (
+        "heldMovementActive" not in player_map_object_flags
+        or "frozen" in player_map_object_flags
+        or AvatarFlags.ForcedMove in get_player_avatar().flags
+    ):
+        return False
+
+    return True
+
+
+def player_avatar_is_standing_still() -> bool:
+    return player_avatar_is_controllable() and "heldMovementFinished" in get_player_map_object().flags

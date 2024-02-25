@@ -3,7 +3,6 @@ from typing import Generator
 from modules.context import context
 from modules.encounter import EncounterValue, handle_encounter, judge_encounter, log_encounter
 from modules.gui.multi_select_window import Selection, ask_for_choice
-from modules.map import get_map_objects
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_event_var, get_game_state
 from modules.player import get_player, get_player_avatar
@@ -23,6 +22,7 @@ from ._util import (
     navigate_to,
     replenish_repel,
     soft_reset,
+    wait_for_player_avatar_to_be_standing_still,
     wait_for_unique_rng_value,
     wait_until_task_is_active,
     walk_one_tile,
@@ -141,8 +141,7 @@ class RoamerResetMode(BotMode):
             yield from soft_reset(mash_random_keys=True)
             yield from wait_for_unique_rng_value()
 
-            while "heldMovementFinished" not in get_map_objects()[0].flags:
-                yield
+            yield from wait_for_player_avatar_to_be_standing_still()
 
             if get_player().gender == "female":
                 yield from navigate_to(1, 2)
@@ -162,8 +161,7 @@ class RoamerResetMode(BotMode):
                 context.emulator.press_button("A")
                 yield
 
-            while "heldMovementFinished" not in get_map_objects()[0].flags or "frozen" in get_map_objects()[0].flags:
-                yield
+            yield from wait_for_player_avatar_to_be_standing_still()
 
             if get_player().gender == "female":
                 yield from navigate_to(2, 8)
@@ -234,8 +232,7 @@ class RoamerResetMode(BotMode):
             yield from soft_reset(mash_random_keys=True)
             yield from wait_for_unique_rng_value()
 
-            while "heldMovementFinished" not in get_map_objects()[0].flags:
-                yield
+            yield from wait_for_player_avatar_to_be_standing_still()
 
             yield from navigate_to(14, 6)
             yield from ensure_facing_direction("Right")
