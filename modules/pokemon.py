@@ -723,10 +723,6 @@ class Pokemon:
 
     def __init__(self, data: bytes):
         self.data = data
-        if "Unown" in self.species.name and self.species.name != f"Unown ({self.unown_letter})":
-            self.species.name = f"Unown ({self.unown_letter})"
-        else:
-            self.species.name = self.species.name
 
     def __eq__(self, other):
         if isinstance(other, Pokemon):
@@ -1115,6 +1111,13 @@ class Pokemon:
     def wurmple_evolution(self) -> Literal["silcoon", "cascoon"]:
         value = unpack_uint16(self.data[2:4]) % 10
         return "silcoon" if value <= 4 else "cascoon"
+
+    @property
+    def species_name_for_stats(self) -> str:
+        if self.species.name == "Unown":
+            return f"{self.species.name} ({self.unown_letter})"
+        else:
+            return self.species.name
 
     # ==============
     # Debug helpers
