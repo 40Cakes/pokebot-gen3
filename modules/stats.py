@@ -143,21 +143,21 @@ class TotalStats:
 
     def update_incremental_stats(self, pokemon: Pokemon) -> None:
         self.session_encounters += 1
-        self.session_pokemon.add(pokemon.species.name)
+        self.session_pokemon.add(pokemon.species_name_for_stats)
         self.total_stats["totals"]["encounters"] = self.total_stats["totals"].get("encounters", 0) + 1
         self.total_stats["totals"]["phase_encounters"] = self.total_stats["totals"].get("phase_encounters", 0) + 1
-        self.total_stats["pokemon"][pokemon.species.name]["encounters"] = (
-            self.total_stats["pokemon"][pokemon.species.name].get("encounters", 0) + 1
+        self.total_stats["pokemon"][pokemon.species_name_for_stats]["encounters"] = (
+            self.total_stats["pokemon"][pokemon.species_name_for_stats].get("encounters", 0) + 1
         )
-        self.total_stats["pokemon"][pokemon.species.name]["phase_encounters"] = (
-            self.total_stats["pokemon"][pokemon.species.name].get("phase_encounters", 0) + 1
+        self.total_stats["pokemon"][pokemon.species_name_for_stats]["phase_encounters"] = (
+            self.total_stats["pokemon"][pokemon.species_name_for_stats].get("phase_encounters", 0) + 1
         )
-        self.total_stats["pokemon"][pokemon.species.name]["last_encounter_time_unix"] = time.time()
-        self.total_stats["pokemon"][pokemon.species.name]["last_encounter_time_str"] = str(datetime.now())
+        self.total_stats["pokemon"][pokemon.species_name_for_stats]["last_encounter_time_unix"] = time.time()
+        self.total_stats["pokemon"][pokemon.species_name_for_stats]["last_encounter_time_str"] = str(datetime.now())
 
     def update_shiny_incremental_stats(self, pokemon: Pokemon) -> None:
-        self.total_stats["pokemon"][pokemon.species.name]["shiny_encounters"] = (
-            self.total_stats["pokemon"][pokemon.species.name].get("shiny_encounters", 0) + 1
+        self.total_stats["pokemon"][pokemon.species_name_for_stats]["shiny_encounters"] = (
+            self.total_stats["pokemon"][pokemon.species_name_for_stats].get("shiny_encounters", 0) + 1
         )
         self.total_stats["totals"]["shiny_encounters"] = self.total_stats["totals"].get("shiny_encounters", 0) + 1
 
@@ -167,7 +167,7 @@ class TotalStats:
             "longest_phase_encounters", 0
         ):
             self.total_stats["totals"]["longest_phase_encounters"] = self.total_stats["totals"]["phase_encounters"]
-            self.total_stats["totals"]["longest_phase_pokemon"] = pokemon.species.name
+            self.total_stats["totals"]["longest_phase_pokemon"] = pokemon.species_name_for_stats
 
         # Total shortest phase
         if (
@@ -175,7 +175,7 @@ class TotalStats:
             or self.total_stats["totals"]["phase_encounters"] <= self.total_stats["totals"]["shortest_phase_encounters"]
         ):
             self.total_stats["totals"]["shortest_phase_encounters"] = self.total_stats["totals"]["phase_encounters"]
-            self.total_stats["totals"]["shortest_phase_pokemon"] = pokemon.species.name
+            self.total_stats["totals"]["shortest_phase_pokemon"] = pokemon.species_name_for_stats
 
     def reset_phase_stats(self) -> None:
         # Reset phase stats
@@ -203,100 +203,111 @@ class TotalStats:
 
     def update_sv_records(self, pokemon: Pokemon) -> None:
         # Pokémon phase highest shiny value
-        if not self.total_stats["pokemon"][pokemon.species.name].get("phase_highest_sv", None):
-            self.total_stats["pokemon"][pokemon.species.name]["phase_highest_sv"] = pokemon.shiny_value
+        if not self.total_stats["pokemon"][pokemon.species_name_for_stats].get("phase_highest_sv", None):
+            self.total_stats["pokemon"][pokemon.species_name_for_stats]["phase_highest_sv"] = pokemon.shiny_value
         else:
-            self.total_stats["pokemon"][pokemon.species.name]["phase_highest_sv"] = max(
-                pokemon.shiny_value, self.total_stats["pokemon"][pokemon.species.name].get("phase_highest_sv", -1)
+            self.total_stats["pokemon"][pokemon.species_name_for_stats]["phase_highest_sv"] = max(
+                pokemon.shiny_value,
+                self.total_stats["pokemon"][pokemon.species_name_for_stats].get("phase_highest_sv", -1),
             )
 
         # Pokémon phase lowest shiny value
-        if not self.total_stats["pokemon"][pokemon.species.name].get("phase_lowest_sv", None):
-            self.total_stats["pokemon"][pokemon.species.name]["phase_lowest_sv"] = pokemon.shiny_value
+        if not self.total_stats["pokemon"][pokemon.species_name_for_stats].get("phase_lowest_sv", None):
+            self.total_stats["pokemon"][pokemon.species_name_for_stats]["phase_lowest_sv"] = pokemon.shiny_value
         else:
-            self.total_stats["pokemon"][pokemon.species.name]["phase_lowest_sv"] = min(
-                pokemon.shiny_value, self.total_stats["pokemon"][pokemon.species.name].get("phase_lowest_sv", 65536)
+            self.total_stats["pokemon"][pokemon.species_name_for_stats]["phase_lowest_sv"] = min(
+                pokemon.shiny_value,
+                self.total_stats["pokemon"][pokemon.species_name_for_stats].get("phase_lowest_sv", 65536),
             )
 
         # Pokémon total lowest shiny value
-        if not self.total_stats["pokemon"][pokemon.species.name].get("total_lowest_sv", None):
-            self.total_stats["pokemon"][pokemon.species.name]["total_lowest_sv"] = pokemon.shiny_value
+        if not self.total_stats["pokemon"][pokemon.species_name_for_stats].get("total_lowest_sv", None):
+            self.total_stats["pokemon"][pokemon.species_name_for_stats]["total_lowest_sv"] = pokemon.shiny_value
         else:
-            self.total_stats["pokemon"][pokemon.species.name]["total_lowest_sv"] = min(
-                pokemon.shiny_value, self.total_stats["pokemon"][pokemon.species.name].get("total_lowest_sv", 65536)
+            self.total_stats["pokemon"][pokemon.species_name_for_stats]["total_lowest_sv"] = min(
+                pokemon.shiny_value,
+                self.total_stats["pokemon"][pokemon.species_name_for_stats].get("total_lowest_sv", 65536),
             )
 
         # Phase highest shiny value
         if not self.total_stats["totals"].get("phase_highest_sv", None):
             self.total_stats["totals"]["phase_highest_sv"] = pokemon.shiny_value
-            self.total_stats["totals"]["phase_highest_sv_pokemon"] = pokemon.species.name
+            self.total_stats["totals"]["phase_highest_sv_pokemon"] = pokemon.species_name_for_stats
         elif pokemon.shiny_value >= self.total_stats["totals"].get("phase_highest_sv", -1):
             self.total_stats["totals"]["phase_highest_sv"] = pokemon.shiny_value
-            self.total_stats["totals"]["phase_highest_sv_pokemon"] = pokemon.species.name
+            self.total_stats["totals"]["phase_highest_sv_pokemon"] = pokemon.species_name_for_stats
 
         # Phase lowest shiny value
         if not self.total_stats["totals"].get("phase_lowest_sv", None):
             self.total_stats["totals"]["phase_lowest_sv"] = pokemon.shiny_value
-            self.total_stats["totals"]["phase_lowest_sv_pokemon"] = pokemon.species.name
+            self.total_stats["totals"]["phase_lowest_sv_pokemon"] = pokemon.species_name_for_stats
         elif pokemon.shiny_value <= self.total_stats["totals"].get("phase_lowest_sv", 65536):
             self.total_stats["totals"]["phase_lowest_sv"] = pokemon.shiny_value
-            self.total_stats["totals"]["phase_lowest_sv_pokemon"] = pokemon.species.name
+            self.total_stats["totals"]["phase_lowest_sv_pokemon"] = pokemon.species_name_for_stats
 
     def update_iv_records(self, pokemon: Pokemon) -> None:
         # Pokémon highest phase IV record
-        if not self.total_stats["pokemon"][pokemon.species.name].get(
+        if not self.total_stats["pokemon"][pokemon.species_name_for_stats].get(
             "phase_highest_iv_sum"
-        ) or pokemon.ivs.sum() >= self.total_stats["pokemon"][pokemon.species.name].get("phase_highest_iv_sum", -1):
-            self.total_stats["pokemon"][pokemon.species.name]["phase_highest_iv_sum"] = pokemon.ivs.sum()
+        ) or pokemon.ivs.sum() >= self.total_stats["pokemon"][pokemon.species_name_for_stats].get(
+            "phase_highest_iv_sum", -1
+        ):
+            self.total_stats["pokemon"][pokemon.species_name_for_stats]["phase_highest_iv_sum"] = pokemon.ivs.sum()
 
         # Pokémon highest total IV record
-        if pokemon.ivs.sum() >= self.total_stats["pokemon"][pokemon.species.name].get("total_highest_iv_sum", -1):
-            self.total_stats["pokemon"][pokemon.species.name]["total_highest_iv_sum"] = pokemon.ivs.sum()
+        if pokemon.ivs.sum() >= self.total_stats["pokemon"][pokemon.species_name_for_stats].get(
+            "total_highest_iv_sum", -1
+        ):
+            self.total_stats["pokemon"][pokemon.species_name_for_stats]["total_highest_iv_sum"] = pokemon.ivs.sum()
 
         # Pokémon lowest phase IV record
-        if not self.total_stats["pokemon"][pokemon.species.name].get(
+        if not self.total_stats["pokemon"][pokemon.species_name_for_stats].get(
             "phase_lowest_iv_sum"
-        ) or pokemon.ivs.sum() <= self.total_stats["pokemon"][pokemon.species.name].get("phase_lowest_iv_sum", 999):
-            self.total_stats["pokemon"][pokemon.species.name]["phase_lowest_iv_sum"] = pokemon.ivs.sum()
+        ) or pokemon.ivs.sum() <= self.total_stats["pokemon"][pokemon.species_name_for_stats].get(
+            "phase_lowest_iv_sum", 999
+        ):
+            self.total_stats["pokemon"][pokemon.species_name_for_stats]["phase_lowest_iv_sum"] = pokemon.ivs.sum()
 
         # Pokémon lowest total IV record
-        if pokemon.ivs.sum() <= self.total_stats["pokemon"][pokemon.species.name].get("total_lowest_iv_sum", 999):
-            self.total_stats["pokemon"][pokemon.species.name]["total_lowest_iv_sum"] = pokemon.ivs.sum()
+        if pokemon.ivs.sum() <= self.total_stats["pokemon"][pokemon.species_name_for_stats].get(
+            "total_lowest_iv_sum", 999
+        ):
+            self.total_stats["pokemon"][pokemon.species_name_for_stats]["total_lowest_iv_sum"] = pokemon.ivs.sum()
 
         # Phase highest IV sum record
         if not self.total_stats["totals"].get("phase_highest_iv_sum") or pokemon.ivs.sum() >= self.total_stats[
             "totals"
         ].get("phase_highest_iv_sum", -1):
             self.total_stats["totals"]["phase_highest_iv_sum"] = pokemon.ivs.sum()
-            self.total_stats["totals"]["phase_highest_iv_sum_pokemon"] = pokemon.species.name
+            self.total_stats["totals"]["phase_highest_iv_sum_pokemon"] = pokemon.species_name_for_stats
 
         # Phase lowest IV sum record
         if not self.total_stats["totals"].get("phase_lowest_iv_sum") or pokemon.ivs.sum() <= self.total_stats[
             "totals"
         ].get("phase_lowest_iv_sum", 999):
             self.total_stats["totals"]["phase_lowest_iv_sum"] = pokemon.ivs.sum()
-            self.total_stats["totals"]["phase_lowest_iv_sum_pokemon"] = pokemon.species.name
+            self.total_stats["totals"]["phase_lowest_iv_sum_pokemon"] = pokemon.species_name_for_stats
 
         # Total highest IV sum record
         if pokemon.ivs.sum() >= self.total_stats["totals"].get("highest_iv_sum", -1):
             self.total_stats["totals"]["highest_iv_sum"] = pokemon.ivs.sum()
-            self.total_stats["totals"]["highest_iv_sum_pokemon"] = pokemon.species.name
+            self.total_stats["totals"]["highest_iv_sum_pokemon"] = pokemon.species_name_for_stats
 
         # Total lowest IV sum record
         if pokemon.ivs.sum() <= self.total_stats["totals"].get("lowest_iv_sum", 999):
             self.total_stats["totals"]["lowest_iv_sum"] = pokemon.ivs.sum()
-            self.total_stats["totals"]["lowest_iv_sum_pokemon"] = pokemon.species.name
+            self.total_stats["totals"]["lowest_iv_sum_pokemon"] = pokemon.species_name_for_stats
 
     def update_shiny_averages(self, pokemon: Pokemon) -> None:
         # Pokémon shiny average
-        if self.total_stats["pokemon"][pokemon.species.name].get("shiny_encounters"):
+        if self.total_stats["pokemon"][pokemon.species_name_for_stats].get("shiny_encounters"):
             avg = int(
                 math.floor(
-                    self.total_stats["pokemon"][pokemon.species.name]["encounters"]
-                    / self.total_stats["pokemon"][pokemon.species.name]["shiny_encounters"]
+                    self.total_stats["pokemon"][pokemon.species_name_for_stats]["encounters"]
+                    / self.total_stats["pokemon"][pokemon.species_name_for_stats]["shiny_encounters"]
                 )
             )
-            self.total_stats["pokemon"][pokemon.species.name]["shiny_average"] = f"1/{avg:,}"
+            self.total_stats["pokemon"][pokemon.species_name_for_stats]["shiny_average"] = f"1/{avg:,}"
 
         # Total shiny average
         if self.total_stats["totals"].get("shiny_encounters"):
@@ -309,14 +320,14 @@ class TotalStats:
         # Same Pokémon encounter streak records
         if (
             state_cache.last_encounter_log.value is not None
-            and state_cache.last_encounter_log.value["pokemon"]["name"] == pokemon.species.name
+            and state_cache.last_encounter_log.value["pokemon"]["name"] == pokemon.species_name_for_stats
         ):
             self.total_stats["totals"]["current_streak"] = self.total_stats["totals"].get("current_streak", 0) + 1
         else:
             self.total_stats["totals"]["current_streak"] = 1
         if self.total_stats["totals"].get("current_streak", 0) >= self.total_stats["totals"].get("phase_streak", 0):
             self.total_stats["totals"]["phase_streak"] = self.total_stats["totals"].get("current_streak", 0)
-            self.total_stats["totals"]["phase_streak_pokemon"] = pokemon.species.name
+            self.total_stats["totals"]["phase_streak_pokemon"] = pokemon.species_name_for_stats
 
     def get_log_obj(self, pokemon: Pokemon) -> dict:
         return {
@@ -324,8 +335,8 @@ class TotalStats:
             "pokemon": pokemon.to_legacy_dict(),
             "snapshot_stats": {
                 "phase_encounters": self.total_stats["totals"]["phase_encounters"],
-                "species_encounters": self.total_stats["pokemon"][pokemon.species.name]["encounters"],
-                "species_shiny_encounters": self.total_stats["pokemon"][pokemon.species.name].get(
+                "species_encounters": self.total_stats["pokemon"][pokemon.species_name_for_stats]["encounters"],
+                "species_shiny_encounters": self.total_stats["pokemon"][pokemon.species_name_for_stats].get(
                     "shiny_encounters", 0
                 ),
                 "total_encounters": self.total_stats["totals"]["encounters"],
@@ -346,8 +357,10 @@ class TotalStats:
         if "totals" not in self.total_stats:
             self.total_stats["totals"] = {}
 
-        if pokemon.species.name not in self.total_stats["pokemon"]:  # Set up a Pokémon stats if first encounter
-            self.total_stats["pokemon"][pokemon.species.name] = {}
+        if (
+            pokemon.species_name_for_stats not in self.total_stats["pokemon"]
+        ):  # Set up a Pokémon stats if first encounter
+            self.total_stats["pokemon"][pokemon.species_name_for_stats] = {}
 
         if self.total_stats["totals"].get("last_encounter_pid") == pokemon.personality_value:
             console.print(
