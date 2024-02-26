@@ -33,7 +33,7 @@ from modules.memory import (
 )
 from modules.menu_parsers import CursorOptionEmerald, CursorOptionFRLG, CursorOptionRS
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator, scroll_to_item_in_bag as real_scroll_to_item
-from modules.player import RunningState, TileTransitionState, get_player, get_player_avatar
+from modules.player import RunningState, AcroBikeState, TileTransitionState, get_player, get_player_avatar
 from modules.pokemon import get_party
 from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE, get_map_cursor, get_map_region
 from modules.tasks import get_global_script_context, get_task, task_is_active
@@ -51,15 +51,16 @@ def walk_to(destination_coordinates: tuple[int, int], run: bool = True) -> Gener
     """
 
     if get_game_state() != GameState.OVERWORLD:
-        return
+        raise BotModeError("Game is not currently in overworld mode. Cannot walk.")
 
-    if run:
-        context.emulator.hold_button("B")
-    else:
-        context.emulator.release_button("B")
+    context.emulator.reset_held_buttons()
 
     initial_map = get_player_avatar().map_group_and_number
     while True:
+        context.emulator.reset_held_buttons()
+        if run:
+            context.emulator.hold_button("B")
+
         avatar = get_player_avatar()
         if avatar.local_coordinates == destination_coordinates:
             break
@@ -68,26 +69,23 @@ def walk_to(destination_coordinates: tuple[int, int], run: bool = True) -> Gener
                 yield
             break
 
-        context.emulator.release_button("Up")
-        context.emulator.release_button("Down")
-        context.emulator.release_button("Left")
-        context.emulator.release_button("Right")
-        if destination_coordinates[0] < avatar.local_coordinates[0]:
-            context.emulator.hold_button("Left")
-        elif destination_coordinates[0] > avatar.local_coordinates[0]:
-            context.emulator.hold_button("Right")
-        elif destination_coordinates[1] < avatar.local_coordinates[1]:
-            context.emulator.hold_button("Up")
-        elif destination_coordinates[1] > avatar.local_coordinates[1]:
-            context.emulator.hold_button("Down")
+        if (avatar.running_state == RunningState.NOT_MOVING and avatar.acro_bike_state == AcroBikeState.NORMAL) or (
+            context.rom.is_frlg
+            and avatar.tile_transition_state in [TileTransitionState.CENTERING, TileTransitionState.NOT_MOVING]
+            and "Std_MsgboxSign" in get_global_script_context().stack
+        ):
+            if destination_coordinates[0] < avatar.local_coordinates[0]:
+                context.emulator.hold_button("Left")
+            elif destination_coordinates[0] > avatar.local_coordinates[0]:
+                context.emulator.hold_button("Right")
+            elif destination_coordinates[1] < avatar.local_coordinates[1]:
+                context.emulator.hold_button("Up")
+            elif destination_coordinates[1] > avatar.local_coordinates[1]:
+                context.emulator.hold_button("Down")
 
         yield
 
-    context.emulator.release_button("Up")
-    context.emulator.release_button("Down")
-    context.emulator.release_button("Left")
-    context.emulator.release_button("Right")
-    context.emulator.release_button("B")
+    context.emulator.reset_held_buttons()
 
 
 def follow_path(waypoints: Iterable[tuple[int, int]], run: bool = True) -> Generator:
