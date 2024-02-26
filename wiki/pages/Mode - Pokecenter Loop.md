@@ -1,6 +1,6 @@
 🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
 
-# 🔄️ Pokecenter Loop Mode
+# 🔄️ Pokécenter Loop Mode
 
 ## Requirements
 
@@ -8,7 +8,7 @@
 
 ## Instructions
 
-Start this mode while being on Route 102 (in E) or Route 2 (FR/LG), the bot will automatically go to the Pokecenter and heal, return to the route untill it runs from battle and then repeat.
+Start this mode while being on Route 102 (in E) or Route 2 (FR/LG), the bot will automatically go to the Pokécenter and heal, return to the route untill it runs from battle and then repeat.
 
 ## Game Support
 
