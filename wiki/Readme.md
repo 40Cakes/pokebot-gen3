@@ -32,6 +32,7 @@ For quick help and support, reach out in Discord [#pokebot-gen3-support❔](http
 - 🏃🏼 [Static Run Away](pages/Mode%20-%20Static%20Run%20Aways.md)
 - ♻ [Static Soft Resets](pages/Mode%20-%20Static%20Soft%20Resets.md)
 - 🥦 [Sudowoodo](pages/Mode%20-%20Sudowoodo.md)
+- 🔄️ [Pokecenter Loop](pages/Mode%20-%Pokecenter%20Loop.md)
 
 ### Configuration
 

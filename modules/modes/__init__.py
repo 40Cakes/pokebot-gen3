@@ -31,6 +31,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .static_gift_resets import StaticGiftResetsMode
         from .static_soft_resets import StaticSoftResetsMode
         from .random import RandomMode
+        from .pokecenterloop import PokecenterLoopMode
 
         _bot_modes = [
             BunnyHopMode,
@@ -50,6 +51,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
             StaticGiftResetsMode,
             StaticSoftResetsMode,
             SudowoodoMode,
+            PokecenterLoopMode,
         ]
 
     return _bot_modes
