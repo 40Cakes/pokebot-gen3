@@ -79,6 +79,30 @@
       "J":"8085a5c",
       "S":"8086108"
     },
+    "CB2_OVERWORLDBASIC":{
+      "D":"8085e6c",
+      "F":"8085e60",
+      "I":"8085e64",
+      "J":"80857b8",
+      "S":"8085e64"
+    },
+    "CB2_INITBATTLE":{
+      "D":"8036764",
+      "I":"8036764",
+      "J":"80365b4"
+    },
+    "CB2_HANDLESTARTBATTLE":{
+      "D":"8036fb0",
+      "I":"8036fb0",
+      "J":"8036e00"
+    },
+    "CB2_RETURNTOFIELD":{
+      "D":"80860e4",
+      "F":"80860d8",
+      "I":"80860dc",
+      "J":"8085a30",
+      "S":"80860dc"
+    },
     "BATTLEMAINCB2":{
       "D":"8038424",
       "F":"8038420",
@@ -127,6 +151,30 @@
       "J":"81343b8",
       "S":"8134018"
     },
+    "Task_BATTLESTART":{
+      "D":"80b060c",
+      "F":"80b0604",
+      "I":"80b0604",
+      "J":"80afeec",
+      "S":"80b0604"
+    },
+    "Task_RETURNTOFIELDNOSCRIPT":{
+      "D":"80af6cc",
+      "F":"80af6c4",
+      "I":"80af6c4",
+      "J":"80aefac",
+      "S":"80af6c4"
+    },
+    "HANDLEINPUTCHOOSEACTION":{
+      "D":"805758c",
+      "I":"805758c",
+      "J":"08057198"
+    },
+    "HANDLEINPUTCHOOSEMOVE":{
+      "D":"8057c00",
+      "I":"8057c00",
+      "J":"805780c"
+    },
     "GMAIN":{
       "J":"3002360"
     },
@@ -138,6 +186,9 @@
     },
     "gSaveBlock2Ptr":{
       "J":"3005af0"
+    },
+    "gBattlerControllerFuncs":{
+      "J":"3005ac0"
     },
     "gObjectEvents":{
       "J":"2036ff0"
@@ -159,6 +210,9 @@
     },
     "gPlayerParty":{
       "J":"2024190"
+    },
+    "gBattleOutcome":{
+      "J":"2023fde"
     },
     "gRngValue":{
       "J":"3005ae0"
