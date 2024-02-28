@@ -7,7 +7,7 @@ from modules.map import get_map_objects, get_map_data_for_current_position
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_game_state, get_game_state_symbol, read_symbol, unpack_uint32
 from modules.menuing import CheckForPickup, MenuWrapper, should_check_for_pickup
-from modules.player import TileTransitionState, get_player_avatar
+from modules.player import TileTransitionState, get_player_avatar, player_avatar_is_standing_still
 from modules.pokemon import (
     BattleTypeFlag,
     StatusCondition,
@@ -89,7 +89,7 @@ class BattleListener(BotListener):
                 and "Task_ReturnToFieldContinueScriptPlayMapMusic" not in frame.active_tasks
                 and "task_mpl_807E3C8" not in frame.active_tasks
                 and len(get_map_objects()) > 0
-                and "heldMovementFinished" in get_map_objects()[0].flags
+                and player_avatar_is_standing_still()
             ):
                 self._in_battle = False
                 if outcome == BattleOutcome.NoSafariBallsLeft:
@@ -112,10 +112,7 @@ class BattleListener(BotListener):
         if (
             get_game_state() != GameState.BATTLE
             and not get_global_script_context().is_active
-            and len(map_objects) > 0
-            and "heldMovementActive" in map_objects[0].flags
-            and "heldMovementFinished" in map_objects[0].flags
-            and "frozen" not in get_map_objects()[0].flags
+            and player_avatar_is_standing_still()
         ):
             if context.config.battle.pickup and should_check_for_pickup():
                 yield from MenuWrapper(CheckForPickup()).step()
@@ -319,9 +316,7 @@ class WhiteoutListener(BotListener):
         while "EventScript_AfterWhiteOutHeal" in get_global_script_context().stack:
             context.emulator.press_button("B")
             yield
-        while len(get_map_objects()) < 1:
-            yield
-        while "heldMovementFinished" not in get_map_objects()[0].flags:
+        while not player_avatar_is_standing_still():
             yield
 
         custom_handling = bot_mode.on_whiteout()
@@ -388,7 +383,7 @@ class SafariZoneListener(BotListener):
         ):
             context.emulator.press_button("B")
             yield
-        while "heldMovementFinished" not in get_map_objects()[0].flags:
+        while not player_avatar_is_standing_still():
             yield
 
         custom_handling = bot_mode.on_safari_zone_timeout()

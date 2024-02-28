@@ -14,6 +14,7 @@ from ._interface import BotMode, BotModeError
 from ._util import (
     follow_path,
     navigate_to,
+    wait_for_player_avatar_to_be_controllable,
     wait_for_n_frames,
     wait_for_script_to_start_and_finish,
     wait_for_task_to_start_and_finish,
@@ -450,6 +451,4 @@ class PuzzleSolverMode(BotMode):
                 context.emulator.press_button("A")
                 yield
 
-            while "heldMovementActive" not in get_map_objects()[0].flags:
-                context.emulator.press_button("B")
-                yield
+            yield from wait_for_player_avatar_to_be_controllable("B")

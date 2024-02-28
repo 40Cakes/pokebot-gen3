@@ -5,7 +5,6 @@ from modules.context import context
 from modules.encounter import handle_encounter
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.items import get_item_bag
-from modules.map import get_map_objects
 from modules.map_data import MapRSE
 from modules.memory import get_event_flag, get_event_var
 from modules.player import TileTransitionState, get_player, get_player_avatar
@@ -25,6 +24,7 @@ from ._util import (
     navigate_to,
     replenish_repel,
     soft_reset,
+    wait_for_player_avatar_to_be_standing_still,
     wait_for_script_to_start_and_finish,
     wait_for_unique_rng_value,
     wait_until_task_is_not_active,
@@ -164,12 +164,7 @@ class RockSmashMode(BotMode):
         context.emulator.reset_held_buttons()
         yield from soft_reset()
         yield from wait_for_unique_rng_value()
-        while (
-            get_map_objects() is None
-            or "heldMovementFinished" not in get_map_objects()[0].flags
-            or "heldMovementActive" not in get_map_objects()[0].flags
-        ):
-            yield
+        yield from wait_for_player_avatar_to_be_standing_still()
 
     @staticmethod
     def smash(flag_name):
