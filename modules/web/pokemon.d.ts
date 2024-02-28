@@ -162,10 +162,6 @@ export type Species = {
     // English name of this species.
     name: string;
 
-    // The species name with any characters that might be problematic in file names
-    // replaced.
-    safe_name: string;
-
     types: Type[];
 
     // List of abilities that this species can have.
