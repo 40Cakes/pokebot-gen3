@@ -1,6 +1,7 @@
 import contextlib
 import json
 import os
+import string
 from pathlib import Path
 
 from modules.context import context
@@ -56,6 +57,27 @@ def write_file(file: Path, value: str, mode: str = "w") -> bool:
         return True
 
 
+def make_string_safe_for_file_name(base_string: str) -> str:
+    """
+    :return: The string name with any characters that might be problematic in file names replaced.
+    """
+    result = ""
+    for i in range(len(base_string)):
+        if base_string[i] in f"-_.()' {string.ascii_letters}{string.digits}":
+            result += base_string[i]
+        elif base_string[i] == "♂":
+            result += "_m"
+        elif base_string[i] == "♀":
+            result += "_f"
+        elif base_string[i] == "!":
+            result += "em"
+        elif base_string[i] == "?":
+            result += "qm"
+        else:
+            result += "_"
+    return result
+
+
 def save_pk3(pokemon: Pokemon) -> None:
     """
     Takes the byte data of [obj]Pokémon.data and outputs it in a pkX format in the /profiles/[PROFILE]/pokemon dir.
@@ -69,7 +91,7 @@ def save_pk3(pokemon: Pokemon) -> None:
         pk3_file = f"{pk3_file} ★"
 
     pk3_file = pokemon_dir_path / (
-        f"{pk3_file} - {pokemon.species.safe_name} - {pokemon.nature} "
+        f"{pk3_file} - {make_string_safe_for_file_name(pokemon.species_name_for_stats)} - {pokemon.nature} "
         f"[{pokemon.ivs.sum()}] - {hex(pokemon.personality_value)[2:].upper()}.pk3"
     )
 

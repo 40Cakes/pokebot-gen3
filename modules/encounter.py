@@ -3,7 +3,7 @@ from pathlib import Path
 
 from modules.console import console
 from modules.context import context
-from modules.files import save_pk3
+from modules.files import save_pk3, make_string_safe_for_file_name
 from modules.gui.desktop_notification import desktop_notification
 from modules.modes import BattleAction
 from modules.pokedex import get_pokedex
@@ -195,7 +195,7 @@ def handle_encounter(
         desktop_notification(title=alert[0], message=alert[1], icon=alert_icon)
 
     if is_of_interest:
-        filename_suffix = f"{encounter_value.name}_{pokemon.species.safe_name}"
+        filename_suffix = f"{encounter_value.name}_{make_string_safe_for_file_name(pokemon.species_name_for_stats)}"
         context.emulator.create_save_state(suffix=filename_suffix)
 
         if context.config.battle.auto_catch and not disable_auto_catch:
