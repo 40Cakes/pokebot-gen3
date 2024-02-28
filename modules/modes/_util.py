@@ -18,7 +18,7 @@ from typing import Generator, Iterable, Union
 from modules.context import context
 from modules.files import get_rng_state_history, save_rng_state_history
 from modules.items import Item, ItemPocket, get_item_bag, get_item_by_name
-from modules.map import MapLocation, get_map_all_tiles, get_map_data, get_map_objects
+from modules.map import MapLocation, get_map_all_tiles, get_map_data, get_map_objects, get_player_map_object
 from modules.memory import (
     GameState,
     get_event_flag,
@@ -33,7 +33,15 @@ from modules.memory import (
 )
 from modules.menu_parsers import CursorOptionEmerald, CursorOptionFRLG, CursorOptionRS
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator, scroll_to_item_in_bag as real_scroll_to_item
-from modules.player import RunningState, AcroBikeState, TileTransitionState, get_player, get_player_avatar
+from modules.player import (
+    RunningState,
+    AcroBikeState,
+    TileTransitionState,
+    get_player,
+    get_player_avatar,
+    player_avatar_is_controllable,
+    player_avatar_is_standing_still,
+)
 from modules.pokemon import get_party
 from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE, get_map_cursor, get_map_region
 from modules.tasks import get_global_script_context, get_task, task_is_active
@@ -102,14 +110,14 @@ def follow_path(waypoints: Iterable[tuple[int, int]], run: bool = True) -> Gener
         raise RuntimeError("The game is currently not in the overworld. Cannot navigate.")
 
     # Make sure that the player avatar can actually be controlled/moved right now.
-    if "heldMovementActive" not in get_map_objects()[0].flags:
+    if not player_avatar_is_controllable():
         raise RuntimeError("The player avatar is currently not controllable. Cannot navigate.")
 
     for waypoint in waypoints:
         yield from walk_to(waypoint, run)
 
     # Wait for player to come to a full stop.
-    while get_player_avatar().running_state != RunningState.NOT_MOVING:
+    while not player_avatar_is_standing_still() or get_player_avatar().running_state != RunningState.NOT_MOVING:
         yield
 
 
@@ -243,6 +251,7 @@ def navigate_to(x: int, y: int, run: bool = True) -> Generator:
             yield
 
     context.emulator.reset_held_buttons()
+    yield from wait_for_player_avatar_to_be_controllable()
 
 
 def walk_one_tile(direction: str, run: bool = True) -> Generator:
@@ -273,8 +282,7 @@ def walk_one_tile(direction: str, run: bool = True) -> Generator:
 
     # Wait for player to come to a full stop.
     while (
-        get_game_state() != GameState.OVERWORLD
-        or "heldMovementFinished" not in get_map_objects()[0].flags
+        not player_avatar_is_standing_still()
         or get_player_avatar().running_state != RunningState.NOT_MOVING
         or get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING
     ):
@@ -341,10 +349,23 @@ def soft_reset(mash_random_keys: bool = True) -> Generator:
                         context.emulator.press_button("B")
                         yield
                     yield from wait_for_task_to_start_and_finish("Task_EndQuestLog", "B")
-                while "heldMovementActive" not in get_map_objects()[0].flags:
-                    yield
+                yield from wait_for_player_avatar_to_be_controllable()
                 return
 
+        yield
+
+
+def wait_for_player_avatar_to_be_controllable(button_to_press: str | None = None) -> Generator:
+    while not player_avatar_is_controllable():
+        if button_to_press is not None:
+            context.emulator.press_button(button_to_press)
+        yield
+
+
+def wait_for_player_avatar_to_be_standing_still(button_to_press: str | None = None) -> Generator:
+    while not player_avatar_is_standing_still():
+        if button_to_press is not None:
+            context.emulator.press_button(button_to_press)
         yield
 
 

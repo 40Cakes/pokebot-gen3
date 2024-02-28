@@ -17,6 +17,7 @@ from ._util import (
     follow_path,
     navigate_to,
     soft_reset,
+    wait_for_player_avatar_to_be_controllable,
     wait_for_script_to_start_and_finish,
     wait_for_task_to_start_and_finish,
     wait_for_unique_rng_value,
@@ -165,6 +166,7 @@ class StaticGiftResetsMode(BotMode):
                     context.emulator.press_button("B")
                     yield
                 while egg_in_party() > 0:
+                    yield from wait_for_player_avatar_to_be_controllable()
                     yield from hatch_egg()
 
             # Navigate to the summary screen to check for shininess

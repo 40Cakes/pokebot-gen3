@@ -17,6 +17,7 @@ from ._util import (
     follow_path,
     navigate_to,
     register_key_item,
+    wait_for_player_avatar_to_be_controllable,
     wait_for_n_frames,
     wait_for_task_to_start_and_finish,
     wait_until_task_is_active,
@@ -256,9 +257,7 @@ class DaycareMode(BotMode):
                     yield from wait_for_n_frames(20)
 
             # Leave daycare
-            while get_game_state() != GameState.OVERWORLD or "heldMovementActive" not in get_map_objects()[0].flags:
-                context.emulator.press_button("B")
-                yield
+            yield from wait_for_player_avatar_to_be_controllable("B")
 
             yield from navigate_to(*daycare_exit)
             yield from walk_one_tile("Down")
