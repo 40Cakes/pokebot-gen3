@@ -3,7 +3,7 @@ import signal
 from modules.battle import BattleHandler, BattleOutcome, RotatePokemon, check_lead_can_battle, flee_battle
 from modules.context import context
 from modules.encounter import handle_encounter
-from modules.map import get_map_objects
+from modules.map import get_map_objects, get_map_data_for_current_position
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_game_state, get_game_state_symbol, read_symbol, unpack_uint32
 from modules.menuing import CheckForPickup, MenuWrapper, should_check_for_pickup
@@ -99,7 +99,8 @@ class BattleListener(BotListener):
 
     def _wait_until_battle_is_over(self):
         while self._in_battle:
-            context.emulator.press_button("B")
+            if get_game_state() != GameState.OVERWORLD or get_map_data_for_current_position().map_type != "Underwater":
+                context.emulator.press_button("B")
             yield
 
     @isolate_inputs
