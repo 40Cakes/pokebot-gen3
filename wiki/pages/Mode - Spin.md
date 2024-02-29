@@ -10,13 +10,15 @@ Start the mode while in the overworld, in any patch of grass/water/cave with enc
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
-| Japanese |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| German   |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| Spanish  |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| French   |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| Italian  |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
+| Japanese |    ❌    |      ❌      |     ✅¹      |     ❌      |      ❌       |
+| German   |    ❌    |      ❌      |     ✅¹      |     ❌      |      ❌       |
+| Spanish  |    ❌    |      ❌      |     ✅¹      |     ❌      |      ❌       |
+| French   |    ❌    |      ❌      |     ✅¹      |     ❌      |      ❌       |
+| Italian  |    ❌    |      ❌      |     ✅¹      |     ❌      |      ❌       |
 
 ✅ Tested, working
+
+¹ Auto Battle mode not working
 
 🟨 Untested, may not work
 
