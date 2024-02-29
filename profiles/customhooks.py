@@ -275,7 +275,10 @@ def custom_hooks(hook) -> None:
                         f"{pokemon.species.name} Phase Encounters": f"{stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,}",
                     }
                     | phase_summary(),
-                    embed_thumbnail=get_sprites_path() / "pokemon" / "anti-shiny" / f"{pokemon.species_name_for_stats}.png",
+                    embed_thumbnail=get_sprites_path()
+                    / "pokemon"
+                    / "anti-shiny"
+                    / f"{pokemon.species_name_for_stats}.png",
                     embed_color="000000",
                 )
         except Exception:
