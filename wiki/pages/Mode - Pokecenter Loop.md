@@ -10,6 +10,18 @@
 
 Start this mode while being on Route 102 (in E) or Route 2 (FR/LG), the bot will automatically go to the Pokécenter and heal, return to the route untill it runs from battle and then repeat.
 
+## FireRed and LeafGreen
+
+Start the bot here for the Route 2 to Pewter City loop
+
+![image](../images/pokecenter_loop_r2_pewter_city.png)
+
+## Emerald
+
+Start the bot here for the Route 102 to Petalburg loop
+
+![image](../images/pokecenter_loop_r102_petalburg.png)
+
 ## Game Support
 
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
