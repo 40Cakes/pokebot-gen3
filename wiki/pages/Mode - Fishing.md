@@ -15,11 +15,11 @@ Fishing is a way to use a fishing rod to catch wild Pokémon in the water. Some 
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
-| Japanese |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| German   |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| Spanish  |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| French   |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| Italian  |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
+| Japanese |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| German   |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| Spanish  |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| French   |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| Italian  |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
 
 ✅ Tested, working
 
