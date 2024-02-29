@@ -114,7 +114,10 @@ def custom_hooks(hook) -> None:
                         f"{pokemon.species.name} Phase Encounters": f"{stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,}",
                     }
                     | phase_summary(),
-                    embed_thumbnail=get_sprites_path() / "pokemon" / "shiny" / f"{make_string_safe_for_file_name(pokemon.species_name_for_stats)}.png",
+                    embed_thumbnail=get_sprites_path()
+                    / "pokemon"
+                    / "shiny"
+                    / f"{make_string_safe_for_file_name(pokemon.species_name_for_stats)}.png",
                     embed_color="ffd242",
                     embed_image=gif_path,
                 )
@@ -141,7 +144,10 @@ def custom_hooks(hook) -> None:
                     content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
                     embed_description=f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} {pokemon.species.name} encounters!",
-                    embed_thumbnail=get_sprites_path() / "pokemon" / "normal" / f"{make_string_safe_for_file_name(pokemon.species_name_for_stats)}.png",
+                    embed_thumbnail=get_sprites_path()
+                    / "pokemon"
+                    / "normal"
+                    / f"{make_string_safe_for_file_name(pokemon.species_name_for_stats)}.png",
                     embed_color="50C878",
                 )
         except Exception:
@@ -168,7 +174,10 @@ def custom_hooks(hook) -> None:
                     content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
                     embed_description=f"{stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,} shiny ✨ {pokemon.species.name} ✨ encounters!",
-                    embed_thumbnail=get_sprites_path() / "pokemon" / "shiny" / f"{make_string_safe_for_file_name(pokemon.species_name_for_stats)}.png",
+                    embed_thumbnail=get_sprites_path()
+                    / "pokemon"
+                    / "shiny"
+                    / f"{make_string_safe_for_file_name(pokemon.species_name_for_stats)}.png",
                     embed_color="ffd242",
                 )
         except Exception:
@@ -310,7 +319,10 @@ def custom_hooks(hook) -> None:
                         f"{pokemon.species.name} Phase Encounters": f"{stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,}",
                     }
                     | phase_summary(),
-                    embed_thumbnail=get_sprites_path() / "pokemon" / "normal" / f"{make_string_safe_for_file_name(pokemon.species_name_for_stats)}.png",
+                    embed_thumbnail=get_sprites_path()
+                    / "pokemon"
+                    / "normal"
+                    / f"{make_string_safe_for_file_name(pokemon.species_name_for_stats)}.png",
                     embed_color="6a89cc",
                     embed_image=gif_path,
                 )
