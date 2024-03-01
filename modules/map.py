@@ -1601,10 +1601,12 @@ class ObjectEventTemplate:
             return f"Entity at {self.local_coordinates}"
 
 
-def get_map_data_for_current_position() -> MapLocation:
+def get_map_data_for_current_position() -> MapLocation | None:
     from modules.player import get_player_avatar
 
     player = get_player_avatar()
+    if player is None:
+        return None
 
     map_group, map_number = player.map_group_and_number
     return MapLocation(read_symbol("gMapHeader"), map_group, map_number, player.local_coordinates)
