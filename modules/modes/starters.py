@@ -46,7 +46,7 @@ def run_frlg() -> Generator:
         # Spam 'A' until we see the summary screen
         yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")
 
-        handle_encounter(get_party()[0], disable_auto_catch=True)
+        handle_encounter(get_party()[0], disable_auto_catch=True, do_not_log_battle_action=True)
 
 
 def run_rse_hoenn() -> Generator:
@@ -132,7 +132,7 @@ def run_rse_johto():
         yield from StartMenuNavigator("POKEMON").step()
         yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
 
-        handle_encounter(get_party()[len(get_party()) - 1], disable_auto_catch=True)
+        handle_encounter(get_party()[len(get_party()) - 1], disable_auto_catch=True, do_not_log_battle_action=True)
 
 
 class StartersMode(BotMode):
