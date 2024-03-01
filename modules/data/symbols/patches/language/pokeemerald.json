@@ -208,11 +208,11 @@
       "S":"81c136c"
     },
     "Task_BagMenu_HandleInput":{
-      "D":"81c1274",
-      "F":"82e3bb7",
-      "I":"81c1254",
-      "J":"81c1080",
-      "S":"81c136c"
+      "D":"81ab848",
+      "F":"81ab968",
+      "I":"81ab834",
+      "J":"81abab4",
+      "S":"81ab940"
     },
     "TASK_PRINTANDWAITFORTEXT":{
       "D":"81b16b4",
@@ -289,6 +289,12 @@
     },
     "sMenu":{
       "J":"203ca5c"
+    },
+    "sMonSummaryScreen":{
+      "J":"203cbe8"
+    },
+    "gMoveToLearn":{
+      "J":"2024186"
     },
     "gPartyMenu":{
       "J":"203cb94"
