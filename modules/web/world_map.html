@@ -15,14 +15,40 @@
 <body>
 <p id="loading_message">Loading&hellip;</p>
 <canvas id="map"></canvas>
+<div id="label_container"></div>
 
 <style>
     html, body {
         margin: 0;
         padding: 0;
+        background-color: #333;
+        color: #fff;
     }
     p {
         padding: .25rem 1rem;
+    }
+    #label_container {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    div.label {
+        opacity: 0;
+        background-color: rgba(85, 85, 85, .2);
+        border: 3px #555 solid;
+        box-sizing: border-box;
+    }
+    div.label span {
+        background-color: #555;
+        padding: 2px 5px;
+
+        font-family: monospace;
+        color: #fff;
+        font-size: 16px;
+        font-weight: bold;
+    }
+    div.label:hover {
+        opacity: 1;
     }
 </style>
 
@@ -62,6 +88,12 @@
          * @type {HTMLParagraphElement}
          */
         const loadingMessage = document.getElementById("loading_message");
+
+        /**
+         * @type {HTMLDivElement}
+         */
+        const labelContainer = document.getElementById("label_container");
+        labelContainer.innerHTML = "";
 
         const response                 = await fetch(`/map`);
         const activeMapData            = await response.json();
@@ -143,10 +175,12 @@
                     ) {
                         colour = "red";
                     } else if (tile.type.includes("Water") || tile.type.includes("Current")) {
-                        if (tile.has_encounters) {
-                            colour = "#08F";
+                        if (tile.collision) {
+                            colour = "#000";
                         } else if (tile.type.includes("Deep Water")) {
                             colour = "#05B";
+                        } else if (tile.has_encounters) {
+                            colour = "#08F";
                         } else {
                             colour = "#0FF";
                         }
@@ -156,12 +190,18 @@
                         colour = "#a50";
                     } else if (tile.collision) {
                         colour = "#000";
+                    } else if (tile.has_encounters && map.map.type === "Underwater") {
+                        colour = "#95a";
+                    } else if (tile.has_encounters && map.map.type === "Underground") {
+                        colour = "#8f897b";
                     } else if (tile.has_encounters) {
                         colour = "#080";
                     } else if (tile.type === "Sand") {
                         colour = "#ffd";
                     } else if (tile.type === "Deep Sand") {
                         colour = "#ffb";
+                    } else if (map.map.type === "Underwater") {
+                        colour = "#dae";
                     } else {
                         colour = "#dfb";
                     }
@@ -183,6 +223,20 @@
                         TILE_SIZE
                     );
                 }
+
+                const label = document.createElement("div");
+                label.className = "label";
+                label.style.position = "absolute";
+                label.style.left = ((map.offset[0] - lowestX) * TILE_SIZE) + "px";
+                label.style.top = ((map.offset[1] - lowestY) * TILE_SIZE) + "px";
+                label.style.width = (map.map.size[0] * TILE_SIZE) + "px";
+                label.style.height = (map.map.size[1] * TILE_SIZE) + "px";
+
+                const labelSpan = document.createElement("span");
+                labelSpan.innerText = map.map.name;
+                label.append(labelSpan);
+
+                labelContainer.append(label);
             }
         }
 

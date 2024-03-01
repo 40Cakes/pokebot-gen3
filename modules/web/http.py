@@ -298,7 +298,7 @@ def http_server() -> None:
         except ValueError:
             return Response(f"No such map: {map_group}, {map_number}", status=404)
 
-        map_data = get_map_data(map_group, map_number, local_position=(0, 0))
+        map_data = get_map_data((map_group, map_number), local_position=(0, 0))
         return jsonify(
             {
                 "map": map_data.dict_for_map(),

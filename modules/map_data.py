@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Generator
 
 from modules.map import MapLocation
 
@@ -592,6 +593,23 @@ class MapFRLG(Enum):
             return item.map_group == self.value[0] and item.map_number == self.value[1]
         else:
             return NotImplemented
+
+    def __getitem__(self, item) -> int:
+        if item == 0:
+            return self.value[0]
+        elif item == 1:
+            return self.value[1]
+        elif isinstance(item, int):
+            raise KeyError(f"Object does not have an item with key '{item}'.")
+        else:
+            raise TypeError(f"Object only has items of type int.")
+
+    def __len__(self) -> int:
+        return 2
+
+    def __iter__(self) -> Generator:
+        yield self.value[0]
+        yield self.value[1]
 
 
 class MapGroupRSE(Enum):
@@ -1245,3 +1263,20 @@ class MapRSE(Enum):
             return item.map_group == self.value[0] and item.map_number == self.value[1]
         else:
             return NotImplemented
+
+    def __getitem__(self, item) -> int:
+        if item == 0:
+            return self.value[0]
+        elif item == 1:
+            return self.value[1]
+        elif isinstance(item, int):
+            raise KeyError(f"Object does not have an item with key '{item}'.")
+        else:
+            raise TypeError(f"Object only has items of type int.")
+
+    def __len__(self) -> int:
+        return 2
+
+    def __iter__(self) -> Generator:
+        yield self.value[0]
+        yield self.value[1]

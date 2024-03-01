@@ -270,3 +270,14 @@ def get_event_var(var_name: str) -> int:
         return -1
     else:
         return unpack_uint16(get_save_block(1, offset=_event_vars[var_name], size=2))
+
+
+def get_event_var_by_number(var_number: int) -> int:
+    if context.rom.is_rs:
+        vars_offset = 0x1340
+    elif context.rom.is_emerald:
+        vars_offset = 0x139C
+    else:
+        vars_offset = 0x1000
+
+    return unpack_uint16(get_save_block(1, offset=vars_offset + (var_number * 2), size=2))

@@ -13,7 +13,7 @@ from ._asserts import assert_has_pokemon_with_move, assert_no_auto_battle, asser
 from ._interface import BotMode, BotModeError
 from ._util import (
     follow_path,
-    navigate_to,
+    deprecated_navigate_to_on_current_map,
     wait_for_player_avatar_to_be_controllable,
     wait_for_n_frames,
     wait_for_script_to_start_and_finish,
@@ -85,7 +85,7 @@ class PuzzleSolverMode(BotMode):
                     yield from use_party_hm_move("Rock Smash")
                     yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
                     yield from wait_for_n_frames(180)
-                    yield from navigate_to(6, 6)
+                    yield from deprecated_navigate_to_on_current_map(6, 6)
                     if get_player_avatar().local_coordinates == (6, 6):
                         context.message = "Mirage Tower puzzle complete!"
                         context.bot_mode = "Manual"
@@ -121,9 +121,9 @@ class PuzzleSolverMode(BotMode):
                         yield
                     yield from follow_path([(11, 8), (11, 12), (3, 12), (3, 4), (6, 4), (8, 4), (7, 4), (7, 2)])
                     yield from walk_one_tile("Up")
-                    yield from navigate_to(7, 2)
+                    yield from deprecated_navigate_to_on_current_map(7, 2)
                     yield from walk_one_tile("Up")
-                    yield from navigate_to(3, 2)
+                    yield from deprecated_navigate_to_on_current_map(3, 2)
                     yield from walk_one_tile("Up")
                     # floor 5
                     yield from follow_path(
@@ -152,7 +152,7 @@ class PuzzleSolverMode(BotMode):
                 context.message = "Solving Regirock Puzzle..."
 
                 def path():
-                    yield from navigate_to(8, 21)
+                    yield from deprecated_navigate_to_on_current_map(8, 21)
                     context.emulator.press_button("A")
                     yield from wait_for_n_frames(5)
                     context.emulator.press_button("B")
@@ -169,7 +169,7 @@ class PuzzleSolverMode(BotMode):
                             context.message = "Regirock puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
-                            yield from navigate_to(8, 29)
+                            yield from deprecated_navigate_to_on_current_map(8, 29)
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
                     if context.rom.is_rs:
@@ -180,13 +180,13 @@ class PuzzleSolverMode(BotMode):
                         yield from follow_path([(10, 21), (10, 23)])
                         yield from use_party_hm_move("Strength")
                         yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry")
-                        yield from navigate_to(8, 21)
+                        yield from deprecated_navigate_to_on_current_map(8, 21)
                         yield from walk_one_tile("Up")
                         if get_player_avatar().local_coordinates == (8, 11):
                             context.message = "Regirock puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
-                            yield from navigate_to(8, 29)
+                            yield from deprecated_navigate_to_on_current_map(8, 29)
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
 
@@ -195,7 +195,7 @@ class PuzzleSolverMode(BotMode):
                 context.message = "Solving Regice Puzzle..."
 
                 def path():
-                    yield from navigate_to(8, 21)
+                    yield from deprecated_navigate_to_on_current_map(8, 21)
                     context.emulator.press_button("A")
                     yield from wait_for_n_frames(5)
                     context.emulator.press_button("B")
@@ -222,7 +222,7 @@ class PuzzleSolverMode(BotMode):
                             context.message = "Regice puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
-                            yield from navigate_to(8, 29)
+                            yield from deprecated_navigate_to_on_current_map(8, 29)
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
                     if context.rom.is_rs:
@@ -233,7 +233,7 @@ class PuzzleSolverMode(BotMode):
                             context.message = "Regice puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
-                            yield from navigate_to(8, 29)
+                            yield from deprecated_navigate_to_on_current_map(8, 29)
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
 
@@ -242,21 +242,21 @@ class PuzzleSolverMode(BotMode):
                 context.message = "Solving Registeel Puzzle..."
 
                 def path():
-                    yield from navigate_to(8, 21)
+                    yield from deprecated_navigate_to_on_current_map(8, 21)
                     context.emulator.press_button("A")
                     yield from wait_for_n_frames(5)
                     context.emulator.press_button("B")
                     if context.rom.is_emerald:
                         assert_has_pokemon_with_move("Flash", "Registeel Puzzle (Emerald) requires Pokémon with Flash.")
                         context.message = "Using Flash..."
-                        yield from navigate_to(8, 25)
+                        yield from deprecated_navigate_to_on_current_map(8, 25)
                         yield from use_party_hm_move("Flash")
                         yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
                         if get_event_flag("SYS_REGISTEEL_PUZZLE_COMPLETED"):
                             context.message = "Registeel puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
-                            yield from navigate_to(8, 29)
+                            yield from deprecated_navigate_to_on_current_map(8, 29)
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
 
@@ -264,16 +264,16 @@ class PuzzleSolverMode(BotMode):
                         assert_has_pokemon_with_move(
                             "Fly", "Regirock Puzzle (Ruby/Sapphire) requires Pokémon with Fly."
                         )
-                        yield from navigate_to(8, 25)
+                        yield from deprecated_navigate_to_on_current_map(8, 25)
                         yield from use_party_hm_move("Fly")
                         yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry")
-                        yield from navigate_to(8, 21)
+                        yield from deprecated_navigate_to_on_current_map(8, 21)
                         yield from walk_one_tile("Up")
                         if get_player_avatar().local_coordinates == (8, 11):
                             context.message = "Registeel puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
-                            yield from navigate_to(8, 29)
+                            yield from deprecated_navigate_to_on_current_map(8, 29)
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
 
@@ -282,9 +282,9 @@ class PuzzleSolverMode(BotMode):
                 context.message = "Solving Deoxys Puzzle..."
 
                 def path():
-                    yield from navigate_to(15, 13)
+                    yield from deprecated_navigate_to_on_current_map(15, 13)
                     context.emulator.press_button("A")
-                    yield from navigate_to(11, 13)
+                    yield from deprecated_navigate_to_on_current_map(11, 13)
                     context.emulator.press_button("Down")
                     yield
                     context.emulator.press_button("A")
@@ -294,15 +294,15 @@ class PuzzleSolverMode(BotMode):
                     context.emulator.press_button("A")
                     yield from follow_path([(19, 11), (13, 11)])
                     context.emulator.press_button("A")
-                    yield from navigate_to(17, 11)
+                    yield from deprecated_navigate_to_on_current_map(17, 11)
                     context.emulator.press_button("A")
                     yield from follow_path([(15, 11), (15, 13)])
                     context.emulator.press_button("A")
                     yield from follow_path([(15, 14), (12, 14)])
                     context.emulator.press_button("A")
-                    yield from navigate_to(18, 14)
+                    yield from deprecated_navigate_to_on_current_map(18, 14)
                     context.emulator.press_button("A")
-                    yield from navigate_to(15, 14)
+                    yield from deprecated_navigate_to_on_current_map(15, 14)
                     context.emulator.press_button("Down")
                     yield
                     context.emulator.press_button("A")
@@ -312,7 +312,7 @@ class PuzzleSolverMode(BotMode):
                         context.message = "Deoxys puzzle complete!"
                         context.bot_mode = "Manual"
                     else:
-                        yield from navigate_to(15, 24)
+                        yield from deprecated_navigate_to_on_current_map(15, 24)
                         yield from walk_one_tile("Down")
                         yield from walk_one_tile("Up")
 
@@ -321,8 +321,8 @@ class PuzzleSolverMode(BotMode):
                 context.message = "Solving Tanoby Key..."
 
                 def path():
-                    yield from navigate_to(7, 8)
-                    yield from navigate_to(7, 7)
+                    yield from deprecated_navigate_to_on_current_map(7, 8)
+                    yield from deprecated_navigate_to_on_current_map(7, 7)
                     yield from use_party_hm_move("Strength")
                     yield from wait_for_script_to_start_and_finish("EventScript_UseStrength", "B")
                     yield from walk_one_tile("Up")
@@ -380,7 +380,7 @@ class PuzzleSolverMode(BotMode):
                         context.message = "Tanoby Key puzzle complete!"
                         context.bot_mode = "Manual"
                     else:
-                        yield from navigate_to(7, 13)
+                        yield from deprecated_navigate_to_on_current_map(7, 13)
                         yield from walk_one_tile("Down")
                         yield from walk_one_tile("Up")
 

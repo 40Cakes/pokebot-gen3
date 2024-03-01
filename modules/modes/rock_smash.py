@@ -21,7 +21,7 @@ from ._util import (
     apply_white_flute_if_available,
     ensure_facing_direction,
     follow_path,
-    navigate_to,
+    deprecated_navigate_to_on_current_map,
     replenish_repel,
     soft_reset,
     wait_for_player_avatar_to_be_standing_still,
@@ -152,11 +152,11 @@ class RockSmashMode(BotMode):
                             break
                 case MapRSE.SAFARI_ZONE_SOUTH:
                     self._in_safari_zone = True
-                    yield from navigate_to(39, 16)
+                    yield from deprecated_navigate_to_on_current_map(39, 16)
                     yield from walk_one_tile("Right")
                 case MapRSE.SAFARI_ZONE_SOUTHEAST:
                     self._in_safari_zone = True
-                    yield from navigate_to(8, 0)
+                    yield from deprecated_navigate_to_on_current_map(8, 0)
                     yield from walk_one_tile("Up")
 
     @staticmethod
@@ -182,7 +182,7 @@ class RockSmashMode(BotMode):
         if self._using_repel and get_event_var("REPEL_STEP_COUNT") <= 0:
             with contextlib.suppress(RanOutOfRepels):
                 yield from apply_repel()
-        yield from navigate_to(6, 21)
+        yield from deprecated_navigate_to_on_current_map(6, 21)
         yield from ensure_facing_direction("Down")
         # With Repel active, White Flute boosts encounters by 30-40%, but without Repel it
         # actually _decreases_ encounter rates (due to so many regular encounters popping up
@@ -213,7 +213,7 @@ class RockSmashMode(BotMode):
         yield from ensure_facing_direction("Up")
         yield from self.smash("TEMP_14")
 
-        yield from navigate_to(29, 14)
+        yield from deprecated_navigate_to_on_current_map(29, 14)
         yield from walk_one_tile("Up")
         yield from walk_one_tile("Up")
         yield from walk_one_tile("Down")
@@ -245,7 +245,7 @@ class RockSmashMode(BotMode):
         yield from ensure_facing_direction("Down")
         yield from self.smash("TEMP_16")
 
-        yield from navigate_to(28, 20)
+        yield from deprecated_navigate_to_on_current_map(28, 20)
         yield from walk_one_tile("Down")
         yield from walk_one_tile("Down")
         yield from walk_one_tile("Up")
@@ -253,7 +253,7 @@ class RockSmashMode(BotMode):
     def enter_safari_zone(self):
         if get_player().money < 500:
             raise BotModeError("You do not have enough cash to re-enter the Safari Zone.")
-        yield from navigate_to(9, 4)
+        yield from deprecated_navigate_to_on_current_map(9, 4)
         yield from ensure_facing_direction("Left")
         context.emulator.hold_button("Left")
         for _ in range(10):
@@ -273,7 +273,7 @@ class RockSmashMode(BotMode):
             yield
 
     def safari_zone(self):
-        yield from navigate_to(12, 7)
+        yield from deprecated_navigate_to_on_current_map(12, 7)
         yield from ensure_facing_direction("Down")
         yield from self.smash("TEMP_12")
 
@@ -293,6 +293,6 @@ class RockSmashMode(BotMode):
         yield from ensure_facing_direction("Down")
         yield from self.smash("TEMP_13")
 
-        yield from navigate_to(8, 39)
+        yield from deprecated_navigate_to_on_current_map(8, 39)
         yield from walk_one_tile("Down")
         yield from walk_one_tile("Up")

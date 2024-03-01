@@ -15,7 +15,7 @@ from ._util import (
     get_closest_surrounding_tile,
     get_closest_tile,
     get_tile_direction,
-    navigate_to,
+    deprecated_navigate_to_on_current_map,
     register_key_item,
 )
 from ..console import console
@@ -108,7 +108,9 @@ class FeebasMode(BotMode):
 
                 closest_surrounding_tile = get_closest_surrounding_tile(closest_tile)
                 try:
-                    yield from navigate_to(closest_surrounding_tile[0], closest_surrounding_tile[1], run=False)
+                    yield from deprecated_navigate_to_on_current_map(
+                        closest_surrounding_tile[0], closest_surrounding_tile[1], run=False
+                    )
                     yield from ensure_facing_direction(get_tile_direction(closest_tile))
                 except BotModeError:
                     self.checked_tiles.append(closest_tile)

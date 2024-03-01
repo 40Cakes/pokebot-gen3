@@ -5,10 +5,10 @@ from modules.map_data import MapFRLG, MapRSE
 from modules.modes import get_bot_mode_by_name
 from modules.player import get_player_avatar
 from modules.tasks import get_global_script_context
-from ._interface import BotMode, BotModeError
 from ._asserts import assert_auto_battle
+from ._interface import BotMode, BotModeError
 from ._util import (
-    navigate_to,
+    deprecated_navigate_to_on_current_map,
     wait_for_task_to_start_and_finish,
     walk_one_tile,
 )
@@ -50,11 +50,11 @@ class PokecenterLoopMode(BotMode):
 
                     def path():
                         # navigate to Pokecenter
-                        yield from navigate_to(8, 0)
+                        yield from deprecated_navigate_to_on_current_map(8, 0)
                         yield from walk_one_tile("Up")
-                        yield from navigate_to(17, 26)
+                        yield from deprecated_navigate_to_on_current_map(17, 26)
                         yield from walk_one_tile("Up")
-                        yield from navigate_to(7, 4)
+                        yield from deprecated_navigate_to_on_current_map(7, 4)
                         # Healing
                         yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessageBox", "A")
                         yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessageBox", "A")
@@ -63,11 +63,11 @@ class PokecenterLoopMode(BotMode):
                             yield
                         yield
                         # navigate back to route
-                        yield from navigate_to(7, 8)
+                        yield from deprecated_navigate_to_on_current_map(7, 8)
                         yield from walk_one_tile("Down")
-                        yield from navigate_to(20, 39)
+                        yield from deprecated_navigate_to_on_current_map(20, 39)
                         yield from walk_one_tile("Down")
-                        yield from navigate_to(8, 2)
+                        yield from deprecated_navigate_to_on_current_map(8, 2)
 
                 case _:
                     raise BotModeError("You are not on the right map.")
@@ -77,11 +77,11 @@ class PokecenterLoopMode(BotMode):
 
                     def path():
                         # navigate to Pokecenter
-                        yield from navigate_to(0, 7)
+                        yield from deprecated_navigate_to_on_current_map(0, 7)
                         yield from walk_one_tile("Left")
-                        yield from navigate_to(20, 17)
+                        yield from deprecated_navigate_to_on_current_map(20, 17)
                         yield from walk_one_tile("Up")
-                        yield from navigate_to(7, 4)
+                        yield from deprecated_navigate_to_on_current_map(7, 4)
                         # healing
                         yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessage", "A")
                         yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessage", "A")
@@ -90,11 +90,11 @@ class PokecenterLoopMode(BotMode):
                             yield
                         yield
                         # navigate back to route
-                        yield from navigate_to(7, 8)
+                        yield from deprecated_navigate_to_on_current_map(7, 8)
                         yield from walk_one_tile("Down")
-                        yield from navigate_to(29, 17)
+                        yield from deprecated_navigate_to_on_current_map(29, 17)
                         yield from walk_one_tile("Right")
-                        yield from navigate_to(4, 7)
+                        yield from deprecated_navigate_to_on_current_map(4, 7)
 
                 case _:
                     raise BotModeError("You are not on the right map.")

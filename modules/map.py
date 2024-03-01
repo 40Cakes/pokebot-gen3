@@ -6,7 +6,7 @@ from functools import cached_property
 from typing import Literal
 
 from modules.context import context
-from modules.game import decode_string, get_event_flag_name
+from modules.game import decode_string, get_event_flag_name, get_event_var_name
 from modules.memory import get_save_block, get_symbol_name, read_symbol, unpack_uint16, unpack_uint32
 from modules.pokemon import Item, Species, get_item_by_index, get_species_by_index
 
@@ -472,7 +472,7 @@ class MapConnection:
 
     @property
     def destination_map(self) -> "MapLocation":
-        return get_map_data(self.destination_map_group, self.destination_map_number, (0, 0))
+        return get_map_data((self.destination_map_group, self.destination_map_number), (0, 0))
 
     def to_dict(self) -> dict:
         return {
@@ -521,7 +521,7 @@ class MapWarp:
         if map_group == 127 and map_number == 127:
             map_group, map_number, warp_id = get_save_block(1, offset=0x14, size=3)
 
-        destination_map = get_map_data(map_group, map_number, (0, 0))
+        destination_map = get_map_data((map_group, map_number), (0, 0))
 
         # Another special case is when there is no corresponding target warp on the
         # destination map we use _this_ warp's coordinates as the destination.
@@ -562,12 +562,12 @@ class MapCoordEvent:
         return self._data[4]
 
     @property
-    def trigger(self) -> int:
-        return unpack_uint16(self._data[8:10])
+    def trigger_var_number(self) -> int:
+        return unpack_uint16(self._data[6:8]) - 0x4000
 
     @property
-    def index(self) -> int:
-        return unpack_uint16(self._data[10:12])
+    def trigger_value(self) -> int:
+        return unpack_uint16(self._data[8:10])
 
     @property
     def script_pointer(self) -> int:
@@ -581,6 +581,8 @@ class MapCoordEvent:
     def to_dict(self) -> dict:
         return {
             "local_coordinates": self.local_coordinates,
+            "trigger_var": get_event_var_name(self.trigger_var_number),
+            "trigger_value": self.trigger_value,
             "elevation": self.elevation,
             "script": self.script_symbol,
         }
@@ -757,6 +759,10 @@ class MapLocation:
             return None
         else:
             return context.emulator.read_bytes(events_list_pointer, 20)
+
+    @property
+    def map_group_and_number(self) -> tuple[int, int]:
+        return self.map_group, self.map_number
 
     @property
     def map_name(self) -> str:
@@ -1359,6 +1365,10 @@ class ObjectEvent:
         return self._data[10]
 
     @property
+    def map_group_and_number(self) -> tuple[int, int]:
+        return self.map_group, self.map_num
+
+    @property
     def current_elevation(self) -> int:
         return self._data[11] & 0x0F
 
@@ -1536,17 +1546,17 @@ class ObjectEventTemplate:
     @property
     def clone_target_map_group(self) -> int:
         """This only has meaning if `kind` is 'clone' on FRLG."""
-        return unpack_uint16(self._data[12:14])
+        return unpack_uint16(self._data[14:16])
 
     @property
     def clone_target_map_number(self) -> int:
         """This only has meaning if `kind` is 'clone' on FRLG."""
-        return unpack_uint16(self._data[14:16])
+        return unpack_uint16(self._data[12:14])
 
     @property
     def clone_target_map(self) -> MapLocation:
         """This only has meaning if `kind` is 'clone' on FRLG."""
-        return get_map_data(self.clone_target_map_group, self.clone_target_map_number, (0, 0))
+        return get_map_data((self.clone_target_map_group, self.clone_target_map_number), (0, 0))
 
     def to_dict(self) -> dict:
         kind = self.kind
@@ -1600,7 +1610,10 @@ def get_map_data_for_current_position() -> MapLocation:
     return MapLocation(read_symbol("gMapHeader"), map_group, map_number, player.local_coordinates)
 
 
-def get_map_data(map_group: int, map_number: int, local_position: tuple[int, int]) -> MapLocation:
+def get_map_data(
+    map_group_and_number: "tuple[int, int] | MapFRLG | MapRSE", local_position: tuple[int, int]
+) -> MapLocation:
+    map_group, map_number = map_group_and_number
     map_group_pointer = unpack_uint32(read_symbol("gMapGroups", map_group * 4, 4))
     map_number_pointer = unpack_uint32(context.emulator.read_bytes(map_group_pointer + 4 * map_number, 4))
     map_header = context.emulator.read_bytes(map_number_pointer, 0x1C)
@@ -1627,12 +1640,13 @@ def get_player_map_object() -> ObjectEvent | None:
         return None
 
 
-def get_map_all_tiles() -> list[MapLocation]:
-    current_map_data = get_map_data_for_current_position()
-    map_group, map_number = current_map_data.map_group, current_map_data.map_number
-    map_width, map_height = current_map_data.map_size
+def get_map_all_tiles(map_location: MapLocation | None = None) -> list[MapLocation]:
+    if map_location is None:
+        map_location = get_map_data_for_current_position()
+    map_group, map_number = map_location.map_group, map_location.map_number
+    map_width, map_height = map_location.map_size
     return [
-        get_map_data(map_group, map_number, (x, y)) for y, x in itertools.product(range(map_height), range(map_width))
+        get_map_data((map_group, map_number), (x, y)) for y, x in itertools.product(range(map_height), range(map_width))
     ]
 
 

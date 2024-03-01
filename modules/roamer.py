@@ -30,7 +30,7 @@ class Roamer:
 
     @property
     def map_name(self) -> str:
-        return get_map_data(self._location[0], self._location[1], (0, 0)).map_name
+        return get_map_data(self.map_group_and_number, (0, 0)).map_name
 
     @property
     def species(self) -> Species:
@@ -169,7 +169,7 @@ def get_roamer() -> Roamer | None:
 def get_roamer_location_history() -> list[str]:
     data = read_symbol("sLocationHistory")
     return [
-        get_map_data(data[index * 2], data[index * 2 + 1], (0, 0)).map_name
+        get_map_data((data[index * 2], data[index * 2 + 1]), (0, 0)).map_name
         for index in range(3)
         if data[index * 2] != 0 or data[index * 2 + 1] != 0
     ]

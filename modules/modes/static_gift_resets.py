@@ -3,7 +3,9 @@ from typing import Generator
 from modules.console import console
 from modules.context import context
 from modules.encounter import handle_encounter
+from modules.map import get_map_data
 from modules.map_data import MapFRLG, MapRSE
+from modules.map_path import calculate_path
 from modules.memory import get_event_flag
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.player import get_player_avatar
@@ -14,7 +16,7 @@ from ._asserts import (
 )
 from ._interface import BotMode, BotModeError
 from ._util import (
-    follow_path,
+    follow_waypoints,
     navigate_to,
     soft_reset,
     wait_for_player_avatar_to_be_controllable,
@@ -151,14 +153,27 @@ class StaticGiftResetsMode(BotMode):
                 return total_eggs
 
             def hatch_egg() -> Generator:
+                if encounter[2] == "Wynaut":
+                    point_a = get_map_data(MapRSE.LAVARIDGE_TOWN, (2, 9))
+                    point_b = get_map_data(MapRSE.LAVARIDGE_TOWN, (19, 10))
+                elif encounter[2] == "Togepi":
+                    point_a = get_map_data(MapFRLG.FIVE_ISLAND_WATER_LABYRINTH, (15, 9))
+                    point_b = get_map_data(MapFRLG.FIVE_ISLAND_WATER_LABYRINTH, (8, 7))
+                else:
+                    raise BotModeError("Unknown encounter type")
+
+                yield from navigate_to(point_a.map_group_and_number, point_a.local_position)
                 if not get_player_avatar().is_on_bike:
                     context.emulator.press_button("Select")
-                if encounter[2] == "Wynaut":
-                    yield from navigate_to(3, 10)
-                    yield from follow_path([(3, 10), (16, 10)])
-                elif encounter[2] == "Togepi":
-                    yield from navigate_to(17, 9, False)
-                    yield from navigate_to(8, 9, False)
+
+                def hatching_path():
+                    path_to_point_a = calculate_path(point_b, point_a)
+                    path_to_point_b = calculate_path(point_a, point_b)
+                    while True:
+                        yield from path_to_point_b
+                        yield from path_to_point_a
+
+                yield from follow_waypoints(hatching_path())
 
             if encounter[2] in ["Wynaut", "Togepi"]:
                 yield from wait_until_task_is_not_active("Task_Fanfare", "B")
