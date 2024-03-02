@@ -95,7 +95,9 @@ def custom_hooks(hook) -> None:
                         discord_ping = f"📢 <@{context.config.discord.shiny_pokemon_encounter.ping_id}>"
 
                 block = (
-                    "\n❌Skipping catching shiny (on catch block list)!" if pokemon.species_name_for_stats in block_list else ""
+                    "\n❌Skipping catching shiny (on catch block list)!"
+                    if pokemon.species_name_for_stats in block_list
+                    else ""
                 )
 
                 discord_message(
