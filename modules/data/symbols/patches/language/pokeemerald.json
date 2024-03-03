@@ -193,6 +193,48 @@
       "J":"81b1040",
       "S":"81b0f90"
     },
+    "TASK_EVOLUTIONSCENE":{
+      "D":"813e1ac",
+      "F":"813e1cc",
+      "I":"813e19c",
+      "J":"813e638",
+      "S":"813e1a4"
+    },
+    "TASK_HANDLEREPLACEMOVEINPUT":{
+      "D":"81c1274",
+      "F":"82e3bb7",
+      "I":"81c1254",
+      "J":"81c1080",
+      "S":"81c136c"
+    },
+    "Task_BagMenu_HandleInput":{
+      "D":"81ab848",
+      "F":"81ab968",
+      "I":"81ab834",
+      "J":"81abab4",
+      "S":"81ab940"
+    },
+    "TASK_PRINTANDWAITFORTEXT":{
+      "D":"81b16b4",
+      "F":"81b17c8",
+      "I":"81b1694",
+      "J":"81b185c",
+      "S":"81b17ac"
+    },
+    "Task_HandleInput":{
+      "D":"81c0038",
+      "F":"81c014c",
+      "I":"81c0018",
+      "J":"81bfe44",
+      "S":"81c0130"
+    },
+    "TASK_SHOWSTARTMENU":{
+      "D":"809fa50",
+      "F":"809fa48",
+      "I":"809fa48",
+      "J":"809f30c",
+      "S":"809fa48"
+    },
     "TASK_HANDLESELECTIONMENUINPUT":{
       "D":"81b3258",
       "F":"81b336c",
@@ -206,6 +248,13 @@
       "I":"8170b48",
       "J":"8170cd4",
       "S":"8170c58"
+    },
+    "BATTLESCRIPT_ASKTOLEARNMOVE":{
+      "D":"82f0923",
+      "F":"81c1388",
+      "I":"82dbb6f",
+      "J":"828916b",
+      "S":"82e236f"
     },
     "EventScript_TrainerApproach":{
       "D":"827ca57",
@@ -237,6 +286,30 @@
       "D":"8057c00",
       "I":"8057c00",
       "J":"805780c"
+    },
+    "sMenu":{
+      "J":"203ca5c"
+    },
+    "sMonSummaryScreen":{
+      "J":"203cbe8"
+    },
+    "gMoveToLearn":{
+      "J":"2024186"
+    },
+    "gPartyMenu":{
+      "J":"203cb94"
+    },
+    "sPartyMenuInternal":{
+      "J":"203cb90"
+    },
+    "sStartMenuCursorPos":{
+      "J":"20372ae"
+    },
+    "sNumStartMenuActions":{
+      "J":"20372af"
+    },
+    "sCurrentStartMenuActions":{
+      "J":"20372b0"
     },
     "GMAIN":{
       "J":"3002360"
@@ -288,6 +361,9 @@
     },
     "gBattlersCount":{
       "J":"2023d10"
+    },
+    "gBattlescriptCurrInstr":{
+      "J":"2023eb8"
     },
     "gRngValue":{
       "J":"3005ae0"
