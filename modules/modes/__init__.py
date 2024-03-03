@@ -30,7 +30,6 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .static_run_away import StaticRunAway
         from .static_gift_resets import StaticGiftResetsMode
         from .static_soft_resets import StaticSoftResetsMode
-        from .random import RandomMode
         from .pokecenterloop import PokecenterLoopMode
 
         _bot_modes = [
@@ -42,7 +41,6 @@ def get_bot_modes() -> list[Type[BotMode]]:
             KecleonMode,
             NuggetBridgeMode,
             PuzzleSolverMode,
-            RandomMode,
             RoamerResetMode,
             RockSmashMode,
             SpinMode,
