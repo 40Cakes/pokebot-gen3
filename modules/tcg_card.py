@@ -105,7 +105,7 @@ def generate_tcg_card(pokemon: Pokemon, location: str = "") -> Path | None:
                 card.paste(shiny, (567, 55), mask=shiny)
 
             # Name text
-            draw = draw_text(draw, text=pokemon.species.name, coords=(192, 78), size=30, anchor="mm")
+            draw = draw_text(draw, text=pokemon.species_name_for_stats, coords=(192, 78), size=30, anchor="mm")
 
             # Nat dex number
             draw = draw_text(
@@ -203,7 +203,13 @@ def generate_tcg_card(pokemon: Pokemon, location: str = "") -> Path | None:
 
             # Encounter sprite
             sprite_type = "shiny" if pokemon.is_shiny else "normal"
-            sprite = Image.open(get_sprites_path() / "pokemon" / sprite_type / f"{pokemon.species.name}.png")
+            species_name_escaped = (
+                pokemon.species_name_for_stats.replace("♀", "_f")
+                .replace("♂", "_m")
+                .replace("!", "em")
+                .replace("?", "qm")
+            )
+            sprite = Image.open(get_sprites_path() / "pokemon" / sprite_type / f"{species_name_escaped}.png")
             card.paste(
                 sprite,
                 (int(425 - (sprite.width / 2)), int(250 - (sprite.height - (sprite.height - sprite.getbbox()[3])))),
