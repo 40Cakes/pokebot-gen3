@@ -4,6 +4,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 from modules.context import context
+from modules.files import make_string_safe_for_file_name
 from modules.player import get_player, get_player_avatar
 from modules.pokemon import Pokemon
 from modules.runtime import get_sprites_path
@@ -203,13 +204,8 @@ def generate_tcg_card(pokemon: Pokemon, location: str = "") -> Path | None:
 
             # Encounter sprite
             sprite_type = "shiny" if pokemon.is_shiny else "normal"
-            species_name_escaped = (
-                pokemon.species_name_for_stats.replace("♀", "_f")
-                .replace("♂", "_m")
-                .replace("!", "em")
-                .replace("?", "qm")
-            )
-            sprite = Image.open(get_sprites_path() / "pokemon" / sprite_type / f"{species_name_escaped}.png")
+            species_name_safe = make_string_safe_for_file_name(pokemon.species.name)
+            sprite = Image.open(get_sprites_path() / "pokemon" / sprite_type / f"{species_name_safe}.png")
             card.paste(
                 sprite,
                 (int(425 - (sprite.width / 2)), int(250 - (sprite.height - (sprite.height - sprite.getbbox()[3])))),
