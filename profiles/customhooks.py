@@ -95,23 +95,25 @@ def custom_hooks(hook) -> None:
                         discord_ping = f"📢 <@{context.config.discord.shiny_pokemon_encounter.ping_id}>"
 
                 block = (
-                    "\n❌Skipping catching shiny (on catch block list)!" if pokemon.species.name in block_list else ""
+                    "\n❌Skipping catching shiny (on catch block list)!"
+                    if pokemon.species_name_for_stats in block_list
+                    else ""
                 )
 
                 discord_message(
                     webhook_url=context.config.discord.shiny_pokemon_encounter.webhook_url,
-                    content=f"Encountered a shiny ✨ {pokemon.species.name} ✨! {block}\n{discord_ping}",
+                    content=f"Encountered a shiny ✨ {pokemon.species_name_for_stats} ✨! {block}\n{discord_ping}",
                     embed=True,
                     embed_title="Shiny encountered!",
                     embed_description=(
-                        f"{pokemon.nature.name} {pokemon.species.name} (Lv. {pokemon.level:,}) at {pokemon.location_met}!"
+                        f"{pokemon.nature.name} {pokemon.species_name_for_stats} (Lv. {pokemon.level:,}) at {pokemon.location_met}!"
                     ),
                     embed_fields={
                         "Shiny Value": f"{pokemon.shiny_value:,}",
                         f"IVs ({pokemon.ivs.sum()})": iv_field(),
                         "Held item": pokemon.held_item.name if pokemon.held_item else "None",
-                        f"{pokemon.species.name} Encounters": f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} ({stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,}✨)",
-                        f"{pokemon.species.name} Phase Encounters": f"{stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,}",
+                        f"{pokemon.species_name_for_stats} Encounters": f"{stats['pokemon'][pokemon.species_name_for_stats].get('encounters', 0):,} ({stats['pokemon'][pokemon.species_name_for_stats].get('shiny_encounters', 0):,}✨)",
+                        f"{pokemon.species_name_for_stats} Phase Encounters": f"{stats['pokemon'][pokemon.species_name_for_stats].get('phase_encounters', 0):,}",
                     }
                     | phase_summary(),
                     embed_thumbnail=get_sprites_path()
@@ -128,7 +130,7 @@ def custom_hooks(hook) -> None:
             # Discord Pokémon encounter milestones
             if (
                 context.config.discord.pokemon_encounter_milestones.enable
-                and stats["pokemon"][pokemon.species.name].get("encounters", -1)
+                and stats["pokemon"][pokemon.species_name_for_stats].get("encounters", -1)
                 % context.config.discord.pokemon_encounter_milestones.interval
                 == 0
             ):
@@ -143,7 +145,7 @@ def custom_hooks(hook) -> None:
                     webhook_url=context.config.discord.pokemon_encounter_milestones.webhook_url,
                     content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
-                    embed_description=f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} {pokemon.species.name} encounters!",
+                    embed_description=f"{stats['pokemon'][pokemon.species_name_for_stats].get('encounters', 0):,} {pokemon.species_name_for_stats} encounters!",
                     embed_thumbnail=get_sprites_path()
                     / "pokemon"
                     / "normal"
@@ -158,7 +160,7 @@ def custom_hooks(hook) -> None:
             if (
                 context.config.discord.shiny_pokemon_encounter_milestones.enable
                 and pokemon.is_shiny
-                and stats["pokemon"][pokemon.species.name].get("shiny_encounters", -1)
+                and stats["pokemon"][pokemon.species_name_for_stats].get("shiny_encounters", -1)
                 % context.config.discord.shiny_pokemon_encounter_milestones.interval
                 == 0
             ):
@@ -173,7 +175,7 @@ def custom_hooks(hook) -> None:
                     webhook_url=context.config.discord.shiny_pokemon_encounter_milestones.webhook_url,
                     content=f"🎉 New milestone achieved!\n{discord_ping}",
                     embed=True,
-                    embed_description=f"{stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,} shiny ✨ {pokemon.species.name} ✨ encounters!",
+                    embed_description=f"{stats['pokemon'][pokemon.species_name_for_stats].get('shiny_encounters', 0):,} shiny ✨ {pokemon.species_name_for_stats} ✨ encounters!",
                     embed_thumbnail=get_sprites_path()
                     / "pokemon"
                     / "shiny"
@@ -273,16 +275,16 @@ def custom_hooks(hook) -> None:
                         discord_ping = f"📢 <@{context.config.discord.anti_shiny_pokemon_encounter.ping_id}>"
                 discord_message(
                     webhook_url=context.config.discord.anti_shiny_pokemon_encounter.webhook_url,
-                    content=f"Encountered an anti-shiny 💀 {pokemon.species.name} 💀!\n{discord_ping}",
+                    content=f"Encountered an anti-shiny 💀 {pokemon.species_name_for_stats} 💀!\n{discord_ping}",
                     embed=True,
                     embed_title="Anti-Shiny encountered!",
-                    embed_description=f"{pokemon.nature.name} {pokemon.species.name} (Lv. {pokemon.level:,}) at {pokemon.location_met}!",
+                    embed_description=f"{pokemon.nature.name} {pokemon.species_name_for_stats} (Lv. {pokemon.level:,}) at {pokemon.location_met}!",
                     embed_fields={
                         "Shiny Value": f"{pokemon.shiny_value:,}",
                         f"IVs ({pokemon.ivs.sum()})": iv_field(),
                         "Held item": pokemon.held_item.name if pokemon.held_item else "None",
-                        f"{pokemon.species.name} Encounters": f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} ({stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,}✨)",
-                        f"{pokemon.species.name} Phase Encounters": f"{stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,}",
+                        f"{pokemon.species_name_for_stats} Encounters": f"{stats['pokemon'][pokemon.species_name_for_stats].get('encounters', 0):,} ({stats['pokemon'][pokemon.species_name_for_stats].get('shiny_encounters', 0):,}✨)",
+                        f"{pokemon.species_name_for_stats} Phase Encounters": f"{stats['pokemon'][pokemon.species_name_for_stats].get('phase_encounters', 0):,}",
                     }
                     | phase_summary(),
                     embed_thumbnail=get_sprites_path()
@@ -307,16 +309,16 @@ def custom_hooks(hook) -> None:
 
                 discord_message(
                     webhook_url=context.config.discord.custom_filter_pokemon_encounter.webhook_url,
-                    content=f"Encountered a {pokemon.species.name} matching custom filter: `{custom_filter_result}`!\n{discord_ping}",
+                    content=f"Encountered a {pokemon.species_name_for_stats} matching custom filter: `{custom_filter_result}`!\n{discord_ping}",
                     embed=True,
                     embed_title="Encountered Pokémon matching custom catch filter!",
-                    embed_description=f"{pokemon.nature.name} {pokemon.species.name} (Lv. {pokemon.level:,}) at {pokemon.location_met}!\nMatching custom filter **{custom_filter_result}**",
+                    embed_description=f"{pokemon.nature.name} {pokemon.species_name_for_stats} (Lv. {pokemon.level:,}) at {pokemon.location_met}!\nMatching custom filter **{custom_filter_result}**",
                     embed_fields={
                         "Shiny Value": f"{pokemon.shiny_value:,}",
                         f"IVs ({pokemon.ivs.sum()})": iv_field(),
                         "Held item": pokemon.held_item.name if pokemon.held_item else "None",
-                        f"{pokemon.species.name} Encounters": f"{stats['pokemon'][pokemon.species.name].get('encounters', 0):,} ({stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,}✨)",
-                        f"{pokemon.species.name} Phase Encounters": f"{stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,}",
+                        f"{pokemon.species_name_for_stats} Encounters": f"{stats['pokemon'][pokemon.species_name_for_stats].get('encounters', 0):,} ({stats['pokemon'][pokemon.species_name_for_stats].get('shiny_encounters', 0):,}✨)",
+                        f"{pokemon.species_name_for_stats} Phase Encounters": f"{stats['pokemon'][pokemon.species_name_for_stats].get('phase_encounters', 0):,}",
                     }
                     | phase_summary(),
                     embed_thumbnail=get_sprites_path()
