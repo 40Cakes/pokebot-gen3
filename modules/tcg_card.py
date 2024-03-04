@@ -204,7 +204,7 @@ def generate_tcg_card(pokemon: Pokemon, location: str = "") -> Path | None:
 
             # Encounter sprite
             sprite_type = "shiny" if pokemon.is_shiny else "normal"
-            species_name_safe = make_string_safe_for_file_name(pokemon.species.name)
+            species_name_safe = make_string_safe_for_file_name(pokemon.species_name_for_stats)
             sprite = Image.open(get_sprites_path() / "pokemon" / sprite_type / f"{species_name_safe}.png")
             card.paste(
                 sprite,
