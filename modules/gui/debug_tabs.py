@@ -38,6 +38,8 @@ from modules.memory import (
     get_save_block,
     set_event_flag,
     get_event_flag,
+    set_event_var,
+    get_event_var,
     get_game_state,
     GameState,
 )
@@ -68,6 +70,7 @@ class FancyTreeview:
         column_span=1,
         additional_context_actions: Optional[dict[str, callable]] = None,
         on_highlight: Optional[callable] = None,
+        on_double_click: Optional[callable] = None,
     ):
         if additional_context_actions is None:
             additional_context_actions = {}
@@ -105,12 +108,10 @@ class FancyTreeview:
         self._tv.bind("<Right>", lambda _: root.focus_set())
 
         if on_highlight is not None:
+            self._tv.bind("<ButtonRelease-1>", lambda _: on_highlight(self._tv.item(self._tv.focus())["text"]))
 
-            def handle_selection():
-                selected_item = self._tv.focus()
-                on_highlight(self._tv.item(selected_item)["text"])
-
-            self._tv.bind("<ButtonRelease-1>", handle_selection)
+        if on_double_click is not None:
+            self._tv.bind("<Double-Button-1>", lambda _: on_double_click(self._tv.item(self._tv.focus())["text"]))
 
     def update_data(self, data: dict) -> None:
         found_items = self._update_dict(data, "", "")
@@ -869,11 +870,12 @@ class EventVarsTab(DebugTab):
 
     def __init__(self):
         self._search_phrase = None
+        self._mini_window: tkinter.Toplevel | None = None
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
 
-        context_actions = {"Copy Name": self._copy_name}
+        context_actions = {"Copy Name": self._copy_name, "Change Value": self._change_value}
 
         self._search_phrase = ""
         self._search_field = ttk.Entry(frame)
@@ -881,7 +883,9 @@ class EventVarsTab(DebugTab):
         self._search_field.bind("<FocusIn>", self._handle_focus_in)
         self._search_field.bind("<FocusOut>", self._handle_focus_out)
         self._search_field.bind("<Control-a>", self._handle_ctrl_a)
-        self._tv = FancyTreeview(frame, additional_context_actions=context_actions, height=21, row=1)
+        self._tv = FancyTreeview(
+            frame, additional_context_actions=context_actions, height=21, row=1, on_double_click=self._change_value
+        )
         root.add(frame, text="Vars")
 
     def update(self, emulator: "LibmgbaEmulator"):
@@ -902,10 +906,76 @@ class EventVarsTab(DebugTab):
 
         context.gui.window.after(50, select_all)
 
-    def _copy_name(self, flag: str):
+    def _copy_name(self, var: str):
         import pyperclip3
 
-        pyperclip3.copy(flag)
+        pyperclip3.copy(var)
+
+    def _change_value(self, var: str):
+        current_value = get_event_var(var)
+
+        if self._mini_window is not None:
+            self._mini_window.destroy()
+
+        self._mini_window = tkinter.Toplevel(context.gui.window)
+        self._mini_window.title(f"Change flag value")
+        self._mini_window.geometry("300x100")
+
+        def remove_window(event=None):
+            self._mini_window.destroy()
+            self._mini_window = None
+
+        self._mini_window.protocol("WM_DELETE_WINDOW", remove_window)
+        self._mini_window.rowconfigure(2, weight=1)
+        self._mini_window.columnconfigure(0, weight=1)
+
+        frame = ttk.Frame(self._mini_window, padding=10)
+        frame.grid(row=0, column=0, sticky="WE")
+
+        ttk.Label(frame, text=f"Change value for '{var}'").grid(row=0, column=0, sticky="W")
+        ttk.Label(frame, text=f"(old value: {current_value:,})").grid(row=1, column=0, sticky="W")
+
+        input_var = tkinter.StringVar()
+
+        def select_all(widget: ttk.Entry):
+            widget.select_range(0, "end")
+            widget.icursor("end")
+
+        def handle_enter(*args):
+            value = input_var.get()
+            if not value.isnumeric():
+                error_label.config(text="Value must be numeric.")
+                return
+
+            value_int = int(value)
+            if value_int < 0 or value_int > 2**16 - 1:
+                error_label.config(text=f"Value must be between 0 and {2 ** 16 - 1}.")
+                return
+
+            set_event_var(var, value_int)
+            self._mini_window.after(50, remove_window)
+
+        input = ttk.Entry(frame, textvariable=input_var)
+        input.delete(0, tkinter.END)
+        input.insert(0, str(current_value))
+        input.bind("<Control-a>", lambda e: self._mini_window.after(50, select_all, e.widget))
+        input.bind("<Return>", handle_enter)
+        input.grid(row=2, column=0, sticky="W")
+        input.focus_force()
+
+        error_label = ttk.Label(frame, text="", foreground="red")
+        error_label.grid(row=3, column=0, sticky="W")
+
+        self._mini_window.bind("<FocusOut>", remove_window)
+        self._mini_window.bind("<Escape>", remove_window)
+        self._mini_window.bind("<Control-q>", remove_window)
+
+        self._mini_window.after(50, select_all, input)
+
+        while self._mini_window is not None and self._mini_window.state() != "destroyed":
+            self._mini_window.update_idletasks()
+            self._mini_window.update()
+            time.sleep(1 / 60)
 
     def _get_data(self):
         result = {}
