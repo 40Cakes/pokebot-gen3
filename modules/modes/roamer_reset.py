@@ -19,7 +19,7 @@ from ._util import (
     ensure_facing_direction,
     fly_to,
     follow_path,
-    navigate_to,
+    deprecated_navigate_to_on_current_map,
     replenish_repel,
     soft_reset,
     wait_for_player_avatar_to_be_standing_still,
@@ -144,9 +144,9 @@ class RoamerResetMode(BotMode):
             yield from wait_for_player_avatar_to_be_standing_still()
 
             if get_player().gender == "female":
-                yield from navigate_to(1, 2)
+                yield from deprecated_navigate_to_on_current_map(1, 2)
             else:
-                yield from navigate_to(7, 2)
+                yield from deprecated_navigate_to_on_current_map(7, 2)
 
             yield from walk_one_tile("Up")
 
@@ -164,9 +164,9 @@ class RoamerResetMode(BotMode):
             yield from wait_for_player_avatar_to_be_standing_still()
 
             if get_player().gender == "female":
-                yield from navigate_to(2, 8)
+                yield from deprecated_navigate_to_on_current_map(2, 8)
             else:
-                yield from navigate_to(8, 8)
+                yield from deprecated_navigate_to_on_current_map(8, 8)
 
             yield from walk_one_tile("Down")
 
@@ -181,7 +181,7 @@ class RoamerResetMode(BotMode):
                     yield
                 yield
                 yield
-                yield from navigate_to(6, 12)
+                yield from deprecated_navigate_to_on_current_map(6, 12)
                 yield from walk_one_tile("Down")
 
             # Fly to Slateport City, as the most efficient place to do this seems to be between
@@ -189,7 +189,7 @@ class RoamerResetMode(BotMode):
             yield from fly_to(FlyDestinationRSE.SlateportCity)
 
             # Walk to Slateport's border with Route 110
-            yield from navigate_to(15, 0)
+            yield from deprecated_navigate_to_on_current_map(15, 0)
 
             def inner_loop():
                 if _get_repel_steps_remaining() <= 0:
@@ -234,7 +234,7 @@ class RoamerResetMode(BotMode):
 
             yield from wait_for_player_avatar_to_be_standing_still()
 
-            yield from navigate_to(14, 6)
+            yield from deprecated_navigate_to_on_current_map(14, 6)
             yield from ensure_facing_direction("Right")
 
             yield from wait_until_task_is_active("Task_DrawFieldMessageBox", "A")
@@ -269,7 +269,7 @@ class RoamerResetMode(BotMode):
 
             # Go to the north of the map, just before Route 1 starts
             yield from walk_one_tile("Right")
-            yield from navigate_to(12, 0)
+            yield from deprecated_navigate_to_on_current_map(12, 0)
 
             def inner_loop():
                 if _get_repel_steps_remaining() <= 0:

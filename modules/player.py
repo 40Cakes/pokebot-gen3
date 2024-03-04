@@ -5,6 +5,7 @@ from typing import Literal
 from modules.context import context
 from modules.game import decode_string
 from modules.map import MapLocation, ObjectEvent, calculate_targeted_coords, get_player_map_object
+from modules.map_data import MapFRLG, MapRSE
 from modules.memory import get_save_block, read_symbol, unpack_uint16, unpack_uint32, get_game_state, GameState
 from modules.pokemon import Item, get_item_by_index
 from modules.state_cache import state_cache
@@ -41,6 +42,8 @@ class AcroBikeState(IntEnum):
     STANDING_WHEELIE = 2
     HOPPING_WHEELIE = 3
     MOVING_WHEELIE = 4
+    SIDE_JUMP = 5
+    TURN_JUMP = 6
 
 
 class FacingDirection(Enum):
@@ -267,3 +270,8 @@ def player_avatar_is_controllable() -> bool:
 
 def player_avatar_is_standing_still() -> bool:
     return player_avatar_is_controllable() and "heldMovementFinished" in get_player_map_object().flags
+
+
+def player_is_at(map: tuple[int, int] | MapFRLG | MapRSE, coordinates: tuple[int, int]) -> bool:
+    avatar = get_player_avatar()
+    return avatar.map_group_and_number == map and avatar.local_coordinates == coordinates

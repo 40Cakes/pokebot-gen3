@@ -550,10 +550,12 @@
                     ) {
                         colour = "red";
                     } else if (tile.type.includes("Water") || tile.type.includes("Current")) {
-                        if (tile.has_encounters) {
-                            colour = "#08F";
+                        if (tile.collision) {
+                            colour = "#000";
                         } else if (tile.type.includes("Deep Water")) {
                             colour = "#05B";
+                        } else if (tile.has_encounters) {
+                            colour = "#08F";
                         } else {
                             colour = "#0FF";
                         }
@@ -563,12 +565,20 @@
                         colour = "#a50";
                     } else if (tile.collision) {
                         colour = "#000";
+                    } else if (tile.has_encounters && mapData.map.type === "Underwater") {
+                        colour = "#95a";
+                    } else if (tile.has_encounters && mapData.map.type === "Underground") {
+                        colour = "#8f897b";
                     } else if (tile.has_encounters) {
                         colour = "#080";
                     } else if (tile.type === "Sand") {
                         colour = "#ffd";
                     } else if (tile.type === "Deep Sand") {
                         colour = "#ffb";
+                    } else if (mapData.map.type === "Underwater") {
+                        colour = "#dae";
+                    } else {
+                        colour = "#dfb";
                     }
 
                     if (colour !== null) {

@@ -10,7 +10,7 @@ from modules.pokemon import get_opponent
 from ._interface import BattleAction, BotMode, BotModeError
 from ._util import (
     follow_path,
-    navigate_to,
+    deprecated_navigate_to_on_current_map,
     wait_for_player_avatar_to_be_controllable,
     wait_for_script_to_start_and_finish,
     wait_for_task_to_start_and_finish,
@@ -53,11 +53,11 @@ class StaticRunAway(BotMode):
                 flag_to_check = "CAUGHT_LUGIA"
 
                 def path():
-                    yield from navigate_to(13, 19)
+                    yield from deprecated_navigate_to_on_current_map(13, 19)
                     yield from walk_one_tile("Right")
                     yield from walk_one_tile("Left")
                     yield from walk_one_tile("Right")
-                    yield from navigate_to(11, 14)
+                    yield from deprecated_navigate_to_on_current_map(11, 14)
 
             # Lugia on FR/LG
             case MapFRLG.NAVEL_ROCK_BASE:
@@ -65,11 +65,11 @@ class StaticRunAway(BotMode):
                 flag_to_check = "CAUGHT_LUGIA"
 
                 def path():
-                    yield from navigate_to(12, 20)
+                    yield from deprecated_navigate_to_on_current_map(12, 20)
                     yield from walk_one_tile("Right")
                     yield from walk_one_tile("Left")
                     yield from walk_one_tile("Right")
-                    yield from navigate_to(10, 16)
+                    yield from deprecated_navigate_to_on_current_map(10, 16)
 
             # Ho-Oh on Emerald
             case MapRSE.NAVEL_ROCK_TOP:
@@ -77,11 +77,11 @@ class StaticRunAway(BotMode):
                 flag_to_check = "CAUGHT_HO_OH"
 
                 def path():
-                    yield from navigate_to(12, 20)
+                    yield from deprecated_navigate_to_on_current_map(12, 20)
                     yield from walk_one_tile("Right")
                     yield from walk_one_tile("Left")
                     yield from walk_one_tile("Right")
-                    yield from navigate_to(12, 10)
+                    yield from deprecated_navigate_to_on_current_map(12, 10)
 
             # Ho-Oh on FR/LG
             case MapFRLG.NAVEL_ROCK_SUMMIT:
@@ -89,11 +89,11 @@ class StaticRunAway(BotMode):
                 flag_to_check = "CAUGHT_HO_OH"
 
                 def path():
-                    yield from navigate_to(9, 18)
+                    yield from deprecated_navigate_to_on_current_map(9, 18)
                     yield from walk_one_tile("Right")
                     yield from walk_one_tile("Left")
                     yield from walk_one_tile("Right")
-                    yield from navigate_to(9, 12)
+                    yield from deprecated_navigate_to_on_current_map(9, 12)
 
             # Regice on Emerald
             case MapRSE.ISLAND_CAVE:
@@ -101,10 +101,10 @@ class StaticRunAway(BotMode):
                 flag_to_check = "DEFEATED_REGICE"
 
                 def path():
-                    yield from navigate_to(8, 11)
+                    yield from deprecated_navigate_to_on_current_map(8, 11)
                     yield from walk_one_tile("Down")
                     yield from walk_one_tile("Up")
-                    yield from navigate_to(8, 8)
+                    yield from deprecated_navigate_to_on_current_map(8, 8)
 
             # Registeel on Emerald
             case MapRSE.ANCIENT_TOMB:
@@ -112,10 +112,10 @@ class StaticRunAway(BotMode):
                 flag_to_check = "DEFEATED_REGISTEEL"
 
                 def path():
-                    yield from navigate_to(8, 11)
+                    yield from deprecated_navigate_to_on_current_map(8, 11)
                     yield from walk_one_tile("Down")
                     yield from walk_one_tile("Up")
-                    yield from navigate_to(8, 8)
+                    yield from deprecated_navigate_to_on_current_map(8, 8)
 
             # Regirock on Emerald
             case MapRSE.DESERT_RUINS:
@@ -123,10 +123,10 @@ class StaticRunAway(BotMode):
                 flag_to_check = "DEFEATED_REGIROCK"
 
                 def path():
-                    yield from navigate_to(8, 11)
+                    yield from deprecated_navigate_to_on_current_map(8, 11)
                     yield from walk_one_tile("Down")
                     yield from walk_one_tile("Up")
-                    yield from navigate_to(8, 8)
+                    yield from deprecated_navigate_to_on_current_map(8, 8)
 
             # Lati@s on Emerald
             case MapRSE.SOUTHERN_ISLAND_INTERIOR:
@@ -134,10 +134,10 @@ class StaticRunAway(BotMode):
                 flag_to_check = "DEFEATED_LATIAS_OR_LATIOS"
 
                 def path():
-                    yield from navigate_to(13, 18)
+                    yield from deprecated_navigate_to_on_current_map(13, 18)
                     yield from walk_one_tile("Down")
                     yield from walk_one_tile("Up")
-                    yield from navigate_to(13, 12)
+                    yield from deprecated_navigate_to_on_current_map(13, 12)
                     context.emulator.press_button("A")
                     yield from wait_for_script_to_start_and_finish("Common_EventScript_LegendaryFlewAway", "B")
 
@@ -147,10 +147,10 @@ class StaticRunAway(BotMode):
                 flag_to_check = "DEFEATED_KYOGRE"
 
                 def path():
-                    yield from navigate_to(20, 4)
+                    yield from deprecated_navigate_to_on_current_map(20, 4)
                     yield from walk_one_tile("Down")
                     yield from walk_one_tile("Up")
-                    yield from navigate_to(9, 26)
+                    yield from deprecated_navigate_to_on_current_map(9, 26)
 
             # Groudon in Emerald
             case MapRSE.TERRA_CAVE_END:
@@ -158,10 +158,10 @@ class StaticRunAway(BotMode):
                 flag_to_check = "DEFEATED_GROUDON"
 
                 def path():
-                    yield from navigate_to(5, 4)
+                    yield from deprecated_navigate_to_on_current_map(5, 4)
                     yield from walk_one_tile("Down")
                     yield from walk_one_tile("Up")
-                    yield from navigate_to(17, 26)
+                    yield from deprecated_navigate_to_on_current_map(17, 26)
 
             # Rayquaza on Emerald
             case MapRSE.SKY_PILLAR_TOP:
@@ -169,10 +169,10 @@ class StaticRunAway(BotMode):
                 flag_to_check = "DEFEATED_RAYQUAZA"
 
                 def path():
-                    yield from navigate_to(16, 15)
+                    yield from deprecated_navigate_to_on_current_map(16, 15)
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
-                    yield from navigate_to(14, 7)
+                    yield from deprecated_navigate_to_on_current_map(14, 7)
 
             # Mew on Emerald
             case MapRSE.FARAWAY_ISLAND_ENTRANCE:

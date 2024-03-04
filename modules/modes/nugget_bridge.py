@@ -7,7 +7,7 @@ from modules.memory import get_event_flag
 from modules.player import get_player_avatar
 from modules.pokemon import get_party
 from ._interface import BotMode, BotModeError
-from ._util import follow_path, navigate_to, wait_for_n_frames, walk_one_tile
+from ._util import follow_path, deprecated_navigate_to_on_current_map, wait_for_n_frames, walk_one_tile
 
 
 class NuggetBridgeMode(BotMode):
@@ -54,13 +54,13 @@ class NuggetBridgeMode(BotMode):
                 context.message = f"Bag contains {str(nugget_count)} nuggets.\nTotal value: ₽{nugget_count * 5000:,}"
                 yield from wait_for_n_frames(30)
                 context.emulator.press_button("B")
-                yield from navigate_to(7, 8)
+                yield from deprecated_navigate_to_on_current_map(7, 8)
                 yield from walk_one_tile("Down")
             if get_player_avatar().map_group_and_number == MapFRLG.CERULEAN_CITY:
                 yield from follow_path([(10, 20), (10, 12), (23, 12), (23, 0)])
                 yield from walk_one_tile("Up")
             if get_player_avatar().map_group_and_number == MapFRLG.ROUTE24:
-                yield from navigate_to(11, 16)
+                yield from deprecated_navigate_to_on_current_map(11, 16)
                 self._has_whited_out = False
                 context.emulator.press_button("Up")
                 while not self._has_whited_out:

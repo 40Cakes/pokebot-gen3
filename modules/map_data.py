@@ -1,5 +1,7 @@
 from enum import Enum
+from typing import Generator
 
+from modules.context import context
 from modules.map import MapLocation
 
 
@@ -592,6 +594,26 @@ class MapFRLG(Enum):
             return item.map_group == self.value[0] and item.map_number == self.value[1]
         else:
             return NotImplemented
+
+    def __getitem__(self, item) -> int:
+        if item == 0:
+            return self.value[0]
+        elif item == 1:
+            return self.value[1]
+        elif isinstance(item, int):
+            raise KeyError(f"Object does not have an item with key '{item}'.")
+        else:
+            raise TypeError(f"Object only has items of type int.")
+
+    def __len__(self) -> int:
+        return 2
+
+    def __iter__(self) -> Generator:
+        yield self.value[0]
+        yield self.value[1]
+
+    def __hash__(self) -> int:
+        return hash(self.value)
 
 
 class MapGroupRSE(Enum):
@@ -1245,3 +1267,62 @@ class MapRSE(Enum):
             return item.map_group == self.value[0] and item.map_number == self.value[1]
         else:
             return NotImplemented
+
+    def __getitem__(self, item) -> int:
+        if item == 0:
+            return self.value[0]
+        elif item == 1:
+            return self.value[1]
+        elif isinstance(item, int):
+            raise KeyError(f"Object does not have an item with key '{item}'.")
+        else:
+            raise TypeError(f"Object only has items of type int.")
+
+    def __len__(self) -> int:
+        return 2
+
+    def __iter__(self) -> Generator:
+        yield self.value[0]
+        yield self.value[1]
+
+    def __hash__(self) -> int:
+        return hash(self.value)
+
+
+class PokemonCenter(Enum):
+    OldaleTown = (MapRSE.OLDALE_TOWN, (6, 16))
+    PetalburgCity = (MapRSE.PETALBURG_CITY, (20, 16))
+    RustboroCity = (MapRSE.RUSTBORO_CITY, (16, 38))
+    DewfordTown = (MapRSE.DEWFORD_TOWN, (2, 10))
+    SlateportCity = (MapRSE.SLATEPORT_CITY, (19, 19))
+    MauvilleCity = (MapRSE.MAUVILLE_CITY, (22, 5))
+    VerdanturfTown = (MapRSE.VERDANTURF_TOWN, (16, 3))
+    LavaridgeRown = (MapRSE.LAVARIDGE_TOWN, (9, 7))
+    FallarborTown = (MapRSE.FALLARBOR_TOWN, (14, 7))
+    FortreeCity = (MapRSE.FORTREE_CITY, (5, 6))
+    LilycoveCity = (MapRSE.LILYCOVE_CITY, (24, 14))
+    MossdeepCity = (MapRSE.MOSSDEEP_CITY, (28, 16))
+    EvergrandeCity = (MapRSE.EVER_GRANDE_CITY, (27, 48))
+    PacifidlogTown = (MapRSE.PACIFIDLOG_TOWN, (8, 15))
+
+    ViridianCity = (MapFRLG.VIRIDIAN_CITY, (26, 26))
+    PewterCity = (MapFRLG.PEWTER_CITY, (17, 25))
+    Route4 = (MapFRLG.ROUTE4, (12, 5))
+    CeruleanCity = (MapFRLG.CERULEAN_CITY, (22, 19))
+    VermilionCity = (MapFRLG.VERMILION_CITY, (15, 6))
+    Route10 = (MapFRLG.ROUTE10, (13, 20))
+    LavenderTown = (MapFRLG.LAVENDER_TOWN, (6, 5))
+    CeladonCity = (MapFRLG.CELADON_CITY, (48, 11))
+    SaffronCity = (MapFRLG.SAFFRON_CITY, (24, 39))
+    FuchsiaCity = (MapFRLG.FUCHSIA_CITY, (25, 31))
+    CinnabarIsland = (MapFRLG.CINNABAR_ISLAND, (14, 11))
+
+
+def get_map_enum(map_group_and_number: tuple[int, int] | MapLocation) -> MapFRLG | MapRSE:
+    if isinstance(map_group_and_number, MapLocation):
+        map_group_and_number = map_group_and_number.map_group_and_number
+
+    if context.rom.is_rse:
+        return MapRSE(map_group_and_number)
+    else:
+        return MapFRLG(map_group_and_number)

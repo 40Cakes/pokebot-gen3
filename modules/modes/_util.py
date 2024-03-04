@@ -18,7 +18,16 @@ from typing import Generator, Iterable, Union
 from modules.context import context
 from modules.files import get_rng_state_history, save_rng_state_history
 from modules.items import Item, ItemPocket, get_item_bag, get_item_by_name
-from modules.map import MapLocation, get_map_all_tiles, get_map_data, get_map_objects, get_player_map_object
+from modules.map import (
+    MapLocation,
+    get_map_data_for_current_position,
+    get_map_all_tiles,
+    get_map_data,
+    get_map_objects,
+    get_player_map_object,
+)
+from modules.map_data import MapFRLG, MapRSE, PokemonCenter
+from modules.map_path import calculate_path, Waypoint, PathFindingError
 from modules.memory import (
     GameState,
     get_event_flag,
@@ -41,6 +50,7 @@ from modules.player import (
     get_player_avatar,
     player_avatar_is_controllable,
     player_avatar_is_standing_still,
+    player_is_at,
 )
 from modules.pokemon import get_party
 from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE, get_map_cursor, get_map_region
@@ -121,8 +131,11 @@ def follow_path(waypoints: Iterable[tuple[int, int]], run: bool = True) -> Gener
         yield
 
 
-def navigate_to(x: int, y: int, run: bool = True) -> Generator:
+def deprecated_navigate_to_on_current_map(x: int, y: int, run: bool = True) -> Generator:
     """
+    (This is an older, now deprecated implementation of a pathfinding navigation function.
+    For new code, use `navigate_to()` instead.)
+
     Tries to walk the player to a given location while circumventing obstacles.
 
     This is a pretty primitive implementation and only works within a map. If you need to cross
@@ -252,6 +265,168 @@ def navigate_to(x: int, y: int, run: bool = True) -> Generator:
 
     context.emulator.reset_held_buttons()
     yield from wait_for_player_avatar_to_be_controllable()
+
+
+class TimedOutTryingToReachWaypointError(BotModeError):
+    def __init__(self, waypoint: Waypoint):
+        self.waypoint = waypoint
+        if context.rom.is_rse:
+            map_name = MapRSE(waypoint.map).name
+        else:
+            map_name = MapFRLG(waypoint.map).name
+        message = f"Did not reach waypoint ({waypoint.coordinates}) @ {map_name} in time."
+        super().__init__(message)
+
+
+def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
+    """
+    Follows a given set of waypoints.
+
+    Since the `path` parameter can also be a generator function, this function can be used to follow
+    looping or dynamically calculated paths.
+
+    This function does not check for obstacles, but if it takes too long to reach a waypoint it will
+    fire a `TimedOutTryingToReachWaypointError` exception (which is a child class of `BotModeError`,
+    so if unhandled it will just show as a message and put the bot back into manual mode.)
+
+    :param path: A list (or generator) of waypoints to follow.
+    :param run: Whether to run (hold `B`.) This is ignored when on a bicycle, since it would be either
+                meaningless or actively detrimental (Acro Bike, where it would initiate wheelie mode.)
+    """
+
+    if get_game_state() != GameState.OVERWORLD:
+        raise BotModeError("The game is currently not in the overworld. Cannot navigate.")
+
+    # Make sure that the player avatar can actually be controlled/moved right now.
+    if not player_avatar_is_controllable():
+        raise BotModeError("The player avatar is currently not controllable. Cannot navigate.")
+
+    # 'Running' means holding B, which on the Acro Bike leads to doing a Wheelie which is actually
+    # slower than normal riding. On other bikes it just doesn't do anything, so if we are riding one,
+    # this flag will just be ignored.
+    if run and get_player_avatar().is_on_bike:
+        run = False
+
+    # For each waypoint (i.e. each step of the path) we set a timeout. If the player avatar does not reach the
+    # expected location within that time, we stop the walking. The calling code could use that event to
+    # recalculate a new path.
+    #
+    # Regular steps usually take 16 frames, so the 20-frame timeout should be enough. For warps (walking into doors
+    # etc.) a 'step' may take a bit longer due to the map transition. Which is why there is an extra allowance for
+    # those cases.
+    timeout_in_frames = 20
+    extra_timeout_in_frames_for_warps = 280
+
+    current_position = get_map_data_for_current_position()
+    for waypoint in path:
+        timeout_exceeded = False
+        frames_remaining_until_timeout = timeout_in_frames
+        if waypoint.is_warp:
+            frames_remaining_until_timeout += extra_timeout_in_frames_for_warps
+
+        while not timeout_exceeded and not player_is_at(waypoint.map, waypoint.coordinates):
+            player_object = get_player_map_object()
+
+            if get_game_state() == GameState.OVERWORLD:
+                frames_remaining_until_timeout -= 1
+
+            if frames_remaining_until_timeout <= 0:
+                if player_is_at(current_position.map_group_and_number, current_position.local_position):
+                    context.emulator.reset_held_buttons()
+                    yield from wait_for_n_frames(16)
+                    raise TimedOutTryingToReachWaypointError(waypoint)
+                else:
+                    current_position = get_map_data_for_current_position()
+                    frames_remaining_until_timeout += timeout_in_frames
+
+            # Only pressing the direction keys during the frame where movement is actually registered can help
+            # preventing weird overshoot issues in cases where a listener handles an event (like a battle, PokeNav
+            # call, ...)
+            if player_object is not None and "heldMovementFinished" in player_object.flags:
+                context.emulator.hold_button(waypoint.walking_direction)
+                if run:
+                    context.emulator.hold_button("B")
+            else:
+                context.emulator.reset_held_buttons()
+
+            yield
+
+    # Wait for player to come to a full stop.
+    context.emulator.reset_held_buttons()
+    while not player_avatar_is_standing_still() or get_player_avatar().running_state != RunningState.NOT_MOVING:
+        yield
+
+
+def navigate_to(
+    map: tuple[int, int] | MapFRLG | MapRSE,
+    coordinates: tuple[int, int],
+    run: bool = True,
+    avoid_encounters: bool = True,
+    avoid_scripted_events: bool = True,
+) -> Generator:
+    """
+    Tries to walk the player to a given location while circumventing obstacles.
+
+    It works across different maps, but only if they are directly connected. Warps (doors, cave entrances, ...) will not
+    be used automatically -- but a door can be used as a destination.
+
+    It will also not attempt to start or stop surfing, i.e. transitions between land and water need to be handled
+    separately.
+
+    :param map: Destination map. This can either be a `MapFRLG`/`MapRSE` instance, or a map group/number tuple.
+    :param coordinates: Local coordinates on the destination map that should be navigated to.
+    :param run: Whether to sprint (hold B.) This is ignored when riding a bicycle.
+    :param avoid_encounters: Prefer navigating via tiles that do not have encounters (i.e. try to avoid tall grass etc.)
+                             This will still navigate via tiles with encounters if there is no other option.
+                             It will also not avoid the activation range of unbattled trainers.
+    :param avoid_scripted_events: Try to avoid tiles that would trigger a scripted event when moving onto them. It will
+                                  still navigate via those tiles of there is no other option.
+    """
+
+    def waypoint_generator():
+        destination_map = map
+        destination_coordinates = coordinates
+
+        while not player_is_at(destination_map, destination_coordinates):
+            current_position = get_map_data_for_current_position()
+            try:
+                waypoints = calculate_path(
+                    current_position,
+                    get_map_data(map, coordinates),
+                    avoid_encounters=avoid_encounters,
+                    avoid_scripted_events=avoid_scripted_events,
+                )
+            except PathFindingError as e:
+                raise BotModeError(str(e))
+
+            # If the final destination turns out to be a warp, we are not going to end up in the place specified by
+            # the `map` and `coordinates` parameters, but rather on another map. Because that would lead to this
+            # function thinking we've missed the target, we will override the destination with the warp destination
+            # in those cases.
+            if waypoints[-1].is_warp:
+                destination_map = waypoints[-1].map
+                destination_coordinates = waypoints[-1].coordinates
+
+            yield from waypoints
+
+    while True:
+        try:
+            yield from follow_waypoints(waypoint_generator(), run)
+            break
+        except TimedOutTryingToReachWaypointError:
+            # If we run into a timeout while trying to follow the waypoints, this is likely because of either of
+            # these two reasons:
+            #
+            # (a) For some weird reason the player avatar moved to an unexpected location (for example due to forced
+            #     movement, or due to overshooting on the Mach Bike.)
+            # (b) Since the path is calculated in the beginning and then just followed, there's a chance that an NPC
+            #     moves and gets in our way, in which case we would just keep running into them until they finally move
+            #     out of the way again.
+            #
+            # In these cases, the `follow_waypoints()` function will trigger this timeout exception. We will just
+            # calculate a new path (from the new location, or taking into account the new location of obstacles) and
+            # try pathing again.
+            pass
 
 
 def walk_one_tile(direction: str, run: bool = True) -> Generator:
@@ -853,18 +1028,14 @@ def get_closest_tile(tiles: list[tuple[int, int]]) -> tuple[int, int] | None:
 
 def get_closest_surrounding_tile(tile: tuple[int, int]) -> tuple[int, int] | None:
     if valid_surrounding_tiles := [
-        get_map_data(
-            get_player_avatar().map_group_and_number[0], get_player_avatar().map_group_and_number[1], check
-        ).local_position
+        get_map_data(get_player_avatar().map_group_and_number, check).local_position
         for check in [
             (tile[0] + 1, tile[1]),
             (tile[0], tile[1] + 1),
             (tile[0] - 1, tile[1]),
             (tile[0], tile[1] - 1),
         ]
-        if get_map_data(
-            get_player_avatar().map_group_and_number[0], get_player_avatar().map_group_and_number[1], check
-        ).is_surfable
+        if get_map_data(get_player_avatar().map_group_and_number, check).is_surfable
     ]:
         return get_closest_tile(valid_surrounding_tiles)
     else:
@@ -886,3 +1057,17 @@ def get_tile_direction(tile: tuple[int, int]) -> str | None:
         direction = "Down"
 
     return direction
+
+
+def heal_in_pokemon_center(pokemon_center_door_location: PokemonCenter) -> Generator:
+    # Walk to and enter the Pokémon centre
+    yield from navigate_to(pokemon_center_door_location.value[0], pokemon_center_door_location.value[1])
+
+    # Walk up to the nurse and talk to her
+    yield from navigate_to(get_player_avatar().map_group_and_number, (7, 4))
+    context.emulator.press_button("A")
+    yield
+    yield from wait_for_player_avatar_to_be_standing_still("B")
+
+    # Get out
+    yield from navigate_to(get_player_avatar().map_group_and_number, (7, 8))

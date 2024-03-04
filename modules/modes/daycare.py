@@ -15,7 +15,7 @@ from ._interface import BotMode, BotModeError
 from ._util import (
     ensure_facing_direction,
     follow_path,
-    navigate_to,
+    deprecated_navigate_to_on_current_map,
     register_key_item,
     wait_for_player_avatar_to_be_controllable,
     wait_for_n_frames,
@@ -118,13 +118,13 @@ class DaycareMode(BotMode):
                 raise BotModeError("Your bicycle is stored in the PC storage system. Please go and get it.")
 
             # Get the Mach Bike in Mauville City
-            yield from navigate_to(59, 8)
+            yield from deprecated_navigate_to_on_current_map(59, 8)
             yield from walk_one_tile("Right")
 
             # Go to bike shop and walk up to the guy
-            yield from navigate_to(35, 6)
+            yield from deprecated_navigate_to_on_current_map(35, 6)
             yield from walk_one_tile("Up")
-            yield from navigate_to(3, 5)
+            yield from deprecated_navigate_to_on_current_map(3, 5)
             yield from ensure_facing_direction("Left")
 
             # Talk to him. If the player didn't have any bike, the first option will be
@@ -138,9 +138,9 @@ class DaycareMode(BotMode):
             yield
 
             # Go outside, and back to Route 117
-            yield from navigate_to(3, 8)
+            yield from deprecated_navigate_to_on_current_map(3, 8)
             yield from walk_one_tile("Down")
-            yield from navigate_to(0, 8)
+            yield from deprecated_navigate_to_on_current_map(0, 8)
             yield from walk_one_tile("Left")
 
             yield from register_key_item(get_item_by_name("Mach Bike"))
@@ -206,7 +206,7 @@ class DaycareMode(BotMode):
             yield from follow_path([daycare_house, daycare_door])
             yield from walk_one_tile("Up")
             # move to PC
-            yield from navigate_to(10, 2)
+            yield from deprecated_navigate_to_on_current_map(10, 2)
             yield from ensure_facing_direction("Up")
 
             # Interact with PC
@@ -259,7 +259,7 @@ class DaycareMode(BotMode):
             # Leave daycare
             yield from wait_for_player_avatar_to_be_controllable("B")
 
-            yield from navigate_to(*daycare_exit)
+            yield from deprecated_navigate_to_on_current_map(*daycare_exit)
             yield from walk_one_tile("Down")
 
         def get_path():
@@ -284,7 +284,7 @@ class DaycareMode(BotMode):
             context.emulator.press_button("Select")
             yield
             yield
-        yield from navigate_to(*daycare_man)
+        yield from deprecated_navigate_to_on_current_map(*daycare_man)
         while context.bot_mode != "Manual":
             self._update_message_soon = True
 

@@ -1080,8 +1080,7 @@ class MapTab(DebugTab):
             return {}
 
         if show_different_tile:
-            map_group, map_number = self._selected_map
-            map_data = get_map_data(map_group, map_number, self._selected_tile)
+            map_data = get_map_data(self._selected_map, self._selected_tile)
         else:
             map_data = get_player_avatar().map_location
 
@@ -1103,6 +1102,9 @@ class MapTab(DebugTab):
             object_list[f"Object #{i}"] = {
                 "__value": str(map_objects[i]),
                 "Local Position": map_objects[i].current_coords,
+                "Previous Position": map_objects[i].previous_coords,
+                "Initial Position": map_objects[i].initial_coords,
+                "Map": (map_objects[i].map_group, map_objects[i].map_num),
                 "Elevation": map_objects[i].current_elevation,
                 "Local ID": map_objects[i].local_id,
                 "Facing Direction": map_objects[i].facing_direction,
