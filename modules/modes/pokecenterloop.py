@@ -7,10 +7,7 @@ from modules.modes import get_bot_mode_by_name
 from modules.player import get_player_avatar
 from ._asserts import assert_auto_battle
 from ._interface import BotMode, BotModeError
-from ._util import (
-    navigate_to,
-    heal_in_pokemon_center,
-)
+from .util import navigate_to, heal_in_pokemon_center
 from ..battle import BattleOutcome
 
 closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {

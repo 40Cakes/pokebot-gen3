@@ -615,6 +615,9 @@ class MapFRLG(Enum):
     def __hash__(self) -> int:
         return hash(self.value)
 
+    def __repr__(self) -> str:
+        return self.name
+
 
 class MapGroupRSE(Enum):
     TownsAndRoutes = 0
@@ -1288,6 +1291,9 @@ class MapRSE(Enum):
     def __hash__(self) -> int:
         return hash(self.value)
 
+    def __repr__(self) -> str:
+        return self.name
+
 
 class PokemonCenter(Enum):
     OldaleTown = (MapRSE.OLDALE_TOWN, (6, 16))
@@ -1316,6 +1322,9 @@ class PokemonCenter(Enum):
     SaffronCity = (MapFRLG.SAFFRON_CITY, (24, 39))
     FuchsiaCity = (MapFRLG.FUCHSIA_CITY, (25, 31))
     CinnabarIsland = (MapFRLG.CINNABAR_ISLAND, (14, 11))
+
+    def __repr__(self) -> str:
+        return f"PokemonCenter.{self.name}"
 
 
 def get_map_enum(map_group_and_number: tuple[int, int] | MapLocation) -> MapFRLG | MapRSE:

@@ -23,7 +23,7 @@ from modules.menuing import (
     party_menu_is_open,
 )
 from modules.modes import BotModeError
-from modules.modes._util import scroll_to_item_in_bag
+from modules.modes.util import scroll_to_item_in_bag
 from modules.player import get_player_avatar
 from modules.pokedex import get_pokedex
 from modules.pokemon import (

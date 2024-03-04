@@ -11,7 +11,7 @@ from modules.runtime import get_sprites_path
 from modules.tasks import task_is_active
 from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map
 from ._interface import BotMode, BotModeError
-from ._util import (
+from .util import (
     soft_reset,
     wait_for_n_frames,
     wait_for_task_to_start_and_finish,

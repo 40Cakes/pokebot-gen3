@@ -2,6 +2,7 @@ import signal
 
 from modules.battle import BattleHandler, BattleOutcome, RotatePokemon, check_lead_can_battle, flee_battle
 from modules.context import context
+from modules.debug import debug
 from modules.encounter import handle_encounter
 from modules.map import get_map_objects, get_map_data_for_current_position
 from modules.map_data import MapFRLG, MapRSE
@@ -18,7 +19,7 @@ from modules.pokemon import (
 )
 from modules.tasks import get_global_script_context, task_is_active
 from ._interface import BattleAction, BotListener, BotMode, FrameInfo
-from ._util import isolate_inputs
+from .util import isolate_inputs
 
 
 class BattleListener(BotListener):
@@ -97,6 +98,7 @@ class BattleListener(BotListener):
                         SafariZoneListener.handle_safari_zone_timeout_global(bot_mode, "Safari balls")
                     )
 
+    @debug.track
     def _wait_until_battle_is_over(self):
         while self._in_battle:
             if get_game_state() != GameState.OVERWORLD or get_map_data_for_current_position().map_type != "Underwater":
@@ -104,27 +106,37 @@ class BattleListener(BotListener):
             yield
 
     @isolate_inputs
+    @debug.track
     def fight(self):
         yield from BattleHandler().step()
         yield from self._wait_until_battle_is_over()
 
-        map_objects = get_map_objects()
         if (
             get_game_state() != GameState.BATTLE
             and not get_global_script_context().is_active
             and player_avatar_is_standing_still()
         ):
             if context.config.battle.pickup and should_check_for_pickup():
-                yield from MenuWrapper(CheckForPickup()).step()
+                yield from self.check_for_pickup()
             elif context.config.battle.lead_cannot_battle_action == "rotate" and not check_lead_can_battle():
-                yield from MenuWrapper(RotatePokemon()).step()
+                yield from self.rotate_lead_pokemon()
+
+    @debug.track
+    def check_for_pickup(self):
+        yield from MenuWrapper(CheckForPickup()).step()
+
+    @debug.track
+    def rotate_lead_pokemon(self):
+        yield from MenuWrapper(RotatePokemon()).step()
 
     @isolate_inputs
+    @debug.track
     def catch(self):
         yield from BattleHandler(try_to_catch=True).step()
         yield from self._wait_until_battle_is_over()
 
     @isolate_inputs
+    @debug.track
     def run_away_from_battle(self):
         while get_game_state() != GameState.BATTLE:
             yield
@@ -150,6 +162,7 @@ class TrainerApproachListener(BotListener):
             context.controller_stack.append(self.handle_trainer_approach())
 
     @isolate_inputs
+    @debug.track
     def handle_trainer_approach(self):
         while get_global_script_context().is_active:
             context.emulator.press_button("B")
@@ -168,6 +181,7 @@ class PokenavListener(BotListener):
             context.controller_stack.append(self.ignore_call())
 
     @isolate_inputs
+    @debug.track
     def ignore_call(self):
         while task_is_active("ExecuteMatchCall") or (
             get_global_script_context().is_active
@@ -196,6 +210,7 @@ class EggHatchListener(BotListener):
             context.controller_stack.append(self.handle_hatching_egg(bot_mode))
 
     @isolate_inputs
+    @debug.track
     def handle_hatching_egg(self, bot_mode: BotMode):
         while True:
             egg_data = None
@@ -237,6 +252,7 @@ class RepelListener(BotListener):
             context.controller_stack.append(self.handle_repel_expiration_message(bot_mode))
 
     @isolate_inputs
+    @debug.track
     def handle_repel_expiration_message(self, bot_mode: BotMode):
         while self._script_name in get_global_script_context().stack:
             context.emulator.press_button("B")
@@ -272,6 +288,7 @@ class PoisonListener(BotListener):
             context.controller_stack.append(self.handle_fainting_message())
 
     @isolate_inputs
+    @debug.track
     def handle_fainting_message(self):
         while self._script_name in get_global_script_context().stack:
             context.emulator.press_button("B")
@@ -296,6 +313,7 @@ class WhiteoutListener(BotListener):
             self._whiteout_active = True
             context.controller_stack.append(self.handle_whiteout_dialogue(bot_mode))
 
+    @debug.track
     def handle_whiteout_dialogue(self, bot_mode: BotMode):
         context.emulator.reset_held_buttons()
         while (
@@ -368,11 +386,13 @@ class SafariZoneListener(BotListener):
                 context.controller_stack.append(self.handle_safari_zone_timeout(bot_mode, "Safari balls"))
                 self._times_up = True
 
+    @debug.track
     def handle_safari_zone_timeout(self, bot_mode: BotMode, limited_by: str):
         yield from SafariZoneListener.handle_safari_zone_timeout_global(bot_mode, limited_by)
         self._times_up = False
 
     @staticmethod
+    @debug.track
     def handle_safari_zone_timeout_global(bot_mode: BotMode, limited_by: str):
         context.emulator.reset_held_buttons()
 
