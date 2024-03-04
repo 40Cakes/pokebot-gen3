@@ -257,6 +257,10 @@ def get_event_flag_name(flag_number: int) -> str:
     return _reverse_event_flags.get(flag_number, str(flag_number))
 
 
+def get_event_var_offset(var_name: str) -> int:
+    return _event_vars[var_name]
+
+
 def get_event_var_name(var_number: int) -> str:
     return _reverse_event_vars.get(var_number, str(var_number))
 
