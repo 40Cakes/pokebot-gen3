@@ -2,7 +2,14 @@ import struct
 from enum import IntEnum, auto
 
 from modules.context import context
-from modules.game import _event_flags, _event_vars, get_event_flag_offset, get_symbol, get_symbol_name
+from modules.game import (
+    _event_flags,
+    _event_vars,
+    get_event_flag_offset,
+    get_event_var_offset,
+    get_symbol,
+    get_symbol_name,
+)
 from modules.state_cache import state_cache
 
 
@@ -281,3 +288,14 @@ def get_event_var_by_number(var_number: int) -> int:
         vars_offset = 0x1000
 
     return unpack_uint16(get_save_block(1, offset=vars_offset + (var_number * 2), size=2))
+
+
+def set_event_var(var_name: str, new_value: int) -> bool:
+    if var_name not in _event_vars:
+        return False
+
+    if new_value < 0 or new_value > 2**16 - 1:
+        raise ValueError(f"Event Var values must be between 0 and {2 ** 16 - 1}, but '{new_value}' was given.")
+
+    write_to_save_block(pack_uint16(new_value), 1, offset=get_event_var_offset(var_name))
+    return True

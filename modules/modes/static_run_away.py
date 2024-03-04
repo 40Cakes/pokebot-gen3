@@ -138,8 +138,7 @@ class StaticRunAway(BotMode):
                     yield from walk_one_tile("Down")
                     yield from walk_one_tile("Up")
                     yield from deprecated_navigate_to_on_current_map(13, 12)
-                    context.emulator.press_button("A")
-                    yield from wait_for_script_to_start_and_finish("Common_EventScript_LegendaryFlewAway", "B")
+                    yield from wait_for_script_to_start_and_finish("SouthernIsland_Interior_EventScript_Lati", "A")
 
             # Kyorge in Emerald
             case MapRSE.MARINE_CAVE_END:
