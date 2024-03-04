@@ -2,10 +2,6 @@
 
 # 🔄️ Pokécenter Loop Mode
 
-## Requirements
-
-- Set battle to True in the ⚔ [Battling and Pickup](Configuration%20-%20Battling%20and%20Pickup.md) config
-
 ## Instructions
 
 Start this mode while standing somewhere in tall grass. If the mode is not available

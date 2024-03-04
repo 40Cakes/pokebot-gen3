@@ -1,17 +1,17 @@
 from typing import Generator
 
+from modules.battle import can_battle_happen, should_mon_be_battled, BattleTypeFlag, get_battle_type_flags
 from modules.map import get_map_data_for_current_position, get_map_data
 from modules.map_data import MapFRLG, MapRSE, PokemonCenter, get_map_enum
 from modules.map_path import calculate_path, PathFindingError
-from modules.modes import get_bot_mode_by_name
+from modules.modes import get_bot_mode_by_name, BattleAction
 from modules.player import get_player_avatar
-from ._asserts import assert_auto_battle
+from modules.pokemon import get_opponent
 from ._interface import BotMode, BotModeError
 from ._util import (
     navigate_to,
     heal_in_pokemon_center,
 )
-from ..battle import BattleOutcome
 
 closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
     # Hoenn
@@ -65,17 +65,19 @@ class PokecenterLoopMode(BotMode):
         self._leave_pokemon_center = False
         self._go_healing = True
 
-    def on_battle_ended(self, outcome: "BattleOutcome") -> None:
-        if outcome == BattleOutcome.RanAway:
+    def on_battle_started(self) -> BattleAction | None:
+        is_trainer_battle = BattleTypeFlag.TRAINER in get_battle_type_flags()
+        if is_trainer_battle or (can_battle_happen() and not should_mon_be_battled(get_opponent())):
+            return BattleAction.Fight
+        else:
             self._go_healing = True
+            return BattleAction.RunAway
 
     def on_whiteout(self) -> bool:
         self._leave_pokemon_center = True
         return True
 
     def run(self) -> Generator:
-        assert_auto_battle("AutoBattle needs to be enabled for this mode to work")
-
         training_spot = get_map_data_for_current_position()
         if not training_spot.has_encounters:
             raise BotModeError("There are no encounters on this tile.")
@@ -95,7 +97,6 @@ class PokecenterLoopMode(BotMode):
                         pokemon_center_candidate.value[0], pokemon_center_candidate.value[1]
                     )
                     path_to = calculate_path(training_spot, pokemon_center_location)
-                    # path_from = calculate_path(pokemon_center_location, training_spot)
                     path_from = []
                     path_length = len(path_to) + len(path_from)
 
