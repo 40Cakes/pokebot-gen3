@@ -8,7 +8,7 @@ from typing import Iterator
 
 from modules.context import context
 from modules.game import get_symbol_name_before
-from modules.memory import get_symbol_name, read_symbol, unpack_uint32
+from modules.memory import get_symbol_name, read_symbol, unpack_uint16, unpack_uint32
 from modules.state_cache import state_cache
 
 
@@ -38,6 +38,9 @@ class Task:
     @property
     def data(self) -> bytes:
         return self._data[8:]
+
+    def data_value(self, index: int) -> int:
+        return unpack_uint16(self.data[(index * 2) : ((index + 1) * 2)])
 
 
 class TaskList:
@@ -187,3 +190,22 @@ def get_immediate_script_context() -> ScriptContext:
     ctx = ScriptContext(read_symbol("sScriptContext2" if context.rom.is_rs else "sImmediateScriptContext"))
     state_cache.immediate_script_context = ctx
     return ctx
+
+
+def is_waiting_for_input() -> bool:
+    """
+    :return: Whether the game is currently waiting for the A or B button to be pressed in order
+             to advance some dialogue or scripted event.
+    """
+    if get_global_script_context().native_function_name == "WaitForAorBPress":
+        return True
+
+    if context.rom.is_rs:
+        if task_is_active("Task_FieldMessageBox"):
+            text_printer_state = read_symbol("gFieldMessageBoxWindow", offset=0x16, size=1)[0]
+            return text_printer_state in (8, 9)
+    else:
+        text_printer_data = read_symbol("sTextPrinters", offset=0x1B, size=2)
+        text_printer_is_active = text_printer_data[0]
+        text_printer_state = text_printer_data[1]
+        return text_printer_is_active and text_printer_state in (2, 3)

@@ -228,6 +228,27 @@
       "J":"81bfe44",
       "S":"81c0130"
     },
+    "Task_HandleYesNoInput":{
+      "D":"80e1db4",
+      "F":"80e1dd4",
+      "I":"80e1dac",
+      "J":"80e166c",
+      "S":"80e1db4"
+    },
+    "Task_HandleMultichoiceInput":{
+      "D":"80e1cb0",
+      "F":"80e1cd0",
+      "I":"80e1ca8",
+      "J":"80e1568",
+      "S":"80e1cb0"
+    },
+    "Task_DrawFieldMessage":{
+      "D":"8098170",
+      "F":"8098164",
+      "I":"8098168",
+      "J":"8097adc",
+      "S":"8098168"
+    },
     "TASK_SHOWSTARTMENU":{
       "D":"809fa50",
       "F":"809fa48",
@@ -287,8 +308,14 @@
       "I":"8057c00",
       "J":"805780c"
     },
+    "WaitForAorBPress":{
+      "J":"809a621"
+    },
     "sMenu":{
       "J":"203ca5c"
+    },
+    "sTextPrinters":{
+      "J":"20201ac"
     },
     "sMonSummaryScreen":{
       "J":"203cbe8"
