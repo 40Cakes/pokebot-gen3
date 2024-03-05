@@ -1060,13 +1060,18 @@ def get_tile_direction(tile: tuple[int, int]) -> str | None:
 
 
 def heal_in_pokemon_center(pokemon_center_door_location: PokemonCenter) -> Generator:
+    if context.rom.is_frlg:
+        TextBoxTask = "Task_DrawFieldMessageBox"
+    elif context.rom.is_rse:
+        TextBoxTask = "Task_DrawFieldMessage"
+
     # Walk to and enter the Pokémon centre
     yield from navigate_to(pokemon_center_door_location.value[0], pokemon_center_door_location.value[1])
 
     # Walk up to the nurse and talk to her
     yield from navigate_to(get_player_avatar().map_group_and_number, (7, 4))
-    context.emulator.press_button("A")
-    yield
+    yield from wait_for_task_to_start_and_finish(TextBoxTask, "A")
+    yield from wait_for_task_to_start_and_finish(TextBoxTask, "A")
     yield from wait_for_player_avatar_to_be_standing_still("B")
 
     # Get out
