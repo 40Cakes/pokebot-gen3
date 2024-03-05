@@ -177,7 +177,7 @@ def run_watcher():
                     work_queue.put_nowait(get_opponent)
                 if state_cache.opponent.frame > previous_game_state["opponent"]:
                     previous_game_state["opponent"] = state_cache.opponent.frame
-                    data = state_cache.opponent.value
+                    data = state_cache.opponent.value[0]
                     if data is not None:
                         data = data.to_dict()
                     send_message(DataSubscription.Opponent, data=data, event_type="Opponent")

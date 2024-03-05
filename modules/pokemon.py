@@ -1498,27 +1498,40 @@ def get_party() -> list[Pokemon]:
     return party
 
 
-def get_opponent() -> Pokemon | None:
+def get_opponent_party() -> list[Pokemon] | None:
     """
-    Gets the current opponent/encounter from `gEnemyParty`, decodes and returns.
-
-    :return: opponent (dict)
+    Gets the opponent's party (obviously only makes sense to check when in a battle.)
+    :return: The full party of the opponent, or None if there is no valid opponent at the moment.
     """
     if state_cache.opponent.age_in_frames == 0:
         return state_cache.opponent.value
 
-    mon = parse_pokemon(read_symbol("gEnemyParty")[:100])
+    data = read_symbol("gEnemyParty")
+    result = []
+    for index in range(6):
+        offset = index * 100
+        pokemon = parse_pokemon(data[offset : offset + 100])
+        if pokemon is None:
+            if index == 0:
+                return None
+            else:
+                continue
+        result.append(pokemon)
 
-    # See comment in `GetParty()`
-    if mon is None:
-        with context.emulator.peek_frame():
-            mon = parse_pokemon(read_symbol("gEnemyParty")[:100])
-    if mon is None:
+    state_cache.opponent = result
+
+    return result
+
+
+def get_opponent() -> Pokemon | None:
+    """
+    :return: The first Pokémon of the opponent's party, or None if there is no active opponent.
+    """
+    opponent_party = get_opponent_party()
+    if opponent_party is None:
         return None
-
-    state_cache.opponent = mon
-
-    return mon
+    else:
+        return opponent_party[0]
 
 
 last_opid = pack_uint32(0)  # ReadSymbol('gEnemyParty', size=4)

@@ -220,7 +220,7 @@ def extract_items(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict
                 item_list[i]["localised_names"][language_code] = name
                 item_list[i]["localised_descriptions"][language_code] = description
 
-        return item_list
+    return item_list
 
 
 def extract_abilities(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict]:

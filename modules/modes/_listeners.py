@@ -1,13 +1,12 @@
 from types import GeneratorType
 
-from modules.battle import BattleHandler, BattleOutcome, RotatePokemon, check_lead_can_battle, flee_battle
 from modules.context import context
 from modules.debug import debug
 from modules.encounter import handle_encounter
 from modules.map import get_map_objects, get_map_data_for_current_position
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_game_state, get_game_state_symbol, read_symbol, unpack_uint32
-from modules.menuing import CheckForPickup, MenuWrapper, should_check_for_pickup
+from modules.menuing import CheckForPickup, MenuWrapper, should_check_for_pickup, RotatePokemon
 from modules.player import TileTransitionState, get_player_avatar, player_avatar_is_standing_still
 from modules.pokemon import (
     BattleTypeFlag,
@@ -20,6 +19,11 @@ from modules.pokemon import (
 from modules.tasks import get_global_script_context, task_is_active
 from ._interface import BattleAction, BotListener, BotMode, FrameInfo
 from .util import isolate_inputs
+from ..battle_handler import handle_battle
+from ..battle_state import get_last_battle_outcome, BattleOutcome
+from ..battle_strategies import DefaultBattleStrategy, BattleStrategy
+from ..battle_strategies.catch import CatchStrategy
+from ..battle_strategies.run_away import RunAwayStrategy
 from ..plugins import plugin_battle_started, plugin_battle_ended, plugin_whiteout, plugin_egg_hatched
 
 
@@ -47,11 +51,7 @@ class BattleListener(BotListener):
             battle_type = get_battle_type_flags()
             opponent = get_opponent()
 
-            if BattleTypeFlag.DOUBLE in battle_type:
-                context.message = "A double battle has started, which is not yet supported by the bot."
-                context.set_manual_mode()
-                action = BattleAction.CustomAction
-            elif BattleTypeFlag.TRAINER in battle_type:
+            if BattleTypeFlag.TRAINER in battle_type:
                 if (not context.config.battle.battle and action is None) or action == BattleAction.RunAway:
                     context.message = (
                         "We ran into a trainer, but automatic battling is disabled. Switching to manual mode."
@@ -63,8 +63,10 @@ class BattleListener(BotListener):
             elif action is None:
                 action = handle_encounter(opponent)
 
-            if action == BattleAction.Fight:
-                context.controller_stack.append(self.fight())
+            if isinstance(action, BattleStrategy):
+                context.controller_stack.append(self.fight(action))
+            elif action == BattleAction.Fight:
+                context.controller_stack.append(self.fight(DefaultBattleStrategy()))
             elif action == BattleAction.RunAway:
                 context.controller_stack.append(self.run_away_from_battle())
             elif action == BattleAction.Catch:
@@ -76,9 +78,9 @@ class BattleListener(BotListener):
             self._in_battle
             and get_game_state() not in self.battle_states
             and not frame.task_is_active("Task_BattleStart")
-            and read_symbol("gBattleOutcome", size=1)[0] != 0
+            and get_last_battle_outcome() != BattleOutcome.InProgress
         ):
-            outcome = BattleOutcome(read_symbol("gBattleOutcome", size=1)[0])
+            outcome = get_last_battle_outcome()
             if not self._reported_end_of_battle:
                 self._reported_end_of_battle = True
                 clear_opponent()
@@ -108,9 +110,9 @@ class BattleListener(BotListener):
 
     @isolate_inputs
     @debug.track
-    def fight(self):
+    def fight(self, strategy: BattleStrategy):
         yield from plugin_battle_started(get_opponent())
-        yield from BattleHandler().step()
+        yield from handle_battle(strategy)
         yield from self._wait_until_battle_is_over()
         yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
@@ -121,22 +123,22 @@ class BattleListener(BotListener):
         ):
             if context.config.battle.pickup and should_check_for_pickup():
                 yield from self.check_for_pickup()
-            elif context.config.battle.lead_cannot_battle_action == "rotate" and not check_lead_can_battle():
-                yield from self.rotate_lead_pokemon()
+            elif strategy.choose_new_lead_after_battle() is not None:
+                yield from self.rotate_lead_pokemon(strategy.choose_new_lead_after_battle())
 
     @debug.track
     def check_for_pickup(self):
         yield from MenuWrapper(CheckForPickup()).step()
 
     @debug.track
-    def rotate_lead_pokemon(self):
-        yield from MenuWrapper(RotatePokemon()).step()
+    def rotate_lead_pokemon(self, new_lead_index: int):
+        yield from MenuWrapper(RotatePokemon(new_lead_index)).step()
 
     @isolate_inputs
     @debug.track
     def catch(self):
         yield from plugin_battle_started(get_opponent())
-        yield from BattleHandler(try_to_catch=True).step()
+        yield from handle_battle(CatchStrategy())
         yield from self._wait_until_battle_is_over()
         yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
@@ -146,7 +148,7 @@ class BattleListener(BotListener):
         while get_game_state() != GameState.BATTLE:
             yield
         yield from plugin_battle_started(get_opponent())
-        yield from flee_battle()
+        yield from handle_battle(RunAwayStrategy())
         yield from self._wait_until_battle_is_over()
         yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 

@@ -263,7 +263,7 @@ def http_server() -> None:
         else:
             cached_opponent = state_cache.opponent
             if cached_opponent.value is not None:
-                result = cached_opponent.value.to_dict()
+                result = cached_opponent.value[0].to_dict()
             else:
                 result = None
 

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Union, Optional
 
 from PIL import Image, ImageDraw, ImageTk, ImageOps
 
+from modules.battle_state import get_battle_state
 from modules.context import context
 from modules.daycare import get_daycare_data
 from modules.debug import debug
@@ -17,6 +18,7 @@ from modules.game import (
     _event_flags,
     get_event_flag_name,
     get_event_var_name,
+    get_symbol_name,
     get_symbol_name_before,
 )
 from modules.game_stats import GameStat, get_game_stat
@@ -129,7 +131,8 @@ class FancyTreeview:
 
         for key in data:
             item_key = f"{key_prefix}{key}"
-            if key == "__value":
+            # BattleStateSide._battle_state is a circular reference.
+            if key == "__value" or key == "_battle_state":
                 pass
             elif type(data[key]) is dict:
                 if item_key in self._items:
@@ -386,8 +389,16 @@ class BattleTab(DebugTab):
 
     def _get_data(self):
         data = read_symbol("gBattleResults")
+        currins = unpack_uint32(read_symbol("gBattleScriptCurrInstr", size=4))
 
         return {
+            "State": get_battle_state(),
+            "Current Instruction": hex(currins),
+            "Instruction Symbol": get_symbol_name(currins, True),
+            "Instruction Symbol #2": get_symbol_name_before(currins, True),
+            "Instruction Offset": (
+                0 if currins == 0 else hex(currins - get_symbol(get_symbol_name_before(currins, True))[0])
+            ),
             "Player Faint Counter": int(data[0]),
             "Opponent Faint Counter": int(data[1]),
             "Player Switch Counter": int(data[2]),

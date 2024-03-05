@@ -49,6 +49,26 @@ class ItemPocket(Enum):
         return self.value
 
 
+class ItemBattleUse(Enum):
+    NotUsable = "not_usable"
+    Catch = "catch"
+    StatIncrease = "stat_increase"
+    Healing = "healing"
+    PpRecovery = "pp_recovery"
+    Escape = "escape"
+    EnigmaBerry = "enigma_berry"
+
+    def __str__(self):
+        return self.value
+
+    @classmethod
+    def from_value(cls, value: str) -> "ItemBattleUse | None":
+        for name, member in ItemBattleUse.__members__.items():
+            if member.value == value:
+                return member
+        return ItemBattleUse.NotUsable
+
+
 @dataclass
 class Item:
     """
@@ -60,6 +80,7 @@ class Item:
     sprite_name: str
     price: int
     type: ItemType
+    battle_use: ItemBattleUse
     pocket: ItemPocket
     parameter: int
     extra_parameter: int
@@ -83,6 +104,7 @@ class Item:
             sprite_name=data["name"].replace("'", "").replace(".", ""),
             price=data["price"],
             type=item_type,
+            battle_use=ItemBattleUse.from_value(data["battle_use"]),
             pocket=ItemPocket(data["pocket"]),
             parameter=data["parameter"],
             extra_parameter=data["extra_parameter"],

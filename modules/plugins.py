@@ -2,7 +2,7 @@ import inspect
 from types import GeneratorType
 from typing import TYPE_CHECKING, Iterable
 
-from modules.battle import BattleOutcome
+from modules.battle_state import BattleOutcome
 from modules.plugin_interface import BotPlugin
 from modules.pokemon import Pokemon
 from modules.runtime import get_base_path
