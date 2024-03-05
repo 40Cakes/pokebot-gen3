@@ -1065,8 +1065,8 @@ def heal_in_pokemon_center(pokemon_center_door_location: PokemonCenter) -> Gener
 
     # Walk up to the nurse and talk to her
     yield from navigate_to(get_player_avatar().map_group_and_number, (7, 4))
-    context.emulator.press_button("A")
-    yield
+    yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessageBox", "A")
+    yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessageBox", "A")
     yield from wait_for_player_avatar_to_be_standing_still("B")
 
     # Get out
