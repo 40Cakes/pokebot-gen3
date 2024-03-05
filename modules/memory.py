@@ -9,6 +9,7 @@ from modules.game import (
     get_event_var_offset,
     get_symbol,
     get_symbol_name,
+    get_symbol_name_before,
 )
 from modules.state_cache import state_cache
 
@@ -74,6 +75,41 @@ def write_symbol(name: str, data: bytes, offset: int = 0x0) -> bool:
         return True
     except SystemExit:
         raise
+
+
+def get_callback_for_pointer_symbol(symbol: str, offset: int = 0, pretty_name: bool = True) -> str:
+    """
+    Reads the value of a symbol (which should be a 4-byte pointer) and returns the nearest symbol that
+    matches its value.
+
+    This can be used for callback pointers that point at some game function, such as the two main game
+    callbacks or some other callbacks inside of structs.
+
+    :param symbol: The symbol containing the pointer.
+    :param offset: (optional) Offset from the start of the symbol where the callback should appear.
+    :param pretty_name: Whether to return the symbol name all-uppercase (False) or
+                        with 'natural' case (True)
+    :return: The symbol name closest to the value.
+    """
+    pointer = unpack_uint32(read_symbol(symbol, offset, 4))
+
+    if pointer == 0:
+        return ""
+
+    # Do a quick sanity check whether the pointer value is even within the memory ranges that the game
+    # uses.
+    # While the ROM can extend past 0x0900_0000, in practice none of the symbols in our symbol tables
+    # are outside the 0x08... range so we limit the lookup to that.
+    if (
+        (0x0200_0000 <= pointer < 0x0204_0000)
+        or (0x0300_0000 <= pointer < 0x0300_8000)
+        or (0x0800_0000 <= pointer < 0x0900_0000)
+    ):
+        return get_symbol_name_before(pointer, pretty_name)
+    else:
+        raise RuntimeError(
+            f"The pointer value we tried to read from `{symbol}` was 0x{hex(pointer)} which is outside the allowed ranges."
+        )
 
 
 def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes | None:

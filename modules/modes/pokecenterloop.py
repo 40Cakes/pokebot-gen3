@@ -10,7 +10,7 @@ from modules.pokemon import get_party
 from ._asserts import assert_auto_battle
 from ._interface import BotMode, BotModeError
 from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon
-from ..battle import BattleOutcome
+from ..battle_state import BattleOutcome
 
 closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
     # Hoenn

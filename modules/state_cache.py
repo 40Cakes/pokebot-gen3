@@ -4,6 +4,7 @@ from typing import Generic, TYPE_CHECKING, TypeVar
 from modules.context import context
 
 if TYPE_CHECKING:
+    from modules.battle_state import BattleState
     from modules.items import ItemBag, ItemStorage
     from modules.memory import GameState
     from modules.player import Player, PlayerAvatar
@@ -48,7 +49,7 @@ class StateCacheItem(Generic[T]):
 class StateCache:
     def __init__(self):
         self._party: StateCacheItem[list["Pokemon"]] = StateCacheItem([])
-        self._opponent: StateCacheItem["Pokemon | None"] = StateCacheItem(None)
+        self._opponent: StateCacheItem["list[Pokemon] | None"] = StateCacheItem(None)
         self._player: StateCacheItem["Player | None"] = StateCacheItem(None)
         self._player_avatar: StateCacheItem["PlayerAvatar | None"] = StateCacheItem(None)
         self._pokedex: StateCacheItem["Pokedex | None"] = StateCacheItem(None)
@@ -61,6 +62,7 @@ class StateCache:
         self._game_state: StateCacheItem["GameState | None"] = StateCacheItem(None)
         self._last_encounter_log: StateCacheItem["dict | None"] = StateCacheItem(None)
         self._last_shiny_log: StateCacheItem["dict | None"] = StateCacheItem(None)
+        self._battle_state: StateCacheItem["BattleState | None"] = StateCacheItem(None)
 
     @property
     def party(self) -> StateCacheItem[list["Pokemon"]]:
@@ -80,15 +82,25 @@ class StateCache:
         self._party.checked()
 
     @property
-    def opponent(self) -> StateCacheItem["Pokemon | None"]:
+    def opponent(self) -> StateCacheItem["list[Pokemon] | None"]:
         return self._opponent
 
     @opponent.setter
-    def opponent(self, opponent: "Pokemon | None"):
-        if self._opponent.value != opponent:
+    def opponent(self, opponent: "list[Pokemon] | None"):
+        if (
+            (self._opponent.value is None and opponent is not None)
+            or (self._opponent.value is not None and opponent is None)
+            or len(self._opponent.value) != len(opponent)
+        ):
             self._opponent.value = opponent
-        else:
-            self._opponent.checked()
+            return
+
+        for i in range(len(self._opponent.value)):
+            if self._opponent.value[i] != opponent[i]:
+                self._opponent.value = opponent
+                return
+
+        self._opponent.checked()
 
     @property
     def player(self) -> StateCacheItem["Player | None"]:
@@ -221,6 +233,17 @@ class StateCache:
             self._last_shiny_log.value = new_shiny_log
         else:
             self._last_shiny_log.checked()
+
+    @property
+    def battle_state(self) -> StateCacheItem["BattleState | None"]:
+        return self._battle_state
+
+    @battle_state.setter
+    def battle_state(self, new_battle_state: "BattleState"):
+        if self._battle_state.value != new_battle_state:
+            self._battle_state.value = new_battle_state
+        else:
+            self._battle_state.checked()
 
 
 state_cache: StateCache = StateCache()

@@ -28,7 +28,6 @@ def main_loop() -> None:
     """
     try:
         plugin_profile_loaded(context.profile)
-        current_mode: BotMode | None = None
 
         if context.config.discord.rich_presence:
             from modules.discord import discord_rich_presence
@@ -81,19 +80,19 @@ def main_loop() -> None:
 
             if context.bot_mode == "Manual":
                 context.controller_stack = []
-                if current_mode is not None:
+                if context.bot_mode_instance is not None:
                     context.emulator.reset_held_buttons()
-                current_mode = None
+                context.bot_mode_instance = None
                 listeners = []
             elif len(context.controller_stack) == 0:
-                current_mode = get_bot_mode_by_name(context.bot_mode)()
-                context.controller_stack.append(current_mode.run())
+                context.bot_mode_instance = get_bot_mode_by_name(context.bot_mode)()
+                context.controller_stack.append(context.bot_mode_instance.run())
                 listeners = get_bot_listeners(context.rom)
 
             try:
-                if current_mode is not None:
+                if context.bot_mode_instance is not None:
                     for listener in listeners:
-                        listener.handle_frame(current_mode, frame_info)
+                        listener.handle_frame(context.bot_mode_instance, frame_info)
                     if len(context.controller_stack) > 0:
                         next(context.controller_stack[-1])
             except (StopIteration, GeneratorExit):

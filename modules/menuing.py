@@ -100,6 +100,43 @@ def scroll_to_item_in_bag(item: Item) -> Generator:
             yield
 
 
+def scroll_to_party_menu_index(target_index: int) -> Generator:
+    if len(get_party()) <= target_index:
+        raise RuntimeError(
+            f"Cannot scroll to party index #{target_index} because the party only contains {len(get_party())} Pokémon."
+        )
+
+    # Wait for fade-in to finish (happens when the bag is opened, during which time inputs
+    # are not yet active.)
+    while (
+        get_game_state() != GameState.PARTY_MENU
+        or unpack_uint16(read_symbol("gPaletteFade", offset=0x07, size=0x02)) & 0x80 != 0
+    ):
+        yield
+
+    while True:
+        cursor = get_current_party_menu_index()
+
+        if cursor == target_index:
+            break
+        elif cursor < target_index:
+            context.emulator.press_button("Down")
+        else:
+            context.emulator.press_button("Up")
+        yield
+        yield
+
+
+def get_current_party_menu_index():
+    if context.rom.is_rs:
+        cursor = context.emulator.read_bytes(0x0202002F + len(get_party()) * 136 + 3, length=1)[0]
+    else:
+        party_menu = read_symbol("gPartyMenu")
+        cursor = party_menu[9]
+
+    return cursor
+
+
 class BaseMenuNavigator:
     def __init__(self, step: str = "None"):
         self.navigator = None
@@ -875,3 +912,44 @@ def use_party_hm_move(move_name: str):
         case _:
             raise BotModeError("Invalid HM move name.")
     return
+
+
+class RotatePokemon(BaseMenuNavigator):
+    def __init__(self, new_lead: int):
+        super().__init__()
+        self.party = get_party()
+        self.new_lead = new_lead
+
+    def get_next_func(self):
+        match self.current_step:
+            case "None":
+                match self.new_lead:
+                    case None:
+                        self.current_step = "exit"
+                    case _:
+                        self.current_step = "open_party_menu"
+            case "open_party_menu":
+                self.current_step = "switch_pokemon"
+            case "switch_pokemon":
+                self.current_step = "confirm_switch"
+            case "confirm_switch":
+                self.current_step = "exit_to_overworld"
+            case "exit_to_overworld":
+                self.current_step = "exit"
+
+    def update_navigator(self):
+        match self.current_step:
+            case "open_party_menu":
+                self.navigator = StartMenuNavigator("POKEMON").step()
+            case "switch_pokemon":
+                self.navigator = PokemonPartyMenuNavigator(idx=self.new_lead, mode="switch").step()
+            case "switch_pokemon":
+                self.navigator = self.confirm_switch()
+            case "exit_to_overworld":
+                self.navigator = PartyMenuExit().step()
+
+    @staticmethod
+    def confirm_switch():
+        while task_is_active("TASK_HANDLECHOOSEMONINPUT") or task_is_active("HANDLEPARTYMENUSWITCHPOKEMONINPUT"):
+            context.emulator.press_button("A")
+            yield
