@@ -1,3 +1,4 @@
+from collections import deque
 from tkinter import Button, PhotoImage, Tk
 
 import PIL.Image
@@ -7,6 +8,12 @@ from modules.gui.debug_tabs import *
 from modules.gui.emulator_controls import DebugEmulatorControls, EmulatorControls
 from modules.sprites import generate_placeholder_image
 from modules.version import pokebot_name, pokebot_version
+
+
+# Defines how many frames can be reverted at the most in stepping mode.
+stepping_mode_frame_history_size = 128
+stepping_mode_forward_key = "<space>"
+stepping_mode_reverse_key = "<Control-space>"
 
 
 class EmulatorScreen:
@@ -26,6 +33,8 @@ class EmulatorScreen:
         self._stepping_mode: bool = False
         self._stepping_button: Union[Button, None] = None
         self._current_step: int = 0
+        self._step_history: deque[bytes] = deque(maxlen=stepping_mode_frame_history_size + 1)
+        self._stepping_mode_bound_keys: list[tuple[str, str]] = []
 
         self._controls: EmulatorControls | None = None
 
@@ -124,16 +133,57 @@ class EmulatorScreen:
         self._stepping_mode = not self._stepping_mode
         if self._stepping_mode:
 
-            def next_step():
+            def update_back_button():
+                if len(self._step_history) > 1:
+                    self._back_button.config(background="orange", state="normal")
+                else:
+                    self._back_button.config(background="grey", state="disabled")
+
+            def next_step(*args):
+                if len(args) > 0 and args[0].state & 4 != 0 and not stepping_mode_forward_key.startswith("<Control-"):
+                    return
+
                 self._current_step += 1
+                self._step_history.append(context.emulator.get_save_state())
+                update_back_button()
+
+            def previous_step(*args):
+                if len(args) > 0 and args[0].state & 4 != 0 and not stepping_mode_reverse_key.startswith("<Control-"):
+                    return
+
+                if len(self._step_history) > 1:
+                    self._current_step -= 1
+                    self._step_history.pop()
+                    save_state = self._step_history[-1]
+                    context.emulator.load_save_state(save_state)
+                    update_back_button()
 
             self._stepping_button = Button(
                 self.window, text="⮞", padx=8, background="red", foreground="white", command=next_step, cursor="hand2"
             )
-            self._stepping_button.place(x=0, y=0)
+            self._stepping_button.place(x=32, y=0)
+
+            self._back_button = Button(
+                self.window, text="⮜", padx=8, foreground="white", command=previous_step, cursor="hand2"
+            )
+            self._back_button.place(x=0, y=0)
+            update_back_button()
+
             self._current_step = 0
+            self._step_history.append(context.emulator.get_save_state())
+
+            bind_reference_forward = self.window.bind(stepping_mode_forward_key, next_step)
+            bind_reference_reverse = self.window.bind(stepping_mode_reverse_key, previous_step)
+
+            self._stepping_mode_bound_keys.append((stepping_mode_forward_key, bind_reference_forward))
+            self._stepping_mode_bound_keys.append((stepping_mode_reverse_key, bind_reference_reverse))
         else:
+            self._back_button.destroy()
             self._stepping_button.destroy()
+            self._step_history.clear()
+            for sequence, function_reference in self._stepping_mode_bound_keys:
+                self.window.unbind(sequence, function_reference)
+            self._stepping_mode_bound_keys.clear()
 
     def _generate_placeholder_image(self):
         image = generate_placeholder_image(self.width * self.scale, self.height * self.scale)
