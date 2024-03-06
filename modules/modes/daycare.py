@@ -12,7 +12,7 @@ from modules.player import get_player_avatar
 from modules.pokemon import Pokemon, get_eggs_in_party, get_party
 from modules.tasks import get_global_script_context, task_is_active
 from ._interface import BotMode, BotModeError
-from ._util import (
+from .util import (
     ensure_facing_direction,
     follow_path,
     deprecated_navigate_to_on_current_map,

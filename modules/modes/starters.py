@@ -12,7 +12,7 @@ from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
 from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map, assert_no_auto_battle
 from ._interface import BattleAction, BotMode, BotModeError
-from ._util import (
+from .util import (
     ensure_facing_direction,
     soft_reset,
     wait_for_task_to_start_and_finish,

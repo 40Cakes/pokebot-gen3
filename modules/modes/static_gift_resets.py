@@ -15,7 +15,7 @@ from ._asserts import (
     assert_registered_item,
 )
 from ._interface import BotMode, BotModeError
-from ._util import (
+from .util import (
     follow_waypoints,
     navigate_to,
     soft_reset,

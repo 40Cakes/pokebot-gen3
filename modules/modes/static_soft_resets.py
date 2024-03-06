@@ -7,7 +7,7 @@ from modules.player import get_player_avatar
 from modules.pokemon import get_opponent
 from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map
 from ._interface import BattleAction, BotMode
-from ._util import (
+from .util import (
     soft_reset,
     wait_for_n_frames,
     wait_for_task_to_start_and_finish,

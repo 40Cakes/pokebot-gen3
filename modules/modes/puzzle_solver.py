@@ -11,7 +11,7 @@ from modules.save_data import get_save_data
 from modules.tasks import get_global_script_context
 from ._asserts import assert_has_pokemon_with_move, assert_no_auto_battle, assert_no_auto_pickup, assert_registered_item
 from ._interface import BotMode, BotModeError
-from ._util import (
+from .util import (
     follow_path,
     deprecated_navigate_to_on_current_map,
     wait_for_player_avatar_to_be_controllable,

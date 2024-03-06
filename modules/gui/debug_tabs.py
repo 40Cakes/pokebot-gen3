@@ -9,6 +9,7 @@ from PIL import Image, ImageDraw, ImageTk, ImageOps
 
 from modules.context import context
 from modules.daycare import get_daycare_data
+from modules.debug import debug
 from modules.game import (
     decode_string,
     _symbols,
@@ -1032,7 +1033,6 @@ class EmulatorTab(DebugTab):
         else:
             inputs_dict["__value"] = "-"
 
-        controller_names = [entry.__qualname__ for entry in context.controller_stack]
         session_total_seconds = context.frame / 59.727500569606
         session_hours = int(session_total_seconds / 3600)
         session_minutes = int((session_total_seconds % 3600) / 60)
@@ -1046,7 +1046,8 @@ class EmulatorTab(DebugTab):
             "Session Time at 1×": f"{session_time_at_1x}",
             "RNG Seed": hex(unpack_uint32(read_symbol("gRngValue"))),
             "Encounters/h (at 1×)": total_stats.get_encounter_rate_at_1x(),
-            "Controller": controller_names,
+            "Currently Running Actions": debug.action_stack,
+            "Debug Values": debug.debug_values,
         }
 
 

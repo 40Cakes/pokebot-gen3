@@ -21,6 +21,7 @@ class BotContext:
         self._current_message: str = ""
 
         self.controller_stack: list[Generator] = []
+        self.debug_action_stack: list[str] = []
         self.frame: int = 0
         self._current_bot_mode: str = initial_bot_mode
         self._previous_bot_mode: str = "Manual"

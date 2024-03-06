@@ -8,7 +8,7 @@ from modules.memory import get_event_flag
 from modules.player import get_player_avatar
 from modules.pokemon import get_opponent
 from ._interface import BattleAction, BotMode, BotModeError
-from ._util import (
+from .util import (
     follow_path,
     deprecated_navigate_to_on_current_map,
     wait_for_player_avatar_to_be_controllable,

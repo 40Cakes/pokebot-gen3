@@ -13,7 +13,7 @@ from modules.save_data import get_save_data
 from modules.tasks import get_global_script_context
 from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map
 from ._interface import BattleAction, BotMode, BotModeError
-from ._util import (
+from .util import (
     RanOutOfRepels,
     apply_repel,
     ensure_facing_direction,

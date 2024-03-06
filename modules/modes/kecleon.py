@@ -12,7 +12,7 @@ from ._asserts import (
     assert_has_pokemon_with_move,
 )
 from ._interface import BotMode, BotModeError
-from ._util import ensure_facing_direction, deprecated_navigate_to_on_current_map, walk_one_tile
+from .util import ensure_facing_direction, deprecated_navigate_to_on_current_map, walk_one_tile
 
 
 class KecleonMode(BotMode):

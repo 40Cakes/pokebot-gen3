@@ -6,7 +6,7 @@ from modules.player import get_player, get_player_avatar
 from modules.runtime import get_sprites_path
 from ._asserts import assert_item_exists_in_bag
 from ._interface import BotMode
-from ._util import fish, register_key_item
+from .util import fish, register_key_item
 
 
 class FishingMode(BotMode):

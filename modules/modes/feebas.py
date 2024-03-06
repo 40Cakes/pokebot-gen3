@@ -1,28 +1,65 @@
+import math
 from typing import Generator
 
 from modules.context import context
 from modules.encounter import handle_encounter
 from modules.items import get_item_by_name
+from modules.map import get_map_data
 from modules.map_data import MapRSE
 from modules.player import get_player, get_player_avatar
 from modules.pokemon import get_opponent, get_party
 from . import BattleAction
 from ._asserts import assert_item_exists_in_bag
 from ._interface import BotMode, BotModeError
-from ._util import (
-    ensure_facing_direction,
-    fish,
-    get_closest_surrounding_tile,
-    get_closest_tile,
-    get_tile_direction,
-    deprecated_navigate_to_on_current_map,
-    register_key_item,
-)
+from .util import ensure_facing_direction, fish, deprecated_navigate_to_on_current_map, register_key_item
 from ..console import console
 from ..map import get_map_all_tiles
 
 # Bad tiles such as cliffs marked as surfable, but can't surf or fish on it
 bad_tiles = [(19, 44), (20, 45), (23, 46), (27, 47)]
+
+
+def get_closest_tile(tiles: list[tuple[int, int]]) -> tuple[int, int] | None:
+    return min(
+        tiles,
+        key=lambda tile: math.hypot(
+            get_player_avatar().local_coordinates[1] - tile[1],
+            get_player_avatar().local_coordinates[0] - tile[0],
+        ),
+    )
+
+
+def get_closest_surrounding_tile(tile: tuple[int, int]) -> tuple[int, int] | None:
+    if valid_surrounding_tiles := [
+        get_map_data(get_player_avatar().map_group_and_number, check).local_position
+        for check in [
+            (tile[0] + 1, tile[1]),
+            (tile[0], tile[1] + 1),
+            (tile[0] - 1, tile[1]),
+            (tile[0], tile[1] - 1),
+        ]
+        if get_map_data(get_player_avatar().map_group_and_number, check).is_surfable
+    ]:
+        return get_closest_tile(valid_surrounding_tiles)
+    else:
+        return None
+
+
+def get_tile_direction(tile: tuple[int, int]) -> str | None:
+    tile_coords = tile
+    player_coords = get_player_avatar().local_coordinates
+
+    direction = None
+    if tile_coords[0] < player_coords[0]:
+        direction = "Left"
+    if tile_coords[1] < player_coords[1]:
+        direction = "Up"
+    if tile_coords[0] > player_coords[0]:
+        direction = "Right"
+    if tile_coords[1] > player_coords[1]:
+        direction = "Down"
+
+    return direction
 
 
 class FeebasMode(BotMode):

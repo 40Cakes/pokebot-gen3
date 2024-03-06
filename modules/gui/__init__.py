@@ -11,6 +11,7 @@ from ttkthemes import ThemedTk
 
 from modules.console import console
 from modules.context import context
+from modules.debug import debug
 from modules.game import set_rom
 from modules.gui.create_profile_screen import CreateProfileScreen
 from modules.gui.emulator_screen import EmulatorScreen
@@ -140,6 +141,9 @@ class PokebotGui:
             context.emulation_speed = self._startup_settings.emulation_speed
             context.debug = self._startup_settings.debug
             context.bot_mode = self._startup_settings.bot_mode
+
+            if context.debug:
+                debug.enabled = True
 
         self._current_screen = self._emulator_screen
         self._emulator_screen.enable()

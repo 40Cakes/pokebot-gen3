@@ -15,7 +15,7 @@ from modules.tasks import task_is_active
 from . import BattleAction
 from ._asserts import SavedMapLocation, assert_has_pokemon_with_move, assert_save_game_exists, assert_saved_on_map
 from ._interface import BotMode, BotModeError
-from ._util import (
+from .util import (
     RanOutOfRepels,
     apply_repel,
     apply_white_flute_if_available,

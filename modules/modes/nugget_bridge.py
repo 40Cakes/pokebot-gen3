@@ -7,7 +7,7 @@ from modules.memory import get_event_flag
 from modules.player import get_player_avatar
 from modules.pokemon import get_party
 from ._interface import BotMode, BotModeError
-from ._util import follow_path, deprecated_navigate_to_on_current_map, wait_for_n_frames, walk_one_tile
+from .util import follow_path, deprecated_navigate_to_on_current_map, wait_for_n_frames, walk_one_tile
 
 
 class NuggetBridgeMode(BotMode):

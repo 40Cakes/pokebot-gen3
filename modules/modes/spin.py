@@ -4,7 +4,7 @@ from modules.context import context
 from modules.memory import GameState, get_game_state
 from modules.player import RunningState, TileTransitionState, get_player_avatar
 from ._interface import BotMode
-from ._util import apply_white_flute_if_available
+from .util import apply_white_flute_if_available
 
 
 class SpinMode(BotMode):
