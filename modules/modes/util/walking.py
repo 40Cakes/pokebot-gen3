@@ -292,7 +292,9 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
     extra_timeout_in_frames_for_warps = 280
 
     current_position = get_map_data_for_current_position()
+    last_waypoint = None
     for waypoint in path:
+        last_waypoint = waypoint
         timeout_exceeded = False
         frames_remaining_until_timeout = timeout_in_frames
         if waypoint.is_warp:
@@ -328,6 +330,12 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
     # Wait for player to come to a full stop.
     context.emulator.reset_held_buttons()
     while not player_avatar_is_standing_still() or get_player_avatar().running_state != RunningState.NOT_MOVING:
+        # If we reached the destination tile and the script context is enabled, that probably means
+        # that a script has triggered at our destination. In that case, we cease control back to the
+        # bot mode immediately.
+        if last_waypoint is None or player_is_at(last_waypoint.map, last_waypoint.coordinates):
+            if get_global_script_context().is_active:
+                break
         yield
 
 
@@ -390,17 +398,25 @@ def navigate_to(
             break
         except TimedOutTryingToReachWaypointError:
             # If we run into a timeout while trying to follow the waypoints, this is likely because of either of
-            # these two reasons:
+            # these reasons:
             #
             # (a) For some weird reason the player avatar moved to an unexpected location (for example due to forced
             #     movement, or due to overshooting on the Mach Bike.)
             # (b) Since the path is calculated in the beginning and then just followed, there's a chance that an NPC
             #     moves and gets in our way, in which case we would just keep running into them until they finally move
             #     out of the way again.
+            # (c) We have moved over a tile that triggered a script which froze the player avatar.
             #
-            # In these cases, the `follow_waypoints()` function will trigger this timeout exception. We will just
-            # calculate a new path (from the new location, or taking into account the new location of obstacles) and
-            # try pathing again.
+            # In these cases, the `follow_waypoints()` function will trigger this timeout exception.
+            #
+            # In the first two  cases, We will just calculate a new path (from the new location, taking into account
+            # the new location of obstacles) and try pathing again.
+            #
+            # In the third case, we consider that an unexpected event and will abort the navigation.
+            if get_global_script_context().is_active:
+                raise BotModeError(
+                    f"We unexpectedly triggered a scripted event while trying to reach {coordinates} @ {map}.\nSwitching to manual mode."
+                )
             pass
 
 
