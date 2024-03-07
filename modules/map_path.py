@@ -117,11 +117,7 @@ class PathMap:
         return self._tiles
 
     def get_tile(self, local_coordinates: tuple[int, int]) -> PathTile:
-        try:
-            return self.tiles[local_coordinates[1] * self.size[0] + local_coordinates[0]]
-        except IndexError:
-            a = 1
-            return self.tiles[0]
+        return self.tiles[local_coordinates[1] * self.size[0] + local_coordinates[0]]
 
     def get_global_tile(self, global_coordinates: tuple[int, int]) -> PathTile:
         local_coordinates = global_coordinates[0] - self.offset[0], global_coordinates[1] - self.offset[1]
@@ -368,11 +364,17 @@ def calculate_path(
     blocked_coordinates: set[tuple[int, int]] = set()
     for object in get_map_objects():
         if "isPlayer" not in object.flags:
-            active_objects.add((object.map_group_and_number, object.local_id))
-            current = _find_tile_by_local_coordinates(object.map_group_and_number, object.current_coords)
-            previous = _find_tile_by_local_coordinates(object.map_group_and_number, object.previous_coords)
-            blocked_coordinates.add(current.global_coordinates)
-            blocked_coordinates.add(previous.global_coordinates)
+            try:
+                current = _find_tile_by_local_coordinates(object.map_group_and_number, object.current_coords)
+                previous = _find_tile_by_local_coordinates(object.map_group_and_number, object.previous_coords)
+                active_objects.add((object.map_group_and_number, object.local_id))
+                blocked_coordinates.add(current.global_coordinates)
+                blocked_coordinates.add(previous.global_coordinates)
+            except (KeyError, IndexError):
+                # If there is an object with invalid data (which could happen if it's being processed while we
+                # are querying the data), we simply ignore it. Instead, the object template will be used and
+                # in the event that we run into the object, a timeout will trigger and the route recalculated.
+                pass
 
     def cost_heuristic(tile: PathTile) -> int:
         return abs(tile.global_coordinates[0] - destination_tile.global_coordinates[0]) + abs(
