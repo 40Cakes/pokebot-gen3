@@ -30,6 +30,7 @@ from modules.map import (
     get_wild_encounters_for_map,
     WildEncounter,
 )
+from modules.map_data import MapGroupFRLG, MapFRLG, MapGroupRSE, MapRSE
 from modules.memory import (
     get_symbol,
     read_symbol,
@@ -1313,10 +1314,19 @@ class MapTab(DebugTab):
 
             encounters["__value"] = ", ".join(encounters["__value"])
 
+        if context.rom.is_rse:
+            map_enum = MapRSE(map_data.map_group_and_number)
+            group_enum = MapGroupRSE(map_data.map_group)
+        else:
+            map_enum = MapFRLG(map_data.map_group_and_number)
+            group_enum = MapGroupFRLG(map_data.map_group)
+
         return {
             "Map": {
-                "__value": map_data.map_name,
-                "Group": map_data.map_group,
+                "__value": map_enum.name,
+                "In-game Name": map_data.map_name,
+                "Group": group_enum.name,
+                "Group Number": map_data.map_group,
                 "Number": map_data.map_number,
                 "Size": map_data.map_size,
                 "Type": map_data.map_type,

@@ -369,8 +369,8 @@ def calculate_path(
     for object in get_map_objects():
         if "isPlayer" not in object.flags:
             active_objects.add((object.map_group_and_number, object.local_id))
-            current = _find_tile_by_location(get_map_data(object.map_group_and_number, object.current_coords))
-            previous = _find_tile_by_location(get_map_data(object.map_group_and_number, object.previous_coords))
+            current = _find_tile_by_local_coordinates(object.map_group_and_number, object.current_coords)
+            previous = _find_tile_by_local_coordinates(object.map_group_and_number, object.previous_coords)
             blocked_coordinates.add(current.global_coordinates)
             blocked_coordinates.add(previous.global_coordinates)
 
