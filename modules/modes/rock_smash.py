@@ -2,26 +2,29 @@ import contextlib
 from typing import Generator
 
 from modules.context import context
+from modules.debug import debug
 from modules.encounter import handle_encounter
 from modules.gui.multi_select_window import Selection, ask_for_choice
-from modules.items import get_item_bag
+from modules.items import get_item_bag, get_item_by_name
 from modules.map_data import MapRSE
+from modules.map_path import calculate_path
 from modules.memory import get_event_flag, get_event_var
-from modules.player import TileTransitionState, get_player, get_player_avatar
+from modules.player import TileTransitionState, get_player, get_player_avatar, AvatarFlags, get_player_location
 from modules.pokemon import get_opponent
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
-from modules.tasks import task_is_active
+from modules.tasks import task_is_active, get_global_script_context
 from . import BattleAction
 from ._asserts import SavedMapLocation, assert_has_pokemon_with_move, assert_save_game_exists, assert_saved_on_map
 from ._interface import BotMode, BotModeError
 from .util import (
+    navigate_to,
+    follow_waypoints,
     RanOutOfRepels,
     apply_repel,
     apply_white_flute_if_available,
     ensure_facing_direction,
     follow_path,
-    deprecated_navigate_to_on_current_map,
     replenish_repel,
     soft_reset,
     wait_for_player_avatar_to_be_standing_still,
@@ -54,6 +57,7 @@ class RockSmashMode(BotMode):
         super().__init__()
         self._in_safari_zone = False
         self._using_repel = False
+        self._using_mach_bike = False
 
     def on_safari_zone_timeout(self) -> bool:
         self._in_safari_zone = False
@@ -124,6 +128,8 @@ class RockSmashMode(BotMode):
                 self._using_repel = True
                 yield from self.reset_and_wait()
 
+        self._using_mach_bike = get_player().registered_item == get_item_by_name("Mach Bike")
+
         starting_cash = get_player().money
         while True:
             match get_player_avatar().map_group_and_number:
@@ -150,16 +156,23 @@ class RockSmashMode(BotMode):
                             yield
                         else:
                             break
-                case MapRSE.SAFARI_ZONE_SOUTH:
+                case MapRSE.SAFARI_ZONE_SOUTH | MapRSE.SAFARI_ZONE_SOUTHEAST:
                     self._in_safari_zone = True
-                    yield from deprecated_navigate_to_on_current_map(39, 16)
-                    yield from walk_one_tile("Right")
-                case MapRSE.SAFARI_ZONE_SOUTHEAST:
-                    self._in_safari_zone = True
-                    yield from deprecated_navigate_to_on_current_map(8, 0)
-                    yield from walk_one_tile("Up")
+                    while (
+                        get_player_avatar().map_group_and_number == MapRSE.SAFARI_ZONE_SOUTH
+                        and get_player_avatar().local_coordinates in ((32, 33), (32, 34))
+                    ) or get_global_script_context().is_active:
+                        yield
+                    yield from wait_for_player_avatar_to_be_standing_still()
+                    if self._using_mach_bike:
+                        yield from self.mount_bicycle()
+                        yield from navigate_to(MapRSE.SAFARI_ZONE_NORTHEAST, (15, 7))
+                        yield from self.unmount_bicycle()
+                    else:
+                        yield from navigate_to(MapRSE.SAFARI_ZONE_NORTHEAST, (12, 7))
 
     @staticmethod
+    @debug.track
     def reset_and_wait():
         context.emulator.reset_held_buttons()
         yield from soft_reset()
@@ -167,6 +180,7 @@ class RockSmashMode(BotMode):
         yield from wait_for_player_avatar_to_be_standing_still()
 
     @staticmethod
+    @debug.track
     def smash(flag_name):
         if not get_event_flag(flag_name):
             yield from wait_for_script_to_start_and_finish("EventScript_RockSmash", "A")
@@ -178,11 +192,26 @@ class RockSmashMode(BotMode):
                 yield from wait_until_task_is_not_active("Task_ExitNonDoor")
         yield
 
+    @debug.track
+    def mount_bicycle(self) -> Generator:
+        while AvatarFlags.OnMachBike not in get_player_avatar().flags:
+            context.emulator.press_button("Select")
+            yield
+        yield
+
+    @debug.track
+    def unmount_bicycle(self) -> Generator:
+        while AvatarFlags.OnMachBike in get_player_avatar().flags:
+            context.emulator.press_button("Select")
+            yield
+        yield
+
+    @debug.track
     def granite_cave(self) -> Generator:
         if self._using_repel and get_event_var("REPEL_STEP_COUNT") <= 0:
             with contextlib.suppress(RanOutOfRepels):
                 yield from apply_repel()
-        yield from deprecated_navigate_to_on_current_map(6, 21)
+        yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (6, 21))
         yield from ensure_facing_direction("Down")
         # With Repel active, White Flute boosts encounters by 30-40%, but without Repel it
         # actually _decreases_ encounter rates (due to so many regular encounters popping up
@@ -213,11 +242,10 @@ class RockSmashMode(BotMode):
         yield from ensure_facing_direction("Up")
         yield from self.smash("TEMP_14")
 
-        yield from deprecated_navigate_to_on_current_map(29, 14)
-        yield from walk_one_tile("Up")
+        yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (29, 13))
         yield from walk_one_tile("Up")
         yield from walk_one_tile("Down")
-        yield from follow_path([(29, 14), (7, 13)])
+        yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (7, 13))
         yield from ensure_facing_direction("Up")
         if self._using_repel:
             yield from apply_white_flute_if_available()
@@ -245,15 +273,16 @@ class RockSmashMode(BotMode):
         yield from ensure_facing_direction("Down")
         yield from self.smash("TEMP_16")
 
-        yield from deprecated_navigate_to_on_current_map(28, 20)
-        yield from walk_one_tile("Down")
+        yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (28, 21))
+        yield from wait_for_player_avatar_to_be_standing_still()
         yield from walk_one_tile("Down")
         yield from walk_one_tile("Up")
 
+    @debug.track
     def enter_safari_zone(self):
         if get_player().money < 500:
             raise BotModeError("You do not have enough cash to re-enter the Safari Zone.")
-        yield from deprecated_navigate_to_on_current_map(9, 4)
+        yield from navigate_to(MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE, (9, 4))
         yield from ensure_facing_direction("Left")
         context.emulator.hold_button("Left")
         for _ in range(10):
@@ -272,8 +301,9 @@ class RockSmashMode(BotMode):
         ):
             yield
 
+    @debug.track
     def safari_zone(self):
-        yield from deprecated_navigate_to_on_current_map(12, 7)
+        yield from navigate_to(MapRSE.SAFARI_ZONE_NORTHEAST, (12, 7))
         yield from ensure_facing_direction("Down")
         yield from self.smash("TEMP_12")
 
@@ -293,6 +323,19 @@ class RockSmashMode(BotMode):
         yield from ensure_facing_direction("Down")
         yield from self.smash("TEMP_13")
 
-        yield from deprecated_navigate_to_on_current_map(8, 39)
-        yield from walk_one_tile("Down")
-        yield from walk_one_tile("Up")
+        if self._using_mach_bike:
+            yield from self.mount_bicycle()
+
+            def bike_waypoints():
+                point_a = (MapRSE.SAFARI_ZONE_SOUTHEAST, (8, 0))
+                point_b = (MapRSE.SAFARI_ZONE_SOUTHEAST, (7, 0))
+                point_c = (MapRSE.SAFARI_ZONE_NORTHEAST, (15, 7))
+
+                yield from calculate_path(get_player_location(), point_a)
+                yield from calculate_path(point_a, point_b)
+                yield from calculate_path(point_b, point_c)
+
+            yield from follow_waypoints(bike_waypoints())
+            yield from self.unmount_bicycle()
+        else:
+            yield from navigate_to(MapRSE.SAFARI_ZONE_SOUTHEAST, (8, 0))

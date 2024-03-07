@@ -382,6 +382,9 @@ def navigate_to(
             except PathFindingError as e:
                 raise BotModeError(str(e))
 
+            if len(waypoints) == 0:
+                return
+
             # If the final destination turns out to be a warp, we are not going to end up in the place specified by
             # the `map` and `coordinates` parameters, but rather on another map. Because that would lead to this
             # function thinking we've missed the target, we will override the destination with the warp destination

@@ -1,11 +1,14 @@
 from dataclasses import dataclass
 from enum import IntEnum
 from queue import SimpleQueue, PriorityQueue
+from typing import TypeAlias
 
 from modules.context import context
 from modules.map import MapLocation, get_map_all_tiles, get_map_data, get_map_objects
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import get_event_flag_by_number, get_event_var_by_number
+
+LocationType: TypeAlias = MapLocation | tuple[tuple[int, int] | MapFRLG | MapRSE, tuple[int, int]]
 
 
 class Direction(IntEnum):
@@ -236,9 +239,17 @@ def _find_tile_by_location(map_location: MapLocation) -> PathTile:
     return _get_map_metadata((map_location.map_group, map_location.map_number)).get_tile(map_location.local_position)
 
 
+def _find_tile_by_local_coordinates(
+    map: tuple[int, int] | MapFRLG | MapFRLG, local_coordinates: tuple[int, int]
+) -> PathTile:
+    if not isinstance(map, tuple):
+        map = map.value
+    return _get_map_metadata(map).get_tile(local_coordinates)
+
+
 class PathFindingError(RuntimeError):
 
-    def __init__(self, message: str, source: MapLocation | None = None, destination: MapLocation | None = None):
+    def __init__(self, message: str, source: LocationType | None = None, destination: LocationType | None = None):
         if source is not None:
             message = message.replace("%SOURCE%", self._debug_tile_name(source))
 
@@ -247,12 +258,20 @@ class PathFindingError(RuntimeError):
 
         super().__init__(message)
 
-    def _debug_tile_name(self, location: MapLocation) -> str:
-        if context.rom.is_rse:
-            map_name = MapRSE((location.map_group, location.map_number)).name
+    @staticmethod
+    def _debug_tile_name(location: LocationType) -> str:
+        if isinstance(location, MapLocation):
+            map_group, map_number = location.map_group_and_number
+            local_coordinates = location.local_position
         else:
-            map_name = MapFRLG((location.map_group, location.map_number)).name
-        return f"{location.local_position[0]}/{location.local_position[1]} @ {map_name}"
+            map_group, map_number = location[0]
+            local_coordinates = location[1]
+
+        if context.rom.is_rse:
+            map_name = MapRSE((map_group, map_number)).name
+        else:
+            map_name = MapFRLG((map_group, map_number)).name
+        return f"{local_coordinates[0]}/{local_coordinates[1]} @ {map_name}"
 
 
 @dataclass
@@ -319,13 +338,20 @@ class Waypoint:
 
 
 def calculate_path(
-    source: MapLocation,
-    destination: MapLocation,
+    source: LocationType,
+    destination: LocationType,
     avoid_encounters: bool = True,
     avoid_scripted_events: bool = True,
 ) -> list[Waypoint]:
-    source_tile = _find_tile_by_location(source)
-    destination_tile = _find_tile_by_location(destination)
+    if isinstance(source, MapLocation):
+        source_tile = _find_tile_by_location(source)
+    else:
+        source_tile = _find_tile_by_local_coordinates(source[0], source[1])
+
+    if isinstance(source, MapLocation):
+        destination_tile = _find_tile_by_location(destination)
+    else:
+        destination_tile = _find_tile_by_local_coordinates(destination[0], destination[1])
 
     if source_tile.map.level != destination_tile.map.level:
         raise PathFindingError(

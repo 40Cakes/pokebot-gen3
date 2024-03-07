@@ -247,14 +247,21 @@ def get_event_flag_by_number(flag_number: int) -> bool:
     return bool(flag_byte & flag_bit)
 
 
-def set_event_flag(flag_name: str) -> bool:
+def set_event_flag(flag_name: str, new_value: bool | None = None) -> bool:
     if flag_name not in _event_flags:
         return False
 
     flag_offset = get_event_flag_offset(flag_name)
-    flag_byte = get_save_block(1, offset=flag_offset[0], size=1)
+    flag_byte = get_save_block(1, offset=flag_offset[0], size=1)[0]
 
-    write_to_save_block(int.to_bytes(int.from_bytes(flag_byte) ^ (1 << flag_offset[1])), 1, offset=flag_offset[0])
+    if new_value is None:
+        new_byte = flag_byte ^ (1 << flag_offset[1])
+    elif new_value is True:
+        new_byte = flag_byte | (1 << flag_offset[1])
+    else:
+        new_byte = flag_byte & ((1 << flag_offset[1]) ^ 0xFF)
+
+    write_to_save_block(int.to_bytes(new_byte), 1, offset=flag_offset[0])
     return True
 
 
