@@ -43,6 +43,7 @@ The mode will continuously try to enter the Safari Zone, so make sure you have s
 
 - Go to the _entrance_ of the Safari Zone (see image below)
 - Make sure you have some cash on you
+- (Optional) Register the Mach Bike to the Select button (this is not required, but it will be a bit faster.)
 - Save the game (**in-game, not a save state**)
 - Start mode
 

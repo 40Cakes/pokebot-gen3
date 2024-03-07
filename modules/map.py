@@ -680,6 +680,9 @@ class MapBgEvent:
         return data
 
 
+_map_layout_cache: dict[tuple[int, int], bytes] = {}
+
+
 class MapLocation:
     def __init__(self, map_header: bytes, map_group: int, map_number: int, local_position: tuple[int, int]):
         self._map_header = map_header
@@ -689,8 +692,11 @@ class MapLocation:
 
     @cached_property
     def _map_layout(self) -> bytes:
-        map_layout_pointer = unpack_uint32(self._map_header[:4])
-        return context.emulator.read_bytes(map_layout_pointer, 24)
+        global _map_layout_cache
+        if self.map_group_and_number not in _map_layout_cache:
+            map_layout_pointer = unpack_uint32(self._map_header[:4])
+            _map_layout_cache[self.map_group_and_number] = context.emulator.read_bytes(map_layout_pointer, 24)
+        return _map_layout_cache[self.map_group_and_number]
 
     @cached_property
     def _metatile_attributes(self) -> tuple[int, int, int]:
@@ -1612,14 +1618,41 @@ def get_map_data_for_current_position() -> MapLocation | None:
     return MapLocation(read_symbol("gMapHeader"), map_group, map_number, player.local_coordinates)
 
 
+_map_header_cache: dict[tuple[int, int], bytes] = {}
+
+
 def get_map_data(
     map_group_and_number: "tuple[int, int] | MapFRLG | MapRSE", local_position: tuple[int, int]
 ) -> MapLocation:
-    map_group, map_number = map_group_and_number
-    map_group_pointer = unpack_uint32(read_symbol("gMapGroups", map_group * 4, 4))
-    map_number_pointer = unpack_uint32(context.emulator.read_bytes(map_group_pointer + 4 * map_number, 4))
-    map_header = context.emulator.read_bytes(map_number_pointer, 0x1C)
-    return MapLocation(map_header, map_group, map_number, local_position)
+    global _map_header_cache
+    if not isinstance(map_group_and_number, tuple):
+        map_group_and_number = map_group_and_number.value
+
+    if len(_map_header_cache) == 0:
+        from modules.map_data import MapGroupFRLG, MapGroupRSE
+
+        if context.rom.is_rse:
+            number_of_map_groups = len(MapGroupRSE)
+            map_group_enum = MapGroupRSE
+        else:
+            number_of_map_groups = len(MapGroupFRLG)
+            map_group_enum = MapGroupFRLG
+        map_group_pointers = read_symbol("gMapGroups", size=4 * number_of_map_groups)
+
+        for group_index in range(number_of_map_groups):
+            number_of_maps = len(map_group_enum(group_index).maps)
+            group_pointer = unpack_uint32(map_group_pointers[group_index * 4 : (group_index + 1) * 4])
+            for map_index in range(number_of_maps):
+                map_header_pointer = unpack_uint32(context.emulator.read_bytes(group_pointer + 4 * map_index, 4))
+                map_header = context.emulator.read_bytes(map_header_pointer, 0x1C)
+                _map_header_cache[(group_index, map_index)] = map_header
+
+    if map_group_and_number not in _map_header_cache:
+        raise ValueError(f"Tried to access invalid map: ({map_group_and_number})")
+
+    return MapLocation(
+        _map_header_cache[map_group_and_number], map_group_and_number[0], map_group_and_number[1], local_position
+    )
 
 
 def get_map_objects() -> list[ObjectEvent]:
