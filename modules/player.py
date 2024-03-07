@@ -272,6 +272,19 @@ def player_avatar_is_standing_still() -> bool:
     return player_avatar_is_controllable() and "heldMovementFinished" in get_player_map_object().flags
 
 
-def player_is_at(map: tuple[int, int] | MapFRLG | MapRSE, coordinates: tuple[int, int]) -> bool:
+def get_player_location() -> tuple[MapFRLG | MapRSE, tuple[int, int]]:
     avatar = get_player_avatar()
-    return avatar.map_group_and_number == map and avatar.local_coordinates == coordinates
+    if avatar is None:
+        raise RuntimeError("Could not figure out the player's location because the player avatar is not active.")
+
+    if context.rom.is_rse:
+        map = MapRSE(avatar.map_group_and_number)
+    else:
+        map = MapFRLG(avatar.map_group_and_number)
+
+    return map, avatar.local_coordinates
+
+
+def player_is_at(map: tuple[int, int] | MapFRLG | MapRSE, coordinates: tuple[int, int]) -> bool:
+    location = get_player_location()
+    return location[0] == map and location[1] == coordinates

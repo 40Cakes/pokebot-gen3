@@ -62,6 +62,14 @@ class MapGroupFRLG(Enum):
         else:
             return NotImplemented
 
+    @property
+    def maps(self) -> "list[MapFRLG]":
+        result = []
+        for item in MapFRLG:
+            if item.value[0] == self.value:
+                result.append(item)
+        return result
+
 
 class MapFRLG(Enum):
     # Link
@@ -662,6 +670,14 @@ class MapGroupRSE(Enum):
             return self.value == item.value[0]
         else:
             return NotImplemented
+
+    @property
+    def maps(self) -> "list[MapRSE]":
+        result = []
+        for item in MapRSE:
+            if item.value[0] == self.value:
+                result.append(item)
+        return result
 
 
 class MapRSE(Enum):
