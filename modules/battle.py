@@ -584,6 +584,9 @@ class BattleOpponent:
                     if mon_to_switch is None:
                         self.choice = "flee"
                         self.idx = -1
+                        if is_trainer_battle:
+                            context.message = "The lead Pokémon is too weak to fight and there is no suitable replacement in your party. Since this is a trainer battle, we also cannot flee. Switching to manual mode."
+                            context.set_manual_mode()
                     else:
                         self.choice = "switch"
                         self.idx = mon_to_switch
