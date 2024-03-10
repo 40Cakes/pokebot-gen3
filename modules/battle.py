@@ -1373,7 +1373,7 @@ def check_mon_can_battle(mon: Pokemon) -> bool:
     """
     if context.bot_mode == "Nugget Bridge":
         return True
-    
+
     if mon.is_egg or not mon_has_enough_hp(mon):
         return False
 
