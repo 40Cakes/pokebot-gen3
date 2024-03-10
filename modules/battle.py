@@ -23,7 +23,7 @@ from modules.menuing import (
     party_menu_is_open,
 )
 from modules.modes import BotModeError
-from modules.modes.util import scroll_to_item_in_bag
+from modules.modes._util import scroll_to_item_in_bag
 from modules.player import get_player_avatar
 from modules.pokedex import get_pokedex
 from modules.pokemon import (
@@ -581,12 +581,9 @@ class BattleOpponent:
                     self.idx = -1
                 case "rotate":
                     mon_to_switch = self.get_mon_to_switch()
-                    if mon_to_switch is None:
+                    if mon_to_switch is None and not is_trainer_battle:
                         self.choice = "flee"
                         self.idx = -1
-                        if is_trainer_battle:
-                            context.message = "The lead Pokémon is too weak to fight and there is no suitable replacement in your party. Since this is a trainer battle, we also cannot flee. Switching to manual mode."
-                            context.set_manual_mode()
                     else:
                         self.choice = "switch"
                         self.idx = mon_to_switch
@@ -821,6 +818,8 @@ class BattleOpponent:
         else:
             current_opponent = get_opponent()
             move = self.find_effective_move(self.current_battler, current_opponent)
+            if context.bot_mode == "Nugget Bridge":
+                return move["index"]
             if move["power"] == 0:
                 context.message = "Lead Pokémon has no effective moves to battle the foe!"
                 return -1
@@ -1369,6 +1368,9 @@ def check_mon_can_battle(mon: Pokemon) -> bool:
     """
     Determines whether a Pokémon is fit to fight
     """
+    if context.bot_mode == "Nugget Bridge":
+        return True
+    
     if mon.is_egg or not mon_has_enough_hp(mon):
         return False
 
