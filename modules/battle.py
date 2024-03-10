@@ -23,7 +23,7 @@ from modules.menuing import (
     party_menu_is_open,
 )
 from modules.modes import BotModeError
-from modules.modes._util import scroll_to_item_in_bag
+from modules.modes.util import scroll_to_item_in_bag
 from modules.player import get_player_avatar
 from modules.pokedex import get_pokedex
 from modules.pokemon import (
@@ -581,7 +581,7 @@ class BattleOpponent:
                     self.idx = -1
                 case "rotate":
                     mon_to_switch = self.get_mon_to_switch()
-                    if mon_to_switch is None and not is_trainer_battle:
+                    if mon_to_switch is None:
                         self.choice = "flee"
                         self.idx = -1
                     else:
