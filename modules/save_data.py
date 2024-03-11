@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+from functools import cached_property
 
 from modules.context import context
+from modules.game import get_event_flag_offset, get_event_var_offset
 from modules.items import ItemBag
 from modules.memory import get_save_block, unpack_uint16, unpack_uint32
 from modules.pokemon import Pokemon, parse_pokemon
@@ -22,6 +24,27 @@ class SaveData:
 
     def get_map_local_coordinates(self) -> tuple[int, int]:
         return unpack_uint16(self.sections[1][:2]), unpack_uint16(self.sections[1][2:4])
+
+    @cached_property
+    def _save_block_1(self) -> bytes:
+        return self.sections[1] + self.sections[2] + self.sections[3] + self.sections[4]
+
+    def get_save_block(self, num: int = 1, offset: int = 0, size: int = 1) -> bytes:
+        if num == 2:
+            return self.sections[0][offset : offset + size]
+        elif num == 1:
+            return self._save_block_1[offset : offset + size]
+        else:
+            return b""
+
+    def get_event_flag(self, flag_name: str) -> bool:
+        flag_offset = get_event_flag_offset(flag_name)
+        flag_byte = self.get_save_block(1, offset=flag_offset[0], size=1)
+
+        return bool((flag_byte[0] >> (flag_offset[1])) & 1)
+
+    def get_event_var(self, var_name: str) -> int:
+        return unpack_uint16(self.get_save_block(1, offset=get_event_var_offset(var_name), size=2))
 
     def get_party(self) -> list[Pokemon]:
         party = []
