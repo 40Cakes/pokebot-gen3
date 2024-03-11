@@ -99,28 +99,36 @@ def assert_saved_on_map(expected_locations: SavedMapLocation | list[SavedMapLoca
     raise BotModeError(error_message)
 
 
-def assert_registered_item(expected_items: str | list[str], error_message: str) -> None:
+def assert_registered_item(
+    expected_items: str | list[str], error_message: str, check_in_saved_game: bool = False
+) -> None:
     """
     Raises an exception if the given item is not registered (for the Select button.)
     :param expected_items: Item name, or list of item names, that should be registered.
     :param error_message: Error message to display if the assertion fails.
+    :param check_in_saved_game: Whether to check for the registered item in the saved game, rather than the
+                                currently active one.
     """
     if not isinstance(expected_items, list):
         expected_items = [expected_items]
 
-    registered_item = get_player().registered_item
+    player = get_player() if not check_in_saved_game else get_save_data().get_player()
+    registered_item = player.registered_item
     if registered_item is None or registered_item.name not in expected_items:
         raise BotModeError(error_message)
 
 
-def assert_has_pokemon_with_move(move: str, error_message: str) -> None:
+def assert_has_pokemon_with_move(move: str, error_message: str, check_in_saved_game: bool = False) -> None:
     """
     Raises an exception if the player has no Pokémon that knows a given move in their
     party.
     :param move: Name of the move to look for.
     :param error_message: Error message to display if the assertion fails.
+    :param check_in_saved_game: Whether to get the party in the saved game, rather than the
+                                currently active one.
     """
-    for pokemon in get_party():
+    party = get_party() if not check_in_saved_game else get_save_data().get_party()
+    for pokemon in party:
         if not pokemon.is_egg and not pokemon.is_empty:
             for learned_move in pokemon.moves:
                 if learned_move is not None and learned_move.move.name == move:

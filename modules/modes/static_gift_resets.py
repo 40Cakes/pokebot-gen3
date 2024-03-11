@@ -6,12 +6,12 @@ from modules.encounter import handle_encounter
 from modules.map import get_map_data
 from modules.map_data import MapFRLG, MapRSE
 from modules.map_path import calculate_path
-from modules.memory import get_event_flag
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.player import get_player_avatar
 from modules.pokemon import get_party
 from modules.save_data import get_save_data
 from ._asserts import (
+    assert_save_game_exists,
     assert_registered_item,
 )
 from ._interface import BotMode, BotModeError
@@ -73,11 +73,9 @@ class StaticGiftResetsMode(BotMode):
 
     def run(self) -> Generator:
         encounter = _get_targeted_encounter()
+        assert_save_game_exists("There is no saved game. Cannot soft reset.")
 
         save_data = get_save_data()
-        if save_data is None:
-            raise BotModeError("There is no saved game. Cannot soft reset.")
-
         if encounter[0] != (save_data.sections[1][4], save_data.sections[1][5]):
             raise BotModeError("The targeted encounter is not in the current map. Cannot soft reset.")
 
@@ -85,8 +83,9 @@ class StaticGiftResetsMode(BotMode):
             assert_registered_item(
                 ["Mach Bike"],
                 "You need to register the Mach Bike for the Select button, then save again.",
+                check_in_saved_game=True,
             )
-            if get_event_flag("RECEIVED_LAVARIDGE_EGG"):
+            if save_data.get_event_flag("RECEIVED_LAVARIDGE_EGG"):
                 raise BotModeError("You have already received the Wynaut egg.")
         if encounter[2] in ["Wynaut", "Togepi"] and get_party()[0].ability.name not in ["Flame Body", "Magma Armor"]:
             console.print(
@@ -95,12 +94,14 @@ class StaticGiftResetsMode(BotMode):
             console.print("[bold yellow]This will slow down the egg hatching process.")
         if encounter[2] == "Togepi":
             assert_registered_item(
-                ["Bicycle"], "You need to register the Bicycle for the Select button, then save again."
+                ["Bicycle"],
+                "You need to register the Bicycle for the Select button, then save again.",
+                check_in_saved_game=True,
             )
-            if get_party()[0].friendship < 255:
+            if save_data.get_party()[0].friendship < 255:
                 raise BotModeError("The first Pokemon in your party must have max friendship (255) to receive the egg.")
 
-        if get_event_flag("GOT_TOGEPI_EGG"):
+        if save_data.get_event_flag("GOT_TOGEPI_EGG"):
             raise BotModeError("You have already received the Togepi egg.")
         while context.bot_mode != "Manual":
             yield from soft_reset(mash_random_keys=True)

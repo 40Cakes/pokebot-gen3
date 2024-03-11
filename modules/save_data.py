@@ -5,6 +5,7 @@ from modules.context import context
 from modules.game import get_event_flag_offset, get_event_var_offset
 from modules.items import ItemBag
 from modules.memory import get_save_block, unpack_uint16, unpack_uint32
+from modules.player import Player
 from modules.pokemon import Pokemon, parse_pokemon
 
 
@@ -18,6 +19,20 @@ class SaveData:
     save_index: int
     block_index: int
     sections: list[bytes]
+
+    def get_player(self):
+        if context.rom.is_rse:
+            save_block_1_offset = 0x490
+            encryption_key_offset = 0xAC
+        else:
+            save_block_1_offset = 0x290
+            encryption_key_offset = 0xF20
+
+        save_block_1 = get_save_block(1, offset=save_block_1_offset, size=0x08)
+        save_block_2 = get_save_block(2, size=0x0E)
+        encryption_key = get_save_block(2, encryption_key_offset, 4)
+
+        return Player(save_block_1, save_block_2, encryption_key)
 
     def get_map_group_and_number(self) -> tuple[int, int]:
         return self.sections[1][4], self.sections[1][5]
