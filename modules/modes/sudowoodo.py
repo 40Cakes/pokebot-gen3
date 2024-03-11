@@ -38,6 +38,7 @@ class SudowoodoMode(BotMode):
         assert_registered_item(
             ["Wailmer Pail"],
             "You need to register the Wailmer Pail for the Select button.",
+            check_in_saved_game=True,
         )
 
         while context.bot_mode != "Manual":
