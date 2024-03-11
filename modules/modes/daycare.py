@@ -19,7 +19,6 @@ from .util import (
     navigate_to,
     register_key_item,
     wait_for_player_avatar_to_be_controllable,
-    wait_for_player_avatar_to_be_standing_still,
     wait_for_n_frames,
     wait_for_task_to_start_and_finish,
     wait_until_task_is_active,
@@ -83,12 +82,9 @@ class DaycareMode(BotMode):
             message_box_task = "Task_FieldMessageBox"
             yes_no_task = "Task_HandleYesNoInput"
         else:
-            path = ((9, 15), (28, 15))
             daycare_route = MapFRLG.FOUR_ISLAND
             daycare_inside_map = MapFRLG.FOUR_ISLAND_POKEMON_DAY_CARE
             daycare_man_map_object_id = 1
-            daycare_man = (16, 15)
-            daycare_house = (12, 15)
             daycare_door = (12, 13)
             daycare_exit = (4, 7)
             message_box_task = "Task_DrawFieldMessageBox"
@@ -151,8 +147,6 @@ class DaycareMode(BotMode):
         else:
             console.print("[bold yellow]WARNING: You do not have a bicycle, so we will just be running.")
             console.print("[bold yellow]This will slow down the egg hatching process.")
-
-        self._use_bike = False
 
         def handle_egg_collecting():
             daycare_egg_ready = get_event_flag("PENDING_DAYCARE_EGG")
