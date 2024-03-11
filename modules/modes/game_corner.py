@@ -5,11 +5,12 @@ from modules.encounter import handle_encounter
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.map_data import MapFRLG
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
-from modules.player import get_player, get_player_avatar
+from modules.player import get_player_avatar
 from modules.pokemon import get_party
 from modules.runtime import get_sprites_path
+from modules.save_data import get_save_data
 from modules.tasks import task_is_active
-from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map
+from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map, assert_empty_slot_in_party
 from ._interface import BotMode, BotModeError
 from .util import (
     soft_reset,
@@ -36,9 +37,11 @@ class GameCornerMode(BotMode):
         )
 
     def run(self) -> Generator:
-        coin_case = get_player().coins
+        assert_save_game_exists("There is no saved game. Cannot soft reset.")
+
+        coin_case = get_save_data().get_player().coins
         if coin_case < 180:
-            raise BotModeError("You don't have enough coins to buy anything.")
+            raise BotModeError("In your saved game, you don't have enough coins to buy anything.")
 
         if context.rom.is_fr:
             choices = [("Abra", 180), ("Clefairy", 500), ("Dratini", 2800), ("Scyther", 5500), ("Porygon", 9999)]
@@ -62,18 +65,16 @@ class GameCornerMode(BotMode):
         if game_corner_choice is None:
             return
 
-        assert_save_game_exists("There is no saved game. Cannot soft reset.")
         assert_saved_on_map(
             SavedMapLocation(MapFRLG.CELADON_CITY_GAME_CORNER_PRIZE_ROOM, (4, 3), facing=True),
             "Please save in-game, facing the counter before starting this mode.",
         )
 
+        assert_empty_slot_in_party("This mode requires at least one empty party slot, but your party is full.")
+
         while context.bot_mode != "Manual":
             yield from soft_reset(mash_random_keys=True)
             yield from wait_for_unique_rng_value()
-
-            if len(get_party()) >= 6:
-                raise BotModeError("This mode requires at least one empty party slot, but your party is full.")
 
             # Spam A until choice appears
             if not task_is_active("Task_MultichoiceMenu_HandleInput"):
