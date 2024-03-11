@@ -821,6 +821,8 @@ class BattleOpponent:
         else:
             current_opponent = get_opponent()
             move = self.find_effective_move(self.current_battler, current_opponent)
+            if context.bot_mode == "Nugget Bridge":
+                return move["index"]
             if move["power"] == 0:
                 context.message = "Lead Pokémon has no effective moves to battle the foe!"
                 return -1
@@ -1369,6 +1371,9 @@ def check_mon_can_battle(mon: Pokemon) -> bool:
     """
     Determines whether a Pokémon is fit to fight
     """
+    if context.bot_mode == "Nugget Bridge":
+        return True
+
     if mon.is_egg or not mon_has_enough_hp(mon):
         return False
 
