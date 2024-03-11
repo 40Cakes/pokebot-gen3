@@ -155,6 +155,9 @@ def _get_all_maps_metadata() -> dict[tuple[int, int], PathMap]:
 
     # Load basic map data
     for map_address in maps_enum:
+        if context.rom.is_rs and not map_address.exists_on_rs:
+            continue
+
         map_data = get_map_data(map_address, (0, 0))
         map_connections = [
             _get_connection_for_direction(map_data, "North"),

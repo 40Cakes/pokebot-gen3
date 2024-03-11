@@ -9,6 +9,7 @@ from modules.map_data import MapFRLG, MapRSE, get_map_enum
 from modules.memory import get_save_block, read_symbol, unpack_uint16, unpack_uint32, get_game_state, GameState
 from modules.pokemon import Item, get_item_by_index
 from modules.state_cache import state_cache
+from modules.tasks import task_is_active
 
 
 # https://github.com/pret/pokeemerald/blob/104e81b359d287668cee613f6604020a6e7228a3/include/global.fieldmap.h
@@ -263,6 +264,11 @@ def player_avatar_is_controllable() -> bool:
         or "frozen" in player_map_object_flags
         or AvatarFlags.ForcedMove in get_player_avatar().flags
     ):
+        return False
+
+    # When exiting a door in RSE, there is a single frame where the game erroneously reports
+    # the player as controllable even though it's still in the exiting animation.
+    if task_is_active("Task_ExitDoor") or task_is_active("sub_8080B9C"):
         return False
 
     return True

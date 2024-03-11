@@ -22,6 +22,7 @@ from modules.player import (
     player_avatar_is_controllable,
     player_avatar_is_standing_still,
     player_is_at,
+    get_player_location,
 )
 from modules.tasks import get_global_script_context
 from .sleep import wait_for_n_frames
@@ -371,11 +372,10 @@ def navigate_to(
         destination_coordinates = coordinates
 
         while not player_is_at(destination_map, destination_coordinates):
-            current_position = get_map_data_for_current_position()
             try:
                 waypoints = calculate_path(
-                    current_position,
-                    get_map_data(map, coordinates),
+                    get_player_location(),
+                    (map, coordinates),
                     avoid_encounters=avoid_encounters,
                     avoid_scripted_events=avoid_scripted_events,
                 )
