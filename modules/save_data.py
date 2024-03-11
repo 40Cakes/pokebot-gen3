@@ -4,6 +4,7 @@ from functools import cached_property
 from modules.context import context
 from modules.game import get_event_flag_offset, get_event_var_offset
 from modules.items import ItemBag
+from modules.map import ObjectEvent
 from modules.memory import get_save_block, unpack_uint16, unpack_uint32
 from modules.player import Player
 from modules.pokemon import Pokemon, parse_pokemon
@@ -34,6 +35,20 @@ class SaveData:
 
         return Player(save_block_1, save_block_2, encryption_key)
 
+    def get_player_map_object(self) -> ObjectEvent | None:
+        if context.rom.is_rs:
+            object_events_offset = 0x9E0
+        elif context.rom.is_emerald:
+            object_events_offset = 0xA30
+        else:
+            object_events_offset = 0x6A0
+
+        data = self.get_save_block(1, object_events_offset, size=0x24)
+        if data[0] & 0x01:
+            return ObjectEvent(data)
+        else:
+            return None
+
     def get_map_group_and_number(self) -> tuple[int, int]:
         return self.sections[1][4], self.sections[1][5]
 
@@ -53,13 +68,21 @@ class SaveData:
             return b""
 
     def get_event_flag(self, flag_name: str) -> bool:
-        flag_offset = get_event_flag_offset(flag_name)
+        try:
+            flag_offset = get_event_flag_offset(flag_name)
+        except KeyError:
+            raise RuntimeError(f"Unknown event flag: '{flag_name}")
         flag_byte = self.get_save_block(1, offset=flag_offset[0], size=1)
 
         return bool((flag_byte[0] >> (flag_offset[1])) & 1)
 
     def get_event_var(self, var_name: str) -> int:
-        return unpack_uint16(self.get_save_block(1, offset=get_event_var_offset(var_name), size=2))
+        try:
+            var_offset = get_event_var_offset(var_name)
+        except KeyError:
+            raise RuntimeError(f"Unknown event flag: '{var_name}")
+
+        return unpack_uint16(self.get_save_block(1, offset=var_offset, size=2))
 
     def get_party(self) -> list[Pokemon]:
         party = []

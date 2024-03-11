@@ -13,6 +13,7 @@ from modules.save_data import get_save_data
 from ._asserts import (
     assert_save_game_exists,
     assert_registered_item,
+    assert_empty_slot_in_party,
 )
 from ._interface import BotMode, BotModeError
 from .util import (
@@ -73,6 +74,9 @@ class StaticGiftResetsMode(BotMode):
 
     def run(self) -> Generator:
         encounter = _get_targeted_encounter()
+        if encounter is None:
+            raise BotModeError("You are not facing the NPC or tile that gives you the gift encounter.")
+
         assert_save_game_exists("There is no saved game. Cannot soft reset.")
 
         save_data = get_save_data()
@@ -86,29 +90,35 @@ class StaticGiftResetsMode(BotMode):
                 check_in_saved_game=True,
             )
             if save_data.get_event_flag("RECEIVED_LAVARIDGE_EGG"):
-                raise BotModeError("You have already received the Wynaut egg.")
-        if encounter[2] in ["Wynaut", "Togepi"] and get_party()[0].ability.name not in ["Flame Body", "Magma Armor"]:
+                raise BotModeError("You have already received the Wynaut egg in your saved game.")
+        if encounter[2] in ["Wynaut", "Togepi"] and save_data.get_party()[0].ability.name not in [
+            "Flame Body",
+            "Magma Armor",
+        ]:
             console.print(
                 "[bold yellow]WARNING: First Pokemon in party does not have Flame Body / Magma Armor ability."
             )
             console.print("[bold yellow]This will slow down the egg hatching process.")
         if encounter[2] == "Togepi":
+            if save_data.get_event_flag("GOT_TOGEPI_EGG"):
+                raise BotModeError("You have already received the Togepi egg in your saved game.")
             assert_registered_item(
                 ["Bicycle"],
                 "You need to register the Bicycle for the Select button, then save again.",
                 check_in_saved_game=True,
             )
             if save_data.get_party()[0].friendship < 255:
-                raise BotModeError("The first Pokemon in your party must have max friendship (255) to receive the egg.")
+                raise BotModeError(
+                    "The first Pokémon in your party in the saved game must have max friendship (255) to receive the egg."
+                )
 
-        if save_data.get_event_flag("GOT_TOGEPI_EGG"):
-            raise BotModeError("You have already received the Togepi egg.")
+        assert_empty_slot_in_party(
+            "This mode requires at least one empty party slot, but your party is full.", check_in_saved_game=True
+        )
+
         while context.bot_mode != "Manual":
             yield from soft_reset(mash_random_keys=True)
             yield from wait_for_unique_rng_value()
-
-            if len(get_party()) >= 6:
-                raise BotModeError("This mode requires at least one empty party slot, but your party is full.")
 
             # Spam A through chat boxes
             if context.rom.is_frlg:

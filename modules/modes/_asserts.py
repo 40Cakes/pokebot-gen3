@@ -10,6 +10,11 @@ from modules.save_data import get_save_data
 from ._interface import BotModeError
 
 
+_error_message_addendum_if_assert_only_failed_in_saved_game = (
+    " (This is only the case in the saved game. Perhaps you just need to save again?)"
+)
+
+
 def assert_no_auto_battle(error_message: str) -> None:
     """
     Raises an exception if auto battling is enabled, i.e. ensures that the bot is configured
@@ -115,6 +120,8 @@ def assert_registered_item(
     player = get_player() if not check_in_saved_game else get_save_data().get_player()
     registered_item = player.registered_item
     if registered_item is None or registered_item.name not in expected_items:
+        if get_player().registered_item in expected_items:
+            error_message += _error_message_addendum_if_assert_only_failed_in_saved_game
         raise BotModeError(error_message)
 
 
@@ -133,6 +140,15 @@ def assert_has_pokemon_with_move(move: str, error_message: str, check_in_saved_g
             for learned_move in pokemon.moves:
                 if learned_move is not None and learned_move.move.name == move:
                     return
+
+    if check_in_saved_game:
+        # If the check has failed for the saved game, run it again for the active game -- if that fails
+        # too, the following line will raise an unmodified error message and stop the execution of this
+        # function. If the assertion is met in the active game but not in the saved one, the line
+        # after that will add a note to the error message saying that the check only failed for the
+        # saved game.
+        assert_has_pokemon_with_move(move, error_message)
+        error_message += _error_message_addendum_if_assert_only_failed_in_saved_game
     raise BotModeError(error_message)
 
 
@@ -148,14 +164,29 @@ def assert_item_exists_in_bag(
     :param check_in_saved_game: If True, this assertion will check the saved game instead of the
                                 current item bag (which is the default.)
     """
-    if check_in_saved_game is None:
-        item_bag = get_save_data().get_item_bag()
-    else:
-        item_bag = get_item_bag()
-
     if not isinstance(expected_items, (list, tuple)):
         expected_items = [expected_items]
 
+    item_bag = get_item_bag() if not check_in_saved_game else get_save_data().get_item_bag()
     total_quantity = sum(item_bag.quantity_of(get_item_by_name(item)) for item in expected_items)
     if total_quantity == 0:
+        if check_in_saved_game:
+            item_bag = get_item_bag()
+            total_quantity = sum(item_bag.quantity_of(get_item_by_name(item)) for item in expected_items)
+            if total_quantity > 0:
+                error_message += _error_message_addendum_if_assert_only_failed_in_saved_game
+        raise BotModeError(error_message)
+
+
+def assert_empty_slot_in_party(error_message: str, check_in_saved_game: bool = False) -> None:
+    """
+    Raises an exception if the player has a full party.
+    :param error_message: Error message to display if the assertion fails.
+    :param check_in_saved_game: If True, this assertion will check the saved game instead of the
+                                current party (which is the default.)
+    """
+    party = get_party() if not check_in_saved_game else get_save_data().get_party()
+    if len(party) >= 6:
+        if check_in_saved_game and len(get_party()) < 6:
+            error_message += _error_message_addendum_if_assert_only_failed_in_saved_game
         raise BotModeError(error_message)
