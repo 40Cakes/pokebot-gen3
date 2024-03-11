@@ -5,7 +5,7 @@ from typing import Literal
 from modules.context import context
 from modules.game import decode_string
 from modules.map import MapLocation, ObjectEvent, calculate_targeted_coords, get_player_map_object
-from modules.map_data import MapFRLG, MapRSE
+from modules.map_data import MapFRLG, MapRSE, get_map_enum
 from modules.memory import get_save_block, read_symbol, unpack_uint16, unpack_uint32, get_game_state, GameState
 from modules.pokemon import Item, get_item_by_index
 from modules.state_cache import state_cache
@@ -273,16 +273,32 @@ def player_avatar_is_standing_still() -> bool:
 
 
 def get_player_location() -> tuple[MapFRLG | MapRSE, tuple[int, int]]:
-    avatar = get_player_avatar()
-    if avatar is None:
-        raise RuntimeError("Could not figure out the player's location because the player avatar is not active.")
+    def get_location_or_raise_runtime_error() -> tuple[MapFRLG | MapRSE, tuple[int, int]]:
+        avatar = get_player_avatar()
+        if avatar is None:
+            raise RuntimeError("Could not figure out the player's location because the player avatar is not active.")
 
-    if context.rom.is_rse:
-        map = MapRSE(avatar.map_group_and_number)
-    else:
-        map = MapFRLG(avatar.map_group_and_number)
+        try:
+            map_enum = get_map_enum(avatar.map_group_and_number)
+        except ValueError:
+            raise RuntimeError(f"The game reported the player to be on an invalid map ({avatar.map_group_and_number})")
 
-    return map, avatar.local_coordinates
+        return map_enum, avatar.local_coordinates
+
+    try:
+        location = get_location_or_raise_runtime_error()
+    except RuntimeError:
+        # Very occasionally, the player avatar's location data might be corrupt during a map change.
+        # As far as I have been able to observe it, the data has been correct again in the next frame,
+        # so in those rare circumstances we just peek ahead by one frame and try again, rather than
+        # throwing the error immediately.
+        #
+        # If the location in the peek-ahead frame is still invalid, the error would be propagated to
+        # the bot mode.
+        with context.emulator.peek_frame():
+            location = get_location_or_raise_runtime_error()
+
+    return location
 
 
 def player_is_at(map: tuple[int, int] | MapFRLG | MapRSE, coordinates: tuple[int, int]) -> bool:
