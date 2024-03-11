@@ -7,21 +7,22 @@ from modules.encounter import judge_encounter
 from modules.items import get_item_bag, get_item_by_name, get_item_storage
 from modules.map import get_map_objects
 from modules.map_data import MapFRLG, MapRSE
+from modules.map_path import calculate_path
 from modules.memory import GameState, get_event_flag, get_game_state, get_game_state_symbol
-from modules.player import get_player_avatar
+from modules.player import get_player_avatar, get_player_location
 from modules.pokemon import Pokemon, get_eggs_in_party, get_party
 from modules.tasks import get_global_script_context, task_is_active
 from ._interface import BotMode, BotModeError
 from .util import (
     ensure_facing_direction,
-    follow_path,
-    deprecated_navigate_to_on_current_map,
+    follow_waypoints,
+    navigate_to,
     register_key_item,
     wait_for_player_avatar_to_be_controllable,
+    wait_for_player_avatar_to_be_standing_still,
     wait_for_n_frames,
     wait_for_task_to_start_and_finish,
     wait_until_task_is_active,
-    walk_one_tile,
 )
 
 
@@ -32,6 +33,8 @@ def _update_message():
         context.message = "Releasing..."
     elif egg_count == 0 and not get_event_flag("PENDING_DAYCARE_EGG"):
         context.message = "Waiting for the Daycare to have an egg..."
+    elif egg_count == 0 and get_event_flag("PENDING_DAYCARE_EGG"):
+        context.message = "Picking up an egg..."
     elif party_size < 6:
         context.message = f"Hatching {egg_count} eggs..."
     else:
@@ -64,29 +67,29 @@ class DaycareMode(BotMode):
 
     def run(self) -> Generator:
         if context.rom.is_emerald:
-            path = ((0, 8), (59, 8))
+            daycare_route = MapRSE.ROUTE117
+            daycare_inside_map = MapRSE.ROUTE117_POKEMON_DAY_CARE
             daycare_man_map_object_id = 3
-            daycare_man = (47, 8)
-            daycare_house = (51, 8)
-            daycare_door = (51, 6)
+            daycare_door = (51, 5)
             daycare_exit = (3, 8)
             message_box_task = "Task_DrawFieldMessage"
             yes_no_task = "Task_HandleYesNoInput"
         elif context.rom.is_rs:
-            path = ((15, 8), (59, 8))
+            daycare_route = MapRSE.ROUTE117
+            daycare_inside_map = MapRSE.ROUTE117_POKEMON_DAY_CARE
             daycare_man_map_object_id = 3
-            daycare_man = (47, 8)
-            daycare_house = (51, 8)
-            daycare_door = (51, 6)
+            daycare_door = (51, 5)
             daycare_exit = (3, 8)
             message_box_task = "Task_FieldMessageBox"
             yes_no_task = "Task_HandleYesNoInput"
         else:
             path = ((9, 15), (28, 15))
+            daycare_route = MapFRLG.FOUR_ISLAND
+            daycare_inside_map = MapFRLG.FOUR_ISLAND_POKEMON_DAY_CARE
             daycare_man_map_object_id = 1
             daycare_man = (16, 15)
             daycare_house = (12, 15)
-            daycare_door = (12, 14)
+            daycare_door = (12, 13)
             daycare_exit = (4, 7)
             message_box_task = "Task_DrawFieldMessageBox"
             yes_no_task = "Task_YesNoMenu_HandleInput"
@@ -118,13 +121,10 @@ class DaycareMode(BotMode):
                 raise BotModeError("Your bicycle is stored in the PC storage system. Please go and get it.")
 
             # Get the Mach Bike in Mauville City
-            yield from deprecated_navigate_to_on_current_map(59, 8)
-            yield from walk_one_tile("Right")
+            yield from navigate_to(MapRSE.MAUVILLE_CITY, (35, 5))
 
-            # Go to bike shop and walk up to the guy
-            yield from deprecated_navigate_to_on_current_map(35, 6)
-            yield from walk_one_tile("Up")
-            yield from deprecated_navigate_to_on_current_map(3, 5)
+            # Walk up to the bicycle shop guy
+            yield from navigate_to(MapRSE.MAUVILLE_CITY_BIKE_SHOP, (3, 5))
             yield from ensure_facing_direction("Left")
 
             # Talk to him. If the player didn't have any bike, the first option will be
@@ -137,11 +137,8 @@ class DaycareMode(BotMode):
                 yield
             yield
 
-            # Go outside, and back to Route 117
-            yield from deprecated_navigate_to_on_current_map(3, 8)
-            yield from walk_one_tile("Down")
-            yield from deprecated_navigate_to_on_current_map(0, 8)
-            yield from walk_one_tile("Left")
+            # Leave the bicycle shop
+            yield from navigate_to(MapRSE.MAUVILLE_CITY_BIKE_SHOP, (3, 8))
 
             yield from register_key_item(get_item_by_name("Mach Bike"))
             self._use_bike = True
@@ -154,6 +151,8 @@ class DaycareMode(BotMode):
         else:
             console.print("[bold yellow]WARNING: You do not have a bicycle, so we will just be running.")
             console.print("[bold yellow]This will slow down the egg hatching process.")
+
+        self._use_bike = False
 
         def handle_egg_collecting():
             daycare_egg_ready = get_event_flag("PENDING_DAYCARE_EGG")
@@ -168,7 +167,7 @@ class DaycareMode(BotMode):
                 if x == 0 or y == 0:
                     raise BotModeError("Could not find Daycare Man")
                 # navigate back to daycare man on R117
-                yield from follow_path([daycare_man, (x, y + 1)])
+                yield from navigate_to(daycare_route, (x, y + 1))
                 yield from ensure_facing_direction("Up")
                 yield from wait_for_task_to_start_and_finish(message_box_task, "A")
                 yield from wait_for_task_to_start_and_finish(yes_no_task, "A")
@@ -203,10 +202,10 @@ class DaycareMode(BotMode):
                 context.emulator.press_button("Select")
 
             # Enter daycare
-            yield from follow_path([daycare_house, daycare_door])
-            yield from walk_one_tile("Up")
+            yield from navigate_to(daycare_route, daycare_door)
+
             # move to PC
-            yield from deprecated_navigate_to_on_current_map(10, 2)
+            yield from navigate_to(daycare_inside_map, (10, 2))
             yield from ensure_facing_direction("Up")
 
             # Interact with PC
@@ -258,46 +257,82 @@ class DaycareMode(BotMode):
 
             # Leave daycare
             yield from wait_for_player_avatar_to_be_controllable("B")
+            yield from navigate_to(daycare_inside_map, daycare_exit)
 
-            yield from deprecated_navigate_to_on_current_map(*daycare_exit)
-            yield from walk_one_tile("Down")
+        def should_pick_up_egg() -> bool:
+            return get_event_flag("PENDING_DAYCARE_EGG") and len(get_party()) < 6
+
+        def should_release_pokemon_at_pc() -> bool:
+            return get_eggs_in_party() == 0 and len(get_party()) == 6
 
         def get_path():
-            path_index = -1
+            if context.rom.is_rse:
+                point_a = (MapRSE.ROUTE117, (47, 7))
+                point_b = (MapRSE.ROUTE117, (47, 8))
+                point_c = (MapRSE.ROUTE117, (55, 8))
+                point_d = (MapRSE.ROUTE117, (55, 7))
+                if self._use_bike:
+                    stopping_point_daycare_man = (MapRSE.ROUTE117, (50, 7))
+                    stopping_point_daycare_house = (MapRSE.ROUTE117, (54, 7))
+                else:
+                    stopping_point_daycare_man = (MapRSE.ROUTE117, (47, 7))
+                    stopping_point_daycare_house = (MapRSE.ROUTE117, (51, 7))
+            else:
+                point_a = (MapFRLG.FOUR_ISLAND, (12, 15))
+                point_b = (MapFRLG.FOUR_ISLAND, (12, 16))
+                point_c = (MapFRLG.FOUR_ISLAND, (16, 16))
+                point_d = (MapFRLG.FOUR_ISLAND, (16, 15))
+                stopping_point_daycare_man = (MapFRLG.FOUR_ISLAND, (16, 15))
+                stopping_point_daycare_house = (MapFRLG.FOUR_ISLAND, (12, 15))
+
+            from_a_to_b = calculate_path(point_a, point_b)
+            from_b_to_c = calculate_path(point_b, point_c)
+            from_c_to_d = calculate_path(point_c, point_d)
+            from_d_to_a = calculate_path(point_d, point_a)
+
+            yield from calculate_path(get_player_location(), point_a)
+
+            _update_message()
             while True:
                 if self._update_message_soon:
-                    self._update_message_soon = False
                     _update_message()
+                    self._update_message_soon = False
 
-                party_size = len(get_party())
-                if get_event_flag("PENDING_DAYCARE_EGG") and party_size < 6:
-                    yield daycare_man
+                yield from from_a_to_b
+                yield from from_b_to_c
+                yield from from_c_to_d
+                if should_pick_up_egg():
+                    yield from calculate_path(point_d, stopping_point_daycare_man)
                     break
-                elif party_size == 6 and get_eggs_in_party() == 0:
-                    yield daycare_house
+                elif should_release_pokemon_at_pc():
+                    yield from calculate_path(point_d, stopping_point_daycare_house)
                     break
                 else:
-                    path_index = (path_index + 1) % len(path)
-                    yield path[path_index]
+                    yield from from_d_to_a
 
         if get_player_avatar().is_on_bike:
             context.emulator.press_button("Select")
             yield
             yield
-        yield from deprecated_navigate_to_on_current_map(*daycare_man)
-        while context.bot_mode != "Manual":
-            self._update_message_soon = True
 
+        while context.bot_mode != "Manual":
             if not get_player_avatar().is_on_bike and self._use_bike:
                 context.emulator.press_button("Select")
                 yield
+                yield
 
-            yield from follow_path(get_path())
+            yield from follow_waypoints(get_path())
 
-            if get_eggs_in_party() == 0 and len(get_party()) == 6:
-                yield from pc_release()
-                yield from follow_path([daycare_house])
+            if get_player_avatar().is_on_bike:
+                context.emulator.press_button("Select")
+                yield
+                yield
 
-            if get_event_flag("PENDING_DAYCARE_EGG") and len(get_party()) < 6:
+            if should_pick_up_egg():
                 yield from handle_egg_collecting()
-                yield from follow_path([daycare_man])
+                _update_message()
+
+            if should_release_pokemon_at_pc():
+                _update_message()
+                yield from pc_release()
+                _update_message()
