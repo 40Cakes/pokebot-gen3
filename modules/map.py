@@ -1629,7 +1629,7 @@ def get_map_data(
         map_group_and_number = map_group_and_number.value
 
     if len(_map_header_cache) == 0:
-        from modules.map_data import MapGroupFRLG, MapGroupRSE
+        from modules.map_data import MapGroupFRLG, MapGroupRSE, MapRSE
 
         if context.rom.is_rse:
             number_of_map_groups = len(MapGroupRSE)
@@ -1643,6 +1643,9 @@ def get_map_data(
             number_of_maps = len(map_group_enum(group_index).maps)
             group_pointer = unpack_uint32(map_group_pointers[group_index * 4 : (group_index + 1) * 4])
             for map_index in range(number_of_maps):
+                if context.rom.is_rs and not MapRSE((group_index, map_index)).exists_on_rs:
+                    continue
+
                 map_header_pointer = unpack_uint32(context.emulator.read_bytes(group_pointer + 4 * map_index, 4))
                 map_header = context.emulator.read_bytes(map_header_pointer, 0x1C)
                 _map_header_cache[(group_index, map_index)] = map_header
