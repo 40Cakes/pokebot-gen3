@@ -3,6 +3,7 @@ from typing import Generator
 from modules.context import context
 from modules.encounter import EncounterValue, handle_encounter, judge_encounter, log_encounter
 from modules.gui.multi_select_window import Selection, ask_for_choice
+from modules.items import get_item_by_name
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_event_var, get_game_state
 from modules.player import get_player, get_player_avatar
@@ -111,6 +112,16 @@ class RoamerResetMode(BotMode):
 
         if save_data.get_item_bag().number_of_repels == 0:
             raise BotModeError("You do not have any repels in your item bag. Go and get some first!")
+
+        if context.rom.is_frlg:
+            if save_data.get_event_var("MAP_SCENE_ONE_ISLAND_POKEMON_CENTER_1F") > 5:
+                raise BotModeError("You have already given the Sapphire to Celio. Try loading an earlier save game.")
+
+            if save_data.get_item_bag().quantity_of(get_item_by_name("Sapphire")) == 0:
+                if save_data.get_event_flag("FLAG_RECOVERED_SAPPHIRE"):
+                    raise BotModeError("You do not have the Sapphire in your inventory. Go and get it!")
+                else:
+                    raise BotModeError("You haven't recovered the Sapphire yet.")
 
         has_good_ability = not saved_party[0].is_egg and saved_party[0].ability.name in ("Illuminate", "Arena Trap")
 
