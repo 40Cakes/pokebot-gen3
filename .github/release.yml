@@ -1,0 +1,12 @@
+changelog:
+  exclude:
+    labels: hide-from-changelog
+  categories:
+    - title: 🎉 New Features
+      labels:
+        - feature
+    - title: 🪲 Fixed Bugs
+      labels:
+        - bug
+    - title: 🧩 Changes
+      labels: "*"
