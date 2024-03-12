@@ -39,16 +39,16 @@ class GameCornerMode(BotMode):
     def run(self) -> Generator:
         assert_save_game_exists("There is no saved game. Cannot soft reset.")
 
-        coin_case = get_save_data().get_player().coins
-        if coin_case < 180:
-            raise BotModeError("In your saved game, you don't have enough coins to buy anything.")
-
         if context.rom.is_fr:
             choices = [("Abra", 180), ("Clefairy", 500), ("Dratini", 2800), ("Scyther", 5500), ("Porygon", 9999)]
         elif context.rom.is_lg:
             choices = [("Abra", 120), ("Clefairy", 750), ("Pinsir", 2500), ("Dratini", 4600), ("Porygon", 6500)]
         else:
             raise BotModeError("This mode is not supported on RSE.")
+
+        coin_case = get_save_data().get_player().coins
+        if coin_case < choices[0][1]:
+            raise BotModeError("In your saved game, you don't have enough coins to buy anything.")
 
         available_options = []
         for pokemon, coins in choices:
@@ -125,4 +125,4 @@ class GameCornerMode(BotMode):
             yield from StartMenuNavigator("POKEMON").step()
             yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
 
-            handle_encounter(get_party()[len(get_party()) - 1])
+            handle_encounter(get_party()[-1], disable_auto_catch=True, do_not_log_battle_action=True)
