@@ -5,6 +5,7 @@ from modules.console import console
 from modules.context import context
 from modules.files import save_pk3, make_string_safe_for_file_name
 from modules.gui.desktop_notification import desktop_notification
+from modules.memory import get_game_state, GameState
 from modules.modes import BattleAction
 from modules.pokedex import get_pokedex
 from modules.pokemon import Pokemon
@@ -118,17 +119,17 @@ def log_encounter(
 
     match action:
         case BattleAction.Catch:
-            message_action = "catching..."
+            message_action = ", catching..."
         case BattleAction.CustomAction:
-            message_action = "switched to manual mode so you can catch it."
+            message_action = ", switched to manual mode so you can catch it."
         case BattleAction.Fight:
-            message_action = "FIGHT!"
+            message_action = ", FIGHT!"
         case BattleAction.RunAway:
-            message_action = "running away..."
+            message_action = ", running away..."
         case _:
-            message_action = ""
+            message_action = "."
 
-    context.message = f"Encountered {species_name}, {message_action}\n\n{' | '.join(fun_facts)}"
+    context.message = f"Encountered {species_name}{message_action}\n\n{' | '.join(fun_facts)}"
 
 
 def handle_encounter(
@@ -194,11 +195,13 @@ def handle_encounter(
         )
         desktop_notification(title=alert[0], message=alert[1], icon=alert_icon)
 
+    battle_is_active = get_game_state() in (GameState.BATTLE, GameState.BATTLE_STARTING, GameState.BATTLE_ENDING)
+
     if is_of_interest:
         filename_suffix = f"{encounter_value.name}_{make_string_safe_for_file_name(pokemon.species_name_for_stats)}"
         context.emulator.create_save_state(suffix=filename_suffix)
 
-        if context.config.battle.auto_catch and not disable_auto_catch:
+        if context.config.battle.auto_catch and not disable_auto_catch and battle_is_active:
             decision = BattleAction.Catch
         else:
             context.set_manual_mode()
@@ -208,7 +211,7 @@ def handle_encounter(
     else:
         decision = BattleAction.RunAway
 
-    if do_not_log_battle_action:
+    if do_not_log_battle_action or not battle_is_active:
         log_encounter(pokemon, None, gif_path, tcg_path)
     else:
         log_encounter(pokemon, decision, gif_path, tcg_path)

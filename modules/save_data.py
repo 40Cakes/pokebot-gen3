@@ -29,9 +29,9 @@ class SaveData:
             save_block_1_offset = 0x290
             encryption_key_offset = 0xF20
 
-        save_block_1 = get_save_block(1, offset=save_block_1_offset, size=0x08)
-        save_block_2 = get_save_block(2, size=0x0E)
-        encryption_key = get_save_block(2, encryption_key_offset, 4)
+        save_block_1 = self.get_save_block(1, offset=save_block_1_offset, size=0x08)
+        save_block_2 = self.get_save_block(2, size=0x0E)
+        encryption_key = self.get_save_block(2, encryption_key_offset, 4)
 
         return Player(save_block_1, save_block_2, encryption_key)
 

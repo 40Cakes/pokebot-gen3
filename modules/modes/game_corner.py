@@ -46,16 +46,16 @@ class GameCornerMode(BotMode):
         else:
             raise BotModeError("This mode is not supported on RSE.")
 
-        coin_case = get_save_data().get_player().coins
-        if coin_case < choices[0][1]:
+        coins_owned = get_save_data().get_player().coins
+        if coins_owned < choices[0][1]:
             raise BotModeError("In your saved game, you don't have enough coins to buy anything.")
 
         available_options = []
-        for pokemon, coins in choices:
+        for pokemon, price_in_coins in choices:
             selection = Selection(
                 pokemon,
                 get_sprites_path() / "pokemon" / "normal" / f"{pokemon}.png",
-                coin_case >= coins,
+                coins_owned >= price_in_coins,
             )
             available_options.append(selection)
         game_corner_choice = ask_for_choice(
