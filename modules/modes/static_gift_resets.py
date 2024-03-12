@@ -8,7 +8,7 @@ from modules.map_data import MapFRLG, MapRSE
 from modules.map_path import calculate_path
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.player import get_player_avatar
-from modules.pokemon import get_party
+from modules.pokemon import get_party, Pokemon
 from modules.save_data import get_save_data
 from ._asserts import (
     assert_save_game_exists,
@@ -71,6 +71,18 @@ class StaticGiftResetsMode(BotMode):
     @staticmethod
     def is_selectable() -> bool:
         return _get_targeted_encounter() is not None
+
+    def __init__(self):
+        super().__init__()
+        self._egg_has_hatched = False
+
+    def on_egg_hatched(self, pokemon: "Pokemon", party_index: int) -> None:
+        # The user could start this mode with another egg already in their party (from daycare)
+        # so in order to make sure that it was Togepi/Wynaut that hatched, we verify that the
+        # egg is in the last slot of the party -- since the egg was picked up at the start of
+        # the mode, it's guaranteed to be in that slot.
+        if party_index == len(get_party()) - 1:
+            self._egg_has_hatched = True
 
     def run(self) -> Generator:
         encounter = _get_targeted_encounter()
@@ -180,7 +192,7 @@ class StaticGiftResetsMode(BotMode):
                 def hatching_path():
                     path_to_point_a = calculate_path(point_b, point_a)
                     path_to_point_b = calculate_path(point_a, point_b)
-                    while True:
+                    while not self._egg_has_hatched:
                         yield from path_to_point_b
                         yield from path_to_point_a
 
@@ -193,6 +205,7 @@ class StaticGiftResetsMode(BotMode):
                     yield
                 while egg_in_party() > 0:
                     yield from wait_for_player_avatar_to_be_controllable()
+                    self._egg_has_hatched = False
                     yield from hatch_egg()
 
             # Navigate to the summary screen to check for shininess
