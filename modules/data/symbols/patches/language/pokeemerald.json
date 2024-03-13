@@ -263,6 +263,13 @@
       "J":"81b33d0",
       "S":"81b3350"
     },
+    "Task_WateringBerryTreeAnim_Continue":{
+      "D":"80fab88",
+      "F":"80faba8",
+      "I":"80fab74",
+      "J":"80fb7d4",
+      "S":"80fab7c"
+    },
     "AnimTask_ThrowBall_Step":{
       "D":"8170b58",
       "F":"8170c80",
