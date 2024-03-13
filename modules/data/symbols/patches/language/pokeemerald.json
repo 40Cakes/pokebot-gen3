@@ -263,6 +263,20 @@
       "J":"81b33d0",
       "S":"81b3350"
     },
+    "Task_WateringBerryTreeAnim_Continue":{
+      "D":"80fab88",
+      "F":"80faba8",
+      "I":"80fab74",
+      "J":"80fb7d4",
+      "S":"80fab7c"
+    },
+    "Task_ContinueTaskAfterMessagePrints":{
+      "D":"8121b60",
+      "F":"8121b80",
+      "I":"8121b4c",
+      "J":"8121f2c",
+      "S":"8121b54"
+    },
     "AnimTask_ThrowBall_Step":{
       "D":"8170b58",
       "F":"8170c80",
@@ -298,10 +312,33 @@
       "J":"82424ee",
       "S":"8275258"
     },
+    "EventScript_RockSmash":{
+      "D":"829ef03",
+      "F":"8297028",
+      "I":"829146e",
+      "J":"825667c",
+      "S":"8295638"
+    },
+    "EventScript_SmashRock":{
+      "D":"829ef58",
+      "F":"829707d",
+      "I":"82914c3",
+      "J":"82566d1",
+      "S":"829568d"
+    },
+    "EventScript_RepelWoreOff":{
+      "D":"82b6715",
+      "F":"82ad0f5",
+      "I":"82a5fd3",
+      "J":"826239b",
+      "S":"82aadf3"
+    },
     "HANDLEINPUTCHOOSEACTION":{
-      "D":"805758c",
-      "I":"805758c",
-      "J":"08057198"
+      "D":["805758c","8158f7c"],
+      "F":"81590a4",
+      "I":["805758c","8158f6c"],
+      "J":["8057198","8159314"],
+      "S":"815907c"
     },
     "HANDLEINPUTCHOOSEMOVE":{
       "D":"8057c00",
@@ -397,6 +434,60 @@
     },
     "ITEMSTORAGE_HANDLEREMOVEITEM":{
       "I":"0"
+    },
+    "Route120_Text_RileyIntro":{
+      "D":"0"
+    },
+    "Route104_Text_HaleyIntro":{
+      "S":"0"
+    },
+    "Route104_Text_HaleyDefeat":{
+      "S":"0"
+    },
+    "BattleFrontier_BattleArenaLobby_Text_NotEnoughValidMonsLv50":{
+      "J":"0"
+    },
+    "Route108_Text_CoryRematchDefeated":{
+      "F":"0"
+    },
+    "Route108_Text_CoryRematchPostBattle":{
+      "F":"0"
+    },
+    "VictoryRoad_1F_EventScript_ItemPPUp":{
+      "I":"0"
+    },
+    "VictoryRoad_B1F_EventScript_ItemFullRestore":{
+      "I":"0"
+    },
+    "VictoryRoad_1F_EventScript_ItemMaxElixir":{
+      "I":"0"
+    },
+    "VictoryRoad_B1F_EventScript_ItemTMPsychic":{
+      "I":"0"
+    },
+    "Route110_TrickHousePuzzle8_EventScript_ItemBeadMail":{
+      "I":"0"
+    },
+    "Route121_SafariZoneEntrance_EventScript_EntranceCounterTrigger":{
+      "D": "82326e4",
+      "F": "822fb95",
+      "I": "822ba06",
+      "J": "8212a42",
+      "S": "822de70"
+    },
+    "Route121_SafariZoneEntrance_EventScript_TryEnterSafariZone":{
+      "D": "8232745",
+      "F": "822fbf6",
+      "I": "822ba67",
+      "J": "8212aa3",
+      "S": "822ded1"
+    },
+    "SafariZone_EventScript_TimesUp":{
+      "D": "82b676d",
+      "F": "82ad154",
+      "I": "82a6033",
+      "J": "82623e9",
+      "S": "82aae5a"
     },
     "gItems":{
       "D": "85946dc",
