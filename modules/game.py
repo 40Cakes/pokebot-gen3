@@ -38,14 +38,19 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
     if language_code in {"D", "I", "S", "F", "J"} and language_patch_path.is_file():
         with open(language_patch_path, "r") as file:
             language_patches = json.load(file)
-        for item in language_patches:
-            if language_code in language_patches[item]:
-                _symbols[item.upper()] = (int(language_patches[item][language_code], 16), _symbols[item.upper()][1])
-                _reverse_symbols[int(language_patches[item][language_code], 16)] = (
-                    item.upper(),
-                    item,
-                    _symbols[item.upper()][1],
-                )
+        for label in language_patches:
+            if language_code in language_patches[label]:
+                _reverse_symbols.pop(_symbols[label.upper()][0])
+                addresses = language_patches[label][language_code]
+                if type(addresses) is not list:
+                    addresses = [addresses]
+                for addr in addresses:
+                    _symbols[label.upper()] = (int(addr, 16), _symbols[label.upper()][1])
+                    _reverse_symbols[int(addr, 16)] = (
+                        label.upper(),
+                        label,
+                        _symbols[label.upper()][1],
+                    )
 
 
 def _load_event_flags_and_vars(file_name: str) -> None:  # TODO Japanese ROMs not working

@@ -13,11 +13,11 @@
 |          | 🟢 Emerald |
 |:---------|:----------:|
 | English  |     ✅      |
-| Japanese |     ❌      |
-| German   |     ❌      |
-| Spanish  |     ❌      |
-| French   |     ❌      |
-| Italian  |     ❌      |
+| Japanese |     ✅      |
+| German   |     ✅      |
+| Spanish  |     ✅      |
+| French   |     ✅      |
+| Italian  |     ✅      |
 
 ✅ Tested, working
 
