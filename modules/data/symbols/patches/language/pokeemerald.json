@@ -124,6 +124,13 @@
       "J":"81afe88",
       "S":"81afdd0"
     },
+    "CB2_FLYMAP":{
+      "D":"81244f8",
+      "F":"8124518",
+      "I":"81244e4",
+      "J":"81248e0",
+      "S":"81244ec"
+    },
     "BATTLEMAINCB2":{
       "D":"8038424",
       "F":"8038420",
@@ -277,6 +284,20 @@
       "J":"8121f2c",
       "S":"8121b54"
     },
+    "Task_FlyIntoMap":{
+      "D":"80b6b28",
+      "F":"80b6b20",
+      "I":"80b6b20",
+      "J":"80b6264",
+      "S":"80b6b20"
+    },
+    "ExecuteMatchCall":{
+      "D":"8195bec",
+      "F":"8195d0c",
+      "I":"8195bdc",
+      "J":"8195ce0",
+      "S":"8195ce4"
+    },
     "AnimTask_ThrowBall_Step":{
       "D":"8170b58",
       "F":"8170c80",
@@ -375,6 +396,9 @@
     "sCurrentStartMenuActions":{
       "J":"20372b0"
     },
+    "sRegionMap":{
+      "J":"2039e10"
+    },
     "GMAIN":{
       "J":"3002360"
     },
@@ -468,6 +492,48 @@
     "Route110_TrickHousePuzzle8_EventScript_ItemBeadMail":{
       "I":"0"
     },
+    "RivalsHouse_2F_Text_MayWhereShouldIGoNext":{
+      "I":"0"
+    },
+    "OldaleTown_PokemonCenter_1F_EventScript_Gentleman":{
+      "D":"0"
+    },
+    "OldaleTown_PokemonCenter_1F_EventScript_Boy":{
+      "D":"0"
+    },
+    "OldaleTown_PokemonCenter_1F_EventScript_Girl":{
+      "D":"0"
+    },
+    "OldaleTown_PokemonCenter_1F_EventScript_WirelessClubAvailable":{
+      "D":"0"
+    },
+    "OldaleTown_PokemonCenter_1F_Text_TrainersCanUsePC":{
+      "D":"0"
+    },
+    "OldaleTown_PokemonCenter_1F_Text_PokemonCentersAreGreat":{
+      "D":"0"
+    },
+    "OldaleTown_PokemonCenter_1F_EventScript_Nurse":{
+      "D":"0"
+    },
+    "Route111_EventScript_Celia":{
+      "J":"0"
+    },
+    "Route111_EventScript_Bryan":{
+      "J":"0"
+    },
+    "Route111_EventScript_Branden":{
+      "J":"0"
+    },
+    "Route111_Text_BattleOurFamily":{
+      "J":"0"
+    },
+    "Route111_EventScript_TrainerHillSign":{
+      "J":"0"
+    },
+    "LittlerootTown_ProfessorBirchsLab_Text_BirchEnjoysRivalsHelpToo":{
+      "S":"0"
+    },
     "Route121_SafariZoneEntrance_EventScript_EntranceCounterTrigger":{
       "D": "82326e4",
       "F": "822fb95",
@@ -481,6 +547,13 @@
       "I": "822ba67",
       "J": "8212aa3",
       "S": "822ded1"
+    },
+    "LittlerootTown_ProfessorBirchsLab_EventScript_UpgradeToNationalDex":{
+      "D": "81fc014",
+      "F": "81fb46a",
+      "I": "81f9a6d",
+      "J": "81f141b",
+      "S": "81fa666"
     },
     "SafariZone_EventScript_TimesUp":{
       "D": "82b676d",
