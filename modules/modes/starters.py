@@ -6,6 +6,7 @@ from modules.encounter import handle_encounter
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.map_data import MapFRLG, MapRSE
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
+from modules.modes.util.walking import navigate_to
 from modules.player import get_player_avatar
 from modules.pokemon import get_party
 from modules.runtime import get_sprites_path
@@ -23,11 +24,32 @@ from .util import (
 
 
 def run_frlg() -> Generator:
+    starter_choice = ask_for_choice(
+        [
+            Selection("Bulbasaur", get_sprites_path() / "pokemon" / "normal" / "Bulbasaur.png"),
+            Selection("Charmander", get_sprites_path() / "pokemon" / "normal" / "Charmander.png"),
+            Selection("Squirtle", get_sprites_path() / "pokemon" / "normal" / "Squirtle.png"),
+            Selection("Random", get_sprites_path() / "pokemon" / "normal" / "Unown (qm).png"),
+        ],
+        window_title="Select a starter...",
+    )
+    if starter_choice is None:
+        return
+
     while context.bot_mode != "Manual":
         yield from soft_reset(mash_random_keys=True)
-        yield from wait_for_unique_rng_value()
-
+        starter = starter_choice
+        if starter == "Random":
+            starter = random.choice(["Bulbasaur", "Charmander", "Squirtle"])
+        match starter:
+            case "Bulbasaur":
+                yield from navigate_to(map=MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, coordinates=(8, 5))
+            case "Charmander":
+                yield from navigate_to(map=MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, coordinates=(10, 5))
+            case "Squirtle":
+                yield from navigate_to(map=MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, coordinates=(9, 5))
         yield from ensure_facing_direction("Up")
+        yield from wait_for_unique_rng_value()
 
         # Wait for and confirm the first question (the 'Do you choose ...')
         while len(get_party()) == 0:
@@ -109,15 +131,37 @@ def run_rse_hoenn() -> Generator:
 
 
 def run_rse_johto():
+    starter_choice = ask_for_choice(
+        [
+            Selection("Chikorita", get_sprites_path() / "pokemon" / "normal" / "Chikorita.png"),
+            Selection("Cyndaquil", get_sprites_path() / "pokemon" / "normal" / "Cyndaquil.png"),
+            Selection("Totodile", get_sprites_path() / "pokemon" / "normal" / "Totodile.png"),
+            Selection("Random", get_sprites_path() / "pokemon" / "normal" / "Unown (qm).png"),
+        ],
+        window_title="Select a starter...",
+    )
+    if starter_choice is None:
+        return
+
     while context.bot_mode != "Manual":
         yield from soft_reset(mash_random_keys=True)
+        starter = starter_choice
+        if starter == "Random":
+            starter = random.choice(["Chikorita", "Cyndaquil", "Totodile"])
+        match starter:
+            case "Chikorita":
+                yield from navigate_to(map=MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, coordinates=(10, 5))
+            case "Cyndaquil":
+                yield from navigate_to(map=MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, coordinates=(8, 5))
+            case "Totodile":
+                yield from navigate_to(map=MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, coordinates=(9, 5))
 
         if len(get_party()) >= 6:
             raise BotModeError("This mode requires at least one empty party slot, but your party is full.")
 
-        yield from wait_for_unique_rng_value()
-
         yield from ensure_facing_direction("Up")
+
+        yield from wait_for_unique_rng_value()
 
         # Wait for and confirm the first question (the 'Do you choose ...')
         yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", button_to_press="A")
@@ -156,11 +200,7 @@ class StartersMode(BotMode):
 
         if context.rom.is_frlg:
             assert_saved_on_map(
-                [
-                    SavedMapLocation(MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, (8, 4), facing=True),
-                    SavedMapLocation(MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, (9, 4), facing=True),
-                    SavedMapLocation(MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, (10, 4), facing=True),
-                ],
+                [SavedMapLocation(MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB)],
                 error_message="The game has not been saved while standing in front of one of the starter Poké balls.",
             )
             yield from run_frlg()
@@ -170,9 +210,7 @@ class StartersMode(BotMode):
                     # Hoenn Starter Bag
                     SavedMapLocation(MapRSE.ROUTE101, (7, 14), facing=True),
                     # Johto Starters (on table)
-                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, (8, 4), facing=True),
-                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, (9, 4), facing=True),
-                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, (10, 4), facing=True),
+                    SavedMapLocation(MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB),
                 ],
                 error_message=(
                     "The game has not been saved in front of the starter Pokémon bag (for Hoenn starters) "
