@@ -105,11 +105,11 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 |          | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:----------:|:----------:|:------------:|
 | English  |     ✅      |     ✅      |      ✅       |
-| Japanese |     ❌      |     ❌      |      ❌       |
-| German   |     ❌      |     ❌      |      ❌       |
-| Spanish  |     ❌      |     ❌      |      ❌       |
-| French   |     ❌      |     ❌      |      ❌       |
-| Italian  |     ❌      |     ❌      |      ❌       |
+| Japanese |     🟨      |     ❌      |      ❌       |
+| German   |     🟨      |     ❌      |      ❌       |
+| Spanish  |     🟨      |     ❌      |      ❌       |
+| French   |     🟨      |     ❌      |      ❌       |
+| Italian  |     🟨      |     ❌      |      ❌       |
 
 ✅ Tested, working
 
