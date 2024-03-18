@@ -35,7 +35,7 @@ def run_frlg() -> Generator:
     )
     if starter_choice is None:
         return
-    
+
     while context.bot_mode != "Manual":
         yield from soft_reset(mash_random_keys=True)
         starter = starter_choice
@@ -43,11 +43,11 @@ def run_frlg() -> Generator:
             starter = random.choice(["Bulbasaur", "Charmander", "Squirtle"])
         match starter:
             case "Bulbasaur":
-                yield from navigate_to(map=MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB,coordinates=(8,5))
+                yield from navigate_to(map=MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, coordinates=(8, 5))
             case "Charmander":
-                yield from navigate_to(map=MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB,coordinates=(10,5))
+                yield from navigate_to(map=MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, coordinates=(10, 5))
             case "Squirtle":
-                yield from navigate_to(map=MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB,coordinates=(9,5))
+                yield from navigate_to(map=MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, coordinates=(9, 5))
         yield from ensure_facing_direction("Up")
         yield from wait_for_unique_rng_value()
 
@@ -142,7 +142,7 @@ def run_rse_johto():
     )
     if starter_choice is None:
         return
-    
+
     while context.bot_mode != "Manual":
         yield from soft_reset(mash_random_keys=True)
         starter = starter_choice
@@ -150,11 +150,11 @@ def run_rse_johto():
             starter = random.choice(["Chikorita", "Cyndaquil", "Totodile"])
         match starter:
             case "Chikorita":
-                yield from navigate_to(map=MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB,coordinates=(10,5))
+                yield from navigate_to(map=MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, coordinates=(10, 5))
             case "Cyndaquil":
-                yield from navigate_to(map=MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB,coordinates=(8,5))
+                yield from navigate_to(map=MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, coordinates=(8, 5))
             case "Totodile":
-                yield from navigate_to(map=MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB,coordinates=(9,5))
+                yield from navigate_to(map=MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, coordinates=(9, 5))
 
         if len(get_party()) >= 6:
             raise BotModeError("This mode requires at least one empty party slot, but your party is full.")
@@ -200,9 +200,7 @@ class StartersMode(BotMode):
 
         if context.rom.is_frlg:
             assert_saved_on_map(
-                [
-                    SavedMapLocation(MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB)
-                ],
+                [SavedMapLocation(MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB)],
                 error_message="The game has not been saved while standing in front of one of the starter Poké balls.",
             )
             yield from run_frlg()
