@@ -45,11 +45,11 @@ This mode does not yet support Ruby/Sapphire (save state is required for develop
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| Japanese |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| German   |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| Spanish  |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| French   |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| Italian  |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
+| Japanese |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| German   |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| Spanish  |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| French   |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| Italian  |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
 
 ✅ Tested, working
 

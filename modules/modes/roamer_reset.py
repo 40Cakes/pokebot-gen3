@@ -6,6 +6,8 @@ from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.items import get_item_by_name
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_event_var, get_game_state
+from modules.modes.util.tasks_scripts import wait_for_script_to_start_and_finish
+from modules.modes.util.walking import wait_for_player_avatar_to_be_controllable
 from modules.player import get_player, get_player_avatar
 from modules.pokemon import get_opponent
 from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE
@@ -183,15 +185,10 @@ class RoamerResetMode(BotMode):
 
             # Cut scene where you get the National Dex
             if get_event_var("DEX_UPGRADE_JOHTO_STARTER_STATE") == 1:
-                script_name = "LittlerootTown_ProfessorBirchsLab_EventScript_UpgradeToNationalDex"
-                while script_name not in get_global_script_context().stack:
-                    context.emulator.press_button("B")
-                    yield
-                while script_name in get_global_script_context().stack:
-                    context.emulator.press_button("B")
-                    yield
-                yield
-                yield
+                yield from wait_for_script_to_start_and_finish(
+                    "LittlerootTown_ProfessorBirchsLab_EventScript_UpgradeToNationalDex", "B"
+                )
+                yield from wait_for_player_avatar_to_be_controllable()
                 yield from deprecated_navigate_to_on_current_map(6, 12)
                 yield from walk_one_tile("Down")
 
