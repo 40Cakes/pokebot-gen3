@@ -291,6 +291,13 @@
       "J":"80b6264",
       "S":"80b6b20"
     },
+    "Task_Fanfare":{
+      "D":"80a315c",
+      "F":"80a3154",
+      "I":"80a3154",
+      "J":"80a2a08",
+      "S":"80a3154"
+    },
     "ExecuteMatchCall":{
       "D":"8195bec",
       "F":"8195d0c",
@@ -534,6 +541,45 @@
     "LittlerootTown_ProfessorBirchsLab_Text_BirchEnjoysRivalsHelpToo":{
       "S":"0"
     },
+    "BattleFrontier_BattleDomePreBattleRoom_Text_ReadyForFinals":{
+      "D":"0"
+    },
+    "BattleFrontier_BattleDomePreBattleRoom_Text_ChooseTwoMons":{
+      "D":"0"
+    },
+    "BattleFrontier_BattleDomePreBattleRoom_Text_Round1Complete":{
+      "D":"0"
+    },
+    "BattleFrontier_BattleDomePreBattleRoom_Text_RightThisWay":{
+      "D":"0"
+    },
+    "BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacIntro":{
+      "F":"0"
+    },
+    "BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacMon1":{
+      "F":"0"
+    },
+    "BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacAccept":{
+      "F":"0"
+    },
+    "BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacMon2Ask":{
+      "F":"0"
+    },
+    "MossdeepCity_StevensHouse_EventScript_SendBeldumParty":{
+      "J":"0"
+    },
+    "MossdeepCity_StevensHouse_EventScript_SendBeldumPC":{
+      "J":"0"
+    },
+    "MossdeepCity_StevensHouse_EventScript_ReceivedBeldumFanfare":{
+      "J":"0"
+    },
+    "BattleFrontier_BattleTowerMultiPartnerRoom_Text_Apprentice16Mon2Ask":{
+      "S":"0"
+    },
+    "BattleFrontier_BattleTowerMultiPartnerRoom_Text_Apprentice16Accept":{
+      "S":"0"
+    },
     "Route121_SafariZoneEntrance_EventScript_EntranceCounterTrigger":{
       "D": "82326e4",
       "F": "822fb95",
@@ -561,6 +607,12 @@
       "I": "82a6033",
       "J": "82623e9",
       "S": "82aae5a"
+    },
+    "SouthernIsland_Interior_EventScript_Lati":{
+      "D": "824b6cd",
+      "F": "8247d7c",
+      "J": "822286d",
+      "S": "8245a41"
     },
     "gItems":{
       "D": "85946dc",
