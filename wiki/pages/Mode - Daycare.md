@@ -31,11 +31,11 @@ Start this mode while being on Route 117 (in R/S/E) or Sevii Island Four (FR/LG)
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 | :------- | :-----: | :---------: | :--------: | :--------: | :----------: |
 | English  |   ✅    |     ✅      |     ✅     |     ✅     |      ✅      |
-| Japanese |   ❌    |     ❌      |     ❌     |     ❌     |      ❌      |
-| German   |   ❌    |     ❌      |     ❌     |     ❌     |      ❌      |
-| Spanish  |   ❌    |     ❌      |     ❌     |     ❌     |      ❌      |
-| French   |   ❌    |     ❌      |     ❌     |     ❌     |      ❌      |
-| Italian  |   ❌    |     ❌      |     ❌     |     ❌     |      ❌      |
+| Japanese |   ❌    |     ❌      |     ✅     |     ❌     |      ❌      |
+| German   |   ❌    |     ❌      |     ✅     |     ❌     |      ❌      |
+| Spanish  |   ❌    |     ❌      |     ✅     |     ❌     |      ❌      |
+| French   |   ❌    |     ❌      |     ✅     |     ❌     |      ❌      |
+| Italian  |   ❌    |     ❌      |     ✅     |     ❌     |      ❌      |
 
 ✅ Tested, working
 
