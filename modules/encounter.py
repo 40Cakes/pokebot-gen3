@@ -63,7 +63,8 @@ def judge_encounter(pokemon: Pokemon) -> EncounterValue:
 
     if pokemon.is_shiny:
         context.config.reload_file("catch_block")
-        if pokemon.species.name in context.config.catch_block.block_list:
+        block_list = context.config.catch_block.block_list
+        if pokemon.species_name_for_stats in block_list or pokemon.species.name in block_list:
             return EncounterValue.ShinyOnBlockList
         else:
             return EncounterValue.Shiny
@@ -78,7 +79,8 @@ def judge_encounter(pokemon: Pokemon) -> EncounterValue:
         and roamer.species == pokemon.species
     ):
         context.config.reload_file("catch_block")
-        if pokemon.species.name in context.config.catch_block.block_list:
+        block_list = context.config.catch_block.block_list
+        if pokemon.species_name_for_stats in block_list or pokemon.species.name in block_list:
             return EncounterValue.RoamerOnBlockList
         else:
             return EncounterValue.Roamer
