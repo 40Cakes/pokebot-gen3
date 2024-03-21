@@ -136,7 +136,6 @@ def apply_repel() -> Generator:
     yield from use_item_from_bag(repel_item)
 
 
-@debug.track
 def replenish_repel() -> None:
     """
     This can be used in a bot mode's `on_repel_effect_ended()` callback to re-enable the repel

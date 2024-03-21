@@ -1,26 +1,41 @@
 from typing import Generator
 
 from modules.context import context
-from modules.items import get_item_bag
+from modules.debug import debug
 from modules.map import get_map_objects
 from modules.map_data import MapFRLG, MapRSE
-from modules.memory import get_event_flag, get_event_var, read_symbol, unpack_uint16
-from modules.menuing import StartMenuNavigator, use_party_hm_move
+from modules.memory import get_event_flag, get_event_var
+from modules.menuing import use_party_hm_move
 from modules.player import get_player_avatar
-from modules.save_data import get_save_data
 from modules.tasks import get_global_script_context
 from ._asserts import assert_has_pokemon_with_move, assert_no_auto_battle, assert_no_auto_pickup, assert_registered_item
 from ._interface import BotMode, BotModeError
 from .util import (
     follow_path,
-    deprecated_navigate_to_on_current_map,
+    ensure_facing_direction,
+    navigate_to,
     wait_for_player_avatar_to_be_controllable,
     wait_for_n_frames,
     wait_for_script_to_start_and_finish,
     wait_for_task_to_start_and_finish,
-    wait_until_task_is_active,
     walk_one_tile,
+    apply_repel,
+    replenish_repel,
 )
+
+
+@debug.track
+def mount_bike() -> Generator:
+    while not get_player_avatar().is_on_bike:
+        context.emulator.press_button("Select")
+        yield
+
+
+@debug.track
+def unmount_bike() -> Generator:
+    while get_player_avatar().is_on_bike:
+        context.emulator.press_button("Select")
+        yield
 
 
 class PuzzleSolverMode(BotMode):
@@ -46,6 +61,9 @@ class PuzzleSolverMode(BotMode):
         else:
             return False
 
+    def on_repel_effect_ended(self) -> None:
+        replenish_repel()
+
     def run(self) -> Generator:
         assert_no_auto_battle("This mode should not be used with auto-battle.")
         assert_no_auto_pickup("This mode should not be used while auto-pickup is enabled.")
@@ -56,94 +74,57 @@ class PuzzleSolverMode(BotMode):
             case MapRSE.MIRAGE_TOWER_1F:
                 context.message = "Solving Mirage Tower..."
                 use_repel = True
-                assert_registered_item("Mach Bike", "This mode requires the Mach Bike.")
+                assert_registered_item("Mach Bike", "This mode requires the Mach Bike registered to the Select button.")
                 assert_has_pokemon_with_move("Rock Smash", "This mode requires Pokémon with Rock Smash.")
 
                 def path():
                     # floor 1
-                    yield from follow_path([(10, 13), (4, 13), (4, 2), (15, 2)])
+                    yield from mount_bike()
+                    yield from navigate_to(MapRSE.MIRAGE_TOWER_1F, (15, 2))
                     # floor 2
-                    yield from wait_for_task_to_start_and_finish("Task_ExitNonDoor")
-                    while not get_player_avatar().is_on_bike:
-                        context.emulator.press_button("Select")
-                        yield
-                    yield from follow_path(
-                        [(6, 2), (6, 4), (2, 4), (2, 11), (4, 11), (4, 14), (16, 14), (16, 12), (18, 12)]
-                    )
+                    yield from navigate_to(MapRSE.MIRAGE_TOWER_2F, (18, 12))
                     # floor 3
-                    yield from wait_for_task_to_start_and_finish("Task_ExitNonDoor")
-                    while get_player_avatar().is_on_bike:
-                        context.emulator.press_button("Select")
-                        yield
-                    yield from follow_path([(15, 12), (15, 14), (14, 14), (4, 9), (3, 9), (3, 8)])
+                    yield from navigate_to(MapRSE.MIRAGE_TOWER_3F, (3, 8))
+                    yield from ensure_facing_direction("Up")
                     yield from use_party_hm_move("Rock Smash")
-                    yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
-                    yield from follow_path([(3, 4), (2, 4)])
-                    yield from wait_for_task_to_start_and_finish("Task_ExitNonDoor")
-                    yield from wait_for_n_frames(10)
-                    yield from follow_path([(2, 4), (2, 7), (5, 7)])
+                    yield from wait_for_script_to_start_and_finish("EventScript_SmashRock")
+                    yield
+                    yield from navigate_to(MapRSE.MIRAGE_TOWER_3F, (2, 4))
+                    # floor 4
+                    yield from navigate_to(MapRSE.MIRAGE_TOWER_4F, (5, 7))
+                    yield from ensure_facing_direction("Right")
                     yield from use_party_hm_move("Rock Smash")
-                    yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
-                    yield from wait_for_n_frames(180)
-                    yield from deprecated_navigate_to_on_current_map(6, 6)
-                    if get_player_avatar().local_coordinates == (6, 6):
-                        context.message = "Mirage Tower puzzle complete!"
-                        context.bot_mode = "Manual"
+                    yield from wait_for_script_to_start_and_finish("EventScript_SmashRock")
+                    yield
+                    yield from unmount_bike()
+                    yield from navigate_to(MapRSE.MIRAGE_TOWER_4F, (6, 4))
+                    context.message = "Mirage Tower puzzle complete!"
+                    context.bot_mode = "Manual"
 
             # Sky Pillar
             case MapRSE.SKY_PILLAR_OUTSIDE:
                 context.message = "Solving Sky Pillar..."
                 use_repel = True
-                assert_registered_item("Mach Bike", "This mode requires the Mach Bike.")
+                assert_registered_item("Mach Bike", "This mode requires the Mach Bike registered to the Select button.")
 
                 def path():
                     yield from walk_one_tile("Up")
                     # floor 1
-                    yield from follow_path(
-                        [(1, 13), (1, 8), (3, 8), (3, 4), (2, 4), (2, 2), (6, 2), (6, 4), (10, 4), (10, 2)]
-                    )
-                    yield from walk_one_tile("Up")
+                    yield from mount_bike()
+                    yield from navigate_to(MapRSE.SKY_PILLAR_1F, (10, 1))
                     # floor 2
-                    while not get_player_avatar().is_on_bike:
-                        context.emulator.press_button("Select")
-                        yield
-                    yield from follow_path([(11, 2), (11, 13), (0, 13), (0, 7), (3, 7), (3, 2)])
-                    yield from walk_one_tile("Up")
+                    yield from navigate_to(MapRSE.SKY_PILLAR_2F, (3, 1))
                     # floor 3
-                    while get_player_avatar().is_on_bike:
-                        context.emulator.press_button("Select")
-                        yield
-                    yield from follow_path([(3, 5), (1, 5), (1, 11), (4, 11), (4, 12), (12, 12), (12, 2), (11, 2)])
-                    yield from walk_one_tile("Up")
+                    yield from navigate_to(MapRSE.SKY_PILLAR_3F, (11, 1))
                     # floor 4
-                    while not get_player_avatar().is_on_bike:
-                        context.emulator.press_button("Select")
-                        yield
-                    yield from follow_path([(11, 8), (11, 12), (3, 12), (3, 4), (6, 4), (8, 4), (7, 4), (7, 2)])
-                    yield from walk_one_tile("Up")
-                    yield from deprecated_navigate_to_on_current_map(7, 2)
-                    yield from walk_one_tile("Up")
-                    yield from deprecated_navigate_to_on_current_map(3, 2)
-                    yield from walk_one_tile("Up")
+                    yield from navigate_to(MapRSE.SKY_PILLAR_4F, (5, 4))
+                    # after falling down to floor 3
+                    yield from mount_bike()
+                    yield from navigate_to(MapRSE.SKY_PILLAR_3F, (7, 1))
+                    # back on floor 4
+                    yield from navigate_to(MapRSE.SKY_PILLAR_4F, (3, 1))
                     # floor 5
-                    yield from follow_path(
-                        [
-                            (1, 2),
-                            (1, 5),
-                            (2, 5),
-                            (2, 8),
-                            (1, 8),
-                            (1, 12),
-                            (8, 12),
-                            (8, 13),
-                            (13, 13),
-                            (13, 7),
-                            (12, 7),
-                            (12, 2),
-                            (10, 2),
-                        ]
-                    )
-                    yield from walk_one_tile("Up")
+                    yield from navigate_to(MapRSE.SKY_PILLAR_5F, (10, 1))
                     context.message = "Sky Pillar puzzle complete!"
                     context.bot_mode = "Manual"
 
@@ -152,7 +133,7 @@ class PuzzleSolverMode(BotMode):
                 context.message = "Solving Regirock Puzzle..."
 
                 def path():
-                    yield from deprecated_navigate_to_on_current_map(8, 21)
+                    yield from navigate_to(MapRSE.DESERT_RUINS, (8, 21))
                     context.emulator.press_button("A")
                     yield from wait_for_n_frames(5)
                     context.emulator.press_button("B")
@@ -169,7 +150,7 @@ class PuzzleSolverMode(BotMode):
                             context.message = "Regirock puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
-                            yield from deprecated_navigate_to_on_current_map(8, 29)
+                            yield from navigate_to(MapRSE.DESERT_RUINS, (8, 29))
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
                     if context.rom.is_rs:
@@ -180,13 +161,13 @@ class PuzzleSolverMode(BotMode):
                         yield from follow_path([(10, 21), (10, 23)])
                         yield from use_party_hm_move("Strength")
                         yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry")
-                        yield from deprecated_navigate_to_on_current_map(8, 21)
+                        yield from navigate_to(MapRSE.DESERT_RUINS, (8, 21))
                         yield from walk_one_tile("Up")
                         if get_player_avatar().local_coordinates == (8, 11):
                             context.message = "Regirock puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
-                            yield from deprecated_navigate_to_on_current_map(8, 29)
+                            yield from navigate_to(MapRSE.DESERT_RUINS, (8, 29))
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
 
@@ -195,7 +176,7 @@ class PuzzleSolverMode(BotMode):
                 context.message = "Solving Regice Puzzle..."
 
                 def path():
-                    yield from deprecated_navigate_to_on_current_map(8, 21)
+                    yield from navigate_to(MapRSE.ISLAND_CAVE, (8, 21))
                     context.emulator.press_button("A")
                     yield from wait_for_n_frames(5)
                     context.emulator.press_button("B")
@@ -222,7 +203,7 @@ class PuzzleSolverMode(BotMode):
                             context.message = "Regice puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
-                            yield from deprecated_navigate_to_on_current_map(8, 29)
+                            yield from navigate_to(MapRSE.ISLAND_CAVE, (8, 29))
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
                     if context.rom.is_rs:
@@ -233,7 +214,7 @@ class PuzzleSolverMode(BotMode):
                             context.message = "Regice puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
-                            yield from deprecated_navigate_to_on_current_map(8, 29)
+                            yield from navigate_to(MapRSE.ISLAND_CAVE, (8, 29))
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
 
@@ -242,21 +223,21 @@ class PuzzleSolverMode(BotMode):
                 context.message = "Solving Registeel Puzzle..."
 
                 def path():
-                    yield from deprecated_navigate_to_on_current_map(8, 21)
+                    yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 21))
                     context.emulator.press_button("A")
                     yield from wait_for_n_frames(5)
                     context.emulator.press_button("B")
                     if context.rom.is_emerald:
                         assert_has_pokemon_with_move("Flash", "Registeel Puzzle (Emerald) requires Pokémon with Flash.")
                         context.message = "Using Flash..."
-                        yield from deprecated_navigate_to_on_current_map(8, 25)
+                        yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 25))
                         yield from use_party_hm_move("Flash")
                         yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
                         if get_event_flag("SYS_REGISTEEL_PUZZLE_COMPLETED"):
                             context.message = "Registeel puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
-                            yield from deprecated_navigate_to_on_current_map(8, 29)
+                            yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 29))
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
 
@@ -264,16 +245,16 @@ class PuzzleSolverMode(BotMode):
                         assert_has_pokemon_with_move(
                             "Fly", "Regirock Puzzle (Ruby/Sapphire) requires Pokémon with Fly."
                         )
-                        yield from deprecated_navigate_to_on_current_map(8, 25)
+                        yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 25))
                         yield from use_party_hm_move("Fly")
                         yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry")
-                        yield from deprecated_navigate_to_on_current_map(8, 21)
+                        yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 21))
                         yield from walk_one_tile("Up")
                         if get_player_avatar().local_coordinates == (8, 11):
                             context.message = "Registeel puzzle complete!"
                             context.bot_mode = "Manual"
                         else:
-                            yield from deprecated_navigate_to_on_current_map(8, 29)
+                            yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 29))
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
 
@@ -282,9 +263,9 @@ class PuzzleSolverMode(BotMode):
                 context.message = "Solving Deoxys Puzzle..."
 
                 def path():
-                    yield from deprecated_navigate_to_on_current_map(15, 13)
+                    yield from navigate_to(MapRSE.BIRTH_ISLAND_EXTERIOR, (15, 13))
                     context.emulator.press_button("A")
-                    yield from deprecated_navigate_to_on_current_map(11, 13)
+                    yield from navigate_to(MapRSE.BIRTH_ISLAND_EXTERIOR, (11, 13))
                     context.emulator.press_button("Down")
                     yield
                     context.emulator.press_button("A")
@@ -294,15 +275,15 @@ class PuzzleSolverMode(BotMode):
                     context.emulator.press_button("A")
                     yield from follow_path([(19, 11), (13, 11)])
                     context.emulator.press_button("A")
-                    yield from deprecated_navigate_to_on_current_map(17, 11)
+                    yield from navigate_to(MapRSE.BIRTH_ISLAND_EXTERIOR, (17, 11))
                     context.emulator.press_button("A")
                     yield from follow_path([(15, 11), (15, 13)])
                     context.emulator.press_button("A")
                     yield from follow_path([(15, 14), (12, 14)])
                     context.emulator.press_button("A")
-                    yield from deprecated_navigate_to_on_current_map(18, 14)
+                    yield from navigate_to(MapRSE.BIRTH_ISLAND_EXTERIOR, (18, 14))
                     context.emulator.press_button("A")
-                    yield from deprecated_navigate_to_on_current_map(15, 14)
+                    yield from navigate_to(MapRSE.BIRTH_ISLAND_EXTERIOR, (15, 14))
                     context.emulator.press_button("Down")
                     yield
                     context.emulator.press_button("A")
@@ -312,7 +293,7 @@ class PuzzleSolverMode(BotMode):
                         context.message = "Deoxys puzzle complete!"
                         context.bot_mode = "Manual"
                     else:
-                        yield from deprecated_navigate_to_on_current_map(15, 24)
+                        yield from navigate_to(MapRSE.BIRTH_ISLAND_EXTERIOR, (15, 24))
                         yield from walk_one_tile("Down")
                         yield from walk_one_tile("Up")
 
@@ -321,51 +302,56 @@ class PuzzleSolverMode(BotMode):
                 context.message = "Solving Tanoby Key..."
 
                 def path():
-                    yield from deprecated_navigate_to_on_current_map(7, 8)
-                    yield from deprecated_navigate_to_on_current_map(7, 7)
+                    yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (7, 7))
                     yield from use_party_hm_move("Strength")
                     yield from wait_for_script_to_start_and_finish("EventScript_UseStrength", "B")
+                    yield
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
-                    yield from follow_path([(7, 4), (5, 4), (5, 6)])
+
+                    yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (5, 6))
                     yield from walk_one_tile("Right")
-                    yield from follow_path([(6, 7), (7, 7)])
+                    yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (7, 7))
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
-                    yield from follow_path([(7, 6), (5, 6), (5, 4), (6, 4)])
+                    yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (6, 4))
                     yield from walk_one_tile("Right")
                     yield from walk_one_tile("Right")
                     yield from walk_one_tile("Right")
-                    yield from follow_path([(9, 4), (9, 6)])
+
+                    yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (9, 6))
                     yield from walk_one_tile("Left")
-                    yield from follow_path([(8, 6), (8, 7), (7, 7)])
+                    yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (7, 7))
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
-                    yield from follow_path([(7, 6), (9, 6), (9, 4)])
+                    yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (8, 4))
                     yield from walk_one_tile("Left")
                     yield from walk_one_tile("Left")
                     yield from walk_one_tile("Left")
-                    yield from walk_one_tile("Left")
-                    yield from follow_path([(7, 4), (7, 10)])
+
+                    yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (7, 10))
                     yield from walk_one_tile("Left")
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
-                    yield from follow_path([(7, 7), (7, 6)])
+                    yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (7, 6))
                     yield from walk_one_tile("Left")
-                    yield from follow_path([(6, 10), (7, 10)])
+
+                    yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (7, 10))
                     yield from walk_one_tile("Right")
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
-                    yield from follow_path([(7, 7), (7, 6)])
+                    yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (7, 6))
                     yield from walk_one_tile("Right")
-                    yield from follow_path([(7, 12), (9, 12), (9, 11)])
+
+                    yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (9, 11))
                     yield from walk_one_tile("Up")
                     yield from walk_one_tile("Up")
-                    yield from follow_path([(7, 12), (5, 12), (5, 11)])
+
+                    yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (5, 11))
                     yield from walk_one_tile("Up")
                     while (
                         "SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved"
@@ -380,72 +366,18 @@ class PuzzleSolverMode(BotMode):
                         context.message = "Tanoby Key puzzle complete!"
                         context.bot_mode = "Manual"
                     else:
-                        yield from deprecated_navigate_to_on_current_map(7, 13)
+                        yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (7, 13))
                         yield from walk_one_tile("Down")
                         yield from walk_one_tile("Up")
 
             case _:
                 raise BotModeError("You are not on the right map.")
 
-        def repel_check():
-            repel_steps = get_event_var("REPEL_STEP_COUNT")
-            if repel_steps < 1 and get_save_data().get_item_bag().number_of_repels > 0:
-                # use repel
-                first_max_repel = None
-                first_super_repel = None
-                first_repel = None
-                index = 0
-                for slot in get_item_bag().items:
-                    if first_max_repel is None and slot.item.name == "Max Repel":
-                        first_max_repel = index
-                    elif first_super_repel is None and slot.item.name == "Super Repel":
-                        first_super_repel = index
-                    elif first_repel is None and slot.item.name == "Repel":
-                        first_repel = index
-                    index += 1
-                if first_max_repel is not None:
-                    slot_to_use = first_max_repel
-                elif first_super_repel is not None:
-                    slot_to_use = first_super_repel
-                elif first_repel is not None:
-                    slot_to_use = first_repel
-                else:
-                    raise BotModeError("No repels left.")
-
-                yield from StartMenuNavigator("BAG").step()
-                yield from wait_until_task_is_active("Task_BagMenu_HandleInput")
-                while read_symbol("gBagPosition")[5] != 0:
-                    context.emulator.press_button("Left")
-                    yield
-                while True:
-                    bag_position = read_symbol("gBagPosition")
-                    current_slot = unpack_uint16(bag_position[8:10]) + unpack_uint16(bag_position[18:20])
-                    if current_slot == slot_to_use:
-                        break
-                    if current_slot < slot_to_use:
-                        context.emulator.press_button("Down")
-                    else:
-                        context.emulator.press_button("Up")
-                    yield
-                yield from wait_for_task_to_start_and_finish("Task_ContinueTaskAfterMessagePrints", "A")
-                yield from wait_for_task_to_start_and_finish("Task_ShowStartMenu", "B")
-                yield
-
         while True and context.bot_mode != "Manual":
-            if use_repel:
-                yield from repel_check()
+            if use_repel and get_event_var("REPEL_STEP_COUNT") == 0:
+                yield from apply_repel()
 
-            for _ in path():
-                if context.rom.is_rs:
-                    repel_script = "S_RepelWoreOff"
-                elif context.rom.is_emerald:
-                    repel_script = "EventScript_RepelWoreOff"
-                else:
-                    repel_script = "EventScript_RepelWoreOff"
-                if repel_script in get_global_script_context().stack:
-                    context.emulator.press_button("A")
-                    yield
-                yield
+            yield from path()
 
             while len(get_map_objects()) > 1:
                 context.emulator.press_button("A")
