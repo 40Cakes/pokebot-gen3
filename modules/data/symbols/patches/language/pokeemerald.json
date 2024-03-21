@@ -131,6 +131,16 @@
       "J":"81248e0",
       "S":"81244ec"
     },
+    "CB2_LOADEGGHATCH":{
+      "F":"807179c",
+      "J":"80711a8",
+      "S":"807179c"
+    },
+    "CB2_EGGHATCH":{
+      "F":"8071a90",
+      "J":"8071498",
+      "S":"8071a90"
+    },
     "BATTLEMAINCB2":{
       "D":"8038424",
       "F":"8038420",
@@ -298,6 +308,27 @@
       "J":"80a2a08",
       "S":"80a3154"
     },
+    "Task_PCMainMenu":{
+      "D":"80c6ec4",
+      "F":"80c6edc",
+      "I":"80c6ebc",
+      "J":"80c6af4",
+      "S":"80c6ebc"
+    },
+    "Task_PokeStorageMain":{
+      "D":"80c7f08",
+      "F":"80c7f20",
+      "I":"80c7f00",
+      "J":"80c7b48",
+      "S":"80c7f00"
+    },
+    "Task_ExitDoor":{
+      "D":"80af454",
+      "F":"80af44c",
+      "I":"80af44c",
+      "J":"80aed34",
+      "S":"80af44c"
+    },
     "ExecuteMatchCall":{
       "D":"8195bec",
       "F":"8195d0c",
@@ -360,6 +391,13 @@
       "I":"82a5fd3",
       "J":"826239b",
       "S":"82aadf3"
+    },
+    "EventScript_EggHatch":{
+      "D":"82a0780",
+      "F":"829887c",
+      "I":"8292bf3",
+      "J":"8257a89",
+      "S":"8296d93"
     },
     "HANDLEINPUTCHOOSEACTION":{
       "D":["805758c","8158f7c"],
@@ -579,6 +617,21 @@
     },
     "BattleFrontier_BattleTowerMultiPartnerRoom_Text_Apprentice16Accept":{
       "S":"0"
+    },
+    "PlayersHouse_1F_EventScript_GetSSTicketAndSeeLatiTV":{
+      "I":"0"
+    },
+    "BattleFrontier_BattleArenaBattleRoom_EventScript_DefeatedGretaSilver":{
+      "J":"0"
+    },
+    "Route108_Text_JeromePostBattle":{
+      "S":"0"
+    },
+    "Route111_Text_DrewPostBattle":{
+      "F":"0"
+    },
+    "Route123_Text_AlbertoPostBattle":{
+      "D":"0"
     },
     "Route121_SafariZoneEntrance_EventScript_EntranceCounterTrigger":{
       "D": "82326e4",
