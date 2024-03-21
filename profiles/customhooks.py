@@ -96,7 +96,7 @@ def custom_hooks(hook) -> None:
 
                 block = (
                     "\n❌Skipping catching shiny (on catch block list)!"
-                    if pokemon.species_name_for_stats in block_list
+                    if pokemon.species_name_for_stats in block_list or pokemon.species.name in block_list
                     else ""
                 )
 
