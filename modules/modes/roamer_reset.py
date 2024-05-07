@@ -21,8 +21,7 @@ from .util import (
     apply_repel,
     ensure_facing_direction,
     fly_to,
-    follow_path,
-    deprecated_navigate_to_on_current_map,
+    navigate_to,
     replenish_repel,
     soft_reset,
     wait_for_player_avatar_to_be_standing_still,
@@ -156,13 +155,14 @@ class RoamerResetMode(BotMode):
 
             yield from wait_for_player_avatar_to_be_standing_still()
 
+            # Leave bedroom
             if get_player().gender == "female":
-                yield from deprecated_navigate_to_on_current_map(1, 2)
+                yield from navigate_to(MapRSE.LITTLEROOT_TOWN_MAYS_HOUSE_2F, (1, 1))
             else:
-                yield from deprecated_navigate_to_on_current_map(7, 2)
+                yield from navigate_to(MapRSE.LITTLEROOT_TOWN_BRENDANS_HOUSE_2F, (7, 1))
 
-            yield from walk_one_tile("Up")
-
+            # Dialogue with Dad, Mum, and the TV where they also ask about the colour of the Pokemon
+            # (which decides whether the roamer will be Latios or Latias.)
             yield from wait_until_task_is_active("Task_HandleMultichoiceInput", "B")
             if roamer_choice == "Latios":
                 yield
@@ -176,12 +176,11 @@ class RoamerResetMode(BotMode):
 
             yield from wait_for_player_avatar_to_be_standing_still()
 
+            # Leave player's house
             if get_player().gender == "female":
-                yield from deprecated_navigate_to_on_current_map(2, 8)
+                yield from navigate_to(MapRSE.LITTLEROOT_TOWN_MAYS_HOUSE_1F, (2, 8))
             else:
-                yield from deprecated_navigate_to_on_current_map(8, 8)
-
-            yield from walk_one_tile("Down")
+                yield from navigate_to(MapRSE.LITTLEROOT_TOWN_BRENDANS_HOUSE_1F, (8, 8))
 
             # Cut scene where you get the National Dex
             if get_event_var("DEX_UPGRADE_JOHTO_STARTER_STATE") == 1:
@@ -189,36 +188,27 @@ class RoamerResetMode(BotMode):
                     "LittlerootTown_ProfessorBirchsLab_EventScript_UpgradeToNationalDex", "B"
                 )
                 yield from wait_for_player_avatar_to_be_controllable()
-                yield from deprecated_navigate_to_on_current_map(6, 12)
-                yield from walk_one_tile("Down")
+                yield from navigate_to(MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, (6, 12))
 
             # Fly to Slateport City, as the most efficient place to do this seems to be between
             # there and Route 110
             yield from fly_to(FlyDestinationRSE.SlateportCity)
-
-            # Walk to Slateport's border with Route 110
-            yield from deprecated_navigate_to_on_current_map(15, 0)
 
             def inner_loop():
                 if _get_repel_steps_remaining() <= 0:
                     yield from apply_repel()
 
                 # Walk up to tall grass, spin, return
-                yield from walk_one_tile("Up")
-                yield from follow_path([(15, 97), (14, 97)])
+                yield from navigate_to(MapRSE.ROUTE110, (14, 97))
                 directions = ["Down", "Right", "Up", "Left"]
                 for index in range(42 if has_good_ability else 62):
                     yield from ensure_facing_direction(directions[index % 4])
-                yield from follow_path([(15, 97), (15, 99)])
-                yield from walk_one_tile("Down")
 
                 # Run to Battle Tent, enter, leave, go back to Route 110
                 # This is necessary because the game saves the last 3 locations the player
                 # has been in and avoids them, so we need additional map transitions.
-                yield from follow_path([(17, 0), (17, 13), (10, 13)])
-                yield from walk_one_tile("Up")
+                yield from navigate_to(MapRSE.SLATEPORT_CITY, (10, 12))
                 yield from walk_one_tile("Down")
-                yield from follow_path([(17, 13), (17, 0), (15, 0)])
 
             while not self._should_reset and not self._ran_out_of_repels:
                 for _ in inner_loop():
@@ -242,25 +232,23 @@ class RoamerResetMode(BotMode):
 
             yield from wait_for_player_avatar_to_be_standing_still()
 
-            yield from deprecated_navigate_to_on_current_map(14, 6)
+            # Walk up to Celio
+            yield from navigate_to(MapFRLG.ONE_ISLAND_POKEMON_CENTER_1F, (14, 6))
             yield from ensure_facing_direction("Right")
 
+            # Talk to the Celio (giving him the Sapphire in the process) and wait for the dialogue to complete
             yield from wait_until_task_is_active("Task_DrawFieldMessageBox", "A")
-
             while get_global_script_context().is_active:
                 context.emulator.press_button("B")
                 yield
             yield
 
             # Leave the building
-            while get_player_avatar().map_group_and_number != MapFRLG.ONE_ISLAND:
-                yield from follow_path([(14, 9), (9, 9)])
-                yield from walk_one_tile("Down")
+            yield from navigate_to(MapFRLG.ONE_ISLAND_POKEMON_CENTER_1F, (9, 9))
 
             # Walk to the ferry terminal and up to the sailor
-            yield from follow_path([(14, 12), (12, 12), (12, 18)])
-            yield from walk_one_tile("Down")
-            yield from follow_path([(8, 5)])
+            yield from navigate_to(MapFRLG.ONE_ISLAND, (12, 18))
+            yield from navigate_to(MapFRLG.ONE_ISLAND_HARBOR, (8, 5))
 
             # Talk to the sailor
             while get_game_state() == GameState.OVERWORLD:
@@ -275,24 +263,19 @@ class RoamerResetMode(BotMode):
             # and Route 1
             yield from fly_to(FlyDestinationFRLG.PalletTown)
 
-            # Go to the north of the map, just before Route 1 starts
-            yield from walk_one_tile("Right")
-            yield from deprecated_navigate_to_on_current_map(12, 0)
-
             def inner_loop():
                 if _get_repel_steps_remaining() <= 0:
                     yield from apply_repel()
 
-                yield from walk_one_tile("Up")
+                # Go to the first spot of tall grass on Route 1 and spin around for a while
+                yield from navigate_to(MapFRLG.ROUTE1, (12, 39))
                 directions = ["Left", "Down", "Right", "Up"]
                 for index in range(18 if has_good_ability else 36):
                     yield from ensure_facing_direction(directions[index % 4])
-                yield from walk_one_tile("Down")
 
-                yield from follow_path([(12, 8), (15, 8)])
-                yield from walk_one_tile("Up")
+                # Walk into rival's house to get an additional map transition.
+                yield from navigate_to(MapFRLG.PALLET_TOWN, (15, 7))
                 yield from walk_one_tile("Down")
-                yield from follow_path([(12, 8), (12, 0)])
 
             while not self._should_reset and not self._ran_out_of_repels:
                 for _ in inner_loop():
