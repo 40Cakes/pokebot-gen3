@@ -903,7 +903,7 @@ class Pokemon:
     @property
     def ability(self) -> Ability:
         packed_data = unpack_uint32(self._decrypted_data[72:76])
-        if packed_data & 0xF000_0000 and len(self.species.abilities) > 1:
+        if packed_data & (1 << 31) and len(self.species.abilities) > 1:
             return self.species.abilities[1]
         else:
             return self.species.abilities[0]
