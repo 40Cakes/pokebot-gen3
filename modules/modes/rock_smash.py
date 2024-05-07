@@ -158,12 +158,21 @@ class RockSmashMode(BotMode):
                             break
                 case MapRSE.SAFARI_ZONE_SOUTH | MapRSE.SAFARI_ZONE_SOUTHEAST:
                     self._in_safari_zone = True
-                    while (
+
+                    def is_near_entrance_door():
+                        return (
+                            get_player_avatar().map_group_and_number == MapRSE.SAFARI_ZONE_SOUTH
+                            and get_player_avatar().local_coordinates in ((32, 33), (32, 34))
+                        )
+
+                    if is_near_entrance_door() or (
                         get_player_avatar().map_group_and_number == MapRSE.SAFARI_ZONE_SOUTH
-                        and get_player_avatar().local_coordinates in ((32, 33), (32, 34))
-                    ) or get_global_script_context().is_active:
-                        yield
-                    yield from wait_for_player_avatar_to_be_standing_still()
+                        and get_global_script_context().is_active
+                    ):
+                        while is_near_entrance_door() or get_global_script_context().is_active:
+                            yield
+                        yield from wait_for_player_avatar_to_be_standing_still()
+
                     if self._using_mach_bike:
                         yield from self.mount_bicycle()
                         yield from navigate_to(MapRSE.SAFARI_ZONE_NORTHEAST, (15, 7))
