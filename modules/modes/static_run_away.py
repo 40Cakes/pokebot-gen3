@@ -24,7 +24,7 @@ class StaticRunAway(BotMode):
 
     @staticmethod
     def is_selectable() -> bool:
-        if context.rom.is_rse:
+        if context.rom.is_emerald:
             allowed_maps = [
                 MapRSE.NAVEL_ROCK_TOP,
                 MapRSE.NAVEL_ROCK_BOTTOM,
@@ -37,8 +37,10 @@ class StaticRunAway(BotMode):
                 MapRSE.SKY_PILLAR_TOP,
                 MapRSE.FARAWAY_ISLAND_ENTRANCE,
             ]
-        else:
+        elif context.rom.is_frlg:
             allowed_maps = [MapFRLG.NAVEL_ROCK_BASE, MapFRLG.NAVEL_ROCK_SUMMIT]
+        else:
+            allowed_maps = []
         return get_player_avatar().map_group_and_number in allowed_maps
 
     def on_battle_started(self) -> BattleAction | None:
