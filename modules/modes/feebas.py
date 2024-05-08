@@ -11,7 +11,7 @@ from modules.pokemon import get_opponent, get_party
 from . import BattleAction
 from ._asserts import assert_item_exists_in_bag
 from ._interface import BotMode, BotModeError
-from .util import ensure_facing_direction, fish, deprecated_navigate_to_on_current_map, register_key_item
+from .util import ensure_facing_direction, fish, navigate_to, register_key_item
 from ..console import console
 from ..map import get_map_all_tiles
 
@@ -145,9 +145,7 @@ class FeebasMode(BotMode):
 
                 closest_surrounding_tile = get_closest_surrounding_tile(closest_tile)
                 try:
-                    yield from deprecated_navigate_to_on_current_map(
-                        closest_surrounding_tile[0], closest_surrounding_tile[1], run=False
-                    )
+                    yield from navigate_to(MapRSE.ROUTE119, closest_surrounding_tile, run=False)
                     yield from ensure_facing_direction(get_tile_direction(closest_tile))
                 except BotModeError:
                     self.checked_tiles.append(closest_tile)

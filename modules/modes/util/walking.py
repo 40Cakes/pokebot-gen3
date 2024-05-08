@@ -1,19 +1,11 @@
-import queue
 from typing import Generator, Iterable
 
 from modules.context import context
 from modules.debug import debug
-from modules.map import (
-    MapLocation,
-    get_map_data_for_current_position,
-    get_map_all_tiles,
-    get_map_data,
-    get_map_objects,
-    get_player_map_object,
-)
+from modules.map import get_map_data_for_current_position, get_player_map_object
 from modules.map_data import MapFRLG, MapRSE
 from modules.map_path import calculate_path, Waypoint, PathFindingError
-from modules.memory import GameState, get_event_flag_by_number, get_game_state
+from modules.memory import GameState, get_game_state
 from modules.player import (
     RunningState,
     AcroBikeState,
@@ -102,143 +94,6 @@ def follow_path(waypoints: Iterable[tuple[int, int]], run: bool = True) -> Gener
     # Wait for player to come to a full stop.
     while not player_avatar_is_standing_still() or get_player_avatar().running_state != RunningState.NOT_MOVING:
         yield
-
-
-@debug.track
-def deprecated_navigate_to_on_current_map(x: int, y: int, run: bool = True) -> Generator:
-    """
-    (This is an older, now deprecated implementation of a pathfinding navigation function.
-    For new code, use `navigate_to()` instead.)
-
-    Tries to walk the player to a given location while circumventing obstacles.
-
-    This is a pretty primitive implementation and only works within a map. If you need to cross
-    maps, you have to use this to get to the edge of the first map, then use `walk_one_tile()`
-    to cross the map border, and then call this function again to navigate within the second map.
-
-    It attempts to avoid tiles that have encounters (tall grass etc.) but does not currently
-    avoid trainers.
-
-    It only works _either_ on land _or_ on water, but won't start or stop to surf.
-
-    :param x: Map-local X coordinate of the destination
-    :param y: Map-local Y coordinate of the destination
-    :param run: Whether the player should run (hold down B)
-    """
-    tiles = get_map_all_tiles()
-    map_width, map_height = tiles[0].map_size
-
-    def is_tile_accessible(destination: MapLocation, source: MapLocation) -> bool:
-        if source.local_position[0] < destination.local_position[0]:
-            direction = "East"
-        elif source.local_position[0] > destination.local_position[0]:
-            direction = "West"
-        elif source.local_position[1] < destination.local_position[1]:
-            direction = "South"
-        else:
-            direction = "North"
-
-        if destination.collision:
-            may_pass = False
-            if (
-                destination.tile_type.startswith("Jump ")
-                or destination.tile_type.startswith("Walk ")
-                or destination.tile_type.startswith("Slide ")
-            ):
-                _, passable_direction = destination.tile_type.split(" ")
-                if direction in passable_direction.split("/"):
-                    may_pass = True
-            if not may_pass:
-                return False
-        if source.tile_type.startswith("Impassable "):
-            impassable_directions = source.tile_type[11:].split(" and ")
-            if direction in impassable_directions:
-                return False
-        if destination.elevation not in (0, 15) and source.elevation != 0 and source.elevation != destination.elevation:
-            return False
-        if destination.tile_type == "Door Warp":
-            return False
-        tile_blocked_by_object = False
-        object_event_ids = []
-        for map_object in get_map_objects():
-            object_event_ids.append(map_object.local_id)
-            if "player" not in map_object.flags and destination.local_position in (
-                map_object.current_coords,
-                map_object.previous_coords,
-            ):
-                tile_blocked_by_object = True
-                break
-        for object_template in tiles[0].objects:
-            if object_template.local_id in object_event_ids:
-                continue
-            if object_template.flag_id != 0 and get_event_flag_by_number(object_template.flag_id):
-                continue
-            if object_template.local_coordinates == destination.local_position:
-                tile_blocked_by_object = True
-                break
-        return not tile_blocked_by_object
-
-    def calculate_path(end_point: tuple[int, int], starting_point: tuple[int, int]) -> list[tuple[int, int]]:
-        visited_nodes: dict[tuple[int, int], tuple[int, tuple[int, int]]] = {starting_point: (0, starting_point)}
-        node_queue = queue.SimpleQueue()
-        node_queue.put(starting_point)
-
-        while not node_queue.empty() and end_point not in visited_nodes:
-            coords = node_queue.get()
-            tile = tiles[coords[1] * map_width + coords[0]]
-            potential_neighbours = {
-                "North": (coords[0], coords[1] - 1),
-                "West": (coords[0] - 1, coords[1]),
-                "South": (coords[0], coords[1] + 1),
-                "East": (coords[0] + 1, coords[1]),
-            }
-            for direction in potential_neighbours:
-                n_coords = potential_neighbours[direction]
-                if 0 <= n_coords[0] < map_width and 0 <= n_coords[1] < map_height:
-                    neighbour = tiles[n_coords[1] * map_width + n_coords[0]]
-                    if not is_tile_accessible(neighbour, tile):
-                        continue
-
-                    if neighbour.has_encounters:
-                        distance = visited_nodes[coords][0] + 1000
-                    else:
-                        distance = visited_nodes[coords][0] + 1
-
-                    if n_coords not in visited_nodes or visited_nodes[n_coords][0] > distance:
-                        visited_nodes[n_coords] = (distance, coords)
-                        node_queue.put(n_coords)
-                        if n_coords == end_point:
-                            break
-
-        if end_point not in visited_nodes:
-            raise BotModeError(f"Could not find a path to ({end_point[0]}, {end_point[1]}).")
-
-        current_node = visited_nodes[end_point]
-        waypoints = [end_point]
-        while current_node[1] != starting_point:
-            waypoints.append(current_node[1])
-            current_node = visited_nodes[current_node[1]]
-
-        return list(reversed(waypoints))
-
-    while get_player_avatar().local_coordinates != (x, y):
-        timeout = 60
-        last_known_location = get_player_avatar().local_coordinates
-        for _ in follow_path(calculate_path((x, y), last_known_location), run):
-            timeout -= 1
-            if timeout <= 0 and get_game_state() == GameState.OVERWORLD:
-                current_location = get_player_avatar().local_coordinates
-                if current_location == last_known_location:
-                    for __ in range(16):
-                        yield
-                    break
-                else:
-                    last_known_location = current_location
-                    timeout += 60
-            yield
-
-    context.emulator.reset_held_buttons()
-    yield from wait_for_player_avatar_to_be_controllable()
 
 
 class TimedOutTryingToReachWaypointError(BotModeError):
