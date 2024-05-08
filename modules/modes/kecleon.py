@@ -22,6 +22,7 @@ class KecleonMode(BotMode):
 
     @staticmethod
     def is_selectable() -> bool:
+        # On R/S, the Kecleon disappears after a whiteout so this mode cannot be used.
         if not context.rom.is_emerald:
             return False
         targeted_tile = get_player_avatar().map_location_in_front
