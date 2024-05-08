@@ -147,7 +147,12 @@ def replenish_repel() -> None:
     if get_item_bag().number_of_repels == 0:
         raise RanOutOfRepels("Player ran out of repels")
     else:
-        context.controller_stack.insert(len(context.controller_stack) - 1, apply_repel())
+
+        def apply_repel_and_reset_inputs():
+            yield from apply_repel()
+            context.emulator.reset_held_buttons()
+
+        context.controller_stack.insert(len(context.controller_stack) - 1, apply_repel_and_reset_inputs())
 
 
 @debug.track

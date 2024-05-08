@@ -108,7 +108,12 @@ class PathMap:
                     )
                 )
             for map_object in map_data.objects:
-                tile = self._tiles[tile_index(*map_object.local_coordinates)]
+                try:
+                    tile = self._tiles[tile_index(*map_object.local_coordinates)]
+                except IndexError:
+                    # If loaded map object data is invalid, a map object's coordinates might be out of bounds.
+                    # This `except` block catches that case and pretends like the object is not loaded at all.
+                    continue
                 if map_object.flag_id != 0:
                     tile.dynamic_collision_flag = map_object.flag_id
                 else:
