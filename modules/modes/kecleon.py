@@ -12,7 +12,7 @@ from ._asserts import (
     assert_has_pokemon_with_move,
 )
 from ._interface import BotMode, BotModeError
-from .util import ensure_facing_direction, deprecated_navigate_to_on_current_map, walk_one_tile
+from .util import ensure_facing_direction, navigate_to
 
 
 class KecleonMode(BotMode):
@@ -52,13 +52,8 @@ class KecleonMode(BotMode):
 
         while context.bot_mode != "Manual":
             self._has_whited_out = False
-            if get_player_avatar().map_group_and_number == MapRSE.ROUTE119:
-                yield from deprecated_navigate_to_on_current_map(31, 7)
-                yield from ensure_facing_direction("Up")
-                while not self._has_whited_out:
-                    context.emulator.press_button("A")
-                    yield
-            if get_player_avatar().map_group_and_number == MapRSE.FORTREE_CITY:
-                yield from deprecated_navigate_to_on_current_map(0, 7)
-                yield from walk_one_tile("Left")
+            yield from navigate_to(MapRSE.ROUTE119, (31, 7))
+            yield from ensure_facing_direction("Up")
+            while not self._has_whited_out:
+                context.emulator.press_button("A")
                 yield
