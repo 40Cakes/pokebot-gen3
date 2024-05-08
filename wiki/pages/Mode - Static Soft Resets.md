@@ -16,6 +16,7 @@
 ![](../../sprites/pokemon/shiny/Deoxys.png)
 ![](../../sprites/pokemon/shiny/Kyogre.png)
 ![](../../sprites/pokemon/shiny/Groudon.png)
+![](../../sprites/pokemon/shiny/Kecleon.png)
 
 > For modes that use soft resets such as starters, the bot will track RNG to ensure a unique frame is hit after every reset, this is to prevent repeatedly generating an identical Pokémon, this will cause soft resets to take progressively longer over time
 >
