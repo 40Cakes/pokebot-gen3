@@ -134,10 +134,7 @@ class RoamerResetMode(BotMode):
 
         if context.rom.is_rs:
             if not save_data.get_event_flag("SYS_TV_LATI"):
-                raise BotModeError("The TV must be on in the house after beating the Elite Four.")
-
-            if save_data.get_event_flag("LATIOS_OR_LATIAS_ROAMING"):
-                raise BotModeError("Lati@s must not be roaming for this mode to work. Reload an earlier save state.")
+                raise BotModeError("The TV must be flashing in the house after beating the Elite Four.")
 
         if context.rom.is_emerald:
             has_good_ability = not saved_party[0].is_egg and saved_party[0].ability.name in ("Illuminate", "Arena Trap")
@@ -198,8 +195,6 @@ class RoamerResetMode(BotMode):
                 yield from navigate_to(MapRSE.LITTLEROOT_TOWN_MAYS_HOUSE_1F, (2, 8))
             else:
                 yield from navigate_to(MapRSE.LITTLEROOT_TOWN_BRENDANS_HOUSE_1F, (8, 8))
-
-            yield from walk_one_tile("Down")
 
             # Cut scene where you get the National Dex
             if get_event_var("DEX_UPGRADE_JOHTO_STARTER_STATE") == 1:
@@ -349,10 +344,11 @@ class RoamerResetMode(BotMode):
                 for index in range(42 if has_good_ability else 62):
                     yield from ensure_facing_direction(directions[index % 4])
 
-                # Run to Contest Hall, enter, leave, go back to Route 110
+                # Run to Pokemon Center, enter, leave, go back to Route 110
                 # This is necessary because the game saves the last 3 locations the player
                 # has been in and avoids them, so we need additional map transitions.
-                yield from navigate_to(MapRSE.SLATEPORT_CITY, (10, 12))
+                # The NPC that can block the way to Contest Hall is avoided.
+                yield from navigate_to(MapRSE.SLATEPORT_CITY, (19, 19))
                 yield from walk_one_tile("Down")
 
             while not self._should_reset and not self._ran_out_of_repels:
