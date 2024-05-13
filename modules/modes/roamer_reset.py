@@ -60,7 +60,7 @@ class RoamerResetMode(BotMode):
     def is_selectable() -> bool:
         if context.rom.is_emerald and get_event_var("LITTLEROOT_HOUSES_STATE_MAY") != 3:
             return False
-        
+
         return get_player_avatar().map_group_and_number == _get_allowed_starting_map()
 
     def __init__(self):
@@ -99,7 +99,7 @@ class RoamerResetMode(BotMode):
             location_error = "The game has not been saved while standing on the bottom floor of the player's house."
             roamer_level = 40
             highest_encounter_level = 13
-            
+
         assert_saved_on_map(SavedMapLocation(_get_allowed_starting_map()), error_message=location_error)
 
         save_data = get_save_data()
@@ -131,27 +131,25 @@ class RoamerResetMode(BotMode):
                     raise BotModeError("You do not have the Sapphire in your inventory. Go and get it!")
                 else:
                     raise BotModeError("You haven't recovered the Sapphire yet.")
-                
+
         if context.rom.is_rs:
             if not save_data.get_event_flag("SYS_TV_LATI"):
                 raise BotModeError("The TV must be on in the house after beating the Elite Four.")
 
             if save_data.get_event_flag("LATIOS_OR_LATIAS_ROAMING"):
                 raise BotModeError("Lati@s must not be roaming for this mode to work. Reload an earlier save state.")
-                
+
         if context.rom.is_emerald:
             has_good_ability = not saved_party[0].is_egg and saved_party[0].ability.name in ("Illuminate", "Arena Trap")
         else:
             has_good_ability = not saved_party[0].is_egg and saved_party[0].ability.name in ("Illuminate")
-        
+
         if context.rom.is_frlg:
             yield from self.run_frlg(has_good_ability)
         elif context.rom.is_emerald:
             yield from self.run_emerald(has_good_ability)
         else:
             yield from self.run_rs(has_good_ability)
-
-        
 
     def run_emerald(self, has_good_ability: bool):
         roamer_choice = ask_for_choice(
@@ -319,16 +317,16 @@ class RoamerResetMode(BotMode):
             yield from wait_for_unique_rng_value()
 
             yield from wait_for_player_avatar_to_be_standing_still()
-            
+
             if get_player().gender == "female":
-                yield from navigate_to(MapRSE.LITTLEROOT_TOWN_MAYS_HOUSE_1F, (7, 5))
+                yield from navigate_to(MapRSE.LITTLEROOT_TOWN_MAYS_HOUSE_1F, (6, 5))
             else:
                 yield from navigate_to(MapRSE.LITTLEROOT_TOWN_BRENDANS_HOUSE_1F, (4, 5))
 
             yield from ensure_facing_direction("Up")
             context.emulator.press_button("A")
-            yield from wait_until_event_flag_is_true("LATIOS_OR_LATIAS_ROAMING","A")
-            
+            yield from wait_until_event_flag_is_true("LATIOS_OR_LATIAS_ROAMING", "A")
+
             yield
 
             if get_player().gender == "female":
@@ -337,11 +335,10 @@ class RoamerResetMode(BotMode):
             else:
                 yield from walk_one_tile("Right")
                 yield from navigate_to(MapRSE.LITTLEROOT_TOWN_BRENDANS_HOUSE_1F, (8, 8))
-        
 
             yield from fly_to(FlyDestinationRSE.SlateportCity)
             yield from wait_for_player_avatar_to_be_standing_still()
-            
+
             def inner_loop():
                 if _get_repel_steps_remaining() <= 0:
                     yield from apply_repel()
@@ -352,10 +349,10 @@ class RoamerResetMode(BotMode):
                 for index in range(42 if has_good_ability else 62):
                     yield from ensure_facing_direction(directions[index % 4])
 
-
-                # Enter Cycling Road building and exit. RS changes roamer location per building entry and does not
-                # seem to care about recent maps visited.
-                yield from navigate_to(MapRSE.ROUTE110, (16, 88))
+                # Run to Contest Hall, enter, leave, go back to Route 110
+                # This is necessary because the game saves the last 3 locations the player
+                # has been in and avoids them, so we need additional map transitions.
+                yield from navigate_to(MapRSE.SLATEPORT_CITY, (10, 12))
                 yield from walk_one_tile("Down")
 
             while not self._should_reset and not self._ran_out_of_repels:
