@@ -242,6 +242,7 @@ class RoamerResetMode(BotMode):
                 context.emulator.press_button("B")
                 yield
             yield
+            yield from wait_for_player_avatar_to_be_standing_still("B")
 
             # Leave the building
             yield from navigate_to(MapFRLG.ONE_ISLAND_POKEMON_CENTER_1F, (9, 9))
