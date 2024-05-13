@@ -42,7 +42,7 @@ On Emerald, this mode needs some preparation **before defeating the Elite Four f
 ![](../../sprites/pokemon/shiny/Latias.png)
 ![](../../sprites/pokemon/shiny/Latios.png)
 
-Unlike Emerald version, Ruby and Sapphire is not restricted by the sequence that happens in your house immediately after defeating the Elite Four. After defeating the Elite Four for the first time, you will be sent back to your house in Littleroot Town. Walking to the first floor will trigger a cutscene in which Norman gives you the S.S. Ticket. The TV will be flashing; you can interact with the TV at any time after returning to your house, giving you time to prepare as follows:
+Unlike Emerald version, Ruby and Sapphire are not restricted by the sequence that happens in your house immediately after defeating the Elite Four. After defeating the Elite Four for the first time, you will be sent back to your house in Littleroot Town. Walking to the first floor will trigger a cutscene in which Norman gives you the S.S. Ticket. The TV will be flashing; you can interact with the TV at any time after returning to your house, giving you time to prepare as follows:
 
 - Make sure you have a Pokémon that knows **Fly** in your party
 - Make sure you have a Pokémon **between level 14 and 40** in your party (in order for Repel to work properly)
