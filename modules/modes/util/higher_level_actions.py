@@ -53,7 +53,9 @@ def fly_to(destination: Union[FlyDestinationRSE, FlyDestinationFRLG]) -> Generat
     yield from PokemonPartyMenuNavigator(flying_pokemon_index, "", menu_index).step()
 
     # Wait for region map to load.
-    while get_game_state_symbol() not in ("CB2_FLYMAP", "CB2_REGIONMAP", "CB2_FLYREGIONMAP") or get_map_cursor() is None:
+    while (
+        get_game_state_symbol() not in ("CB2_FLYMAP", "CB2_REGIONMAP", "CB2_FLYREGIONMAP") or get_map_cursor() is None
+    ):
         yield
 
     destination_region = destination.get_map_region()
@@ -80,7 +82,7 @@ def fly_to(destination: Union[FlyDestinationRSE, FlyDestinationFRLG]) -> Generat
         yield from wait_for_task_to_start_and_finish("Task_MapNamePopup", "A")
     else:
         yield from wait_for_task_to_start_and_finish("Task_FlyIntoMap", "A")
-        
+
     yield
 
 
