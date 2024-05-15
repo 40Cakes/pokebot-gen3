@@ -25,7 +25,6 @@ from .util import (
     apply_white_flute_if_available,
     ensure_facing_direction,
     follow_path,
-    replenish_repel,
     soft_reset,
     wait_for_player_avatar_to_be_standing_still,
     wait_for_script_to_start_and_finish,
@@ -69,9 +68,9 @@ class RockSmashMode(BotMode):
     def on_repel_effect_ended(self) -> None:
         if self._using_repel:
             try:
-                replenish_repel()
+                yield from apply_repel()
             except RanOutOfRepels:
-                context.controller_stack.insert(len(context.controller_stack) - 1, self.reset_and_wait())
+                yield from self.reset_and_wait()
 
     def run(self) -> Generator:
         self._in_safari_zone = False

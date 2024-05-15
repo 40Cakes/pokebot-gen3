@@ -1,4 +1,5 @@
-import signal
+import inspect
+from types import GeneratorType
 
 from modules.battle import BattleHandler, BattleOutcome, RotatePokemon, check_lead_can_battle, flee_battle
 from modules.context import context
@@ -254,11 +255,16 @@ class RepelListener(BotListener):
     @isolate_inputs
     @debug.track
     def handle_repel_expiration_message(self, bot_mode: BotMode):
+        previous_inputs = context.emulator.reset_held_buttons()
         while self._script_name in get_global_script_context().stack:
             context.emulator.press_button("B")
             yield
+        context.emulator.restore_held_buttons(previous_inputs)
         self._message_active = False
-        bot_mode.on_repel_effect_ended()
+
+        mode_callback_result = bot_mode.on_repel_effect_ended()
+        if isinstance(mode_callback_result, GeneratorType):
+            yield from mode_callback_result
 
 
 class PoisonListener(BotListener):
