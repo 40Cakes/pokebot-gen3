@@ -20,7 +20,6 @@ from .util import (
     wait_for_task_to_start_and_finish,
     walk_one_tile,
     apply_repel,
-    replenish_repel,
 )
 
 
@@ -62,7 +61,7 @@ class PuzzleSolverMode(BotMode):
             return False
 
     def on_repel_effect_ended(self) -> None:
-        replenish_repel()
+        yield from apply_repel()
 
     def run(self) -> Generator:
         assert_no_auto_battle("This mode should not be used with auto-battle.")

@@ -23,7 +23,6 @@ from .util import (
     ensure_facing_direction,
     fly_to,
     navigate_to,
-    replenish_repel,
     soft_reset,
     wait_for_player_avatar_to_be_standing_still,
     wait_for_unique_rng_value,
@@ -70,7 +69,7 @@ class RoamerResetMode(BotMode):
 
     def on_repel_effect_ended(self) -> None:
         try:
-            replenish_repel()
+            yield from apply_repel()
         except RanOutOfRepels:
             self._ran_out_of_repels = True
 
