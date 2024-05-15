@@ -6,6 +6,7 @@ from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.items import get_item_by_name
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_event_var, get_game_state
+from modules.modes.util.event_flags_and_vars import wait_until_event_flag_is_true
 from modules.modes.util.tasks_scripts import wait_for_script_to_start_and_finish
 from modules.modes.util.walking import wait_for_player_avatar_to_be_controllable
 from modules.player import get_player, get_player_avatar
@@ -40,8 +41,10 @@ def _get_allowed_starting_map() -> MapFRLG | MapRSE | None:
         else:
             return MapRSE.LITTLEROOT_TOWN_BRENDANS_HOUSE_2F
     else:
-        # No R/S yet
-        return None
+        if get_player().gender == "female":
+            return MapRSE.LITTLEROOT_TOWN_MAYS_HOUSE_1F
+        else:
+            return MapRSE.LITTLEROOT_TOWN_BRENDANS_HOUSE_1F
 
 
 def _get_repel_steps_remaining():
@@ -88,10 +91,15 @@ class RoamerResetMode(BotMode):
             location_error = "The game has not been saved while standing in the Pokemon Net Center on One Island."
             roamer_level = 50
             highest_encounter_level = 6
-        else:
+        elif context.rom.is_emerald:
             location_error = "The game has not been saved while standing on the top floor of the player's house."
             roamer_level = 40
             highest_encounter_level = 13
+        else:
+            location_error = "The game has not been saved while standing on the bottom floor of the player's house."
+            roamer_level = 40
+            highest_encounter_level = 13
+
         assert_saved_on_map(SavedMapLocation(_get_allowed_starting_map()), error_message=location_error)
 
         save_data = get_save_data()
@@ -124,15 +132,21 @@ class RoamerResetMode(BotMode):
                 else:
                     raise BotModeError("You haven't recovered the Sapphire yet.")
 
-        has_good_ability = not saved_party[0].is_egg and saved_party[0].ability.name in ("Illuminate", "Arena Trap")
+        if context.rom.is_rs:
+            if not save_data.get_event_flag("SYS_TV_LATI"):
+                raise BotModeError("The TV must be flashing in the house after beating the Elite Four.")
+
+        if context.rom.is_emerald:
+            has_good_ability = not saved_party[0].is_egg and saved_party[0].ability.name in ("Illuminate", "Arena Trap")
+        else:
+            has_good_ability = not saved_party[0].is_egg and saved_party[0].ability.name in ("Illuminate")
 
         if context.rom.is_frlg:
             yield from self.run_frlg(has_good_ability)
         elif context.rom.is_emerald:
             yield from self.run_emerald(has_good_ability)
         else:
-            context.message = "Ruby/Sapphire are not supported by this mode."
-            context.set_manual_mode()
+            yield from self.run_rs(has_good_ability)
 
     def run_emerald(self, has_good_ability: bool):
         roamer_choice = ask_for_choice(
@@ -276,6 +290,66 @@ class RoamerResetMode(BotMode):
 
                 # Walk into rival's house to get an additional map transition.
                 yield from navigate_to(MapFRLG.PALLET_TOWN, (15, 7))
+                yield from walk_one_tile("Down")
+
+            while not self._should_reset and not self._ran_out_of_repels:
+                for _ in inner_loop():
+                    if self._should_reset or self._ran_out_of_repels:
+                        break
+                    yield
+            if self._ran_out_of_repels:
+                context.message = "Soft resetting after running out of repels..."
+                continue
+
+            yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry")
+
+    def run_rs(self, has_good_ability: bool):
+        while True:
+            self._should_reset = False
+            self._ran_out_of_repels = False
+            context.emulator.reset_held_buttons()
+
+            yield from soft_reset(mash_random_keys=True)
+            yield from wait_for_unique_rng_value()
+
+            yield from wait_for_player_avatar_to_be_standing_still()
+
+            if get_player().gender == "female":
+                yield from navigate_to(MapRSE.LITTLEROOT_TOWN_MAYS_HOUSE_1F, (6, 5))
+            else:
+                yield from navigate_to(MapRSE.LITTLEROOT_TOWN_BRENDANS_HOUSE_1F, (4, 5))
+
+            yield from ensure_facing_direction("Up")
+            context.emulator.press_button("A")
+            yield from wait_until_event_flag_is_true("LATIOS_OR_LATIAS_ROAMING", "A")
+
+            yield
+
+            if get_player().gender == "female":
+                yield from walk_one_tile("Left")
+                yield from navigate_to(MapRSE.LITTLEROOT_TOWN_MAYS_HOUSE_1F, (2, 8))
+            else:
+                yield from walk_one_tile("Right")
+                yield from navigate_to(MapRSE.LITTLEROOT_TOWN_BRENDANS_HOUSE_1F, (8, 8))
+
+            yield from fly_to(FlyDestinationRSE.SlateportCity)
+            yield from wait_for_player_avatar_to_be_standing_still()
+
+            def inner_loop():
+                if _get_repel_steps_remaining() <= 0:
+                    yield from apply_repel()
+
+                # Walk up to tall grass, spin, return
+                yield from navigate_to(MapRSE.ROUTE110, (14, 97))
+                directions = ["Down", "Right", "Up", "Left"]
+                for index in range(42 if has_good_ability else 62):
+                    yield from ensure_facing_direction(directions[index % 4])
+
+                # Run to Pokemon Center, enter, leave, go back to Route 110
+                # This is necessary because the game saves the last 3 locations the player
+                # has been in and avoids them, so we need additional map transitions.
+                # The NPC that can block the way to Contest Hall is avoided.
+                yield from navigate_to(MapRSE.SLATEPORT_CITY, (19, 19))
                 yield from walk_one_tile("Down")
 
             while not self._should_reset and not self._ran_out_of_repels:
