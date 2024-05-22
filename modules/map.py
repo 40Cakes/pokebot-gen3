@@ -434,6 +434,21 @@ WEATHER_TYPES = [
     "Route 119 Cycle",
     "Route 123 Cycle",
 ]
+WEATHER_SCRIPTS = {
+    1: "Sunny Clouds",
+    2: "Sunny",
+    3: "Rain",
+    4: "Snow",
+    5: "Thunderstorm",
+    6: "Fog (Horizontal)",
+    7: "Fog (Diagonal)",
+    8: "Volcanic Ash",
+    9: "Sandstorm",
+    10: "Shade",
+    11: "Drought",
+    20: "Route 119 Cycle",
+    21: "Route 123 Cycle",
+}
 
 
 class MapConnection:
@@ -554,6 +569,13 @@ class MapCoordEvent:
         self._data = data
 
     @property
+    def type(self) -> str:
+        if self.script_pointer == 0:
+            return "weather"
+        else:
+            return "script"
+
+    @property
     def local_coordinates(self) -> tuple[int, int]:
         return unpack_uint16(self._data[:2]), unpack_uint16(self._data[2:4])
 
@@ -578,13 +600,25 @@ class MapCoordEvent:
         symbol = get_symbol_name(self.script_pointer, pretty_name=True)
         return hex(self.script_pointer) if symbol == "" else symbol
 
+    @property
+    def weather(self) -> str | None:
+        if self.script_pointer != 0:
+            return None
+        else:
+            try:
+                return WEATHER_SCRIPTS[unpack_uint16(self._data[6:8])]
+            except KeyError:
+                return None
+
     def to_dict(self) -> dict:
         return {
             "local_coordinates": self.local_coordinates,
+            "type": self.type,
             "trigger_var": get_event_var_name(self.trigger_var_number),
             "trigger_value": self.trigger_value,
             "elevation": self.elevation,
             "script": self.script_symbol,
+            "weather": self.weather,
         }
 
 

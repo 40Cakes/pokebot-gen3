@@ -1235,7 +1235,11 @@ class MapTab(DebugTab):
         coord_events_list = {"__value": len(map_coord_events)}
         for i in range(len(map_coord_events)):
             event = map_coord_events[i]
-            coord_events_list[format_coordinates(event.local_coordinates)] = event.script_symbol
+            if event.type == "weather" and event.weather:
+                label = f"Change weather to: {event.weather}"
+            else:
+                label = event.script_symbol
+            coord_events_list[format_coordinates(event.local_coordinates)] = label
 
         map_bg_events = map_data.bg_events
         bg_events_list = {"__value": len(map_bg_events)}

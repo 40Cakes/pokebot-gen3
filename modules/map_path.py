@@ -78,7 +78,7 @@ class PathMap:
 
                 on_enter_event_triggers = {}
                 for event in map_data.coord_events:
-                    if event.local_coordinates == tile.local_position:
+                    if event.local_coordinates == tile.local_position and event.type != "weather":
                         on_enter_event_triggers[event.trigger_var_number] = event.trigger_value
 
                 warps_to = None
