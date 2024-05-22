@@ -130,7 +130,7 @@ def http_server() -> None:
             work_queue.put_nowait(get_item_bag)
         if cached_storage.age_in_seconds > 1:
             work_queue.put_nowait(get_item_storage)
-        while cached_bag.age_in_seconds > 1 or cached_storage.age_in_seconds > 1:
+        while cached_bag.age_in_frames > 60 or cached_storage.age_in_frames > 60:
             time.sleep(0.05)
 
         return jsonify(
@@ -179,7 +179,7 @@ def http_server() -> None:
         cached_pokedex = state_cache.pokedex
         if cached_pokedex.age_in_seconds > 1:
             work_queue.put_nowait(get_pokedex)
-            while cached_pokedex.age_in_seconds > 1:
+            while cached_pokedex.age_in_frames > 60:
                 time.sleep(0.05)
 
         return jsonify(cached_pokedex.value.to_dict())
