@@ -136,25 +136,6 @@ def apply_repel() -> Generator:
     yield from use_item_from_bag(repel_item)
 
 
-def replenish_repel() -> None:
-    """
-    This can be used in a bot mode's `on_repel_effect_ended()` callback to re-enable the repel
-    effect as soon as it expires.
-
-    It should not be used anywhere else.
-    """
-
-    if get_item_bag().number_of_repels == 0:
-        raise RanOutOfRepels("Player ran out of repels")
-    else:
-
-        def apply_repel_and_reset_inputs():
-            yield from apply_repel()
-            context.emulator.reset_held_buttons()
-
-        context.controller_stack.insert(len(context.controller_stack) - 1, apply_repel_and_reset_inputs())
-
-
 @debug.track
 def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int = 3) -> Generator:
     """
