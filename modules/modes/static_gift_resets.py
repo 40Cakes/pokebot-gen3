@@ -180,8 +180,8 @@ class StaticGiftResetsMode(BotMode):
                     point_a = get_map_data(MapRSE.LAVARIDGE_TOWN, (2, 9))
                     point_b = get_map_data(MapRSE.LAVARIDGE_TOWN, (19, 10))
                 elif encounter[2] == "Togepi":
-                    point_a = get_map_data(MapFRLG.FIVE_ISLAND_WATER_LABYRINTH, (15, 9))
-                    point_b = get_map_data(MapFRLG.FIVE_ISLAND_WATER_LABYRINTH, (8, 7))
+                    point_a = get_map_data(MapFRLG.FIVE_ISLAND_WATER_LABYRINTH, (11, 9))
+                    point_b = get_map_data(MapFRLG.FIVE_ISLAND_WATER_LABYRINTH, (17, 13))
                 else:
                     raise BotModeError("Unknown encounter type")
 
