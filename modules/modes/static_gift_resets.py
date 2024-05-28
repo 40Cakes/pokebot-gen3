@@ -149,6 +149,8 @@ class StaticGiftResetsMode(BotMode):
                     yield from wait_for_task_to_start_and_finish("Task_YesNoMenu_HandleInput", "A")
                     yield from wait_for_task_to_start_and_finish("Task_Fanfare", "B")
                     yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessageBox", "B")
+            if context.rom.is_rs and encounter[2] in ["Hoenn Fossils"]:
+                yield from wait_until_event_flag_is_true("RECEIVED_FOSSIL_MON", "A")
 
             # Don't rename pokemon
             if context.rom.is_frlg and encounter[2] not in ["Togepi"]:
@@ -160,6 +162,8 @@ class StaticGiftResetsMode(BotMode):
                 yield from wait_for_script_to_start_and_finish("Std_MsgboxDefault", "B")
             if context.rom.is_emerald and encounter[2] not in ["Wynaut"]:
                 yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessage", "B")
+                yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", "B")
+            if context.rom.is_rs and encounter[2] in ["Hoenn Fossils"]:
                 yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", "B")
 
             # Extra check for lapras and castform and clear extra message boxes
