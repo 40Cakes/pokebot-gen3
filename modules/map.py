@@ -7,7 +7,14 @@ from typing import Literal
 
 from modules.context import context
 from modules.game import decode_string, get_event_flag_name, get_event_var_name
-from modules.memory import get_save_block, get_symbol_name, read_symbol, unpack_uint16, unpack_uint32
+from modules.memory import (
+    get_save_block,
+    get_symbol_name,
+    read_symbol,
+    unpack_uint16,
+    unpack_uint32,
+    get_event_flag_by_number,
+)
 from modules.pokemon import Item, Species, get_item_by_index, get_species_by_index
 
 
@@ -1498,13 +1505,26 @@ class ObjectEvent:
     def player_copyable_movement(self) -> int:
         return self._data[0x22]
 
+    @property
+    def object_event_template(self) -> "ObjectEventTemplate":
+        for template in get_map_data(self.map_group_and_number, self.initial_coords).objects:
+            if template.local_id == self.local_id:
+                return template
+        raise RuntimeError(f"Could not find the template for local object #{self.local_id}.")
+
     def __str__(self) -> str:
         if "isPlayer" in self.flags:
             return "Player"
-        elif self.trainer_type == "Buried":
-            return f"Buried Trainer at {self.current_coords}"
         elif self.trainer_type != "None":
-            return f"Trainer at {self.current_coords}"
+            if self.object_event_template.is_trainer_defeated:
+                defeated = "(defeated)"
+            else:
+                defeated = "(will battle)"
+
+            if self.trainer_type == "Buried":
+                return f"Buried Trainer {defeated} at {self.current_coords}"
+            elif self.trainer_type != "None":
+                return f"Trainer {defeated} at {self.current_coords}"
         else:
             return f"Entity at {self.current_coords}"
 
@@ -1558,6 +1578,11 @@ class ObjectEventTemplate:
     @property
     def trainer_range(self) -> int:
         return unpack_uint16(self._data[14:16])
+
+    @property
+    def is_trainer_defeated(self) -> bool:
+        flag_id = 0x500 + unpack_uint16(context.emulator.read_bytes(self.script_pointer + 2, length=2))
+        return get_event_flag_by_number(flag_id)
 
     @property
     def berry_tree_id(self) -> int:
@@ -1614,6 +1639,7 @@ class ObjectEventTemplate:
                 trainer = {
                     "type": self.trainer_type,
                     "range": self.trainer_range,
+                    "is_defeated": self.is_trainer_defeated,
                 }
 
             data["elevation"] = self.elevation
@@ -1633,10 +1659,15 @@ class ObjectEventTemplate:
         return data
 
     def __str__(self) -> str:
-        if self.trainer_type == "Buried":
-            return f"Buried Trainer at {self.local_coordinates}"
-        elif self.trainer_type != "None":
-            return f"Trainer at {self.local_coordinates}"
+        if self.trainer_type != "None":
+            if self.is_trainer_defeated:
+                defeated = "(defeated)"
+            else:
+                defeated = "(will battle)"
+            if self.trainer_type == "Buried":
+                return f"Buried Trainer {defeated} at {self.local_coordinates}"
+            else:
+                return f"Trainer {defeated} at {self.local_coordinates}"
         else:
             return f"Entity at {self.local_coordinates}"
 
