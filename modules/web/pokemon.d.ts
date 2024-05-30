@@ -430,7 +430,7 @@ type MapRegularObjectTemplate = {
     // This is not an official name and only here for easier reading of the list.
     script: string;
 
-    trainer: { type: "None" | "Normal" | "See All Directions" | "Buried"; range: number; } | null;
+    trainer: { type: "None" | "Normal" | "See All Directions" | "Buried"; range: number; is_defeated: boolean; } | null;
     movement: { type: string; range: [number, number]; };
 };
 
