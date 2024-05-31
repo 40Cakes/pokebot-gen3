@@ -163,7 +163,7 @@ class StaticGiftResetsMode(BotMode):
             if context.rom.is_emerald and encounter[2] not in ["Wynaut"]:
                 yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessage", "B")
                 yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", "B")
-            if context.rom.is_rs and encounter[2] in ["Hoenn Fossils"]:
+            if context.rom.is_rs and encounter[2] in ["Hoenn Fossils", "Beldum"]:
                 yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", "B")
 
             # Extra check for lapras and castform and clear extra message boxes
