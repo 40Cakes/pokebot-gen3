@@ -32,7 +32,7 @@ On Emerald, this mode needs some preparation **before defeating the Elite Four f
 - Make your you have some **repels** in your inventory
   - The mode will soft reset when it runs out of repels, but that makes it less efficient 
   - To all but ensure you never run out of them, make sure to pack at least **40 Max Repels**, or **50 Super Repels**, or **100 Repels**, or a combination thereof
-- Go to the [**Pokémon Net Center**](https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_Network_Center) on [**One Island**](https://bulbapedia.bulbagarden.net/wiki/One_Island_(town)) and stand on the **left** side of the scientist who is facing a big machine to the right
+- After obtaining the sapphire go to the [**Pokémon Net Center**](https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_Network_Center) on [**One Island**](https://bulbapedia.bulbagarden.net/wiki/One_Island_(town)) and stand on the **left** side of Celio who is facing a big machine to the right. **Do not give the sapphire to Celio or you will not be able to use this mode with that save game!**
 - Save the game (**in-game, not a save state**)
 - Start mode
 
