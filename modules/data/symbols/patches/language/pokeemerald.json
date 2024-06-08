@@ -141,6 +141,20 @@
       "J":"8071498",
       "S":"8071a90"
     },
+    "CB2_BEGINEVOLUTIONSCENE":{
+      "D":"813d5ec",
+      "F":"813d60c",
+      "I":"813d5dc",
+      "J":"813dab4",
+      "S":"813d5e4"
+    },
+    "CB2_EVOLUTIONSCENEUPDATE":{
+      "D":"813dfe0",
+      "F":"813e000",
+      "I":"813dfd0",
+      "J":"813e4a8",
+      "S":"813dfd8"
+    },
     "BATTLEMAINCB2":{
       "D":"8038424",
       "F":"8038420",
