@@ -115,8 +115,8 @@ class FeebasMode(BotMode):
                 self.feebas_found = False
 
             if self.tile_checked < self.tile_threshold or self.feebas_found:
-                total_encounters = total_stats.get_total_stats()["totals"]["encounters"]
-                while total_encounters == total_stats.get_total_stats()["totals"]["encounters"]:
+                total_encounters = total_stats.get_total_encounters()
+                while total_encounters == total_stats.get_total_encounters():
                     yield from fish()
                 if get_opponent().species.name == "Feebas":
                     self.checked_tiles = bad_tiles

@@ -98,6 +98,12 @@ class TotalStats:
         if pokemon in self.session_pokemon:
             self.session_pokemon.remove(pokemon)
 
+    def get_total_encounters(self) -> int:
+        if "totals" in self.total_stats.keys():
+            return self.total_stats["totals"]["encounters"]
+        else:
+            return 0
+    
     def get_total_stats(self) -> dict:
         return self.total_stats
 
