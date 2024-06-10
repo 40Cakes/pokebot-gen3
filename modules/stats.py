@@ -103,7 +103,7 @@ class TotalStats:
             return self.total_stats["totals"]["encounters"]
         else:
             return 0
-    
+
     def get_total_stats(self) -> dict:
         return self.total_stats
 
