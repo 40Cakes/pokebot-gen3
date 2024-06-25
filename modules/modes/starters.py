@@ -16,6 +16,7 @@ from ._interface import BattleAction, BotMode, BotModeError
 from .util import (
     ensure_facing_direction,
     soft_reset,
+    wait_for_n_frames,
     wait_for_task_to_start_and_finish,
     wait_for_unique_rng_value,
     wait_until_task_is_active,
@@ -169,8 +170,11 @@ def run_rse_johto():
         # Wait for and say no to the second question (the 'Do you want to give ... a nickname')
         yield from wait_for_task_to_start_and_finish("Task_HandleYesNoInput", button_to_press="B")
 
-        # Wait for the rival to pick up their starter
-        yield from wait_until_task_is_not_active("ScriptMovement_MoveObjects", button_to_press="B")
+        yield from wait_until_task_is_not_active("Task_Fanfare", "B")
+        yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessage", "A")
+        
+        yield from wait_for_n_frames(2)
+        context.emulator.press_button("A")
 
         # Navigate to the summary screen to check for shininess
         yield from StartMenuNavigator("POKEMON").step()
