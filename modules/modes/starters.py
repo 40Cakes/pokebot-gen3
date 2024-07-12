@@ -172,7 +172,7 @@ def run_rse_johto():
 
         yield from wait_until_task_is_not_active("Task_Fanfare", "B")
         yield from wait_for_task_to_start_and_finish("Task_DrawFieldMessage", "A")
-        
+
         yield from wait_for_n_frames(2)
         context.emulator.press_button("A")
 
