@@ -1,13 +1,15 @@
 from typing import Generator
 
+from modules.context import context
 from modules.map import get_map_data_for_current_position, get_map_data
 from modules.map_data import MapFRLG, MapRSE, PokemonCenter, get_map_enum
 from modules.map_path import calculate_path, PathFindingError
 from modules.modes import get_bot_mode_by_name
 from modules.player import get_player_avatar
+from modules.pokemon import get_party
 from ._asserts import assert_auto_battle
 from ._interface import BotMode, BotModeError
-from .util import navigate_to, heal_in_pokemon_center
+from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon
 from ..battle import BattleOutcome
 
 closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
@@ -116,5 +118,14 @@ class PokecenterLoopMode(BotMode):
             self._go_healing = False
             spin = get_bot_mode_by_name("Spin")().run()
             while not self._go_healing and not self._leave_pokemon_center:
+                if context.config.battle.lead_mon_balance_levels:
+                    lead_pokemon = get_party()[0]
+                    if any(pokemon.level < lead_pokemon.level for pokemon in get_party()[1:]):
+                        slot = 0
+                        for idx, pokemon in enumerate(get_party()):
+                            if pokemon.level < lead_pokemon.level:
+                                slot = idx
+                                break
+                        yield from change_lead_party_pokemon(slot)
                 next(spin)
                 yield
