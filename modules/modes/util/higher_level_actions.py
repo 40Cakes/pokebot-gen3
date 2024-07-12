@@ -13,7 +13,12 @@ from modules.pokemon import get_party
 from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE, get_map_cursor, get_map_region
 from modules.tasks import get_task
 from ._util_helper import isolate_inputs
-from .tasks_scripts import wait_for_task_to_start_and_finish, wait_for_yes_no_question, wait_for_no_script_to_run, wait_until_task_is_active
+from .tasks_scripts import (
+    wait_for_task_to_start_and_finish,
+    wait_for_yes_no_question,
+    wait_for_no_script_to_run,
+    wait_until_task_is_active,
+)
 from .walking import navigate_to, wait_for_player_avatar_to_be_standing_still
 from .._interface import BotModeError
 
@@ -136,6 +141,7 @@ def heal_in_pokemon_center(pokemon_center_door_location: PokemonCenter) -> Gener
 
     # Get out
     yield from navigate_to(get_player_avatar().map_group_and_number, (7, 8))
+
 
 @debug.track
 def change_lead_party_pokemon(slot: int) -> Generator:

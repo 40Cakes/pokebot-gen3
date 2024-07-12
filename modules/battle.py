@@ -756,7 +756,7 @@ class BattleOpponent:
                     context.message = "No Pokémon seem to be fit to fight."
             case "lowest_level":
                 lowest_level_index = None
-                lowest_level = float('inf')
+                lowest_level = float("inf")
                 for i in range(len(self.party)):
                     pokemon = self.party[i]
                     if pokemon == self.current_battler or pokemon.is_egg or not mon_has_enough_hp(pokemon):
@@ -767,11 +767,14 @@ class BattleOpponent:
                 if lowest_level_index is not None:
                     if show_messages:
                         pokemon = self.party[lowest_level_index]
-                        context.message = f"Switching to {pokemon.name}, the lowest level Pokémon with enough HP and usable moves."
+                        context.message = (
+                            f"Switching to {pokemon.name}, the lowest level Pokémon with enough HP and usable moves."
+                        )
                     return lowest_level_index
                 else:
                     if show_messages:
                         context.message = "No suitable Pokémon found to switch."
+
     @staticmethod
     def is_valid_move(move: Move) -> bool:
         return move is not None and move.name not in context.config.battle.banned_moves and move.base_power > 0
