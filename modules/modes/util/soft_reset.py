@@ -48,7 +48,7 @@ def wait_for_unique_rng_value() -> Generator:
     Wait until the RNG value is unique. This is faster if the `random_soft_reset_rng`
     is enabled.
     """
-    rng_history = set(get_rng_state_history())
+    rng_history = get_rng_state_history()
     rng_value = unpack_uint32(read_symbol("gRngValue"))
 
     context.message = "Waiting for a unique frame before continuing..."
@@ -62,4 +62,4 @@ def wait_for_unique_rng_value() -> Generator:
     context.message = ""
 
     rng_history.add(rng_value)
-    save_rng_state_history(list(rng_history))
+    save_rng_state_history(rng_history)
