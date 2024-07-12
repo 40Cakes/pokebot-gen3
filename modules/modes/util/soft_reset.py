@@ -61,5 +61,5 @@ def wait_for_unique_rng_value() -> Generator:
             yield
     context.message = ""
 
-    rng_history.append(rng_value)
+    rng_history.add(rng_value)
     save_rng_state_history(rng_history)
