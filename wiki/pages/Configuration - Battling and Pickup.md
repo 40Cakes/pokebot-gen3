@@ -18,6 +18,8 @@ Other than that, it will just throw Poké balls at the opponent. It chooses the 
 
 ## Pickup
 
+> **Please be aware that Pickup has only been tested in Emerald, and may not work in other games.**
+
 `pickup` - enable pickup farming, the bot will use [Pickup (ability)](<https://bulbapedia.bulbagarden.net/wiki/Pickup_(Ability)>) to items from Pokémon who have picked up items. See [Pickup items](<https://bulbapedia.bulbagarden.net/wiki/Pickup_(Ability)#Items_received>).
 
 `pickup_threshold` - number of Pokémon in the party that should have an item before the bot tries to take items from them. If you have fewer Pokémon with Pickup in your party than this number, the bot will use that number instead.
