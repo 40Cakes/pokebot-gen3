@@ -4,6 +4,7 @@ from typing import Generator
 from modules.context import context
 from modules.menu_parsers import CursorOptionEmerald, CursorOptionFRLG, CursorOptionRS
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
+from modules.modes._asserts import assert_has_pokemon_with_move
 from modules.player import get_player_avatar
 from modules.pokemon import get_move_by_name, get_party
 from ._interface import BotMode
@@ -19,6 +20,10 @@ class SweetScentMode(BotMode):
         return get_player_avatar().map_location.has_encounters
 
     def run(self) -> Generator:
+        assert_has_pokemon_with_move(
+            "Sweet Scent", "None of your party Pokémon know the move Sweet Scent. Please teach it to someone."
+        )
+        
         yield from StartMenuNavigator("POKEMON").step()
 
         move_pokemon = None
