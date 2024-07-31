@@ -2,7 +2,9 @@
 
 # 🔄 Sweet Scent Mode
 
-Sweet Scent will make a wild Pokémon automatically appear
+Sweet Scent will make a wild Pokémon automatically appear.
+
+Make sure you have a Pokémon that knows **[Sweet Scent](<https://bulbapedia.bulbagarden.net/wiki/Sweet_Scent_(move)>)** in your party.
 
 Start the mode while in the overworld, in any patch of grass/water/cave with encounters.
 
