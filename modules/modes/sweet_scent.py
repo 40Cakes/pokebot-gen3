@@ -23,7 +23,7 @@ class SweetScentMode(BotMode):
         assert_has_pokemon_with_move(
             "Sweet Scent", "None of your party Pokémon know the move Sweet Scent. Please teach it to someone."
         )
-        
+
         yield from StartMenuNavigator("POKEMON").step()
 
         move_pokemon = None
