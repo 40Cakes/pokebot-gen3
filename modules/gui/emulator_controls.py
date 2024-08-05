@@ -217,8 +217,8 @@ class EmulatorControls:
         self.toggle_video_button = ttk.Button(group, text="Video", **button_settings, command=context.toggle_video)
         self.toggle_audio_button = ttk.Button(group, text="Audio", **button_settings, command=context.toggle_audio)
 
-        self.toggle_video_button.grid(row=1, column=0)
-        self.toggle_audio_button.grid(row=1, column=1)
+        self.toggle_video_button.grid(row=1, column=0, padx=2)
+        self.toggle_audio_button.grid(row=1, column=1, padx=2)
 
     def _add_message_area(self, row: int, column: int, columnspan: int = 1):
         group = ttk.LabelFrame(self.frame, text="Message:", padding=(10, 5))
