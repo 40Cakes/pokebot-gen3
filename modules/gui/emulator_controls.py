@@ -94,7 +94,9 @@ class EmulatorControls:
         self.bot_mode_button.config(text=context.bot_mode)
         self._set_button_colour(self.bot_mode_button, active_condition=context.bot_mode == "Manual")
 
-        speed_text = {1: "1×", 2: "2×", 3: "3×", 4: "4×", 8: "8x", 16: "16x", 32: "32x", 0: "∞"}.get(context.emulation_speed, "Speed")
+        speed_text = {1: "1×", 2: "2×", 3: "3×", 4: "4×", 8: "8x", 16: "16x", 32: "32x", 0: "∞"}.get(
+            context.emulation_speed, "Speed"
+        )
         self.speed_menu_button.config(text=speed_text)
 
         self._set_button_colour(self.toggle_video_button, active_condition=context.video)
@@ -177,25 +179,27 @@ class EmulatorControls:
 
         ttk.Label(group, text="Emulation Speed:", justify="left").grid(row=0, column=0, sticky="W")
 
-        self.speed_menu_button = ttk.Button(group, text="Speed", width=6, padding=(0, 3), cursor="hand2", command=self._open_speed_menu)
+        self.speed_menu_button = ttk.Button(
+            group, text="Speed", width=6, padding=(0, 3), cursor="hand2", command=self._open_speed_menu
+        )
         self.speed_menu_button.grid(row=1, column=0, sticky="W", padx=0)
-        
+
     def _open_speed_menu(self):
         def set_emulation_speed(speed: int) -> None:
             context.emulation_speed = speed
             self.update()
-            
+
         bold_font = tkinter.font.Font(self.window, weight="bold", size=10)
-        
+
         self.speed_menu = tkinter.Menu(self.window, tearoff=0)
-        
+
         speeds = [("1×", 1), ("2×", 2), ("3×", 3), ("4×", 4), ("8x", 8), ("16x", 16), ("32x", 32), ("∞", 0)]
         for label, speed in speeds:
             if context.emulation_speed == speed:
                 self.speed_menu.add_command(label=label, font=bold_font, command=lambda s=speed: set_emulation_speed(s))
             else:
                 self.speed_menu.add_command(label=label, command=lambda s=speed: set_emulation_speed(s))
-        
+
         self.speed_menu.tk_popup(
             self.speed_menu_button.winfo_rootx(),
             self.speed_menu_button.winfo_rooty() + self.speed_menu_button.winfo_height(),
