@@ -124,7 +124,7 @@ options:
   -h, --help            show this help message and exit
   -m {MODE_NAME}, --bot-mode {MODE_NAME}
                         Initial bot mode (default: Manual)
-  -s {0,1,2,3,4}, --emulation-speed {0,1,2,3,4}
+  -s {0,1,2,3,4,8,16,32}, --emulation-speed {0,1,2,3,4,8,16,32}
                         Initial emulation speed (0 for unthrottled; default: 1)
   -nv, --no-video       Turn off video output by default
   -na, --no-audio       Turn off audio output by default

@@ -72,7 +72,7 @@ def parse_arguments() -> StartupSettings:
     parser.add_argument(
         "-s",
         "--emulation-speed",
-        choices=["0", "1", "2", "3", "4"],
+        choices=["0", "1", "2", "3", "4", "8", "16", "32"],
         help="Initial emulation speed (0 for unthrottled; default: 1)",
     )
     parser.add_argument("-nv", "--no-video", action="store_true", help="Turn off video output by default.")
