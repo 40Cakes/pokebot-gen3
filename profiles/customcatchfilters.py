@@ -68,10 +68,10 @@ def custom_catch_filters(pokemon: Pokemon) -> str | bool:
             ivs = [
                 pokemon.ivs.hp,
                 pokemon.ivs.attack,
-                pokemon.ivs.defence,
+                pokemon.ivs.defense,
                 pokemon.ivs.speed,
                 pokemon.ivs.special_attack,
-                pokemon.ivs.special_defence,
+                pokemon.ivs.special_defense,
             ]
 
             # Pokémon with 6 identical IVs of any value
