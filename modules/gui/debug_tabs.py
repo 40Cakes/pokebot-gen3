@@ -21,7 +21,7 @@ from modules.game import (
 )
 from modules.game_stats import GameStat, get_game_stat
 from modules.gui.emulator_controls import DebugTab
-from modules.items import get_item_bag, get_item_storage
+from modules.items import get_item_bag, get_item_storage, get_pokeblocks
 from modules.map import (
     get_map_data_for_current_position,
     get_map_data,
@@ -735,6 +735,23 @@ class PlayerTab(DebugTab):
             result["Item Storage"] = storage_data
         except (IndexError, KeyError):
             result["Item Storage"] = "???"
+
+        if context.rom.is_rse:
+            pokeblocks = get_pokeblocks()
+            block_data = {"__value": f"{len(pokeblocks)}/40 slots"}
+            for n in range(len(pokeblocks)):
+                block = pokeblocks[n]
+                block_data[n] = {
+                    "__value": f"{block.colour.name}, Lv. {block.level}, Feel {block.feel}",
+                    "Colour": block.colour.name,
+                    "Feed": block.feel,
+                    "Spicy": block.spicy,
+                    "Bitter": block.bitter,
+                    "Dry": block.dry,
+                    "Sour": block.sour,
+                    "Sweet": block.sweet,
+                }
+            result["Pokéblocks"] = block_data
 
         pokemon_storage = get_pokemon_storage()
         result["Pokemon Storage"] = {"__value": f"{pokemon_storage.pokemon_count} Pokémon"}

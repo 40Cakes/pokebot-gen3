@@ -83,6 +83,39 @@ class Item:
         )
 
 
+class PokeblockColour(Enum):
+    NoColour = 0
+    Red = 1
+    Blue = 2
+    Pink = 3
+    Green = 4
+    Yellow = 5
+    Purple = 6
+    Indigo = 7
+    Brown = 8
+    LiteBlue = 9
+    Olive = 10
+    Gray = 11
+    Black = 12
+    White = 13
+    Gold = 14
+
+
+@dataclass
+class Pokeblock:
+    colour: PokeblockColour
+    spicy: int
+    dry: int
+    sweet: int
+    bitter: int
+    sour: int
+    feel: int
+
+    @property
+    def level(self):
+        return max(self.spicy, self.dry, self.sweet, self.bitter, self.sour)
+
+
 @dataclass
 class ItemSlot:
     item: Item
@@ -351,3 +384,21 @@ def get_item_storage() -> ItemStorage:
     item_storage = ItemStorage(data, items_count)
     state_cache.item_storage = item_storage
     return item_storage
+
+
+def get_pokeblocks() -> list[Pokeblock]:
+    if context.rom.is_rs:
+        offset = 0x7F8
+    elif context.rom.is_emerald:
+        offset = 0x848
+    else:
+        return []
+
+    data = get_save_block(1, offset=offset, size=40 * 8)
+    result = []
+    for index in range(40):
+        block_data = data[index * 8 : index * 8 + 7]
+        if block_data[0] > 0:
+            result.append(Pokeblock(PokeblockColour(block_data[0]), *block_data[1:]))
+
+    return result
