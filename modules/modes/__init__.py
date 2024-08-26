@@ -14,8 +14,9 @@ def get_bot_modes() -> list[Type[BotMode]]:
     global _bot_modes
 
     if len(_bot_modes) == 0:
+        from .berry_blend import BerryBlendMode
         from .bunny_hop import BunnyHopMode
-        from modules.modes.daycare import DaycareMode
+        from .daycare import DaycareMode
         from .feebas import FeebasMode
         from .fishing import FishingMode
         from .game_corner import GameCornerMode
@@ -34,6 +35,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .pokecenterloop import PokecenterLoopMode
 
         _bot_modes = [
+            BerryBlendMode,
             BunnyHopMode,
             DaycareMode,
             FeebasMode,
