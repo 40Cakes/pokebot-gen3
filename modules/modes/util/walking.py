@@ -4,7 +4,7 @@ from modules.context import context
 from modules.debug import debug
 from modules.map import get_map_data_for_current_position, get_player_map_object
 from modules.map_data import MapFRLG, MapRSE
-from modules.map_path import calculate_path, Waypoint, PathFindingError
+from modules.map_path import calculate_path, Waypoint, PathFindingError, Direction
 from modules.memory import GameState, get_game_state
 from modules.player import (
     RunningState,
@@ -150,6 +150,15 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
     current_position = get_map_data_for_current_position()
     last_waypoint = None
     for waypoint in path:
+        # For the first waypoint it is possible that the player avatar is not facing the same way as it needs to
+        # walk. This leads to the first navigation step to actually become two: Turning around, then doing the step.
+        # When in tall grass, that could lead to an encounter starting mid-step which messes up the battle handling.
+        # So for the first step, we will add an explicit additional turning step.
+        if last_waypoint is None:
+            current_facing_direction = Direction.from_string(get_player_avatar().facing_direction)
+            if waypoint.direction != current_facing_direction:
+                yield from ensure_facing_direction(waypoint.direction)
+
         last_waypoint = waypoint
         timeout_exceeded = False
         frames_remaining_until_timeout = timeout_in_frames
@@ -315,7 +324,7 @@ def walk_one_tile(direction: str, run: bool = True) -> Generator:
 
 
 @debug.track
-def ensure_facing_direction(facing_direction: str | tuple[int, int]) -> Generator:
+def ensure_facing_direction(facing_direction: str | Direction | tuple[int, int]) -> Generator:
     """
     If the player avatar is not already facing a certain direction this will make it turn
     around, so that afterwards it definitely faces the desired direction.
@@ -333,6 +342,9 @@ def ensure_facing_direction(facing_direction: str | tuple[int, int]) -> Generato
             facing_direction = "Down"
         else:
             raise BotModeError(f"Tile ({x}, {y}) is not adjacent to the player.")
+
+    if isinstance(facing_direction, Direction):
+        facing_direction = facing_direction.button_name()
 
     while True:
         avatar = get_player_avatar()
