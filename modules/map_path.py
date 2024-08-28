@@ -20,6 +20,30 @@ class Direction(IntEnum):
     def opposite(self):
         return Direction((self.value + 2) % 4)
 
+    def button_name(self):
+        if self is Direction.North:
+            return "Up"
+        elif self is Direction.East:
+            return "Right"
+        elif self is Direction.South:
+            return "Down"
+        else:
+            return "Left"
+
+    @staticmethod
+    def from_string(value: str) -> "Direction":
+        match value.lower():
+            case "up" | "north":
+                return Direction.North
+            case "right" | "east":
+                return Direction.East
+            case "down" | "south":
+                return Direction.South
+            case "left" | "west":
+                return Direction.West
+            case _:
+                raise RuntimeError(f"Value {value} could not be converted into a direction.")
+
 
 @dataclass
 class PathTile:

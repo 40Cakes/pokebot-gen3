@@ -175,7 +175,7 @@ def get_game_state() -> GameState:
             result = GameState.BAG_MENU
         case "CB2_UPDATEPARTYMENU" | "CB2_PARTYMENUMAIN":
             result = GameState.PARTY_MENU
-        case "CB2_INITBATTLE" | "CB2_HANDLESTARTBATTLE":
+        case "CB2_INITBATTLE" | "CB2_HANDLESTARTBATTLE" | "CB2_OVERWORLDBASIC":
             result = GameState.BATTLE_STARTING
         case "CB2_ENDWILDBATTLE":
             result = GameState.BATTLE_ENDING
