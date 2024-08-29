@@ -7,6 +7,7 @@ import platform
 from dataclasses import dataclass
 
 from modules.modes import get_bot_mode_names
+from modules.plugins import load_plugins
 from modules.runtime import is_bundled_app, get_base_path
 from modules.version import pokebot_name, pokebot_version
 
@@ -114,6 +115,7 @@ if __name__ == "__main__":
     from updater import run_updater
 
     register_exception_hook()
+    load_plugins()
 
     # This catches the signal Windows emits when the underlying console window is closed
     # by the user. We still want to save the emulator state in that case, which would not

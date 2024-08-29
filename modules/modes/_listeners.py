@@ -21,6 +21,7 @@ from modules.pokemon import (
 from modules.tasks import get_global_script_context, task_is_active
 from ._interface import BattleAction, BotListener, BotMode, FrameInfo
 from .util import isolate_inputs
+from ..plugins import plugin_battle_started, plugin_battle_ended, plugin_whiteout, plugin_egg_hatched
 
 
 class BattleListener(BotListener):
@@ -109,8 +110,10 @@ class BattleListener(BotListener):
     @isolate_inputs
     @debug.track
     def fight(self):
+        yield from plugin_battle_started(get_opponent())
         yield from BattleHandler().step()
         yield from self._wait_until_battle_is_over()
+        yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
         if (
             get_game_state() != GameState.BATTLE
@@ -133,16 +136,20 @@ class BattleListener(BotListener):
     @isolate_inputs
     @debug.track
     def catch(self):
+        yield from plugin_battle_started(get_opponent())
         yield from BattleHandler(try_to_catch=True).step()
         yield from self._wait_until_battle_is_over()
+        yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
     @isolate_inputs
     @debug.track
     def run_away_from_battle(self):
         while get_game_state() != GameState.BATTLE:
             yield
+        yield from plugin_battle_started(get_opponent())
         yield from flee_battle()
         yield from self._wait_until_battle_is_over()
+        yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
 
 class TrainerApproachListener(BotListener):
@@ -228,6 +235,7 @@ class EggHatchListener(BotListener):
                 break
         hatched_pokemon = get_party()[party_index]
         bot_mode.on_egg_hatched(hatched_pokemon, party_index)
+        plugin_egg_hatched(hatched_pokemon)
         handle_encounter(hatched_pokemon, do_not_log_battle_action=True)
         while self._script_name in get_global_script_context().stack:
             context.emulator.press_button("B")
@@ -344,6 +352,7 @@ class WhiteoutListener(BotListener):
             yield
 
         custom_handling = bot_mode.on_whiteout()
+        plugin_whiteout()
         if not custom_handling:
             context.message = "Player whited out. Switched back to manual mode."
             context.set_manual_mode()
