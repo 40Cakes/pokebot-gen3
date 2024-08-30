@@ -4,15 +4,16 @@ from typing import Generator, Union
 from modules.context import context
 from modules.debug import debug
 from modules.map_data import PokemonCenter
-from modules.memory import get_event_flag, get_game_state_symbol
+from modules.memory import get_event_flag, get_game_state_symbol, unpack_uint32, read_symbol
 from modules.menu_parsers import CursorOptionEmerald, CursorOptionFRLG, CursorOptionRS
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.modes.util.sleep import wait_for_n_frames
-from modules.player import get_player_avatar
+from modules.player import get_player_avatar, get_player
 from modules.pokemon import get_party
 from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE, get_map_cursor, get_map_region
-from modules.tasks import get_task
+from modules.tasks import get_task, task_is_active
 from ._util_helper import isolate_inputs
+from .items import scroll_to_item_in_bag
 from .tasks_scripts import (
     wait_for_task_to_start_and_finish,
     wait_for_yes_no_question,
@@ -21,6 +22,9 @@ from .tasks_scripts import (
 )
 from .walking import navigate_to, wait_for_player_avatar_to_be_standing_still
 from .._interface import BotModeError
+from ...game import get_symbol_name_before
+from ...items import Item, get_item_bag, ItemPocket
+from ...mart import get_mart_buyable_items, get_mart_buy_menu_scroll_position, get_mart_main_menu_scroll_position
 
 
 @isolate_inputs
@@ -171,3 +175,250 @@ def change_lead_party_pokemon(slot: int) -> Generator:
     yield from wait_for_task_to_start_and_finish("Task_SlideSelectedSlotsOnscreen", "A")
     yield from wait_for_task_to_start_and_finish("Task_ShowStartMenu", "B")
     yield from wait_for_n_frames(10)
+
+
+@debug.track
+def save_the_game():
+    """
+    Uses the in-game save function.
+
+    This expects the game to be in the overworld with the start menu _closed_. It will
+    open the start menu itself.
+
+    It will confirm everything, including when warned that there is already a different
+    save file (after restarting the game.)
+    """
+
+    yield from StartMenuNavigator("SAVE").step()
+
+    if context.rom.is_frlg:
+        save_dialogue_callback_name = "sSaveDialogCB"
+        overwrite_callback = "SaveDialogCB_AskOverwriteOrReplacePreviousFileHandleInput"
+        start_menu_task = "Task_StartMenuHandleInput"
+    elif context.rom.is_emerald:
+        save_dialogue_callback_name = "sSaveDialogCallback"
+        overwrite_callback = "SaveOverwriteInputCallback"
+        start_menu_task = "Task_ShowStartMenu"
+    else:
+        save_dialogue_callback_name = "saveDialogCallback"
+        overwrite_callback = "SaveDialogCB_ProcessOverwriteYesNoMenu"
+        start_menu_task = "sub_80712B4"
+
+    while True:
+        save_callback = get_symbol_name_before(unpack_uint32(read_symbol(save_dialogue_callback_name)))
+        if not task_is_active(start_menu_task):
+            break
+        elif save_callback != overwrite_callback:
+            context.emulator.press_button("A")
+            yield
+        else:
+            context.emulator.press_button("Up")
+            yield
+            yield
+            context.emulator.press_button("A")
+            yield
+            yield
+
+    yield
+
+
+@debug.track
+def buy_in_shop(shopping_list: list[tuple[Item, int]]):
+    """
+    This can be used to walk through the Mart's buying menu and purchase one or
+    more items.
+
+    It expects the _main menu_ of the Mart to be open (the one where it asks Buy/Sell/Leave.)
+
+    Call it like this:
+    ```python
+    yield from buy_in_shop([
+        (get_item_by_name("Poké Ball"), 10),
+        (get_item_by_name("Potion"), 20),
+    ])
+    ```
+
+    :param shopping_list: A list of tuples where the first entry is the item to by, and the
+                          second entry is the quantity for that item (max. 99, if you need
+                          more create several entries in the list.)
+    """
+
+    if context.rom.is_rs:
+        shop_menu_task = "Task_DoBuySellMenu"
+        buy_menu_cb2 = "MAINCB2"
+        select_quantity_task = "Shop_PrintPrice"
+        buy_menu_task = "Shop_DoCursorAction"
+        return_task = "Task_ReturnToMartMenu"
+    else:
+        shop_menu_task = "Task_ShopMenu"
+        buy_menu_cb2 = "CB2_BUYMENU"
+        select_quantity_task = "Task_BuyHowManyDialogueHandleInput"
+        buy_menu_task = "Task_BuyMenu"
+        return_task = "Task_ReturnToShopMenu"
+
+    if not task_is_active(shop_menu_task):
+        raise BotModeError(f"Cannot buy things in mart because `{shop_menu_task}` is not active.")
+
+    buyable_items = get_mart_buyable_items()
+    total_cost = 0
+    for item, quantity in shopping_list:
+        if item not in buyable_items:
+            raise BotModeError(f"Cannot buy item {item.name} at this shop.")
+        if quantity < 0 or quantity > 99:
+            raise BotModeError(f"Cannot by {quantity} items: Invalid quantity.")
+        total_cost += quantity * item.price
+
+    player_money = get_player().money
+    if player_money < total_cost:
+        raise BotModeError(f"This shopping list would total ${total_cost:,}, but player only has ${player_money:,}")
+
+    # Scroll to the 'Buy' option
+    while get_mart_main_menu_scroll_position() > 0:
+        context.emulator.press_button("Up")
+        yield
+
+    # Wait for 'Buy' menu to open
+    context.emulator.press_button("A")
+    while get_game_state_symbol() != buy_menu_cb2:
+        yield
+    for _ in range(22):
+        yield
+
+    for item, quantity in shopping_list:
+        slot = buyable_items.index(item)
+        while get_mart_buy_menu_scroll_position() != slot:
+            if get_mart_buy_menu_scroll_position() > slot:
+                context.emulator.press_button("Up")
+            else:
+                context.emulator.press_button("Down")
+            yield
+
+        yield from wait_until_task_is_active(select_quantity_task, "A")
+
+        reverse_scroll = quantity > 50
+        if reverse_scroll:
+            context.emulator.press_button("Down")
+            yield
+            yield
+        while get_task(select_quantity_task).data_value(1) != quantity:
+            current_quantity = get_task(select_quantity_task).data_value(1)
+            if abs(current_quantity - quantity) > 7:
+                context.emulator.press_button("Left" if reverse_scroll else "Right")
+            else:
+                context.emulator.press_button("Down" if reverse_scroll else "Up")
+            yield
+
+        yield from wait_until_task_is_active(buy_menu_task, "A")
+        yield
+        yield
+
+    yield from wait_for_task_to_start_and_finish(return_task, "B")
+    yield from wait_until_task_is_active(shop_menu_task)
+    yield
+
+
+@debug.track
+def sell_in_shop(items_to_sell: list[tuple[Item, int]]):
+    """
+    This can be used to walk through the Mart's selling menu and sell one or more
+    items from the player's item bag.
+
+    It expects the _main menu_ of the Mart to be open (the one where it asks Buy/Sell/Leave.)
+
+    Call it like this:
+    ```python
+    yield from sell_in_shop([
+        (get_item_by_name("Moon Stone"), 1),
+        (get_item_by_name("Nugget"), 5),
+    ])
+    ```
+
+    :param items_to_sell: A list of tuples where the first entry is the item to sell,
+                          and the second one the quantity. If multiple stacks of this
+                          item exist in the item menu, this function will automatically
+                          go through as many stacks as necessary to reach the desired
+                          quantity.
+    """
+
+    if context.rom.is_rs:
+        shop_menu_task = "Task_DoBuySellMenu"
+        sell_menu_cb2 = "SUB_80A3118"
+        select_quantity_task = "Task_BuyHowManyDialogueHandleInput"
+        select_quantity_index = 1
+        sell_menu_task = "sub_80A50C8"
+        return_task = "Task_ReturnToMartMenu"
+    else:
+        shop_menu_task = "Task_ShopMenu"
+        sell_menu_cb2 = "CB2_BAGMENURUN"
+        if context.rom.is_emerald:
+            select_quantity_task = "Task_BuyHowManyDialogueHandleInput"
+        else:
+            select_quantity_task = "Task_SelectQuantityToSell"
+        select_quantity_index = 8
+        sell_menu_task = "Task_BagMenu_HandleInput"
+        return_task = "Task_ReturnToShopMenu"
+
+    if not task_is_active(shop_menu_task):
+        raise BotModeError(f"Cannot sell things in mart because `{shop_menu_task}` is not active.")
+
+    player_items = get_item_bag()
+    for item, quantity in items_to_sell:
+        if player_items.quantity_of(item) < quantity:
+            raise BotModeError(
+                f"Cannot sell {quantity}× {item.name} because player only owns {player_items.quantity_of(item)}."
+            )
+        if item.pocket is ItemPocket.KeyItems:
+            raise BotModeError(f"Cannot sell {item.name} because it is a key item.")
+        if item.pocket is ItemPocket.TmsAndHms and item.name.startswith("HM"):
+            raise BotModeError(f"Cannot sell {item.name} because it is an HM.")
+
+    # Scroll to the 'Sell' option
+    while get_mart_main_menu_scroll_position() != 1:
+        if get_mart_main_menu_scroll_position() > 1:
+            context.emulator.press_button("Up")
+        else:
+            context.emulator.press_button("Down")
+        yield
+
+    # Wait for Sell menu to open
+    context.emulator.press_button("A")
+    while get_game_state_symbol() != sell_menu_cb2:
+        yield
+    for _ in range(25):
+        yield
+
+    for item, quantity in items_to_sell:
+        already_sold = 0
+        while already_sold < quantity:
+            pocket = get_item_bag().pocket_for(item)
+            slot = get_item_bag().first_slot_index_for(item)
+            slot_quantity = pocket[slot].quantity
+
+            if slot_quantity > quantity - already_sold:
+                to_sell = quantity - already_sold
+            else:
+                to_sell = slot_quantity
+
+            yield from scroll_to_item_in_bag(item)
+            context.emulator.press_button("A")
+            yield from wait_until_task_is_active(select_quantity_task)
+            reverse_scroll = to_sell > slot_quantity / 2
+            if reverse_scroll:
+                context.emulator.press_button("Down")
+                yield
+                yield
+            while get_task(select_quantity_task).data_value(select_quantity_index) != to_sell:
+                current_quantity = get_task(select_quantity_task).data_value(select_quantity_index)
+                if abs(current_quantity - to_sell) > 7:
+                    context.emulator.press_button("Left" if reverse_scroll else "Right")
+                else:
+                    context.emulator.press_button("Down" if reverse_scroll else "Up")
+                yield
+            yield from wait_until_task_is_active(sell_menu_task, "A")
+            yield
+
+            already_sold += to_sell
+
+    yield from wait_for_task_to_start_and_finish(return_task, "B")
+    yield from wait_until_task_is_active(shop_menu_task)
+    yield
