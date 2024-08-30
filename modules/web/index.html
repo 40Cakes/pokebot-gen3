@@ -32,11 +32,18 @@
             </p>
 
             <ul>
-                <li>Bot Mode: <strong id="bot_mode"></strong></li>
+                <li><label>Bot Mode: <select id="bot_mode"></select></label></li>
                 <li>Game State: <strong id="game_mode"></strong></li>
-                <li>Emulation Speed: <strong id="emulation_speed"></strong></li>
-                <li>Video Enabled: <strong id="video_enabled"></strong></li>
-                <li>Audio Enabled: <strong id="audio_enabled"></strong></li>
+                <li><label>Emulation Speed: <select id="emulation_speed">
+                    <option value="1">1×</option>
+                    <option value="2">2×</option>
+                    <option value="3">3×</option>
+                    <option value="4">4×</option>
+                    <option value="0">∞</option>
+                </select></label></li>
+                <li><label>Video Enabled: <input type="checkbox" id="video_enabled"> <strong id="video_enabled_label"></strong></label></li>
+                <li><label>Audio Enabled: <input type="checkbox" id="audio_enabled"> <strong id="audio_enabled_label"></strong></label></li>
+                <li>Buttons Pressed: <strong id="buttons_pressed" class="none">none</strong></li>
                 <li>Message: <strong id="message"></strong></li>
             </ul>
         </div>
@@ -118,7 +125,6 @@
             .then(response => response.json())
             .then(data => {
                 /** @var {PokeBotApi.GetEmulatorResponse} */
-                handleBotModeChange(data.bot_mode);
                 handleEmulationSpeedChange(data.emulation_speed);
                 handleVideoEnabledChange(data.video_enabled);
                 handleAudioEnabledChange(data.audio_enabled);
@@ -129,7 +135,62 @@
                     frame_count: 0,
                 });
                 handleMessageChange(data.current_message);
+
+                (() => {
+                    const select = document.getElementById("emulation_speed");
+                    select.addEventListener("change", () => {
+                        fetch("/emulator", {
+                            method: "POST",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify({"emulation_speed": Number.parseInt(select.value)})
+                        });
+                    });
+
+                    const videoEnabled = document.getElementById("video_enabled");
+                    videoEnabled.addEventListener("change", () => {
+                        fetch("/emulator", {
+                            method: "POST",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify({"video_enabled": videoEnabled.checked})
+                        });
+                    });
+
+                    const audioEnabled = document.getElementById("audio_enabled");
+                    audioEnabled.addEventListener("change", () => {
+                        fetch("/emulator", {
+                            method: "POST",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify({"audio_enabled": audioEnabled.checked})
+                        });
+                    });
+                })();
+
+                fetch("/bot_modes")
+                    .then(response => response.json())
+                    .then(available_modes => {
+                        const select = document.getElementById("bot_mode");
+                        select.addEventListener("change", () => {
+                            fetch("/emulator", {
+                                method: "POST",
+                                headers: {"Content-Type": "application/json"},
+                                body: JSON.stringify({"bot_mode": select.value})
+                            });
+                        });
+                        for (const mode_name of available_modes) {
+                            const option = document.createElement("option");
+                            option.value = mode_name;
+                            option.innerText = mode_name;
+                            if (mode_name === data.bot_mode) {
+                                option.selected = true;
+                            }
+                            select.append(option);
+                        }
+                    });
             }),
+
+            fetch("/input")
+                .then(response => response.json())
+                .then(data => handleInputsChange(data)),
 
             fetch("/game_state")
             .then(response => response.json())
@@ -191,6 +252,7 @@
         url.searchParams.append("topic", "Party");
         url.searchParams.append("topic", "PerformanceData");
         url.searchParams.append("topic", "Opponent");
+        url.searchParams.append("topic", "Inputs");
 
         /*
          * Initialise event-stream client and add event handlers for all the events we care about.
@@ -211,6 +273,7 @@
             eventSource.addEventListener("EmulationSpeed", event => handleEmulationSpeedChange(JSON.parse(event.data)));
             eventSource.addEventListener("AudioEnabled", event => handleAudioEnabledChange(JSON.parse(event.data)));
             eventSource.addEventListener("VideoEnabled", event => handleVideoEnabledChange(JSON.parse(event.data)));
+            eventSource.addEventListener("Inputs", event => handleInputsChange(JSON.parse(event.data)));
 
             document.getElementById("screen_loading").style.display = "none";
             eventSource.onerror = () => {
@@ -483,7 +546,7 @@
          */
         function handleBotModeChange(data) {
             log(`Bot mode changed to <strong>${data}</strong>`);
-            document.getElementById("bot_mode").innerText = data;
+            document.getElementById("bot_mode").value = data;
         }
 
         /**
@@ -496,7 +559,7 @@
             } else {
                 newValue = data + "×";
             }
-            document.getElementById("emulation_speed").innerText = newValue;
+            document.getElementById("emulation_speed").value = data.toString();
             log(`Emulation speed changed to <strong>${newValue}</strong>`);
         }
 
@@ -504,7 +567,8 @@
          * @param {StreamEvents.AudioEnabled} data
          */
         function handleAudioEnabledChange(data) {
-            document.getElementById("audio_enabled").innerText = data ? "yes" : "no";
+            document.getElementById("audio_enabled").checked = data;
+            document.getElementById("audio_enabled_label").innerText = data ? "yes" : "no";
 
             if (data) {
                 log(`Audio was <strong>enabled</strong>`);
@@ -517,12 +581,26 @@
          * @param {StreamEvents.VideoEnabled} data
          */
         function handleVideoEnabledChange(data) {
-            document.getElementById("video_enabled").innerText = data ? "yes" : "no";
+            document.getElementById("video_enabled").checked = data;
+            document.getElementById("video_enabled_label").innerText = data ? "yes" : "no";
 
             if (data) {
                 log(`Video was <strong>enabled</strong>`);
             } else {
                 log(`Video was <strong>disabled</strong>`);
+            }
+        }
+
+        /**
+         * @param {StreamEvents.Inputs} data
+         */
+        function handleInputsChange(data) {
+            if (data.length === 0) {
+                document.getElementById("buttons_pressed").innerText = "none";
+                document.getElementById("buttons_pressed").className = "none";
+            } else {
+                document.getElementById("buttons_pressed").innerText = data.join(", ");
+                document.getElementById("buttons_pressed").className = "";
             }
         }
 
@@ -662,6 +740,55 @@
                 root.style.setProperty(property, value);
             }
         }
+
+        const held_buttons = new Set();
+        const key_map = {
+            "ArrowUp": "Up",
+            "ArrowLeft": "Left",
+            "ArrowRight": "Right",
+            "ArrowDown": "Down",
+            "z": "B",
+            "x": "A",
+            "a": "L",
+            "s": "R",
+            " ": "Start",
+            "Backspace": "Select",
+        }
+
+        let abortController = null;
+        const updateInputs = () => {
+            if (document.getElementById("bot_mode").value === "Manual") {
+                if (abortController !== null) {
+                    abortController.abort();
+                }
+
+                abortController = new AbortController();
+                fetch("/input", {
+                    method: "POST",
+                    body: JSON.stringify([...held_buttons]),
+                    headers: {"Content-Type": "application/json"},
+                    signal: abortController.signal,
+                })
+                    .then(() => {
+                        abortController = null;
+                    });
+            }
+        };
+
+        window.addEventListener("keydown", event => {
+            if (key_map.hasOwnProperty(event.key)) {
+                event.preventDefault();
+                held_buttons.add(key_map[event.key]);
+                updateInputs();
+            }
+        });
+        window.addEventListener("keyup", event => {
+            if (key_map.hasOwnProperty(event.key)) {
+                event.preventDefault();
+                held_buttons.delete(key_map[event.key]);
+                updateInputs();
+            }
+        });
     </script>
 
     <style id="theme-styles">
