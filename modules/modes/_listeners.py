@@ -1,4 +1,3 @@
-import inspect
 from types import GeneratorType
 
 from modules.battle import BattleHandler, BattleOutcome, RotatePokemon, check_lead_can_battle, flee_battle
@@ -427,16 +426,3 @@ class SafariZoneListener(BotListener):
                 f"The player used up all their {limited_by} in the Safari Zone. Switched back to manual mode."
             )
             context.set_manual_mode()
-
-
-class LinuxTimeoutListener(BotListener):
-    def __init__(self):
-        def raise_timeout_error(*args):
-            if not context.gui._emulator_screen._stepping_mode:
-                raise TimeoutError
-
-        signal.signal(signal.SIGALRM, raise_timeout_error)
-
-    def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
-        pass
-        # signal.alarm(10)
