@@ -3,6 +3,7 @@
 from typing import TYPE_CHECKING, Type
 
 from ._interface import BattleAction, BotListener, BotMode, BotModeError, FrameInfo
+from ..plugins import plugin_get_additional_bot_listeners, plugin_get_additional_bot_modes
 
 if TYPE_CHECKING:
     from modules.roms import ROM
@@ -56,6 +57,9 @@ def get_bot_modes() -> list[Type[BotMode]]:
             PokecenterLoopMode,
         ]
 
+        for mode in plugin_get_additional_bot_modes():
+            _bot_modes.append(mode)
+
     return _bot_modes
 
 
@@ -92,4 +96,6 @@ def get_bot_listeners(rom: "ROM") -> list[BotListener]:
     ]
     if rom.is_emerald:
         listeners.append(PokenavListener())
+    for listener in plugin_get_additional_bot_listeners():
+        listeners.append(listener)
     return listeners
