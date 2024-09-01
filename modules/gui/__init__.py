@@ -1,3 +1,4 @@
+import contextlib
 import os
 import platform
 from tkinter import Tk, ttk
@@ -5,7 +6,6 @@ from typing import TYPE_CHECKING
 
 import PIL.Image
 import PIL.ImageTk
-import contextlib
 import darkdetect
 from ttkthemes import ThemedTk
 
@@ -39,6 +39,7 @@ class PokebotGui:
         self._on_exit = on_exit
         self._startup_settings: "StartupSettings | None" = None
         self.inputs_enabled = True
+        self.is_headless = False
 
         self.window.geometry("540x400")
         self.window.resizable(context.debug, True)

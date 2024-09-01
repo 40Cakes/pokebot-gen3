@@ -6,6 +6,7 @@ import pathlib
 import platform
 from dataclasses import dataclass
 
+from modules.gui.headless import PokebotHeadless
 from modules.modes import get_bot_mode_names
 from modules.plugins import load_plugins
 from modules.runtime import is_bundled_app, get_base_path
@@ -41,6 +42,7 @@ class StartupSettings:
     profile: "Profile | None"
     debug: bool
     bot_mode: str
+    headless: bool
     no_video: bool
     no_audio: bool
     emulation_speed: int
@@ -76,6 +78,7 @@ def parse_arguments() -> StartupSettings:
         choices=["0", "1", "2", "3", "4"],
         help="Initial emulation speed (0 for unthrottled; default: 1)",
     )
+    parser.add_argument("-hl", "--headless", action="store_true", help="Run without a GUI, only using the console.")
     parser.add_argument("-nv", "--no-video", action="store_true", help="Turn off video output by default.")
     parser.add_argument("-na", "--no-audio", action="store_true", help="Turn off audio output by default.")
     parser.add_argument(
@@ -93,6 +96,7 @@ def parse_arguments() -> StartupSettings:
         profile=preselected_profile,
         debug=bool(args.debug),
         bot_mode=args.bot_mode or "Manual",
+        headless=bool(args.headless),
         no_video=bool(args.no_video),
         no_audio=bool(args.no_audio),
         emulation_speed=int(args.emulation_speed or "1"),
@@ -135,7 +139,10 @@ if __name__ == "__main__":
     if not is_bundled_app() and not (get_base_path() / ".git").is_dir():
         run_updater()
 
-    gui = PokebotGui(main_loop, on_exit)
+    if startup_settings.headless:
+        gui = PokebotHeadless(main_loop, on_exit)
+    else:
+        gui = PokebotGui(main_loop, on_exit)
     context.gui = gui
 
     gui.run(startup_settings)

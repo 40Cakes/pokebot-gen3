@@ -3,6 +3,7 @@ import json
 import time
 from pathlib import Path
 
+import waitress
 from apispec import APISpec
 from apispec_webframeworks.flask import FlaskPlugin
 from flask import Flask, Response, jsonify, request
@@ -673,9 +674,11 @@ def http_server() -> None:
         spec.path(view=http_get_video_stream)
 
     server.register_blueprint(swaggerui_blueprint)
-    server.run(
-        debug=False,
-        threaded=True,
+
+    waitress.serve(
+        server,
         host=context.config.obs.http_server.ip,
         port=context.config.obs.http_server.port,
+        threads=2,
+        ident=f"{pokebot_name}/{pokebot_version} (waitress)",
     )
