@@ -438,6 +438,21 @@ def http_server() -> None:
         else:
             return jsonify(list(reversed(context.emulator._performance_tracker.fps_history)))
 
+    @server.route("/bot_modes", methods=["GET"])
+    def http_get_bot_modes():
+        """
+        ---
+        get:
+          description: Returns a list of installed bot modes.
+          responses:
+            200:
+              content:
+                application/json: {}
+          tags:
+            - emulator
+        """
+        return jsonify(get_bot_mode_names())
+
     @server.route("/emulator", methods=["GET"])
     def http_get_emulator():
         """
@@ -538,6 +553,67 @@ def http_server() -> None:
                 return Response(f"Unrecognised setting: '{key}'.", status=422)
 
         return http_get_emulator()
+
+    @server.route("/input", methods=["GET"])
+    def http_get_input():
+        """
+        ---
+        get:
+          description: Returns a list of currently pressed buttons.
+          responses:
+            200:
+              content:
+                application/json: {}
+          tags:
+            - emulator
+        """
+        return jsonify(context.emulator.get_inputs_as_strings())
+
+    @server.route("/input", methods=["POST"])
+    def http_post_input():
+        """
+        ---
+        post:
+          description: Sets which buttons are being pressed. Accepts a JSON payload.
+          requestBody:
+            description: JSON payload
+            content:
+              application/json:
+                schema: {}
+                examples:
+                  press_right_and_b:
+                    summary: Press Right an B
+                    value: ["B", "Right"]
+                  release_all_buttons:
+                    summary: Release all buttons
+                    value: []
+          responses:
+            200:
+              content:
+                application/json: {}
+          tags:
+            - emulator
+        """
+        new_buttons = request.json
+        if not isinstance(new_buttons, list):
+            return Response("This endpoint expects a JSON array as its payload.", status=422)
+
+        possible_buttons = ["A", "B", "Select", "Start", "Right", "Left", "Up", "Down", "R", "L"]
+        buttons_to_press = []
+        for button in new_buttons:
+            for possible_button in possible_buttons:
+                if button.lower() == possible_button.lower():
+                    buttons_to_press.append(possible_button)
+
+        def update_inputs():
+            if context.bot_mode == "Manual":
+                context.emulator.reset_held_buttons()
+                for button_to_press in buttons_to_press:
+                    context.emulator.hold_button(button_to_press)
+
+        work_queue.put_nowait(update_inputs)
+
+        return Response(status=204)
 
     @server.route("/stream_events", methods=["GET"])
     def http_get_events_stream():
