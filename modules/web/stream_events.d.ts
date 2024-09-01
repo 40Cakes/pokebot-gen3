@@ -49,4 +49,6 @@ declare module StreamEvents {
     export type AudioEnabled = boolean;
 
     export type VideoEnabled = boolean;
+
+    export type Inputs = ("A" | "B" | "Select" | "Start" | "Right" | "Left" | "Up" | "Down" | "R" | "L")[]
 }
