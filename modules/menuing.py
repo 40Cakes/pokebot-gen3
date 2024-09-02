@@ -516,6 +516,63 @@ class CheckForPickup(BaseMenuNavigator):
 
     def __init__(self):
         super().__init__()
+
+        if context.rom.is_rs:
+            self.possible_pickup_items = [
+                "Super Potion",
+                "Ultra Ball",
+                "Full Restore",
+                "Full Heal",
+                "Nugget",
+                "Revive",
+                "Rare Candy",
+                "Protein",
+                "PP Up",
+                "King’s Rock",
+            ]
+        elif context.rom.is_frlg:
+            self.possible_pickup_items = [
+                "Oran Berry",
+                "Aspear Berry",
+                "Cheri Berry",
+                "Chesto Berry",
+                "Pecha Berry",
+                "Persim Berry",
+                "Rawst Berry",
+                "Nugget",
+                "PP Up",
+                "Rare Candy",
+                "TM10",
+                "Belue Berry",
+                "Durin Berry",
+                "Pamtre Berry",
+                "Spelon Berry",
+                "Watmel Berry",
+            ]
+        else:
+            self.possible_pickup_items = [
+                "Potion",
+                "Antidote",
+                "Super Potion",
+                "Great Ball",
+                "Repel",
+                "Escape Rope",
+                "X Attack",
+                "Full Heal",
+                "Ultra Ball",
+                "Hyper Potion",
+                "Nugget",
+                "King’s Rock",
+                "Full Restore",
+                "Ether",
+                "White Herb",
+                "TM44",
+                "Elixir",
+                "TM01",
+                "Leftovers",
+                "TM26",
+            ]
+
         self.party = get_party()
         self.pokemon_with_pickup = 0
         self.pokemon_with_pickup_and_item = []
@@ -533,7 +590,7 @@ class CheckForPickup(BaseMenuNavigator):
         for i, mon in enumerate(self.party):
             if mon.ability.name == "Pickup":
                 self.pokemon_with_pickup += 1
-                if mon.held_item is not None and mon.held_item.name != "Exp. Share":
+                if mon.held_item is not None and mon.held_item.name in self.possible_pickup_items:
                     self.pokemon_with_pickup_and_item.append(i)
                     self.picked_up_items.append(mon.held_item)
 

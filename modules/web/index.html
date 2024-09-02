@@ -231,8 +231,10 @@
             .then(response => response.json())
             .then(data => {
                 /** @var {PokeBotApi.GetMapResponse} */
-                handleMapChange(data);
-                handleMapTileChange(data.player_position);
+                if (data !== null) {
+                    handleMapChange(data);
+                    handleMapTileChange(data.player_position);
+                }
             }),
         ];
 
@@ -318,6 +320,10 @@
          * @param {StreamEvents.Player} data
          */
         function handlePlayerChange(data) {
+            if (data === null) {
+                return;
+            }
+
             document.getElementById("player_name").innerText = data.name;
             document.getElementById("player_gender").innerText = data.gender;
             if (data.gender === "male") {

@@ -1443,8 +1443,13 @@ def get_party() -> list[Pokemon]:
         # (1) advancing the emulation by one frame, (2) reading the memory, (3) restoring the previous
         # frame's state, so we don't mess with frame accuracy.
         if mon is None:
+            retries = 5
             with context.emulator.peek_frame():
-                mon = parse_pokemon(read_symbol("gPlayerParty", o, 100))
+                while retries > 0 and mon is None:
+                    retries -= 1
+                    mon = parse_pokemon(read_symbol("gPlayerParty", o, 100))
+                    if mon is None:
+                        context.emulator._core.run_frame()
         if mon is None:
             if read_symbol("gPlayerParty", o, 100).count(b"\x00") >= 99:
                 continue
