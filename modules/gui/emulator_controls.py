@@ -94,7 +94,7 @@ class EmulatorControls:
         self.bot_mode_button.config(text=context.bot_mode)
         self._set_button_colour(self.bot_mode_button, active_condition=context.bot_mode == "Manual")
 
-        speed_text = {1: "1×", 2: "2×", 3: "3×", 4: "4×", 8: "8x", 16: "16x", 32: "32x", 0: "∞"}.get(
+        speed_text = {0: "∞", 1: "1×", 2: "2×", 3: "3×", 4: "4×", 8: "8x", 16: "16x", 32: "32x"}.get(
             context.emulation_speed, "Speed"
         )
         self.speed_menu_button.config(text=speed_text)
@@ -193,7 +193,16 @@ class EmulatorControls:
 
         self.speed_menu = tkinter.Menu(self.window, tearoff=0)
 
-        speeds = [("1×", 1), ("2×", 2), ("3×", 3), ("4×", 4), ("8x", 8), ("16x", 16), ("32x", 32), ("∞", 0)]
+        speeds = [
+            (f"Unthrottled (key: {context.config.keys.emulator.set_speed_unthrottled})", 0),
+            (f"1× (key: {context.config.keys.emulator.set_speed_1x})", 1),
+            (f"2× (key: {context.config.keys.emulator.set_speed_2x})", 2),
+            (f"3× (key: {context.config.keys.emulator.set_speed_3x})", 3),
+            (f"4× (key: {context.config.keys.emulator.set_speed_4x})", 4),
+            ("8x", 8),
+            ("16x", 16),
+            ("32x", 32),
+        ]
         for label, speed in speeds:
             if context.emulation_speed == speed:
                 self.speed_menu.add_command(label=label, font=bold_font, command=lambda s=speed: set_emulation_speed(s))
