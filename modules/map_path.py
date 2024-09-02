@@ -164,8 +164,6 @@ _maps: dict[tuple[int, int], PathMap] = {}
 
 def _get_connection_for_direction(map_data: MapLocation, direction: str) -> tuple[tuple[int, int], int] | None:
     for connection in map_data.connections:
-        if map_data.map_group == 0 and map_data.map_number == 32:
-            a = 1
         if connection.direction == direction:
             return (connection.destination_map_group, connection.destination_map_number), connection.offset
     return None
@@ -376,7 +374,7 @@ def calculate_path(
     else:
         source_tile = _find_tile_by_local_coordinates(source[0], source[1])
 
-    if isinstance(source, MapLocation):
+    if isinstance(destination, MapLocation):
         destination_tile = _find_tile_by_location(destination)
     else:
         destination_tile = _find_tile_by_local_coordinates(destination[0], destination[1])
@@ -438,7 +436,7 @@ def calculate_path(
             else:
                 direction = Direction.North
 
-            if node.tile.warps_to:
+            if node.tile.warps_to and len(result) == 0:
                 warp_map, warp_coords, extra_warp_direction = node.tile.warps_to
                 if extra_warp_direction is not None:
                     result.append(Waypoint(extra_warp_direction, warp_map, warp_coords, True))
@@ -473,6 +471,24 @@ def calculate_path(
             Direction.South: (coords[0], coords[1] + 1),
             Direction.West: (coords[0] - 1, coords[1]),
         }
+
+        # There is a 2-tile gap in global coordinates between Route 104 and Rustboro City
+        # because some other maps in the global map space are slightly longer. This makes
+        # them connect anyway.
+        if context.rom.is_rse and tile.map.map_group_and_number == MapRSE.ROUTE104 and tile.local_coordinates[1] == 0:
+            potential_neighbours[Direction.North] = (
+                potential_neighbours[Direction.North][0],
+                potential_neighbours[Direction.North][1] - 2,
+            )
+        elif (
+            context.rom.is_rse
+            and tile.map.map_group_and_number == MapRSE.RUSTBORO_CITY
+            and tile.local_coordinates[1] == 59
+        ):
+            potential_neighbours[Direction.South] = (
+                potential_neighbours[Direction.South][0],
+                potential_neighbours[Direction.South][1] + 2,
+            )
 
         for direction in potential_neighbours:
             neighbour_coordinates = potential_neighbours[direction]

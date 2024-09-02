@@ -49,8 +49,12 @@ def main_loop() -> None:
             if context.bot_mode != "Manual":
                 game_state = get_game_state()
                 script_context = get_global_script_context()
-                script_stack = script_context.stack if script_context.is_active else []
-                active_tasks = [task.symbol.lower() for task in get_tasks()]
+                script_stack = script_context.stack if script_context is not None and script_context.is_active else []
+                task_list = get_tasks()
+                if task_list is not None:
+                    active_tasks = [task.symbol.lower() for task in task_list]
+                else:
+                    active_tasks = []
             else:
                 game_state = GameState.UNKNOWN
                 script_stack = []

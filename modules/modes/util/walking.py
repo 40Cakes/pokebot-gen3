@@ -211,6 +211,7 @@ def navigate_to(
     run: bool = True,
     avoid_encounters: bool = True,
     avoid_scripted_events: bool = True,
+    expecting_script: bool = False,
 ) -> Generator:
     """
     Tries to walk the player to a given location while circumventing obstacles.
@@ -229,6 +230,8 @@ def navigate_to(
                              It will also not avoid the activation range of unbattled trainers.
     :param avoid_scripted_events: Try to avoid tiles that would trigger a scripted event when moving onto them. It will
                                   still navigate via those tiles of there is no other option.
+    :param expecting_script: This will accept if a script is triggered during navigation (presumably at the destination)
+                             and will not show an error about that.
     """
 
     def waypoint_generator():
@@ -281,9 +284,12 @@ def navigate_to(
             #
             # In the third case, we consider that an unexpected event and will abort the navigation.
             if get_global_script_context().is_active:
-                raise BotModeError(
-                    f"We unexpectedly triggered a scripted event while trying to reach {coordinates} @ {map}.\nSwitching to manual mode."
-                )
+                if expecting_script:
+                    return
+                else:
+                    raise BotModeError(
+                        f"We unexpectedly triggered a scripted event while trying to reach {coordinates} @ {map}.\nSwitching to manual mode."
+                    )
             pass
 
 
