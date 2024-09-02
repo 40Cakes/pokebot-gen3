@@ -24,10 +24,59 @@ from modules.player import get_player, get_player_avatar
 from modules.pokedex import get_pokedex
 from modules.pokemon import get_party
 from modules.pokemon_storage import get_pokemon_storage
-from modules.state_cache import state_cache
+from modules.state_cache import state_cache, StateCacheItem
 from modules.stats import total_stats
 from modules.version import pokebot_name, pokebot_version
 from modules.web.http_stream import DataSubscription, add_subscriber
+
+
+def _update_via_work_queue(
+    state_cache_entry: StateCacheItem, update_callback: callable, maximum_age_in_frames: int = 5
+) -> None:
+    """
+    Ensures that an entry in the State cache is up-to-date.
+
+    If not, it executes an update call in the main thread's work queue and will
+    suppress any errors that occur.
+
+    The reason we use a work queue is that the HTTP server runs in a separate thread
+    and so is not synchronous with the emulator core. So if it were to read emulator
+    memory, it might potentially get incomplete/garbage data.
+
+    The work queue is just a list of callbacks that the main thread will execute
+    after the current frame is emulated.
+
+    Because these data-updating callbacks might fail anyway (due to the game being in
+    a weird state or something like that), this function will just ignore these errors
+    and pretend that the data has been updated.
+
+    This means that the HTTP API will potentially return some outdated data, but it's
+    just a reporting tool anyway.
+
+    :param state_cache_entry: The state cache item that needs to be up-to-date.
+    :param update_callback: A callback that will update the data in the state cache.
+    :param maximum_age_in_frames: Defines how many frames old the data may be to still
+                                  be considered up-to-date. If the data is 'younger'
+                                  than or equal to that number of frames, this function
+                                  will do nothing.
+    """
+
+    if state_cache_entry.age_in_frames < maximum_age_in_frames:
+        return
+
+    has_failed = False
+
+    def do_update():
+        nonlocal has_failed
+        try:
+            update_callback()
+        except:
+            has_failed = True
+
+    last_update_frame = state_cache_entry.frame
+    work_queue.put_nowait(do_update)
+    while not has_failed and state_cache_entry.frame == last_update_frame:
+        time.sleep(0.05)
 
 
 def http_server() -> None:
@@ -80,12 +129,13 @@ def http_server() -> None:
         """
 
         cached_player = state_cache.player
-        if cached_player.age_in_frames > 5:
-            work_queue.put_nowait(get_player)
-            while cached_player.age_in_frames > 5:
-                time.sleep(0.05)
+        _update_via_work_queue(cached_player, get_player)
 
-        data = cached_player.value.to_dict() if cached_player.value is not None else {}
+        try:
+            data = cached_player.value.to_dict() if cached_player.value is not None else None
+        except TypeError:
+            data = None
+
         return jsonify(data)
 
     @server.route("/player_avatar", methods=["GET"])
@@ -103,10 +153,7 @@ def http_server() -> None:
         """
 
         cached_avatar = state_cache.player_avatar
-        if cached_avatar.age_in_frames > 5:
-            work_queue.put_nowait(get_player_avatar)
-            while cached_avatar.age_in_frames > 5:
-                time.sleep(0.05)
+        _update_via_work_queue(cached_avatar, get_player_avatar)
 
         data = cached_avatar.value.to_dict() if cached_avatar.value is not None else {}
         return jsonify(data)
@@ -128,11 +175,9 @@ def http_server() -> None:
         cached_bag = state_cache.item_bag
         cached_storage = state_cache.item_storage
         if cached_bag.age_in_seconds > 1:
-            work_queue.put_nowait(get_item_bag)
+            _update_via_work_queue(cached_bag, get_item_bag)
         if cached_storage.age_in_seconds > 1:
-            work_queue.put_nowait(get_item_storage)
-        while cached_bag.age_in_frames > 60 or cached_storage.age_in_frames > 60:
-            time.sleep(0.05)
+            _update_via_work_queue(cached_storage, get_item_storage)
 
         return jsonify(
             {
@@ -156,10 +201,7 @@ def http_server() -> None:
         """
 
         cached_party = state_cache.party
-        if cached_party.age_in_frames > 5:
-            work_queue.put_nowait(get_party)
-            while cached_party.age_in_frames > 5:
-                time.sleep(0.05)
+        _update_via_work_queue(cached_party, get_party)
 
         return jsonify([p.to_dict() for p in cached_party.value])
 
@@ -179,9 +221,7 @@ def http_server() -> None:
 
         cached_pokedex = state_cache.pokedex
         if cached_pokedex.age_in_seconds > 1:
-            work_queue.put_nowait(get_pokedex)
-            while cached_pokedex.age_in_frames > 60:
-                time.sleep(0.05)
+            _update_via_work_queue(cached_pokedex, get_pokedex)
 
         return jsonify(cached_pokedex.value.to_dict())
 
@@ -200,10 +240,7 @@ def http_server() -> None:
         """
 
         cached_storage = state_cache.pokemon_storage
-        if cached_storage.age_in_frames > 5:
-            work_queue.put_nowait(get_pokemon_storage)
-            while cached_storage.age_in_frames > 5:
-                time.sleep(0.05)
+        _update_via_work_queue(cached_storage, get_pokemon_storage)
 
         return jsonify(cached_storage.value.to_dict())
 
@@ -247,18 +284,18 @@ def http_server() -> None:
         """
 
         cached_avatar = state_cache.player_avatar
-        if cached_avatar.age_in_frames > 5:
-            work_queue.put_nowait(get_player_avatar)
-            while cached_avatar.age_in_frames > 5:
-                time.sleep(0.05)
+        _update_via_work_queue(cached_avatar, get_player_avatar)
 
         if cached_avatar.value is not None:
-            map_data = cached_avatar.value.map_location
-            data = {
-                "map": map_data.dict_for_map(),
-                "player_position": map_data.local_position,
-                "tiles": map_data.dicts_for_all_tiles(),
-            }
+            try:
+                map_data = cached_avatar.value.map_location
+                data = {
+                    "map": map_data.dict_for_map(),
+                    "player_position": map_data.local_position,
+                    "tiles": map_data.dicts_for_all_tiles(),
+                }
+            except (RuntimeError, TypeError):
+                data = None
         else:
             data = None
 
@@ -320,8 +357,11 @@ def http_server() -> None:
           tags:
             - game
         """
+        game_state = get_game_state()
+        if game_state is not None:
+            game_state = game_state.name
 
-        return jsonify(get_game_state().name)
+        return jsonify(game_state)
 
     @server.route("/event_flags", methods=["GET"])
     def http_get_event_flags():
@@ -755,6 +795,6 @@ def http_server() -> None:
         server,
         host=context.config.obs.http_server.ip,
         port=context.config.obs.http_server.port,
-        threads=2,
+        threads=8,
         ident=f"{pokebot_name}/{pokebot_version} (waitress)",
     )

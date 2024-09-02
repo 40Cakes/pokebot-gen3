@@ -31,6 +31,7 @@ from modules.map import (
     WildEncounter,
 )
 from modules.map_data import MapGroupFRLG, MapFRLG, MapGroupRSE, MapRSE
+from modules.map_path import _find_tile_by_local_coordinates
 from modules.memory import (
     get_symbol,
     read_symbol,
@@ -309,7 +310,7 @@ class TasksTab(DebugTab):
         self._cb2_label.config(text=cb2_symbol)
 
         def render_script_context(ctx: ScriptContext) -> dict | str:
-            if not ctx.is_active:
+            if ctx is None or not ctx.is_active:
                 return "None"
             stack = (
                 {"__value": "Empty"}
@@ -354,15 +355,17 @@ class TasksTab(DebugTab):
                 data["Battle Callbacks"][f"Battler Controller #{index + 1}"] = function
 
         index = 0
-        for task in get_tasks():
-            data[task.symbol] = {
-                "__value": task.data.rstrip(b"\00").hex(" ", 1),
-                "function": task.symbol,
-                "pointer": hex(task.function_pointer),
-                "priority": task.priority,
-                "data": task.data.hex(" ", 1),
-            }
-            index += 1
+        tasks = get_tasks()
+        if tasks is not None:
+            for task in get_tasks():
+                data[task.symbol] = {
+                    "__value": task.data.rstrip(b"\00").hex(" ", 1),
+                    "function": task.symbol,
+                    "pointer": hex(task.function_pointer),
+                    "priority": task.priority,
+                    "data": task.data.hex(" ", 1),
+                }
+                index += 1
 
         self._tv.update_data(data)
 
@@ -1342,6 +1345,8 @@ class MapTab(DebugTab):
             map_enum = MapFRLG(map_data.map_group_and_number)
             group_enum = MapGroupFRLG(map_data.map_group)
 
+        pt = _find_tile_by_local_coordinates(map_data.map_group_and_number, map_data.local_position)
+
         return {
             "Map": {
                 "__value": map_enum.name,
@@ -1366,6 +1371,15 @@ class MapTab(DebugTab):
                 "Tile Has Encounters": map_data.has_encounters,
                 "Collision": bool(map_data.collision),
                 "Surfing possible": map_data.is_surfable,
+            },
+            "Global Coordinate": {
+                "__value": f"{pt.global_coordinates[0]}/{pt.global_coordinates[1]}",
+                "Has Encounters": pt.has_encounters,
+                "Accessible From Direction": pt.accessible_from_direction,
+                "Dynamic Collision Flag": pt.dynamic_collision_flag,
+                "Dynamic Object ID": pt.dynamic_object_id,
+                "On Enter Triggers": pt.on_enter_event_triggers,
+                "Warps To": pt.warps_to,
             },
             "Loaded Objects": object_list,
             "Connections": connections_list,

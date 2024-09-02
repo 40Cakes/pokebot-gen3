@@ -986,6 +986,12 @@ class MapLocation:
             for index in range(object_event_count)
         ]
 
+    def object_by_local_id(self, local_id: int) -> "ObjectEventTemplate | None":
+        for object_template in self.objects:
+            if object_template.local_id == local_id:
+                return object_template
+        return None
+
     @property
     def coord_events(self) -> list[MapCoordEvent]:
         coord_event_count = self._event_list[2]
