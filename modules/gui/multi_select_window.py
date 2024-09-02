@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from tkinter import Canvas, PhotoImage, Toplevel, ttk
 
+from rich.prompt import Prompt
+
 from modules.context import context
 
 
@@ -14,6 +16,9 @@ class Selection:
 
 
 def ask_for_choice(choices: list[Selection], window_title: str = "Choose...") -> str | None:
+    if context.gui.is_headless:
+        return Prompt.ask(window_title, choices=[choice.button_label for choice in choices])
+
     window = Toplevel(context.gui.window)
     selected_value: str | None = None
 

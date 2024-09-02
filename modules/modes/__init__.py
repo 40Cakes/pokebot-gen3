@@ -3,6 +3,7 @@
 from typing import TYPE_CHECKING, Type
 
 from ._interface import BattleAction, BotListener, BotMode, BotModeError, FrameInfo
+from ..plugins import plugin_get_additional_bot_listeners, plugin_get_additional_bot_modes
 
 if TYPE_CHECKING:
     from modules.roms import ROM
@@ -14,8 +15,9 @@ def get_bot_modes() -> list[Type[BotMode]]:
     global _bot_modes
 
     if len(_bot_modes) == 0:
+        from .berry_blend import BerryBlendMode
         from .bunny_hop import BunnyHopMode
-        from modules.modes.daycare import DaycareMode
+        from .daycare import DaycareMode
         from .feebas import FeebasMode
         from .fishing import FishingMode
         from .game_corner import GameCornerMode
@@ -34,6 +36,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .pokecenterloop import PokecenterLoopMode
 
         _bot_modes = [
+            BerryBlendMode,
             BunnyHopMode,
             DaycareMode,
             FeebasMode,
@@ -53,6 +56,9 @@ def get_bot_modes() -> list[Type[BotMode]]:
             SudowoodoMode,
             PokecenterLoopMode,
         ]
+
+        for mode in plugin_get_additional_bot_modes():
+            _bot_modes.append(mode)
 
     return _bot_modes
 
@@ -90,4 +96,6 @@ def get_bot_listeners(rom: "ROM") -> list[BotListener]:
     ]
     if rom.is_emerald:
         listeners.append(PokenavListener())
+    for listener in plugin_get_additional_bot_listeners():
+        listeners.append(listener)
     return listeners

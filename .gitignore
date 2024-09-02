@@ -17,3 +17,4 @@ roms/*
 !roms/.gitkeep
 stats/
 stream/
+plugins/

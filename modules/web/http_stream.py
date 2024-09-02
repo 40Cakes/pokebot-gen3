@@ -31,6 +31,7 @@ class DataSubscription(IntFlag):
     BotMode = auto()
     Message = auto()
     EmulatorSettings = auto()
+    Inputs = auto()
     PerformanceData = auto()
 
     @classmethod
@@ -108,6 +109,7 @@ def run_watcher():
         "emulation_speed": context.emulation_speed,
         "audio_enabled": context.audio,
         "video_enabled": context.video,
+        "inputs": context.emulator.get_inputs(),
         "message": context.message,
     }
 
@@ -227,6 +229,10 @@ def run_watcher():
         if subscriptions["Message"] > 0 and context.message != previous_emulator_state["message"]:
             previous_emulator_state["message"] = context.message
             send_message(DataSubscription.Message, data=context.message, event_type="Message")
+
+        if subscriptions["Inputs"] > 0 and context.emulator.get_inputs() != previous_emulator_state["inputs"]:
+            previous_emulator_state["inputs"] = context.emulator.get_inputs()
+            send_message(DataSubscription.Inputs, data=context.emulator.get_inputs_as_strings(), event_type="Inputs")
 
         if subscriptions["EmulatorSettings"] > 0:
             if context.emulation_speed != previous_emulator_state["emulation_speed"]:

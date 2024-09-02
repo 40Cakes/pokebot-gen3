@@ -6,6 +6,7 @@ from modules.console import console
 from modules.context import context
 from modules.memory import GameState, get_game_state
 from modules.modes import BotListener, BotMode, BotModeError, FrameInfo, get_bot_listeners, get_bot_mode_by_name
+from modules.plugins import plugin_profile_loaded
 from modules.tasks import get_global_script_context, get_tasks
 
 # Contains a queue of tasks that should be run the next time a frame completes.
@@ -20,6 +21,7 @@ def main_loop() -> None:
     This function is run after the user has selected a profile and the emulator has been started.
     """
     try:
+        plugin_profile_loaded(context.profile)
         current_mode: BotMode | None = None
 
         if context.config.discord.rich_presence:

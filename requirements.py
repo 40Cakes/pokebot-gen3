@@ -36,6 +36,7 @@ required_modules = [
     "ttkthemes~=3.2.2",
     "darkdetect~=0.8.0",
     "show-in-file-manager~=1.1.4",
+    "waitress~=3.0.0",
 ]
 
 if platform.system() == "Windows":

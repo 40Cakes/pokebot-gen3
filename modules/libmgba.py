@@ -429,6 +429,17 @@ class LibmgbaEmulator:
         """
         return self._core._core.getKeys(self._core._core)
 
+    def get_inputs_as_strings(self) -> list[str]:
+        """
+        :return: A list of all the button names that are currently being pressed
+        """
+        raw_inputs = self.get_inputs()
+        inputs = []
+        for key in input_map:
+            if raw_inputs & input_map[key]:
+                inputs.append(key)
+        return inputs
+
     def set_inputs(self, inputs: int):
         """
         :param inputs: A bitfield with all the buttons that should now be pressed

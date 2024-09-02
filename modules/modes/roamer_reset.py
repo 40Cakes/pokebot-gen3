@@ -284,7 +284,7 @@ class RoamerResetMode(BotMode):
                 # Go to the first spot of tall grass on Route 1 and spin around for a while
                 yield from navigate_to(MapFRLG.ROUTE1, (12, 39))
                 directions = ["Left", "Down", "Right", "Up"]
-                for index in range(18 if has_good_ability else 36):
+                for index in range(18 if has_good_ability else 38):
                     yield from ensure_facing_direction(directions[index % 4])
 
                 # Walk into rival's house to get an additional map transition.
