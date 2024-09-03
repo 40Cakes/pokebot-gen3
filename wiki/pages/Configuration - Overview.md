@@ -33,5 +33,5 @@ Example:
     │ customhooks.py           <-- config loaded for all profiles
     │ discord.yml              <-- config loaded for all profiles except 'emerald-profile'
     │ logging.yml              <-- config loaded for all profiles except 'emerald-profile' and 'firered-profile'
-    │ obs.yml                  <-- config loaded for all profiles
+    │ http.yml                  <-- config loaded for all profiles
 ```

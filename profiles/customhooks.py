@@ -352,34 +352,3 @@ def custom_hooks(hook) -> None:
 
     except Exception:
         console.print_exception(show_locals=True)
-
-    try:
-        # Post the most recent OBS stream screenshot to Discord
-        # (screenshot is taken in stats.py before phase resets)
-        if context.config.obs.discord_webhook_url and pokemon.is_shiny:
-
-            def OBSDiscordScreenshot():
-                time.sleep(3)  # Give the screenshot some time to save to disk
-                images = glob.glob(f"{context.config.obs.replay_dir}*.png")
-                image = max(images, key=os.path.getctime)
-                discord_message(webhook_url=context.config.obs.discord_webhook_url, image=Path(image))
-
-            # Run in a thread to not hold up other hooks
-            Thread(target=OBSDiscordScreenshot).start()
-    except Exception:
-        console.print_exception(show_locals=True)
-
-    try:
-        # Save OBS replay buffer n frames after encountering a shiny
-        if context.config.obs.replay_buffer and pokemon.is_shiny:
-
-            def OBSReplayBuffer():
-                from modules.obs import obs_hot_key
-
-                time.sleep(context.config.obs.replay_buffer_delay)
-                obs_hot_key("OBS_KEY_F12", pressCtrl=True)
-
-            # Run in a thread to not hold up other hooks
-            Thread(target=OBSReplayBuffer).start()
-    except Exception:
-        console.print_exception(show_locals=True)

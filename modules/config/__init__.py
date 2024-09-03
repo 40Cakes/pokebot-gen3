@@ -6,7 +6,7 @@ from confz import BaseConfig, FileSource
 from ruamel.yaml import YAML
 
 from modules import exceptions
-from modules.config.schemas_v1 import Battle, CatchBlock, Cheats, Discord, Keys, Logging, OBS, ProfileMetadata
+from modules.config.schemas_v1 import Battle, CatchBlock, Cheats, Discord, Keys, Logging, HTTP, ProfileMetadata
 from modules.runtime import get_base_path
 
 # Defines which class attributes of the Config class are meant to hold required configuration data.
@@ -17,7 +17,7 @@ CONFIG_ATTRS = {
     "discord",
     "keys",
     "logging",
-    "obs",
+    "http",
 }
 
 
@@ -41,7 +41,7 @@ class Config:
         self.loaded = False
         self.logging: Logging = Logging()
         self.metadata: ProfileMetadata | None = None
-        self.obs: OBS = OBS()
+        self.http: HTTP = HTTP()
         self.load(strict=strict)
 
     def load(self, config_dir: str | Path | None = None, strict: bool = True):

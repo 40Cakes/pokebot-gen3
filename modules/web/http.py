@@ -88,7 +88,7 @@ def http_server() -> None:
     CORS(server)
 
     swagger_url = "/docs"
-    api_url = f"http://{context.config.obs.http_server.ip}:{context.config.obs.http_server.port}/swagger"
+    api_url = f"http://{context.config.http.http_server.ip}:{context.config.http.http_server.port}/swagger"
     docs_dir = Path(__file__).parent / "docs"
 
     spec = APISpec(
@@ -105,7 +105,7 @@ def http_server() -> None:
         servers=[
             dict(
                 description=f"{pokebot_name} server",
-                url=f"http://{context.config.obs.http_server.ip}:{context.config.obs.http_server.port}",
+                url=f"http://{context.config.http.http_server.ip}:{context.config.http.http_server.port}",
             )
         ],
         plugins=[FlaskPlugin()],
@@ -793,8 +793,8 @@ def http_server() -> None:
 
     waitress.serve(
         server,
-        host=context.config.obs.http_server.ip,
-        port=context.config.obs.http_server.port,
+        host=context.config.http.http_server.ip,
+        port=context.config.http.http_server.port,
         threads=8,
         ident=f"{pokebot_name}/{pokebot_version} (waitress)",
     )

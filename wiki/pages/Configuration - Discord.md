@@ -1,6 +1,6 @@
 🏠 [`pokebot-gen3` Wiki Home](../Readme.md)
 
-# 📢 Discord Integration Config
+# 📢 Discord Config
 
 [`profiles/discord.yml`](../../profiles/discord.yml)
 
@@ -27,6 +27,8 @@ For privacy reasons, rich presence and webhooks are all **disabled** by default.
   ║31 │31 │31 │31 │31 │31 ║
   ╚═══╧═══╧═══╧═══╧═══╧═══╝
   ```
+
+`delay` - seconds (`int`) to delay Discord webhooks before posting (useful to prevent livestream spoilers)
 
 `bot_id` - set to any string you want, this string is added to the footer of all Discord messages, it can be useful to identify bots if multiple are set to post in the same channel
 

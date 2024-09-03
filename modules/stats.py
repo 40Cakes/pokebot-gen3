@@ -391,20 +391,6 @@ class TotalStats:
                 self.append_shiny_log(pokemon)
                 self.update_shiny_incremental_stats(pokemon)
 
-                #  TODO fix all this OBS crap
-                for _ in range(context.config.obs.shiny_delay):
-                    context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-
-                if context.config.obs.screenshot:
-                    from modules.obs import obs_hot_key
-
-                    while get_game_state() != GameState.BATTLE:
-                        context.emulator.press_button("B")  # Throw out Pokémon for screenshot
-                        context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-                    for _ in range(180):
-                        context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-                    obs_hot_key("OBS_KEY_F11", pressCtrl=True)
-
             print_stats(self.total_stats, pokemon, self.session_pokemon)
 
             # Run custom code/Discord webhooks in custom_hooks in a thread to not hold up bot
