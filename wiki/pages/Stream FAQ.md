@@ -97,7 +97,7 @@ The bot uses the run away method that shiny hunters use.
 The bot will search for Feebas tiles, as if it were a person using no external tools to check tiles.
 
 ### When does the bot save?
-Saving more often isn't necessary since in the event of a crash nothing would be lost.
+The bot saves after it catches a shiny - Saving more often isn't necessary since in the event of a crash nothing would be lost.
 
 ## "Will the bot...?"
 
@@ -183,12 +183,13 @@ DOTS is the same Pokémon every time and cannot be shiny.
 **Data for turbo-nerds:** DOTS is a male level 4 Seedot with the PID 00000084 and a Relaxed nature. His OT is named KOBE and has a TID of 38726 and an SID of 00000 (or incomplete trainer data, which is common for NPCs in R/S/E.)
 
 ### You're still on Seedot!?
-We are on the second Seedot hunt. The first Seedot has already been found. See below for details.
+We have already caught two shiny Seedot, so at least for now we don't need any more.  
+We will eventually need another one in order to evolve it to Shiftry, but at this stage in the game we don't have access to a Leaf Stone. So that can wait until at least after the 4th badge.
 
 ### How long did Seedot take?
-Seedot was hunted basically non-stop between **19th Feb 2023 AEST** (**20th Feb 2023 UTC**) and **8th June 2023** (**7th June 2023 UTC**) when it was finally found. This makes it **109 days** or **3 months 20 days** to find the first Seedot.
-Seedot was encountered before this, but 19th Feb was when we committed to the grind.
-Seedot 2 hunt started on **27th Aug 2023**.
+Shiny Seedot #1 was hunted basically non-stop between **19th Feb 2023 AEST** (**20th Feb 2023 UTC**) and **8th June 2023** (**7th June 2023 UTC**) when it was finally found. This makes it **109 days** or **3 months 20 days** to find the first Seedot.  
+Regular Seedot was encountered before this, but 19th Feb was when we committed to the grind.  
+Shiny Seedot #2 hunt started on **27th Aug 2023** and finally completed on **28th August 2024**. So it took **367 days** or **1** (leap) **year and 1 day** to find.
 
 ### Will everything take this long?
 Probably not, Seedot is expected to be the single worst part of the whole challenge. 
@@ -205,5 +206,5 @@ Feebas is a **50% encounter** once you find the tile.
 Tiles change when the Trendy Phrase is changed¹, so once the bot finds a tile it'll have time to stick with it.
   - _¹ There is conflicting information online surrounding Feebas tiles changing without manually changing the Trendy Phrase. No matter when this is, it'll be fine._
 
-### How long is Seedot #2 going to take?
+### How long until 40 Cakes makes another video?
 ![](https://cdn.betterttv.net/emote/5d61b1b14932b21d9c332f1b/3x.webp)
