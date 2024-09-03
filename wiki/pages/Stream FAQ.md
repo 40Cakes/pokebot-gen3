@@ -205,3 +205,6 @@ We will have access to breeding and bikes for all 1% encounters other than Seedo
 Feebas is a **50% encounter** once you find the tile. 
 Tiles change when the Trendy Phrase is changed¹, so once the bot finds a tile it'll have time to stick with it.
   - _¹ There is conflicting information online surrounding Feebas tiles changing without manually changing the Trendy Phrase. No matter when this is, it'll be fine._
+
+### How long until 40 Cakes makes another video?
+![](https://cdn.betterttv.net/emote/5d61b1b14932b21d9c332f1b/3x.webp)
