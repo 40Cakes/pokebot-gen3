@@ -80,11 +80,9 @@ class TotalStats:
         self.encounter_frames.append(context.frame)
 
     def append_encounter_log(self, pokemon: Pokemon) -> None:
-        state_cache.last_encounter_log = self.encounter_log.pop() if self.encounter_log else None
         self.encounter_log.append(self.get_log_obj(pokemon))
 
     def append_shiny_log(self, pokemon: Pokemon) -> None:
-        state_cache.last_shiny_log = self.shiny_log["shiny_log"].pop() if self.shiny_log["shiny_log"] else None
         self.shiny_log["shiny_log"].append(self.get_log_obj(pokemon))
         write_file(self.files["shiny_log"], json.dumps(self.shiny_log, indent=4, sort_keys=True))
 
@@ -108,13 +106,9 @@ class TotalStats:
         return self.total_stats
 
     def get_encounter_log(self) -> list:
-        if state_cache.last_encounter_log.age_in_frames == 0:
-            state_cache.last_encounter_log = self.encounter_log.pop() if self.encounter_log else None
         return list(self.encounter_log)
 
     def get_shiny_log(self) -> list:
-        if state_cache.last_shiny_log.age_in_frames == 0:
-            state_cache.last_shiny_log = self.shiny_log["shiny_log"].pop() if self.shiny_log["shiny_log"] else None
         return self.shiny_log["shiny_log"]
 
     def get_encounter_rate(self) -> int:
@@ -325,8 +319,9 @@ class TotalStats:
     def update_same_pokemon_streak_record(self, pokemon: Pokemon) -> None:
         # Same Pokémon encounter streak records
         if (
-            state_cache.last_encounter_log.value is not None
-            and state_cache.last_encounter_log.value["pokemon"]["name"] == pokemon.species_name_for_stats
+            self.encounter_log is not None
+            and len(self.encounter_log) > 0
+            and self.encounter_log[-1]["pokemon"]["name"] == pokemon.species_name_for_stats
         ):
             self.total_stats["totals"]["current_streak"] = self.total_stats["totals"].get("current_streak", 0) + 1
         else:
