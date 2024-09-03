@@ -500,7 +500,9 @@ def calculate_path(
             if neighbour is None or not is_tile_accessible(neighbour, direction, node.elevation):
                 continue
 
-            if avoid_encounters and neighbour.has_encounters:
+            if neighbour.warps_to is not None:
+                cost = 1000000
+            elif avoid_encounters and neighbour.has_encounters:
                 cost = node.current_cost + 1000
             else:
                 cost = node.current_cost + 1

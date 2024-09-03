@@ -5,7 +5,7 @@ from modules.debug import debug
 from modules.items import Item, ItemPocket, get_item_bag, get_item_by_name
 from modules.memory import GameState, get_event_flag, get_game_state, read_symbol, unpack_uint16
 from modules.menuing import StartMenuNavigator, scroll_to_item_in_bag as real_scroll_to_item
-from modules.player import get_player
+from modules.player import get_player, player_avatar_is_standing_still
 from modules.pokemon import get_party
 from modules.tasks import task_is_active
 from ._util_helper import isolate_inputs
@@ -41,17 +41,22 @@ def use_item_from_bag(item: Item) -> Generator:
     yield from scroll_to_item_in_bag(item)
 
     if context.rom.is_rs:
-        confirmation_after_use_item_task = "sub_80F9090"
+        # confirmation_after_use_item_task = "sub_80F9090"
         start_menu_task = "sub_80712B4"
     elif context.rom.is_emerald:
-        confirmation_after_use_item_task = "Task_ContinueTaskAfterMessagePrints"
+        # confirmation_after_use_item_task = "Task_ContinueTaskAfterMessagePrints"
         start_menu_task = "Task_ShowStartMenu"
     else:
-        confirmation_after_use_item_task = "Task_ContinueTaskAfterMessagePrints"
+        # confirmation_after_use_item_task = "Task_ContinueTaskAfterMessagePrints"
         start_menu_task = "Task_StartMenuHandleInput"
 
-    yield from wait_for_task_to_start_and_finish(confirmation_after_use_item_task, "A")
-    yield from wait_for_task_to_start_and_finish(start_menu_task, "B")
+    while not player_avatar_is_standing_still():
+        if task_is_active(start_menu_task):
+            yield from wait_for_task_to_start_and_finish("start_menu_task", "B")
+            break
+        else:
+            context.emulator.press_button("A")
+            yield
     yield
 
 
@@ -212,7 +217,7 @@ def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int 
     if task_is_active("Task_DuckBGMForPokemonCry"):
         for _ in range(move_index_to_replace):
             context.emulator.press_button("Down")
-            yield from wait_for_n_frames(3 if context.rom.is_rse else 15)
+            yield from wait_for_n_frames(4 if context.rom.is_rse else 15)
         context.emulator.press_button("A")
         yield
 

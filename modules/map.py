@@ -1528,11 +1528,11 @@ class ObjectEvent:
                 defeated = "(will battle)"
 
             if self.trainer_type == "Buried":
-                return f"Buried Trainer {defeated} at {self.current_coords}"
+                return f"Buried Trainer {defeated} at {self.current_coords} (ID: {self.local_id})"
             elif self.trainer_type != "None":
-                return f"Trainer {defeated} at {self.current_coords}"
+                return f"Trainer {defeated} at {self.current_coords} (ID: {self.local_id})"
         else:
-            return f"Entity at {self.current_coords}"
+            return f"Entity at {self.current_coords} (ID: {self.local_id})"
 
 
 class ObjectEventTemplate:
