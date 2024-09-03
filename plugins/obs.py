@@ -10,12 +10,11 @@ from threading import Thread
 from typing import TYPE_CHECKING
 import obsws_python as obs
 
-from modules.battle import BattleOutcome
+from modules.battle import BattleOutcome, BattleState, get_battle_state
 from modules.console import console
 from modules.context import context
 from modules.discord import discord_message
 from modules.encounter import judge_encounter
-from modules.memory import GameState, get_game_state
 from modules.modes.util import save_the_game, wait_for_n_frames
 from modules.plugin_interface import BotPlugin
 
@@ -51,15 +50,19 @@ def wait(seconds: float):
 def obs_hot_key(
     obs_key: str, pressCtrl: bool = False, pressShift: bool = False, pressAlt: bool = False, pressCmd: bool = False
 ):
-    with obs.ReqClient(
-        host=obs_websocket_ip,
-        port=obs_websocket_port,
-        password=obs_websocket_password,
-        timeout=5,
-    ) as client:
-        client.trigger_hot_key_by_key_sequence(
-            obs_key, pressCtrl=pressCtrl, pressShift=pressShift, pressAlt=pressAlt, pressCmd=pressCmd
-        )
+    try:
+        with obs.ReqClient(
+            host=obs_websocket_ip,
+            port=obs_websocket_port,
+            password=obs_websocket_password,
+            timeout=5,
+        ) as client:
+            client.trigger_hot_key_by_key_sequence(
+                obs_key, pressCtrl=pressCtrl, pressShift=pressShift, pressAlt=pressAlt, pressCmd=pressCmd
+            )
+
+    except Exception:
+        console.print_exception(show_locals=True)
 
 
 class OBSPlugin(BotPlugin):
@@ -72,7 +75,7 @@ class OBSPlugin(BotPlugin):
                 yield from wait(obs_shiny_delay)
 
             if obs_screenshot:
-                while get_game_state() != GameState.BATTLE:
+                while get_battle_state() != BattleState.ACTION_SELECTION:
                     context.emulator.press_button("B")  # Throw out Pokémon for Discord screenshot
                     yield
                 yield from wait_for_n_frames(180)
