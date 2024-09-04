@@ -36,7 +36,7 @@ You will regularly see these terms used on the stream overlay, or in chat:
 
 ## SV
   - Calculated from a Pokémon's Personality ID (PID), a Pokémon's **SV** (or **Shiny Value**) is a number between `0` and `65,535`. If this number is **less than `8`**, the Pokémon will be shiny!
-  - In Generation 4 and later, this is doubled and any number less than `16` will be shiny
+  - In Generation 6 and later, this is doubled and any number less than `16` will be shiny
   - See the [Bulbapedia page](https://bulbapedia.bulbagarden.net/wiki/Personality_value#Shininess) for more
 
 ## TID and SID
