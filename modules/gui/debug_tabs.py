@@ -1052,7 +1052,6 @@ class EmulatorTab(DebugTab):
 
     def _get_data(self):
         from modules.libmgba import input_map
-        from modules.stats import total_stats
 
         current_inputs = context.emulator.get_inputs()
         inputs_dict = {"__value": []}
@@ -1082,7 +1081,7 @@ class EmulatorTab(DebugTab):
             "Session Frame": f"{context.frame:,}",
             "Session Time at 1×": f"{session_time_at_1x}",
             "RNG Seed": hex(unpack_uint32(read_symbol("gRngValue"))),
-            "Encounters/h (at 1×)": total_stats.get_encounter_rate_at_1x(),
+            "Encounters/h (at 1×)": context.stats.encounter_rate_at_1x,
             "Currently Running Actions": debug.action_stack,
             "Debug Values": debug.debug_values,
         }

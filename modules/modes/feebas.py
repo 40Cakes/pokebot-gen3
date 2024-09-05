@@ -13,6 +13,7 @@ from ._asserts import assert_item_exists_in_bag
 from ._interface import BotMode, BotModeError
 from .util import ensure_facing_direction, fish, navigate_to, register_key_item
 from ..console import console
+from ..game_stats import get_total_number_of_battles, get_game_stat, GameStat
 from ..map import get_map_all_tiles
 
 # Bad tiles such as cliffs marked as surfable, but can't surf or fish on it
@@ -115,8 +116,8 @@ class FeebasMode(BotMode):
                 self.feebas_found = False
 
             if self.tile_checked < self.tile_threshold or self.feebas_found:
-                total_encounters = total_stats.get_total_encounters()
-                while total_encounters == total_stats.get_total_encounters():
+                total_encounters = get_game_stat(GameStat.FISHING_ENCOUNTERS)
+                while total_encounters == get_game_stat(GameStat.FISHING_ENCOUNTERS):
                     yield from fish()
                 if get_opponent().species.name == "Feebas":
                     self.checked_tiles = bad_tiles

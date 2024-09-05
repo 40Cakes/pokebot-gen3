@@ -18,7 +18,7 @@ from modules.game import _event_flags
 from modules.items import get_item_bag, get_item_storage
 from modules.libmgba import inputs_to_strings
 from modules.main import work_queue
-from modules.map import get_map_data, get_wild_encounters_for_map
+from modules.map import get_map_data
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_event_flag, get_game_state
 from modules.modes import get_bot_mode_names
@@ -27,7 +27,6 @@ from modules.pokedex import get_pokedex
 from modules.pokemon import get_party
 from modules.pokemon_storage import get_pokemon_storage
 from modules.state_cache import state_cache, StateCacheItem
-from modules.stats import total_stats
 from modules.version import pokebot_name, pokebot_version
 from modules.web.http_stream import DataSubscription, add_subscriber
 
@@ -290,10 +289,9 @@ def http_server() -> None:
             try:
                 map_data = cached_avatar.value.map_location
                 data = {
-                    "player_position": map_data.local_position,
                     "map": map_data.dict_for_map(),
+                    "player_position": map_data.local_position,
                     "tiles": map_data.dicts_for_all_tiles(),
-                    "encounters": get_wild_encounters_for_map(map_data.map_group, map_data.map_number).to_dict(),
                 }
             except (RuntimeError, TypeError):
                 data = None
@@ -342,7 +340,6 @@ def http_server() -> None:
             {
                 "map": map_data.dict_for_map(),
                 "tiles": map_data.dicts_for_all_tiles(),
-                "encounters": get_wild_encounters_for_map(map_group, map_number).to_dict(),
             }
         )
 
@@ -411,7 +408,7 @@ def http_server() -> None:
             - stats
         """
 
-        return jsonify(total_stats.get_encounter_log()[::-1])
+        return jsonify([pokemon.to_dict() for pokemon in context.stats.get_encounter_log()])
 
     @server.route("/shiny_log", methods=["GET"])
     def http_get_shiny_log():
@@ -419,13 +416,6 @@ def http_server() -> None:
         ---
         get:
           description: Returns a detailed list of all shiny Pokémon encounters.
-          parameters:
-            - in: query
-              name: limit
-              required: false
-              schema:
-                type: int
-              description: Limits the maximum number of logged shinies returned.
           responses:
             200:
               content:
@@ -434,11 +424,7 @@ def http_server() -> None:
             - stats
         """
 
-        query_limit = request.args.get("limit", default=0, type=int)
-        if query_limit and query_limit > 0:
-            return jsonify(list(reversed(total_stats.get_shiny_log()[-query_limit:])))
-
-        return jsonify(total_stats.get_shiny_log()[::-1])
+        return jsonify([phase.to_dict(encounter) for phase, encounter in context.stats.get_shiny_log()])
 
     @server.route("/encounter_rate", methods=["GET"])
     def http_get_encounter_rate():
@@ -454,29 +440,14 @@ def http_server() -> None:
             - stats
         """
 
-        return jsonify({"encounter_rate": total_stats.get_encounter_rate()})
+        return jsonify({"encounter_rate": context.stats.encounter_rate})
 
     @server.route("/stats", methods=["GET"])
     def http_get_stats():
         """
         ---
         get:
-          description: Returns Pokémon, current phase and total statistics.
-          parameters:
-            - in: query
-              name: type
-              required: false
-              schema:
-                type: string
-                enum:
-                  - pokemon
-                  - totals
-            - in: query
-              name: pokemon
-              required: false
-              schema:
-                type: string
-              description: Specify the Pokémon name to return statistics, use when `?type=pokemon`.
+          description: Returns returns current phase and total statistics.
           responses:
             200:
               content:
@@ -484,17 +455,8 @@ def http_server() -> None:
           tags:
             - stats
         """
-        query_type = request.args.get("type", type=str)
-        query_pokemon = request.args.get("pokemon", type=str)
 
-        stats = total_stats.get_total_stats()
-
-        if query_type == "pokemon":
-            if stats["pokemon"].get(query_pokemon, False):
-                return stats["pokemon"][query_pokemon]
-            else:
-                return stats["pokemon"]
-        return stats["totals"] if query_type == "totals" else jsonify(stats)
+        return jsonify(context.stats.get_total_stats())
 
     @server.route("/fps", methods=["GET"])
     def http_get_fps():

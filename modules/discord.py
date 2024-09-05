@@ -66,7 +66,6 @@ def discord_message(
 
 
 def discord_rich_presence() -> None:
-    from modules.stats import total_stats
     from asyncio import new_event_loop as new_loop, set_event_loop as set_loop
 
     set_loop(new_loop())
@@ -89,8 +88,8 @@ def discord_rich_presence() -> None:
             large_image = None
 
     while True:
-        encounter_log = total_stats.get_encounter_log()
-        totals = total_stats.get_total_stats()
+        encounter_log = context.stats.get_encounter_log()
+        totals = context.stats.get_total_stats()
         location = encounter_log[-1]["pokemon"]["metLocation"] if len(encounter_log) > 0 else "N/A"
         current_fps = context.emulator.get_current_fps()
 
@@ -98,7 +97,7 @@ def discord_rich_presence() -> None:
             state=f"{location} | {context.rom.game_name}",
             details=(
                 f"{totals.get('totals', {}).get('encounters', 0):,} ({totals.get('totals', {}).get('shiny_encounters', 0):,}✨) | "
-                f"{total_stats.get_encounter_rate():,}/h | "
+                f"{context.stats.encounter_rate:,}/h | "
                 f"{current_fps:,}fps ({current_fps / 59.727500569606:0.2f}x)"
             ),
             large_image=large_image,

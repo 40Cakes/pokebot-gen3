@@ -1,9 +1,10 @@
+import importlib
 from enum import Enum, auto
 from pathlib import Path
+from typing import Callable
 
 from modules.console import console
 from modules.context import context
-from modules.plugins import plugin_judge_encounter
 from modules.files import save_pk3, make_string_safe_for_file_name
 from modules.gui.desktop_notification import desktop_notification
 from modules.memory import get_game_state, GameState
@@ -31,12 +32,21 @@ def shiny_encounter_gif() -> Path | None:
     return None
 
 
-def run_custom_catch_filters(pokemon: Pokemon) -> str | bool:
-    from modules.stats import total_stats
+_custom_catch_filters: Callable[[Pokemon], str | bool] | None = None
 
-    result = total_stats.custom_catch_filters(pokemon)
-    if result is False:
-        result = plugin_judge_encounter(pokemon)
+
+def run_custom_catch_filters(pokemon: Pokemon) -> str | bool:
+    global _custom_catch_filters
+    if _custom_catch_filters is None:
+        if (context.profile.path / "customcatchfilters.py").is_file():
+            module = importlib.import_module(".customcatchfilters", f"profiles.{context.profile.path.name}")
+            _custom_catch_filters = module.custom_catch_filters
+        else:
+            from profiles.customcatchfilters import custom_catch_filters
+
+            _custom_catch_filters = custom_catch_filters
+
+    result = _custom_catch_filters(pokemon)
     if result is True:
         result = "Matched a custom catch filter"
     return result
@@ -94,11 +104,8 @@ def judge_encounter(pokemon: Pokemon) -> EncounterValue:
 def log_encounter(
     pokemon: Pokemon, action: BattleAction | None = None, gif_path: Path | None = None, tcg_path: Path | None = None
 ) -> None:
-    from modules.stats import total_stats
-
-    total_stats.log_encounter(
-        pokemon, context.config.catch_block.block_list, run_custom_catch_filters(pokemon), gif_path, tcg_path
-    )
+    ccf_result = run_custom_catch_filters(pokemon)
+    context.stats.log_encounter(pokemon, ccf_result)
     if context.config.logging.save_pk3.all:
         save_pk3(pokemon)
 

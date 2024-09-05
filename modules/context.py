@@ -2,6 +2,7 @@ import os
 import shutil
 from typing import Generator, Optional, TYPE_CHECKING
 
+from modules.config import Config
 from modules.runtime import get_base_path
 
 if TYPE_CHECKING:
@@ -10,8 +11,7 @@ if TYPE_CHECKING:
     from modules.modes import BotMode
     from modules.profiles import Profile
     from modules.roms import ROM
-
-from modules.config import Config
+    from modules.stats import StatsDatabase
 
 
 def _initialise_config() -> None:
@@ -45,6 +45,7 @@ class BotContext:
         self.emulator: Optional["LibmgbaEmulator"] = None
         self.gui: Optional["PokebotGui"] = None
         self.profile: Optional["Profile"] = None
+        self.stats: Optional["StatsDatabase"] = None
         self.debug: bool = False
 
         self._current_message: str = ""

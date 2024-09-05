@@ -2,6 +2,7 @@ from enum import IntEnum
 from typing import Generator
 
 from modules.context import context
+from modules.game_stats import get_game_stat, GameStat
 from modules.items import Item, get_item_bag
 from modules.memory import GameState, get_event_flag, get_game_state, read_symbol, unpack_uint16
 from modules.menu_parsers import (
@@ -639,14 +640,12 @@ class CheckForPickup(BaseMenuNavigator):
                     self.picked_up_items.append(mon.held_item)
 
     def check_pickup_threshold(self):
-        from modules.stats import total_stats
-
         if context.config.cheats.faster_pickup:
             self.check_threshold_met = True
             self.checked = True
         else:
             self.check_threshold_met = (
-                total_stats.get_session_encounters() % context.config.battle.pickup_check_frequency == 0
+                get_game_stat(GameStat.TOTAL_BATTLES) % context.config.battle.pickup_check_frequency == 0
             )
         self.get_pokemon_with_pickup_and_item()
         if context.config.battle.pickup_threshold > self.pokemon_with_pickup > 0:
@@ -659,7 +658,7 @@ class CheckForPickup(BaseMenuNavigator):
             threshold = context.config.battle.pickup_threshold
         self.pickup_threshold_met = self.check_threshold_met and len(self.pokemon_with_pickup_and_item) >= threshold
         if self.pickup_threshold_met:
-            total_stats.update_pickup_items(self.picked_up_items)
+            context.stats.log_pickup_items(self.picked_up_items)
             context.message = "Pickup threshold is met! Gathering items..."
 
     def open_party_menu(self):
@@ -805,11 +804,9 @@ class MenuWrapper:
 
 
 def should_check_for_pickup():
-    from modules.stats import total_stats
-
     if (
         context.config.cheats.faster_pickup
-        or total_stats.get_session_encounters() % context.config.battle.pickup_check_frequency == 0
+        or get_game_stat(GameStat.TOTAL_BATTLES) % context.config.battle.pickup_check_frequency == 0
     ):
         return True
     return False
