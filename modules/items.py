@@ -63,6 +63,13 @@ class Item:
     pocket: ItemPocket
     parameter: int
     extra_parameter: int
+    tm_hm_move_id: int | None
+
+    @property
+    def tm_hm_move(self) -> "Move | None":
+        from modules.pokemon import get_move_by_index
+
+        return get_move_by_index(self.tm_hm_move_id) if self.tm_hm_move_id is not None else None
 
     @classmethod
     def from_dict(cls, index: int, data: dict) -> "Item":
@@ -80,6 +87,7 @@ class Item:
             pocket=ItemPocket(data["pocket"]),
             parameter=data["parameter"],
             extra_parameter=data["extra_parameter"],
+            tm_hm_move_id=data["tm_hm_move_id"],
         )
 
 
@@ -307,19 +315,22 @@ class ItemStorage:
         return [s.to_dict() for s in self.items]
 
 
-def _load_items() -> tuple[dict[str, Item], list[Item]]:
+def _load_items() -> tuple[dict[str, Item], list[Item], dict[int, Item]]:
     by_name: dict[str, Item] = {}
     by_index: list[Item] = []
+    by_move_id: dict[int, Item] = {}
     with open(get_data_path() / "items.json", "r") as file:
         items_data = json.load(file)
         for index in range(len(items_data)):
             item = Item.from_dict(index, items_data[index])
             by_name[item.name] = item
             by_index.append(item)
-    return by_name, by_index
+            if item.tm_hm_move_id:
+                by_move_id[item.tm_hm_move_id] = item
+    return by_name, by_index, by_move_id
 
 
-_items_by_name, _items_by_index = _load_items()
+_items_by_name, _items_by_index, _items_by_move_id = _load_items()
 
 
 def get_item_by_name(name: str) -> Item:
@@ -328,6 +339,10 @@ def get_item_by_name(name: str) -> Item:
 
 def get_item_by_index(index: int) -> Item:
     return _items_by_index[index]
+
+
+def get_item_by_move_id(move_id: int) -> Item | None:
+    return _items_by_move_id.get(move_id, None)
 
 
 def get_item_bag() -> ItemBag:
