@@ -296,9 +296,7 @@ class EmulatorControls:
         if current_fps:
             stats.append(f"{current_fps:,}fps ({current_fps / 59.727500569606:0.2f}x)")
         if context.profile:
-            from modules.stats import total_stats
-
-            stats.append(f"{total_stats.get_encounter_rate():,}/h")
+            stats.append(f"{context.stats.encounter_rate:,}/h")
         if context.debug:
             stats.append(f"{round(current_load * 100, 1)}%")
         self.stats_label.config(text=" | ".join(stats))

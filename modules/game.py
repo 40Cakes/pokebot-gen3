@@ -346,3 +346,14 @@ def decode_string(
             # Actual printable characters
             string += character_table[i]
     return string
+
+
+def encode_string(string: str) -> bytes:
+    result = b""
+    for index in range(len(string)):
+        character = string[index]
+        if character not in _character_table_international:
+            raise ValueError(f"Cannot encode '{character}'.")
+        code = _character_table_international.index(character)
+        result += int.to_bytes(code)
+    return result

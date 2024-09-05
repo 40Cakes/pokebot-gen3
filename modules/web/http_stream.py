@@ -14,7 +14,6 @@ from modules.player import get_player, get_player_avatar
 from modules.pokedex import get_pokedex
 from modules.pokemon import get_opponent, get_party
 from modules.state_cache import state_cache
-from modules.stats import total_stats
 
 update_interval_in_ms = 1000 / 60
 queue_size = 10
@@ -123,7 +122,7 @@ def run_watcher():
                     "fps": context.emulator.get_current_fps(),
                     "frame_count": context.emulator.get_frame_count(),
                     "current_time_spent_in_bot_fraction": context.emulator.get_current_time_spent_in_bot_fraction(),
-                    "encounter_rate": total_stats.get_encounter_rate(),
+                    "encounter_rate": context.stats.encounter_rate,
                 },
                 event_type="PerformanceData",
             )
