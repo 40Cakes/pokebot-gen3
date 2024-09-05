@@ -15,6 +15,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "--",
             "E": "-",
@@ -48,6 +49,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "PFUND",
             "E": "POUND",
@@ -81,6 +83,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "KARATESCHLAG",
             "E": "KARATE CHOP",
@@ -114,6 +117,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "DUPLEXHIEB",
             "E": "DOUBLESLAP",
@@ -147,6 +151,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "KOMETENHIEB",
             "E": "COMET PUNCH",
@@ -180,6 +185,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "MEGAHIEB",
             "E": "MEGA PUNCH",
@@ -213,6 +219,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "ZAHLTAG",
             "E": "PAY DAY",
@@ -246,6 +253,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "FEUERSCHLAG",
             "E": "FIRE PUNCH",
@@ -279,6 +287,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "EISHIEB",
             "E": "ICE PUNCH",
@@ -312,6 +321,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "DONNERSCHLAG",
             "E": "THUNDERPUNCH",
@@ -345,6 +355,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "KRATZER",
             "E": "SCRATCH",
@@ -378,6 +389,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "KLAMMER",
             "E": "VICEGRIP",
@@ -411,6 +423,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GUILLOTINE",
             "E": "GUILLOTINE",
@@ -444,6 +457,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "KLINGENSTURM",
             "E": "RAZOR WIND",
@@ -477,6 +491,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCHWERTTANZ",
             "E": "SWORDS DANCE",
@@ -510,6 +525,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "HM01",
         "localised_names": {
             "D": "ZERSCHNEIDER",
             "E": "CUT",
@@ -543,6 +559,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "WINDSTOSS",
             "E": "GUST",
@@ -576,6 +593,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "FL\u00dcGELSCHLAG",
             "E": "WING ATTACK",
@@ -609,6 +627,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "WIRBELWIND",
             "E": "WHIRLWIND",
@@ -642,6 +661,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "HM02",
         "localised_names": {
             "D": "FLIEGEN",
             "E": "FLY",
@@ -675,6 +695,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "KLAMMERGRIFF",
             "E": "BIND",
@@ -708,6 +729,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "SLAM",
             "E": "SLAM",
@@ -741,6 +763,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "RANKENHIEB",
             "E": "VINE WHIP",
@@ -774,6 +797,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "STAMPFER",
             "E": "STOMP",
@@ -807,6 +831,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "DOPPELKICK",
             "E": "DOUBLE KICK",
@@ -840,6 +865,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "MEGAKICK",
             "E": "MEGA KICK",
@@ -873,6 +899,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "SPRUNGKICK",
             "E": "JUMP KICK",
@@ -906,6 +933,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "FEGEKICK",
             "E": "ROLLING KICK",
@@ -939,6 +967,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SANDWIRBEL",
             "E": "SAND-ATTACK",
@@ -972,6 +1001,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "KOPFNUSS",
             "E": "HEADBUTT",
@@ -1005,6 +1035,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "HORNATTACKE",
             "E": "HORN ATTACK",
@@ -1038,6 +1069,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "FURIENSCHLAG",
             "E": "FURY ATTACK",
@@ -1071,6 +1103,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "HORNBOHRER",
             "E": "HORN DRILL",
@@ -1104,6 +1137,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "TACKLE",
             "E": "TACKLE",
@@ -1137,6 +1171,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "BODYSLAM",
             "E": "BODY SLAM",
@@ -1170,6 +1205,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "WICKEL",
             "E": "WRAP",
@@ -1203,6 +1239,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "BODYCHECK",
             "E": "TAKE DOWN",
@@ -1236,6 +1273,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "FUCHTLER",
             "E": "THRASH",
@@ -1269,6 +1307,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "RISIKOTACKLE",
             "E": "DOUBLE-EDGE",
@@ -1302,6 +1341,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "RUTENSCHLAG",
             "E": "TAIL WHIP",
@@ -1335,6 +1375,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GIFTSTACHEL",
             "E": "POISON STING",
@@ -1368,6 +1409,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "DUONADEL",
             "E": "TWINEEDLE",
@@ -1401,6 +1443,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "NADELRAKETE",
             "E": "PIN MISSILE",
@@ -1434,6 +1477,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SILBERBLICK",
             "E": "LEER",
@@ -1467,6 +1511,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "BISS",
             "E": "BITE",
@@ -1500,6 +1545,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "HEULER",
             "E": "GROWL",
@@ -1533,6 +1579,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM05",
         "localised_names": {
             "D": "BR\u00dcLLER",
             "E": "ROAR",
@@ -1566,6 +1613,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GESANG",
             "E": "SING",
@@ -1599,6 +1647,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SUPERSCHALL",
             "E": "SUPERSONIC",
@@ -1632,6 +1681,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "ULTRASCHALL",
             "E": "SONICBOOM",
@@ -1665,6 +1715,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "AUSSETZER",
             "E": "DISABLE",
@@ -1698,6 +1749,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "S\u00c4URE",
             "E": "ACID",
@@ -1731,6 +1783,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GLUT",
             "E": "EMBER",
@@ -1764,6 +1817,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM35",
         "localised_names": {
             "D": "FLAMMENWURF",
             "E": "FLAMETHROWER",
@@ -1797,6 +1851,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "WEISSNEBEL",
             "E": "MIST",
@@ -1830,6 +1885,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "AQUAKNARRE",
             "E": "WATER GUN",
@@ -1863,6 +1919,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "HYDROPUMPE",
             "E": "HYDRO PUMP",
@@ -1896,6 +1953,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "HM03",
         "localised_names": {
             "D": "SURFER",
             "E": "SURF",
@@ -1929,6 +1987,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM13",
         "localised_names": {
             "D": "EISSTRAHL",
             "E": "ICE BEAM",
@@ -1962,6 +2021,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM14",
         "localised_names": {
             "D": "BLIZZARD",
             "E": "BLIZZARD",
@@ -1995,6 +2055,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "PSYSTRAHL",
             "E": "PSYBEAM",
@@ -2028,6 +2089,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "BLUBBSTRAHL",
             "E": "BUBBLEBEAM",
@@ -2061,6 +2123,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "AURORASTRAHL",
             "E": "AURORA BEAM",
@@ -2094,6 +2157,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM15",
         "localised_names": {
             "D": "HYPERSTRAHL",
             "E": "HYPER BEAM",
@@ -2127,6 +2191,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCHNABEL",
             "E": "PECK",
@@ -2160,6 +2225,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "BOHRSCHNABEL",
             "E": "DRILL PECK",
@@ -2193,6 +2259,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "\u00dcBERROLLER",
             "E": "SUBMISSION",
@@ -2226,6 +2293,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "FUSSKICK",
             "E": "LOW KICK",
@@ -2259,6 +2327,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "KONTER",
             "E": "COUNTER",
@@ -2292,6 +2361,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "GEOWURF",
             "E": "SEISMIC TOSS",
@@ -2325,6 +2395,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "HM04",
         "localised_names": {
             "D": "ST\u00c4RKE",
             "E": "STRENGTH",
@@ -2358,6 +2429,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "ABSORBER",
             "E": "ABSORB",
@@ -2391,6 +2463,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "MEGASAUGER",
             "E": "MEGA DRAIN",
@@ -2424,6 +2497,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "EGELSAMEN",
             "E": "LEECH SEED",
@@ -2457,6 +2531,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "WACHSTUM",
             "E": "GROWTH",
@@ -2490,6 +2565,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "RASIERBLATT",
             "E": "RAZOR LEAF",
@@ -2523,6 +2599,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM22",
         "localised_names": {
             "D": "SOLARSTRAHL",
             "E": "SOLARBEAM",
@@ -2556,6 +2633,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GIFTPUDER",
             "E": "POISONPOWDER",
@@ -2589,6 +2667,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "STACHELSPORE",
             "E": "STUN SPORE",
@@ -2622,6 +2701,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCHLAFPUDER",
             "E": "SLEEP POWDER",
@@ -2655,6 +2735,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "BL\u00c4TTERTANZ",
             "E": "PETAL DANCE",
@@ -2688,6 +2769,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "FADENSCHUSS",
             "E": "STRING SHOT",
@@ -2721,6 +2803,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "DRACHENWUT",
             "E": "DRAGON RAGE",
@@ -2754,6 +2837,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "FEUERWIRBEL",
             "E": "FIRE SPIN",
@@ -2787,6 +2871,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "DONNERSCHOCK",
             "E": "THUNDERSHOCK",
@@ -2820,6 +2905,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM24",
         "localised_names": {
             "D": "DONNERBLITZ",
             "E": "THUNDERBOLT",
@@ -2853,6 +2939,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "DONNERWELLE",
             "E": "THUNDER WAVE",
@@ -2886,6 +2973,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM25",
         "localised_names": {
             "D": "DONNER",
             "E": "THUNDER",
@@ -2919,6 +3007,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "STEINWURF",
             "E": "ROCK THROW",
@@ -2952,6 +3041,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM26",
         "localised_names": {
             "D": "ERDBEBEN",
             "E": "EARTHQUAKE",
@@ -2985,6 +3075,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GEOFISSUR",
             "E": "FISSURE",
@@ -3018,6 +3109,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM28",
         "localised_names": {
             "D": "SCHAUFLER",
             "E": "DIG",
@@ -3051,6 +3143,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM06",
         "localised_names": {
             "D": "TOXIN",
             "E": "TOXIC",
@@ -3084,6 +3177,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "KONFUSION",
             "E": "CONFUSION",
@@ -3117,6 +3211,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM29",
         "localised_names": {
             "D": "PSYCHOKINESE",
             "E": "PSYCHIC",
@@ -3150,6 +3245,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "HYPNOSE",
             "E": "HYPNOSIS",
@@ -3183,6 +3279,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "MEDITATION",
             "E": "MEDITATE",
@@ -3216,6 +3313,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "AGILIT\u00c4T",
             "E": "AGILITY",
@@ -3249,6 +3347,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "RUCKZUCKHIEB",
             "E": "QUICK ATTACK",
@@ -3282,6 +3381,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "RASEREI",
             "E": "RAGE",
@@ -3315,6 +3415,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "TELEPORT",
             "E": "TELEPORT",
@@ -3348,6 +3449,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "NACHTNEBEL",
             "E": "NIGHT SHADE",
@@ -3381,6 +3483,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "MIMIKRY",
             "E": "MIMIC",
@@ -3414,6 +3517,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "KREIDESCHREI",
             "E": "SCREECH",
@@ -3447,6 +3551,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM32",
         "localised_names": {
             "D": "DOPPELTEAM",
             "E": "DOUBLE TEAM",
@@ -3480,6 +3585,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GENESUNG",
             "E": "RECOVER",
@@ -3513,6 +3619,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "H\u00c4RTNER",
             "E": "HARDEN",
@@ -3546,6 +3653,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "KOMPRIMATOR",
             "E": "MINIMIZE",
@@ -3579,6 +3687,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "RAUCHWOLKE",
             "E": "SMOKESCREEN",
@@ -3612,6 +3721,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "KONFUSTRAHL",
             "E": "CONFUSE RAY",
@@ -3645,6 +3755,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "PANZERSCHUTZ",
             "E": "WITHDRAW",
@@ -3678,6 +3789,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "EINIGLER",
             "E": "DEFENSE CURL",
@@ -3711,6 +3823,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "BARRIERE",
             "E": "BARRIER",
@@ -3744,6 +3857,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM16",
         "localised_names": {
             "D": "LICHTSCHILD",
             "E": "LIGHT SCREEN",
@@ -3777,6 +3891,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "DUNKELNEBEL",
             "E": "HAZE",
@@ -3810,6 +3925,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM33",
         "localised_names": {
             "D": "REFLEKTOR",
             "E": "REFLECT",
@@ -3843,6 +3959,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "ENERGIEFOKUS",
             "E": "FOCUS ENERGY",
@@ -3876,6 +3993,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "GEDULD",
             "E": "BIDE",
@@ -3909,6 +4027,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "METRONOM",
             "E": "METRONOME",
@@ -3942,6 +4061,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SPIEGELTRICK",
             "E": "MIRROR MOVE",
@@ -3975,6 +4095,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "FINALE",
             "E": "SELFDESTRUCT",
@@ -4008,6 +4129,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "EIERBOMBE",
             "E": "EGG BOMB",
@@ -4041,6 +4163,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCHLECKER",
             "E": "LICK",
@@ -4074,6 +4197,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SMOG",
             "E": "SMOG",
@@ -4107,6 +4231,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCHLAMMBAD",
             "E": "SLUDGE",
@@ -4140,6 +4265,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "KNOCHENKEULE",
             "E": "BONE CLUB",
@@ -4173,6 +4299,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM38",
         "localised_names": {
             "D": "FEUERSTURM",
             "E": "FIRE BLAST",
@@ -4206,6 +4333,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "HM07",
         "localised_names": {
             "D": "KASKADE",
             "E": "WATERFALL",
@@ -4239,6 +4367,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCHNAPPER",
             "E": "CLAMP",
@@ -4272,6 +4401,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "STERNSCHAUER",
             "E": "SWIFT",
@@ -4305,6 +4435,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCH\u00c4DELWUMME",
             "E": "SKULL BASH",
@@ -4338,6 +4469,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "DORNKANONE",
             "E": "SPIKE CANNON",
@@ -4371,6 +4503,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "UMKLAMMERUNG",
             "E": "CONSTRICT",
@@ -4404,6 +4537,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "AMNESIE",
             "E": "AMNESIA",
@@ -4437,6 +4571,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "PSYKRAFT",
             "E": "KINESIS",
@@ -4470,6 +4605,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "WEICHEI",
             "E": "SOFTBOILED",
@@ -4503,6 +4639,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "TURMKICK",
             "E": "HI JUMP KICK",
@@ -4536,6 +4673,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GIFTBLICK",
             "E": "GLARE",
@@ -4569,6 +4707,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "TRAUMFRESSER",
             "E": "DREAM EATER",
@@ -4602,6 +4741,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GIFTWOLKE",
             "E": "POISON GAS",
@@ -4635,6 +4775,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "STAKKATO",
             "E": "BARRAGE",
@@ -4668,6 +4809,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "BLUTSAUGER",
             "E": "LEECH LIFE",
@@ -4701,6 +4843,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "TODESKUSS",
             "E": "LOVELY KISS",
@@ -4734,6 +4877,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "HIMMELSFEGER",
             "E": "SKY ATTACK",
@@ -4767,6 +4911,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "WANDLER",
             "E": "TRANSFORM",
@@ -4800,6 +4945,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "BLUBBER",
             "E": "BUBBLE",
@@ -4833,6 +4979,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "IRRSCHLAG",
             "E": "DIZZY PUNCH",
@@ -4866,6 +5013,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "PILZSPORE",
             "E": "SPORE",
@@ -4899,6 +5047,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "HM05",
         "localised_names": {
             "D": "BLITZ",
             "E": "FLASH",
@@ -4932,6 +5081,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "PSYWELLE",
             "E": "PSYWAVE",
@@ -4965,6 +5115,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "PLATSCHER",
             "E": "SPLASH",
@@ -4998,6 +5149,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "S\u00c4UREPANZER",
             "E": "ACID ARMOR",
@@ -5031,6 +5183,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "KRABBHAMMER",
             "E": "CRABHAMMER",
@@ -5064,6 +5217,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "EXPLOSION",
             "E": "EXPLOSION",
@@ -5097,6 +5251,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "KRATZFURIE",
             "E": "FURY SWIPES",
@@ -5130,6 +5285,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "KNOCHMERANG",
             "E": "BONEMERANG",
@@ -5163,6 +5319,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM44",
         "localised_names": {
             "D": "ERHOLUNG",
             "E": "REST",
@@ -5196,6 +5353,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "STEINHAGEL",
             "E": "ROCK SLIDE",
@@ -5229,6 +5387,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "HYPERZAHN",
             "E": "HYPER FANG",
@@ -5262,6 +5421,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCH\u00c4RFER",
             "E": "SHARPEN",
@@ -5295,6 +5455,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "UMWANDLUNG",
             "E": "CONVERSION",
@@ -5328,6 +5489,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "TRIPLETTE",
             "E": "TRI ATTACK",
@@ -5361,6 +5523,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SUPERZAHN",
             "E": "SUPER FANG",
@@ -5394,6 +5557,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCHLITZER",
             "E": "SLASH",
@@ -5427,6 +5591,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "DELEGATOR",
             "E": "SUBSTITUTE",
@@ -5460,6 +5625,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "VERZWEIFLER",
             "E": "STRUGGLE",
@@ -5493,6 +5659,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "NACHAHMER",
             "E": "SKETCH",
@@ -5526,6 +5693,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "DREIFACHKICK",
             "E": "TRIPLE KICK",
@@ -5559,6 +5727,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM46",
         "localised_names": {
             "D": "RAUB",
             "E": "THIEF",
@@ -5592,6 +5761,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SPINNENNETZ",
             "E": "SPIDER WEB",
@@ -5625,6 +5795,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "WILLENSLESER",
             "E": "MIND READER",
@@ -5658,6 +5829,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "NACHTMAHR",
             "E": "NIGHTMARE",
@@ -5691,6 +5863,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "FLAMMENRAD",
             "E": "FLAME WHEEL",
@@ -5724,6 +5897,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCHNARCHER",
             "E": "SNORE",
@@ -5757,6 +5931,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "FLUCH",
             "E": "CURSE",
@@ -5790,6 +5965,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "DRESCHFLEGEL",
             "E": "FLAIL",
@@ -5823,6 +5999,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "UMWANDLUNG2",
             "E": "CONVERSION 2",
@@ -5856,6 +6033,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "LUFTSTOSS",
             "E": "AEROBLAST",
@@ -5889,6 +6067,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "BAUMWOLLSAAT",
             "E": "COTTON SPORE",
@@ -5922,6 +6101,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "GEGENSCHLAG",
             "E": "REVERSAL",
@@ -5955,6 +6135,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GROLL",
             "E": "SPITE",
@@ -5988,6 +6169,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "PULVERSCHNEE",
             "E": "POWDER SNOW",
@@ -6021,6 +6203,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM17",
         "localised_names": {
             "D": "SCHUTZSCHILD",
             "E": "PROTECT",
@@ -6054,6 +6237,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "TEMPOHIEB",
             "E": "MACH PUNCH",
@@ -6087,6 +6271,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GRIMASSE",
             "E": "SCARY FACE",
@@ -6120,6 +6305,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "FINTE",
             "E": "FAINT ATTACK",
@@ -6153,6 +6339,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "BITTERKUSS",
             "E": "SWEET KISS",
@@ -6186,6 +6373,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "BAUCHTROMMEL",
             "E": "BELLY DRUM",
@@ -6219,6 +6407,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM36",
         "localised_names": {
             "D": "MATSCHBOMBE",
             "E": "SLUDGE BOMB",
@@ -6252,6 +6441,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "LEHMSCHELLE",
             "E": "MUD-SLAP",
@@ -6285,6 +6475,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "OCTAZOOKA",
             "E": "OCTAZOOKA",
@@ -6318,6 +6509,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "STACHLER",
             "E": "SPIKES",
@@ -6351,6 +6543,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "BLITZKANONE",
             "E": "ZAP CANNON",
@@ -6384,6 +6577,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GESICHTE",
             "E": "FORESIGHT",
@@ -6417,6 +6611,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "ABGANGSBUND",
             "E": "DESTINY BOND",
@@ -6450,6 +6645,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "ABGESANG",
             "E": "PERISH SONG",
@@ -6483,6 +6679,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "EISSTURM",
             "E": "ICY WIND",
@@ -6516,6 +6713,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCANNER",
             "E": "DETECT",
@@ -6549,6 +6747,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "KNOCHENHATZ",
             "E": "BONE RUSH",
@@ -6582,6 +6781,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "ZIELSCHUSS",
             "E": "LOCK-ON",
@@ -6615,6 +6815,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "WUTANFALL",
             "E": "OUTRAGE",
@@ -6648,6 +6849,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM37",
         "localised_names": {
             "D": "SANDSTURM",
             "E": "SANDSTORM",
@@ -6681,6 +6883,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM19",
         "localised_names": {
             "D": "GIGASAUGER",
             "E": "GIGA DRAIN",
@@ -6714,6 +6917,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "AUSDAUER",
             "E": "ENDURE",
@@ -6747,6 +6951,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "CHARME",
             "E": "CHARM",
@@ -6780,6 +6985,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "WALZER",
             "E": "ROLLOUT",
@@ -6813,6 +7019,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "TRUGSCHLAG",
             "E": "FALSE SWIPE",
@@ -6846,6 +7053,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "ANGEBEREI",
             "E": "SWAGGER",
@@ -6879,6 +7087,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "MILCHGETR\u00c4NK",
             "E": "MILK DRINK",
@@ -6912,6 +7121,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "FUNKENSPRUNG",
             "E": "SPARK",
@@ -6945,6 +7155,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "ZORNKLINGE",
             "E": "FURY CUTTER",
@@ -6978,6 +7189,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM47",
         "localised_names": {
             "D": "STAHLFL\u00dcGEL",
             "E": "STEEL WING",
@@ -7011,6 +7223,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "HORRORBLICK",
             "E": "MEAN LOOK",
@@ -7044,6 +7257,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM45",
         "localised_names": {
             "D": "ANZIEHUNG",
             "E": "ATTRACT",
@@ -7077,6 +7291,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCHLAFREDE",
             "E": "SLEEP TALK",
@@ -7110,6 +7325,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "VITALGLOCKE",
             "E": "HEAL BELL",
@@ -7143,6 +7359,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM27",
         "localised_names": {
             "D": "R\u00dcCKKEHR",
             "E": "RETURN",
@@ -7176,6 +7393,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GESCHENK",
             "E": "PRESENT",
@@ -7209,6 +7427,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM21",
         "localised_names": {
             "D": "FRUSTRATION",
             "E": "FRUSTRATION",
@@ -7242,6 +7461,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM20",
         "localised_names": {
             "D": "BODYGUARD",
             "E": "SAFEGUARD",
@@ -7275,6 +7495,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "LEIDTEILER",
             "E": "PAIN SPLIT",
@@ -7308,6 +7529,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "L\u00c4UTERFEUER",
             "E": "SACRED FIRE",
@@ -7341,6 +7563,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "INTENSIT\u00c4T",
             "E": "MAGNITUDE",
@@ -7374,6 +7597,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "WUCHTSCHLAG",
             "E": "DYNAMICPUNCH",
@@ -7407,6 +7631,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "VIELENDER",
             "E": "MEGAHORN",
@@ -7440,6 +7665,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "FEUERODEM",
             "E": "DRAGONBREATH",
@@ -7473,6 +7699,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "STAFFETTE",
             "E": "BATON PASS",
@@ -7506,6 +7733,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "ZUGABE",
             "E": "ENCORE",
@@ -7539,6 +7767,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "VERFOLGUNG",
             "E": "PURSUIT",
@@ -7572,6 +7801,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "TURBODREHER",
             "E": "RAPID SPIN",
@@ -7605,6 +7835,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "LOCKDUFT",
             "E": "SWEET SCENT",
@@ -7638,6 +7869,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM23",
         "localised_names": {
             "D": "EISENSCHWEIF",
             "E": "IRON TAIL",
@@ -7671,6 +7903,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "METALLKLAUE",
             "E": "METAL CLAW",
@@ -7704,6 +7937,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "\u00dcBERWURF",
             "E": "VITAL THROW",
@@ -7737,6 +7971,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "MORGENGRAUEN",
             "E": "MORNING SUN",
@@ -7770,6 +8005,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SYNTHESE",
             "E": "SYNTHESIS",
@@ -7803,6 +8039,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "MONDSCHEIN",
             "E": "MOONLIGHT",
@@ -7836,6 +8073,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM10",
         "localised_names": {
             "D": "KRAFTRESERVE",
             "E": "HIDDEN POWER",
@@ -7869,6 +8107,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "KREUZHIEB",
             "E": "CROSS CHOP",
@@ -7902,6 +8141,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "WINDHOSE",
             "E": "TWISTER",
@@ -7935,6 +8175,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM18",
         "localised_names": {
             "D": "REGENTANZ",
             "E": "RAIN DANCE",
@@ -7968,6 +8209,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM11",
         "localised_names": {
             "D": "SONNENTAG",
             "E": "SUNNY DAY",
@@ -8001,6 +8243,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "KNIRSCHER",
             "E": "CRUNCH",
@@ -8034,6 +8277,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SPIEGELCAPE",
             "E": "MIRROR COAT",
@@ -8067,6 +8311,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "PSYCHO-PLUS",
             "E": "PSYCH UP",
@@ -8100,6 +8345,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "TURBOTEMPO",
             "E": "EXTREMESPEED",
@@ -8133,6 +8379,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "ANTIK-KRAFT",
             "E": "ANCIENTPOWER",
@@ -8166,6 +8413,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM30",
         "localised_names": {
             "D": "SPUKBALL",
             "E": "SHADOW BALL",
@@ -8199,6 +8447,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SEHER",
             "E": "FUTURE SIGHT",
@@ -8232,6 +8481,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "HM06",
         "localised_names": {
             "D": "ZERTR\u00dcMMERER",
             "E": "ROCK SMASH",
@@ -8265,6 +8515,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "WHIRLPOOL",
             "E": "WHIRLPOOL",
@@ -8298,6 +8549,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "PR\u00dcGLER",
             "E": "BEAT UP",
@@ -8331,6 +8583,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "MOGELHIEB",
             "E": "FAKE OUT",
@@ -8364,6 +8617,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "AUFRUHR",
             "E": "UPROAR",
@@ -8397,6 +8651,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "HORTER",
             "E": "STOCKPILE",
@@ -8430,6 +8685,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "ENTFESSLER",
             "E": "SPIT UP",
@@ -8463,6 +8719,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "VERZEHRER",
             "E": "SWALLOW",
@@ -8496,6 +8753,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "HITZEWELLE",
             "E": "HEAT WAVE",
@@ -8529,6 +8787,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM07",
         "localised_names": {
             "D": "HAGELSTURM",
             "E": "HAIL",
@@ -8562,6 +8821,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM41",
         "localised_names": {
             "D": "FOLTERKNECHT",
             "E": "TORMENT",
@@ -8595,6 +8855,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCHMEICHLER",
             "E": "FLATTER",
@@ -8628,6 +8889,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "IRRLICHT",
             "E": "WILL-O-WISP",
@@ -8661,6 +8923,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "MEMENTO-MORI",
             "E": "MEMENTO",
@@ -8694,6 +8957,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM42",
         "localised_names": {
             "D": "FASSADE",
             "E": "FACADE",
@@ -8727,6 +8991,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM01",
         "localised_names": {
             "D": "POWER-PUNCH",
             "E": "FOCUS PUNCH",
@@ -8760,6 +9025,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "RIECHSALZ",
             "E": "SMELLINGSALT",
@@ -8793,6 +9059,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SPOTLIGHT",
             "E": "FOLLOW ME",
@@ -8826,6 +9093,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "NATUR-KRAFT",
             "E": "NATURE POWER",
@@ -8859,6 +9127,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "LADEVORGANG",
             "E": "CHARGE",
@@ -8892,6 +9161,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM12",
         "localised_names": {
             "D": "VERH\u00d6HNER",
             "E": "TAUNT",
@@ -8925,6 +9195,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "RECHTE HAND",
             "E": "HELPING HAND",
@@ -8958,6 +9229,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "TRICKBETRUG",
             "E": "TRICK",
@@ -8991,6 +9263,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "ROLLENTAUSCH",
             "E": "ROLE PLAY",
@@ -9024,6 +9297,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "WUNSCHTRAUM",
             "E": "WISH",
@@ -9057,6 +9331,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "ZUSCHUSS",
             "E": "ASSIST",
@@ -9090,6 +9365,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "VERWURZLER",
             "E": "INGRAIN",
@@ -9123,6 +9399,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "KRAFTKOLOSS",
             "E": "SUPERPOWER",
@@ -9156,6 +9433,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "MAGIEMANTEL",
             "E": "MAGIC COAT",
@@ -9189,6 +9467,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "AUFBEREITUNG",
             "E": "RECYCLE",
@@ -9222,6 +9501,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "VERGELTUNG",
             "E": "REVENGE",
@@ -9255,6 +9535,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM31",
         "localised_names": {
             "D": "DURCHBRUCH",
             "E": "BRICK BREAK",
@@ -9288,6 +9569,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "G\u00c4HNER",
             "E": "YAWN",
@@ -9321,6 +9603,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "ABSCHLAG",
             "E": "KNOCK OFF",
@@ -9354,6 +9637,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "NOTSITUATION",
             "E": "ENDEAVOR",
@@ -9387,6 +9671,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "ERUPTION",
             "E": "ERUPTION",
@@ -9420,6 +9705,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM48",
         "localised_names": {
             "D": "WERTEWECHSEL",
             "E": "SKILL SWAP",
@@ -9453,6 +9739,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "BEGRENZER",
             "E": "IMPRISON",
@@ -9486,6 +9773,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "HEILUNG",
             "E": "REFRESH",
@@ -9519,6 +9807,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "NACHSPIEL",
             "E": "GRUDGE",
@@ -9552,6 +9841,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM49",
         "localised_names": {
             "D": "\u00dcBERNAHME",
             "E": "SNATCH",
@@ -9585,6 +9875,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM43",
         "localised_names": {
             "D": "GEHEIMPOWER",
             "E": "SECRET POWER",
@@ -9618,6 +9909,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "HM08",
         "localised_names": {
             "D": "TAUCHER",
             "E": "DIVE",
@@ -9651,6 +9943,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "ARMSTOSS",
             "E": "ARM THRUST",
@@ -9684,6 +9977,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "TARNUNG",
             "E": "CAMOUFLAGE",
@@ -9717,6 +10011,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCHWEIFGLANZ",
             "E": "TAIL GLOW",
@@ -9750,6 +10045,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCHEINWERFER",
             "E": "LUSTER PURGE",
@@ -9783,6 +10079,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "NEBELBALL",
             "E": "MIST BALL",
@@ -9816,6 +10113,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "DAUNENREIGEN",
             "E": "FEATHERDANCE",
@@ -9849,6 +10147,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "TAUMELTANZ",
             "E": "TEETER DANCE",
@@ -9882,6 +10181,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "FEUERFEGER",
             "E": "BLAZE KICK",
@@ -9915,6 +10215,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "LEHMSUHLER",
             "E": "MUD SPORT",
@@ -9948,6 +10249,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "FROSTBEULE",
             "E": "ICE BALL",
@@ -9981,6 +10283,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "NIETENRANKE",
             "E": "NEEDLE ARM",
@@ -10014,6 +10317,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "TAGEDIEB",
             "E": "SLACK OFF",
@@ -10047,6 +10351,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCHALLWELLE",
             "E": "HYPER VOICE",
@@ -10080,6 +10385,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GIFTZAHN",
             "E": "POISON FANG",
@@ -10113,6 +10419,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "ZERMALMKLAUE",
             "E": "CRUSH CLAW",
@@ -10146,6 +10453,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "LOHEKANONADE",
             "E": "BLAST BURN",
@@ -10179,6 +10487,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "AQUAHAUBITZE",
             "E": "HYDRO CANNON",
@@ -10212,6 +10521,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "STERNENHIEB",
             "E": "METEOR MASH",
@@ -10245,6 +10555,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "ERSTAUNER",
             "E": "ASTONISH",
@@ -10278,6 +10589,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "METEOROLOGE",
             "E": "WEATHER BALL",
@@ -10311,6 +10623,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "AROMAKUR",
             "E": "AROMATHERAPY",
@@ -10344,6 +10657,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "TRUGTR\u00c4NE",
             "E": "FAKE TEARS",
@@ -10377,6 +10691,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "WINDSCHNITT",
             "E": "AIR CUTTER",
@@ -10410,6 +10725,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM50",
         "localised_names": {
             "D": "HITZEKOLLER",
             "E": "OVERHEAT",
@@ -10443,6 +10759,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SCHN\u00dcFFLER",
             "E": "ODOR SLEUTH",
@@ -10476,6 +10793,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM39",
         "localised_names": {
             "D": "FELSGRAB",
             "E": "ROCK TOMB",
@@ -10509,6 +10827,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "SILBERHAUCH",
             "E": "SILVER WIND",
@@ -10542,6 +10861,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "METALLSOUND",
             "E": "METAL SOUND",
@@ -10575,6 +10895,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "GRASFL\u00d6TE",
             "E": "GRASSWHISTLE",
@@ -10608,6 +10929,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "SPASSKANONE",
             "E": "TICKLE",
@@ -10641,6 +10963,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "KOSMIK-KRAFT",
             "E": "COSMIC POWER",
@@ -10674,6 +10997,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "FONTR\u00c4NEN",
             "E": "WATER SPOUT",
@@ -10707,6 +11031,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "AMPELLEUCHTE",
             "E": "SIGNAL BEAM",
@@ -10740,6 +11065,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "FINSTERFAUST",
             "E": "SHADOW PUNCH",
@@ -10773,6 +11099,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "SONDERSENSOR",
             "E": "EXTRASENSORY",
@@ -10806,6 +11133,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "HIMMELHIEB",
             "E": "SKY UPPERCUT",
@@ -10839,6 +11167,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "SANDGRAB",
             "E": "SAND TOMB",
@@ -10872,6 +11201,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "EISESK\u00c4LTE",
             "E": "SHEER COLD",
@@ -10905,6 +11235,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "LEHMBR\u00dcHE",
             "E": "MUDDY WATER",
@@ -10938,6 +11269,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM09",
         "localised_names": {
             "D": "KUGELSAAT",
             "E": "BULLET SEED",
@@ -10971,6 +11303,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM40",
         "localised_names": {
             "D": "AERO-ASS",
             "E": "AERIAL ACE",
@@ -11004,6 +11337,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "EISSPEER",
             "E": "ICICLE SPEAR",
@@ -11037,6 +11371,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "EISENABWEHR",
             "E": "IRON DEFENSE",
@@ -11070,6 +11405,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "R\u00dcCKENTZUG",
             "E": "BLOCK",
@@ -11103,6 +11439,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "JAULER",
             "E": "HOWL",
@@ -11136,6 +11473,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM02",
         "localised_names": {
             "D": "DRACHENKLAUE",
             "E": "DRAGON CLAW",
@@ -11169,6 +11507,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "FAUNA-STATUE",
             "E": "FRENZY PLANT",
@@ -11202,6 +11541,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM08",
         "localised_names": {
             "D": "PROTZER",
             "E": "BULK UP",
@@ -11235,6 +11575,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "SPRUNGFEDER",
             "E": "BOUNCE",
@@ -11268,6 +11609,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "LEHMSCHUSS",
             "E": "MUD SHOT",
@@ -11301,6 +11643,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "GIFTSCHWEIF",
             "E": "POISON TAIL",
@@ -11334,6 +11677,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "BEZIRZER",
             "E": "COVET",
@@ -11367,6 +11711,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "VOLTTACKLE",
             "E": "VOLT TACKLE",
@@ -11400,6 +11745,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "ZAUBERBLATT",
             "E": "MAGICAL LEAF",
@@ -11433,6 +11779,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "NASSMACHER",
             "E": "WATER SPORT",
@@ -11466,6 +11813,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": "TM04",
         "localised_names": {
             "D": "GEDANKENGUT",
             "E": "CALM MIND",
@@ -11499,6 +11847,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "LAUBKLINGE",
             "E": "LEAF BLADE",
@@ -11532,6 +11881,7 @@
         "affected_by_snatch": true,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "DRACHENTANZ",
             "E": "DRAGON DANCE",
@@ -11565,6 +11915,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "FELSWURF",
             "E": "ROCK BLAST",
@@ -11598,6 +11949,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM34",
         "localised_names": {
             "D": "SCHOCKWELLE",
             "E": "SHOCK WAVE",
@@ -11631,6 +11983,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": "TM03",
         "localised_names": {
             "D": "AQUAWELLE",
             "E": "WATER PULSE",
@@ -11664,6 +12017,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": false,
         "affected_by_kings_rock": false,
+        "tm_hm": null,
         "localised_names": {
             "D": "KISMETWUNSCH",
             "E": "DOOM DESIRE",
@@ -11697,6 +12051,7 @@
         "affected_by_snatch": false,
         "usable_with_mirror_move": true,
         "affected_by_kings_rock": true,
+        "tm_hm": null,
         "localised_names": {
             "D": "PSYSCHUB",
             "E": "PSYCHO BOOST",

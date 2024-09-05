@@ -3,11 +3,11 @@ import os
 import string
 import sys
 from pathlib import Path
-from typing import IO
+from typing import IO, BinaryIO
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from modules.game import set_rom, decode_string, get_symbol
+from modules.game import set_rom, decode_string, get_symbol, get_symbol_name_before
 from modules.roms import list_available_roms, ROMLanguage, ROM
 
 
@@ -101,6 +101,20 @@ def read_string(file: IO, offset: int = -1) -> str:
     return decode_string(buffer)
 
 
+def get_tm_hm_move_map(data_source: BinaryIO) -> dict[str, int]:
+    offset = get_address("sTMHMMoves")
+    data_source.seek(offset)
+    tm_hm_data = data_source.read(0x74)
+    tm_hm_move_map: dict[str, int] = {}
+    for index in range(58):
+        if index >= 50:
+            item_name = f"HM{index - 49:02d}"
+        else:
+            item_name = f"TM{index + 1:02d}"
+        tm_hm_move_map[item_name] = int.from_bytes(tm_hm_data[index * 2 : (index + 1) * 2], byteorder="little")
+    return tm_hm_move_map
+
+
 def extract_items(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict]:
     item_list = []
     type_map = [
@@ -110,12 +124,23 @@ def extract_items(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict
         "pokeblock_case",
         "not_usable_outside_battle",
     ]
+    battle_use_map = {
+        "ItemUseInBattle_PokeBall": "catch",
+        "ItemUseInBattle_StatIncrease": "stat_increase",
+        "ItemUseInBattle_Medicine": "healing",
+        "ItemUseInBattle_PPRecovery": "pp_recovery",
+        "ItemUseInBattle_Escape": "escape",
+        "ItemUseInBattle_EnigmaBerry": "enigma_berry",
+    }
     pocket_map = ["???", "items", "poke_balls", "tms_and_hms", "berries", "key_items"]
 
     set_rom(english_rom)
-    offset = get_address("gItems")
-
     with open(english_rom.file, "rb") as english_file:
+        # Extract move mapping for HM/TM items
+        tm_hm_move_map = get_tm_hm_move_map(english_file)
+
+        # Extract items themselves
+        offset = get_address("gItems")
         for i in range(377):
             english_file.seek(offset + (i * 44))
             item_data = english_file.read(44)
@@ -135,14 +160,31 @@ def extract_items(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict
             else:
                 item_type = type_map[int.from_bytes(item_data[27:28], byteorder="little")]
 
+            if int.from_bytes(item_data[32:33], byteorder="little") > 0:
+                battle_use_function = int.from_bytes(item_data[36:40], byteorder="little")
+                battle_use = get_symbol_name_before(battle_use_function, True)
+                if battle_use in battle_use_map:
+                    battle_use = battle_use_map[battle_use]
+                else:
+                    battle_use = None
+            else:
+                battle_use = None
+
+            if (pretty_name.startswith("TM") or pretty_name.startswith("HM")) and pretty_name != "TM Case":
+                move_id = tm_hm_move_map[pretty_name]
+            else:
+                move_id = None
+
             item_entry = {
                 "index": int.from_bytes(item_data[14:16], byteorder="little"),
                 "name": pretty_name,
                 "price": int.from_bytes(item_data[16:18], byteorder="little"),
                 "type": item_type,
+                "battle_use": battle_use,
                 "pocket": pocket_map[pocket],
                 "parameter": int.from_bytes(item_data[19:20], byteorder="little"),
                 "extra_parameter": int.from_bytes(item_data[40:44], byteorder="little"),
+                "tm_hm_move_id": move_id,
                 "localised_names": initialise_localised_string(),
                 "localised_descriptions": initialise_localised_string(),
             }
@@ -534,12 +576,20 @@ def extract_moves(english_rom: ROM, localised_roms: dict[str, ROM], types_list: 
     }
 
     with open(english_rom.file, "rb") as english_file:
+        tm_hm_move_map = get_tm_hm_move_map(english_file)
+
         english_file.seek(get_address("gBattleMoves"))
-        for _ in range(355):
+        for i in range(355):
             move_data = english_file.read(12)
 
             accuracy = 1 if move_data[3] == 0 else move_data[3] / 100
             secondary_accuracy = 1 if move_data[5] == 0 else move_data[5] / 100
+
+            tm_hm = None
+            for item_name in tm_hm_move_map:
+                if tm_hm_move_map[item_name] == i:
+                    tm_hm = item_name
+
             moves_list.append(
                 {
                     "name": "",
@@ -557,6 +607,7 @@ def extract_moves(english_rom: ROM, localised_roms: dict[str, ROM], types_list: 
                     "affected_by_snatch": move_data[8] & 0x08 != 0,
                     "usable_with_mirror_move": move_data[8] & 0x10 != 0,
                     "affected_by_kings_rock": move_data[8] & 0x20 != 0,
+                    "tm_hm": tm_hm,
                     "localised_names": initialise_localised_string(),
                     "localised_descriptions": initialise_localised_string(),
                 }
@@ -618,6 +669,25 @@ def extract_species(
     level_up_type_map = ["Medium Fast", "Erratic", "Fluctuating", "Medium Slow", "Fast", "Slow"]
 
     with open(english_rom.file, "rb") as english_file:
+        english_file.seek(get_address("gTMHMLearnsets"))
+        tm_hm_learnsets = english_file.read(0xCE0)
+        tm_hm_move_map = get_tm_hm_move_map(english_file)
+
+        english_file.seek(get_address("gLevelUpLearnsets"))
+        level_up_learnsets = english_file.read(0x670)
+
+        english_file.seek(get_address("gTutorMoves"))
+        tutor_moves_list = english_file.read(0x3C)
+        tutor_moves_map = []
+        for index in range(30):
+            tutor_moves_map.append(int.from_bytes(tutor_moves_list[index * 2 : (index + 1) * 2], byteorder="little"))
+
+        english_file.seek(get_address("sTutorLearnsets"))
+        tutor_learnsets = english_file.read(0x670)
+
+        english_file.seek(get_address("gEggMoves"))
+        egg_moves_data = english_file.read(0x8E6)
+
         for i in range(412):
             name = string.capwords(read_string(english_file, get_address("gSpeciesNames") + (i * 11)))
             if name == "Ho-oh":
@@ -646,6 +716,54 @@ def extract_species(
                 held_items = [(item_list[item1]["name"], 0.5)]
             else:
                 held_items = [(item_list[item1]["name"], 0.5), (item_list[item2]["name"], 0.05)]
+
+            level_up_moves = {}
+            offset = 0
+            level_up_learnset_pointer = int.from_bytes(level_up_learnsets[i * 4 : (i + 1) * 4], byteorder="little")
+            english_file.seek(level_up_learnset_pointer - 0x0800_0000)
+            level_up_learnset = english_file.read(0xFF)
+            while offset < 100:
+                move_info = int.from_bytes(level_up_learnset[offset : offset + 2], byteorder="little")
+                if move_info == 0xFFFF:
+                    break
+
+                move_id = 0x1FF & move_info
+                level = move_info >> 9
+                level_up_moves[move_id] = level
+                offset += 2
+
+            tm_hm_moves = []
+            tm_hm_bitfield = tm_hm_learnsets[i * 8 : (i + 1) * 8]
+            for index in range(58):
+                byte = index // 8
+                bit = index % 8
+                if tm_hm_bitfield[byte] & (1 << bit):
+                    if index >= 50:
+                        item_name = f"HM{index - 49:02d}"
+                    else:
+                        item_name = f"TM{index + 1:02d}"
+
+                    tm_hm_moves.append(tm_hm_move_map[item_name])
+
+            egg_moves = []
+            offset = 0
+            in_correct_block = False
+            while offset < 0x8E6:
+                entry = int.from_bytes(egg_moves_data[offset : offset + 2], byteorder="little")
+                if entry >= 20000:
+                    if in_correct_block:
+                        break
+                    elif entry == 20000 + i:
+                        in_correct_block = True
+                elif in_correct_block:
+                    egg_moves.append(entry)
+                offset += 2
+
+            tutor_moves = []
+            tutor_moves_bitfield = int.from_bytes(tutor_learnsets[i * 4 : (i + 1) * 4], byteorder="little")
+            for index in range(30):
+                if tutor_moves_bitfield & (1 << index):
+                    tutor_moves.append(tutor_moves_map[index])
 
             species_list.append(
                 {
@@ -678,6 +796,12 @@ def extract_species(
                         "speed": (info[10] & 0b11000000) >> 6,
                         "special_attack": (info[11] & 0b00000011) >> 0,
                         "special_defence": (info[11] & 0b00001100) >> 2,
+                    },
+                    "learnset": {
+                        "level_up": level_up_moves,
+                        "tm_hm": tm_hm_moves,
+                        "tutor": tutor_moves,
+                        "egg": egg_moves,
                     },
                     "localised_names": initialise_localised_string(),
                 }
