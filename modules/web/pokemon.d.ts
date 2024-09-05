@@ -189,6 +189,22 @@ export type Species = {
     egg_groups: string[];
     base_experience_yield: number;
     ev_yield: StatsValues;
+
+    learnset: {
+        // List of move names that can only be learned by breeding.
+        egg: string[],
+
+        // List of moves that this species will learn by levelling up.
+        // Pattern: `{MOVE_NAME} at Lv. {LEVEL_NUMBER}`, e.g. 'Tackle at Lv. 1'
+        level_up: string[],
+
+        // List of TMs and HMs that this species is able to learn.
+        // Pattern: `{ITEM_NAME} ({MOVE_NAME}`, e.g. `TM06 (Toxic)`
+        tm_hm: string[],
+
+        // List of move names that this species can learned from move tutors.
+        tutor: string[],
+    }
 };
 
 export type Pokemon = {
