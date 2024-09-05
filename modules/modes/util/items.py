@@ -2,11 +2,11 @@ from typing import Generator
 
 from modules.context import context
 from modules.debug import debug
-from modules.items import Item, ItemPocket, get_item_bag, get_item_by_name
+from modules.items import Item, ItemPocket, get_item_bag, get_item_by_name, get_item_by_move_id
 from modules.memory import GameState, get_event_flag, get_game_state, read_symbol, unpack_uint16
 from modules.menuing import StartMenuNavigator, scroll_to_item_in_bag as real_scroll_to_item
-from modules.player import get_player
-from modules.pokemon import get_party
+from modules.player import get_player, player_avatar_is_standing_still
+from modules.pokemon import get_party, LearnedMove
 from modules.tasks import task_is_active
 from ._util_helper import isolate_inputs
 from .sleep import wait_for_n_frames
@@ -41,17 +41,22 @@ def use_item_from_bag(item: Item) -> Generator:
     yield from scroll_to_item_in_bag(item)
 
     if context.rom.is_rs:
-        confirmation_after_use_item_task = "sub_80F9090"
+        # confirmation_after_use_item_task = "sub_80F9090"
         start_menu_task = "sub_80712B4"
     elif context.rom.is_emerald:
-        confirmation_after_use_item_task = "Task_ContinueTaskAfterMessagePrints"
+        # confirmation_after_use_item_task = "Task_ContinueTaskAfterMessagePrints"
         start_menu_task = "Task_ShowStartMenu"
     else:
-        confirmation_after_use_item_task = "Task_ContinueTaskAfterMessagePrints"
+        # confirmation_after_use_item_task = "Task_ContinueTaskAfterMessagePrints"
         start_menu_task = "Task_StartMenuHandleInput"
 
-    yield from wait_for_task_to_start_and_finish(confirmation_after_use_item_task, "A")
-    yield from wait_for_task_to_start_and_finish(start_menu_task, "B")
+    while not player_avatar_is_standing_still():
+        if task_is_active(start_menu_task):
+            yield from wait_for_task_to_start_and_finish("start_menu_task", "B")
+            break
+        else:
+            context.emulator.press_button("A")
+            yield
     yield
 
 
@@ -149,6 +154,41 @@ def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int 
                                   Pokémon still has an empty move slot, this is not used.
     """
 
+    if hm_or_tm.tm_hm_move_id is None:
+        raise BotModeError(f"{hm_or_tm.name} is not a TM or HM.")
+
+    if get_item_bag().quantity_of(hm_or_tm) == 0:
+        raise BotModeError(f"Cannot teach {hm_or_tm.name} because the player does not own it.")
+
+    party = get_party()
+    if len(party) <= party_index:
+        raise BotModeError(
+            f"Cannot teach {hm_or_tm.name} to party Pokémon #{party_index} because there aren't that many Pokémon in the party."
+        )
+
+    target = party[party_index]
+    if not target.species.can_learn_tm_hm(hm_or_tm):
+        raise BotModeError(f"{target.name} is not able to learn {hm_or_tm.tm_hm_move.name}.")
+
+    for index in range(len(target.moves)):
+        learned_move = target.moves[index]
+        if index == move_index_to_replace and learned_move is not None:
+            move_item = get_item_by_move_id(learned_move.move.index)
+            if move_item is not None and move_item.name.startswith("HM"):
+                raise BotModeError(
+                    f"{target.name} cannot forget move #{move_index_to_replace} ({learned_move.move.name}) because it is an HM move."
+                )
+        elif learned_move.move.index == hm_or_tm.tm_hm_move_id:
+            raise BotModeError(f"{target.name} cannot learn move {learned_move.move.name} because it already knows it.")
+
+    target_move: LearnedMove | None = target.moves[move_index_to_replace]
+    if target.moves[3] is not None and target_move is not None:
+        move_item = get_item_by_move_id(target_move.move.index)
+        if move_item is not None and move_item.name.startswith("HM"):
+            raise BotModeError(
+                f"{target.name} cannot forget move #{move_index_to_replace} ({target_move.move.name}) because it is an HM move."
+            )
+
     yield from StartMenuNavigator("BAG").step()
 
     if context.rom.is_rse:
@@ -212,7 +252,7 @@ def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int 
     if task_is_active("Task_DuckBGMForPokemonCry"):
         for _ in range(move_index_to_replace):
             context.emulator.press_button("Down")
-            yield from wait_for_n_frames(3 if context.rom.is_rse else 15)
+            yield from wait_for_n_frames(4 if context.rom.is_rse else 15)
         context.emulator.press_button("A")
         yield
 

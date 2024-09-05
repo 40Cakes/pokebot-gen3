@@ -11,7 +11,7 @@ import numpy
 
 from modules.context import context
 from modules.game import decode_string
-from modules.items import Item, get_item_by_index
+from modules.items import Item, get_item_by_index, get_item_by_move_id, get_item_by_name
 from modules.memory import pack_uint32, read_symbol, unpack_uint16, unpack_uint32
 from modules.roms import ROMLanguage
 from modules.runtime import get_data_path
@@ -336,6 +336,7 @@ class Move:
     affected_by_snatch: bool
     usable_with_mirror_move: bool
     affected_by_kings_rock: bool
+    tm_hm: Item | None
 
     def __str__(self):
         return self.name
@@ -360,6 +361,7 @@ class Move:
             affected_by_snatch=data["affected_by_snatch"],
             usable_with_mirror_move=data["usable_with_mirror_move"],
             affected_by_kings_rock=data["affected_by_kings_rock"],
+            tm_hm=get_item_by_name(data["tm_hm"]) if data["tm_hm"] is not None else None,
         )
 
 
@@ -573,6 +575,47 @@ class LevelUpType(Enum):
 
 
 @dataclass
+class SpeciesLevelUpMove:
+    level: int
+    move: Move
+
+    def __str__(self):
+        return f"{self.move.name} at Lv. {self.level}"
+
+
+@dataclass
+class SpeciesTmHmMove:
+    item: Item
+    move: Move
+
+    def __str__(self):
+        return f"{self.item.name} ({self.move.name})"
+
+
+@dataclass
+class SpeciesMoveLearnset:
+    level_up: list[SpeciesLevelUpMove]
+    tm_hm: list[SpeciesTmHmMove]
+    tutor: list[Move]
+    egg: list[Move]
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        return SpeciesMoveLearnset(
+            level_up=[
+                SpeciesLevelUpMove(level=data["level_up"][move_id], move=get_move_by_index(int(move_id)))
+                for move_id in data["level_up"]
+            ],
+            tm_hm=[
+                SpeciesTmHmMove(item=get_item_by_move_id(move_id), move=get_move_by_index(move_id))
+                for move_id in data["tm_hm"]
+            ],
+            tutor=[get_move_by_index(move_id) for move_id in data["tutor"]],
+            egg=[get_move_by_index(move_id) for move_id in data["egg"]],
+        )
+
+
+@dataclass
 class Species:
     index: int
     national_dex_number: int
@@ -591,9 +634,20 @@ class Species:
     egg_groups: list[str]
     base_experience_yield: int
     ev_yield: StatsValues
+    learnset: SpeciesMoveLearnset
 
     def has_type(self, type_to_find: Type) -> bool:
         return any(t.index == type_to_find.index for t in self.types)
+
+    def can_learn_tm_hm(self, tm_hm: Item | Move):
+        if isinstance(tm_hm, Move):
+            tm_hm = tm_hm.tm_hm
+
+        for entry in self.learnset.tm_hm:
+            if entry.item == tm_hm:
+                return True
+
+        return False
 
     def to_dict(self) -> dict:
         return _to_dict_helper(self)
@@ -621,6 +675,7 @@ class Species:
             egg_groups=data["egg_groups"],
             base_experience_yield=data["base_experience_yield"],
             ev_yield=StatsValues.from_dict(data["ev_yield"]),
+            learnset=SpeciesMoveLearnset.from_dict(data["learnset"]),
         )
 
 

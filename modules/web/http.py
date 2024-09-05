@@ -409,7 +409,7 @@ def http_server() -> None:
             - stats
         """
 
-        return jsonify(total_stats.get_encounter_log())
+        return jsonify(total_stats.get_encounter_log()[::-1])
 
     @server.route("/shiny_log", methods=["GET"])
     def http_get_shiny_log():
@@ -425,7 +425,7 @@ def http_server() -> None:
             - stats
         """
 
-        return jsonify(total_stats.get_shiny_log())
+        return jsonify(total_stats.get_shiny_log()[::-1])
 
     @server.route("/encounter_rate", methods=["GET"])
     def http_get_encounter_rate():

@@ -1328,7 +1328,7 @@ class PokemonCenter(Enum):
     SlateportCity = (MapRSE.SLATEPORT_CITY, (19, 19))
     MauvilleCity = (MapRSE.MAUVILLE_CITY, (22, 5))
     VerdanturfTown = (MapRSE.VERDANTURF_TOWN, (16, 3))
-    LavaridgeRown = (MapRSE.LAVARIDGE_TOWN, (9, 7))
+    LavaridgeTown = (MapRSE.LAVARIDGE_TOWN, (9, 6))
     FallarborTown = (MapRSE.FALLARBOR_TOWN, (14, 7))
     FortreeCity = (MapRSE.FORTREE_CITY, (5, 6))
     LilycoveCity = (MapRSE.LILYCOVE_CITY, (24, 14))

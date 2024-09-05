@@ -1,4 +1,4 @@
-from typing import Generator, Iterable
+from typing import Generator, Iterable, Callable
 
 from modules.context import context
 from modules.debug import debug
@@ -365,6 +365,88 @@ def ensure_facing_direction(facing_direction: str | Direction | tuple[int, int])
             context.emulator.press_button(facing_direction)
 
         yield
+
+
+@debug.track
+def run_in_circle(
+    on_map: tuple[int, int] | MapRSE | MapFRLG,
+    bottom_left: tuple[int, int],
+    top_right: tuple[int, int],
+    clockwise: bool = True,
+    exit_condition: Callable[[], bool] | None = None,
+):
+    """
+    Function name is lying: This actually makes the character run in a _square_
+
+    The entirety of the circle (or, uh, square) needs to be within one map and must
+    be free of obstructions.
+
+    :param on_map: Map to run on
+    :param bottom_left: Bottom-left (south-west) corner of the circle/square.
+    :param top_right: Top-right (north-east) corner of the circle/square.
+    :param clockwise: Which direction to run (True = clockwise, False = anti-clockwise)
+    :param exit_condition: If set, the running will stop once this callback returns True.
+                           Otherwise, it will never stop unless interrupted from the
+                           outside.
+    """
+
+    if bottom_left[0] >= top_right[0]:
+        raise RuntimeError(
+            f"Bottom-left corner ({bottom_left}) must be to the west of the top-right corner ({top_right})"
+        )
+
+    if bottom_left[1] <= top_right[1]:
+        raise RuntimeError(
+            f"Bottom-left corner ({bottom_left}) must be to the south of the top-right corner ({top_right})"
+        )
+
+    def circle_waypoints_generator():
+        if isinstance(on_map, MapRSE) or isinstance(on_map, MapFRLG):
+            waypoint_map = on_map.value
+        else:
+            waypoint_map = on_map
+
+        width = top_right[0] - bottom_left[0]
+        height = bottom_left[1] - top_right[1]
+        current_location = bottom_left[0], bottom_left[1]
+
+        def north():
+            nonlocal current_location
+            for _ in range(height):
+                current_location = (current_location[0], current_location[1] - 1)
+                yield Waypoint(Direction.North, waypoint_map, current_location, False)
+
+        def east():
+            nonlocal current_location
+            for _ in range(width):
+                current_location = (current_location[0] + 1, current_location[1])
+                yield Waypoint(Direction.East, waypoint_map, current_location, False)
+
+        def south():
+            nonlocal current_location
+            for _ in range(height):
+                current_location = (current_location[0], current_location[1] + 1)
+                yield Waypoint(Direction.South, waypoint_map, current_location, False)
+
+        def west():
+            nonlocal current_location
+            for _ in range(width):
+                current_location = (current_location[0] - 1, current_location[1])
+                yield Waypoint(Direction.West, waypoint_map, current_location, False)
+
+        if clockwise:
+            waypoint_list = [*north(), *east(), *south(), *west()]
+        else:
+            waypoint_list = [*east(), *north(), *west(), *south()]
+
+        yield from calculate_path(get_map_data_for_current_position(), (on_map, bottom_left))
+        while True:
+            for waypoint in waypoint_list:
+                if exit_condition is not None and exit_condition():
+                    return
+                yield waypoint
+
+    yield from follow_waypoints(circle_waypoints_generator())
 
 
 @debug.track
