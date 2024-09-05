@@ -185,13 +185,16 @@ class FancyTreeview:
                     self._items[item_key] = item
                 found_items.append(item_key)
 
-                properties = {}
-                with contextlib.suppress(AttributeError):
-                    for k in data[key].__dict__:
-                        properties[k] = data[key].__dict__[k]
-                for k in dir(data[key].__class__):
-                    if isinstance(getattr(data[key].__class__, k), property):
-                        properties[k] = getattr(data[key], k)
+                if hasattr(data[key], "debug_dict_value") and callable(data[key].debug_dict_value):
+                    properties = data[key].debug_dict_value()
+                else:
+                    properties = {}
+                    with contextlib.suppress(AttributeError):
+                        for k in data[key].__dict__:
+                            properties[k] = data[key].__dict__[k]
+                    for k in dir(data[key].__class__):
+                        if isinstance(getattr(data[key].__class__, k), property):
+                            properties[k] = getattr(data[key], k)
 
                 found_items.extend(self._update_dict(properties, f"{key_prefix}{key}.", item))
 

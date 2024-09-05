@@ -49,7 +49,7 @@ class EncounterValue(Enum):
 
     @property
     def is_of_interest(self):
-        return self in (EncounterValue.Shiny, EncounterValue.Roamer, EncounterValue.CustomFilterMatch)
+        return self in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch)
 
 
 def judge_encounter(pokemon: Pokemon) -> EncounterValue:
