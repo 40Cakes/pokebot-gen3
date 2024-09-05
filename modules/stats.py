@@ -321,11 +321,12 @@ class TotalStats:
         if (
             self.encounter_log is not None
             and len(self.encounter_log) > 0
-            and self.encounter_log[-1]["pokemon"]["name"] == pokemon.species_name_for_stats
+            and self.encounter_log[0]["pokemon"]["name"] == pokemon.species_name_for_stats
         ):
             self.total_stats["totals"]["current_streak"] = self.total_stats["totals"].get("current_streak", 0) + 1
         else:
             self.total_stats["totals"]["current_streak"] = 1
+
         if self.total_stats["totals"].get("current_streak", 0) >= self.total_stats["totals"].get("phase_streak", 0):
             self.total_stats["totals"]["phase_streak"] = self.total_stats["totals"].get("current_streak", 0)
             self.total_stats["totals"]["phase_streak_pokemon"] = pokemon.species_name_for_stats
