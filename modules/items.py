@@ -81,7 +81,7 @@ class Item:
         return Item(
             index=index,
             name=data["name"],
-            sprite_name=data["name"].replace("'", "-").replace(".", "-"),
+            sprite_name=data["name"].replace("'", "").replace(".", ""),
             price=data["price"],
             type=item_type,
             pocket=ItemPocket(data["pocket"]),
