@@ -6,7 +6,6 @@ import pathlib
 import platform
 from dataclasses import dataclass
 
-from modules.gui.headless import PokebotHeadless
 from modules.modes import get_bot_mode_names
 from modules.plugins import load_plugins
 from modules.runtime import is_bundled_app, get_base_path
@@ -113,7 +112,6 @@ if __name__ == "__main__":
     from modules.context import context
     from modules.console import console
     from modules.exceptions_hook import register_exception_hook
-    from modules.gui import PokebotGui
     from modules.main import main_loop
     from modules.profiles import Profile, profile_directory_exists, load_profile_by_name
     from updater import run_updater
@@ -140,8 +138,12 @@ if __name__ == "__main__":
         run_updater()
 
     if startup_settings.headless:
+        from modules.gui.headless import PokebotHeadless
+
         gui = PokebotHeadless(main_loop, on_exit)
     else:
+        from modules.gui import PokebotGui
+
         gui = PokebotGui(main_loop, on_exit)
     context.gui = gui
 
