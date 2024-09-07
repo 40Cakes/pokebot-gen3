@@ -37,6 +37,9 @@ emulator:
   set_speed_2x: '2'
   set_speed_3x: '3'
   set_speed_4x: '4'
+  set_speed_8x: '5'
+  set_speed_16x: '6'
+  set_speed_32x: '7'
 
   # ⚠ Photosensitivity warning: Disable throttling entirely, the emulator will run as fast as your CPU allows
   set_speed_unthrottled: '0'

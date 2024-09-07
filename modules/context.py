@@ -1,4 +1,7 @@
+import shutil
 from typing import Generator, Optional, TYPE_CHECKING
+
+from modules.runtime import get_base_path
 
 if TYPE_CHECKING:
     from modules.gui import PokebotGui
@@ -9,8 +12,27 @@ if TYPE_CHECKING:
 from modules.config import Config
 
 
+def _initialise_config() -> None:
+    """
+    This will check the `profiles/` folder for any `*.dist` files (default/example
+    config files) that do not have a matching file without the `.dist` extension.
+
+    If it finds any, it will create it by copying the `*.dist` file.
+
+    The idea is that we can keep the `*.dist` files checked into Git and thus
+    overwriting them for each update, while the user can have their own real
+    config files that will not be touched.
+    """
+    profiles_path = get_base_path() / "profiles"
+    for dist_file in profiles_path.glob("*.dist"):
+        regular_file = profiles_path / dist_file.name[:-5]
+        if not regular_file.exists():
+            shutil.copyfile(dist_file, regular_file)
+
+
 class BotContext:
     def __init__(self, initial_bot_mode: str = "Manual"):
+        _initialise_config()
         self.config = Config()
 
         self.emulator: Optional["LibmgbaEmulator"] = None
