@@ -2,7 +2,7 @@
 
 # 📄 Console, Logging and Image Config
 
-[`profiles/logging.yml`](https://github.com/40Cakes/pokebot-gen3/blob/main/profiles/logging.yml)
+[`profiles/logging.yml`](../../profiles/logging.yml.dist)
 
 This file allows you to enable or disable features of the bot that may generate data or images, such as .csv data logging, .pk3 dumping or shiny GIFs.
 

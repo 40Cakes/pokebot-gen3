@@ -2,7 +2,7 @@
 
 # 📢 Discord Integration Config
 
-[`profiles/discord.yml`](../../profiles/discord.yml)
+[`profiles/discord.yml`](../../profiles/discord.yml.dist)
 
 With Discord integrations, you can receive shiny notifications, phase stats and milestones and more.
 

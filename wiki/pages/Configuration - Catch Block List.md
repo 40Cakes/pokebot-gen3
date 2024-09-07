@@ -2,7 +2,7 @@
 
 # ❌ Catch Block List Config
 
-[`profiles/catch_block.yml`](../../profiles/catch_block.yml)
+[`profiles/catch_block.yml`](../../profiles/catch_block.yml.dist)
 
 The catch block list is a list of shinies to skip, useful if you don't want to fill up your PC with very common shiny encounters.
 

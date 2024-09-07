@@ -2,7 +2,7 @@
 
 # 🎥 OBS and HTTP Server Config
 
-[`profiles/obs.yml`](https://github.com/40Cakes/pokebot-gen3/blob/main/profiles/obs.yml)
+[`profiles/obs.yml`](../../profiles/obs.yml.dist)
 
 This configuration can be used to drive stream overlays and web UIs.
 

@@ -2,7 +2,7 @@
 
 # 💎 Cheats Config
 
-[`profiles/cheats.yml`](../../profiles/cheats.yml)
+[`profiles/cheats.yml`](../../profiles/cheats.yml.dist)
 
 > Cheats may be removed in the near future, as they go against the bot philosophy and add unnecessary complexity to many modes.
 

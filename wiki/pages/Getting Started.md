@@ -84,7 +84,7 @@ Once activated, run the bot (your shell should show `(venv)` if activated correc
 - Place some **official** Pokémon .gba ROMs into the `./roms/` folder
 - Double click `pokebot.py` or run `python pokebot.py` in a terminal and follow the on-screen steps to create and/or select a profile
 
-The bot ships with the default mGBA input mapping, see [here](../../profiles/keys.yml) for the default mapping, or customise them to your preference.
+The bot ships with the default mGBA input mapping, see [here](../../profiles/keys.yml.dist) for the default mapping, or customise them to your preference.
 
 You **must** ensure you are able to escape battle **100% of the time**, otherwise the bot will get stuck.
 If you have a save from mGBA that you'd like to import and use with the bot, then you will need to import the save state.
