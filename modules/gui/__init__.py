@@ -198,6 +198,12 @@ class PokebotGui:
                         context.emulation_speed = 3
                     case "set_speed_4x":
                         context.emulation_speed = 4
+                    case "set_speed_8x":
+                        context.emulation_speed = 8
+                    case "set_speed_16x":
+                        context.emulation_speed = 16
+                    case "set_speed_32x":
+                        context.emulation_speed = 32
                     case "set_speed_unthrottled":
                         context.emulation_speed = 0
                     case "screenshot":

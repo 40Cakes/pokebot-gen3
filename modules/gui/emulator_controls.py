@@ -22,6 +22,9 @@ class EmulatorControls:
         self.menu_bar: Union[Menu, None] = None
         self.bot_mode_button: ttk.Button
         self.bot_mode_menu: tkinter.Menu | None
+        self.speed_1x_button: ttk.Button
+        self.speed_menu_button: ttk.Button | None
+        self.unthrottled_button: ttk.Button
         self.toggle_video_button: ttk.Button
         self.toggle_audio_button: ttk.Button
         self.bot_message: ttk.Label
@@ -91,13 +94,18 @@ class EmulatorControls:
         if self.frame is None:
             return
 
-        self.bot_mode_button.config(text=context.bot_mode)
+        self.bot_mode_button.config(text=f"{context.bot_mode} ▾")
         self._set_button_colour(self.bot_mode_button, active_condition=context.bot_mode == "Manual")
 
-        speed_text = {0: "∞", 1: "1×", 2: "2×", 3: "3×", 4: "4×", 8: "8x", 16: "16x", 32: "32x"}.get(
-            context.emulation_speed, "Speed"
-        )
+        if context.emulation_speed > 1:
+            speed_text = f"{context.emulation_speed}× ▾"
+        else:
+            speed_text = "… ▾"
         self.speed_menu_button.config(text=speed_text)
+
+        self._set_button_colour(self.speed_1x_button, active_condition=context.emulation_speed == 1)
+        self._set_button_colour(self.speed_menu_button, active_condition=context.emulation_speed > 1)
+        self._set_button_colour(self.unthrottled_button, active_condition=context.emulation_speed == 0)
 
         self._set_button_colour(self.toggle_video_button, active_condition=context.video)
         self._set_button_colour(
@@ -169,50 +177,57 @@ class EmulatorControls:
 
         ttk.Label(group, text="Bot Mode:", justify="left").grid(row=0, sticky="W")
         self.bot_mode_button = ttk.Button(
-            group, text=context.bot_mode, width=20, padding=(0, 3), cursor="hand2", command=open_bot_mode_menu
+            group, text=f"{context.bot_mode} ▾", width=20, padding=(0, 3), cursor="hand2", command=open_bot_mode_menu
         )
         self.bot_mode_button.grid(row=1, sticky="W", padx=0)
 
     def _add_speed_controls(self, row: int, column: int, sticky: str = "W"):
-        group = ttk.Frame(self.frame)
-        group.grid(row=row, column=column, sticky=sticky)
-
-        ttk.Label(group, text="Emulation Speed:", justify="left").grid(row=0, column=0, sticky="W")
-
-        self.speed_menu_button = ttk.Button(
-            group, text="Speed", width=6, padding=(0, 3), cursor="hand2", command=self._open_speed_menu
-        )
-        self.speed_menu_button.grid(row=1, column=0, sticky="W", padx=0)
-
-    def _open_speed_menu(self):
         def set_emulation_speed(speed: int) -> None:
             context.emulation_speed = speed
             self.update()
 
-        bold_font = tkinter.font.Font(self.window, weight="bold", size=10)
+        def open_speed_menu():
+            bold_font = tkinter.font.Font(self.window, weight="bold", size=10)
+            self.speed_menu = tkinter.Menu(self.window, tearoff=0)
 
-        self.speed_menu = tkinter.Menu(self.window, tearoff=0)
+            speeds = [
+                (f"1× (key: {context.config.keys.emulator.set_speed_1x})", 1),
+                (f"2× (key: {context.config.keys.emulator.set_speed_2x})", 2),
+                (f"3× (key: {context.config.keys.emulator.set_speed_3x})", 3),
+                (f"4× (key: {context.config.keys.emulator.set_speed_4x})", 4),
+                (f"8× (key: {context.config.keys.emulator.set_speed_8x})", 8),
+                (f"16× (key: {context.config.keys.emulator.set_speed_16x})", 16),
+                (f"32× (key: {context.config.keys.emulator.set_speed_32x})", 32),
+                (f"Unthrottled (key: {context.config.keys.emulator.set_speed_unthrottled})", 0),
+            ]
+            for label, speed in speeds:
+                if context.emulation_speed == speed:
+                    self.speed_menu.add_command(
+                        label=label, font=bold_font, command=lambda s=speed: set_emulation_speed(s)
+                    )
+                else:
+                    self.speed_menu.add_command(label=label, command=lambda s=speed: set_emulation_speed(s))
 
-        speeds = [
-            (f"Unthrottled (key: {context.config.keys.emulator.set_speed_unthrottled})", 0),
-            (f"1× (key: {context.config.keys.emulator.set_speed_1x})", 1),
-            (f"2× (key: {context.config.keys.emulator.set_speed_2x})", 2),
-            (f"3× (key: {context.config.keys.emulator.set_speed_3x})", 3),
-            (f"4× (key: {context.config.keys.emulator.set_speed_4x})", 4),
-            ("8x", 8),
-            ("16x", 16),
-            ("32x", 32),
-        ]
-        for label, speed in speeds:
-            if context.emulation_speed == speed:
-                self.speed_menu.add_command(label=label, font=bold_font, command=lambda s=speed: set_emulation_speed(s))
-            else:
-                self.speed_menu.add_command(label=label, command=lambda s=speed: set_emulation_speed(s))
+            self.speed_menu.tk_popup(
+                self.speed_menu_button.winfo_rootx(),
+                self.speed_menu_button.winfo_rooty() + self.speed_menu_button.winfo_height(),
+            )
 
-        self.speed_menu.tk_popup(
-            self.speed_menu_button.winfo_rootx(),
-            self.speed_menu_button.winfo_rooty() + self.speed_menu_button.winfo_height(),
-        )
+        group = ttk.Frame(self.frame)
+        group.grid(row=row, column=column, sticky=sticky)
+        group.columnconfigure(3, weight=1)
+
+        ttk.Label(group, text="Emulation Speed:", justify="left").grid(row=0, column=0, columnspan=4, sticky="W")
+
+        button_settings = {"width": 4, "padding": (0, 3), "cursor": "hand2"}
+        menu_button_settings = {**button_settings, "width": 6}
+        self.speed_1x_button = ttk.Button(group, text="1×", **button_settings, command=lambda: set_emulation_speed(1))
+        self.speed_menu_button = ttk.Button(group, text="…", **menu_button_settings, command=open_speed_menu)
+        self.unthrottled_button = ttk.Button(group, text="∞", **button_settings, command=lambda: set_emulation_speed(0))
+
+        self.speed_1x_button.grid(row=1, column=0)
+        self.speed_menu_button.grid(row=1, column=1)
+        self.unthrottled_button.grid(row=1, column=2)
 
     def _add_settings_controls(self, row: int, column: int):
         group = ttk.Frame(self.frame)
@@ -254,7 +269,17 @@ class EmulatorControls:
             foreground="grey",
             font=tkinter.font.Font(size=9),
         )
-        version_label.grid(row=0, column=1, sticky="E")
+
+        # In debug mode, we are displaying more performance stats in the footer (left side.)
+        # So for game with particularly long names (e.g. 'LeafGreen (E) (Rev 1)', the stats
+        # and the game/version info on the right combined become wider than the emulator screen,
+        # leading to the window growing and shrinking.
+        #
+        # This puts the game/version info in a separate line in debug mode.
+        if context.debug:
+            version_label.grid(row=1, column=0, sticky="W")
+        else:
+            version_label.grid(row=0, column=1, sticky="E")
 
     def _set_button_colour(self, button: ttk.Button, active_condition: bool, disabled_condition: bool = False) -> None:
         if disabled_condition:
