@@ -168,7 +168,7 @@ def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int 
 
     target = party[party_index]
     if not target.species.can_learn_tm_hm(hm_or_tm):
-        raise BotModeError(f"{target.name} is not able to learn {hm_or_tm.tm_hm_move.name}.")
+        raise BotModeError(f"{target.name} is not able to learn {hm_or_tm.tm_hm_move().name}.")
 
     for index in range(len(target.moves)):
         learned_move = target.moves[index]
