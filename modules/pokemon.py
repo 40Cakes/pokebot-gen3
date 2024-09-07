@@ -591,6 +591,12 @@ class SpeciesTmHmMove:
     def __str__(self):
         return f"{self.item.name} ({self.move.name})"
 
+    def debug_dict_value(self):
+        return {
+            "item": self.item.name,
+            "move": self.move.name,
+        }
+
 
 @dataclass
 class SpeciesMoveLearnset:
@@ -1591,10 +1597,9 @@ def _to_dict_helper(value) -> any:
     if value is None:
         return value
 
-    if isinstance(value, SpeciesMoveLearnset):
-        debug_dict_callback = getattr(value, "debug_dict_value", None)
-        if callable(debug_dict_callback):
-            return _to_dict_helper(debug_dict_callback())
+    debug_dict_callback = getattr(value, "debug_dict_value", None)
+    if callable(debug_dict_callback):
+        return _to_dict_helper(debug_dict_callback())
 
     if type(value) is dict:
         return {k: _to_dict_helper(value[k]) for k in value}
