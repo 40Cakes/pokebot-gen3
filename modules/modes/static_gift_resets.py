@@ -52,6 +52,9 @@ def _get_targeted_encounter() -> tuple[MapFRLG | MapRSE, tuple[int, int], str] |
         ]
 
     targeted_tile = get_player_avatar().map_location_in_front
+    if targeted_tile is None:
+        return None
+
     return next(
         (
             entry
