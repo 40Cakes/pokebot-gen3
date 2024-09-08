@@ -29,33 +29,6 @@ from modules.state_cache import state_cache, StateCacheItem
 from modules.stats import total_stats
 from modules.version import pokebot_name, pokebot_version
 from modules.web.http_stream import DataSubscription, add_subscriber
-from modules.console import console
-
-import cProfile
-import pstats
-import io
-
-
-def log_to_file(msg):
-    with open("test.log", "a") as f:
-        f.write(f"{msg}")
-
-
-def profile_function(func):
-    profiler = cProfile.Profile()
-    profiler.enable()
-    func()
-    profiler.disable()
-
-    # Output profiling results
-    result = io.StringIO()
-    stats = pstats.Stats(profiler, stream=result).sort_stats(pstats.SortKey.TIME)
-    stats.print_stats()
-    log_to_file(stats.print_stats)
-
-    # Print or log the results
-    console.print(result.getvalue())
-    log_to_file(result.getvalue())
 
 
 def _update_via_work_queue(
@@ -99,7 +72,7 @@ def _update_via_work_queue(
     def do_update():
         nonlocal has_failed
         try:
-            profile_function(update_callback())
+            update_callback()
         except Exception:
             has_failed = True
         finally:
@@ -108,7 +81,7 @@ def _update_via_work_queue(
     try:
         work_queue.put_nowait(do_update)
     except Exception as e:
-        log_to_file(e)
+        from modules.console import console
 
         console.print_exception()
         return
@@ -207,22 +180,20 @@ def http_server() -> None:
           tags:
             - player
         """
-        try:
-            cached_bag = state_cache.item_bag
-            cached_storage = state_cache.item_storage
-            if cached_bag.age_in_seconds > 1:
-                _update_via_work_queue(cached_bag, get_item_bag)
-            if cached_storage.age_in_seconds > 1:
-                _update_via_work_queue(cached_storage, get_item_storage)
 
-            return jsonify(
-                {
-                    "bag": cached_bag.value.to_dict(),
-                    "storage": cached_storage.value.to_list(),
-                }
-            )
-        except Exception as e:
-            log_to_file(e)
+        cached_bag = state_cache.item_bag
+        cached_storage = state_cache.item_storage
+        if cached_bag.age_in_seconds > 1:
+            _update_via_work_queue(cached_bag, get_item_bag)
+        if cached_storage.age_in_seconds > 1:
+            _update_via_work_queue(cached_storage, get_item_storage)
+
+        return jsonify(
+            {
+                "bag": cached_bag.value.to_dict(),
+                "storage": cached_storage.value.to_list(),
+            }
+        )
 
     @server.route("/party", methods=["GET"])
     def http_get_party():
