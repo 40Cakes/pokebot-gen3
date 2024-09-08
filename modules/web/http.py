@@ -12,6 +12,7 @@ from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from jinja2 import Template
 
+from modules.console import console
 from modules.context import context
 from modules.files import read_file
 from modules.game import _event_flags
@@ -32,9 +33,7 @@ from modules.web.http_stream import DataSubscription, add_subscriber
 
 
 def _update_via_work_queue(
-    state_cache_entry: StateCacheItem,
-    update_callback: callable,
-    maximum_age_in_frames: int = 5,
+    state_cache_entry: StateCacheItem, update_callback: callable, maximum_age_in_frames: int = 5
 ) -> None:
     """
     Ensures that an entry in the State cache is up-to-date.
@@ -67,22 +66,19 @@ def _update_via_work_queue(
         return
 
     update_event = Event()
-    has_failed = False
 
     def do_update():
-        nonlocal has_failed
         try:
             update_callback()
         except Exception:
-            has_failed = True
+            console.print_exception()
         finally:
             update_event.set()
 
     try:
         work_queue.put_nowait(do_update)
-    except Exception as e:
-        from modules.console import console
-
+        update_event.wait(timeout=5)
+    except Exception:
         console.print_exception()
         return
 
@@ -652,18 +648,7 @@ def http_server() -> None:
         if not isinstance(new_buttons, list):
             return Response("This endpoint expects a JSON array as its payload.", status=422)
 
-        possible_buttons = [
-            "A",
-            "B",
-            "Select",
-            "Start",
-            "Right",
-            "Left",
-            "Up",
-            "Down",
-            "R",
-            "L",
-        ]
+        possible_buttons = ["A", "B", "Select", "Start", "Right", "Left", "Up", "Down", "R", "L"]
         buttons_to_press = []
         for button in new_buttons:
             for possible_button in possible_buttons:
