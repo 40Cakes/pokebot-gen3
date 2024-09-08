@@ -2,7 +2,7 @@
 
 # 🥅 Custom Catch Filters Config
 
-[`profiles/customcatchfilters.py`](../../profiles/customcatchfilters.py)
+[`profiles/customcatchfilters.py`](../../modules/config/templates/customcatchfilters.py)
 
 All Pokémon encounters are checked by custom catch filters, use this file if you are after Pokémon that match very specific criteria, some examples are provided.
 

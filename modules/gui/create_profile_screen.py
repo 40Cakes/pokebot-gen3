@@ -193,7 +193,6 @@ class CreateProfileScreen:
                         "*.sav",
                     ]
                 ],
-                title="Load Existing Save",
                 on_selection=handle_selected_file,
             )
 
