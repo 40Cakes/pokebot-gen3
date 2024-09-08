@@ -2,7 +2,7 @@
 
 # 📄 Console, Logging and Image Config
 
-[`profiles/logging.yml`](../../profiles/logging.yml.dist)
+[`profiles/logging.yml`](../../modules/config/templates/logging.yml)
 
 This file allows you to enable or disable features of the bot that may generate data or images, such as .csv data logging, .pk3 dumping or shiny GIFs.
 
