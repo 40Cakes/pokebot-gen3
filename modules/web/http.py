@@ -2,6 +2,7 @@ import io
 import json
 import time
 from pathlib import Path
+from threading import Event
 
 import waitress
 from apispec import APISpec
@@ -11,6 +12,7 @@ from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from jinja2 import Template
 
+from modules.console import console
 from modules.context import context
 from modules.files import read_file
 from modules.game import _event_flags
@@ -60,23 +62,25 @@ def _update_via_work_queue(
                                   than or equal to that number of frames, this function
                                   will do nothing.
     """
-
     if state_cache_entry.age_in_frames < maximum_age_in_frames:
         return
 
-    has_failed = False
+    update_event = Event()
 
     def do_update():
-        nonlocal has_failed
         try:
             update_callback()
-        except:
-            has_failed = True
+        except Exception:
+            console.print_exception()
+        finally:
+            update_event.set()
 
-    last_update_frame = state_cache_entry.frame
-    work_queue.put_nowait(do_update)
-    while not has_failed and state_cache_entry.frame == last_update_frame:
-        time.sleep(0.05)
+    try:
+        work_queue.put_nowait(do_update)
+        update_event.wait(timeout=5)
+    except Exception:
+        console.print_exception()
+        return
 
 
 def http_server() -> None:
@@ -99,7 +103,8 @@ def http_server() -> None:
             description=f"{pokebot_name} API",
             version=pokebot_version,
             license=dict(
-                name="GNU General Public License v3.0", url="https://github.com/40Cakes/pokebot-gen3/blob/main/LICENSE"
+                name="GNU General Public License v3.0",
+                url="https://github.com/40Cakes/pokebot-gen3/blob/main/LICENSE",
             ),
         ),
         servers=[
@@ -199,7 +204,6 @@ def http_server() -> None:
           tags:
             - pokemon
         """
-
         cached_party = state_cache.party
         _update_via_work_queue(cached_party, get_party)
 
@@ -583,11 +587,17 @@ def http_server() -> None:
                 context.bot_mode = new_settings["bot_mode"]
             elif key == "video_enabled":
                 if not isinstance(new_settings["video_enabled"], bool):
-                    return Response("Setting `video_enabled` did not contain a boolean value.", status=422)
+                    return Response(
+                        "Setting `video_enabled` did not contain a boolean value.",
+                        status=422,
+                    )
                 context.video = new_settings["video_enabled"]
             elif key == "audio_enabled":
                 if not isinstance(new_settings["audio_enabled"], bool):
-                    return Response("Setting `audio_enabled` did not contain a boolean value.", status=422)
+                    return Response(
+                        "Setting `audio_enabled` did not contain a boolean value.",
+                        status=422,
+                    )
                 context.audio = new_settings["audio_enabled"]
             else:
                 return Response(f"Unrecognised setting: '{key}'.", status=422)
@@ -659,7 +669,10 @@ def http_server() -> None:
     def http_get_events_stream():
         subscribed_topics = request.args.getlist("topic")
         if len(subscribed_topics) == 0:
-            return Response("You need to provide at least one `topic` parameter in the query.", status=422)
+            return Response(
+                "You need to provide at least one `topic` parameter in the query.",
+                status=422,
+            )
 
         try:
             queue, unsubscribe = add_subscriber(subscribed_topics)
@@ -765,7 +778,10 @@ def http_server() -> None:
 
     @server.route("/swagger", methods=["GET"])
     def http_get_swagger_json():
-        return Response(json.dumps(spec.to_dict(), indent=4), content_type="application/json; charset=utf-8")
+        return Response(
+            json.dumps(spec.to_dict(), indent=4),
+            content_type="application/json; charset=utf-8",
+        )
 
     with server.test_request_context():
         spec.path(view=http_get_player)
