@@ -30,11 +30,38 @@ from modules.stats import total_stats
 from modules.version import pokebot_name, pokebot_version
 from modules.web.http_stream import DataSubscription, add_subscriber
 
+
 def _update_via_work_queue(
-    state_cache_entry: StateCacheItem, update_callback: callable, maximum_age_in_frames: int = 5
+    state_cache_entry: StateCacheItem,
+    update_callback: callable,
+    maximum_age_in_frames: int = 5,
 ) -> None:
     """
     Ensures that an entry in the State cache is up-to-date.
+
+    If not, it executes an update call in the main thread's work queue and will
+    suppress any errors that occur.
+
+    The reason we use a work queue is that the HTTP server runs in a separate thread
+    and so is not synchronous with the emulator core. So if it were to read emulator
+    memory, it might potentially get incomplete/garbage data.
+
+    The work queue is just a list of callbacks that the main thread will execute
+    after the current frame is emulated.
+
+    Because these data-updating callbacks might fail anyway (due to the game being in
+    a weird state or something like that), this function will just ignore these errors
+    and pretend that the data has been updated.
+
+    This means that the HTTP API will potentially return some outdated data, but it's
+    just a reporting tool anyway.
+
+    :param state_cache_entry: The state cache item that needs to be up-to-date.
+    :param update_callback: A callback that will update the data in the state cache.
+    :param maximum_age_in_frames: Defines how many frames old the data may be to still
+                                  be considered up-to-date. If the data is 'younger'
+                                  than or equal to that number of frames, this function
+                                  will do nothing.
     """
     if state_cache_entry.age_in_frames < maximum_age_in_frames:
         return
@@ -51,19 +78,14 @@ def _update_via_work_queue(
         finally:
             update_event.set()
 
-    last_update_frame = state_cache_entry.frame
     try:
         work_queue.put_nowait(do_update)
-    except Exception:
+    except Exception as e:
+        from modules.console import console
+
+        console.print_exception()
         return
 
-    # Wait with a timeout
-    if not update_event.wait(timeout=5):  # Timeout in seconds
-        return
-    
-    # Optional: Check if the frame was updated
-    if state_cache_entry.frame == last_update_frame:
-        return
 
 def http_server() -> None:
     """
@@ -85,7 +107,8 @@ def http_server() -> None:
             description=f"{pokebot_name} API",
             version=pokebot_version,
             license=dict(
-                name="GNU General Public License v3.0", url="https://github.com/40Cakes/pokebot-gen3/blob/main/LICENSE"
+                name="GNU General Public License v3.0",
+                url="https://github.com/40Cakes/pokebot-gen3/blob/main/LICENSE",
             ),
         ),
         servers=[
@@ -97,7 +120,9 @@ def http_server() -> None:
         plugins=[FlaskPlugin()],
     )
 
-    swaggerui_blueprint = get_swaggerui_blueprint(swagger_url, api_url, config={"app_name": f"{pokebot_name} API"})
+    swaggerui_blueprint = get_swaggerui_blueprint(
+        swagger_url, api_url, config={"app_name": f"{pokebot_name} API"}
+    )
 
     @server.route("/player", methods=["GET"])
     def http_get_player():
@@ -118,7 +143,11 @@ def http_server() -> None:
         _update_via_work_queue(cached_player, get_player)
 
         try:
-            data = cached_player.value.to_dict() if cached_player.value is not None else None
+            data = (
+                cached_player.value.to_dict()
+                if cached_player.value is not None
+                else None
+            )
         except TypeError:
             data = None
 
@@ -461,7 +490,9 @@ def http_server() -> None:
         if context.emulator is None:
             return jsonify(None)
         else:
-            return jsonify(list(reversed(context.emulator._performance_tracker.fps_history)))
+            return jsonify(
+                list(reversed(context.emulator._performance_tracker.fps_history))
+            )
 
     @server.route("/bot_modes", methods=["GET"])
     def http_get_bot_modes():
@@ -549,7 +580,9 @@ def http_server() -> None:
 
         new_settings = request.json
         if not isinstance(new_settings, dict):
-            return Response("This endpoint expects a JSON object as its payload.", status=422)
+            return Response(
+                "This endpoint expects a JSON object as its payload.", status=422
+            )
 
         for key in new_settings:
             if key == "emulation_speed":
@@ -568,11 +601,17 @@ def http_server() -> None:
                 context.bot_mode = new_settings["bot_mode"]
             elif key == "video_enabled":
                 if not isinstance(new_settings["video_enabled"], bool):
-                    return Response("Setting `video_enabled` did not contain a boolean value.", status=422)
+                    return Response(
+                        "Setting `video_enabled` did not contain a boolean value.",
+                        status=422,
+                    )
                 context.video = new_settings["video_enabled"]
             elif key == "audio_enabled":
                 if not isinstance(new_settings["audio_enabled"], bool):
-                    return Response("Setting `audio_enabled` did not contain a boolean value.", status=422)
+                    return Response(
+                        "Setting `audio_enabled` did not contain a boolean value.",
+                        status=422,
+                    )
                 context.audio = new_settings["audio_enabled"]
             else:
                 return Response(f"Unrecognised setting: '{key}'.", status=422)
@@ -621,9 +660,22 @@ def http_server() -> None:
         """
         new_buttons = request.json
         if not isinstance(new_buttons, list):
-            return Response("This endpoint expects a JSON array as its payload.", status=422)
+            return Response(
+                "This endpoint expects a JSON array as its payload.", status=422
+            )
 
-        possible_buttons = ["A", "B", "Select", "Start", "Right", "Left", "Up", "Down", "R", "L"]
+        possible_buttons = [
+            "A",
+            "B",
+            "Select",
+            "Start",
+            "Right",
+            "Left",
+            "Up",
+            "Down",
+            "R",
+            "L",
+        ]
         buttons_to_press = []
         for button in new_buttons:
             for possible_button in possible_buttons:
@@ -644,7 +696,10 @@ def http_server() -> None:
     def http_get_events_stream():
         subscribed_topics = request.args.getlist("topic")
         if len(subscribed_topics) == 0:
-            return Response("You need to provide at least one `topic` parameter in the query.", status=422)
+            return Response(
+                "You need to provide at least one `topic` parameter in the query.",
+                status=422,
+            )
 
         try:
             queue, unsubscribe = add_subscriber(subscribed_topics)
@@ -727,7 +782,9 @@ def http_server() -> None:
             while True:
                 if context.video:
                     png_data.seek(0)
-                    context.emulator.get_current_screen_image().convert("RGB").save(png_data, format="PNG")
+                    context.emulator.get_current_screen_image().convert("RGB").save(
+                        png_data, format="PNG"
+                    )
                     png_data.seek(0)
                     yield "Content-Type: image/png\r\n\r\n"
                     yield png_data.read()
@@ -750,7 +807,10 @@ def http_server() -> None:
 
     @server.route("/swagger", methods=["GET"])
     def http_get_swagger_json():
-        return Response(json.dumps(spec.to_dict(), indent=4), content_type="application/json; charset=utf-8")
+        return Response(
+            json.dumps(spec.to_dict(), indent=4),
+            content_type="application/json; charset=utf-8",
+        )
 
     with server.test_request_context():
         spec.path(view=http_get_player)
@@ -783,5 +843,3 @@ def http_server() -> None:
         threads=8,
         ident=f"{pokebot_name}/{pokebot_version} (waitress)",
     )
-
-    # server.run(debug=False, threaded=True, host=context.config.obs.http_server.ip, port=context.config.obs.http_server.port)
