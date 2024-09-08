@@ -29,6 +29,33 @@ from modules.state_cache import state_cache, StateCacheItem
 from modules.stats import total_stats
 from modules.version import pokebot_name, pokebot_version
 from modules.web.http_stream import DataSubscription, add_subscriber
+from modules.console import console
+
+import cProfile
+import pstats
+import io
+
+
+def log_to_file(msg):
+    with open("test.log", "a") as f:
+        f.write(f"{msg}")
+
+
+def profile_function(func):
+    profiler = cProfile.Profile()
+    profiler.enable()
+    func()
+    profiler.disable()
+
+    # Output profiling results
+    result = io.StringIO()
+    stats = pstats.Stats(profiler, stream=result).sort_stats(pstats.SortKey.TIME)
+    stats.print_stats()
+    log_to_file(stats.print_stats)
+
+    # Print or log the results
+    console.print(result.getvalue())
+    log_to_file(result.getvalue())
 
 
 def _update_via_work_queue(
@@ -72,7 +99,7 @@ def _update_via_work_queue(
     def do_update():
         nonlocal has_failed
         try:
-            update_callback()
+            profile_function(update_callback())
         except Exception:
             has_failed = True
         finally:
@@ -81,7 +108,7 @@ def _update_via_work_queue(
     try:
         work_queue.put_nowait(do_update)
     except Exception as e:
-        from modules.console import console
+        log_to_file(e)
 
         console.print_exception()
         return
@@ -120,9 +147,7 @@ def http_server() -> None:
         plugins=[FlaskPlugin()],
     )
 
-    swaggerui_blueprint = get_swaggerui_blueprint(
-        swagger_url, api_url, config={"app_name": f"{pokebot_name} API"}
-    )
+    swaggerui_blueprint = get_swaggerui_blueprint(swagger_url, api_url, config={"app_name": f"{pokebot_name} API"})
 
     @server.route("/player", methods=["GET"])
     def http_get_player():
@@ -143,11 +168,7 @@ def http_server() -> None:
         _update_via_work_queue(cached_player, get_player)
 
         try:
-            data = (
-                cached_player.value.to_dict()
-                if cached_player.value is not None
-                else None
-            )
+            data = cached_player.value.to_dict() if cached_player.value is not None else None
         except TypeError:
             data = None
 
@@ -186,20 +207,22 @@ def http_server() -> None:
           tags:
             - player
         """
+        try:
+            cached_bag = state_cache.item_bag
+            cached_storage = state_cache.item_storage
+            if cached_bag.age_in_seconds > 1:
+                _update_via_work_queue(cached_bag, get_item_bag)
+            if cached_storage.age_in_seconds > 1:
+                _update_via_work_queue(cached_storage, get_item_storage)
 
-        cached_bag = state_cache.item_bag
-        cached_storage = state_cache.item_storage
-        if cached_bag.age_in_seconds > 1:
-            _update_via_work_queue(cached_bag, get_item_bag)
-        if cached_storage.age_in_seconds > 1:
-            _update_via_work_queue(cached_storage, get_item_storage)
-
-        return jsonify(
-            {
-                "bag": cached_bag.value.to_dict(),
-                "storage": cached_storage.value.to_list(),
-            }
-        )
+            return jsonify(
+                {
+                    "bag": cached_bag.value.to_dict(),
+                    "storage": cached_storage.value.to_list(),
+                }
+            )
+        except Exception as e:
+            log_to_file(e)
 
     @server.route("/party", methods=["GET"])
     def http_get_party():
@@ -490,9 +513,7 @@ def http_server() -> None:
         if context.emulator is None:
             return jsonify(None)
         else:
-            return jsonify(
-                list(reversed(context.emulator._performance_tracker.fps_history))
-            )
+            return jsonify(list(reversed(context.emulator._performance_tracker.fps_history)))
 
     @server.route("/bot_modes", methods=["GET"])
     def http_get_bot_modes():
@@ -580,9 +601,7 @@ def http_server() -> None:
 
         new_settings = request.json
         if not isinstance(new_settings, dict):
-            return Response(
-                "This endpoint expects a JSON object as its payload.", status=422
-            )
+            return Response("This endpoint expects a JSON object as its payload.", status=422)
 
         for key in new_settings:
             if key == "emulation_speed":
@@ -660,9 +679,7 @@ def http_server() -> None:
         """
         new_buttons = request.json
         if not isinstance(new_buttons, list):
-            return Response(
-                "This endpoint expects a JSON array as its payload.", status=422
-            )
+            return Response("This endpoint expects a JSON array as its payload.", status=422)
 
         possible_buttons = [
             "A",
@@ -782,9 +799,7 @@ def http_server() -> None:
             while True:
                 if context.video:
                     png_data.seek(0)
-                    context.emulator.get_current_screen_image().convert("RGB").save(
-                        png_data, format="PNG"
-                    )
+                    context.emulator.get_current_screen_image().convert("RGB").save(png_data, format="PNG")
                     png_data.seek(0)
                     yield "Content-Type: image/png\r\n\r\n"
                     yield png_data.read()
