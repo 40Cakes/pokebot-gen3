@@ -2,7 +2,7 @@
 
 # 🎥 OBS and HTTP Server Config
 
-[`profiles/obs.yml`](../../profiles/obs.yml.dist)
+[`profiles/obs.yml`](../../modules/config/templates/obs.yml)
 
 This configuration can be used to drive stream overlays and web UIs.
 
