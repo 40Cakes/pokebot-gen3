@@ -18,7 +18,7 @@ from modules.files import read_file
 from modules.game import _event_flags
 from modules.items import get_item_bag, get_item_storage
 from modules.main import work_queue
-from modules.map import get_map_data
+from modules.map import get_map_data, get_wild_encounters_for_map
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_event_flag, get_game_state
 from modules.modes import get_bot_mode_names
@@ -294,9 +294,10 @@ def http_server() -> None:
             try:
                 map_data = cached_avatar.value.map_location
                 data = {
-                    "map": map_data.dict_for_map(),
                     "player_position": map_data.local_position,
+                    "map": map_data.dict_for_map(),
                     "tiles": map_data.dicts_for_all_tiles(),
+                    "encounters": get_wild_encounters_for_map(map_data.map_group, map_data.map_number).to_dict(),
                 }
             except (RuntimeError, TypeError):
                 data = None
@@ -345,6 +346,7 @@ def http_server() -> None:
             {
                 "map": map_data.dict_for_map(),
                 "tiles": map_data.dicts_for_all_tiles(),
+                "encounters": get_wild_encounters_for_map(map_group, map_number).to_dict(),
             }
         )
 

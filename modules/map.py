@@ -577,10 +577,7 @@ class MapCoordEvent:
 
     @property
     def type(self) -> str:
-        if self.script_pointer == 0:
-            return "weather"
-        else:
-            return "script"
+        return "weather" if self.script_pointer == 0 else "script"
 
     @property
     def local_coordinates(self) -> tuple[int, int]:
@@ -611,11 +608,10 @@ class MapCoordEvent:
     def weather(self) -> str | None:
         if self.script_pointer != 0:
             return None
-        else:
-            try:
-                return WEATHER_SCRIPTS[unpack_uint16(self._data[6:8])]
-            except KeyError:
-                return None
+        try:
+            return WEATHER_SCRIPTS[unpack_uint16(self._data[6:8])]
+        except KeyError:
+            return None
 
     def to_dict(self) -> dict:
         return {
@@ -987,10 +983,10 @@ class MapLocation:
         ]
 
     def object_by_local_id(self, local_id: int) -> "ObjectEventTemplate | None":
-        for object_template in self.objects:
-            if object_template.local_id == local_id:
-                return object_template
-        return None
+        return next(
+            (object_template for object_template in self.objects if object_template.local_id == local_id),
+            None,
+        )
 
     @property
     def coord_events(self) -> list[MapCoordEvent]:
@@ -1666,10 +1662,7 @@ class ObjectEventTemplate:
 
     def __str__(self) -> str:
         if self.trainer_type != "None":
-            if self.is_trainer_defeated:
-                defeated = "(defeated)"
-            else:
-                defeated = "(will battle)"
+            defeated = "(defeated)" if self.is_trainer_defeated else "(will battle)"
             if self.trainer_type == "Buried":
                 return f"Buried Trainer {defeated} at {self.local_coordinates}"
             else:
@@ -1743,10 +1736,7 @@ def get_map_objects() -> list[ObjectEvent]:
 
 def get_player_map_object() -> ObjectEvent | None:
     data = read_symbol("gObjectEvents", 0, 0x24)
-    if data[0] & 0x01:
-        return ObjectEvent(data)
-    else:
-        return None
+    return ObjectEvent(data) if data[0] & 0x01 else None
 
 
 def get_map_all_tiles(map_location: MapLocation | None = None) -> list[MapLocation]:
@@ -1772,6 +1762,14 @@ class WildEncounter:
         else:
             return f"{self.species.name} (lvl. {self.min_level}-{self.max_level}; {self.encounter_rate}%)"
 
+    def to_dict(self):
+        return {
+            "species": self.species.name,
+            "min_level": self.min_level,
+            "max_level": self.max_level,
+            "encounter_rate": self.encounter_rate,
+        }
+
 
 @dataclass
 class WildEncounterList:
@@ -1786,6 +1784,20 @@ class WildEncounterList:
     old_rod_encounters: list[WildEncounter]
     good_rod_encounters: list[WildEncounter]
     super_rod_encounters: list[WildEncounter]
+
+    def to_dict(self):
+        return {
+            "land_encounter_rate": self.land_encounter_rate,
+            "surf_encounter_rate": self.surf_encounter_rate,
+            "rock_smash_encounter_rate": self.rock_smash_encounter_rate,
+            "fishing_encounter_rate": self.fishing_encounter_rate,
+            "land_encounters": [e.to_dict() for e in self.land_encounters],
+            "surf_encounters": [e.to_dict() for e in self.surf_encounters],
+            "rock_smash_encounters": [e.to_dict() for e in self.rock_smash_encounters],
+            "old_rod_encounters": [e.to_dict() for e in self.old_rod_encounters],
+            "good_rod_encounters": [e.to_dict() for e in self.good_rod_encounters],
+            "super_rod_encounters": [e.to_dict() for e in self.super_rod_encounters],
+        }
 
 
 _wild_encounters_cache: dict[tuple[int, int], WildEncounterList] = {}
