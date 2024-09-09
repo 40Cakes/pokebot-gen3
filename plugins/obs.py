@@ -27,13 +27,13 @@ obs_websocket_ip = "127.0.0.1"
 obs_websocket_port = 4455
 obs_websocket_password = "password"
 obs_discord_webhook_url = ""
+obs_discord_delay = 0  # Wait n seconds before posting to Discord (prevents spoilers for livestream viewers)
 # Relative dir to this file, must be set to the same directory in OBS (Settings > Output > Recording > Recording Path)
 obs_replay_dir = Path(__file__) / "obs" / "replays"
 
 # OBS screenshot config
 obs_screenshot = False
 obs_screenshot_hotkey = "OBS_KEY_F11"  # OBS > Settings > Hotkeys > "Screenshot Output" > CTRL+F11
-obs_shiny_delay = 0  # Wait n seconds before taking OBS screenshot + posting to Discord (prevents livestream spoilers)
 
 # OBS replay buffer config
 # OBS > Settings > Output > Replay Buffer > Enable (must be enabled for hotkey option to be visible)
@@ -71,9 +71,6 @@ class OBSPlugin(BotPlugin):
             if not judge_encounter(opponent).is_of_interest:
                 return
 
-            if obs_shiny_delay > 0:
-                yield from wait(obs_shiny_delay)
-
             if obs_screenshot:
                 while get_battle_state() != BattleState.ACTION_SELECTION:
                     context.emulator.press_button("B")  # Throw out Pokémon for Discord screenshot
@@ -85,9 +82,11 @@ class OBSPlugin(BotPlugin):
                 if obs_discord_webhook_url and opponent.is_shiny:
                     def send_obs_discord_screenshot():
                         time.sleep(3)  # Give OBS some time to save screenshot to disk
-                        images = obs_replay_dir.glob("*.png")
                         # Find the most recent screenshot in replays folder
+                        # TODO: naive approach, assumes OBS screenshot worked
+                        images = obs_replay_dir.glob("*.png")
                         image = max(list(images), key=lambda item: item.stat().st_ctime)
+                        time.sleep(obs_discord_delay)
                         discord_message(webhook_url=obs_discord_webhook_url, image=Path(image))
 
                     Thread(target=send_obs_discord_screenshot).start()
