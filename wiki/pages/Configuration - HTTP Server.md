@@ -2,7 +2,7 @@
 
 # 📡 HTTP Server Config
 
-[`profiles/http.yml`](https://github.com/40Cakes/pokebot-gen3/blob/main/profiles/http.yml)
+[`profiles/http.yml`](../../modules/config/templates/http.yml)
 
 This configuration can be used to drive custom stream overlays and web UIs.
 

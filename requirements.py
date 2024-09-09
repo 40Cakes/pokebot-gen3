@@ -183,6 +183,9 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
             print("Unzipping libmgba into `./mgba`...")
             with zipfile.ZipFile(io.BytesIO(response.content)) as zip_handle:
                 zip_handle.extractall(get_base_path())
+        else:
+            print(f"ERROR: Could not download libmgba-py ({libmgba_url})")
+            sys.exit(1)
 
     # Mark the requirements for the current bot version as checked, so we do not
     # have to run all of this again until the next update.

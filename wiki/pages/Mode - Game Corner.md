@@ -2,12 +2,12 @@
 
 # 🎰 Game Corner Mode
 
-![](../../sprites/pokemon/shiny/Abra.png)
-![](../../sprites/pokemon/shiny/Clefairy.png)
-![](../../sprites/pokemon/shiny/Dratini.png)
-![](../../sprites/pokemon/shiny/Pinsir.png)
-![](../../sprites/pokemon/shiny/Scyther.png)
-![](../../sprites/pokemon/shiny/Porygon.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Abra.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Clefairy.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Dratini.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Pinsir.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Scyther.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Porygon.png)
 
 Soft resets for a Pokémon purchased from the [Celadon Game Corner](https://bulbapedia.bulbagarden.net/wiki/Celadon_Game_Corner).
 

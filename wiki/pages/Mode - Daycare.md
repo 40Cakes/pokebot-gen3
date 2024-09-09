@@ -2,14 +2,14 @@
 
 # 🥚 Daycare Mode
 
-![](../../sprites/pokemon/shiny/Pichu.png)
-![](../../sprites/pokemon/shiny/Cleffa.png)
-![](../../sprites/pokemon/shiny/Igglybuff.png)
-![](../../sprites/pokemon/shiny/Togepi.png)
-![](../../sprites/pokemon/shiny/Smoochum.png)
-![](../../sprites/pokemon/shiny/Elekid.png)
-![](../../sprites/pokemon/shiny/Magby.png)
-![](../../sprites/pokemon/shiny/Wynaut.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Pichu.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Cleffa.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Igglybuff.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Togepi.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Smoochum.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Elekid.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Magby.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Wynaut.png)
 
 ## Requirements
 

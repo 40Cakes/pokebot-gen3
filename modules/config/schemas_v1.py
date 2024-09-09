@@ -14,8 +14,8 @@ class Battle(BaseConfig):
     """Schema for the catch_block configuration."""
 
     filename: ClassVar = "battle.yml"
-    auto_catch: bool = False
-    pickup: bool = False
+    auto_catch: bool = True
+    pickup: bool = True
     pickup_threshold: Annotated[int, Field(gt=0, lt=7)] = 1
     pickup_check_frequency: Annotated[int, Field(gt=0)] = 5
     battle: bool = False
@@ -78,7 +78,7 @@ class CatchBlock(BaseConfig):
     """Schema for the catch_block configuration."""
 
     filename: ClassVar = "catch_block.yml"
-    block_list: list[str] = []
+    block_list: list[str] = ["MissingNo"]
 
 
 class Cheats(BaseConfig):
@@ -146,6 +146,9 @@ class KeysEmulator(BaseConfig):
     set_speed_2x: str = "2"
     set_speed_3x: str = "3"
     set_speed_4x: str = "4"
+    set_speed_8x: str = "5"
+    set_speed_16x: str = "6"
+    set_speed_32x: str = "7"
     set_speed_unthrottled: str = "0"
     reset: str = "Ctrl+R"
     reload_config: str = "Ctrl+C"
@@ -178,7 +181,7 @@ class Logging(BaseConfig):
     console: LoggingConsole = Field(default_factory=lambda: LoggingConsole())
     save_pk3: LoggingSavePK3 = Field(default_factory=lambda: LoggingSavePK3())
     log_encounters: bool = False
-    desktop_notifications: bool = False
+    desktop_notifications: bool = True
     shiny_gifs: bool = True
     tcg_cards: bool = True
 
@@ -196,9 +199,9 @@ class LoggingSavePK3(BaseConfig):
     """Schema for the save_pk3 section in the Logging config."""
 
     all: bool = False
-    shiny: bool = False
-    custom: bool = False
-    roamer: bool = False
+    shiny: bool = True
+    custom: bool = True
+    roamer: bool = True
 
 
 class HTTP(BaseConfig):
@@ -211,7 +214,7 @@ class HTTP(BaseConfig):
 class HTTPServer(BaseConfig):
     """Schema for the http_server section in the HTTP config."""
 
-    enable: bool = False
+    enable: bool = True
     ip: str = "127.0.0.1"
     port: Annotated[int, Field(gt=0, lt=65536)] = 8888
 

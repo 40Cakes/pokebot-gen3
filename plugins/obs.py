@@ -29,7 +29,7 @@ obs_websocket_password = "password"
 obs_discord_webhook_url = ""
 obs_discord_delay = 0  # Wait n seconds before posting to Discord (prevents spoilers for livestream viewers)
 # Relative dir to this file, must be set to the same directory in OBS (Settings > Output > Recording > Recording Path)
-obs_replay_dir = Path(__file__) / "obs" / "replays"
+obs_replay_dir = Path(__file__).parent / "obs" / "replays"
 
 # OBS screenshot config
 obs_screenshot = False

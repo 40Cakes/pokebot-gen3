@@ -2,7 +2,7 @@
 
 # ⚔ Battling and Pickup Config
 
-[`profiles/battle.yml`](../../profiles/battle.yml)
+[`profiles/battle.yml`](../../modules/config/templates/battle.yml)
 
 The bot can automatically battle Pokémon that don't meet any catch criteria.
 

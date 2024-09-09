@@ -11,7 +11,7 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 
 ## [Lugia](https://bulbapedia.bulbagarden.net/wiki/Lugia_(Pok%C3%A9mon))
 
-![image](../../sprites/pokemon/shiny/Lugia.png)
+![image](../../modules/web/static/sprites/pokemon/shiny/Lugia.png)
 
 - Place the player in front of Lugia in [Navel Rock](https://bulbapedia.bulbagarden.net/wiki/Navel_Rock)
 - Start mode
@@ -20,7 +20,7 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 
 ## [Ho-Oh](https://bulbapedia.bulbagarden.net/wiki/Ho-Oh_(Pok%C3%A9mon))
 
-![image](../../sprites/pokemon/shiny/Ho-Oh.png)
+![image](../../modules/web/static/sprites/pokemon/shiny/Ho-Oh.png)
 
 - Place the player in front of Ho-Oh on [Navel Rock](https://bulbapedia.bulbagarden.net/wiki/Navel_Rock)
 - Start mode
@@ -29,7 +29,7 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 
 ## [Regice](https://bulbapedia.bulbagarden.net/wiki/Regice_(Pok%C3%A9mon))
 
-![image](../../sprites/pokemon/shiny/Regice.png)
+![image](../../modules/web/static/sprites/pokemon/shiny/Regice.png)
 
 - Place the player in front of Regice in [Island Cave](https://bulbapedia.bulbagarden.net/wiki/Island_Cave)
 - Start mode
@@ -38,7 +38,7 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 
 ## [Regrock_](https://bulbapedia.bulbagarden.net/wiki/Regrock_(Pok%C3%A9mon))
 
-![image](../../sprites/pokemon/shiny/Regirock.png)
+![image](../../modules/web/static/sprites/pokemon/shiny/Regirock.png)
 
 - Place the player in front of Regrock in [Desert Ruins](https://bulbapedia.bulbagarden.net/wiki/Desert_Ruins)
 - Start mode
@@ -47,7 +47,7 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 
 ## [Registeel](https://bulbapedia.bulbagarden.net/wiki/Registeel_(Pok%C3%A9mon))
 
-![](../../sprites/pokemon/shiny/Registeel.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Registeel.png)
 
 - Place the player in front of Registeel in [Ancient Tomb](https://bulbapedia.bulbagarden.net/wiki/Ancient_Tomb)
 - Start mode
@@ -56,7 +56,7 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 
 ## [Kyogre](https://bulbapedia.bulbagarden.net/wiki/Kyogre_(Pok%C3%A9mon))
 
-![](../../sprites/pokemon/shiny/Kyogre.png) 
+![](../../modules/web/static/sprites/pokemon/shiny/Kyogre.png) 
 
 - Place the player anywhere on the platform in [Marine Cave](https://bulbapedia.bulbagarden.net/wiki/Marine_Cave), in front of Kyogre
 - Start mode
@@ -65,7 +65,7 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 
 ## [Groudon](https://bulbapedia.bulbagarden.net/wiki/Groudon_(Pok%C3%A9mon))
 
-![image](../../sprites/pokemon/shiny/Groudon.png) 
+![image](../../modules/web/static/sprites/pokemon/shiny/Groudon.png) 
 
 - Place the player anywhere on the platform in [Terra Cave](https://bulbapedia.bulbagarden.net/wiki/Terra_Cave), in front of Groudon
 - Start mode
@@ -74,7 +74,7 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 
 ## [Rayquaza](https://bulbapedia.bulbagarden.net/wiki/Rayquaza_(Pok%C3%A9mon))
 
-![image](../../sprites/pokemon/shiny/Rayquaza.png)
+![image](../../modules/web/static/sprites/pokemon/shiny/Rayquaza.png)
 
 - Place the player at the top of [Sky Pillar](https://bulbapedia.bulbagarden.net/wiki/Sky_Pillar), facing Rayquaza
 - Start mode
@@ -83,8 +83,8 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 
 ## [Latias](https://bulbapedia.bulbagarden.net/wiki/Latias_(Pok%C3%A9mon)) and [Latios](https://bulbapedia.bulbagarden.net/wiki/Latios_(Pok%C3%A9mon))
 
-![image](../../sprites/pokemon/shiny/Latias.png)
-![image](../../sprites/pokemon/shiny/Latios.png)
+![image](../../modules/web/static/sprites/pokemon/shiny/Latias.png)
+![image](../../modules/web/static/sprites/pokemon/shiny/Latios.png)
 
 - Catch the other roamer using [Roamer Resets](Mode%20-%20Roamer%20Resets.md) mode
 - Place the player in the encounter area on [Southern Island](https://bulbapedia.bulbagarden.net/wiki/Southern_Island)
@@ -94,7 +94,7 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 
 ## [Mew](https://bulbapedia.bulbagarden.net/wiki/Mew_(Pok%C3%A9mon)) 
 
-![image](../../sprites/pokemon/shiny/Mew.png)
+![image](../../modules/web/static/sprites/pokemon/shiny/Mew.png)
 
 - Stand on the **left** tile outside the forest on [Faraway Island](https://bulbapedia.bulbagarden.net/wiki/Faraway_Island)
 - Start mode

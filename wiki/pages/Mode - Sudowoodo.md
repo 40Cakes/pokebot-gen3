@@ -2,7 +2,7 @@
 
 # 🥦 Sudowoodo Mode
 
-![](../../sprites/pokemon/shiny/Sudowoodo.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Sudowoodo.png)
 
 - Register the [Wailmer Pail](https://bulbapedia.bulbagarden.net/wiki/Wailmer_Pail) to the `Select` button
 - Face [Sudowoodo](https://bulbapedia.bulbagarden.net/wiki/Sudowoodo_(Pok%C3%A9mon)) at the [Battle Frontier](https://bulbapedia.bulbagarden.net/wiki/Battle_Frontier_(Generation_III))

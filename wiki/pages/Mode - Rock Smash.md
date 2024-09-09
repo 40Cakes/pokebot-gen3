@@ -5,7 +5,7 @@
 Rock smash mode will continuously farm Rock Smash encounters in Granite Cave (Nosepass) and Safari Zone (Shuckle).
 
 ## Granite Cave
-![](../../sprites/pokemon/shiny/Nosepass.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Nosepass.png)
 
 You can use this mode either with or without Repel.  
 If using Repel, the bot will use up any Repel items in your inventory and then reset once it ran out.
@@ -37,7 +37,7 @@ If you have any Repel items in your inventory, the game will offer you this choi
 
 
 ## Safari Zone
-![](../../sprites/pokemon/shiny/Shuckle.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Shuckle.png)
 
 The mode will continuously try to enter the Safari Zone, so make sure you have some cash. The bot will use up to ₽25,000 and then soft reset to start over. If you have less cash than that, it will soft-reset when money runs out.
 

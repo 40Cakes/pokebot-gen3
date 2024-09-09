@@ -32,7 +32,7 @@ exceptions = [
     "Mewtwo",
     "Raikou",
     "Entei",
-    "Suicine",
+    "Suicune",
     "Castform",
     "Lileep",
     "Anorith",

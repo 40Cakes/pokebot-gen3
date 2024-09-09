@@ -65,7 +65,6 @@ class Item:
     extra_parameter: int
     tm_hm_move_id: int | None
 
-    @property
     def tm_hm_move(self) -> "Move | None":
         from modules.pokemon import get_move_by_index
 

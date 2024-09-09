@@ -1,4 +1,7 @@
+import shutil
 from typing import Generator, Optional, TYPE_CHECKING
+
+from modules.runtime import get_base_path
 
 if TYPE_CHECKING:
     from modules.gui import PokebotGui
@@ -9,8 +12,30 @@ if TYPE_CHECKING:
 from modules.config import Config
 
 
+def _initialise_config() -> None:
+    """
+    This will check for every file in the `modules/config/templates/` folder
+    whether a corresponding file exists in the `profiles/` directory.
+
+    If it finds any that are missing, it will create it by copying over the
+    file from the templates directory.
+
+    The idea is that we can keep the template files checked into Git and thus
+    overwriting them for each update, while the user can have their own real
+    config files that will not be touched.
+    """
+    config_templates_path = get_base_path() / "modules" / "config" / "templates"
+    profiles_path = get_base_path() / "profiles"
+    for dist_file in config_templates_path.iterdir():
+        if dist_file.is_file():
+            regular_file = profiles_path / dist_file.name
+            if not regular_file.exists():
+                shutil.copyfile(dist_file, regular_file)
+
+
 class BotContext:
     def __init__(self, initial_bot_mode: str = "Manual"):
+        _initialise_config()
         self.config = Config()
 
         self.emulator: Optional["LibmgbaEmulator"] = None

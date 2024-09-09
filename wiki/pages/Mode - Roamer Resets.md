@@ -4,8 +4,8 @@
 Roamer reset mode helps with finding shiny roaming Pokémon via soft-resetting.
 
 ## Emerald
-![](../../sprites/pokemon/shiny/Latias.png)
-![](../../sprites/pokemon/shiny/Latios.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Latias.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Latios.png)
 
 On Emerald, this mode needs some preparation **before defeating the Elite Four for the first time!**
 
@@ -21,9 +21,9 @@ On Emerald, this mode needs some preparation **before defeating the Elite Four f
 
 
 ## FireRed/LeafGreen
-![](../../sprites/pokemon/shiny/Raikou.png)
-![](../../sprites/pokemon/shiny/Entei.png)
-![](../../sprites/pokemon/shiny/Suicune.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Raikou.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Entei.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Suicune.png)
 
 - Make sure you have a Pokémon that knows **Fly** in your party
 - Make sure you have a Pokémon **between level 5 and 50** in your party (in order for Repel to work properly)
@@ -39,8 +39,8 @@ On Emerald, this mode needs some preparation **before defeating the Elite Four f
 
 ## Ruby/Sapphire
 
-![](../../sprites/pokemon/shiny/Latias.png)
-![](../../sprites/pokemon/shiny/Latios.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Latias.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Latios.png)
 
 Unlike Emerald version, Ruby and Sapphire are not restricted by the sequence that happens in your house immediately after defeating the Elite Four. After defeating the Elite Four for the first time, you will be sent back to your house in Littleroot Town. Walking to the first floor will trigger a cutscene in which Norman gives you the S.S. Ticket. The TV will be flashing; you can interact with the TV at any time after returning to your house, giving you time to prepare as follows:
 
