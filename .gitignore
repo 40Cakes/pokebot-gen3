@@ -9,7 +9,8 @@ __pycache__
 .last-requirements-check
 .last-update-check
 build/
-profiles/*/
+profiles/*
+!profiles/.gitkeep
 dist/
 logs/
 mgba/
@@ -18,6 +19,3 @@ roms/*
 stats/
 stream/
 plugins/
-
-profiles/*.yml
-profiles/*.py
