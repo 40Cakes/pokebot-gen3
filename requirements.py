@@ -16,6 +16,7 @@ required_modules = [
     "numpy~=1.26.1",
     "Flask~=2.3.2",
     "Flask-Cors~=4.0.0",
+    "setuptools",
     "ruamel.yaml~=0.18.2",
     "pypresence~=4.3.0",
     "obsws-python~=1.6.0",
