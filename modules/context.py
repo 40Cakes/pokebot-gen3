@@ -1,3 +1,4 @@
+import os
 import shutil
 from typing import Generator, Optional, TYPE_CHECKING
 
@@ -26,6 +27,8 @@ def _initialise_config() -> None:
     """
     config_templates_path = get_base_path() / "modules" / "config" / "templates"
     profiles_path = get_base_path() / "profiles"
+    if not profiles_path.exists():
+        os.mkdir(profiles_path)
     for dist_file in config_templates_path.iterdir():
         if dist_file.is_file():
             regular_file = profiles_path / dist_file.name
