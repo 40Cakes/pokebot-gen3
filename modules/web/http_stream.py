@@ -6,7 +6,8 @@ from time import sleep, time
 
 from modules.console import console
 from modules.context import context
-from modules.main import work_queue
+from modules.libmgba import inputs_to_strings
+from modules.main import work_queue, inputs_each_frame
 from modules.memory import GameState, get_game_state
 from modules.player import get_player, get_player_avatar
 from modules.pokedex import get_pokedex
@@ -202,9 +203,14 @@ def run_watcher():
             previous_emulator_state["message"] = context.message
             send_message(DataSubscription.Message, data=context.message, event_type="Message")
 
-        if subscriptions["Inputs"] > 0 and context.emulator.get_inputs() != previous_emulator_state["inputs"]:
-            previous_emulator_state["inputs"] = context.emulator.get_inputs()
-            send_message(DataSubscription.Inputs, data=context.emulator.get_inputs_as_strings(), event_type="Inputs")
+        if subscriptions["Inputs"] > 0:
+            combined_inputs = 0
+            for _ in range(len(inputs_each_frame)):
+                combined_inputs |= inputs_each_frame.popleft()
+
+            if combined_inputs != previous_emulator_state["inputs"]:
+                previous_emulator_state["inputs"] = combined_inputs
+                send_message(DataSubscription.Inputs, data=inputs_to_strings(combined_inputs), event_type="Inputs")
 
         if subscriptions["EmulatorSettings"] > 0:
             if context.emulation_speed != previous_emulator_state["emulation_speed"]:
