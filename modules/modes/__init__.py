@@ -14,8 +14,9 @@ def get_bot_modes() -> list[Type[BotMode]]:
     global _bot_modes
 
     if len(_bot_modes) == 0:
+        from .berry_blend import BerryBlendMode
         from .bunny_hop import BunnyHopMode
-        from modules.modes.daycare import DaycareMode
+        from .daycare import DaycareMode
         from .feebas import FeebasMode
         from .fishing import FishingMode
         from .game_corner import GameCornerMode
@@ -30,9 +31,12 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .static_run_away import StaticRunAway
         from .static_gift_resets import StaticGiftResetsMode
         from .static_soft_resets import StaticSoftResetsMode
+        from .sweet_scent import SweetScentMode
         from .pokecenterloop import PokecenterLoopMode
+        from .ev_train import EVTrainMode
 
         _bot_modes = [
+            BerryBlendMode,
             BunnyHopMode,
             DaycareMode,
             FeebasMode,
@@ -48,11 +52,14 @@ def get_bot_modes() -> list[Type[BotMode]]:
             StaticRunAway,
             StaticGiftResetsMode,
             StaticSoftResetsMode,
+            SweetScentMode,
             SudowoodoMode,
             PokecenterLoopMode,
+            EVTrainMode,
         ]
 
     return _bot_modes
+
 
 
 def get_bot_mode_names() -> list[str]:
