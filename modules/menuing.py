@@ -566,6 +566,7 @@ class CheckForPickup(BaseMenuNavigator):
                 "Rare Candy",
                 "Full Restore",
                 "Ether",
+                "Protein",
                 "Revive",
                 "White Herb",
                 "HP Up",
