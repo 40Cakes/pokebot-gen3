@@ -7,6 +7,7 @@ from time import sleep, time
 from modules.console import console
 from modules.context import context
 from modules.main import work_queue
+from modules.map import get_wild_encounters_for_map
 from modules.memory import GameState, get_game_state
 from modules.player import get_player, get_player_avatar
 from modules.pokedex import get_pokedex
@@ -20,6 +21,7 @@ queue_size = 10
 
 class DataSubscription(IntFlag):
     Player = auto()
+    PlayerAvatar = auto()
     Party = auto()
     Pokedex = auto()
     Opponent = auto()
@@ -127,12 +129,25 @@ def run_watcher():
 
         if subscriptions["Player"] > 0:
             if state_cache.player.age_in_frames >= 60:
-                # If the cached party data is too old, tell the main thread to update it at the next
+                # If the cached player data is too old, tell the main thread to update it at the next
                 # possible opportunity.
                 work_queue.put_nowait(get_player)
             if state_cache.player.frame > previous_game_state["player"]:
                 previous_game_state["player"] = state_cache.player.frame
                 send_message(DataSubscription.Player, data=state_cache.player.value.to_dict(), event_type="Player")
+
+        if subscriptions["PlayerAvatar"] > 0:
+            if state_cache.player_avatar.age_in_frames > 4:
+                # If the cached player avatar data is too old, tell the main thread to update it at the next
+                # possible opportunity.
+                work_queue.put_nowait(get_player_avatar)
+            if state_cache.player_avatar.frame > previous_game_state["player_avatar"]:
+                previous_game_state["player_avatar"] = state_cache.player_avatar.frame
+                send_message(
+                    DataSubscription.PlayerAvatar,
+                    data=state_cache.player_avatar.value.to_dict(),
+                    event_type="PlayerAvatar",
+                )
 
         if subscriptions["Party"] > 0:
             if state_cache.party.age_in_frames >= 60:
@@ -186,6 +201,7 @@ def run_watcher():
                         "map": map_data.dict_for_map(),
                         "player_position": map_data.local_position,
                         "tiles": map_data.dicts_for_all_tiles(),
+                        "encounters": get_wild_encounters_for_map(*current_map).to_dict(),
                     }
 
                     send_message(DataSubscription.Map, data=data, event_type="MapChange")
