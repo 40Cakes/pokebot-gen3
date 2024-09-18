@@ -1,0 +1,428 @@
+@font-face {
+    font-family: SmallPixel;
+    src: local("Small Pixel Regular");
+}
+
+body {
+    background-color: #00000000;
+    width: 2560px;
+    height: 1440px;
+}
+
+img.arrow {
+    height: 18px;
+    image-rendering: crisp-edges;
+}
+
+img.badge_earned {
+    image-rendering: crisp-edges;
+    height: 44px;
+    width: 44px;
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+img.badge_unearned {
+    image-rendering: crisp-edges;
+    opacity: 15%;
+    filter: grayscale(100%);
+    height: 44px;
+    width: 44px;
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+img.encounter_log_held_item {
+    height: 1px;
+    transform: scale(33);
+    image-rendering: crisp-edges;
+    position: relative;
+    z-index: 100;
+    bottom: 3px;
+    right: 3px;
+}
+
+img.encounter_sv_label {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    height: 26px;
+}
+
+img.input_button_a_b {
+    opacity: 30%;
+    width: 50px;
+    padding-right: 5px;
+}
+
+img.input_button_select {
+    opacity: 30%;
+    width: 50px;
+    padding-right: 5px;
+    transform: scale(1.3) translateX(5px) translateY(10px);
+}
+
+img.input_button_start {
+    opacity: 30%;
+    width: 50px;
+    padding-right: 5px;
+    transform: scale(1.3);
+}
+
+img.input_d_pad {
+    opacity: 30%;
+    width: 75px;
+    transform: scale(1.3);
+    padding-right: 10px;
+}
+
+img.input_pressed {
+    opacity: 100%;
+}
+
+img.location_pin {
+    height: 18px;
+    image-rendering: crisp-edges;
+    transform: scale(2.5);
+}
+
+img.party_sprite {
+    max-width: 26px;
+    max-height: 26px;
+    transform: scale(3);
+}
+
+img.small_icon {
+    height: 32px;
+}
+
+img.small_sprite {
+    transform: scale(1.8);
+    image-rendering: crisp-edges;
+    height: 32px;
+}
+
+img.sprite {
+    transform: scale(3.1);
+    image-rendering: crisp-edges;
+    padding-left: 6px;
+    padding-right: 6px;
+    height: 32px;
+    width: 32px;
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+img.target_timer_sprite {
+    max-height: 48px;
+    max-width: 48px;
+    transform: scale(2) translateY(-5px);
+}
+
+img.checklist-sprite {
+    transform: scale(4);
+    image-rendering: crisp-edges;
+    padding-left: 1px;
+    padding-right: 1px;
+    height: 26px;
+    width: 26px;
+    display: inline-block;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+img.checklist-tick {
+    transform: scale(1.5);
+    padding-left: 1px;
+    padding-right: 1px;
+    height: 26px;
+    width: 26px;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+span.time_unit {
+    font-size: 1.333rem;
+}
+
+span.checklist_goal {
+    color: #dcdcdc;
+    font-size: 1.15rem;
+}
+
+span.checklist_phase_percent {
+    color: #dcdcdc;
+    font-size: 1.15rem;
+}
+
+table {
+    position: fixed;
+    font-size: 1.75rem;
+    text-shadow: 2px 2px #000000;
+    background-color: #000000c2;
+    font-family: SmallPixel;
+    color: #FFF;
+    border-spacing: 0;
+}
+
+table.badges {
+    left: 83.25%;
+    width: 16.75%;
+    height: 5%;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-collapse: separate;
+}
+
+table.encounter_log {
+    top: 67.166%;
+    left: 42.75%;
+    width: 23.5%;
+    height: 32.3%;
+    text-align: center;
+    border-radius: 20px;
+    border-collapse: separate;
+}
+
+table.encounter_hud {
+    top: 2%;
+    left: 23.1%;
+    width: 32%;
+    text-align: center;
+    border-radius: 10px;
+    border-collapse: separate;
+    background-color: #000000f6;
+}
+
+table.input {
+    background-color: #00000000;
+    top: 58%;
+    width: 7%;
+    height: 5%;
+    left: 1%;
+}
+
+table.party_list {
+    text-align: center;
+    table-layout: fixed;
+}
+
+table.party {
+    top: 92.55%;
+    left: 66.75%;
+    width: 16.25%;
+    height: 6.9%;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-collapse: separate;
+}
+
+table.phase_stats {
+    top: 67.166%;
+    left: 66.75%;
+    width: 16.25%;
+    height: 25.4%;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-collapse: separate;
+}
+
+table.shiny_log {
+    top: 67.166%;
+    left: 12.25%;
+    width: 30%;
+    height: 32.3%;
+    text-align: center;
+    border-radius: 20px;
+    border-collapse: separate;
+}
+
+table.sv_hud {
+    background-color: #000000f6;
+    top: 7%;
+    left: 48.4%;
+    width: 6.7%;
+    border-radius: 10px;
+    border-collapse: separate;
+}
+
+table.target_1 {
+    background-color: #000000f6;
+    top: 62.3%;
+    left: 46.3%;
+    width: 9.3%;
+    height: 2.7%;
+    text-align: center;
+    border-radius: 10px;
+    border-collapse: separate;
+}
+
+table.target_2 {
+    background-color: #000000f6;
+    top: 62.3%;
+    left: 36.3%;
+    width: 9.3%;
+    height: 2.7%;
+    text-align: center;
+    border-radius: 10px;
+    border-collapse: separate;
+}
+
+table.time {
+    background-color: #000000f6;
+    text-align: center;
+    top: 2%;
+    left: 1%;
+    width: 13%;
+    border-radius: 10px;
+    border-collapse: separate;
+}
+
+table.total_stats {
+    top: 67.166%;
+    left: 83.5%;
+    width: 16.25%;
+    height: 32.3%;
+    border-radius: 20px;
+    border-collapse: separate;
+}
+
+table.checklist {
+    top: 0.5%;
+    left: 56.65%;
+    width: 43.1%;
+    height: 66.166%;
+    text-align: center;
+    border-radius: 20px;
+    border-collapse: separate;
+}
+
+td {
+    border-top: 1px solid #ffffff2a;
+    border-right: none;
+    border-left: none;
+}
+
+td.encounter_held_item {
+    height: 32px;
+    transform: scale(1.4);
+    image-rendering: crisp-edges;
+}
+
+td.location {
+    text-align: center;
+    font-size: 1.5rem;
+    height: 48px;
+}
+
+td.no-rule {
+    border-top: none;
+}
+
+td.party_list {
+    width: 68px;
+    border-top: #00000000;
+}
+
+td.stat_label {
+    text-align: left;
+    padding-left: 5px;
+    font-size: 1.333rem;
+}
+
+td.stat_value {
+    text-align: right;
+    padding-right: 5px;
+}
+
+td.total_stat_icon {
+    text-align: center;
+    padding-left: 5px;
+}
+
+th {
+    text-align: center;
+    color: #ffffffdc;
+    font-size: 1.333rem;
+    font-weight: normal;
+}
+
+th.shiny_log {
+    text-align: left;
+    padding-left: 20px;
+}
+
+tr.party_list {
+    position: absolute;
+    top: -15px;
+    display: flex;
+    justify-content: center;
+}
+
+tr.checklist {
+    border-bottom: 1px solid #80808080;
+}
+
+.bad_value {
+    font-weight: bold;
+    color: #ff4242;
+}
+
+.badge_wrapper {
+    margin-left: 15px;
+    margin-right: 15px;
+    padding-bottom: 10px;
+}
+
+.good_value {
+    font-weight: bold;
+    color: #16c40c
+}
+
+.iv_green {
+    color: #16c40c;
+}
+
+.iv_null {
+    opacity: 0%;
+    color: #00000000;
+}
+
+.iv_purple {
+    color: #ff00ff;
+}
+
+.iv_red {
+    color: #ff4242;
+}
+
+.iv_white {
+    color: #ffffff;
+}
+
+.iv_yellow {
+    color: #ffd700;
+}
+
+.sv_null {
+    opacity: 0%;
+    color: #00000000;
+}
+
+.sv_purple {
+    color: #ff00ff;
+    font-weight: bold;
+}
+
+.sv_red {
+    color: #ff4242;
+    font-weight: bold;
+}
+
+.sv_yellow {
+    color: #ffd700;
+    font-weight: bold;
+}
