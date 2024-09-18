@@ -117,7 +117,7 @@ img.sprite {
 }
 
 img.target_timer_sprite {
-    max-height: 48px;
+    height: 48px;
     max-width: 48px;
     transform: scale(2) translateY(-5px);
 }
