@@ -369,7 +369,7 @@ function handleInput(data) {
 
     if (data.length === 0) {
         // Reset buttons
-        $("#input_d_pad").attr("src", "sprites/stream-overlay/inputs/D_Pad.svg")
+        $("#input_d_pad").attr("src", "sprites/stream-overlay/inputs/D_Pad.png")
         document.getElementById("input_d_pad").classList.remove("input_pressed")
         document.getElementById("input_start_button").classList.remove("input_pressed")
         document.getElementById("input_select_button").classList.remove("input_pressed")
@@ -377,16 +377,16 @@ function handleInput(data) {
         document.getElementById("input_a_button").classList.remove("input_pressed")
     } else {
         if (data.includes("Left")) {
-            $("#input_d_pad").attr("src", "sprites/stream-overlay/inputs/D_Pad_Left.svg")
+            $("#input_d_pad").attr("src", "sprites/stream-overlay/inputs/D_Pad_Left.png")
             document.getElementById("input_d_pad").classList.add("input_pressed")
         } else if (data.includes("Right")) {
-            $("#input_d_pad").attr("src", "sprites/stream-overlay/inputs/D_Pad_Right.svg")
+            $("#input_d_pad").attr("src", "sprites/stream-overlay/inputs/D_Pad_Right.png")
             document.getElementById("input_d_pad").classList.add("input_pressed")
         } else if (data.includes("Up")) {
-            $("#input_d_pad").attr("src", "sprites/stream-overlay/inputs/D_Pad_Up.svg")
+            $("#input_d_pad").attr("src", "sprites/stream-overlay/inputs/D_Pad_Up.png")
             document.getElementById("input_d_pad").classList.add("input_pressed")
         } else if (data.includes("Down")) {
-            $("#input_d_pad").attr("src", "sprites/stream-overlay/inputs/D_Pad_Down.svg")
+            $("#input_d_pad").attr("src", "sprites/stream-overlay/inputs/D_Pad_Down.png")
             document.getElementById("input_d_pad").classList.add("input_pressed")
         }
 
@@ -689,9 +689,9 @@ function timers() {
             // TEMP/hacky way to ensure shiny log is updated when current opponent is shiny
             refreshShinyLog()
         } else if (state.shiny_log[0] !== undefined) {
-            // Don't update phase delta on shinies (for OBS screenshot)
-            $("#phase_delta_hrs").text((diffHrs(state.shiny_log[0].time_encountered * 1000)))
-            $("#phase_delta_mins").text(diffMins((state.shiny_log[0].time_encountered * 1000)))
+            // Don't update phase time on shinies (for OBS screenshot)
+            $("#phase_time_hrs").text((diffHrs(state.shiny_log[0].time_encountered * 1000)))
+            $("#phase_time_mins").text(diffMins((state.shiny_log[0].time_encountered * 1000)))
         }
     }
 
