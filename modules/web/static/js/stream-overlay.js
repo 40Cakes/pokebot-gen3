@@ -651,7 +651,7 @@ function refreshchecklist() {
             .append($("<td>")
                 .append($("<img>")
                     .addClass("checklist-tick")
-                    .attr({ "src": (!goal && checklist_mon.shiny_encounters > goal) ? "sprites/stream-overlay/tick.png" : "sprites/items/None.png" })))
+                    .attr({ "src": (!goal || checklist_mon.shiny_encounters >= goal) ? "sprites/stream-overlay/tick.png" : "sprites/items/None.png" })))
         )
     }
 
