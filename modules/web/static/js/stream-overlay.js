@@ -688,6 +688,12 @@ function timers() {
         if (state.opponent.is_shiny && state.opponent.personality_value != state.shiny_log[0].pokemon.pid) {
             // TEMP/hacky way to ensure shiny log is updated when current opponent is shiny
             refreshShinyLog()
+
+            fetch("/stats")
+            .then(response => response.json())
+            .then(data => {
+                handleStats(data)
+            })
         } else if (state.shiny_log[0] !== undefined) {
             // Don't update phase time on shinies (for OBS screenshot)
             $("#phase_time_hrs").text((diffHrs(state.shiny_log[0].time_encountered * 1000)))
