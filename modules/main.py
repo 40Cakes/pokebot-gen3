@@ -1,5 +1,6 @@
 import queue
 import sys
+from collections import deque
 from threading import Thread
 
 from modules.console import console
@@ -14,6 +15,11 @@ from modules.tasks import get_global_script_context, get_tasks
 # such as extracting the current party, which need to be done from the main thread.
 # Each entry here will be executed exactly once and then removed from the queue.
 work_queue: queue.Queue[callable] = queue.Queue()
+
+
+# Keeps a list of inputs that have been pressed for each frame so that the HTTP server
+# can fetch and accumulate them for its `Inputs` stream event.
+inputs_each_frame: deque[int] = deque(maxlen=128)
 
 
 def main_loop() -> None:
@@ -43,6 +49,7 @@ def main_loop() -> None:
             while not work_queue.empty():
                 callback = work_queue.get_nowait()
                 callback()
+                work_queue.task_done()
 
             context.frame += 1
 
@@ -109,6 +116,7 @@ def main_loop() -> None:
                 else:
                     context.set_manual_mode()
 
+            inputs_each_frame.append(context.emulator.get_inputs())
             context.emulator.run_single_frame()
             previous_frame_info = frame_info
             previous_frame_info.previous_frame = None

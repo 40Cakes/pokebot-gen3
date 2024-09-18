@@ -35,6 +35,14 @@ input_map = {
 }
 
 
+def inputs_to_strings(inputs: int) -> list[str]:
+    """
+    :return: Converts the bitfield representing the emulator's input state to a list
+             of button names that are being pressed.
+    """
+    return [key for key in input_map if inputs & input_map[key]]
+
+
 class PerformanceTracker:
     """
     This is a little helper utility used for measuring the FPS rate and allowing
@@ -428,17 +436,6 @@ class LibmgbaEmulator:
         :return: A bitfield with all the buttons that are currently being pressed
         """
         return self._core._core.getKeys(self._core._core)
-
-    def get_inputs_as_strings(self) -> list[str]:
-        """
-        :return: A list of all the button names that are currently being pressed
-        """
-        raw_inputs = self.get_inputs()
-        inputs = []
-        for key in input_map:
-            if raw_inputs & input_map[key]:
-                inputs.append(key)
-        return inputs
 
     def set_inputs(self, inputs: int):
         """

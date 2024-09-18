@@ -6,8 +6,9 @@ from time import sleep, time
 
 from modules.console import console
 from modules.context import context
-from modules.main import work_queue
 from modules.map import get_wild_encounters_for_map
+from modules.libmgba import inputs_to_strings
+from modules.main import work_queue, inputs_each_frame
 from modules.memory import GameState, get_game_state
 from modules.player import get_player, get_player_avatar
 from modules.pokedex import get_pokedex
@@ -15,7 +16,7 @@ from modules.pokemon import get_opponent, get_party
 from modules.state_cache import state_cache
 from modules.stats import total_stats
 
-update_interval_in_ms = 1000 / 30
+update_interval_in_ms = 1000 / 60
 queue_size = 10
 
 
@@ -129,7 +130,7 @@ def run_watcher():
 
         if subscriptions["Player"] > 0:
             if state_cache.player.age_in_frames >= 60:
-                # If the cached player data is too old, tell the main thread to update it at the next
+                # If the cached party data is too old, tell the main thread to update it at the next
                 # possible opportunity.
                 work_queue.put_nowait(get_player)
             if state_cache.player.frame > previous_game_state["player"]:
@@ -218,9 +219,14 @@ def run_watcher():
             previous_emulator_state["message"] = context.message
             send_message(DataSubscription.Message, data=context.message, event_type="Message")
 
-        if subscriptions["Inputs"] > 0 and context.emulator.get_inputs() != previous_emulator_state["inputs"]:
-            previous_emulator_state["inputs"] = context.emulator.get_inputs()
-            send_message(DataSubscription.Inputs, data=context.emulator.get_inputs_as_strings(), event_type="Inputs")
+        if subscriptions["Inputs"] > 0:
+            combined_inputs = 0
+            for _ in range(len(inputs_each_frame)):
+                combined_inputs |= inputs_each_frame.popleft()
+
+            if combined_inputs != previous_emulator_state["inputs"]:
+                previous_emulator_state["inputs"] = combined_inputs
+                send_message(DataSubscription.Inputs, data=inputs_to_strings(combined_inputs), event_type="Inputs")
 
         if subscriptions["EmulatorSettings"] > 0:
             if context.emulation_speed != previous_emulator_state["emulation_speed"]:

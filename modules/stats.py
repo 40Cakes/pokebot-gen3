@@ -16,10 +16,8 @@ from modules.context import context
 from modules.csv import log_encounter_to_csv
 from modules.discord import discord_message
 from modules.files import read_file, write_file
-from modules.memory import GameState, get_game_state
 from modules.pokemon import Pokemon
 from modules.runtime import get_sprites_path
-from modules.state_cache import state_cache
 
 
 class TotalStats:
@@ -320,8 +318,8 @@ class TotalStats:
         # Same Pokémon encounter streak records
         if (
             self.encounter_log is not None
-            and len(self.encounter_log) > 0
-            and self.encounter_log[0]["pokemon"]["name"] == pokemon.species_name_for_stats
+            and len(self.encounter_log) > 1
+            and self.encounter_log[-2]["pokemon"]["name"] == pokemon.species_name_for_stats
         ):
             self.total_stats["totals"]["current_streak"] = self.total_stats["totals"].get("current_streak", 0) + 1
         else:
@@ -384,8 +382,8 @@ class TotalStats:
             self.update_same_pokemon_streak_record(pokemon)
 
             if pokemon.is_shiny:
-                self.append_shiny_log(pokemon)
                 self.update_shiny_incremental_stats(pokemon)
+                self.append_shiny_log(pokemon)
 
             print_stats(self.total_stats, pokemon, self.session_pokemon)
 
