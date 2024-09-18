@@ -117,9 +117,8 @@ img.sprite {
 }
 
 img.target_timer_sprite {
-    height: 48px;
-    max-width: 48px;
-    transform: scale(2) translateY(-5px);
+    max-height: 24px;
+    max-width: 24px;
 }
 
 img.checklist-sprite {
