@@ -61,7 +61,7 @@ def discord_message(
         embed_obj.set_timestamp()
         webhook.add_embed(embed_obj)
 
-    time.sleep(context.config.obs.discord_delay)
+    time.sleep(context.config.discord.delay)
     webhook.execute()
 
 

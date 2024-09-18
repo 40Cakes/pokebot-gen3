@@ -1,0 +1,6 @@
+# See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/tree/main/wiki/pages/Configuration%20-%20HTTP%20Server.md
+
+http_server:
+  enable: true
+  ip: 127.0.0.1
+  port: 8888

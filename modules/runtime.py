@@ -40,4 +40,4 @@ def get_sprites_path() -> Path:
     :return: A `Path` object to the `sprites` directory. Not that in pyinstaller distributions, this
              might be in a different place, hence this separate function.
     """
-    return Path(__file__).parent.parent / "sprites"
+    return Path(__file__).parent / "web" / "static" / "sprites"

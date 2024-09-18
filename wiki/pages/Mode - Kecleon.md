@@ -2,7 +2,7 @@
 
 # 🎨 Kecleon
 
-![](../../sprites/pokemon/shiny/Kecleon.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Kecleon.png)
 
 Kecleon mode will self-destruct on the Kecleon just west of Fortree City.
 The mode checks that you have not already defeated this one, if you have, you will need to Spin in grass for the 1% encounter rate.

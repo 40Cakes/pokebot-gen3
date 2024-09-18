@@ -16,10 +16,8 @@ from modules.context import context
 from modules.csv import log_encounter_to_csv
 from modules.discord import discord_message
 from modules.files import read_file, write_file
-from modules.memory import GameState, get_game_state
 from modules.pokemon import Pokemon
 from modules.runtime import get_sprites_path
-from modules.state_cache import state_cache
 
 
 class TotalStats:
@@ -384,22 +382,8 @@ class TotalStats:
             self.update_same_pokemon_streak_record(pokemon)
 
             if pokemon.is_shiny:
-                self.append_shiny_log(pokemon)
                 self.update_shiny_incremental_stats(pokemon)
-
-                #  TODO fix all this OBS crap
-                for _ in range(context.config.obs.shiny_delay):
-                    context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-
-                if context.config.obs.screenshot:
-                    from modules.obs import obs_hot_key
-
-                    while get_game_state() != GameState.BATTLE:
-                        context.emulator.press_button("B")  # Throw out Pokémon for screenshot
-                        context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-                    for _ in range(180):
-                        context.emulator.run_single_frame()  # TODO bad (needs to be refactored so main loop advances frame)
-                    obs_hot_key("OBS_KEY_F11", pressCtrl=True)
+                self.append_shiny_log(pokemon)
 
             print_stats(self.total_stats, pokemon, self.session_pokemon)
 

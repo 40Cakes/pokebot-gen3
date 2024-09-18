@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<head>
+    <link rel="stylesheet" href="css/stream-overlay.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha384-1H217gwSVyLSIfaLxHbE7dRb3v4mYCKbpQvzx0cegeju1MVsGrX5xXxAvs/HgeFs" crossorigin="anonymous">
+        </script>
+
+    <script src="https://momentjs.com/downloads/moment.min.js"
+        integrity="sha384-jzJ+sNWbKe71gDLLfQKgdtslQjhK70oKLFN+wmwxyg6mQN7Vem+wzce4pryF0HP/" crossorigin="anonymous">
+        </script>
+</head>
+
+<body>
+    <table class="input">
+        <tbody>
+            <tr>
+                <td class="no-rule" rowspan="2">
+                    <img id="input_d_pad" class="input_d_pad input_released"
+                        src="sprites/stream-overlay/inputs/D_Pad.svg">
+                </td>
+                <td class="no-rule">
+                    <img id="input_select_button" class="input_button_select input_released"
+                        src="sprites/stream-overlay/inputs/Select_Button.svg">
+                </td>
+                <td class="no-rule">
+                    <img id="input_start_button" class="input_button_start input_released"
+                        src="sprites/stream-overlay/inputs/Start_Button.svg">
+                </td>
+            </tr>
+            <tr>
+                <td class="no-rule">
+                    <img id="input_b_button" class="input_button_a_b input_released"
+                        src="sprites/stream-overlay/inputs/B_Button.svg">
+                </td>
+                <td class="no-rule">
+                    <img id="input_a_button" class="input_button_a_b input_released"
+                        src="sprites/stream-overlay/inputs/A_Button.svg">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="shiny_log">
+        <tr>
+            <th class="shiny_log small_icon table_header"><img class="arrow"
+                    src="sprites/stream-overlay/arrow_yellow.png">
+            <th>SV</th>
+            <th>Delta</th>
+            <th>Phase<br></th>
+            <th>!PSP</th>
+            <th>Pokemon</th>
+            <th><img style="height: 15px; transform: scale(2);" src="sprites/stream-overlay/sparkles.png"></th>
+            <th>Total</th>
+        </tr>
+        <tbody id="shiny_log">
+    </table>
+
+    <table class="encounter_log">
+        <tr>
+            <th class="small_icon table_header"><img class="arrow" src="sprites/stream-overlay/arrow_red.png"></th>
+            <th>HP </th>
+            <th>ATK</th>
+            <th>DEF</th>
+            <th>SPA</th>
+            <th>SPD</th>
+            <th>SPE</th>
+            <th>IV Sum</th>
+            <th>SV</th>
+        </tr>
+        <tbody id="encounter_log">
+    </table>
+
+    <table class="party">
+        <tr>
+            <td>
+                <table class="party_list">
+                    <thead>
+                        <tr class="party_list" id="party_list">
+                            <td class="party_list"><img id="party0" class="party_sprite" src="sprites/items/None.png">
+                            </td>
+                            <td class="party_list"><img id="party1" class="party_sprite" src="sprites/items/None.png">
+                            </td>
+                            <td class="party_list"><img id="party2" class="party_sprite" src="sprites/items/None.png">
+                            </td>
+                            <td class="party_list"><img id="party3" class="party_sprite" src="sprites/items/None.png">
+                            </td>
+                            <td class="party_list"><img id="party4" class="party_sprite" src="sprites/items/None.png">
+                            </td>
+                            <td class="party_list"><img id="party5" class="party_sprite" src="sprites/items/None.png">
+                            </td>
+                        </tr>
+                    </thead>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <table id="encounter_hud" class="encounter_hud">
+        <tr>
+            <th>PID</th>
+            <th>Item</th>
+            <th>HP </th>
+            <th>ATK</th>
+            <th>DEF</th>
+            <th>SPA</th>
+            <th>SPD</th>
+            <th>SPE</th>
+            <th>Hidden</th>
+            <th>Nature</th>
+        </tr>
+        <tbody id="encounter">
+            <tr>
+                <td id="encounter_hud_pid"></td>
+                <td><img id="encounter_hud_item" class="encounter_held_item" src="sprites/items/None.png"></td>
+                <td id="encounter_hud_hp"></td>
+                <td id="encounter_hud_attack"></td>
+                <td id="encounter_hud_defence"></td>
+                <td id="encounter_hud_special_attack"></td>
+                <td id="encounter_hud_special_defence"></td>
+                <td id="encounter_hud_speed"></td>
+                <td><img id="encounter_hud_hidden_power" src="sprites/types/large/Unknown.png"></td>
+                <td id="encounter_hud_nature"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table id="sv_hud" class="sv_hud">
+        <tr>
+            <th colspan="2">Shiny Value</th>
+        </tr>
+        <tbody>
+            <tr>
+                <td id="encounter_sv" class="sv_red" style="text-align: right;"></td>
+                <td><img id="encounter_sv_label" class="encounter_sv_label" src="sprites/stream-overlay/cross.png"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table id="time" class="time">
+        <tr>
+            <td><img class="small_icon" src="sprites/stream-overlay/australia.png"></td>
+            <td>
+                <div id="local_time"></div>
+            </td>
+        </tr>
+        <tr>
+            <td><img class="small_icon" src="sprites/stream-overlay/hourglass.png"></td>
+            <td><span id="start_days"></span><span style="font-size: 1.05rem;"> days,
+                </span><span id="start_hours"></span><span style="font-size: 1.05rem;"> hours</span></td>
+        </tr>
+    </table>
+
+    <table id="target_1" class="target_1" style="opacity: 0%;">
+        <tr>
+            <td class="no-rule"><img id="target_1_sprite" class="target_timer_sprite" src="sprites/items/None.png"></td>
+            <td class="no-rule">
+                <span id="target_1_timer_hrs"></span>
+                <span class="time_unit">h</span>
+                <span id="target_1_timer_mins"></span>
+                <span class="time_unit">m</span>
+            </td>
+        </tr>
+        <tbody id="target_1">
+    </table>
+
+    <table id="target_2" class="target_2" style="opacity: 0%;">
+        <tr>
+            <td class="no-rule">
+                <span id="target_2_timer_hrs"></span>
+                <span class="time_unit">h</span>
+                <span id="target_2_timer_mins"></span>
+                <span class="time_unit">m</span>
+            </td>
+            <td class="no-rule"><img id="target_2_sprite" class="target_timer_sprite" src="sprites/items/None.png"></td>
+        </tr>
+        <tbody id="target_2">
+    </table>
+
+    <table class="checklist">
+        <tr>
+            <th><img class="arrow" src="sprites/stream-overlay/arrow_green.png"></th>
+            <th><img class="location_pin" src="sprites/stream-overlay/pin.png"></th>
+            <th>Phase<br>SV Records</th>
+            <th>Phase IV<br>Sum Records</th>
+            <th>Phase<br>Encounters</th>
+            <th>Total<br>Encounters</th>
+            <th><img style="height: 15px; transform: scale(2); padding-right: 5px;"
+                    src="sprites/stream-overlay/sparkles.png"> Shinies <img
+                    style="height: 15px; transform: scale(2); padding-left: 5px;"
+                    src="sprites/stream-overlay/sparkles.png"></th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tbody id="checklist">
+    </table>
+
+    <table class="total_stats">
+        <tbody id="total_stats">
+            <tr>
+                <td class="no-rule" colspan="3" style="padding-top: 5px; text-align: center;">
+                    <img id="badge0" class="badge_unearned" src="sprites/items/None.png">
+                    <img id="badge1" class="badge_unearned" src="sprites/items/None.png">
+                    <img id="badge2" class="badge_unearned" src="sprites/items/None.png">
+                    <img id="badge3" class="badge_unearned" src="sprites/items/None.png">
+                    <img id="badge4" class="badge_unearned" src="sprites/items/None.png">
+                    <img id="badge5" class="badge_unearned" src="sprites/items/None.png">
+                    <img id="badge6" class="badge_unearned" src="sprites/items/None.png">
+                    <img id="badge7" class="badge_unearned" src="sprites/items/None.png">
+                </td>
+            </tr>
+            <tr>
+                <td class="total_stat_icon"><img class="small_icon" src="sprites/stream-overlay/sparkles.png"></td>
+                <td class="stat_label">Total<br>Shinies</td>
+                <td class="stat_value" id="total_shiny"></td>
+            </tr>
+            <tr>
+                <td class="total_stat_icon"><img class="small_icon" src="sprites/stream-overlay/graph.png"></td>
+                <td class="stat_label">Total<br>Encounters</td>
+                <td class="stat_value" id="total_encounters"></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img class="small_icon" src="sprites/stream-overlay/fast_forward.png">
+                </td>
+                <td class="stat_label">Encounter<br>Rate</td>
+                <td class="stat_value"><span id="encounter_rate"></span><span style="font-size: 1.05rem;">/h</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="total_stat_icon"><img class="small_icon" src="sprites/stream-overlay/clover.png"></td>
+                <td class="stat_label">Shiny<br>Average</td>
+                <td class="stat_value" id="shiny_average"></td>
+            </tr>
+            <tr>
+                <td class="total_stat_icon"><img class="small_icon" src="sprites/stream-overlay/star.png"></td>
+                <td class="stat_label">Total IV<br>Sum Records</td>
+                <td class="stat_value">
+                    <img class="small_sprite" id="total_iv_record_high_sprite" src="sprites/items/None.png">
+                    <span class="good_value time_unit" id="total_iv_record_high"></span>
+                    <img class="small_sprite" id="total_iv_record_low_sprite" src="sprites/items/None.png">
+                    <span class="bad_value time_unit" id="total_iv_record_low"></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="total_stat_icon"><img class="small_icon" src="sprites/stream-overlay/fire.png"></td>
+                <td class="stat_label">Phase<br>Records</td>
+                <td class="stat_value">
+                    <img class="small_sprite" id="shortest_phase_sprite" src="sprites/items/None.png">
+                    <span class="good_value time_unit" id="shortest_phase_encounters"></span>
+                    <img class="small_sprite" id="longest_phase_sprite" src="sprites/items/None.png">
+                    <span class="bad_value time_unit" id="longest_phase_encounters"></span>
+                </td>
+            </tr>
+    </table>
+
+    <table class="phase_stats">
+        <tbody id="phase_stats">
+            <tr>
+                <td class="location" colspan="3">
+                    <img class="location_pin" style="padding-right: 10px;" src="sprites/stream-overlay/pin.png">
+                    <span style="vertical-align: middle;" id="location"></span>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img class="small_icon" src="sprites/stream-overlay/hourglass.png"></td>
+                <td class="stat_label">Phase<br>Delta</td>
+                <td class="stat_value">
+                    <span id="phase_delta_hrs"></span>
+                    <span class="time_unit">h</span>
+                    <span id="phase_delta_mins"></span>
+                    <span class="time_unit">m</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img class="small_icon" src="sprites/stream-overlay/hash.png"></td>
+                <td class="stat_label">Phase<br>Encounters</td>
+                <td class="stat_value" id="phase_encounters"></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img class="small_icon" src="sprites/stream-overlay/curve.png"></td>
+                <td class="stat_label">Phase Shiny<br>Probability</td>
+                <td class="stat_value"><span id="psp"></span><span>%</span></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img class="small_icon" src="sprites/stream-overlay/die.png"></td>
+                <td class="stat_label">Phase Streak</td>
+                <td class="stat_value">
+                    <img class="small_sprite" id="phase_streak_sprite" src="sprites/items/None.png">
+                    <span id="phase_streak"></span> <span id="current_streak" style="font-size: 1.2rem;"></span>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img class="small_icon" src="sprites/stream-overlay/star_blue.png"></td>
+                <td class="stat_label">Phase IV<br>Sum Records</td>
+                <td class="stat_value">
+                    <img class="small_sprite" id="phase_iv_record_high_sprite" src="sprites/items/None.png">
+                    <span class="good_value time_unit" id="phase_iv_record_high"></span>
+                    <img class="small_sprite" id="phase_iv_record_low_sprite" src="sprites/items/None.png">
+                    <span class="bad_value time_unit" id="phase_iv_record_low"></span>
+                </td>
+            </tr>
+    </table>
+</body>
+
+<script src="js/stream-overlay.js">
+</script>
+
+</html>

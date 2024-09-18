@@ -95,6 +95,7 @@ class Discord(BaseConfig):
     filename: ClassVar = "discord.yml"
     rich_presence: bool = False
     iv_format: Literal["basic", "formatted"] = "formatted"
+    delay: int = 0
     bot_id: str = "PokéBot Gen3"
     global_webhook_url: str = ""
     shiny_pokemon_encounter: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
@@ -203,42 +204,17 @@ class LoggingSavePK3(BaseConfig):
     roamer: bool = True
 
 
-class OBS(BaseConfig):
-    """Schema for the OBS configuration."""
+class HTTP(BaseConfig):
+    """Schema for the HTTP configuration."""
 
-    filename: ClassVar = "obs.yml"
-    discord_delay: NonNegativeInt = 0
-    discord_webhook_url: str | None = None
-    replay_dir: Path = "./stream/replays/"
-    replay_buffer: bool = False
-    replay_buffer_delay: NonNegativeInt = 0
-    screenshot: bool = False
-    shiny_delay: NonNegativeInt = 0
-    obs_websocket: OBSWebsocket = Field(default_factory=lambda: OBSWebsocket())
-    http_server: OBSHTTPServer = Field(default_factory=lambda: OBSHTTPServer())
-
-    @field_validator("replay_dir")
-    def validate_dir(cls, value: str | Path, **kwargs) -> Path:
-        """Ensure the replay_dir field returns a path."""
-        if isinstance(value, str):
-            value = Path(value)
-        if not isinstance(value, Path):
-            raise ValueError(f"Expected a Path or a string, got: {type(value)}.")
-        return value
+    filename: ClassVar = "http.yml"
+    http_server: HTTPServer = Field(default_factory=lambda: HTTPServer())
 
 
-class OBSWebsocket(BaseConfig):
-    """Schema for the obs_websocket section in the OBS config."""
+class HTTPServer(BaseConfig):
+    """Schema for the http_server section in the HTTP config."""
 
-    host: str = "127.0.0.1"
-    password: str = "password"
-    port: Annotated[int, Field(gt=0, lt=65536)] = 4455
-
-
-class OBSHTTPServer(BaseConfig):
-    """Schema for the http_server section in the OBS config."""
-
-    enable: bool = False
+    enable: bool = True
     ip: str = "127.0.0.1"
     port: Annotated[int, Field(gt=0, lt=65536)] = 8888
 

@@ -32,7 +32,7 @@ class FishingMode(BotMode):
             if len(possible_rods) == 1:
                 rod_to_use = get_item_by_name(possible_rods[0])
             else:
-                choices = [Selection(rod, get_sprites_path() / "items" / f"{rod} III.png") for rod in possible_rods]
+                choices = [Selection(rod, get_sprites_path() / "items" / f"{rod}.png") for rod in possible_rods]
                 rod_to_use = get_item_by_name(ask_for_choice(choices, window_title="Choose which rod to use"))
 
             yield from register_key_item(rod_to_use)

@@ -6,7 +6,7 @@ from pathlib import Path
 import waitress
 from apispec import APISpec
 from apispec_webframeworks.flask import FlaskPlugin
-from flask import Flask, Response, jsonify, request
+from flask import Flask, Response, jsonify, redirect, request
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from jinja2 import Template
@@ -18,7 +18,7 @@ from modules.game import _event_flags
 from modules.items import get_item_bag, get_item_storage
 from modules.libmgba import inputs_to_strings
 from modules.main import work_queue
-from modules.map import get_map_data
+from modules.map import get_map_data, get_wild_encounters_for_map
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_event_flag, get_game_state
 from modules.modes import get_bot_mode_names
@@ -88,7 +88,7 @@ def http_server() -> None:
     CORS(server)
 
     swagger_url = "/docs"
-    api_url = f"http://{context.config.obs.http_server.ip}:{context.config.obs.http_server.port}/swagger"
+    api_url = f"http://{context.config.http.http_server.ip}:{context.config.http.http_server.port}/swagger"
     docs_dir = Path(__file__).parent / "docs"
 
     spec = APISpec(
@@ -106,7 +106,7 @@ def http_server() -> None:
         servers=[
             dict(
                 description=f"{pokebot_name} server",
-                url=f"http://{context.config.obs.http_server.ip}:{context.config.obs.http_server.port}",
+                url=f"http://{context.config.http.http_server.ip}:{context.config.http.http_server.port}",
             )
         ],
         plugins=[FlaskPlugin()],
@@ -290,9 +290,10 @@ def http_server() -> None:
             try:
                 map_data = cached_avatar.value.map_location
                 data = {
-                    "map": map_data.dict_for_map(),
                     "player_position": map_data.local_position,
+                    "map": map_data.dict_for_map(),
                     "tiles": map_data.dicts_for_all_tiles(),
+                    "encounters": get_wild_encounters_for_map(map_data.map_group, map_data.map_number).to_dict(),
                 }
             except (RuntimeError, TypeError):
                 data = None
@@ -341,6 +342,7 @@ def http_server() -> None:
             {
                 "map": map_data.dict_for_map(),
                 "tiles": map_data.dicts_for_all_tiles(),
+                "encounters": get_wild_encounters_for_map(map_group, map_number).to_dict(),
             }
         )
 
@@ -448,7 +450,22 @@ def http_server() -> None:
         """
         ---
         get:
-          description: Returns returns current phase and total statistics.
+          description: Returns Pokémon, current phase and total statistics.
+          parameters:
+            - in: query
+              name: type
+              required: false
+              schema:
+                type: string
+                enum:
+                  - pokemon
+                  - totals
+            - in: query
+              name: pokemon
+              required: false
+              schema:
+                type: string
+              description: Specify the Pokémon name to return statistics, use when `?type=pokemon`.
           responses:
             200:
               content:
@@ -456,8 +473,17 @@ def http_server() -> None:
           tags:
             - stats
         """
+        query_type = request.args.get("type")
+        query_pokemon = request.args.get("pokemon")
 
-        return jsonify(total_stats.get_total_stats())
+        stats = total_stats.get_total_stats()
+
+        if query_type == "pokemon":
+            if stats["pokemon"].get(query_pokemon, False):
+                return stats["pokemon"][query_pokemon]
+            else:
+                return stats["pokemon"]
+        return stats["totals"] if query_type == "totals" else jsonify(stats)
 
     @server.route("/fps", methods=["GET"])
     def http_get_fps():
@@ -762,15 +788,7 @@ def http_server() -> None:
 
     @server.route("/", methods=["GET"])
     def http_index():
-        index_file = Path(__file__).parent / "index.html"
-        with open(index_file, "rb") as file:
-            return Response(file.read(), content_type="text/html; charset=utf-8")
-
-    @server.route("/world_map", methods=["GET"])
-    def http_world_map():
-        html_file = Path(__file__).parent / "world_map.html"
-        with open(html_file, "rb") as file:
-            return Response(file.read(), content_type="text/html; charset=utf-8")
+        return redirect("static/index.html", code=302)
 
     @server.route("/swagger", methods=["GET"])
     def http_get_swagger_json():
@@ -805,8 +823,8 @@ def http_server() -> None:
 
     waitress.serve(
         server,
-        host=context.config.obs.http_server.ip,
-        port=context.config.obs.http_server.port,
+        host=context.config.http.http_server.ip,
+        port=context.config.http.http_server.port,
         threads=8,
         ident=f"{pokebot_name}/{pokebot_version} (waitress)",
     )

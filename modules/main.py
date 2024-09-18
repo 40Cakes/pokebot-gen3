@@ -35,7 +35,7 @@ def main_loop() -> None:
 
             Thread(target=discord_rich_presence).start()
 
-        if context.config.obs.http_server.enable:
+        if context.config.http.http_server.enable:
             from modules.web.http import http_server
 
             Thread(target=http_server).start()
