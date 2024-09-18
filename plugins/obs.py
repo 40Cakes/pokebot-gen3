@@ -75,7 +75,8 @@ class OBSPlugin(BotPlugin):
                 while get_battle_state() != BattleState.ACTION_SELECTION:
                     context.emulator.press_button("B")  # Throw out Pokémon for Discord screenshot
                     yield
-                yield from wait_for_n_frames(180)
+                # Wait a few seconds to give overlays some time to get up to date
+                yield from wait_for_n_frames(300 * context.emulation_speed)
                 obs_hot_key(obs_screenshot_hotkey, pressCtrl=True)
 
                 # Post the most recent OBS stream screenshot to Discord
@@ -83,7 +84,6 @@ class OBSPlugin(BotPlugin):
                     def send_obs_discord_screenshot():
                         time.sleep(3)  # Give OBS some time to save screenshot to disk
                         # Find the most recent screenshot in replays folder
-                        # TODO: naive approach, assumes OBS screenshot worked
                         images = obs_replay_dir.glob("*.png")
                         image = max(list(images), key=lambda item: item.stat().st_ctime)
                         time.sleep(obs_discord_delay)

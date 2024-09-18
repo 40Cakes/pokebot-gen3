@@ -2,12 +2,11 @@ import io
 import json
 import time
 from pathlib import Path
-from threading import Event
 
 import waitress
 from apispec import APISpec
 from apispec_webframeworks.flask import FlaskPlugin
-from flask import Flask, Response, jsonify, request
+from flask import Flask, Response, jsonify, redirect, request
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from jinja2 import Template
@@ -17,6 +16,7 @@ from modules.context import context
 from modules.files import read_file
 from modules.game import _event_flags
 from modules.items import get_item_bag, get_item_storage
+from modules.libmgba import inputs_to_strings
 from modules.main import work_queue
 from modules.map import get_map_data, get_wild_encounters_for_map
 from modules.map_data import MapFRLG, MapRSE
@@ -65,19 +65,15 @@ def _update_via_work_queue(
     if state_cache_entry.age_in_frames < maximum_age_in_frames:
         return
 
-    update_event = Event()
-
     def do_update():
         try:
             update_callback()
         except Exception:
             console.print_exception()
-        finally:
-            update_event.set()
 
     try:
         work_queue.put_nowait(do_update)
-        update_event.wait(timeout=5)
+        work_queue.join()
     except Exception:
         console.print_exception()
         return
@@ -454,7 +450,22 @@ def http_server() -> None:
         """
         ---
         get:
-          description: Returns returns current phase and total statistics.
+          description: Returns Pokémon, current phase and total statistics.
+          parameters:
+            - in: query
+              name: type
+              required: false
+              schema:
+                type: string
+                enum:
+                  - pokemon
+                  - totals
+            - in: query
+              name: pokemon
+              required: false
+              schema:
+                type: string
+              description: Specify the Pokémon name to return statistics, use when `?type=pokemon`.
           responses:
             200:
               content:
@@ -462,8 +473,17 @@ def http_server() -> None:
           tags:
             - stats
         """
+        query_type = request.args.get("type")
+        query_pokemon = request.args.get("pokemon")
 
-        return jsonify(total_stats.get_total_stats())
+        stats = total_stats.get_total_stats()
+
+        if query_type == "pokemon":
+            if stats["pokemon"].get(query_pokemon, False):
+                return stats["pokemon"][query_pokemon]
+            else:
+                return stats["pokemon"]
+        return stats["totals"] if query_type == "totals" else jsonify(stats)
 
     @server.route("/fps", methods=["GET"])
     def http_get_fps():
@@ -619,7 +639,7 @@ def http_server() -> None:
           tags:
             - emulator
         """
-        return jsonify(context.emulator.get_inputs_as_strings())
+        return jsonify(inputs_to_strings(context.emulator.get_inputs()))
 
     @server.route("/input", methods=["POST"])
     def http_post_input():
@@ -768,15 +788,7 @@ def http_server() -> None:
 
     @server.route("/", methods=["GET"])
     def http_index():
-        index_file = Path(__file__).parent / "index.html"
-        with open(index_file, "rb") as file:
-            return Response(file.read(), content_type="text/html; charset=utf-8")
-
-    @server.route("/world_map", methods=["GET"])
-    def http_world_map():
-        html_file = Path(__file__).parent / "world_map.html"
-        with open(html_file, "rb") as file:
-            return Response(file.read(), content_type="text/html; charset=utf-8")
+        return redirect("static/index.html", code=302)
 
     @server.route("/swagger", methods=["GET"])
     def http_get_swagger_json():
