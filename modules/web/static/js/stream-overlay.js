@@ -264,7 +264,7 @@ function handleParty(data) {
 
     for (var i = 0; i < 6; i++) {
         if (typeof data[i] !== "undefined") {
-            $("#party" + i.toString()).attr("src", pokemonSprite(data[i].species.name, data[i].is_shiny, false))
+            $("#party" + i.toString()).attr("src", pokemonSprite(data[i].species.name, data[i].is_shiny, true))
         }
     }
 }
@@ -775,9 +775,9 @@ function timers() {
             .then(data => {
                 handleStats(data)
             })
-        } else if (state.shiny_log[0] !== undefined) {
+        } else if (state.shiny_log[0] !== undefined && !state.opponent.is_shiny) {
             // Don't update phase time on shinies (for OBS screenshot)
-            $("#phase_time_hrs").text((diffHrs(state.shiny_log[0].time_encountered * 1000)))
+            $("#phase_time_hrs").text((diffDays(state.shiny_log[0].time_encountered * 1000) * 24) + (diffHrs(state.shiny_log[0].time_encountered * 1000)))
             $("#phase_time_mins").text(diffMins((state.shiny_log[0].time_encountered * 1000)))
         }
     }
