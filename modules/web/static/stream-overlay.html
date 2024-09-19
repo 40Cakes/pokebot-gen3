@@ -155,11 +155,11 @@
     <table id="target_1" class="target_1" style="opacity: 0%;">
         <tr>
             <td class="no-rule"><img id="target_1_sprite" class="target_timer_sprite" style="transform: scale(4) translateY(-5px) translateX(5px);" src="sprites/items/None.png"></td>
-            <td class="no-rule">
+            <td class="no-rule" style="text-align: right;">
                 <span id="target_1_timer_hrs"></span>
                 <span class="time_unit">hr</span>
                 <span id="target_1_timer_mins"></span>
-                <span class="time_unit">min</span>
+                <span class="time_unit" style="padding-right: 15%;">min</span>
             </td>
         </tr>
         <tbody id="target_1">
@@ -167,8 +167,8 @@
 
     <table id="target_2" class="target_2" style="opacity: 0%;">
         <tr>
-            <td class="no-rule">
-                <span id="target_2_timer_hrs"></span>
+            <td class="no-rule" style="text-align: left;">
+                <span id="target_2_timer_hrs" style="padding-left: 15%;"></span>
                 <span class="time_unit">hr</span>
                 <span id="target_2_timer_mins"></span>
                 <span class="time_unit">min</span>
@@ -208,6 +208,15 @@
                     <img id="badge5" class="badge_unearned" src="sprites/items/None.png">
                     <img id="badge6" class="badge_unearned" src="sprites/items/None.png">
                     <img id="badge7" class="badge_unearned" src="sprites/items/None.png">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <div class="progress_wrapper">
+                        <div class="progress_bar">
+                            <span id="progress_bar_fill" class="progress_bar_fill" style="width: 0%;"></span>
+                        </div>
+                    </div>    
                 </td>
             </tr>
             <tr>
@@ -305,5 +314,3 @@
 
 <script src="js/stream-overlay.js">
 </script>
-
-</html>

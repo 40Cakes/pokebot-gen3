@@ -1,7 +1,7 @@
 // 40 Cakes' Stream Overlay
 // Ported over from the Bizhawk bot, consider this overlay an *alpha* with the libmgba bot
 // If you do decide to stream this yourself, please at least try to put your own unique spin on the design/or layout!
-// This is meant to be loaded into OBS as a browser source, with a resolution of 2560x1440
+// This is intended to be loaded into OBS as a browser source, with a resolution of 2560x1440
 
 // Start date for the top-left "time elapsed since challenge started" timer
 start_date = "2023-01-01"
@@ -15,26 +15,66 @@ target_timer_2 = "Zubat"
 // Leave it empty to only show encounters on the current route
 // TODO: Currently limited to the # of mon that can be displayed before table overflows - look at adding auto scrolling
 pokemon_checklist = {
-    "Gulpin": 2,
-    "Plusle": 1,
-    "Minun": 1,
-    "Oddish": 2,
-    "Electrike": 2,
-    "Illumise": 1,
-    "Volbeat": 1,
-    "Makuhita": 2,
-    "Geodude": 2,
-    "Zubat": 3,
-    "Aron": 3,
-    "Sableye": 1,
-}
-
-// TODO
-// Contribute to overall completion % under badges, but hide from the checklist if list is too long
-pokemon_checklist_hidden = {
-    "Magikarp": 2,
-    "Tentacool": 2,
-    "Goldeen": 2,
+    "Gulpin": {
+        "goal": 2,
+        "hidden": false
+    },
+    "Plusle": {
+        "goal": 1,
+        "hidden": false
+    },
+    "Minun": {
+        "goal": 1,
+        "hidden": false
+    },
+    "Oddish": {
+        "goal": 2,
+        "hidden": false
+    },
+    "Electrike": {
+        "goal": 2,
+        "hidden": false
+    },
+    "Illumise": {
+        "goal": 1,
+        "hidden": false
+    },
+    "Volbeat": {
+        "goal": 1,
+        "hidden": false
+    },
+    "Makuhita": {
+        "goal": 2,
+        "hidden": false
+    },
+    "Geodude": {
+        "goal": 2,
+        "hidden": false
+    },
+    "Zubat": {
+        "goal": 3,
+        "hidden": false
+    },
+    "Aron": {
+        "goal": 3,
+        "hidden": false
+    },
+    "Sableye": {
+        "goal": 1,
+        "hidden": false
+    },
+    "Magikarp": {
+        "goal": 2,
+        "hidden": true
+    },
+    "Tentacool": {
+        "goal": 2,
+        "hidden": true
+    },
+    "Goldeen": {
+        "goal": 2,
+        "hidden": true
+    },
 }
 
 // Stores latest result of each API call so that the data is easily available for all functions
@@ -590,11 +630,17 @@ function refreshchecklist() {
         }
 
         if (!pokemon_checklist[encounter.species]) {
-            route_checklist[encounter.species] = 0
+            route_checklist[encounter.species] = {
+                "goal": 0,
+                "hidden": false
+            }
         }
     })
 
-    for (const [name, goal] of Object.entries(Object.assign({}, route_checklist, pokemon_checklist))) {
+    checklist_progress = 0
+    checklist_required_mons = 0
+
+    for (const [name, obj] of Object.entries(Object.assign({}, route_checklist, pokemon_checklist))) {
         checklist_mon = {}
         checklist_mon.location_rate = (mode_encounters[name] != null) ? mode_encounters[name] + "%" : ""
 
@@ -618,7 +664,7 @@ function refreshchecklist() {
             checklist_mon.phase_highest_iv_sum = (state.stats.pokemon[name].phase_highest_iv_sum != null) ? state.stats.pokemon[name].phase_highest_iv_sum : 99999
             checklist_mon.phase_lowest_iv_sum = (state.stats.pokemon[name].phase_lowest_iv_sum != null) ? state.stats.pokemon[name].phase_lowest_iv_sum : 99999
             checklist_mon.phase_percent = (state.stats.pokemon[name].phase_encounters > 0) ? ((state.stats.pokemon[name].phase_encounters / state.stats.totals.phase_encounters) * 100).toPrecision(4) + "%" : ""
-
+    
             if (state.stats.pokemon[name].shiny_average) {
                 checklist_mon.shiny_average = "(" + state.stats.pokemon[name].shiny_average + ")"
             } else {
@@ -626,57 +672,68 @@ function refreshchecklist() {
             }
         }
 
-        animated_sprite = false
-        if (state.opponent.species.name === name){
-            animated_sprite = true
-        }
+        checklist_required_mons += obj.goal
+        checklist_progress += Math.min(obj.goal, checklist_mon.shiny_encounters)
 
-        $("#checklist").append($("<tr>")
-            .addClass("checklist")
-            .append($("<td>")
-                .append($("<img>")
-                    .addClass("checklist-sprite")
-                    .attr({ "src": pokemonSprite(name, true, animated_sprite) })))
-            .append($("<td>")
-                .text(checklist_mon.location_rate))
-            .append($("<td>")
-                .append($("<span>")
-                    .addClass(SVColour(checklist_mon.phase_lowest_sv))
-                    .text(checklist_mon.phase_lowest_sv.toLocaleString()))
-                .append($("<br>"))
-                .append($("<span>")
-                    .addClass(SVColour(checklist_mon.phase_highest_sv))
-                    .text(checklist_mon.phase_highest_sv.toLocaleString())))
-            .append($("<td>")
-                .append($("<span>")
-                    .addClass(IVSumColour(checklist_mon.phase_highest_iv_sum))
-                    .text(checklist_mon.phase_highest_iv_sum.toLocaleString()))
-                .append($("<br>"))
-                .append($("<span>")
-                    .addClass(IVSumColour(checklist_mon.phase_lowest_iv_sum))
-                    .text(checklist_mon.phase_lowest_iv_sum.toLocaleString())))
-            .append($("<td>")
-                .text(checklist_mon.phase_encounters.toLocaleString())
-                .append($("<br>"))
-                .append($("<span>")
-                    .addClass("checklist_phase_percent")
-                    .text(checklist_mon.phase_percent)))
-            .append($("<td>")
-                .text(intShortName(checklist_mon.encounters, 3)))
-            .append($("<td>")
-                .text(checklist_mon.shiny_encounters.toLocaleString())
-                .append($("<span>")
-                    .addClass("checklist_goal")
-                    .text((goal) ? "/" + goal : ""))
-                .append($("<br>"))
-                .append($("<span>")
-                    .addClass("checklist_phase_percent")
-                    .text(checklist_mon.shiny_average)))
-            .append($("<td>")
-                .append($("<img>")
-                    .addClass("checklist-tick")
-                    .attr({ "src": (!goal || checklist_mon.shiny_encounters >= goal) ? "sprites/stream-overlay/tick.png" : "sprites/items/None.png" })))
-        )
+        if (!obj.hidden){
+            animated_sprite = false
+            if (state.opponent.species.name === name){
+                animated_sprite = true
+            }
+    
+            $("#checklist").append($("<tr>")
+                .addClass("checklist")
+                .append($("<td>")
+                    .append($("<img>")
+                        .addClass("checklist-sprite")
+                        .attr({ "src": pokemonSprite(name, true, animated_sprite) })))
+                .append($("<td>")
+                    .text(checklist_mon.location_rate))
+                .append($("<td>")
+                    .append($("<span>")
+                        .addClass(SVColour(checklist_mon.phase_lowest_sv))
+                        .text(checklist_mon.phase_lowest_sv.toLocaleString()))
+                    .append($("<br>"))
+                    .append($("<span>")
+                        .addClass(SVColour(checklist_mon.phase_highest_sv))
+                        .text(checklist_mon.phase_highest_sv.toLocaleString())))
+                .append($("<td>")
+                    .append($("<span>")
+                        .addClass(IVSumColour(checklist_mon.phase_highest_iv_sum))
+                        .text(checklist_mon.phase_highest_iv_sum.toLocaleString()))
+                    .append($("<br>"))
+                    .append($("<span>")
+                        .addClass(IVSumColour(checklist_mon.phase_lowest_iv_sum))
+                        .text(checklist_mon.phase_lowest_iv_sum.toLocaleString())))
+                .append($("<td>")
+                    .text(checklist_mon.phase_encounters.toLocaleString())
+                    .append($("<br>"))
+                    .append($("<span>")
+                        .addClass("checklist_phase_percent")
+                        .text(checklist_mon.phase_percent)))
+                .append($("<td>")
+                    .text(intShortName(checklist_mon.encounters, 3)))
+                .append($("<td>")
+                    .text(checklist_mon.shiny_encounters.toLocaleString())
+                    .append($("<span>")
+                        .addClass("checklist_goal")
+                        .text((obj.goal) ? "/" + obj.goal : ""))
+                    .append($("<br>"))
+                    .append($("<span>")
+                        .addClass("checklist_phase_percent")
+                        .text(checklist_mon.shiny_average)))
+                .append($("<td>")
+                    .append($("<img>")
+                        .addClass("checklist-tick")
+                        .attr({ "src": (!obj.goal || checklist_mon.shiny_encounters >= obj.goal) ? "sprites/stream-overlay/tick.png" : "sprites/items/None.png" })))
+            )
+        }
+    }
+
+    checklist_percent = (checklist_progress / checklist_required_mons) * 100
+    $("#progress_bar_fill").css("width", checklist_percent + "%")
+    if (checklist_percent === 100){
+        $("#progress_bar_fill").css("background-color", "#16c40c")
     }
 
     var rows = $("#checklist tr").get();

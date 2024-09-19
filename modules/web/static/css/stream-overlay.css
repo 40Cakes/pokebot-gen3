@@ -425,3 +425,23 @@ tr.checklist {
     color: #ffd700;
     font-weight: bold;
 }
+
+.progress_wrapper {
+    width: 385px;
+    padding-left: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.progress_bar {
+    width: 100%;
+    background-color: #363636ad;
+    border-radius: 3px;
+}
+
+.progress_bar_fill {
+    display: block;
+    height: 15px;
+    background-color: #ffd000;
+    border-radius: 3px;
+}
