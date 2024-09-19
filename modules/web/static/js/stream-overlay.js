@@ -5,24 +5,36 @@
 
 // Start date for the top-left "time elapsed since challenge started" timer
 start_date = "2023-01-01"
-override_display_timezone = "" // "AEST"
+override_display_timezone = "AEST" // "AEST"
 
 // Name of Pokemon for the "timers since last encounter" for a Pokemon to display on screen
-target_timer_1 = "" // "Seedot"
-target_timer_2 = ""
+target_timer_1 = "Aron" // "Seedot"
+target_timer_2 = "Zubat"
 
 // Pokemon to display on the checklist (possible encounters via current bot mode are appended to top of list)
 // Leave it empty to only show encounters on the current route
 // TODO: Currently limited to the # of mon that can be displayed before table overflows - look at adding auto scrolling
 pokemon_checklist = {
+    "Gulpin": 2,
+    "Plusle": 1,
+    "Minun": 1,
+    "Oddish": 2,
+    "Electrike": 2,
+    "Illumise": 1,
+    "Volbeat": 1,
     "Makuhita": 2,
     "Geodude": 2,
     "Zubat": 3,
     "Aron": 3,
     "Sableye": 1,
-    "Illumise": 1,
-    "Volbeat": 1,
-    "Oddish": 3,
+}
+
+// TODO
+// Contribute to overall completion % under badges, but hide from the checklist if list is too long
+pokemon_checklist_hidden = {
+    "Magikarp": 2,
+    "Tentacool": 2,
+    "Goldeen": 2,
 }
 
 // Stores latest result of each API call so that the data is easily available for all functions
@@ -155,12 +167,12 @@ async function handleStats(data) {
     state.stats = data
 
     if (target_timer_1 !== "" && data.pokemon[target_timer_1]) {
-        $("#target_1_sprite").attr("src", "sprites/pokemon-animated/normal/" + target_timer_1 + ".gif")
+        $("#target_1_sprite").attr("src", pokemonSprite(target_timer_1, false, true))
         $("#target_1").css("opacity", "100%")
     }
 
     if (target_timer_2 !== "" && data.pokemon[target_timer_2]) {
-        $("#target_2_sprite").attr("src", "sprites/pokemon-animated/normal/" + target_timer_2 + ".gif")
+        $("#target_2_sprite").attr("src", pokemonSprite(target_timer_2, false, true))
         $("#target_2").css("opacity", "100%")
     }
 }
@@ -212,7 +224,7 @@ function handleParty(data) {
 
     for (var i = 0; i < 6; i++) {
         if (typeof data[i] !== "undefined") {
-            $("#party" + i.toString()).attr("src", pokemonSprite(data[i].species_name_for_stats, data[i].is_shiny))
+            $("#party" + i.toString()).attr("src", pokemonSprite(data[i].species.name, data[i].is_shiny, false))
         }
     }
 }
@@ -228,13 +240,13 @@ async function handleOpponent(data) {
 
     state.opponent = data
 
-    await fetch("/stats?type=pokemon&pokemon=" + data.species_name_for_stats)
+    await fetch("/stats?type=pokemon&pokemon=" + data.species.name)
         .then(response => response.json())
         .then(mon_stats => {
             if (mon_stats === null) {
                 return
             }
-            state.stats.pokemon[data.species_name_for_stats] = mon_stats
+            state.stats.pokemon[data.species.name] = mon_stats
         })
 
     await fetch("/stats?type=totals")
@@ -300,20 +312,20 @@ async function handleOpponent(data) {
         document.getElementById("phase_encounters").innerText = state.stats.totals.phase_encounters.toLocaleString()
 
         // Phase streak
-        $("#phase_streak_sprite").attr("src", pokemonSprite(state.stats.totals.phase_streak_pokemon, false))
+        $("#phase_streak_sprite").attr("src", pokemonSprite(state.stats.totals.phase_streak_pokemon, false, false))
         document.getElementById("phase_streak").innerText = state.stats.totals.phase_streak.toLocaleString()
         document.getElementById("current_streak").innerText = "(" + state.stats.totals.current_streak.toLocaleString() + ")"
 
         // Phase IV records
-        $("#phase_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.totals.phase_highest_iv_sum_pokemon, false))
+        $("#phase_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.totals.phase_highest_iv_sum_pokemon, false, false))
         document.getElementById("phase_iv_record_high").innerText = state.stats.totals.phase_highest_iv_sum
-        $("#phase_iv_record_low_sprite").attr("src", pokemonSprite(state.stats.totals.phase_lowest_iv_sum_pokemon, false))
+        $("#phase_iv_record_low_sprite").attr("src", pokemonSprite(state.stats.totals.phase_lowest_iv_sum_pokemon, false, false))
         document.getElementById("phase_iv_record_low").innerText = state.stats.totals.phase_lowest_iv_sum
 
         // Total IV records
-        $("#total_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.totals.highest_iv_sum_pokemon, false))
+        $("#total_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.totals.highest_iv_sum_pokemon, false, false))
         document.getElementById("total_iv_record_high").innerText = state.stats.totals.highest_iv_sum
-        $("#total_iv_record_low_sprite").attr("src", pokemonSprite(state.stats.totals.lowest_iv_sum_pokemon, false))
+        $("#total_iv_record_low_sprite").attr("src", pokemonSprite(state.stats.totals.lowest_iv_sum_pokemon, false, false))
         document.getElementById("total_iv_record_low").innerText = state.stats.totals.lowest_iv_sum
 
         // Phase encounter records
@@ -423,7 +435,7 @@ function appendEncounterLog(data) {
                 .append($("<div>")
                     .append($("<img>")
                         .addClass("sprite")
-                        .attr({ "src": pokemonSprite(data.species_name_for_stats, data.is_shiny) }))
+                        .attr({ "src": pokemonSprite(data.species.name, data.is_shiny, false) }))
                     .append($("<img>").attr({ "src": "sprites/items/" + data.held_item.name + ".png" })
                         .addClass("encounter_log_held_item"))))
             .append($("<td>")
@@ -456,7 +468,7 @@ function appendEncounterLog(data) {
 }
 
 function refreshShinyLog() {
-    fetch("/shiny_log")
+    fetch("/shiny_log?limit=9")
         .then(response => response.json())
         .then(data => {
             $("#shiny_log").empty()
@@ -485,27 +497,33 @@ function refreshShinyLog() {
                         delta = a.diff(b, "hours", true)
 
                         if (delta < 1) {
-                            delta = a.diff(b, "minutes", true).toPrecision(2).toLocaleString() + " m"
+                            delta = a.diff(b, "minutes", true).toPrecision(2).toLocaleString()
+                            delta_unit = "min"
                         } else {
-                            delta = delta.toPrecision(2).toLocaleString() + " h"
+                            delta = delta.toPrecision(2).toLocaleString()
+                            delta_unit = "hr"
                         }
                     } else {
                         delta = "-"
+                        delta_unit = ""
                     }
 
                     $("#shiny_log").append($("<tr>")
                         .append($("<td>")
                             .append($("<img>")
                                 .addClass("sprite")
-                                .attr({ "src": pokemonSprite(data[i].pokemon.name, true) })))
+                                .attr({ "src": pokemonSprite(data[i].pokemon.name, true, false) })))
                         .append($("<td>")
                             .addClass("sv_yellow")
                             .text(data[i].pokemon.shinyValue))
                         .append($("<td>")
-                            .css({ "font-size": "1.333rem" })
-                            .text(delta))
-                        .append($("<td>")
                             .text(data[i].snapshot_stats.phase_encounters.toLocaleString()))
+                        .append($("<td>")
+                            .css({ "font-size": "1.333rem" })
+                            .text(delta)
+                            .append($("<span>")
+                                .css({ "font-size": "1rem" })
+                                .text(" " + delta_unit)))
                         .append($("<td>")
                             .css({ "font-size": "1.333rem" })
                             .text(calcPSP(data[i].snapshot_stats.phase_encounters).toPrecision(3).toString() + "%"))
@@ -541,6 +559,7 @@ function refreshchecklist() {
         return
     }
 
+    // Get encounter rates for the current map + bot mode
     if (["Spin", "Sweet Scent"].includes(state.bot_mode)) {
         if (state.map.tiles[state.map.player_position[0]][state.map.player_position[1]].is_surfing_possible) {
             encounters = state.map.encounters.surf_encounters
@@ -607,12 +626,17 @@ function refreshchecklist() {
             }
         }
 
+        animated_sprite = false
+        if (state.opponent.species.name === name){
+            animated_sprite = true
+        }
+
         $("#checklist").append($("<tr>")
             .addClass("checklist")
             .append($("<td>")
                 .append($("<img>")
                     .addClass("checklist-sprite")
-                    .attr({ "src": pokemonSprite(name, true) })))
+                    .attr({ "src": pokemonSprite(name, true, animated_sprite) })))
             .append($("<td>")
                 .text(checklist_mon.location_rate))
             .append($("<td>")
@@ -724,7 +748,15 @@ function timers() {
     }, 500)
 }
 
-function pokemonSprite(name, shiny) {
+function pokemonSprite(name, shiny, animated) {
+    if (animated) {
+        if (shiny) {
+            return "sprites/pokemon-animated/shiny/" + name + ".gif"
+        }
+
+        return "sprites/pokemon-animated/normal/" + name + ".gif"
+    }
+
     if (shiny) {
         return "sprites/pokemon/shiny/" + name + ".png"
     }

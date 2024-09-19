@@ -419,6 +419,13 @@ def http_server() -> None:
         ---
         get:
           description: Returns a detailed list of all shiny Pokémon encounters.
+          parameters:
+            - in: query
+              name: limit
+              required: false
+              schema:
+                type: int
+              description: Limits the maximum number of logged shinies returned.
           responses:
             200:
               content:
@@ -426,6 +433,10 @@ def http_server() -> None:
           tags:
             - stats
         """
+
+        query_limit = request.args.get("limit", default=0, type=int)
+        if query_limit and query_limit > 0:
+            return jsonify(list(reversed(total_stats.get_shiny_log()[-query_limit:])))
 
         return jsonify(total_stats.get_shiny_log()[::-1])
 
@@ -473,8 +484,8 @@ def http_server() -> None:
           tags:
             - stats
         """
-        query_type = request.args.get("type")
-        query_pokemon = request.args.get("pokemon")
+        query_type = request.args.get("type", type=str)
+        query_pokemon = request.args.get("pokemon", type=str)
 
         stats = total_stats.get_total_stats()
 

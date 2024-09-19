@@ -126,8 +126,8 @@ img.checklist-sprite {
     image-rendering: crisp-edges;
     padding-left: 1px;
     padding-right: 1px;
-    height: 26px;
-    width: 26px;
+    max-height: 26px;
+    max-width: 26px;
     display: inline-block;
     margin-left: 10px;
     margin-right: 10px;
