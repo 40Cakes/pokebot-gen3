@@ -98,16 +98,6 @@ This bot is still in development, as such, functionality is subject to change - 
 - Open the save state file you just saved
 - A new bot profile will be created in the `./profiles/` folder, and launched
 
-## Tips/Tricks
-- Set in-game **TEXT SPEED** to **FAST**
-- Set in-game **BATTLE SCENE** to **OFF**
-- Utilise [repel tricks](https://bulbapedia.bulbagarden.net/wiki/Appendix:Repel_trick) to boost encounter rates of target Pokémon
-- Using modes [Spin](Mode%20-%20Spin.md) or [Bunny Hop](Mode%20-%20Acro%20Bike%20Bunny%20Hop.md), repels will become effectively infinite + steps won't be counted in Safari Zone
-- Use a lead Pokémon with encounter rate boosting [abilities](https://bulbapedia.bulbagarden.net/wiki/Category:Abilities_that_affect_appearance_of_wild_Pok%C3%A9mon), such as **[Illuminate](https://bulbapedia.bulbagarden.net/wiki/Illuminate_(Ability))**
-- Use a lead Pokémon with a [short cry](https://docs.google.com/spreadsheets/d/1rmtNdlIXiif1Sz20i-9mfhFdoqb1VnAOIntlr3tnPeU)
-- Use a lead Pokémon with a single character nickname
-- Don't use a shiny lead Pokémon (shiny animation takes a few frames at the start of every battle)
-
 ## Debugging (advanced)
 <details>
 <summary>Expand</summary>

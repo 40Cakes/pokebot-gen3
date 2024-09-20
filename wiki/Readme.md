@@ -6,11 +6,16 @@ For quick help and support, reach out in Discord [#pokebot-gen3-support❔](http
 
 [![Discord](images/badge_discord.svg)](https://discord.com/invite/UtxR3cazUa)
 
+### General
 - ❓ [Getting Started](pages/Getting%20Started.md)
 - 🌍 [Supported Games and Languages](pages/Supported%20Games%20and%20Languages.md)
 - 🔎 [Pokémon by Bot Mode](pages/Pokemon%20By%20Bot%20Mode.md)
 - 🆘 [Report an Issue](pages/Report%20an%20Issue.md)
 - ✨ [Stream FAQ](pages/Stream%20FAQ.md)
+
+### Shiny Hunting Optimisations
+- [General Tips & Tricks](pages/Optimisations%20-%20General%20Tips%20&%20Tricks.md)
+- [Battle Transitions](pages/Optimisations%20-%20Battle%20Transitions.md)
 
 ### Bot Modes
 
@@ -35,7 +40,7 @@ For quick help and support, reach out in Discord [#pokebot-gen3-support❔](http
 - 🥦 [Sudowoodo](pages/Mode%20-%20Sudowoodo.md)
 - 🍂 [Sweet Scent](pages/Mode%20-%20Sweet%20Scent.md)
 
-### Configuration
+### Bot Configuration
 
 - 🛠 [Configuration Overview](pages/Configuration%20-%20Overview.md)
 - 🎮 [Emulator Input Mapping](pages/Configuration%20-%20Key%20Mappings.md)
