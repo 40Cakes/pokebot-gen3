@@ -592,11 +592,23 @@ function initBadges(title) {
     }
 }
 
-function refreshchecklist() {
+async function refreshchecklist() {
     $("#checklist").empty()
 
     if (state.stats === null) {
         return
+    }
+
+    // Refresh stats on first encounter of phase
+    if (state.stats.totals.phase_encounters == 1) {
+        await fetch("/stats")
+            .then(response => response.json())
+            .then(stats => {
+                if (stats === null) {
+                    return
+                }
+                state.stats = stats
+            })
     }
 
     // Get encounter rates for the current map + bot mode
