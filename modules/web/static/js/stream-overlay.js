@@ -9,7 +9,7 @@ override_display_timezone = "AEST" // "AEST"
 
 // Name of Pokemon for the "timers since last encounter" for a Pokemon to display on screen
 target_timer_1 = "Aron" // "Seedot"
-target_timer_2 = "Zubat"
+target_timer_2 = ""
 
 // Pokemon to display on the checklist (possible encounters via current bot mode are appended to top of list)
 // Leave it empty to only show encounters on the current route
