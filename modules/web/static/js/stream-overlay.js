@@ -297,6 +297,7 @@ async function handleOpponent(data) {
         })
 
     refreshchecklist()
+    refreshShinyLog()
     appendEncounterLog(data)
 
     document.getElementById("total_shiny").innerText = (state.stats.totals.shiny_encounters) ? state.stats.totals.shiny_encounters.toLocaleString() : 0
