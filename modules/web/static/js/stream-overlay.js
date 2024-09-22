@@ -205,12 +205,12 @@ async function handleStats(data) {
     state.stats = data
 
     if (target_timer_1 !== "" && data.pokemon[target_timer_1]) {
-        $("#target_1_sprite").attr("src", pokemonSprite(target_timer_1, false, true))
+        $("#target_1_sprite").attr("src", pokemonSprite(target_timer_1, false, false, true))
         $("#target_1").css("opacity", "100%")
     }
 
     if (target_timer_2 !== "" && data.pokemon[target_timer_2]) {
-        $("#target_2_sprite").attr("src", pokemonSprite(target_timer_2, false, true))
+        $("#target_2_sprite").attr("src", pokemonSprite(target_timer_2, false, false, true))
         $("#target_2").css("opacity", "100%")
     }
 }
@@ -262,7 +262,7 @@ function handleParty(data) {
 
     for (var i = 0; i < 6; i++) {
         if (typeof data[i] !== "undefined") {
-            $("#party" + i.toString()).attr("src", pokemonSprite(data[i].species.name, data[i].is_shiny, true))
+            $("#party" + i.toString()).attr("src", pokemonSprite(data[i].species.name, data[i].is_shiny, false, true))
         }
     }
 }
@@ -351,20 +351,20 @@ async function handleOpponent(data) {
         document.getElementById("phase_encounters").innerText = state.stats.totals.phase_encounters.toLocaleString()
 
         // Phase streak
-        $("#phase_streak_sprite").attr("src", pokemonSprite(state.stats.totals.phase_streak_pokemon, false, false))
+        $("#phase_streak_sprite").attr("src", pokemonSprite(state.stats.totals.phase_streak_pokemon, false, false, false))
         document.getElementById("phase_streak").innerText = state.stats.totals.phase_streak.toLocaleString()
         document.getElementById("current_streak").innerText = "(" + state.stats.totals.current_streak.toLocaleString() + ")"
 
         // Phase IV records
-        $("#phase_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.totals.phase_highest_iv_sum_pokemon, false, false))
+        $("#phase_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.totals.phase_highest_iv_sum_pokemon, false, false, false))
         document.getElementById("phase_iv_record_high").innerText = state.stats.totals.phase_highest_iv_sum
-        $("#phase_iv_record_low_sprite").attr("src", pokemonSprite(state.stats.totals.phase_lowest_iv_sum_pokemon, false, false))
+        $("#phase_iv_record_low_sprite").attr("src", pokemonSprite(state.stats.totals.phase_lowest_iv_sum_pokemon, false, false, false))
         document.getElementById("phase_iv_record_low").innerText = state.stats.totals.phase_lowest_iv_sum
 
         // Total IV records
-        $("#total_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.totals.highest_iv_sum_pokemon, false, false))
+        $("#total_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.totals.highest_iv_sum_pokemon, false, false, false))
         document.getElementById("total_iv_record_high").innerText = state.stats.totals.highest_iv_sum
-        $("#total_iv_record_low_sprite").attr("src", pokemonSprite(state.stats.totals.lowest_iv_sum_pokemon, false, false))
+        $("#total_iv_record_low_sprite").attr("src", pokemonSprite(state.stats.totals.lowest_iv_sum_pokemon, false, false, false))
         document.getElementById("total_iv_record_low").innerText = state.stats.totals.lowest_iv_sum
 
         // Phase encounter records
@@ -474,7 +474,7 @@ function appendEncounterLog(data) {
                 .append($("<div>")
                     .append($("<img>")
                         .addClass("sprite")
-                        .attr({ "src": pokemonSprite(data.species.name, data.is_shiny, false) }))
+                        .attr({ "src": pokemonSprite(data.species.name, data.is_shiny, data.is_anti_shiny, false) }))
                     .append($("<img>").attr({ "src": "sprites/items/" + data.held_item.name + ".png" })
                         .addClass("encounter_log_held_item"))))
             .append($("<td>")
@@ -553,7 +553,7 @@ function refreshShinyLog() {
                 .append($("<td>")
                     .append($("<img>")
                         .addClass("sprite")
-                        .attr({ "src": pokemonSprite(state.shiny_log[i].pokemon.name, true, false) })))
+                        .attr({ "src": pokemonSprite(state.shiny_log[i].pokemon.name, true, false, false) })))
                 .append($("<td>")
                     .addClass("sv_yellow")
                     .text(state.shiny_log[i].pokemon.shinyValue))
@@ -698,7 +698,7 @@ async function refreshchecklist() {
                 .append($("<td>")
                     .append($("<img>")
                         .addClass("checklist-sprite")
-                        .attr({ "src": pokemonSprite(name, true, animated_sprite) })))
+                        .attr({ "src": pokemonSprite(name, true, false, animated_sprite) })))
                 .append($("<td>")
                     .text(checklist_mon.location_rate))
                 .append($("<td>")
@@ -825,7 +825,7 @@ function timers() {
     }, 500)
 }
 
-function pokemonSprite(name, shiny, animated) {
+function pokemonSprite(name, shiny, anti, animated) {
     if (animated) {
         if (shiny) {
             return "sprites/pokemon-animated/shiny/" + name + ".gif"
@@ -836,6 +836,9 @@ function pokemonSprite(name, shiny, animated) {
 
     if (shiny) {
         return "sprites/pokemon/shiny/" + name + ".png"
+    }
+    if (anti) {
+        return "sprites/pokemon/anti-shiny/" + name + ".png"
     }
 
     return "sprites/pokemon/normal/" + name + ".png"
