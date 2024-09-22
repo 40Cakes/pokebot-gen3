@@ -94,8 +94,6 @@ state = {
 }
 
 timers()
-refreshchecklist()
-refreshShinyLog()
 
 // Init encounter log table with empty entries
 $("#encounter_log").empty()
@@ -508,75 +506,76 @@ function appendEncounterLog(data) {
 }
 
 function refreshShinyLog() {
-    fetch("/shiny_log?limit=9")
-        .then(response => response.json())
-        .then(data => {
-            $("#shiny_log").empty()
+    $("#shiny_log").empty()
 
-            state.shiny_log = data
+    for (var i = 0; i < 8; i++) {
+        if (typeof state.shiny_log[i] === "undefined") {
+            $("#shiny_log").append($("<tr>")
+                .append($("<td>").text(""))
+                .append($("<td>")
+                    .append($("<img>")
+                        .addClass("sprite")
+                        .attr({ "src": "sprites/items/None.png" })))
+                .append($("<td>").text(""))
+                .append($("<td>").text(""))
+                .append($("<td>").text(""))
+                .append($("<td>").text(""))
+                .append($("<td>").text(""))
+                .append($("<td>").text(""))
+                .append($("<td>").text(""))
+            )
+        } else {
+            if (state.shiny_log[i + 1]) {
+                a = moment.unix((Math.round(state.shiny_log[i].time_encountered)))
+                b = moment.unix((Math.round(state.shiny_log[i + 1].time_encountered)))
+                delta = a.diff(b, "hours", true)
 
-            for (var i = 0; i < 8; i++) {
-                if (typeof data[i] === "undefined") {
-                    $("#shiny_log").append($("<tr>")
-                        .append($("<td>")
-                            .append($("<img>")
-                                .addClass("sprite")
-                                .attr({ "src": "sprites/items/None.png" })))
-                        .append($("<td>").text(""))
-                        .append($("<td>").text(""))
-                        .append($("<td>").text(""))
-                        .append($("<td>").text(""))
-                        .append($("<td>").text(""))
-                        .append($("<td>").text(""))
-                        .append($("<td>").text(""))
-                    )
+                if (delta < 1) {
+                    delta = a.diff(b, "minutes", true).toPrecision(2).toLocaleString()
+                    delta_unit = "min"
                 } else {
-                    if (data[i + 1]) {
-                        a = moment.unix((Math.round(data[i].time_encountered)))
-                        b = moment.unix((Math.round(data[i + 1].time_encountered)))
-                        delta = a.diff(b, "hours", true)
-
-                        if (delta < 1) {
-                            delta = a.diff(b, "minutes", true).toPrecision(2).toLocaleString()
-                            delta_unit = "min"
-                        } else {
-                            delta = delta.toPrecision(2).toLocaleString()
-                            delta_unit = "hr"
-                        }
-                    } else {
-                        delta = "-"
-                        delta_unit = ""
-                    }
-
-                    $("#shiny_log").append($("<tr>")
-                        .append($("<td>")
-                            .append($("<img>")
-                                .addClass("sprite")
-                                .attr({ "src": pokemonSprite(data[i].pokemon.name, true, false) })))
-                        .append($("<td>")
-                            .addClass("sv_yellow")
-                            .text(data[i].pokemon.shinyValue))
-                        .append($("<td>")
-                            .text(data[i].snapshot_stats.phase_encounters.toLocaleString()))
-                        .append($("<td>")
-                            .css({ "font-size": "1.333rem" })
-                            .text(delta)
-                            .append($("<span>")
-                                .css({ "font-size": "1rem" })
-                                .text(" " + delta_unit)))
-                        .append($("<td>")
-                            .css({ "font-size": "1.333rem" })
-                            .text(calcPSP(data[i].snapshot_stats.phase_encounters).toPrecision(3).toString() + "%"))
-                        .append($("<td>")
-                            .text(intShortName(data[i].snapshot_stats.species_encounters, 3)))
-                        .append($("<td>")
-                            .text(data[i].snapshot_stats.species_shiny_encounters.toLocaleString()))
-                        .append($("<td>")
-                            .text(intShortName(data[i].snapshot_stats.total_encounters, 3)))
-                    )
+                    delta = delta.toPrecision(2).toLocaleString()
+                    delta_unit = "hr"
                 }
+
+                time_ago = moment(moment.unix((Math.round(state.shiny_log[i].time_encountered)))).subtract(60, "seconds").fromNow()
+            } else {
+                delta = "-"
+                delta_unit = ""
+                time_ago = ""
             }
-        })
+
+            $("#shiny_log").append($("<tr>")
+                .append($("<td>")
+                    .css({ "font-size": "1.333rem" })
+                    .text(time_ago))
+                .append($("<td>")
+                    .append($("<img>")
+                        .addClass("sprite")
+                        .attr({ "src": pokemonSprite(state.shiny_log[i].pokemon.name, true, false) })))
+                .append($("<td>")
+                    .addClass("sv_yellow")
+                    .text(state.shiny_log[i].pokemon.shinyValue))
+                .append($("<td>")
+                    .text(state.shiny_log[i].snapshot_stats.phase_encounters.toLocaleString()))
+                .append($("<td>")
+                    .css({ "font-size": "1.333rem" })
+                    .text(delta)
+                    .append($("<span>")
+                        .css({ "font-size": "1rem" })
+                        .text(" " + delta_unit)))
+                .append($("<td>")
+                    .css({ "font-size": "1.333rem" })
+                    .text(calcPSP(state.shiny_log[i].snapshot_stats.phase_encounters).toPrecision(3).toString() + "%"))
+                .append($("<td>")
+                    .text(intShortName(state.shiny_log[i].snapshot_stats.species_encounters, 3)))
+                .append($("<td>")
+                    .text(state.shiny_log[i].snapshot_stats.species_shiny_encounters.toLocaleString()))
+                .append($("<td>")
+                    .text(intShortName(state.shiny_log[i].snapshot_stats.total_encounters, 3)))
+            )
+        }
+    }
 }
 
 function initBadges(title) {
@@ -676,7 +675,7 @@ async function refreshchecklist() {
             checklist_mon.phase_highest_iv_sum = (state.stats.pokemon[name].phase_highest_iv_sum != null) ? state.stats.pokemon[name].phase_highest_iv_sum : 99999
             checklist_mon.phase_lowest_iv_sum = (state.stats.pokemon[name].phase_lowest_iv_sum != null) ? state.stats.pokemon[name].phase_lowest_iv_sum : 99999
             checklist_mon.phase_percent = (state.stats.pokemon[name].phase_encounters > 0) ? ((state.stats.pokemon[name].phase_encounters / state.stats.totals.phase_encounters) * 100).toPrecision(4) + "%" : ""
-    
+
             if (state.stats.pokemon[name].shiny_average) {
                 checklist_mon.shiny_average = "(" + state.stats.pokemon[name].shiny_average + ")"
             } else {
@@ -687,12 +686,12 @@ async function refreshchecklist() {
         checklist_required_mons += obj.goal
         checklist_progress += Math.min(obj.goal, checklist_mon.shiny_encounters)
 
-        if (!obj.hidden){
+        if (!obj.hidden) {
             animated_sprite = false
-            if (state.opponent.species.name === name){
+            if (state.opponent.species.name === name) {
                 animated_sprite = true
             }
-    
+
             $("#checklist").append($("<tr>")
                 .addClass("checklist")
                 .append($("<td>")
@@ -744,7 +743,7 @@ async function refreshchecklist() {
 
     checklist_percent = (checklist_progress / checklist_required_mons) * 100
     $("#progress_bar_fill").css("width", checklist_percent + "%")
-    if (checklist_percent === 100){
+    if (checklist_percent === 100) {
         $("#progress_bar_fill").css("background-color", "#16c40c")
     }
 
@@ -778,15 +777,23 @@ function timers() {
     }) + ' <span style="font-size: 1.2rem;">' + getAbbreviation(Intl.DateTimeFormat().resolvedOptions().timeZone) + "</span>")
 
     if (state.opponent !== null) {
-        if (state.opponent.is_shiny && state.opponent.personality_value != state.shiny_log[0].pokemon.pid) {
+        if ((state.shiny_log == null) || (state.opponent.is_shiny && state.opponent.personality_value != state.shiny_log[0].pokemon.pid)) {
             // TEMP/hacky way to ensure shiny log is updated when current opponent is shiny
-            refreshShinyLog()
+            fetch("/shiny_log?limit=9")
+                .then(response => response.json())
+                .then(data => {
+                    if (data !== null) {
+                        state.shiny_log = data
+                    }
+
+                    refreshShinyLog()
+                })
 
             fetch("/stats")
-            .then(response => response.json())
-            .then(data => {
-                handleStats(data)
-            })
+                .then(response => response.json())
+                .then(data => {
+                    handleStats(data)
+                })
         } else if (state.shiny_log[0] !== undefined && !state.opponent.is_shiny) {
             // Don't update phase time on shinies (for OBS screenshot)
             $("#phase_time_hrs").text((diffDays(state.shiny_log[0].time_encountered * 1000) * 24) + (diffHrs(state.shiny_log[0].time_encountered * 1000)))
