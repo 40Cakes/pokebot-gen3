@@ -1754,7 +1754,7 @@ class WildEncounter:
     species: Species
     min_level: int
     max_level: int
-    encounter_rate: int
+    encounter_rate: float
 
     def __str__(self):
         if self.min_level == self.max_level:
@@ -1803,7 +1803,26 @@ class WildEncounterList:
 _wild_encounters_cache: dict[tuple[int, int], WildEncounterList] = {}
 
 
-def get_wild_encounters_for_map(map_group: int, map_number: int) -> WildEncounterList | None:
+def calc_repel(encounters: list[WildEncounter], repel: int) -> list[WildEncounter]:
+    # Apply the repel to modify encounter rates
+    total_encounter_rate = 0
+    for encounter in encounters:
+        percentage_modifier = min(
+            max(0, (encounter.max_level - repel + 1) / (encounter.max_level - encounter.min_level + 1)), 1
+        )
+        encounter.encounter_rate *= percentage_modifier
+        total_encounter_rate += encounter.encounter_rate
+
+    # Normalise encounter rates to sum to 100%
+    if total_encounter_rate > 0:
+        for encounter in encounters:
+            encounter.encounter_rate = (encounter.encounter_rate / total_encounter_rate) * 100
+
+    # Remove encounters with zero encounter rate
+    return [encounter for encounter in encounters if encounter.encounter_rate > 0]
+
+
+def get_wild_encounters_for_map(map_group: int, map_number: int, repel: int = 0) -> WildEncounterList | None:
     global _wild_encounters_cache
     if len(_wild_encounters_cache) == 0:
         types = (
@@ -1856,6 +1875,16 @@ def get_wild_encounters_for_map(map_group: int, map_number: int) -> WildEncounte
                             data["old_rod_encounters"] = get_encounters_list(list_pointer, 2, rates[:2])
                             data["good_rod_encounters"] = get_encounters_list(list_pointer + 8, 3, rates[2:5])
                             data["super_rod_encounters"] = get_encounters_list(list_pointer + 20, 5, rates[5:10])
+
+            # Account for repel, remove encounters from pool if `repel` is set, repel does not affect fishing
+            if repel > 0:
+                if data["land_encounters"]:
+                    data["land_encounters"] = calc_repel(data["land_encounters"], repel)
+                if data["surf_encounters"]:
+                    data["surf_encounters"] = calc_repel(data["surf_encounters"], repel)
+                if data["rock_smash_encounters"]:
+                    data["rock_smash_encounters"] = calc_repel(data["rock_smash_encounters"], repel)
+
             _wild_encounters_cache[(group, number)] = WildEncounterList(**data)
 
     return _wild_encounters_cache.get((map_group, map_number))
