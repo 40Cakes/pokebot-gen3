@@ -20,7 +20,14 @@ from modules.pokemon import (
 from modules.tasks import get_global_script_context, task_is_active
 from ._interface import BattleAction, BotListener, BotMode, FrameInfo
 from .util import isolate_inputs
-from ..plugins import plugin_battle_started, plugin_battle_ended, plugin_whiteout, plugin_egg_hatched
+from ..plugins import (
+    plugin_battle_started,
+    plugin_battle_ended,
+    plugin_whiteout,
+    plugin_egg_hatched,
+    plugin_wild_encounter_visible,
+)
+from ..text_printer import get_text_printer, TextPrinterState
 
 
 class BattleListener(BotListener):
@@ -29,6 +36,9 @@ class BattleListener(BotListener):
     def __init__(self):
         self._in_battle = False
         self._reported_start_of_battle = False
+        self._is_wild_encounter = False
+        self._reported_wild_encounter_visible = False
+        self._text_printer_was_active = False
         self._reported_end_of_battle = False
         self._current_action: BattleAction | None = None
 
@@ -38,6 +48,9 @@ class BattleListener(BotListener):
         ):
             self._in_battle = True
             self._reported_start_of_battle = False
+            self._is_wild_encounter = False
+            self._reported_wild_encounter_visible = False
+            self._text_printer_was_active = False
             self._reported_end_of_battle = False
             self._current_action = None
 
@@ -62,6 +75,9 @@ class BattleListener(BotListener):
                     action = BattleAction.Fight
             elif action is None:
                 action = handle_encounter(opponent)
+
+            if BattleTypeFlag.TRAINER not in battle_type and BattleTypeFlag.WALLY_TUTORIAL not in battle_type:
+                self._is_wild_encounter = True
 
             if action == BattleAction.Fight:
                 context.controller_stack.append(self.fight())
@@ -98,6 +114,17 @@ class BattleListener(BotListener):
                     context.controller_stack.append(
                         SafariZoneListener.handle_safari_zone_timeout_global(bot_mode, "Safari balls")
                     )
+
+        elif self._is_wild_encounter and not self._reported_wild_encounter_visible:
+            text_printer = get_text_printer(0)
+
+            if self._text_printer_was_active:
+                if not text_printer.active or text_printer.state == TextPrinterState.WaitForButton:
+                    plugin_wild_encounter_visible(get_opponent())
+                    self._reported_wild_encounter_visible = True
+
+            elif text_printer.active:
+                self._text_printer_was_active = True
 
     @debug.track
     def _wait_until_battle_is_over(self):

@@ -58,6 +58,7 @@ from modules.tasks import (
     get_immediate_script_context,
     ScriptContext,
 )
+from modules.text_printer import get_text_printer
 
 if TYPE_CHECKING:
     from modules.libmgba import LibmgbaEmulator
@@ -835,6 +836,7 @@ class MiscTab(DebugTab):
             "Roamer": get_roamer(),
             "Roamer History": get_roamer_location_history(),
             "Region Map Cursor": get_map_cursor(),
+            "Text Printer #1": get_text_printer(0),
         }
 
 
