@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Iterable, Generator
 
 if TYPE_CHECKING:
     from modules.battle import BattleOutcome
@@ -17,19 +17,22 @@ class BotPlugin:
     def on_profile_loaded(self, profile: "Profile") -> None:
         pass
 
-    def on_battle_started(self, opponent: "Pokemon") -> None:
+    def on_battle_started(self, opponent: "Pokemon") -> Generator | None:
         pass
 
-    def on_battle_ended(self, outcome: "BattleOutcome") -> None:
+    def on_wild_encounter_visible(self, opponent: "Pokemon") -> Generator | None:
         pass
 
-    def on_pokemon_evolved(self, evolved_pokemon: "Pokemon") -> None:
+    def on_battle_ended(self, outcome: "BattleOutcome") -> Generator | None:
         pass
 
-    def on_egg_hatched(self, hatched_pokemon: "Pokemon") -> None:
+    def on_pokemon_evolved(self, evolved_pokemon: "Pokemon") -> Generator | None:
         pass
 
-    def on_whiteout(self) -> None:
+    def on_egg_hatched(self, hatched_pokemon: "Pokemon") -> Generator | None:
+        pass
+
+    def on_whiteout(self) -> Generator | None:
         pass
 
     def on_judge_encounter(self, opponent: "Pokemon") -> str | bool:

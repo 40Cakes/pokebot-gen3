@@ -62,6 +62,13 @@ def plugin_battle_started(opponent: "Pokemon") -> None:
             yield from result
 
 
+def plugin_wild_encounter_visible(opponent: "Pokemon") -> None:
+    for plugin in plugins:
+        result = plugin.on_wild_encounter_visible(opponent)
+        if isinstance(result, GeneratorType):
+            yield from result
+
+
 def plugin_battle_ended(outcome: "BattleOutcome") -> None:
     for plugin in plugins:
         result = plugin.on_battle_ended(outcome)

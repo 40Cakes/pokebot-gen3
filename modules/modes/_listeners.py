@@ -1,12 +1,13 @@
 from types import GeneratorType
 
+from modules.battle import BattleHandler, BattleOutcome, RotatePokemon, check_lead_can_battle, flee_battle
 from modules.context import context
 from modules.debug import debug
 from modules.encounter import handle_encounter
 from modules.map import get_map_objects, get_map_data_for_current_position
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_game_state, get_game_state_symbol, read_symbol, unpack_uint32
-from modules.menuing import CheckForPickup, MenuWrapper, should_check_for_pickup, RotatePokemon
+from modules.menuing import CheckForPickup, MenuWrapper, should_check_for_pickup
 from modules.player import TileTransitionState, get_player_avatar, player_avatar_is_standing_still
 from modules.pokemon import (
     BattleTypeFlag,
@@ -16,15 +17,17 @@ from modules.pokemon import (
     get_opponent,
     get_party,
 )
-from modules.tasks import get_global_script_context, task_is_active, get_task
+from modules.tasks import get_global_script_context, task_is_active
 from ._interface import BattleAction, BotListener, BotMode, FrameInfo
 from .util import isolate_inputs
-from ..battle_handler import handle_battle
-from ..battle_state import get_last_battle_outcome, BattleOutcome
-from ..battle_strategies import DefaultBattleStrategy, BattleStrategy
-from ..battle_strategies.catch import CatchStrategy
-from ..battle_strategies.run_away import RunAwayStrategy
-from ..plugins import plugin_battle_started, plugin_battle_ended, plugin_whiteout, plugin_egg_hatched
+from ..plugins import (
+    plugin_battle_started,
+    plugin_battle_ended,
+    plugin_whiteout,
+    plugin_egg_hatched,
+    plugin_wild_encounter_visible,
+)
+from ..text_printer import get_text_printer, TextPrinterState
 
 
 class BattleListener(BotListener):
@@ -33,6 +36,9 @@ class BattleListener(BotListener):
     def __init__(self):
         self._in_battle = False
         self._reported_start_of_battle = False
+        self._is_wild_encounter = False
+        self._reported_wild_encounter_visible = False
+        self._text_printer_was_active = False
         self._reported_end_of_battle = False
         self._current_action: BattleAction | None = None
 
@@ -42,6 +48,9 @@ class BattleListener(BotListener):
         ):
             self._in_battle = True
             self._reported_start_of_battle = False
+            self._is_wild_encounter = False
+            self._reported_wild_encounter_visible = False
+            self._text_printer_was_active = False
             self._reported_end_of_battle = False
             self._current_action = None
 
@@ -51,7 +60,11 @@ class BattleListener(BotListener):
             battle_type = get_battle_type_flags()
             opponent = get_opponent()
 
-            if BattleTypeFlag.TRAINER in battle_type:
+            if BattleTypeFlag.DOUBLE in battle_type:
+                context.message = "A double battle has started, which is not yet supported by the bot."
+                context.set_manual_mode()
+                action = BattleAction.CustomAction
+            elif BattleTypeFlag.TRAINER in battle_type:
                 if (not context.config.battle.battle and action is None) or action == BattleAction.RunAway:
                     context.message = (
                         "We ran into a trainer, but automatic battling is disabled. Switching to manual mode."
@@ -63,10 +76,11 @@ class BattleListener(BotListener):
             elif action is None:
                 action = handle_encounter(opponent)
 
-            if isinstance(action, BattleStrategy):
-                context.controller_stack.append(self.fight(action))
-            elif action == BattleAction.Fight:
-                context.controller_stack.append(self.fight(DefaultBattleStrategy()))
+            if BattleTypeFlag.TRAINER not in battle_type and BattleTypeFlag.WALLY_TUTORIAL not in battle_type:
+                self._is_wild_encounter = True
+
+            if action == BattleAction.Fight:
+                context.controller_stack.append(self.fight())
             elif action == BattleAction.RunAway:
                 context.controller_stack.append(self.run_away_from_battle())
             elif action == BattleAction.Catch:
@@ -78,9 +92,9 @@ class BattleListener(BotListener):
             self._in_battle
             and get_game_state() not in self.battle_states
             and not frame.task_is_active("Task_BattleStart")
-            and get_last_battle_outcome() != BattleOutcome.InProgress
+            and read_symbol("gBattleOutcome", size=1)[0] != 0
         ):
-            outcome = get_last_battle_outcome()
+            outcome = BattleOutcome(read_symbol("gBattleOutcome", size=1)[0])
             if not self._reported_end_of_battle:
                 self._reported_end_of_battle = True
                 clear_opponent()
@@ -101,6 +115,17 @@ class BattleListener(BotListener):
                         SafariZoneListener.handle_safari_zone_timeout_global(bot_mode, "Safari balls")
                     )
 
+        elif self._is_wild_encounter and not self._reported_wild_encounter_visible:
+            text_printer = get_text_printer(0)
+
+            if self._text_printer_was_active:
+                if not text_printer.active or text_printer.state == TextPrinterState.WaitForButton:
+                    plugin_wild_encounter_visible(get_opponent())
+                    self._reported_wild_encounter_visible = True
+
+            elif text_printer.active:
+                self._text_printer_was_active = True
+
     @debug.track
     def _wait_until_battle_is_over(self):
         while self._in_battle:
@@ -110,9 +135,9 @@ class BattleListener(BotListener):
 
     @isolate_inputs
     @debug.track
-    def fight(self, strategy: BattleStrategy):
+    def fight(self):
         yield from plugin_battle_started(get_opponent())
-        yield from handle_battle(strategy)
+        yield from BattleHandler().step()
         yield from self._wait_until_battle_is_over()
         yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
@@ -123,22 +148,22 @@ class BattleListener(BotListener):
         ):
             if context.config.battle.pickup and should_check_for_pickup():
                 yield from self.check_for_pickup()
-            elif strategy.choose_new_lead_after_battle() is not None:
-                yield from self.rotate_lead_pokemon(strategy.choose_new_lead_after_battle())
+            elif context.config.battle.lead_cannot_battle_action == "rotate" and not check_lead_can_battle():
+                yield from self.rotate_lead_pokemon()
 
     @debug.track
     def check_for_pickup(self):
         yield from MenuWrapper(CheckForPickup()).step()
 
     @debug.track
-    def rotate_lead_pokemon(self, new_lead_index: int):
-        yield from MenuWrapper(RotatePokemon(new_lead_index)).step()
+    def rotate_lead_pokemon(self):
+        yield from MenuWrapper(RotatePokemon()).step()
 
     @isolate_inputs
     @debug.track
     def catch(self):
         yield from plugin_battle_started(get_opponent())
-        yield from handle_battle(CatchStrategy())
+        yield from BattleHandler(try_to_catch=True).step()
         yield from self._wait_until_battle_is_over()
         yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
@@ -148,7 +173,7 @@ class BattleListener(BotListener):
         while get_game_state() != GameState.BATTLE:
             yield
         yield from plugin_battle_started(get_opponent())
-        yield from handle_battle(RunAwayStrategy())
+        yield from flee_battle()
         yield from self._wait_until_battle_is_over()
         yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
@@ -177,52 +202,6 @@ class TrainerApproachListener(BotListener):
             context.emulator.press_button("B")
             yield
         self._trainer_is_approaching = False
-
-
-class FishingListener(BotListener):
-    def __init__(self):
-        self._is_fishing_task_active = False
-        self._last_fishing_rod = None
-        self._pokemon_on_hook = False
-        self._last_step = None
-
-    def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
-        if not self._is_fishing_task_active and frame.task_is_active("Task_Fishing"):
-            fishing_task = get_task("Task_Fishing")
-            self._is_fishing_task_active = True
-            self._last_fishing_rod = fishing_task.data_value(15)
-            self._pokemon_on_hook = False
-            self._last_step = fishing_task.data_value(0)
-        elif self._is_fishing_task_active:
-            if not frame.task_is_active("Task_Fishing"):
-                match self._last_fishing_rod:
-                    case 0:
-                        rod_name = "Old Rod"
-                    case 1:
-                        rod_name = "Good Rod"
-                    case 2:
-                        rod_name = "Super Rod"
-                    case _:
-                        rod_name = "Cheater Rod"
-
-                if self._last_step == 10:
-                    from modules.stats import total_stats
-
-                    total_stats.last_fishing_pv = get_opponent().personality_value
-                    total_stats.last_fishing_rod = self._last_fishing_rod
-                    context.message = f"Fishing with {rod_name}... started encounter: {get_opponent()}"
-                elif self._pokemon_on_hook:
-                    context.message = f"Fishing with {rod_name}... but it got away"
-                else:
-                    context.message = f"Fishing with {rod_name}... nothing happened"
-                self._last_step = 0
-                self._is_fishing_task_active = False
-            else:
-                step = get_task("Task_Fishing").data_value(0)
-                if step != self._last_step:
-                    if step == 7:
-                        self._pokemon_on_hook = True
-                    self._last_step = step
 
 
 class PokenavListener(BotListener):
