@@ -76,6 +76,7 @@ def get_bot_mode_by_name(name: str) -> Type[BotMode] | None:
 def get_bot_listeners(rom: "ROM") -> list[BotListener]:
     from ._listeners import (
         BattleListener,
+        FishingListener,
         PokenavListener,
         EggHatchListener,
         TrainerApproachListener,
@@ -87,6 +88,7 @@ def get_bot_listeners(rom: "ROM") -> list[BotListener]:
 
     listeners = [
         BattleListener(),
+        FishingListener(),
         EggHatchListener(),
         TrainerApproachListener(),
         RepelListener(),
