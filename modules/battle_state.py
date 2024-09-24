@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum, Flag, KEEP, auto
 
+from modules.context import context
 from modules.game import get_symbol_name_before
 from modules.memory import unpack_uint16, unpack_uint32, read_symbol, get_callback_for_pointer_symbol
+from modules.player import get_player_avatar, AvatarFlags
 from modules.pokemon import (
     Species,
     Ability,
@@ -15,9 +17,10 @@ from modules.pokemon import (
     get_move_by_index,
     get_item_by_index,
     StatsValues,
-    StatusCondition,
+    StatusCondition, get_opponent,
 )
 from modules.state_cache import state_cache
+from modules.tasks import get_global_script_context
 
 
 class Weather(Enum):
@@ -306,6 +309,14 @@ class BattleState:
             return Weather.Hail
         else:
             return None
+
+    @property
+    def type_names(self) -> list[str]:
+        result = []
+        for item in BattleType:
+            if item in self.type:
+                result.append(item.name)
+        return result
 
 
 @dataclass
@@ -668,5 +679,69 @@ class BattleOutcome(Enum):
     LinkBattleRanAway = 128
 
 
-def get_last_battle_outcome():
+def get_last_battle_outcome() -> BattleOutcome:
     return BattleOutcome(read_symbol("gBattleOutcome", size=1)[0])
+
+
+class EncounterType(Enum):
+    Trainer = auto()
+    Roamer = auto()
+    Static = auto()
+    Land = auto()
+    Surfing = auto()
+    FishingWithOldRod = auto()
+    FishingWithGoodRod = auto()
+    FishingWithSuperRod = auto()
+    RockSmash = auto()
+
+
+def get_encounter_type() -> EncounterType:
+    battle_type = BattleType(unpack_uint32(read_symbol("gBattleTypeFlags", size=0x04)))
+
+    if BattleType.Trainer in battle_type:
+        return EncounterType.Trainer
+
+    if BattleType.Roamer in battle_type:
+        return EncounterType.Roamer
+
+    if (
+        BattleType.Regi in battle_type
+        or BattleType.Groudon in battle_type
+        or BattleType.Kyogre in battle_type
+        or BattleType.KyogreGroudon in battle_type
+        or BattleType.Rayquaza in battle_type
+        or BattleType.Legendary in battle_type
+    ):
+        return EncounterType.Static
+
+    if context.rom.is_frlg:
+        # FR/LG use some of Emerald's battle type flags a bit differently; the following checks
+        # stand for: (1) the Ghost in Lavender Tower, (2) Scripted Encounters, (3) Legendary Pokémon
+        if (
+            BattleType.Palace in battle_type
+            or BattleType.TwoOpponents in battle_type
+            or BattleType.Arena in battle_type
+        ):
+            return EncounterType.Static
+
+    script_stack = get_global_script_context().stack
+    if "EventScript_BattleKecleon" in script_stack:
+        return EncounterType.Static
+    if "BattleFrontier_OutsideEast_EventScript_WaterSudowoodo" in script_stack:
+        return EncounterType.Static
+    if "EventScript_SmashRock" in script_stack:
+        return EncounterType.RockSmash
+
+    from modules.stats import total_stats
+    if get_opponent().personality_value == total_stats.last_fishing_pv:
+        if total_stats.last_fishing_rod == 2:
+            return EncounterType.FishingWithSuperRod
+        elif total_stats.last_fishing_rod == 1:
+            return EncounterType.FishingWithGoodRod
+        else:
+            return EncounterType.FishingWithOldRod
+
+    if AvatarFlags.Surfing in get_player_avatar().flags:
+        return EncounterType.Surfing
+    else:
+        return EncounterType.Land

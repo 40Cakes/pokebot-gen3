@@ -206,6 +206,10 @@ class FishingListener(BotListener):
                         rod_name = "Cheater Rod"
 
                 if self._last_step == 10:
+                    from modules.stats import total_stats
+
+                    total_stats.last_fishing_pv = get_opponent().personality_value
+                    total_stats.last_fishing_rod = self._last_fishing_rod
                     context.message = f"Fishing with {rod_name}... started encounter: {get_opponent()}"
                 elif self._pokemon_on_hook:
                     context.message = f"Fishing with {rod_name}... but it got away"

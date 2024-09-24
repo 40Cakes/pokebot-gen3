@@ -31,6 +31,9 @@ class TotalStats:
         self.cached_timestamp: str = ""
         self.cached_encounter_rate: int = 0
 
+        self.last_fishing_pv = None
+        self.last_fishing_rod = 0
+
         try:
             self.config_dir_path = context.profile.path
             self.stats_dir_path = context.profile.path / "stats"
