@@ -12,7 +12,7 @@ import numpy
 from modules.context import context
 from modules.game import decode_string
 from modules.items import Item, get_item_by_index, get_item_by_move_id, get_item_by_name
-from modules.memory import pack_uint32, read_symbol, unpack_uint16, unpack_uint32
+from modules.memory import pack_uint32, read_symbol, unpack_uint16, unpack_uint32, get_event_var
 from modules.roms import ROMLanguage
 from modules.runtime import get_data_path
 from modules.state_cache import state_cache
@@ -1496,6 +1496,19 @@ def get_party() -> list[Pokemon]:
     state_cache.party = party
 
     return party
+
+
+def get_party_repel_level() -> int:
+    """
+    :return: The minimum level that wild encounters can have, given the current Repel
+             state and the level of the first non-fainted Pokémon.
+    """
+    if get_event_var("REPEL_STEP_COUNT") > 0:
+        for pokemon in get_party():
+            if pokemon.is_valid and not pokemon.is_egg and pokemon.current_hp > 0:
+                return pokemon.level
+
+    return 0
 
 
 def get_opponent_party() -> list[Pokemon] | None:

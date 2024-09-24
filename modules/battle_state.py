@@ -17,7 +17,8 @@ from modules.pokemon import (
     get_move_by_index,
     get_item_by_index,
     StatsValues,
-    StatusCondition, get_opponent,
+    StatusCondition,
+    get_opponent,
 )
 from modules.state_cache import state_cache
 from modules.tasks import get_global_script_context
@@ -733,6 +734,7 @@ def get_encounter_type() -> EncounterType:
         return EncounterType.RockSmash
 
     from modules.stats import total_stats
+
     if get_opponent().personality_value == total_stats.last_fishing_pv:
         if total_stats.last_fishing_rod == 2:
             return EncounterType.FishingWithSuperRod

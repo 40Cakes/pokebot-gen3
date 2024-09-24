@@ -15,7 +15,7 @@ from modules.memory import (
     unpack_uint32,
     get_event_flag_by_number,
 )
-from modules.pokemon import Item, Species, get_item_by_index, get_species_by_index
+from modules.pokemon import Item, Species, get_item_by_index, get_species_by_index, get_party_repel_level
 
 
 def _get_tile_type_name(tile_type: int):
@@ -1859,6 +1859,79 @@ def get_wild_encounters_for_map(map_group: int, map_number: int) -> WildEncounte
             _wild_encounters_cache[(group, number)] = WildEncounterList(**data)
 
     return _wild_encounters_cache.get((map_group, map_number))
+
+
+@dataclass
+class EffectiveWildEncounter:
+    species: Species
+    min_level: int
+    max_level: int
+    encounter_rate: float
+
+
+@dataclass
+class EffectiveWildEncounterList:
+    land_encounters: list[EffectiveWildEncounter]
+    surf_encounters: list[EffectiveWildEncounter]
+    rock_smash_encounters: list[EffectiveWildEncounter]
+    old_rod_encounters: list[EffectiveWildEncounter]
+    good_rod_encounters: list[EffectiveWildEncounter]
+    super_rod_encounters: list[EffectiveWildEncounter]
+
+
+def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterList | None:
+    from modules.player import get_player_avatar
+
+    player = get_player_avatar()
+    if player is None:
+        return EffectiveWildEncounterList([], [], [], [], [], [])
+
+    map_group, map_number = player.map_group_and_number
+
+    repel_level = get_party_repel_level()
+    wild_encounters = get_wild_encounters_for_map(map_group, map_number)
+
+    def calculate_effective_encounters(encounters: list[WildEncounter]) -> list[EffectiveWildEncounter]:
+        species = {}
+        total_rate = 0
+        for encounter in encounters:
+            if repel_level > encounter.max_level:
+                continue
+            elif repel_level < encounter.min_level:
+                modifier = 1
+            else:
+                modifier = 1 - (repel_level - encounter.min_level) / (1 + encounter.max_level - encounter.min_level)
+
+            rate = encounter.encounter_rate * modifier
+            min_level = max(encounter.min_level, repel_level)
+
+            total_rate += rate
+            if encounter.species.index not in species:
+                species[encounter.species.index] = EffectiveWildEncounter(
+                    species=encounter.species, min_level=min_level, max_level=encounter.max_level, encounter_rate=rate
+                )
+            else:
+                species_entry = species[encounter.species.index]
+                species_entry.encounter_rate += rate
+                species_entry.min_level = min(min_level, species_entry.min_level)
+                species_entry.max_level = max(encounter.max_level, species_entry.max_level)
+
+        for index in species:
+            species[index].encounter_rate /= total_rate
+
+        result = list(species.values())
+        result.sort(reverse=True, key=lambda e: e.encounter_rate)
+
+        return result
+
+    return EffectiveWildEncounterList(
+        land_encounters=calculate_effective_encounters(wild_encounters.land_encounters),
+        surf_encounters=calculate_effective_encounters(wild_encounters.surf_encounters),
+        rock_smash_encounters=calculate_effective_encounters(wild_encounters.rock_smash_encounters),
+        old_rod_encounters=calculate_effective_encounters(wild_encounters.old_rod_encounters),
+        good_rod_encounters=calculate_effective_encounters(wild_encounters.good_rod_encounters),
+        super_rod_encounters=calculate_effective_encounters(wild_encounters.super_rod_encounters),
+    )
 
 
 def calculate_targeted_coords(current_coordinates: tuple[int, int], facing_direction: str) -> tuple[int, int]:
