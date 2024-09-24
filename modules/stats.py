@@ -1,30 +1,21 @@
-import json
-import numpy
 import sqlite3
-import struct
 import time
 from collections import deque
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
+from textwrap import dedent
 from typing import TYPE_CHECKING, Iterable, Optional
 
 from modules.battle_state import BattleOutcome, EncounterType, get_encounter_type
 from modules.console import print_stats
 from modules.context import context
 from modules.fishing import FishingAttempt, FishingResult
-from modules.game import encode_string
-from modules.player import get_player_location, get_player
-from modules.pokemon import (
-    Pokemon,
-    get_species_by_index,
-    get_species_by_name,
-    LOCATION_MAP,
-    POKEMON_DATA_SUBSTRUCTS_ORDER,
-)
+from modules.items import Item, get_item_by_index
+from modules.player import get_player_location
+from modules.pokemon import Pokemon, get_species_by_index
 
 if TYPE_CHECKING:
-    from modules.items import Item, get_item_by_index
     from modules.profiles import Profile
 
 
@@ -117,7 +108,7 @@ class ShinyPhase:
     shiny_phase_id: int
     start_time: datetime
     end_time: datetime | None = None
-    shiny_encounter_id: int | None = None
+    shiny_encounter: Encounter | None = None
     encounters: int = 0
     highest_iv_sum: int | None = None
     lowest_iv_sum: int | None = None
@@ -132,13 +123,18 @@ class ShinyPhase:
     longest_unsuccessful_fishing_streak: int = 0
     current_unsuccessful_fishing_streak: int = 0
 
+    snapshot_total_encounters: int | None = None
+    snapshot_total_shiny_encounters: int | None = None
+    snapshot_species_encounters: int | None = None
+    snapshot_species_shiny_encounters: int | None = None
+
     @classmethod
-    def from_row_data(cls, row: list | tuple) -> "ShinyPhase":
+    def from_row_data(cls, row: list | tuple, shiny_encounter: Encounter | None) -> "ShinyPhase":
         return ShinyPhase(
             row[0],
             datetime.fromisoformat(row[1]),
             datetime.fromisoformat(row[2]) if row[2] is not None else None,
-            row[3],
+            shiny_encounter,
             row[4],
             row[5],
             row[6],
@@ -150,6 +146,10 @@ class ShinyPhase:
             row[12],
             row[13],
             row[14],
+            row[15],
+            row[16],
+            row[17],
+            row[18],
         )
 
     @classmethod
@@ -182,7 +182,7 @@ class ShinyPhase:
                 self.longest_streak_species = self.current_streak_species
 
         if encounter.is_shiny:
-            self.shiny_encounter_id = encounter.encounter_id
+            self.shiny_encounter = encounter
             self.end_time = encounter.encounter_time
 
     def update_fishing_attempt(self, attempt: FishingAttempt):
@@ -195,7 +195,18 @@ class ShinyPhase:
             self.successful_fishing_attempts += 1
             self.current_unsuccessful_fishing_streak = 0
 
-    def to_dict(self, shiny_encounter: Encounter | None) -> dict:
+    def update_snapshot(self, encounter_summaries: dict[int, "EncounterSummary"]):
+        self.snapshot_total_encounters = 0
+        self.snapshot_total_shiny_encounters = 0
+        for species_id in encounter_summaries:
+            encounter_summary = encounter_summaries[species_id]
+            self.snapshot_total_encounters += encounter_summary.total_encounters
+            self.snapshot_total_shiny_encounters += encounter_summary.shiny_encounters
+            if species_id == self.shiny_encounter.species_id:
+                self.snapshot_species_encounters = encounter_summary.total_encounters
+                self.snapshot_species_shiny_encounters = encounter_summary.shiny_encounters
+
+    def to_dict(self) -> dict:
         return {
             "phase": {
                 "shiny_phase_id": self.shiny_phase_id,
@@ -215,7 +226,13 @@ class ShinyPhase:
                 "longest_unsuccessful_fishing_streak": self.longest_unsuccessful_fishing_streak,
                 "current_unsuccessful_fishing_streak": self.current_unsuccessful_fishing_streak,
             },
-            "shiny_encounter": shiny_encounter.to_dict() if shiny_encounter is not None else None,
+            "snapshot": {
+                "total_encounters": self.snapshot_total_encounters,
+                "total_shiny_encounters": self.snapshot_total_shiny_encounters,
+                "species_encounters": self.snapshot_species_encounters,
+                "species_shiny_encounters": self.snapshot_species_shiny_encounters,
+            },
+            "shiny_encounter": self.shiny_encounter.to_dict() if self.shiny_encounter is not None else None,
         }
 
 
@@ -336,18 +353,21 @@ class EncounterSummary:
 
     def to_dict(self) -> dict:
         return {
-            "encounters": self.total_encounters,
-            "phase_encounters": self.phase_encounters,
+            "species_id": self.species.index,
+            "species_name": self.species.name,
+            "total_encounters": self.total_encounters,
+            "shiny_encounters": self.shiny_encounters,
+            "catches": self.catches,
             "total_highest_iv_sum": self.total_highest_iv_sum,
             "total_lowest_iv_sum": self.total_lowest_iv_sum,
             "total_highest_sv": self.total_highest_sv,
             "total_lowest_sv": self.total_lowest_sv,
+            "phase_encounters": self.phase_encounters,
             "phase_highest_iv_sum": self.phase_highest_iv_sum,
             "phase_lowest_iv_sum": self.phase_lowest_iv_sum,
             "phase_highest_sv": self.phase_highest_sv,
             "phase_lowest_sv": self.phase_lowest_sv,
-            "last_encounter_time_str": self.last_encounter_time.isoformat(),
-            "last_encounter_time_unix": self.last_encounter_time.timestamp(),
+            "last_encounter_time": self.last_encounter_time.isoformat(),
         }
 
 
@@ -378,6 +398,8 @@ class StatsDatabase:
             )
 
         self._current_shiny_phase: ShinyPhase | None = self._get_current_shiny_phase()
+        self._shortest_shiny_phase: ShinyPhase | None = self._get_shortest_shiny_phase()
+        self._longest_shiny_phase: ShinyPhase | None = self._get_longest_shiny_phase()
         self._next_encounter_id: int = self._get_next_encounter_id()
         self._encounter_summaries: dict[int, EncounterSummary] = self._get_encounter_summaries()
         self._pickup_items: dict[int, PickupItem] = self._get_pickup_items()
@@ -423,10 +445,16 @@ class StatsDatabase:
         self._last_encounter = encounter
         self._insert_encounter(encounter)
         self._current_shiny_phase.update(encounter)
+        if pokemon.is_shiny:
+            self._current_shiny_phase.update_snapshot(self._encounter_summaries)
         self._update_shiny_phase(self._current_shiny_phase)
 
         if pokemon.is_shiny:
             self._reset_phase_in_database(encounter)
+            if self._current_shiny_phase.encounters < self._shortest_shiny_phase.encounters:
+                self._shortest_shiny_phase = self._current_shiny_phase
+            if self._current_shiny_phase.encounters > self._longest_shiny_phase.encounters:
+                self._longest_shiny_phase = self._current_shiny_phase
             self._current_shiny_phase = None
             for species_id in self._encounter_summaries:
                 encounter_summary = self._encounter_summaries[species_id]
@@ -446,7 +474,7 @@ class StatsDatabase:
         self._next_encounter_id += 1
 
         print_stats(
-            self.get_total_stats(include_shortest_and_longest_phase=False),
+            self.get_total_stats(),
             pokemon,
             set([e.species.name for e in self._encounter_summaries.values() if e.phase_encounters > 0]),
         )
@@ -591,16 +619,15 @@ class StatsDatabase:
     def get_encounter_log(self) -> list[Encounter]:
         return list(self._query_encounters())
 
-    def get_shiny_log(self) -> list[tuple[ShinyPhase, Encounter]]:
-        result = []
-        for shiny_encounter in list(self._query_encounters("is_shiny = 1")):
-            shiny_phase = self._get_shiny_phase_by_id(shiny_encounter.shiny_phase_id)
-            if shiny_phase is not None:
-                result.append((shiny_phase, shiny_encounter))
-        return result
+    def get_shiny_log(self) -> list[ShinyPhase]:
+        return list(self._query_shiny_phases("end_time IS NOT NULL ORDER BY end_time DESC"))
 
     def _query_encounters(
-        self, where_clause: str | None = None, limit: int = 10, offset: int = 0
+        self,
+        where_clause: str | None = None,
+        parameters: tuple | list | None = None,
+        limit: int | None = 10,
+        offset: int = 0,
     ) -> Iterable[Encounter]:
         result = self._cursor.execute(
             f"""
@@ -622,9 +649,9 @@ class StatsDatabase:
             FROM encounters
             {f'WHERE {where_clause}' if where_clause is not None else ''}
             ORDER BY encounter_id DESC
-            LIMIT ? OFFSET ?
+            {f'LIMIT {limit} OFFSET {offset}' if limit is not None else ''}
             """,
-            (limit, offset),
+            [] if parameters is None else parameters,
         )
         for row in result:
             yield Encounter.from_row_data(row)
@@ -660,17 +687,76 @@ class StatsDatabase:
             return int(result[0]) + 1
 
     def _get_current_shiny_phase(self) -> ShinyPhase | None:
-        result = self._cursor.execute(
-            "SELECT shiny_phase_id, start_time, end_time, shiny_encounter_id, encounters, highest_iv_sum, lowest_iv_sum, highest_sv, lowest_sv, longest_streak, longest_streak_species, fishing_attempts, successful_fishing_attempts, longest_unsuccessful_fishing_streak, current_unsuccessful_fishing_streak FROM shiny_phases WHERE end_time IS NULL ORDER BY shiny_phase_id DESC LIMIT 1"
-        ).fetchone()
-        return ShinyPhase.from_row_data(result) if result is not None else None
+        return self._query_single_shiny_phase("end_time IS NULL ORDER BY shiny_phases.shiny_phase_id DESC")
 
     def _get_shiny_phase_by_id(self, shiny_phase_id: int) -> ShinyPhase | None:
+        return self._query_single_shiny_phase("shiny_phases.shiny_phase_id = ?", (shiny_phase_id,))
+
+    def _get_shortest_shiny_phase(self) -> ShinyPhase | None:
+        return self._query_single_shiny_phase("end_time IS NOT NULL ORDER BY encounters ASC")
+
+    def _get_longest_shiny_phase(self) -> ShinyPhase | None:
+        return self._query_single_shiny_phase("end_time IS NOT NULL ORDER BY encounters DESC")
+
+    def _query_shiny_phases(
+        self, where_clause: str, parameters: tuple | list | None = None, limit: int | None = 10, offset: int = 0
+    ) -> Iterable[ShinyPhase]:
         result = self._cursor.execute(
-            "SELECT shiny_phase_id, start_time, end_time, shiny_encounter_id, encounters, highest_iv_sum, lowest_iv_sum, highest_sv, lowest_sv, longest_streak, longest_streak_species, fishing_attempts, successful_fishing_attempts, longest_unsuccessful_fishing_streak, current_unsuccessful_fishing_streak FROM shiny_phases WHERE shiny_phase_id = ?",
-            (shiny_phase_id,),
-        ).fetchone()
-        return ShinyPhase.from_row_data(result) if result is not None else None
+            f"""
+            SELECT
+                shiny_phases.shiny_phase_id,
+                shiny_phases.start_time,
+                shiny_phases.end_time,
+                shiny_phases.shiny_encounter_id,
+                shiny_phases.encounters,
+                shiny_phases.highest_iv_sum,
+                shiny_phases.lowest_iv_sum,
+                shiny_phases.highest_sv,
+                shiny_phases.lowest_sv,
+                shiny_phases.longest_streak,
+                shiny_phases.longest_streak_species,
+                shiny_phases.fishing_attempts,
+                shiny_phases.successful_fishing_attempts,
+                shiny_phases.longest_unsuccessful_fishing_streak,
+                shiny_phases.current_unsuccessful_fishing_streak,
+                shiny_phases.snapshot_total_encounters,
+                shiny_phases.snapshot_total_shiny_encounters,
+                shiny_phases.snapshot_species_encounters,
+                shiny_phases.snapshot_species_shiny_encounters,
+                
+                encounters.encounter_id,
+                encounters.species_id,
+                encounters.personality_value,
+                encounters.shiny_phase_id,
+                encounters.is_shiny,
+                encounters.is_roamer,
+                encounters.matching_custom_catch_filters,
+                encounters.encounter_time,
+                encounters.map,
+                encounters.coordinates,
+                encounters.bot_mode,
+                encounters.type,
+                encounters.outcome,
+                encounters.data
+            FROM shiny_phases
+            LEFT JOIN encounters ON encounters.encounter_id = shiny_phases.shiny_encounter_id
+            {f'WHERE {where_clause}' if where_clause is not None else ''}
+            {f'LIMIT {limit} OFFSET {offset}' if limit is not None else ''}
+            """,
+            [] if parameters is None else parameters,
+        )
+
+        for row in result:
+            if row[19] is not None:
+                encounter = Encounter.from_row_data(row[19:])
+            else:
+                encounter = None
+
+            yield ShinyPhase.from_row_data(row[:19], encounter)
+
+    def _query_single_shiny_phase(self, where_clause: str, parameters: tuple | None = None) -> ShinyPhase | None:
+        result = list(self._query_shiny_phases(where_clause, parameters, limit=1))
+        return result[0] if len(result) > 0 else None
 
     def _get_next_shiny_phase_id(self) -> int:
         result = self._cursor.execute(
@@ -801,7 +887,11 @@ class StatsDatabase:
                 fishing_attempts = ?,
                 successful_fishing_attempts = ?,
                 longest_unsuccessful_fishing_streak = ?,
-                current_unsuccessful_fishing_streak = ?
+                current_unsuccessful_fishing_streak = ?,
+                snapshot_total_encounters = ?,
+                snapshot_total_shiny_encounters = ?,
+                snapshot_species_encounters = ?,
+                snapshot_species_shiny_encounters = ?
             WHERE shiny_phase_id = ?
             """,
             (
@@ -818,6 +908,10 @@ class StatsDatabase:
                 shiny_phase.successful_fishing_attempts,
                 shiny_phase.longest_unsuccessful_fishing_streak,
                 shiny_phase.current_unsuccessful_fishing_streak,
+                shiny_phase.snapshot_total_encounters,
+                shiny_phase.snapshot_total_shiny_encounters,
+                shiny_phase.snapshot_species_encounters,
+                shiny_phase.snapshot_species_shiny_encounters,
                 shiny_phase.shiny_phase_id,
             ),
         )
@@ -888,188 +982,20 @@ class StatsDatabase:
         :param profile: Currently loaded profile
         """
 
-        totals_file = profile.path / "stats" / "totals.json"
-        if totals_file.exists():
-            totals = json.load(totals_file.open("r"))
-            for species_name in totals["pokemon"]:
-                old_data = totals["pokemon"][species_name]
-                encounter_summary = EncounterSummary(
-                    species=get_species_by_name(species_name),
-                    total_encounters=old_data["encounters"],
-                    shiny_encounters=old_data["shiny_encounters"] if "shiny_encounters" in old_data else 0,
-                    catches=old_data["shiny_encounters"] if "shiny_encounters" in old_data else 0,
-                    total_highest_iv_sum=old_data["total_highest_iv_sum"],
-                    total_lowest_iv_sum=old_data["total_lowest_iv_sum"],
-                    total_highest_sv=(
-                        old_data["total_highest_sv"] if "total_highest_sv" in old_data else old_data["total_lowest_sv"]
-                    ),
-                    total_lowest_sv=old_data["total_lowest_sv"],
-                    phase_encounters=old_data["phase_encounters"],
-                    phase_highest_iv_sum=old_data["phase_highest_iv_sum"],
-                    phase_lowest_iv_sum=old_data["phase_lowest_iv_sum"],
-                    phase_highest_sv=old_data["phase_highest_sv"],
-                    phase_lowest_sv=old_data["phase_lowest_sv"],
-                    last_encounter_time=datetime.fromtimestamp(old_data["last_encounter_time_unix"]),
-                )
-                self._insert_or_update_encounter_summary(encounter_summary)
-                self._connection.commit()
+        from modules.stats_migrate import migrate_file_based_stats_to_sqlite
 
-        shiny_log_file = profile.path / "stats" / "shiny_log.json"
-        if shiny_log_file.exists():
-            shiny_log = json.load(shiny_log_file.open("r"))
-            previous_phase_start = None
-            for entry in shiny_log["shiny_log"]:
-                pkm = entry["pokemon"]
-                species = get_species_by_index(pkm["species"])
-
-                language_byte = b"\x02"
-                if pkm["language"] == "J":
-                    language_byte = b"\x01"
-                elif pkm["language"] == "F":
-                    language_byte = b"\x03"
-                elif pkm["language"] == "I":
-                    language_byte = b"\x04"
-                elif pkm["language"] == "G":
-                    language_byte = b"\x05"
-                elif pkm["language"] == "S":
-                    language_byte = b"\x07"
-
-                origin_game = 3
-                if pkm["origins"]["game"] == "Ruby":
-                    origin_game = 1
-                elif pkm["origins"]["game"] == "Sapphire":
-                    origin_game = 2
-                elif pkm["origins"]["game"] == "FireRed":
-                    origin_game = 4
-                elif pkm["origins"]["game"] == "LeafGreen":
-                    origin_game = 5
-
-                origins_info = pkm["origins"]["metLevel"] | (origin_game << 7) | (4 << 11)
-                if get_player().gender == "female":
-                    origins_info |= 1 << 15
-
-                iv_egg_ability = (
-                    (pkm["IVs"]["hp"])
-                    | (pkm["IVs"]["attack"] << 5)
-                    | (pkm["IVs"]["defense"] << 10)
-                    | (pkm["IVs"]["speed"] << 15)
-                    | (pkm["IVs"]["spAttack"] << 20)
-                    | (pkm["IVs"]["spDefense"] << 25)
-                )
-                if pkm["ability"] != species.abilities[0].name:
-                    iv_egg_ability |= 1 << 31
-
-                data_to_encrypt = (
-                    species.index.to_bytes(2, byteorder="little")
-                    + pkm["item"]["id"].to_bytes(2, byteorder="little")
-                    + pkm["experience"].to_bytes(4, byteorder="little")
-                    + b"\x00"
-                    + pkm["friendship"].to_bytes(1)
-                    + b"\x00\x00"
-                    + pkm["moves"][0]["id"].to_bytes(2, byteorder="little")
-                    + pkm["moves"][1]["id"].to_bytes(2, byteorder="little")
-                    + pkm["moves"][2]["id"].to_bytes(2, byteorder="little")
-                    + pkm["moves"][3]["id"].to_bytes(2, byteorder="little")
-                    + pkm["moves"][0]["remaining_pp"].to_bytes(1)
-                    + pkm["moves"][1]["remaining_pp"].to_bytes(1)
-                    + pkm["moves"][2]["remaining_pp"].to_bytes(1)
-                    + pkm["moves"][3]["remaining_pp"].to_bytes(1)
-                    + pkm["EVs"]["hp"].to_bytes(1)
-                    + pkm["EVs"]["attack"].to_bytes(1)
-                    + pkm["EVs"]["defence"].to_bytes(1)
-                    + pkm["EVs"]["speed"].to_bytes(1)
-                    + pkm["EVs"]["spAttack"].to_bytes(1)
-                    + pkm["EVs"]["spDefense"].to_bytes(1)
-                    + pkm["condition"]["cool"].to_bytes(1)
-                    + pkm["condition"]["beauty"].to_bytes(1)
-                    + pkm["condition"]["cute"].to_bytes(1)
-                    + pkm["condition"]["smart"].to_bytes(1)
-                    + pkm["condition"]["tough"].to_bytes(1)
-                    + pkm["condition"]["feel"].to_bytes(1)
-                    + b"\x00"
-                    + LOCATION_MAP.index(pkm["metLocation"]).to_bytes(1)
-                    + origins_info.to_bytes(2, byteorder="little")
-                    + iv_egg_ability.to_bytes(4, byteorder="little")
-                    + b"\x00\x00\x00\x00"
-                )
-
-                data = (
-                    pkm["pid"].to_bytes(length=4, byteorder="little")
-                    + pkm["ot"]["tid"].to_bytes(length=2, byteorder="little")
-                    + pkm["ot"]["sid"].to_bytes(length=2, byteorder="little")
-                    + encode_string(species.name.upper()).ljust(10, b"\x00")
-                    + language_byte
-                    + b"\x01"
-                    + encode_string(get_player().name).ljust(7, b"\x00")
-                    + b"\x00"
-                    + (sum(struct.unpack("<24H", data_to_encrypt)) & 0xFFFF).to_bytes(length=2, byteorder="little")
-                    + b"\x00\x00"
-                    + data_to_encrypt
-                    + b"\x00\x00\x00\x00"
-                    + pkm["level"].to_bytes(length=1, byteorder="little")
-                    + b"\x00"
-                    + pkm["stats"]["maxHP"].to_bytes(length=2, byteorder="little")
-                    + pkm["stats"]["maxHP"].to_bytes(length=2, byteorder="little")
-                    + pkm["stats"]["attack"].to_bytes(length=2, byteorder="little")
-                    + pkm["stats"]["defense"].to_bytes(length=2, byteorder="little")
-                    + pkm["stats"]["speed"].to_bytes(length=2, byteorder="little")
-                    + pkm["stats"]["spAttack"].to_bytes(length=2, byteorder="little")
-                    + pkm["stats"]["spDefense"].to_bytes(length=2, byteorder="little")
-                )
-
-                u32le = numpy.dtype("<u4")
-                personality_value = numpy.frombuffer(data, count=1, dtype=u32le)
-                original_trainer_id = numpy.frombuffer(data, count=1, offset=4, dtype=u32le)
-                key = numpy.repeat(personality_value ^ original_trainer_id, 3)
-                order = POKEMON_DATA_SUBSTRUCTS_ORDER[pkm["pid"] % 24]
-
-                encrypted_data = numpy.concatenate(
-                    [
-                        numpy.frombuffer(data, count=3, offset=32 + (order.index(i) * 12), dtype=u32le) ^ key
-                        for i in range(4)
-                    ]
-                )
-
-                pokemon_data = data[:32] + encrypted_data.tobytes() + data[80:100]
-
-                encounter_id = self._get_next_encounter_id()
-                shiny_phase_id = self._get_next_shiny_phase_id()
-
-                encounter = Encounter(
-                    encounter_id=encounter_id,
-                    shiny_phase_id=shiny_phase_id,
-                    matching_custom_catch_filters="",
-                    encounter_time=datetime.fromtimestamp(entry["time_encountered"]),
-                    map="",
-                    coordinates="",
-                    bot_mode="",
-                    type=None,
-                    outcome=None,
-                    pokemon=Pokemon(pokemon_data),
-                )
-                self._insert_encounter(encounter)
-
-                self._cursor.execute(
-                    """
-                    INSERT INTO shiny_phases
-                        (shiny_phase_id, start_time, end_time, shiny_encounter_id, encounters)
-                    VALUES
-                        (?, ?, ?, ?, ?)
-                    """,
-                    (
-                        shiny_phase_id,
-                        (
-                            previous_phase_start
-                            if previous_phase_start is not None
-                            else datetime.fromtimestamp(entry["time_encountered"])
-                        ),
-                        datetime.fromtimestamp(entry["time_encountered"]),
-                        encounter_id,
-                        entry["snapshot_stats"]["phase_encounters"],
-                    ),
-                )
-                previous_phase_start = datetime.fromtimestamp(entry["time_encountered"])
-                self._connection.commit()
+        migrate_file_based_stats_to_sqlite(
+            profile,
+            self._insert_encounter,
+            self._insert_shiny_phase,
+            self._update_shiny_phase,
+            self._insert_or_update_encounter_summary,
+            self._get_encounter_summaries,
+            self._query_encounters,
+            self._query_shiny_phases,
+            self._cursor.execute,
+            self._connection.commit,
+        )
 
     def _get_schema_version(self) -> int:
         """
@@ -1111,89 +1037,103 @@ class StatsDatabase:
             self._cursor.execute("CREATE TABLE schema_version (version INT UNSIGNED)")
 
             self._cursor.execute(
-                """
-                CREATE TABLE base_data (
-                    data_key INT UNSIGNED PRIMARY KEY,
-                    value TEXT DEFAULT NULL
+                dedent(
+                    """
+                    CREATE TABLE base_data (
+                        data_key INT UNSIGNED PRIMARY KEY,
+                        value TEXT DEFAULT NULL
+                    )
+                    """
                 )
-                """
             )
 
             self._cursor.execute(
-                """
-                CREATE TABLE encounter_summaries (
-                    species_id INT UNSIGNED PRIMARY KEY,
-                    species_name TEXT NOT NULL,
-                    total_encounters INT UNSIGNED,
-                    shiny_encounters INT UNSIGNED,
-                    catches INT UNSIGNED,
-                    total_highest_iv_sum INT UNSIGNED,
-                    total_lowest_iv_sum INT UNSIGNED,
-                    total_highest_sv INT UNSIGNED,
-                    total_lowest_sv INT UNSIGNED,
-                    phase_encounters INT UNSIGNED,
-                    phase_highest_iv_sum INT UNSIGNED DEFAULT NULL,
-                    phase_lowest_iv_sum INT UNSIGNED DEFAULT NULL,
-                    phase_highest_sv INT UNSIGNED DEFAULT NULL,
-                    phase_lowest_sv INT UNSIGNED DEFAULT NULL,
-                    last_encounter_time DATETIME
+                dedent(
+                    """
+                    CREATE TABLE encounter_summaries (
+                        species_id INT UNSIGNED PRIMARY KEY,
+                        species_name TEXT NOT NULL,
+                        total_encounters INT UNSIGNED,
+                        shiny_encounters INT UNSIGNED,
+                        catches INT UNSIGNED,
+                        total_highest_iv_sum INT UNSIGNED,
+                        total_lowest_iv_sum INT UNSIGNED,
+                        total_highest_sv INT UNSIGNED,
+                        total_lowest_sv INT UNSIGNED,
+                        phase_encounters INT UNSIGNED,
+                        phase_highest_iv_sum INT UNSIGNED DEFAULT NULL,
+                        phase_lowest_iv_sum INT UNSIGNED DEFAULT NULL,
+                        phase_highest_sv INT UNSIGNED DEFAULT NULL,
+                        phase_lowest_sv INT UNSIGNED DEFAULT NULL,
+                        last_encounter_time DATETIME
+                    )
+                    """
                 )
-                """
             )
 
             self._cursor.execute(
-                """
-                CREATE TABLE shiny_phases (
-                    shiny_phase_id INT UNSIGNED PRIMARY KEY,
-                    start_time DATETIME NOT NULL,
-                    end_time DATETIME DEFAULT NULL,
-                    shiny_encounter_id INT UNSIGNED DEFAULT NULL,
-                    encounters INT UNSIGNED DEFAULT 0,
-                    highest_iv_sum INT UNSIGNED DEFAULT NULL,
-                    lowest_iv_sum INT UNSIGNED DEFAULT NULL,
-                    highest_sv INT UNSIGNED DEFAULT NULL,
-                    lowest_sv INT UNSIGNED DEFAULT NULL,
-                    longest_streak INT UNSIGNED DEFAULT 0,
-                    longest_streak_species TEXT DEFAULT NULL,
-                    current_streak INT UNSIGNED DEFAULT 0,
-                    current_streak_species TEXT DEFAULT NULL,
-                    fishing_attempts INT UNSIGNED DEFAULT 0,
-                    successful_fishing_attempts INT UNSIGNED DEFAULT 0,
-                    longest_unsuccessful_fishing_streak INT UNSIGNED DEFAULT 0,
-                    current_unsuccessful_fishing_streak INT UNSIGNED DEFAULT 0
+                dedent(
+                    """
+                    CREATE TABLE shiny_phases (
+                        shiny_phase_id INT UNSIGNED PRIMARY KEY,
+                        start_time DATETIME NOT NULL,
+                        end_time DATETIME DEFAULT NULL,
+                        shiny_encounter_id INT UNSIGNED DEFAULT NULL,
+                        encounters INT UNSIGNED DEFAULT 0,
+                        highest_iv_sum INT UNSIGNED DEFAULT NULL,
+                        lowest_iv_sum INT UNSIGNED DEFAULT NULL,
+                        highest_sv INT UNSIGNED DEFAULT NULL,
+                        lowest_sv INT UNSIGNED DEFAULT NULL,
+                        longest_streak INT UNSIGNED DEFAULT 0,
+                        longest_streak_species TEXT DEFAULT NULL,
+                        current_streak INT UNSIGNED DEFAULT 0,
+                        current_streak_species TEXT DEFAULT NULL,
+                        fishing_attempts INT UNSIGNED DEFAULT 0,
+                        successful_fishing_attempts INT UNSIGNED DEFAULT 0,
+                        longest_unsuccessful_fishing_streak INT UNSIGNED DEFAULT 0,
+                        current_unsuccessful_fishing_streak INT UNSIGNED DEFAULT 0,
+                        snapshot_total_encounters INT UNSIGNED DEFAULT NULL,
+                        snapshot_total_shiny_encounters INT UNSIGNED DEFAULT NULL,
+                        snapshot_species_encounters INT UNSIGNED DEFAULT NULL,
+                        snapshot_species_shiny_encounters INT UNSIGNED DEFAULT NULL
+                    )
+                    """
                 )
-                """
             )
 
             self._cursor.execute(
-                """
-                CREATE TABLE encounters (
-                    encounter_id INT UNSIGNED PRIMARY KEY,
-                    species_id INT UNSIGNED NOT NULL,
-                    personality_value INT UNSIGNED NOT NULL,
-                    shiny_phase_id INT UNSIGNED NOT NULL,
-                    is_shiny INT UNSIGNED DEFAULT 0,
-                    is_roamer INT UNSIGNED DEFAULT 0,
-                    matching_custom_catch_filters TEXT DEFAULT NULL,
-                    encounter_time DATETIME NOT NULL,
-                    map TEXT,
-                    coordinates TEXT,
-                    bot_mode TEXT,
-                    type TEXT DEFAULT NULL,
-                    outcome INT UNSIGNED DEFAULT NULL,
-                    data BLOB NOT NULL
+                dedent(
+                    """
+                    CREATE TABLE encounters (
+                        encounter_id INT UNSIGNED PRIMARY KEY,
+                        species_id INT UNSIGNED NOT NULL,
+                        personality_value INT UNSIGNED NOT NULL,
+                        shiny_phase_id INT UNSIGNED NOT NULL,
+                        is_shiny INT UNSIGNED DEFAULT 0,
+                        is_roamer INT UNSIGNED DEFAULT 0,
+                        matching_custom_catch_filters TEXT DEFAULT NULL,
+                        encounter_time DATETIME NOT NULL,
+                        map TEXT,
+                        coordinates TEXT,
+                        bot_mode TEXT,
+                        type TEXT DEFAULT NULL,
+                        outcome INT UNSIGNED DEFAULT NULL,
+                        data BLOB NOT NULL
+                    )
+                    """
                 )
-                """
             )
 
             self._cursor.execute(
-                """
-                CREATE TABLE pickup_items (
-                    item_id INT UNSIGNED PRIMARY KEY,
-                    item_name TEXT NOT NULL,
-                    times_picked_up INT NOT NULL DEFAULT 0
+                dedent(
+                    """
+                    CREATE TABLE pickup_items (
+                        item_id INT UNSIGNED PRIMARY KEY,
+                        item_name TEXT NOT NULL,
+                        times_picked_up INT NOT NULL DEFAULT 0
+                    )
+                    """
                 )
-                """
             )
 
         self._cursor.execute("DELETE FROM schema_version")

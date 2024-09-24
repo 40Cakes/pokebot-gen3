@@ -439,12 +439,12 @@ class StatsValues:
             ]
         }
         return cls(
-            hp=hp,
-            attack=stats["attack"],
-            defence=stats["defence"],
-            speed=stats["speed"],
-            special_attack=stats["special_attack"],
-            special_defence=stats["special_defence"],
+            hp=int(hp),
+            attack=int(stats["attack"]),
+            defence=int(stats["defence"]),
+            speed=int(stats["speed"]),
+            special_attack=int(stats["special_attack"]),
+            special_defence=int(stats["special_defence"]),
         )
 
     def sum(self) -> int:
