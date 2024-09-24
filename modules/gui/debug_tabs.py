@@ -31,6 +31,8 @@ from modules.map import (
     get_map_all_tiles,
     get_wild_encounters_for_map,
     WildEncounter,
+    get_effective_encounter_rates_for_current_map,
+    EffectiveWildEncounter,
 )
 from modules.map_data import MapGroupFRLG, MapFRLG, MapGroupRSE, MapRSE
 from modules.map_path import _find_tile_by_local_coordinates
@@ -50,7 +52,7 @@ from modules.memory import (
 )
 from modules.player import get_player, get_player_avatar, AvatarFlags, TileTransitionState
 from modules.pokedex import get_pokedex
-from modules.pokemon import get_party, get_species_by_index
+from modules.pokemon import get_party, get_species_by_index, get_party_repel_level
 from modules.pokemon_storage import get_pokemon_storage
 from modules.roamer import get_roamer, get_roamer_location_history
 from modules.tasks import (
@@ -1352,6 +1354,43 @@ class MapTab(DebugTab):
 
             encounters["__value"] = ", ".join(encounters["__value"])
 
+        effective_encounter_data = get_effective_encounter_rates_for_current_map()
+        effective_encounters = {}
+
+        def list_effective_encounters(label: str, encounters: list[EffectiveWildEncounter]) -> None:
+            nonlocal effective_encounters
+
+            if len(encounters) == 0:
+                return
+
+            result = {}
+            value = []
+            for encounter in encounters:
+                percentage = round(100 * encounter.encounter_rate)
+                value.append(f"{percentage}% {encounter.species.name}")
+                result[encounter.species.name] = f"{percentage}%; Lvl. {encounter.min_level}-{encounter.max_level}"
+            result["__value"] = ", ".join(value)
+            effective_encounters[label] = result
+
+            if "__value" in effective_encounters:
+                effective_encounters["__value"] += f", {len(encounters)} {label}"
+            else:
+                effective_encounters["__value"] = f"{len(encounters)} {label}"
+
+        list_effective_encounters("Land", effective_encounter_data.land_encounters)
+        list_effective_encounters("Surfing", effective_encounter_data.surf_encounters)
+        list_effective_encounters("Rock Smash", effective_encounter_data.rock_smash_encounters)
+        list_effective_encounters("Fishing (Old Rod)", effective_encounter_data.old_rod_encounters)
+        list_effective_encounters("Fishing (Good Rod)", effective_encounter_data.good_rod_encounters)
+        list_effective_encounters("Fishing (Super Rod)", effective_encounter_data.super_rod_encounters)
+
+        if get_party_repel_level() > 0:
+            effective_encounters["__value"] = (
+                f"(Repel Lvl. {get_party_repel_level()}) {effective_encounters['__value']}"
+            )
+        else:
+            effective_encounters["__value"] = f"(no Repel) {effective_encounters['__value']}"
+
         if context.rom.is_rse:
             map_enum = MapRSE(map_data.map_group_and_number)
             group_enum = MapGroupRSE(map_data.map_group)
@@ -1378,6 +1417,7 @@ class MapTab(DebugTab):
                 "Is Dark Cave": map_data.is_dark_cave,
             },
             "Encounters": encounters,
+            "Effective Encounters": effective_encounters,
             "Tile": {
                 "__value": f"{map_data.local_position[0]}/{map_data.local_position[1]} ({map_data.tile_type})",
                 "Elevation": map_data.elevation,
