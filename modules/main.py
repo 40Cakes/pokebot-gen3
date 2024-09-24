@@ -2,6 +2,7 @@ import queue
 import sys
 from collections import deque
 from threading import Thread
+from typing import Generator
 
 from modules.console import console
 from modules.context import context
@@ -20,6 +21,15 @@ work_queue: queue.Queue[callable] = queue.Queue()
 # Keeps a list of inputs that have been pressed for each frame so that the HTTP server
 # can fetch and accumulate them for its `Inputs` stream event.
 inputs_each_frame: deque[int] = deque(maxlen=128)
+
+
+class ManualBotMode(BotMode):
+    @staticmethod
+    def name() -> str:
+        return "Manual"
+
+    def run(self) -> Generator:
+        yield
 
 
 def main_loop() -> None:
@@ -52,18 +62,13 @@ def main_loop() -> None:
 
             context.frame += 1
 
-            if context.bot_mode != "Manual":
-                game_state = get_game_state()
-                script_context = get_global_script_context()
-                script_stack = script_context.stack if script_context is not None and script_context.is_active else []
-                task_list = get_tasks()
-                if task_list is not None:
-                    active_tasks = [task.symbol.lower() for task in task_list]
-                else:
-                    active_tasks = []
+            game_state = get_game_state()
+            script_context = get_global_script_context()
+            script_stack = script_context.stack if script_context is not None and script_context.is_active else []
+            task_list = get_tasks()
+            if task_list is not None:
+                active_tasks = [task.symbol.lower() for task in task_list]
             else:
-                game_state = GameState.UNKNOWN
-                script_stack = []
                 active_tasks = []
 
             frame_info = FrameInfo(
@@ -80,21 +85,18 @@ def main_loop() -> None:
 
             if context.bot_mode == "Manual":
                 context.controller_stack = []
-                if context.bot_mode_instance is not None:
+                if not isinstance(context.bot_mode_instance, ManualBotMode):
                     context.emulator.reset_held_buttons()
-                context.bot_mode_instance = None
-                listeners = []
+                context.bot_mode_instance = ManualBotMode()
             elif len(context.controller_stack) == 0:
                 context.bot_mode_instance = get_bot_mode_by_name(context.bot_mode)()
                 context.controller_stack.append(context.bot_mode_instance.run())
-                listeners = get_bot_listeners(context.rom)
 
             try:
-                if context.bot_mode_instance is not None:
-                    for listener in listeners:
-                        listener.handle_frame(context.bot_mode_instance, frame_info)
-                    if len(context.controller_stack) > 0:
-                        next(context.controller_stack[-1])
+                for listener in listeners:
+                    listener.handle_frame(context.bot_mode_instance, frame_info)
+                if len(context.controller_stack) > 0:
+                    next(context.controller_stack[-1])
             except (StopIteration, GeneratorExit):
                 context.controller_stack.pop()
             except BotModeError as e:
