@@ -25,6 +25,7 @@ class DataSubscription(IntFlag):
     Party = auto()
     Pokedex = auto()
     Opponent = auto()
+    FishingAttempt = auto()
     GameState = auto()
     Map = auto()
     MapTile = auto()
@@ -96,6 +97,7 @@ def run_watcher():
         "party": state_cache.party.frame,
         "pokedex": state_cache.pokedex.frame,
         "opponent": state_cache.opponent.frame,
+        "fishing_attempt": state_cache.fishing_attempt.frame,
         "player": state_cache.player.frame,
         "player_avatar": state_cache.player_avatar.frame,
         "map_group_and_number": map_group_and_number,
@@ -182,6 +184,15 @@ def run_watcher():
                     send_message(DataSubscription.Opponent, data=data, event_type="Opponent")
             elif previous_game_state["game_state"] == GameState.BATTLE:
                 send_message(DataSubscription.Opponent, data=None, event_type="Opponent")
+
+        if subscriptions["FishingAttempt"] > 0:
+            if state_cache.fishing_attempt.value != context.stats.last_fishing_attempt:
+                state_cache.fishing_attempt = context.stats.last_fishing_attempt
+                send_message(
+                    DataSubscription.FishingAttempt,
+                    data=context.stats.last_fishing_attempt.to_dict(),
+                    event_type="FishingAttempt",
+                )
 
         if subscriptions["GameState"] > 0 and current_game_state != previous_game_state["game_state"]:
             send_message(DataSubscription.GameState, data=current_game_state.name, event_type="GameState")

@@ -6,11 +6,13 @@ import time
 from collections import deque
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Iterable
+from enum import Enum
+from typing import TYPE_CHECKING, Iterable, Optional
 
-from modules.battle import BattleOutcome
+from modules.battle_state import BattleOutcome, EncounterType, get_encounter_type
 from modules.console import print_stats
 from modules.context import context
+from modules.fishing import FishingAttempt, FishingResult
 from modules.game import encode_string
 from modules.player import get_player_location, get_player
 from modules.pokemon import (
@@ -33,6 +35,16 @@ class StatsDatabaseSchemaTooNew(Exception):
     pass
 
 
+class DataKey(Enum):
+    TrainerID = 1
+    SecretTrainerID = 2
+
+
+class BaseData:
+    key: DataKey
+    value: str | None
+
+
 @dataclass
 class Encounter:
     encounter_id: int
@@ -42,6 +54,7 @@ class Encounter:
     map: str | None
     coordinates: str | None
     bot_mode: str
+    type: EncounterType | None
     outcome: BattleOutcome | None
     pokemon: "Pokemon"
 
@@ -55,8 +68,9 @@ class Encounter:
             map=row[8],
             coordinates=row[9],
             bot_mode=row[10],
-            outcome=BattleOutcome(row[11]) if row[11] else None,
-            pokemon=Pokemon(row[12]),
+            type=EncounterType(row[11]) if row[11] else None,
+            outcome=BattleOutcome(row[12]) if row[12] else None,
+            pokemon=Pokemon(row[13]),
         )
 
     @property
@@ -92,7 +106,8 @@ class Encounter:
             "map": self.map,
             "coordinates": self.coordinates,
             "bot_mode": self.bot_mode,
-            "outcome": self.outcome.value if self.outcome is not None else None,
+            "type": self.type.value if self.type else None,
+            "outcome": self.outcome.name if self.outcome is not None else None,
             "pokemon": self.pokemon.to_dict(),
         }
 
@@ -112,6 +127,10 @@ class ShinyPhase:
     longest_streak_species: str | None = None
     current_streak: int = 0
     current_streak_species: str | None = None
+    fishing_attempts: int = 0
+    successful_fishing_attempts: int = 0
+    longest_unsuccessful_fishing_streak: int = 0
+    current_unsuccessful_fishing_streak: int = 0
 
     @classmethod
     def from_row_data(cls, row: list | tuple) -> "ShinyPhase":
@@ -127,6 +146,10 @@ class ShinyPhase:
             row[8],
             row[9],
             row[10],
+            row[11],
+            row[12],
+            row[13],
+            row[14],
         )
 
     @classmethod
@@ -162,6 +185,16 @@ class ShinyPhase:
             self.shiny_encounter_id = encounter.encounter_id
             self.end_time = encounter.encounter_time
 
+    def update_fishing_attempt(self, attempt: FishingAttempt):
+        self.fishing_attempts += 1
+        if attempt.result is not FishingResult.Encounter:
+            self.current_unsuccessful_fishing_streak += 1
+            if self.current_unsuccessful_fishing_streak > self.longest_unsuccessful_fishing_streak:
+                self.longest_unsuccessful_fishing_streak = self.current_unsuccessful_fishing_streak
+        else:
+            self.successful_fishing_attempts += 1
+            self.current_unsuccessful_fishing_streak = 0
+
     def to_dict(self, shiny_encounter: Encounter | None) -> dict:
         return {
             "phase": {
@@ -177,6 +210,10 @@ class ShinyPhase:
                 "longest_streak_species": self.longest_streak_species,
                 "current_streak": self.current_streak,
                 "current_streak_species": self.current_streak_species,
+                "fishing_attempts": self.fishing_attempts,
+                "successful_fishing_attempts": self.successful_fishing_attempts,
+                "longest_unsuccessful_fishing_streak": self.longest_unsuccessful_fishing_streak,
+                "current_unsuccessful_fishing_streak": self.current_unsuccessful_fishing_streak,
             },
             "shiny_encounter": shiny_encounter.to_dict() if shiny_encounter is not None else None,
         }
@@ -325,6 +362,8 @@ class StatsDatabase:
         self.encounter_rate: int = 0
         self.encounter_rate_at_1x: float = 0.0
 
+        self.last_fishing_attempt: Optional[FishingAttempt] = None
+
         self._connection = sqlite3.connect(profile.path / "stats.db", check_same_thread=False)
         self._cursor = self._connection.cursor()
 
@@ -343,9 +382,16 @@ class StatsDatabase:
         self._encounter_summaries: dict[int, EncounterSummary] = self._get_encounter_summaries()
         self._pickup_items: dict[int, PickupItem] = self._get_pickup_items()
         self._last_encounter: Encounter | None = self._get_last_encounter()
+        self._base_data: dict[DataKey, str | None] = self._get_base_data()
 
         self._encounter_timestamps: deque[float] = deque(maxlen=100)
         self._encounter_frames: deque[int] = deque(maxlen=100)
+
+    def set_data(self, key: DataKey, value: str | None):
+        self._cursor.execute("REPLACE INTO base_data (data_key, value) VALUES (?, ?)", (key.value, value))
+
+    def get_data(self, key: DataKey) -> str | None:
+        return self._base_data[key] if key in self._base_data else None
 
     def log_encounter(self, pokemon: "Pokemon", custom_filter_result: str | bool):
         now_in_utc = datetime.now(timezone.utc)
@@ -369,6 +415,7 @@ class StatsDatabase:
             map=map_enum.name,
             coordinates=f"{local_coordinates[0]}:{local_coordinates[1]}",
             bot_mode=context.bot_mode,
+            type=get_encounter_type(),
             outcome=None,
             pokemon=pokemon,
         )
@@ -418,6 +465,14 @@ class StatsDatabase:
             need_updating.add(self._pickup_items[item.index])
         for pickup_item in need_updating:
             self._insert_or_update_pickup_item(pickup_item)
+
+    def log_fishing_attempt(self, attempt: FishingAttempt):
+        self.last_fishing_attempt = attempt
+        if self._current_shiny_phase is not None:
+            self._current_shiny_phase.update_fishing_attempt(attempt)
+            if attempt.result is not FishingResult.Encounter:
+                self._update_shiny_phase(self._current_shiny_phase)
+        context.message = f"Fishing attempt with {attempt.rod.name} and result {attempt.result.name}"
 
     def get_total_stats(self, include_shortest_and_longest_phase: bool = True) -> dict:
         if include_shortest_and_longest_phase:
@@ -561,6 +616,7 @@ class StatsDatabase:
                 map,
                 coordinates,
                 bot_mode,
+                type,
                 outcome,
                 data
             FROM encounters
@@ -605,13 +661,13 @@ class StatsDatabase:
 
     def _get_current_shiny_phase(self) -> ShinyPhase | None:
         result = self._cursor.execute(
-            "SELECT shiny_phase_id, start_time, end_time, shiny_encounter_id, encounters, highest_iv_sum, lowest_iv_sum, highest_sv, lowest_sv, longest_streak, longest_streak_species FROM shiny_phases WHERE end_time IS NULL ORDER BY shiny_phase_id DESC LIMIT 1"
+            "SELECT shiny_phase_id, start_time, end_time, shiny_encounter_id, encounters, highest_iv_sum, lowest_iv_sum, highest_sv, lowest_sv, longest_streak, longest_streak_species, fishing_attempts, successful_fishing_attempts, longest_unsuccessful_fishing_streak, current_unsuccessful_fishing_streak FROM shiny_phases WHERE end_time IS NULL ORDER BY shiny_phase_id DESC LIMIT 1"
         ).fetchone()
         return ShinyPhase.from_row_data(result) if result is not None else None
 
     def _get_shiny_phase_by_id(self, shiny_phase_id: int) -> ShinyPhase | None:
         result = self._cursor.execute(
-            "SELECT shiny_phase_id, start_time, end_time, shiny_encounter_id, encounters, highest_iv_sum, lowest_iv_sum, highest_sv, lowest_sv, longest_streak, longest_streak_species FROM shiny_phases WHERE shiny_phase_id = ?",
+            "SELECT shiny_phase_id, start_time, end_time, shiny_encounter_id, encounters, highest_iv_sum, lowest_iv_sum, highest_sv, lowest_sv, longest_streak, longest_streak_species, fishing_attempts, successful_fishing_attempts, longest_unsuccessful_fishing_streak, current_unsuccessful_fishing_streak FROM shiny_phases WHERE shiny_phase_id = ?",
             (shiny_phase_id,),
         ).fetchone()
         return ShinyPhase.from_row_data(result) if result is not None else None
@@ -678,6 +734,13 @@ class StatsDatabase:
             pickup_items[int(row[0])] = PickupItem(get_item_by_index(int(row[0])), int(row[2]))
         return pickup_items
 
+    def _get_base_data(self) -> dict[DataKey, str | None]:
+        data_list = {}
+        result = self._cursor.execute("SELECT data_key, value FROM base_data ORDER BY data_key")
+        for row in result:
+            data_list[DataKey(row[0])] = row[1]
+        return data_list
+
     def _get_last_encounter(self) -> Encounter | None:
         result = list(self._query_encounters(limit=1))
         if len(result) == 0:
@@ -689,9 +752,9 @@ class StatsDatabase:
         self._cursor.execute(
             """
             INSERT INTO encounters
-                (encounter_id, species_id, personality_value, shiny_phase_id, is_shiny, matching_custom_catch_filters, encounter_time, map, coordinates, bot_mode, outcome, data)
+                (encounter_id, species_id, personality_value, shiny_phase_id, is_shiny, matching_custom_catch_filters, encounter_time, map, coordinates, bot_mode, type, outcome, data)
             VALUES
-                (?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?)
+                (?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 encounter.encounter_id,
@@ -704,6 +767,7 @@ class StatsDatabase:
                 encounter.map,
                 encounter.coordinates,
                 encounter.bot_mode,
+                encounter.type.value if encounter.type else None,
                 None,
                 encounter.data,
             ),
@@ -733,7 +797,11 @@ class StatsDatabase:
                 longest_streak = ?,
                 longest_streak_species = ?,
                 current_streak = ?,
-                current_streak_species = ?
+                current_streak_species = ?,
+                fishing_attempts = ?,
+                successful_fishing_attempts = ?,
+                longest_unsuccessful_fishing_streak = ?,
+                current_unsuccessful_fishing_streak = ?
             WHERE shiny_phase_id = ?
             """,
             (
@@ -742,11 +810,15 @@ class StatsDatabase:
                 shiny_phase.lowest_iv_sum,
                 shiny_phase.highest_sv,
                 shiny_phase.lowest_sv,
-                shiny_phase.shiny_phase_id,
                 shiny_phase.longest_streak,
                 shiny_phase.longest_streak_species,
                 shiny_phase.current_streak,
                 shiny_phase.current_streak_species,
+                shiny_phase.fishing_attempts,
+                shiny_phase.successful_fishing_attempts,
+                shiny_phase.longest_unsuccessful_fishing_streak,
+                shiny_phase.current_unsuccessful_fishing_streak,
+                shiny_phase.shiny_phase_id,
             ),
         )
 
@@ -971,6 +1043,7 @@ class StatsDatabase:
                     map="",
                     coordinates="",
                     bot_mode="",
+                    type=None,
                     outcome=None,
                     pokemon=Pokemon(pokemon_data),
                 )
@@ -1039,6 +1112,15 @@ class StatsDatabase:
 
             self._cursor.execute(
                 """
+                CREATE TABLE base_data (
+                    data_key INT UNSIGNED PRIMARY KEY,
+                    value TEXT DEFAULT NULL
+                )
+                """
+            )
+
+            self._cursor.execute(
+                """
                 CREATE TABLE encounter_summaries (
                     species_id INT UNSIGNED PRIMARY KEY,
                     species_name TEXT NOT NULL,
@@ -1074,7 +1156,11 @@ class StatsDatabase:
                     longest_streak INT UNSIGNED DEFAULT 0,
                     longest_streak_species TEXT DEFAULT NULL,
                     current_streak INT UNSIGNED DEFAULT 0,
-                    current_streak_species TEXT DEFAULT NULL
+                    current_streak_species TEXT DEFAULT NULL,
+                    fishing_attempts INT UNSIGNED DEFAULT 0,
+                    successful_fishing_attempts INT UNSIGNED DEFAULT 0,
+                    longest_unsuccessful_fishing_streak INT UNSIGNED DEFAULT 0,
+                    current_unsuccessful_fishing_streak INT UNSIGNED DEFAULT 0
                 )
                 """
             )
@@ -1093,6 +1179,7 @@ class StatsDatabase:
                     map TEXT,
                     coordinates TEXT,
                     bot_mode TEXT,
+                    type TEXT DEFAULT NULL,
                     outcome INT UNSIGNED DEFAULT NULL,
                     data BLOB NOT NULL
                 )

@@ -5,6 +5,7 @@ from modules.context import context
 
 if TYPE_CHECKING:
     from modules.battle_state import BattleState
+    from modules.fishing import FishingAttempt
     from modules.items import ItemBag, ItemStorage
     from modules.memory import GameState
     from modules.player import Player, PlayerAvatar
@@ -50,6 +51,7 @@ class StateCache:
     def __init__(self):
         self._party: StateCacheItem[list["Pokemon"]] = StateCacheItem([])
         self._opponent: StateCacheItem["list[Pokemon] | None"] = StateCacheItem(None)
+        self._fishing_attempt: StateCacheItem["FishingAttempt | None"] = StateCacheItem(None)
         self._player: StateCacheItem["Player | None"] = StateCacheItem(None)
         self._player_avatar: StateCacheItem["PlayerAvatar | None"] = StateCacheItem(None)
         self._pokedex: StateCacheItem["Pokedex | None"] = StateCacheItem(None)
@@ -101,6 +103,17 @@ class StateCache:
                 return
 
         self._opponent.checked()
+
+    @property
+    def fishing_attempt(self) -> StateCacheItem["FishingAttempt | None"]:
+        return self._fishing_attempt
+
+    @fishing_attempt.setter
+    def fishing_attempt(self, fishing_attempt: "FishingAttempt"):
+        if self._fishing_attempt.value is None or fishing_attempt != self._fishing_attempt.value:
+            self._fishing_attempt.value = fishing_attempt
+        else:
+            self._fishing_attempt.checked()
 
     @property
     def player(self) -> StateCacheItem["Player | None"]:

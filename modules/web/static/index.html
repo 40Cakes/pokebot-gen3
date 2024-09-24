@@ -254,6 +254,7 @@
         url.searchParams.append("topic", "Party");
         url.searchParams.append("topic", "PerformanceData");
         url.searchParams.append("topic", "Opponent");
+        url.searchParams.append("topic", "FishingAttempt");
         url.searchParams.append("topic", "Inputs");
 
         /*
@@ -267,6 +268,7 @@
             eventSource.addEventListener("Player", event => handlePlayerChange(JSON.parse(event.data)));
             eventSource.addEventListener("Party", event => handlePartyChange(JSON.parse(event.data)));
             eventSource.addEventListener("Opponent", event => handleOpponentChange(JSON.parse(event.data)));
+            eventSource.addEventListener("FishingAttempt", event => handleFishingAttempt(JSON.parse(event.data)))
             eventSource.addEventListener("MapChange", event => handleMapChange(JSON.parse(event.data)));
             eventSource.addEventListener("MapTileChange", event => handleMapTileChange(JSON.parse(event.data)));
             eventSource.addEventListener("Message", event => handleMessageChange(JSON.parse(event.data)));
@@ -466,6 +468,17 @@
         </thead>
     </table>
 `;
+        }
+
+        /**
+         * @param {StreamEvents.FishingAttempt} data
+         */
+        function handleFishingAttempt(data) {
+            if (data.encounter === null) {
+                log(`<strong>Fishing Attempt</strong> - Rod: ${data.rod}, Result: ${data.result}`);
+            } else {
+                log(`<strong>Fishing Attempt</strong> - Rod: ${data.rod}, Encounter: ${data.encounter.species.name} (Lvl. ${data.encounter.level})`);
+            }
         }
 
         /**

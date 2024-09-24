@@ -32,6 +32,12 @@ declare module StreamEvents {
     // if there is no active battle.
     export type Opponent = Pokemon | null;
 
+    export type FishingAttempt = {
+        rod: "OldRod" | "GoodRod" | "SuperRod";
+        result: "Encounter" | "GotAway" | "Unsuccessful";
+        encounter: Pokemon | null;
+    } | null;
+
     export type MapChange = MapLocation;
 
     // New x and y coordinates of the player position.

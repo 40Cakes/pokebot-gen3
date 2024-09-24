@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from enum import Enum, Flag, KEEP, auto
 
 from modules.context import context
+from modules.fishing import FishingRod
 from modules.game import get_symbol_name_before
 from modules.memory import unpack_uint16, unpack_uint32, read_symbol, get_callback_for_pointer_symbol
 from modules.player import get_player_avatar, AvatarFlags
@@ -685,15 +686,15 @@ def get_last_battle_outcome() -> BattleOutcome:
 
 
 class EncounterType(Enum):
-    Trainer = auto()
-    Roamer = auto()
-    Static = auto()
-    Land = auto()
-    Surfing = auto()
-    FishingWithOldRod = auto()
-    FishingWithGoodRod = auto()
-    FishingWithSuperRod = auto()
-    RockSmash = auto()
+    Trainer = "trainer"
+    Roamer = "roamer"
+    Static = "static"
+    Land = "land"
+    Surfing = "surfing"
+    FishingWithOldRod = "fishing_old_rod"
+    FishingWithGoodRod = "fishing_good_rod"
+    FishingWithSuperRod = "fishing_super_rod"
+    RockSmash = "rock_smash"
 
 
 def get_encounter_type() -> EncounterType:
@@ -733,15 +734,14 @@ def get_encounter_type() -> EncounterType:
     if "EventScript_SmashRock" in script_stack:
         return EncounterType.RockSmash
 
-    from modules.stats import total_stats
-
-    if get_opponent().personality_value == total_stats.last_fishing_pv:
-        if total_stats.last_fishing_rod == 2:
-            return EncounterType.FishingWithSuperRod
-        elif total_stats.last_fishing_rod == 1:
-            return EncounterType.FishingWithGoodRod
-        else:
-            return EncounterType.FishingWithOldRod
+    if context.stats.last_fishing_attempt is not None and context.stats.last_fishing_attempt.encounter is not None:
+        if get_opponent().personality_value == context.stats.last_fishing_attempt.encounter.personality_value:
+            if context.stats.last_fishing_attempt.rod is FishingRod.SuperRod:
+                return EncounterType.FishingWithSuperRod
+            elif context.stats.last_fishing_attempt.rod is FishingRod.GoodRod:
+                return EncounterType.FishingWithGoodRod
+            else:
+                return EncounterType.FishingWithOldRod
 
     if AvatarFlags.Surfing in get_player_avatar().flags:
         return EncounterType.Surfing

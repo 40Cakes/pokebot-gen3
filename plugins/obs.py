@@ -10,7 +10,7 @@ from threading import Thread
 from typing import TYPE_CHECKING
 import obsws_python as obs
 
-from modules.battle import BattleOutcome, BattleState, get_battle_state
+# from modules.battle import BattleOutcome, BattleState, get_battle_state
 from modules.console import console
 from modules.context import context
 from modules.discord import discord_message
@@ -66,42 +66,43 @@ def obs_hot_key(
 
 
 class OBSPlugin(BotPlugin):
-    def on_battle_started(self, opponent: "Pokemon") -> None:
-        try:
-            if not judge_encounter(opponent).is_of_interest:
-                return
-
-            if obs_screenshot:
-                while get_battle_state() != BattleState.ACTION_SELECTION:
-                    context.emulator.press_button("B")  # Throw out Pokémon for Discord screenshot
-                    yield
-                # Wait a few seconds to give overlays some time to get up to date
-                yield from wait_for_n_frames(300 * context.emulation_speed)
-                obs_hot_key(obs_screenshot_hotkey, pressCtrl=True)
-
-                # Post the most recent OBS stream screenshot to Discord
-                if obs_discord_webhook_url and opponent.is_shiny:
-                    def send_obs_discord_screenshot():
-                        time.sleep(3)  # Give OBS some time to save screenshot to disk
-                        # Find the most recent screenshot in replays folder
-                        images = obs_replay_dir.glob("*.png")
-                        image = max(list(images), key=lambda item: item.stat().st_ctime)
-                        time.sleep(obs_discord_delay)
-                        discord_message(webhook_url=obs_discord_webhook_url, image=Path(image))
-
-                    Thread(target=send_obs_discord_screenshot).start()
-
-                # Save OBS replay buffer n seconds after encountering a shiny
-                if obs_replay_buffer and opponent.is_shiny:
-                    def save_obs_replay_buffer():
-                        time.sleep(obs_replay_buffer_delay)
-                        obs_hot_key(obs_replay_buffer_hotkey, pressCtrl=True)
-
-                    Thread(target=save_obs_replay_buffer).start()
-
-        except Exception:
-            console.print_exception(show_locals=True)
-
-    def on_battle_ended(self, outcome: "BattleOutcome") -> None:
-        if outcome is BattleOutcome.Caught:
-            yield from save_the_game()
+    # def on_battle_started(self, opponent: "Pokemon") -> None:
+    #     try:
+    #         if not judge_encounter(opponent).is_of_interest:
+    #             return
+    #
+    #         if obs_screenshot:
+    #             while get_battle_state() != BattleState.ACTION_SELECTION:
+    #                 context.emulator.press_button("B")  # Throw out Pokémon for Discord screenshot
+    #                 yield
+    #             # Wait a few seconds to give overlays some time to get up to date
+    #             yield from wait_for_n_frames(300 * context.emulation_speed)
+    #             obs_hot_key(obs_screenshot_hotkey, pressCtrl=True)
+    #
+    #             # Post the most recent OBS stream screenshot to Discord
+    #             if obs_discord_webhook_url and opponent.is_shiny:
+    #                 def send_obs_discord_screenshot():
+    #                     time.sleep(3)  # Give OBS some time to save screenshot to disk
+    #                     # Find the most recent screenshot in replays folder
+    #                     images = obs_replay_dir.glob("*.png")
+    #                     image = max(list(images), key=lambda item: item.stat().st_ctime)
+    #                     time.sleep(obs_discord_delay)
+    #                     discord_message(webhook_url=obs_discord_webhook_url, image=Path(image))
+    #
+    #                 Thread(target=send_obs_discord_screenshot).start()
+    #
+    #             # Save OBS replay buffer n seconds after encountering a shiny
+    #             if obs_replay_buffer and opponent.is_shiny:
+    #                 def save_obs_replay_buffer():
+    #                     time.sleep(obs_replay_buffer_delay)
+    #                     obs_hot_key(obs_replay_buffer_hotkey, pressCtrl=True)
+    #
+    #                 Thread(target=save_obs_replay_buffer).start()
+    #
+    #     except Exception:
+    #         console.print_exception(show_locals=True)
+    #
+    # def on_battle_ended(self, outcome: "BattleOutcome") -> None:
+    #     if outcome is BattleOutcome.Caught:
+    #         yield from save_the_game()
+    pass
