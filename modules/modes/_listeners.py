@@ -16,7 +16,7 @@ from modules.pokemon import (
     get_opponent,
     get_party,
 )
-from modules.tasks import get_global_script_context, task_is_active
+from modules.tasks import get_global_script_context, task_is_active, get_task
 from ._interface import BattleAction, BotListener, BotMode, FrameInfo
 from .util import isolate_inputs
 from ..battle_handler import handle_battle
@@ -177,6 +177,48 @@ class TrainerApproachListener(BotListener):
             context.emulator.press_button("B")
             yield
         self._trainer_is_approaching = False
+
+
+class FishingListener(BotListener):
+    def __init__(self):
+        self._is_fishing_task_active = False
+        self._last_fishing_rod = None
+        self._pokemon_on_hook = False
+        self._last_step = None
+
+    def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
+        if not self._is_fishing_task_active and frame.task_is_active("Task_Fishing"):
+            fishing_task = get_task("Task_Fishing")
+            self._is_fishing_task_active = True
+            self._last_fishing_rod = fishing_task.data_value(15)
+            self._pokemon_on_hook = False
+            self._last_step = fishing_task.data_value(0)
+        elif self._is_fishing_task_active:
+            if not frame.task_is_active("Task_Fishing"):
+                match self._last_fishing_rod:
+                    case 0:
+                        rod_name = "Old Rod"
+                    case 1:
+                        rod_name = "Good Rod"
+                    case 2:
+                        rod_name = "Super Rod"
+                    case _:
+                        rod_name = "Cheater Rod"
+
+                if self._last_step == 10:
+                    context.message = f"Fishing with {rod_name}... started encounter: {get_opponent()}"
+                elif self._pokemon_on_hook:
+                    context.message = f"Fishing with {rod_name}... but it got away"
+                else:
+                    context.message = f"Fishing with {rod_name}... nothing happened"
+                self._last_step = 0
+                self._is_fishing_task_active = False
+            else:
+                step = get_task("Task_Fishing").data_value(0)
+                if step != self._last_step:
+                    if step == 7:
+                        self._pokemon_on_hook = True
+                    self._last_step = step
 
 
 class PokenavListener(BotListener):
