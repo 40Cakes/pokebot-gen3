@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Iterable
 
+from modules.battle import BattleOutcome
 from modules.console import print_stats
 from modules.context import context
 from modules.game import encode_string
@@ -41,6 +42,7 @@ class Encounter:
     map: str | None
     coordinates: str | None
     bot_mode: str
+    outcome: BattleOutcome | None
     pokemon: "Pokemon"
 
     @classmethod
@@ -53,7 +55,8 @@ class Encounter:
             map=row[8],
             coordinates=row[9],
             bot_mode=row[10],
-            pokemon=Pokemon(row[11]),
+            outcome=BattleOutcome(row[11]) if row[11] else None,
+            pokemon=Pokemon(row[12]),
         )
 
     @property
@@ -89,6 +92,7 @@ class Encounter:
             "map": self.map,
             "coordinates": self.coordinates,
             "bot_mode": self.bot_mode,
+            "outcome": self.outcome.value if self.outcome is not None else None,
             "pokemon": self.pokemon.to_dict(),
         }
 
@@ -183,6 +187,7 @@ class EncounterSummary:
     species: "Species | None"
     total_encounters: int
     shiny_encounters: int
+    catches: int
     total_highest_iv_sum: int
     total_lowest_iv_sum: int
     total_highest_sv: int
@@ -200,6 +205,7 @@ class EncounterSummary:
             species=encounter.pokemon.species,
             total_encounters=1,
             shiny_encounters=0 if not encounter.is_shiny else 1,
+            catches=0,
             total_highest_iv_sum=encounter.iv_sum,
             total_lowest_iv_sum=encounter.iv_sum,
             total_highest_sv=encounter.shiny_value,
@@ -218,6 +224,7 @@ class EncounterSummary:
             species=None,
             total_encounters=0,
             shiny_encounters=0,
+            catches=0,
             total_highest_iv_sum=0,
             total_lowest_iv_sum=0,
             total_highest_sv=0,
@@ -234,6 +241,7 @@ class EncounterSummary:
             encounter_summary = encounter_summaries[species_id]
             totals.total_encounters += encounter_summary.total_encounters
             totals.shiny_encounters += encounter_summary.shiny_encounters
+            totals.catches += encounter_summary.catches
             totals.total_highest_iv_sum = max(totals.total_highest_iv_sum, encounter_summary.total_highest_iv_sum)
             totals.total_lowest_iv_sum = min(totals.total_lowest_iv_sum, encounter_summary.total_lowest_iv_sum)
             totals.total_highest_sv = max(totals.total_highest_sv, encounter_summary.total_highest_sv)
@@ -285,6 +293,10 @@ class EncounterSummary:
             if self.phase_lowest_sv is None or self.phase_lowest_sv > encounter.shiny_value:
                 self.phase_lowest_sv = encounter.shiny_value
 
+    def update_outcome(self, outcome: BattleOutcome) -> None:
+        if outcome is BattleOutcome.Caught:
+            self.catches += 1
+
     def to_dict(self) -> dict:
         return {
             "encounters": self.total_encounters,
@@ -330,7 +342,7 @@ class StatsDatabase:
         self._next_encounter_id: int = self._get_next_encounter_id()
         self._encounter_summaries: dict[int, EncounterSummary] = self._get_encounter_summaries()
         self._pickup_items: dict[int, PickupItem] = self._get_pickup_items()
-        self._last_encounter_personality_value: int | None = self._get_last_encounter_personality_value()
+        self._last_encounter: Encounter | None = self._get_last_encounter()
 
         self._encounter_timestamps: deque[float] = deque(maxlen=100)
         self._encounter_frames: deque[int] = deque(maxlen=100)
@@ -340,7 +352,6 @@ class StatsDatabase:
         map_enum, local_coordinates = get_player_location()
 
         self._update_encounter_rates()
-        self._last_encounter_personality_value = pokemon.personality_value
 
         if custom_filter_result is True:
             custom_filter_result = "True"
@@ -358,9 +369,11 @@ class StatsDatabase:
             map=map_enum.name,
             coordinates=f"{local_coordinates[0]}:{local_coordinates[1]}",
             bot_mode=context.bot_mode,
+            outcome=None,
             pokemon=pokemon,
         )
 
+        self._last_encounter = encounter
         self._insert_encounter(encounter)
         self._current_shiny_phase.update(encounter)
         self._update_shiny_phase(self._current_shiny_phase)
@@ -390,6 +403,11 @@ class StatsDatabase:
             pokemon,
             set([e.species.name for e in self._encounter_summaries.values() if e.phase_encounters > 0]),
         )
+
+    def log_end_of_battle(self, battle_outcome: "BattleOutcome"):
+        if self._last_encounter is not None:
+            self._last_encounter.outcome = battle_outcome
+            self._update_encounter_outcome(self._last_encounter)
 
     def log_pickup_items(self, picked_up_items: list["Item"]) -> None:
         need_updating: set[PickupItem] = set()
@@ -436,7 +454,7 @@ class StatsDatabase:
             "encounters": 0,
             "phase_encounters": 0,
             "shiny_encounters": 0,
-            "last_encounter_pid": self._last_encounter_personality_value,
+            "last_encounter_pid": self._last_encounter.pokemon.personality_value if self._last_encounter else None,
             "highest_iv_sum": None,
             "highest_iv_sum_pokemon": None,
             "lowest_iv_sum": None,
@@ -543,6 +561,7 @@ class StatsDatabase:
                 map,
                 coordinates,
                 bot_mode,
+                outcome,
                 data
             FROM encounters
             {f'WHERE {where_clause}' if where_clause is not None else ''}
@@ -614,6 +633,7 @@ class StatsDatabase:
                 species_name,
                 total_encounters,
                 shiny_encounters,
+                catches,
                 total_highest_iv_sum,
                 total_lowest_iv_sum,
                 total_highest_sv,
@@ -636,16 +656,17 @@ class StatsDatabase:
                 species=get_species_by_index(species_id),
                 total_encounters=int(row[2]),
                 shiny_encounters=int(row[3]),
-                total_highest_iv_sum=int(row[4]),
-                total_lowest_iv_sum=int(row[5]),
-                total_highest_sv=int(row[6]),
-                total_lowest_sv=int(row[7]),
-                phase_encounters=int(row[8]),
-                phase_highest_iv_sum=int(row[9]) if row[9] is not None else None,
-                phase_lowest_iv_sum=int(row[10]) if row[10] is not None else None,
-                phase_highest_sv=int(row[11]) if row[11] is not None else None,
-                phase_lowest_sv=int(row[12]) if row[12] is not None else None,
-                last_encounter_time=datetime.fromisoformat(row[13]),
+                catches=int(row[4]),
+                total_highest_iv_sum=int(row[5]),
+                total_lowest_iv_sum=int(row[6]),
+                total_highest_sv=int(row[7]),
+                total_lowest_sv=int(row[8]),
+                phase_encounters=int(row[9]),
+                phase_highest_iv_sum=int(row[10]) if row[10] is not None else None,
+                phase_lowest_iv_sum=int(row[11]) if row[11] is not None else None,
+                phase_highest_sv=int(row[12]) if row[12] is not None else None,
+                phase_lowest_sv=int(row[13]) if row[13] is not None else None,
+                last_encounter_time=datetime.fromisoformat(row[14]),
             )
 
         return encounter_summaries
@@ -657,11 +678,9 @@ class StatsDatabase:
             pickup_items[int(row[0])] = PickupItem(get_item_by_index(int(row[0])), int(row[2]))
         return pickup_items
 
-    def _get_last_encounter_personality_value(self) -> int | None:
-        result = self._cursor.execute(
-            "SELECT personality_value FROM encounters ORDER BY encounter_id DESC LIMIT 1"
-        ).fetchone()
-        if result is None:
+    def _get_last_encounter(self) -> Encounter | None:
+        result = list(self._query_encounters(limit=1))
+        if len(result) == 0:
             return None
         else:
             return result[0]
@@ -670,9 +689,9 @@ class StatsDatabase:
         self._cursor.execute(
             """
             INSERT INTO encounters
-                (encounter_id, species_id, personality_value, shiny_phase_id, is_shiny, matching_custom_catch_filters, encounter_time, map, coordinates, bot_mode, data)
+                (encounter_id, species_id, personality_value, shiny_phase_id, is_shiny, matching_custom_catch_filters, encounter_time, map, coordinates, bot_mode, outcome, data)
             VALUES
-                (?, ?, ?, ?, ? ,?, ?, ?, ?, ? ,?)
+                (?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 encounter.encounter_id,
@@ -685,8 +704,15 @@ class StatsDatabase:
                 encounter.map,
                 encounter.coordinates,
                 encounter.bot_mode,
+                None,
                 encounter.data,
             ),
+        )
+
+    def _update_encounter_outcome(self, encounter: Encounter):
+        self._cursor.execute(
+            "UPDATE encounters SET outcome = ? WHERE encounter_id = ?",
+            (encounter.outcome.value, encounter.encounter_id),
         )
 
     def _insert_shiny_phase(self, shiny_phase: ShinyPhase) -> None:
@@ -753,15 +779,16 @@ class StatsDatabase:
         self._cursor.execute(
             """
             REPLACE INTO encounter_summaries
-                (species_id, species_name, total_encounters, shiny_encounters, total_highest_iv_sum, total_lowest_iv_sum, total_highest_sv, total_lowest_sv, phase_encounters, phase_highest_iv_sum, phase_lowest_iv_sum, phase_highest_sv, phase_lowest_sv, last_encounter_time)
+                (species_id, species_name, total_encounters, shiny_encounters, catches, total_highest_iv_sum, total_lowest_iv_sum, total_highest_sv, total_lowest_sv, phase_encounters, phase_highest_iv_sum, phase_lowest_iv_sum, phase_highest_sv, phase_lowest_sv, last_encounter_time)
             VALUES
-                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 encounter_summary.species.index,
                 encounter_summary.species.name,
                 encounter_summary.total_encounters,
                 encounter_summary.shiny_encounters,
+                encounter_summary.catches,
                 encounter_summary.total_highest_iv_sum,
                 encounter_summary.total_lowest_iv_sum,
                 encounter_summary.total_highest_sv,
@@ -798,6 +825,7 @@ class StatsDatabase:
                     species=get_species_by_name(species_name),
                     total_encounters=old_data["encounters"],
                     shiny_encounters=old_data["shiny_encounters"] if "shiny_encounters" in old_data else 0,
+                    catches=old_data["shiny_encounters"] if "shiny_encounters" in old_data else 0,
                     total_highest_iv_sum=old_data["total_highest_iv_sum"],
                     total_lowest_iv_sum=old_data["total_lowest_iv_sum"],
                     total_highest_sv=(
@@ -943,6 +971,7 @@ class StatsDatabase:
                     map="",
                     coordinates="",
                     bot_mode="",
+                    outcome=None,
                     pokemon=Pokemon(pokemon_data),
                 )
                 self._insert_encounter(encounter)
@@ -1015,6 +1044,7 @@ class StatsDatabase:
                     species_name TEXT NOT NULL,
                     total_encounters INT UNSIGNED,
                     shiny_encounters INT UNSIGNED,
+                    catches INT UNSIGNED,
                     total_highest_iv_sum INT UNSIGNED,
                     total_lowest_iv_sum INT UNSIGNED,
                     total_highest_sv INT UNSIGNED,
@@ -1063,6 +1093,7 @@ class StatsDatabase:
                     map TEXT,
                     coordinates TEXT,
                     bot_mode TEXT,
+                    outcome INT UNSIGNED DEFAULT NULL,
                     data BLOB NOT NULL
                 )
                 """
