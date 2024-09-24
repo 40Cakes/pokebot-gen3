@@ -126,7 +126,7 @@ class RoamerResetMode(BotMode):
                 raise BotModeError("You have already given the Sapphire to Celio. Try loading an earlier save game.")
 
             if save_data.get_item_bag().quantity_of(get_item_by_name("Sapphire")) == 0:
-                if save_data.get_event_flag("FLAG_RECOVERED_SAPPHIRE"):
+                if save_data.get_event_flag("RECOVERED_SAPPHIRE"):
                     raise BotModeError("You do not have the Sapphire in your inventory. Go and get it!")
                 else:
                     raise BotModeError("You haven't recovered the Sapphire yet.")
