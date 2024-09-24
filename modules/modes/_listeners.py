@@ -140,6 +140,7 @@ class BattleListener(BotListener):
         yield from BattleHandler().step()
         yield from self._wait_until_battle_is_over()
         yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
+        context.stats.log_end_of_battle(BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
         if (
             get_game_state() != GameState.BATTLE
@@ -166,6 +167,7 @@ class BattleListener(BotListener):
         yield from BattleHandler(try_to_catch=True).step()
         yield from self._wait_until_battle_is_over()
         yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
+        context.stats.log_end_of_battle(BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
     @isolate_inputs
     @debug.track
@@ -176,6 +178,7 @@ class BattleListener(BotListener):
         yield from flee_battle()
         yield from self._wait_until_battle_is_over()
         yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
+        context.stats.log_end_of_battle(BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
 
 class TrainerApproachListener(BotListener):
