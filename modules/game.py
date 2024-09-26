@@ -123,7 +123,7 @@ def _prepare_character_tables() -> None:
         + "****ᵉ<>         "
         + "                "
         + " 0123456789!?.-・"
-        + " “”‘’♂♀$,×/ABCDE"
+        + "…“”‘’♂♀$,×/ABCDE"
         + "FGHIJKLMNOPQRSTU"
         + "VWXYZabcdefghijk"
         + "lmnopqrstuvwxyz▶"

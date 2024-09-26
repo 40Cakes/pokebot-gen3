@@ -143,6 +143,8 @@ class GameState(IntEnum):
     EVOLUTION = auto()
     EGG_HATCH = auto()
     WHITEOUT = auto()
+    NAMING_SCREEN = auto()
+    POKE_STORAGE = auto()
     UNKNOWN = auto()
     QUEST_LOG = auto()
 
@@ -204,6 +206,10 @@ def get_game_state() -> GameState:
             result = GameState.EGG_HATCH
         case "CB2_WHITEOUT":
             result = GameState.WHITEOUT
+        case "CB2_LOADNAMINGSCREEN" | "CB2_NAMINGSCREEN":
+            result = GameState.NAMING_SCREEN
+        case "CB2_POKESTORAGE":
+            result = GameState.POKE_STORAGE
         case _:
             result = GameState.UNKNOWN
 

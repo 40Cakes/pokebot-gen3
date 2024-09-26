@@ -53,6 +53,7 @@ class BotContext:
         self.frame: int = 0
         self._current_bot_mode: str = initial_bot_mode
         self._previous_bot_mode: str = "Manual"
+        self.next_mon_name: str = ""
 
     def reload_config(self) -> None:
         """

@@ -142,6 +142,8 @@ class KeyboardNavigator(BaseMenuNavigator):
                 self.current_step = "Confirm name"
             case "Confirm name":
                 self.current_step = "exit"
+            case "Clear Input":
+                self.current_step = "None"
 
     def update_navigator(self):
         match self.current_step:
@@ -155,6 +157,8 @@ class KeyboardNavigator(BaseMenuNavigator):
                 self.navigator = self.release_keys()
             case "Confirm name":
                 self.navigator = self.confirm_name()
+            case "Clear Input":
+                self.navigator = self.clear_input()
 
     def check_keyboard_status(self):
         if not self.keyboard.enabled:
@@ -230,6 +234,7 @@ class KeyboardNavigator(BaseMenuNavigator):
                         yield
                         last_pos = None
                 else:
+                    last_pos = spot
                     yield
             else:
                 yield
@@ -244,6 +249,11 @@ class KeyboardNavigator(BaseMenuNavigator):
         context.emulator.release_button("Select")
         yield
 
+    def clear_input(self):
+        while len(self.keyboard.text_buffer) > 0:
+            context.emulator.press_button("B")
+            yield
+
     def confirm_name(self):
         while self.keyboard.enabled:
             if self.keyboard.cur_pos[0] > self.w or (
@@ -251,6 +261,10 @@ class KeyboardNavigator(BaseMenuNavigator):
             ):
                 context.emulator.press_button("A")
             else:
-                context.emulator.press_button("Start")
-
+                if self.keyboard.text_buffer == self.name:
+                    context.emulator.press_button("Start")
+                else:
+                    self.navigator = None
+                    self.current_step = "Clear Input"
+                    break
             yield

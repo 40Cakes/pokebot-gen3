@@ -323,6 +323,20 @@ def get_battle_controller():
     }
 
 
+def name_requested() -> bool:
+    """
+    Determines whether the prompt to name a Pokémon is on the screen
+    """
+    match context.rom.game_title:
+        case "POKEMON RUBY" | "POKEMON SAPP":
+            # Naming Pokémon in R/S is not yet supported.
+            return False
+        case _:
+            nicknameCaptured = read_symbol("sText_GiveNicknameCaptured")
+            displayedString = read_symbol("gDisplayedStringBattle")
+            return nicknameCaptured[:30] in displayedString[:30]
+
+
 def switch_requested() -> bool:
     """
     Determines whether the prompt to use another Pokémon is on the screen
