@@ -3,6 +3,7 @@ from pathlib import Path
 
 from modules.console import console
 from modules.context import context
+from modules.plugins import plugins
 from modules.files import save_pk3, make_string_safe_for_file_name
 from modules.gui.desktop_notification import desktop_notification
 from modules.memory import get_game_state, GameState
@@ -39,17 +40,26 @@ def run_custom_catch_filters(pokemon: Pokemon) -> str | bool:
     return result
 
 
+def run_plugin_catch_filters(pokemon: Pokemon) -> str | bool:
+    for plugin in plugins:
+        if plugin.catch_filter(pokemon):
+            return plugin.name()
+
+    return False
+
+
 class EncounterValue(Enum):
     Shiny = auto()
     ShinyOnBlockList = auto()
     Roamer = auto()
     RoamerOnBlockList = auto()
     CustomFilterMatch = auto()
+    PluginFilterMatch = auto()
     Trash = auto()
 
     @property
     def is_of_interest(self):
-        return self in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch)
+        return self in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch, EncounterValue.PluginFilterMatch)
 
 
 def judge_encounter(pokemon: Pokemon) -> EncounterValue:
@@ -71,6 +81,9 @@ def judge_encounter(pokemon: Pokemon) -> EncounterValue:
 
     if run_custom_catch_filters(pokemon) is not False:
         return EncounterValue.CustomFilterMatch
+
+    if run_plugin_catch_filters(pokemon) is not False:
+        return EncounterValue.PluginFilterMatch
 
     roamer = get_roamer()
     if (
@@ -156,6 +169,17 @@ def handle_encounter(
             filter_result = run_custom_catch_filters(pokemon)
             console.print(f"[pink green]Custom filter triggered for {pokemon.species.name}: '{filter_result}'[/]")
             alert = "Custom filter triggered!", f"Found a {pokemon.species.name} that matched one of your filters."
+            if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.custom:
+                save_pk3(pokemon)
+            is_of_interest = True
+
+        case EncounterValue.PluginFilterMatch:
+            matched_plugin = run_plugin_catch_filters(pokemon)
+            console.print(f"[pink green]Plugin filter triggered for {pokemon.species.name}: '{matched_plugin}'[/]")
+            alert = (
+                "Plugin filter triggered!",
+                f"Found a {pokemon.species.name} that matched one of the filters of '{matched_plugin}'.",
+            )
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.custom:
                 save_pk3(pokemon)
             is_of_interest = True

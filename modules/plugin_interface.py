@@ -8,6 +8,10 @@ if TYPE_CHECKING:
 
 
 class BotPlugin:
+    @staticmethod
+    def name() -> str:
+        return "Unnamed Plugin"
+
     def get_additional_bot_modes(self) -> Iterable[type["BotMode"]]:
         return []
 
@@ -31,3 +35,6 @@ class BotPlugin:
 
     def on_whiteout(self) -> None:
         pass
+
+    def catch_filter(self, opponent: "Pokemon") -> bool:
+        return False
