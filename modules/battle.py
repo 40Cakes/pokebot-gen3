@@ -1006,6 +1006,7 @@ class BattleOpponent:
 
             while get_game_state() == GameState.NAMING_SCREEN:
                 yield from KeyboardNavigator(name=context.next_mon_name, max_length=10).step()
+                yield
 
         while get_game_state() != GameState.OVERWORLD:
             context.emulator.press_button("B")
