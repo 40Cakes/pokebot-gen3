@@ -16,6 +16,7 @@ from modules.memory import (
     get_event_flag_by_number,
 )
 from modules.pokemon import Item, Species, get_item_by_index, get_species_by_index, get_party_repel_level
+from modules.state_cache import state_cache
 
 
 def _get_tile_type_name(tile_type: int):
@@ -1764,7 +1765,8 @@ class WildEncounter:
 
     def to_dict(self):
         return {
-            "species": self.species.name,
+            "species_id": self.species.index,
+            "species_name": self.species.name,
             "min_level": self.min_level,
             "max_level": self.max_level,
             "encounter_rate": self.encounter_rate,
@@ -1868,9 +1870,22 @@ class EffectiveWildEncounter:
     max_level: int
     encounter_rate: float
 
+    def to_dict(self) -> dict:
+        return {
+            "species_id": self.species.index,
+            "species_name": self.species.name,
+            "min_level": self.min_level,
+            "max_level": self.max_level,
+            "encounter_rate": self.encounter_rate,
+        }
+
 
 @dataclass
 class EffectiveWildEncounterList:
+    map_group: int
+    map_number: int
+    repel_level: int
+
     land_encounters: list[EffectiveWildEncounter]
     surf_encounters: list[EffectiveWildEncounter]
     rock_smash_encounters: list[EffectiveWildEncounter]
@@ -1878,13 +1893,37 @@ class EffectiveWildEncounterList:
     good_rod_encounters: list[EffectiveWildEncounter]
     super_rod_encounters: list[EffectiveWildEncounter]
 
+    def __eq__(self, other):
+        if isinstance(other, EffectiveWildEncounterList):
+            return (
+                other.repel_level == self.repel_level
+                and other.map_group == self.map_group
+                and other.map_number == self.map_number
+            )
+        else:
+            return NotImplemented
+
+    def to_dict(self) -> dict:
+        return {
+            "repel_level": self.repel_level,
+            "land_encounters": [encounter.to_dict() for encounter in self.land_encounters],
+            "surf_encounters": [encounter.to_dict() for encounter in self.surf_encounters],
+            "rock_smash_encounters": [encounter.to_dict() for encounter in self.rock_smash_encounters],
+            "old_rod_encounters": [encounter.to_dict() for encounter in self.old_rod_encounters],
+            "good_rod_encounters": [encounter.to_dict() for encounter in self.good_rod_encounters],
+            "super_rod_encounters": [encounter.to_dict() for encounter in self.super_rod_encounters],
+        }
+
 
 def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterList | None:
+    if state_cache.effective_wild_encounters.age_in_frames == 0:
+        return state_cache.effective_wild_encounters.value
+
     from modules.player import get_player_avatar
 
     player = get_player_avatar()
     if player is None:
-        return EffectiveWildEncounterList([], [], [], [], [], [])
+        return EffectiveWildEncounterList(0, 0, 0, [], [], [], [], [], [])
 
     map_group, map_number = player.map_group_and_number
 
@@ -1924,7 +1963,10 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
 
         return result
 
-    return EffectiveWildEncounterList(
+    encounter_list = EffectiveWildEncounterList(
+        map_group=map_group,
+        map_number=map_number,
+        repel_level=repel_level,
         land_encounters=calculate_effective_encounters(wild_encounters.land_encounters),
         surf_encounters=calculate_effective_encounters(wild_encounters.surf_encounters),
         rock_smash_encounters=calculate_effective_encounters(wild_encounters.rock_smash_encounters),
@@ -1932,6 +1974,10 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
         good_rod_encounters=calculate_effective_encounters(wild_encounters.good_rod_encounters),
         super_rod_encounters=calculate_effective_encounters(wild_encounters.super_rod_encounters),
     )
+
+    state_cache.effective_wild_encounters = encounter_list
+
+    return encounter_list
 
 
 def calculate_targeted_coords(current_coordinates: tuple[int, int], facing_direction: str) -> tuple[int, int]:

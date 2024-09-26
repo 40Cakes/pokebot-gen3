@@ -1,9 +1,14 @@
+from typing import TYPE_CHECKING
+
 from rich.console import Console
 from rich.table import Table
 from rich.theme import Theme
 
 from modules.context import context
 from modules.pokemon import Pokemon
+
+if TYPE_CHECKING:
+    from modules.stats import GlobalStats, EncounterSummary, EncounterTotals
 
 theme = Theme(
     {
@@ -54,7 +59,7 @@ def sv_colour(value: int) -> str:
     return "purple" if value >= 65528 else "red"
 
 
-def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set) -> None:
+def print_stats(stats: "GlobalStats", pokemon: Pokemon) -> None:
     type_colour = pokemon.species.types[0].name.lower()
     rich_name = f"[{type_colour}]{pokemon.species.name}[/]"
 
@@ -123,6 +128,12 @@ def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set) -> No
                 f"Sum: [{iv_sum_colour(pokemon.ivs.sum())}]{pokemon.ivs.sum()}[/]"
             )
 
+    def format_shiny_average(encounter_summary: "EncounterSummary | EncounterTotals") -> str:
+        if encounter_summary.shiny_encounters > 0:
+            return f"1/{int(encounter_summary.total_encounters / encounter_summary.shiny_encounters)}"
+        else:
+            return "N/A"
+
     match context.config.logging.console.encounter_moves:
         case "verbose":
             move_table = Table(title=f"{pokemon.species.name} Moves")
@@ -172,48 +183,52 @@ def print_stats(total_stats: dict, pokemon: Pokemon, session_pokemon: set) -> No
             stats_table.add_column("Total Encounters", justify="right", width=10)
             stats_table.add_column("Shiny Average", justify="right", width=10)
 
-            for p in sorted(session_pokemon):
+            encounter_summaries: list["EncounterSummary"] = list(
+                filter(lambda e: e.phase_encounters > 0, stats.encounter_summaries.values())
+            )
+            encounter_summaries.sort(key=lambda e: e.species.name)
+            for summary in encounter_summaries:
                 stats_table.add_row(
-                    p,
-                    f"[red]{total_stats['pokemon'][p].get('phase_lowest_iv_sum', -1)}[/] / [green]{total_stats['pokemon'][p].get('phase_highest_iv_sum', -1)}",
-                    f"[green]{total_stats['pokemon'][p].get('phase_lowest_sv', -1):,}[/] / [{sv_colour(total_stats['pokemon'][p].get('phase_highest_sv', -1))}]{total_stats['pokemon'][p].get('phase_highest_sv', -1):,}",
-                    f"{total_stats['pokemon'][p].get('phase_encounters', 0):,}",
-                    f"{(total_stats['pokemon'][p].get('phase_encounters', 0) / total_stats['totals'].get('phase_encounters', 0)) * 100:0.2f}%",
-                    f"{total_stats['pokemon'][p].get('shiny_encounters', 0):,}",
-                    f"{total_stats['pokemon'][p].get('encounters', 0):,}",
-                    f"{total_stats['pokemon'][p].get('shiny_average', 'N/A')}",
+                    summary.species.name,
+                    f"[red]{summary.phase_lowest_iv_sum}[/] / [green]{summary.phase_highest_iv_sum}",
+                    f"[green]{summary.phase_lowest_sv:,}[/] / [{sv_colour(summary.phase_highest_sv)}]{summary.phase_highest_sv:,}",
+                    f"{summary.phase_encounters:,}",
+                    f"{(summary.phase_encounters / stats.totals.phase_encounters) * 100:0.2f}%",
+                    f"{summary.shiny_encounters:,}",
+                    f"{summary.total_encounters:,}",
+                    format_shiny_average(summary),
                 )
             stats_table.add_row(
                 "[bold yellow]Total",
-                f"[red]{total_stats['totals'].get('phase_lowest_iv_sum', -1)}[/] / [green]{total_stats['totals'].get('phase_highest_iv_sum', -1)}",
-                f"[green]{total_stats['totals'].get('phase_lowest_sv', -1):,}[/] / [{sv_colour(total_stats['totals'].get('phase_highest_sv', -1))}]{total_stats['totals'].get('phase_highest_sv', -1):,}",
-                f"[bold yellow]{total_stats['totals'].get('phase_encounters', 0):,}",
+                f"[red]{stats.totals.phase_lowest_iv_sum}[/] / [green]{stats.totals.phase_highest_iv_sum}",
+                f"[green]{stats.totals.phase_lowest_sv:,}[/] / [{sv_colour(stats.totals.phase_highest_sv)}]{stats.totals.phase_highest_sv:,}",
+                f"[bold yellow]{stats.totals.phase_encounters:,}",
                 "[bold yellow]100%",
-                f"[bold yellow]{total_stats['totals'].get('shiny_encounters', 0):,}",
-                f"[bold yellow]{total_stats['totals'].get('encounters', 0):,}",
-                f"[bold yellow]{total_stats['totals'].get('shiny_average', 'N/A')}",
+                f"[bold yellow]{stats.totals.shiny_encounters:,}",
+                f"[bold yellow]{stats.totals.total_encounters:,}",
+                format_shiny_average(stats.totals),
             )
             console.print(stats_table)
         case "basic":
             console.print(
-                f"{rich_name} Phase Encounters: {total_stats['pokemon'][pokemon.species.name].get('phase_encounters', 0):,} | "
-                f"{rich_name} Total Encounters: {total_stats['pokemon'][pokemon.species.name].get('encounters', 0):,} | "
-                f"{rich_name} Shiny Encounters: {total_stats['pokemon'][pokemon.species.name].get('shiny_encounters', 0):,}"
+                f"{rich_name} Phase Encounters: {stats.encounter_summaries[pokemon.species.index].phase_encounters:,} | "
+                f"{rich_name} Total Encounters: {stats.encounter_summaries[pokemon.species.index].total_encounters:,} | "
+                f"{rich_name} Shiny Encounters: {stats.encounter_summaries[pokemon.species.index].shiny_encounters:,}"
             )
             console.print(
-                f"{rich_name} Phase IV Records [red]{total_stats['pokemon'][pokemon.species.name].get('phase_lowest_iv_sum', -1)}[/]/[green]{total_stats['pokemon'][pokemon.species.name].get('phase_highest_iv_sum', -1)}[/] | "
-                f"{rich_name} Phase SV Records [green]{total_stats['pokemon'][pokemon.species.name].get('phase_lowest_sv', -1):,}[/]/[{sv_colour(total_stats['pokemon'][pokemon.species.name].get('phase_highest_sv', -1))}]{total_stats['pokemon'][pokemon.species.name].get('phase_highest_sv', -1):,}[/] | "
-                f"{rich_name} Shiny Average: {total_stats['pokemon'][pokemon.species.name].get('shiny_average', 'N/A')}"
+                f"{rich_name} Phase IV Records [red]{stats.encounter_summaries[pokemon.species.index].phase_lowest_iv_sum}[/]/[green]{stats.encounter_summaries[pokemon.species.index].phase_highest_iv_sum}[/] | "
+                f"{rich_name} Phase SV Records [green]{stats.encounter_summaries[pokemon.species.index].phase_lowest_sv:,}[/]/[{sv_colour(stats.encounter_summaries[pokemon.species.index].phase_highest_sv)}]{stats.encounter_summaries[pokemon.species.index].phase_highest_sv:,}[/] | "
+                f"{rich_name} Shiny Average: {format_shiny_average(stats.encounter_summaries[pokemon.species.index])}"
             )
             console.print(
-                f"Phase Encounters: {total_stats['totals'].get('phase_encounters', 0):,} | "
-                f"Phase IV Records [red]{total_stats['totals'].get('phase_lowest_iv_sum', -1)}[/]/[green]{total_stats['totals'].get('phase_highest_iv_sum', -1)}[/] | "
-                f"Phase SV Records [green]{total_stats['totals'].get('phase_lowest_sv', -1):,}[/]/[{sv_colour(total_stats['totals'].get('phase_highest_sv', -1))}]{total_stats['totals'].get('phase_highest_sv', -1):,}[/]"
+                f"Phase Encounters: {stats.totals.phase_encounters:,} | "
+                f"Phase IV Records [red]{stats.totals.phase_lowest_iv_sum}[/]/[green]{stats.totals.phase_highest_iv_sum}[/] | "
+                f"Phase SV Records [green]{stats.totals.phase_lowest_sv:,}[/]/[{sv_colour(stats.totals.phase_highest_sv)}]{stats.totals.phase_highest_sv:,}[/]"
             )
             console.print(
-                f"Total Shinies: {total_stats['totals'].get('shiny_encounters', 0):,} | "
-                f"Total Encounters: {total_stats['totals'].get('encounters', 0):,} | "
-                f"Total Shiny Average: {total_stats['totals'].get('shiny_average', 'N/A')})"
+                f"Total Shinies: {stats.totals.shiny_encounters:,} | "
+                f"Total Encounters: {stats.totals.total_encounters:,} | "
+                f"Total Shiny Average: {format_shiny_average(stats.totals)})"
             )
 
 

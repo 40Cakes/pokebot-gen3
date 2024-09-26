@@ -6,9 +6,9 @@ from time import sleep, time
 
 from modules.console import console
 from modules.context import context
-from modules.map import get_wild_encounters_for_map
 from modules.libmgba import inputs_to_strings
 from modules.main import work_queue, inputs_each_frame
+from modules.map import get_wild_encounters_for_map, get_effective_encounter_rates_for_current_map
 from modules.memory import GameState, get_game_state
 from modules.player import get_player, get_player_avatar
 from modules.pokedex import get_pokedex
@@ -25,10 +25,12 @@ class DataSubscription(IntFlag):
     Party = auto()
     Pokedex = auto()
     Opponent = auto()
+    WildEncounter = auto()
     FishingAttempt = auto()
     GameState = auto()
     Map = auto()
     MapTile = auto()
+    MapEncounters = auto()
     BotMode = auto()
     Message = auto()
     EmulatorSettings = auto()
@@ -97,11 +99,13 @@ def run_watcher():
         "party": state_cache.party.frame,
         "pokedex": state_cache.pokedex.frame,
         "opponent": state_cache.opponent.frame,
+        "wild_encounter": context.stats.last_encounter.encounter_id if context.stats.last_encounter is not None else 0,
         "fishing_attempt": state_cache.fishing_attempt.frame,
         "player": state_cache.player.frame,
         "player_avatar": state_cache.player_avatar.frame,
         "map_group_and_number": map_group_and_number,
         "map_local_coordinates": map_local_coordinates,
+        "map_encounters": state_cache.effective_wild_encounters.frame,
         "game_state": get_game_state(),
     }
     previous_emulator_state = {
@@ -185,6 +189,15 @@ def run_watcher():
             elif previous_game_state["game_state"] == GameState.BATTLE:
                 send_message(DataSubscription.Opponent, data=None, event_type="Opponent")
 
+        if subscriptions["WildEncounter"] > 0:
+            if context.stats.last_encounter.encounter_id != previous_game_state["wild_encounter"]:
+                send_message(
+                    DataSubscription.WildEncounter,
+                    data=context.stats.last_encounter.to_dict(),
+                    event_type="WildEncounter",
+                )
+                previous_game_state["wild_encounter"] = context.stats.last_encounter.encounter_id
+
         if subscriptions["FishingAttempt"] > 0:
             if state_cache.fishing_attempt.value != context.stats.last_fishing_attempt:
                 state_cache.fishing_attempt = context.stats.last_fishing_attempt
@@ -212,14 +225,33 @@ def run_watcher():
                         "map": map_data.dict_for_map(),
                         "player_position": map_data.local_position,
                         "tiles": map_data.dicts_for_all_tiles(),
-                        "encounters": get_wild_encounters_for_map(*current_map).to_dict(),
                     }
+
+                    if subscriptions["MapEncounters"] > 0:
+                        work_queue.put_nowait(get_effective_encounter_rates_for_current_map)
 
                     send_message(DataSubscription.Map, data=data, event_type="MapChange")
                     previous_game_state["map_group_and_number"] = current_map
                 if current_coords != previous_game_state["map_local_coordinates"]:
                     send_message(DataSubscription.Map, data=current_coords, event_type="MapTileChange")
                     previous_game_state["map_local_coordinates"] = current_coords
+
+        if subscriptions["MapEncounters"] > 0:
+            if state_cache.effective_wild_encounters.age_in_frames >= 300:
+                # If the cached encounter data is too old, tell the main thread to update it at the next
+                # possible opportunity.
+                work_queue.put_nowait(get_effective_encounter_rates_for_current_map)
+            if state_cache.effective_wild_encounters.frame > previous_game_state["map_encounters"]:
+                encounters = state_cache.effective_wild_encounters.value
+                previous_game_state["map_encounters"] = state_cache.effective_wild_encounters.frame
+                send_message(
+                    DataSubscription.MapEncounters,
+                    data={
+                        "regular": get_wild_encounters_for_map(encounters.map_group, encounters.map_number).to_dict(),
+                        "effective": encounters.to_dict(),
+                    },
+                    event_type="MapEncounters",
+                )
 
         if subscriptions["BotMode"] > 0 and context.bot_mode != previous_emulator_state["bot_mode"]:
             previous_emulator_state["bot_mode"] = context.bot_mode

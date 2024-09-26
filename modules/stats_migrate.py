@@ -162,27 +162,6 @@ def migrate_file_based_stats_to_sqlite(
         if (profile.path / "stats" / "totals.json").exists():
             totals = json.load((profile.path / "stats" / "totals.json").open("r"))
             encounter_summaries = get_encounter_summaries()
-
-            def xmin(a: int | None, b: int | None) -> int | None:
-                if a is None and b is None:
-                    return None
-                elif a is None:
-                    return b
-                elif b is None:
-                    return a
-                else:
-                    return min(a, b)
-
-            def xmax(a: int | None, b: int | None) -> int | None:
-                if a is None and b is None:
-                    return None
-                elif a is None:
-                    return b
-                elif b is None:
-                    return a
-                else:
-                    return max(a, b)
-
             for species_name in totals["pokemon"]:
                 entry = totals["pokemon"][species_name]
                 species = get_species_by_name(species_name)
@@ -217,22 +196,7 @@ def migrate_file_based_stats_to_sqlite(
                     summary.total_encounters = max(summary.total_encounters, entry["encounters"])
                     summary.shiny_encounters = max(summary.shiny_encounters, entry["shiny_encounters"])
                     summary.catches = max(summary.catches, entry["shiny_encounters"])
-                    summary.total_highest_iv_sum = max(summary.total_highest_iv_sum, entry["total_highest_iv_sum"])
-                    summary.total_lowest_iv_sum = min(summary.total_lowest_iv_sum, entry["total_lowest_iv_sum"])
-                    summary.total_highest_sv = max(
-                        summary.total_highest_sv,
-                        (
-                            entry["phase_highest_sv"]
-                            if entry["phase_highest_sv"] is not None
-                            else entry["total_lowest_sv"]
-                        ),
-                    )
-                    summary.total_lowest_sv = min(summary.total_lowest_sv, entry["total_lowest_sv"])
                     summary.phase_encounters = max(summary.phase_encounters, entry["phase_encounters"])
-                    summary.phase_highest_iv_sum = xmax(summary.phase_highest_iv_sum, entry["phase_highest_iv_sum"])
-                    summary.phase_lowest_iv_sum = xmin(summary.phase_lowest_iv_sum, entry["phase_lowest_iv_sum"])
-                    summary.phase_highest_sv = xmax(summary.phase_highest_sv, entry["phase_highest_sv"])
-                    summary.phase_lowest_sv = xmin(summary.phase_lowest_sv, entry["phase_lowest_sv"])
                     summary.last_encounter_time = max(summary.last_encounter_time, last_encounter_time)
 
                 insert_encounter_summary(summary)
@@ -240,6 +204,7 @@ def migrate_file_based_stats_to_sqlite(
         # If there is a shiny log, use that as a more reliable source for stats
         if (profile.path / "stats" / "shiny_log.json").exists():
             shiny_log = json.load((profile.path / "stats" / "shiny_log.json").open("r"))
+            previous_end_time: datetime = datetime.now(tz=ZoneInfo("UTC"))
             for entry in shiny_log["shiny_log"]:
                 # For some reason, there are non-shiny entries in the stream profile's shiny log.
                 shiny_value = (
@@ -259,7 +224,7 @@ def migrate_file_based_stats_to_sqlite(
                 execute_statement(
                     "UPDATE shiny_phases SET start_time = ?, end_time = ?, encounters = ?, snapshot_total_encounters = ?, snapshot_total_shiny_encounters = ?, snapshot_species_encounters = ?, snapshot_species_shiny_encounters = ? WHERE shiny_phase_id = ?",
                     (
-                        min(encounter_time, shiny_phases[0].start_time),
+                        min(encounter_time, shiny_phases[0].start_time, previous_end_time),
                         encounter_time,
                         entry["snapshot_stats"]["phase_encounters"],
                         entry["snapshot_stats"]["total_encounters"],
@@ -269,6 +234,8 @@ def migrate_file_based_stats_to_sqlite(
                         shiny_phases[0].shiny_phase_id,
                     ),
                 )
+
+                previous_end_time = encounter_time
 
             # mGBA CSV files do not contain timestamps, so we've been guessing them
             # based on the creation time of the CSV file. Try to fix it even more.

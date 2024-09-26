@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from modules.battle_state import BattleState
     from modules.fishing import FishingAttempt
     from modules.items import ItemBag, ItemStorage
+    from modules.map import EffectiveWildEncounterList
     from modules.memory import GameState
     from modules.player import Player, PlayerAvatar
     from modules.pokemon import Pokemon
@@ -56,6 +57,7 @@ class StateCache:
         self._player_avatar: StateCacheItem["PlayerAvatar | None"] = StateCacheItem(None)
         self._pokedex: StateCacheItem["Pokedex | None"] = StateCacheItem(None)
         self._pokemon_storage: StateCacheItem["PokemonStorage | None"] = StateCacheItem(None)
+        self._effective_wild_encounters: StateCacheItem["EffectiveWildEncounterList | None"] = StateCacheItem(None)
         self._item_bag: StateCacheItem["ItemBag | None"] = StateCacheItem(None)
         self._item_storage: StateCacheItem["ItemStorage | None"] = StateCacheItem(None)
         self._tasks: StateCacheItem["TaskList | None"] = StateCacheItem(None)
@@ -158,6 +160,17 @@ class StateCache:
             self._pokemon_storage.value = pokemon_storage
         else:
             self._pokemon_storage.checked()
+
+    @property
+    def effective_wild_encounters(self) -> StateCacheItem["EffectiveWildEncounterList | None"]:
+        return self._effective_wild_encounters
+
+    @effective_wild_encounters.setter
+    def effective_wild_encounters(self, encounters_list: "EffectiveWildEncounterList"):
+        if self._effective_wild_encounters.value is None or self._effective_wild_encounters.value != encounters_list:
+            self._effective_wild_encounters.value = encounters_list
+        else:
+            self._effective_wild_encounters.checked()
 
     @property
     def item_bag(self) -> StateCacheItem["ItemBag | None"]:

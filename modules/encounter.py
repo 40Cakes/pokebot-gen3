@@ -3,7 +3,7 @@ from enum import Enum, auto
 from pathlib import Path
 from typing import Callable
 
-from modules.console import console
+from modules.console import console, print_stats
 from modules.context import context
 from modules.files import save_pk3, make_string_safe_for_file_name
 from modules.gui.desktop_notification import desktop_notification
@@ -106,6 +106,7 @@ def log_encounter(
 ) -> None:
     ccf_result = run_custom_catch_filters(pokemon)
     context.stats.log_encounter(pokemon, ccf_result)
+    print_stats(context.stats.get_global_stats(), pokemon)
     if context.config.logging.save_pk3.all:
         save_pk3(pokemon)
 

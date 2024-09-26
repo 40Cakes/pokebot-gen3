@@ -5,6 +5,7 @@
 
 // Start date for the top-left "time elapsed since challenge started" timer
 start_date = "2023-01-01"
+time_zone = "Australia/Sydney" // "Australia/Sydney"
 override_display_timezone = "AEST" // "AEST"
 
 // Name of Pokemon for the "timers since last encounter" for a Pokemon to display on screen
@@ -77,8 +78,24 @@ pokemon_checklist = {
     },
 }
 
-// Stores latest result of each API call so that the data is easily available for all functions
-state = {
+/**
+ * Stores latest result of each API call so that the data is easily available for all functions.
+ * @type {{
+ *     emulator: PokeBotApi.GetEmulatorResponse,
+ *     game_state: PokeBotApi.GetGameStateResponse,
+ *     stats: PokeBotApi.GetStatsResponse,
+ *     shiny_log: PokeBotApi.GetShinyLogResponse,
+ *     event_flags: PokeBotApi.GetEventFlagsResponse,
+ *     opponent: StreamEvents.WildEncounter,
+ *     checklist: null,
+ *     bot_mode: string | null,
+ *     map: PokeBotApi.GetMapResponse,
+ *     map_encounters: PokeBotApi.GetMapEncountersResponse,
+ *     party: PokeBotApi.GetPartyResponse,
+ *     player: PokeBotApi.GetPlayerResponse,
+ * }}
+ */
+const state = {
     stats: null,
     event_flags: null,
     emulator: null,
@@ -86,19 +103,30 @@ state = {
     game_state: null,
     party: null,
     opponent: null,
-    previous_opponent: null,
     map: null,
+    map_encounters: null,
     player: null,
     shiny_log: null,
     checklist: null
 }
 
+const dateFormatter = Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: true,
+    timeZone: time_zone,
+});
+let $localTime;
+
 timers()
 
 // Init encounter log table with empty entries
-$("#encounter_log").empty()
+let $encounterLog = $("#encounter_log");
+
+$encounterLog.empty()
 for (var i = 0; i < 8; i++) {
-    $("#encounter_log").append(
+    $encounterLog.append(
         $("<tr>")
             .append($("<td>")
                 .append($("<div>")
@@ -147,11 +175,11 @@ const initialData = [
             handleParty(data)
         }),
 
-    fetch("/opponent")
+    fetch("/map_encounters")
         .then(response => response.json())
         .then(data => {
-            /** @var {PokeBotApi.GetOpponentResponse} */
-            handleOpponent(data)
+            /** @var {PokeBotApi.GetMapEncountersResponse} */
+            handleMapEncounters(data)
         }),
 
     fetch("/map")
@@ -173,6 +201,20 @@ const initialData = [
         .then(data => {
             handleStats(data)
         }),
+
+    fetch("/encounter_log")
+        .then(response => response.json())
+        .then(data => {
+            for (let index = 0; index < 9; index++) {
+                if (data.length >= index + 1) {
+                    if (index === 0) {
+                        handleWildEncounter(data[index]);
+                    } else {
+                        appendEncounterLog(data[index].pokemon);
+                    }
+                }
+            }
+        }),
 ]
 
 const url = new URL(window.location.origin + "/stream_events")
@@ -180,8 +222,9 @@ url.searchParams.append("topic", "PerformanceData")
 url.searchParams.append("topic", "BotMode")
 url.searchParams.append("topic", "GameState")
 url.searchParams.append("topic", "Party")
-url.searchParams.append("topic", "Opponent")
+url.searchParams.append("topic", "WildEncounter")
 url.searchParams.append("topic", "Map")
+url.searchParams.append("topic", "MapEncounters")
 url.searchParams.append("topic", "Player")
 url.searchParams.append("topic", "Inputs")
 
@@ -191,10 +234,14 @@ Promise.all(initialData).then(() => {
     eventSource.addEventListener("BotMode", event => handleBotMode(JSON.parse(event.data)))
     eventSource.addEventListener("GameState", event => handleGameState(JSON.parse(event.data)))
     eventSource.addEventListener("Party", event => handleParty(JSON.parse(event.data)))
-    eventSource.addEventListener("Opponent", event => handleOpponent(JSON.parse(event.data)))
+    eventSource.addEventListener("WildEncounter", event => handleWildEncounter(JSON.parse(event.data)))
     eventSource.addEventListener("MapChange", event => handleMap(JSON.parse(event.data)))
+    eventSource.addEventListener("MapEncounters", event => handleMapEncounters(JSON.parse(event.data)))
     eventSource.addEventListener("Player", event => handlePlayer(JSON.parse(event.data)))
     eventSource.addEventListener("Inputs", event => handleInput(JSON.parse(event.data)))
+
+    refreshchecklist()
+    refreshShinyLog()
 })
 
 async function handleStats(data) {
@@ -206,12 +253,12 @@ async function handleStats(data) {
 
     if (target_timer_1 !== "" && data.pokemon[target_timer_1]) {
         $("#target_1_sprite").attr("src", pokemonSprite(target_timer_1, false, false, true))
-        $("#target_1").css("opacity", "100%")
+        $("#target_1").css("display", "inline-block")
     }
 
     if (target_timer_2 !== "" && data.pokemon[target_timer_2]) {
         $("#target_2_sprite").attr("src", pokemonSprite(target_timer_2, false, false, true))
-        $("#target_2").css("opacity", "100%")
+        $("#target_2").css("display", "inline-block")
     }
 }
 
@@ -267,112 +314,101 @@ function handleParty(data) {
     }
 }
 
-/** @param {StreamEvents.Opponent} data */
-async function handleOpponent(data) {
+/** @param {StreamEvents.WildEncounter} data */
+async function handleWildEncounter(data) {
     if (data === null) {
         return
     }
-    if (state.opponent !== null && data.personality_value === state.opponent.personality_value) {
+
+    if (state.opponent !== null && state.opponent.encounter_id === data.encounter_id) {
         return
     }
 
     state.opponent = data
 
-    await fetch("/stats?type=pokemon&pokemon=" + data.species.name)
-        .then(response => response.json())
-        .then(mon_stats => {
-            if (mon_stats === null) {
-                return
-            }
-            state.stats.pokemon[data.species.name] = mon_stats
-        })
-
-    await fetch("/stats?type=totals")
+    await fetch("/stats")
         .then(response => response.json())
         .then(total_stats => {
             if (total_stats === null) {
                 return
             }
-            state.stats.totals = total_stats
+            state.stats = total_stats
         })
 
     refreshchecklist()
     refreshShinyLog()
-    appendEncounterLog(data)
+    appendEncounterLog(data.pokemon)
 
     document.getElementById("total_shiny").innerText = (state.stats.totals.shiny_encounters) ? state.stats.totals.shiny_encounters.toLocaleString() : 0
-    document.getElementById("total_encounters").innerText = (state.stats.totals.encounters) ? state.stats.totals.encounters.toLocaleString() : 0
+    document.getElementById("total_encounters").innerText = (state.stats.totals.total_encounters) ? state.stats.totals.total_encounters.toLocaleString() : 0
 
     // Update total shiny average
-    if (state.stats.totals.shiny_average) {
-        document.getElementById("shiny_average").innerText = state.stats.totals.shiny_average
-    } else {
-        document.getElementById("shiny_average").innerText = "N/A"
-    }
+    document.getElementById("shiny_average").innerText = shinyAverage(state.stats.totals);
 
     // Update encounter HUD
-    document.getElementById("encounter_hud_pid").innerText = data.personality_value.toString(16)
-    document.getElementById("encounter_hud_hp").innerText = data.ivs.hp
-    document.getElementById("encounter_hud_hp").className = IVColour(data.ivs.hp)
-    document.getElementById("encounter_hud_attack").innerText = data.ivs.attack
-    document.getElementById("encounter_hud_attack").className = IVColour(data.ivs.attack)
-    document.getElementById("encounter_hud_defence").innerText = data.ivs.defence
-    document.getElementById("encounter_hud_defence").className = IVColour(data.ivs.defence)
-    document.getElementById("encounter_hud_special_attack").innerText = data.ivs.special_attack
-    document.getElementById("encounter_hud_special_attack").className = IVColour(data.ivs.special_attack)
-    document.getElementById("encounter_hud_special_defence").innerText = data.ivs.special_defence
-    document.getElementById("encounter_hud_special_defence").className = IVColour(data.ivs.special_defence)
-    document.getElementById("encounter_hud_speed").innerText = data.ivs.speed
-    document.getElementById("encounter_hud_speed").className = IVColour(data.ivs.speed)
+    const pokemon = data.pokemon;
+    document.getElementById("encounter_hud_pid").innerText = pokemon.personality_value.toString(16)
+    document.getElementById("encounter_hud_hp").innerText = pokemon.ivs.hp
+    document.getElementById("encounter_hud_hp").className = IVColour(pokemon.ivs.hp)
+    document.getElementById("encounter_hud_attack").innerText = pokemon.ivs.attack
+    document.getElementById("encounter_hud_attack").className = IVColour(pokemon.ivs.attack)
+    document.getElementById("encounter_hud_defence").innerText = pokemon.ivs.defence
+    document.getElementById("encounter_hud_defence").className = IVColour(pokemon.ivs.defence)
+    document.getElementById("encounter_hud_special_attack").innerText = pokemon.ivs.special_attack
+    document.getElementById("encounter_hud_special_attack").className = IVColour(pokemon.ivs.special_attack)
+    document.getElementById("encounter_hud_special_defence").innerText = pokemon.ivs.special_defence
+    document.getElementById("encounter_hud_special_defence").className = IVColour(pokemon.ivs.special_defence)
+    document.getElementById("encounter_hud_speed").innerText = pokemon.ivs.speed
+    document.getElementById("encounter_hud_speed").className = IVColour(pokemon.ivs.speed)
 
-    document.getElementById("encounter_hud_nature").innerText = data.nature.name
-    $("#encounter_hud_hidden_power").attr("src", "sprites/types/large/" + data.hidden_power_type.name + ".png")
+    document.getElementById("encounter_hud_nature").innerText = pokemon.nature.name
+    $("#encounter_hud_hidden_power").attr("src", "sprites/types/large/" + pokemon.hidden_power_type.name + ".png")
 
-    if (data.held_item != null) {
-        $("#encounter_hud_item").attr("src", "sprites/items/" + data.held_item.name + ".png")
+    if (pokemon.held_item != null) {
+        $("#encounter_hud_item").attr("src", "sprites/items/" + pokemon.held_item.name + ".png")
     } else {
         $("#encounter_hud_item").attr("src", "sprites/items/None.png")
     }
 
-    document.getElementById("encounter_sv").innerText = data.shiny_value.toLocaleString()
-    document.getElementById("encounter_sv").className = SVColour(data.shiny_value)
-    $("#encounter_sv_label").attr("src", SVImage(data.shiny_value))
+    document.getElementById("encounter_sv").innerText = pokemon.shiny_value.toLocaleString()
+    document.getElementById("encounter_sv").className = SVColour(pokemon.shiny_value)
+    $("#encounter_sv_label").attr("src", SVImage(pokemon.shiny_value))
 
     $("#encounter_hud").css("opacity", "100%")
     $("#sv_hud").css("opacity", "100%")
 
-    if (!data.is_shiny) {
+    if (!pokemon.is_shiny) {
         // Update phase stats
         // Don't update phase stats on shinies (OBS screenshot)
 
         // PSP
-        document.getElementById("psp").innerText = calcPSP(state.stats.totals.phase_encounters)
+        document.getElementById("psp").innerText = calcPSP(state.stats.current_phase.encounters)
         // Phase encounters
-        document.getElementById("phase_encounters").innerText = state.stats.totals.phase_encounters.toLocaleString()
+        document.getElementById("phase_encounters").innerText = state.stats.current_phase.encounters.toLocaleString()
 
         // Phase streak
-        $("#phase_streak_sprite").attr("src", pokemonSprite(state.stats.totals.phase_streak_pokemon, false, false, false))
-        document.getElementById("phase_streak").innerText = state.stats.totals.phase_streak.toLocaleString()
-        document.getElementById("current_streak").innerText = "(" + state.stats.totals.current_streak.toLocaleString() + ")"
+        $("#phase_streak_sprite").attr("src", pokemonSprite(state.stats.current_phase.longest_streak.species_name, false, false, false))
+        document.getElementById("phase_streak").innerText = state.stats.current_phase.longest_streak.value.toLocaleString()
+        document.getElementById("current_streak").innerText = "(" + state.stats.current_phase.current_streak.value.toLocaleString() + ")"
 
         // Phase IV records
-        $("#phase_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.totals.phase_highest_iv_sum_pokemon, false, false, false))
-        document.getElementById("phase_iv_record_high").innerText = state.stats.totals.phase_highest_iv_sum
-        $("#phase_iv_record_low_sprite").attr("src", pokemonSprite(state.stats.totals.phase_lowest_iv_sum_pokemon, false, false, false))
-        document.getElementById("phase_iv_record_low").innerText = state.stats.totals.phase_lowest_iv_sum
+        $("#phase_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.current_phase.highest_iv_sum.species_name, false, false, false))
+        document.getElementById("phase_iv_record_high").innerText = state.stats.current_phase.highest_iv_sum.value
+        $("#phase_iv_record_low_sprite").attr("src", pokemonSprite(state.stats.current_phase.lowest_iv_sum.species_name, false, false, false))
+        document.getElementById("phase_iv_record_low").innerText = state.stats.current_phase.lowest_iv_sum.value
 
         // Total IV records
-        $("#total_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.totals.highest_iv_sum_pokemon, false, false, false))
-        document.getElementById("total_iv_record_high").innerText = state.stats.totals.highest_iv_sum
-        $("#total_iv_record_low_sprite").attr("src", pokemonSprite(state.stats.totals.lowest_iv_sum_pokemon, false, false, false))
-        document.getElementById("total_iv_record_low").innerText = state.stats.totals.lowest_iv_sum
+        $("#total_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.totals.total_highest_iv_sum.species_name, false, false, false))
+        document.getElementById("total_iv_record_high").innerText = state.stats.totals.total_highest_iv_sum.value
+        $("#total_iv_record_low_sprite").attr("src", pokemonSprite(state.stats.totals.total_lowest_iv_sum.species_name, false, false, false))
+        document.getElementById("total_iv_record_low").innerText = state.stats.totals.total_lowest_iv_sum.value
 
         // Phase encounter records
-        if (state.stats.totals.longest_phase_encounters !== undefined && state.stats.totals.shortest_phase_encounters !== undefined) {
-            $("#longest_phase_sprite").attr("src", pokemonSprite(state.stats.totals.longest_phase_pokemon, true))
-            document.getElementById("longest_phase_encounters").innerText = state.stats.totals.longest_phase_encounters.toLocaleString()
-            $("#shortest_phase_sprite").attr("src", pokemonSprite(state.stats.totals.shortest_phase_pokemon, true))
-            document.getElementById("shortest_phase_encounters").innerText = state.stats.totals.shortest_phase_encounters.toLocaleString()
+        if (state.stats.longest_phase.species_name !== null && state.stats.shortest_phase.species_name !== null) {
+            $("#longest_phase_sprite").attr("src", pokemonSprite(state.stats.longest_phase.species_name, true))
+            document.getElementById("longest_phase_encounters").innerText = state.stats.longest_phase.value.toLocaleString()
+            $("#shortest_phase_sprite").attr("src", pokemonSprite(state.stats.shortest_phase.species_name, true))
+            document.getElementById("shortest_phase_encounters").innerText = state.stats.shortest_phase.value.toLocaleString()
         }
     }
 }
@@ -386,6 +422,18 @@ function handleMap(data) {
     state.map = data
 
     document.getElementById("location").innerText = data.map.name
+}
+
+/** @param {StreamEvents.MapEncounters} data */
+function handleMapEncounters(data) {
+    state.map_encounters = data;
+
+    if (data.effective.repel_level > 0) {
+        $("#repel_level").text(data.effective.repel_level);
+        $("#repel_info").css("display", "inline-block");
+    } else {
+        $("#repel_info").css("display", "none");
+    }
 }
 
 /** @param {StreamEvents.Player} data */
@@ -468,7 +516,7 @@ function appendEncounterLog(data) {
         + data.ivs.special_defence
         + data.ivs.speed
 
-    $("#encounter_log").prepend(
+    $encounterLog.prepend(
         $("<tr>")
             .append($("<td>")
                 .append($("<div>")
@@ -503,14 +551,14 @@ function appendEncounterLog(data) {
                 .text(data.shiny_value.toLocaleString()))
     )
 
-    $("#encounter_log").children().slice(8).detach()
+    $encounterLog.children().slice(8).detach()
 }
 
 function refreshShinyLog() {
     $("#shiny_log").empty()
 
     for (var i = 0; i < 8; i++) {
-        if (typeof state.shiny_log[i] === "undefined") {
+        if (state.shiny_log === null || state.shiny_log.length <= i || typeof state.shiny_log[i] === "undefined") {
             $("#shiny_log").append($("<tr>")
                 .append($("<td>").text(""))
                 .append($("<td>")
@@ -526,54 +574,80 @@ function refreshShinyLog() {
                 .append($("<td>").text(""))
             )
         } else {
-            if (state.shiny_log[i + 1]) {
-                a = moment.unix((Math.round(state.shiny_log[i].time_encountered)))
-                b = moment.unix((Math.round(state.shiny_log[i + 1].time_encountered)))
-                delta = a.diff(b, "hours", true)
+            let start = new Date(state.shiny_log[i].phase.start_time);
+            let end = new Date(state.shiny_log[i].phase.end_time);
+            let deltaInSeconds = (end.getTime() - start.getTime()) / 1000;
 
-                if (delta < 1) {
-                    delta = a.diff(b, "minutes", true).toPrecision(2).toLocaleString()
-                    delta_unit = "min"
-                } else {
-                    delta = delta.toPrecision(2).toLocaleString()
-                    delta_unit = "hr"
-                }
+            let duration = "";
+            let durationUnit = "";
 
-                time_ago = moment(moment.unix((Math.round(state.shiny_log[i].time_encountered)))).subtract(60, "seconds").fromNow()
+            if (deltaInSeconds < 3570) {
+                duration = Math.round(deltaInSeconds / 60);
+                durationUnit = "min";
+            } else if (deltaInSeconds < 36000) {
+                duration = (deltaInSeconds / 3600).toLocaleString("en", {maximumFractionDigits: 1});
+                durationUnit = "hr";
+            } else if (deltaInSeconds < 360000) {
+                duration = Math.round(deltaInSeconds / 3600);
+                durationUnit = "hr";
+            } else if (deltaInSeconds < 864000) {
+                duration = (deltaInSeconds / 86400).toLocaleString("en", {maximumFractionDigits: 1});
+                durationUnit = "d";
             } else {
-                delta = "-"
-                delta_unit = ""
-                time_ago = ""
+                duration = Math.round(deltaInSeconds / 86400);
+                durationUnit = "d";
+            }
+
+            let secondsAgo = (new Date().getTime() - end.getTime()) / 1000;
+            let timeAgo = "";
+            let timeAgoUnit = "";
+
+            if (secondsAgo < 59.5 * 60) {
+                timeAgo = Math.round(secondsAgo / 60);
+                timeAgoUnit = "M";
+            } else if (secondsAgo < 23.5 * 3600) {
+                timeAgo = Math.round(secondsAgo / 3600);
+                timeAgoUnit = "HR";
+            } else {
+                timeAgo = Math.round(secondsAgo / 86400);
+                timeAgoUnit = "D";
+            }
+
+            const spriteColumn = $("<td>")
+                .append($("<img>")
+                    .addClass("sprite")
+                    .attr({ "src": pokemonSprite(state.shiny_log[i].shiny_encounter.pokemon.species.name, true, false, false) }));
+            if (![null, "Caught"].includes(state.shiny_log[i].shiny_encounter.outcome)) {
+                spriteColumn
+                    .addClass("missed")
+                    .append($("<img>").attr("src", "sprites/stream-overlay/cross.png").addClass("crossed-out"));
             }
 
             $("#shiny_log").append($("<tr>")
                 .append($("<td>")
                     .css({ "font-size": "1.333rem" })
-                    .text(time_ago))
-                .append($("<td>")
-                    .append($("<img>")
-                        .addClass("sprite")
-                        .attr({ "src": pokemonSprite(state.shiny_log[i].pokemon.name, true, false, false) })))
+                    .text(`${timeAgo} ${timeAgoUnit}`))
+                .append(spriteColumn)
                 .append($("<td>")
                     .addClass("sv_yellow")
-                    .text(state.shiny_log[i].pokemon.shinyValue))
+                    .text(state.shiny_log[i].shiny_encounter.pokemon.shiny_value))
                 .append($("<td>")
-                    .text(state.shiny_log[i].snapshot_stats.phase_encounters.toLocaleString()))
+                    .text(state.shiny_log[i].phase.encounters.toLocaleString()))
                 .append($("<td>")
                     .css({ "font-size": "1.333rem" })
-                    .text(delta)
+                    .text(duration)
                     .append($("<span>")
                         .css({ "font-size": "1rem" })
-                        .text(" " + delta_unit)))
+                        .text(" " + durationUnit)))
                 .append($("<td>")
                     .css({ "font-size": "1.333rem" })
-                    .text(calcPSP(state.shiny_log[i].snapshot_stats.phase_encounters).toPrecision(3).toString() + "%"))
+                    .text(calcPSP(state.shiny_log[i].phase.encounters).toPrecision(3).toString() + "%"))
                 .append($("<td>")
-                    .text(intShortName(state.shiny_log[i].snapshot_stats.species_encounters, 3)))
+                    .text(intShortName(state.shiny_log[i].snapshot.species_encounters ?? 0, 3)))
                 .append($("<td>")
-                    .text(state.shiny_log[i].snapshot_stats.species_shiny_encounters.toLocaleString()))
+                    .text((state.shiny_log[i].snapshot.species_shiny_encounters ?? 0).toLocaleString()))
                 .append($("<td>")
-                    .text(intShortName(state.shiny_log[i].snapshot_stats.total_encounters, 3)))
+                    .text(intShortName(state.shiny_log[i].snapshot.total_encounters, 3)))
             )
         }
     }
@@ -600,7 +674,7 @@ async function refreshchecklist() {
     }
 
     // Refresh stats on first encounter of phase
-    if (state.stats.totals.phase_encounters == 1) {
+    if (state.stats.current_phase.encounters == 1) {
         await fetch("/stats")
             .then(response => response.json())
             .then(stats => {
@@ -612,37 +686,37 @@ async function refreshchecklist() {
     }
 
     // Get encounter rates for the current map + bot mode
-    if (["Spin", "Sweet Scent"].includes(state.bot_mode)) {
-        if (state.map.tiles[state.map.player_position[0]][state.map.player_position[1]].is_surfing_possible) {
-            encounters = state.map.encounters.surf_encounters
-        } else {
-            encounters = state.map.encounters.land_encounters
+    let last_encounter_type = state.opponent?.type ?? "land";
+
+    /** @type {MapEncounter[]} */
+    let encounters = [];
+    if (state.map_encounters !== null) {
+        if (last_encounter_type === "land") {
+            encounters = state.map_encounters.effective.land_encounters;
+        } else if (last_encounter_type === "surfing") {
+            encounters = state.map_encounters.effective.surf_encounters;
+        } else if (last_encounter_type === "rock_smash") {
+            encounters = state.map_encounters.effective.rock_smash_encounters;
+        } else if (last_encounter_type === "fishing_old_rod") {
+            encounters = state.map_encounters.effective.old_rod_encounters;
+        } else if (last_encounter_type === "fishing_good_rod") {
+            encounters = state.map_encounters.effective.good_rod_encounters;
+        } else if (last_encounter_type === "fishing_super_rod") {
+            encounters = state.map_encounters.effective.super_rod_encounters;
         }
-    } else if (["Fishing", "Feebas"].includes(state.bot_mode)) {
-        if (state.player.registered_item === "Super Rod") {
-            encounters = state.map.encounters.super_rod_encounters
-        } else if (state.player.registered_item === "Good Rod") {
-            encounters = state.map.encounters.good_rod_encounters
-        } else {
-            encounters = state.map.encounters.old_rod_encounters
-        }
-    } else if (state.bot_mode === "Rock Smash") {
-        encounters = state.map.encounters.rock_smash_encounters
-    } else {
-        encounters = state.map.encounters.land_encounters
     }
 
     mode_encounters = {}
     route_checklist = {}
     encounters.forEach(encounter => {
-        if (mode_encounters[encounter.species]) {
-            mode_encounters[encounter.species] += encounter.encounter_rate
+        if (mode_encounters[encounter.species_name]) {
+            mode_encounters[encounter.species_name] += Math.round(100 * encounter.encounter_rate)
         } else {
-            mode_encounters[encounter.species] = encounter.encounter_rate
+            mode_encounters[encounter.species_name] = Math.round(100 * encounter.encounter_rate)
         }
 
-        if (!pokemon_checklist[encounter.species]) {
-            route_checklist[encounter.species] = {
+        if (!pokemon_checklist[encounter.species_name]) {
+            route_checklist[encounter.species_name] = {
                 "goal": 0,
                 "hidden": false
             }
@@ -659,6 +733,7 @@ async function refreshchecklist() {
         if (!state.stats.pokemon[name]) {
             // 99999 is just used as a "null" value so .toLocaleString() doesn't complain
             checklist_mon.shiny_encounters = 0
+            checklist_mon.catches = 0
             checklist_mon.phase_encounters = 0
             checklist_mon.encounters = 0
             checklist_mon.phase_lowest_sv = 99999
@@ -669,27 +744,29 @@ async function refreshchecklist() {
             checklist_mon.shiny_average = ""
         } else {
             checklist_mon.shiny_encounters = (state.stats.pokemon[name].shiny_encounters != null) ? state.stats.pokemon[name].shiny_encounters : 0
+            checklist_mon.catches = (state.stats.pokemon[name].catches != null) ? state.stats.pokemon[name].catches : 0
             checklist_mon.phase_encounters = (state.stats.pokemon[name].phase_encounters != null) ? state.stats.pokemon[name].phase_encounters : 0
-            checklist_mon.encounters = (state.stats.pokemon[name].encounters != null) ? state.stats.pokemon[name].encounters : 0
+            checklist_mon.encounters = (state.stats.pokemon[name].total_encounters != null) ? state.stats.pokemon[name].total_encounters : 0
             checklist_mon.phase_lowest_sv = (state.stats.pokemon[name].phase_lowest_sv != null) ? state.stats.pokemon[name].phase_lowest_sv : 99999
             checklist_mon.phase_highest_sv = (state.stats.pokemon[name].phase_highest_sv != null) ? state.stats.pokemon[name].phase_highest_sv : 99999
             checklist_mon.phase_highest_iv_sum = (state.stats.pokemon[name].phase_highest_iv_sum != null) ? state.stats.pokemon[name].phase_highest_iv_sum : 99999
             checklist_mon.phase_lowest_iv_sum = (state.stats.pokemon[name].phase_lowest_iv_sum != null) ? state.stats.pokemon[name].phase_lowest_iv_sum : 99999
-            checklist_mon.phase_percent = (state.stats.pokemon[name].phase_encounters > 0) ? ((state.stats.pokemon[name].phase_encounters / state.stats.totals.phase_encounters) * 100).toPrecision(4) + "%" : ""
+            checklist_mon.phase_percent = (state.stats.pokemon[name].phase_encounters > 0) ? ((state.stats.pokemon[name].phase_encounters / state.stats.totals.total_encounters) * 100).toPrecision(4) + "%" : ""
 
-            if (state.stats.pokemon[name].shiny_average) {
-                checklist_mon.shiny_average = "(" + state.stats.pokemon[name].shiny_average + ")"
+            checklist_mon.shiny_average = shinyAverage(state.stats.pokemon[name]);
+            if (checklist_mon.shiny_average === "N/A") {
+                checklist_mon.shiny_average = "";
             } else {
-                checklist_mon.shiny_average = ""
+                checklist_mon.shiny_average = `(${checklist_mon.shiny_average})`;
             }
         }
 
         checklist_required_mons += obj.goal
-        checklist_progress += Math.min(obj.goal, checklist_mon.shiny_encounters)
+        checklist_progress += Math.min(obj.goal, checklist_mon.catches)
 
         if (!obj.hidden) {
             animated_sprite = false
-            if (state.opponent.species.name === name) {
+            if (state.opponent?.pokemon?.species?.name === name) {
                 animated_sprite = true
             }
 
@@ -726,7 +803,7 @@ async function refreshchecklist() {
                 .append($("<td>")
                     .text(intShortName(checklist_mon.encounters, 3)))
                 .append($("<td>")
-                    .text(checklist_mon.shiny_encounters.toLocaleString())
+                    .text(checklist_mon.catches.toLocaleString())
                     .append($("<span>")
                         .addClass("checklist_goal")
                         .text((obj.goal) ? "/" + obj.goal : ""))
@@ -737,7 +814,7 @@ async function refreshchecklist() {
                 .append($("<td>")
                     .append($("<img>")
                         .addClass("checklist-tick")
-                        .attr({ "src": (!obj.goal || checklist_mon.shiny_encounters >= obj.goal) ? "sprites/stream-overlay/tick.png" : "sprites/items/None.png" })))
+                        .attr({ "src": (!obj.goal || checklist_mon.catches >= obj.goal) ? "sprites/stream-overlay/tick.png" : "sprites/items/None.png" })))
             )
         }
     }
@@ -769,16 +846,20 @@ function timers() {
     $("#start_days").text(diffDays(start_date))
     $("#start_hours").text(diffHrs(start_date))
 
-    var time = new Date()
-    $("#local_time").html(time.toLocaleString("en-US", {
-        hour: "numeric",
-        minute: "numeric",
-        second: "numeric",
-        hour12: true
-    }) + ' <span style="font-size: 1.2rem;">' + getAbbreviation(Intl.DateTimeFormat().resolvedOptions().timeZone) + "</span>")
+    if (!$localTime) {
+        $localTime = $("#local_time");
+        $("#time_zone").text(
+            override_display_timezone
+                ? override_display_timezone
+                : new Date().toLocaleDateString("en-US", {timeZoneName: "short", timeZone: time_zone})
+                    .split(" ")[1]
+        );
+    }
+
+    $localTime.text(dateFormatter.format(new Date()));
 
     if (state.opponent !== null) {
-        if ((state.shiny_log == null) || (state.opponent.is_shiny && state.opponent.personality_value != state.shiny_log[0].pokemon.pid)) {
+        if ((state.shiny_log == null) || (state.opponent.pokemon.is_shiny && state.opponent.encounter_id !== state.shiny_log[0].shiny_encounter.encounter_id)) {
             // TEMP/hacky way to ensure shiny log is updated when current opponent is shiny
             fetch("/shiny_log?limit=9")
                 .then(response => response.json())
@@ -795,16 +876,16 @@ function timers() {
                 .then(data => {
                     handleStats(data)
                 })
-        } else if (state.shiny_log[0] !== undefined && !state.opponent.is_shiny) {
+        } else if (state.shiny_log[0] !== undefined && !state.opponent.pokemon.is_shiny) {
             // Don't update phase time on shinies (for OBS screenshot)
-            $("#phase_time_hrs").text((diffDays(state.shiny_log[0].time_encountered * 1000) * 24) + (diffHrs(state.shiny_log[0].time_encountered * 1000)))
-            $("#phase_time_mins").text(diffMins((state.shiny_log[0].time_encountered * 1000)))
+            $("#phase_time_hrs").text((diffDays(new Date(state.shiny_log[0].phase.end_time)) * 24) + (diffHrs(new Date(state.shiny_log[0].phase.end_time))))
+            $("#phase_time_mins").text(diffMins(new Date(state.shiny_log[0].phase.end_time)))
         }
     }
 
     if (state.stats !== null) {
         if (target_timer_1 !== "" && state.stats.pokemon[target_timer_1] !== undefined) {
-            var target_date = new Date(state.stats.pokemon[target_timer_1].last_encounter_time_unix * 1000)
+            let target_date = new Date(state.stats.pokemon[target_timer_1].last_encounter_time)
             target_timer_hrs = diffHrs(target_date).toLocaleString()
             target_timer_mins = diffMins(target_date).toLocaleString()
             $("#target_1_timer_hrs").text(target_timer_hrs)
@@ -812,7 +893,7 @@ function timers() {
         }
 
         if (target_timer_2 !== "" && state.stats.pokemon[target_timer_2] !== undefined) {
-            var target_date = new Date(state.stats.pokemon[target_timer_2].last_encounter_time_unix * 1000)
+            let target_date = new Date(state.stats.pokemon[target_timer_2].last_encounter_time)
             target_timer_hrs = diffHrs(target_date).toLocaleString()
             target_timer_mins = diffMins(target_date).toLocaleString()
             $("#target_2_timer_hrs").text(target_timer_hrs)
@@ -915,40 +996,25 @@ function calcPSP(encounters) {
     return cumulative_odds
 }
 
-moment.updateLocale("en", {
-    relativeTime: {
-        future: "%s",
-        past: "%s",
-        s: "%d s",
-        ss: "%d s",
-        m: "%d min",
-        mm: "%d min",
-        h: "%d hr",
-        hh: "%d hr",
-        d: "%d d",
-        dd: "%d d",
-        w: "%d w",
-        ww: "%d w",
-        M: "%d mo",
-        MM: "%d mo",
-        y: "%d y",
-        yy: "%d y"
-    }
-})
-
-var retainValue = function (value) {
-    return Math.floor(value)
-}
-
-moment.relativeTimeRounding(retainValue)
-
 function clamp(number, min, max) {
     return Math.max(min, Math.min(number, max))
 }
 
+/**
+ * @param {EncounterSummary|EncounterTotals} summary
+ * @return {string}
+ */
+function shinyAverage(summary) {
+    if (summary.shiny_encounters === null || summary.total_encounters === null || summary.shiny_encounters === 0) {
+        return "N/A";
+    } else {
+        return "1/" + Math.round(summary.total_encounters / summary.shiny_encounters).toLocaleString("en");
+    }
+}
+
 function diffMs(time) {
     var now = new Date()
-    var start = new Date(time)
+    var start = time instanceof Date ? time : new Date(time)
     return (now - start)
 }
 
@@ -962,21 +1028,6 @@ function diffHrs(time) {
 
 function diffDays(time) {
     return Math.floor(diffMs(time) / 86400000)
-}
-
-function getAbbreviation(tz) {
-    return getFormattedElement(tz, "timeZoneName", "short")
-}
-
-function getFormattedElement(tz, name, value) {
-    if (override_display_timezone === "") {
-        return (new Intl.DateTimeFormat('en', {
-            [name]: value,
-            tz
-        }).formatToParts().find(el => el.type === name) || {}).value
-    } else {
-        return override_display_timezone
-    }
 }
 
 function intShortName(number, precision) {

@@ -1,4 +1,5 @@
 import {MapLocation, Pokemon, Player as PlayerType, Pokedex as PokedexType} from "./pokemon";
+import {EffectiveEncounterList, Encounter, RegularEncounterList} from "./stats";
 
 declare module StreamEvents {
     export type PerformanceData = {
@@ -32,6 +33,8 @@ declare module StreamEvents {
     // if there is no active battle.
     export type Opponent = Pokemon | null;
 
+    export type WildEncounter = Encounter;
+
     export type FishingAttempt = {
         rod: "OldRod" | "GoodRod" | "SuperRod";
         result: "Encounter" | "GotAway" | "Unsuccessful";
@@ -42,6 +45,11 @@ declare module StreamEvents {
 
     // New x and y coordinates of the player position.
     export type MapTileChange = [number, number];
+
+    export type MapEncounters = {
+        regular: RegularEncounterList;
+        effective: EffectiveEncounterList;
+    };
 
     export type Message = string;
 

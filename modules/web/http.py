@@ -18,7 +18,7 @@ from modules.game import _event_flags
 from modules.items import get_item_bag, get_item_storage
 from modules.libmgba import inputs_to_strings
 from modules.main import work_queue
-from modules.map import get_map_data
+from modules.map import get_map_data, get_wild_encounters_for_map, get_effective_encounter_rates_for_current_map
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_event_flag, get_game_state
 from modules.modes import get_bot_mode_names
@@ -300,6 +300,34 @@ def http_server() -> None:
 
         return jsonify(data)
 
+    @server.route("/map_encounters", methods=["GET"])
+    def http_get_map_encounters():
+        """
+        ---
+        get:
+          description: >
+            Returns a list of encounters (both regular and effective, i.e. taking into account
+            Repel status and the lead Pokémon's level.)
+          responses:
+            200:
+              content:
+                application/json: {}
+          tags:
+            - map
+        """
+
+        effective_encounters = state_cache.effective_wild_encounters
+        _update_via_work_queue(effective_encounters, get_effective_encounter_rates_for_current_map)
+
+        map_group = effective_encounters.value.map_group
+        map_number = effective_encounters.value.map_number
+        return jsonify(
+            {
+                "regular": get_wild_encounters_for_map(map_group, map_number).to_dict(),
+                "effective": effective_encounters.value.to_dict(),
+            }
+        )
+
     @server.route("/map/<int:map_group>/<int:map_number>")
     def http_get_map_by_group_and_number(map_group: int, map_number: int):
         """
@@ -424,7 +452,7 @@ def http_server() -> None:
             - stats
         """
 
-        return jsonify([phase.to_dict(encounter) for phase, encounter in context.stats.get_shiny_log()])
+        return jsonify([phase.to_dict() for phase in context.stats.get_shiny_log()])
 
     @server.route("/encounter_rate", methods=["GET"])
     def http_get_encounter_rate():
@@ -456,7 +484,7 @@ def http_server() -> None:
             - stats
         """
 
-        return jsonify(context.stats.get_total_stats())
+        return jsonify(context.stats.get_global_stats().to_dict())
 
     @server.route("/fps", methods=["GET"])
     def http_get_fps():
@@ -776,6 +804,7 @@ def http_server() -> None:
         spec.path(view=http_get_bag)
         spec.path(view=http_get_party)
         spec.path(view=http_get_map)
+        spec.path(view=http_get_map_encounters)
         spec.path(view=http_get_map_by_group_and_number)
         spec.path(view=http_get_pokedex)
         spec.path(view=http_get_pokemon_storage)

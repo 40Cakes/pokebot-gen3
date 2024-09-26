@@ -4,16 +4,16 @@ from collections import deque
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
+from functools import cached_property
 from textwrap import dedent
 from typing import TYPE_CHECKING, Iterable, Optional
 
 from modules.battle_state import BattleOutcome, EncounterType, get_encounter_type
-from modules.console import print_stats
 from modules.context import context
 from modules.fishing import FishingAttempt, FishingResult
 from modules.items import Item, get_item_by_index
 from modules.player import get_player_location
-from modules.pokemon import Pokemon, get_species_by_index
+from modules.pokemon import Pokemon, get_species_by_index, Species
 
 if TYPE_CHECKING:
     from modules.profiles import Profile
@@ -111,13 +111,17 @@ class ShinyPhase:
     shiny_encounter: Encounter | None = None
     encounters: int = 0
     highest_iv_sum: int | None = None
+    highest_iv_sum_species: "Species | None" = None
     lowest_iv_sum: int | None = None
+    lowest_iv_sum_species: "Species | None" = None
     highest_sv: int | None = None
+    highest_sv_species: "Species | None" = None
     lowest_sv: int | None = None
+    lowest_sv_species: "Species | None" = None
     longest_streak: int = 0
-    longest_streak_species: str | None = None
+    longest_streak_species: "Species | None" = None
     current_streak: int = 0
-    current_streak_species: str | None = None
+    current_streak_species: "Species | None" = None
     fishing_attempts: int = 0
     successful_fishing_attempts: int = 0
     longest_unsuccessful_fishing_streak: int = 0
@@ -137,19 +141,25 @@ class ShinyPhase:
             shiny_encounter,
             row[4],
             row[5],
-            row[6],
+            get_species_by_index(row[6]) if row[6] is not None else None,
             row[7],
-            row[8],
+            get_species_by_index(row[8]) if row[8] is not None else None,
             row[9],
-            row[10],
+            get_species_by_index(row[10]) if row[10] is not None else None,
             row[11],
-            row[12],
+            get_species_by_index(row[12]) if row[12] is not None else None,
             row[13],
-            row[14],
+            get_species_by_index(row[14]) if row[14] is not None else None,
             row[15],
-            row[16],
+            get_species_by_index(row[16]) if row[16] is not None else None,
             row[17],
             row[18],
+            row[19],
+            row[20],
+            row[21],
+            row[22],
+            row[23],
+            row[24],
         )
 
     @classmethod
@@ -161,20 +171,24 @@ class ShinyPhase:
 
         if self.highest_iv_sum is None or self.highest_iv_sum < encounter.iv_sum:
             self.highest_iv_sum = encounter.iv_sum
+            self.highest_iv_sum_species = encounter.pokemon.species
 
         if self.lowest_iv_sum is None or self.lowest_iv_sum > encounter.iv_sum:
             self.lowest_iv_sum = encounter.iv_sum
+            self.lowest_iv_sum_species = encounter.pokemon.species
 
         if not encounter.is_shiny:
             if self.highest_sv is None or self.highest_sv < encounter.shiny_value:
                 self.highest_sv = encounter.shiny_value
+                self.highest_sv_species = encounter.pokemon.species
 
             if self.lowest_sv is None or self.lowest_sv > encounter.shiny_value:
                 self.lowest_sv = encounter.shiny_value
+                self.lowest_sv_species = encounter.pokemon.species
 
-        if self.current_streak_species != encounter.species_name:
+        if self.current_streak_species != encounter.pokemon.species:
             self.current_streak = 1
-            self.current_streak_species = encounter.species_name
+            self.current_streak_species = encounter.pokemon.species
         else:
             self.current_streak += 1
             if self.current_streak > self.longest_streak:
@@ -207,20 +221,39 @@ class ShinyPhase:
                 self.snapshot_species_shiny_encounters = encounter_summary.shiny_encounters
 
     def to_dict(self) -> dict:
+        def species_name(species: Species | None) -> str | None:
+            return species.name if species is not None else None
+
         return {
             "phase": {
                 "shiny_phase_id": self.shiny_phase_id,
                 "start_time": self.start_time.isoformat(),
                 "end_time": self.end_time.isoformat() if self.end_time is not None else None,
                 "encounters": self.encounters,
-                "highest_iv_sum": self.highest_iv_sum,
-                "lowest_iv_sum": self.lowest_iv_sum,
-                "highest_sv": self.highest_sv,
-                "lowest_sv": self.lowest_sv,
-                "longest_streak": self.longest_streak,
-                "longest_streak_species": self.longest_streak_species,
-                "current_streak": self.current_streak,
-                "current_streak_species": self.current_streak_species,
+                "highest_iv_sum": {
+                    "value": self.highest_iv_sum,
+                    "species_name": species_name(self.highest_iv_sum_species),
+                },
+                "lowest_iv_sum": {
+                    "value": self.lowest_iv_sum,
+                    "species_name": species_name(self.lowest_iv_sum_species),
+                },
+                "highest_sv": {
+                    "value": self.highest_sv,
+                    "species_name": species_name(self.highest_sv_species),
+                },
+                "lowest_sv": {
+                    "value": self.lowest_sv,
+                    "species_name": species_name(self.lowest_sv_species),
+                },
+                "longest_streak": {
+                    "value": self.longest_streak,
+                    "species_name": species_name(self.longest_streak_species),
+                },
+                "current_streak": {
+                    "value": self.current_streak,
+                    "species_name": species_name(self.current_streak_species),
+                },
                 "fishing_attempts": self.fishing_attempts,
                 "successful_fishing_attempts": self.successful_fishing_attempts,
                 "longest_unsuccessful_fishing_streak": self.longest_unsuccessful_fishing_streak,
@@ -238,7 +271,7 @@ class ShinyPhase:
 
 @dataclass
 class EncounterSummary:
-    species: "Species | None"
+    species: "Species"
     total_encounters: int
     shiny_encounters: int
     catches: int
@@ -271,43 +304,6 @@ class EncounterSummary:
             phase_lowest_sv=encounter.shiny_value if not encounter.is_shiny else None,
             last_encounter_time=encounter.encounter_time,
         )
-
-    @classmethod
-    def create_totals(cls, encounter_summaries: dict[int, "EncounterSummary"]) -> "EncounterSummary":
-        totals = cls(
-            species=None,
-            total_encounters=0,
-            shiny_encounters=0,
-            catches=0,
-            total_highest_iv_sum=0,
-            total_lowest_iv_sum=0,
-            total_highest_sv=0,
-            total_lowest_sv=0,
-            phase_encounters=0,
-            phase_highest_iv_sum=None,
-            phase_lowest_iv_sum=None,
-            phase_highest_sv=None,
-            phase_lowest_sv=None,
-            last_encounter_time=datetime.fromisoformat("0000-00-00T00:00:00+00:00"),
-        )
-
-        for species_id in encounter_summaries:
-            encounter_summary = encounter_summaries[species_id]
-            totals.total_encounters += encounter_summary.total_encounters
-            totals.shiny_encounters += encounter_summary.shiny_encounters
-            totals.catches += encounter_summary.catches
-            totals.total_highest_iv_sum = max(totals.total_highest_iv_sum, encounter_summary.total_highest_iv_sum)
-            totals.total_lowest_iv_sum = min(totals.total_lowest_iv_sum, encounter_summary.total_lowest_iv_sum)
-            totals.total_highest_sv = max(totals.total_highest_sv, encounter_summary.total_highest_sv)
-            totals.total_lowest_sv = min(totals.total_lowest_sv, encounter_summary.total_lowest_sv)
-            totals.phase_encounters += encounter_summary.phase_encounters
-            totals.phase_highest_iv_sum = max(totals.phase_highest_iv_sum, encounter_summary.phase_highest_iv_sum)
-            totals.phase_lowest_iv_sum = min(totals.phase_lowest_iv_sum, encounter_summary.phase_lowest_iv_sum)
-            totals.phase_highest_sv = max(totals.phase_highest_sv, encounter_summary.phase_highest_sv)
-            totals.phase_lowest_sv = min(totals.phase_lowest_sv, encounter_summary.phase_lowest_sv)
-            totals.last_encounter_time = max(totals.last_encounter_time, encounter_summary.last_encounter_time)
-
-        return totals
 
     def update(self, encounter: Encounter):
         self.total_encounters += 1
@@ -353,8 +349,8 @@ class EncounterSummary:
 
     def to_dict(self) -> dict:
         return {
-            "species_id": self.species.index,
-            "species_name": self.species.name,
+            "species_id": self.species.index if self.species is not None else None,
+            "species_name": self.species.name if self.species is not None else None,
             "total_encounters": self.total_encounters,
             "shiny_encounters": self.shiny_encounters,
             "catches": self.catches,
@@ -372,17 +368,194 @@ class EncounterSummary:
 
 
 @dataclass
+class EncounterTotals:
+    total_encounters: int = 0
+    shiny_encounters: int = 0
+    catches: int = 0
+    total_highest_iv_sum: int = 0
+    total_highest_iv_sum_species: Species | None = None
+    total_lowest_iv_sum: int = 31 * 6
+    total_lowest_iv_sum_species: Species | None = None
+    total_highest_sv: int = 0
+    total_highest_sv_species: Species | None = None
+    total_lowest_sv: int = 0xFFFF
+    total_lowest_sv_species: Species | None = None
+    phase_encounters: int = 0
+    phase_highest_iv_sum: int | None = None
+    phase_highest_iv_sum_species: "Species | None" = None
+    phase_lowest_iv_sum: int | None = None
+    phase_lowest_iv_sum_species: "Species | None" = None
+    phase_highest_sv: int | None = None
+    phase_highest_sv_species: "Species | None" = None
+    phase_lowest_sv: int | None = None
+    phase_lowest_sv_species: "Species | None" = None
+
+    @classmethod
+    def from_summaries(cls, encounter_summaries: dict[int, "EncounterSummary"]) -> "EncounterTotals":
+        totals = cls()
+        for species_id in encounter_summaries:
+            encounter_summary = encounter_summaries[species_id]
+
+            totals.total_encounters += encounter_summary.total_encounters
+            totals.shiny_encounters += encounter_summary.shiny_encounters
+            totals.catches += encounter_summary.catches
+            totals.phase_encounters += encounter_summary.phase_encounters
+
+            values_to_total = [
+                ("total_highest_iv_sum", max),
+                ("total_lowest_iv_sum", min),
+                ("total_highest_sv", max),
+                ("total_lowest_sv", min),
+                ("phase_highest_iv_sum", max),
+                ("phase_lowest_iv_sum", min),
+                ("phase_highest_sv", max),
+                ("phase_lowest_sv", min),
+            ]
+            for property_name, comparison in values_to_total:
+                total_value = getattr(totals, property_name)
+                summary_value = getattr(encounter_summary, property_name)
+                if (total_value is None and summary_value is not None) or (
+                    total_value is not None
+                    and summary_value is not None
+                    and comparison(total_value, summary_value) != total_value
+                ):
+                    setattr(totals, property_name, summary_value)
+                    setattr(totals, f"{property_name}_species", encounter_summary.species)
+
+        return totals
+
+    def to_dict(self) -> dict:
+        def species_name(species: Species | None) -> str | None:
+            return species.name if species is not None else None
+
+        return {
+            "total_encounters": self.total_encounters,
+            "shiny_encounters": self.shiny_encounters,
+            "catches": self.catches,
+            "total_highest_iv_sum": {
+                "value": self.total_highest_iv_sum,
+                "species_name": species_name(self.total_highest_iv_sum_species),
+            },
+            "total_lowest_iv_sum": {
+                "value": self.total_lowest_iv_sum,
+                "species_name": species_name(self.total_lowest_iv_sum_species),
+            },
+            "total_highest_sv": {
+                "value": self.total_highest_sv,
+                "species_name": species_name(self.total_highest_sv_species),
+            },
+            "total_lowest_sv": {
+                "value": self.total_lowest_sv,
+                "species_name": species_name(self.total_lowest_sv_species),
+            },
+            "phase_encounters": self.phase_encounters,
+            "phase_highest_iv_sum": {
+                "value": self.phase_highest_iv_sum,
+                "species_name": species_name(self.phase_highest_iv_sum_species),
+            },
+            "phase_lowest_iv_sum": {
+                "value": self.phase_lowest_iv_sum,
+                "species_name": species_name(self.phase_lowest_iv_sum_species),
+            },
+            "phase_highest_sv": {
+                "value": self.phase_highest_sv,
+                "species_name": species_name(self.phase_highest_sv_species),
+            },
+            "phase_lowest_sv": {
+                "value": self.phase_lowest_sv,
+                "species_name": species_name(self.phase_lowest_sv_species),
+            },
+        }
+
+
+@dataclass
 class PickupItem:
     item: "Item"
     times_picked_up: int = 0
+
+
+@dataclass
+class GlobalStats:
+    encounter_summaries: dict[int, EncounterSummary]
+    pickup_items: dict[int, PickupItem]
+    current_shiny_phase: ShinyPhase | None
+    longest_shiny_phase: ShinyPhase | None
+    shortest_shiny_phase: ShinyPhase | None
+
+    @cached_property
+    def totals(self) -> EncounterTotals:
+        return EncounterTotals.from_summaries(self.encounter_summaries)
+
+    def to_dict(self):
+        current_shiny_phase = (
+            ShinyPhase(0, datetime.now(timezone.utc)) if self.current_shiny_phase is None else self.current_shiny_phase
+        )
+
+        longest_shiny_phase = current_shiny_phase if self.longest_shiny_phase is None else self.longest_shiny_phase
+        shortest_shiny_phase = current_shiny_phase if self.shortest_shiny_phase is None else self.shortest_shiny_phase
+
+        def species_name(species: Species | None) -> str | None:
+            return species.name if species is not None else None
+
+        return {
+            "pokemon": {summary.species.name: summary.to_dict() for summary in self.encounter_summaries.values()},
+            "totals": self.totals.to_dict(),
+            "current_phase": {
+                "start_time": current_shiny_phase.start_time.isoformat(),
+                "encounters": current_shiny_phase.encounters,
+                "highest_iv_sum": {
+                    "value": current_shiny_phase.highest_iv_sum,
+                    "species_name": species_name(current_shiny_phase.highest_iv_sum_species),
+                },
+                "lowest_iv_sum": {
+                    "value": current_shiny_phase.lowest_iv_sum,
+                    "species_name": species_name(current_shiny_phase.lowest_iv_sum_species),
+                },
+                "highest_sv": {
+                    "value": current_shiny_phase.highest_sv,
+                    "species_name": species_name(current_shiny_phase.highest_sv_species),
+                },
+                "lowest_sv": {
+                    "value": current_shiny_phase.lowest_sv,
+                    "species_name": species_name(current_shiny_phase.lowest_sv_species),
+                },
+                "longest_streak": {
+                    "value": current_shiny_phase.longest_streak,
+                    "species_name": species_name(current_shiny_phase.longest_streak_species),
+                },
+                "current_streak": {
+                    "value": current_shiny_phase.current_streak,
+                    "species_name": species_name(current_shiny_phase.current_streak_species),
+                },
+                "fishing_attempts": current_shiny_phase.fishing_attempts,
+                "successful_fishing_attempts": current_shiny_phase.successful_fishing_attempts,
+                "longest_unsuccessful_fishing_streak": current_shiny_phase.longest_unsuccessful_fishing_streak,
+                "current_unsuccessful_fishing_streak": current_shiny_phase.current_unsuccessful_fishing_streak,
+            },
+            "longest_phase": {
+                "value": longest_shiny_phase.encounters,
+                "species_name": (
+                    longest_shiny_phase.shiny_encounter.species_name
+                    if longest_shiny_phase.shiny_encounter is not None
+                    else None
+                ),
+            },
+            "shortest_phase": {
+                "value": shortest_shiny_phase.encounters,
+                "species_name": (
+                    shortest_shiny_phase.shiny_encounter.species_name
+                    if shortest_shiny_phase.shiny_encounter is not None
+                    else None
+                ),
+            },
+            "pickup_items": {entry.item.name: entry.times_picked_up for entry in self.pickup_items.values()},
+        }
 
 
 class StatsDatabase:
     def __init__(self, profile: "Profile"):
         self.encounter_rate: int = 0
         self.encounter_rate_at_1x: float = 0.0
-
-        self.last_fishing_attempt: Optional[FishingAttempt] = None
 
         self._connection = sqlite3.connect(profile.path / "stats.db", check_same_thread=False)
         self._cursor = self._connection.cursor()
@@ -397,13 +570,15 @@ class StatsDatabase:
                 f"The profile's stats database schema has version {db_schema_version}, but this version of the bot only supports version {current_schema_version}. Cannot load stats."
             )
 
+        self.last_encounter: Encounter | None = self._get_last_encounter()
+        self.last_fishing_attempt: Optional[FishingAttempt] = None
+
         self._current_shiny_phase: ShinyPhase | None = self._get_current_shiny_phase()
         self._shortest_shiny_phase: ShinyPhase | None = self._get_shortest_shiny_phase()
         self._longest_shiny_phase: ShinyPhase | None = self._get_longest_shiny_phase()
         self._next_encounter_id: int = self._get_next_encounter_id()
         self._encounter_summaries: dict[int, EncounterSummary] = self._get_encounter_summaries()
         self._pickup_items: dict[int, PickupItem] = self._get_pickup_items()
-        self._last_encounter: Encounter | None = self._get_last_encounter()
         self._base_data: dict[DataKey, str | None] = self._get_base_data()
 
         self._encounter_timestamps: deque[float] = deque(maxlen=100)
@@ -442,7 +617,7 @@ class StatsDatabase:
             pokemon=pokemon,
         )
 
-        self._last_encounter = encounter
+        self.last_encounter = encounter
         self._insert_encounter(encounter)
         self._current_shiny_phase.update(encounter)
         if pokemon.is_shiny:
@@ -473,16 +648,10 @@ class StatsDatabase:
         self._connection.commit()
         self._next_encounter_id += 1
 
-        print_stats(
-            self.get_total_stats(),
-            pokemon,
-            set([e.species.name for e in self._encounter_summaries.values() if e.phase_encounters > 0]),
-        )
-
     def log_end_of_battle(self, battle_outcome: "BattleOutcome"):
-        if self._last_encounter is not None:
-            self._last_encounter.outcome = battle_outcome
-            self._update_encounter_outcome(self._last_encounter)
+        if self.last_encounter is not None:
+            self.last_encounter.outcome = battle_outcome
+            self._update_encounter_outcome(self.last_encounter)
 
     def log_pickup_items(self, picked_up_items: list["Item"]) -> None:
         need_updating: set[PickupItem] = set()
@@ -502,119 +671,14 @@ class StatsDatabase:
                 self._update_shiny_phase(self._current_shiny_phase)
         context.message = f"Fishing attempt with {attempt.rod.name} and result {attempt.result.name}"
 
-    def get_total_stats(self, include_shortest_and_longest_phase: bool = True) -> dict:
-        if include_shortest_and_longest_phase:
-            shortest_phase = self._cursor.execute(
-                """
-                SELECT shiny_phases.encounters, encounters.species_id
-                FROM shiny_phases
-                JOIN encounters ON shiny_phases.shiny_encounter_id = encounters.encounter_id
-                ORDER BY shiny_phases.encounters
-                LIMIT 1
-                """
-            ).fetchone()
-
-            longest_phase = self._cursor.execute(
-                """
-                SELECT shiny_phases.encounters, encounters.species_id
-                FROM shiny_phases
-                JOIN encounters ON shiny_phases.shiny_encounter_id = encounters.encounter_id
-                ORDER BY shiny_phases.encounters DESC
-                LIMIT 1
-                """
-            ).fetchone()
-        else:
-            shortest_phase = 0, None
-            longest_phase = 0, None
-
-        pickup = {}
-        for index in self._pickup_items:
-            pickup_item = self._pickup_items[index]
-            pickup[pickup_item.item.name] = pickup_item.times_picked_up
-
-        pokemon = {}
-        totals = {
-            "encounters": 0,
-            "phase_encounters": 0,
-            "shiny_encounters": 0,
-            "last_encounter_pid": self._last_encounter.pokemon.personality_value if self._last_encounter else None,
-            "highest_iv_sum": None,
-            "highest_iv_sum_pokemon": None,
-            "lowest_iv_sum": None,
-            "lowest_iv_sum_pokemon": None,
-            "phase_highest_iv_sum": None,
-            "phase_highest_iv_sum_pokemon": None,
-            "phase_lowest_iv_sum": None,
-            "phase_lowest_iv_sum_pokemon": None,
-            "phase_highest_sv": None,
-            "phase_highest_sv_pokemon": None,
-            "phase_lowest_sv": None,
-            "phase_lowest_sv_pokemon": None,
-            "phase_streak": self._current_shiny_phase.longest_streak if self._current_shiny_phase is not None else None,
-            "phase_streak_pokemon": (
-                self._current_shiny_phase.longest_streak_species if self._current_shiny_phase is not None else None
-            ),
-            "current_streak": (
-                self._current_shiny_phase.current_streak if self._current_shiny_phase is not None else None
-            ),
-            "current_streak_pokemon": (
-                self._current_shiny_phase.current_streak_species if self._current_shiny_phase is not None else None
-            ),
-            "shortest_phase_encounters": shortest_phase[0],
-            "shortest_phase_pokemon": (
-                get_species_by_index(shortest_phase[1]).name if shortest_phase[1] is not None else None
-            ),
-            "longest_phase_encounters": longest_phase[0],
-            "longest_phase_pokemon": (
-                get_species_by_index(longest_phase[1]).name if longest_phase[1] is not None else None
-            ),
-            "pickup": pickup,
-        }
-
-        for species_id in self._encounter_summaries:
-            encounter_summary = self._encounter_summaries[species_id]
-
-            totals["encounters"] += encounter_summary.total_encounters
-            totals["phase_encounters"] += encounter_summary.total_encounters
-            totals["shiny_encounters"] += encounter_summary.phase_encounters
-
-            if totals["highest_iv_sum"] is None or totals["highest_iv_sum"] < encounter_summary.total_highest_iv_sum:
-                totals["highest_iv_sum"] = encounter_summary.total_highest_iv_sum
-                totals["highest_iv_sum_pokemon"] = encounter_summary.species.name
-
-            if totals["lowest_iv_sum"] is None or totals["lowest_iv_sum"] > encounter_summary.total_lowest_iv_sum:
-                totals["lowest_iv_sum"] = encounter_summary.total_lowest_iv_sum
-                totals["lowest_iv_sum_pokemon"] = encounter_summary.species.name
-
-            if encounter_summary.phase_highest_iv_sum is not None and (
-                totals["phase_highest_iv_sum"] is None
-                or totals["phase_highest_iv_sum"] < encounter_summary.phase_highest_iv_sum
-            ):
-                totals["phase_highest_iv_sum"] = encounter_summary.phase_highest_iv_sum
-                totals["phase_highest_iv_sum_pokemon"] = encounter_summary.species.name
-
-            if encounter_summary.phase_lowest_iv_sum is not None and (
-                totals["phase_lowest_iv_sum"] is None
-                or totals["phase_lowest_iv_sum"] < encounter_summary.phase_lowest_iv_sum
-            ):
-                totals["phase_lowest_iv_sum"] = encounter_summary.phase_lowest_iv_sum
-                totals["phase_lowest_iv_sum_pokemon"] = encounter_summary.species.name
-
-            if encounter_summary.phase_highest_sv is not None and (
-                totals["phase_highest_sv"] is None or totals["phase_highest_sv"] < encounter_summary.phase_highest_sv
-            ):
-                totals["phase_highest_sv"] = encounter_summary.phase_highest_sv
-                totals["phase_highest_sv_pokemon"] = encounter_summary.species.name
-
-            if encounter_summary.phase_lowest_iv_sum is not None and (
-                totals["phase_lowest_sv"] is None or totals["phase_lowest_sv"] < encounter_summary.phase_lowest_sv
-            ):
-                totals["phase_lowest_sv"] = encounter_summary.phase_lowest_sv
-                totals["phase_lowest_sv_pokemon"] = encounter_summary.species.name
-
-            pokemon[encounter_summary.species.name] = encounter_summary.to_dict()
-
-        return {"pokemon": pokemon, "totals": totals}
+    def get_global_stats(self) -> GlobalStats:
+        return GlobalStats(
+            self._encounter_summaries,
+            self._pickup_items,
+            self._current_shiny_phase,
+            self._longest_shiny_phase,
+            self._shortest_shiny_phase,
+        )
 
     def get_encounter_log(self) -> list[Encounter]:
         return list(self._query_encounters())
@@ -710,11 +774,17 @@ class StatsDatabase:
                 shiny_phases.shiny_encounter_id,
                 shiny_phases.encounters,
                 shiny_phases.highest_iv_sum,
+                shiny_phases.highest_iv_sum_species,
                 shiny_phases.lowest_iv_sum,
+                shiny_phases.lowest_iv_sum_species,
                 shiny_phases.highest_sv,
+                shiny_phases.highest_sv_species,
                 shiny_phases.lowest_sv,
+                shiny_phases.lowest_sv_species,
                 shiny_phases.longest_streak,
                 shiny_phases.longest_streak_species,
+                shiny_phases.current_streak,
+                shiny_phases.current_streak_species,
                 shiny_phases.fishing_attempts,
                 shiny_phases.successful_fishing_attempts,
                 shiny_phases.longest_unsuccessful_fishing_streak,
@@ -747,12 +817,12 @@ class StatsDatabase:
         )
 
         for row in result:
-            if row[19] is not None:
-                encounter = Encounter.from_row_data(row[19:])
+            if row[25] is not None:
+                encounter = Encounter.from_row_data(row[25:])
             else:
                 encounter = None
 
-            yield ShinyPhase.from_row_data(row[:19], encounter)
+            yield ShinyPhase.from_row_data(row[:25], encounter)
 
     def _query_single_shiny_phase(self, where_clause: str, parameters: tuple | None = None) -> ShinyPhase | None:
         result = list(self._query_shiny_phases(where_clause, parameters, limit=1))
@@ -877,9 +947,13 @@ class StatsDatabase:
             UPDATE shiny_phases
             SET encounters = ?,
                 highest_iv_sum = ?,
+                highest_iv_sum_species = ?,
                 lowest_iv_sum = ?,
+                lowest_iv_sum_species = ?,
                 highest_sv = ?,
+                highest_sv_species = ?,
                 lowest_sv = ?,
+                lowest_sv_species = ?,
                 longest_streak = ?,
                 longest_streak_species = ?,
                 current_streak = ?,
@@ -897,13 +971,17 @@ class StatsDatabase:
             (
                 shiny_phase.encounters,
                 shiny_phase.highest_iv_sum,
+                shiny_phase.highest_iv_sum_species.index if shiny_phase.highest_iv_sum_species is not None else None,
                 shiny_phase.lowest_iv_sum,
+                shiny_phase.lowest_iv_sum_species.index if shiny_phase.lowest_iv_sum_species is not None else None,
                 shiny_phase.highest_sv,
+                shiny_phase.highest_sv_species.index if shiny_phase.highest_sv_species is not None else None,
                 shiny_phase.lowest_sv,
+                shiny_phase.lowest_sv_species.index if shiny_phase.lowest_sv_species is not None else None,
                 shiny_phase.longest_streak,
-                shiny_phase.longest_streak_species,
+                shiny_phase.longest_streak_species.index if shiny_phase.longest_streak_species is not None else None,
                 shiny_phase.current_streak,
-                shiny_phase.current_streak_species,
+                shiny_phase.current_streak_species.index if shiny_phase.current_streak_species is not None else None,
                 shiny_phase.fishing_attempts,
                 shiny_phase.successful_fishing_attempts,
                 shiny_phase.longest_unsuccessful_fishing_streak,
@@ -1081,13 +1159,17 @@ class StatsDatabase:
                         shiny_encounter_id INT UNSIGNED DEFAULT NULL,
                         encounters INT UNSIGNED DEFAULT 0,
                         highest_iv_sum INT UNSIGNED DEFAULT NULL,
+                        highest_iv_sum_species INT UNSIGNED DEFAULT NULL,
                         lowest_iv_sum INT UNSIGNED DEFAULT NULL,
+                        lowest_iv_sum_species INT UNSIGNED DEFAULT NULL,
                         highest_sv INT UNSIGNED DEFAULT NULL,
+                        highest_sv_species INT UNSIGNED DEFAULT NULL,
                         lowest_sv INT UNSIGNED DEFAULT NULL,
+                        lowest_sv_species INT UNSIGNED DEFAULT NULL,
                         longest_streak INT UNSIGNED DEFAULT 0,
-                        longest_streak_species TEXT DEFAULT NULL,
+                        longest_streak_species INT UNSIGNED DEFAULT NULL,
                         current_streak INT UNSIGNED DEFAULT 0,
-                        current_streak_species TEXT DEFAULT NULL,
+                        current_streak_species INT UNSIGNED DEFAULT NULL,
                         fishing_attempts INT UNSIGNED DEFAULT 0,
                         successful_fishing_attempts INT UNSIGNED DEFAULT 0,
                         longest_unsuccessful_fishing_streak INT UNSIGNED DEFAULT 0,
