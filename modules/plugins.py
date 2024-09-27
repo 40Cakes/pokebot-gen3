@@ -88,3 +88,12 @@ def plugin_whiteout() -> None:
         result = plugin.on_whiteout()
         if isinstance(result, GeneratorType):
             yield from result
+
+
+def plugin_judge_encounter(pokemon: Pokemon) -> str | bool:
+    for plugin in plugins:
+        judgement = plugin.on_judge_encounter(pokemon)
+        if judgement is not False:
+            return judgement
+
+    return False
