@@ -39,6 +39,7 @@ from modules.pokemon import (
     get_party,
     get_type_by_name,
 )
+from modules.pokemon_nicknaming import max_pokemon_name_length, should_nickname_pokemon
 from modules.tasks import get_global_script_context, get_task, get_tasks, task_is_active
 from modules.tcg_card import generate_tcg_card
 
@@ -999,13 +1000,14 @@ class BattleOpponent:
         """
         Function that handles naming Pokémon post battle
         """
-        if context.next_mon_name:
+        nickname = should_nickname_pokemon(self.opponent)
+        if nickname:
             while get_game_state() != GameState.NAMING_SCREEN:
                 context.emulator.press_button("A")
                 yield
 
             while get_game_state() == GameState.NAMING_SCREEN:
-                yield from KeyboardNavigator(name=context.next_mon_name, max_length=10).step()
+                yield from KeyboardNavigator(name=nickname, max_length=max_pokemon_name_length()).step()
                 yield
 
         while get_game_state() != GameState.OVERWORLD:

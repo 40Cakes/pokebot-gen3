@@ -17,6 +17,7 @@ from modules.pokemon import (
     get_opponent,
     get_party,
 )
+from modules.pokemon_nicknaming import should_nickname_pokemon
 from modules.tasks import get_global_script_context, task_is_active
 from ._interface import BattleAction, BotListener, BotMode, FrameInfo
 from .util import isolate_inputs
