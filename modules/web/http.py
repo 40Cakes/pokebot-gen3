@@ -869,7 +869,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
     @route.get("/api.json")
     async def http_get_api_json(request: web.Request):
         api_docs = spec.to_dict()
-        api_docs["servers"][0]["url"] = f"http://{request.headers["host"]}"
+        api_docs["servers"][0]["url"] = f"http://{request.headers['host']}"
 
         return web.json_response(api_docs)
 

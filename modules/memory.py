@@ -53,28 +53,22 @@ def read_symbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
     :param size: (optional) override the size to read n bytes
     :return: (bytes)
     """
-    try:
-        addr, length = get_symbol(name)
-        if size <= 0:
-            size = length
+    addr, length = get_symbol(name)
+    if size <= 0:
+        size = length
 
-        return context.emulator.read_bytes(addr + offset, size)
-    except SystemExit:
-        raise
+    return context.emulator.read_bytes(addr + offset, size)
 
 
 def write_symbol(name: str, data: bytes, offset: int = 0x0) -> bool:
-    try:
-        addr, length = get_symbol(name)
-        if len(data) + offset > length:
-            raise Exception(
-                f"{len(data) + offset} bytes of data provided, is too large for symbol {addr} ({length} bytes)!"
-            )
+    addr, length = get_symbol(name)
+    if len(data) + offset > length:
+        raise Exception(
+            f"{len(data) + offset} bytes of data provided, is too large for symbol {addr} ({length} bytes)!"
+        )
 
-        context.emulator.write_bytes(addr + offset, data)
-        return True
-    except SystemExit:
-        raise
+    context.emulator.write_bytes(addr + offset, data)
+    return True
 
 
 def get_callback_for_pointer_symbol(symbol: str, offset: int = 0, pretty_name: bool = True) -> str:
@@ -112,53 +106,61 @@ def get_callback_for_pointer_symbol(symbol: str, offset: int = 0, pretty_name: b
         )
 
 
-def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes | None:
+def get_save_block(num: int = 1, offset: int = 0, size: int = 0) -> bytes:
     """
-    The Generation III save file is broken up into two game save blocks, this function will return sections from these
-    save blocks. Emerald, FireRed and LeafGreen SaveBlocks will randomly move around in memory, which requires following
-     a pointer to find them reliably.
+    Reads and returns the entirety (or just parts of, if `offset` and/or `size` are set) of
+    one of the two 'save blocks'.
 
-    :param num: 1 or 2 (gSaveblock1 or gSaveblock2)
-    see: https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Game_save_A.2C_Game_save_B
-    :param offset: Read n bytes offset from beginning of the save block, use with `size` - useful to reduce amount of
-    bytes read if only specific memory region is required.
-    :param size: Read n bytes from the offset
-    :return: SaveBlock (bytes)
+    The name 'save block' is a bit misleading as it is not just used when saving the game,
+    but rather it is a structure that contains a lot of global data about the player that
+    will _also_ be saved as-is but will be regularly accessed by the game when running.
+
+    See also: https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
+
+    :param num: Number of the save block (can only be 1 or 2)
+    :param offset: Number of bytes to skip from beginning of the save block - when used in
+                   conjunction with `size`, this allows reading only a section of the save
+                   block and cuts down in the number of bytes that need to be read.
+    :param size: Number of bytes to read, starting from `offset`
+    :return: The save block data (or the selected portion thereof) -- this may be
+             entirely zeroes if the save blocks are not yet initialised (as is the
+             case before starting/loading a game.)
     """
-    # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
-    try:
-        if not size:
-            size = get_symbol(f"GSAVEBLOCK{num}")[1]
-        if context.rom.is_rs:
-            return read_symbol(f"gSaveBlock{num}", offset, size)
-        p_trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
-        if p_trainer == 0:
-            return None
-        return context.emulator.read_bytes(p_trainer + offset, size)
-    except SystemExit:
-        raise
+    if size <= 0:
+        size = get_symbol(f"GSAVEBLOCK{num}")[1]
+    if context.rom.is_rs:
+        return read_symbol(f"gSaveBlock{num}", offset, size)
+    else:
+        # In FR/LG as well as Emerald, only the _pointer_ to the save file is in a known
+        # memory address.
+        save_block_pointer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
+        if save_block_pointer == 0:
+            return b"\00" * size
+        return context.emulator.read_bytes(save_block_pointer + offset, size)
 
 
 def write_to_save_block(data: bytes, num: int = 1, offset: int = 0) -> bool:
     """
-    Writes data to a save block - ! use with care, high potential of corrupting save data in memory
+    Writes data to one of the two 'save blocks'.
 
-    :param data: Data to write to saveblock
-    :param num: 1 or 2 (gSaveblock1 or gSaveblock2)
-    see: https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)#Game_save_A.2C_Game_save_B
-    :param offset: Write n bytes offset from beginning of the save block
-    :return: Success true/false (bool)
+    As with any operation that modifies the in-game memory, this comes with a high
+    risk of corrupting some in-game state, so use this with care.
+
+    See comment in `get_save_block` about what 'save blocks' are.
+
+    :param data: Data to write to the save block.
+    :param num: Number of the save block to write to (can only be 1 or 2)
+    :param offset: Offset from the start of the save block that should be written to.
+    :return: Whether writing was successful. It can fail, for example, if the game is
+             currently without a loaded game in the title screen.
     """
-    # https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_III)
-    try:
-        if context.rom.is_rs:
-            return write_symbol(f"gSaveBlock{num}", data, offset)
-        p_trainer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
-        if p_trainer == 0:
+    if context.rom.is_rs:
+        return write_symbol(f"gSaveBlock{num}", data, offset)
+    else:
+        save_block_pointer = unpack_uint32(read_symbol(f"gSaveBlock{num}Ptr"))
+        if save_block_pointer == 0:
             return False
-        return context.emulator.write_bytes(p_trainer + offset, data)
-    except SystemExit:
-        raise
+        return context.emulator.write_bytes(save_block_pointer + offset, data)
 
 
 class GameState(IntEnum):

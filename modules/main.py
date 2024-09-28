@@ -73,7 +73,7 @@ def main_loop() -> None:
 
             if not verified_stats_trainer_id:
                 player = get_player()
-                if player.trainer_id > 0:
+                if player is not None and player.trainer_id > 0:
                     stats_trainer_id = context.stats.get_data(DataKey.TrainerID)
                     stats_secret_trainer_id = context.stats.get_data(DataKey.SecretTrainerID)
 
