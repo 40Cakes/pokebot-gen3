@@ -47,6 +47,7 @@ declare module StreamEvents {
     export type MapTileChange = [number, number];
 
     export type MapEncounters = {
+        repel_level: number;
         regular: RegularEncounterList;
         effective: EffectiveEncounterList;
     };

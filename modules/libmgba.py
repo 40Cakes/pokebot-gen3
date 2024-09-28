@@ -1,13 +1,20 @@
 import atexit
+import fractions
+import queue
 import time
 import zlib
 from collections import deque
 from contextlib import contextmanager
 from pathlib import Path
+from queue import Queue
+from sys import maxsize
 
 import PIL.Image
 import PIL.PngImagePlugin
+import numpy
 import sounddevice
+from av import AudioFrame
+from av.audio.stream import AudioStream
 
 import mgba.audio
 import mgba.core
@@ -103,6 +110,8 @@ class LibmgbaEmulator:
     _target_seconds_per_render = 1 / 60
 
     _audio_stream: sounddevice.RawOutputStream | None = None
+    _audio_sample_rate: int = 32768
+    _last_audio_data: Queue[bytes]
 
     def __init__(self, profile: Profile, on_frame_callback: callable):
         console.print(f"Running [cyan]{libmgba_version_string()}[/]")
@@ -124,6 +133,7 @@ class LibmgbaEmulator:
                 pass
         self._save = mgba.vfs.open_path(str(self._current_save_path), "r+")
         self._core.load_save(self._save)
+        self._last_audio_data = Queue(maxsize=128)
 
         self._screen = mgba.image.Image(*self._core.desired_video_dimensions())
         self._core.set_video_buffer(self._screen)
@@ -177,10 +187,13 @@ class LibmgbaEmulator:
             self._audio_stream = sounddevice.RawOutputStream(channels=2, samplerate=sample_rate, dtype="int16")
             if self._throttled:
                 self._audio_stream.start()
+            self._audio_sample_rate = sample_rate
         except sounddevice.PortAudioError as error:
             console.print(f"[red]{str(error)}[/]")
             console.print("[red bold]Failed to initialise sound![/] [red]Sound will be disabled.[/]")
             self._audio_stream = None
+            self._gba_audio.set_rate(32768)
+            self._audio_sample_rate = 32768
 
     def reset(self) -> None:
         self._core.reset()
@@ -524,6 +537,12 @@ class LibmgbaEmulator:
             self.get_screenshot().save(file, format="PNG")
             console.print(f"Screenshot saved to: {png_path}")
 
+    def get_last_audio_data(self) -> Queue[bytes]:
+        return self._last_audio_data
+
+    def get_sample_rate(self) -> int:
+        return self._audio_sample_rate
+
     @contextmanager
     def peek_frame(self, frames_to_advance: int = 1) -> any:
         """
@@ -556,6 +575,20 @@ class LibmgbaEmulator:
         begin = time.time_ns()
         self._prev_pressed_inputs = self._pressed_inputs
         self._pressed_inputs = 0
+
+        samples_available = self._gba_audio.available
+        audio_data = bytearray(samples_available * 4)
+        if self._throttled and self._audio_enabled:
+            ffi.memmove(audio_data, self._gba_audio.read(samples_available), len(audio_data))
+        else:
+            self._gba_audio.clear()
+
+        try:
+            self._last_audio_data.put_nowait(audio_data)
+        except queue.Full:
+            self._last_audio_data.get()
+            self._last_audio_data.put_nowait(audio_data)
+
         self._on_frame_callback()
 
         # Limiting FPS is achieved by using a blocking API for audio playback -- meaning we give it
@@ -572,13 +605,7 @@ class LibmgbaEmulator:
         # of time. It just will sleep for _at least_ that time.
         if self._throttled:
             if self._audio_stream:
-                samples_available = self._gba_audio.available
-                audio_data = bytearray(samples_available * 4)
                 try:
-                    if self._audio_enabled:
-                        ffi.memmove(audio_data, self._gba_audio.read(samples_available), len(audio_data))
-                    else:
-                        self._gba_audio.clear()
                     self._audio_stream.write(audio_data)
                 except sounddevice.PortAudioError as error:
                     console.print(f"[bold red]Error while playing audio:[/] [red]{str(error)}[/]")

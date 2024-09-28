@@ -156,8 +156,6 @@ export type RegularEncounterList = {
 }
 
 export type EffectiveEncounterList = {
-    repel_level: number;
-
     land_encounters: MapEncounter[];
     surf_encounters: MapEncounter[];
     rock_smash_encounters: MapEncounter[];

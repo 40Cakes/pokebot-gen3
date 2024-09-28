@@ -428,12 +428,14 @@ function handleMap(data) {
 function handleMapEncounters(data) {
     state.map_encounters = data;
 
-    if (data.effective.repel_level > 0) {
-        $("#repel_level").text(data.effective.repel_level);
+    if (data.repel_level > 0) {
+        $("#repel_level").text(data.repel_level);
         $("#repel_info").css("display", "inline-block");
     } else {
         $("#repel_info").css("display", "none");
     }
+
+    refreshchecklist();
 }
 
 /** @param {StreamEvents.Player} data */

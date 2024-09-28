@@ -1787,6 +1787,10 @@ class WildEncounterList:
     good_rod_encounters: list[WildEncounter]
     super_rod_encounters: list[WildEncounter]
 
+    @classmethod
+    def empty(cls) -> "WildEncounterList":
+        return cls(0, 0, 0, 0, [], [], [], [], [], [])
+
     def to_dict(self):
         return {
             "land_encounter_rate": self.land_encounter_rate,
@@ -1885,6 +1889,7 @@ class EffectiveWildEncounterList:
     map_group: int
     map_number: int
     repel_level: int
+    regular_encounters: WildEncounterList | None
 
     land_encounters: list[EffectiveWildEncounter]
     surf_encounters: list[EffectiveWildEncounter]
@@ -1906,12 +1911,15 @@ class EffectiveWildEncounterList:
     def to_dict(self) -> dict:
         return {
             "repel_level": self.repel_level,
-            "land_encounters": [encounter.to_dict() for encounter in self.land_encounters],
-            "surf_encounters": [encounter.to_dict() for encounter in self.surf_encounters],
-            "rock_smash_encounters": [encounter.to_dict() for encounter in self.rock_smash_encounters],
-            "old_rod_encounters": [encounter.to_dict() for encounter in self.old_rod_encounters],
-            "good_rod_encounters": [encounter.to_dict() for encounter in self.good_rod_encounters],
-            "super_rod_encounters": [encounter.to_dict() for encounter in self.super_rod_encounters],
+            "regular": self.regular_encounters.to_dict(),
+            "effective": {
+                "land_encounters": [encounter.to_dict() for encounter in self.land_encounters],
+                "surf_encounters": [encounter.to_dict() for encounter in self.surf_encounters],
+                "rock_smash_encounters": [encounter.to_dict() for encounter in self.rock_smash_encounters],
+                "old_rod_encounters": [encounter.to_dict() for encounter in self.old_rod_encounters],
+                "good_rod_encounters": [encounter.to_dict() for encounter in self.good_rod_encounters],
+                "super_rod_encounters": [encounter.to_dict() for encounter in self.super_rod_encounters],
+            },
         }
 
 
@@ -1923,7 +1931,7 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
 
     player = get_player_avatar()
     if player is None:
-        return EffectiveWildEncounterList(0, 0, 0, [], [], [], [], [], [])
+        return EffectiveWildEncounterList(0, 0, 0, WildEncounterList.empty(), [], [], [], [], [], [])
 
     map_group, map_number = player.map_group_and_number
 
@@ -1963,17 +1971,23 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
 
         return result
 
-    encounter_list = EffectiveWildEncounterList(
-        map_group=map_group,
-        map_number=map_number,
-        repel_level=repel_level,
-        land_encounters=calculate_effective_encounters(wild_encounters.land_encounters),
-        surf_encounters=calculate_effective_encounters(wild_encounters.surf_encounters),
-        rock_smash_encounters=calculate_effective_encounters(wild_encounters.rock_smash_encounters),
-        old_rod_encounters=calculate_effective_encounters(wild_encounters.old_rod_encounters),
-        good_rod_encounters=calculate_effective_encounters(wild_encounters.good_rod_encounters),
-        super_rod_encounters=calculate_effective_encounters(wild_encounters.super_rod_encounters),
-    )
+    if wild_encounters is None:
+        encounter_list = EffectiveWildEncounterList(
+            map_group, map_number, repel_level, WildEncounterList.empty(), [], [], [], [], [], []
+        )
+    else:
+        encounter_list = EffectiveWildEncounterList(
+            map_group=map_group,
+            map_number=map_number,
+            repel_level=repel_level,
+            regular_encounters=wild_encounters,
+            land_encounters=calculate_effective_encounters(wild_encounters.land_encounters),
+            surf_encounters=calculate_effective_encounters(wild_encounters.surf_encounters),
+            rock_smash_encounters=calculate_effective_encounters(wild_encounters.rock_smash_encounters),
+            old_rod_encounters=calculate_effective_encounters(wild_encounters.old_rod_encounters),
+            good_rod_encounters=calculate_effective_encounters(wild_encounters.good_rod_encounters),
+            super_rod_encounters=calculate_effective_encounters(wild_encounters.super_rod_encounters),
+        )
 
     state_cache.effective_wild_encounters = encounter_list
 

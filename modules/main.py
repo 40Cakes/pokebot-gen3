@@ -50,9 +50,12 @@ def main_loop() -> None:
             Thread(target=discord_rich_presence).start()
 
         if context.config.http.http_server.enable:
-            from modules.web.http import http_server
+            from modules.web.http import start_http_server
 
-            Thread(target=http_server).start()
+            start_http_server(
+                host=context.config.http.http_server.ip,
+                port=context.config.http.http_server.port,
+            )
 
         listeners: list[BotListener] = get_bot_listeners(context.rom)
         previous_frame_info: FrameInfo | None = None

@@ -8,11 +8,20 @@ body {
     background-color: #00000000;
     width: 2560px;
     height: 1440px;
+    margin: 0;
 
     font-size: 1.75rem;
     text-shadow: 2px 2px #000000;
     font-family: "Small Pixel Regular", monospace;
     color: #FFF;
+}
+
+@media screen and (max-width: 1920px) {
+    body {
+        transform-origin: top left;
+        transform: scale(.75);
+        overflow: hidden;
+    }
 }
 
 img.arrow {

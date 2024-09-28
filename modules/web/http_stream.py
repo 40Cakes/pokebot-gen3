@@ -1,5 +1,7 @@
+import asyncio
 import json
 import queue
+import threading
 from enum import IntFlag, auto
 from threading import Thread
 from time import sleep, time
@@ -8,7 +10,7 @@ from modules.console import console
 from modules.context import context
 from modules.libmgba import inputs_to_strings
 from modules.main import work_queue, inputs_each_frame
-from modules.map import get_wild_encounters_for_map, get_effective_encounter_rates_for_current_map
+from modules.map import get_effective_encounter_rates_for_current_map
 from modules.memory import GameState, get_game_state
 from modules.player import get_player, get_player_avatar
 from modules.pokedex import get_pokedex
@@ -42,28 +44,93 @@ class DataSubscription(IntFlag):
         return cls.__members__.keys()
 
 
+class ThreadSafeEvent(asyncio.Event):
+    def __init__(self):
+        super().__init__()
+        self._event_loop = asyncio.get_event_loop()
+
+    def set(self):
+        self._event_loop.call_soon_threadsafe(super().set)
+
+
+class ThreadSafeCounter:
+    def __init__(self, initial_value: int = 0):
+        self._value = initial_value
+        self._lock = threading.Lock()
+
+    def __int__(self):
+        return self._value
+
+    def __eq__(self, other):
+        if isinstance(other, (int, ThreadSafeCounter)):
+            return self._value == int(other)
+        else:
+            raise NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, (int, ThreadSafeCounter)):
+            return self._value != int(other)
+        else:
+            raise NotImplemented
+
+    def __gt__(self, other):
+        if isinstance(other, (int, ThreadSafeCounter)):
+            return self._value > int(other)
+        else:
+            raise NotImplemented
+
+    def __ge__(self, other):
+        if isinstance(other, (int, ThreadSafeCounter)):
+            return self._value >= int(other)
+        else:
+            raise NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, (int, ThreadSafeCounter)):
+            return self._value < int(other)
+        else:
+            raise NotImplemented
+
+    def __le__(self, other):
+        if isinstance(other, (int, ThreadSafeCounter)):
+            return self._value <= int(other)
+        else:
+            raise NotImplemented
+
+    def increment(self) -> int:
+        with self._lock:
+            self._value += 1
+            return self._value
+
+    def decrement(self) -> int:
+        with self._lock:
+            self._value -= 1
+            return self._value
+
+    @property
+    def value(self) -> int:
+        return self._value
+
+
 timer_thread: Thread
-subscribers: list[tuple[int, queue.Queue, int, callable]] = []
-subscriptions = {name: 0 for name in DataSubscription.all_names()}
-max_client_id: int = 0
+subscribers: list[tuple[int, queue.Queue, int, callable, ThreadSafeEvent]] = []
+subscriptions: dict[str, ThreadSafeCounter] = {name: ThreadSafeCounter() for name in DataSubscription.all_names()}
+max_client_id: ThreadSafeCounter = ThreadSafeCounter()
 
 
-def add_subscriber(subscribed_topics: list[str]) -> tuple[queue.Queue :, callable]:
+def add_subscriber(subscribed_topics: list[str]) -> tuple[queue.Queue, callable, ThreadSafeEvent]:
     for topic in subscribed_topics:
         if topic not in DataSubscription.all_names():
             raise ValueError(f"Topic '{topic}' does not exist.")
 
-    global max_client_id
-
-    max_client_id += 1
-    client_id = max_client_id
+    client_id = max_client_id.increment()
 
     def unsubscribe():
         for index in range(len(subscribers)):
             if subscribers[index][0] == client_id:
                 global subscriptions
                 for topic in subscribed_topics:
-                    subscriptions[topic] -= 1
+                    subscriptions[topic].decrement()
                 del subscribers[index]
                 return
 
@@ -71,17 +138,18 @@ def add_subscriber(subscribed_topics: list[str]) -> tuple[queue.Queue :, callabl
     subscription_flags = 0
     for topic in subscribed_topics:
         subscription_flags |= getattr(DataSubscription, topic)
-        subscriptions[topic] += 1
+        subscriptions[topic].increment()
 
     message_queue = queue.Queue(maxsize=queue_size)
-    subscribers.append((client_id, message_queue, subscription_flags, unsubscribe))
+    new_message_event = ThreadSafeEvent()
+    subscribers.append((client_id, message_queue, subscription_flags, unsubscribe, new_message_event))
 
     if len(subscribers) == 1:
         global timer_thread
         timer_thread = Thread(target=run_watcher)
         timer_thread.start()
 
-    return message_queue, unsubscribe
+    return message_queue, unsubscribe, new_message_event
 
 
 def run_watcher():
@@ -244,14 +312,7 @@ def run_watcher():
             if state_cache.effective_wild_encounters.frame > previous_game_state["map_encounters"]:
                 encounters = state_cache.effective_wild_encounters.value
                 previous_game_state["map_encounters"] = state_cache.effective_wild_encounters.frame
-                send_message(
-                    DataSubscription.MapEncounters,
-                    data={
-                        "regular": get_wild_encounters_for_map(encounters.map_group, encounters.map_number).to_dict(),
-                        "effective": encounters.to_dict(),
-                    },
-                    event_type="MapEncounters",
-                )
+                send_message(DataSubscription.MapEncounters, data=encounters.to_dict(), event_type="MapEncounters")
 
         if subscriptions["BotMode"] > 0 and context.bot_mode != previous_emulator_state["bot_mode"]:
             previous_emulator_state["bot_mode"] = context.bot_mode
@@ -308,6 +369,7 @@ def send_message(
         if subscribers[index][2] & subscription_flag:
             try:
                 subscribers[index][1].put_nowait(message)
+                subscribers[index][4].set()
             except queue.Full:
                 console.print(f"[yellow]Queue for client [bold]{subscribers[index][0]}[/] was full. Disconnecting.[/]")
                 subscribers[index][3]()
