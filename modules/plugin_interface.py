@@ -31,3 +31,6 @@ class BotPlugin:
 
     def on_whiteout(self) -> None:
         pass
+
+    def on_judge_encounter(self, opponent: "Pokemon") -> str | bool:
+        return False

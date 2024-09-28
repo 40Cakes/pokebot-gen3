@@ -3,6 +3,7 @@ from pathlib import Path
 
 from modules.console import console
 from modules.context import context
+from modules.plugins import plugin_judge_encounter
 from modules.files import save_pk3, make_string_safe_for_file_name
 from modules.gui.desktop_notification import desktop_notification
 from modules.memory import get_game_state, GameState
@@ -34,6 +35,8 @@ def run_custom_catch_filters(pokemon: Pokemon) -> str | bool:
     from modules.stats import total_stats
 
     result = total_stats.custom_catch_filters(pokemon)
+    if result is False:
+        result = plugin_judge_encounter(pokemon)
     if result is True:
         result = "Matched a custom catch filter"
     return result
