@@ -258,7 +258,7 @@ class OBSWebsocket(BaseConfig):
 class HTTPServer(BaseConfig):
     """Schema for the http_server section in the HTTP config."""
 
-    enable: bool = True
+    enable: bool = False
     ip: str = "127.0.0.1"
     port: Annotated[int, Field(gt=0, lt=65536)] = 8888
 
