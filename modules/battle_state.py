@@ -685,8 +685,13 @@ def get_last_battle_outcome() -> BattleOutcome:
     return BattleOutcome(read_symbol("gBattleOutcome", size=1)[0])
 
 
+def get_battle_type() -> BattleType:
+    return BattleType(unpack_uint32(read_symbol("gBattleTypeFlags", size=0x04)))
+
+
 class EncounterType(Enum):
     Trainer = "trainer"
+    Tutorial = "tutorial"
     Roamer = "roamer"
     Static = "static"
     Land = "land"
@@ -696,9 +701,16 @@ class EncounterType(Enum):
     FishingWithSuperRod = "fishing_super_rod"
     RockSmash = "rock_smash"
 
+    @property
+    def is_wild(self) -> bool:
+        return self is not EncounterType.Trainer and self is not EncounterType.Tutorial
+
 
 def get_encounter_type() -> EncounterType:
-    battle_type = BattleType(unpack_uint32(read_symbol("gBattleTypeFlags", size=0x04)))
+    battle_type = get_battle_type()
+
+    if BattleType.WallyTutorial in battle_type:
+        return EncounterType.Tutorial
 
     if BattleType.Trainer in battle_type:
         return EncounterType.Trainer

@@ -3,6 +3,9 @@
 # Auto Catching
 auto_catch: true
 
+# Whether to create an in-game save after catching a Pokémon
+save_after_catching: false
+
 # Pickup
 pickup: true
 pickup_threshold: 1

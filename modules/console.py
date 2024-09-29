@@ -5,10 +5,10 @@ from rich.table import Table
 from rich.theme import Theme
 
 from modules.context import context
-from modules.pokemon import Pokemon
 
 if TYPE_CHECKING:
-    from modules.stats import GlobalStats, EncounterSummary, EncounterTotals
+    from modules.pokemon import Pokemon
+    from modules.stats import GlobalStats, EncounterSummary
 
 theme = Theme(
     {
@@ -29,6 +29,7 @@ theme = Theme(
         "dragon": "#7038f8",
         "dark": "#705848",
         "steel": "#b8b8d0",
+        "question_marks": "#68a090",
     }
 )
 
@@ -74,7 +75,7 @@ def sv_colour(value: int | None) -> str:
         return "red"
 
 
-def print_stats(stats: "GlobalStats", pokemon: Pokemon) -> None:
+def print_stats(stats: "GlobalStats", pokemon: "Pokemon") -> None:
     type_colour = pokemon.species.types[0].name.lower()
     rich_name = f"[{type_colour}]{pokemon.species.name}[/]"
 
@@ -177,6 +178,8 @@ def print_stats(stats: "GlobalStats", pokemon: Pokemon) -> None:
                 if learned_move is not None:
                     move = learned_move.move
                     move_colour = move.type.name.lower()
+                    if move_colour == "???":
+                        move_colour = "question_marks"
                     console.print(
                         f"[{move_colour}]Move {i + 1}[/]: {move.name} | "
                         f"{move.type.kind} | "

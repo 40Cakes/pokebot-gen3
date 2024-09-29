@@ -1,26 +1,20 @@
+from datetime import datetime
 from types import GeneratorType
 
 from modules.context import context
 from modules.debug import debug
-from modules.encounter import handle_encounter
+from modules.encounter import handle_encounter, ActiveWildEncounter, run_custom_catch_filters, judge_encounter
 from modules.map import get_map_objects, get_map_data_for_current_position
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_game_state, get_game_state_symbol, read_symbol, unpack_uint32
 from modules.menuing import CheckForPickup, MenuWrapper, should_check_for_pickup, RotatePokemon
 from modules.player import TileTransitionState, get_player_avatar, player_avatar_is_standing_still
-from modules.pokemon import (
-    BattleTypeFlag,
-    StatusCondition,
-    clear_opponent,
-    get_battle_type_flags,
-    get_opponent,
-    get_party,
-)
+from modules.pokemon import StatusCondition, clear_opponent, get_opponent, get_party
 from modules.tasks import get_global_script_context, task_is_active, get_task
 from ._interface import BattleAction, BotListener, BotMode, FrameInfo
-from .util import isolate_inputs
+from .util import isolate_inputs, save_the_game
 from ..battle_handler import handle_battle
-from ..battle_state import get_last_battle_outcome, BattleOutcome
+from ..battle_state import get_last_battle_outcome, BattleOutcome, get_encounter_type, EncounterType
 from ..battle_strategies import DefaultBattleStrategy, BattleStrategy
 from ..battle_strategies.catch import CatchStrategy
 from ..battle_strategies.run_away import RunAwayStrategy
@@ -41,7 +35,7 @@ class BattleListener(BotListener):
     def __init__(self):
         self._in_battle = False
         self._reported_start_of_battle = False
-        self._is_wild_encounter = False
+        self._active_wild_encounter: ActiveWildEncounter | None = None
         self._reported_wild_encounter_visible = False
         self._text_printer_was_active = False
         self._reported_end_of_battle = False
@@ -53,7 +47,7 @@ class BattleListener(BotListener):
         ):
             self._in_battle = True
             self._reported_start_of_battle = False
-            self._is_wild_encounter = False
+            self._active_wild_encounter = None
             self._reported_wild_encounter_visible = False
             self._text_printer_was_active = False
             self._reported_end_of_battle = False
@@ -62,10 +56,10 @@ class BattleListener(BotListener):
         elif self._in_battle and not self._reported_start_of_battle and get_game_state() == GameState.BATTLE:
             self._reported_start_of_battle = True
             action = bot_mode.on_battle_started()
-            battle_type = get_battle_type_flags()
+            encounter_type = get_encounter_type()
             opponent = get_opponent()
 
-            if BattleTypeFlag.TRAINER in battle_type:
+            if encounter_type is EncounterType.Trainer:
                 if (not context.config.battle.battle and action is None) or action == BattleAction.RunAway:
                     context.message = (
                         "We ran into a trainer, but automatic battling is disabled. Switching to manual mode."
@@ -76,9 +70,14 @@ class BattleListener(BotListener):
                     action = BattleAction.Fight
             elif action is None:
                 action = handle_encounter(opponent)
-
-            if BattleTypeFlag.TRAINER not in battle_type and BattleTypeFlag.WALLY_TUTORIAL not in battle_type:
-                self._is_wild_encounter = True
+                if encounter_type is not EncounterType.Tutorial:
+                    self._active_wild_encounter = ActiveWildEncounter(
+                        pokemon=opponent,
+                        encounter_time=datetime.now(),
+                        type=encounter_type,
+                        value=judge_encounter(opponent),
+                        catch_filters_result=run_custom_catch_filters(opponent),
+                    )
 
             if isinstance(action, BattleStrategy):
                 context.controller_stack.append(self.fight(action))
@@ -118,12 +117,12 @@ class BattleListener(BotListener):
                         SafariZoneListener.handle_safari_zone_timeout_global(bot_mode, "Safari balls")
                     )
 
-        elif self._is_wild_encounter and not self._reported_wild_encounter_visible:
+        elif self._active_wild_encounter is not None and not self._reported_wild_encounter_visible:
             text_printer = get_text_printer(0)
 
             if self._text_printer_was_active:
                 if not text_printer.active or text_printer.state == TextPrinterState.WaitForButton:
-                    plugin_wild_encounter_visible(get_opponent())
+                    context.controller_stack.append(plugin_wild_encounter_visible(self._active_wild_encounter))
                     self._reported_wild_encounter_visible = True
 
             elif text_printer.active:
@@ -139,11 +138,11 @@ class BattleListener(BotListener):
     @isolate_inputs
     @debug.track
     def fight(self, strategy: BattleStrategy):
-        yield from plugin_battle_started(get_opponent())
+        yield from plugin_battle_started(get_opponent(), self._active_wild_encounter)
         yield from handle_battle(strategy)
         yield from self._wait_until_battle_is_over()
-        yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
         context.stats.log_end_of_battle(BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
+        yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
         if (
             get_game_state() != GameState.BATTLE
@@ -166,22 +165,24 @@ class BattleListener(BotListener):
     @isolate_inputs
     @debug.track
     def catch(self):
-        yield from plugin_battle_started(get_opponent())
+        yield from plugin_battle_started(get_opponent(), self._active_wild_encounter)
         yield from handle_battle(CatchStrategy())
         yield from self._wait_until_battle_is_over()
-        yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
         context.stats.log_end_of_battle(BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
+        yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
+        if context.config.battle.save_after_catching:
+            yield from save_the_game()
 
     @isolate_inputs
     @debug.track
     def run_away_from_battle(self):
         while get_game_state() != GameState.BATTLE:
             yield
-        yield from plugin_battle_started(get_opponent())
+        yield from plugin_battle_started(get_opponent(), self._active_wild_encounter)
         yield from handle_battle(RunAwayStrategy())
         yield from self._wait_until_battle_is_over()
-        yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
         context.stats.log_end_of_battle(BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
+        yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
 
 class TrainerApproachListener(BotListener):

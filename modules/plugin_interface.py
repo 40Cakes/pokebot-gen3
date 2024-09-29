@@ -1,7 +1,9 @@
 from typing import TYPE_CHECKING, Iterable, Generator
 
+
 if TYPE_CHECKING:
-    from modules.battle import BattleOutcome
+    from modules.battle_state import BattleOutcome
+    from modules.encounter import ActiveWildEncounter
     from modules.modes import BotMode, BotListener
     from modules.pokemon import Pokemon
     from modules.profiles import Profile
@@ -17,10 +19,10 @@ class BotPlugin:
     def on_profile_loaded(self, profile: "Profile") -> None:
         pass
 
-    def on_battle_started(self, opponent: "Pokemon") -> Generator | None:
+    def on_battle_started(self, opponent: "Pokemon", wild_encounter: "ActiveWildEncounter | None") -> Generator | None:
         pass
 
-    def on_wild_encounter_visible(self, opponent: "Pokemon") -> Generator | None:
+    def on_wild_encounter_visible(self, wild_encounter: "ActiveWildEncounter") -> Generator | None:
         pass
 
     def on_battle_ended(self, outcome: "BattleOutcome") -> Generator | None:

@@ -1,4 +1,3 @@
-import os
 import queue
 import sys
 from collections import deque
@@ -44,11 +43,6 @@ def main_loop() -> None:
 
         context.stats = StatsDatabase(context.profile)
 
-        if context.config.discord.rich_presence:
-            from modules.discord import discord_rich_presence
-
-            Thread(target=discord_rich_presence).start()
-
         if context.config.http.http_server.enable:
             from modules.web.http import start_http_server
 
@@ -57,7 +51,7 @@ def main_loop() -> None:
                 port=context.config.http.http_server.port,
             )
 
-        listeners: list[BotListener] = get_bot_listeners(context.rom)
+        context.bot_listeners = get_bot_listeners(context.rom)
         previous_frame_info: FrameInfo | None = None
         verified_stats_trainer_id = False
 
@@ -84,7 +78,7 @@ def main_loop() -> None:
                         console.print(
                             f"\n[red]The trainer ID in this profile's stats database ({stats_trainer_id}) does not match the current trainer ID ({player.trainer_id}).[/]\n\nDid you start a new game?\nIf so, delete/move `stats.db` in your profile directory."
                         )
-                        os._exit(1)
+                        sys.exit(1)
 
                     verified_stats_trainer_id = True
 
@@ -107,7 +101,7 @@ def main_loop() -> None:
 
             # Reset all bot listeners if the emulator has been reset.
             if previous_frame_info is not None and previous_frame_info.frame_count > frame_info.frame_count:
-                listeners = get_bot_listeners(context.rom)
+                context.listeners = get_bot_listeners(context.rom)
 
             if context.bot_mode == "Manual":
                 context.controller_stack = []
@@ -119,7 +113,7 @@ def main_loop() -> None:
                 context.controller_stack.append(context.bot_mode_instance.run())
 
             try:
-                for listener in listeners:
+                for listener in context.bot_listeners.copy():
                     listener.handle_frame(context.bot_mode_instance, frame_info)
                 if len(context.controller_stack) > 0:
                     next(context.controller_stack[-1])

@@ -15,6 +15,7 @@ class Battle(BaseConfig):
 
     filename: ClassVar = "battle.yml"
     auto_catch: bool = True
+    save_after_catching: bool = False
     pickup: bool = True
     pickup_threshold: Annotated[int, Field(gt=0, lt=7)] = 1
     pickup_check_frequency: Annotated[int, Field(gt=0)] = 5
@@ -109,6 +110,18 @@ class Discord(BaseConfig):
     custom_filter_pokemon_encounter: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
     pickup: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=10))
     tcg_cards: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
+
+    def is_anything_enabled(self) -> bool:
+        return (
+            self.rich_presence
+            or self.shiny_pokemon_encounter.enable
+            or self.pokemon_encounter_milestones.enable
+            or self.shiny_pokemon_encounter_milestones.enable
+            or self.total_encounter_milestones.enable
+            or self.phase_summary.enable
+            or self.anti_shiny_pokemon_encounter.enable
+            or self.custom_filter_pokemon_encounter.enable
+        )
 
 
 class DiscordWebhook(BaseConfig):
@@ -209,6 +222,37 @@ class HTTP(BaseConfig):
 
     filename: ClassVar = "http.yml"
     http_server: HTTPServer = Field(default_factory=lambda: HTTPServer())
+
+
+class OBS(BaseConfig):
+    """Schema for the OBS configuration."""
+
+    filename: ClassVar = "obs.yml"
+    discord_delay: NonNegativeInt = 0
+    discord_webhook_url: str | None = None
+    replay_dir: Path = "./stream/replays/"
+    replay_buffer: bool = False
+    replay_buffer_delay: NonNegativeInt = 0
+    screenshot: bool = False
+    shiny_delay: NonNegativeInt = 0
+    obs_websocket: OBSWebsocket = Field(default_factory=lambda: OBSWebsocket())
+
+    @field_validator("replay_dir")
+    def validate_dir(cls, value: str | Path, **kwargs) -> Path:
+        """Ensure the replay_dir field returns a path."""
+        if isinstance(value, str):
+            value = Path(value)
+        if not isinstance(value, Path):
+            raise ValueError(f"Expected a Path or a string, got: {type(value)}.")
+        return value
+
+
+class OBSWebsocket(BaseConfig):
+    """Schema for the obs_websocket section in the OBS config."""
+
+    host: str = "127.0.0.1"
+    password: str = "password"
+    port: Annotated[int, Field(gt=0, lt=65536)] = 4455
 
 
 class HTTPServer(BaseConfig):

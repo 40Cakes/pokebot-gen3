@@ -8,7 +8,7 @@ from modules.runtime import get_base_path
 if TYPE_CHECKING:
     from modules.gui import PokebotGui
     from modules.libmgba import LibmgbaEmulator
-    from modules.modes import BotMode
+    from modules.modes import BotListener, BotMode
     from modules.profiles import Profile
     from modules.roms import ROM
     from modules.stats import StatsDatabase
@@ -53,6 +53,7 @@ class BotContext:
         self.controller_stack: list[Generator] = []
         self.debug_action_stack: list[str] = []
         self.bot_mode_instance: Optional["BotMode"] = None
+        self.bot_listeners: list["BotListener"] = []
         self.frame: int = 0
         self._current_bot_mode: str = initial_bot_mode
         self._previous_bot_mode: str = "Manual"

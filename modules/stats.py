@@ -486,6 +486,27 @@ class GlobalStats:
     def totals(self) -> EncounterTotals:
         return EncounterTotals.from_summaries(self.encounter_summaries)
 
+    def species(self, species: Species) -> EncounterSummary:
+        if species.index in self.encounter_summaries:
+            return self.encounter_summaries[species.index]
+        else:
+            return EncounterSummary(
+                species=species,
+                total_encounters=0,
+                shiny_encounters=0,
+                catches=0,
+                total_highest_iv_sum=0,
+                total_lowest_iv_sum=0,
+                total_highest_sv=0,
+                total_lowest_sv=0,
+                phase_encounters=0,
+                phase_highest_iv_sum=0,
+                phase_lowest_iv_sum=0,
+                phase_highest_sv=0,
+                phase_lowest_sv=0,
+                last_encounter_time=datetime.now(),
+            )
+
     def to_dict(self):
         current_shiny_phase = (
             ShinyPhase(0, datetime.now(timezone.utc)) if self.current_shiny_phase is None else self.current_shiny_phase
@@ -573,7 +594,7 @@ class StatsDatabase:
         self.last_encounter: Encounter | None = self._get_last_encounter()
         self.last_fishing_attempt: Optional[FishingAttempt] = None
 
-        self._current_shiny_phase: ShinyPhase | None = self._get_current_shiny_phase()
+        self.current_shiny_phase: ShinyPhase | None = self._get_current_shiny_phase()
         self._shortest_shiny_phase: ShinyPhase | None = self._get_shortest_shiny_phase()
         self._longest_shiny_phase: ShinyPhase | None = self._get_longest_shiny_phase()
         self._next_encounter_id: int = self._get_next_encounter_id()
@@ -599,14 +620,14 @@ class StatsDatabase:
         if custom_filter_result is True:
             custom_filter_result = "True"
 
-        if self._current_shiny_phase is None:
+        if self.current_shiny_phase is None:
             shiny_phase_id = self._get_next_shiny_phase_id()
-            self._current_shiny_phase = ShinyPhase.create(shiny_phase_id, now_in_utc)
-            self._insert_shiny_phase(self._current_shiny_phase)
+            self.current_shiny_phase = ShinyPhase.create(shiny_phase_id, now_in_utc)
+            self._insert_shiny_phase(self.current_shiny_phase)
 
         encounter = Encounter(
             encounter_id=self._next_encounter_id,
-            shiny_phase_id=self._current_shiny_phase.shiny_phase_id,
+            shiny_phase_id=self.current_shiny_phase.shiny_phase_id,
             matching_custom_catch_filters=custom_filter_result,
             encounter_time=now_in_utc,
             map=map_enum.name,
@@ -619,18 +640,18 @@ class StatsDatabase:
 
         self.last_encounter = encounter
         self._insert_encounter(encounter)
-        self._current_shiny_phase.update(encounter)
+        self.current_shiny_phase.update(encounter)
         if pokemon.is_shiny:
-            self._current_shiny_phase.update_snapshot(self._encounter_summaries)
-        self._update_shiny_phase(self._current_shiny_phase)
+            self.current_shiny_phase.update_snapshot(self._encounter_summaries)
+        self._update_shiny_phase(self.current_shiny_phase)
 
         if pokemon.is_shiny:
             self._reset_phase_in_database(encounter)
-            if self._current_shiny_phase.encounters < self._shortest_shiny_phase.encounters:
-                self._shortest_shiny_phase = self._current_shiny_phase
-            if self._current_shiny_phase.encounters > self._longest_shiny_phase.encounters:
-                self._longest_shiny_phase = self._current_shiny_phase
-            self._current_shiny_phase = None
+            if self.current_shiny_phase.encounters < self._shortest_shiny_phase.encounters:
+                self._shortest_shiny_phase = self.current_shiny_phase
+            if self.current_shiny_phase.encounters > self._longest_shiny_phase.encounters:
+                self._longest_shiny_phase = self.current_shiny_phase
+            self.current_shiny_phase = None
             for species_id in self._encounter_summaries:
                 encounter_summary = self._encounter_summaries[species_id]
                 encounter_summary.phase_encounters = 0
@@ -665,23 +686,26 @@ class StatsDatabase:
 
     def log_fishing_attempt(self, attempt: FishingAttempt):
         self.last_fishing_attempt = attempt
-        if self._current_shiny_phase is not None:
-            self._current_shiny_phase.update_fishing_attempt(attempt)
+        if self.current_shiny_phase is not None:
+            self.current_shiny_phase.update_fishing_attempt(attempt)
             if attempt.result is not FishingResult.Encounter:
-                self._update_shiny_phase(self._current_shiny_phase)
+                self._update_shiny_phase(self.current_shiny_phase)
         context.message = f"Fishing attempt with {attempt.rod.name} and result {attempt.result.name}"
 
     def get_global_stats(self) -> GlobalStats:
         return GlobalStats(
             self._encounter_summaries,
             self._pickup_items,
-            self._current_shiny_phase,
+            self.current_shiny_phase,
             self._longest_shiny_phase,
             self._shortest_shiny_phase,
         )
 
     def get_encounter_log(self) -> list[Encounter]:
         return list(self._query_encounters())
+
+    def get_shiny_phase_by_shiny(self, shiny_pokemon: Pokemon) -> ShinyPhase | None:
+        return self._query_single_shiny_phase("encounters.personality_value = ?", (shiny_pokemon.personality_value,))
 
     def get_shiny_log(self) -> list[ShinyPhase]:
         return list(self._query_shiny_phases("end_time IS NOT NULL ORDER BY end_time DESC"))
@@ -1002,7 +1026,7 @@ class StatsDatabase:
 
         self._cursor.execute(
             "UPDATE shiny_phases SET end_time = ?, shiny_encounter_id = ? WHERE shiny_phase_id = ?",
-            (encounter.encounter_time, encounter.encounter_id, self._current_shiny_phase.shiny_phase_id),
+            (encounter.encounter_time, encounter.encounter_id, self.current_shiny_phase.shiny_phase_id),
         )
 
         self._cursor.execute(
