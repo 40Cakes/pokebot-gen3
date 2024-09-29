@@ -10,6 +10,7 @@ from modules.files import save_pk3, make_string_safe_for_file_name
 from modules.gui.desktop_notification import desktop_notification
 from modules.memory import get_game_state, GameState
 from modules.modes import BattleAction
+from modules.plugins import plugin_judge_encounter
 from modules.pokedex import get_pokedex
 from modules.roamer import get_roamer
 from modules.runtime import get_sprites_path
@@ -46,7 +47,7 @@ def run_custom_catch_filters(pokemon: "Pokemon") -> str | bool:
 
             _custom_catch_filters = custom_catch_filters
 
-    result = _custom_catch_filters(pokemon)
+    result = _custom_catch_filters(pokemon) or plugin_judge_encounter(pokemon)
     if result is True:
         result = "Matched a custom catch filter"
     return result

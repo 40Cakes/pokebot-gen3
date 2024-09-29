@@ -127,10 +127,10 @@ def plugin_judge_encounter(pokemon: Pokemon) -> str | bool:
     return False
 
 
-def plugin_should_nickname_pokemon(pokemon: Pokemon) -> str:
+def plugin_should_nickname_pokemon(pokemon: Pokemon) -> str | None:
     for plugin in plugins:
         nickname = plugin.on_should_nickname_pokemon(pokemon)
         if nickname:
             return nickname
 
-    return ""
+    return None
