@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Iterable, Optional
 
 from modules.battle_state import BattleOutcome, EncounterType, get_encounter_type
 from modules.context import context
+from modules.encounter import judge_encounter
 from modules.fishing import FishingAttempt, FishingResult
 from modules.items import Item, get_item_by_index
 from modules.player import get_player_location
@@ -639,7 +640,8 @@ class StatsDatabase:
         )
 
         self.last_encounter = encounter
-        self._insert_encounter(encounter)
+        if context.config.logging.log_encounters or judge_encounter(pokemon).is_of_interest:
+            self._insert_encounter(encounter)
         self.current_shiny_phase.update(encounter)
         if pokemon.is_shiny:
             self.current_shiny_phase.update_snapshot(self._encounter_summaries)
