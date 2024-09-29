@@ -2,6 +2,7 @@ import struct
 from enum import IntEnum
 
 from modules.context import context
+from modules.game import decode_string
 from modules.memory import get_symbol_name, read_symbol, unpack_uint32
 from modules.pokemon import Move, Pokemon, get_move_by_index, get_party, parse_pokemon
 from modules.tasks import get_task, task_is_active
@@ -329,12 +330,14 @@ def name_requested() -> bool:
     """
     match context.rom.game_title:
         case "POKEMON RUBY" | "POKEMON SAPP":
-            # Naming Pokémon in R/S is not yet supported.
-            return False
+            nickname_captured_address = unpack_uint32(read_symbol("gBattleStringsTable")[0x101 * 4 : 0x101 * 4 + 4])
+            nickname_captured = decode_string(context.emulator.read_bytes(nickname_captured_address, 44)).split("{")[0]
+            displayed_string = decode_string(read_symbol("gDisplayedStringBattle"))
         case _:
-            nicknameCaptured = read_symbol("sText_GiveNicknameCaptured")
-            displayedString = read_symbol("gDisplayedStringBattle")
-            return nicknameCaptured[:30] in displayedString[:30]
+            nickname_captured = decode_string(read_symbol("sText_GiveNicknameCaptured")).split("{")[0]
+            displayed_string = decode_string(read_symbol("gDisplayedStringBattle"))
+
+    return nickname_captured in displayed_string
 
 
 def switch_requested() -> bool:

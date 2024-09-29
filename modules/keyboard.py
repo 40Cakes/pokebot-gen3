@@ -166,9 +166,11 @@ class KeyboardNavigator(BaseMenuNavigator):
             context.message = "Keyboard is not open"
 
     def wait_for_keyboard(self):
-        while (self.keyboard.cur_pos[0] > self.w and self.keyboard.cur_pos[1] > self.h) or len(
-            self.keyboard.text_buffer
-        ) > 0:
+        while (
+            self.keyboard.cur_pos[0] is None
+            or (self.keyboard.cur_pos[0] > self.w and self.keyboard.cur_pos[1] > self.h)
+            or len(self.keyboard.text_buffer) > 0
+        ):
             context.emulator.press_button("B")
             yield
 
@@ -256,9 +258,9 @@ class KeyboardNavigator(BaseMenuNavigator):
 
     def confirm_name(self):
         while self.keyboard.enabled:
-            if self.keyboard.cur_pos[0] > self.w or (
-                self.keyboard.cur_pos == (8, 0) and context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]
-            ):
+            if (
+                context.rom.game_title not in ["POKEMON RUBY", "POKEMON SAPP"] and self.keyboard.cur_pos[0] > self.w
+            ) or (self.keyboard.cur_pos == (6, 0)):
                 context.emulator.press_button("A")
             else:
                 if self.keyboard.text_buffer == self.name:

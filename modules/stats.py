@@ -60,15 +60,6 @@ class TotalStats:
 
                 self.custom_hooks = custom_hooks
 
-            if (self.config_dir_path / "customnickname.py").is_file():
-                self.custom_should_nickname_pokemon = importlib.import_module(
-                    ".customnickname", f"profiles.{context.profile.path.name}"
-                ).custom_should_nickname_pokemon
-            else:
-                from profiles.customnickname import custom_should_nickname_pokemon
-
-                self.custom_should_nickname_pokemon = custom_should_nickname_pokemon
-
             f_total_stats = read_file(self.files["totals"])
             self.total_stats = json.loads(f_total_stats) if f_total_stats else {}
 

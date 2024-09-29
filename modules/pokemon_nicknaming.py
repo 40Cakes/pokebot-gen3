@@ -10,7 +10,6 @@ def max_pokemon_name_length() -> int:
 
 
 def should_nickname_pokemon(pokemon: Pokemon) -> str:
-    from modules.stats import total_stats
+    from modules.plugins import plugin_should_nickname_pokemon
 
-    result = total_stats.custom_should_nickname_pokemon(pokemon)
-    return result
+    return plugin_should_nickname_pokemon(pokemon)

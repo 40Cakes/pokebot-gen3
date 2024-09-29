@@ -206,7 +206,7 @@ def get_game_state() -> GameState:
             result = GameState.EGG_HATCH
         case "CB2_WHITEOUT":
             result = GameState.WHITEOUT
-        case "CB2_LOADNAMINGSCREEN" | "CB2_NAMINGSCREEN":
+        case "CB2_LOADNAMINGSCREEN" | "CB2_NAMINGSCREEN" | "SUB_80B5AA0":
             result = GameState.NAMING_SCREEN
         case "CB2_POKESTORAGE":
             result = GameState.POKE_STORAGE
