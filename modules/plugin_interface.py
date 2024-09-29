@@ -34,3 +34,6 @@ class BotPlugin:
 
     def on_judge_encounter(self, opponent: "Pokemon") -> str | bool:
         return False
+
+    def on_should_nickname_pokemon(self, pokemon: "Pokemon") -> str:
+        return ""
