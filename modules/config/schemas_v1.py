@@ -230,21 +230,11 @@ class OBS(BaseConfig):
     filename: ClassVar = "obs.yml"
     discord_delay: NonNegativeInt = 0
     discord_webhook_url: str | None = None
-    replay_dir: Path = "./stream/replays/"
     replay_buffer: bool = False
     replay_buffer_delay: NonNegativeInt = 0
     screenshot: bool = False
     shiny_delay: NonNegativeInt = 0
     obs_websocket: OBSWebsocket = Field(default_factory=lambda: OBSWebsocket())
-
-    @field_validator("replay_dir")
-    def validate_dir(cls, value: str | Path, **kwargs) -> Path:
-        """Ensure the replay_dir field returns a path."""
-        if isinstance(value, str):
-            value = Path(value)
-        if not isinstance(value, Path):
-            raise ValueError(f"Expected a Path or a string, got: {type(value)}.")
-        return value
 
 
 class OBSWebsocket(BaseConfig):

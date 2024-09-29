@@ -11,4 +11,3 @@ screenshot: false
 replay_buffer: false
 replay_buffer_delay: 0
 discord_webhook_url:
-replay_dir: "./stream/replays/"
