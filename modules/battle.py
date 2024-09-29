@@ -3,6 +3,7 @@ from enum import Enum, IntEnum, auto
 
 from modules.context import context
 from modules.items import Item, get_item_bag, get_item_by_index, get_item_by_name
+from modules.keyboard import KeyboardNavigator
 from modules.map import get_map_data_for_current_position
 from modules.memory import GameState, get_game_state, get_symbol_name, read_symbol, unpack_uint16, unpack_uint32
 from modules.menu_parsers import (
@@ -11,6 +12,7 @@ from modules.menu_parsers import (
     get_learning_move,
     get_learning_move_cursor_pos,
     get_party_menu_cursor_pos,
+    name_requested,
     switch_requested,
 )
 from modules.menuing import (
@@ -37,6 +39,7 @@ from modules.pokemon import (
     get_party,
     get_type_by_name,
 )
+from modules.pokemon_nicknaming import max_pokemon_name_length, should_nickname_pokemon
 from modules.tasks import get_global_script_context, get_task, get_tasks, task_is_active
 from modules.tcg_card import generate_tcg_card
 
@@ -65,6 +68,7 @@ class BattleState(IntEnum):
     PARTY_MENU = auto()
     BAG_MENU = auto()
     SWITCH_POKEMON = auto()
+    NAMING_POKEMON = auto()
     LEARNING = auto()
     # misc undetected state (move animations, buffering, etc.)
     OTHER = auto()
@@ -489,6 +493,8 @@ class BattleOpponent:
                 self.action = self.select_option()
             case BattleState.SWITCH_POKEMON:
                 self.action = self.handle_battler_faint()
+            case BattleState.NAMING_POKEMON:
+                self.action = self.handle_name_pokemon()
 
     def select_option(self):
         while get_battle_state() in [BattleState.ACTION_SELECTION, BattleState.MOVE_SELECTION]:
@@ -990,6 +996,24 @@ class BattleOpponent:
                 context.message = "Invalid faint_action option, switching to manual mode..."
                 context.set_manual_mode()
 
+    def handle_name_pokemon(self):
+        """
+        Function that handles naming Pokémon post battle
+        """
+        nickname = should_nickname_pokemon(self.opponent)
+        if nickname:
+            while get_game_state() != GameState.NAMING_SCREEN:
+                context.emulator.press_button("A")
+                yield
+
+            while get_game_state() == GameState.NAMING_SCREEN:
+                yield from KeyboardNavigator(name=nickname, max_length=max_pokemon_name_length()).step()
+                yield
+
+        while get_game_state() != GameState.OVERWORLD:
+            context.emulator.press_button("B")
+            yield
+
 
 def get_battle_state() -> BattleState:
     """
@@ -1019,7 +1043,11 @@ def get_battle_state() -> BattleState:
                         case "MOVE":
                             return BattleState.MOVE_SELECTION
                         case _:
-                            return BattleState.SWITCH_POKEMON if switch_requested() else BattleState.OTHER
+                            if switch_requested():
+                                return BattleState.SWITCH_POKEMON
+                            elif name_requested():
+                                return BattleState.NAMING_POKEMON
+                            return BattleState.OTHER
 
 
 def get_learn_move_state() -> str:
