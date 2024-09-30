@@ -15,6 +15,8 @@ class Battle(BaseConfig):
 
     filename: ClassVar = "battle.yml"
     auto_catch: bool = True
+    catch_revive_mode: Literal["always_revive_lead", "no_revive"] = "always_revive_lead"
+    revive_item: Literal["revive", "max_revive", "both"] = "revive"
     save_after_catching: bool = False
     pickup: bool = True
     pickup_threshold: Annotated[int, Field(gt=0, lt=7)] = 1

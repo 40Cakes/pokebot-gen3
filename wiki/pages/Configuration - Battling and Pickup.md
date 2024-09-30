@@ -10,6 +10,23 @@ The bot can automatically battle Pokémon that don't meet any catch criteria.
 
 `auto_catch` - enable automatic catching of encounters-of-interest (shinies and those that match your custom catch filters.)
 
+`catch_revive_mode` - What to do if the lead Pokémon faints while trying to catch the Pokémon.
+The lead Pokémon is the first Pokémon sent at the start of the battle
+
+- `always_revive_lead` - send the next available Pokémon, revive the lead Pokémon and try to catch it. 
+If it faints, the leader will be sent again.
+_Switch to manual mode if there's only one Pokémon alive left in your party_
+
+- `no_revive` -  will send each available Pokémon one by one and attempt to catch the Pokémon
+_Switch to manual mode if there's only one Pokémon alive left in your party_
+
+`revive_item` - The item the bot should use to revive your leader if `catch_revive_mode` is not `no_revive`
+_Switch to manual mode when no revive items remain available._
+
+- `max_revive` - use Max Revive to revive the lead Pokémon
+- `revive` - use Revive to revive the lead Pokémon
+- `both` - will use Max Revive if available; otherwise, use Revive.
+
 If your lead Pokémon knows False Swipe, the bot may use that. It will also try to use sleep-inducing or paralysing moves
 where it makes sense.
 

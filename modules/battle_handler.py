@@ -123,7 +123,8 @@ def handle_fainted_pokemon(strategy: BattleStrategy):
     if get_current_battle_script_instruction() == "BattleScript_FaintedMonEnd":
         return
 
-    yield from scroll_to_party_menu_index(new_lead_index)
+    new_lead_battle_index = battle_state.map_battle_party_index(new_lead_index)
+    yield from scroll_to_party_menu_index(new_lead_battle_index)
     while get_game_state() == GameState.PARTY_MENU:
         context.emulator.press_button("A")
         yield
