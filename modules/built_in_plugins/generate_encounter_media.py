@@ -1,3 +1,4 @@
+import os
 import time
 from pathlib import Path
 from threading import Thread
@@ -38,7 +39,7 @@ class GifGeneratorListener(BotListener):
             # Closest to 60 fps we can get, as Pillow only seems to support 10ms steps.
             milliseconds_per_frame = 20
             self._frames[0].save(
-                directory / file_name,
+                directory / (file_name + ".tmp"),
                 format="GIF",
                 append_images=extra_frames,
                 save_all=True,
@@ -46,6 +47,8 @@ class GifGeneratorListener(BotListener):
                 loop=0,
             )
             self._frames.clear()
+
+            os.replace(directory / (file_name + ".tmp"), directory / file_name)
 
 
 class GenerateEncounterMediaPlugin(BotPlugin):

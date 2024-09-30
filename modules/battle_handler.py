@@ -4,11 +4,13 @@ from modules.battle_action_selection import handle_battle_action_selection
 from modules.battle_evolution_scene import handle_evolution_scene
 from modules.battle_move_replacing import handle_move_replacement_dialogue
 from modules.battle_state import (
+    get_battle_state,
     battle_is_active,
     get_main_battle_callback,
     get_current_battle_script_instruction,
     BattlePokemon,
     get_battle_state,
+    get_battle_controller_callback,
 )
 from modules.battle_strategies import BattleStrategy
 from modules.context import context
@@ -39,7 +41,9 @@ def handle_battle(strategy: BattleStrategy) -> Generator:
             yield from handle_move_replacement_dialogue(strategy)
         elif task_is_active("Task_EvolutionScene"):
             yield from handle_evolution_scene(strategy)
-        elif instruction == "BattleScript_HandleFaintedMon" or task_is_active("Task_HandleChooseMonInput"):
+        elif (
+            instruction == "BattleScript_HandleFaintedMon" or task_is_active("Task_HandleChooseMonInput")
+        ) and get_battle_state().own_side.is_fainted:
             yield from handle_fainted_pokemon(strategy)
         elif instruction in ("BattleScript_TryNicknameCaughtMon", "BattleScript_CaughtPokemonSkipNewDex"):
             yield from handle_nickname_caught_pokemon()
@@ -83,6 +87,10 @@ def handle_fainted_pokemon(strategy: BattleStrategy):
                 return
 
     new_lead_index = strategy.choose_new_lead_after_faint(battle_state)
+    if context.bot_mode == "Manual":
+        yield
+        return
+
     if new_lead_index < 0 or new_lead_index >= len(get_party()):
         raise RuntimeError(f"Cannot send out party index #{new_lead_index} because that does not exist.")
 

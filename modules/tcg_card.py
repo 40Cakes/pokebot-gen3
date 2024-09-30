@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -300,8 +301,12 @@ def generate_tcg_card(pokemon: Pokemon, location: str = "") -> Path | None:
         if not cards_dir.exists():
             cards_dir.mkdir(parents=True)
 
-        card_file = cards_dir / get_tcg_card_file_name(pokemon)
-        card.save(str(card_file))
+        file_name = get_tcg_card_file_name(pokemon)
+        tmp_card_file = cards_dir / (file_name + ".tmp")
+        card_file = cards_dir / file_name
+        card.save(tmp_card_file)
+
+        os.replace(tmp_card_file, card_file)
 
         return card_file
 

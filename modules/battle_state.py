@@ -410,6 +410,13 @@ class BattleStateSide:
     def spikes_amount(self) -> int:
         return self._timers[10]
 
+    @property
+    def is_fainted(self) -> bool:
+        for battler in self.active_battlers:
+            if battler.current_hp == 0:
+                return True
+        return False
+
 
 class BattlePokemon:
     def __init__(self, data: bytes, status3: bytes, disable_struct: bytes, party_index: int):

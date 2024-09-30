@@ -49,49 +49,59 @@ def _obs_screenshot(client: obs.ReqClient, width: int, height: int) -> Path:
 
 
 def _obs_thread(task_queue: Queue[str]):
-    with obs.ReqClient(
-        host=context.config.obs.obs_websocket.host,
-        port=context.config.obs.obs_websocket.port,
-        password=context.config.obs.obs_websocket.password,
-        timeout=5,
-    ) as client:
-        video_settings = client.get_video_settings()
-        video_width = video_settings.base_width
-        video_height = video_settings.base_height
+    try:
+        client = obs.ReqClient(
+            host=context.config.obs.obs_websocket.host,
+            port=context.config.obs.obs_websocket.port,
+            password=context.config.obs.obs_websocket.password,
+            timeout=5,
+        )
+    except Exception as e:
+        console.print(
+            f"[bold red]OBS Error:[/] [red]Could not connect to the OBS Websocket Server.\n{e}\nOBS integration will be disabled.[/]"
+        )
+        return
 
-        version = client.get_version()
-        if "png" not in version.supported_image_formats:
-            raise RuntimeError("OBS does not support PNG, so taking screenshots is not going to work.")
+    video_settings = client.get_video_settings()
+    video_width = video_settings.base_width
+    video_height = video_settings.base_height
 
-        while True:
-            task = task_queue.get()
+    version = client.get_version()
+    if "png" not in version.supported_image_formats:
+        console.print(
+            f"[bold red]OBS Error:[/] [red]OBS does not support PNG, so we cannot take screenshots.\n(Supported image formats: {', '.join(version.supported_image_formats)}\nOBS integration will be disabled.[/]"
+        )
+        return
 
-            if task == "save_screenshot":
-                if context.config.obs.shiny_delay > 0:
-                    time.sleep(context.config.obs.shiny_delay)
-                _obs_screenshot(client, video_width, video_height)
+    while True:
+        task = task_queue.get()
 
-            elif task == "save_screenshot_and_send_to_discord":
-                if context.config.obs.shiny_delay > 0:
-                    time.sleep(context.config.obs.shiny_delay)
-                image_file = _obs_screenshot(client, video_width, video_height)
-                if context.config.obs.discord_webhook_url:
-                    if context.config.obs.discord_delay > 0:
-                        time.sleep(context.config.obs.discord_delay)
-                    discord_send(
-                        DiscordMessage(
-                            webhook_url=context.config.obs.discord_webhook_url,
-                            image=image_file,
-                        )
+        if task == "save_screenshot":
+            if context.config.obs.shiny_delay > 0:
+                time.sleep(context.config.obs.shiny_delay)
+            _obs_screenshot(client, video_width, video_height)
+
+        elif task == "save_screenshot_and_send_to_discord":
+            if context.config.obs.shiny_delay > 0:
+                time.sleep(context.config.obs.shiny_delay)
+            image_file = _obs_screenshot(client, video_width, video_height)
+            if context.config.obs.discord_webhook_url:
+                if context.config.obs.discord_delay > 0:
+                    time.sleep(context.config.obs.discord_delay)
+                discord_send(
+                    DiscordMessage(
+                        webhook_url=context.config.obs.discord_webhook_url,
+                        image=image_file,
                     )
+                )
 
-            elif task == "save_replay_buffer":
-                if context.config.obs.replay_buffer_delay > 0:
-                    time.sleep(context.config.obs.replay_buffer_delay)
-                client.save_replay_buffer()
+        elif task == "save_replay_buffer":
+            if context.config.obs.replay_buffer_delay > 0:
+                time.sleep(context.config.obs.replay_buffer_delay)
+            client.save_replay_buffer()
 
-            else:
-                console.print("[bold red]OBS Plugin:[/] [red]Unknown task: " + task + "[/]")
+        else:
+            console.print("[bold red]OBS Plugin:[/] [red]Unknown task: " + task + "[/]")
 
 
 class OBSPlugin(BotPlugin):

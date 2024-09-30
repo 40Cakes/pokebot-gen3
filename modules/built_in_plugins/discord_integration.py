@@ -136,7 +136,7 @@ class DiscordPlugin(BotPlugin):
                         f"IVs ({opponent.ivs.sum()})": iv_table(opponent),
                         "Held item": opponent.held_item.name if opponent.held_item else "None",
                         f"{opponent.species_name_for_stats} Encounters": f"{species_stats.total_encounters:,} ({species_stats.shiny_encounters:,}✨)",
-                        f"{opponent.species_name_for_stats} Phase Encounters": f"{species_stats.phase_encounters:,}",
+                        f"{opponent.species_name_for_stats} Phase Encounters": f"{context.stats.last_shiny_species_phase_encounters:,}",
                     }
                     | phase_summary_fields(opponent, shiny_phase),
                     thumbnail=get_shiny_sprite(opponent),

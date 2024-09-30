@@ -594,6 +594,7 @@ class StatsDatabase:
 
         self.last_encounter: Encounter | None = self._get_last_encounter()
         self.last_fishing_attempt: Optional[FishingAttempt] = None
+        self.last_shiny_species_phase_encounters: int | None = None
 
         self.current_shiny_phase: ShinyPhase | None = self._get_current_shiny_phase()
         self._shortest_shiny_phase: ShinyPhase | None = self._get_shortest_shiny_phase()
@@ -655,6 +656,9 @@ class StatsDatabase:
                 self._longest_shiny_phase = self.current_shiny_phase
             self.current_shiny_phase = None
             for species_id in self._encounter_summaries:
+                if species_id == pokemon.species.index:
+                    self.last_shiny_species_phase_encounters = self._encounter_summaries[species_id].phase_encounters
+
                 encounter_summary = self._encounter_summaries[species_id]
                 encounter_summary.phase_encounters = 0
                 encounter_summary.phase_highest_iv_sum = None
@@ -677,14 +681,14 @@ class StatsDatabase:
             self._update_encounter_outcome(self.last_encounter)
 
     def log_pickup_items(self, picked_up_items: list["Item"]) -> None:
-        need_updating: set[PickupItem] = set()
+        need_updating: set[int] = set()
         for item in picked_up_items:
             if item.index not in self._pickup_items:
                 self._pickup_items[item.index] = PickupItem(item)
             self._pickup_items[item.index].times_picked_up += 1
-            need_updating.add(self._pickup_items[item.index])
-        for pickup_item in need_updating:
-            self._insert_or_update_pickup_item(pickup_item)
+            need_updating.add(item.index)
+        for item_index in need_updating:
+            self._insert_or_update_pickup_item(self._pickup_items[item_index])
 
     def log_fishing_attempt(self, attempt: FishingAttempt):
         self.last_fishing_attempt = attempt
