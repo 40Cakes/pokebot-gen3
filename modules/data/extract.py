@@ -119,11 +119,16 @@ def extract_items(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict
     item_list = []
     type_map = [
         "mail",
-        "usable_outside_battle",
-        "usable_in_certain_locations",
+        "apply_to_party_member",
+        "use_and_return_to_overworld",
         "pokeblock_case",
-        "not_usable_outside_battle",
+        "use_and_stay_in_item_menu",
     ]
+    field_use_map = {
+        "ItemUseOutOfBattle_EnigmaBerry": "enigma_berry",
+        "ItemUseOutOfBattle_Medicine": "healing",
+        "ItemUseOutOfBattle_PPRecovery": "pp_recovery",
+    }
     battle_use_map = {
         "ItemUseInBattle_PokeBall": "catch",
         "ItemUseInBattle_StatIncrease": "stat_increase",
@@ -132,6 +137,75 @@ def extract_items(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict
         "ItemUseInBattle_Escape": "escape",
         "ItemUseInBattle_EnigmaBerry": "enigma_berry",
     }
+    hold_effect_map = [
+        None,
+        "restore_hp",
+        "cure_paralysis",
+        "cure_sleep",
+        "cure_poison",
+        "cure_burn",
+        "cure_freeze",
+        "restore_pp",
+        "cure_confusion",
+        "cure_status_condition",
+        "confuse_spicy",
+        "confuse_dry",
+        "confuse_sweet",
+        "confuse_bitter",
+        "confuse_sour",
+        "attack_up",
+        "defense_up",
+        "speed_up",
+        "special_attack_up",
+        "special_defense_up",
+        "critical_hit_rate_up",
+        "random_stat_up",
+        "evasion_up",
+        "restore_stats",
+        "macho_brace",
+        "exp_share",
+        "quick_claw",
+        "friendship_up",
+        "cure_attract",
+        "choice_band",
+        "flinch",
+        "bug_power",
+        "double_prize",
+        "repel",
+        "soul_dew",
+        "deep_sea_tooth",
+        "deep_sea_scale",
+        "can_always_run_away",
+        "prevent_evolve",
+        "focus_band",
+        "lucky_egg",
+        "scope_lens",
+        "steel_power",
+        "leftovers",
+        "dragon_scale",
+        "light_ball",
+        "ground_power",
+        "rock_power",
+        "grass_power",
+        "dark_power",
+        "fighting_power",
+        "electric_power",
+        "water_power",
+        "flying_power",
+        "poison_power",
+        "ice_power",
+        "ghost_power",
+        "psychic_power",
+        "fire_power",
+        "dragon_power",
+        "normal_power",
+        "up_grade",
+        "shell_bell",
+        "lucky_punch",
+        "metal_powder",
+        "thick_club",
+        "stick",
+    ]
     pocket_map = ["???", "items", "poke_balls", "tms_and_hms", "berries", "key_items"]
 
     set_rom(english_rom)
@@ -156,7 +230,7 @@ def extract_items(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict
 
             # Poké Balls use the 'item type' field to indicate the Poké Ball type instead.
             if pocket == 2:
-                item_type = int.from_bytes(item_data[27:28], byteorder="little")
+                item_type = "poke_ball"
             else:
                 item_type = type_map[int.from_bytes(item_data[27:28], byteorder="little")]
 
@@ -170,6 +244,16 @@ def extract_items(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict
             else:
                 battle_use = None
 
+            if int.from_bytes(item_data[28:32], byteorder="little") > 0:
+                field_use_function = int.from_bytes(item_data[28:32], byteorder="little")
+                field_use = get_symbol_name_before(field_use_function, True)
+                if field_use in field_use_map:
+                    field_use = field_use_map[field_use]
+                else:
+                    field_use = None
+            else:
+                field_use = None
+
             if (pretty_name.startswith("TM") or pretty_name.startswith("HM")) and pretty_name != "TM Case":
                 move_id = tm_hm_move_map[pretty_name]
             else:
@@ -181,8 +265,10 @@ def extract_items(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict
                 "price": int.from_bytes(item_data[16:18], byteorder="little"),
                 "type": item_type,
                 "battle_use": battle_use,
+                "field_use": field_use,
                 "pocket": pocket_map[pocket],
-                "parameter": int.from_bytes(item_data[19:20], byteorder="little"),
+                "hold_effect": hold_effect_map[item_data[18]],
+                "parameter": item_data[19],
                 "extra_parameter": int.from_bytes(item_data[40:44], byteorder="little"),
                 "tm_hm_move_id": move_id,
                 "localised_names": initialise_localised_string(),
@@ -574,6 +660,18 @@ def extract_moves(english_rom: ROM, localised_roms: dict[str, ROM], types_list: 
         0x20: "FOES_AND_ALLY",
         0x40: "OPPONENTS_FIELD",
     }
+    sound_moves = (
+        "Growl",
+        "Roar",
+        "Sing",
+        "Supersonic",
+        "Screech",
+        "Snore",
+        "Uproar",
+        "Metal Sound",
+        "Grasswhistle",
+        "Hyper Voice",
+    )
 
     with open(english_rom.file, "rb") as english_file:
         tm_hm_move_map = get_tm_hm_move_map(english_file)
@@ -602,6 +700,7 @@ def extract_moves(english_rom: ROM, localised_roms: dict[str, ROM], types_list: 
                     "target": target_map[move_data[6]],
                     "priority": move_data[7] if move_data[7] < 0x80 else -1 * (256 - move_data[7]),
                     "makes_contact": move_data[8] & 0x01 != 0,
+                    "is_sound_move": False,
                     "affected_by_protect": move_data[8] & 0x02 != 0,
                     "affected_by_magic_coat": move_data[8] & 0x04 != 0,
                     "affected_by_snatch": move_data[8] & 0x08 != 0,
@@ -615,7 +714,10 @@ def extract_moves(english_rom: ROM, localised_roms: dict[str, ROM], types_list: 
 
         english_file.seek(get_address("gMoveNames"))
         for i in range(355):
-            moves_list[i]["name"] = string.capwords(read_string(english_file))
+            name = string.capwords(read_string(english_file))
+            moves_list[i]["name"] = name
+            if name in sound_moves:
+                moves_list[i]["is_sound_move"] = True
 
     for language_code in "DEFIJS":
         localised_rom = localised_roms[language_code]

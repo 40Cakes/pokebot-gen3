@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from modules.battle_strategies import BattleStrategy, TurnAction
+from modules.battle_strategies import BattleStrategy, TurnAction, BattleStrategyUtil
 from modules.pokemon import get_party, StatusCondition
 
 if TYPE_CHECKING:
@@ -57,6 +57,8 @@ class LoseOnPurposeBattleStrategy(BattleStrategy):
     def _get_weakest_move_against(
         self, battle_state: "BattleState", pokemon: "BattlePokemon", opponent: "BattlePokemon"
     ):
+        util = BattleStrategyUtil(battle_state)
+
         move_strengths = []
         for learned_move in pokemon.moves:
             move = learned_move.move
@@ -64,26 +66,11 @@ class LoseOnPurposeBattleStrategy(BattleStrategy):
             # Never use moves that ran out of PP, unless _all_ moves are out of PPs in
             # which case we're using Struggle either way.
             if learned_move.pp == 0:
-                move_strengths.append(999)
+                move_strengths.append(99999)
                 continue
 
             # Calculate effective power of the move.
-            if move.effect == "HIDDEN_POWER":
-                move_type = pokemon.hidden_power_type
-                move_base_power = pokemon.hidden_power_damage
-            elif move.effect == "LEVEL_DAMAGE":
-                move_type = move.type
-                move_base_power = pokemon.level
-            else:
-                move_type = move.type
-                move_base_power = move.base_power
-
-            stat_modifier = pokemon.stats.attack if move_type.kind == "Physical" else pokemon.stats.special_attack
-            same_type_bonus = 1.5 if move.type in pokemon.types else 1
-            type_modifier = 1
-            for type in opponent.types:
-                type_modifier *= move_type.get_effectiveness_against(type)
-            move_power = move_base_power * stat_modifier * same_type_bonus * type_modifier
+            move_power = util.calculate_move_damage_range(move, pokemon, opponent).max
 
             # Doing nothing is always the best idea.
             if move.effect == "SPLASH":
@@ -91,7 +78,7 @@ class LoseOnPurposeBattleStrategy(BattleStrategy):
 
             # Moves that might end the battle.
             if move.effect == "ROAR" and BattleType.Trainer not in battle_state.type:
-                move_power = 998
+                move_power = 99998
 
             # Moves that give an invulnerable turn (Fly, Dig, ...), as we WANT to be damaged.
             if move.effect == "SEMI_INVULNERABLE":
@@ -110,20 +97,20 @@ class LoseOnPurposeBattleStrategy(BattleStrategy):
                 move_power *= 1.5
 
             if move.effect in ("SOFTBOILED", "MOONLIGHT", "MORNING_SUN", "SYNTHESIS", "RECOVER"):
-                move_power = 150
+                move_power = 1500
             elif move.effect in "REST":
                 # Rest is the preferable healing move because it at least puts us to sleep.
-                move_power = 149
+                move_power = 1490
 
             # Moves that would remove damaging status effects.
             if pokemon.status_permanent is not StatusCondition.Healthy and move.effect == "HEAL_BELL":
-                move_power = 147
+                move_power = 1470
             elif (
                 pokemon.status_permanent
                 in (StatusCondition.Poison, StatusCondition.BadPoison, StatusCondition.Burn, StatusCondition.Paralysis)
                 and move.effect == "REFRESH"
             ):
-                move_power = 147
+                move_power = 1470
 
             # Moves that would decrease the opponent's accuracy or our own evasion.
             if move.effect in ("ACCURACY_DOWN", "ACCURACY_DOWN_HIT", "EVASION_UP"):
@@ -150,7 +137,7 @@ class LoseOnPurposeBattleStrategy(BattleStrategy):
             # One-hit KO moves should not be risked, unless the opponent's level is higher than ours
             # (in which case OHKO moves always fail)
             if move.effect == "OHKO" and pokemon.level >= opponent.level:
-                move_power = 997
+                move_power = 99997
 
             # Moves might might inflict a status condition
             if opponent.status_permanent is StatusCondition.Healthy and move.effect in (

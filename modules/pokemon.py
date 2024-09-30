@@ -296,8 +296,6 @@ class Type:
     def __init__(self, index: int, name: str):
         self.index: int = index
         self.name: str = name
-        self.kind: str = "???"
-        self.kind = "Physical" if index < 9 else "Special"
         self._effectiveness: dict["Type", float] = {}
 
     def set_effectiveness(self, other_type: "Type", effectiveness: float):
@@ -305,6 +303,18 @@ class Type:
 
     def get_effectiveness_against(self, other_type: "Type") -> float:
         return self._effectiveness.get(other_type, 1)
+
+    @property
+    def is_physical(self) -> bool:
+        return self.index < 9
+
+    @property
+    def is_special(self) -> bool:
+        return self.index >= 9
+
+    @property
+    def kind(self) -> str:
+        return "Physical" if self.is_physical else "Special"
 
     def __str__(self):
         return self.name
@@ -331,6 +341,7 @@ class Move:
     effect: str
     target: str
     makes_contact: bool
+    is_sound_move: bool
     affected_by_protect: bool
     affected_by_magic_coat: bool
     affected_by_snatch: bool
@@ -356,6 +367,7 @@ class Move:
             effect=data["effect"],
             target=data["target"],
             makes_contact=data["makes_contact"],
+            is_sound_move=data["is_sound_move"],
             affected_by_protect=data["affected_by_protect"],
             affected_by_magic_coat=data["affected_by_magic_coat"],
             affected_by_snatch=data["affected_by_snatch"],

@@ -1,7 +1,8 @@
-from modules.battle_state import BattleState, BattlePokemon
+from modules.battle_state import BattleState, BattlePokemon, get_battle_state
 from modules.context import context
 from modules.pokemon import get_party, Pokemon, Move, LearnedMove, StatusCondition
 from ._interface import BattleStrategy, TurnAction, SafariTurnAction
+from ._util import BattleStrategyUtil
 
 
 class DefaultBattleStrategy(BattleStrategy):
@@ -241,23 +242,16 @@ class DefaultBattleStrategy(BattleStrategy):
         )
 
     def _get_strongest_move_against(self, pokemon: BattlePokemon, opponent: BattlePokemon):
+        util = BattleStrategyUtil(get_battle_state())
+
         move_strengths = []
         for learned_move in pokemon.moves:
             move = learned_move.move
-            if move.base_power == 0:
-                move_strengths.append(0)
-                continue
-            elif learned_move.pp == 0:
+            if learned_move.pp == 0:
                 move_strengths.append(-1)
-                continue
-
-            stat_modifier = pokemon.stats.attack if move.type.kind == "Physical" else pokemon.stats.special_attack
-            same_type_bonus = 1.5 if move.type in pokemon.types else 1
-            type_modifier = 1
-            for type in opponent.types:
-                type_modifier *= move.type.get_effectiveness_against(type)
-
-            move_strengths.append(move.base_power * stat_modifier * same_type_bonus * type_modifier)
+            else:
+                move_strengths.append(util.calculate_move_damage_range(move, pokemon, opponent).max)
 
         strongest_move = move_strengths.index(max(move_strengths))
+
         return strongest_move

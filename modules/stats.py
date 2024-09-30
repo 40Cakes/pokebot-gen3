@@ -760,7 +760,10 @@ class StatsDatabase:
             last_recorded_timestamp = self._encounter_timestamps[-1]
             timestamp_diff = last_recorded_timestamp - first_recorded_timestamp
             average_time_per_encounter = timestamp_diff / (number_of_encounters - 1)
-            self.encounter_rate = int(3600 / average_time_per_encounter)
+            if average_time_per_encounter > 0:
+                self.encounter_rate = int(3600 / average_time_per_encounter)
+            else:
+                self.encounter_rate = 0
 
         number_of_encounters = len(self._encounter_frames)
         if number_of_encounters > 1:
@@ -769,7 +772,10 @@ class StatsDatabase:
             frame_diff = last_recorded_frame - first_recorded_frame
             average_frames_per_encounter = frame_diff / (number_of_encounters - 1)
             average_seconds_per_encounter = average_frames_per_encounter / 59.727500569606
-            self.encounter_rate_at_1x = round(3600 / average_seconds_per_encounter, 1)
+            if average_seconds_per_encounter > 0:
+                self.encounter_rate_at_1x = round(3600 / average_seconds_per_encounter, 1)
+            else:
+                self.encounter_rate_at_1x = 0
 
     def _get_next_encounter_id(self) -> int:
         result = self._cursor.execute(

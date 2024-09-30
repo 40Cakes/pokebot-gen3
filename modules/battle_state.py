@@ -28,6 +28,7 @@ from modules.tasks import get_global_script_context
 
 
 class Weather(Enum):
+    Neutral = auto()
     Rain = auto()
     Sandstorm = auto()
     Sunny = auto()
@@ -312,7 +313,7 @@ class BattleState:
         elif self._weather & 0b10000000:
             return Weather.Hail
         else:
-            return None
+            return Weather.Neutral
 
     @property
     def type_names(self) -> list[str]:
@@ -335,6 +336,15 @@ class BattleStateSide:
         self._battle_state = battle_state
         self._absent_battler_flags = absent_battler_flags
         self._timers = timers
+
+    def __contains__(self, item):
+        if isinstance(item, BattlePokemon):
+            for battler in self.active_battlers:
+                if item == battler:
+                    return True
+            return False
+        else:
+            return NotImplemented
 
     @property
     def active_battlers(self) -> list["BattlePokemon"]:
@@ -388,6 +398,12 @@ class BattleStateSide:
         else:
             return left_battler
 
+    def partner_for(self, battle_pokemon: "BattlePokemon") -> "BattlePokemon | None":
+        for battler in self.active_battlers:
+            if battler != battle_pokemon:
+                return battler
+        return None
+
     @property
     def reflect_timer(self) -> BattleSideTimer:
         return BattleSideTimer(self._timers[0], self._timers[1])
@@ -426,6 +442,18 @@ class BattlePokemon:
         self._status3 = status3
         self._disable_struct = disable_struct
         self.party_index = party_index
+
+    def __eq__(self, other):
+        if isinstance(other, BattlePokemon):
+            return other._data == self._data
+        else:
+            return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, BattlePokemon):
+            return other._data != self._data
+        else:
+            return NotImplemented
 
     @property
     def species(self) -> Species:
@@ -499,6 +527,38 @@ class BattlePokemon:
     @property
     def stats_modifiers(self) -> StatsModifiers:
         return StatsModifiers.from_bytes(self._data[0x18:0x20])
+
+    def modified_stats(self) -> StatsValues:
+        stats = self.stats
+        modifiers = self.stats_modifiers
+
+        stages = [
+            {10, 40},
+            {10, 35},
+            {10, 30},
+            {10, 25},
+            {10, 20},
+            {10, 15},
+            {10, 10},
+            {15, 10},
+            {20, 10},
+            {25, 10},
+            {30, 10},
+            {35, 10},
+            {40, 10},
+        ]
+
+        def modify(stat: int, modifier: int) -> int:
+            return (stat * stages[modifier + 6][0]) // stages[modifier + 6][1]
+
+        return StatsValues(
+            hp=self.total_hp,
+            attack=modify(stats.attack, modifiers.attack),
+            defence=modify(stats.defence, modifiers.defence),
+            speed=modify(stats.speed, modifiers.speed),
+            special_attack=modify(stats.special_attack, modifiers.special_attack),
+            special_defence=modify(stats.special_defence, modifiers.special_defence),
+        )
 
     @property
     def current_hp(self) -> int:
