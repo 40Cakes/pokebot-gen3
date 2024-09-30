@@ -494,7 +494,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                     self.navigator = None
                     self.subnavigator = None
         else:
-            while task_is_active("SUB_808A060"):
+            while task_is_active("SUB_808A060") or task_is_active("Task_PartyMenuPrintRun"):
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator(1).step()
                 else:
