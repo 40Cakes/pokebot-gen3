@@ -1385,6 +1385,9 @@ class MapTab(DebugTab):
         list_effective_encounters("Fishing (Good Rod)", effective_encounter_data.good_rod_encounters)
         list_effective_encounters("Fishing (Super Rod)", effective_encounter_data.super_rod_encounters)
 
+        if "__value" not in effective_encounters:
+            effective_encounters["__value"] = ""
+
         if get_party_repel_level() > 0:
             effective_encounters["__value"] = (
                 f"(Repel Lvl. {get_party_repel_level()}) {effective_encounters['__value']}"

@@ -423,9 +423,13 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
             yield
 
     def select_summary(self):
+        spam_a_button = True
         while not task_is_active("Task_DuckBGMForPokemonCry"):
-            if not task_is_active("Task_HandleInput"):
-                context.emulator.press_button("A")
+            if spam_a_button:
+                if task_is_active("Task_HandleInput") or task_is_active("SummaryScreenHandleKeyInput"):
+                    spam_a_button = False
+                else:
+                    context.emulator.press_button("A")
             yield
 
     def select_mon(self):
