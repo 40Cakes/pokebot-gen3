@@ -8,7 +8,8 @@ from modules.memory import get_event_flag, get_event_var
 from modules.menuing import use_party_hm_move
 from modules.player import get_player_avatar
 from modules.tasks import get_global_script_context
-from ._asserts import assert_has_pokemon_with_move, assert_no_auto_battle, assert_no_auto_pickup, assert_registered_item
+from . import BattleAction
+from ._asserts import assert_has_pokemon_with_move, assert_no_auto_pickup, assert_registered_item
 from ._interface import BotMode, BotModeError
 from .util import (
     follow_path,
@@ -21,6 +22,9 @@ from .util import (
     walk_one_tile,
     apply_repel,
 )
+from ..battle_strategies import BattleStrategy
+from ..encounter import handle_encounter
+from ..pokemon import get_opponent
 
 
 @debug.track
@@ -60,11 +64,13 @@ class PuzzleSolverMode(BotMode):
         else:
             return False
 
+    def on_battle_started(self) -> BattleAction | BattleStrategy | None:
+        return handle_encounter(get_opponent(), enable_auto_battle=True)
+
     def on_repel_effect_ended(self) -> None:
         yield from apply_repel()
 
     def run(self) -> Generator:
-        assert_no_auto_battle("This mode should not be used with auto-battle.")
         assert_no_auto_pickup("This mode should not be used while auto-pickup is enabled.")
         use_repel = False
 

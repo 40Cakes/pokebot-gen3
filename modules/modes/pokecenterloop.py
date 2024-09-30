@@ -4,13 +4,13 @@ from modules.context import context
 from modules.map import get_map_data_for_current_position, get_map_data
 from modules.map_data import MapFRLG, MapRSE, PokemonCenter, get_map_enum
 from modules.map_path import calculate_path, PathFindingError
-from modules.modes import get_bot_mode_by_name
+from modules.modes import get_bot_mode_by_name, BattleAction
 from modules.player import get_player_avatar
 from modules.pokemon import get_party
-from ._asserts import assert_auto_battle
 from ._interface import BotMode, BotModeError
 from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon
 from ..battle_state import BattleOutcome
+from ..battle_strategies import BattleStrategy
 
 closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
     # Hoenn
@@ -64,6 +64,9 @@ class PokecenterLoopMode(BotMode):
         self._leave_pokemon_center = False
         self._go_healing = True
 
+    def on_battle_started(self) -> BattleAction | BattleStrategy | None:
+        return BattleAction.Fight
+
     def on_battle_ended(self, outcome: "BattleOutcome") -> None:
         if outcome == BattleOutcome.RanAway:
             self._go_healing = True
@@ -73,8 +76,6 @@ class PokecenterLoopMode(BotMode):
         return True
 
     def run(self) -> Generator:
-        assert_auto_battle("AutoBattle needs to be enabled for this mode to work")
-
         training_spot = get_map_data_for_current_position()
         if not training_spot.has_encounters:
             raise BotModeError("There are no encounters on this tile.")

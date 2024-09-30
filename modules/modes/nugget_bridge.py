@@ -6,8 +6,11 @@ from modules.map_data import MapFRLG
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
 from modules.pokemon import get_party
+from . import BattleAction
 from ._interface import BotMode, BotModeError
 from .util import navigate_to, wait_for_player_avatar_to_be_standing_still
+from ..battle_strategies import BattleStrategy
+from ..battle_strategies.lose_on_purpose import LoseOnPurposeBattleStrategy
 
 
 class NuggetBridgeMode(BotMode):
@@ -30,6 +33,9 @@ class NuggetBridgeMode(BotMode):
         super().__init__()
         self._has_whited_out = False
 
+    def on_battle_started(self) -> BattleAction | BattleStrategy | None:
+        return LoseOnPurposeBattleStrategy()
+
     def on_whiteout(self) -> bool:
         self._has_whited_out = True
         return True
@@ -37,13 +43,9 @@ class NuggetBridgeMode(BotMode):
     def run(self) -> Generator:
         if get_event_flag("HIDE_NUGGET_BRIDGE_ROCKET"):
             raise BotModeError("Unfortunately, you've already received the nugget. You cannot use this mode.")
-        if not context.config.battle.battle:
-            raise BotModeError('Please set "battle: true" in battle.yml to use this mode.')
-        if context.config.battle.hp_threshold > 0:
-            raise BotModeError('Please set "hp_threshold: 0" in battle.yml to use this mode.')
         if len(get_party()) > 1:
             raise BotModeError("Deposit all but one Pokémon to use this mode.")
-        if get_party()[0].level > 6:
+        if get_party()[0].level > 6 and get_party()[0].species.name != "Magikarp":
             raise BotModeError(
                 "Please use a Pokémon that is level 6 or lower.\n"
                 "This means you will lose to the rocket instead of defeating him.\n"

@@ -59,15 +59,8 @@ class BattleListener(BotListener):
             encounter_type = get_encounter_type()
             opponent = get_opponent()
 
-            if encounter_type is EncounterType.Trainer:
-                if (not context.config.battle.battle and action is None) or action == BattleAction.RunAway:
-                    context.message = (
-                        "We ran into a trainer, but automatic battling is disabled. Switching to manual mode."
-                    )
-                    context.set_manual_mode()
-                    action = BattleAction.CustomAction
-                if action is None:
-                    action = BattleAction.Fight
+            if encounter_type is EncounterType.Trainer and not isinstance(action, BattleStrategy):
+                action = BattleAction.Fight
             elif action is None:
                 action = handle_encounter(opponent)
                 if encounter_type is not EncounterType.Tutorial:

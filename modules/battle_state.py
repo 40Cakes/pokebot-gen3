@@ -20,6 +20,8 @@ from modules.pokemon import (
     StatsValues,
     StatusCondition,
     get_opponent,
+    get_type_by_name,
+    HIDDEN_POWER_MAP,
 )
 from modules.state_cache import state_cache
 from modules.tasks import get_global_script_context
@@ -529,6 +531,33 @@ class BattlePokemon:
     @property
     def personality_value(self) -> int:
         return unpack_uint32(self._data[0x48:0x4C])
+
+    @property
+    def hidden_power_type(self) -> Type:
+        ivs = self.ivs
+        value = (
+            ((ivs.hp & 1) << 0)
+            + ((ivs.attack & 1) << 1)
+            + ((ivs.defence & 1) << 2)
+            + ((ivs.speed & 1) << 3)
+            + ((ivs.special_attack & 1) << 4)
+            + ((ivs.special_defence & 1) << 5)
+        )
+        value = (value * 15) // 63
+        return get_type_by_name(HIDDEN_POWER_MAP[value])
+
+    @property
+    def hidden_power_damage(self) -> int:
+        ivs = self.ivs
+        value = (
+            ((ivs.hp & 2) >> 1)
+            + ((ivs.attack & 2) << 0)
+            + ((ivs.defence & 2) << 1)
+            + ((ivs.speed & 2) << 2)
+            + ((ivs.special_attack & 2) << 3)
+            + ((ivs.special_defence & 2) << 4)
+        )
+        return (value * 40) // 63 + 30
 
     @property
     def status_permanent(self) -> StatusCondition:

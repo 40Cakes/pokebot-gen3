@@ -76,7 +76,6 @@ async def _process_message(message: DiscordMessage) -> None:
     if message.image is not None:
         if await wait_for_image_file_to_exist(message.image):
             with message.image.open("rb") as file:
-                print(f"Adding {str(message.image)}")
                 webhook.add_file(file=file.read(), filename=message.image.name)
 
     if message.embed is not None:
@@ -100,9 +99,7 @@ async def _process_message(message: DiscordMessage) -> None:
             filename = "embed.gif" if message.embed.image.name.endswith(".gif") else "embed.png"
             if await wait_for_image_file_to_exist(message.embed.image):
                 with message.embed.image.open("rb") as file:
-                    c = file.read()
-                    webhook.add_file(file=c, filename=filename)
-                    print(f"Adding embed {str(message.embed.image)} as {filename} ({len(c)})")
+                    webhook.add_file(file=file.read(), filename=filename)
                 embed.set_image(url=f"attachment://{filename}")
 
         if message.embed.footer:

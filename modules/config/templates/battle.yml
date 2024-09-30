@@ -12,7 +12,6 @@ pickup_threshold: 1
 pickup_check_frequency: 5
 
 # Battling
-battle: false
 battle_method: strongest # `strongest`
 hp_threshold: 20
 lead_cannot_battle_action: flee # `stop`, `flee`, `rotate`

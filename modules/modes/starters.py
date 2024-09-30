@@ -11,7 +11,7 @@ from modules.player import get_player_avatar
 from modules.pokemon import get_party
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
-from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map, assert_no_auto_battle
+from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map
 from ._interface import BattleAction, BotMode, BotModeError
 from .util import (
     ensure_facing_direction,

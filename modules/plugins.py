@@ -30,7 +30,6 @@ def load_plugins():
 
         plugins.append(GenerateEncounterMediaPlugin())
 
-    print(context.config.obs.screenshot)
     if context.config.obs.screenshot or context.config.obs.replay_buffer:
         from modules.built_in_plugins.obs import OBSPlugin
 

@@ -92,11 +92,9 @@ class FeebasMode(BotMode):
         super().__init__()
 
     def on_battle_started(self) -> BattleAction | None:
-        return handle_encounter(get_opponent(), disable_auto_battle=True)
+        return handle_encounter(get_opponent())
 
     def run(self) -> Generator:
-        from ..stats import total_stats
-
         if not get_player_avatar().flags.Surfing:
             raise BotModeError("Player is not surfing, only start this mode while surfing in any water at Route 119.")
 

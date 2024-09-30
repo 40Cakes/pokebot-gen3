@@ -5,9 +5,8 @@ from ._interface import BattleStrategy, TurnAction, SafariTurnAction
 
 
 class DefaultBattleStrategy(BattleStrategy):
-    def battle_can_happen(self, check_lead_only: bool = False) -> bool:
-        party = [get_party()[0]] if check_lead_only else get_party()
-        return any(self.pokemon_can_battle(mon) for mon in party)
+    def party_can_battle(self) -> bool:
+        return any(self.pokemon_can_battle(pokemon) for pokemon in get_party())
 
     def pokemon_can_battle(self, pokemon: Pokemon):
         if pokemon.is_egg or not self._pokemon_has_enough_hp(pokemon):
@@ -252,7 +251,7 @@ class DefaultBattleStrategy(BattleStrategy):
                 move_strengths.append(-1)
                 continue
 
-            stat_modifier = pokemon.stats.attack if move.type == "Physical" else pokemon.stats.special_attack
+            stat_modifier = pokemon.stats.attack if move.type.kind == "Physical" else pokemon.stats.special_attack
             same_type_bonus = 1.5 if move.type in pokemon.types else 1
             type_modifier = 1
             for type in opponent.types:

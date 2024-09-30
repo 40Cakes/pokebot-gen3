@@ -42,8 +42,10 @@ def handle_battle(strategy: BattleStrategy) -> Generator:
         elif task_is_active("Task_EvolutionScene"):
             yield from handle_evolution_scene(strategy)
         elif (
-            instruction == "BattleScript_HandleFaintedMon" or task_is_active("Task_HandleChooseMonInput")
-        ) and get_battle_state().own_side.is_fainted:
+            (instruction == "BattleScript_HandleFaintedMon" or task_is_active("Task_HandleChooseMonInput"))
+            and get_battle_state().own_side.is_fainted
+            and any(not pokemon.is_egg and pokemon.current_hp > 0 for pokemon in get_party())
+        ):
             yield from handle_fainted_pokemon(strategy)
         elif instruction in ("BattleScript_TryNicknameCaughtMon", "BattleScript_CaughtPokemonSkipNewDex"):
             yield from handle_nickname_caught_pokemon()

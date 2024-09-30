@@ -147,7 +147,7 @@ def log_encounter(pokemon: "Pokemon", action: BattleAction | None = None) -> Non
 def handle_encounter(
     pokemon: "Pokemon",
     disable_auto_catch: bool = False,
-    disable_auto_battle: bool = False,
+    enable_auto_battle: bool = False,
     do_not_log_battle_action: bool = False,
 ) -> BattleAction:
     encounter_value = judge_encounter(pokemon)
@@ -213,7 +213,7 @@ def handle_encounter(
         else:
             context.set_manual_mode()
             decision = BattleAction.CustomAction
-    elif context.config.battle.battle and not disable_auto_battle:
+    elif enable_auto_battle:
         decision = BattleAction.Fight
     else:
         decision = BattleAction.RunAway

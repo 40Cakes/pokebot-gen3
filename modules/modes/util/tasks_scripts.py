@@ -83,7 +83,6 @@ def wait_for_yes_no_question(answer_to_give: Literal["Yes", "No"]) -> Generator:
 
         if task_is_active(multi_choice_task):
             task = get_task(multi_choice_task)
-            print(task.data_value(7))
             if task.data_value(7) in multi_choice_ids:
                 active_task = multi_choice_task
                 break

@@ -15,26 +15,6 @@ _error_message_addendum_if_assert_only_failed_in_saved_game = (
 )
 
 
-def assert_no_auto_battle(error_message: str) -> None:
-    """
-    Raises an exception if auto battling is enabled, i.e. ensures that the bot is configured
-    to run away from any battle instead of fighting the opponent.
-    :param error_message: Error message to display if the assertion fails.
-    """
-    if context.config.battle.battle:
-        raise BotModeError(error_message)
-
-
-def assert_auto_battle(error_message: str) -> None:
-    """
-    Raises an exception if auto battling is not enabled, i.e. ensures that the bot is configured
-    to fight any battle instead of running away.
-    :param error_message: Error message to display if the assertion fails.
-    """
-    if not context.config.battle.battle:
-        raise BotModeError(error_message)
-
-
 def assert_no_auto_pickup(error_message: str) -> None:
     """
     Raises an exception if auto pickup enabled, which may interfere with scripted encounters.
