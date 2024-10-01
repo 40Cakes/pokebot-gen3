@@ -54,8 +54,6 @@ Other than that, it will just throw Poké balls at the opponent. It chooses the 
 
 `switch_strategy` - Either `first_available` to switch to the next Pokémon in the list or `lowest_level` to try and level up lower Pokémon
 
-`lead_mon_balance_levels` - `false` or `true` - `true` will switch your lead Pokémon out when it levels above another member of your team. Currently only works with Pokécenter Loop mode.
-
 `banned_moves` - list of moves for the battle engine to never select. Moves that are banned will not be selected in combat.
 
 `avoided_pokemon` - list of Pokémon for the battle engine to never fight. Pokémon that are avoided will be fled from.

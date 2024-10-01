@@ -38,6 +38,11 @@ class DefaultBattleStrategy(BattleStrategy):
                 move_powers.append(0)
                 continue
 
+            # Never attempt to replace HMs because that won't work.
+            if move.tm_hm is not None and move.tm_hm.name.startswith("HM"):
+                move_powers.append(9999)
+                continue
+
             match move.type.kind:
                 case "Physical":
                     stat_multiplier = pokemon.stats.attack
@@ -127,19 +132,6 @@ class DefaultBattleStrategy(BattleStrategy):
 
     def choose_new_lead_after_battle(self) -> int | None:
         party = get_party()
-
-        if context.config.battle.lead_mon_balance_levels:
-            rotation_candidates = self._get_usable_party_indices()
-            weakest_party_index = 0
-            for index in rotation_candidates:
-                if party[index].level < party[weakest_party_index].level:
-                    weakest_party_index = index
-
-            if weakest_party_index != 0:
-                return weakest_party_index
-            else:
-                return None
-
         if not self.pokemon_can_battle(party[0]):
             return self._select_rotation_target()
 
@@ -192,7 +184,7 @@ class DefaultBattleStrategy(BattleStrategy):
         return SafariTurnAction.switch_to_manual()
 
     def _pokemon_has_enough_hp(self, pokemon: Pokemon):
-        return pokemon.current_hp / pokemon.stats.hp > context.config.battle.hp_threshold / 100
+        return pokemon.current_hp_percentage > context.config.battle.hp_threshold
 
     def _get_usable_party_indices(self, battle_state: BattleState | None = None) -> list[int]:
         active_party_indices = []

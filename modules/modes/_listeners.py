@@ -63,14 +63,15 @@ class BattleListener(BotListener):
                 action = BattleAction.Fight
             elif action is None:
                 action = handle_encounter(opponent)
-                if encounter_type is not EncounterType.Tutorial:
-                    self._active_wild_encounter = ActiveWildEncounter(
-                        pokemon=opponent,
-                        encounter_time=datetime.now(),
-                        type=encounter_type,
-                        value=judge_encounter(opponent),
-                        catch_filters_result=run_custom_catch_filters(opponent),
-                    )
+
+            if encounter_type not in (EncounterType.Trainer, EncounterType.Tutorial):
+                self._active_wild_encounter = ActiveWildEncounter(
+                    pokemon=opponent,
+                    encounter_time=datetime.now(),
+                    type=encounter_type,
+                    value=judge_encounter(opponent),
+                    catch_filters_result=run_custom_catch_filters(opponent),
+                )
 
             if isinstance(action, BattleStrategy):
                 context.controller_stack.append(self.fight(action))

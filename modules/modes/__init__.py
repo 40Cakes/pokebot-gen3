@@ -22,6 +22,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .fishing import FishingMode
         from .game_corner import GameCornerMode
         from .kecleon import KecleonMode
+        from .level_grind import LevelGrindMode
         from .nugget_bridge import NuggetBridgeMode
         from .puzzle_solver import PuzzleSolverMode
         from .roamer_reset import RoamerResetMode
@@ -33,7 +34,6 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .static_gift_resets import StaticGiftResetsMode
         from .static_soft_resets import StaticSoftResetsMode
         from .sweet_scent import SweetScentMode
-        from .pokecenterloop import PokecenterLoopMode
 
         _bot_modes = [
             BerryBlendMode,
@@ -43,6 +43,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
             FishingMode,
             GameCornerMode,
             KecleonMode,
+            LevelGrindMode,
             NuggetBridgeMode,
             PuzzleSolverMode,
             RoamerResetMode,
@@ -54,7 +55,6 @@ def get_bot_modes() -> list[Type[BotMode]]:
             StaticSoftResetsMode,
             SweetScentMode,
             SudowoodoMode,
-            PokecenterLoopMode,
         ]
 
         for mode in plugin_get_additional_bot_modes():

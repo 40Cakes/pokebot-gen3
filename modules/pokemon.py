@@ -1089,6 +1089,10 @@ class Pokemon:
         else:
             return unpack_uint16(self.data[86:88])
 
+    @property
+    def current_hp_percentage(self) -> float:
+        return 100 * self.current_hp / self.total_hp
+
     # ===================================================
     # Values that are derived from the Personality Value
     # ===================================================

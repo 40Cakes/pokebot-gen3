@@ -50,6 +50,7 @@ from modules.memory import (
     get_game_state,
     GameState,
 )
+from modules.menuing import is_fade_active
 from modules.player import get_player, get_player_avatar, AvatarFlags, TileTransitionState
 from modules.pokedex import get_pokedex
 from modules.pokemon import get_party, get_species_by_index, get_party_repel_level
@@ -850,6 +851,8 @@ class MiscTab(DebugTab):
             "Roamer History": get_roamer_location_history(),
             "Region Map Cursor": get_map_cursor(),
             "Text Printer #1": get_text_printer(0),
+            "gMain.state": read_symbol("gMain", offset=0x438, size=1)[0],
+            "Fade Active": is_fade_active(),
         }
 
 

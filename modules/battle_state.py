@@ -221,6 +221,7 @@ class BattleState:
         battle_type: bytes,
         side_timers: bytes,
         battler_party_indexes: bytes,
+        battler_party_order: bytes,
         battler_count: int,
         battler: bytes,
         battler_status3: bytes,
@@ -232,6 +233,7 @@ class BattleState:
         self._battle_type = battle_type
         self._side_timers = side_timers
         self._battler_party_indexes = battler_party_indexes
+        self._battler_party_order = battler_party_order
         self._battler_count = battler_count
         self._battler = battler
         self._battler_status3 = battler_status3
@@ -322,6 +324,30 @@ class BattleState:
             if item in self.type:
                 result.append(item.name)
         return result
+
+    def map_battle_party_index(self, regular_party_index: int) -> int:
+        """
+        The party order within a battle may differ from the 'real' party order if Pokémon
+        have been switched in and out during the battle.
+
+        In that case, when deciding to switch to a different party member the order in
+        the party menu might be different from what `get_party()` returns so we'd have to
+        scroll to a different index.
+
+        This function maps party indices to that mid-battle party order.
+
+        :param regular_party_index: Party index as it would be outside the battle.
+        :return: Party index of the current in-battle party order.
+        """
+        for battle_party_index in range(6):
+            byte = self._battler_party_order[battle_party_index // 2]
+            if battle_party_index % 2 == 0:
+                party_index = byte >> 4
+            else:
+                party_index = byte & 0xF
+            if party_index == regular_party_index:
+                return battle_party_index
+        raise RuntimeError(f"Could not find party index #{regular_party_index} in the battle party order.")
 
 
 @dataclass
@@ -565,6 +591,10 @@ class BattlePokemon:
         return unpack_uint16(self._data[0x28:0x2A])
 
     @property
+    def current_hp_percentage(self) -> float:
+        return 100 * self.current_hp / self.total_hp
+
+    @property
     def total_hp(self) -> int:
         return unpack_uint16(self._data[0x2C:0x2E])
 
@@ -731,6 +761,7 @@ def get_battle_state() -> BattleState:
         read_symbol("gBattleTypeFlags", size=0x04),
         read_symbol("gSideTimers", size=0x18),
         read_symbol("gBattlerPartyIndexes", size=0x08),
+        read_symbol("gBattlePartyCurrentOrder", size=0x03),
         read_symbol("gBattlersCount", size=0x01)[0],
         read_symbol("gBattleMons", size=0x160),
         read_symbol("gStatuses3", size=0x10),

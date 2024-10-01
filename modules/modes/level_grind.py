@@ -1,16 +1,22 @@
 from typing import Generator
 
+from modules.battle_strategies import TurnAction
 from modules.context import context
 from modules.map import get_map_data_for_current_position, get_map_data
 from modules.map_data import MapFRLG, MapRSE, PokemonCenter, get_map_enum
 from modules.map_path import calculate_path, PathFindingError
-from modules.modes import get_bot_mode_by_name, BattleAction
+from modules.modes import BattleAction
 from modules.player import get_player_avatar
-from modules.pokemon import get_party
+from modules.pokemon import get_party, get_opponent, StatusCondition
 from ._interface import BotMode, BotModeError
-from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon
-from ..battle_state import BattleOutcome
-from ..battle_strategies import BattleStrategy
+from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon, spin
+from ..battle_state import BattleOutcome, BattleState
+from ..battle_strategies import BattleStrategy, DefaultBattleStrategy
+from ..battle_strategies.level_balancing import LevelBalancingBattleStrategy
+from ..encounter import handle_encounter
+from ..gui.multi_select_window import ask_for_choice, Selection
+from ..runtime import get_sprites_path
+from ..sprites import get_sprite
 
 closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
     # Hoenn
@@ -42,10 +48,10 @@ closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
 }
 
 
-class PokecenterLoopMode(BotMode):
+class LevelGrindMode(BotMode):
     @staticmethod
     def name() -> str:
-        return "Pokecenter Loop"
+        return "Level Grind"
 
     @staticmethod
     def is_selectable() -> bool:
@@ -63,12 +69,24 @@ class PokecenterLoopMode(BotMode):
         super().__init__()
         self._leave_pokemon_center = False
         self._go_healing = True
+        self._level_balance = False
 
     def on_battle_started(self) -> BattleAction | BattleStrategy | None:
-        return BattleAction.Fight
+        action = handle_encounter(get_opponent(), enable_auto_battle=True)
+        if action is BattleAction.Fight:
+            if self._level_balance:
+                return LevelBalancingBattleStrategy()
+            else:
+                return DefaultBattleStrategy()
+        else:
+            return action
 
     def on_battle_ended(self, outcome: "BattleOutcome") -> None:
-        if outcome == BattleOutcome.RanAway:
+        lead_pokemon = get_party()[0]
+        if (
+            not DefaultBattleStrategy().pokemon_can_battle(lead_pokemon)
+            or lead_pokemon.status_condition is not StatusCondition.Healthy
+        ):
             self._go_healing = True
 
     def on_whiteout(self) -> bool:
@@ -81,6 +99,40 @@ class PokecenterLoopMode(BotMode):
             raise BotModeError("There are no encounters on this tile.")
         if training_spot.is_surfable:
             raise BotModeError("This mode does not work when surfing.")
+
+        # The first member of the party might be an egg, in which case we want to use the
+        # first available Pokémon as lead instead.
+        party_lead_pokemon = None
+        party_lead_index = 0
+        for index in range(len(get_party())):
+            pokemon = get_party()[index]
+            if not pokemon.is_egg:
+                party_lead_pokemon = pokemon
+                party_lead_index = index
+                break
+
+        level_mode_choice = ask_for_choice(
+            [
+                Selection(f"Level only {party_lead_pokemon.species_name_for_stats}", get_sprite(party_lead_pokemon)),
+                Selection("Level-balance all\nparty Pokémon", get_sprites_path() / "items" / "Rare Candy.png"),
+            ],
+            "What to level?",
+        )
+
+        if level_mode_choice is None:
+            context.set_manual_mode()
+            yield
+            return
+        elif level_mode_choice.startswith("Level-balance"):
+            self._level_balance = True
+        else:
+            self._level_balance = False
+
+        if self._level_balance:
+            party_lead_index = LevelBalancingBattleStrategy().choose_new_lead_after_battle()
+
+        if party_lead_index:
+            yield from change_lead_party_pokemon(party_lead_index)
 
         training_spot_map = get_map_enum(training_spot)
         training_spot_coordinates = training_spot.local_position
@@ -95,7 +147,6 @@ class PokecenterLoopMode(BotMode):
                         pokemon_center_candidate.value[0], pokemon_center_candidate.value[1]
                     )
                     path_to = calculate_path(training_spot, pokemon_center_location)
-                    # path_from = calculate_path(pokemon_center_location, training_spot)
                     path_from = []
                     path_length = len(path_to) + len(path_from)
 
@@ -109,24 +160,13 @@ class PokecenterLoopMode(BotMode):
             raise BotModeError("Could not find a suitable from here to a Pokemon Center nearby.")
 
         while True:
-            if self._go_healing:
-                yield from heal_in_pokemon_center(pokemon_center)
             if self._leave_pokemon_center:
                 yield from navigate_to(get_player_avatar().map_group_and_number, (7, 8))
-            yield from navigate_to(training_spot_map, training_spot_coordinates)
+            elif self._go_healing:
+                yield from heal_in_pokemon_center(pokemon_center)
 
             self._leave_pokemon_center = False
             self._go_healing = False
-            spin = get_bot_mode_by_name("Spin")().run()
-            while not self._go_healing and not self._leave_pokemon_center:
-                if context.config.battle.lead_mon_balance_levels:
-                    lead_pokemon = get_party()[0]
-                    if any(pokemon.level < lead_pokemon.level for pokemon in get_party()[1:]):
-                        slot = 0
-                        for idx, pokemon in enumerate(get_party()):
-                            if pokemon.level < lead_pokemon.level:
-                                slot = idx
-                                break
-                        yield from change_lead_party_pokemon(slot)
-                next(spin)
-                yield
+
+            yield from navigate_to(training_spot_map, training_spot_coordinates)
+            yield from spin(stop_condition=lambda: self._go_healing or self._leave_pokemon_center)

@@ -118,3 +118,12 @@ def get_anti_shiny_sprite(pokemon: Pokemon) -> Path:
         / "anti-shiny"
         / f"{make_string_safe_for_file_name(pokemon.species_name_for_stats)}.png"
     )
+
+
+def get_sprite(pokemon: Pokemon) -> Path:
+    if pokemon.is_shiny:
+        return get_shiny_sprite(pokemon)
+    elif pokemon.is_anti_shiny:
+        return get_anti_shiny_sprite(pokemon)
+    else:
+        return get_regular_sprite(pokemon)

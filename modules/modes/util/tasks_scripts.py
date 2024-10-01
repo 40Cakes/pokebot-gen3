@@ -4,6 +4,7 @@ from modules.context import context
 from modules.debug import debug
 from modules.tasks import get_global_script_context, task_is_active, get_task, is_waiting_for_input
 from .sleep import wait_for_n_frames
+from ...menuing import is_fade_active
 
 
 @debug.track
@@ -151,4 +152,10 @@ def wait_for_no_script_to_run(button_to_press: str | None = None) -> Generator:
     while get_global_script_context().is_active:
         if button_to_press is not None:
             context.emulator.press_button(button_to_press)
+        yield
+
+
+@debug.track
+def wait_for_fade_to_finish() -> Generator:
+    while is_fade_active():
         yield

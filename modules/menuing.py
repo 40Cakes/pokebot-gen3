@@ -21,6 +21,10 @@ from modules.pokemon import get_move_by_name, get_party
 from modules.tasks import get_task, task_is_active
 
 
+def is_fade_active() -> bool:
+    return bool(read_symbol("gPaletteFade", offset=0x07, size=1)[0] & 0x80)
+
+
 def party_menu_is_open() -> bool:
     """
     helper function to determine whether the Pokémon party menu is active
@@ -454,7 +458,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
 
     def select_option(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-            while parse_party_menu()["numActions"] > 3 and self.navigator is not None:
+            while parse_party_menu()["numActions"] >= 3 and self.navigator is not None:
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator(self.primary_option).step()
                 else:

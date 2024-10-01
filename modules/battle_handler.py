@@ -104,7 +104,7 @@ def handle_fainted_pokemon(strategy: BattleStrategy):
     if new_lead.current_hp <= 0:
         raise RuntimeError(f"Cannot send out {new_lead.name} (#{new_lead_index}) because it has 0 HP.")
 
-    while not task_is_active("Task_HandleChooseMonInput"):
+    while not task_is_active("Task_HandleChooseMonInput") and not task_is_active("HandleBattlePartyMenu"):
         context.emulator.press_button("A")
         yield
 

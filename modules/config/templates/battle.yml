@@ -18,7 +18,6 @@ faint_action: flee # `stop`, `flee`, `rotate`
 new_move: stop # `stop`, `cancel`, `learn_best`
 stop_evolution: true
 switch_strategy: first_available # `first_available`, `lowest_level`
-lead_mon_balance_levels: false # `true`, `false`
 banned_moves:
   - None
   # 2-turn
