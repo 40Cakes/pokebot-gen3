@@ -140,8 +140,7 @@ class PathMap:
                     continue
                 if map_object.flag_id != 0:
                     tile.dynamic_collision_flag = map_object.flag_id
-                else:
-                    tile.dynamic_object_id = map_object.local_id
+                tile.dynamic_object_id = map_object.local_id
 
         return self._tiles
 
@@ -415,7 +414,11 @@ def calculate_path(
         if not tile.accessible_from_direction[from_direction] and not (tile == destination_tile and tile.warps_to):
             return False
         if tile.dynamic_collision_flag is not None and not get_event_flag_by_number(tile.dynamic_collision_flag):
-            return False
+            if (
+                tile.dynamic_object_id is None
+                or (tile.map.map_group_and_number, tile.dynamic_object_id) not in active_objects
+            ):
+                return False
         if tile.elevation not in (0, 15) and from_elevation != 0 and tile.elevation != from_elevation:
             return False
         if tile.dynamic_object_id and (tile.map.map_group_and_number, tile.dynamic_object_id) not in active_objects:

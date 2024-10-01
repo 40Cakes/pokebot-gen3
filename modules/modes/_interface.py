@@ -112,6 +112,18 @@ class BotMode:
         """
         return True
 
+    def on_pickup_threshold_reached(self) -> bool:
+        """
+        This is called after a battle, if the number of battles fought exceeded the
+        configured pickup threshold (`pickup_check_frequency` in `battle.yml`) and
+        the bot is about to check for pickup items.
+
+        It can be used to enable/disable pickup checking for certain bot modes if
+        that behaviour is undesirable.
+
+        :return: True to allow Pickup checking, False to prevent it.
+        """
+
     def on_spotted_by_trainer(self) -> None:
         """
         This is called whenever a trainer has spotted the player in the
