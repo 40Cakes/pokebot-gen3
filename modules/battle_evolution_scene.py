@@ -17,7 +17,7 @@ from modules.tasks import get_task, task_is_active
 def handle_evolution_scene(strategy: BattleStrategy) -> Generator:
     queried_stategy = False
     should_stop = True
-    while True:
+    while context.bot_mode != "Manual":
         task = get_task("Task_EvolutionScene")
         if task is None:
             break

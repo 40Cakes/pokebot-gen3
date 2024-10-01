@@ -145,7 +145,8 @@ class BattleListener(BotListener):
             if context.config.battle.pickup and should_check_for_pickup():
                 yield from self.check_for_pickup()
             elif strategy.choose_new_lead_after_battle() is not None:
-                yield from self.rotate_lead_pokemon(strategy.choose_new_lead_after_battle())
+                if context.bot_mode != "Manual":
+                    yield from self.rotate_lead_pokemon(strategy.choose_new_lead_after_battle())
 
     @debug.track
     def check_for_pickup(self):

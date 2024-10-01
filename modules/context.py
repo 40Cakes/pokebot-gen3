@@ -123,6 +123,9 @@ class BotContext:
         self._update_gui()
 
     def set_manual_mode(self, enable_video_and_slow_down: bool = True) -> None:
+        if self.bot_mode == "Manual":
+            return
+
         self.bot_mode = "Manual"
         self.emulator.reset_held_buttons()
         if enable_video_and_slow_down:

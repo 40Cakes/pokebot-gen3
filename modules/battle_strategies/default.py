@@ -17,7 +17,7 @@ class DefaultBattleStrategy(BattleStrategy):
 
     def which_move_should_be_replaced(self, pokemon: Pokemon, new_move: Move) -> int:
         if context.config.battle.new_move == "stop":
-            context.message = f"{pokemon.name} is attempting to learn {new_move.name}."
+            context.message = f"{pokemon.name} is attempting to learn {new_move.name}. Switching to manual mode."
             context.set_manual_mode()
             return 4
 

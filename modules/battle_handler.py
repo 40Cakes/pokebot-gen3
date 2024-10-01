@@ -33,7 +33,7 @@ def handle_battle(strategy: BattleStrategy) -> Generator:
     :param strategy: The battle strategy that should be queried each time there
                      is a decision to make.
     """
-    while battle_is_active():
+    while battle_is_active() and context.bot_mode != "Manual":
         instruction = get_current_battle_script_instruction()
         if get_main_battle_callback() in ("HandleTurnActionSelectionState", "sub_8012324"):
             yield from handle_battle_action_selection(strategy)
