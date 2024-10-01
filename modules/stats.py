@@ -585,7 +585,7 @@ class StatsDatabase:
         db_schema_version = self._get_schema_version()
         if db_schema_version < current_schema_version:
             self._update_schema(db_schema_version)
-            if db_schema_version == 0:
+            if db_schema_version == 0 and (profile.path / "stats").is_dir():
                 self._migrate_old_stats(profile)
         elif db_schema_version > current_schema_version:
             raise StatsDatabaseSchemaTooNew(
