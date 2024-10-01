@@ -89,16 +89,17 @@ def handle_move_replacement_dialogue(strategy: BattleStrategy) -> Generator:
             pokemon = get_party()[party_index]
             decision = strategy.which_move_should_be_replaced(pokemon, move_to_learn)
 
-            if decision in (0, 1, 2, 3):
-                move_to_forget = decision
-                while get_learn_move_state() != LearnMoveState.SelectMoveToReplace:
-                    context.emulator.press_button("A")
-                    yield
-            else:
-                while get_learn_move_state() != LearnMoveState.ConfirmCancellation:
-                    context.emulator.press_button("B")
-                    yield
-            already_confirmed = True
+            if context.bot_mode != "Manual":
+                if decision in (0, 1, 2, 3):
+                    move_to_forget = decision
+                    while get_learn_move_state() != LearnMoveState.SelectMoveToReplace:
+                        context.emulator.press_button("A")
+                        yield
+                else:
+                    while get_learn_move_state() != LearnMoveState.ConfirmCancellation:
+                        context.emulator.press_button("B")
+                        yield
+                already_confirmed = True
             debug.action_stack.pop()
 
         elif state == LearnMoveState.ConfirmCancellation:

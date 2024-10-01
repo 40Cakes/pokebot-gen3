@@ -76,17 +76,19 @@ def handle_fainted_pokemon(strategy: BattleStrategy):
 
     if not battle_state.is_trainer_battle:
         if strategy.should_flee_after_faint(battle_state):
-            while (
-                get_game_state() != GameState.PARTY_MENU and get_main_battle_callback() != "HandleEndTurn_FinishBattle"
-            ):
-                context.emulator.press_button("B")
-                yield
-
-            if get_main_battle_callback() == "HandleEndTurn_FinishBattle":
-                while get_main_battle_callback() == "HandleEndTurn_FinishBattle":
+            if context.bot_mode != "Manual":
+                while (
+                    get_game_state() != GameState.PARTY_MENU
+                    and get_main_battle_callback() != "HandleEndTurn_FinishBattle"
+                ):
                     context.emulator.press_button("B")
                     yield
-                return
+
+                if get_main_battle_callback() == "HandleEndTurn_FinishBattle":
+                    while get_main_battle_callback() == "HandleEndTurn_FinishBattle":
+                        context.emulator.press_button("B")
+                        yield
+                    return
 
     new_lead_index = strategy.choose_new_lead_after_faint(battle_state)
     if context.bot_mode == "Manual":

@@ -90,7 +90,18 @@ class DefaultBattleStrategy(BattleStrategy):
             )
 
     def should_flee_after_faint(self, battle_state: BattleState) -> bool:
-        return battle_state.is_trainer_battle and context.config.battle.faint_action == "flee"
+        if context.config.battle.faint_action == "stop":
+            context.message = "Active Pokémon fainted. Switching to manual mode."
+            context.set_manual_mode()
+        elif context.config.battle.faint_action == "flee":
+            if battle_state.is_trainer_battle:
+                context.message = "Active Pokémon fainted. `faint_action` is set to `flee`, but this is a trainer battle. Switching to manual mode."
+                context.set_manual_mode()
+            return True
+        elif not self.party_can_battle():
+            return True
+        else:
+            return False
 
     def choose_new_lead_after_faint(self, battle_state: BattleState) -> int:
         new_lead: int | None = None

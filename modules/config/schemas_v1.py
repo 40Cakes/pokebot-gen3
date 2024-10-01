@@ -19,7 +19,6 @@ class Battle(BaseConfig):
     pickup: bool = True
     pickup_threshold: Annotated[int, Field(gt=0, lt=7)] = 1
     pickup_check_frequency: Annotated[int, Field(gt=0)] = 5
-    battle_method: Literal["strongest"] = "strongest"
     hp_threshold: Annotated[float, Field(ge=0, le=100)] = 20
     lead_cannot_battle_action: Literal["stop", "flee", "rotate"] = "flee"
     faint_action: Literal["stop", "flee", "rotate"] = "flee"

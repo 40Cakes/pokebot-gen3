@@ -62,7 +62,7 @@ class ItemBattleUse(Enum):
         return self.value
 
     @classmethod
-    def from_value(cls, value: str) -> "ItemBattleUse | None":
+    def from_value(cls, value: str) -> "ItemBattleUse":
         for name, member in ItemBattleUse.__members__.items():
             if member.value == value:
                 return member
@@ -79,7 +79,7 @@ class ItemFieldUse(Enum):
         return self.value
 
     @classmethod
-    def from_value(cls, value: str) -> "ItemFieldUse | None":
+    def from_value(cls, value: str) -> "ItemFieldUse":
         for name, member in ItemFieldUse.__members__.items():
             if member.value == value:
                 return member
@@ -87,6 +87,7 @@ class ItemFieldUse(Enum):
 
 
 class ItemHoldEffect(Enum):
+    NoEffect = "no_effect"
     RestoreHP = "restore_hp"
     CureParalysis = "cure_paralysis"
     CureSleep = "cure_sleep"
@@ -158,11 +159,11 @@ class ItemHoldEffect(Enum):
         return self.value
 
     @classmethod
-    def from_value(cls, value: str) -> "ItemHoldEffect | None":
+    def from_value(cls, value: str) -> "ItemHoldEffect":
         for name, member in ItemHoldEffect.__members__.items():
             if member.value == value:
                 return member
-        return None
+        return ItemHoldEffect.NoEffect
 
 
 @dataclass

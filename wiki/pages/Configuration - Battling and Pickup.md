@@ -30,22 +30,18 @@ Other than that, it will just throw Poké balls at the opponent. It chooses the 
 
 ## Battling
 
-`battle` - enable battling opponents
+`hp_threshold` - Minimum HP percentage for a Pokémon to be considered fit for battle.
 
-`battle_method` - placeholder for an intelligent battle engine in the future.
-
-`hp_threshold` - minimum HP percentage for a Pokémon to battle.
-
-`lead_cannot_battle_action` - how to behave if lead Pokémon cannot battle.
+`lead_cannot_battle_action` - What to do if the lead Pokémon is not fit to fight after a battle (fainted or HP below the threshold)
 
 - `stop` - go into manual mode
 - `flee` - run from the encounter
 - `rotate` - send out the next Pokémon in the party (must have at least {hp_threshold}% of its health and at least 1 usable move)
 
-`faint_action` - how to behave if lead Pokémon faints.
+`faint_action` - What to do if a Pokémon faints during a battle.
 
 - `stop` - go into manual mode
-- `flee` - run from the encounter
+- `flee` - run from the encounter (will go to manual mode if it's a trainer battle)
 - `rotate` - send out the next Pokémon in the party (must have at least {hp_threshold}% of its health and at least 1 usable move)
 
 `new_move` - how to behave if a Pokémon attempts to learn a new move.
@@ -54,7 +50,7 @@ Other than that, it will just throw Poké balls at the opponent. It chooses the 
 - `cancel` - stop the Pokémon from learning a new move
 - `learn_best`- calculate the weakest move from the Pokémon's current move set. If the new move is better, replaces that move with the new move. If the Pokémon knows more than one move of a certain type, the bot will attempt to delete the weakest move with redundant typing in order to maximize coverage
 
-`stop_evolution` - prevent Pokémon from evolving
+`stop_evolution` - Set to `true` to prevent Pokémon from evolving during/after a battle (evolution will be cancelled by pressing `B`), or `false` to allow it.
 
 `switch_strategy` - Either `first_available` to switch to the next Pokémon in the list or `lowest_level` to try and level up lower Pokémon
 
