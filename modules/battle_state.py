@@ -592,6 +592,8 @@ class BattlePokemon:
 
     @property
     def current_hp_percentage(self) -> float:
+        if self.total_hp == 0:
+            return 0
         return 100 * self.current_hp / self.total_hp
 
     @property

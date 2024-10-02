@@ -476,7 +476,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
 
     def select_switch(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-            while not task_is_active("TASK_HANDLESELECTIONMENUINPUT"):
+            while not task_is_active("Task_HandleSelectionMenuInput"):
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator("SHIFT").step()
                 else:
@@ -542,13 +542,13 @@ class BattlePartyMenuNavigator(PokemonPartyMenuNavigator):
                 self.current_step = "exit"
 
     def select_mon(self):
-        while task_is_active("TASK_HANDLECHOOSEMONINPUT") or task_is_active("HANDLEBATTLEPARTYMENU"):
+        while task_is_active("Task_HandleChooseMonInput") or task_is_active("HANDLEBATTLEPARTYMENU"):
             context.emulator.press_button("A")
             yield
 
     def select_option(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-            while task_is_active("TASK_HANDLESELECTIONMENUINPUT"):
+            while task_is_active("Task_HandleSelectionMenuInput"):
                 yield from PokemonPartySubMenuNavigator(self.primary_option).step()
         else:
             while task_is_active("TASK_HANDLEPOPUPMENUINPUT"):
@@ -681,7 +681,7 @@ class CheckForPickup(BaseMenuNavigator):
 
     def return_to_party_menu(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-            while task_is_active("TASK_PRINTANDWAITFORTEXT"):
+            while task_is_active("Task_PrintAndWaitForText"):
                 context.emulator.press_button("B")
                 yield
         else:

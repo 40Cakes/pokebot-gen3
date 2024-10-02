@@ -182,14 +182,14 @@
       "J":"808c224",
       "S":"808c8d4"
     },
-    "TASK_HANDLESTARTERCHOOSEINPUT":{
+    "Task_HandleStarterChooseInput":{
       "D":"8133e80",
       "F":"8133ea0",
       "I":"8133e6c",
       "J":"8134214",
       "S":"8133e74"
     },
-    "Task_DUCKBGMFORPOKEMONCRY":{
+    "Task_DuckBGMForPokemonCry":{
       "D":"0x80a3728",
       "F":"0x80a3720",
       "I":"0x80a3720",
@@ -203,21 +203,21 @@
       "J":"81343b8",
       "S":"8134018"
     },
-    "Task_BATTLESTART":{
+    "Task_BattleStart":{
       "D":"80b060c",
       "F":"80b0604",
       "I":"80b0604",
       "J":"80afeec",
       "S":"80b0604"
     },
-    "Task_RETURNTOFIELDNOSCRIPT":{
+    "Task_ReturnToFieldNoScript":{
       "D":"80af6cc",
       "F":"80af6c4",
       "I":"80af6c4",
       "J":"80aefac",
       "S":"80af6c4"
     },
-    "TASK_HANDLECHOOSEMONINPUT":{
+    "Task_HandleChooseMonInput":{
       "D":"81b0e98",
       "F":"81b0fac",
       "I":"81b0e78",
@@ -231,7 +231,7 @@
       "J":"813e638",
       "S":"813e1a4"
     },
-    "TASK_HANDLEREPLACEMOVEINPUT":{
+    "Task_HandleReplaceMoveInput":{
       "D":"81c1274",
       "F":"82e3bb7",
       "I":"81c1254",
@@ -245,7 +245,7 @@
       "J":"81abab4",
       "S":"81ab940"
     },
-    "TASK_PRINTANDWAITFORTEXT":{
+    "Task_PrintAndWaitForText":{
       "D":"81b16b4",
       "F":"81b17c8",
       "I":"81b1694",
@@ -280,19 +280,26 @@
       "J":"8097adc",
       "S":"8098168"
     },
-    "TASK_SHOWSTARTMENU":{
+    "Task_ShowStartMenu":{
       "D":"809fa50",
       "F":"809fa48",
       "I":"809fa48",
       "J":"809f30c",
       "S":"809fa48"
     },
-    "TASK_HANDLESELECTIONMENUINPUT":{
+    "Task_HandleSelectionMenuInput":{
       "D":"81b3258",
       "F":"81b336c",
       "I":"81b3238",
       "J":"81b33d0",
       "S":"81b3350"
+    },
+    "Task_SlideSelectedSlotsOnscreen": {
+      "D":"81b3988",
+      "F":"81b3a9c",
+      "I":"81b3968",
+      "J":"81b3b00",
+      "S":"81b3a80"
     },
     "Task_WateringBerryTreeAnim_Continue":{
       "D":"80fab88",
@@ -378,7 +385,7 @@
       "J":"8170cd4",
       "S":"8170c58"
     },
-    "BATTLESCRIPT_ASKTOLEARNMOVE":{
+    "BattleScript_AskToLearnMove":{
       "D":"82f0923",
       "F":"81c1388",
       "I":"82dbb6f",
@@ -434,14 +441,14 @@
       "J":"8257a89",
       "S":"8296d93"
     },
-    "HANDLEINPUTCHOOSEACTION":{
+    "HandleInputChooseAction":{
       "D":["805758c","8158f7c"],
       "F":"81590a4",
       "I":["805758c","8158f6c"],
       "J":["8057198","8159314"],
       "S":"815907c"
     },
-    "HANDLEINPUTCHOOSEMOVE":{
+    "HandleInputChooseMove":{
       "D":"8057c00",
       "I":"8057c00",
       "J":"805780c"
