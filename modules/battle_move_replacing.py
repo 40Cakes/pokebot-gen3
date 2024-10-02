@@ -106,7 +106,7 @@ def handle_move_replacement_dialogue(strategy: BattleStrategy) -> Generator:
 
         elif state == LearnMoveState.ConfirmCancellation:
             debug.action_stack.append("LearnMoveState.ConfirmCancellation")
-            while get_learn_move_state() != LearnMoveState.Unknown:
+            while get_learn_move_state() not in (LearnMoveState.Unknown, LearnMoveState.DialogueNotActive):
                 context.emulator.press_button("A")
                 yield
             debug.action_stack.pop()

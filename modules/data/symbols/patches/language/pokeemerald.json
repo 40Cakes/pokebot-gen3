@@ -155,7 +155,7 @@
       "J":"813e4a8",
       "S":"813dfd8"
     },
-    "BATTLEMAINCB2":{
+    "BattleMainCB2":{
       "D":"8038424",
       "F":"8038420",
       "I":"8038424",
@@ -224,7 +224,7 @@
       "J":"81b1040",
       "S":"81b0f90"
     },
-    "TASK_EVOLUTIONSCENE":{
+    "Task_EvolutionScene":{
       "D":"813e1ac",
       "F":"813e1cc",
       "I":"813e19c",
@@ -391,6 +391,13 @@
       "I":"82dbb6f",
       "J":"828916b",
       "S":"82e236f"
+    },
+    "BattleScript_ForgotAndLearnedNewMove": {
+        "D":"82f0950",
+        "F":"82e3be4",
+        "I":"82dbb9c",
+        "J":"8289198",
+        "S":"82e239c"
     },
     "EventScript_TrainerApproach":{
       "D":"827ca57",
@@ -785,5 +792,19 @@
       "I":"859dee8",
       "J":"857cd6c",
       "S":"85a41e4"
+    },
+    "SaveOverwriteInputCallback": {
+      "D":"80a0272",
+      "F":"80a026a",
+      "I":"80a026a",
+      "J":"809fb2e",
+      "S":"80a026a"
+    },
+    "Std_MsgboxSign": {
+      "D":"827ca21",
+      "F":"82765e1",
+      "I":"8270f77",
+      "J":"82423ba",
+      "S":"8275124"
     }
-  }
+}
