@@ -396,11 +396,18 @@
       "S":"82e236f"
     },
     "BattleScript_ForgotAndLearnedNewMove": {
-        "D":"82f0950",
-        "F":"82e3be4",
-        "I":"82dbb9c",
-        "J":"8289198",
-        "S":"82e239c"
+      "D":"82f0950",
+      "F":"82e3be4",
+      "I":"82dbb9c",
+      "J":"8289198",
+      "S":"82e239c"
+    },
+    "BattleScript_HandleFaintedMon":{
+      "D":"82f0542",
+      "F":"82e37d6",
+      "I":"82db78e",
+      "J":"8288d8a",
+      "S":"82e1f8e"
     },
     "EventScript_TrainerApproach":{
       "D":"827ca57",
