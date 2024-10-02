@@ -53,26 +53,27 @@ def phase_summary_fields(pokemon: "Pokemon", phase: "ShinyPhase | None") -> dict
         return {}
 
     if pokemon.is_shiny:
-        lowest_sv = f"`{pokemon.shiny_value:,}` SV (✨{pokemon.species.name}✨)"
+        lowest_sv = f"`{pokemon.shiny_value:,}` SV (✨{pokemon.species_name_for_stats}✨)"
     elif phase.lowest_sv is not None:
-        lowest_sv = f"`{phase.lowest_sv:,}` SV ({phase.lowest_sv_species.name})"
+        lowest_sv = f"`{phase.lowest_sv.value:,}` SV ({phase.lowest_sv.species_name})"
     else:
         lowest_sv = None
 
     result = {"Phase Encounters": f"{phase.encounters:,} ({context.stats.encounter_rate:,}/h)"}
     if phase.highest_iv_sum is not None and phase.lowest_iv_sum is not None:
         result["Phase IV Sum Records"] = (
-            f":arrow_up: `{phase.highest_iv_sum:,}` IV ({phase.highest_iv_sum_species.name})\n"
-            f":arrow_down: `{phase.lowest_iv_sum:,}` IV ({phase.lowest_iv_sum_species.name})"
+            f":arrow_up: `{phase.highest_iv_sum.value:,}` IV ({phase.highest_iv_sum.species_name})\n"
+            f":arrow_down: `{phase.lowest_iv_sum.value:,}` IV ({phase.lowest_iv_sum.species_name})"
         )
     if phase.highest_sv is not None and lowest_sv is not None:
         result["Phase SV Records"] = (
-            f":arrow_up: `{phase.highest_sv:,}` SV ({phase.highest_sv_species.name})\n" f":arrow_down: {lowest_sv}"
+            f":arrow_up: `{phase.highest_sv.value:,}` SV ({phase.highest_sv.species_name})\n"
+            f":arrow_down: {lowest_sv}"
         )
 
-    if phase.longest_streak is not None and phase.longest_streak_species is not None:
+    if phase.longest_streak is not None:
         result["Phase Same Pokémon Streak"] = (
-            f"{phase.longest_streak:,} {phase.longest_streak_species.name} were encountered in a row!"
+            f"{phase.longest_streak.value:,} {phase.longest_streak.species_name} were encountered in a row!"
         )
 
     if phase.snapshot_total_encounters is not None and phase.snapshot_total_shiny_encounters is not None:
@@ -110,7 +111,7 @@ class DiscordPlugin(BotPlugin):
     def on_wild_encounter_visible(self, wild_encounter: "ActiveWildEncounter") -> Generator | None:
         global_stats = context.stats.get_global_stats()
         opponent = wild_encounter.pokemon
-        species_stats = global_stats.species(opponent.species)
+        species_stats = global_stats.species(opponent)
         if opponent.is_shiny:
             shiny_phase = context.stats.get_shiny_phase_by_shiny(opponent)
         else:
@@ -122,6 +123,7 @@ class DiscordPlugin(BotPlugin):
                 "\n❌Skipping catching shiny (on catch block list)!"
                 if opponent.species_name_for_stats in context.config.catch_block
                 or opponent.species.name in context.config.catch_block
+                or opponent.species_name_for_stats in context.config.catch_block
                 else ""
             )
 

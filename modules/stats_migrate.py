@@ -1,6 +1,7 @@
 import csv
 import json
 import os
+import re
 import struct
 from collections.abc import Callable
 from datetime import datetime, timedelta
@@ -26,6 +27,7 @@ from modules.pokemon import (
     POKEMON_DATA_SUBSTRUCTS_ORDER,
     Pokemon,
     Species,
+    get_unown_index_by_letter,
 )
 from modules.profiles import Profile
 from modules.stats import EncounterSummary, Encounter, ShinyPhase
@@ -165,14 +167,22 @@ def migrate_file_based_stats_to_sqlite(
             for species_name in totals["pokemon"]:
                 entry = totals["pokemon"][species_name]
                 species = get_species_by_name(species_name)
+                match = re.search("^Unown \\(([A-Z?!])\\)$", species_name)
+                if match is not None:
+                    species_form = match[1]
+                    species_id = 20100 + get_unown_index_by_letter(species_form)
+                else:
+                    species_id = species.index
+                    species_form = None
                 last_encounter_time = datetime.fromtimestamp(entry["last_encounter_time_unix"], tz=ZoneInfo("UTC"))
-                if species.index not in encounter_summaries:
+                if species_id not in encounter_summaries:
                     if "shiny_encounters" in entry and entry["shiny_encounters"] is not None:
                         shiny_encounters = entry["shiny_encounters"]
                     else:
                         shiny_encounters = 0
                     summary = EncounterSummary(
                         species=species,
+                        species_form=species_form,
                         total_encounters=entry["encounters"],
                         shiny_encounters=shiny_encounters,
                         catches=shiny_encounters,
@@ -192,7 +202,7 @@ def migrate_file_based_stats_to_sqlite(
                         last_encounter_time=last_encounter_time,
                     )
                 else:
-                    summary = encounter_summaries[species.index]
+                    summary = encounter_summaries[species_id]
                     summary.total_encounters = max(summary.total_encounters, entry["encounters"])
                     summary.shiny_encounters = max(summary.shiny_encounters, entry["shiny_encounters"])
                     summary.catches = max(summary.catches, entry["shiny_encounters"])

@@ -8,7 +8,7 @@ from modules.context import context
 
 if TYPE_CHECKING:
     from modules.pokemon import Pokemon
-    from modules.stats import GlobalStats, EncounterSummary
+    from modules.stats import GlobalStats, EncounterSummary, SpeciesRecord
 
 theme = Theme(
     {
@@ -34,42 +34,42 @@ theme = Theme(
 )
 
 
-def iv_colour(value: int | None) -> str:
+def iv_colour(value: "SpeciesRecord | int | None") -> str:
     if value is None:
         return "grey"
-    elif value == 31:
+    elif int(value) == 31:
         return "yellow"
-    elif value == 0:
+    elif int(value) == 0:
         return "purple"
-    elif value >= 26:
+    elif int(value) >= 26:
         return "green"
-    elif value <= 5:
+    elif int(value) <= 5:
         return "red"
     else:
         return "white"
 
 
-def iv_sum_colour(value: int | None) -> str:
+def iv_sum_colour(value: "SpeciesRecord | int | None") -> str:
     if value is None:
         return "grey"
-    elif value == 186:
+    elif int(value) == 186:
         return "yellow"
-    elif value == 0:
+    elif int(value) == 0:
         return "purple"
-    elif value >= 140:
+    elif int(value) >= 140:
         return "green"
-    elif value <= 50:
+    elif int(value) <= 50:
         return "red"
     else:
         return "white"
 
 
-def sv_colour(value: int | None) -> str:
+def sv_colour(value: "SpeciesRecord | int | None") -> str:
     if value is None:
         return "grey"
-    elif value <= 7:
+    elif int(value) <= 7:
         return "yellow"
-    elif value >= 65528:
+    elif int(value) >= 65528:
         return "purple"
     else:
         return "red"
@@ -77,7 +77,7 @@ def sv_colour(value: int | None) -> str:
 
 def print_stats(stats: "GlobalStats", pokemon: "Pokemon") -> None:
     type_colour = pokemon.species.types[0].name.lower()
-    rich_name = f"[{type_colour}]{pokemon.species.name}[/]"
+    rich_name = f"[{type_colour}]{pokemon.species_name_for_stats}[/]"
 
     match context.config.logging.console.encounter_data:
         case "verbose":
@@ -189,7 +189,7 @@ def print_stats(stats: "GlobalStats", pokemon: "Pokemon") -> None:
                         f"PP: {learned_move.pp}"
                     )
 
-    number = lambda x: f"{x:,}" if x is not None else "-"
+    number = lambda x: f"{int(x):,}" if x is not None else "-"
     percentage = lambda x, y: f"{100*x/y:0.2f}%" if x is not None and y is not None and y > 0 else "-"
 
     match context.config.logging.console.statistics:
@@ -207,11 +207,10 @@ def print_stats(stats: "GlobalStats", pokemon: "Pokemon") -> None:
             encounter_summaries: list["EncounterSummary"] = list(
                 filter(lambda e: e.phase_encounters > 0, stats.encounter_summaries.values())
             )
-            encounter_summaries.sort(key=lambda e: e.species.name)
+            encounter_summaries.sort(key=lambda e: e.species_name)
             for summary in encounter_summaries:
-
                 stats_table.add_row(
-                    summary.species.name,
+                    summary.species_name,
                     f"[red]{number(summary.phase_lowest_iv_sum)}[/] / [green]{number(summary.phase_highest_iv_sum)}",
                     f"[green]{number(summary.phase_lowest_sv)}[/] / [{sv_colour(summary.phase_highest_sv)}]{number(summary.phase_highest_sv)}",
                     f"{number(summary.phase_encounters)}",

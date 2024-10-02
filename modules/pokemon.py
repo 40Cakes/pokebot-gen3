@@ -1164,13 +1164,7 @@ class Pokemon:
             | ((self.personality_value & (0b11 << 8)) >> 6)
             | self.personality_value & 0b11
         )
-        letter_index %= 28
-        if letter_index == 26:
-            return "!"
-        elif letter_index == 27:
-            return "?"
-        else:
-            return chr(65 + letter_index)
+        return get_unown_letter_by_index(letter_index)
 
     @property
     def wurmple_evolution(self) -> Literal["silcoon", "cascoon"]:
@@ -1211,6 +1205,25 @@ class Pokemon:
 def parse_pokemon(data: bytes) -> Pokemon | None:
     pokemon = Pokemon(data)
     return pokemon if not pokemon.is_empty and pokemon.is_valid else None
+
+
+def get_unown_letter_by_index(letter_index: int) -> str:
+    letter_index %= 28
+    if letter_index == 26:
+        return "!"
+    elif letter_index == 27:
+        return "?"
+    else:
+        return chr(65 + letter_index)
+
+
+def get_unown_index_by_letter(letter: str) -> int:
+    if letter == "!":
+        return 26
+    elif letter == "?":
+        return 27
+    else:
+        return ord(letter) - 65
 
 
 def _load_types() -> tuple[dict[str, Type], list[Type]]:
@@ -1328,10 +1341,18 @@ _species_by_name, _species_by_index, _species_by_national_dex = _load_species()
 
 
 def get_species_by_name(name: str) -> Species:
+    if name.startswith("Unown ("):
+        name = "Unown"
+
     return _species_by_name[name]
 
 
 def get_species_by_index(index: int) -> Species:
+    # We use species IDs 20100+ for differentiating between Unown forms, so any
+    # such ID should be mapped back to the Unown species.
+    if index >= 20100 and index < 20200:
+        index = 201
+
     return _species_by_index[index]
 
 
