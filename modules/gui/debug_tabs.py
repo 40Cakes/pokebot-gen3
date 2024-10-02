@@ -87,6 +87,7 @@ class FancyTreeview:
 
         treeview_scrollbar_combo = ttk.Frame(root)
         treeview_scrollbar_combo.columnconfigure(0, weight=1)
+        treeview_scrollbar_combo.rowconfigure(0, weight=1)
         treeview_scrollbar_combo.grid(row=row, column=column, columnspan=column_span, sticky="NSWE")
 
         self._items = {}
@@ -100,9 +101,9 @@ class FancyTreeview:
         self._tv.heading("value", text="Value", anchor="w")
 
         scrollbar = ttk.Scrollbar(treeview_scrollbar_combo, orient=tkinter.VERTICAL, command=self._tv.yview)
-        scrollbar.grid(row=0, column=1, sticky="NWS")
+        scrollbar.grid(row=0, column=1, sticky="NSWE")
         self._tv.configure(yscrollcommand=scrollbar.set)
-        self._tv.grid(row=0, column=0, sticky="E")
+        self._tv.grid(row=0, column=0, sticky="NSWE")
 
         self._context_menu = tkinter.Menu(self._tv, tearoff=0)
         self._context_menu.add_command(label="Copy Value", command=self._handle_copy)
@@ -295,34 +296,30 @@ class TasksTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
-        frame.columnconfigure(1, weight=1)
-
-        ttk.Label(frame, text="Callback 1:").grid(row=0, column=0)
-        self._cb1_label = ttk.Label(frame, text="", padding=(10, 0))
-        self._cb1_label.grid(row=0, column=1, sticky="W")
-
-        ttk.Label(frame, text="Callback 2:", padding=(0, 10)).grid(row=1, column=0)
-        self._cb2_label = ttk.Label(frame, text="", padding=(10, 10))
-        self._cb2_label.grid(row=1, column=1, sticky="W")
-
-        self._tv = FancyTreeview(frame, height=19, row=2, column_span=2)
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
+        self._tv = FancyTreeview(frame, height=22, row=0)
 
         root.add(frame, text="Tasks")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        def get_callback_name(symbol: str, offset: int = 0) -> str:
-            pointer = max(0, unpack_uint32(read_symbol(symbol, offset, 4)))
-            return get_symbol_name_before(pointer, pretty_name=True)
+        def get_callback_data(symbol: str, offset: int = 0) -> dict:
+            pointer = max(0, unpack_uint32(read_symbol(symbol, offset, size=4)))
+            symbol_name = get_symbol_name_before(pointer, pretty_name=True)
+            actual_symbol_start, _ = get_symbol(symbol_name)
+            return {
+                "__value": symbol_name if pointer > 0 else "0x0",
+                "pointer": hex(pointer),
+                "function": symbol_name,
+                "offset": hex(pointer - actual_symbol_start),
+            }
 
-        cb1_symbol = get_callback_name("gMain")
-        cb2_symbol = get_callback_name("gMain", offset=4)
-
-        self._cb1_label.config(text=cb1_symbol)
-        self._cb2_label.config(text=cb2_symbol)
+        cb1_symbol = get_callback_data("gMain")
+        cb2_symbol = get_callback_data("gMain", offset=4)
 
         def render_script_context(ctx: ScriptContext) -> dict | str:
             if ctx is None or not ctx.is_active:
-                return "None"
+                return "Not Active"
             stack = (
                 {"__value": "Empty"}
                 if len(ctx.stack) == 1
@@ -345,25 +342,32 @@ class TasksTab(DebugTab):
             }
 
         data = {
+            "Callback 1": cb1_symbol,
+            "Callback 2": cb2_symbol,
             "Global Script Context": render_script_context(get_global_script_context()),
-            "Immediate Script Context": render_script_context(get_immediate_script_context()),
         }
+
+        immediate_script_content = get_immediate_script_context()
+        if immediate_script_content.is_active:
+            data["Immediate Script Context"] = render_script_context(immediate_script_content)
 
         if get_game_state() == GameState.BATTLE:
             number_of_battlers = read_symbol("gBattlersCount", size=1)[0]
 
-            main_battle_function = get_callback_name("gBattleMainFunc")
-            player_controller_function = get_callback_name("gBattlerControllerFuncs", offset=0)
+            current_battle_script_instruction = get_callback_data("gBattleScriptCurrInstr")
+            main_battle_function = get_callback_data("gBattleMainFunc")
+            player_controller_function = get_callback_data("gBattlerControllerFuncs", offset=0)
 
-            data["Battle Callbacks"] = {
-                "__value": f"{main_battle_function} / {player_controller_function}",
+            data["Battle Context"] = {
+                "__value": f"{main_battle_function['function']} / {current_battle_script_instruction['function']} / {player_controller_function['function']}",
+                "Battle Script": current_battle_script_instruction,
                 "Main Battle Function": main_battle_function,
                 "Battler Controller #1": player_controller_function,
             }
 
             for index in range(1, number_of_battlers):
-                function = get_callback_name("gBattlerControllerFuncs", offset=4 * index)
-                data["Battle Callbacks"][f"Battler Controller #{index + 1}"] = function
+                function = get_callback_data("gBattlerControllerFuncs", offset=4 * index)
+                data["Battle Context"][f"Battler Controller #{index + 1}"] = function
 
         index = 0
         tasks = get_tasks()
@@ -386,6 +390,8 @@ class BattleTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
         self._tv = FancyTreeview(frame)
         root.add(frame, text="Battle")
 
@@ -457,6 +463,7 @@ class SymbolsTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
+        frame.columnconfigure(0, weight=1)
         frame.rowconfigure(0, weight=0)
         frame.rowconfigure(1, weight=0, minsize=5)
         frame.rowconfigure(2, weight=1)
@@ -646,6 +653,8 @@ class PlayerTab(DebugTab):
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
         self._tv = FancyTreeview(frame)
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
         root.add(frame, text="Player")
 
     def update(self, emulator: "LibmgbaEmulator"):
@@ -791,6 +800,8 @@ class MiscTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
         self._tv = FancyTreeview(frame)
         root.add(frame, text="Misc")
 
@@ -868,6 +879,8 @@ class EventFlagsTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
+        frame.rowconfigure(1, weight=1)
+        frame.columnconfigure(0, weight=1)
 
         context_actions = {"Copy Name": self._copy_name, "Toggle Flag": self._toggle_flag}
 
@@ -920,6 +933,8 @@ class EventVarsTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
+        frame.rowconfigure(1, weight=1)
+        frame.columnconfigure(0, weight=1)
 
         context_actions = {"Copy Name": self._copy_name, "Change Value": self._change_value}
 
@@ -1052,6 +1067,8 @@ class EmulatorTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
         self._tv = FancyTreeview(frame)
         root.add(frame, text="Emulator")
 
@@ -1109,6 +1126,8 @@ class MapTab(DebugTab):
         frame = ttk.Frame(root, padding=10)
         self._map = MapViewer(frame, row=1)
         self._tv = FancyTreeview(frame, row=0, height=15, on_highlight=self._handle_selection)
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
         root.add(frame, text="Map")
 
     def update(self, emulator: "LibmgbaEmulator"):
