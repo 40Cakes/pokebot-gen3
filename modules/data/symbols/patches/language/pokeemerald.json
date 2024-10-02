@@ -155,6 +155,9 @@
       "J":"813e4a8",
       "S":"813dfd8"
     },
+    "BattleMainCB1":{
+      "J":"8039b35"
+    },
     "BattleMainCB2":{
       "D":"8038424",
       "F":"8038420",
@@ -505,8 +508,33 @@
     "gSaveBlock2Ptr":{
       "J":"3005af0"
     },
+    "gBattleMainFunc":{
+      "J":"3005a64"
+    },
     "gBattlerControllerFuncs":{
       "J":"3005ac0"
+    },
+    "HandleTurnActionSelectionState":{
+      "J":"803bab9"
+    },
+    "gBattleMons":{
+      "J":"2023D28"
+    },
+    "gBattleTypeFlags":{
+      "J":"2022C90"
+    },
+    "gBattlePartyCurrentOrder":{
+      "J":"203cbcc"
+    },
+    "gAbsentBattlerFlags":{
+      "J":"2023eb4"
+    },
+    "gBattleResults":{
+      "J":"3005A72"
+    },
+    "HandleInputChooseTarget":{
+      "J":"8057434",
+      "X":"8057435"
     },
     "gObjectEvents":{
       "J":"2036ff0"
@@ -806,5 +834,19 @@
       "I":"8270f77",
       "J":"82423ba",
       "S":"8275124"
+    },
+    "Task_UseWaterfall": {
+      "D":"80b73a0",
+      "F":"80b7398",
+      "I":"80b7398",
+      "J":"80b6adc",
+      "S":"80b7398"
+    },
+    "Task_SurfFieldEffect": {
+      "D":"80b8da0",
+      "F":"80b8d98",
+      "I":"80b8d98",
+      "J":"80b84dc",
+      "S":"80b8d98"
     }
 }

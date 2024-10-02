@@ -161,7 +161,7 @@ def battle_action_use_item(item: Item, target_index: int = 0):
     yield
     yield from scroll_to_item_in_bag(item)
     context.emulator.press_button("A")
-    for _ in range(3 if context.rom.is_rse else 5):
+    for _ in range(4 if context.rom.is_rse else 5):
         yield
     context.emulator.press_button("A")
     yield

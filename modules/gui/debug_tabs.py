@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Union, Optional
 from PIL import Image, ImageDraw, ImageTk, ImageOps
 
 from modules.battle_state import get_battle_state
+from modules.clock import get_clock_time, get_play_time
 from modules.context import context
 from modules.daycare import get_daycare_data
 from modules.debug import debug
@@ -853,6 +854,8 @@ class MiscTab(DebugTab):
             "Text Printer #1": get_text_printer(0),
             "gMain.state": read_symbol("gMain", offset=0x438, size=1)[0],
             "Fade Active": is_fade_active(),
+            "Local Time": get_clock_time(),
+            "Play Time": get_play_time(),
         }
 
 

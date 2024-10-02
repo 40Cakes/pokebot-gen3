@@ -97,6 +97,8 @@ class PathMap:
                     for direction in impassable_directions:
                         dir = Direction[direction]
                         accessible_from_direction[dir.opposite()] = True
+                elif tile.tile_type in ("Waterfall", "Muddy Slope"):
+                    accessible_from_direction = [False, False, True, False]
                 else:
                     accessible_from_direction = [True, True, True, True]
 
@@ -421,7 +423,11 @@ def calculate_path(
                 return False
         if tile.elevation not in (0, 15) and from_elevation != 0 and tile.elevation != from_elevation:
             return False
-        if tile.dynamic_object_id and (tile.map.map_group_and_number, tile.dynamic_object_id) not in active_objects:
+        if (
+            tile.dynamic_collision_flag is None
+            and tile.dynamic_object_id
+            and (tile.map.map_group_and_number, tile.dynamic_object_id) not in active_objects
+        ):
             return False
         if tile.global_coordinates in blocked_coordinates:
             return False

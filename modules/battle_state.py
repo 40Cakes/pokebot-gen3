@@ -779,7 +779,6 @@ def get_battle_state() -> BattleState:
 
 def battle_is_active() -> bool:
     callback1 = get_symbol_name_before(unpack_uint32(read_symbol("gMain", 0, 4))).lower()
-
     return callback1 == "battlemaincb1"
 
 
@@ -833,6 +832,14 @@ class EncounterType(Enum):
     @property
     def is_wild(self) -> bool:
         return self is not EncounterType.Trainer and self is not EncounterType.Tutorial
+
+    @property
+    def is_fishing(self) -> bool:
+        return self in (
+            EncounterType.FishingWithOldRod,
+            EncounterType.FishingWithGoodRod,
+            EncounterType.FishingWithSuperRod,
+        )
 
 
 def get_encounter_type() -> EncounterType:
