@@ -1,16 +1,14 @@
 import queue
 import sys
 from collections import deque
-from threading import Thread
 from typing import Generator
 
 from modules.console import console
 from modules.context import context
 from modules.memory import get_game_state
-from modules.modes import BotListener, BotMode, BotModeError, FrameInfo, get_bot_listeners, get_bot_mode_by_name
-from modules.player import get_player
+from modules.modes import BotMode, BotModeError, FrameInfo, get_bot_listeners, get_bot_mode_by_name
 from modules.plugins import plugin_profile_loaded
-from modules.stats import StatsDatabase, DataKey
+from modules.stats import StatsDatabase
 from modules.tasks import get_global_script_context, get_tasks
 
 # Contains a queue of tasks that should be run the next time a frame completes.
@@ -53,7 +51,6 @@ def main_loop() -> None:
 
         context.bot_listeners = get_bot_listeners(context.rom)
         previous_frame_info: FrameInfo | None = None
-        verified_stats_trainer_id = False
 
         while True:
             # Process work queue, which can be used to get the main thread to access the emulator
@@ -64,23 +61,6 @@ def main_loop() -> None:
                 work_queue.task_done()
 
             context.frame += 1
-
-            if not verified_stats_trainer_id:
-                player = get_player()
-                if player is not None and player.trainer_id > 0:
-                    stats_trainer_id = context.stats.get_data(DataKey.TrainerID)
-                    stats_secret_trainer_id = context.stats.get_data(DataKey.SecretTrainerID)
-
-                    if stats_trainer_id is None and stats_secret_trainer_id is None:
-                        context.stats.set_data(DataKey.TrainerID, str(player.trainer_id))
-                        context.stats.set_data(DataKey.SecretTrainerID, str(player.secret_id))
-                    elif str(player.trainer_id) != stats_trainer_id or str(player.secret_id) != stats_secret_trainer_id:
-                        console.print(
-                            f"\n[red]The trainer ID in this profile's stats database ({stats_trainer_id}) does not match the current trainer ID ({player.trainer_id}).[/]\n\nDid you start a new game?\nIf so, delete/move `stats.db` in your profile directory."
-                        )
-                        sys.exit(1)
-
-                    verified_stats_trainer_id = True
 
             game_state = get_game_state()
             script_context = get_global_script_context()

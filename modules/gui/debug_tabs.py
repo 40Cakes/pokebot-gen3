@@ -306,12 +306,16 @@ class TasksTab(DebugTab):
         def get_callback_data(symbol: str, offset: int = 0) -> dict:
             pointer = max(0, unpack_uint32(read_symbol(symbol, offset, size=4)))
             symbol_name = get_symbol_name_before(pointer, pretty_name=True)
-            actual_symbol_start, _ = get_symbol(symbol_name)
+            try:
+                actual_symbol_start, _ = get_symbol(symbol_name)
+                offset = hex(pointer - actual_symbol_start)
+            except RuntimeError:
+                offset = ""
             return {
                 "__value": symbol_name if pointer > 0 else "0x0",
                 "pointer": hex(pointer),
                 "function": symbol_name,
-                "offset": hex(pointer - actual_symbol_start),
+                "offset": offset,
             }
 
         cb1_symbol = get_callback_data("gMain")
