@@ -25,7 +25,7 @@ class SudowoodoMode(BotMode):
     def on_battle_started(self) -> BattleAction | None:
         opponent = get_opponent()
         if judge_encounter(opponent).is_of_interest:
-            return handle_encounter(get_opponent(), disable_auto_catch=True)
+            return handle_encounter(opponent, disable_auto_catch=True)
         log_encounter(opponent)
         return BattleAction.CustomAction
 
