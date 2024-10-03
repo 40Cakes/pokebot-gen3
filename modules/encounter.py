@@ -103,6 +103,13 @@ def judge_encounter(pokemon: "Pokemon") -> EncounterValue:
 
 
 def log_encounter(pokemon: "Pokemon", action: BattleAction | None = None) -> None:
+    if (
+        context.stats.last_encounter is not None
+        and context.stats.last_encounter.pokemon.personality_value == pokemon.personality_value
+    ):
+        # Avoid double-logging an encounter.
+        return
+
     ccf_result = run_custom_catch_filters(pokemon)
     context.stats.log_encounter(pokemon, ccf_result)
     print_stats(context.stats.get_global_stats(), pokemon)

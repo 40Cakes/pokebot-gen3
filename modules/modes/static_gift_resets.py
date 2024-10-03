@@ -27,7 +27,6 @@ from .util import (
     wait_until_event_flag_is_true,
     wait_until_task_is_active,
     wait_until_task_is_not_active,
-    wait_for_player_avatar_to_be_standing_still,
     wait_for_no_script_to_run,
 )
 
@@ -108,14 +107,16 @@ class StaticGiftResetsMode(BotMode):
             )
             if save_data.get_event_flag("RECEIVED_LAVARIDGE_EGG"):
                 raise BotModeError("You have already received the Wynaut egg in your saved game.")
-        if encounter[2] in ["Wynaut", "Togepi"] and save_data.get_party()[0].ability.name not in [
-            "Flame Body",
-            "Magma Armor",
-        ]:
-            console.print(
-                "[bold yellow]WARNING: First Pokemon in party does not have Flame Body / Magma Armor ability."
-            )
-            console.print("[bold yellow]This will slow down the egg hatching process.")
+        if encounter[2] in ["Wynaut", "Togepi"] and not any(
+            pokemon.ability.name
+            in [
+                "Flame Body",
+                "Magma Armor",
+            ]
+            for pokemon in save_data.get_party()
+        ):
+            console.print("[bold yellow]WARNING: None of your Pokémon has the Flame Body / Magma Armor ability.[/]")
+            console.print("[yellow]Hatching will take twice as long this way.[/]")
         if encounter[2] == "Togepi":
             if save_data.get_event_flag("GOT_TOGEPI_EGG"):
                 raise BotModeError("You have already received the Togepi egg in your saved game.")

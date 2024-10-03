@@ -302,7 +302,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
 
         return web.json_response(effective_encounters.value.to_dict())
 
-    @route.get("/map/{map_group:\d+}/{map_number:\d+}")
+    @route.get("/map/{map_group:\\d+}/{map_number:\\d+}")
     async def http_get_map_by_group_and_number(request: web.Request):
         """
         ---
