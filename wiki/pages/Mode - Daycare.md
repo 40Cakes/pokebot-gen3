@@ -18,13 +18,16 @@
 - A compatible breeding couple in the Daycare
 
 ### Optional, but recommended
-- (E/FR/LG) Lead Pokémon with [Flame Body](https://bulbapedia.bulbagarden.net/wiki/Flame_Body_(Ability)) or [Magma Armor](https://bulbapedia.bulbagarden.net/wiki/Magma_Armor_(Ability)) ability
-- [Mach Bike](https://bulbapedia.bulbagarden.net/wiki/Mach_Bike) (R/S/E) or [Bicycle](https://bulbapedia.bulbagarden.net/wiki/Bicycle) (FR/LG) registered to Select
-- (R/S/E) Defeated all trainers on [Route 117](https://bulbapedia.bulbagarden.net/wiki/Hoenn_Route_117) (Preferred)
+- (Emerald only) Having a Pokémon with [Flame Body](https://bulbapedia.bulbagarden.net/wiki/Flame_Body_(Ability)) or [Magma Armor](https://bulbapedia.bulbagarden.net/wiki/Magma_Armor_(Ability)) ability in your
+  party (even if it's fained) halves the number of steps required. 
+- [Mach Bike](https://bulbapedia.bulbagarden.net/wiki/Mach_Bike) (R/S/E) or [Bicycle](https://bulbapedia.bulbagarden.net/wiki/Bicycle) (FR/LG) registered to `Select` will help getting
+  those steps in quicker.
 
 ## Instructions
 
-Start this mode while being on Route 117 (in R/S/E) or Sevii Island Four (FR/LG), the bot will collect up to five eggs, and once all have hatched, release them in the Daycare PC.
+Start this mode while being on Route 117 (in R/S/E) or Sevii Island Four (FR/LG), the bot will
+collect up to five eggs, and once all have hatched, release them in the Daycare PC if they're
+not Shiny.
 
 ![image](../images/daycare.png)
 
