@@ -34,6 +34,7 @@ class BattleListener(BotListener):
 
     def __init__(self):
         self._in_battle = False
+        self._battle_start_frame: int = 0
         self._reported_start_of_battle = False
         self._active_wild_encounter: ActiveWildEncounter | None = None
         self._reported_wild_encounter_visible = False
@@ -46,6 +47,7 @@ class BattleListener(BotListener):
             frame.game_state in self.battle_states or frame.task_is_active("Task_BattleStart")
         ):
             self._in_battle = True
+            self._battle_start_frame = context.emulator.get_frame_count()
             self._reported_start_of_battle = False
             self._active_wild_encounter = None
             self._reported_wild_encounter_visible = False
@@ -121,6 +123,10 @@ class BattleListener(BotListener):
 
             elif text_printer.active:
                 self._text_printer_was_active = True
+
+        elif context.emulator.get_frame_count() < self._battle_start_frame:
+            self._in_battle = False
+            self._active_wild_encounter = None
 
     @debug.track
     def _wait_until_battle_is_over(self):
@@ -304,7 +310,6 @@ class EggHatchListener(BotListener):
         hatched_pokemon = get_party()[party_index]
         bot_mode.on_egg_hatched(hatched_pokemon, party_index)
         plugin_egg_hatched(hatched_pokemon)
-        handle_encounter(hatched_pokemon, do_not_log_battle_action=True)
         while self._script_name in get_global_script_context().stack:
             context.emulator.press_button("B")
             yield

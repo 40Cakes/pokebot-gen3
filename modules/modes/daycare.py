@@ -3,7 +3,7 @@ from typing import Generator
 from modules.console import console
 from modules.context import context
 from modules.daycare import DaycareCompatibility, get_daycare_data
-from modules.encounter import judge_encounter
+from modules.encounter import judge_encounter, handle_encounter
 from modules.items import get_item_bag, get_item_by_name, get_item_storage
 from modules.map import get_map_objects
 from modules.map_data import MapFRLG, MapRSE
@@ -63,6 +63,7 @@ class DaycareMode(BotMode):
 
     def on_egg_hatched(self, pokemon: "Pokemon", party_index: int) -> None:
         self._update_message_soon = True
+        handle_encounter(pokemon, do_not_log_battle_action=False)
 
     def run(self) -> Generator:
         if context.rom.is_emerald:
