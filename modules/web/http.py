@@ -861,7 +861,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
     # Everything until here is considered an API route that should be documented in Swagger.
     for api_route in route:
         if isinstance(api_route, web.RouteDef):
-            path = re.sub("\{([_a-zA-Z0-9]+)(:[^}]*)?}", "{\\1}", api_route.path)
+            path = re.sub("\\{([_a-zA-Z0-9]+)(:[^}]*)?}", "{\\1}", api_route.path)
             operations = load_operations_from_docstring(api_route.handler.__doc__)
             spec.path(path=path, operations=operations)
 
