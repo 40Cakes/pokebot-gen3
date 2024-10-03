@@ -7,8 +7,10 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Generator, Optional, TYPE_CHECKING
 
+from modules.battle_strategies import BattleStrategy
+
 if TYPE_CHECKING:
-    from modules.battle import BattleOutcome
+    from modules.battle_state import BattleOutcome
     from modules.memory import GameState
     from modules.pokemon import Pokemon
 
@@ -63,7 +65,7 @@ class BotMode:
         """
         raise NotImplementedError
 
-    def on_battle_started(self) -> BattleAction | None:
+    def on_battle_started(self) -> BattleAction | BattleStrategy | None:
         """
         This is called when a battle starts, i.e. a wild Pokémon is encountered or a trainer
         battle commenced.
@@ -73,10 +75,13 @@ class BotMode:
         :return: What to do when the battle starts:
                  - `None` will lead to the default behaviour of `handle_encounter()`
                  - `BattleAction.RunAway` will run away from the battle, unless it is a trainer.
-                 - `BattleAction.Fight` will attempt to battle the encounter/trainer.
+                 - `BattleAction.Fight` will attempt to battle the encounter/trainer with the default
+                                        battle strategy.
                  - `BattleAction.Catch` will attempt to catch the encounter, unless it is a trainer.
                  - `BattleAction.CustomAction` will prevent the BattleListener from doing
                    anything and instead pass all in-battle frames on to the mode's `run()` method.
+                 - an object instance of a `BattleStrategy` will attempt to battle the encounter/trainer
+                   with that strategy.
         """
         return None
 
@@ -89,6 +94,36 @@ class BotMode:
         :param outcome: Indicates how the battle ended.
         """
         pass
+
+    def on_pokemon_evolving_after_battle(self, pokemon: "Pokemon", party_index: int) -> bool:
+        """
+        This _might_ be called if a Pokémon evolves after levelling up in a battle.
+
+        The return value can be used to decide whether the evolution should be allowed
+        or cancelled.
+
+        This method is called by the battle strategy. So when using a non-default
+        battle strategy or implementing a custom battle handler, this method might not
+        be invoked.
+
+        :param pokemon: The Pokémon (in its pre-evolved state) that is about to evolve.
+        :param party_index: The party index of the Pokémon-about-to-evolve.
+        :return: True if the evolution should happen, False if it should be cancelled.
+        """
+        return True
+
+    def on_pickup_threshold_reached(self) -> bool:
+        """
+        This is called after a battle, if the number of battles fought exceeded the
+        configured pickup threshold (`pickup_check_frequency` in `battle.yml`) and
+        the bot is about to check for pickup items.
+
+        It can be used to enable/disable pickup checking for certain bot modes if
+        that behaviour is undesirable.
+
+        :return: True to allow Pickup checking, False to prevent it.
+        """
+        return True
 
     def on_spotted_by_trainer(self) -> None:
         """

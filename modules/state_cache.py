@@ -4,7 +4,10 @@ from typing import Generic, TYPE_CHECKING, TypeVar
 from modules.context import context
 
 if TYPE_CHECKING:
+    from modules.battle_state import BattleState
+    from modules.fishing import FishingAttempt
     from modules.items import ItemBag, ItemStorage
+    from modules.map import EffectiveWildEncounterList
     from modules.memory import GameState
     from modules.player import Player, PlayerAvatar
     from modules.pokemon import Pokemon
@@ -48,11 +51,13 @@ class StateCacheItem(Generic[T]):
 class StateCache:
     def __init__(self):
         self._party: StateCacheItem[list["Pokemon"]] = StateCacheItem([])
-        self._opponent: StateCacheItem["Pokemon | None"] = StateCacheItem(None)
+        self._opponent: StateCacheItem["list[Pokemon] | None"] = StateCacheItem(None)
+        self._fishing_attempt: StateCacheItem["FishingAttempt | None"] = StateCacheItem(None)
         self._player: StateCacheItem["Player | None"] = StateCacheItem(None)
         self._player_avatar: StateCacheItem["PlayerAvatar | None"] = StateCacheItem(None)
         self._pokedex: StateCacheItem["Pokedex | None"] = StateCacheItem(None)
         self._pokemon_storage: StateCacheItem["PokemonStorage | None"] = StateCacheItem(None)
+        self._effective_wild_encounters: StateCacheItem["EffectiveWildEncounterList | None"] = StateCacheItem(None)
         self._item_bag: StateCacheItem["ItemBag | None"] = StateCacheItem(None)
         self._item_storage: StateCacheItem["ItemStorage | None"] = StateCacheItem(None)
         self._tasks: StateCacheItem["TaskList | None"] = StateCacheItem(None)
@@ -61,6 +66,7 @@ class StateCache:
         self._game_state: StateCacheItem["GameState | None"] = StateCacheItem(None)
         self._last_encounter_log: StateCacheItem["dict | None"] = StateCacheItem(None)
         self._last_shiny_log: StateCacheItem["dict | None"] = StateCacheItem(None)
+        self._battle_state: StateCacheItem["BattleState | None"] = StateCacheItem(None)
 
     @property
     def party(self) -> StateCacheItem[list["Pokemon"]]:
@@ -80,15 +86,36 @@ class StateCache:
         self._party.checked()
 
     @property
-    def opponent(self) -> StateCacheItem["Pokemon | None"]:
+    def opponent(self) -> StateCacheItem["list[Pokemon] | None"]:
         return self._opponent
 
     @opponent.setter
-    def opponent(self, opponent: "Pokemon | None"):
-        if self._opponent.value != opponent:
+    def opponent(self, opponent: "list[Pokemon] | None"):
+        if (
+            (self._opponent.value is None and opponent is not None)
+            or (self._opponent.value is not None and opponent is None)
+            or len(self._opponent.value) != len(opponent)
+        ):
             self._opponent.value = opponent
+            return
+
+        for i in range(len(self._opponent.value)):
+            if self._opponent.value[i] != opponent[i]:
+                self._opponent.value = opponent
+                return
+
+        self._opponent.checked()
+
+    @property
+    def fishing_attempt(self) -> StateCacheItem["FishingAttempt | None"]:
+        return self._fishing_attempt
+
+    @fishing_attempt.setter
+    def fishing_attempt(self, fishing_attempt: "FishingAttempt"):
+        if self._fishing_attempt.value is None or fishing_attempt != self._fishing_attempt.value:
+            self._fishing_attempt.value = fishing_attempt
         else:
-            self._opponent.checked()
+            self._fishing_attempt.checked()
 
     @property
     def player(self) -> StateCacheItem["Player | None"]:
@@ -133,6 +160,17 @@ class StateCache:
             self._pokemon_storage.value = pokemon_storage
         else:
             self._pokemon_storage.checked()
+
+    @property
+    def effective_wild_encounters(self) -> StateCacheItem["EffectiveWildEncounterList | None"]:
+        return self._effective_wild_encounters
+
+    @effective_wild_encounters.setter
+    def effective_wild_encounters(self, encounters_list: "EffectiveWildEncounterList"):
+        if self._effective_wild_encounters.value is None or self._effective_wild_encounters.value != encounters_list:
+            self._effective_wild_encounters.value = encounters_list
+        else:
+            self._effective_wild_encounters.checked()
 
     @property
     def item_bag(self) -> StateCacheItem["ItemBag | None"]:
@@ -221,6 +259,17 @@ class StateCache:
             self._last_shiny_log.value = new_shiny_log
         else:
             self._last_shiny_log.checked()
+
+    @property
+    def battle_state(self) -> StateCacheItem["BattleState | None"]:
+        return self._battle_state
+
+    @battle_state.setter
+    def battle_state(self, new_battle_state: "BattleState"):
+        if self._battle_state.value != new_battle_state:
+            self._battle_state.value = new_battle_state
+        else:
+            self._battle_state.checked()
 
 
 state_cache: StateCache = StateCache()

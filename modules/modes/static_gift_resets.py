@@ -27,6 +27,8 @@ from .util import (
     wait_until_event_flag_is_true,
     wait_until_task_is_active,
     wait_until_task_is_not_active,
+    wait_for_player_avatar_to_be_standing_still,
+    wait_for_no_script_to_run,
 )
 
 
@@ -142,6 +144,9 @@ class StaticGiftResetsMode(BotMode):
             if context.rom.is_emerald:
                 yield from wait_until_task_is_active("Task_DrawFieldMessage", "A")
                 yield from wait_until_task_is_not_active("Task_DrawFieldMessage", "B")
+            if context.rom.is_rs:
+                yield from wait_until_task_is_active("Task_FieldMessageBox", "A")
+                yield from wait_until_task_is_not_active("Task_FieldMessageBox", "B")
 
             # Accept the Pokémon
             if encounter[2] in ["Beldum", "Hitmonchan", "Hitmonlee", "Magikarp", "Wynaut"]:
@@ -174,6 +179,7 @@ class StaticGiftResetsMode(BotMode):
                 yield from wait_until_event_flag_is_true("GOT_LAPRAS_FROM_SILPH", "B")
             if encounter[2] == "Castform":
                 yield from wait_until_event_flag_is_true("RECEIVED_CASTFORM", "B")
+                yield from wait_for_no_script_to_run("B")
 
             def egg_in_party() -> int:
                 total_eggs = 0

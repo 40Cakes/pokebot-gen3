@@ -1,13 +1,14 @@
 import queue
 import sys
 from collections import deque
-from threading import Thread
+from typing import Generator
 
 from modules.console import console
 from modules.context import context
-from modules.memory import GameState, get_game_state
-from modules.modes import BotListener, BotMode, BotModeError, FrameInfo, get_bot_listeners, get_bot_mode_by_name
+from modules.memory import get_game_state
+from modules.modes import BotMode, BotModeError, FrameInfo, get_bot_listeners, get_bot_mode_by_name
 from modules.plugins import plugin_profile_loaded
+from modules.stats import StatsDatabase
 from modules.tasks import get_global_script_context, get_tasks
 
 # Contains a queue of tasks that should be run the next time a frame completes.
@@ -22,25 +23,33 @@ work_queue: queue.Queue[callable] = queue.Queue()
 inputs_each_frame: deque[int] = deque(maxlen=128)
 
 
+class ManualBotMode(BotMode):
+    @staticmethod
+    def name() -> str:
+        return "Manual"
+
+    def run(self) -> Generator:
+        yield
+
+
 def main_loop() -> None:
     """
     This function is run after the user has selected a profile and the emulator has been started.
     """
     try:
         plugin_profile_loaded(context.profile)
-        current_mode: BotMode | None = None
 
-        if context.config.discord.rich_presence:
-            from modules.discord import discord_rich_presence
-
-            Thread(target=discord_rich_presence).start()
+        context.stats = StatsDatabase(context.profile)
 
         if context.config.http.http_server.enable:
-            from modules.web.http import http_server
+            from modules.web.http import start_http_server
 
-            Thread(target=http_server).start()
+            start_http_server(
+                host=context.config.http.http_server.ip,
+                port=context.config.http.http_server.port,
+            )
 
-        listeners: list[BotListener] = get_bot_listeners(context.rom)
+        context.bot_listeners = get_bot_listeners(context.rom)
         previous_frame_info: FrameInfo | None = None
 
         while True:
@@ -53,18 +62,13 @@ def main_loop() -> None:
 
             context.frame += 1
 
-            if context.bot_mode != "Manual":
-                game_state = get_game_state()
-                script_context = get_global_script_context()
-                script_stack = script_context.stack if script_context is not None and script_context.is_active else []
-                task_list = get_tasks()
-                if task_list is not None:
-                    active_tasks = [task.symbol.lower() for task in task_list]
-                else:
-                    active_tasks = []
+            game_state = get_game_state()
+            script_context = get_global_script_context()
+            script_stack = script_context.stack if script_context is not None and script_context.is_active else []
+            task_list = get_tasks()
+            if task_list is not None:
+                active_tasks = [task.symbol.lower() for task in task_list]
             else:
-                game_state = GameState.UNKNOWN
-                script_stack = []
                 active_tasks = []
 
             frame_info = FrameInfo(
@@ -77,25 +81,22 @@ def main_loop() -> None:
 
             # Reset all bot listeners if the emulator has been reset.
             if previous_frame_info is not None and previous_frame_info.frame_count > frame_info.frame_count:
-                listeners = get_bot_listeners(context.rom)
+                context.listeners = get_bot_listeners(context.rom)
 
             if context.bot_mode == "Manual":
                 context.controller_stack = []
-                if current_mode is not None:
+                if not isinstance(context.bot_mode_instance, ManualBotMode):
                     context.emulator.reset_held_buttons()
-                current_mode = None
-                listeners = []
+                context.bot_mode_instance = ManualBotMode()
             elif len(context.controller_stack) == 0:
-                current_mode = get_bot_mode_by_name(context.bot_mode)()
-                context.controller_stack.append(current_mode.run())
-                listeners = get_bot_listeners(context.rom)
+                context.bot_mode_instance = get_bot_mode_by_name(context.bot_mode)()
+                context.controller_stack.append(context.bot_mode_instance.run())
 
             try:
-                if current_mode is not None:
-                    for listener in listeners:
-                        listener.handle_frame(current_mode, frame_info)
-                    if len(context.controller_stack) > 0:
-                        next(context.controller_stack[-1])
+                for listener in context.bot_listeners.copy():
+                    listener.handle_frame(context.bot_mode_instance, frame_info)
+                if len(context.controller_stack) > 0:
+                    next(context.controller_stack[-1])
             except (StopIteration, GeneratorExit):
                 context.controller_stack.pop()
             except BotModeError as e:

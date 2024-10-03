@@ -63,7 +63,7 @@ class RockSmashMode(BotMode):
         return True
 
     def on_battle_started(self) -> BattleAction | None:
-        return handle_encounter(get_opponent(), disable_auto_battle=True)
+        return handle_encounter(get_opponent())
 
     def on_repel_effect_ended(self) -> None:
         if self._using_repel:

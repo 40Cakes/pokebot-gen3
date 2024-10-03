@@ -44,7 +44,7 @@ class StaticRunAway(BotMode):
         return get_player_avatar().map_group_and_number in allowed_maps
 
     def on_battle_started(self) -> BattleAction | None:
-        return handle_encounter(get_opponent(), disable_auto_catch=True, disable_auto_battle=True)
+        return handle_encounter(get_opponent(), disable_auto_catch=True)
 
     def run(self) -> Generator:
         match get_player_avatar().map_group_and_number:

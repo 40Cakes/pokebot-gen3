@@ -2,15 +2,16 @@ import os
 import shutil
 from typing import Generator, Optional, TYPE_CHECKING
 
+from modules.config import Config
 from modules.runtime import get_base_path
 
 if TYPE_CHECKING:
     from modules.gui import PokebotGui
     from modules.libmgba import LibmgbaEmulator
+    from modules.modes import BotListener, BotMode
     from modules.profiles import Profile
     from modules.roms import ROM
-
-from modules.config import Config
+    from modules.stats import StatsDatabase
 
 
 def _initialise_config() -> None:
@@ -44,12 +45,15 @@ class BotContext:
         self.emulator: Optional["LibmgbaEmulator"] = None
         self.gui: Optional["PokebotGui"] = None
         self.profile: Optional["Profile"] = None
+        self.stats: Optional["StatsDatabase"] = None
         self.debug: bool = False
 
         self._current_message: str = ""
 
         self.controller_stack: list[Generator] = []
         self.debug_action_stack: list[str] = []
+        self.bot_mode_instance: Optional["BotMode"] = None
+        self.bot_listeners: list["BotListener"] = []
         self.frame: int = 0
         self._current_bot_mode: str = initial_bot_mode
         self._previous_bot_mode: str = "Manual"
@@ -119,6 +123,9 @@ class BotContext:
         self._update_gui()
 
     def set_manual_mode(self, enable_video_and_slow_down: bool = True) -> None:
+        if self.bot_mode == "Manual":
+            return
+
         self.bot_mode = "Manual"
         self.emulator.reset_held_buttons()
         if enable_video_and_slow_down:

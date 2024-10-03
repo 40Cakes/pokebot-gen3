@@ -8,7 +8,8 @@ from modules.memory import get_event_flag, get_event_var
 from modules.menuing import use_party_hm_move
 from modules.player import get_player_avatar
 from modules.tasks import get_global_script_context
-from ._asserts import assert_has_pokemon_with_move, assert_no_auto_battle, assert_no_auto_pickup, assert_registered_item
+from . import BattleAction
+from ._asserts import assert_has_pokemon_with_move, assert_registered_item
 from ._interface import BotMode, BotModeError
 from .util import (
     follow_path,
@@ -20,7 +21,11 @@ from .util import (
     wait_for_task_to_start_and_finish,
     walk_one_tile,
     apply_repel,
+    wait_for_no_script_to_run,
 )
+from ..battle_strategies import BattleStrategy
+from ..encounter import handle_encounter
+from ..pokemon import get_opponent
 
 
 @debug.track
@@ -56,19 +61,25 @@ class PuzzleSolverMode(BotMode):
         elif context.rom.is_frlg:
             return get_player_avatar().map_group_and_number in [
                 MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY,
+                MapFRLG.BIRTH_ISLAND_EXTERIOR,
             ]
         else:
             return False
 
+    def on_battle_started(self) -> BattleAction | BattleStrategy | None:
+        return handle_encounter(get_opponent(), enable_auto_battle=True)
+
     def on_repel_effect_ended(self) -> None:
         yield from apply_repel()
 
+    def on_pickup_threshold_reached(self) -> bool:
+        return False
+
     def run(self) -> Generator:
-        assert_no_auto_battle("This mode should not be used with auto-battle.")
-        assert_no_auto_pickup("This mode should not be used while auto-pickup is enabled.")
         use_repel = False
 
-        match get_player_avatar().map_group_and_number:
+        current_map = get_player_avatar().map_group_and_number
+        match current_map:
             # Mirage Tower
             case MapRSE.MIRAGE_TOWER_1F:
                 context.message = "Solving Mirage Tower..."
@@ -258,43 +269,79 @@ class PuzzleSolverMode(BotMode):
                             yield from walk_one_tile("Up")
 
             # Deoxys
-            case MapRSE.BIRTH_ISLAND_EXTERIOR:
+            case MapFRLG.BIRTH_ISLAND_EXTERIOR | MapRSE.BIRTH_ISLAND_EXTERIOR:
                 context.message = "Solving Deoxys Puzzle..."
 
                 def path():
-                    yield from navigate_to(MapRSE.BIRTH_ISLAND_EXTERIOR, (15, 13))
-                    context.emulator.press_button("A")
-                    yield from navigate_to(MapRSE.BIRTH_ISLAND_EXTERIOR, (11, 13))
-                    context.emulator.press_button("Down")
-                    yield
-                    context.emulator.press_button("A")
-                    yield from follow_path([(15, 13), (15, 9)])
-                    context.emulator.press_button("A")
-                    yield from follow_path([(19, 9), (19, 13)])
-                    context.emulator.press_button("A")
-                    yield from follow_path([(19, 11), (13, 11)])
-                    context.emulator.press_button("A")
-                    yield from navigate_to(MapRSE.BIRTH_ISLAND_EXTERIOR, (17, 11))
-                    context.emulator.press_button("A")
-                    yield from follow_path([(15, 11), (15, 13)])
-                    context.emulator.press_button("A")
-                    yield from follow_path([(15, 14), (12, 14)])
-                    context.emulator.press_button("A")
-                    yield from navigate_to(MapRSE.BIRTH_ISLAND_EXTERIOR, (18, 14))
-                    context.emulator.press_button("A")
-                    yield from navigate_to(MapRSE.BIRTH_ISLAND_EXTERIOR, (15, 14))
-                    context.emulator.press_button("Down")
-                    yield
-                    context.emulator.press_button("A")
-                    # yield from navigate_to(15, 11)
-                    yield from wait_for_n_frames(60)
-                    if get_map_objects()[1].current_coords == (15, 10):
-                        context.message = "Deoxys puzzle complete!"
-                        context.bot_mode = "Manual"
-                    else:
-                        yield from navigate_to(MapRSE.BIRTH_ISLAND_EXTERIOR, (15, 24))
-                        yield from walk_one_tile("Down")
-                        yield from walk_one_tile("Up")
+                    while True:
+                        match (
+                            get_event_var("DEOXYS_INTERACTION_NUM")
+                            if context.rom.is_frlg
+                            else get_event_var("DEOXYS_ROCK_LEVEL")
+                        ):
+                            case 0:
+                                yield from navigate_to(current_map, (15, 13))
+                                yield from ensure_facing_direction("Up")
+                                context.emulator.press_button("A")
+
+                            case 1:
+                                yield from navigate_to(current_map, (11, 13))
+                                yield from ensure_facing_direction("Down")
+                                context.emulator.press_button("A")
+
+                            case 2:
+                                yield from navigate_to(current_map, (15, 13))
+                                yield from navigate_to(current_map, (15, 9))
+                                yield from ensure_facing_direction("Up")
+                                context.emulator.press_button("A")
+
+                            case 3:
+                                yield from navigate_to(current_map, (19, 9))
+                                yield from navigate_to(current_map, (19, 13))
+                                yield from ensure_facing_direction("Down")
+                                context.emulator.press_button("A")
+
+                            case 4:
+                                yield from navigate_to(current_map, (19, 11))
+                                yield from navigate_to(current_map, (13, 11))
+                                yield from ensure_facing_direction("Left")
+                                context.emulator.press_button("A")
+
+                            case 5:
+                                yield from navigate_to(current_map, (17, 11))
+                                yield from ensure_facing_direction("Right")
+                                context.emulator.press_button("A")
+
+                            case 6:
+                                yield from navigate_to(current_map, (15, 11))
+                                yield from navigate_to(current_map, (15, 13))
+                                yield from ensure_facing_direction("Down")
+                                context.emulator.press_button("A")
+
+                            case 7:
+                                yield from navigate_to(current_map, (15, 14))
+                                yield from navigate_to(current_map, (12, 14))
+                                yield from ensure_facing_direction("Left")
+                                context.emulator.press_button("A")
+
+                            case 8:
+                                yield from navigate_to(current_map, (18, 14))
+                                yield from ensure_facing_direction("Right")
+                                context.emulator.press_button("A")
+
+                            case 9:
+                                yield from navigate_to(current_map, (15, 14))
+                                yield from ensure_facing_direction("Down")
+                                context.emulator.press_button("A")
+
+                            case _:
+                                context.message = "Deoxys puzzle complete!"
+                                context.bot_mode = "Manual"
+                                return
+
+                        yield
+                        yield from wait_for_no_script_to_run()
+                        yield
 
             # Tanoby Key
             case MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY:

@@ -6,10 +6,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
         integrity="sha384-1H217gwSVyLSIfaLxHbE7dRb3v4mYCKbpQvzx0cegeju1MVsGrX5xXxAvs/HgeFs" crossorigin="anonymous">
         </script>
-
-    <script src="https://momentjs.com/downloads/moment.min.js"
-        integrity="sha384-jzJ+sNWbKe71gDLLfQKgdtslQjhK70oKLFN+wmwxyg6mQN7Vem+wzce4pryF0HP/" crossorigin="anonymous">
-        </script>
 </head>
 
 <body>
@@ -143,7 +139,8 @@
         <tr>
             <td><img class="small_icon" src="sprites/stream-overlay/australia.png"></td>
             <td>
-                <div id="local_time"></div>
+                <span id="local_time"></span>
+                <span id="time_zone" style="font-size: 1.2rem;"></span>
             </td>
         </tr>
         <tr>
@@ -153,31 +150,32 @@
         </tr>
     </table>
 
-    <table id="target_1" class="target_1" style="opacity: 0%;">
-        <tr>
-            <td class="no-rule"><img id="target_1_sprite" class="target_timer_sprite" style="transform: scale(4) translateY(-5px) translateX(5px);" src="sprites/items/None.png"></td>
-            <td class="no-rule" style="text-align: right;">
-                <span id="target_1_timer_hrs"></span>
-                <span class="time_unit">hr</span>
-                <span id="target_1_timer_mins"></span>
-                <span class="time_unit" style="padding-right: 15%;">min</span>
-            </td>
-        </tr>
-        <tbody id="target_1">
-    </table>
+    <div class="info-bubbles-bottom-right">
+        <div class="info-bubble" id="repel_info">
+            <img src="sprites/items/Repel.png" class="icon-item"/>
 
-    <table id="target_2" class="target_2" style="opacity: 0%;">
-        <tr>
-            <td class="no-rule" style="text-align: left;">
-                <span id="target_2_timer_hrs" style="padding-left: 15%;"></span>
-                <span class="time_unit">hr</span>
-                <span id="target_2_timer_mins"></span>
-                <span class="time_unit">min</span>
-            </td>
-            <td class="no-rule"><img id="target_2_sprite" class="target_timer_sprite" style="transform: scale(4) translateY(-5px) translateX(-3px) scaleX(-1);" src="sprites/items/None.png"></td>
-        </tr>
-        <tbody id="target_2">
-    </table>
+            <span class="time_unit">Repel Lvl.</span>
+            <span id="repel_level">77</span>
+        </div>
+
+        <div class="info-bubble" id="target_2">
+            <img id="target_2_sprite" src="sprites/items/None.png" class="icon-pokemon"/>
+
+            <span id="target_2_timer_hrs"></span>
+            <span class="time_unit">hr</span>
+            <span id="target_2_timer_mins"></span>
+            <span class="time_unit">min</span>
+        </div>
+
+        <div class="info-bubble" id="target_1">
+            <img id="target_1_sprite" src="sprites/items/None.png" class="icon-pokemon"/>
+
+            <span id="target_1_timer_hrs"></span>
+            <span class="time_unit">hr</span>
+            <span id="target_1_timer_mins"></span>
+            <span class="time_unit">min</span>
+        </div>
+    </div>
 
     <table class="checklist">
         <tr>
@@ -217,7 +215,7 @@
                         <div class="progress_bar">
                             <span id="progress_bar_fill" class="progress_bar_fill" style="width: 0%;"></span>
                         </div>
-                    </div>    
+                    </div>
                 </td>
             </tr>
             <tr>

@@ -1,14 +1,14 @@
 from enum import Enum
-from typing import Generator, Union
+from typing import Generator, Union, Callable
 
 from modules.context import context
 from modules.debug import debug
 from modules.map_data import PokemonCenter
-from modules.memory import get_event_flag, get_game_state_symbol, unpack_uint32, read_symbol
+from modules.memory import get_event_flag, get_game_state_symbol, unpack_uint32, read_symbol, get_game_state, GameState
 from modules.menu_parsers import CursorOptionEmerald, CursorOptionFRLG, CursorOptionRS
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.modes.util.sleep import wait_for_n_frames
-from modules.player import get_player_avatar, get_player
+from modules.player import get_player_avatar, get_player, TileTransitionState, RunningState
 from modules.pokemon import get_party
 from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE, get_map_cursor, get_map_region
 from modules.tasks import get_task, task_is_active
@@ -19,6 +19,7 @@ from .tasks_scripts import (
     wait_for_yes_no_question,
     wait_for_no_script_to_run,
     wait_until_task_is_active,
+    wait_for_fade_to_finish,
 )
 from .walking import navigate_to, wait_for_player_avatar_to_be_standing_still
 from .._interface import BotModeError
@@ -131,6 +132,23 @@ def fish() -> Generator:
     yield
 
 
+def spin(stop_condition: Callable[[], bool] | None = None):
+    directions = ["Up", "Right", "Down", "Left"]
+    while True:
+        avatar = get_player_avatar()
+        if (
+            get_game_state() == GameState.OVERWORLD
+            and avatar.tile_transition_state == TileTransitionState.NOT_MOVING
+            and avatar.running_state == RunningState.NOT_MOVING
+        ):
+            if stop_condition is not None and stop_condition():
+                return
+
+            direction_index = (directions.index(avatar.facing_direction) + 1) % len(directions)
+            context.emulator.press_button(directions[direction_index])
+        yield
+
+
 @debug.track
 def heal_in_pokemon_center(pokemon_center_door_location: PokemonCenter) -> Generator:
     # Walk to and enter the Pokémon centre
@@ -150,14 +168,31 @@ def heal_in_pokemon_center(pokemon_center_door_location: PokemonCenter) -> Gener
 
 @debug.track
 def change_lead_party_pokemon(slot: int) -> Generator:
-    yield from StartMenuNavigator("POKEMON").step()
     if context.rom.is_emerald:
-        yield from PokemonPartyMenuNavigator(0, "", CursorOptionEmerald.SWITCH).step()
-    if context.rom.is_rs:
-        yield from PokemonPartyMenuNavigator(0, "", CursorOptionRS.SWITCH).step()
-    if context.rom.is_frlg:
-        yield from PokemonPartyMenuNavigator(0, "", CursorOptionFRLG.SWITCH).step()
-    yield from wait_until_task_is_active("Task_HandleChooseMonInput")
+        cursor_option_switch = CursorOptionEmerald.SWITCH
+        party_menu_task = "Task_HandleChooseMonInput"
+        switch_pokemon_task = "Task_HandleChooseMonInput"
+        slide_animation_task = "Task_SlideSelectedSlotsOnscreen"
+        start_menu_task = "Task_ShowStartMenu"
+    elif context.rom.is_rs:
+        cursor_option_switch = CursorOptionRS.SWITCH
+        party_menu_task = "HandleDefaultPartyMenu"
+        switch_pokemon_task = "HandlePartyMenuSwitchPokemonInput"
+        slide_animation_task = "sub_806D198"
+        start_menu_task = "sub_80712B4"
+    else:
+        cursor_option_switch = CursorOptionFRLG.SWITCH
+        party_menu_task = "Task_HandleChooseMonInput"
+        switch_pokemon_task = "Task_HandleChooseMonInput"
+        slide_animation_task = "Task_SlideSelectedSlotsOnscreen"
+        start_menu_task = "Task_StartMenuHandleInput"
+
+    yield from StartMenuNavigator("POKEMON").step()
+    yield from wait_until_task_is_active(party_menu_task)
+    yield
+    yield from wait_for_fade_to_finish()
+    yield from PokemonPartyMenuNavigator(0, "", cursor_option_switch).step()
+    yield from wait_until_task_is_active(switch_pokemon_task)
     match slot:
         case 1:
             context.emulator.press_button("Right")
@@ -173,8 +208,8 @@ def change_lead_party_pokemon(slot: int) -> Generator:
             context.emulator.press_button("A")
             yield from wait_for_n_frames(4)
 
-    yield from wait_for_task_to_start_and_finish("Task_SlideSelectedSlotsOnscreen", "A")
-    yield from wait_for_task_to_start_and_finish("Task_ShowStartMenu", "B")
+    yield from wait_for_task_to_start_and_finish(slide_animation_task, "A")
+    yield from wait_for_task_to_start_and_finish(start_menu_task, "B")
     yield from wait_for_n_frames(10)
 
 

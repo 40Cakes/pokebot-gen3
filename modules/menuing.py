@@ -2,6 +2,7 @@ from enum import IntEnum
 from typing import Generator
 
 from modules.context import context
+from modules.game_stats import get_game_stat, GameStat
 from modules.items import Item, get_item_bag
 from modules.memory import GameState, get_event_flag, get_game_state, read_symbol, unpack_uint16
 from modules.menu_parsers import (
@@ -18,6 +19,10 @@ from modules.modes._asserts import assert_has_pokemon_with_move
 from modules.modes._interface import BotModeError
 from modules.pokemon import get_move_by_name, get_party
 from modules.tasks import get_task, task_is_active
+
+
+def is_fade_active() -> bool:
+    return bool(read_symbol("gPaletteFade", offset=0x07, size=1)[0] & 0x80)
 
 
 def party_menu_is_open() -> bool:
@@ -98,6 +103,43 @@ def scroll_to_item_in_bag(item: Item) -> Generator:
         yield
         if context.rom.is_rs:
             yield
+
+
+def scroll_to_party_menu_index(target_index: int) -> Generator:
+    if len(get_party()) <= target_index:
+        raise RuntimeError(
+            f"Cannot scroll to party index #{target_index} because the party only contains {len(get_party())} Pokémon."
+        )
+
+    # Wait for fade-in to finish (happens when the bag is opened, during which time inputs
+    # are not yet active.)
+    while (
+        get_game_state() != GameState.PARTY_MENU
+        or unpack_uint16(read_symbol("gPaletteFade", offset=0x07, size=0x02)) & 0x80 != 0
+    ):
+        yield
+
+    while True:
+        cursor = get_current_party_menu_index()
+
+        if cursor == target_index:
+            break
+        elif cursor < target_index:
+            context.emulator.press_button("Down")
+        else:
+            context.emulator.press_button("Up")
+        yield
+        yield
+
+
+def get_current_party_menu_index():
+    if context.rom.is_rs:
+        cursor = context.emulator.read_bytes(0x0202002F + len(get_party()) * 136 + 3, length=1)[0]
+    else:
+        party_menu = read_symbol("gPartyMenu")
+        cursor = party_menu[9]
+
+    return cursor
 
 
 class BaseMenuNavigator:
@@ -385,9 +427,13 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
             yield
 
     def select_summary(self):
+        spam_a_button = True
         while not task_is_active("Task_DuckBGMForPokemonCry"):
-            if not task_is_active("Task_HandleInput"):
-                context.emulator.press_button("A")
+            if spam_a_button:
+                if task_is_active("Task_HandleInput") or task_is_active("SummaryScreenHandleKeyInput"):
+                    spam_a_button = False
+                else:
+                    context.emulator.press_button("A")
             yield
 
     def select_mon(self):
@@ -412,7 +458,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
 
     def select_option(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-            while parse_party_menu()["numActions"] > 3 and self.navigator is not None:
+            while parse_party_menu()["numActions"] >= 3 and self.navigator is not None:
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator(self.primary_option).step()
                 else:
@@ -430,7 +476,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
 
     def select_switch(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-            while not task_is_active("TASK_HANDLESELECTIONMENUINPUT"):
+            while not task_is_active("Task_HandleSelectionMenuInput"):
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator("SHIFT").step()
                 else:
@@ -456,7 +502,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                     self.navigator = None
                     self.subnavigator = None
         else:
-            while task_is_active("SUB_808A060"):
+            while task_is_active("SUB_808A060") or task_is_active("Task_PartyMenuPrintRun"):
                 if not self.subnavigator:
                     self.subnavigator = PokemonPartySubMenuNavigator(1).step()
                 else:
@@ -496,13 +542,13 @@ class BattlePartyMenuNavigator(PokemonPartyMenuNavigator):
                 self.current_step = "exit"
 
     def select_mon(self):
-        while task_is_active("TASK_HANDLECHOOSEMONINPUT") or task_is_active("HANDLEBATTLEPARTYMENU"):
+        while task_is_active("Task_HandleChooseMonInput") or task_is_active("HANDLEBATTLEPARTYMENU"):
             context.emulator.press_button("A")
             yield
 
     def select_option(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-            while task_is_active("TASK_HANDLESELECTIONMENUINPUT"):
+            while task_is_active("Task_HandleSelectionMenuInput"):
                 yield from PokemonPartySubMenuNavigator(self.primary_option).step()
         else:
             while task_is_active("TASK_HANDLEPOPUPMENUINPUT"):
@@ -602,14 +648,12 @@ class CheckForPickup(BaseMenuNavigator):
                     self.picked_up_items.append(mon.held_item)
 
     def check_pickup_threshold(self):
-        from modules.stats import total_stats
-
         if context.config.cheats.faster_pickup:
             self.check_threshold_met = True
             self.checked = True
         else:
             self.check_threshold_met = (
-                total_stats.get_session_encounters() % context.config.battle.pickup_check_frequency == 0
+                get_game_stat(GameStat.TOTAL_BATTLES) % context.config.battle.pickup_check_frequency == 0
             )
         self.get_pokemon_with_pickup_and_item()
         if context.config.battle.pickup_threshold > self.pokemon_with_pickup > 0:
@@ -622,7 +666,7 @@ class CheckForPickup(BaseMenuNavigator):
             threshold = context.config.battle.pickup_threshold
         self.pickup_threshold_met = self.check_threshold_met and len(self.pokemon_with_pickup_and_item) >= threshold
         if self.pickup_threshold_met:
-            total_stats.update_pickup_items(self.picked_up_items)
+            context.stats.log_pickup_items(self.picked_up_items)
             context.message = "Pickup threshold is met! Gathering items..."
 
     def open_party_menu(self):
@@ -637,7 +681,7 @@ class CheckForPickup(BaseMenuNavigator):
 
     def return_to_party_menu(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
-            while task_is_active("TASK_PRINTANDWAITFORTEXT"):
+            while task_is_active("Task_PrintAndWaitForText"):
                 context.emulator.press_button("B")
                 yield
         else:
@@ -768,11 +812,9 @@ class MenuWrapper:
 
 
 def should_check_for_pickup():
-    from modules.stats import total_stats
-
     if (
         context.config.cheats.faster_pickup
-        or total_stats.get_session_encounters() % context.config.battle.pickup_check_frequency == 0
+        or get_game_stat(GameStat.TOTAL_BATTLES) % context.config.battle.pickup_check_frequency == 0
     ):
         return True
     return False
@@ -875,3 +917,44 @@ def use_party_hm_move(move_name: str):
         case _:
             raise BotModeError("Invalid HM move name.")
     return
+
+
+class RotatePokemon(BaseMenuNavigator):
+    def __init__(self, new_lead: int):
+        super().__init__()
+        self.party = get_party()
+        self.new_lead = new_lead
+
+    def get_next_func(self):
+        match self.current_step:
+            case "None":
+                match self.new_lead:
+                    case None:
+                        self.current_step = "exit"
+                    case _:
+                        self.current_step = "open_party_menu"
+            case "open_party_menu":
+                self.current_step = "switch_pokemon"
+            case "switch_pokemon":
+                self.current_step = "confirm_switch"
+            case "confirm_switch":
+                self.current_step = "exit_to_overworld"
+            case "exit_to_overworld":
+                self.current_step = "exit"
+
+    def update_navigator(self):
+        match self.current_step:
+            case "open_party_menu":
+                self.navigator = StartMenuNavigator("POKEMON").step()
+            case "switch_pokemon":
+                self.navigator = PokemonPartyMenuNavigator(idx=self.new_lead, mode="switch").step()
+            case "switch_pokemon":
+                self.navigator = self.confirm_switch()
+            case "exit_to_overworld":
+                self.navigator = PartyMenuExit().step()
+
+    @staticmethod
+    def confirm_switch():
+        while task_is_active("TASK_HANDLECHOOSEMONINPUT") or task_is_active("HANDLEPARTYMENUSWITCHPOKEMONINPUT"):
+            context.emulator.press_button("A")
+            yield

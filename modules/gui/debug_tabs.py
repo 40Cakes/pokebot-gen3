@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING, Union, Optional
 
 from PIL import Image, ImageDraw, ImageTk, ImageOps
 
+from modules.battle_state import get_battle_state
+from modules.clock import get_clock_time, get_play_time
 from modules.context import context
 from modules.daycare import get_daycare_data
 from modules.debug import debug
@@ -17,6 +19,7 @@ from modules.game import (
     _event_flags,
     get_event_flag_name,
     get_event_var_name,
+    get_symbol_name,
     get_symbol_name_before,
 )
 from modules.game_stats import GameStat, get_game_stat
@@ -29,6 +32,8 @@ from modules.map import (
     get_map_all_tiles,
     get_wild_encounters_for_map,
     WildEncounter,
+    get_effective_encounter_rates_for_current_map,
+    EffectiveWildEncounter,
 )
 from modules.map_data import MapGroupFRLG, MapFRLG, MapGroupRSE, MapRSE
 from modules.map_path import _find_tile_by_local_coordinates
@@ -46,9 +51,10 @@ from modules.memory import (
     get_game_state,
     GameState,
 )
+from modules.menuing import is_fade_active
 from modules.player import get_player, get_player_avatar, AvatarFlags, TileTransitionState
 from modules.pokedex import get_pokedex
-from modules.pokemon import get_party, get_species_by_index
+from modules.pokemon import get_party, get_species_by_index, get_party_repel_level
 from modules.pokemon_storage import get_pokemon_storage
 from modules.roamer import get_roamer, get_roamer_location_history
 from modules.tasks import (
@@ -58,6 +64,7 @@ from modules.tasks import (
     get_immediate_script_context,
     ScriptContext,
 )
+from modules.text_printer import get_text_printer
 
 if TYPE_CHECKING:
     from modules.libmgba import LibmgbaEmulator
@@ -80,6 +87,7 @@ class FancyTreeview:
 
         treeview_scrollbar_combo = ttk.Frame(root)
         treeview_scrollbar_combo.columnconfigure(0, weight=1)
+        treeview_scrollbar_combo.rowconfigure(0, weight=1)
         treeview_scrollbar_combo.grid(row=row, column=column, columnspan=column_span, sticky="NSWE")
 
         self._items = {}
@@ -93,9 +101,9 @@ class FancyTreeview:
         self._tv.heading("value", text="Value", anchor="w")
 
         scrollbar = ttk.Scrollbar(treeview_scrollbar_combo, orient=tkinter.VERTICAL, command=self._tv.yview)
-        scrollbar.grid(row=0, column=1, sticky="NWS")
+        scrollbar.grid(row=0, column=1, sticky="NSWE")
         self._tv.configure(yscrollcommand=scrollbar.set)
-        self._tv.grid(row=0, column=0, sticky="E")
+        self._tv.grid(row=0, column=0, sticky="NSWE")
 
         self._context_menu = tkinter.Menu(self._tv, tearoff=0)
         self._context_menu.add_command(label="Copy Value", command=self._handle_copy)
@@ -129,7 +137,8 @@ class FancyTreeview:
 
         for key in data:
             item_key = f"{key_prefix}{key}"
-            if key == "__value":
+            # BattleStateSide._battle_state is a circular reference.
+            if key == "__value" or key == "_battle_state":
                 pass
             elif type(data[key]) is dict:
                 if item_key in self._items:
@@ -287,34 +296,34 @@ class TasksTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
-        frame.columnconfigure(1, weight=1)
-
-        ttk.Label(frame, text="Callback 1:").grid(row=0, column=0)
-        self._cb1_label = ttk.Label(frame, text="", padding=(10, 0))
-        self._cb1_label.grid(row=0, column=1, sticky="W")
-
-        ttk.Label(frame, text="Callback 2:", padding=(0, 10)).grid(row=1, column=0)
-        self._cb2_label = ttk.Label(frame, text="", padding=(10, 10))
-        self._cb2_label.grid(row=1, column=1, sticky="W")
-
-        self._tv = FancyTreeview(frame, height=19, row=2, column_span=2)
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
+        self._tv = FancyTreeview(frame, height=22, row=0)
 
         root.add(frame, text="Tasks")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        def get_callback_name(symbol: str, offset: int = 0) -> str:
-            pointer = max(0, unpack_uint32(read_symbol(symbol, offset, 4)))
-            return get_symbol_name_before(pointer, pretty_name=True)
+        def get_callback_data(symbol: str, offset: int = 0) -> dict:
+            pointer = max(0, unpack_uint32(read_symbol(symbol, offset, size=4)))
+            symbol_name = get_symbol_name_before(pointer, pretty_name=True)
+            try:
+                actual_symbol_start, _ = get_symbol(symbol_name)
+                offset = hex(pointer - actual_symbol_start)
+            except RuntimeError:
+                offset = ""
+            return {
+                "__value": symbol_name if pointer > 0 else "0x0",
+                "pointer": hex(pointer),
+                "function": symbol_name,
+                "offset": offset,
+            }
 
-        cb1_symbol = get_callback_name("gMain")
-        cb2_symbol = get_callback_name("gMain", offset=4)
-
-        self._cb1_label.config(text=cb1_symbol)
-        self._cb2_label.config(text=cb2_symbol)
+        cb1_symbol = get_callback_data("gMain")
+        cb2_symbol = get_callback_data("gMain", offset=4)
 
         def render_script_context(ctx: ScriptContext) -> dict | str:
             if ctx is None or not ctx.is_active:
-                return "None"
+                return "Not Active"
             stack = (
                 {"__value": "Empty"}
                 if len(ctx.stack) == 1
@@ -337,25 +346,32 @@ class TasksTab(DebugTab):
             }
 
         data = {
+            "Callback 1": cb1_symbol,
+            "Callback 2": cb2_symbol,
             "Global Script Context": render_script_context(get_global_script_context()),
-            "Immediate Script Context": render_script_context(get_immediate_script_context()),
         }
+
+        immediate_script_content = get_immediate_script_context()
+        if immediate_script_content.is_active:
+            data["Immediate Script Context"] = render_script_context(immediate_script_content)
 
         if get_game_state() == GameState.BATTLE:
             number_of_battlers = read_symbol("gBattlersCount", size=1)[0]
 
-            main_battle_function = get_callback_name("gBattleMainFunc")
-            player_controller_function = get_callback_name("gBattlerControllerFuncs", offset=0)
+            current_battle_script_instruction = get_callback_data("gBattleScriptCurrInstr")
+            main_battle_function = get_callback_data("gBattleMainFunc")
+            player_controller_function = get_callback_data("gBattlerControllerFuncs", offset=0)
 
-            data["Battle Callbacks"] = {
-                "__value": f"{main_battle_function} / {player_controller_function}",
+            data["Battle Context"] = {
+                "__value": f"{main_battle_function['function']} / {current_battle_script_instruction['function']} / {player_controller_function['function']}",
+                "Battle Script": current_battle_script_instruction,
                 "Main Battle Function": main_battle_function,
                 "Battler Controller #1": player_controller_function,
             }
 
             for index in range(1, number_of_battlers):
-                function = get_callback_name("gBattlerControllerFuncs", offset=4 * index)
-                data["Battle Callbacks"][f"Battler Controller #{index + 1}"] = function
+                function = get_callback_data("gBattlerControllerFuncs", offset=4 * index)
+                data["Battle Context"][f"Battler Controller #{index + 1}"] = function
 
         index = 0
         tasks = get_tasks()
@@ -378,6 +394,8 @@ class BattleTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
         self._tv = FancyTreeview(frame)
         root.add(frame, text="Battle")
 
@@ -386,8 +404,16 @@ class BattleTab(DebugTab):
 
     def _get_data(self):
         data = read_symbol("gBattleResults")
+        currins = unpack_uint32(read_symbol("gBattleScriptCurrInstr", size=4))
 
         return {
+            "State": get_battle_state(),
+            "Current Instruction": hex(currins),
+            "Instruction Symbol": get_symbol_name(currins, True),
+            "Instruction Symbol #2": get_symbol_name_before(currins, True),
+            "Instruction Offset": (
+                0 if currins == 0 else hex(currins - get_symbol(get_symbol_name_before(currins, True))[0])
+            ),
             "Player Faint Counter": int(data[0]),
             "Opponent Faint Counter": int(data[1]),
             "Player Switch Counter": int(data[2]),
@@ -441,6 +467,7 @@ class SymbolsTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
+        frame.columnconfigure(0, weight=1)
         frame.rowconfigure(0, weight=0)
         frame.rowconfigure(1, weight=0, minsize=5)
         frame.rowconfigure(2, weight=1)
@@ -630,6 +657,8 @@ class PlayerTab(DebugTab):
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
         self._tv = FancyTreeview(frame)
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
         root.add(frame, text="Player")
 
     def update(self, emulator: "LibmgbaEmulator"):
@@ -775,6 +804,8 @@ class MiscTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
         self._tv = FancyTreeview(frame)
         root.add(frame, text="Misc")
 
@@ -835,6 +866,11 @@ class MiscTab(DebugTab):
             "Roamer": get_roamer(),
             "Roamer History": get_roamer_location_history(),
             "Region Map Cursor": get_map_cursor(),
+            "Text Printer #1": get_text_printer(0),
+            "gMain.state": read_symbol("gMain", offset=0x438, size=1)[0],
+            "Fade Active": is_fade_active(),
+            "Local Time": get_clock_time(),
+            "Play Time": get_play_time(),
         }
 
 
@@ -847,6 +883,8 @@ class EventFlagsTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
+        frame.rowconfigure(1, weight=1)
+        frame.columnconfigure(0, weight=1)
 
         context_actions = {"Copy Name": self._copy_name, "Toggle Flag": self._toggle_flag}
 
@@ -899,6 +937,8 @@ class EventVarsTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
+        frame.rowconfigure(1, weight=1)
+        frame.columnconfigure(0, weight=1)
 
         context_actions = {"Copy Name": self._copy_name, "Change Value": self._change_value}
 
@@ -1031,6 +1071,8 @@ class EmulatorTab(DebugTab):
 
     def draw(self, root: ttk.Notebook):
         frame = ttk.Frame(root, padding=10)
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
         self._tv = FancyTreeview(frame)
         root.add(frame, text="Emulator")
 
@@ -1039,7 +1081,6 @@ class EmulatorTab(DebugTab):
 
     def _get_data(self):
         from modules.libmgba import input_map
-        from modules.stats import total_stats
 
         current_inputs = context.emulator.get_inputs()
         inputs_dict = {"__value": []}
@@ -1069,7 +1110,7 @@ class EmulatorTab(DebugTab):
             "Session Frame": f"{context.frame:,}",
             "Session Time at 1×": f"{session_time_at_1x}",
             "RNG Seed": hex(unpack_uint32(read_symbol("gRngValue"))),
-            "Encounters/h (at 1×)": total_stats.get_encounter_rate_at_1x(),
+            "Encounters/h (at 1×)": context.stats.encounter_rate_at_1x,
             "Currently Running Actions": debug.action_stack,
             "Debug Values": debug.debug_values,
         }
@@ -1089,6 +1130,8 @@ class MapTab(DebugTab):
         frame = ttk.Frame(root, padding=10)
         self._map = MapViewer(frame, row=1)
         self._tv = FancyTreeview(frame, row=0, height=15, on_highlight=self._handle_selection)
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
         root.add(frame, text="Map")
 
     def update(self, emulator: "LibmgbaEmulator"):
@@ -1341,6 +1384,46 @@ class MapTab(DebugTab):
 
             encounters["__value"] = ", ".join(encounters["__value"])
 
+        effective_encounter_data = get_effective_encounter_rates_for_current_map()
+        effective_encounters = {}
+
+        def list_effective_encounters(label: str, encounters: list[EffectiveWildEncounter]) -> None:
+            nonlocal effective_encounters
+
+            if len(encounters) == 0:
+                return
+
+            result = {}
+            value = []
+            for encounter in encounters:
+                percentage = round(100 * encounter.encounter_rate)
+                value.append(f"{percentage}% {encounter.species.name}")
+                result[encounter.species.name] = f"{percentage}%; Lvl. {encounter.min_level}-{encounter.max_level}"
+            result["__value"] = ", ".join(value)
+            effective_encounters[label] = result
+
+            if "__value" in effective_encounters:
+                effective_encounters["__value"] += f", {len(encounters)} {label}"
+            else:
+                effective_encounters["__value"] = f"{len(encounters)} {label}"
+
+        list_effective_encounters("Land", effective_encounter_data.land_encounters)
+        list_effective_encounters("Surfing", effective_encounter_data.surf_encounters)
+        list_effective_encounters("Rock Smash", effective_encounter_data.rock_smash_encounters)
+        list_effective_encounters("Fishing (Old Rod)", effective_encounter_data.old_rod_encounters)
+        list_effective_encounters("Fishing (Good Rod)", effective_encounter_data.good_rod_encounters)
+        list_effective_encounters("Fishing (Super Rod)", effective_encounter_data.super_rod_encounters)
+
+        if "__value" not in effective_encounters:
+            effective_encounters["__value"] = ""
+
+        if get_party_repel_level() > 0:
+            effective_encounters["__value"] = (
+                f"(Repel Lvl. {get_party_repel_level()}) {effective_encounters['__value']}"
+            )
+        else:
+            effective_encounters["__value"] = f"(no Repel) {effective_encounters['__value']}"
+
         if context.rom.is_rse:
             map_enum = MapRSE(map_data.map_group_and_number)
             group_enum = MapGroupRSE(map_data.map_group)
@@ -1367,6 +1450,7 @@ class MapTab(DebugTab):
                 "Is Dark Cave": map_data.is_dark_cave,
             },
             "Encounters": encounters,
+            "Effective Encounters": effective_encounters,
             "Tile": {
                 "__value": f"{map_data.local_position[0]}/{map_data.local_position[1]} ({map_data.tile_type})",
                 "Elevation": map_data.elevation,

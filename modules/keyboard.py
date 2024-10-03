@@ -265,6 +265,10 @@ class KeyboardNavigator(BaseMenuNavigator):
             else:
                 if self.keyboard.text_buffer == self.name:
                     context.emulator.press_button("Start")
+                    yield
+                    yield
+                    yield
+                    context.emulator.press_button("A")
                 else:
                     self.navigator = None
                     self.current_step = "Clear Input"

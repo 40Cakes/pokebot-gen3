@@ -2,7 +2,7 @@ import contextlib
 import json
 import struct
 from dataclasses import dataclass
-from enum import Enum, Flag, KEEP
+from enum import Enum
 from functools import cached_property
 from pathlib import Path
 from typing import Literal
@@ -12,7 +12,7 @@ import numpy
 from modules.context import context
 from modules.game import decode_string
 from modules.items import Item, get_item_by_index, get_item_by_move_id, get_item_by_name
-from modules.memory import pack_uint32, read_symbol, unpack_uint16, unpack_uint32
+from modules.memory import pack_uint32, read_symbol, unpack_uint16, unpack_uint32, get_event_var
 from modules.roms import ROMLanguage
 from modules.runtime import get_data_path
 from modules.state_cache import state_cache
@@ -296,8 +296,6 @@ class Type:
     def __init__(self, index: int, name: str):
         self.index: int = index
         self.name: str = name
-        self.kind: str = "???"
-        self.kind = "Physical" if index < 9 else "Special"
         self._effectiveness: dict["Type", float] = {}
 
     def set_effectiveness(self, other_type: "Type", effectiveness: float):
@@ -305,6 +303,18 @@ class Type:
 
     def get_effectiveness_against(self, other_type: "Type") -> float:
         return self._effectiveness.get(other_type, 1)
+
+    @property
+    def is_physical(self) -> bool:
+        return self.index < 9
+
+    @property
+    def is_special(self) -> bool:
+        return self.index >= 9
+
+    @property
+    def kind(self) -> str:
+        return "Physical" if self.is_physical else "Special"
 
     def __str__(self):
         return self.name
@@ -331,6 +341,7 @@ class Move:
     effect: str
     target: str
     makes_contact: bool
+    is_sound_move: bool
     affected_by_protect: bool
     affected_by_magic_coat: bool
     affected_by_snatch: bool
@@ -356,6 +367,7 @@ class Move:
             effect=data["effect"],
             target=data["target"],
             makes_contact=data["makes_contact"],
+            is_sound_move=data["is_sound_move"],
             affected_by_protect=data["affected_by_protect"],
             affected_by_magic_coat=data["affected_by_magic_coat"],
             affected_by_snatch=data["affected_by_snatch"],
@@ -439,12 +451,12 @@ class StatsValues:
             ]
         }
         return cls(
-            hp=hp,
-            attack=stats["attack"],
-            defence=stats["defence"],
-            speed=stats["speed"],
-            special_attack=stats["special_attack"],
-            special_defence=stats["special_defence"],
+            hp=int(hp),
+            attack=int(stats["attack"]),
+            defence=int(stats["defence"]),
+            speed=int(stats["speed"]),
+            special_attack=int(stats["special_attack"]),
+            special_defence=int(stats["special_defence"]),
         )
 
     def sum(self) -> int:
@@ -1077,6 +1089,12 @@ class Pokemon:
         else:
             return unpack_uint16(self.data[86:88])
 
+    @property
+    def current_hp_percentage(self) -> float:
+        if self.total_hp == 0:
+            return 0
+        return 100 * self.current_hp / self.total_hp
+
     # ===================================================
     # Values that are derived from the Personality Value
     # ===================================================
@@ -1146,13 +1164,7 @@ class Pokemon:
             | ((self.personality_value & (0b11 << 8)) >> 6)
             | self.personality_value & 0b11
         )
-        letter_index %= 28
-        if letter_index == 26:
-            return "!"
-        elif letter_index == 27:
-            return "?"
-        else:
-            return chr(65 + letter_index)
+        return get_unown_letter_by_index(letter_index)
 
     @property
     def wurmple_evolution(self) -> Literal["silcoon", "cascoon"]:
@@ -1189,141 +1201,29 @@ class Pokemon:
     def to_dict(self) -> dict:
         return _to_dict_helper(self)
 
-    def to_legacy_dict(self) -> dict:
-        """
-        Converts the Pokémon data into a simple dict, which can then be used for JSON-encoding
-        the data.
-
-        This is not meant to be used in new code unless truly necessary. It is mainly here, so
-        we can continue to provide external consumers with the same data structures as before
-        (it is currently being used for the WebServer and for `shiny_log.json`.)
-
-        :return: A legacy-format dictionary containing data about this Pokémon
-        """
-        moves = []
-        for i in range(4):
-            learned_move = self.move(i)
-            if learned_move is None:
-                moves.append(
-                    {
-                        "accuracy": 0,
-                        "effect": "None",
-                        "id": 0,
-                        "kind": "None",
-                        "name": "None",
-                        "power": 0,
-                        "pp": 0,
-                        "remaining_pp": 0,
-                        "type": "None",
-                    }
-                )
-                continue
-
-            move = learned_move.move
-            moves.append(
-                {
-                    "accuracy": move.accuracy,
-                    "effect": move.effect,
-                    "id": move.index,
-                    "kind": move.type.kind,
-                    "name": move.name,
-                    "power": move.base_power,
-                    "pp": learned_move.total_pp,
-                    "remaining_pp": learned_move.pp,
-                    "type": move.type.name,
-                },
-            )
-
-        return {
-            "EVs": {
-                "attack": self.evs.attack,
-                "defence": self.evs.defence,
-                "hp": self.evs.hp,
-                "spAttack": self.evs.special_attack,
-                "spDefense": self.evs.special_defence,
-                "speed": self.evs.speed,
-            },
-            "IVSum": self.ivs.sum(),
-            "IVs": {
-                "attack": self.ivs.attack,
-                "defense": self.ivs.defence,
-                "hp": self.ivs.hp,
-                "spAttack": self.ivs.special_attack,
-                "spDefense": self.ivs.special_defence,
-                "speed": self.ivs.speed,
-            },
-            "ability": self.ability.name,
-            "antiShiny": self.is_anti_shiny,
-            "calculatedChecksum": self.calculate_checksum(),
-            "checksum": self.get_data_checksum(),
-            "condition": {
-                "beauty": self.contest_conditions.beauty,
-                "cool": self.contest_conditions.coolness,
-                "cute": self.contest_conditions.cuteness,
-                "feel": self.contest_conditions.feel,
-                "smart": self.contest_conditions.smartness,
-                "tough": self.contest_conditions.toughness,
-            },
-            "expGroup": self.species.level_up_type.value,
-            "experience": self.species.base_experience_yield,
-            "friendship": self.friendship,
-            "hasSpecies": 1,
-            "hiddenPower": self.hidden_power_type.name,
-            "id": self.species.index,
-            "isEgg": 1 if self.is_egg else 0,
-            "item": {
-                "id": self.held_item.index if self.held_item else 0,
-                "name": self.held_item.name if self.held_item else "None",
-            },
-            "language": self.language.value,
-            "level": self.level,
-            "markings": {
-                "circle": Marking.Circle in self.markings,
-                "heart": Marking.Heart in self.markings,
-                "square": Marking.Square in self.markings,
-                "triangle": Marking.Triangle in self.markings,
-            },
-            "metLocation": self.location_met,
-            "moves": moves,
-            "name": self.species.name,
-            "natID": self.species.national_dex_number,
-            "nature": self.nature.name,
-            "origins": {
-                "ball": self.poke_ball.name,
-                "game": self.game_of_origin,
-                "hatched": self.level_met == 0,
-                "metLevel": self.level_met,
-            },
-            "ot": {"sid": self.original_trainer.secret_id, "tid": self.original_trainer.id},
-            "pid": self.personality_value,
-            "pokerus": {"days": self.pokerus_status.days_remaining, "strain": self.pokerus_status.strain},
-            "shiny": self.is_shiny,
-            "shinyValue": self.shiny_value,
-            "species": self.species.index,
-            "stats": {
-                "attack": self.stats.attack,
-                "defense": self.stats.defence,
-                "hp": self.current_hp,
-                "maxHP": self.total_hp,
-                "spAttack": self.stats.special_attack,
-                "spDefense": self.stats.special_defence,
-                "speed": self.stats.speed,
-            },
-            "status": {
-                "badPoison": self.status_condition == StatusCondition.BadPoison,
-                "burn": self.status_condition == StatusCondition.Burn,
-                "freeze": self.status_condition == StatusCondition.Freeze,
-                "paralysis": self.status_condition == StatusCondition.Paralysis,
-                "poison": self.status_condition == StatusCondition.Poison,
-                "sleep": self.sleep_duration if self.status_condition == StatusCondition.Sleep else 0,
-            },
-            "type": [self.species.types[0].name, self.species.types[1].name if len(self.species.types) > 1 else ""],
-        }
-
 
 def parse_pokemon(data: bytes) -> Pokemon | None:
     pokemon = Pokemon(data)
     return pokemon if not pokemon.is_empty and pokemon.is_valid else None
+
+
+def get_unown_letter_by_index(letter_index: int) -> str:
+    letter_index %= 28
+    if letter_index == 26:
+        return "!"
+    elif letter_index == 27:
+        return "?"
+    else:
+        return chr(65 + letter_index)
+
+
+def get_unown_index_by_letter(letter: str) -> int:
+    if letter == "!":
+        return 26
+    elif letter == "?":
+        return 27
+    else:
+        return ord(letter) - 65
 
 
 def _load_types() -> tuple[dict[str, Type], list[Type]]:
@@ -1441,10 +1341,18 @@ _species_by_name, _species_by_index, _species_by_national_dex = _load_species()
 
 
 def get_species_by_name(name: str) -> Species:
+    if name.startswith("Unown ("):
+        name = "Unown"
+
     return _species_by_name[name]
 
 
 def get_species_by_index(index: int) -> Species:
+    # We use species IDs 20100+ for differentiating between Unown forms, so any
+    # such ID should be mapped back to the Unown species.
+    if index >= 20100 and index < 20200:
+        index = 201
+
     return _species_by_index[index]
 
 
@@ -1498,69 +1406,56 @@ def get_party() -> list[Pokemon]:
     return party
 
 
-def get_opponent() -> Pokemon | None:
+def get_party_repel_level() -> int:
     """
-    Gets the current opponent/encounter from `gEnemyParty`, decodes and returns.
+    :return: The minimum level that wild encounters can have, given the current Repel
+             state and the level of the first non-fainted Pokémon.
+    """
+    if get_event_var("REPEL_STEP_COUNT") > 0:
+        for pokemon in get_party():
+            if pokemon.is_valid and not pokemon.is_egg and pokemon.current_hp > 0:
+                return pokemon.level
 
-    :return: opponent (dict)
+    return 0
+
+
+def get_opponent_party() -> list[Pokemon] | None:
+    """
+    Gets the opponent's party (obviously only makes sense to check when in a battle.)
+    :return: The full party of the opponent, or None if there is no valid opponent at the moment.
     """
     if state_cache.opponent.age_in_frames == 0:
         return state_cache.opponent.value
 
-    mon = parse_pokemon(read_symbol("gEnemyParty")[:100])
+    data = read_symbol("gEnemyParty")
+    result = []
+    for index in range(6):
+        offset = index * 100
+        pokemon = parse_pokemon(data[offset : offset + 100])
+        if pokemon is None:
+            if index == 0:
+                return None
+            else:
+                continue
+        result.append(pokemon)
 
-    # See comment in `GetParty()`
-    if mon is None:
-        with context.emulator.peek_frame():
-            mon = parse_pokemon(read_symbol("gEnemyParty")[:100])
-    if mon is None:
+    state_cache.opponent = result
+
+    return result
+
+
+def get_opponent() -> Pokemon | None:
+    """
+    :return: The first Pokémon of the opponent's party, or None if there is no active opponent.
+    """
+    opponent_party = get_opponent_party()
+    if opponent_party is None:
         return None
-
-    state_cache.opponent = mon
-
-    return mon
+    else:
+        return opponent_party[0]
 
 
 last_opid = pack_uint32(0)  # ReadSymbol('gEnemyParty', size=4)
-
-
-class BattleTypeFlag(Flag, boundary=KEEP):
-    DOUBLE = 1 << 0
-    LINK = 1 << 1
-    IS_MASTER = 1 << 2
-    TRAINER = 1 << 3
-    FIRST_BATTLE = 1 << 4
-    LINK_IN_BATTLE = 1 << 5
-    MULTI = 1 << 6
-    SAFARI = 1 << 7
-    BATTLE_TOWER = 1 << 8
-    WALLY_TUTORIAL = 1 << 9
-    ROAMER = 1 << 10
-    EREADER_TRAINER = 1 << 11
-    KYOGRE_GROUDON = 1 << 12
-    LEGENDARY = 1 << 13
-    REGI = 1 << 14
-    TWO_OPPONENTS = 1 << 15
-    DOME = 1 << 16
-    PALACE = 1 << 17
-    ARENA = 1 << 18
-    FACTORY = 1 << 19
-    PIKE = 1 << 20
-    PYRAMID = 1 << 21
-    INGAME_PARTNER = 1 << 22
-    TOWER_LINK_MULTI = 1 << 23
-    RECORDED = 1 << 24
-    RECORDED_LINK = 1 << 25
-    TRAINER_HILL = 1 << 26
-    SECRET_BASE = 1 << 27
-    GROUDON = 1 << 28
-    KYOGRE = 1 << 29
-    RAYQUAZA = 1 << 30
-    RECORDED_IS_MASTER = 1 << 31
-
-
-def get_battle_type_flags() -> BattleTypeFlag:
-    return BattleTypeFlag(unpack_uint32(read_symbol("gBattleTypeFlags")))
 
 
 def clear_opponent() -> None:
@@ -1578,11 +1473,9 @@ def opponent_changed() -> bool:
     try:
         global last_opid
         opponent_pid = read_symbol("gEnemyParty", size=4)
-        if (
-            opponent_pid != last_opid
-            and opponent_pid != b"\x00\x00\x00\x00"
-            and (BattleTypeFlag.TRAINER not in get_battle_type_flags())
-        ):
+        battle_type = unpack_uint32(read_symbol("gBattleTypeFlags", size=0x04))
+        trainer_or_tutorial = (1 << 3) | (1 << 9)
+        if opponent_pid != last_opid and opponent_pid != b"\x00\x00\x00\x00" and battle_type & trainer_or_tutorial:
             last_opid = opponent_pid
             return True
         else:

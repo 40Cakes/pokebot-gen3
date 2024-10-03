@@ -1,42 +1,53 @@
+import importlib
+from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
+from typing import Callable, TYPE_CHECKING
 
-from modules.console import console
+from modules.console import console, print_stats
 from modules.context import context
-from modules.plugins import plugin_judge_encounter
 from modules.files import save_pk3, make_string_safe_for_file_name
 from modules.gui.desktop_notification import desktop_notification
 from modules.memory import get_game_state, GameState
 from modules.modes import BattleAction
+from modules.plugins import plugin_judge_encounter
 from modules.pokedex import get_pokedex
-from modules.pokemon import Pokemon
 from modules.roamer import get_roamer
 from modules.runtime import get_sprites_path
 from modules.tcg_card import generate_tcg_card
 
+if TYPE_CHECKING:
+    from datetime import datetime
+    from modules.battle_state import EncounterType
+    from modules.pokemon import Pokemon
 
-def shiny_encounter_gif() -> Path | None:
-    """
-    Attempts to generate a GIF of a shiny encounter.
-    """
-    if context.config.logging.shiny_gifs:
-        if context.rom.is_rs:
-            shiny_task = "sub_8141AD8"
-        elif context.rom.is_emerald:
-            shiny_task = "Task_ShinyStars_Wait"
+
+_custom_catch_filters: Callable[["Pokemon"], str | bool] | None = None
+
+
+@dataclass
+class ActiveWildEncounter:
+    pokemon: "Pokemon"
+    encounter_time: "datetime"
+    type: "EncounterType"
+    value: "EncounterValue | None" = None
+    catch_filters_result: str | bool | None = None
+    gif_path: Path | None = None
+    tcg_card_path: Path | None = None
+
+
+def run_custom_catch_filters(pokemon: "Pokemon") -> str | bool:
+    global _custom_catch_filters
+    if _custom_catch_filters is None:
+        if (context.profile.path / "customcatchfilters.py").is_file():
+            module = importlib.import_module(".customcatchfilters", f"profiles.{context.profile.path.name}")
+            _custom_catch_filters = module.custom_catch_filters
         else:
-            shiny_task = "AnimTask_ShinySparkles_WaitSparkles"
-        shiny_stars = context.emulator.get_task_look_ahead(shiny_task)
-        return context.emulator.generate_gif((0, shiny_stars[1] + 180)) if shiny_stars else None
-    return None
+            from profiles.customcatchfilters import custom_catch_filters
 
+            _custom_catch_filters = custom_catch_filters
 
-def run_custom_catch_filters(pokemon: Pokemon) -> str | bool:
-    from modules.stats import total_stats
-
-    result = total_stats.custom_catch_filters(pokemon)
-    if result is False:
-        result = plugin_judge_encounter(pokemon)
+    result = _custom_catch_filters(pokemon) or plugin_judge_encounter(pokemon)
     if result is True:
         result = "Matched a custom catch filter"
     return result
@@ -55,7 +66,7 @@ class EncounterValue(Enum):
         return self in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch)
 
 
-def judge_encounter(pokemon: Pokemon) -> EncounterValue:
+def judge_encounter(pokemon: "Pokemon") -> EncounterValue:
     """
     Checks whether an encountered Pokémon matches any of the criteria that makes it
     eligible for catching (is shiny, matches custom catch filter, ...)
@@ -91,14 +102,10 @@ def judge_encounter(pokemon: Pokemon) -> EncounterValue:
     return EncounterValue.Trash
 
 
-def log_encounter(
-    pokemon: Pokemon, action: BattleAction | None = None, gif_path: Path | None = None, tcg_path: Path | None = None
-) -> None:
-    from modules.stats import total_stats
-
-    total_stats.log_encounter(
-        pokemon, context.config.catch_block.block_list, run_custom_catch_filters(pokemon), gif_path, tcg_path
-    )
+def log_encounter(pokemon: "Pokemon", action: BattleAction | None = None) -> None:
+    ccf_result = run_custom_catch_filters(pokemon)
+    context.stats.log_encounter(pokemon, ccf_result)
+    print_stats(context.stats.get_global_stats(), pokemon)
     if context.config.logging.save_pk3.all:
         save_pk3(pokemon)
 
@@ -138,19 +145,16 @@ def log_encounter(
 
 
 def handle_encounter(
-    pokemon: Pokemon,
+    pokemon: "Pokemon",
     disable_auto_catch: bool = False,
-    disable_auto_battle: bool = False,
+    enable_auto_battle: bool = False,
     do_not_log_battle_action: bool = False,
 ) -> BattleAction:
     encounter_value = judge_encounter(pokemon)
-    gif_path, tcg_path = None, None
     match encounter_value:
         case EncounterValue.Shiny:
             console.print(f"[bold yellow]Shiny {pokemon.species.name} found![/]")
             alert = "Shiny found!", f"Found a ✨shiny {pokemon.species.name}✨! 🥳"
-            gif_path = shiny_encounter_gif()
-            tcg_path = generate_tcg_card(pokemon)
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.shiny:
                 save_pk3(pokemon)
             is_of_interest = True
@@ -176,8 +180,6 @@ def handle_encounter(
         case EncounterValue.ShinyOnBlockList:
             console.print(f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...[/]")
             alert = None
-            gif_path = shiny_encounter_gif()
-            tcg_path = generate_tcg_card(pokemon)
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.shiny:
                 save_pk3(pokemon)
             is_of_interest = False
@@ -211,14 +213,14 @@ def handle_encounter(
         else:
             context.set_manual_mode()
             decision = BattleAction.CustomAction
-    elif context.config.battle.battle and not disable_auto_battle:
+    elif enable_auto_battle:
         decision = BattleAction.Fight
     else:
         decision = BattleAction.RunAway
 
     if do_not_log_battle_action or not battle_is_active:
-        log_encounter(pokemon, None, gif_path, tcg_path)
+        log_encounter(pokemon, None)
     else:
-        log_encounter(pokemon, decision, gif_path, tcg_path)
+        log_encounter(pokemon, decision)
 
     return decision
