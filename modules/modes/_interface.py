@@ -123,6 +123,7 @@ class BotMode:
 
         :return: True to allow Pickup checking, False to prevent it.
         """
+        return True
 
     def on_spotted_by_trainer(self) -> None:
         """

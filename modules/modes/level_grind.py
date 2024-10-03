@@ -1,6 +1,5 @@
 from typing import Generator
 
-from modules.battle_strategies import TurnAction
 from modules.context import context
 from modules.map import get_map_data_for_current_position, get_map_data
 from modules.map_data import MapFRLG, MapRSE, PokemonCenter, get_map_enum
@@ -10,7 +9,7 @@ from modules.player import get_player_avatar
 from modules.pokemon import get_party, get_opponent, StatusCondition
 from ._interface import BotMode, BotModeError
 from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon, spin
-from ..battle_state import BattleOutcome, BattleState
+from ..battle_state import BattleOutcome
 from ..battle_strategies import BattleStrategy, DefaultBattleStrategy
 from ..battle_strategies.level_balancing import LevelBalancingBattleStrategy
 from ..encounter import handle_encounter

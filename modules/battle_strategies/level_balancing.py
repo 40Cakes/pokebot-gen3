@@ -31,7 +31,7 @@ class LevelBalancingBattleStrategy(DefaultBattleStrategy):
         # in the most powerful Pokémon in the party to defeat the opponent, so that the
         # lead Pokémon at least gets partial XP.
         # This helps if the lead has a much lower level than the encounters.
-        if battler.party_index == 0 and battler.current_hp_percentage < context.config.battle.hp_threshold:
+        if battler.party_index == 0 and not self._pokemon_has_enough_hp(battler):
             strongest_pokemon: tuple[int, int] = (0, 0)
             party = get_party()
             for index in range(len(party)):

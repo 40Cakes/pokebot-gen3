@@ -194,7 +194,7 @@ class DefaultBattleStrategy(BattleStrategy):
     def decide_turn_in_safari_zone(self, battle_state: BattleState) -> tuple["SafariTurnAction", any]:
         return SafariTurnAction.switch_to_manual()
 
-    def _pokemon_has_enough_hp(self, pokemon: Pokemon):
+    def _pokemon_has_enough_hp(self, pokemon: Pokemon | BattlePokemon):
         return pokemon.current_hp_percentage > context.config.battle.hp_threshold
 
     def _get_usable_party_indices(self, battle_state: BattleState | None = None) -> list[int]:
