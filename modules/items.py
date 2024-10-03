@@ -124,7 +124,7 @@ class ItemHoldEffect(Enum):
     SoulDew = "soul_dew"
     DeepSeaTooth = "deep_sea_tooth"
     DeepSeaScale = "deep_sea_scale"
-    CanAlwaysRunAWay = "can_always_run_away"
+    CanAlwaysRunAway = "can_always_run_away"
     PreventEvolve = "prevent_evolve"
     FocusBand = "focus_band"
     LuckyEgg = "lucky_egg"

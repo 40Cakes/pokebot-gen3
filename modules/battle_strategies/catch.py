@@ -1,5 +1,5 @@
 from modules.battle_state import BattleState
-from modules.battle_strategies import BattleStrategy, SafariTurnAction
+from modules.battle_strategies import SafariTurnAction, DefaultBattleStrategy
 from modules.battle_strategies import TurnAction
 from modules.context import context
 from modules.items import Item, get_item_bag
@@ -8,23 +8,12 @@ from modules.pokedex import get_pokedex
 from modules.pokemon import Pokemon, get_type_by_name, StatusCondition
 
 
-class CatchStrategy(BattleStrategy):
-    def party_can_battle(self) -> bool:
-        return True
-
+class CatchStrategy(DefaultBattleStrategy):
     def pokemon_can_battle(self, pokemon: Pokemon) -> bool:
-        return True
+        return not pokemon.is_egg and pokemon.current_hp > 0
 
     def should_flee_after_faint(self, battle_state: BattleState) -> bool:
         return False
-
-    def choose_new_lead_after_battle(self) -> int | None:
-        return None
-
-    def choose_new_lead_after_faint(self, battle_state: BattleState) -> int:
-        context.message = "Player's Pokémon has fainted. Don't know what to do now, switching to Manual mode."
-        context.set_manual_mode()
-        return 0
 
     def decide_turn(self, battle_state: BattleState) -> tuple["TurnAction", any]:
         ball_to_throw = self._get_best_poke_ball(battle_state)

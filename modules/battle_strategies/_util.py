@@ -1,10 +1,12 @@
 from operator import truediv
 from typing import TYPE_CHECKING
 
-from modules.battle_state import Weather, TemporaryStatus
-from modules.items import ItemHoldEffect
-from modules.memory import get_event_flag
-from modules.pokemon import StatusCondition
+from modules.battle_state import Weather, TemporaryStatus, BattleType
+from modules.battle_strategies import TurnAction
+from modules.context import context
+from modules.items import ItemHoldEffect, get_item_bag, get_item_by_name
+from modules.memory import get_event_flag, read_symbol
+from modules.pokemon import StatusCondition, get_type_by_name, get_ability_by_name
 
 if TYPE_CHECKING:
     from modules.battle_state import BattlePokemon, BattleState
@@ -38,6 +40,127 @@ def _percentage(value: int, percent: int) -> int:
 class BattleStrategyUtil:
     def __init__(self, battle_state: "BattleState"):
         self._battle_state = battle_state
+
+    def get_escape_chance(self) -> float:
+        """
+        Calculates the likelihood of an attempt to flee the battle will succeed.
+
+        This only counts for the 'Run Away' battle option, not for other ways of escaping
+        (using a Poké Doll, using Teleport, ...)
+
+        :return: A number between 0 and 1, with 0 meaning that escaping is impossible.
+        """
+
+        # Cannot run from trainer battles or R/S/E's first battle (Birch will complain)
+        if BattleType.Trainer in self._battle_state.type or BattleType.FirstBattle in self._battle_state.type:
+            return 0
+
+        # Smoke Ball check
+        battler = self._battle_state.own_side.active_battler
+        if battler.held_item is not None and battler.held_item.hold_effect is ItemHoldEffect.CanAlwaysRunAway:
+            return 1
+
+        if battler.ability.name == "Run Away":
+            return 1
+
+        if (
+            TemporaryStatus.Rooted in battler.status_temporary
+            or TemporaryStatus.Wrapped in battler.status_temporary
+            or TemporaryStatus.EscapePrevention in battler.status_temporary
+        ):
+            return 0
+
+        opponent = self._battle_state.opponent.active_battler
+        if self._battle_state.opponent.has_ability(get_ability_by_name("Shadow Tag")):
+            return 0
+
+        if (
+            self._battle_state.opponent.has_ability(get_ability_by_name("Arena Trap"))
+            and get_type_by_name("Flying") not in battler.types
+            and battler.ability.name != "Levitate"
+        ):
+            return 0
+
+        if opponent.ability.name == "Magnet Pull" and get_type_by_name("Steel") in battler.types:
+            return 0
+
+        if opponent.stats.speed < battler.stats.speed:
+            return 1
+
+        if context.rom.is_rs:
+            escape_attempts = context.emulator.read_bytes(0x0201_6078, length=1)[0]
+        else:
+            escape_attempts = read_symbol("gBattleStruct", offset=0x4C, size=1)[0]
+        escape_chance = ((battler.stats.speed * 128) // opponent.stats.speed + (escape_attempts * 30)) % 256
+        return escape_chance / 255
+
+    def get_best_escape_method(self) -> tuple[TurnAction, any] | None:
+        """
+        :return: A turn action for escaping, or None if escaping is impossible.
+        """
+
+        escape_chance = self.get_escape_chance()
+        if escape_chance == 1:
+            return TurnAction.run_away()
+
+        # Use Poké Doll or Fluffy Tail if available
+        if escape_chance < 0.9:
+            item_bag = get_item_bag()
+            if item_bag.quantity_of(get_item_by_name("Poké Doll")) > 0:
+                return TurnAction.use_item(get_item_by_name("Poké Doll"))
+            elif item_bag.quantity_of(get_item_by_name("Fluffy Tail")) > 0:
+                return TurnAction.use_item(get_item_by_name("Fluffy Tail"))
+
+        # If escape odds are low enough, try escaping using a move
+        battler = self._battle_state.own_side.active_battler
+        opponent = self._battle_state.opponent.active_battler
+        if 0 < escape_chance < 0.5:
+            # Prefer Teleport as that might be quicker
+            for index in range(len(battler.moves)):
+                if battler.moves[index].move.name == "Teleport":
+                    return TurnAction.use_move(index)
+
+            # Whirlwind and Roar
+            if opponent.ability.name != "Suction Cups" and TemporaryStatus.Rooted not in opponent.status_temporary:
+                for index in range(len(battler.moves)):
+                    if battler.moves[index].move.effect == "ROAR":
+                        return TurnAction.use_move(index)
+
+        # Only try to escape if it's not impossible
+        if escape_chance > 0:
+            return TurnAction.run_away()
+
+        return None
+
+    def can_switch(self) -> bool:
+        """
+        :return: True if switching Pokémon is allowed at this point, False if it is impossible.
+        """
+        battler = self._battle_state.own_side.active_battler
+        if (
+            TemporaryStatus.Wrapped in battler.status_temporary
+            or TemporaryStatus.EscapePrevention in battler.status_temporary
+            or TemporaryStatus.Rooted in battler.status_temporary
+        ):
+            return False
+
+        if self._battle_state.opponent.has_ability(get_ability_by_name("Shadow Tag")):
+            return False
+
+        if (
+            self._battle_state.opponent.has_ability(get_ability_by_name("Arena Trap"))
+            and get_type_by_name("Flying") not in battler.types
+            and battler.ability.name != "Levitate"
+        ):
+            return False
+
+        if (
+            self._battle_state.opponent.has_ability(get_ability_by_name("Magnet Pull"))
+            and get_type_by_name("Steel") in battler.types
+        ):
+            return False
+
+        return True
 
     def calculate_move_damage_range(
         self, move: "Move", attacker: "BattlePokemon", defender: "BattlePokemon", is_critical_hit: bool = False
@@ -107,6 +230,19 @@ class BattleStrategyUtil:
         # todo: Helping Hand
 
         return DamageRange(max(1, _percentage(damage, 85)), damage)
+
+    def get_strongest_move_against(self, pokemon: "BattlePokemon", opponent: "BattlePokemon"):
+        move_strengths = []
+        for learned_move in pokemon.moves:
+            move = learned_move.move
+            if learned_move.pp == 0 or pokemon.disabled_move is move:
+                move_strengths.append(-1)
+            else:
+                move_strengths.append(self.calculate_move_damage_range(move, pokemon, opponent).max)
+
+        strongest_move = move_strengths.index(max(move_strengths))
+
+        return strongest_move
 
     def _calculate_base_move_damage(
         self, move: "Move", attacker: "BattlePokemon", defender: "BattlePokemon", is_critical_hit: bool = False

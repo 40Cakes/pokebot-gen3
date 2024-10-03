@@ -138,23 +138,30 @@ class DefaultBattleStrategy(BattleStrategy):
         return None
 
     def decide_turn(self, battle_state: BattleState) -> tuple["TurnAction", any]:
+        util = BattleStrategyUtil(battle_state)
+
         if not self._pokemon_has_enough_hp(get_party()[battle_state.own_side.active_battler.party_index]):
             if context.config.battle.lead_cannot_battle_action == "flee" and not battle_state.is_trainer_battle:
-                return TurnAction.run_away()
+                # If it is impossible to escape, do not even attempt to do it but just keep battling.
+                best_escape_method = util.get_best_escape_method()
+                if best_escape_method is not None:
+                    return best_escape_method
             elif (
                 context.config.battle.lead_cannot_battle_action == "rotate"
                 and len(self._get_usable_party_indices(battle_state)) > 0
             ):
-                return TurnAction.rotate_lead(self._select_rotation_target(battle_state))
+                if util.can_switch():
+                    return TurnAction.rotate_lead(self._select_rotation_target(battle_state))
             else:
                 context.message = "Leading Pokémon's HP fell below the minimum threshold."
                 return TurnAction.switch_to_manual()
 
         return TurnAction.use_move(
-            self._get_strongest_move_against(battle_state.own_side.active_battler, battle_state.opponent.active_battler)
+            util.get_strongest_move_against(battle_state.own_side.active_battler, battle_state.opponent.active_battler)
         )
 
     def decide_turn_in_double_battle(self, battle_state: BattleState, battler_index: int) -> tuple["TurnAction", any]:
+        util = BattleStrategyUtil(battle_state)
         battler = battle_state.own_side.left_battler if battler_index == 0 else battle_state.own_side.right_battler
         partner = battle_state.own_side.right_battler if battler_index == 0 else battle_state.own_side.left_battler
         pokemon = get_party()[battler.party_index]
@@ -163,22 +170,26 @@ class DefaultBattleStrategy(BattleStrategy):
         if not self._pokemon_has_enough_hp(pokemon):
             if partner_pokemon is None or not self._pokemon_has_enough_hp(partner_pokemon):
                 if context.config.battle.lead_cannot_battle_action == "flee" and not battle_state.is_trainer_battle:
-                    return TurnAction.run_away()
+                    # If it is impossible to escape, do not even attempt to do it but just keep battling.
+                    best_escape_method = util.get_best_escape_method()
+                    if best_escape_method is not None:
+                        return best_escape_method
                 elif (
                     context.config.battle.lead_cannot_battle_action == "rotate"
                     and len(self._get_usable_party_indices(battle_state)) > 0
                 ):
-                    return TurnAction.rotate_lead(self._select_rotation_target(battle_state))
+                    if util.can_switch():
+                        return TurnAction.rotate_lead(self._select_rotation_target(battle_state))
                 else:
                     context.message = "Both battling Pokémon's HP fell below the minimum threshold."
                     return TurnAction.switch_to_manual()
 
         if battle_state.opponent.left_battler is not None:
             opponent = battle_state.opponent.left_battler
-            return TurnAction.use_move_against_left_side_opponent(self._get_strongest_move_against(battler, opponent))
+            return TurnAction.use_move_against_left_side_opponent(util.get_strongest_move_against(battler, opponent))
         else:
             opponent = battle_state.opponent.right_battler
-            return TurnAction.use_move_against_right_side_opponent(self._get_strongest_move_against(battler, opponent))
+            return TurnAction.use_move_against_right_side_opponent(util.get_strongest_move_against(battler, opponent))
 
     def decide_turn_in_safari_zone(self, battle_state: BattleState) -> tuple["SafariTurnAction", any]:
         return SafariTurnAction.switch_to_manual()
@@ -243,18 +254,3 @@ class DefaultBattleStrategy(BattleStrategy):
             and move.pp > 0
             and move.move.name not in context.config.battle.banned_moves
         )
-
-    def _get_strongest_move_against(self, pokemon: BattlePokemon, opponent: BattlePokemon):
-        util = BattleStrategyUtil(get_battle_state())
-
-        move_strengths = []
-        for learned_move in pokemon.moves:
-            move = learned_move.move
-            if learned_move.pp == 0:
-                move_strengths.append(-1)
-            else:
-                move_strengths.append(util.calculate_move_damage_range(move, pokemon, opponent).max)
-
-        strongest_move = move_strengths.index(max(move_strengths))
-
-        return strongest_move

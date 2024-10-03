@@ -461,6 +461,9 @@ class BattleStateSide:
                 return True
         return False
 
+    def has_ability(self, ability: "Ability"):
+        return any(battler.ability.name == ability.name for battler in self.active_battlers)
+
 
 class BattlePokemon:
     def __init__(self, data: bytes, status3: bytes, disable_struct: bytes, party_index: int):

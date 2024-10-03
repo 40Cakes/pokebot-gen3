@@ -1,5 +1,5 @@
 from modules.battle_state import BattleState
-from modules.battle_strategies import DefaultBattleStrategy, TurnAction
+from modules.battle_strategies import DefaultBattleStrategy, TurnAction, BattleStrategyUtil
 from modules.context import context
 from modules.pokemon import get_party
 
@@ -24,6 +24,7 @@ class LevelBalancingBattleStrategy(DefaultBattleStrategy):
         return lowest_level_index if lowest_level_index > 0 else None
 
     def decide_turn(self, battle_state: BattleState) -> tuple["TurnAction", any]:
+        util = BattleStrategyUtil(battle_state)
         battler = battle_state.own_side.active_battler
 
         # If the lead Pokémon (the one with the lowest level) is on low HP, try switching
@@ -36,7 +37,7 @@ class LevelBalancingBattleStrategy(DefaultBattleStrategy):
             for index in range(len(party)):
                 if self.pokemon_can_battle(party[index]) and party[index].level > strongest_pokemon[1]:
                     strongest_pokemon = (index, party[index].level)
-            if strongest_pokemon[0] > 0:
+            if strongest_pokemon[0] > 0 and util.can_switch():
                 return TurnAction.rotate_lead(strongest_pokemon[0])
 
         return super().decide_turn(battle_state)

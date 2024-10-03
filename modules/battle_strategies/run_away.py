@@ -1,35 +1,43 @@
 from modules.battle_state import BattleState
-from modules.battle_strategies import BattleStrategy, TurnAction, SafariTurnAction
-from modules.pokemon import Pokemon, Move
+from modules.battle_strategies import (
+    TurnAction,
+    SafariTurnAction,
+    BattleStrategyUtil,
+    DefaultBattleStrategy,
+)
 
 
-class RunAwayStrategy(BattleStrategy):
-    def party_can_battle(self) -> bool:
-        return False
-
-    def pokemon_can_battle(self, pokemon: Pokemon) -> bool:
-        return False
-
-    def which_move_should_be_replaced(self, pokemon: Pokemon, new_move: Move) -> int:
-        return 4
-
-    def should_allow_evolution(self, pokemon: Pokemon, party_index: int) -> bool:
-        return False
-
+class RunAwayStrategy(DefaultBattleStrategy):
     def should_flee_after_faint(self, battle_state: BattleState) -> bool:
         return True
 
     def choose_new_lead_after_battle(self) -> int | None:
         return False
 
-    def choose_new_lead_after_faint(self, battle_state: BattleState) -> int:
-        return 0
-
     def decide_turn(self, battle_state: BattleState) -> tuple["TurnAction", any]:
-        return TurnAction.run_away()
+        util = BattleStrategyUtil(battle_state)
+        best_escape_method = util.get_best_escape_method()
+        if best_escape_method is not None:
+            return best_escape_method
+        else:
+            return TurnAction.use_move(
+                util.get_strongest_move_against(
+                    battle_state.own_side.active_battler, battle_state.opponent.active_battler
+                )
+            )
 
     def decide_turn_in_double_battle(self, battle_state: BattleState, battler_index: int) -> tuple["TurnAction", any]:
-        return TurnAction.run_away()
+        util = BattleStrategyUtil(battle_state)
+        battler = battle_state.own_side.left_battler if battler_index == 0 else battle_state.own_side.right_battler
+        best_escape_method = util.get_best_escape_method()
+        if best_escape_method is not None:
+            return best_escape_method
+        elif battle_state.opponent.left_battler is not None:
+            opponent = battle_state.opponent.left_battler
+            return TurnAction.use_move_against_left_side_opponent(util.get_strongest_move_against(battler, opponent))
+        else:
+            opponent = battle_state.opponent.right_battler
+            return TurnAction.use_move_against_right_side_opponent(util.get_strongest_move_against(battler, opponent))
 
     def decide_turn_in_safari_zone(self, battle_state: BattleState) -> tuple["SafariTurnAction", any]:
         return SafariTurnAction.run_away()
