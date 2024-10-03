@@ -13,6 +13,8 @@ from ._asserts import (
 )
 from ._interface import BotMode, BotModeError
 from .util import ensure_facing_direction, navigate_to
+from ..battle_strategies import BattleStrategy
+from ..battle_strategies.lose_on_purpose import LoseOnPurposeBattleStrategy
 
 
 class KecleonMode(BotMode):
@@ -32,9 +34,9 @@ class KecleonMode(BotMode):
         super().__init__()
         self._has_whited_out = False
 
-    def on_battle_started(self) -> BattleAction | None:
-        handle_encounter(get_opponent(), disable_auto_catch=True)
-        return BattleAction.CustomAction
+    def on_battle_started(self) -> BattleAction | BattleStrategy | None:
+        handle_encounter(get_opponent(), disable_auto_catch=True, enable_auto_battle=True)
+        return LoseOnPurposeBattleStrategy()
 
     def on_whiteout(self) -> bool:
         self._has_whited_out = True
