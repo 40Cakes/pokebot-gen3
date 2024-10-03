@@ -1281,3 +1281,4 @@ class StatsDatabase:
 
         self._cursor.execute("DELETE FROM schema_version")
         self._cursor.execute("INSERT INTO schema_version VALUES (?)", (current_schema_version,))
+        self._connection.commit()
