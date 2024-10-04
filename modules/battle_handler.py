@@ -78,13 +78,15 @@ def handle_fainted_pokemon(strategy: BattleStrategy):
         if strategy.should_flee_after_faint(battle_state):
             if context.bot_mode != "Manual":
                 while (
-                    get_game_state() != GameState.PARTY_MENU
+                    battle_is_active()
+                    and get_current_battle_script_instruction() != "BattleScript_FaintedMonEnd"
+                    and get_game_state() != GameState.PARTY_MENU
                     and get_main_battle_callback() != "HandleEndTurn_FinishBattle"
                 ):
                     context.emulator.press_button("B")
                     yield
 
-                if get_main_battle_callback() == "HandleEndTurn_FinishBattle":
+                if battle_is_active() and get_main_battle_callback() == "HandleEndTurn_FinishBattle":
                     while get_main_battle_callback() == "HandleEndTurn_FinishBattle":
                         context.emulator.press_button("B")
                         yield
@@ -104,9 +106,22 @@ def handle_fainted_pokemon(strategy: BattleStrategy):
     if new_lead.current_hp <= 0:
         raise RuntimeError(f"Cannot send out {new_lead.name} (#{new_lead_index}) because it has 0 HP.")
 
-    while not task_is_active("Task_HandleChooseMonInput") and not task_is_active("HandleBattlePartyMenu"):
+    while (
+        battle_is_active()
+        and get_current_battle_script_instruction() != "BattleScript_FaintedMonEnd"
+        and not task_is_active("Task_HandleChooseMonInput")
+        and not task_is_active("HandleBattlePartyMenu")
+    ):
         context.emulator.press_button("A")
         yield
+
+    # This will trigger if a battle ends at the same time as the player's Pokémon faints.
+    # That happens if the player uses moves like Explosion or Self Destruct, or receives
+    # fatal recoil damage during the finishing blow.
+    # In this case, the game obviously never asks to choose a new lead and ends the battle
+    # instead.
+    if get_current_battle_script_instruction() == "BattleScript_FaintedMonEnd":
+        return
 
     yield from scroll_to_party_menu_index(new_lead_index)
     while get_game_state() == GameState.PARTY_MENU:

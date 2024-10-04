@@ -416,6 +416,13 @@
       "J":"8288d9e",
       "S":"82e1fa2"
     },
+    "BattleScript_FaintedMonEnd":{
+      "D":"82f0635",
+      "F":"82e38c9",
+      "I":"82db881",
+      "J":"8288e7d",
+      "S":"82e2081"
+    },
     "EventScript_TrainerApproach":{
       "D":"827ca57",
       "F":"8276617",
