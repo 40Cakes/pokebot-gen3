@@ -111,8 +111,8 @@ def log_encounter(pokemon: "Pokemon", action: BattleAction | None = None) -> Non
         return
 
     ccf_result = run_custom_catch_filters(pokemon)
-    context.stats.log_encounter(pokemon, ccf_result)
     print_stats(context.stats.get_global_stats(), pokemon)
+    context.stats.log_encounter(pokemon, ccf_result)
     if context.config.logging.save_pk3.all:
         save_pk3(pokemon)
 
