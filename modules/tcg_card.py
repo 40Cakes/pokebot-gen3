@@ -4,6 +4,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from modules.console import console
 from modules.context import context
 from modules.files import make_string_safe_for_file_name
 from modules.player import get_player, get_player_avatar
@@ -56,7 +57,9 @@ def get_tcg_card_file_name(pokemon: Pokemon) -> str:
     )
 
 
-def generate_tcg_card(pokemon: Pokemon, location: str = "") -> Path | None:
+def generate_tcg_card(pokemon_data: bytes, location: str = "") -> Path | None:
+    pokemon = Pokemon(pokemon_data)
+
     try:
         tcg_sprites = get_sprites_path() / "tcg"
 
@@ -304,11 +307,12 @@ def generate_tcg_card(pokemon: Pokemon, location: str = "") -> Path | None:
         file_name = get_tcg_card_file_name(pokemon)
         tmp_card_file = cards_dir / (file_name + ".tmp")
         card_file = cards_dir / file_name
-        card.save(tmp_card_file)
+        card.save(tmp_card_file, format="png")
 
         os.replace(tmp_card_file, card_file)
 
         return card_file
 
     except Exception:
+        console.print_exception()
         return None
