@@ -409,6 +409,13 @@
       "J":"8288d8a",
       "S":"82e1f8e"
     },
+    "BattleScript_FaintedMonTryChoose":{
+      "D":"82f0556",
+      "F":"82e37ea",
+      "I":"82db7a2",
+      "J":"8288d9e",
+      "S":"82e1fa2"
+    },
     "EventScript_TrainerApproach":{
       "D":"827ca57",
       "F":"8276617",
