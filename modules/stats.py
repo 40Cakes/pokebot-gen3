@@ -665,9 +665,15 @@ class StatsDatabase:
 
         if pokemon.is_shiny:
             self._reset_phase_in_database(encounter)
-            if self.current_shiny_phase.encounters < self._shortest_shiny_phase.encounters:
+            if (
+                self._shortest_shiny_phase is None
+                or self.current_shiny_phase.encounters < self._shortest_shiny_phase.encounters
+            ):
                 self._shortest_shiny_phase = self.current_shiny_phase
-            if self.current_shiny_phase.encounters > self._longest_shiny_phase.encounters:
+            if (
+                self._longest_shiny_phase is None
+                or self.current_shiny_phase.encounters > self._longest_shiny_phase.encounters
+            ):
                 self._longest_shiny_phase = self.current_shiny_phase
             self.current_shiny_phase = None
             for species_id in self._encounter_summaries:
