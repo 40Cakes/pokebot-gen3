@@ -82,7 +82,7 @@ def handle_battle_action_selection(strategy: BattleStrategy) -> Generator:
                 if index.battle_use in (ItemBattleUse.Healing, ItemBattleUse.PpRecovery) and target_index is None:
                     raise RuntimeError(f"Item `{index.name}` needs a target Pokémon.")
 
-                yield from battle_action_use_item(index, target_index)
+                yield from battle_action_use_item(battle_state, index, target_index)
 
             case TurnAction.RotateLead:
                 if index >= len(get_party()):
@@ -155,7 +155,7 @@ def handle_battle_action_selection(strategy: BattleStrategy) -> Generator:
 
 
 @debug.track
-def battle_action_use_item(item: Item, target_index: int = 0):
+def battle_action_use_item(battle_state: BattleState, item: Item, target_index: int = 0):
     yield from scroll_to_battle_action(1)
     context.emulator.press_button("A")
     yield
@@ -166,7 +166,8 @@ def battle_action_use_item(item: Item, target_index: int = 0):
     context.emulator.press_button("A")
     yield
     if target_index is not None:
-        yield from scroll_to_party_menu_index(target_index)
+        in_battle_index = battle_state.map_battle_party_index(target_index)
+        yield from scroll_to_party_menu_index(in_battle_index)
         context.emulator.press_button("A")
         yield
         while get_game_state_symbol() != "BATTLEMAINCB2":
