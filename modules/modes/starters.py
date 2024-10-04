@@ -22,6 +22,7 @@ from .util import (
     wait_until_task_is_active,
     wait_until_task_is_not_active,
 )
+from ..battle_state import battle_is_active, get_main_battle_callback
 
 
 def run_frlg() -> Generator:
@@ -119,14 +120,20 @@ def run_rse_hoenn() -> Generator:
 
         yield from wait_for_unique_rng_value()
 
-        # Wait for Pokémon cry in selection menu
-        yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
+        # Wait until the starter Pokémon has been sent out into battle before resetting.
+        # The Pokémon is already generated as soon as the battle starts, but to make it
+        # more like a real person is playing, we wait until the Pokémon is actually
+        # _visible_.
+        first_turn_callback = "TryDoEventsBeforeFirstTurn" if context.rom.is_emerald else "BattleBeginFirstTurn"
+        battle_has_begun = False
+        while True:
+            if not battle_has_begun and get_main_battle_callback() == first_turn_callback:
+                battle_has_begun = True
+            elif battle_has_begun and get_main_battle_callback() != first_turn_callback:
+                break
 
-        # Wait for Pokémon cry of opponent Poochyena
-        yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
-
-        # Wait for Pokémon cry of starter Pokémon (after which the sprite is fully visible)
-        yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
+            context.emulator.press_button("A")
+            yield
 
         handle_encounter(get_party()[0], do_not_log_battle_action=True, disable_auto_catch=True)
 

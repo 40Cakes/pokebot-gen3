@@ -3,7 +3,6 @@ import time
 from asyncio import Queue, set_event_loop, new_event_loop, AbstractEventLoop
 from dataclasses import dataclass
 from pathlib import Path
-from threading import Thread
 
 from discord_webhook import DiscordEmbed, DiscordWebhook
 from pypresence import Presence
@@ -61,7 +60,7 @@ async def _process_message(message: DiscordMessage) -> None:
 
     async def wait_for_image_file_to_exist(image_file: Path) -> bool:
         nonlocal allowed_wait_time_in_seconds
-        while not image_file.exists() or image_file.stat().st_size == 0:
+        while (not image_file.exists() or image_file.stat().st_size == 0) and allowed_wait_time_in_seconds > 0:
             await asyncio.sleep(0.5)
             allowed_wait_time_in_seconds -= 0.5
 
