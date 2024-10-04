@@ -853,7 +853,7 @@ class MiscTab(DebugTab):
 
         from modules.region_map import get_map_cursor
 
-        return {
+        block_data = {
             "Daycare": {
                 "__value": daycare_value,
                 "Pokémon #1": pokemon1,
@@ -869,9 +869,13 @@ class MiscTab(DebugTab):
             "Text Printer #1": get_text_printer(0),
             "gMain.state": read_symbol("gMain", offset=0x438, size=1)[0],
             "Fade Active": is_fade_active(),
-            "Local Time": get_clock_time(),
             "Play Time": get_play_time(),
         }
+
+        if not context.rom.is_frlg:
+            block_data["Local Time"] = get_clock_time()
+
+        return block_data
 
 
 class EventFlagsTab(DebugTab):
