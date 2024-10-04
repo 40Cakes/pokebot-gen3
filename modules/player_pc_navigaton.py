@@ -6,11 +6,19 @@ from modules.items import Item, get_item_bag, get_item_storage
 from modules.tasks import task_is_active
 
 
-def menu_index() -> int:
-    cursor_info = read_symbol("gTasks", 0x160, 4)
-    scroll_offset = unpack_uint16(cursor_info[0:2])
-    selected_row = unpack_uint16(cursor_info[2:4])
-    return scroll_offset + selected_row
+def player_pc_menu_index() -> int | None:
+    match context.rom.game_title:
+        case "POKEMON RUBY" | "POKEMON SAPP":
+            raise NotImplementedError("Player PC menu index is not implemented for ruby and sapphire")
+        case "POKEMON EMER":
+            symbol_name = "gPlayerPCItemPageInfo"
+        case "POKEMON FIRE" | "POKEMON LEAF":
+            symbol_name = "gPlayerPcMenuManager"
+
+    cursor_pos = unpack_uint16(read_symbol(symbol_name, 0x0, 2))
+    items_above = unpack_uint16(read_symbol(symbol_name, 0x2, 2))
+
+    return cursor_pos + items_above
 
 
 def withdraw_amount() -> int | None:
@@ -28,23 +36,27 @@ class WithdrawItemNavigator(BaseMenuNavigator):
     def __init__(self, desired_item: Item, desired_quantity: int):
         super().__init__()
 
-        if context.rom.game_title != "POKEMON EMER":
-            raise NotImplementedError("Only implemented for POKEMON EMER")
+        if not context.rom.is_emerald:
+            raise NotImplementedError("Withdrawing items from the player PC is only implemented for emerald")
 
         current_quantity_in_bag = get_item_bag().quantity_of(desired_item)
         required_quantity = desired_quantity - current_quantity_in_bag
-        quantity = 0
 
-        for i, pc_item in enumerate(get_item_storage().items):
-            if pc_item.item == desired_item:
-                quantity = pc_item.quantity
-                break
+        if required_quantity <= 0:
+            raise ValueError(
+                f"Cannot withdraw {desired_quantity} of {desired_item.name} from player PC there are already {current_quantity_in_bag} in bag"
+            )
 
-        if quantity < required_quantity:
-            raise ValueError(f"Desired item {desired_item.name} not in storage")
+        if get_item_storage().quantity_of(desired_item) < required_quantity:
+            raise ValueError(f"Desired item {desired_item.name} not in the player PC")
+
+        if not get_item_bag().has_space_for(desired_item):
+            raise ValueError(
+                f"Bag is full, cannot withdraw {desired_quantity} of {desired_item.name} from the player PC"
+            )
 
         self.desired_quantity = desired_quantity
-        self.desired_item_index = i
+        self.desired_item_index = get_item_storage().index_of_item(desired_item)
         self.desired_item = desired_item
 
     def get_next_func(self):
@@ -82,8 +94,8 @@ class WithdrawItemNavigator(BaseMenuNavigator):
             yield
 
     def scroll_to_item(self):
-        while menu_index() != self.desired_item_index:
-            if menu_index() < self.desired_item_index:
+        while player_pc_menu_index() != self.desired_item_index:
+            if player_pc_menu_index() is not None and player_pc_menu_index() < self.desired_item_index:
                 context.emulator.press_button("Down")
             else:
                 context.emulator.press_button("Up")
@@ -98,7 +110,9 @@ class DepositItemNavigator(BaseMenuNavigator):
         super().__init__()
 
         if context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
-            raise NotImplementedError("Not implemented for POKEMON RUBY POKEMON SAPP")
+            raise NotImplementedError(
+                "Depositing items from the bag into the player PC is not implemented for ruby and sapphire"
+            )
 
         current_quantity_in_bag = get_item_bag().quantity_of(desired_item)
         self.quantity_to_remove = current_quantity_in_bag - desired_quantity
@@ -107,6 +121,9 @@ class DepositItemNavigator(BaseMenuNavigator):
             raise ValueError(
                 f"Cannot remove {desired_quantity} of {desired_item.name} since there are only {current_quantity_in_bag} in bag"
             )
+
+        if not get_item_storage().has_space_for(desired_item):
+            raise ValueError(f"Player PC is full, cannot deposit {desired_quantity} of {desired_item.name}")
 
         self.desired_quantity = desired_quantity
         self.desired_item = desired_item
