@@ -362,11 +362,15 @@
                     nameParts.push("✨");
                 }
 
-                if (data[index].nickname && data[index].nickname.toLowerCase() != data[index].species.name.toLowerCase()) {
-                    nameParts.push(`“${data[index].nickname}”`);
-                }
+                if (data[index].is_egg) {
+                    nameParts.unshift("🥚")
+                } else {
+                    if (data[index].nickname && data[index].nickname.toLowerCase() !== data[index].species.name.toLowerCase()) {
+                        nameParts.push(`“${data[index].nickname}”`);
+                    }
 
-                nameParts.push(`(lvl. ${data[index].level}, ${data[index].gender})`)
+                    nameParts.push(`(lvl. ${data[index].level}, ${data[index].gender})`);
+                }
 
                 listEntry.innerText = nameParts.join(" ");
 

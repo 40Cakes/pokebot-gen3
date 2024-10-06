@@ -2,13 +2,13 @@ from typing import Generator
 
 from modules.console import console
 from modules.context import context
-from modules.encounter import handle_encounter
+from modules.encounter import handle_encounter, EncounterInfo
 from modules.map import get_map_data
 from modules.map_data import MapFRLG, MapRSE
 from modules.map_path import calculate_path
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.player import get_player_avatar
-from modules.pokemon import get_party, Pokemon
+from modules.pokemon import get_party
 from modules.save_data import get_save_data
 from ._asserts import (
     assert_save_game_exists,
@@ -29,6 +29,7 @@ from .util import (
     wait_until_task_is_not_active,
     wait_for_no_script_to_run,
 )
+from ..battle_state import EncounterType
 
 
 def _get_targeted_encounter() -> tuple[MapFRLG | MapRSE, tuple[int, int], str] | None:
@@ -80,7 +81,7 @@ class StaticGiftResetsMode(BotMode):
         super().__init__()
         self._egg_has_hatched = False
 
-    def on_egg_hatched(self, pokemon: "Pokemon", party_index: int) -> None:
+    def on_egg_hatched(self, encounter: "EncounterInfo", party_index: int) -> None:
         # The user could start this mode with another egg already in their party (from daycare)
         # so in order to make sure that it was Togepi/Wynaut that hatched, we verify that the
         # egg is in the last slot of the party -- since the egg was picked up at the start of
@@ -221,9 +222,9 @@ class StaticGiftResetsMode(BotMode):
                     yield from wait_for_player_avatar_to_be_controllable()
                     self._egg_has_hatched = False
                     yield from hatch_egg()
+            else:
+                # Navigate to the summary screen to check for shininess
+                yield from StartMenuNavigator("POKEMON").step()
+                yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
 
-            # Navigate to the summary screen to check for shininess
-            yield from StartMenuNavigator("POKEMON").step()
-            yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
-
-            handle_encounter(get_party()[len(get_party()) - 1], disable_auto_catch=True)
+                handle_encounter(EncounterInfo.create(get_party()[-1], EncounterType.Gift), disable_auto_catch=True)

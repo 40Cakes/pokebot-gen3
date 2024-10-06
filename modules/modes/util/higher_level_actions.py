@@ -21,10 +21,12 @@ from .tasks_scripts import (
     wait_until_task_is_active,
     wait_for_fade_to_finish,
 )
-from .walking import navigate_to, wait_for_player_avatar_to_be_standing_still
+from .walking import navigate_to, ensure_facing_direction, wait_for_player_avatar_to_be_standing_still
 from .._interface import BotModeError
 from ...game import get_symbol_name_before
 from ...items import Item, get_item_bag, ItemPocket
+from ...map import get_map_objects, get_map_data_for_current_position
+from ...map_path import calculate_path, PathFindingError
 from ...mart import get_mart_buyable_items, get_mart_buy_menu_scroll_position, get_mart_main_menu_scroll_position
 
 
@@ -458,3 +460,58 @@ def sell_in_shop(items_to_sell: list[tuple[Item, int]]):
     yield from wait_for_task_to_start_and_finish(return_task, "B")
     yield from wait_until_task_is_active(shop_menu_task)
     yield
+
+
+@debug.track
+def talk_to_npc(local_object_id: int):
+    def get_npc_location() -> tuple[int, int] | None:
+        for map_object in get_map_objects():
+            if map_object.local_id == local_object_id:
+                return map_object.current_coords
+        for object_template in get_map_data_for_current_position().objects:
+            if object_template.local_id == local_object_id:
+                return object_template.local_coordinates
+        return None
+
+    while True:
+        npc_location = get_npc_location()
+        if npc_location is None:
+            raise BotModeError(f"Could not find local object #{local_object_id}")
+
+        player_avatar = get_player_avatar()
+        if player_avatar.map_location_in_front.local_position == npc_location:
+            context.emulator.press_button("A")
+            yield
+            return
+
+        neighbouring_tiles = {
+            "Up": (player_avatar.map_group_and_number, (npc_location[0], npc_location[1] + 1)),
+            "Down": (player_avatar.map_group_and_number, (npc_location[0], npc_location[1] - 1)),
+            "Left": (player_avatar.map_group_and_number, (npc_location[0] + 1, npc_location[1])),
+            "Right": (player_avatar.map_group_and_number, (npc_location[0] - 1, npc_location[1])),
+        }
+
+        nearest_tile: tuple[tuple[int, int], tuple[int, int]] | None = None
+        nearest_tile_distance: int | None = None
+        nearest_tile_facing: str = "Up"
+        for direction in neighbouring_tiles:
+            tile = neighbouring_tiles[direction]
+            try:
+                path = calculate_path(player_avatar.map_location, tile)
+            except PathFindingError:
+                continue
+
+            if nearest_tile_distance is None or nearest_tile_distance > len(path):
+                nearest_tile = tile
+                nearest_tile_distance = len(path)
+                nearest_tile_facing = direction
+
+        if nearest_tile is None:
+            raise BotModeError(f"Could not find an empty tile around local object #{local_object_id}")
+
+        try:
+            yield from navigate_to(*nearest_tile)
+            yield from ensure_facing_direction(nearest_tile_facing)
+        except (PathFindingError, BotModeError):
+            pass
+        yield

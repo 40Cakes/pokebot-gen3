@@ -1,12 +1,12 @@
-from datetime import datetime
 from types import GeneratorType
+from typing import Iterable
 
 from modules.context import context
 from modules.debug import debug
-from modules.encounter import handle_encounter, ActiveWildEncounter, run_custom_catch_filters, judge_encounter
+from modules.encounter import handle_encounter, EncounterInfo, log_encounter
 from modules.map import get_map_objects, get_map_data_for_current_position
 from modules.map_data import MapFRLG, MapRSE
-from modules.memory import GameState, get_game_state, get_game_state_symbol, read_symbol, unpack_uint32
+from modules.memory import GameState, get_game_state, get_game_state_symbol, read_symbol, unpack_uint32, unpack_uint16
 from modules.menuing import CheckForPickup, MenuWrapper, should_check_for_pickup, RotatePokemon
 from modules.player import TileTransitionState, get_player_avatar, player_avatar_is_standing_still
 from modules.pokemon import StatusCondition, clear_opponent, get_opponent, get_party
@@ -14,7 +14,15 @@ from modules.tasks import get_global_script_context, task_is_active, get_task
 from ._interface import BattleAction, BotListener, BotMode, FrameInfo
 from .util import isolate_inputs, save_the_game
 from ..battle_handler import handle_battle
-from ..battle_state import get_last_battle_outcome, BattleOutcome, get_encounter_type, EncounterType
+from ..battle_state import (
+    get_last_battle_outcome,
+    BattleOutcome,
+    get_encounter_type,
+    EncounterType,
+    get_battle_state,
+    BattleType,
+    get_main_battle_callback,
+)
 from ..battle_strategies import DefaultBattleStrategy, BattleStrategy
 from ..battle_strategies.catch import CatchStrategy
 from ..battle_strategies.run_away import RunAwayStrategy
@@ -25,8 +33,28 @@ from ..plugins import (
     plugin_whiteout,
     plugin_egg_hatched,
     plugin_wild_encounter_visible,
+    plugin_egg_starting_to_hatch,
 )
 from ..text_printer import get_text_printer, TextPrinterState
+
+
+def _ensure_plugin_hook_will_run(generator: Iterable) -> None:
+    """
+    Executes a plugin hook.
+
+    This will either add the generator to the controller stack (which means it will be
+    run for each frame -- which could be used to add delays etc.)
+
+    Or, if the bot is in Manual mode and thus the controller stack would not be executed
+    it will unroll the generator loop right here and now.
+
+    :param generator: The generator to be executed.
+    """
+    if context.bot_mode == "Manual":
+        for _ in generator:
+            pass
+    else:
+        context.controller_stack.append(generator)
 
 
 class BattleListener(BotListener):
@@ -36,9 +64,9 @@ class BattleListener(BotListener):
         self._in_battle = False
         self._battle_start_frame: int = 0
         self._reported_start_of_battle = False
-        self._active_wild_encounter: ActiveWildEncounter | None = None
+        self._active_wild_encounter: EncounterInfo | None = None
         self._reported_wild_encounter_visible = False
-        self._text_printer_was_active = False
+        self._was_starting_to_become_visible = False
         self._reported_end_of_battle = False
         self._current_action: BattleAction | None = None
 
@@ -51,31 +79,35 @@ class BattleListener(BotListener):
             self._reported_start_of_battle = False
             self._active_wild_encounter = None
             self._reported_wild_encounter_visible = False
-            self._text_printer_was_active = False
+            self._was_starting_to_become_visible = False
             self._reported_end_of_battle = False
             self._current_action = None
 
         elif self._in_battle and not self._reported_start_of_battle and get_game_state() == GameState.BATTLE:
             self._reported_start_of_battle = True
-            action = bot_mode.on_battle_started()
             encounter_type = get_encounter_type()
             opponent = get_opponent()
 
+            if encounter_type not in (EncounterType.Trainer, EncounterType.Tutorial):
+                if BattleType.FirstBattle in get_battle_state().type:
+                    self._active_wild_encounter = EncounterInfo.create(get_party()[0])
+                else:
+                    self._active_wild_encounter = EncounterInfo.create(opponent)
+            else:
+                self._active_wild_encounter = None
+
+            action = bot_mode.on_battle_started(self._active_wild_encounter)
+
             if encounter_type is EncounterType.Trainer and not isinstance(action, BattleStrategy):
                 action = BattleAction.Fight
+            elif encounter_type is EncounterType.Tutorial:
+                action = BattleAction.CustomAction
             elif action is None:
-                action = handle_encounter(opponent)
+                action = handle_encounter(self._active_wild_encounter)
 
-            if encounter_type not in (EncounterType.Trainer, EncounterType.Tutorial):
-                self._active_wild_encounter = ActiveWildEncounter(
-                    pokemon=opponent,
-                    encounter_time=datetime.now(),
-                    type=encounter_type,
-                    value=judge_encounter(opponent),
-                    catch_filters_result=run_custom_catch_filters(opponent),
-                )
-
-            if isinstance(action, BattleStrategy):
+            if context.bot_mode == "Manual":
+                _ensure_plugin_hook_will_run(plugin_battle_started(self._active_wild_encounter))
+            elif isinstance(action, BattleStrategy):
                 context.controller_stack.append(self.fight(action))
             elif action == BattleAction.Fight:
                 context.controller_stack.append(self.fight(DefaultBattleStrategy()))
@@ -83,6 +115,8 @@ class BattleListener(BotListener):
                 context.controller_stack.append(self.run_away_from_battle())
             elif action == BattleAction.Catch:
                 context.controller_stack.append(self.catch())
+            else:
+                _ensure_plugin_hook_will_run(plugin_battle_started(self._active_wild_encounter))
 
             self._current_action = action
 
@@ -97,6 +131,8 @@ class BattleListener(BotListener):
                 self._reported_end_of_battle = True
                 clear_opponent()
                 bot_mode.on_battle_ended(outcome)
+                _ensure_plugin_hook_will_run(plugin_battle_ended(outcome))
+                context.stats.log_end_of_battle(outcome)
 
             if (
                 get_game_state_symbol() != "CB2_RETURNTOFIELD"
@@ -114,15 +150,38 @@ class BattleListener(BotListener):
                     )
 
         elif self._active_wild_encounter is not None and not self._reported_wild_encounter_visible:
-            text_printer = get_text_printer(0)
+            if BattleType.FirstBattle not in get_battle_state().type:
+                # For regular battle encounter, we want to wait until the 'Wild {SPECIES} appeared!'
+                # message and then trigger the `on_wild_encounter_visible()` callbacks as well as do
+                # the logging.
+                text_printer = get_text_printer()
+                is_finally_visible = not text_printer.active or text_printer.state == TextPrinterState.WaitForButton
+                is_starting_to_become_visible = text_printer.active
+            else:
+                # For the first battle on R/S/E we are actually interested in the player's starter
+                # Pokémon and not in the opponent. So we need to wait a bit longer until the starter
+                # becomes visible, hence the different trigger conditions.
+                first_turn_callback = "TryDoEventsBeforeFirstTurn" if context.rom.is_emerald else "BattleBeginFirstTurn"
+                main_battle_callback = get_main_battle_callback()
+                is_finally_visible = main_battle_callback != first_turn_callback
+                is_starting_to_become_visible = get_main_battle_callback() == first_turn_callback
 
-            if self._text_printer_was_active:
-                if not text_printer.active or text_printer.state == TextPrinterState.WaitForButton:
-                    context.controller_stack.append(plugin_wild_encounter_visible(self._active_wild_encounter))
+            if self._was_starting_to_become_visible:
+                if is_finally_visible:
+
+                    def report_visible():
+                        # First, run the `on_wild_encounter_visible()` callbacks -- which might
+                        # introduce some delay, so we want to wait for that.
+                        yield from plugin_wild_encounter_visible(self._active_wild_encounter)
+
+                        # Then log the encounter.
+                        log_encounter(self._active_wild_encounter)
+
+                    _ensure_plugin_hook_will_run(report_visible())
                     self._reported_wild_encounter_visible = True
 
-            elif text_printer.active:
-                self._text_printer_was_active = True
+            elif is_starting_to_become_visible:
+                self._was_starting_to_become_visible = True
 
         elif context.emulator.get_frame_count() < self._battle_start_frame:
             self._in_battle = False
@@ -138,11 +197,9 @@ class BattleListener(BotListener):
     @isolate_inputs
     @debug.track
     def fight(self, strategy: BattleStrategy):
-        yield from plugin_battle_started(get_opponent(), self._active_wild_encounter)
+        yield from plugin_battle_started(self._active_wild_encounter)
         yield from handle_battle(strategy)
         yield from self._wait_until_battle_is_over()
-        context.stats.log_end_of_battle(BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
-        yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
         if (
             get_game_state() != GameState.BATTLE
@@ -171,11 +228,9 @@ class BattleListener(BotListener):
     @isolate_inputs
     @debug.track
     def catch(self):
-        yield from plugin_battle_started(get_opponent(), self._active_wild_encounter)
+        yield from plugin_battle_started(self._active_wild_encounter)
         yield from handle_battle(CatchStrategy())
         yield from self._wait_until_battle_is_over()
-        context.stats.log_end_of_battle(BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
-        yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
         if context.config.battle.save_after_catching:
             yield from save_the_game()
 
@@ -184,11 +239,9 @@ class BattleListener(BotListener):
     def run_away_from_battle(self):
         while get_game_state() != GameState.BATTLE:
             yield
-        yield from plugin_battle_started(get_opponent(), self._active_wild_encounter)
+        yield from plugin_battle_started(self._active_wild_encounter)
         yield from handle_battle(RunAwayStrategy())
         yield from self._wait_until_battle_is_over()
-        context.stats.log_end_of_battle(BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
-        yield from plugin_battle_ended(outcome=BattleOutcome(read_symbol("gBattleOutcome", size=1)[0]))
 
 
 class TrainerApproachListener(BotListener):
@@ -277,6 +330,9 @@ class PokenavListener(BotListener):
 class EggHatchListener(BotListener):
     def __init__(self):
         self._is_hatching = False
+        self._hatching_party_index: int = 0
+        self._encounter_info: EncounterInfo | None = None
+        self._reported_hatched_egg = False
         if context.rom.is_rs:
             self._script_name = "S_EggHatch"
             self._symbol_name = "gEggHatchData"
@@ -289,27 +345,38 @@ class EggHatchListener(BotListener):
             not self._is_hatching and frame.script_is_active(self._script_name)
         ):
             self._is_hatching = True
-            context.controller_stack.append(self.handle_hatching_egg(bot_mode))
+            self._reported_hatched_egg = False
+            self._hatching_party_index = unpack_uint16(read_symbol("gSpecialVar_0x8004"))
+            self._encounter_info = EncounterInfo.create(get_party()[self._hatching_party_index], EncounterType.Hatched)
+            if context.bot_mode != "Manual":
+                context.controller_stack.append(self.handle_hatching_egg())
+            else:
+                _ensure_plugin_hook_will_run(plugin_egg_starting_to_hatch(self._encounter_info))
+        elif self._is_hatching and not frame.script_is_active(self._script_name):
+            if not self._reported_hatched_egg and self._encounter_info is not None:
+                log_encounter(self._encounter_info)
+            self._is_hatching = False
+            self._reported_hatched_egg = False
+            self._encounter_info = None
+        elif self._is_hatching and not self._reported_hatched_egg and frame.script_is_active(self._script_name):
+            egg_data_pointer = unpack_uint32(read_symbol(self._symbol_name))
+            if egg_data_pointer & 0x0200_0000:
+                egg_data = context.emulator.read_bytes(egg_data_pointer, length=16)
+                if egg_data[2] >= 6:
+                    self._encounter_info.pokemon = get_party()[self._hatching_party_index]
+                    bot_mode.on_egg_hatched(self._encounter_info, self._hatching_party_index)
+
+                    def report_hatched():
+                        yield from plugin_egg_hatched(self._encounter_info)
+                        handle_encounter(self._encounter_info)
+
+                    _ensure_plugin_hook_will_run(report_hatched())
+                    self._reported_hatched_egg = True
 
     @isolate_inputs
     @debug.track
-    def handle_hatching_egg(self, bot_mode: BotMode):
-        while True:
-            egg_data = None
-            if get_game_state() == GameState.EGG_HATCH:
-                yield
-                egg_data_pointer = unpack_uint32(read_symbol(self._symbol_name))
-                if egg_data_pointer & 0x0200_0000:
-                    egg_data = context.emulator.read_bytes(egg_data_pointer, length=16)
-            if egg_data is None or egg_data[2] < 4:
-                context.emulator.press_button("B")
-                yield
-            else:
-                party_index = egg_data[4]
-                break
-        hatched_pokemon = get_party()[party_index]
-        bot_mode.on_egg_hatched(hatched_pokemon, party_index)
-        plugin_egg_hatched(hatched_pokemon)
+    def handle_hatching_egg(self):
+        yield from plugin_egg_starting_to_hatch(self._encounter_info)
         while self._script_name in get_global_script_context().stack:
             context.emulator.press_button("B")
             yield

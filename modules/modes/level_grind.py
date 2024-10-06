@@ -6,13 +6,13 @@ from modules.map_data import MapFRLG, MapRSE, PokemonCenter, get_map_enum
 from modules.map_path import calculate_path, PathFindingError
 from modules.modes import BattleAction
 from modules.player import get_player_avatar
-from modules.pokemon import get_party, get_opponent, StatusCondition
+from modules.pokemon import get_party, StatusCondition
 from ._interface import BotMode, BotModeError
 from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon, spin
 from ..battle_state import BattleOutcome
 from ..battle_strategies import BattleStrategy, DefaultBattleStrategy
 from ..battle_strategies.level_balancing import LevelBalancingBattleStrategy
-from ..encounter import handle_encounter
+from ..encounter import handle_encounter, EncounterInfo
 from ..gui.multi_select_window import ask_for_choice, Selection
 from ..runtime import get_sprites_path
 from ..sprites import get_sprite
@@ -70,8 +70,8 @@ class LevelGrindMode(BotMode):
         self._go_healing = True
         self._level_balance = False
 
-    def on_battle_started(self) -> BattleAction | BattleStrategy | None:
-        action = handle_encounter(get_opponent(), enable_auto_battle=True)
+    def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | BattleStrategy | None:
+        action = handle_encounter(encounter, enable_auto_battle=True)
         if action is BattleAction.Fight:
             if self._level_balance:
                 return LevelBalancingBattleStrategy()

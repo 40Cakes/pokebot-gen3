@@ -3,14 +3,13 @@ from typing import Generator
 from modules.console import console
 from modules.context import context
 from modules.daycare import DaycareCompatibility, get_daycare_data
-from modules.encounter import judge_encounter, handle_encounter
+from modules.encounter import judge_encounter, EncounterInfo
 from modules.items import get_item_bag, get_item_by_name, get_item_storage
-from modules.map import get_map_objects
 from modules.map_data import MapFRLG, MapRSE
 from modules.map_path import calculate_path
 from modules.memory import GameState, get_event_flag, get_game_state, get_game_state_symbol
 from modules.player import get_player_avatar, get_player_location
-from modules.pokemon import Pokemon, get_eggs_in_party, get_party
+from modules.pokemon import get_eggs_in_party, get_party
 from modules.tasks import get_global_script_context, task_is_active
 from ._interface import BotMode, BotModeError
 from .util import (
@@ -18,6 +17,7 @@ from .util import (
     follow_waypoints,
     navigate_to,
     register_key_item,
+    talk_to_npc,
     wait_for_player_avatar_to_be_controllable,
     wait_for_n_frames,
     wait_for_task_to_start_and_finish,
@@ -61,9 +61,8 @@ class DaycareMode(BotMode):
         self._use_bike = False
         self._update_message_soon = False
 
-    def on_egg_hatched(self, pokemon: "Pokemon", party_index: int) -> None:
+    def on_egg_hatched(self, encounter: "EncounterInfo", party_index: int) -> None:
         self._update_message_soon = True
-        handle_encounter(pokemon, do_not_log_battle_action=False)
 
     def run(self) -> Generator:
         if context.rom.is_emerald:
@@ -154,16 +153,7 @@ class DaycareMode(BotMode):
             while daycare_egg_ready:
                 if get_player_avatar().is_on_bike:
                     context.emulator.press_button("Select")
-                x, y = 0, 0
-                for map_object in get_map_objects():
-                    if map_object.local_id == daycare_man_map_object_id:
-                        x, y = map_object.current_coords
-                        break
-                if x == 0 or y == 0:
-                    raise BotModeError("Could not find Daycare Man")
-                # navigate back to daycare man on R117
-                yield from navigate_to(daycare_route, (x, y + 1))
-                yield from ensure_facing_direction("Up")
+                yield from talk_to_npc(daycare_man_map_object_id)
                 yield from wait_for_task_to_start_and_finish(message_box_task, "A")
                 yield from wait_for_task_to_start_and_finish(yes_no_task, "A")
                 yield from wait_for_task_to_start_and_finish("Task_Fanfare")

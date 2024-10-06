@@ -6,7 +6,7 @@ from modules.items import get_item_by_name, get_item_bag
 from modules.map import get_map_data
 from modules.map_data import MapRSE
 from modules.player import get_player, get_player_avatar, AvatarFlags
-from modules.pokemon import get_opponent, get_party
+from modules.pokemon import get_party
 from . import BattleAction
 from ._interface import BotMode, BotModeError
 from .util import (
@@ -17,8 +17,8 @@ from .util import (
     wait_for_task_to_start_and_finish,
     walk_one_tile,
 )
-from ..battle_state import get_encounter_type
 from ..clock import ClockTime, get_clock_time
+from ..encounter import EncounterInfo
 from ..memory import get_event_flag
 
 # How many times the bot tries to fish on the same tile before it deems it
@@ -130,14 +130,14 @@ class FeebasMode(BotMode):
         self._can_use_waterfall: bool = False
         super().__init__()
 
-    def on_battle_started(self) -> BattleAction | None:
-        if get_encounter_type().is_fishing:
+    def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | None:
+        if encounter.type.is_fishing:
             # Feebas tiles change each in-game day (based on RTC)
             if self._found_feebas is not None and self._found_feebas.days != get_clock_time().days:
                 self._found_feebas = None
                 self._fishing_spots.reset(self._can_use_waterfall)
 
-            if get_opponent().species.name == "Feebas":
+            if encounter.pokemon.species.name == "Feebas":
                 self._found_feebas = get_clock_time()
             else:
                 spot = self._fishing_spots.get_by_coordinates(get_player_avatar().map_location_in_front.local_position)

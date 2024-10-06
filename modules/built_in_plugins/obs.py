@@ -19,7 +19,7 @@ from modules.discord import discord_send, DiscordMessage
 from modules.plugin_interface import BotPlugin
 
 if TYPE_CHECKING:
-    from modules.encounter import ActiveWildEncounter
+    from modules.encounter import EncounterInfo
     from modules.profiles import Profile
 
 
@@ -111,17 +111,17 @@ class OBSPlugin(BotPlugin):
     def on_profile_loaded(self, profile: "Profile") -> None:
         Thread(target=_obs_thread, args=(self._task_queue,)).start()
 
-    def on_wild_encounter_visible(self, wild_encounter: "ActiveWildEncounter") -> Generator | None:
-        if not wild_encounter.value.is_of_interest:
+    def on_logging_encounter(self, encounter: "EncounterInfo") -> Generator | None:
+        if not encounter.is_of_interest:
             return
 
         # Save a screenshot of the OBS output after encountering a Pokémon of interest.
         if context.config.obs.screenshot:
-            if wild_encounter.pokemon.is_shiny:
+            if encounter.pokemon.is_shiny:
                 self._task_queue.put("save_screenshot_and_send_to_discord")
             else:
                 self._task_queue.put("save_screenshot")
 
         # Save OBS replay buffer n seconds after encountering a shiny.
-        if context.config.obs.replay_buffer and wild_encounter.pokemon.is_shiny:
+        if context.config.obs.replay_buffer and encounter.pokemon.is_shiny:
             self._task_queue.put("save_replay_buffer")

@@ -14,8 +14,7 @@ from modules.tcg_card import get_tcg_card_file_name, generate_tcg_card
 
 if TYPE_CHECKING:
     from modules.battle_state import BattleOutcome
-    from modules.encounter import ActiveWildEncounter
-    from modules.pokemon import Pokemon
+    from modules.encounter import EncounterInfo
 
 
 class GifGeneratorListener(BotListener):
@@ -55,22 +54,27 @@ class GenerateEncounterMediaPlugin(BotPlugin):
     def __init__(self):
         self._listener: GifGeneratorListener | None = None
 
-    def on_battle_started(self, opponent: "Pokemon", wild_encounter: "ActiveWildEncounter | None") -> Generator | None:
+    def on_battle_started(self, encounter: "EncounterInfo | None") -> Generator | None:
+        if self._listener is not None:
+            context.bot_listeners.remove(self._listener)
+            self._listener = None
+
         if context.config.logging.shiny_gifs:
-            if wild_encounter is not None and wild_encounter.value is EncounterValue.Shiny:
+            if encounter is not None and encounter.value is EncounterValue.Shiny:
                 self._listener = GifGeneratorListener()
                 context.bot_listeners.append(self._listener)
-            return None
 
-    def on_wild_encounter_visible(self, wild_encounter: "ActiveWildEncounter") -> Generator | None:
+        return None
+
+    def on_wild_encounter_visible(self, encounter: "EncounterInfo") -> Generator | None:
         # Finalise and save encounter GIF
         if self._listener is not None:
             gif_dir = context.profile.path / "screenshots" / "gifs"
             timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
-            file_name = f"{timestamp}_{wild_encounter.pokemon.species_name_for_stats}.gif"
+            file_name = f"{timestamp}_{encounter.pokemon.species_name_for_stats}.gif"
 
             # Set the GIF's path so that other plugins can use it.
-            wild_encounter.gif_path = gif_dir / file_name
+            encounter.gif_path = gif_dir / file_name
 
             Thread(
                 target=self._listener.save_gif,
@@ -83,16 +87,14 @@ class GenerateEncounterMediaPlugin(BotPlugin):
             self._listener = None
 
         # Generate TCG card
-        if context.config.logging.tcg_cards and wild_encounter.value is EncounterValue.Shiny:
+        if context.config.logging.tcg_cards and encounter.value is EncounterValue.Shiny:
             cards_dir = context.profile.path / "screenshots" / "cards"
-            file_name = get_tcg_card_file_name(wild_encounter.pokemon)
+            file_name = get_tcg_card_file_name(encounter.pokemon)
 
             # Set the TCG card's path so that other plugins can use it.
-            wild_encounter.tcg_card_path = cards_dir / file_name
+            encounter.tcg_card_path = cards_dir / file_name
 
-            Thread(
-                target=generate_tcg_card, args=(wild_encounter.pokemon.data, wild_encounter.pokemon.location_met)
-            ).start()
+            Thread(target=generate_tcg_card, args=(encounter.pokemon.data, encounter.pokemon.location_met)).start()
 
         return None
 
@@ -102,3 +104,9 @@ class GenerateEncounterMediaPlugin(BotPlugin):
             self._listener = None
 
         return None
+
+    def on_egg_starting_to_hatch(self, hatching_pokemon: "EncounterInfo") -> Generator | None:
+        return self.on_battle_started(hatching_pokemon)
+
+    def on_egg_hatched(self, hatched_pokemon: "EncounterInfo") -> Generator | None:
+        return self.on_wild_encounter_visible(hatched_pokemon)
