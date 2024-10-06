@@ -2,11 +2,9 @@ from dataclasses import dataclass
 from typing import Generator, Optional
 
 from modules.context import context
-from modules.encounter import handle_encounter, judge_encounter, log_encounter
+from modules.encounter import handle_encounter, log_encounter, EncounterInfo
 from modules.map_data import MapFRLG, MapRSE
-from modules.memory import get_event_flag
 from modules.player import get_player_avatar
-from modules.pokemon import get_opponent
 from modules.save_data import get_save_data
 from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map
 from ._interface import BattleAction, BotMode, BotModeError
@@ -89,11 +87,10 @@ class StaticSoftResetsMode(BotMode):
     def is_selectable() -> bool:
         return _get_targeted_encounter() is not None
 
-    def on_battle_started(self) -> BattleAction | None:
-        opponent = get_opponent()
-        if judge_encounter(opponent).is_of_interest:
-            return handle_encounter(opponent, disable_auto_catch=True)
-        log_encounter(opponent)
+    def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | None:
+        if encounter.is_of_interest:
+            return handle_encounter(encounter, disable_auto_catch=True)
+        log_encounter(encounter)
         return BattleAction.CustomAction
 
     def run(self) -> Generator:

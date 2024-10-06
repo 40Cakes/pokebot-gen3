@@ -1,7 +1,7 @@
 from typing import Generator
 
 from modules.context import context
-from modules.encounter import handle_encounter
+from modules.encounter import handle_encounter, EncounterInfo
 from modules.map import get_map_objects
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import get_event_flag
@@ -43,8 +43,8 @@ class StaticRunAway(BotMode):
             allowed_maps = []
         return get_player_avatar().map_group_and_number in allowed_maps
 
-    def on_battle_started(self) -> BattleAction | None:
-        return handle_encounter(get_opponent(), disable_auto_catch=True)
+    def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | None:
+        return handle_encounter(encounter, disable_auto_catch=True)
 
     def run(self) -> Generator:
         match get_player_avatar().map_group_and_number:

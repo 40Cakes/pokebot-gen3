@@ -4,11 +4,12 @@ from rich.console import Console
 from rich.table import Table
 from rich.theme import Theme
 
+from modules.battle_state import EncounterType
 from modules.context import context
 
 if TYPE_CHECKING:
-    from modules.pokemon import Pokemon
-    from modules.stats import GlobalStats, EncounterSummary, SpeciesRecord
+    from modules.encounter import EncounterInfo
+    from modules.stats import GlobalStats, EncounterSummary
 
 theme = Theme(
     {
@@ -75,13 +76,14 @@ def sv_colour(value: "SpeciesRecord | int | None") -> str:
         return "red"
 
 
-def print_stats(stats: "GlobalStats", pokemon: "Pokemon") -> None:
+def print_stats(stats: "GlobalStats", encounter: "EncounterInfo") -> None:
+    pokemon = encounter.pokemon
     type_colour = pokemon.species.types[0].name.lower()
     rich_name = f"[{type_colour}]{pokemon.species_name_for_stats}[/]"
 
     match context.config.logging.console.encounter_data:
         case "verbose":
-            console.rule(f"\n{rich_name} encountered at {pokemon.location_met}", style=type_colour)
+            console.rule(f"\n{rich_name} {encounter.type.verb} at {pokemon.location_met}", style=type_colour)
             pokemon_table = Table()
             pokemon_table.add_column("PID", justify="center", width=10)
             pokemon_table.add_column("Level", justify="center")
@@ -103,7 +105,7 @@ def print_stats(stats: "GlobalStats", pokemon: "Pokemon") -> None:
             )
             console.print(pokemon_table)
         case "basic":
-            console.rule(f"\n{rich_name} encountered at {pokemon.location_met}", style=type_colour)
+            console.rule(f"\n{rich_name} {encounter.type.verb} at {pokemon.location_met}", style=type_colour)
             console.print(
                 f"{rich_name}: PID: {str(hex(pokemon.personality_value)[2:]).upper()} | "
                 f"Lv: {pokemon.level:,} | "
