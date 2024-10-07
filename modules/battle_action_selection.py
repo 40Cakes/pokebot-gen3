@@ -239,9 +239,10 @@ def battle_action_use_move(
     # Struggle is being used. So we just want to confirm that message and then stop the further
     # execution of this function.
     if get_battle_controller_callback(battler_index) not in ("HandleInputChooseMove", "HandleAction_ChooseMove"):
-        while get_main_battle_callback() == "HandleTurnActionSelectionState" and get_battle_controller_callback(
-            battler_index
-        ) not in ("HandleInputChooseMove", "HandleAction_ChooseMove"):
+        while get_main_battle_callback() in (
+            "HandleTurnActionSelectionState",
+            "sub_8012324",
+        ) and get_battle_controller_callback(battler_index) not in ("HandleInputChooseMove", "HandleAction_ChooseMove"):
             context.emulator.press_button("A")
             yield
         return
