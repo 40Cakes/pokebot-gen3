@@ -555,6 +555,71 @@ class BattlePartyMenuNavigator(PokemonPartyMenuNavigator):
                 yield from PokemonPartySubMenuNavigator(self.primary_option).step()
 
 
+def get_items_available_for_pickup() -> list[str]:
+    if context.rom.is_rs:
+        return [
+            "Super Potion",
+            "Ultra Ball",
+            "Full Restore",
+            "Full Heal",
+            "Nugget",
+            "Revive",
+            "Rare Candy",
+            "Protein",
+            "PP Up",
+            "King’s Rock",
+        ]
+    elif context.rom.is_frlg:
+        return [
+            "Oran Berry",
+            "Aspear Berry",
+            "Cheri Berry",
+            "Chesto Berry",
+            "Pecha Berry",
+            "Persim Berry",
+            "Rawst Berry",
+            "Nugget",
+            "PP Up",
+            "Rare Candy",
+            "TM10",
+            "Belue Berry",
+            "Durin Berry",
+            "Pamtre Berry",
+            "Spelon Berry",
+            "Watmel Berry",
+        ]
+    else:
+        return [
+            "Potion",
+            "Antidote",
+            "Super Potion",
+            "Great Ball",
+            "Repel",
+            "Escape Rope",
+            "X Attack",
+            "Full Heal",
+            "Ultra Ball",
+            "Hyper Potion",
+            "Nugget",
+            "King’s Rock",
+            "Rare Candy",
+            "Full Restore",
+            "Ether",
+            "Protein",
+            "Revive",
+            "White Herb",
+            "HP Up",
+            "TM44",
+            "Elixir",
+            "Max Revive",
+            "TM01",
+            "PP Up",
+            "Leftovers",
+            "Max Elixir",
+            "TM26",
+        ]
+
+
 class CheckForPickup(BaseMenuNavigator):
     """
     class that handles pickup farming.
@@ -563,69 +628,7 @@ class CheckForPickup(BaseMenuNavigator):
     def __init__(self):
         super().__init__()
 
-        if context.rom.is_rs:
-            self.possible_pickup_items = [
-                "Super Potion",
-                "Ultra Ball",
-                "Full Restore",
-                "Full Heal",
-                "Nugget",
-                "Revive",
-                "Rare Candy",
-                "Protein",
-                "PP Up",
-                "King’s Rock",
-            ]
-        elif context.rom.is_frlg:
-            self.possible_pickup_items = [
-                "Oran Berry",
-                "Aspear Berry",
-                "Cheri Berry",
-                "Chesto Berry",
-                "Pecha Berry",
-                "Persim Berry",
-                "Rawst Berry",
-                "Nugget",
-                "PP Up",
-                "Rare Candy",
-                "TM10",
-                "Belue Berry",
-                "Durin Berry",
-                "Pamtre Berry",
-                "Spelon Berry",
-                "Watmel Berry",
-            ]
-        else:
-            self.possible_pickup_items = [
-                "Potion",
-                "Antidote",
-                "Super Potion",
-                "Great Ball",
-                "Repel",
-                "Escape Rope",
-                "X Attack",
-                "Full Heal",
-                "Ultra Ball",
-                "Hyper Potion",
-                "Nugget",
-                "King’s Rock",
-                "Rare Candy",
-                "Full Restore",
-                "Ether",
-                "Protein",
-                "Revive",
-                "White Herb",
-                "HP Up",
-                "TM44",
-                "Elixir",
-                "Max Revive",
-                "TM01",
-                "PP Up",
-                "Leftovers",
-                "Max Elixir",
-                "TM26",
-            ]
-
+        self.possible_pickup_items = get_items_available_for_pickup()
         self.party = get_party()
         self.pokemon_with_pickup = 0
         self.pokemon_with_pickup_and_item = []
@@ -812,12 +815,23 @@ class MenuWrapper:
 
 
 def should_check_for_pickup():
-    if (
-        context.config.cheats.faster_pickup
-        or get_game_stat(GameStat.TOTAL_BATTLES) % context.config.battle.pickup_check_frequency == 0
-    ):
-        return True
-    return False
+    if not context.config.battle.pickup:
+        return False
+
+    if context.config.cheats.faster_pickup:
+        pokemon_with_items_to_pick_up = 0
+        items_available_for_pickup = get_items_available_for_pickup()
+        for pokemon in get_party():
+            if (
+                pokemon.ability.name == "Pickup"
+                and pokemon.held_item is not None
+                and pokemon.held_item.name in items_available_for_pickup
+            ):
+                pokemon_with_items_to_pick_up += 1
+        if pokemon_with_items_to_pick_up >= context.config.battle.pickup_threshold:
+            return True
+    else:
+        return get_game_stat(GameStat.TOTAL_BATTLES) % context.config.battle.pickup_check_frequency == 0
 
 
 def use_party_hm_move(move_name: str):
