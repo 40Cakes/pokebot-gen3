@@ -14,10 +14,16 @@
   "gSaveBlock2Ptr":{
     "F":"3004f5c"
   },
+  "gPokemonStoragePtr":{
+    "F":"3004f60"
+  },
   "gMain":{
     "F":"3003040"
   },
   "GTASKS":{
     "F":"3004fe0"
+  },
+  "gBattleResults":{
+    "F":"3004ee0"
   }
 }
