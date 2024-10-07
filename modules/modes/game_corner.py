@@ -1,7 +1,7 @@
 from typing import Generator
 
 from modules.context import context
-from modules.encounter import handle_encounter
+from modules.encounter import handle_encounter, EncounterInfo
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.map_data import MapFRLG
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
@@ -19,6 +19,7 @@ from .util import (
     wait_for_unique_rng_value,
     wait_until_task_is_active,
 )
+from ..battle_state import EncounterType
 
 
 class GameCornerMode(BotMode):
@@ -125,4 +126,8 @@ class GameCornerMode(BotMode):
             yield from StartMenuNavigator("POKEMON").step()
             yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
 
-            handle_encounter(get_party()[-1], disable_auto_catch=True, do_not_log_battle_action=True)
+            handle_encounter(
+                EncounterInfo.create(get_party()[-1], EncounterType.Gift),
+                disable_auto_catch=True,
+                do_not_log_battle_action=True,
+            )

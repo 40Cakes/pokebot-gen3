@@ -1,24 +1,27 @@
 import importlib
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
 from typing import Callable, TYPE_CHECKING
 
+from modules.battle_state import get_encounter_type, EncounterType
 from modules.console import console, print_stats
 from modules.context import context
 from modules.files import save_pk3, make_string_safe_for_file_name
 from modules.gui.desktop_notification import desktop_notification
+from modules.map_data import get_map_enum
 from modules.memory import get_game_state, GameState
 from modules.modes import BattleAction
-from modules.plugins import plugin_judge_encounter
+from modules.player import get_player, get_player_avatar
+from modules.plugins import plugin_judge_encounter, plugin_logging_encounter
 from modules.pokedex import get_pokedex
 from modules.roamer import get_roamer
 from modules.runtime import get_sprites_path
 from modules.tcg_card import generate_tcg_card
 
 if TYPE_CHECKING:
-    from datetime import datetime
-    from modules.battle_state import EncounterType
+    from modules.map_data import MapRSE, MapFRLG
     from modules.pokemon import Pokemon
 
 
@@ -26,14 +29,45 @@ _custom_catch_filters: Callable[["Pokemon"], str | bool] | None = None
 
 
 @dataclass
-class ActiveWildEncounter:
+class EncounterInfo:
     pokemon: "Pokemon"
     encounter_time: "datetime"
     type: "EncounterType"
-    value: "EncounterValue | None" = None
-    catch_filters_result: str | bool | None = None
+    value: "EncounterValue | None"
+    map: "MapRSE | MapFRLG | None"
+    coordinates: tuple[int, int] | None
+    bot_mode: str
+    catch_filters_result: str | None
+    battle_action: "BattleAction | None" = None
     gif_path: Path | None = None
     tcg_card_path: Path | None = None
+
+    @classmethod
+    def create(cls, pokemon: "Pokemon", type: "EncounterType | None" = None) -> "EncounterInfo":
+        catch_filters_result = run_custom_catch_filters(pokemon)
+        if catch_filters_result is True:
+            catch_filters_result = "Match"
+        player_avatar = get_player_avatar()
+        map_enum = get_map_enum(player_avatar.map_group_and_number)
+        local_coordinates = player_avatar.local_coordinates
+        return cls(
+            pokemon=pokemon,
+            encounter_time=datetime.now(),
+            type=type if type is not None else get_encounter_type(),
+            value=judge_encounter(pokemon),
+            map=map_enum,
+            coordinates=local_coordinates,
+            bot_mode=context.bot_mode,
+            catch_filters_result=catch_filters_result,
+        )
+
+    @property
+    def is_shiny(self) -> bool:
+        return self.pokemon.is_shiny
+
+    @property
+    def is_of_interest(self) -> bool:
+        return self.value.is_of_interest
 
 
 def run_custom_catch_filters(pokemon: "Pokemon") -> str | bool:
@@ -102,7 +136,8 @@ def judge_encounter(pokemon: "Pokemon") -> EncounterValue:
     return EncounterValue.Trash
 
 
-def log_encounter(pokemon: "Pokemon", action: BattleAction | None = None) -> None:
+def log_encounter(encounter_info: EncounterInfo) -> None:
+    pokemon = encounter_info.pokemon
     if (
         context.stats.last_encounter is not None
         and context.stats.last_encounter.pokemon.personality_value == pokemon.personality_value
@@ -110,12 +145,16 @@ def log_encounter(pokemon: "Pokemon", action: BattleAction | None = None) -> Non
         # Avoid double-logging an encounter.
         return
 
-    ccf_result = run_custom_catch_filters(pokemon)
-    print_stats(context.stats.get_global_stats(), pokemon)
-    context.stats.log_encounter(pokemon, ccf_result)
+    log_entry = context.stats.log_encounter(encounter_info)
+    print_stats(context.stats.get_global_stats(), encounter_info)
+    plugin_logging_encounter(encounter_info)
+    if encounter_info.is_shiny:
+        context.stats.reset_shiny_phase(log_entry)
+
     if context.config.logging.save_pk3.all:
         save_pk3(pokemon)
 
+    # Generate the bot message shown below the video
     fun_facts = [
         f"Nature:\xa0{pokemon.nature.name}",
         f"Ability:\xa0{pokemon.ability.name}",
@@ -136,7 +175,7 @@ def log_encounter(pokemon: "Pokemon", action: BattleAction | None = None) -> Non
     if pokemon.species.name == "Wurmple":
         fun_facts.append(f"Evo: {pokemon.wurmple_evolution.title()}")
 
-    match action:
+    match encounter_info.battle_action:
         case BattleAction.Catch:
             message_action = ", catching..."
         case BattleAction.CustomAction:
@@ -148,17 +187,17 @@ def log_encounter(pokemon: "Pokemon", action: BattleAction | None = None) -> Non
         case _:
             message_action = "."
 
-    context.message = f"Encountered {species_name}{message_action}\n\n{' | '.join(fun_facts)}"
+    context.message = f"{encounter_info.type.verb.title()} {species_name}{message_action}\n\n{' | '.join(fun_facts)}"
 
 
 def handle_encounter(
-    pokemon: "Pokemon",
+    encounter_info: EncounterInfo,
     disable_auto_catch: bool = False,
     enable_auto_battle: bool = False,
     do_not_log_battle_action: bool = False,
 ) -> BattleAction:
-    encounter_value = judge_encounter(pokemon)
-    match encounter_value:
+    pokemon = encounter_info.pokemon
+    match encounter_info.value:
         case EncounterValue.Shiny:
             console.print(f"[bold yellow]Shiny {pokemon.species.name} found![/]")
             alert = "Shiny found!", f"Found a ✨shiny {pokemon.species.name}✨! 🥳"
@@ -167,7 +206,7 @@ def handle_encounter(
             is_of_interest = True
 
         case EncounterValue.CustomFilterMatch:
-            filter_result = run_custom_catch_filters(pokemon)
+            filter_result = encounter_info.catch_filters_result
             console.print(f"[pink green]Custom filter triggered for {pokemon.species.name}: '{filter_result}'[/]")
             alert = "Custom filter triggered!", f"Found a {pokemon.species.name} that matched one of your filters."
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.custom:
@@ -212,22 +251,27 @@ def handle_encounter(
     battle_is_active = get_game_state() in (GameState.BATTLE, GameState.BATTLE_STARTING, GameState.BATTLE_ENDING)
 
     if is_of_interest:
-        filename_suffix = f"{encounter_value.name}_{make_string_safe_for_file_name(pokemon.species_name_for_stats)}"
+        filename_suffix = (
+            f"{encounter_info.value.name}_{make_string_safe_for_file_name(pokemon.species_name_for_stats)}"
+        )
         context.emulator.create_save_state(suffix=filename_suffix)
 
         if context.config.battle.auto_catch and not disable_auto_catch and battle_is_active:
-            decision = BattleAction.Catch
+            encounter_info.battle_action = BattleAction.Catch
         else:
             context.set_manual_mode()
-            decision = BattleAction.CustomAction
+            encounter_info.battle_action = BattleAction.CustomAction
     elif enable_auto_battle:
-        decision = BattleAction.Fight
+        encounter_info.battle_action = BattleAction.Fight
     else:
-        decision = BattleAction.RunAway
+        encounter_info.battle_action = BattleAction.RunAway
 
-    if do_not_log_battle_action or not battle_is_active:
-        log_encounter(pokemon, None)
-    else:
-        log_encounter(pokemon, decision)
+    if do_not_log_battle_action:
+        encounter_info.battle_action = None
 
-    return decision
+    # During battles the logging is done by `BattleListener` once the encounter is
+    # actually visible (rather than at the start of the battle.)
+    if not battle_is_active:
+        log_encounter(encounter_info)
+
+    return encounter_info.battle_action

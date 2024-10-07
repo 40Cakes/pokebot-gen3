@@ -1,10 +1,9 @@
 from typing import Generator
 
 from modules.context import context
-from modules.encounter import handle_encounter, judge_encounter, log_encounter
+from modules.encounter import handle_encounter, log_encounter, EncounterInfo
 from modules.map_data import MapRSE
 from modules.player import get_player_avatar
-from modules.pokemon import get_opponent
 from ._asserts import SavedMapLocation, assert_registered_item, assert_save_game_exists, assert_saved_on_map
 from ._interface import BattleAction, BotMode
 from .util import soft_reset, wait_for_task_to_start_and_finish, wait_for_unique_rng_value, wait_until_task_is_active
@@ -22,11 +21,10 @@ class SudowoodoMode(BotMode):
         targeted_tile = get_player_avatar().map_location_in_front
         return targeted_tile in MapRSE.BATTLE_FRONTIER_OUTSIDE_EAST and targeted_tile.local_position == (54, 62)
 
-    def on_battle_started(self) -> BattleAction | None:
-        opponent = get_opponent()
-        if judge_encounter(opponent).is_of_interest:
-            return handle_encounter(opponent, disable_auto_catch=True)
-        log_encounter(opponent)
+    def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | None:
+        if encounter.is_of_interest:
+            return handle_encounter(encounter, disable_auto_catch=True)
+        log_encounter(encounter)
         return BattleAction.CustomAction
 
     def run(self) -> Generator:

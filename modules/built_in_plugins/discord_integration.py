@@ -16,7 +16,7 @@ from modules.sprites import get_shiny_sprite, get_regular_sprite, get_anti_shiny
 
 if TYPE_CHECKING:
     from modules.config.schemas_v1 import DiscordWebhook
-    from modules.encounter import ActiveWildEncounter
+    from modules.encounter import EncounterInfo
     from modules.pokemon import Pokemon
     from modules.profiles import Profile
 
@@ -108,14 +108,11 @@ class DiscordPlugin(BotPlugin):
         if context.config.discord.rich_presence:
             Thread(target=discord_rich_presence_loop, daemon=True).start()
 
-    def on_wild_encounter_visible(self, wild_encounter: "ActiveWildEncounter") -> Generator | None:
+    def on_logging_encounter(self, encounter: "EncounterInfo") -> Generator | None:
         global_stats = context.stats.get_global_stats()
-        opponent = wild_encounter.pokemon
+        opponent = encounter.pokemon
         species_stats = global_stats.species(opponent)
-        if opponent.is_shiny:
-            shiny_phase = context.stats.get_shiny_phase_by_shiny(opponent)
-        else:
-            shiny_phase = context.stats.current_shiny_phase
+        shiny_phase = context.stats.current_shiny_phase
 
         # Discord shiny Pokémon encountered
         if context.config.discord.shiny_pokemon_encounter.enable and opponent.is_shiny:
@@ -129,21 +126,21 @@ class DiscordPlugin(BotPlugin):
 
             send_discord_message(
                 webhook_config=context.config.discord.shiny_pokemon_encounter,
-                content=f"Encountered a shiny ✨ {opponent.species_name_for_stats} ✨! {block}",
+                content=f"{encounter.type.verb.title()} a shiny ✨ {opponent.species_name_for_stats} ✨! {block}",
                 embed=DiscordMessageEmbed(
-                    title="Shiny encountered!",
+                    title=f"Shiny {encounter.type.verb}!",
                     description=f"{opponent.nature.name} {opponent.species_name_for_stats} (Lv. {opponent.level:,}) at {opponent.location_met}!",
                     fields={
                         "Shiny Value": f"{opponent.shiny_value:,}",
                         f"IVs ({opponent.ivs.sum()})": iv_table(opponent),
                         "Held item": opponent.held_item.name if opponent.held_item else "None",
                         f"{opponent.species_name_for_stats} Encounters": f"{species_stats.total_encounters:,} ({species_stats.shiny_encounters:,}✨)",
-                        f"{opponent.species_name_for_stats} Phase Encounters": f"{int(context.stats.last_shiny_species_phase_encounters):,}",
+                        f"{opponent.species_name_for_stats} Phase Encounters": f"{species_stats.phase_encounters:,}",
                     }
                     | phase_summary_fields(opponent, shiny_phase),
                     thumbnail=get_shiny_sprite(opponent),
                     colour="ffd242",
-                    image=wild_encounter.gif_path,
+                    image=encounter.gif_path,
                 ),
             )
 
@@ -217,10 +214,12 @@ class DiscordPlugin(BotPlugin):
         if (
             context.config.discord.phase_summary.enable
             and not opponent.is_shiny
-            and phase_encounters == context.config.discord.phase_summary.first_interval
-            or (
-                phase_encounters > context.config.discord.phase_summary.first_interval
-                and phase_encounters % context.config.discord.phase_summary.consequent_interval == 0
+            and (
+                phase_encounters == context.config.discord.phase_summary.first_interval
+                or (
+                    phase_encounters > context.config.discord.phase_summary.first_interval
+                    and phase_encounters % context.config.discord.phase_summary.consequent_interval == 0
+                )
             )
         ):
             send_discord_message(
@@ -233,9 +232,9 @@ class DiscordPlugin(BotPlugin):
         if context.config.discord.anti_shiny_pokemon_encounter.enable and opponent.is_anti_shiny:
             send_discord_message(
                 webhook_config=context.config.discord.anti_shiny_pokemon_encounter,
-                content=f"Encountered an anti-shiny 💀 {opponent.species_name_for_stats} 💀!",
+                content=f"{encounter.type.verb.title()} an anti-shiny 💀 {opponent.species_name_for_stats} 💀!",
                 embed=DiscordMessageEmbed(
-                    title="Anti-Shiny encountered!",
+                    title=f"Anti-Shiny {encounter.type.verb}!",
                     description=f"{opponent.nature.name} {opponent.species_name_for_stats} (Lv. {opponent.level:,}) at {opponent.location_met}!",
                     fields={
                         "Shiny Value": f"{opponent.shiny_value:,}",
@@ -252,11 +251,11 @@ class DiscordPlugin(BotPlugin):
 
         # Discord Pokémon matching custom filter encountered
         if context.config.discord.custom_filter_pokemon_encounter.enable and isinstance(
-            wild_encounter.catch_filters_result, str
+            encounter.catch_filters_result, str
         ):
             send_discord_message(
                 webhook_config=context.config.discord.custom_filter_pokemon_encounter,
-                content=f"Encountered a {opponent.species_name_for_stats} matching custom filter: `{wild_encounter.catch_filters_result}`!",
+                content=f"{encounter.type.verb.title()} a {opponent.species_name_for_stats} matching custom filter: `{encounter.catch_filters_result}`!",
                 description=f"{opponent.nature.name} {opponent.species_name_for_stats} (Lv. {opponent.level:,}) at {opponent.location_met}!",
                 fields={
                     "Shiny Value": f"{opponent.shiny_value:,}",
@@ -268,19 +267,19 @@ class DiscordPlugin(BotPlugin):
                 | phase_summary_fields(opponent, shiny_phase),
                 thumbnail=get_regular_sprite(opponent),
                 colour="6a89cc",
-                image=wild_encounter.gif_path,
+                image=encounter.gif_path,
             )
 
         # Discord TCG cards
         if (
             context.config.discord.tcg_cards.enable
             and context.config.logging.tcg_cards
-            and wild_encounter.tcg_card_path is not None
+            and encounter.tcg_card_path is not None
         ):
             send_discord_message(
                 webhook_config=context.config.discord.tcg_cards,
                 content="",
-                image=wild_encounter.tcg_card_path,
+                image=encounter.tcg_card_path,
             )
 
         return None

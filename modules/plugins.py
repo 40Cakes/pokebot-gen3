@@ -9,7 +9,7 @@ from modules.pokemon import Pokemon
 from modules.runtime import get_base_path
 
 if TYPE_CHECKING:
-    from modules.encounter import ActiveWildEncounter
+    from modules.encounter import EncounterInfo
     from modules.modes import BotMode, BotListener
     from modules.profiles import Profile
 
@@ -75,16 +75,16 @@ def plugin_profile_loaded(profile: "Profile") -> None:
         plugin.on_profile_loaded(profile)
 
 
-def plugin_battle_started(opponent: "Pokemon", wild_encounter: "ActiveWildEncounter | None") -> Generator:
+def plugin_battle_started(encounter: "EncounterInfo | None") -> Generator:
     for plugin in plugins:
-        result = plugin.on_battle_started(opponent, wild_encounter)
+        result = plugin.on_battle_started(encounter)
         if isinstance(result, GeneratorType):
             yield from result
 
 
-def plugin_wild_encounter_visible(wild_encounter: "ActiveWildEncounter") -> Generator:
+def plugin_wild_encounter_visible(encounter: "EncounterInfo") -> Generator:
     for plugin in plugins:
-        result = plugin.on_wild_encounter_visible(wild_encounter)
+        result = plugin.on_wild_encounter_visible(encounter)
         if isinstance(result, GeneratorType):
             yield from result
 
@@ -96,6 +96,11 @@ def plugin_battle_ended(outcome: "BattleOutcome") -> Generator:
             yield from result
 
 
+def plugin_logging_encounter(encounter: "EncounterInfo") -> None:
+    for plugin in plugins:
+        plugin.on_logging_encounter(encounter)
+
+
 def plugin_pokemon_evolved(evolved_pokemon: "Pokemon") -> Generator:
     for plugin in plugins:
         result = plugin.on_pokemon_evolved(evolved_pokemon)
@@ -103,7 +108,14 @@ def plugin_pokemon_evolved(evolved_pokemon: "Pokemon") -> Generator:
             yield from result
 
 
-def plugin_egg_hatched(hatched_pokemon: "Pokemon") -> Generator:
+def plugin_egg_starting_to_hatch(hatching_pokemon: "EncounterInfo") -> Generator:
+    for plugin in plugins:
+        result = plugin.on_egg_starting_to_hatch(hatching_pokemon)
+        if isinstance(result, GeneratorType):
+            yield from result
+
+
+def plugin_egg_hatched(hatched_pokemon: "EncounterInfo") -> Generator:
     for plugin in plugins:
         result = plugin.on_egg_hatched(hatched_pokemon)
         if isinstance(result, GeneratorType):

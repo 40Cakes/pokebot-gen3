@@ -7,10 +7,9 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Generator, Optional, TYPE_CHECKING
 
-from modules.battle_strategies import BattleStrategy
-
 if TYPE_CHECKING:
     from modules.battle_state import BattleOutcome
+    from modules.encounter import EncounterInfo
     from modules.memory import GameState
     from modules.pokemon import Pokemon
 
@@ -65,13 +64,15 @@ class BotMode:
         """
         raise NotImplementedError
 
-    def on_battle_started(self) -> BattleAction | BattleStrategy | None:
+    def on_battle_started(self, encounter: "EncounterInfo | None") -> "BattleAction | BattleStrategy | None":
         """
         This is called when a battle starts, i.e. a wild Pokémon is encountered or a trainer
         battle commenced.
 
         When this method is called, the game state is already `GameState.BATTLE`.
 
+        :param encounter: For wild encounters, information about the encounter. Otherwise (like in
+                          trainer battles) this is None.
         :return: What to do when the battle starts:
                  - `None` will lead to the default behaviour of `handle_encounter()`
                  - `BattleAction.RunAway` will run away from the battle, unless it is a trainer.
@@ -189,14 +190,14 @@ class BotMode:
         """
         return False
 
-    def on_egg_hatched(self, pokemon: "Pokemon", party_index: int) -> None:
+    def on_egg_hatched(self, encounter: "EncounterInfo", party_index: int) -> None:
         """
         This is called when an egg is hatching.
 
         The bot will call this method when the hatched Pokémon's sprite is
         visible during the cutscene.
 
-        :param pokemon: The Pokémon that has hatched.
+        :param encounter: Information about the Pokémon that has hatched.
         :param party_index: Party index (0-5) of the Pokémon that has hatched.
         """
         pass
