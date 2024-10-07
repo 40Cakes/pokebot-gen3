@@ -207,13 +207,12 @@ class BattleListener(BotListener):
             and player_avatar_is_standing_still()
         ):
             if (
-                context.config.battle.pickup
-                and should_check_for_pickup()
+                should_check_for_pickup()
                 and context.bot_mode_instance is not None
                 and context.bot_mode_instance.on_pickup_threshold_reached()
             ):
                 yield from self.check_for_pickup()
-            elif strategy.choose_new_lead_after_battle() is not None:
+            if strategy.choose_new_lead_after_battle() is not None:
                 if context.bot_mode != "Manual":
                     yield from self.rotate_lead_pokemon(strategy.choose_new_lead_after_battle())
 
