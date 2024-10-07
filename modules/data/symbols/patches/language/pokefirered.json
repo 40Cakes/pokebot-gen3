@@ -10,5 +10,14 @@
   },
   "gSaveBlock1Ptr":{
     "F":"3004f58"
+  },
+  "gSaveBlock2Ptr":{
+    "F":"3004f5c"
+  },
+  "gMain":{
+    "F":"3003040"
+  },
+  "GTASKS":{
+    "F":"3004fe0"
   }
 }
