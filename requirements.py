@@ -5,7 +5,7 @@ from modules.runtime import get_base_path, is_bundled_app, is_virtualenv
 from modules.version import pokebot_name, pokebot_version
 
 recommended_python_version = "3.12"
-supported_python_versions = ["3.10", "3.11", "3.12"]
+supported_python_versions = ["3.10", "3.11", "3.12", "3.13"]
 
 libmgba_tag = "0.2.0-2"
 libmgba_ver = "0.2.0"
