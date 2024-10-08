@@ -1,7 +1,7 @@
 from typing import Generator
 
 from modules.context import context
-from modules.encounter import EncounterValue, handle_encounter, judge_encounter, log_encounter
+from modules.encounter import EncounterValue, handle_encounter, log_encounter, EncounterInfo
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.items import get_item_by_name
 from modules.map_data import MapFRLG, MapRSE
@@ -10,7 +10,6 @@ from modules.modes.util.event_flags_and_vars import wait_until_event_flag_is_tru
 from modules.modes.util.tasks_scripts import wait_for_script_to_start_and_finish
 from modules.modes.util.walking import wait_for_player_avatar_to_be_controllable
 from modules.player import get_player, get_player_avatar
-from modules.pokemon import get_opponent
 from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
@@ -73,14 +72,13 @@ class RoamerResetMode(BotMode):
         except RanOutOfRepels:
             self._ran_out_of_repels = True
 
-    def on_battle_started(self) -> BattleAction | None:
+    def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | None:
         # This excludes `EncounterValue.Roamer` which should not lead to a notification being
         # triggered. _All_ encounters in this mode should be roamers.
-        opponent = get_opponent()
-        if judge_encounter(opponent) in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch):
-            return handle_encounter(opponent, disable_auto_catch=True)
+        if encounter.value in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch):
+            return handle_encounter(encounter, disable_auto_catch=True)
         self._should_reset = True
-        log_encounter(opponent)
+        log_encounter(encounter)
         return BattleAction.CustomAction
 
     def run(self) -> Generator:

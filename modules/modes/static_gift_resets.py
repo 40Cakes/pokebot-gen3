@@ -2,13 +2,13 @@ from typing import Generator
 
 from modules.console import console
 from modules.context import context
-from modules.encounter import handle_encounter
+from modules.encounter import handle_encounter, EncounterInfo
 from modules.map import get_map_data
 from modules.map_data import MapFRLG, MapRSE
 from modules.map_path import calculate_path
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.player import get_player_avatar
-from modules.pokemon import get_party, Pokemon
+from modules.pokemon import get_party
 from modules.save_data import get_save_data
 from ._asserts import (
     assert_save_game_exists,
@@ -27,7 +27,9 @@ from .util import (
     wait_until_event_flag_is_true,
     wait_until_task_is_active,
     wait_until_task_is_not_active,
+    wait_for_no_script_to_run,
 )
+from ..battle_state import EncounterType
 
 
 def _get_targeted_encounter() -> tuple[MapFRLG | MapRSE, tuple[int, int], str] | None:
@@ -79,7 +81,7 @@ class StaticGiftResetsMode(BotMode):
         super().__init__()
         self._egg_has_hatched = False
 
-    def on_egg_hatched(self, pokemon: "Pokemon", party_index: int) -> None:
+    def on_egg_hatched(self, encounter: "EncounterInfo", party_index: int) -> None:
         # The user could start this mode with another egg already in their party (from daycare)
         # so in order to make sure that it was Togepi/Wynaut that hatched, we verify that the
         # egg is in the last slot of the party -- since the egg was picked up at the start of
@@ -106,14 +108,16 @@ class StaticGiftResetsMode(BotMode):
             )
             if save_data.get_event_flag("RECEIVED_LAVARIDGE_EGG"):
                 raise BotModeError("You have already received the Wynaut egg in your saved game.")
-        if encounter[2] in ["Wynaut", "Togepi"] and save_data.get_party()[0].ability.name not in [
-            "Flame Body",
-            "Magma Armor",
-        ]:
-            console.print(
-                "[bold yellow]WARNING: First Pokemon in party does not have Flame Body / Magma Armor ability."
-            )
-            console.print("[bold yellow]This will slow down the egg hatching process.")
+        if encounter[2] in ["Wynaut", "Togepi"] and not any(
+            pokemon.ability.name
+            in [
+                "Flame Body",
+                "Magma Armor",
+            ]
+            for pokemon in save_data.get_party()
+        ):
+            console.print("[bold yellow]WARNING: None of your Pokémon has the Flame Body / Magma Armor ability.[/]")
+            console.print("[yellow]Hatching will take twice as long this way.[/]")
         if encounter[2] == "Togepi":
             if save_data.get_event_flag("GOT_TOGEPI_EGG"):
                 raise BotModeError("You have already received the Togepi egg in your saved game.")
@@ -142,6 +146,9 @@ class StaticGiftResetsMode(BotMode):
             if context.rom.is_emerald:
                 yield from wait_until_task_is_active("Task_DrawFieldMessage", "A")
                 yield from wait_until_task_is_not_active("Task_DrawFieldMessage", "B")
+            if context.rom.is_rs:
+                yield from wait_until_task_is_active("Task_FieldMessageBox", "A")
+                yield from wait_until_task_is_not_active("Task_FieldMessageBox", "B")
 
             # Accept the Pokémon
             if encounter[2] in ["Beldum", "Hitmonchan", "Hitmonlee", "Magikarp", "Wynaut"]:
@@ -174,6 +181,7 @@ class StaticGiftResetsMode(BotMode):
                 yield from wait_until_event_flag_is_true("GOT_LAPRAS_FROM_SILPH", "B")
             if encounter[2] == "Castform":
                 yield from wait_until_event_flag_is_true("RECEIVED_CASTFORM", "B")
+                yield from wait_for_no_script_to_run("B")
 
             def egg_in_party() -> int:
                 total_eggs = 0
@@ -214,9 +222,9 @@ class StaticGiftResetsMode(BotMode):
                     yield from wait_for_player_avatar_to_be_controllable()
                     self._egg_has_hatched = False
                     yield from hatch_egg()
+            else:
+                # Navigate to the summary screen to check for shininess
+                yield from StartMenuNavigator("POKEMON").step()
+                yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
 
-            # Navigate to the summary screen to check for shininess
-            yield from StartMenuNavigator("POKEMON").step()
-            yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
-
-            handle_encounter(get_party()[len(get_party()) - 1], disable_auto_catch=True)
+                handle_encounter(EncounterInfo.create(get_party()[-1], EncounterType.Gift), disable_auto_catch=True)

@@ -1,12 +1,27 @@
 @font-face {
-    font-family: SmallPixel;
-    src: local("Small Pixel Regular");
+    font-family: "Small Pixel Regular";
+    src: local("Small Pixel Regular"),
+         url("/static/font/small_pixel.woff2") format("woff2");
 }
 
 body {
     background-color: #00000000;
     width: 2560px;
     height: 1440px;
+    margin: 0;
+
+    font-size: 1.75rem;
+    text-shadow: 2px 2px #000000;
+    font-family: "Small Pixel Regular", monospace;
+    color: #FFF;
+}
+
+@media screen and (max-width: 1920px) {
+    body {
+        transform-origin: top left;
+        transform: scale(.75);
+        overflow: hidden;
+    }
 }
 
 img.arrow {
@@ -116,9 +131,19 @@ img.sprite {
     margin-right: auto;
 }
 
-img.target_timer_sprite {
-    max-height: 24px;
-    max-width: 24px;
+td.missed {
+    position: relative;
+}
+
+td.missed img.sprite {
+    filter: grayscale(1);
+}
+
+td.missed img.crossed-out {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 50%;
 }
 
 img.checklist-sprite {
@@ -162,7 +187,7 @@ table {
     font-size: 1.75rem;
     text-shadow: 2px 2px #000000;
     background-color: #000000c2;
-    font-family: SmallPixel;
+    font-family: "Small Pixel Regular", monospace;
     color: #FFF;
     border-spacing: 0;
 }
@@ -246,6 +271,41 @@ table.sv_hud {
     width: 6.7%;
     border-radius: 10px;
     border-collapse: separate;
+}
+
+.info-bubbles-bottom-right {
+    position: fixed;
+    bottom: 34.6%;
+    right: 44%;
+    width: 44%;
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    flex-wrap: wrap-reverse;
+}
+
+.info-bubbles-bottom-right > .info-bubble {
+    background-color: #000000f6;
+    padding: 1px 1rem;
+    border-radius: 10px;
+    text-align: center;
+    margin-left: 1rem;
+    margin-top: 2rem;
+    display: none;
+}
+
+.info-bubbles-bottom-right .icon-pokemon {
+    max-height: 24px;
+    max-width: 24px;
+    transform: scale(4) translateY(-5px) translateX(-3px) scaleX(-1);
+    padding: 0 15px;
+}
+
+.info-bubbles-bottom-right .icon-item {
+    transform: scale(2.5) translateY(-2px) translateX(-3px);
+    image-rendering: optimizespeed;
+    padding: 0 4px;
 }
 
 table.target_1 {

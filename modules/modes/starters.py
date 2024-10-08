@@ -2,7 +2,7 @@ import random
 from typing import Generator
 
 from modules.context import context
-from modules.encounter import handle_encounter
+from modules.encounter import handle_encounter, EncounterInfo
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.map_data import MapFRLG, MapRSE
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
@@ -11,7 +11,7 @@ from modules.player import get_player_avatar
 from modules.pokemon import get_party
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
-from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map, assert_no_auto_battle
+from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map
 from ._interface import BattleAction, BotMode, BotModeError
 from .util import (
     ensure_facing_direction,
@@ -22,6 +22,7 @@ from .util import (
     wait_until_task_is_active,
     wait_until_task_is_not_active,
 )
+from ..battle_state import battle_is_active, get_main_battle_callback, EncounterType
 
 
 def run_frlg() -> Generator:
@@ -69,7 +70,11 @@ def run_frlg() -> Generator:
         # Spam 'A' until we see the summary screen
         yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")
 
-        handle_encounter(get_party()[0], disable_auto_catch=True, do_not_log_battle_action=True)
+        handle_encounter(
+            EncounterInfo.create(get_party()[0], EncounterType.Gift),
+            disable_auto_catch=True,
+            do_not_log_battle_action=True,
+        )
 
 
 def run_rse_hoenn() -> Generator:
@@ -119,16 +124,26 @@ def run_rse_hoenn() -> Generator:
 
         yield from wait_for_unique_rng_value()
 
-        # Wait for Pokémon cry in selection menu
-        yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
+        # Wait until the starter Pokémon has been sent out into battle before resetting.
+        # The Pokémon is already generated as soon as the battle starts, but to make it
+        # more like a real person is playing, we wait until the Pokémon is actually
+        # _visible_.
+        first_turn_callback = "TryDoEventsBeforeFirstTurn" if context.rom.is_emerald else "BattleBeginFirstTurn"
+        battle_has_begun = False
+        while True:
+            if not battle_has_begun and get_main_battle_callback() == first_turn_callback:
+                battle_has_begun = True
+            elif battle_has_begun and get_main_battle_callback() != first_turn_callback:
+                break
 
-        # Wait for Pokémon cry of opponent Poochyena
-        yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
+            context.emulator.press_button("A")
+            yield
 
-        # Wait for Pokémon cry of starter Pokémon (after which the sprite is fully visible)
-        yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
-
-        handle_encounter(get_party()[0], do_not_log_battle_action=True, disable_auto_catch=True)
+        handle_encounter(
+            EncounterInfo.create(get_party()[0], EncounterType.Gift),
+            do_not_log_battle_action=True,
+            disable_auto_catch=True,
+        )
 
 
 def run_rse_johto():
@@ -180,7 +195,11 @@ def run_rse_johto():
         yield from StartMenuNavigator("POKEMON").step()
         yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
 
-        handle_encounter(get_party()[len(get_party()) - 1], disable_auto_catch=True, do_not_log_battle_action=True)
+        handle_encounter(
+            EncounterInfo.create(get_party()[-1], EncounterType.Gift),
+            disable_auto_catch=True,
+            do_not_log_battle_action=True,
+        )
 
 
 class StartersMode(BotMode):
@@ -196,7 +215,7 @@ class StartersMode(BotMode):
         if context.rom.is_rse:
             return player_avatar.map_group_and_number in [(0, 16), (1, 4)]
 
-    def on_battle_started(self) -> BattleAction | None:
+    def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | None:
         return BattleAction.CustomAction
 
     def run(self) -> Generator:

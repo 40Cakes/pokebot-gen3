@@ -73,3 +73,7 @@ def get_game_stat(game_stat: GameStat) -> int:
     game_stats_offset += game_stat.value * 4
     encryption_key = unpack_uint32(get_save_block(2, encryption_key_offset, size=4))
     return unpack_uint32(get_save_block(1, game_stats_offset, size=4)) ^ encryption_key
+
+
+def get_total_number_of_battles() -> int:
+    return get_game_stat(GameStat.TOTAL_BATTLES)

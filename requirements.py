@@ -14,8 +14,6 @@ libmgba_ver = "0.2.0"
 required_modules = [
     "confz==2.0.1",
     "numpy~=1.26.1",
-    "Flask~=2.3.2",
-    "Flask-Cors~=4.0.0",
     "setuptools",
     "ruamel.yaml~=0.18.2",
     "pypresence~=4.3.0",
@@ -32,12 +30,11 @@ required_modules = [
     "plyer~=2.1.0",
     "notify-py~=0.3.42",
     "apispec~=6.3.0",
-    "apispec-webframeworks~=0.5.2",
-    "flask-swagger-ui~=4.11.1",
     "ttkthemes~=3.2.2",
     "darkdetect~=0.8.0",
     "show-in-file-manager~=1.1.4",
-    "waitress~=3.0.0",
+    "aiohttp~=3.10.6",
+    "aiortc~=1.9.0",
 ]
 
 if platform.system() == "Windows":

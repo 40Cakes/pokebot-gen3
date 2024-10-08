@@ -49,6 +49,123 @@ class ItemPocket(Enum):
         return self.value
 
 
+class ItemBattleUse(Enum):
+    NotUsable = "not_usable"
+    Catch = "catch"
+    StatIncrease = "stat_increase"
+    Healing = "healing"
+    PpRecovery = "pp_recovery"
+    Escape = "escape"
+    EnigmaBerry = "enigma_berry"
+
+    def __str__(self):
+        return self.value
+
+    @classmethod
+    def from_value(cls, value: str) -> "ItemBattleUse":
+        for name, member in ItemBattleUse.__members__.items():
+            if member.value == value:
+                return member
+        return ItemBattleUse.NotUsable
+
+
+class ItemFieldUse(Enum):
+    NotUsable = "not_usable"
+    Healing = "healing"
+    PpRecovery = "pp_recovery"
+    EnigmaBerry = "enigma_berry"
+
+    def __str__(self):
+        return self.value
+
+    @classmethod
+    def from_value(cls, value: str) -> "ItemFieldUse":
+        for name, member in ItemFieldUse.__members__.items():
+            if member.value == value:
+                return member
+        return ItemFieldUse.NotUsable
+
+
+class ItemHoldEffect(Enum):
+    NoEffect = "no_effect"
+    RestoreHP = "restore_hp"
+    CureParalysis = "cure_paralysis"
+    CureSleep = "cure_sleep"
+    CurePoison = "cure_poison"
+    CureBurn = "cure_burn"
+    CureFreeze = "cure_freeze"
+    RestorePP = "restore_pp"
+    CureConfusion = "cure_confusion"
+    CureStatusCondition = "cure_status_condition"
+    ConfuseSpicy = "confuse_spicy"
+    ConfuseDry = "confuse_dry"
+    ConfuseSweet = "confuse_sweet"
+    ConfuseBitter = "confuse_bitter"
+    ConfuseSour = "confuse_sour"
+    AttackUp = "attack_up"
+    DefenseUp = "defense_up"
+    SpeedUp = "speed_up"
+    SpecialAttackUp = "special_attack_up"
+    SpecialDefenseUp = "special_defense_up"
+    CriticalHitRateUp = "critical_hit_rate_up"
+    RandomStatUp = "random_stat_up"
+    EvasionUp = "evasion_up"
+    RestoreStats = "restore_stats"
+    MachoBrace = "macho_brace"
+    ExpShare = "exp_share"
+    QuickClaw = "quick_claw"
+    FriendshipUp = "friendship_up"
+    CureAttract = "cure_attract"
+    ChoiceBand = "choice_band"
+    Flinch = "flinch"
+    BugPower = "bug_power"
+    DoublePrize = "double_prize"
+    Repel = "repel"
+    SoulDew = "soul_dew"
+    DeepSeaTooth = "deep_sea_tooth"
+    DeepSeaScale = "deep_sea_scale"
+    CanAlwaysRunAway = "can_always_run_away"
+    PreventEvolve = "prevent_evolve"
+    FocusBand = "focus_band"
+    LuckyEgg = "lucky_egg"
+    ScopeLens = "scope_lens"
+    SteelPower = "steel_power"
+    Leftovers = "leftovers"
+    DragonScale = "dragon_scale"
+    LightBall = "light_ball"
+    GroundPower = "ground_power"
+    RockPower = "rock_power"
+    GrassPower = "grass_power"
+    DarkPower = "dark_power"
+    FightingPower = "fighting_power"
+    ElectricPower = "electric_power"
+    WaterPower = "water_power"
+    FlyingPower = "flying_power"
+    PoisonPower = "poison_power"
+    IcePower = "ice_power"
+    GhostPower = "ghost_power"
+    PsychicPower = "psychic_power"
+    FirePower = "fire_power"
+    DragonPower = "dragon_power"
+    NormalPower = "normal_power"
+    UpGrade = "up_grade"
+    ShellBell = "shell_bell"
+    LuckyPunch = "lucky_punch"
+    MetalPowder = "metal_powder"
+    ThickClub = "thick_club"
+    Stick = "stick"
+
+    def __str__(self):
+        return self.value
+
+    @classmethod
+    def from_value(cls, value: str) -> "ItemHoldEffect":
+        for name, member in ItemHoldEffect.__members__.items():
+            if member.value == value:
+                return member
+        return ItemHoldEffect.NoEffect
+
+
 @dataclass
 class Item:
     """
@@ -60,7 +177,10 @@ class Item:
     sprite_name: str
     price: int
     type: ItemType
+    battle_use: ItemBattleUse
+    field_use: ItemFieldUse
     pocket: ItemPocket
+    hold_effect: ItemHoldEffect
     parameter: int
     extra_parameter: int
     tm_hm_move_id: int | None
@@ -83,7 +203,10 @@ class Item:
             sprite_name=data["name"].replace("'", "").replace(".", ""),
             price=data["price"],
             type=item_type,
+            battle_use=ItemBattleUse.from_value(data["battle_use"]),
+            field_use=ItemFieldUse.from_value(data["field_use"]),
             pocket=ItemPocket(data["pocket"]),
+            hold_effect=ItemHoldEffect.from_value(data["hold_effect"]),
             parameter=data["parameter"],
             extra_parameter=data["extra_parameter"],
             tm_hm_move_id=data["tm_hm_move_id"],

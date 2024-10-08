@@ -1,11 +1,11 @@
 from typing import Generator
 
 from modules.context import context
-from modules.encounter import handle_encounter
+from modules.encounter import handle_encounter, EncounterInfo
 from modules.map_data import MapRSE
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
-from modules.pokemon import get_opponent, get_party
+from modules.pokemon import get_party
 from modules.save_data import get_last_heal_location
 from . import BattleAction
 from ._asserts import (
@@ -13,6 +13,8 @@ from ._asserts import (
 )
 from ._interface import BotMode, BotModeError
 from .util import ensure_facing_direction, navigate_to
+from ..battle_strategies import BattleStrategy
+from ..battle_strategies.lose_on_purpose import LoseOnPurposeBattleStrategy
 
 
 class KecleonMode(BotMode):
@@ -32,9 +34,9 @@ class KecleonMode(BotMode):
         super().__init__()
         self._has_whited_out = False
 
-    def on_battle_started(self) -> BattleAction | None:
-        handle_encounter(get_opponent(), disable_auto_catch=True)
-        return BattleAction.CustomAction
+    def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | BattleStrategy | None:
+        handle_encounter(encounter, disable_auto_catch=True, enable_auto_battle=True)
+        return LoseOnPurposeBattleStrategy()
 
     def on_whiteout(self) -> bool:
         self._has_whited_out = True

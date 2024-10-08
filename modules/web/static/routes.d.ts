@@ -1,4 +1,5 @@
 import {ItemBag, ItemStorage, MapLocation, Player, PlayerAvatar, Pokedex, Pokemon} from "./pokemon";
+import {EffectiveEncounterList, Encounter, GlobalStats, RegularEncounterList, ShinyPhase} from "./stats";
 
 declare module PokeBotApi {
     /**
@@ -121,6 +122,14 @@ declare module PokeBotApi {
     export type GetMapResponse = MapLocation;
 
     /**
+     * Response body for `GET /map_encounters`.
+     */
+    export type GetMapEncountersResponse = {
+        "regular": RegularEncounterList;
+        "effective": EffectiveEncounterList;
+    };
+
+    /**
      * Response body for `GET /encounter_rate`.
      */
     export type GetEncounterRateResponse = {
@@ -132,4 +141,19 @@ declare module PokeBotApi {
      * Respone body for `GET /event_flags`.
      */
     export type GetEventFlagsResponse = { [k: string]: number }
+
+    /**
+     * Response body for `GET /encounter_log`.
+     */
+    export type GetEncounterLogResponse = Encounter[];
+
+    /**
+     * Response body for `GET /shiny_log`.
+     */
+    export type GetShinyLogResponse = ShinyPhase[];
+
+    /**
+     * Response body for `GET /stats`.
+     */
+    export type GetStatsResponse = GlobalStats;
 }

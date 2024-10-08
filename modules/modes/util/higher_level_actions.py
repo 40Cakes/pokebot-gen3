@@ -1,14 +1,14 @@
 from enum import Enum
-from typing import Generator, Union
+from typing import Generator, Union, Callable
 
 from modules.context import context
 from modules.debug import debug
 from modules.map_data import PokemonCenter
-from modules.memory import get_event_flag, get_game_state_symbol, unpack_uint32, read_symbol
+from modules.memory import get_event_flag, get_game_state_symbol, unpack_uint32, read_symbol, get_game_state, GameState
 from modules.menu_parsers import CursorOptionEmerald, CursorOptionFRLG, CursorOptionRS
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.modes.util.sleep import wait_for_n_frames
-from modules.player import get_player_avatar, get_player
+from modules.player import get_player_avatar, get_player, TileTransitionState, RunningState
 from modules.pokemon import get_party
 from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE, get_map_cursor, get_map_region
 from modules.tasks import get_task, task_is_active
@@ -19,11 +19,14 @@ from .tasks_scripts import (
     wait_for_yes_no_question,
     wait_for_no_script_to_run,
     wait_until_task_is_active,
+    wait_for_fade_to_finish,
 )
-from .walking import navigate_to, wait_for_player_avatar_to_be_standing_still
+from .walking import navigate_to, ensure_facing_direction, wait_for_player_avatar_to_be_standing_still
 from .._interface import BotModeError
 from ...game import get_symbol_name_before
 from ...items import Item, get_item_bag, ItemPocket
+from ...map import get_map_objects, get_map_data_for_current_position
+from ...map_path import calculate_path, PathFindingError
 from ...mart import get_mart_buyable_items, get_mart_buy_menu_scroll_position, get_mart_main_menu_scroll_position
 
 
@@ -131,6 +134,23 @@ def fish() -> Generator:
     yield
 
 
+def spin(stop_condition: Callable[[], bool] | None = None):
+    directions = ["Up", "Right", "Down", "Left"]
+    while True:
+        avatar = get_player_avatar()
+        if (
+            get_game_state() == GameState.OVERWORLD
+            and avatar.tile_transition_state == TileTransitionState.NOT_MOVING
+            and avatar.running_state == RunningState.NOT_MOVING
+        ):
+            if stop_condition is not None and stop_condition():
+                return
+
+            direction_index = (directions.index(avatar.facing_direction) + 1) % len(directions)
+            context.emulator.press_button(directions[direction_index])
+        yield
+
+
 @debug.track
 def heal_in_pokemon_center(pokemon_center_door_location: PokemonCenter) -> Generator:
     # Walk to and enter the Pokémon centre
@@ -150,14 +170,31 @@ def heal_in_pokemon_center(pokemon_center_door_location: PokemonCenter) -> Gener
 
 @debug.track
 def change_lead_party_pokemon(slot: int) -> Generator:
-    yield from StartMenuNavigator("POKEMON").step()
     if context.rom.is_emerald:
-        yield from PokemonPartyMenuNavigator(0, "", CursorOptionEmerald.SWITCH).step()
-    if context.rom.is_rs:
-        yield from PokemonPartyMenuNavigator(0, "", CursorOptionRS.SWITCH).step()
-    if context.rom.is_frlg:
-        yield from PokemonPartyMenuNavigator(0, "", CursorOptionFRLG.SWITCH).step()
-    yield from wait_until_task_is_active("Task_HandleChooseMonInput")
+        cursor_option_switch = CursorOptionEmerald.SWITCH
+        party_menu_task = "Task_HandleChooseMonInput"
+        switch_pokemon_task = "Task_HandleChooseMonInput"
+        slide_animation_task = "Task_SlideSelectedSlotsOnscreen"
+        start_menu_task = "Task_ShowStartMenu"
+    elif context.rom.is_rs:
+        cursor_option_switch = CursorOptionRS.SWITCH
+        party_menu_task = "HandleDefaultPartyMenu"
+        switch_pokemon_task = "HandlePartyMenuSwitchPokemonInput"
+        slide_animation_task = "sub_806D198"
+        start_menu_task = "sub_80712B4"
+    else:
+        cursor_option_switch = CursorOptionFRLG.SWITCH
+        party_menu_task = "Task_HandleChooseMonInput"
+        switch_pokemon_task = "Task_HandleChooseMonInput"
+        slide_animation_task = "Task_SlideSelectedSlotsOnscreen"
+        start_menu_task = "Task_StartMenuHandleInput"
+
+    yield from StartMenuNavigator("POKEMON").step()
+    yield from wait_until_task_is_active(party_menu_task)
+    yield
+    yield from wait_for_fade_to_finish()
+    yield from PokemonPartyMenuNavigator(0, "", cursor_option_switch).step()
+    yield from wait_until_task_is_active(switch_pokemon_task)
     match slot:
         case 1:
             context.emulator.press_button("Right")
@@ -173,8 +210,8 @@ def change_lead_party_pokemon(slot: int) -> Generator:
             context.emulator.press_button("A")
             yield from wait_for_n_frames(4)
 
-    yield from wait_for_task_to_start_and_finish("Task_SlideSelectedSlotsOnscreen", "A")
-    yield from wait_for_task_to_start_and_finish("Task_ShowStartMenu", "B")
+    yield from wait_for_task_to_start_and_finish(slide_animation_task, "A")
+    yield from wait_for_task_to_start_and_finish(start_menu_task, "B")
     yield from wait_for_n_frames(10)
 
 
@@ -423,3 +460,58 @@ def sell_in_shop(items_to_sell: list[tuple[Item, int]]):
     yield from wait_for_task_to_start_and_finish(return_task, "B")
     yield from wait_until_task_is_active(shop_menu_task)
     yield
+
+
+@debug.track
+def talk_to_npc(local_object_id: int):
+    def get_npc_location() -> tuple[int, int] | None:
+        for map_object in get_map_objects():
+            if map_object.local_id == local_object_id:
+                return map_object.current_coords
+        for object_template in get_map_data_for_current_position().objects:
+            if object_template.local_id == local_object_id:
+                return object_template.local_coordinates
+        return None
+
+    while True:
+        npc_location = get_npc_location()
+        if npc_location is None:
+            raise BotModeError(f"Could not find local object #{local_object_id}")
+
+        player_avatar = get_player_avatar()
+        if player_avatar.map_location_in_front.local_position == npc_location:
+            context.emulator.press_button("A")
+            yield
+            return
+
+        neighbouring_tiles = {
+            "Up": (player_avatar.map_group_and_number, (npc_location[0], npc_location[1] + 1)),
+            "Down": (player_avatar.map_group_and_number, (npc_location[0], npc_location[1] - 1)),
+            "Left": (player_avatar.map_group_and_number, (npc_location[0] + 1, npc_location[1])),
+            "Right": (player_avatar.map_group_and_number, (npc_location[0] - 1, npc_location[1])),
+        }
+
+        nearest_tile: tuple[tuple[int, int], tuple[int, int]] | None = None
+        nearest_tile_distance: int | None = None
+        nearest_tile_facing: str = "Up"
+        for direction in neighbouring_tiles:
+            tile = neighbouring_tiles[direction]
+            try:
+                path = calculate_path(player_avatar.map_location, tile)
+            except PathFindingError:
+                continue
+
+            if nearest_tile_distance is None or nearest_tile_distance > len(path):
+                nearest_tile = tile
+                nearest_tile_distance = len(path)
+                nearest_tile_facing = direction
+
+        if nearest_tile is None:
+            raise BotModeError(f"Could not find an empty tile around local object #{local_object_id}")
+
+        try:
+            yield from navigate_to(*nearest_tile)
+            yield from ensure_facing_direction(nearest_tile_facing)
+        except (PathFindingError, BotModeError):
+            pass
+        yield

@@ -1,42 +1,87 @@
+import importlib
+from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
+from typing import Callable, TYPE_CHECKING
 
-from modules.console import console
+from modules.battle_state import get_encounter_type, EncounterType
+from modules.console import console, print_stats
 from modules.context import context
-from modules.plugins import plugin_judge_encounter
 from modules.files import save_pk3, make_string_safe_for_file_name
 from modules.gui.desktop_notification import desktop_notification
+from modules.map_data import get_map_enum
 from modules.memory import get_game_state, GameState
 from modules.modes import BattleAction
+from modules.player import get_player, get_player_avatar
+from modules.plugins import plugin_judge_encounter, plugin_logging_encounter
 from modules.pokedex import get_pokedex
-from modules.pokemon import Pokemon
 from modules.roamer import get_roamer
 from modules.runtime import get_sprites_path
 from modules.tcg_card import generate_tcg_card
 
+if TYPE_CHECKING:
+    from modules.map_data import MapRSE, MapFRLG
+    from modules.pokemon import Pokemon
 
-def shiny_encounter_gif() -> Path | None:
-    """
-    Attempts to generate a GIF of a shiny encounter.
-    """
-    if context.config.logging.shiny_gifs:
-        if context.rom.is_rs:
-            shiny_task = "sub_8141AD8"
-        elif context.rom.is_emerald:
-            shiny_task = "Task_ShinyStars_Wait"
+
+_custom_catch_filters: Callable[["Pokemon"], str | bool] | None = None
+
+
+@dataclass
+class EncounterInfo:
+    pokemon: "Pokemon"
+    encounter_time: "datetime"
+    type: "EncounterType"
+    value: "EncounterValue | None"
+    map: "MapRSE | MapFRLG | None"
+    coordinates: tuple[int, int] | None
+    bot_mode: str
+    catch_filters_result: str | None
+    battle_action: "BattleAction | None" = None
+    gif_path: Path | None = None
+    tcg_card_path: Path | None = None
+
+    @classmethod
+    def create(cls, pokemon: "Pokemon", type: "EncounterType | None" = None) -> "EncounterInfo":
+        catch_filters_result = run_custom_catch_filters(pokemon)
+        if catch_filters_result is True:
+            catch_filters_result = "Match"
+        player_avatar = get_player_avatar()
+        map_enum = get_map_enum(player_avatar.map_group_and_number)
+        local_coordinates = player_avatar.local_coordinates
+        return cls(
+            pokemon=pokemon,
+            encounter_time=datetime.now(),
+            type=type if type is not None else get_encounter_type(),
+            value=judge_encounter(pokemon),
+            map=map_enum,
+            coordinates=local_coordinates,
+            bot_mode=context.bot_mode,
+            catch_filters_result=catch_filters_result,
+        )
+
+    @property
+    def is_shiny(self) -> bool:
+        return self.pokemon.is_shiny
+
+    @property
+    def is_of_interest(self) -> bool:
+        return self.value.is_of_interest
+
+
+def run_custom_catch_filters(pokemon: "Pokemon") -> str | bool:
+    global _custom_catch_filters
+    if _custom_catch_filters is None:
+        if (context.profile.path / "customcatchfilters.py").is_file():
+            module = importlib.import_module(".customcatchfilters", f"profiles.{context.profile.path.name}")
+            _custom_catch_filters = module.custom_catch_filters
         else:
-            shiny_task = "AnimTask_ShinySparkles_WaitSparkles"
-        shiny_stars = context.emulator.get_task_look_ahead(shiny_task)
-        return context.emulator.generate_gif((0, shiny_stars[1] + 180)) if shiny_stars else None
-    return None
+            from profiles.customcatchfilters import custom_catch_filters
 
+            _custom_catch_filters = custom_catch_filters
 
-def run_custom_catch_filters(pokemon: Pokemon) -> str | bool:
-    from modules.stats import total_stats
-
-    result = total_stats.custom_catch_filters(pokemon)
-    if result is False:
-        result = plugin_judge_encounter(pokemon)
+    result = _custom_catch_filters(pokemon) or plugin_judge_encounter(pokemon)
     if result is True:
         result = "Matched a custom catch filter"
     return result
@@ -55,7 +100,7 @@ class EncounterValue(Enum):
         return self in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch)
 
 
-def judge_encounter(pokemon: Pokemon) -> EncounterValue:
+def judge_encounter(pokemon: "Pokemon") -> EncounterValue:
     """
     Checks whether an encountered Pokémon matches any of the criteria that makes it
     eligible for catching (is shiny, matches custom catch filter, ...)
@@ -91,17 +136,25 @@ def judge_encounter(pokemon: Pokemon) -> EncounterValue:
     return EncounterValue.Trash
 
 
-def log_encounter(
-    pokemon: Pokemon, action: BattleAction | None = None, gif_path: Path | None = None, tcg_path: Path | None = None
-) -> None:
-    from modules.stats import total_stats
+def log_encounter(encounter_info: EncounterInfo) -> None:
+    pokemon = encounter_info.pokemon
+    if (
+        context.stats.last_encounter is not None
+        and context.stats.last_encounter.pokemon.personality_value == pokemon.personality_value
+    ):
+        # Avoid double-logging an encounter.
+        return
 
-    total_stats.log_encounter(
-        pokemon, context.config.catch_block.block_list, run_custom_catch_filters(pokemon), gif_path, tcg_path
-    )
+    log_entry = context.stats.log_encounter(encounter_info)
+    print_stats(context.stats.get_global_stats(), encounter_info)
+    plugin_logging_encounter(encounter_info)
+    if encounter_info.is_shiny:
+        context.stats.reset_shiny_phase(log_entry)
+
     if context.config.logging.save_pk3.all:
         save_pk3(pokemon)
 
+    # Generate the bot message shown below the video
     fun_facts = [
         f"Nature:\xa0{pokemon.nature.name}",
         f"Ability:\xa0{pokemon.ability.name}",
@@ -122,7 +175,7 @@ def log_encounter(
     if pokemon.species.name == "Wurmple":
         fun_facts.append(f"Evo: {pokemon.wurmple_evolution.title()}")
 
-    match action:
+    match encounter_info.battle_action:
         case BattleAction.Catch:
             message_action = ", catching..."
         case BattleAction.CustomAction:
@@ -134,29 +187,26 @@ def log_encounter(
         case _:
             message_action = "."
 
-    context.message = f"Encountered {species_name}{message_action}\n\n{' | '.join(fun_facts)}"
+    context.message = f"{encounter_info.type.verb.title()} {species_name}{message_action}\n\n{' | '.join(fun_facts)}"
 
 
 def handle_encounter(
-    pokemon: Pokemon,
+    encounter_info: EncounterInfo,
     disable_auto_catch: bool = False,
-    disable_auto_battle: bool = False,
+    enable_auto_battle: bool = False,
     do_not_log_battle_action: bool = False,
 ) -> BattleAction:
-    encounter_value = judge_encounter(pokemon)
-    gif_path, tcg_path = None, None
-    match encounter_value:
+    pokemon = encounter_info.pokemon
+    match encounter_info.value:
         case EncounterValue.Shiny:
             console.print(f"[bold yellow]Shiny {pokemon.species.name} found![/]")
             alert = "Shiny found!", f"Found a ✨shiny {pokemon.species.name}✨! 🥳"
-            gif_path = shiny_encounter_gif()
-            tcg_path = generate_tcg_card(pokemon)
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.shiny:
                 save_pk3(pokemon)
             is_of_interest = True
 
         case EncounterValue.CustomFilterMatch:
-            filter_result = run_custom_catch_filters(pokemon)
+            filter_result = encounter_info.catch_filters_result
             console.print(f"[pink green]Custom filter triggered for {pokemon.species.name}: '{filter_result}'[/]")
             alert = "Custom filter triggered!", f"Found a {pokemon.species.name} that matched one of your filters."
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.custom:
@@ -176,8 +226,6 @@ def handle_encounter(
         case EncounterValue.ShinyOnBlockList:
             console.print(f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...[/]")
             alert = None
-            gif_path = shiny_encounter_gif()
-            tcg_path = generate_tcg_card(pokemon)
             if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.shiny:
                 save_pk3(pokemon)
             is_of_interest = False
@@ -203,22 +251,27 @@ def handle_encounter(
     battle_is_active = get_game_state() in (GameState.BATTLE, GameState.BATTLE_STARTING, GameState.BATTLE_ENDING)
 
     if is_of_interest:
-        filename_suffix = f"{encounter_value.name}_{make_string_safe_for_file_name(pokemon.species_name_for_stats)}"
+        filename_suffix = (
+            f"{encounter_info.value.name}_{make_string_safe_for_file_name(pokemon.species_name_for_stats)}"
+        )
         context.emulator.create_save_state(suffix=filename_suffix)
 
         if context.config.battle.auto_catch and not disable_auto_catch and battle_is_active:
-            decision = BattleAction.Catch
+            encounter_info.battle_action = BattleAction.Catch
         else:
             context.set_manual_mode()
-            decision = BattleAction.CustomAction
-    elif context.config.battle.battle and not disable_auto_battle:
-        decision = BattleAction.Fight
+            encounter_info.battle_action = BattleAction.CustomAction
+    elif enable_auto_battle:
+        encounter_info.battle_action = BattleAction.Fight
     else:
-        decision = BattleAction.RunAway
+        encounter_info.battle_action = BattleAction.RunAway
 
-    if do_not_log_battle_action or not battle_is_active:
-        log_encounter(pokemon, None, gif_path, tcg_path)
-    else:
-        log_encounter(pokemon, decision, gif_path, tcg_path)
+    if do_not_log_battle_action:
+        encounter_info.battle_action = None
 
-    return decision
+    # During battles the logging is done by `BattleListener` once the encounter is
+    # actually visible (rather than at the start of the battle.)
+    if not battle_is_active:
+        log_encounter(encounter_info)
+
+    return encounter_info.battle_action
