@@ -7,13 +7,12 @@ from modules.tasks import task_is_active
 
 
 def player_pc_menu_index() -> int | None:
-    match context.rom.game_title:
-        case "POKEMON RUBY" | "POKEMON SAPP":
-            raise NotImplementedError("Player PC menu index is not implemented for ruby and sapphire")
-        case "POKEMON EMER":
-            symbol_name = "gPlayerPCItemPageInfo"
-        case "POKEMON FIRE" | "POKEMON LEAF":
-            symbol_name = "gPlayerPcMenuManager"
+    if context.rom.is_rs:
+        raise NotImplementedError("Player PC menu index is not implemented for ruby and sapphire")
+    elif context.rom.is_emerald:
+        symbol_name = "gPlayerPCItemPageInfo"
+    elif context.rom.is_frlg:
+        symbol_name = "gPlayerPcMenuManager"
 
     cursor_pos = unpack_uint16(read_symbol(symbol_name, 0x0, 2))
     items_above = unpack_uint16(read_symbol(symbol_name, 0x2, 2))
@@ -56,7 +55,7 @@ class WithdrawItemNavigator(BaseMenuNavigator):
             )
 
         self.desired_quantity = desired_quantity
-        self.desired_item_index = get_item_storage().index_of_item(desired_item)
+        self.desired_item_index = get_item_storage().first_slot_index_for(desired_item)
         self.desired_item = desired_item
 
     def get_next_func(self):
@@ -109,7 +108,7 @@ class DepositItemNavigator(BaseMenuNavigator):
     def __init__(self, desired_item: Item, desired_quantity: int):
         super().__init__()
 
-        if context.rom.game_title in ["POKEMON RUBY", "POKEMON SAPP"]:
+        if context.rom.is_rs:
             raise NotImplementedError(
                 "Depositing items from the bag into the player PC is not implemented for ruby and sapphire"
             )
@@ -145,13 +144,12 @@ class DepositItemNavigator(BaseMenuNavigator):
                 self.navigator = self.deposit_item()
 
     def deposit_item(self):
-        match context.rom.game_title:
-            case "POKEMON FIRE" | "POKEMON LEAF":
-                deposit_task = "Task_SelectQuantityToDeposit"
-                deposited_message_task = "Task_WaitAB_RedrawAndReturnToBag"
-            case "POKEMON EMER":
-                deposit_task = "Task_ChooseHowManyToDeposit"
-                deposited_message_task = "Task_RemoveItemFromBag"
+        if context.rom.is_frlg:
+            deposit_task = "Task_SelectQuantityToDeposit"
+            deposited_message_task = "Task_WaitAB_RedrawAndReturnToBag"
+        else:
+            deposit_task = "Task_ChooseHowManyToDeposit"
+            deposited_message_task = "Task_RemoveItemFromBag"
 
         while not task_is_active(deposit_task):
             context.emulator.press_button("A")
