@@ -4,8 +4,9 @@ import sys
 from modules.runtime import get_base_path, is_bundled_app, is_virtualenv
 from modules.version import pokebot_name, pokebot_version
 
+# We keep recommending Python 3.12 because not all features are available on Python 3.13.
 recommended_python_version = "3.12"
-supported_python_versions = ["3.10", "3.11", "3.12", "3.13"]
+supported_python_versions = ["3.11", "3.12", "3.13"]
 
 libmgba_tag = "0.2.0-2"
 libmgba_ver = "0.2.0"
@@ -13,19 +14,16 @@ libmgba_ver = "0.2.0"
 # This is a list of requirements for `pip`, akin to `requirements.txt`.
 required_modules = [
     "confz==2.0.1",
-    "numpy~=1.26.1",
+    "numpy~=2.1.0",
     "setuptools",
     "ruamel.yaml~=0.18.2",
     "pypresence~=4.3.0",
     "obsws-python~=1.6.0",
-    "pandas~=2.1.1",
     "discord-webhook~=1.2.1",
-    "jsonschema~=4.17.3",
     "rich~=13.5.2",
-    "cffi~=1.16.0",
-    "Pillow~=10.0.1",
+    "cffi~=1.17.1",
+    "Pillow~=10.4.0",
     "sounddevice~=0.4.6",
-    "requests~=2.31.0",
     "pyperclip3~=0.4.1",
     "plyer~=2.1.0",
     "notify-py~=0.3.42",
@@ -33,9 +31,15 @@ required_modules = [
     "ttkthemes~=3.2.2",
     "darkdetect~=0.8.0",
     "show-in-file-manager~=1.1.4",
-    "aiohttp~=3.10.6",
-    "aiortc~=1.9.0",
+    "aiohttp~=3.10.9",
 ]
+
+# aiortc does not have any Python 3.13-compatible version (due to it requiring an outdated version
+# of the `av` library.) Because this is only needed for WebRTC-based video/audio stream of the
+# emulator output via the HTTP server, we consider it optional and just don't install it if the
+# Python version is too new.
+if int(platform.python_version_tuple()[1]) < 13:
+    required_modules.append("aiortc~=1.9.0")
 
 if platform.system() == "Windows":
     required_modules.extend(["pywin32>=306", "psutil~=5.9.5"])
@@ -79,10 +83,28 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
     python_version = f"{str(python_version_tuple[0])}.{str(python_version_tuple[1])}"
     if python_version not in supported_python_versions:
         supported_versions_list = ", ".join(supported_python_versions)
-        print(f"ERROR: The Python version you are using (Python {platform.python_version()}) is not supported.\n")
-        print(f"Supported versions are: {supported_versions_list}")
-        print(f"It is recommended that you install Python {recommended_python_version}.")
-        sys.exit(1)
+
+        highest_supported_version = supported_python_versions[-1].split(".")
+        if int(python_version_tuple[0]) == int(highest_supported_version[0]) and int(python_version_tuple[1]) > int(
+            highest_supported_version[1]
+        ):
+            print(f"WARNING: The Python version you are using ({platform.python_version()}) is not yet supported.")
+            print(f"Supported versions are: {supported_versions_list}\n")
+            print("While this version MIGHT work, we have not tested that and so you might experience issues with it.")
+            print(f"It is recommended that you install Python {recommended_python_version}.\n")
+
+            response = input(
+                "Do you want to risk it and proceed anyway? (Please do not ask for support if you do.) [y/N] "
+            )
+            print("")
+            if response.lower() != "y":
+                print("Not proceeding with this version of Python.")
+                sys.exit(1)
+        else:
+            print(f"ERROR: The Python version you are using (Python {platform.python_version()}) is not supported.\n")
+            print(f"Supported versions are: {supported_versions_list}")
+            print(f"It is recommended that you install Python {recommended_python_version}.")
+            sys.exit(1)
 
     # Some dependencies only work with 64-bit Python. Since this isn't the 90s anymore,
     # we'll just require that.

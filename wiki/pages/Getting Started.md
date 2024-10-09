@@ -9,7 +9,7 @@
 - Windows
 - MacOS
 - Linux, tested and confirmed working on the following distros:
-  - Ubuntu 23.04, 23.10
+  - Ubuntu 24.04
   - Debian 12
   - Pop!_OS 22.04 LTS
   - Arch Linux
