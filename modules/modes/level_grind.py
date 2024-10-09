@@ -47,6 +47,11 @@ closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
 }
 
 
+class NoRotateLeadDefaultBattleStrategy(DefaultBattleStrategy):
+    def choose_new_lead_after_battle(self) -> int | None:
+        return None
+
+
 class LevelGrindMode(BotMode):
     @staticmethod
     def name() -> str:
@@ -76,7 +81,7 @@ class LevelGrindMode(BotMode):
             if self._level_balance:
                 return LevelBalancingBattleStrategy()
             else:
-                return DefaultBattleStrategy()
+                return NoRotateLeadDefaultBattleStrategy()
         else:
             return action
 
