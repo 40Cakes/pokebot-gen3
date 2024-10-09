@@ -290,8 +290,6 @@ class MapViewer:
 
 
 class TasksTab(DebugTab):
-    _cb1_label: ttk.Label
-    _cb2_label: ttk.Label
     _tv: FancyTreeview
 
     def draw(self, root: ttk.Notebook):
@@ -303,19 +301,24 @@ class TasksTab(DebugTab):
         root.add(frame, text="Tasks")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        def get_callback_data(symbol: str, offset: int = 0) -> dict:
-            pointer = max(0, unpack_uint32(read_symbol(symbol, offset, size=4)))
+        def get_callback_data(symbol_or_address: str | int, offset: int = 0) -> dict:
+            if isinstance(symbol_or_address, int):
+                pointer = symbol_or_address
+            else:
+                pointer = max(0, unpack_uint32(read_symbol(symbol_or_address, offset, size=4)))
             symbol_name = get_symbol_name_before(pointer, pretty_name=True)
             try:
                 actual_symbol_start, _ = get_symbol(symbol_name)
-                offset = hex(pointer - actual_symbol_start)
+                offset_from_symbol_start = hex(pointer - actual_symbol_start)
             except RuntimeError:
-                offset = ""
+                actual_symbol_start = 0
+                offset_from_symbol_start = ""
             return {
                 "__value": symbol_name if pointer > 0 else "0x0",
-                "pointer": hex(pointer),
-                "function": symbol_name,
-                "offset": offset,
+                "Current Pointer": hex(pointer),
+                "Function": symbol_name,
+                "Actual Start of Function": hex(actual_symbol_start),
+                "Offset": offset_from_symbol_start,
             }
 
         cb1_symbol = get_callback_data("gMain")
@@ -324,15 +327,19 @@ class TasksTab(DebugTab):
         def render_script_context(ctx: ScriptContext) -> dict | str:
             if ctx is None or not ctx.is_active:
                 return "Not Active"
-            stack = (
+
+            stack_pointers = ctx.stack_pointers
+            stack_symbols = ctx.stack
+
+            stack: dict[str, str | dict] = (
                 {"__value": "Empty"}
                 if len(ctx.stack) == 1
-                else {"__value": ", ".join(ctx.stack[: min(2, len(ctx.stack) - 1)])}
+                else {"__value": ", ".join(stack_symbols[: min(2, len(stack_symbols) - 1)])}
             )
-            if len(ctx.stack) > 3:
+            if len(stack_pointers) > 3:
                 stack["__value"] += ", ..."
-            for index in range(len(ctx.stack)):
-                stack[index] = ctx.stack[index]
+            for stack_index in range(len(stack_pointers)):
+                stack[str(stack_index)] = get_callback_data(stack_pointers[stack_index])
 
             return {
                 "__value": f"{ctx.script_function_name} / {ctx.native_function_name}",
@@ -363,7 +370,7 @@ class TasksTab(DebugTab):
             player_controller_function = get_callback_data("gBattlerControllerFuncs", offset=0)
 
             data["Battle Context"] = {
-                "__value": f"{main_battle_function['function']} / {current_battle_script_instruction['function']} / {player_controller_function['function']}",
+                "__value": f"{main_battle_function['Function']} / {current_battle_script_instruction['Function']} / {player_controller_function['Function']}",
                 "Battle Script": current_battle_script_instruction,
                 "Main Battle Function": main_battle_function,
                 "Battler Controller #1": player_controller_function,
@@ -377,12 +384,15 @@ class TasksTab(DebugTab):
         tasks = get_tasks()
         if tasks is not None:
             for task in get_tasks():
+                short_task_data = task.data.rstrip(b"\00")
+                if len(short_task_data) % 2 == 1:
+                    short_task_data += b"\x00"
                 data[task.symbol] = {
-                    "__value": task.data.rstrip(b"\00").hex(" ", 1),
-                    "function": task.symbol,
-                    "pointer": hex(task.function_pointer),
-                    "priority": task.priority,
-                    "data": task.data.hex(" ", 1),
+                    "__value": short_task_data.hex(" ", -2),
+                    "Function": task.symbol,
+                    "Pointer": hex(task.function_pointer),
+                    "Priority": task.priority,
+                    "Data": task.data.hex(" ", -2),
                 }
                 index += 1
 
