@@ -13,6 +13,13 @@ shiny_pokemon_encounter:
   ping_id:
   #webhook_url:
 
+# Shiny Pokémon encounters that were on the block list and will therefore not be caught
+blocked_shiny_encounter:
+  enable: false
+  ping_mode:
+  ping_id:
+  #webhook_url:
+
 # Pokémon encounter milestones
 pokemon_encounter_milestones:
   enable: false

@@ -10,6 +10,7 @@ from modules.discord import (
     discord_send,
     discord_rich_presence_loop,
 )
+from modules.encounter import EncounterValue
 from modules.plugin_interface import BotPlugin
 from modules.runtime import get_sprites_path
 from modules.sprites import get_shiny_sprite, get_regular_sprite, get_anti_shiny_sprite
@@ -115,18 +116,10 @@ class DiscordPlugin(BotPlugin):
         shiny_phase = context.stats.current_shiny_phase
 
         # Discord shiny Pokémon encountered
-        if context.config.discord.shiny_pokemon_encounter.enable and opponent.is_shiny:
-            block = (
-                "\n❌Skipping catching shiny (on catch block list)!"
-                if opponent.species_name_for_stats in context.config.catch_block
-                or opponent.species.name in context.config.catch_block
-                or opponent.species_name_for_stats in context.config.catch_block
-                else ""
-            )
-
+        if context.config.discord.shiny_pokemon_encounter.enable and encounter.value is EncounterValue.Shiny:
             send_discord_message(
                 webhook_config=context.config.discord.shiny_pokemon_encounter,
-                content=f"{encounter.type.verb.title()} a shiny ✨ {opponent.species_name_for_stats} ✨! {block}",
+                content=f"{encounter.type.verb.title()} a shiny ✨ {opponent.species_name_for_stats} ✨!",
                 embed=DiscordMessageEmbed(
                     title=f"Shiny {encounter.type.verb}!",
                     description=f"{opponent.nature.name} {opponent.species_name_for_stats} (Lv. {opponent.level:,}) at {opponent.location_met}!",
@@ -141,6 +134,25 @@ class DiscordPlugin(BotPlugin):
                     thumbnail=get_shiny_sprite(opponent),
                     colour="ffd242",
                     image=encounter.gif_path,
+                ),
+            )
+
+        # Discord shiny on block list encountered
+        if context.config.discord.blocked_shiny_encounter.enable and encounter.value is EncounterValue.ShinyOnBlockList:
+            send_discord_message(
+                webhook_config=context.config.discord.blocked_shiny_encounter,
+                content=f"{encounter.type.verb.title()} a shiny ✨ {opponent.species_name_for_stats} ✨.\n❌ But this species is on the block list, so it will not be caught. ❌",
+                embed=DiscordMessageEmbed(
+                    title=f"(Blocked) Shiny {encounter.type.verb}",
+                    description=f"{opponent.nature.name} {opponent.species_name_for_stats} (Lv. {opponent.level:,}) at {opponent.location_met}!",
+                    fields={
+                        "Shiny Value": f"{opponent.shiny_value:,}",
+                        f"{opponent.species_name_for_stats} Encounters": f"{species_stats.total_encounters:,} ({species_stats.shiny_encounters:,}✨)",
+                        f"{opponent.species_name_for_stats} Phase Encounters": f"{species_stats.phase_encounters:,}",
+                    }
+                    | phase_summary_fields(opponent, shiny_phase),
+                    thumbnail=get_shiny_sprite(opponent),
+                    colour="808080",
                 ),
             )
 
