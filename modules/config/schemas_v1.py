@@ -97,6 +97,7 @@ class Discord(BaseConfig):
     bot_id: str = "PokéBot Gen3"
     global_webhook_url: str = ""
     shiny_pokemon_encounter: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
+    blocked_shiny_encounter: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook())
     pokemon_encounter_milestones: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=10000))
     shiny_pokemon_encounter_milestones: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=5))
     total_encounter_milestones: DiscordWebhook = Field(default_factory=lambda: DiscordWebhook(interval=25000))
@@ -112,6 +113,7 @@ class Discord(BaseConfig):
         return (
             self.rich_presence
             or self.shiny_pokemon_encounter.enable
+            or self.blocked_shiny_encounter.enable
             or self.pokemon_encounter_milestones.enable
             or self.shiny_pokemon_encounter_milestones.enable
             or self.total_encounter_milestones.enable
