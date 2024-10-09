@@ -137,15 +137,19 @@ class ScriptContext:
     def script_function_name(self):
         return get_symbol_name_before(self.bytecode_pointer, pretty_name=True)
 
-    @cached_property
-    def stack(self) -> list[str]:
+    @property
+    def stack_pointers(self) -> list[int]:
         result = []
         for index in range(self.stack_depth):
             offset = 12 + (index * 4)
             pointer = unpack_uint32(self._data[offset : offset + 4])
-            result.append(get_symbol_name_before(pointer, pretty_name=True))
-        result.append(self.script_function_name)
+            result.append(pointer)
+        result.append(self.bytecode_pointer)
         return result
+
+    @cached_property
+    def stack(self) -> list[str]:
+        return [get_symbol_name_before(pointer, pretty_name=True) for pointer in self.stack_pointers]
 
     @property
     def data(self) -> tuple[int, int, int, int]:
