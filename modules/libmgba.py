@@ -1,20 +1,14 @@
 import atexit
-import fractions
 import queue
 import time
 import zlib
 from collections import deque
 from contextlib import contextmanager
-from pathlib import Path
 from queue import Queue
-from sys import maxsize
 
 import PIL.Image
 import PIL.PngImagePlugin
-import numpy
 import sounddevice
-from av import AudioFrame
-from av.audio.stream import AudioStream
 
 import mgba.audio
 import mgba.core
