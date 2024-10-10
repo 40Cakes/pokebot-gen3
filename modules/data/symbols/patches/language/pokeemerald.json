@@ -390,10 +390,10 @@
     },
     "BattleScript_AskToLearnMove":{
       "D":"82f0923",
-      "F":"81c1388",
+      "F":"82e3bb7",
       "I":"82dbb6f",
       "J":"828916b",
-      "S":"82e236f"
+      "S":"82e2373"
     },
     "BattleScript_ForgotAndLearnedNewMove": {
       "D":"82f0950",
