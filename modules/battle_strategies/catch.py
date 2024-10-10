@@ -2,13 +2,26 @@ from modules.battle_state import BattleState
 from modules.battle_strategies import SafariTurnAction, DefaultBattleStrategy
 from modules.battle_strategies import TurnAction
 from modules.context import context
-from modules.items import Item, get_item_bag
+from modules.items import Item, get_item_bag, get_item_by_name
 from modules.map import get_map_data_for_current_position
 from modules.pokedex import get_pokedex
-from modules.pokemon import Pokemon, get_type_by_name, StatusCondition
+from modules.pokemon import (
+    Pokemon,
+    get_type_by_name,
+    StatusCondition,
+    get_party,
+    get_party_alive,
+    get_not_eggs_in_party,
+)
 
 
 class CatchStrategy(DefaultBattleStrategy):
+    def __init__(self):
+        super().__init__()
+        self._first_pokemon_sent_index = self.get_first_valid_pokemon_index()
+        self._revive_mode = context.config.battle.catch_revive_mode
+        self._revive_item = context.config.battle.revive_item
+
     def pokemon_can_battle(self, pokemon: Pokemon) -> bool:
         return not pokemon.is_egg and pokemon.current_hp > 0
 
@@ -16,17 +29,29 @@ class CatchStrategy(DefaultBattleStrategy):
         return False
 
     def decide_turn(self, battle_state: BattleState) -> tuple["TurnAction", any]:
-        ball_to_throw = self._get_best_poke_ball(battle_state)
-        if ball_to_throw is None:
-            context.message = "Player does not have any Poké Balls, cannot catch."
+        """Determines the next action depending on the mode and current battle state."""
+        party = get_party()
+        lead_pokemon_index = self._first_pokemon_sent_index
+        lead_pokemon = party[lead_pokemon_index]
+
+        # If only one pokemon in party, we don't switch to manual
+        # Switching only if several available Pokemons but only one left alive
+        if get_party_alive() == 1 and get_not_eggs_in_party() > 1:
+            context.message = "Last pokemon alive, switching to manual mode."
             return TurnAction.switch_to_manual()
 
-        if battle_state.opponent.active_battler.status_permanent == StatusCondition.Healthy:
-            status_move = self._get_best_status_changing_move(battle_state)
-            if status_move is not None:
-                return TurnAction.use_move(status_move)
+        if lead_pokemon.current_hp == 0:
+            match self._revive_mode:
+                case "always_revive_lead":
+                    return self.revive_fainted_lead(lead_pokemon_index)
 
-        return TurnAction.use_item(ball_to_throw)
+                case "no_revive":
+                    self.handle_catch_logic(battle_state)
+
+                case _:
+                    # Unrecognized revive mode. Switching to manual mode.
+                    return TurnAction.switch_to_manual()
+        return self.handle_catch_logic(battle_state)
 
     def decide_turn_in_double_battle(self, battle_state: BattleState, battler_index: int) -> tuple["TurnAction", any]:
         return self.decide_turn(battle_state)
@@ -111,3 +136,76 @@ class CatchStrategy(DefaultBattleStrategy):
                 catch_rate_multiplier = min(4.0, (10 + battle_state.current_turn) / 10)
 
         return catch_rate_multiplier
+
+    def choose_new_lead_after_faint(self, battle_state: BattleState) -> int:
+        """Selects the first non egg Pokemon to become the new lead."""
+        party = get_party()
+
+        for index, pokemon in enumerate(party):
+            if not pokemon.is_egg and pokemon.current_hp > 0:  # Ignore eggs and fainted Pokémon
+                return index
+
+    def get_first_valid_pokemon_index(self) -> int | None:
+        """Returns the index of the first valid Pokémon that is not an egg."""
+        party = get_party()
+        for index, pokemon in enumerate(party):
+            if not pokemon.is_egg and not pokemon.current_hp == 0:
+                return index
+        return None
+
+    def get_first_valid_pokemon(self, party: list) -> Pokemon | None:
+        """Returns the first valid Pokémon that is not an egg."""
+        for pokemon in party:
+            if not pokemon.is_egg:
+                return pokemon
+
+    def revive_fainted_lead(self, fainted_lead):
+        """
+        Revives the fainted lead Pokémon using Max Revive or Revive, based on the setting.
+
+        `revive_item` can be one of the following:
+        - "revive": Use Revive if available, otherwise do nothing.
+        - "max_revive": Use Max Revive if available, otherwise do nothing.
+        - "both": Prefer Max Revive if available, otherwise use Revive.
+
+        :param fainted_lead: The Pokémon to revive.
+        """
+
+        revive_preference = self._revive_item
+
+        max_revive_count = get_item_bag().quantity_of(get_item_by_name("Max Revive"))
+        revive_count = get_item_bag().quantity_of(get_item_by_name("Revive"))
+
+        match revive_preference:
+            case "max_revive":
+                if max_revive_count > 0:
+                    return TurnAction.use_item_on(get_item_by_name("Max Revive"), fainted_lead)
+
+            case "revive":
+                if revive_count > 0:
+                    return TurnAction.use_item_on(get_item_by_name("Revive"), fainted_lead)
+
+            case "both":
+                if max_revive_count > 0:
+                    return TurnAction.use_item_on(get_item_by_name("Max Revive"), fainted_lead)
+                elif revive_count > 0:
+                    return TurnAction.use_item_on(get_item_by_name("Revive"), fainted_lead)
+
+        context.message = "Player doesn't have any revive items left."
+        return TurnAction.switch_to_manual()
+
+    def handle_catch_logic(self, battle_state: BattleState):
+        """Handles the default catch logic such as using a Poké Ball or status move."""
+        ball_to_throw = self._get_best_poke_ball(battle_state)
+        if ball_to_throw is None:
+            context.message = "Player does not have any Poké Balls, cannot catch."
+            return TurnAction.switch_to_manual()
+
+        # If the opponent is healthy, attempt to apply a status move first
+        if battle_state.opponent.active_battler.status_permanent == StatusCondition.Healthy:
+            status_move = self._get_best_status_changing_move(battle_state)
+            if status_move is not None:
+                return TurnAction.use_move(status_move)
+
+        # Otherwise, throw the best available Poké Ball
+        return TurnAction.use_item(ball_to_throw)
