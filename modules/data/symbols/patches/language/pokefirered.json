@@ -404,7 +404,7 @@
     "F":"8013fb0"
   },
   "HandleInputChooseAction":{
-    "F":["8072258","8034120"]
+    "F":["8072258","8034120", "80f09ec", "8034034"]
   },
   "BattleScript_MoveEnd":{
     "F":"81d511a"
