@@ -419,6 +419,15 @@
   "BattleScript_HandleFaintedMon":{
     "D":"81dc968"
   },
+  "HandleEndTurn_FinishBattle":{
+    "D":"8015894"
+  },
+  "EventScript_AfterWhiteOutHeal":{
+    "D":"81abbc9"
+  },
+  "Task_RushInjuredPokemonToCenter":{
+    "D":"807f3c0"
+  },
   "Route19_Text_LucRematchIntro":{
     "D": "0"
   },
@@ -430,5 +439,8 @@
   },
   "EventScript_CutTree":{
     "F":"0"
+  },
+  "Route21_North_EventScript_IanRematch":{
+    "D":"0"
   }
 }
