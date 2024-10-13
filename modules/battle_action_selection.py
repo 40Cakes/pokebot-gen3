@@ -157,6 +157,9 @@ def handle_battle_action_selection(strategy: BattleStrategy) -> Generator:
 @debug.track
 def battle_action_use_item(battle_state: BattleState, item: Item, target_index: int = 0):
     yield from scroll_to_battle_action(1)
+    if context.rom.is_frlg:
+        for _ in range(10):
+            yield
     context.emulator.press_button("A")
     yield
     yield from scroll_to_item_in_bag(item)
