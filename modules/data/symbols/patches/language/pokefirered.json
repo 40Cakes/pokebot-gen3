@@ -407,6 +407,23 @@
     "D":"8013fc4",
     "F":"8013fb0"
   },
+  "HandleInputChooseAction":{
+    "D":["80f092c", "803405c", "802e3d0"],
+    "F":["8072258","8034120", "80f09ec", "802e3a8"],
+    "S":["80f0a14", "8034048"]
+  },
+  "HandleInputChooseMove": {
+    "D":"802e9a8",
+    "F":"802e980",
+    "I":"802e994",
+    "S":"802e994"
+  },
+  "Task_DuckBGMForPokemonCry":{
+    "F":"8072258",
+    "I":"8072184",
+    "J":"80719d8",
+    "S":"807226c"
+  },
   "BattleScript_MoveEnd":{
     "F":"81d511a"
   },
@@ -416,11 +433,13 @@
   "HandleEndTurn_FinishBattle":{
     "D":"8015894"
   },
-  "EventScript_AfterWhiteOutHeal":{
-    "D":"81abbc9"
-  },
   "Task_RushInjuredPokemonToCenter":{
-    "D":"807f3c0"
+    "D":"807f3c0",
+    "F":"807f480"
+  },
+  "EventScript_AfterWhiteOutHeal":{
+    "D":"81abbc9",
+    "F":"81a77c0"
   },
   "Route19_Text_LucRematchIntro":{
     "D": "0"
@@ -437,18 +456,13 @@
   "Route21_North_EventScript_IanRematch":{
     "D":"0"
   },
-  "HandleInputChooseAction":{
-    "D":["80f092c", "803405c", "802e3d0"],
-    "F":["8072258","8034120", "80f09ec", "8034034"],
-    "S":["80f0a14", "8034048"]
+  "Route23_EventScript_MissingBoulderBadge":{
+    "F":"0"
   },
-  "HandleInputChooseMove": {
-    "D":"802e9a8"
+  "EventScript_SetEnteringCyclingRoad":{
+    "F":"0"
   },
-  "Task_DuckBGMForPokemonCry":{
-    "F":"8072258",
-    "I":"8072184",
-    "J":"80719d8",
-    "S":"807226c"
+  "Route23_EventScript_MissingBadge":{
+    "F":"0"
   }
 }
