@@ -69,11 +69,11 @@ The following routes are supported:
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
-| Japanese |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| German   |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| Spanish  |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| French   |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
-| Italian  |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
+| Japanese |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| German   |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| Spanish  |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| French   |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| Italian  |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
 
 ✅ Tested, working
 
