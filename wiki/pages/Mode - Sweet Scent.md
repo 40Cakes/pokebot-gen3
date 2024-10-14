@@ -15,7 +15,7 @@ Start the mode while in the overworld, in any patch of grass/water/cave with enc
 | English  |   🟨    |     🟨      |     ✅     |     ✅     |      ✅      |
 | Japanese |   ❌    |     ❌      |     ✅     |     ❌     |      ❌      |
 | German   |   ❌    |     ❌      |     🟨     |     ✅     |      ❌      |
-| Spanish  |   ❌    |     ❌      |     🟨     |     ❌     |      ❌      |
+| Spanish  |   ❌    |     ❌      |     🟨     |     ✅     |      ❌      |
 | French   |   ❌    |     ❌      |     🟨     |     ✅     |      ❌      |
 | Italian  |   ❌    |     ❌      |     🟨     |     ❌     |      ❌      |
 

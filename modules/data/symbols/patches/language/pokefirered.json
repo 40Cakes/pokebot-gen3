@@ -405,12 +405,13 @@
   },
   "HandleTurnActionSelectionState":{
     "D":"8013fc4",
-    "F":"8013fb0"
+    "F":"8013fb0",
+    "S":"8013fb0"
   },
   "HandleInputChooseAction":{
     "D":["80f092c", "803405c", "802e3d0"],
     "F":["80f09ec", "8034120", "802e3a8"],
-    "S":["80f0a14", "8034048"]
+    "S":["80f0a14", "8034048", "802e3bc"]
   },
   "HandleInputChooseMove": {
     "D":"802e9a8",
@@ -426,30 +427,27 @@
   },
   "BattleScript_HandleFaintedMon":{
     "D":"81dc968",
-    "F":"81d6ea4"
+    "F":"81d6ea4",
+    "S":"81d81cf"
   },
   "Task_RushInjuredPokemonToCenter":{
     "D":"807f3c0",
-    "F":"807f480"
+    "F":"807f480",
+    "S":"807f494"
   },
   "EventScript_AfterWhiteOutHeal":{
     "D":"81abbc9",
-    "F":"81a77c0"
+    "F":"81a77c0",
+    "S":"81a8860"
   },
   "Route19_Text_LucRematchIntro":{
     "D": "0"
   },
-  "CableClub_Text_YouMayBattleHere":{
-    "I": "0"
-  },
-  "Text_DontBeLikeThat":{
-    "S":"0"
+  "Route21_North_EventScript_IanRematch":{
+    "D":"0"
   },
   "EventScript_CutTree":{
     "F":"0"
-  },
-  "Route21_North_EventScript_IanRematch":{
-    "D":"0"
   },
   "Route23_EventScript_MissingBoulderBadge":{
     "F":"0"
@@ -459,5 +457,20 @@
   },
   "Route23_EventScript_MissingBadge":{
     "F":"0"
+  },
+  "CableClub_Text_YouMayBattleHere":{
+    "I": "0"
+  },
+  "BattleScript_BrickBreakDoHit": {
+    "S": "0"
+  },
+  "BattleScript_BrickBreakAnim": {
+    "S": "0"
+  },
+  "EventScript_Open9FDoor3":{
+    "S":"0"
+  },
+  "Text_DontBeLikeThat":{
+    "S":"0"
   }
 }
