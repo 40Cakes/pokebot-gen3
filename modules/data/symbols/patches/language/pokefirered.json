@@ -378,10 +378,10 @@
     "S":"3004ed4"
   },
   "gBattlerControllerFuncs":{
-    "D":"03004F30",
-    "F":"03004F30",
-    "I":"03004F30",
-    "S":"03004F30"
+    "D":"3004F30",
+    "F":"3004F30",
+    "I":"3004F30",
+    "S":"3004F30"
   },
   "GTASKS":{
     "D":"3004fe0",
@@ -409,7 +409,7 @@
   },
   "HandleInputChooseAction":{
     "D":["80f092c", "803405c", "802e3d0"],
-    "F":["8072258","8034120", "80f09ec", "802e3a8"],
+    "F":["80f09ec", "8034120", "802e3a8"],
     "S":["80f0a14", "8034048"]
   },
   "HandleInputChooseMove": {
@@ -424,14 +424,9 @@
     "J":"80719d8",
     "S":"807226c"
   },
-  "BattleScript_MoveEnd":{
-    "F":"81d511a"
-  },
   "BattleScript_HandleFaintedMon":{
-    "D":"81dc968"
-  },
-  "HandleEndTurn_FinishBattle":{
-    "D":"8015894"
+    "D":"81dc968",
+    "F":"81d6ea4"
   },
   "Task_RushInjuredPokemonToCenter":{
     "D":"807f3c0",
