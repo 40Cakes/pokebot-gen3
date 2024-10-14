@@ -26,11 +26,11 @@ Start the mode facing the invisible Kecleon on Route 119.
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald |
 |:---------|:-------:|:-----------:|:----------:|
 | English  |    ❌    |      ❌      |     ✅      |
-| Japanese |    ❌    |      ❌      |     ❌      |
-| German   |    ❌    |      ❌      |     ❌      |
-| Spanish  |    ❌    |      ❌      |     ❌      |
-| French   |    ❌    |      ❌      |     ❌      |
-| Italian  |    ❌    |      ❌      |     ❌      |
+| Japanese |    ❌    |      ❌      |     ✅      |
+| German   |    ❌    |      ❌      |     ✅      |
+| Spanish  |    ❌    |      ❌      |     ✅      |
+| French   |    ❌    |      ❌      |     ✅      |
+| Italian  |    ❌    |      ❌      |     ✅      |
 
 ✅ Tested, working
 

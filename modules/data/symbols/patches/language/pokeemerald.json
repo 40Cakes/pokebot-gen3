@@ -155,6 +155,13 @@
       "J":"813e4a8",
       "S":"813dfd8"
     },
+    "CB2_WHITEOUT":{
+      "D":"8085f74",
+      "F":"8085f68",
+      "I":"8085f6c",
+      "J":"80858c0",
+      "S":"8085f6c"
+    },
     "BattleMainCB1":{
       "J":"8039b35"
     },
@@ -543,6 +550,18 @@
     },
     "gBattleTypeFlags":{
       "J":"2022C90"
+    },
+    "gSideTimers":{
+      "J":"2023F38"
+    },
+    "gStatuses3":{
+      "J":"2023F50"
+    },
+    "gDisableStructs":{
+      "J":"2023F60"
+    },
+    "gBattleWeather":{
+      "J":"2024070"
     },
     "gBattlePartyCurrentOrder":{
       "J":"203cbcc"
