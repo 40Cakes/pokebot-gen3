@@ -181,13 +181,6 @@
     "J":"806e9e4",
     "S":"806f228"
   },
-  "Task_DuckBGMForPokemonCry":{
-    "D":"8072198",
-    "F":"8072258",
-    "I":"8072184",
-    "J":"80719d8",
-    "S":"807226c"
-  },
   "Task_BattleStart":{
     "D":"807f584",
     "F":"807f640",
@@ -384,6 +377,12 @@
     "J":"",
     "S":"3004ed4"
   },
+  "gBattlerControllerFuncs":{
+    "D":"03004F30",
+    "F":"03004F30",
+    "I":"03004F30",
+    "S":"03004F30"
+  },
   "GTASKS":{
     "D":"3004fe0",
     "F":"3004fe0",
@@ -407,11 +406,6 @@
   "HandleTurnActionSelectionState":{
     "D":"8013fc4",
     "F":"8013fb0"
-  },
-  "HandleInputChooseAction":{
-    "D":["80f092c", "803405c", "8072198"],
-    "F":["8072258","8034120", "80f09ec", "8034034"],
-    "S":["80f0a14", "8034048"]
   },
   "BattleScript_MoveEnd":{
     "F":"81d511a"
@@ -442,5 +436,19 @@
   },
   "Route21_North_EventScript_IanRematch":{
     "D":"0"
+  },
+  "HandleInputChooseAction":{
+    "D":["80f092c", "803405c", "802e3d0"],
+    "F":["8072258","8034120", "80f09ec", "8034034"],
+    "S":["80f0a14", "8034048"]
+  },
+  "HandleInputChooseMove": {
+    "D":"802e9a8"
+  },
+  "Task_DuckBGMForPokemonCry":{
+    "F":"8072258",
+    "I":"8072184",
+    "J":"80719d8",
+    "S":"807226c"
   }
 }
