@@ -21,6 +21,17 @@ class GifGeneratorListener(BotListener):
     def __init__(self):
         self._frames: list[PIL.Image.Image] = []
 
+        # If the emulator video is disabled, generated GIFs end up with _some_ all-black frames
+        # for some unclear reason.
+        #
+        # For a clever person with high quality standards, that of course means finding the root
+        # cause of that behaviour and fixing it.
+        #
+        # Me? I just force-enable video while the GIF is being generated.
+        self._video_was_enabled_before = context.video
+        if not self._video_was_enabled_before:
+            context.video = True
+
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
         if len(self._frames) < 1000:
             self._frames.append(context.emulator.get_screenshot())
@@ -48,6 +59,9 @@ class GifGeneratorListener(BotListener):
             self._frames.clear()
 
             os.replace(directory / (file_name + ".tmp"), directory / file_name)
+
+        if not self._video_was_enabled_before:
+            context.video = False
 
 
 class GenerateEncounterMediaPlugin(BotPlugin):
