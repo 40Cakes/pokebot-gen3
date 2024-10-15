@@ -111,14 +111,14 @@
     "J":"80c1a98",
     "S":"80c0b4c"
   },
-  "CB2_EggHatch_0": {
+  "CB2_EggHatch_0":{
     "D":"8046f48",
     "F":"8047008",
     "I":"8046f34",
     "J":"80465d0",
     "S":"804701c"
   },
-  "CB2_EggHatch_1": {
+  "CB2_EggHatch_1":{
     "D":"804723c",
     "F":"80472fc",
     "I":"8047228",
@@ -181,13 +181,6 @@
     "J":"806e9e4",
     "S":"806f228"
   },
-  "Task_DuckBGMForPokemonCry":{
-    "D":"8072198",
-    "F":"8072258",
-    "I":"8072184",
-    "J":"80719d8",
-    "S":"807226c"
-  },
   "Task_BattleStart":{
     "D":"807f584",
     "F":"807f640",
@@ -249,7 +242,7 @@
     "F":"8069420",
     "I":"806934c",
     "J":"8068c30",
-    "S":"8069344"
+    "S":"8069434"
   },
   "Task_MultichoiceMenu_HandleInput":{
     "D":"809cd7c",
@@ -265,7 +258,7 @@
     "J":"8123438",
     "S":"8122dc0"
   },
-  "Task_SlideSelectedSlotsOnscreen": {
+  "Task_SlideSelectedSlotsOnscreen":{
     "D":"81233c0",
     "F":"812347c",
     "I":"8123400",
@@ -377,6 +370,19 @@
     "J":"3003130",
     "S":"3003040"
   },
+  "gBattleMainFunc":{
+    "D":"3004ed4",
+    "F":"3004ed4",
+    "I":"3004ed4",
+    "J":"",
+    "S":"3004ed4"
+  },
+  "gBattlerControllerFuncs":{
+    "D":"3004F30",
+    "F":"3004F30",
+    "I":"3004F30",
+    "S":"3004F30"
+  },
   "GTASKS":{
     "D":"3004fe0",
     "F":"3004fe0",
@@ -384,11 +390,98 @@
     "J":"30050d0",
     "S":"3004fe0"
   },
+  "EventScript_EggHatch":{
+    "D":"81c2fd2",
+    "F":"81bdf11",
+    "I":"81bcac0",
+    "S":"81bf16f"
+  },
   "gBattleResults":{
     "D":"3004ee0",
     "F":"3004ee0",
     "I":"3004ee0",
     "J":"3004fd0",
     "S":"3004ee0"
+  },
+  "HandleTurnActionSelectionState":{
+    "D":"8013fc4",
+    "F":"8013fb0",
+    "I":"8013fc5",
+    "S":"8013fb0"
+  },
+  "HandleInputChooseAction":{
+    "D":["80f092c", "803405c", "802e3d0"],
+    "F":["80f09ec", "8034120", "802e3a8"],
+    "I":"802e3bc",
+    "S":["80f0a14", "8034048", "802e3bc"]
+  },
+  "HandleInputChooseMove": {
+    "D":"802e9a8",
+    "F":"802e980",
+    "I":"802e994",
+    "S":"802e994"
+  },
+  "Task_DuckBGMForPokemonCry":{
+    "F":"8072258",
+    "I":"8072184",
+    "J":"80719d8",
+    "S":"807226c"
+  },
+  "BattleScript_HandleFaintedMon":{
+    "D":"81dc968",
+    "F":"81d6ea4",
+    "I":"81d5b27",
+    "S":"81d81cf"
+  },
+  "Task_RushInjuredPokemonToCenter":{
+    "D":"807f3c0",
+    "F":"807f480",
+    "I":"807f3ac",
+    "S":"807f494"
+  },
+  "EventScript_AfterWhiteOutHeal":{
+    "D":"81abbc9",
+    "F":"81a77c0",
+    "I":"81a661f",
+    "S":"81a8860"
+  },
+  "Route19_Text_LucRematchIntro":{
+    "D":"0"
+  },
+  "Route21_North_EventScript_IanRematch":{
+    "D":"0"
+  },
+  "EventScript_CutTree":{
+    "F":"0"
+  },
+  "Route23_EventScript_MissingBoulderBadge":{
+    "F":"0"
+  },
+  "EventScript_SetEnteringCyclingRoad":{
+    "F":"0"
+  },
+  "Route23_EventScript_MissingBadge":{
+    "F":"0"
+  },
+  "CableClub_Text_YouMayBattleHere":{
+    "I":"0"
+  },
+  "Status_Freeze":{
+    "I":"0"
+  },
+  "EventScript_PkmnCenterNurse_PlayerWaitingInUionRoom":{
+    "I":"0"
+  },
+  "BattleScript_BrickBreakDoHit": {
+    "S":"0"
+  },
+  "BattleScript_BrickBreakAnim": {
+    "S":"0"
+  },
+  "EventScript_Open9FDoor3":{
+    "S":"0"
+  },
+  "Text_DontBeLikeThat":{
+    "S":"0"
   }
 }

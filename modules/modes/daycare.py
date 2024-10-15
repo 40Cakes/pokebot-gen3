@@ -198,7 +198,7 @@ class DaycareMode(BotMode):
                 yield from wait_until_task_is_active("Task_PokemonStorageSystem", "A")
             else:
                 yield from wait_until_task_is_active("Task_PCMainMenu", "A")
-            yield from wait_for_n_frames(8)
+            yield from wait_for_n_frames(10)
             for _ in range(2):
                 context.emulator.press_button("Down")
                 yield from wait_for_n_frames(5)
