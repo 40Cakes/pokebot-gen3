@@ -6,12 +6,36 @@
     "J":"8055e74",
     "S":"80566a8"
   },
-  "CB2_INITCOPYRIGHTSCREENAFTERBOOTUP":{
+  "CB2_InitCopyrightScreenAfterBootup":{
     "D":"80eca44",
-    "F":"80a93dc",
+    "F":"80ecb04",
     "I":"80eca44",
     "J":"80ed71c",
     "S":"80ecb2c"
+  },
+  "CB2_TitleScreenRun":{
+    "D":"8078b00",
+    "F":"8078bc0",
+    "I":"8078aec",
+    "S":"8078bd4"
+  },
+  "CB2_Intro":{
+    "D":"80ecbf8",
+    "F":"80eccb8",
+    "I":"80ecbf8",
+    "S":"80ecce0"
+  },
+  "gRngValue":{
+    "D":"3004f50",
+    "F":"3004f50",
+    "I":"3004f50",
+    "S":"3004f50"
+  },
+  "Task_EndQuestLog":{
+    "D":"8112170",
+    "F":"8112230",
+    "I":"81121b4",
+    "S":"811229c"
   },
   "CB2_INITTITLESCREEN":{
     "D":"8078878",
@@ -249,7 +273,7 @@
     "F":"809ce3c",
     "I":"809cd68",
     "J":"809c6cc",
-    "S":"809cd50"
+    "S":"809ce50"
   },
   "Task_HandleSelectionMenuInput":{
     "D":"8122c94",
