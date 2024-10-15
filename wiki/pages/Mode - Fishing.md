@@ -19,7 +19,7 @@ Fishing is a way to use a fishing rod to catch wild Pokémon in the water. Some 
 | German   |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
 | Spanish  |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
 | French   |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
-| Italian  |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| Italian  |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
 
 ✅ Tested, working
 

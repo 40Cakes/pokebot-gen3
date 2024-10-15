@@ -406,11 +406,13 @@
   "HandleTurnActionSelectionState":{
     "D":"8013fc4",
     "F":"8013fb0",
+    "I":"8013fc5",
     "S":"8013fb0"
   },
   "HandleInputChooseAction":{
     "D":["80f092c", "803405c", "802e3d0"],
     "F":["80f09ec", "8034120", "802e3a8"],
+    "I":"802e3bc",
     "S":["80f0a14", "8034048", "802e3bc"]
   },
   "HandleInputChooseMove": {
@@ -428,20 +430,23 @@
   "BattleScript_HandleFaintedMon":{
     "D":"81dc968",
     "F":"81d6ea4",
+    "I":"81d5b27",
     "S":"81d81cf"
   },
   "Task_RushInjuredPokemonToCenter":{
     "D":"807f3c0",
     "F":"807f480",
+    "I":"807f3ac",
     "S":"807f494"
   },
   "EventScript_AfterWhiteOutHeal":{
     "D":"81abbc9",
     "F":"81a77c0",
+    "I":"81a661f",
     "S":"81a8860"
   },
   "Route19_Text_LucRematchIntro":{
-    "D": "0"
+    "D":"0"
   },
   "Route21_North_EventScript_IanRematch":{
     "D":"0"
@@ -459,13 +464,19 @@
     "F":"0"
   },
   "CableClub_Text_YouMayBattleHere":{
-    "I": "0"
+    "I":"0"
+  },
+  "Status_Freeze":{
+    "I":"0"
+  },
+  "EventScript_PkmnCenterNurse_PlayerWaitingInUionRoom":{
+    "I":"0"
   },
   "BattleScript_BrickBreakDoHit": {
-    "S": "0"
+    "S":"0"
   },
   "BattleScript_BrickBreakAnim": {
-    "S": "0"
+    "S":"0"
   },
   "EventScript_Open9FDoor3":{
     "S":"0"
