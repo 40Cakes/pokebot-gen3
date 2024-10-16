@@ -14,6 +14,7 @@ from modules.encounter import EncounterValue
 from modules.plugin_interface import BotPlugin
 from modules.runtime import get_sprites_path
 from modules.sprites import get_shiny_sprite, get_regular_sprite, get_anti_shiny_sprite
+from modules.stats import EncounterSummary
 
 if TYPE_CHECKING:
     from modules.config.schemas_v1 import DiscordWebhook
@@ -47,6 +48,22 @@ def iv_table(pokemon: "Pokemon") -> str:
             f"SPDEF: {pokemon.ivs.special_defence} | "
             f"SPE: {pokemon.ivs.speed}"
         )
+
+
+def pokemon_label(pokemon: "Pokemon") -> str:
+    return f"{pokemon.nature.name} {pokemon.species_name_for_stats} (Lv. {pokemon.level:,}) at {pokemon.location_met}!"
+
+
+def pokemon_fields(pokemon: "Pokemon", species_stats: "EncounterSummary", short: bool = False) -> dict[str, str]:
+    result = {"Shiny Value": f"{pokemon.shiny_value:,}"}
+    if not short:
+        result[f"IVs ({pokemon.ivs.sum()})"] = iv_table(pokemon)
+        result["Held item"] = pokemon.held_item.name if pokemon.held_item else "None"
+    result[f"{pokemon.species_name_for_stats} Encounters"] = (
+        f"{species_stats.total_encounters:,} ({species_stats.shiny_encounters:,}✨)"
+    )
+    result[f"{pokemon.species_name_for_stats} Phase Encounters"] = f"{species_stats.phase_encounters:,}"
+    return result
 
 
 def phase_summary_fields(pokemon: "Pokemon", phase: "ShinyPhase | None") -> dict[str, str]:
@@ -115,22 +132,22 @@ class DiscordPlugin(BotPlugin):
         species_stats = global_stats.species(opponent)
         shiny_phase = context.stats.current_shiny_phase
 
+        already_reported_pokemon = False
+
         # Discord shiny Pokémon encountered
-        if context.config.discord.shiny_pokemon_encounter.enable and encounter.value is EncounterValue.Shiny:
+        if (
+            not already_reported_pokemon
+            and context.config.discord.shiny_pokemon_encounter.enable
+            and encounter.value is EncounterValue.Shiny
+        ):
+            already_reported_pokemon = True
             send_discord_message(
                 webhook_config=context.config.discord.shiny_pokemon_encounter,
                 content=f"{encounter.type.verb.title()} a shiny ✨ {opponent.species_name_for_stats} ✨!",
                 embed=DiscordMessageEmbed(
                     title=f"Shiny {encounter.type.verb}!",
-                    description=f"{opponent.nature.name} {opponent.species_name_for_stats} (Lv. {opponent.level:,}) at {opponent.location_met}!",
-                    fields={
-                        "Shiny Value": f"{opponent.shiny_value:,}",
-                        f"IVs ({opponent.ivs.sum()})": iv_table(opponent),
-                        "Held item": opponent.held_item.name if opponent.held_item else "None",
-                        f"{opponent.species_name_for_stats} Encounters": f"{species_stats.total_encounters:,} ({species_stats.shiny_encounters:,}✨)",
-                        f"{opponent.species_name_for_stats} Phase Encounters": f"{species_stats.phase_encounters:,}",
-                    }
-                    | phase_summary_fields(opponent, shiny_phase),
+                    description=pokemon_label(opponent),
+                    fields=pokemon_fields(opponent, species_stats) | phase_summary_fields(opponent, shiny_phase),
                     thumbnail=get_shiny_sprite(opponent),
                     colour="ffd242",
                     image=encounter.gif_path,
@@ -138,18 +155,19 @@ class DiscordPlugin(BotPlugin):
             )
 
         # Discord shiny on block list encountered
-        if context.config.discord.blocked_shiny_encounter.enable and encounter.value is EncounterValue.ShinyOnBlockList:
+        if (
+            not already_reported_pokemon
+            and context.config.discord.blocked_shiny_encounter.enable
+            and encounter.value is EncounterValue.ShinyOnBlockList
+        ):
+            already_reported_pokemon = True
             send_discord_message(
                 webhook_config=context.config.discord.blocked_shiny_encounter,
                 content=f"{encounter.type.verb.title()} a shiny ✨ {opponent.species_name_for_stats} ✨.\n❌ But this species is on the block list, so it will not be caught. ❌",
                 embed=DiscordMessageEmbed(
                     title=f"(Blocked) Shiny {encounter.type.verb}",
-                    description=f"{opponent.nature.name} {opponent.species_name_for_stats} (Lv. {opponent.level:,}) at {opponent.location_met}!",
-                    fields={
-                        "Shiny Value": f"{opponent.shiny_value:,}",
-                        f"{opponent.species_name_for_stats} Encounters": f"{species_stats.total_encounters:,} ({species_stats.shiny_encounters:,}✨)",
-                        f"{opponent.species_name_for_stats} Phase Encounters": f"{species_stats.phase_encounters:,}",
-                    }
+                    description=pokemon_label(opponent),
+                    fields=pokemon_fields(opponent, species_stats, short=True)
                     | phase_summary_fields(opponent, shiny_phase),
                     thumbnail=get_shiny_sprite(opponent),
                     colour="808080",
@@ -247,39 +265,30 @@ class DiscordPlugin(BotPlugin):
                 content=f"{encounter.type.verb.title()} an anti-shiny 💀 {opponent.species_name_for_stats} 💀!",
                 embed=DiscordMessageEmbed(
                     title=f"Anti-Shiny {encounter.type.verb}!",
-                    description=f"{opponent.nature.name} {opponent.species_name_for_stats} (Lv. {opponent.level:,}) at {opponent.location_met}!",
-                    fields={
-                        "Shiny Value": f"{opponent.shiny_value:,}",
-                        f"IVs ({opponent.ivs.sum()})": iv_table(opponent),
-                        "Held item": opponent.held_item.name if opponent.held_item else "None",
-                        f"{opponent.species_name_for_stats} Encounters": f"{species_stats.total_encounters:,} ({species_stats.shiny_encounters:,}✨)",
-                        f"{opponent.species_name_for_stats} Phase Encounters": f"{species_stats.phase_encounters:,}",
-                    }
-                    | phase_summary_fields(opponent, shiny_phase),
+                    description=pokemon_label(opponent),
+                    fields=pokemon_fields(opponent, species_stats) | phase_summary_fields(opponent, shiny_phase),
                     thumbnail=get_anti_shiny_sprite(opponent),
                     colour="000000",
                 ),
             )
 
         # Discord Pokémon matching custom filter encountered
-        if context.config.discord.custom_filter_pokemon_encounter.enable and isinstance(
-            encounter.catch_filters_result, str
+        if (
+            not already_reported_pokemon
+            and context.config.discord.custom_filter_pokemon_encounter.enable
+            and encounter.value is EncounterValue.CustomFilterMatch
         ):
+            already_reported_pokemon = True
             send_discord_message(
                 webhook_config=context.config.discord.custom_filter_pokemon_encounter,
                 content=f"{encounter.type.verb.title()} a {opponent.species_name_for_stats} matching custom filter: `{encounter.catch_filters_result}`!",
-                description=f"{opponent.nature.name} {opponent.species_name_for_stats} (Lv. {opponent.level:,}) at {opponent.location_met}!",
-                fields={
-                    "Shiny Value": f"{opponent.shiny_value:,}",
-                    f"IVs ({opponent.ivs.sum()})": iv_table(opponent),
-                    "Held item": opponent.held_item.name if opponent.held_item else "None",
-                    f"{opponent.species_name_for_stats} Encounters": f"{species_stats.total_encounters:,} ({species_stats.shiny_encounters:,}✨)",
-                    f"{opponent.species_name_for_stats} Phase Encounters": f"{species_stats.phase_encounters:,}",
-                }
-                | phase_summary_fields(opponent, shiny_phase),
-                thumbnail=get_regular_sprite(opponent),
-                colour="6a89cc",
-                image=encounter.gif_path,
+                embed=DiscordMessageEmbed(
+                    description=pokemon_label(opponent),
+                    fields=pokemon_fields(opponent, species_stats) | phase_summary_fields(opponent, shiny_phase),
+                    thumbnail=get_regular_sprite(opponent),
+                    colour="6a89cc",
+                    image=encounter.gif_path,
+                ),
             )
 
         # Discord TCG cards
