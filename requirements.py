@@ -130,6 +130,9 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
     import subprocess
 
     pip_flags = ["--disable-pip-version-check", "--no-python-version-warning"]
+    if not is_virtualenv():
+        pip_flags.append("--user")
+
     for module in required_modules:
         subprocess.check_call(
             [sys.executable, "-m", "pip", "install", *pip_flags, module],
