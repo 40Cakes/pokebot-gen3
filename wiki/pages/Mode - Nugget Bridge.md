@@ -22,3 +22,22 @@ The bot will repeatedly battle and white-out to the Rocket trainer, so any money
 
 <img src="../images/cerulean.png" width="450px">
 <img src="../images/nugget_bridge.png" height="400px">
+
+# Game Support
+
+|          | 🔥 Fire Red | 🌿 Leaf Green |
+|:---------|-------------|---------------|
+| English  | ✅           | ✅             |
+| Japanese | ❌           | ❌             |
+| German   | 🚫          | ❌             |
+| Spanish  | 🚫          | ❌             |
+| French   | 🚫          | ❌             |
+| Italian  | 🚫          | ❌             |
+
+✅ Tested, working
+
+🟨 Untested, may not work
+
+❌ Untested, not working
+
+🚫 Patched in this language, not working
