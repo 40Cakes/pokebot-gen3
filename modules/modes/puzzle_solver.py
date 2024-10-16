@@ -24,8 +24,7 @@ from .util import (
     wait_for_no_script_to_run,
 )
 from ..battle_strategies import BattleStrategy
-from ..encounter import handle_encounter
-from ..pokemon import get_opponent
+from ..encounter import handle_encounter, EncounterInfo
 
 
 @debug.track
@@ -66,8 +65,8 @@ class PuzzleSolverMode(BotMode):
         else:
             return False
 
-    def on_battle_started(self) -> BattleAction | BattleStrategy | None:
-        return handle_encounter(get_opponent(), enable_auto_battle=True)
+    def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | BattleStrategy | None:
+        return handle_encounter(encounter, enable_auto_battle=True)
 
     def on_repel_effect_ended(self) -> None:
         yield from apply_repel()

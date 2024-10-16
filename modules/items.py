@@ -430,6 +430,12 @@ class ItemStorage:
 
         return any(slot.item == item and slot.quantity < 999 for slot in self.items)
 
+    def first_slot_index_for(self, item: Item) -> int | None:
+        for index, slot in enumerate(self.items):
+            if slot.item.index == item.index:
+                return index
+        return None
+
     def quantity_of(self, item: Item) -> int:
         return sum(slot.quantity for slot in self.items if slot.item == item)
 

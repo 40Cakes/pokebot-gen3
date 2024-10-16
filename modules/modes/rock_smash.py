@@ -3,7 +3,7 @@ from typing import Generator
 
 from modules.context import context
 from modules.debug import debug
-from modules.encounter import handle_encounter
+from modules.encounter import handle_encounter, EncounterInfo
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.items import get_item_bag, get_item_by_name
 from modules.map_data import MapRSE
@@ -62,8 +62,8 @@ class RockSmashMode(BotMode):
         self._in_safari_zone = False
         return True
 
-    def on_battle_started(self) -> BattleAction | None:
-        return handle_encounter(get_opponent())
+    def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | None:
+        return handle_encounter(encounter)
 
     def on_repel_effect_ended(self) -> None:
         if self._using_repel:

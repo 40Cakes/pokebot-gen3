@@ -8,15 +8,14 @@ from functools import cached_property
 from textwrap import dedent
 from typing import TYPE_CHECKING, Iterable, Optional
 
-from modules.battle_state import BattleOutcome, EncounterType, get_encounter_type
+from modules.battle_state import BattleOutcome, EncounterType
 from modules.context import context
-from modules.encounter import judge_encounter
 from modules.fishing import FishingAttempt, FishingResult
 from modules.items import Item, get_item_by_index
-from modules.player import get_player_location
 from modules.pokemon import Pokemon, get_species_by_index, Species, get_unown_letter_by_index, get_unown_index_by_letter
 
 if TYPE_CHECKING:
+    from modules.encounter import EncounterInfo
     from modules.profiles import Profile
 
 
@@ -258,10 +257,6 @@ class ShinyPhase:
         if self.longest_streak is None or self.current_streak.value > self.longest_streak.value:
             self.longest_streak = self.current_streak.copy()
 
-        if encounter.is_shiny:
-            self.shiny_encounter = encounter
-            self.end_time = encounter.encounter_time
-
     def update_fishing_attempt(self, attempt: FishingAttempt):
         self.fishing_attempts += 1
         if attempt.result is not FishingResult.Encounter:
@@ -365,27 +360,22 @@ class EncounterSummary:
         if self.total_lowest_sv > encounter.shiny_value:
             self.total_lowest_sv = encounter.shiny_value
 
-        if encounter.is_shiny:
-            self.shiny_encounters += 1
-            self.phase_encounters = 0
-            self.phase_highest_iv_sum = None
-            self.phase_lowest_iv_sum = None
-            self.phase_highest_sv = None
-            self.phase_lowest_sv = None
-        else:
-            self.phase_encounters += 1
+        self.phase_encounters += 1
 
-            if self.phase_highest_iv_sum is None or self.phase_highest_iv_sum < encounter.iv_sum:
-                self.phase_highest_iv_sum = encounter.iv_sum
+        if self.phase_highest_iv_sum is None or self.phase_highest_iv_sum < encounter.iv_sum:
+            self.phase_highest_iv_sum = encounter.iv_sum
 
-            if self.phase_lowest_iv_sum is None or self.phase_lowest_iv_sum > encounter.iv_sum:
-                self.phase_lowest_iv_sum = encounter.iv_sum
+        if self.phase_lowest_iv_sum is None or self.phase_lowest_iv_sum > encounter.iv_sum:
+            self.phase_lowest_iv_sum = encounter.iv_sum
 
+        if not encounter.is_shiny:
             if self.phase_highest_sv is None or self.phase_highest_sv < encounter.shiny_value:
                 self.phase_highest_sv = encounter.shiny_value
 
             if self.phase_lowest_sv is None or self.phase_lowest_sv > encounter.shiny_value:
                 self.phase_lowest_sv = encounter.shiny_value
+        else:
+            self.shiny_encounters += 1
 
     def update_outcome(self, outcome: BattleOutcome) -> None:
         if outcome is BattleOutcome.Caught:
@@ -628,69 +618,39 @@ class StatsDatabase:
     def get_data(self, key: DataKey) -> str | None:
         return self._base_data[key] if key in self._base_data else None
 
-    def log_encounter(self, pokemon: "Pokemon", custom_filter_result: str | bool):
-        now_in_utc = datetime.now(timezone.utc)
-        map_enum, local_coordinates = get_player_location()
+    def log_encounter(self, encounter_info: "EncounterInfo") -> Encounter:
+        encounter_time_in_utc = encounter_info.encounter_time.replace(tzinfo=timezone.utc)
 
         self._update_encounter_rates()
 
-        if custom_filter_result is True:
-            custom_filter_result = "True"
-
         if self.current_shiny_phase is None:
             shiny_phase_id = self._get_next_shiny_phase_id()
-            self.current_shiny_phase = ShinyPhase.create(shiny_phase_id, now_in_utc)
+            self.current_shiny_phase = ShinyPhase.create(shiny_phase_id, encounter_time_in_utc)
             self._insert_shiny_phase(self.current_shiny_phase)
 
         encounter = Encounter(
             encounter_id=self._next_encounter_id,
             shiny_phase_id=self.current_shiny_phase.shiny_phase_id,
-            matching_custom_catch_filters=custom_filter_result,
-            encounter_time=now_in_utc,
-            map=map_enum.name,
-            coordinates=f"{local_coordinates[0]}:{local_coordinates[1]}",
-            bot_mode=context.bot_mode,
-            type=get_encounter_type(),
+            matching_custom_catch_filters=encounter_info.catch_filters_result,
+            encounter_time=encounter_time_in_utc,
+            map=encounter_info.map.name,
+            coordinates=f"{encounter_info.coordinates[0]}:{encounter_info.coordinates[1]}",
+            bot_mode=encounter_info.bot_mode,
+            type=encounter_info.type,
             outcome=None,
-            pokemon=pokemon,
+            pokemon=encounter_info.pokemon,
         )
 
         self.last_encounter = encounter
-        if context.config.logging.log_encounters or judge_encounter(pokemon).is_of_interest:
+        if context.config.logging.log_encounters or encounter_info.is_of_interest:
             self._insert_encounter(encounter)
         self.current_shiny_phase.update(encounter)
-        if pokemon.is_shiny:
-            self.current_shiny_phase.update_snapshot(self._encounter_summaries)
         self._update_shiny_phase(self.current_shiny_phase)
 
-        if pokemon.is_shiny:
-            self._reset_phase_in_database(encounter)
-            if (
-                self._shortest_shiny_phase is None
-                or self.current_shiny_phase.encounters < self._shortest_shiny_phase.encounters
-            ):
-                self._shortest_shiny_phase = self.current_shiny_phase
-            if (
-                self._longest_shiny_phase is None
-                or self.current_shiny_phase.encounters > self._longest_shiny_phase.encounters
-            ):
-                self._longest_shiny_phase = self.current_shiny_phase
-            self.current_shiny_phase = None
-            for species_id in self._encounter_summaries:
-                if self._encounter_summaries[species_id].is_same_species(pokemon):
-                    self.last_shiny_species_phase_encounters = self._encounter_summaries[species_id].phase_encounters
-
-                encounter_summary = self._encounter_summaries[species_id]
-                encounter_summary.phase_encounters = 0
-                encounter_summary.phase_highest_iv_sum = None
-                encounter_summary.phase_lowest_iv_sum = None
-                encounter_summary.phase_highest_sv = None
-                encounter_summary.phase_lowest_sv = None
-
-        if pokemon.species.name == "Unown":
-            species_index = 20100 + get_unown_index_by_letter(pokemon.unown_letter)
+        if encounter.pokemon.species.name == "Unown":
+            species_index = 20100 + get_unown_index_by_letter(encounter.pokemon.unown_letter)
         else:
-            species_index = pokemon.species.index
+            species_index = encounter.pokemon.species.index
 
         if species_index not in self._encounter_summaries:
             self._encounter_summaries[species_index] = EncounterSummary.create(encounter)
@@ -700,6 +660,38 @@ class StatsDatabase:
         self._insert_or_update_encounter_summary(self._encounter_summaries[species_index])
         self._connection.commit()
         self._next_encounter_id += 1
+
+        return encounter
+
+    def reset_shiny_phase(self, encounter: Encounter):
+        self.current_shiny_phase.shiny_encounter = encounter
+        self.current_shiny_phase.end_time = encounter.encounter_time
+        self.current_shiny_phase.update_snapshot(self._encounter_summaries)
+        self._update_shiny_phase(self.current_shiny_phase)
+        self._reset_phase_in_database(encounter)
+        if (
+            self._shortest_shiny_phase is None
+            or self.current_shiny_phase.encounters < self._shortest_shiny_phase.encounters
+        ):
+            self._shortest_shiny_phase = self.current_shiny_phase
+        if (
+            self._longest_shiny_phase is None
+            or self.current_shiny_phase.encounters > self._longest_shiny_phase.encounters
+        ):
+            self._longest_shiny_phase = self.current_shiny_phase
+        self.current_shiny_phase = None
+        for species_id in self._encounter_summaries:
+            if self._encounter_summaries[species_id].is_same_species(encounter.pokemon):
+                self.last_shiny_species_phase_encounters = self._encounter_summaries[species_id].phase_encounters
+
+            encounter_summary = self._encounter_summaries[species_id]
+            encounter_summary.phase_encounters = 0
+            encounter_summary.phase_highest_iv_sum = None
+            encounter_summary.phase_lowest_iv_sum = None
+            encounter_summary.phase_highest_sv = None
+            encounter_summary.phase_lowest_sv = None
+
+        self._connection.commit()
 
     def log_end_of_battle(self, battle_outcome: "BattleOutcome"):
         if self.last_encounter is not None:

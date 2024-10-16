@@ -2,7 +2,7 @@ import random
 from typing import Generator
 
 from modules.context import context
-from modules.encounter import handle_encounter
+from modules.encounter import handle_encounter, EncounterInfo
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.map_data import MapFRLG, MapRSE
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
@@ -22,7 +22,7 @@ from .util import (
     wait_until_task_is_active,
     wait_until_task_is_not_active,
 )
-from ..battle_state import battle_is_active, get_main_battle_callback
+from ..battle_state import battle_is_active, get_main_battle_callback, EncounterType
 
 
 def run_frlg() -> Generator:
@@ -70,7 +70,11 @@ def run_frlg() -> Generator:
         # Spam 'A' until we see the summary screen
         yield from wait_until_task_is_active("Task_DuckBGMForPokemonCry", button_to_press="A")
 
-        handle_encounter(get_party()[0], disable_auto_catch=True, do_not_log_battle_action=True)
+        handle_encounter(
+            EncounterInfo.create(get_party()[0], EncounterType.Gift),
+            disable_auto_catch=True,
+            do_not_log_battle_action=True,
+        )
 
 
 def run_rse_hoenn() -> Generator:
@@ -135,7 +139,11 @@ def run_rse_hoenn() -> Generator:
             context.emulator.press_button("A")
             yield
 
-        handle_encounter(get_party()[0], do_not_log_battle_action=True, disable_auto_catch=True)
+        handle_encounter(
+            EncounterInfo.create(get_party()[0], EncounterType.Gift),
+            do_not_log_battle_action=True,
+            disable_auto_catch=True,
+        )
 
 
 def run_rse_johto():
@@ -187,7 +195,11 @@ def run_rse_johto():
         yield from StartMenuNavigator("POKEMON").step()
         yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
 
-        handle_encounter(get_party()[len(get_party()) - 1], disable_auto_catch=True, do_not_log_battle_action=True)
+        handle_encounter(
+            EncounterInfo.create(get_party()[-1], EncounterType.Gift),
+            disable_auto_catch=True,
+            do_not_log_battle_action=True,
+        )
 
 
 class StartersMode(BotMode):
@@ -203,7 +215,7 @@ class StartersMode(BotMode):
         if context.rom.is_rse:
             return player_avatar.map_group_and_number in [(0, 16), (1, 4)]
 
-    def on_battle_started(self) -> BattleAction | None:
+    def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | None:
         return BattleAction.CustomAction
 
     def run(self) -> Generator:

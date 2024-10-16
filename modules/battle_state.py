@@ -831,6 +831,8 @@ class EncounterType(Enum):
     FishingWithGoodRod = "fishing_good_rod"
     FishingWithSuperRod = "fishing_super_rod"
     RockSmash = "rock_smash"
+    Hatched = "hatched"
+    Gift = "gift"
 
     @property
     def is_wild(self) -> bool:
@@ -844,8 +846,21 @@ class EncounterType(Enum):
             EncounterType.FishingWithSuperRod,
         )
 
+    @property
+    def verb(self) -> str:
+        if self is EncounterType.Hatched:
+            return "hatched"
+        elif self is EncounterType.Gift:
+            return "received"
+        else:
+            return "encountered"
+
 
 def get_encounter_type() -> EncounterType:
+    script_stack = get_global_script_context().stack
+    if "EventScript_EggHatch" in script_stack or "S_EggHatch" in script_stack:
+        return EncounterType.Hatched
+
     battle_type = get_battle_type()
 
     if BattleType.WallyTutorial in battle_type:
@@ -877,7 +892,6 @@ def get_encounter_type() -> EncounterType:
         ):
             return EncounterType.Static
 
-    script_stack = get_global_script_context().stack
     if "EventScript_BattleKecleon" in script_stack:
         return EncounterType.Static
     if "BattleFrontier_OutsideEast_EventScript_WaterSudowoodo" in script_stack:

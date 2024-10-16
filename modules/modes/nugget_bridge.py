@@ -11,6 +11,7 @@ from ._interface import BotMode, BotModeError
 from .util import navigate_to, wait_for_player_avatar_to_be_standing_still
 from ..battle_strategies import BattleStrategy
 from ..battle_strategies.lose_on_purpose import LoseOnPurposeBattleStrategy
+from ..encounter import EncounterInfo
 
 
 class NuggetBridgeMode(BotMode):
@@ -33,7 +34,7 @@ class NuggetBridgeMode(BotMode):
         super().__init__()
         self._has_whited_out = False
 
-    def on_battle_started(self) -> BattleAction | BattleStrategy | None:
+    def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | BattleStrategy | None:
         return LoseOnPurposeBattleStrategy()
 
     def on_whiteout(self) -> bool:
