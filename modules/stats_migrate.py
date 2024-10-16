@@ -129,6 +129,8 @@ def migrate_file_based_stats_to_sqlite(
             current_shiny_phase.update(encounter)
 
             if encounter.is_shiny:
+                current_shiny_phase.shiny_encounter = encounter
+                current_shiny_phase.end_time = encounter.encounter_time
                 current_shiny_phase.update_snapshot(encounter_summaries)
                 update_shiny_phase(current_shiny_phase)
                 execute_statement(
@@ -215,22 +217,40 @@ def migrate_file_based_stats_to_sqlite(
         if (profile.path / "stats" / "shiny_log.json").exists():
             shiny_log = json.load((profile.path / "stats" / "shiny_log.json").open("r"))
             previous_end_time: datetime = datetime.now(tz=ZoneInfo("UTC"))
+            n = 0
             for entry in shiny_log["shiny_log"]:
+                if "pokemon" in entry:
+                    shiny_value = (
+                        entry["pokemon"]["ot"]["tid"]
+                        ^ entry["pokemon"]["ot"]["sid"]
+                        ^ (entry["pokemon"]["pid"] & 0xFFFF)
+                        ^ (entry["pokemon"]["pid"] >> 16)
+                    )
+                    personality_value = entry["pokemon"]["pid"]
+                    encounter_time = datetime.fromtimestamp(int(entry["time_encountered"]), tz=ZoneInfo("UTC"))
+                elif "pokemon_obj" in entry:
+                    shiny_value = entry["pokemon_obj"]["shinyValue"]
+                    personality_value = entry["pokemon_obj"]["personality"]
+                    date = entry["pokemon_obj"]["date"].split("-")
+                    time = entry["pokemon_obj"]["time"].split(":")
+                    encounter_time = datetime(
+                        int(date[0]),
+                        int(date[1]),
+                        int(date[2]),
+                        int(time[0]),
+                        int(time[1]),
+                        int(time[2]),
+                        tzinfo=_get_timezone(),
+                    )
+                else:
+                    raise RuntimeError(f"Could not find Pokémon data in `shiny_log.json` entry #{n}")
+                n += 1
+
                 # For some reason, there are non-shiny entries in the stream profile's shiny log.
-                shiny_value = (
-                    entry["pokemon"]["ot"]["tid"]
-                    ^ entry["pokemon"]["ot"]["sid"]
-                    ^ (entry["pokemon"]["pid"] & 0xFFFF)
-                    ^ (entry["pokemon"]["pid"] >> 16)
-                )
                 if shiny_value >= 8:
                     continue
 
-                encounter_time = datetime.fromtimestamp(int(entry["time_encountered"]), tz=ZoneInfo("UTC"))
-
-                shiny_phases = list(
-                    query_shiny_phases("encounters.personality_value = ?", (entry["pokemon"]["pid"],), 1)
-                )
+                shiny_phases = list(query_shiny_phases("encounters.personality_value = ?", (personality_value,), 1))
                 execute_statement(
                     "UPDATE shiny_phases SET start_time = ?, end_time = ?, encounters = ?, snapshot_total_encounters = ?, snapshot_total_shiny_encounters = ?, snapshot_species_encounters = ?, snapshot_species_shiny_encounters = ? WHERE shiny_phase_id = ?",
                     (
@@ -299,8 +319,12 @@ def migrate_file_based_stats_to_sqlite(
     console.print(f"This took only {duration}.\n")
 
 
+def _get_timezone():
+    return datetime.now().astimezone().tzinfo
+
+
 def _get_encounters_from_old_zip(profile: Profile):
-    timezone = ZoneInfo("Australia/Sydney")
+    timezone = _get_timezone()
     with ZipFile(profile.path / "stats" / "encounters" / "_old.zip") as zip_file:
         list_of_files: list[tuple[str, datetime]] = []
         for file_entry in zip_file.infolist():
@@ -330,7 +354,7 @@ def _get_encounters_from_old_zip(profile: Profile):
 
 def _get_encounters_from_phase_csvs(profile: Profile):
     csv_files = sorted((profile.path / "stats" / "encounters").glob("*.csv"), key=os.path.basename)
-    timezone = ZoneInfo("Australia/Sydney")
+    timezone = _get_timezone()
     for file_path in csv_files:
         with file_path.open("r") as file:
 
@@ -503,13 +527,32 @@ def _get_encounters_from_phase_csvs(profile: Profile):
 
 def _get_encounters_from_shiny_log(profile: Profile):
     shiny_log = json.load((profile.path / "stats" / "shiny_log.json").open("r"))
+    n = 0
     for entry in shiny_log["shiny_log"]:
-        pokemon = _map_shiny_log_json_to_pokemon_data(entry["pokemon"])
+        if "pokemon" in entry:
+            pokemon = _map_shiny_log_json_to_pokemon_data(entry["pokemon"])
+            encounter_time = datetime.fromtimestamp(entry["time_encountered"], tz=ZoneInfo("UTC"))
+        elif "pokemon_obj" in entry:
+            pokemon = _map_old_shiny_log_json_to_pokemon_data(entry["pokemon_obj"])
+            date = entry["pokemon_obj"]["date"].split("-")
+            time = entry["pokemon_obj"]["time"].split(":")
+            encounter_time = datetime(
+                int(date[0]),
+                int(date[1]),
+                int(date[2]),
+                int(time[0]),
+                int(time[1]),
+                int(time[2]),
+                tzinfo=_get_timezone(),
+            )
+        else:
+            raise RuntimeError(f"Could not find Pokémon data in `shiny_log.json` entry #{n}")
+        n += 1
         yield Encounter(
             encounter_id=0,
             shiny_phase_id=0,
             matching_custom_catch_filters=None,
-            encounter_time=datetime.fromtimestamp(entry["time_encountered"], tz=ZoneInfo("UTC")),
+            encounter_time=encounter_time,
             map=None,
             coordinates=None,
             bot_mode="Imported from Shiny Log",
@@ -657,6 +700,65 @@ def _map_shiny_log_json_to_pokemon_data(pkm: dict) -> Pokemon:
         met_level,
         origin_game,
         origin_language,
+    )
+
+
+def _map_old_shiny_log_json_to_pokemon_data(pkm: dict) -> Pokemon:
+    moves = []
+    for move in pkm["enrichedMoves"]:
+        if move["id"] == 0:
+            moves.append({"id": 0, "remaining_pp": 0})
+        else:
+            moves.append({"id": move["id"], "remaining_pp": move["pp"]})
+
+    stats = StatsValues(
+        hp=pkm["maxHP"],
+        attack=pkm["attack"],
+        defence=pkm["defense"],
+        speed=pkm["speed"],
+        special_attack=pkm["spAttack"],
+        special_defence=pkm["spDefense"],
+    )
+
+    ivs = StatsValues(
+        hp=pkm["hpIV"],
+        attack=pkm["attackIV"],
+        defence=pkm["defenseIV"],
+        speed=pkm["speedIV"],
+        special_attack=pkm["spAttackIV"],
+        special_defence=pkm["spDefenseIV"],
+    )
+
+    evs = StatsValues(
+        hp=pkm["hpEV"],
+        attack=pkm["attackEV"],
+        defence=pkm["defenseEV"],
+        speed=pkm["speedEV"],
+        special_attack=pkm["spAttackEV"],
+        special_defence=pkm["spDefenseEV"],
+    )
+
+    species = get_species_by_name(pkm["name"])
+
+    return _create_pokemon_data(
+        pkm["personality"],
+        pkm["otId"] >> 16,
+        pkm["otId"] & 0xFFFF,
+        species,
+        pkm["level"],
+        pkm["heldItem"],
+        pkm["experience"],
+        pkm["friendship"],
+        moves,
+        pkm["ability"] != species.abilities[0].name,
+        stats,
+        ivs,
+        evs,
+        ContestConditions(0, 0, 0, 0, 0, 0),
+        pkm["metLocation"],
+        pkm["metLevel"],
+        pkm["metGame"],
+        pkm["language"],
     )
 
 
