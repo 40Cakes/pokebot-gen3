@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from typing import Generator
 
-from modules.battle_state import battle_is_active
+from modules.battle_state import battle_is_active, get_battle_state
 from modules.battle_strategies import BattleStrategy
 from modules.context import context
 from modules.debug import debug
@@ -86,7 +86,8 @@ def handle_move_replacement_dialogue(strategy: BattleStrategy) -> Generator:
                     party_index = context.emulator.read_bytes(0x02016018, length=1)[0]
             else:
                 party_index = read_symbol("gBattleStruct", 16, 1)[0]
-            pokemon = get_party()[party_index]
+            in_battle_index = get_battle_state().map_battle_party_index(party_index)
+            pokemon = get_party()[in_battle_index]
             decision = strategy.which_move_should_be_replaced(pokemon, move_to_learn)
 
             if context.bot_mode == "Manual":
