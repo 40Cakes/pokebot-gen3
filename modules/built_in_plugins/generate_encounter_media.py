@@ -8,6 +8,7 @@ import PIL.Image
 
 from modules.context import context
 from modules.encounter import EncounterValue
+from modules.main import work_queue
 from modules.modes import BotListener, BotMode, FrameInfo
 from modules.plugin_interface import BotPlugin
 from modules.tcg_card import get_tcg_card_file_name, generate_tcg_card
@@ -61,7 +62,11 @@ class GifGeneratorListener(BotListener):
             os.replace(directory / (file_name + ".tmp"), directory / file_name)
 
         if not self._video_was_enabled_before:
-            context.video = False
+
+            def disable_video_again():
+                context.video = False
+
+            work_queue.put_nowait(disable_video_again)
 
 
 class GenerateEncounterMediaPlugin(BotPlugin):
