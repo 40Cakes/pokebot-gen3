@@ -24,34 +24,28 @@ if TYPE_CHECKING:
 
 
 def iv_table(pokemon: "Pokemon") -> str:
-    if context.config.discord.iv_format == "formatted":
-        return (
-            "```"
-            "╔═══╤═══╤═══╤═══╤═══╤═══╗\n"
-            "║HP │ATK│DEF│SPA│SPD│SPE║\n"
-            "╠═══╪═══╪═══╪═══╪═══╪═══╣\n"
-            f"║{pokemon.ivs.hp:^3}│"
-            f"{pokemon.ivs.attack:^3}│"
-            f"{pokemon.ivs.defence:^3}│"
-            f"{pokemon.ivs.special_attack:^3}│"
-            f"{pokemon.ivs.special_defence:^3}│"
-            f"{pokemon.ivs.speed:^3}║\n"
-            "╚═══╧═══╧═══╧═══╧═══╧═══╝"
-            "```"
-        )
-    else:
-        return (
-            f"HP: {pokemon.ivs.hp} | "
-            f"ATK: {pokemon.ivs.attack} | "
-            f"DEF: {pokemon.ivs.defence} | "
-            f"SPATK: {pokemon.ivs.special_attack} | "
-            f"SPDEF: {pokemon.ivs.special_defence} | "
-            f"SPE: {pokemon.ivs.speed}"
-        )
+    return (
+        "```"
+        "╔═══╤═══╤═══╤═══╤═══╤═══╗\n"
+        "║HP │ATK│DEF│SPA│SPD│SPE║\n"
+        "╠═══╪═══╪═══╪═══╪═══╪═══╣\n"
+        f"║{pokemon.ivs.hp:^3}│"
+        f"{pokemon.ivs.attack:^3}│"
+        f"{pokemon.ivs.defence:^3}│"
+        f"{pokemon.ivs.special_attack:^3}│"
+        f"{pokemon.ivs.special_defence:^3}│"
+        f"{pokemon.ivs.speed:^3}║\n"
+        "╚═══╧═══╧═══╧═══╧═══╧═══╝"
+        "```"
+    )
 
 
 def pokemon_label(pokemon: "Pokemon") -> str:
-    return f"{pokemon.nature.name} {pokemon.species_name_for_stats} (Lv. {pokemon.level:,}) at {pokemon.location_met}!"
+    if pokemon.gender is not None and not pokemon.species.name.startswith("Nidoran"):
+        gender_code = "♂" if pokemon.gender == "male" else "♀"
+    else:
+        gender_code = ""
+    return f"{pokemon.nature.name} **{pokemon.species_name_for_stats}{gender_code}** (Lv. {pokemon.level:,}) at {pokemon.location_met}!"
 
 
 def pokemon_fields(pokemon: "Pokemon", species_stats: "EncounterSummary", short: bool = False) -> dict[str, str]:

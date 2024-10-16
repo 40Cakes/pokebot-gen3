@@ -190,27 +190,17 @@ class Logging(BaseConfig):
     """Schema for the logging configuration."""
 
     filename: ClassVar = "logging.yml"
-    console: LoggingConsole = Field(default_factory=lambda: LoggingConsole())
     save_pk3: LoggingSavePK3 = Field(default_factory=lambda: LoggingSavePK3())
     log_encounters: bool = False
+    log_encounters_to_console: bool = True
     desktop_notifications: bool = True
     shiny_gifs: bool = True
     tcg_cards: bool = True
 
 
-class LoggingConsole(BaseConfig):
-    """Schema for the console section in the Logging config."""
-
-    encounter_data: Literal["verbose", "basic", "disable"] = "verbose"
-    encounter_ivs: Literal["verbose", "basic", "disable"] = "verbose"
-    encounter_moves: Literal["verbose", "basic", "disable"] = "disable"
-    statistics: Literal["verbose", "basic", "disable"] = "verbose"
-
-
 class LoggingSavePK3(BaseConfig):
     """Schema for the save_pk3 section in the Logging config."""
 
-    all: bool = False
     shiny: bool = True
     custom: bool = True
     roamer: bool = True
