@@ -26,10 +26,11 @@ def _get_weakest_move_against(battle_state: "BattleState", pokemon: "BattlePokem
 
         # If this is the last remaining non-fainted Pokémon in the party, using a
         # self-destructing move guarantees a loss.
-        if move.effect == "EXPLOSION" and len(
-            [pokemon for pokemon in get_party() if pokemon.current_hp == 0 or pokemon.is_egg]
+        if (
+            move.effect == "EXPLOSION"
+            and len([pokemon for pokemon in get_party() if not pokemon.is_egg and pokemon.current_hp > 0]) == 1
         ):
-            move_power = -1
+            move_power = -2
 
         # Doing nothing is always the best idea.
         if move.effect == "SPLASH":
