@@ -1,30 +1,40 @@
 # See wiki for documentation: https://github.com/40Cakes/pokebot-gen3/tree/main/wiki/pages/Console,%20Logging%20and%20Image%20Config.md
 
-# Log all encounters to .csv (`stats/encounters/` folder), each phase is logged to a separate file
-log_encounters: false # `true`, `false`
+# Log _all_ encounters (and not just shiny ones) to the stats database.
+# This doesn't impact performance much, but it means that the database
+# file (`stats.db` in the profile directory) will grow much quicker.
+#
+# It adds about 200 byte for each encounter. So for each 1 million
+# encounters, the database would have a size of about 190 MB.
+log_encounters: false
 
 # Show a desktop notification if a shiny, roamer, or Pokémon matching your
 # Custom Catch Filters is encountered, or the bot is switched to manual
 # mode.
 desktop_notifications: true
 
-# Console output
-# `verbose`, `basic`, `disable`
-console:
-  encounter_data: verbose
-  encounter_ivs: verbose
-  encounter_moves: disable
-  statistics: verbose
+# Log information about wild encounters (or gift Pokémon) to the console.
+log_encounters_to_console: true
 
-# Save .pk3 files
+# Save .pk3 files that can be used with PKHeX. These are stored in
+# the `pokemon/` directory inside the profile directory.
 save_pk3:
-  all: false
+  # Create .pk3 files for Shiny encounters
   shiny: true
+  # Create .pk3 files for Pokémon that match your custom catch filters.
   custom: true
+  # Create .pk3 files for the Roaming Pokémon (Latias/Latios on R/S/E,
+  # Entei/Raikou/Suicine on FR/LG) the first time it is encountered.
   roamer: true
 
-# Save shiny GIFs
+# Save short GIF clips of the start of a battle whenever a Shiny is
+# encountered. These are saved in `screenshots/gifs/` in the profile
+# directory.
+# If you're using the Discord integration, these GIFs will then also
+# be added to Shiny notifications.
 shiny_gifs: true
 
-# Generate TCG cards
+# Generate TCG card-style images whenever a Shiny is encountered,
+# containing information (stats, moves) about that Pokémon.
+# These are saved in `screenshots/cards/` in the profile directory.
 tcg_cards: true

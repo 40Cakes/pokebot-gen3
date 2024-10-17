@@ -16,18 +16,6 @@ For privacy reasons, rich presence and webhooks are all **disabled** by default.
 - Generate a new webhook: **Edit Channel** > **Integrations** > **Webhooks** > **New Webhook** > **Give it any name such as `PokéBot` and a picture** > **Copy Webhook URL**
 - ⚠ **Warning**: this webhook is considered sensitive! If you leak your webhook, anyone will be able to post in your channel
 
-`iv_format` - changes IV formatting displayed in messages, set to `basic` or `formatted`
-- `basic`: <br>`HP: 31 | ATK: 31 | DEF: 31  | SPA: 31  | SPD: 31  | SPE: 31`
-
-- `formatted`:
-  ```
-  ╔═══╤═══╤═══╤═══╤═══╤═══╗
-  ║HP │ATK│DEF│SPA│SPD│SPE║
-  ╠═══╪═══╪═══╪═══╪═══╪═══╣
-  ║31 │31 │31 │31 │31 │31 ║
-  ╚═══╧═══╧═══╧═══╧═══╧═══╝
-  ```
-
 `delay` - seconds (`int`) to delay Discord webhooks before posting (useful to prevent livestream spoilers)
 
 `bot_id` - set to any string you want, this string is added to the footer of all Discord messages, it can be useful to identify bots if multiple are set to post in the same channel
@@ -51,6 +39,10 @@ Each webhook type also supports pinging @users or @roles.
 `shiny_pokemon_encounter` - Post shiny Pokémon encounters
 
 ![image](../images/discord_config_shiny_encounter.png)
+
+***
+
+`blocked_shiny_encounter` - Post encounters that are shiny, but have not been caught because they're on the block list
 
 ***
 
