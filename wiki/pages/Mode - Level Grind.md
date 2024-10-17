@@ -70,10 +70,10 @@ The following routes are supported:
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
 | Japanese |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
-| German   |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
-| Spanish  |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
-| French   |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
-| Italian  |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| German   |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
+| Spanish  |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
+| French   |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
+| Italian  |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
 
 ✅ Tested, working
 
