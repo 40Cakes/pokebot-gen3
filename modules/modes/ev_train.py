@@ -1,6 +1,6 @@
 from typing import Generator
-from rich.table import Table
 
+from rich.table import Table
 
 from modules.context import context
 from modules.map import get_map_data_for_current_position, get_map_data
@@ -8,13 +8,14 @@ from modules.map_data import MapFRLG, MapRSE, PokemonCenter, get_map_enum
 from modules.map_path import calculate_path, PathFindingError
 from modules.modes import BattleAction
 from modules.player import get_player_avatar
-from modules.pokemon import get_party, get_opponent, StatusCondition
+from modules.pokemon import get_party, get_opponent, StatusCondition, StatsValues
 from ._interface import BotMode, BotModeError
-from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon, spin
+from .util import navigate_to, heal_in_pokemon_center, spin
 from ..battle_state import BattleOutcome
 from ..battle_strategies import BattleStrategy, DefaultBattleStrategy
+from ..console import console
 from ..encounter import handle_encounter, EncounterInfo
-from ..gui.ev_selection_window import get_ev_targets
+from ..gui.ev_selection_window import ask_for_ev_targets
 
 closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
     # Hoenn
@@ -45,9 +46,14 @@ closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
     MapFRLG.ROUTE18: [PokemonCenter.FuchsiaCity],
 }
 
+
+_list_of_stats = ("hp", "attack", "defence", "speed", "special_attack", "special_defence")
+
+
 class NoRotateLeadDefaultBattleStrategy(DefaultBattleStrategy):
     def choose_new_lead_after_battle(self) -> int | None:
         return None
+
 
 class EVTrainMode(BotMode):
     @staticmethod
@@ -71,44 +77,26 @@ class EVTrainMode(BotMode):
         self._leave_pokemon_center = False
         self._go_healing = True
         self._level_balance = False
+        self._ev_targets: StatsValues | None = None
 
     def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | BattleStrategy | None:
         action = handle_encounter(encounter, enable_auto_battle=True)
         lead_pokemon = get_party()[0]
         # EV yield doubled with Macho Brace and Pokerus (this effect stacks)
-        ev_multiplier = int
-        if (lead_pokemon.held_item is None or 
-            (lead_pokemon.held_item is not None and lead_pokemon.held_item.name != "Macho Brace")) and lead_pokemon.pokerus_status.days_remaining <= 0:
-            ev_multiplier = 1
-        elif lead_pokemon.held_item is not None and lead_pokemon.held_item.name == "Macho Brace" and lead_pokemon.pokerus_status.days_remaining > 0:
-            ev_multiplier = 4
-        else: ev_multiplier = 2
-
-        base_yield = [
-            int(get_opponent().species.ev_yield.hp),
-            int(get_opponent().species.ev_yield.attack), 
-            int(get_opponent().species.ev_yield.defence),
-            int(get_opponent().species.ev_yield.special_attack), 
-            int(get_opponent().species.ev_yield.special_defence), 
-            int(get_opponent().species.ev_yield.speed)
-                    ] 
-        
-        ev_yield = [i * ev_multiplier for i in base_yield]
-
-        party_evs = [
-            int(lead_pokemon.evs.hp), 
-            int(lead_pokemon.evs.attack),
-            int(lead_pokemon.evs.defence),
-            int(lead_pokemon.evs.special_attack),
-            int(lead_pokemon.evs.special_defence),
-            int(lead_pokemon.evs.speed)
-            ]
+        ev_multiplier = 1
+        if lead_pokemon.held_item is not None and lead_pokemon.held_item.name == "Macho Brace":
+            ev_multiplier *= 2
+        if lead_pokemon.pokerus_status.days_remaining > 0:
+            ev_multiplier *= 2
 
         # Checks if opponent evs are desired
-        good_yield = all(ev_yield[i] + party_evs[i] <= self._ev_targets[i] for i in range(6)) 
+        good_yield = all(
+            get_opponent().species.ev_yield[stat] * ev_multiplier + lead_pokemon.evs[stat] <= self._ev_targets[stat]
+            for stat in _list_of_stats
+        )
         # Fights if evs are desired and oppenent is not shiny meets a custom catch filter
         if good_yield and action is BattleAction.Fight:
-                return NoRotateLeadDefaultBattleStrategy()
+            return NoRotateLeadDefaultBattleStrategy()
         else:
             return BattleAction.RunAway
 
@@ -119,34 +107,13 @@ class EVTrainMode(BotMode):
             or lead_pokemon.status_condition is not StatusCondition.Healthy
         ):
             self._go_healing = True
-        ev_multiplier = int
-        if (lead_pokemon.held_item is None or 
-            (lead_pokemon.held_item is not None and lead_pokemon.held_item.name != "Macho Brace")) and lead_pokemon.pokerus_status.days_remaining <= 0:
-            ev_multiplier = 1
-        elif lead_pokemon.held_item is not None and lead_pokemon.held_item.name == "Macho Brace" and lead_pokemon.pokerus_status.days_remaining > 0:
-            ev_multiplier = 4
-        else: ev_multiplier = 2
 
-        base_yield = [
-            int(get_opponent().species.ev_yield.hp),
-            int(get_opponent().species.ev_yield.attack), 
-            int(get_opponent().species.ev_yield.defence),
-            int(get_opponent().species.ev_yield.special_attack), 
-            int(get_opponent().species.ev_yield.special_defence), 
-            int(get_opponent().species.ev_yield.speed)
-                    ] 
-        
-        ev_yield = [i * ev_multiplier for i in base_yield]
-        
-        party_evs = [
-            int(lead_pokemon.evs.hp), 
-            int(lead_pokemon.evs.attack),
-            int(lead_pokemon.evs.defence),
-            int(lead_pokemon.evs.special_attack),
-            int(lead_pokemon.evs.special_defence),
-            int(lead_pokemon.evs.speed)
-            ]
-        
+        ev_multiplier = 1
+        if lead_pokemon.held_item is not None and lead_pokemon.held_item.name == "Macho Brace":
+            ev_multiplier *= 2
+        if lead_pokemon.pokerus_status.days_remaining > 0:
+            ev_multiplier *= 2
+
         # Ugly table to keep track of progress
         ev_table = Table(title=f"{lead_pokemon.species.name} EVs/Target")
         ev_table.add_column("HP", justify="center")
@@ -157,19 +124,17 @@ class EVTrainMode(BotMode):
         ev_table.add_column("SPE", justify="center")
         ev_table.add_column("Total", justify="right")
         ev_table.add_row(
-            f"{str(party_evs[0])}/{str(self._ev_targets[0])}",
-            f"{str(party_evs[1])}/{str(self._ev_targets[1])}",
-            f"{str(party_evs[2])}/{str(self._ev_targets[2])}",
-            f"{str(party_evs[3])}/{str(self._ev_targets[3])}",
-            f"{str(party_evs[4])}/{str(self._ev_targets[4])}",
-            f"{str(party_evs[5])}/{str(self._ev_targets[5])}",
+            *[f"{str(lead_pokemon.evs[stat])}/{str(self._ev_targets[stat])}" for stat in _list_of_stats],
+            str(lead_pokemon.evs.sum()),
         )
-        print(f"HP: {str(party_evs[0])}/{str(self._ev_targets[0])} ATK: {str(party_evs[1])}/{str(self._ev_targets[1])} DEF: {str(party_evs[2])}/{str(self._ev_targets[2])} SPA: {str(party_evs[3])}/{str(self._ev_targets[3])} SPD: {str(party_evs[4])}/{str(self._ev_targets[4])} SPE: {str(party_evs[5])}/{str(self._ev_targets[5])}")
+        console.print(ev_table)
 
         if outcome == BattleOutcome.RanAway:
             context.message = "EVs not needed, skipping"
         if outcome == BattleOutcome.Won:
-            context.message = f"{str(ev_yield)} EVs gained"
+            context.message = (
+                f"{'/'.join([str(get_opponent().species.ev_yield[stat]) for stat in _list_of_stats])} EVs gained"
+            )
 
     def on_whiteout(self) -> bool:
         self._leave_pokemon_center = True
@@ -208,15 +173,26 @@ class EVTrainMode(BotMode):
             raise BotModeError("Could not find a suitable from here to a Pokemon Center nearby.")
 
         # Opens EV target selection GUI
-        self._ev_targets = get_ev_targets()
+        target_pokemon = get_party()[0]
+        self._ev_targets = ask_for_ev_targets(target_pokemon)
+        if self._ev_targets is None:
+            # If the user just closed the window without answering
+            context.set_manual_mode()
+            return
 
         # Checks for EV target sensibility
-        if sum(self._ev_targets) > 510:
+        if self._ev_targets.sum() > 510:
             raise BotModeError("Total EVs must be 510 or below.")
-        
-        all_255 = all(ev in range(0, 255) for ev in self._ev_targets) 
-        if all_255 == False:
-            raise BotModeError("EV target for a given stat must be between 0 and 255.")
+
+        for stat in _list_of_stats:
+            if self._ev_targets[stat] < 0 or self._ev_targets[stat] > 255:
+                raise BotModeError(
+                    f"Selected EV target for {stat} ('{self._ev_targets[stat]}') is invalid (must be between 0 and 255.)"
+                )
+            if target_pokemon.evs[stat] > self._ev_targets[stat]:
+                raise BotModeError(
+                    f"Selected EV target for {stat} ('{self._ev_targets[stat]}') must be equal to or larger than the current EV number ({target_pokemon.evs[stat]}.)"
+                )
 
         while True:
             if self._leave_pokemon_center:
