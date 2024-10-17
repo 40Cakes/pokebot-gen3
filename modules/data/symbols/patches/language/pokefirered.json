@@ -469,6 +469,18 @@
     "I":"81a661f",
     "S":"81a8860"
   },
+  "BattleScript_AskToLearnMove":{
+    "D":"81dccb1",
+    "F":"81d71ed",
+    "I":"81d5e85",
+    "S":"81d854d"
+  },
+  "BattleScript_ForgotAndLearnedNewMove":{
+    "D":"81dccde",
+    "F":"81d721a",
+    "I":"81d5eb2",
+    "S":"81d857a"
+  },
   "Route19_Text_LucRematchIntro":{
     "D":"0"
   },

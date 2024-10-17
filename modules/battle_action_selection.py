@@ -231,7 +231,7 @@ def battle_action_use_move(
         yield from scroll_to_battle_action(0)
         yield
         context.emulator.press_button("A")
-    for _ in range(6 if context.rom.is_rse else 7):
+    for _ in range(6 if context.rom.is_rse else 8):
         yield
 
     # It's possible the game does not actually offer the move list at this point, for example
