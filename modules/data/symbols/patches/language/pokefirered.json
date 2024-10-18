@@ -446,6 +446,7 @@
     "S":"802e994"
   },
   "Task_DuckBGMForPokemonCry":{
+    "D":"8072198",
     "F":"8072258",
     "I":"8072184",
     "J":"80719d8",
@@ -480,6 +481,12 @@
     "F":"81d721a",
     "I":"81d5eb2",
     "S":"81d857a"
+  },
+  "EventScript_RepelWoreOff":{
+    "D":"81c36a8",
+    "F":"81be5d1",
+    "I":"81bd118",
+    "S":"81bf7f1"
   },
   "Route19_Text_LucRematchIntro":{
     "D":"0"
