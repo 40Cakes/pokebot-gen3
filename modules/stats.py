@@ -531,7 +531,7 @@ class GlobalStats:
                 phase_lowest_iv_sum=0,
                 phase_highest_sv=0,
                 phase_lowest_sv=0,
-                last_encounter_time=datetime.now(),
+                last_encounter_time=datetime.now(timezone.utc),
             )
 
     def to_dict(self):
