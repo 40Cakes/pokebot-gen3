@@ -51,3 +51,8 @@ For quick help and support, reach out in Discord [#pokebot-gen3-support❔](http
 - 🥅 [Custom Catch Filters](pages/Configuration%20-%20Custom%20Catch%20Filters.md)
 - 💎 [Cheats](pages/Configuration%20-%20Cheats.md)
 - 📡 [HTTP Server](pages/Configuration%20-%20HTTP%20Server.md)
+
+### Customisation
+
+- 🧩 [Bot Plugins](pages/Customisation%20-%20Plugins.md)
+- 📊 [Statistics Database](pages/Customisation%20-%20Statistics%20Database.md)
