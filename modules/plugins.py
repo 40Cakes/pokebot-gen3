@@ -50,14 +50,12 @@ def load_plugins():
                     inspect.getmembers(getattr(imported_module, module_name), inspect.isclass),
                 )
             )
-            if len(classes) == 0:
-                raise RuntimeError(f"Could not load plugin `{file.name}`: It did not contain any class.")
-            if len(classes) > 1:
-                raise RuntimeError(f"Could not load plugin `{file.name}`: It contained more than one class.")
-            if not issubclass(classes[0][1], BotPlugin):
-                raise RuntimeError(f"Could not load plugin `{file.name}`: Class did not inherit from `BotPlugin`.")
 
-            plugins.append(classes[0][1]())
+            if len(classes) == 0:
+                raise RuntimeError(f"Could not load plugin `{file.name}`: It did not contain any plugin class.")
+
+            for class_name, plugin_class in classes:
+                plugins.append(plugin_class())
 
 
 def plugin_get_additional_bot_modes() -> Iterable["BotMode"]:
