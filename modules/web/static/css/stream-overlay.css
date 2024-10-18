@@ -302,6 +302,19 @@ table.sv_hud {
     padding: 0 15px;
 }
 
+.info-bubbles-bottom-right .icon-pokemon.mirrored {
+    transform: scale(-4, 4) translateY(-5px) translateX(-3px) scaleX(-1);
+}
+
+.info-bubbles-bottom-right > .info-bubble.icon-right .icon-pokemon {
+    float: right;
+    transform: scale(4) translateY(-5px) scaleX(-1);
+}
+
+.info-bubbles-bottom-right > .info-bubble.icon-right .icon-pokemon.mirrored {
+    transform: scale(-4, 4) translateY(-5px) scaleX(-1);
+}
+
 .info-bubbles-bottom-right .icon-item {
     transform: scale(2.5) translateY(-2px) translateX(-3px);
     image-rendering: optimizespeed;

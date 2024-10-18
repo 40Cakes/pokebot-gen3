@@ -1410,9 +1410,9 @@ class MapTab(DebugTab):
             result = {}
             value = []
             for encounter in encounters:
-                percentage = round(100 * encounter.encounter_rate)
-                value.append(f"{percentage}% {encounter.species.name}")
-                result[encounter.species.name] = f"{percentage}%; Lvl. {encounter.min_level}-{encounter.max_level}"
+                percentage = 100 * encounter.encounter_rate
+                value.append(f"{percentage:.1f}% {encounter.species.name}")
+                result[encounter.species.name] = f"{percentage:.1f}%; Lvl. {encounter.min_level}-{encounter.max_level}"
             result["__value"] = ", ".join(value)
             effective_encounters[label] = result
 
@@ -1431,12 +1431,15 @@ class MapTab(DebugTab):
         if "__value" not in effective_encounters:
             effective_encounters["__value"] = ""
 
-        if get_party_repel_level() > 0:
-            effective_encounters["__value"] = (
-                f"(Repel Lvl. {get_party_repel_level()}) {effective_encounters['__value']}"
-            )
+        encounter_modifiers = []
+        if effective_encounter_data.repel_level > 0:
+            encounter_modifiers.append(f"Repel Lvl. {effective_encounter_data.repel_level}")
         else:
-            effective_encounters["__value"] = f"(no Repel) {effective_encounters['__value']}"
+            encounter_modifiers.append("no Repel")
+        if effective_encounter_data.active_ability is not None:
+            encounter_modifiers.append(effective_encounter_data.active_ability.name)
+
+        effective_encounters["__value"] = f"({', '.join(encounter_modifiers)}) {effective_encounters['__value']}"
 
         if context.rom.is_rse:
             map_enum = MapRSE(map_data.map_group_and_number)

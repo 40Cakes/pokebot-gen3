@@ -15,7 +15,16 @@ from modules.memory import (
     unpack_uint32,
     get_event_flag_by_number,
 )
-from modules.pokemon import Item, Species, get_item_by_index, get_species_by_index, get_party_repel_level
+from modules.pokemon import (
+    Item,
+    Species,
+    get_item_by_index,
+    get_species_by_index,
+    get_party_repel_level,
+    Ability,
+    get_party,
+    get_type_by_name,
+)
 from modules.state_cache import state_cache
 
 
@@ -1889,6 +1898,7 @@ class EffectiveWildEncounterList:
     map_group: int
     map_number: int
     repel_level: int
+    active_ability: Ability | None
     regular_encounters: WildEncounterList | None
 
     land_encounters: list[EffectiveWildEncounter]
@@ -1911,6 +1921,7 @@ class EffectiveWildEncounterList:
     def to_dict(self) -> dict:
         return {
             "repel_level": self.repel_level,
+            "active_ability": self.active_ability.name,
             "regular": self.regular_encounters.to_dict(),
             "effective": {
                 "land_encounters": [encounter.to_dict() for encounter in self.land_encounters],
@@ -1935,19 +1946,38 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
 
     map_group, map_number = player.map_group_and_number
 
+    lead_pokemon = get_party()[0]
     repel_level = get_party_repel_level()
     wild_encounters = get_wild_encounters_for_map(map_group, map_number)
 
-    def calculate_effective_encounters(encounters: list[WildEncounter]) -> list[EffectiveWildEncounter]:
+    def calculate_effective_encounters(
+        encounters: list[WildEncounter], encounter_type: str
+    ) -> list[EffectiveWildEncounter]:
         species = {}
         total_rate = 0
         for encounter in encounters:
             if repel_level > encounter.max_level:
+                # Entire encounter slot blocked by Repel
                 continue
-            elif repel_level < encounter.min_level:
-                modifier = 1
-            else:
+            elif repel_level >= encounter.min_level:
+                # Some levels blocked by repel
                 modifier = 1 - (repel_level - encounter.min_level) / (1 + encounter.max_level - encounter.min_level)
+            elif (
+                not lead_pokemon.is_egg
+                and lead_pokemon.ability.name in ("Keen Eye", "Intimidate")
+                and encounter_type in ("land", "surf", "rock_smash")
+                and lead_pokemon.level > encounter.min_level + 5
+            ):
+                # Some levels potentially blocked by Keen Eye/Intimidate
+                # If the lead Pokémon has one of these abilities, encounters with 5 or more levels
+                # below that of the lead Pokémon have a 50% chance of being rejected on generation.
+                possible_levels = 1 + encounter.max_level - encounter.min_level
+                fraction_below_threshold = ((lead_pokemon.level - 5) - encounter.min_level + 1) / possible_levels
+                fraction_above_threshold = 1 - fraction_below_threshold
+                modifier = fraction_below_threshold * 0.5 + fraction_above_threshold
+            else:
+                # Not affected by Repel or Keen Eye/Intimidate
+                modifier = 1
 
             rate = encounter.encounter_rate * modifier
             min_level = max(encounter.min_level, repel_level)
@@ -1966,6 +1996,32 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
         for index in species:
             species[index].encounter_rate /= total_rate
 
+        if lead_pokemon.ability.name == "Static" and encounter_type in ("land", "surf"):
+            boosted_type = get_type_by_name("Electric")
+        elif lead_pokemon.ability.name == "Magnet Pull" and encounter_type == "land":
+            boosted_type = get_type_by_name("Steel")
+        else:
+            boosted_type = None
+
+        if boosted_type is not None:
+            number_of_encounter_slots_with_boosted_type = 0
+            encounter_slots_by_species = {}
+            for encounter in encounters:
+                if encounter.species.has_type(boosted_type):
+                    if encounter.species.index not in encounter_slots_by_species:
+                        encounter_slots_by_species[encounter.species.index] = 0
+                    encounter_slots_by_species[encounter.species.index] += 1
+                    number_of_encounter_slots_with_boosted_type += 1
+
+            if number_of_encounter_slots_with_boosted_type > 0:
+                for index in species:
+                    species[index].encounter_rate /= 2
+                    if species[index].species.has_type(boosted_type):
+                        species[index].encounter_rate += 0.5 * (
+                            encounter_slots_by_species[species[index].species.index]
+                            / number_of_encounter_slots_with_boosted_type
+                        )
+
         result = list(species.values())
         result.sort(reverse=True, key=lambda e: e.encounter_rate)
 
@@ -1973,20 +2029,60 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
 
     if wild_encounters is None:
         encounter_list = EffectiveWildEncounterList(
-            map_group, map_number, repel_level, WildEncounterList.empty(), [], [], [], [], [], []
+            map_group, map_number, repel_level, None, WildEncounterList.empty(), [], [], [], [], [], []
         )
     else:
+        if context.rom.is_emerald:
+            encounter_affecting_abilities = (
+                # Doubles encounter rate.
+                "Arena Trap",
+                "Illuminate",
+                # Increases the chance of a wild encounter holding an item from 50%/5% to 60%/20%.
+                "Compound Eyes",
+                # 2/3 chance that a wild encounter is of the opposite gender to the lead Pokémon.
+                "Cute Charm",
+                # 50% chance that a wild encounter has the maximum possible level of that encounter slot.
+                "Hustle",
+                "Pressure",
+                "Vital Spirit",
+                # 50% chance that a wild encounter with a level of 5 or lower than the lead Pokémon
+                # is rejected.
+                "Intimidate",
+                "Keen Eye",
+                # 50% chance that a Steel Pokémon is encountered, if such a Pokémon can be encountered
+                # on the current map (only for land encounters.)
+                "Magnet Pull",
+                # Halves encounter rates in areas with a sandstorm
+                "Sand Veil",
+                # 50% chance that an Electric Pokémon is encountered, if such a Pokémon can be
+                # encountered on the current map (only for land and surfing encounters.)
+                "Static",
+                # Halves encounter rates.
+                "Stench",
+                "White Smoke",
+                # Increases bite rates while fishing.
+                "Sticky Hold",
+                "Suction Cups",
+                # 50% chance that an encountered Pokémon has the same nature as the lead Pokémon.
+                "Synchronize",
+            )
+        else:
+            encounter_affecting_abilities = ("Stench", "Illuminate")
+
         encounter_list = EffectiveWildEncounterList(
             map_group=map_group,
             map_number=map_number,
             repel_level=repel_level,
+            active_ability=(
+                lead_pokemon.ability if lead_pokemon.ability.name in encounter_affecting_abilities else None
+            ),
             regular_encounters=wild_encounters,
-            land_encounters=calculate_effective_encounters(wild_encounters.land_encounters),
-            surf_encounters=calculate_effective_encounters(wild_encounters.surf_encounters),
-            rock_smash_encounters=calculate_effective_encounters(wild_encounters.rock_smash_encounters),
-            old_rod_encounters=calculate_effective_encounters(wild_encounters.old_rod_encounters),
-            good_rod_encounters=calculate_effective_encounters(wild_encounters.good_rod_encounters),
-            super_rod_encounters=calculate_effective_encounters(wild_encounters.super_rod_encounters),
+            land_encounters=calculate_effective_encounters(wild_encounters.land_encounters, "land"),
+            surf_encounters=calculate_effective_encounters(wild_encounters.surf_encounters, "surf"),
+            rock_smash_encounters=calculate_effective_encounters(wild_encounters.rock_smash_encounters, "rock_smash"),
+            old_rod_encounters=calculate_effective_encounters(wild_encounters.old_rod_encounters, "fishing"),
+            good_rod_encounters=calculate_effective_encounters(wild_encounters.good_rod_encounters, "fishing"),
+            super_rod_encounters=calculate_effective_encounters(wild_encounters.super_rod_encounters, "fishing"),
         )
 
     state_cache.effective_wild_encounters = encounter_list

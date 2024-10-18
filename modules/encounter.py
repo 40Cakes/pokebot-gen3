@@ -1,6 +1,6 @@
 import importlib
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum, auto
 from pathlib import Path
 from typing import Callable, TYPE_CHECKING
@@ -52,7 +52,7 @@ class EncounterInfo:
         local_coordinates = player_avatar.local_coordinates
         return cls(
             pokemon=pokemon,
-            encounter_time=datetime.now(),
+            encounter_time=datetime.now(timezone.utc),
             type=type if type is not None else get_encounter_type(),
             value=judge_encounter(pokemon),
             map=map_enum,

@@ -48,6 +48,7 @@ declare module StreamEvents {
 
     export type MapEncounters = {
         repel_level: number;
+        active_ability: string | null;
         regular: RegularEncounterList;
         effective: EffectiveEncounterList;
     };
