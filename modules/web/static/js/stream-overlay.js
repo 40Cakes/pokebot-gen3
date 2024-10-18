@@ -9,8 +9,8 @@ time_zone = "Australia/Sydney" // "Australia/Sydney"
 override_display_timezone = "AEST" // "AEST"
 
 // Name of Pokemon for the "timers since last encounter" for a Pokemon to display on screen
-target_timer_1 = "Aron" // "Seedot"
-target_timer_2 = ""
+target_timer_1 = "Minun" // "Seedot"
+target_timer_2 = "Plusle"
 
 // Pokemon to display on the checklist (possible encounters via current bot mode are appended to top of list)
 // Leave it empty to only show encounters on the current route
@@ -252,8 +252,14 @@ async function handleStats(data) {
     state.stats = data
 
     if (target_timer_1 !== "" && data.pokemon[target_timer_1]) {
-        $("#target_1_sprite").attr("src", pokemonSprite(target_timer_1, false, false, true))
+        const sprite = $("#target_1_sprite")
+        sprite.attr("src", pokemonSprite(target_timer_1, false, false, true))
         $("#target_1").css("display", "inline-block")
+        if (target_timer_2 !== "" && data.pokemon[target_timer_2] && !sprite.hasClass("mirrored")) {
+            sprite.addClass("mirrored");
+        } else if ((target_timer_2 === "" || !data.pokemon[target_timer_2]) && sprite.hasClass("mirrored")) {
+            sprite.removeClass("mirrored");
+        }
     }
 
     if (target_timer_2 !== "" && data.pokemon[target_timer_2]) {
@@ -433,6 +439,15 @@ function handleMapEncounters(data) {
         $("#repel_info").css("display", "inline-block");
     } else {
         $("#repel_info").css("display", "none");
+    }
+
+    const abilityInfo = $("#ability_info");
+
+    if (data.active_ability) {
+        abilityInfo.css("display", "inline-block");
+        $("#ability_name").text(data.active_ability);
+    } else {
+        abilityInfo.css("display", "none");
     }
 
     refreshchecklist();
