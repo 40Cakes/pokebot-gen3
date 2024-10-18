@@ -62,7 +62,6 @@ class BattleListener(BotListener):
 
     def __init__(self):
         self._in_battle = False
-        self._battle_start_frame: int = 0
         self._reported_start_of_battle = False
         self._active_wild_encounter: EncounterInfo | None = None
         self._reported_wild_encounter_visible = False
@@ -75,7 +74,6 @@ class BattleListener(BotListener):
             frame.game_state in self.battle_states or frame.task_is_active("Task_BattleStart")
         ):
             self._in_battle = True
-            self._battle_start_frame = context.emulator.get_frame_count()
             self._reported_start_of_battle = False
             self._active_wild_encounter = None
             self._reported_wild_encounter_visible = False
@@ -182,10 +180,6 @@ class BattleListener(BotListener):
 
             elif is_starting_to_become_visible:
                 self._was_starting_to_become_visible = True
-
-        elif context.emulator.get_frame_count() < self._battle_start_frame:
-            self._in_battle = False
-            self._active_wild_encounter = None
 
     @debug.track
     def _wait_until_battle_is_over(self):

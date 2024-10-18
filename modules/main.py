@@ -81,7 +81,7 @@ def main_loop() -> None:
 
             # Reset all bot listeners if the emulator has been reset.
             if previous_frame_info is not None and previous_frame_info.frame_count > frame_info.frame_count:
-                context.listeners = get_bot_listeners(context.rom)
+                context.bot_listeners = get_bot_listeners(context.rom)
 
             if context.bot_mode == "Manual":
                 context.controller_stack = []
