@@ -14,7 +14,7 @@ from modules.encounter import EncounterValue
 from modules.plugin_interface import BotPlugin
 from modules.runtime import get_sprites_path
 from modules.sprites import get_shiny_sprite, get_regular_sprite, get_anti_shiny_sprite
-from modules.stats import EncounterSummary
+from modules.stats import EncounterSummary, GlobalStats
 
 if TYPE_CHECKING:
     from modules.config.schemas_v1 import DiscordWebhook
@@ -66,7 +66,7 @@ def pokemon_fields(pokemon: "Pokemon", species_stats: "EncounterSummary", short:
     return result
 
 
-def phase_summary_fields(pokemon: "Pokemon", phase: "ShinyPhase | None") -> dict[str, str]:
+def phase_summary_fields(pokemon: "Pokemon", phase: "ShinyPhase | None", global_stats: GlobalStats) -> dict[str, str]:
     if phase is None:
         return {}
 
@@ -94,10 +94,9 @@ def phase_summary_fields(pokemon: "Pokemon", phase: "ShinyPhase | None") -> dict
             f"{phase.longest_streak.value:,} {phase.longest_streak.species_name} were encountered in a row!"
         )
 
-    if phase.snapshot_total_encounters is not None and phase.snapshot_total_shiny_encounters is not None:
-        result["Total Encounters"] = (
-            f"{phase.snapshot_total_encounters:,} ({phase.snapshot_total_shiny_encounters:,}✨)"
-        )
+    result["Total Encounters"] = (
+        f"{global_stats.totals.total_encounters:,} ({global_stats.totals.shiny_encounters:,}✨)"
+    )
 
     return result
 
@@ -147,7 +146,8 @@ class DiscordPlugin(BotPlugin):
                 embed=DiscordMessageEmbed(
                     title=f"Shiny {encounter.type.verb}!",
                     description=pokemon_label(opponent),
-                    fields=pokemon_fields(opponent, species_stats) | phase_summary_fields(opponent, shiny_phase),
+                    fields=pokemon_fields(opponent, species_stats)
+                    | phase_summary_fields(opponent, shiny_phase, global_stats),
                     thumbnail=get_shiny_sprite(opponent),
                     colour="ffd242",
                     image=encounter.gif_path,
@@ -168,7 +168,7 @@ class DiscordPlugin(BotPlugin):
                     title=f"(Blocked) Shiny {encounter.type.verb}",
                     description=pokemon_label(opponent),
                     fields=pokemon_fields(opponent, species_stats, short=True)
-                    | phase_summary_fields(opponent, shiny_phase),
+                    | phase_summary_fields(opponent, shiny_phase, global_stats),
                     thumbnail=get_shiny_sprite(opponent),
                     colour="808080",
                 ),
@@ -255,7 +255,9 @@ class DiscordPlugin(BotPlugin):
             send_discord_message(
                 webhook_config=context.config.discord.phase_summary,
                 content=f"💀 The current phase has reached {phase_encounters:,} encounters!",
-                embed=DiscordMessageEmbed(fields=phase_summary_fields(opponent, shiny_phase), colour="d70040"),
+                embed=DiscordMessageEmbed(
+                    fields=phase_summary_fields(opponent, shiny_phase, global_stats), colour="d70040"
+                ),
             )
 
         # Discord anti-shiny Pokémon encountered
@@ -266,7 +268,8 @@ class DiscordPlugin(BotPlugin):
                 embed=DiscordMessageEmbed(
                     title=f"Anti-Shiny {encounter.type.verb}!",
                     description=pokemon_label(opponent),
-                    fields=pokemon_fields(opponent, species_stats) | phase_summary_fields(opponent, shiny_phase),
+                    fields=pokemon_fields(opponent, species_stats)
+                    | phase_summary_fields(opponent, shiny_phase, global_stats),
                     thumbnail=get_anti_shiny_sprite(opponent),
                     colour="000000",
                 ),
@@ -284,7 +287,8 @@ class DiscordPlugin(BotPlugin):
                 content=f"{encounter.type.verb.title()} a {opponent.species_name_for_stats} matching custom filter: `{encounter.catch_filters_result}`!",
                 embed=DiscordMessageEmbed(
                     description=pokemon_label(opponent),
-                    fields=pokemon_fields(opponent, species_stats) | phase_summary_fields(opponent, shiny_phase),
+                    fields=pokemon_fields(opponent, species_stats)
+                    | phase_summary_fields(opponent, shiny_phase, global_stats),
                     thumbnail=get_regular_sprite(opponent),
                     colour="6a89cc",
                     image=encounter.gif_path,
