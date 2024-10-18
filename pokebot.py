@@ -112,12 +112,10 @@ if __name__ == "__main__":
     from modules.exceptions_hook import register_exception_hook
     from modules.main import main_loop
     from modules.modes import get_bot_mode_names
-    from modules.plugins import load_plugins
     from modules.profiles import Profile, profile_directory_exists, load_profile_by_name
     from updater import run_updater
 
     register_exception_hook()
-    load_plugins()
 
     # This catches the signal Windows emits when the underlying console window is closed
     # by the user. We still want to save the emulator state in that case, which would not
