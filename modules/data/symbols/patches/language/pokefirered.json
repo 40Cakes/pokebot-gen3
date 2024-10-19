@@ -500,6 +500,12 @@
     "I":"8164f39",
     "S":"816502d"
   },
+  "EventScript_FieldPoison":{
+    "D":"81abc2f",
+    "F":"81a7826",
+    "I":"81a6685",
+    "S":"81a88c6"
+  },
   "Route19_Text_LucRematchIntro":{
     "D":"0"
   },
