@@ -190,25 +190,28 @@ def migrate_file_based_stats_to_sqlite(
                         catches=shiny_encounters,
                         total_highest_iv_sum=entry["total_highest_iv_sum"],
                         total_lowest_iv_sum=entry["total_lowest_iv_sum"],
-                        total_highest_sv=entry["total_lowest_sv"],
-                        total_lowest_sv=(
+                        total_highest_sv=(
                             entry["phase_highest_sv"]
-                            if entry["phase_highest_sv"] is not None
+                            if "phase_highest_sv" in entry and entry["phase_highest_sv"] is not None
                             else entry["total_lowest_sv"]
                         ),
-                        phase_encounters=entry["phase_encounters"],
-                        phase_highest_iv_sum=entry["phase_highest_iv_sum"],
-                        phase_lowest_iv_sum=entry["phase_lowest_iv_sum"],
-                        phase_highest_sv=entry["phase_highest_sv"],
-                        phase_lowest_sv=entry["phase_lowest_sv"],
+                        total_lowest_sv=entry["total_lowest_sv"],
+                        phase_encounters=entry["phase_encounters"] if "phase_encounters" in entry else 0,
+                        phase_highest_iv_sum=entry["phase_highest_iv_sum"] if "phase_highest_iv_sum" in entry else None,
+                        phase_lowest_iv_sum=entry["phase_lowest_iv_sum"] if "phase_lowest_iv_sum" in entry else None,
+                        phase_highest_sv=entry["phase_highest_sv"] if "phase_highest_sv" in entry else None,
+                        phase_lowest_sv=entry["phase_lowest_sv"] if "phase_lowest_sv" in entry else None,
                         last_encounter_time=last_encounter_time,
                     )
                 else:
                     summary = encounter_summaries[species_id]
-                    summary.total_encounters = max(summary.total_encounters, entry["encounters"])
-                    summary.shiny_encounters = max(summary.shiny_encounters, entry["shiny_encounters"])
-                    summary.catches = max(summary.catches, entry["shiny_encounters"])
-                    summary.phase_encounters = max(summary.phase_encounters, entry["phase_encounters"])
+                    if "encounters" in entry:
+                        summary.total_encounters = max(summary.total_encounters, entry["encounters"])
+                    if "shiny_encounters" in entry:
+                        summary.shiny_encounters = max(summary.shiny_encounters, entry["shiny_encounters"])
+                        summary.catches = max(summary.catches, entry["shiny_encounters"])
+                    if "phase_encounters" in entry:
+                        summary.phase_encounters = max(summary.phase_encounters, entry["phase_encounters"])
                     summary.last_encounter_time = max(summary.last_encounter_time, last_encounter_time)
 
                 insert_encounter_summary(summary)
