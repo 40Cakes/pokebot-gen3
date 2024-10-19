@@ -164,10 +164,11 @@ def log_encounter(encounter_info: EncounterInfo) -> None:
     species_name = pokemon.species.name
     if pokemon.is_shiny:
         species_name = f"Shiny {species_name}"
-    if pokemon.gender == "male":
-        species_name += " ♂"
-    elif pokemon.gender == "female":
-        species_name += " ♀"
+    if not pokemon.species.name.startswith("Nidoran"):
+        if pokemon.gender == "male":
+            species_name += " ♂"
+        elif pokemon.gender == "female":
+            species_name += " ♀"
     if pokemon.species.name == "Unown":
         species_name += f" ({pokemon.unown_letter})"
     if pokemon.species.name == "Wurmple":
