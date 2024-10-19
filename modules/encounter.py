@@ -146,13 +146,11 @@ def log_encounter(encounter_info: EncounterInfo) -> None:
         return
 
     log_entry = context.stats.log_encounter(encounter_info)
-    print_stats(context.stats.get_global_stats(), encounter_info)
+    if context.config.logging.log_encounters_to_console:
+        print_stats(context.stats.get_global_stats(), encounter_info)
     plugin_logging_encounter(encounter_info)
     if encounter_info.is_shiny:
         context.stats.reset_shiny_phase(log_entry)
-
-    if context.config.logging.save_pk3.all:
-        save_pk3(pokemon)
 
     # Generate the bot message shown below the video
     fun_facts = [
@@ -201,7 +199,7 @@ def handle_encounter(
         case EncounterValue.Shiny:
             console.print(f"[bold yellow]Shiny {pokemon.species.name} found![/]")
             alert = "Shiny found!", f"Found a ✨shiny {pokemon.species.name}✨! 🥳"
-            if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.shiny:
+            if context.config.logging.save_pk3.shiny:
                 save_pk3(pokemon)
             is_of_interest = True
 
@@ -209,7 +207,7 @@ def handle_encounter(
             filter_result = encounter_info.catch_filters_result
             console.print(f"[pink green]Custom filter triggered for {pokemon.species.name}: '{filter_result}'[/]")
             alert = "Custom filter triggered!", f"Found a {pokemon.species.name} that matched one of your filters."
-            if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.custom:
+            if context.config.logging.save_pk3.custom:
                 save_pk3(pokemon)
             is_of_interest = True
 
@@ -217,22 +215,23 @@ def handle_encounter(
             console.print(f"[pink yellow]Roaming {pokemon.species.name} found![/]")
             alert = "Roaming Pokémon found!", f"Encountered a roaming {pokemon.species.name}."
             # If this is the first time the Roamer is encountered
-            if pokemon.species not in get_pokedex().seen_species and (
-                not context.config.logging.save_pk3.all and context.config.logging.save_pk3.roamer
-            ):
+            if pokemon.species not in get_pokedex().seen_species and context.config.logging.save_pk3.roamer:
                 save_pk3(pokemon)
             is_of_interest = True
 
         case EncounterValue.ShinyOnBlockList:
             console.print(f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...[/]")
             alert = None
-            if not context.config.logging.save_pk3.all and context.config.logging.save_pk3.shiny:
+            if context.config.logging.save_pk3.shiny:
                 save_pk3(pokemon)
             is_of_interest = False
 
         case EncounterValue.RoamerOnBlockList:
             console.print(f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...[/]")
             alert = None
+            # If this is the first time the Roamer is encountered
+            if pokemon.species not in get_pokedex().seen_species and context.config.logging.save_pk3.roamer:
+                save_pk3(pokemon)
             is_of_interest = False
 
         case EncounterValue.Trash | _:
