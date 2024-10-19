@@ -13,6 +13,7 @@ The following legend will be under a table of supported/tested games on many pag
 - ✅ Tested, working
 - 🟨 Untested, may not work
 - ❌ Untested, not working
+- 🚫 Patched in this language, not working
 
 ROM hacks will likely not work, and are 🚫 **not supported** or planned to be supported! Please do not seek support or complain if you find that your ROM hack does not work with the bot.
 
