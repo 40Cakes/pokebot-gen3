@@ -11,7 +11,7 @@ from threading import Thread
 from typing import TYPE_CHECKING, Generator
 
 import obsws_python as obs
-from black import datetime
+from datetime import datetime
 
 from modules.console import console
 from modules.context import context
