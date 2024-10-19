@@ -113,8 +113,8 @@ def print_stats(stats: "GlobalStats", encounter: "EncounterInfo") -> None:
 
     # General Information table
     pokemon_table = Table(show_header=False, border_style="#888888")
-    pokemon_table.add_column("Key", justify="right")
-    pokemon_table.add_column("Value", justify="left")
+    pokemon_table.add_column("Key", justify="right", width=12)
+    pokemon_table.add_column("Value", justify="left", width=12)
 
     pokemon_table.add_row("[bold]PID[/]", f"{pokemon.personality_value:08X}")
     pokemon_table.add_row("[bold]Level[/]", str(pokemon.level))
@@ -132,13 +132,14 @@ def print_stats(stats: "GlobalStats", encounter: "EncounterInfo") -> None:
 
     # IVs table
     iv_table = Table(title="IVs", border_style="#888888")
-    iv_table.add_column("HP", justify="center", style=iv_colour(pokemon.ivs.hp))
-    iv_table.add_column("ATK", justify="center", style=iv_colour(pokemon.ivs.attack))
-    iv_table.add_column("DEF", justify="center", style=iv_colour(pokemon.ivs.defence))
-    iv_table.add_column("SPATK", justify="center", style=iv_colour(pokemon.ivs.special_attack))
-    iv_table.add_column("SPDEF", justify="center", style=iv_colour(pokemon.ivs.special_defence))
-    iv_table.add_column("SPD", justify="center", style=iv_colour(pokemon.ivs.speed))
-    iv_table.add_column("Total", justify="right", style=iv_sum_colour(pokemon.ivs.sum()))
+    iv_table.add_column("HP", justify="center", style=iv_colour(pokemon.ivs.hp), width=5)
+    iv_table.add_column("ATK", justify="center", style=iv_colour(pokemon.ivs.attack), width=5)
+    iv_table.add_column("DEF", justify="center", style=iv_colour(pokemon.ivs.defence), width=5)
+    iv_table.add_column("SPATK", justify="center", style=iv_colour(pokemon.ivs.special_attack), width=5)
+    iv_table.add_column("SPDEF", justify="center", style=iv_colour(pokemon.ivs.special_defence), width=5)
+    iv_table.add_column("SPD", justify="center", style=iv_colour(pokemon.ivs.speed), width=5)
+    iv_table.add_column("Total", justify="right", style=iv_sum_colour(pokemon.ivs.sum()), width=5)
+
     iv_table.add_row(
         iv_value(pokemon, "hp"),
         iv_value(pokemon, "attack"),
@@ -157,6 +158,7 @@ def print_stats(stats: "GlobalStats", encounter: "EncounterInfo") -> None:
             move_list.append(f"[{move.type.name.lower()}]{move.name}[/]")
     move_list = f"\n[bold]Moves:[/] {', '.join(move_list)}"
 
+    # EV Yield
     ev_yields = []
     for stat in ("hp", "attack", "defence", "speed", "special_attack", "special_defence"):
         if pokemon.species.ev_yield[stat] > 0:
