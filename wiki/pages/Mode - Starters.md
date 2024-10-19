@@ -43,10 +43,10 @@ Soft resets for starter Pokémon.
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
 | Japanese |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
-| German   |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
-| Spanish  |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
-| French   |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
-| Italian  |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| German   |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
+| Spanish  |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
+| French   |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
+| Italian  |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
 
 ✅ Tested, working
 
