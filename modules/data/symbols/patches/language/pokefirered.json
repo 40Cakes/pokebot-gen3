@@ -488,6 +488,18 @@
     "I":"81bd118",
     "S":"81bf7f1"
   },
+  "EventScript_UseStrength":{
+    "D":"81c1be8",
+    "F":"81bcafd",
+    "I":"81bb77a",
+    "S":"81bde41"
+  },
+  "SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved":{
+    "D":"8164f01",
+    "F":"8164fb8",
+    "I":"8164f39",
+    "S":"816502d"
+  },
   "Route19_Text_LucRematchIntro":{
     "D":"0"
   },
@@ -504,6 +516,9 @@
     "F":"0"
   },
   "Route23_EventScript_MissingBadge":{
+    "F":"0"
+  },
+  "NavelRock_Summit_EventScript_HideHoOh":{
     "F":"0"
   },
   "CableClub_Text_YouMayBattleHere":{

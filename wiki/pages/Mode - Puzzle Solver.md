@@ -47,7 +47,13 @@ Solves the puzzle before encountering Deoxys on [Birth Island](https://bulbapedi
 
 ### Starting Location
 
+For `Ruby/Sapphire/Emerald`
+
 ![image](../images/puzzle_deoxys.png)
+
+For `Fire Red / Leaf Green`
+
+![image](../images/puzzle_deoxys_frlg.png)
 
 ## Regice
 
@@ -120,14 +126,26 @@ Start mode inside Tanoby Key.
 
 # Game Support
 
-|          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 Fire Red | 🌿 Leaf Green |
-| :------- | :-----: | :---------: | :--------: | ----------- | ------------- |
-| English  |   ✅    |     ✅      |     ✅     | ✅          | ✅            |
-| Japanese |   ❌    |     ❌      |     ❌     | ❌          | ❌            |
-| German   |   ❌    |     ❌      |     ❌     | ❌          | ❌            |
-| Spanish  |   ❌    |     ❌      |     ❌     | ❌          | ❌            |
-| French   |   ❌    |     ❌      |     ❌     | ❌          | ❌            |
-| Italian  |   ❌    |     ❌      |     ❌     | ❌          | ❌            |
+| Puzzle         | Game         | English | Japanese | German | Spanish | French | Italian |
+|:---------------|:-------------|:-------:|:--------:|:------:|:-------:|:------:|:-------:|
+| **Sky Pillar** | 🟢 Emerald   |   ✅    |    ❌    |   ❌   |   ❌   |   ❌   |   ❌    |
+| **Mirage Tower**| 🟢 Emerald   |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+| **Deoxys**     | 🟥 Ruby      |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+|                | 🔷 Sapphire  |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+|                | 🟢 Emerald   |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+|                | 🔥 Fire Red  |   ✅    |    ❌    |   ✅   |   ✅   |   ✅   |   ✅    |
+|                | 🌿 LeafGreen |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+| **Regice**     | 🟥 Ruby      |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+|                | 🔷 Sapphire  |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+|                | 🟢 Emerald   |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+| **Regirock**   | 🟥 Ruby      |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+|                | 🔷 Sapphire  |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+|                | 🟢 Emerald   |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+| **Registeel**  | 🟥 Ruby      |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+|                | 🔷 Sapphire  |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+|                | 🟢 Emerald   |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+| **Tanoby Key** | 🔥 Fire Red  |   ✅    |    ❌    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                | 🌿 LeafGreen |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
 
 ✅ Tested, working
 
