@@ -59,9 +59,6 @@ def load_built_in_plugins():
 
         plugins.insert(1, DiscordPlugin())
 
-    for plugin in plugins:
-        print(plugin)
-
 
 def plugin_get_additional_bot_modes() -> Iterable["BotMode"]:
     for plugin in plugins:
