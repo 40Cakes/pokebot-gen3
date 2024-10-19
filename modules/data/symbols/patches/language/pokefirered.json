@@ -506,6 +506,21 @@
     "I":"81a6685",
     "S":"81a88c6"
   },
+  "EventScript_DoTrainerBattle":{
+    "D":"81a7c81",
+    "F":"81a3b32",
+    "I":"81a296a",
+    "S":"81a4ae3"
+  },
+  "EventScript_DoTrainerBattleFromApproach":{
+    "D":"81a7b68",
+    "F":"81a3a19",
+    "I":"81a2851",
+    "S":"81a49ca"
+  },
+  "PokemonMansion_EventScript_DontPressSwitch":{
+    "D":"0"
+  },
   "Route19_Text_LucRematchIntro":{
     "D":"0"
   },
