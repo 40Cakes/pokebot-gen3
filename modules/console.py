@@ -114,7 +114,7 @@ def print_stats(stats: "GlobalStats", encounter: "EncounterInfo") -> None:
     # General Information table
     pokemon_table = Table(show_header=False, border_style="#888888")
     pokemon_table.add_column("Key", justify="right", width=12)
-    pokemon_table.add_column("Value", justify="left", width=12)
+    pokemon_table.add_column("Value", justify="left", width=15)
 
     pokemon_table.add_row("[bold]PID[/]", f"{pokemon.personality_value:08X}")
     pokemon_table.add_row("[bold]Level[/]", str(pokemon.level))
