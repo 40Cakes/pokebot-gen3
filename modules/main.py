@@ -7,7 +7,7 @@ from modules.console import console
 from modules.context import context
 from modules.memory import get_game_state
 from modules.modes import BotMode, BotModeError, FrameInfo, get_bot_listeners, get_bot_mode_by_name
-from modules.plugins import plugin_profile_loaded, load_plugins
+from modules.plugins import plugin_profile_loaded, load_built_in_plugins
 from modules.stats import StatsDatabase
 from modules.tasks import get_global_script_context, get_tasks
 
@@ -37,7 +37,14 @@ def main_loop() -> None:
     This function is run after the user has selected a profile and the emulator has been started.
     """
     try:
-        load_plugins()
+        # Built-in plugins are only loaded if some bot configuration actually requires them.
+        # Since profile configuration can override global configuration, they can only be
+        # loaded at this point where the profile has been loaded and so the full config is
+        # available.
+        #
+        # Regular (user-provided) plugins need to be loaded in `pokebot.py` as early as possible
+        # because they might add bot modes.
+        load_built_in_plugins()
         plugin_profile_loaded(context.profile)
 
         context.stats = StatsDatabase(context.profile)
