@@ -22,24 +22,6 @@ def load_plugins():
     if not plugins_dir.exists():
         return
 
-    # This plugin needs to be loaded first so that is executed first. That's because it is supposed
-    # to set the `gif_path` and `tcg_card_path` properties on wild encounters so that other plugins
-    # can use them.
-    if context.config.logging.shiny_gifs or context.config.logging.tcg_cards:
-        from modules.built_in_plugins.generate_encounter_media import GenerateEncounterMediaPlugin
-
-        plugins.append(GenerateEncounterMediaPlugin())
-
-    if context.config.obs.screenshot or context.config.obs.replay_buffer:
-        from modules.built_in_plugins.obs import OBSPlugin
-
-        plugins.append(OBSPlugin())
-
-    if context.config.discord.is_anything_enabled():
-        from modules.built_in_plugins.discord_integration import DiscordPlugin
-
-        plugins.append(DiscordPlugin())
-
     for file in plugins_dir.iterdir():
         if file.name.endswith(".py"):
             module_name = file.name[:-3]
@@ -56,6 +38,29 @@ def load_plugins():
 
             for class_name, plugin_class in classes:
                 plugins.append(plugin_class())
+
+
+def load_built_in_plugins():
+    # This plugin needs to be loaded first so that is executed first. That's because it is supposed
+    # to set the `gif_path` and `tcg_card_path` properties on wild encounters so that other plugins
+    # can use them.
+    if context.config.logging.shiny_gifs or context.config.logging.tcg_cards:
+        from modules.built_in_plugins.generate_encounter_media import GenerateEncounterMediaPlugin
+
+        plugins.insert(0, GenerateEncounterMediaPlugin())
+
+    if context.config.obs.screenshot or context.config.obs.replay_buffer:
+        from modules.built_in_plugins.obs import OBSPlugin
+
+        plugins.insert(1, OBSPlugin())
+
+    if context.config.discord.is_anything_enabled():
+        from modules.built_in_plugins.discord_integration import DiscordPlugin
+
+        plugins.insert(1, DiscordPlugin())
+
+    for plugin in plugins:
+        print(plugin)
 
 
 def plugin_get_additional_bot_modes() -> Iterable["BotMode"]:
