@@ -106,10 +106,10 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 |:---------|:----------:|:----------:|:------------:|
 | English  |     ✅      |     ✅      |      ✅       |
 | Japanese |     ✅      |     ❌      |      ❌       |
-| German   |     ✅      |     ❌      |      ❌       |
-| Spanish  |     ✅      |     ❌      |      ❌       |
-| French   |     ✅      |     ❌      |      ❌       |
-| Italian  |     ✅      |     ❌      |      ❌       |
+| German   |     ✅      |     ✅      |      ❌       |
+| Spanish  |     ✅      |     ✅      |      ❌       |
+| French   |     ✅      |     ✅      |      ❌       |
+| Italian  |     ✅      |     ✅      |      ❌       |
 
 ✅ Tested, working
 
