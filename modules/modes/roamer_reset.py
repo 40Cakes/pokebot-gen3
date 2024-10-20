@@ -101,18 +101,17 @@ class RoamerResetMode(BotMode):
 
         save_data = get_save_data()
         saved_party = save_data.get_party()
+        first_pokemon = next((p for p in saved_party if not p.is_egg and p.current_hp > 0), None)
 
-        if saved_party[0].is_egg:
-            raise BotModeError("The first Pokémon in your party must not be an egg in order for Repel to work.")
-
-        if saved_party[0].level > roamer_level:
+        if first_pokemon.level > roamer_level:
             raise BotModeError(
-                f"The first Pokémon in your party has to be level {roamer_level} or lower in order for Repel to work."
+                f"The first non-fainted Pokémon in your party has to be level "
+                f"{roamer_level} or lower in order for Repel to work."
             )
 
-        if saved_party[0].level <= highest_encounter_level:
+        if first_pokemon.level <= highest_encounter_level:
             raise BotModeError(
-                "The first Pokémon in your party has to be at least level "
+                "The first non-fainted Pokémon in your party has to be at least level "
                 f"{highest_encounter_level + 1} in order for Repel to work."
             )
 

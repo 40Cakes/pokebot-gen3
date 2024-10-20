@@ -1,4 +1,5 @@
 import contextlib
+from collections import deque
 from typing import Generator
 
 from modules.context import context
@@ -57,12 +58,27 @@ class RockSmashMode(BotMode):
         self._in_safari_zone = False
         self._using_repel = False
         self._using_mach_bike = False
+        self._nosepass_frames: deque[int] = deque(maxlen=1000)
 
     def on_safari_zone_timeout(self) -> bool:
         self._in_safari_zone = False
         return True
 
     def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | None:
+        if encounter.pokemon.species.name == "Nosepass":
+            self._nosepass_frames.append(context.frame)
+            if len(self._nosepass_frames) > 1:
+                first_recorded_frame = self._nosepass_frames[0]
+                last_recorded_frame = self._nosepass_frames[-1]
+                frame_diff = last_recorded_frame - first_recorded_frame
+                average_frames_per_encounter = frame_diff / (len(self._nosepass_frames) - 1)
+                average_seconds_per_encounter = average_frames_per_encounter / 59.727500569606
+                if average_seconds_per_encounter > 0:
+                    encounter_rate_at_1x = round(3600 / average_seconds_per_encounter, 1)
+                else:
+                    encounter_rate_at_1x = 0
+
+                debug.debug_values["Nosepass per Hour"] = encounter_rate_at_1x
         return handle_encounter(encounter)
 
     def on_repel_effect_ended(self) -> None:
@@ -115,7 +131,9 @@ class RockSmashMode(BotMode):
 
                 save_data = get_save_data()
                 party = save_data.get_party()
-                if len(party) == 0 or party[0].is_egg or party[0].level < 13 or party[0].level > 16:
+                first_pokemon = next((p for p in party if not p.is_egg and p.current_hp > 0), None)
+
+                if first_pokemon is None or 16 < first_pokemon.level < 13:
                     raise BotModeError(
                         "In order to use Repel, you must have a lead Pokémon with level 13-16. "
                         "For best encounter rates, use Level 13!"
