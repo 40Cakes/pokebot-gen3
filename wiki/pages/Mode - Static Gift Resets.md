@@ -136,10 +136,10 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 | :------- | :-----: | :---------: | :--------: | :--------: | :----------: |
 | English  |   🟨    |     🟨      |     ✅     |     ✅     |      ✅      |
 | Japanese |   ❌    |     ❌      |     ✅     |     ❌     |      ❌      |
-| German   |   ❌    |     ❌      |     ✅     |     ❌     |      ❌      |
-| Spanish  |   ❌    |     ❌      |     ✅     |     ❌     |      ❌      |
-| French   |   ❌    |     ❌      |     ✅     |     ❌     |      ❌      |
-| Italian  |   ❌    |     ❌      |     ✅     |     ❌     |      ❌      |
+| German   |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
+| Spanish  |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
+| French   |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
+| Italian  |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
 
 ✅ Tested, working
 

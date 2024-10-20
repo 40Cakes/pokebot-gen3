@@ -506,6 +506,12 @@
     "I":"81a6685",
     "S":"81a88c6"
   },
+  "Std_MsgboxDefault":{
+    "D":"81a7b08",
+    "F":"81a39b9",
+    "I":"81a27f1",
+    "S":"81a496a"
+  },
   "EventScript_DoTrainerBattle":{
     "D":"81a7c81",
     "F":"81a3b32",

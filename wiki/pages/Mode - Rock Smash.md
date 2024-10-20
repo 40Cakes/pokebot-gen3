@@ -51,14 +51,14 @@ The mode will continuously try to enter the Safari Zone, so make sure you have s
 
 
 ## Game Support
-|          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
-|:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
-| English  |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
-| Japanese |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
-| German   |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
-| Spanish  |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
-| French   |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
-| Italian  |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+|          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald |
+|:---------|:-------:|:-----------:|:----------:|
+| English  |    ❌    |      ❌      |     ✅      |
+| Japanese |    ❌    |      ❌      |     ✅      |
+| German   |    ❌    |      ❌      |     ✅      |
+| Spanish  |    ❌    |      ❌      |     ✅      |
+| French   |    ❌    |      ❌      |     ✅      |
+| Italian  |    ❌    |      ❌      |     ✅      |
 
 ✅ Tested, working
 
