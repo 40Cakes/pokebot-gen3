@@ -20,17 +20,19 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
 
     _symbols.clear()
     _reverse_symbols.clear()
+
     for d in [get_data_path() / "symbols", get_data_path() / "symbols" / "patches"]:
-        for s in open(d / symbols_file):
-            address, _, length, label = s.split(" ")
+        with open(d / symbols_file) as f:
+            for s in f:
+                address, _, length, label = s.split(" ")
 
-            address = int(address, 16)
-            length = int(length, 16)
-            label = label.strip()
+                address = int(address, 16)
+                length = int(length, 16)
+                label = label.strip()
 
-            _symbols[label.upper()] = (address, length)
-            if address not in _reverse_symbols or _reverse_symbols[address][2] == 0 and length > 0:
-                _reverse_symbols[address] = (label.upper(), label, length)
+                _symbols[label.upper()] = (address, length)
+                if address not in _reverse_symbols or (_reverse_symbols[address][2] == 0 and length > 0):
+                    _reverse_symbols[address] = (label.upper(), label, length)
 
     language_code = str(language)
     language_patch_file = symbols_file.replace(".sym", ".json")
@@ -40,17 +42,24 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
             language_patches = json.load(file)
         for label in language_patches:
             if language_code in language_patches[label]:
-                _reverse_symbols.pop(_symbols[label.upper()][0])
+                if label.upper() in _symbols:
+                    _reverse_symbols.pop(_symbols[label.upper()][0], None)
+
                 addresses = language_patches[label][language_code]
-                if type(addresses) is not list:
+
+                if isinstance(addresses, str):
                     addresses = [addresses]
+                elif not isinstance(addresses, list):
+                    continue
+
                 for addr in addresses:
-                    _symbols[label.upper()] = (int(addr, 16), _symbols[label.upper()][1])
-                    _reverse_symbols[int(addr, 16)] = (
-                        label.upper(),
-                        label,
-                        _symbols[label.upper()][1],
-                    )
+                    if addr:
+                        _symbols[label.upper()] = (int(addr, 16), _symbols[label.upper()][1])
+                        _reverse_symbols[int(addr, 16)] = (
+                            label.upper(),
+                            label,
+                            _symbols[label.upper()][1],
+                        )
 
 
 def _load_event_flags_and_vars(file_name: str) -> None:  # TODO Japanese ROMs not working
