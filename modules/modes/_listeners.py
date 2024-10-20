@@ -246,6 +246,7 @@ class TrainerApproachListener(BotListener):
             not self._trainer_is_approaching
             and (
                 frame.script_is_active("EventScript_TrainerApproach")
+                or frame.script_is_active("EventScript_DoTrainerBattleFromApproach")
                 or frame.script_is_active("EventScript_StartTrainerBattle")
                 or frame.script_is_active("EventScript_DoTrainerBattle")
             )
