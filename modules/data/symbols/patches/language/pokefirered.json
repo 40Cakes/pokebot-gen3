@@ -506,6 +506,12 @@
     "I":"81a6685",
     "S":"81a88c6"
   },
+  "Std_MsgboxDefault":{
+    "D":"81a7b08",
+    "F":"81a39b9",
+    "I":"81a27f1",
+    "S":"81a496a"
+  },
   "Route19_Text_LucRematchIntro":{
     "D":"0"
   },
