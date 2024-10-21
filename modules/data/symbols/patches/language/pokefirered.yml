@@ -263,12 +263,6 @@ Task_FlyIntoMap:
   I: 8084348
   J: 8083fe4
   S: 8084430
-Task_Fanfare:
-  D: 8071c20
-  F: 8071ce0
-  I: 8071c0c
-  J: 8071460
-  S: 8071cf4
 Task_PCMainMenu:
   D: 808c4a0
   F: 808c560
@@ -299,6 +293,22 @@ WaitForAorBPress:
   I: 806b844
   J: 806b158
   S: 806b92c
+
+## MAP
+
+# Map pointer only needed in JP
+gMapHeader:
+  J: 2036d30
+gObjectEvents:
+  J: 2036d6c
+gPlayerAvatar:
+  J: 2036fac
+gPlayerPartyCount:
+  J: 2023f89
+gPlayerParty:
+  J: 20241e4
+sMapCursor:
+  J: 2039930
 gMapGroups:
   D: 83525cc
   F: 834caf8
@@ -321,7 +331,7 @@ gSaveBlock1Ptr:
   D: 3004f58
   F: 3004f58
   I: 3004f58
-  J: 3004058
+  J: 3005048
   S: 3004f58
 gSaveBlock2Ptr:
   D: 3004f5c
@@ -345,26 +355,46 @@ gBattleMainFunc:
   D: 3004ed4
   F: 3004ed4
   I: 3004ed4
-  J:
+  J: 3004fc4
   S: 3004ed4
 gBattlerControllerFuncs:
-  D: 3004F30
-  F: 3004F30
-  I: 3004F30
-  J:
-  S: 3004F30
+  D: 3004f30
+  F: 3004f30
+  I: 3004f30
+  J: 
+  S: 3004f30
 GTASKS:
   D: 3004fe0
   F: 3004fe0
   I: 3004fe0
   J: 30050d0
   S: 3004fe0
+
+################
+# Daycare Mode #
+################
+
 EventScript_EggHatch:
   D: 81c2fd2
   F: 81bdf11
   I: 81bcac0
-  J:
+  J: 81a59c4
   S: 81bf16f
+
+# EggHatch party identification
+gSpecialVar_0x8004:
+  J: 2036ff4
+
+Task_Fanfare:
+  D: 8071c20
+  F: 8071ce0
+  I: 8071c0c
+  J: 8071460
+  S: 8071cf4
+
+################
+################ 
+
 gBattleResults:
   D: 3004ee0
   F: 3004ee0
@@ -481,6 +511,27 @@ EventScript_DoTrainerBattleFromApproach:
   I: 81a2851
   J:
   S: 81a49ca
+
+# Menu
+sMenu:
+  J: 203b19c
+sStartMenuCursorPos:
+  J: 2037028
+sNumStartMenuItems:
+  J: 2037029
+sStartMenuOrder:
+  J: 203702a
+
+# Bag Menu
+gBagMenuState:
+  J: 203ac74
+
+# Encounter
+gEnemyParty:
+  J: 2023f8c
+
+# Ununsed symbols that were conflicting with currently used symbols
+# We set them to 0 to 'get them out of our way' and correctly target the desired symbol
 PokemonMansion_EventScript_DontPressSwitch:
   D: 0
 Route19_Text_LucRematchIntro:
@@ -511,3 +562,5 @@ EventScript_Open9FDoor3:
   S: 0
 Text_DontBeLikeThat:
   S: 0
+Trade_Text_WhatThatsNoMon:
+  J: 0
