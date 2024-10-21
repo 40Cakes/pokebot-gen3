@@ -1,0 +1,718 @@
+---
+CB2_OVERWORLD:
+  D: 0x8085e78
+  F: 0x8085e6c
+  I: 0x8085e70
+  J: 0x80857C4
+  S: 0x8085e70
+CB2_STARTERCHOOSE:
+  D: 0x8133e04
+  F: 0x8133e24
+  I: 0x8133df0
+  J: 0x8134198
+  S: 0x8133df8
+CB2_INITCOPYRIGHTSCREENAFTERBOOTUP:
+  D: 0x816cb14
+  F: 0x816cc3c
+  I: 0x816cb04
+  J: 0x816cc90
+  S: 0x816cc14
+MAINCB2_INTRO:
+  D: 0x816c868
+  F: 0x816c990
+  I: 0x816c858
+  J: 0x816ca10
+  S: 0x816c968
+MAINCB2_ENDINTRO:
+  D: 0x816c8bc
+  F: 0x816c9e4
+  I: 0x8116c8ac
+  J: 0x816ca64
+  S: 0x816c9bc
+CB2_INITTITLESCREEN:
+  D: 0x80aa7c0
+  F: 0x80aa7b8
+  I: 0x80aa7b8
+  J: 0x80aa06c
+  S: 0x80aa7b8
+MAINCB2:
+  D: 0x80aab48
+  F: 0x80aab40
+  I: 0x80aab40
+  J: 0x80aa400
+  S: 0x80aab40
+CB2_GOTOMAINMENU:
+  D: 0x80aaed4
+  F: 0x80aaecc
+  I: 0x80aaecc
+  J: 0x80aa7b4
+  S: 0x80aaecc
+CB2_INITMAINMENU:
+  D: 0x802f6e0
+  I: 0x802f6e0
+  J: 0x802f340
+CB2_MAINMENU:
+  D: 0x802f6b4
+  I: 0x802f6b4
+  J: 0x802f314
+CB2_CONTINUESAVEDGAME:
+  D: 0x808624c
+  F: 0x8086240
+  I: 0x8086244
+  J: 0x8085b98
+  S: 0x8086244
+CB2_RETURNTOFIELDLOCAL:
+  D: 0x8086110
+  F: 0x8086104
+  I: 0x8086108
+  J: 0x8085a5c
+  S: 0x8086108
+CB2_OVERWORLDBASIC:
+  D: 0x8085e6c
+  F: 0x8085e60
+  I: 0x8085e64
+  J: 0x80857b8
+  S: 0x8085e64
+CB2_INITBATTLE:
+  D: 0x8036764
+  I: 0x8036764
+  J: 0x80365b4
+CB2_HANDLESTARTBATTLE:
+  D: 0x8036fb0
+  I: 0x8036fb0
+  J: 0x8036e00
+CB2_RETURNTOFIELD:
+  D: 0x80860e4
+  F: 0x80860d8
+  I: 0x80860dc
+  J: 0x8085a30
+  S: 0x80860dc
+CB2_RETURNTOFIELDCONTINUESCRIPTPLAYMAPMUSIC:
+  D: 0x80861e8
+  F: 0x80861dc
+  I: 0x80861e0
+  J: 0x8085b34
+  S: 0x80861e0
+CB2_BAGMENURUN:
+  D: 0x81aa868
+  F: 0x81aa988
+  I: 0x81aa854
+  J: 0x81aaad4
+  S: 0x81aa960
+CB2_UPDATEPARTYMENU:
+  D: 0x81afcd8
+  F: 0x81afdec
+  I: 0x81afcb8
+  J: 0x81afe88
+  S: 0x81afdd0
+CB2_FLYMAP:
+  D: 0x81244f8
+  F: 0x8124518
+  I: 0x81244e4
+  J: 0x81248e0
+  S: 0x81244ec
+CB2_LOADEGGHATCH:
+  F: 0x807179c
+  J: 0x80711a8
+  S: 0x807179c
+CB2_EGGHATCH:
+  F: 0x8071a90
+  J: 0x8071498
+  S: 0x8071a90
+CB2_BEGINEVOLUTIONSCENE:
+  D: 0x813d5ec
+  F: 0x813d60c
+  I: 0x813d5dc
+  J: 0x813dab4
+  S: 0x813d5e4
+CB2_EVOLUTIONSCENEUPDATE:
+  D: 0x813dfe0
+  F: 0x813e000
+  I: 0x813dfd0
+  J: 0x813e4a8
+  S: 0x813dfd8
+CB2_WHITEOUT:
+  D: 0x8085f74
+  F: 0x8085f68
+  I: 0x8085f6c
+  J: 0x80858c0
+  S: 0x8085f6c
+BattleMainCB1:
+  J: 0x8039b35
+BattleMainCB2:
+  D: 0x8038424
+  F: 0x8038420
+  I: 0x8038424
+  J: 0x80380fc
+  S: 0x8038420
+TASK_HANDLEMONANIMATION:
+  D: 0x817ef90
+  F: 0x817f0b0
+  I: 0x817ef80
+  J: 0x817F344
+  S: 0x817f088
+TASK_PLAYCRYWHENRELEASEDFROMBALL:
+  F: 0x8075ab8
+  I: 0x8075abc
+  J: 0x80754c4
+  S: 0x8075ab8
+Task_Fishing:
+  D: 0x808c8dc
+  F: 0x808c8d0
+  I: 0x808c8d4
+  J: 0x808c224
+  S: 0x808c8d4
+Task_HandleStarterChooseInput:
+  D: 0x8133e80
+  F: 0x8133ea0
+  I: 0x8133e6c
+  J: 0x8134214
+  S: 0x8133e74
+Task_DuckBGMForPokemonCry:
+  D: 0x80a3728
+  F: 0x80a3720
+  I: 0x80a3720
+  J: 0x80a2fd4
+  S: 0x80a3720
+TASK_HANDLECONFIRMSTARTERINPUT:
+  D: 0x8134024
+  F: 0x8134044
+  I: 0x8134010
+  J: 0x81343b8
+  S: 0x8134018
+Task_BattleStart:
+  D: 0x80b060c
+  F: 0x80b0604
+  I: 0x80b0604
+  J: 0x80afeec
+  S: 0x80b0604
+Task_ReturnToFieldNoScript:
+  D: 0x80af6cc
+  F: 0x80af6c4
+  I: 0x80af6c4
+  J: 0x80aefac
+  S: 0x80af6c4
+Task_HandleChooseMonInput:
+  D: 0x81b0e98
+  F: 0x81b0fac
+  I: 0x81b0e78
+  J: 0x81b1040
+  S: 0x81b0f90
+Task_EvolutionScene:
+  D: 0x813e1ac
+  F: 0x813e1cc
+  I: 0x813e19c
+  J: 0x813e638
+  S: 0x813e1a4
+Task_HandleReplaceMoveInput:
+  D: 0x81c1274
+  F: 0x81c1388
+  I: 0x81c1254
+  J: 0x81c1080
+  S: 0x81c136c
+Task_BagMenu_HandleInput:
+  D: 0x81ab848
+  F: 0x81ab968
+  I: 0x81ab834
+  J: 0x81abab4
+  S: 0x81ab940
+Task_PrintAndWaitForText:
+  D: 0x81b16b4
+  F: 0x81b17c8
+  I: 0x81b1694
+  J: 0x81b185c
+  S: 0x81b17ac
+Task_HandleInput:
+  D: 0x81c0038
+  F: 0x81c014c
+  I: 0x81c0018
+  J: 0x81bfe44
+  S: 0x81c0130
+Task_HandleYesNoInput:
+  D: 0x80e1db4
+  F: 0x80e1dd4
+  I: 0x80e1dac
+  J: 0x80e166c
+  S: 0x80e1db4
+Task_HandleMultichoiceInput:
+  D: 0x80e1cb0
+  F: 0x80e1cd0
+  I: 0x80e1ca8
+  J: 0x80e1568
+  S: 0x80e1cb0
+Task_DrawFieldMessage:
+  D: 0x8098170
+  F: 0x8098164
+  I: 0x8098168
+  J: 0x8097adc
+  S: 0x8098168
+Task_ShowStartMenu:
+  D: 0x809fa50
+  F: 0x809fa48
+  I: 0x809fa48
+  J: 0x809f30c
+  S: 0x809fa48
+Task_HandleSelectionMenuInput:
+  D: 0x81b3258
+  F: 0x81b336c
+  I: 0x81b3238
+  J: 0x81b33d0
+  S: 0x81b3350
+Task_SlideSelectedSlotsOnscreen:
+  D: 0x81b3988
+  F: 0x81b3a9c
+  I: 0x81b3968
+  J: 0x81b3b00
+  S: 0x81b3a80
+Task_WateringBerryTreeAnim_Continue:
+  D: 0x80fab88
+  F: 0x80faba8
+  I: 0x80fab74
+  J: 0x80fb7d4
+  S: 0x80fab7c
+Task_ContinueTaskAfterMessagePrints:
+  D: 0x8121b60
+  F: 0x8121b80
+  I: 0x8121b4c
+  J: 0x8121f2c
+  S: 0x8121b54
+Task_FlyIntoMap:
+  D: 0x80b6b28
+  F: 0x80b6b20
+  I: 0x80b6b20
+  J: 0x80b6264
+  S: 0x80b6b20
+Task_Fanfare:
+  D: 0x80a315c
+  F: 0x80a3154
+  I: 0x80a3154
+  J: 0x80a2a08
+  S: 0x80a3154
+Task_PCMainMenu:
+  D: 0x80c6ec4
+  F: 0x80c6edc
+  I: 0x80c6ebc
+  J: 0x80c6af4
+  S: 0x80c6ebc
+Task_PokeStorageMain:
+  D: 0x80c7f08
+  F: 0x80c7f20
+  I: 0x80c7f00
+  J: 0x80c7b48
+  S: 0x80c7f00
+Task_ExitDoor:
+  D: 0x80af454
+  F: 0x80af44c
+  I: 0x80af44c
+  J: 0x80aed34
+  S: 0x80af44c
+Task_ShinyStars:
+  D: 0x8172c54
+  F: 0x8172d7c
+  I: 0x8172c44
+  J: 0x8172dd0
+  S: 0x8172d54
+Task_ShinyStars_Wait:
+  D: 0x8172e18
+  F: 0x8172f40
+  I: 0x8172e08
+  J: 0x8172f94
+  S: 0x8172f18
+Task_ItemContext_MultipleRows:
+  D: 0x81ac798
+  F: 0x81ac8ac
+  I: 0x81ac778
+  J: 0x81aca70
+  S: 0x81ac890
+ExecuteMatchCall:
+  D: 0x8195bec
+  F: 0x8195d0c
+  I: 0x8195bdc
+  J: 0x8195ce0
+  S: 0x8195ce4
+AnimTask_ThrowBall_Step:
+  D: 0x8170b58
+  F: 0x8170c80
+  I: 0x8170b48
+  J: 0x8170cd4
+  S: 0x8170c58
+BattleScript_AskToLearnMove:
+  D: 0x82f0923
+  F: 0x82e3bb7
+  I: 0x82dbb6f
+  J: 0x828916b
+  S: 0x82e2373
+BattleScript_ForgotAndLearnedNewMove:
+  D: 0x82f0950
+  F: 0x82e3be4
+  I: 0x82dbb9c
+  J: 0x8289198
+  S: 0x82e239c
+BattleScript_HandleFaintedMon:
+  D: 0x82f0542
+  F: 0x82e37d6
+  I: 0x82db78e
+  J: 0x8288d8a
+  S: 0x82e1f8e
+BattleScript_FaintedMonTryChoose:
+  D: 0x82f0556
+  F: 0x82e37ea
+  I: 0x82db7a2
+  J: 0x8288d9e
+  S: 0x82e1fa2
+BattleScript_FaintedMonEnd:
+  D: 0x82f0635
+  F: 0x82e38c9
+  I: 0x82db881
+  J: 0x8288e7d
+  S: 0x82e2081
+EventScript_TrainerApproach:
+  D: 0x827ca57
+  F: 0x8276617
+  I: 0x8270fad
+  J: 0x82423f0
+  S: 0x827515a
+EventScript_ShowTrainerIntroMsg:
+  D: 0x827cb41
+  F: 0x8276701
+  I: 0x8271097
+  J: 0x82424da
+  S: 0x8275244
+EventScript_DoTrainerBattle:
+  D: 0x827cb55
+  F: 0x8276715
+  I: 0x82710ab
+  J: 0x82424ee
+  S: 0x8275258
+EventScript_RockSmash:
+  D: 0x829ef03
+  F: 0x8297028
+  I: 0x829146e
+  J: 0x825667c
+  S: 0x8295638
+EventScript_SmashRock:
+  D: 0x829ef58
+  F: 0x829707d
+  I: 0x82914c3
+  J: 0x82566d1
+  S: 0x829568d
+EventScript_RepelWoreOff:
+  D: 0x82b6715
+  F: 0x82ad0f5
+  I: 0x82a5fd3
+  J: 0x826239b
+  S: 0x82aadf3
+EventScript_EggHatch:
+  D: 0x82a0780
+  F: 0x829887c
+  I: 0x8292bf3
+  J: 0x8257a89
+  S: 0x8296d93
+HandleInputChooseAction:
+  D:
+    - 0x805758c
+    - 0x8158f7c
+  F: 0x81590a4
+  I:
+    - 0x805758c
+    - 0x8158f6c
+  J:
+    - 0x8057198
+    - 0x8159314
+  S: 0x815907c
+HandleInputChooseMove:
+  D: 0x8057c00
+  I: 0x8057c00
+  J: 0x805780c
+WaitForAorBPress:
+  J: 0x809a621
+sMenu:
+  J: 0x203ca5c
+sTextPrinters:
+  J: 0x20201ac
+sMonSummaryScreen:
+  J: 0x203cbe8
+gMoveToLearn:
+  J: 0x2024186
+gPartyMenu:
+  J: 0x203cb94
+sPartyMenuInternal:
+  J: 0x203cb90
+sStartMenuCursorPos:
+  J: 0x20372ae
+sNumStartMenuActions:
+  J: 0x20372af
+sCurrentStartMenuActions:
+  J: 0x20372b0
+sRegionMap:
+  J: 0x2039e10
+GMAIN:
+  J: 0x3002360
+GTASKS:
+  J: 0x3005b60
+gSaveBlock1Ptr:
+  J: 0x3005aec
+gSaveBlock2Ptr:
+  J: 0x3005af0
+gBattleMainFunc:
+  J: 0x3005a64
+gBattlerControllerFuncs:
+  J: 0x3005ac0
+HandleTurnActionSelectionState:
+  J: 0x803bab9
+gBattleMons:
+  J: 0x2023D28
+gBattleTypeFlags:
+  J: 0x2022C90
+gSideTimers:
+  J: 0x2023F38
+gStatuses3:
+  J: 0x2023F50
+gDisableStructs:
+  J: 0x2023F60
+gBattleWeather:
+  J: 0x2024070
+gBattlePartyCurrentOrder:
+  J: 0x203cbcc
+gAbsentBattlerFlags:
+  J: 0x2023eb4
+gBattleResults:
+  J: 0x3005A72
+HandleInputChooseTarget:
+  J: 0x8057434
+  X: 0x8057435
+gObjectEvents:
+  J: 0x2036ff0
+gEnemyParty:
+  J: 0x20243e8
+gPlayerAvatar:
+  J: 0x2037230
+gMapHeader:
+  J: 0x2036FB8
+gActionSelectionCursor:
+  J: 0x2024150
+gMoveSelectionCursor:
+  J: 0x2024154
+gPlayerPartyCount:
+  J: 0x202418d
+gPlayerParty:
+  J: 0x2024190
+gBattleOutcome:
+  J: 0x2023fde
+gBagPosition:
+  J: 0x203cb24
+gBattlerPartyIndexes:
+  J: 0x2023d12
+gBattlersCount:
+  J: 0x2023d10
+gBattlescriptCurrInstr:
+  J: 0x2023eb8
+gRngValue:
+  J: 0x3005ae0
+ITEMSTORAGE_HANDLEREMOVEITEM:
+  I: 0x0
+Route120_Text_RileyIntro:
+  D: 0x0
+Route104_Text_HaleyIntro:
+  S: 0x0
+Route104_Text_HaleyDefeat:
+  S: 0x0
+BattleFrontier_BattleArenaLobby_Text_NotEnoughValidMonsLv50:
+  J: 0x0
+Route108_Text_CoryRematchDefeated:
+  F: 0x0
+Route108_Text_CoryRematchPostBattle:
+  F: 0x0
+VictoryRoad_1F_EventScript_ItemPPUp:
+  I: 0x0
+VictoryRoad_B1F_EventScript_ItemFullRestore:
+  I: 0x0
+VictoryRoad_1F_EventScript_ItemMaxElixir:
+  I: 0x0
+VictoryRoad_B1F_EventScript_ItemTMPsychic:
+  I: 0x0
+Route110_TrickHousePuzzle8_EventScript_ItemBeadMail:
+  I: 0x0
+RivalsHouse_2F_Text_MayWhereShouldIGoNext:
+  I: 0x0
+OldaleTown_PokemonCenter_1F_EventScript_Gentleman:
+  D: 0x0
+OldaleTown_PokemonCenter_1F_EventScript_Boy:
+  D: 0x0
+OldaleTown_PokemonCenter_1F_EventScript_Girl:
+  D: 0x0
+OldaleTown_PokemonCenter_1F_EventScript_WirelessClubAvailable:
+  D: 0x0
+OldaleTown_PokemonCenter_1F_Text_TrainersCanUsePC:
+  D: 0x0
+OldaleTown_PokemonCenter_1F_Text_PokemonCentersAreGreat:
+  D: 0x0
+OldaleTown_PokemonCenter_1F_EventScript_Nurse:
+  D: 0x0
+Route111_EventScript_Celia:
+  J: 0x0
+Route111_EventScript_Bryan:
+  J: 0x0
+Route111_EventScript_Branden:
+  J: 0x0
+Route111_Text_BattleOurFamily:
+  J: 0x0
+Route111_EventScript_TrainerHillSign:
+  J: 0x0
+LittlerootTown_ProfessorBirchsLab_Text_BirchEnjoysRivalsHelpToo:
+  S: 0x0
+BattleFrontier_BattleDomePreBattleRoom_Text_ReadyForFinals:
+  D: 0x0
+BattleFrontier_BattleDomePreBattleRoom_Text_ChooseTwoMons:
+  D: 0x0
+BattleFrontier_BattleDomePreBattleRoom_Text_Round1Complete:
+  D: 0x0
+BattleFrontier_BattleDomePreBattleRoom_Text_RightThisWay:
+  D: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacIntro:
+  F: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacMon1:
+  F: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacAccept:
+  F: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacMon2Ask:
+  F: 0x0
+MossdeepCity_StevensHouse_EventScript_SendBeldumParty:
+  J: 0x0
+MossdeepCity_StevensHouse_EventScript_SendBeldumPC:
+  J: 0x0
+MossdeepCity_StevensHouse_EventScript_ReceivedBeldumFanfare:
+  J: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_Apprentice16Mon2Ask:
+  S: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_Apprentice16Accept:
+  S: 0x0
+PlayersHouse_1F_EventScript_GetSSTicketAndSeeLatiTV:
+  I: 0x0
+BattleFrontier_BattleArenaBattleRoom_EventScript_DefeatedGretaSilver:
+  J: 0x0
+Route108_Text_JeromePostBattle:
+  S: 0x0
+Route111_Text_DrewPostBattle:
+  F: 0x0
+Route123_Text_AlbertoPostBattle:
+  D: 0x0
+Route121_SafariZoneEntrance_EventScript_EntranceCounterTrigger:
+  D: 0x82326e4
+  F: 0x822fb95
+  I: 0x822ba06
+  J: 0x8212a42
+  S: 0x822de70
+Route121_SafariZoneEntrance_EventScript_TryEnterSafariZone:
+  D: 0x8232745
+  F: 0x822fbf6
+  I: 0x822ba67
+  J: 0x8212aa3
+  S: 0x822ded1
+LittlerootTown_ProfessorBirchsLab_EventScript_UpgradeToNationalDex:
+  D: 0x81fc014
+  F: 0x81fb46a
+  I: 0x81f9a6d
+  J: 0x81f141b
+  S: 0x81fa666
+SafariZone_EventScript_TimesUp:
+  D: 0x82b676d
+  F: 0x82ad154
+  I: 0x82a6033
+  J: 0x82623e9
+  S: 0x82aae5a
+SouthernIsland_Interior_EventScript_Lati:
+  D: 0x824b6cd
+  F: 0x8247d7c
+  J: 0x822286d
+  S: 0x8245a41
+gItems:
+  D: 0x85946dc
+  F: 0x8587d6c
+  I: 0x858000c
+  J: 0x855cee8
+  S: 0x858639c
+sHardyNatureName:
+  D: 0x862e008
+  F: 0x8620ea8
+  I: 0x86195c0
+  J: 0x85ecda4
+  S: 0x861f3c0
+gAbilityNames:
+  D: 0x833009e
+  F: 0x832324e
+  I: 0x831b0db
+  J: 0x82ebdc4
+  S: 0x8321999
+gMoveNames:
+  D: 0x832e0ec
+  F: 0x83212ac
+  I: 0x8319140
+  J: 0x82eacc4
+  S: 0x831f9e0
+gMoveDescriptionPointers:
+  D: 0x862da80
+  F: 0x8620920
+  I: 0x8619038
+  J: 0x85ec81c
+  S: 0x861ee38
+gTypeNames:
+  D: 0x832f7a8
+  F: 0x8322968
+  I: 0x831a7fc
+  J: 0x82ebc88
+  S: 0x832109c
+gSpeciesNames:
+  D: 0x832cf38
+  F: 0x83200f8
+  I: 0x8317f8c
+  J: 0x82ea31c
+  S: 0x831e82c
+sTileBitAttributes:
+  D: 0x8498c2c
+  F: 0x848bde8
+  I: 0x8483c40
+  J: 0x845F31c
+  S: 0x848a558
+gMapGroups:
+  D: 0x84982a8
+  F: 0x848b464
+  I: 0x84832bc
+  J: 0x845E998
+  S: 0x8489bd4
+gWildMonHeaders:
+  D: 0x8564a78
+  F: 0x8557c34
+  I: 0x854fa8c
+  J: 0x852d9f4
+  S: 0x85563a4
+gRegionMapEntries:
+  D: 0x85b24b4
+  F: 0x85a5adc
+  I: 0x859dee8
+  J: 0x857cd6c
+  S: 0x85a41e4
+SaveOverwriteInputCallback:
+  D: 0x80a0272
+  F: 0x80a026a
+  I: 0x80a026a
+  J: 0x809fb2e
+  S: 0x80a026a
+Std_MsgboxSign:
+  D: 0x827ca21
+  F: 0x82765e1
+  I: 0x8270f77
+  J: 0x82423ba
+  S: 0x8275124
+Task_UseWaterfall:
+  D: 0x80b73a0
+  F: 0x80b7398
+  I: 0x80b7398
+  J: 0x80b6adc
+  S: 0x80b7398
+Task_SurfFieldEffect:
+  D: 0x80b8da0
+  F: 0x80b8d98
+  I: 0x80b8d98
+  J: 0x80b84dc
+  S: 0x80b8d98
