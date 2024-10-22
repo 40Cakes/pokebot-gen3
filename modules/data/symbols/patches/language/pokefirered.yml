@@ -182,7 +182,9 @@ HandleInputChooseAction:
   I:
     - 0x802e3bc
     - 0x80dd7c8
-  J: 0x802dc14
+  J:
+    - 0x802dc14
+    - 0x80de58c
   S:
     - 0x80f0a14
     - 0x8034048
@@ -204,7 +206,7 @@ BattleScript_HandleFaintedMon:
   D: 0x81dc968
   F: 0x81d6ea4
   I: 0x81d5b27
-  J: ~
+  J: 0x81bc68e
   S: 0x81d81cf
 Task_BattleStart:
   D: 0x807f584
@@ -234,30 +236,33 @@ Task_RushInjuredPokemonToCenter:
   D: 0x807f3c0
   F: 0x807f480
   I: 0x807f3ac
-  J: ~
+  J: 0x807eb84
   S: 0x807f494
 EventScript_AfterWhiteOutHeal:
   D: 0x81abbc9
   F: 0x81a77c0
   I: 0x81a661f
-  J: ~
+  J: 0x819633e
   S: 0x81a8860
 BattleScript_AskToLearnMove:
   D: 0x81dccb1
   F: 0x81d71ed
   I: 0x81d5e85
-  J: ~
+  J: 0x81bc9d7
   S: 0x81d854d
 BattleScript_ForgotAndLearnedNewMove:
   D: 0x81dccde
   F: 0x81d721a
   I: 0x81d5eb2
-  J: ~
+  J: 0x81bca04
   S: 0x81d857a
+sMoveSelectionCursorPos:
+  J: 0x203b0e1
 gMoveSelectionCursor:
   J: 0x2023f5c
+# gBattleWeather + 92
 gBattleOutcome:
-  J: 0x2022aac
+  J: 0x2023dea
 gActionSelectionCursor:
   J: 0x2023f58
 gEnemyParty:
@@ -290,6 +295,8 @@ gBattleResults:
   S: 0x3004ee0
 gBattleWeather:
   J: 0x2023e7c
+sTextPrinters:
+  J: 0x2020030
 #--------------------#
 
 #----------------#
@@ -441,7 +448,7 @@ Task_StartMenuHandleInput:
   J: 0x806e9e4
   S: 0x806f228
 sMenu:
-  J: 0x203b19c
+  J: 0x203ad5c
 sStartMenuCursorPos:
   J: 0x2037028
 sNumStartMenuItems:
@@ -510,6 +517,10 @@ Task_SlideSelectedSlotsOnscreen:
   I: 0x8123400
   J: 0x8123b64
   S: 0x81234ec
+gPartyMenu:
+  J: 0x203b014
+sPartyMenuInternal:
+  J: 0x203b010
 #----------------#
 
 #-------------------------#
@@ -554,7 +565,7 @@ EventScript_RepelWoreOff:
   D: 0x81c36a8
   F: 0x81be5d1
   I: 0x81bd118
-  J: ~
+  J: 0x81a5d84
   S: 0x81bf7f1
 EventScript_DoTrainerBattle:
   D: 0x81a7c81
@@ -572,7 +583,7 @@ EventScript_FieldPoison:
   D: 0x81abc2f
   F: 0x81a7826
   I: 0x81a6685
-  J: ~
+  J: 0x81963a4
   S: 0x81a88c6
 #---------------#
 
@@ -609,6 +620,12 @@ EventScript_Open9FDoor3:
 Text_DontBeLikeThat:
   S: 0x0
 Trade_Text_WhatThatsNoMon:
+  J: 0x0
+CeladonCity_Condominiums_3F_Text_ImGameDesignerShowMeFinishedPokedex:
+  J: 0x0
+CableClub_Text_OtherTrainerNotReady:
+  J: 0x0
+CableClub_Text_NotSetUpForFarAwayRegion:
   J: 0x0
 
 # Unused
