@@ -44,7 +44,7 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
                 if language_code in addr_mapping:
                     addresses_list = addr_mapping[language_code]
 
-                    if not addresses_list:
+                    if addresses_list is None:
                         continue
 
                     if isinstance(addresses_list, int):
