@@ -316,6 +316,10 @@ class Type:
     def kind(self) -> str:
         return "Physical" if self.is_physical else "Special"
 
+    @property
+    def safe_name(self) -> str:
+        return "Unknown" if self.name == "???" else self.name
+
     def __str__(self):
         return self.name
 
