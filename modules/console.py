@@ -29,7 +29,9 @@ theme = Theme(
         "dragon": "#7038f8",
         "dark": "#705848",
         "steel": "#b8b8d0",
-        "question_marks": "#68a090",
+        # This is the '???' type, but because we cannot just use that as a colour name,
+        # it has been renamed. This is done by the `Type` class' `safe_name` property.
+        "unknown": "#68a090",
     }
 )
 
@@ -102,7 +104,7 @@ def percentage(value, total) -> str:
 
 def print_stats(stats: "GlobalStats", encounter: "EncounterInfo") -> None:
     pokemon = encounter.pokemon
-    type_colour = pokemon.species.types[0].name.lower()
+    type_colour = pokemon.species.types[0].safe_name.lower()
     if pokemon.gender is not None and not pokemon.species.name.startswith("Nidoran"):
         gender_code = "♂" if pokemon.gender == "male" else "♀"
         gender_label = "[cyan]Male ♂[/]" if pokemon.gender == "male" else "[pink]Female ♀[/]"
@@ -155,7 +157,7 @@ def print_stats(stats: "GlobalStats", encounter: "EncounterInfo") -> None:
     for learned_move in pokemon.moves:
         if learned_move is not None:
             move = learned_move.move
-            move_list.append(f"[{move.type.name.lower()}]{move.name}[/]")
+            move_list.append(f"[{move.type.safe_name.lower()}]{move.name}[/]")
     move_list = f"\n[bold]Moves:[/] {', '.join(move_list)}"
 
     # EV Yield
