@@ -2,6 +2,8 @@
 
 # Auto Catching
 auto_catch: true
+catch_revive_mode: always_revive_lead # `always_revive_lead`, `no_revive`
+revive_item: revive # `revive`, `max_revive`, `both`
 
 # Whether to create an in-game save after catching a Pokémon
 save_after_catching: false

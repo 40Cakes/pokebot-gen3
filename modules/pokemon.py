@@ -1368,6 +1368,10 @@ def get_eggs_in_party() -> int:
     return sum(bool(pokemon.is_egg) for pokemon in get_party())
 
 
+def get_not_eggs_in_party() -> int:
+    return sum(not pokemon.is_egg for pokemon in get_party())
+
+
 def get_party() -> list[Pokemon]:
     """
     Checks how many Pokémon are in the trainer's party, decodes and returns them all.
@@ -1408,6 +1412,20 @@ def get_party() -> list[Pokemon]:
     state_cache.party = party
 
     return party
+
+
+def get_party_alive() -> int:
+    """
+    :return: The current number of Pokémon alive in our party
+    """
+    alive_count = 0
+
+    for pokemon in get_party():
+        # Check if the Pokémon is valid, not an egg, and has HP greater than 0 (i.e., it is alive)
+        if pokemon.is_valid and not pokemon.is_egg and pokemon.current_hp > 0:
+            alive_count += 1
+
+    return alive_count
 
 
 def get_party_repel_level() -> int:
