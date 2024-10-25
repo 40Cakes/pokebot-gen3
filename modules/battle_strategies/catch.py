@@ -2,10 +2,10 @@ from modules.battle_state import BattleState
 from modules.battle_strategies import SafariTurnAction, DefaultBattleStrategy
 from modules.battle_strategies import TurnAction
 from modules.context import context
-from modules.items import Item, get_item_bag
+from modules.items import Item, get_item_bag, get_pokeblocks
 from modules.map import get_map_data_for_current_position
 from modules.pokedex import get_pokedex
-from modules.pokemon import Pokemon, get_type_by_name, StatusCondition
+from modules.pokemon import Pokemon, get_type_by_name, StatusCondition, get_opponent
 
 
 class CatchStrategy(DefaultBattleStrategy):
@@ -32,7 +32,15 @@ class CatchStrategy(DefaultBattleStrategy):
         return self.decide_turn(battle_state)
 
     def decide_turn_in_safari_zone(self, battle_state: BattleState) -> tuple["SafariTurnAction", any]:
-        return SafariTurnAction.switch_to_manual()
+        if context.rom.is_rse:
+            if battle_state.current_turn == 0:
+                pokeblock_index = self._get_best_pokeblock()
+                if pokeblock_index is None:
+                    return SafariTurnAction.ThrowBall, None
+                return SafariTurnAction.Pokeblock, pokeblock_index
+            return SafariTurnAction.ThrowBall, None
+        else:
+            return SafariTurnAction.switch_to_manual()
 
     def _get_best_status_changing_move(self, battle_state: BattleState) -> int | None:
         status_move_index: int | None = None
@@ -111,3 +119,59 @@ class CatchStrategy(DefaultBattleStrategy):
                 catch_rate_multiplier = min(4.0, (10 + battle_state.current_turn) / 10)
 
         return catch_rate_multiplier
+
+    def _get_best_pokeblock(self) -> int | None:
+        """Return the index of the best Pokéblock based on opponent preferences."""
+        opponent_nature = get_opponent().nature
+        liked_flavor = opponent_nature.pokeblock_preferences.get("liked")
+        disliked_flavor = opponent_nature.pokeblock_preferences.get("disliked")
+
+        if liked_flavor is None and disliked_flavor is None:
+            return self._get_lowest_feel_any()
+        else:
+            return self._get_best_with_preferences(liked_flavor, disliked_flavor)
+
+    def _get_lowest_feel_any(self) -> int | None:
+        """Return the index of the Pokéblock with the lowest feel when there are no flavor preferences."""
+        pokeblocks = get_pokeblocks()
+        lowest_feel = float("inf")
+        best_index = None
+
+        for index, pokeblock in enumerate(pokeblocks):
+            if pokeblock.feel < lowest_feel:
+                lowest_feel = pokeblock.feel
+                best_index = index
+
+        return best_index
+
+    def _get_best_with_preferences(self, liked_flavor: str, disliked_flavor: str) -> int | None:
+        """Return the index of the best Pokéblock based on flavor preferences and feel."""
+        pokeblocks = get_pokeblocks()
+
+        best_liked_index = None
+        best_neutral_index = None
+        lowest_feel_liked = float("inf")
+        lowest_feel_neutral = float("inf")
+
+        for index, pokeblock in enumerate(pokeblocks):
+            pokeblock_type = pokeblock.type.value
+
+            if pokeblock_type == disliked_flavor.lower():
+                continue
+
+            if pokeblock_type != liked_flavor.lower():
+                if pokeblock.feel < lowest_feel_neutral:
+                    lowest_feel_neutral = pokeblock.feel
+                    best_neutral_index = index
+
+            if pokeblock_type == liked_flavor.lower():
+                if pokeblock.feel < lowest_feel_liked:
+                    lowest_feel_liked = pokeblock.feel
+                    best_liked_index = index
+
+        if best_neutral_index is not None:
+            return best_neutral_index
+        if best_liked_index is not None:
+            return best_liked_index
+
+        return None
