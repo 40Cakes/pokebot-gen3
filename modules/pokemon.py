@@ -497,12 +497,13 @@ class HeldItem:
 @dataclass
 class Nature:
     """
-    Represents a Pokémon nature and its stats modifiers.
+    Represents a Pokémon nature and its stats modifiers, along with preferred and disliked Pokéblock flavors.
     """
 
     index: int
     name: str
     modifiers: dict[str, float]
+    pokeblock_preferences: dict[str, str]
 
     def __str__(self):
         return self.name
@@ -540,6 +541,10 @@ class Nature:
                 "speed": data["speed_modifier"],
                 "special_attack": data["special_attack_modifier"],
                 "special_defence": data["special_defence_modifier"],
+            },
+            pokeblock_preferences={
+                "liked": data["pokeblock"].get("liked", None),
+                "disliked": data["pokeblock"].get("disliked", None),
             },
         )
 
