@@ -276,11 +276,11 @@ class Pokeblock:
     @property
     def type(self):
         flavors = {
-            PokeblockType.SPICY: self.spicy,
-            PokeblockType.DRY: self.dry,
-            PokeblockType.SWEET: self.sweet,
-            PokeblockType.BITTER: self.bitter,
-            PokeblockType.SOUR: self.sour,
+            PokeblockType.Spicy: self.spicy,
+            PokeblockType.Dry: self.dry,
+            PokeblockType.Sweet: self.sweet,
+            PokeblockType.Bitter: self.bitter,
+            PokeblockType.Sour: self.sour,
         }
         return max(flavors, key=flavors.get)
 
