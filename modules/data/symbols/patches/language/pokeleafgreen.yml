@@ -1,0 +1,644 @@
+---
+#--------------------------------#
+#    Overworld / Util Symbols    #
+#--------------------------------#
+CB2_OVERWORLD:
+  D: 0x80565d4
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_YesNoMenu_HandleInput:
+  D: 0x809cf0c
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_FlyIntoMap:
+  D: 0x8084330
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_ExitDoor:
+  D: 0x807def4
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+WaitForAorBPress:
+  D: 0x806b858
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+EventScript_UseStrength:
+  D: 0x81c1bc4
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+#-------------------------------#
+
+#--------------------#
+#    Map Symbols     #
+#--------------------#
+gMapGroups:
+  D: 0x83525ac
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+sMapNames:
+  D: 0x83f1340
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+gWildMonHeaders:
+  D: 0x83c9940
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+gSaveBlock1Ptr:
+  D: 0x3004f58
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+gSaveBlock2Ptr:
+  D: 0x3004f5c
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_RegionMap:
+  D: 0x80c0a58
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+gMapHeader:
+  J: ~
+gObjectEvents:
+  J: ~
+gPlayerAvatar:
+  J: ~
+gPlayerPartyCount:
+  J: ~
+gPlayerParty:
+  J: ~
+sMapCursor:
+  J: ~
+#----------------#
+
+#--------------------#
+#  Battling Symbols  #
+#--------------------#
+CB2_OVERWORLDBASIC:
+  D: 0x80565c8
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_INITBATTLE:
+  D: 0x800fd20
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_HANDLESTARTBATTLE:
+  D: 0x801048c
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_RETURNTOFIELD:
+  D: 0x80567fc
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_RETURNTOFIELDCONTINUESCRIPTPLAYMAPMUSIC:
+  D: 0x80568e4
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+gMain:
+  D: 0x3003040
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+gBattleMainFunc:
+  D: 0x3004ed4
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+gBattlerControllerFuncs:
+  D: 0x3004f30
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+GTASKS:
+  D: 0x3004fe0
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+BattleMainCB1:
+  D: 0x8012368
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+BattleMainCB2:
+  D: 0x8011084
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+HandleTurnActionSelectionState:
+  D: 0x8013fc4
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+HandleInputChooseAction:
+  D:
+    - ~
+    - ~
+    - 0x802e3d0
+    - ~
+  F:
+    - ~
+    - ~
+    - ~
+    - ~
+  I:
+    - ~
+    - ~
+  J: ~
+  S:
+    - ~
+    - ~
+    - ~
+    - ~
+HandleInputChooseMove:
+  D: 0x802e9a8
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_DuckBGMForPokemonCry:
+  D: 0x8072198
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+BattleScript_HandleFaintedMon:
+  D: 0x81dcd45
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_BattleStart:
+  D: 0x807f558
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_EvolutionScene:
+  D: 0x80cea50
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_InputHandler_SelectOrForgetMove:
+  D: 0x8139448
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_HandleChooseMonInput:
+  D: 0x811fb34
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_RushInjuredPokemonToCenter:
+  D: 0x807f394
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+EventScript_AfterWhiteOutHeal:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+BattleScript_AskToLearnMove:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+BattleScript_ForgotAndLearnedNewMove:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+gMoveSelectionCursor:
+  J: ~
+gBattleOutcome:
+  J: ~
+gActionSelectionCursor:
+  J: ~
+gEnemyParty:
+  J: ~
+gBattlescriptCurrInstr:
+  J: ~
+gBattleTypeFlags:
+  J: ~
+gSideTimers:
+  J: ~
+gBattlerPartyIndexes:
+  J: ~
+gBattlePartyCurrentOrder:
+  J: ~
+gBattlersCount:
+  J: ~
+gBattleMons:
+  J: ~
+gStatuses3:
+  J: ~
+gDisableStructs:
+  J: ~
+gAbsentBattlerFlags:
+  J: ~
+gBattleResults:
+  D: 0x3004ee0
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+gBattleWeather:
+  J: ~
+#--------------------#
+
+#----------------#
+#  Daycare Mode  #
+#----------------#
+EventScript_EggHatch:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+
+# EggHatch party identification
+gSpecialVar_0x8004:
+  J: ~
+
+Task_Fanfare:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+#----------------#
+
+#---------------------------#
+#  SSR/SRA/SGR Reset Modes  #
+#---------------------------#
+Task_EndQuestLog:
+  D: 0x8112148
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_DrawFieldMessageBox:
+  D: 0x8069360
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_MultichoiceMenu_HandleInput:
+  D: 0x809cd50
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+gRngValue:
+  D: 0x3004f50
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Std_MsgboxDefault:
+  D: 0x81a7ae4
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+#---------------------------#
+
+#-------------------#
+#   Fishing Mode    #
+#-------------------#
+Task_Fishing:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+#-------------------#
+
+#-------------------------#
+#   Puzzle Solver Mode    #
+#-------------------------#
+# Tanoby Puzzle
+SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+#-------------------------#
+
+#-----------------#
+#    Main Menu    #
+#-----------------#
+CB2_InitCopyrightScreenAfterBootup:
+  D: 0x80eca1c
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_TitleScreenRun:
+  D: 0x8078b00
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_Intro:
+  D: 0x80ecbd0
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_INITTITLESCREEN:
+  D: 0x8078878
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_INITMAINMENU:
+  D: 0x800c280
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_MAINMENU:
+  D: 0x800c254
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_CONTINUESAVEDGAME:
+  D: 0x8056958
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_RETURNTOFIELDLOCAL:
+  D: 0x8056828
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+MAINCB2:
+  D: 0x8011084
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+#-----------------#
+
+#-----------------#
+#  In game Menu   #
+#-----------------#
+Task_StartMenuHandleInput:
+  D: 0x806f154
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+sMenu:
+  J: ~
+sStartMenuCursorPos:
+  J: ~
+sNumStartMenuItems:
+  J: ~
+sStartMenuOrder:
+  J: ~
+#-----------------#
+
+#--------------#
+#   Bag Menu   #
+#--------------#
+CB2_BAGMENURUN:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_BagMenu_HandleInput:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_FieldItemContextMenuHandleInput:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+gBagMenuState:
+  J: ~
+gPaletteFade:
+  J: ~
+#---------------#
+
+#----------------#
+#   Party Menu   #
+#----------------#
+CB2_UPDATEPARTYMENU:
+  D: 0x811ebac
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_PrintAndWaitForText:
+  D: 0x8120334
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_HandleInput:
+  D: 0x809f328
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_HandleSelectionMenuInput:
+  D: 0x8122c6c
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_SlideSelectedSlotsOnscreen:
+  D: 0x8123398
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+#----------------#
+
+#-------------------------#
+#    PC Menu / Storage    #
+#-------------------------#
+Task_PCMainMenu:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_PokeStorageMain:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+gPokemonStoragePtr:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+#-------------------------#
+
+#--------------#
+#   Listeners  #
+#--------------#
+CB2_EggHatch_0:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_EggHatch_1:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+EventScript_RepelWoreOff:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+EventScript_DoTrainerBattle:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+EventScript_DoTrainerBattleFromApproach:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+EventScript_FieldPoison:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+#---------------#
+
+# Ununsed symbols that were conflicting with currently used symbols
+# We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
+PokemonMansion_EventScript_DontPressSwitch:
+  D: 0x0
+Route19_Text_LucRematchIntro:
+  D: 0x0
+Route21_North_EventScript_IanRematch:
+  D: 0x0
+EventScript_CutTree:
+  F: 0x0
+Route23_EventScript_MissingBoulderBadge:
+  F: 0x0
+EventScript_SetEnteringCyclingRoad:
+  F: 0x0
+Route23_EventScript_MissingBadge:
+  F: 0x0
+NavelRock_Summit_EventScript_HideHoOh:
+  F: 0x0
+CableClub_Text_YouMayBattleHere:
+  I: 0x0
+Status_Freeze:
+  I: 0x0
+EventScript_PkmnCenterNurse_PlayerWaitingInUionRoom:
+  I: 0x0
+BattleScript_BrickBreakDoHit:
+  S: 0x0
+BattleScript_BrickBreakAnim:
+  S: 0x0
+EventScript_Open9FDoor3:
+  S: 0x0
+Text_DontBeLikeThat:
+  S: 0x0
+Trade_Text_WhatThatsNoMon:
+  J: 0x0
+
+# Unused
+Task_ExitNonDoor:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_ContinueTaskAfterMessagePrints:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_BEGINEVOLUTIONSCENE:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_EVOLUTIONSCENEUPDATE:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+TASK_PLAYCRYWHENRELEASEDFROMBALL:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
