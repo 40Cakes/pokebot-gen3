@@ -32,7 +32,7 @@ Soft resets for a Pokémon purchased from the [Celadon Game Corner](https://bulb
 |:---------|:----------:|:------------:|
 | English  |     ✅      |      ✅       |
 | Japanese |     ❌      |      ❌       |
-| German   |     ✅      |      ❌       |
+| German   |     ✅      |      ✅       |
 | Spanish  |     ✅      |      ❌       |
 | French   |     ✅      |      ❌       |
 | Italian  |     ✅      |      ❌       |
