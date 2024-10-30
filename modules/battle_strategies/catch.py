@@ -5,10 +5,20 @@ from modules.context import context
 from modules.items import Item, get_item_bag
 from modules.map import get_map_data_for_current_position
 from modules.pokedex import get_pokedex
-from modules.pokemon import Pokemon, get_type_by_name, StatusCondition
+from modules.pokemon import Pokemon, get_type_by_name, StatusCondition, get_opponent
+from modules.safari_strategy import get_safari_strategy_action
 
 
 class CatchStrategy(DefaultBattleStrategy):
+
+    def __init__(self):
+        super().__init__()
+        self._current_catching_strategy_index = 0
+        self._is_current_catching_strategy_baited = False
+        self._number_of_balls_strategy = 0
+        self._has_been_baited = False
+        self._has_been_rocked = False
+
     def pokemon_can_battle(self, pokemon: Pokemon) -> bool:
         return not pokemon.is_egg and pokemon.current_hp > 0
 
@@ -32,7 +42,99 @@ class CatchStrategy(DefaultBattleStrategy):
         return self.decide_turn(battle_state)
 
     def decide_turn_in_safari_zone(self, battle_state: BattleState) -> tuple["SafariTurnAction", any]:
+        """
+        Determines the next action in the Safari Zone based on the game.
+
+        Parameters:
+            battle_state (BattleState): The current battle state in Safari Zone.
+
+        Returns:
+            tuple[SafariTurnAction, any]: The next Safari action to perform and any additional context.
+        """
+        if context.rom.is_rse:
+            return self._decide_turn_safari_rse(battle_state)
+        elif context.rom.is_frlg:
+            return self._decide_turn_safari_frlg(battle_state)
         return SafariTurnAction.switch_to_manual()
+
+    def _decide_turn_safari_rse(self, battle_state: BattleState) -> tuple["SafariTurnAction", any]:
+        """
+        Handles the turn decision for RSE games.
+        """
+        return SafariTurnAction.switch_to_manual()
+
+    def _decide_turn_safari_frlg(self, battle_state: BattleState) -> tuple["SafariTurnAction", any]:
+        """
+        Handles the turn decision for FRLG games based on the watching/rocked/baited status.
+        """
+        if self._is_new_strategy_required():
+            if not self._has_been_baited:
+                return self._start_new_baited_strategy()
+            else:
+                return self._start_new_continuing_baited_strategy()
+        return self._continue_current_strategy()
+
+    def _is_new_strategy_required(self) -> bool:
+        """
+        Checks if a new catching strategy should be initiated.
+        """
+        return self._is_watching_carefully() and not self._has_been_rocked
+
+    def _start_new_baited_strategy(self) -> tuple["SafariTurnAction", any]:
+        """
+        Initiates a new baited catch strategy and returns the next action.
+        """
+        self._number_of_balls_strategy = self._get_safari_balls_left()
+        self._has_been_baited = True
+
+        action, rocked = self._execute_strategy_action()
+
+        if rocked:
+            self._has_been_rocked = rocked
+
+        self._current_catching_strategy_index += 1
+
+        return action, None
+
+    def _start_new_continuing_baited_strategy(self) -> tuple["SafariTurnAction", any]:
+        """
+        Initiates a new baited catch strategy after first baited one and returns the next action.
+        """
+        self._current_catching_strategy_index = 0
+        self._number_of_balls_strategy = self._get_safari_balls_left()
+        self._is_current_catching_strategy_baited == True
+
+        action, rocked = self._execute_strategy_action()
+
+        if rocked:
+            self._has_been_rocked = rocked
+        self._current_catching_strategy_index += 1
+
+        return action, None
+
+    def _continue_current_strategy(self) -> tuple["SafariTurnAction", any]:
+        """
+        Continues the current catching strategy and returns the next action.
+        """
+        action, rocked = self._execute_strategy_action()
+
+        if rocked:
+            self._has_been_rocked = rocked
+        self._current_catching_strategy_index += 1
+
+        return action, None
+
+    def _execute_strategy_action(self) -> tuple["SafariTurnAction", bool]:
+        """
+        Executes the catch strategy action based on the current strategy index, baited state, and remaining balls.
+        """
+        action, rocked = get_safari_strategy_action(
+            get_opponent(),
+            self._number_of_balls_strategy,
+            self._current_catching_strategy_index,
+            self._is_current_catching_strategy_baited,
+        )
+        return action, rocked
 
     def _get_best_status_changing_move(self, battle_state: BattleState) -> int | None:
         status_move_index: int | None = None
@@ -111,3 +213,14 @@ class CatchStrategy(DefaultBattleStrategy):
                 catch_rate_multiplier = min(4.0, (10 + battle_state.current_turn) / 10)
 
         return catch_rate_multiplier
+
+    def _is_watching_carefully(self) -> bool:
+        """
+        We do not intentionally check on the bait count to mimic a real user behavior
+        We juste check it to know if the monster was watching carefully or eating the previous turn
+        This information is displayed on the player screen
+        """
+        return context.emulator.read_bytes(0x0200008A, length=1)[0] == 0
+
+    def _get_safari_balls_left(self) -> int:
+        return context.emulator.read_bytes(0x02039994, length=1)[0]
