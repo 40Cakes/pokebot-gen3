@@ -6,7 +6,7 @@ from modules.items import Item, get_item_bag
 from modules.map import get_map_data_for_current_position
 from modules.pokedex import get_pokedex
 from modules.pokemon import Pokemon, get_type_by_name, StatusCondition, get_opponent
-from modules.safari_strategy import get_safari_strategy_action
+from modules.safari_strategy import get_safari_strategy_action, is_watching_carefully, get_safari_balls_left
 
 
 class CatchStrategy(DefaultBattleStrategy):
@@ -78,13 +78,13 @@ class CatchStrategy(DefaultBattleStrategy):
         """
         Checks if a new catching strategy should be initiated.
         """
-        return self._is_watching_carefully() and not self._has_been_rocked
+        return is_watching_carefully() and not self._has_been_rocked
 
     def _start_new_baited_strategy(self) -> tuple["SafariTurnAction", any]:
         """
         Initiates a new baited catch strategy and returns the next action.
         """
-        self._number_of_balls_strategy = self._get_safari_balls_left()
+        self._number_of_balls_strategy = get_safari_balls_left()
         self._has_been_baited = True
 
         action, rocked = self._execute_strategy_action()
@@ -101,7 +101,7 @@ class CatchStrategy(DefaultBattleStrategy):
         Initiates a new baited catch strategy after first baited one and returns the next action.
         """
         self._current_catching_strategy_index = 0
-        self._number_of_balls_strategy = self._get_safari_balls_left()
+        self._number_of_balls_strategy = get_safari_balls_left()
         self._is_current_catching_strategy_baited == True
 
         action, rocked = self._execute_strategy_action()
@@ -213,14 +213,3 @@ class CatchStrategy(DefaultBattleStrategy):
                 catch_rate_multiplier = min(4.0, (10 + battle_state.current_turn) / 10)
 
         return catch_rate_multiplier
-
-    def _is_watching_carefully(self) -> bool:
-        """
-        We do not intentionally check on the bait count to mimic a real user behavior
-        We juste check it to know if the monster was watching carefully or eating the previous turn
-        This information is displayed on the player screen
-        """
-        return context.emulator.read_bytes(0x0200008A, length=1)[0] == 0
-
-    def _get_safari_balls_left(self) -> int:
-        return context.emulator.read_bytes(0x02039994, length=1)[0]

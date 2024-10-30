@@ -1,7 +1,8 @@
 import yaml
 from typing import Union, Tuple
-from modules.pokemon import Pokemon
+from modules.context import context
 from modules.battle_strategies import SafariTurnAction
+from modules.pokemon import Pokemon
 from modules.runtime import get_data_path
 
 
@@ -104,3 +105,16 @@ def load_safari_data(file_path: str) -> dict:
         raise RuntimeError(f"Failed to parse YAML file {file_path}: {e}")
 
     return safari_data
+
+
+def is_watching_carefully() -> bool:
+    """
+    We do not intentionally check on the bait count to mimic a real user behavior
+    We juste check it to know if the monster was watching carefully or eating the previous turn
+    This information is displayed on the player screen
+    """
+    return context.emulator.read_bytes(0x0200008A, length=1)[0] == 0
+
+
+def get_safari_balls_left() -> int:
+    return context.emulator.read_bytes(0x02039994, length=1)[0]
