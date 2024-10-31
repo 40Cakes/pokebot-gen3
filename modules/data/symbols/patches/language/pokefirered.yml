@@ -328,7 +328,7 @@ Task_EndQuestLog:
   D: 0x8112170
   F: 0x8112230
   I: 0x81121b4
-  J: ~
+  J: 0x8112bf4
   S: 0x811229c
 Task_DrawFieldMessageBox:
   D: 0x8069360
@@ -346,7 +346,7 @@ gRngValue:
   D: 0x3004f50
   F: 0x3004f50
   I: 0x3004f50
-  J: ~
+  J: 0x3005040
   S: 0x3004f50
 Std_MsgboxDefault:
   D: 0x81a7b08
@@ -392,13 +392,13 @@ CB2_TitleScreenRun:
   D: 0x8078b00
   F: 0x8078bc0
   I: 0x8078aec
-  J: ~
+  J: 0x8078334
   S: 0x8078bd4
 CB2_Intro:
   D: 0x80ecbf8
   F: 0x80eccb8
   I: 0x80ecbf8
-  J: ~
+  J: 0x80ed8d0
   S: 0x80ecce0
 CB2_INITTITLESCREEN:
   D: 0x8078878

@@ -31,7 +31,7 @@ Soft resets for a Pokémon purchased from the [Celadon Game Corner](https://bulb
 |          | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:----------:|:------------:|
 | English  |     ✅      |      ✅       |
-| Japanese |     ❌      |      ❌       |
+| Japanese |     ✅      |      ❌       |
 | German   |     ✅      |      ✅       |
 | Spanish  |     ✅      |      ❌       |
 | French   |     ✅      |      ❌       |
