@@ -818,7 +818,7 @@ async function refreshchecklist() {
                         .addClass("checklist_phase_percent")
                         .text(checklist_mon.phase_percent)))
                 .append($("<td>")
-                    .text(intShortName(checklist_mon.encounters, 3)))
+                    .text(checklist_mon.encounters.toLocaleString()))
                 .append($("<td>")
                     .text(checklist_mon.catches.toLocaleString())
                     .append($("<span>")
