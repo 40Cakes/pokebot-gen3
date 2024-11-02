@@ -6,11 +6,11 @@
 // Start date for the top-left "time elapsed since challenge started" timer
 start_date = "2023-01-01"
 time_zone = "Australia/Sydney" // "Australia/Sydney"
-override_display_timezone = "AEST" // "AEST"
+override_display_timezone = "AEDT" // "AEST"
 
 // Name of Pokemon for the "timers since last encounter" for a Pokemon to display on screen
-target_timer_1 = "Minun" // "Seedot"
-target_timer_2 = "Plusle"
+target_timer_1 = "Volbeat" // "Seedot"
+target_timer_2 = "Seedot"
 
 // Pokemon to display on the checklist (possible encounters via current bot mode are appended to top of list)
 // Leave it empty to only show encounters on the current route
@@ -768,7 +768,7 @@ async function refreshchecklist() {
             checklist_mon.phase_highest_sv = (state.stats.pokemon[name].phase_highest_sv != null) ? state.stats.pokemon[name].phase_highest_sv : 99999
             checklist_mon.phase_highest_iv_sum = (state.stats.pokemon[name].phase_highest_iv_sum != null) ? state.stats.pokemon[name].phase_highest_iv_sum : 99999
             checklist_mon.phase_lowest_iv_sum = (state.stats.pokemon[name].phase_lowest_iv_sum != null) ? state.stats.pokemon[name].phase_lowest_iv_sum : 99999
-            checklist_mon.phase_percent = (state.stats.pokemon[name].phase_encounters > 0) ? ((state.stats.pokemon[name].phase_encounters / state.stats.totals.total_encounters) * 100).toPrecision(4) + "%" : ""
+            checklist_mon.phase_percent = (state.stats.pokemon[name].phase_encounters > 0) ? ((state.stats.pokemon[name].phase_encounters / state.stats.totals.phase_encounters) * 100).toPrecision(4) + "%" : ""
 
             checklist_mon.shiny_average = shinyAverage(state.stats.pokemon[name]);
             if (checklist_mon.shiny_average === "N/A") {
