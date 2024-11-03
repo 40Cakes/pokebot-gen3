@@ -1929,7 +1929,7 @@ class EffectiveWildEncounterList:
     def to_dict(self) -> dict:
         return {
             "repel_level": self.repel_level,
-            "active_ability": self.active_ability.name,
+            "active_ability": self.active_ability.name if self.active_ability is not None else None,
             "regular": self.regular_encounters.to_dict(),
             "effective": {
                 "land_encounters": [encounter.to_dict() for encounter in self.land_encounters],
@@ -1950,7 +1950,7 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
 
     player = get_player_avatar()
     if player is None:
-        return EffectiveWildEncounterList(0, 0, 0, WildEncounterList.empty(), [], [], [], [], [], [])
+        return EffectiveWildEncounterList(0, 0, 0, None, WildEncounterList.empty(), [], [], [], [], [], [])
 
     map_group, map_number = player.map_group_and_number
 
