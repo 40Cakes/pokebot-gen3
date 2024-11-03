@@ -234,6 +234,8 @@ class BattleStrategyUtil:
     def get_strongest_move_against(self, pokemon: "BattlePokemon", opponent: "BattlePokemon"):
         move_strengths = []
         for learned_move in pokemon.moves:
+            if learned_move.move.name in context.config.battle.banned_moves:
+                continue
             move = learned_move.move
             if learned_move.pp == 0 or pokemon.disabled_move is move:
                 move_strengths.append(-1)
