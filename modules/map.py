@@ -1671,7 +1671,15 @@ class ObjectEventTemplate:
         return data
 
     def __str__(self) -> str:
-        if self.trainer_type != "None":
+        if self.kind == "clone":
+            from .map_data import MapRSE, MapFRLG
+
+            if context.rom.is_rse:
+                target_map = MapRSE((self.clone_target_map_group, self.clone_target_map_number))
+            else:
+                target_map = MapFRLG((self.clone_target_map_group, self.clone_target_map_number))
+            return f"Cloned object ({self.clone_target_local_id} @ {target_map.name})"
+        elif self.trainer_type != "None":
             defeated = "(defeated)" if self.is_trainer_defeated else "(will battle)"
             if self.trainer_type == "Buried":
                 return f"Buried Trainer {defeated} at {self.local_coordinates}"
