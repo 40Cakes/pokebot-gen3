@@ -17,6 +17,7 @@ from modules.console import console
 from modules.context import context
 from modules.discord import discord_send, DiscordMessage
 from modules.files import make_string_safe_for_file_name
+from modules.modes.util import wait_for_n_frames
 from modules.plugin_interface import BotPlugin
 
 if TYPE_CHECKING:
@@ -78,13 +79,9 @@ def _obs_thread(task_queue: Queue[str]):
         task = task_queue.get()
 
         if task == "save_screenshot":
-            if context.config.obs.shiny_delay > 0:
-                time.sleep(context.config.obs.shiny_delay)
             _obs_screenshot(client, video_width, video_height)
 
         elif task == "save_screenshot_and_send_to_discord":
-            if context.config.obs.shiny_delay > 0:
-                time.sleep(context.config.obs.shiny_delay)
             image_file = _obs_screenshot(client, video_width, video_height)
             if context.config.obs.discord_webhook_url:
                 if context.config.obs.discord_delay > 0:
@@ -116,12 +113,19 @@ class OBSPlugin(BotPlugin):
         if not encounter.is_of_interest:
             return
 
+        # Wait on shiny for shiny_delay to allow livestream chat reactions
+        if context.config.obs.shiny_delay > 0:
+            wait_for_n_frames(context.config.obs.shiny_delay * 60)
+
         # Save a screenshot of the OBS output after encountering a Pokémon of interest.
         if context.config.obs.screenshot:
             if encounter.pokemon.is_shiny:
                 self._task_queue.put("save_screenshot_and_send_to_discord")
             else:
                 self._task_queue.put("save_screenshot")
+
+            # Wait for a second to allow OBS screenshot to save
+            wait_for_n_frames(60)
 
         # Save OBS replay buffer n seconds after encountering a shiny.
         if context.config.obs.replay_buffer and encounter.pokemon.is_shiny:
