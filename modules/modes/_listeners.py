@@ -191,6 +191,12 @@ class BattleListener(BotListener):
     @isolate_inputs
     @debug.track
     def fight(self, strategy: BattleStrategy):
+        first_non_fainted_lead_before_battle = 0
+        for index, pokemon in enumerate(get_party()):
+            if not pokemon.is_egg and pokemon.current_hp > 0:
+                first_non_fainted_lead_before_battle = index
+                break
+
         yield from plugin_battle_started(self._active_wild_encounter)
         yield from handle_battle(strategy)
         yield from self._wait_until_battle_is_over()
@@ -208,15 +214,17 @@ class BattleListener(BotListener):
                 yield from self.check_for_pickup()
             if strategy.choose_new_lead_after_battle() is not None:
                 if context.bot_mode != "Manual":
-                    yield from self.rotate_lead_pokemon(strategy.choose_new_lead_after_battle())
+                    yield from self.rotate_lead_pokemon(
+                        strategy.choose_new_lead_after_battle(), first_non_fainted_lead_before_battle
+                    )
 
     @debug.track
     def check_for_pickup(self):
         yield from MenuWrapper(CheckForPickup()).step()
 
     @debug.track
-    def rotate_lead_pokemon(self, new_lead_index: int):
-        yield from MenuWrapper(RotatePokemon(new_lead_index)).step()
+    def rotate_lead_pokemon(self, new_lead_index: int, old_lead_index: int):
+        yield from MenuWrapper(RotatePokemon(new_lead_index, old_lead_index)).step()
 
     @isolate_inputs
     @debug.track
