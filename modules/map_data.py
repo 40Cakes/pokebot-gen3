@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Generator
 
 from modules.context import context
-from modules.map import MapLocation
+from modules.map import MapLocation, get_map_data_for_current_position
 
 
 def _might_be_map_coordinates(value) -> bool:
@@ -1360,3 +1360,30 @@ def get_map_enum(map_group_and_number: tuple[int, int] | MapLocation) -> MapFRLG
         return MapRSE(map_group_and_number)
     else:
         return MapFRLG(map_group_and_number)
+
+
+def is_safari_map() -> bool:
+    """
+    Checks if the current map is a Safari Zone map.
+    Raises an error if the ROM is not FRLG or RSE.
+    """
+    map = get_map_data_for_current_position()
+
+    if context.rom.is_frlg:
+        return (map.map_group, map.map_number) in {
+            MapFRLG.SAFARI_ZONE_CENTER,
+            MapFRLG.SAFARI_ZONE_EAST,
+            MapFRLG.SAFARI_ZONE_NORTH,
+            MapFRLG.SAFARI_ZONE_WEST,
+        }
+    elif context.rom.is_rse:
+        return (map.map_group, map.map_number) in {
+            MapRSE.SAFARI_ZONE_NORTHWEST,
+            MapRSE.SAFARI_ZONE_NORTH,
+            MapRSE.SAFARI_ZONE_SOUTHWEST,
+            MapRSE.SAFARI_ZONE_SOUTH,
+            MapRSE.SAFARI_ZONE_NORTHEAST,
+            MapRSE.SAFARI_ZONE_SOUTHEAST,
+        }
+
+    raise ValueError("Unsupported ROM type: Safari Zone map check only supports FRLG and RSE.")

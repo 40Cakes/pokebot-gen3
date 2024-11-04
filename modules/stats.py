@@ -697,6 +697,9 @@ class StatsDatabase:
         if self.last_encounter is not None:
             self.last_encounter.outcome = battle_outcome
             self._update_encounter_outcome(self.last_encounter)
+            if self.last_encounter.species_id in self._encounter_summaries:
+                self._encounter_summaries[self.last_encounter.species_id].update_outcome(battle_outcome)
+                self._insert_or_update_encounter_summary(self._encounter_summaries[self.last_encounter.species_id])
 
     def log_pickup_items(self, picked_up_items: list["Item"]) -> None:
         need_updating: set[int] = set()

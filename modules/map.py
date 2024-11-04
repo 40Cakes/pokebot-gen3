@@ -1671,7 +1671,15 @@ class ObjectEventTemplate:
         return data
 
     def __str__(self) -> str:
-        if self.trainer_type != "None":
+        if self.kind == "clone":
+            from .map_data import MapRSE, MapFRLG
+
+            if context.rom.is_rse:
+                target_map = MapRSE((self.clone_target_map_group, self.clone_target_map_number))
+            else:
+                target_map = MapFRLG((self.clone_target_map_group, self.clone_target_map_number))
+            return f"Cloned object ({self.clone_target_local_id} @ {target_map.name})"
+        elif self.trainer_type != "None":
             defeated = "(defeated)" if self.is_trainer_defeated else "(will battle)"
             if self.trainer_type == "Buried":
                 return f"Buried Trainer {defeated} at {self.local_coordinates}"
@@ -1921,7 +1929,7 @@ class EffectiveWildEncounterList:
     def to_dict(self) -> dict:
         return {
             "repel_level": self.repel_level,
-            "active_ability": self.active_ability.name,
+            "active_ability": self.active_ability.name if self.active_ability is not None else None,
             "regular": self.regular_encounters.to_dict(),
             "effective": {
                 "land_encounters": [encounter.to_dict() for encounter in self.land_encounters],
@@ -1942,7 +1950,7 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
 
     player = get_player_avatar()
     if player is None:
-        return EffectiveWildEncounterList(0, 0, 0, WildEncounterList.empty(), [], [], [], [], [], [])
+        return EffectiveWildEncounterList(0, 0, 0, None, WildEncounterList.empty(), [], [], [], [], [], [])
 
     map_group, map_number = player.map_group_and_number
 
