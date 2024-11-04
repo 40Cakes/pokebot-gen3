@@ -16,6 +16,7 @@ from datetime import datetime
 from modules.console import console
 from modules.context import context
 from modules.discord import discord_send, DiscordMessage
+from modules.files import make_string_safe_for_file_name
 from modules.plugin_interface import BotPlugin
 
 if TYPE_CHECKING:
@@ -29,7 +30,7 @@ def _obs_screenshot(client: obs.ReqClient, width: int, height: int) -> Path:
     if not screenshots_dir.exists():
         screenshots_dir.mkdir(parents=True)
 
-    file_name = datetime.now().isoformat() + ".png"
+    file_name = make_string_safe_for_file_name(f"{datetime.now().isoformat()}.png")
     file_path = screenshots_dir / file_name
 
     with file_path.open("wb") as file:
@@ -101,7 +102,7 @@ def _obs_thread(task_queue: Queue[str]):
             client.save_replay_buffer()
 
         else:
-            console.print("[bold red]OBS Plugin:[/] [red]Unknown task: " + task + "[/]")
+            console.print(f"[bold red]OBS Plugin:[/] [red]Unknown task: {task}[/]")
 
 
 class OBSPlugin(BotPlugin):
