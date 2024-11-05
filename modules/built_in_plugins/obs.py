@@ -115,7 +115,7 @@ class OBSPlugin(BotPlugin):
 
         # Wait on shiny for shiny_delay to allow livestream chat reactions
         if context.config.obs.shiny_delay > 0:
-            wait_for_n_frames(context.config.obs.shiny_delay * 60)
+            yield from wait_for_n_frames(context.config.obs.shiny_delay * 60)
 
         # Save a screenshot of the OBS output after encountering a Pokémon of interest.
         if context.config.obs.screenshot:
@@ -125,7 +125,7 @@ class OBSPlugin(BotPlugin):
                 self._task_queue.put("save_screenshot")
 
             # Wait for a second to allow OBS screenshot to save
-            wait_for_n_frames(60)
+            yield from wait_for_n_frames(60)
 
         # Save OBS replay buffer n seconds after encountering a shiny.
         if context.config.obs.replay_buffer and encounter.pokemon.is_shiny:
