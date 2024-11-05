@@ -42,7 +42,7 @@ Soft resets for starter Pokémon.
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
-| Japanese |    ❌    |      ❌      |     ✅      |     ❌      |      ❌       |
+| Japanese |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
 | German   |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
 | Spanish  |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
 | French   |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
