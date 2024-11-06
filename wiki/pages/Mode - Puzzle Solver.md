@@ -133,7 +133,7 @@ Start mode inside Tanoby Key.
 | **Deoxys**     | 🟥 Ruby      |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
 |                | 🔷 Sapphire  |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
 |                | 🟢 Emerald   |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
-|                | 🔥 Fire Red  |   ✅    |    ❌    |   ✅   |   ✅   |   ✅   |   ✅    |
+|                | 🔥 Fire Red  |   ✅    |    ✅    |   ✅   |   ✅   |   ✅   |   ✅    |
 |                | 🌿 LeafGreen |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
 | **Regice**     | 🟥 Ruby      |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
 |                | 🔷 Sapphire  |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
@@ -144,7 +144,7 @@ Start mode inside Tanoby Key.
 | **Registeel**  | 🟥 Ruby      |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
 |                | 🔷 Sapphire  |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
 |                | 🟢 Emerald   |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
-| **Tanoby Key** | 🔥 Fire Red  |   ✅    |    ❌    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **Tanoby Key** | 🔥 Fire Red  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
 |                | 🌿 LeafGreen |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
 
 ✅ Tested, working
