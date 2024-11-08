@@ -109,7 +109,7 @@ class OBSPlugin(BotPlugin):
     def on_profile_loaded(self, profile: "Profile") -> None:
         Thread(target=_obs_thread, args=(self._task_queue,)).start()
 
-    def on_logging_encounter(self, encounter: "EncounterInfo") -> Generator | None:
+    def on_wild_encounter_visible(self, encounter: "EncounterInfo") -> Generator | None:
         if not encounter.is_of_interest:
             return
 
@@ -117,15 +117,16 @@ class OBSPlugin(BotPlugin):
         if context.config.obs.shiny_delay > 0:
             yield from wait_for_n_frames(context.config.obs.shiny_delay * 60)
 
+    def on_logging_encounter(self, encounter: "EncounterInfo") -> Generator | None:
+        if not encounter.is_of_interest:
+            return
+
         # Save a screenshot of the OBS output after encountering a Pokémon of interest.
         if context.config.obs.screenshot:
             if encounter.pokemon.is_shiny:
                 self._task_queue.put("save_screenshot_and_send_to_discord")
             else:
                 self._task_queue.put("save_screenshot")
-
-            # Wait for a second to allow OBS screenshot to save
-            yield from wait_for_n_frames(60)
 
         # Save OBS replay buffer n seconds after encountering a shiny.
         if context.config.obs.replay_buffer and encounter.pokemon.is_shiny:
