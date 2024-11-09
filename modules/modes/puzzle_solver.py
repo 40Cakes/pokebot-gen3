@@ -428,7 +428,7 @@ class PuzzleSolverMode(BotMode):
                     while get_event_var("ASH_GATHER_COUNT") < 1000:
                         yield from walk_one_tile("Down")
                         yield from navigate_to(MapRSE.ROUTE113, (32, 11))
-                        # collect 100 ashes per lap
+                        # collect 100 (E) / 101 (RS) ashes per lap
                         yield from follow_path(
                             [
                                 # first grass patch - 29 ashes
@@ -439,7 +439,7 @@ class PuzzleSolverMode(BotMode):
                                 (31, 13), (28, 13),
                                 (28, 12), (32, 12),
                                 (32, 13), (35, 13),
-                                # second grass patch - 71 ashes
+                                # second grass patch - 71 ashes (E) / 72 ashes (RS)
                                 (35, 8), (37, 8),
                                 (37, 7), (42, 7),
                                 (42, 6), (44, 6),
@@ -458,7 +458,7 @@ class PuzzleSolverMode(BotMode):
                                 (36, 7), (35, 7)
                             ]
                         )
-                        # re-enter glass shop to refresh ashes
+                        # re-enter glass shop and exit to refresh ashes
                         yield from navigate_to(MapRSE.ROUTE113, (33, 5))
                     context.message = "1000 ashes collected! Talk to glassblower to exchange for White Flute."
                     context.bot_mode = "Manual"
