@@ -6,6 +6,13 @@ from ._util import BattleStrategyUtil
 
 
 class DefaultBattleStrategy(BattleStrategy):
+    def __init__(self):
+        self._first_non_fainted_party_index_before_battle = 0
+        for index, pokemon in enumerate(get_party()):
+            if not pokemon.is_egg and pokemon.current_hp > 0:
+                self._first_non_fainted_party_index_before_battle = index
+                break
+
     def party_can_battle(self) -> bool:
         return any(self.pokemon_can_battle(pokemon) for pokemon in get_party())
 
@@ -132,7 +139,7 @@ class DefaultBattleStrategy(BattleStrategy):
 
     def choose_new_lead_after_battle(self) -> int | None:
         party = get_party()
-        if not self.pokemon_can_battle(party[0]):
+        if not self.pokemon_can_battle(party[self._first_non_fainted_party_index_before_battle]):
             return self._select_rotation_target()
 
         return None

@@ -398,10 +398,10 @@ async function handleWildEncounter(data) {
         document.getElementById("current_streak").innerText = "(" + state.stats.current_phase.current_streak.value.toLocaleString() + ")"
 
         // Phase IV records
-        $("#phase_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.current_phase.highest_iv_sum.species_name, false, false, false))
-        document.getElementById("phase_iv_record_high").innerText = state.stats.current_phase.highest_iv_sum.value
-        $("#phase_iv_record_low_sprite").attr("src", pokemonSprite(state.stats.current_phase.lowest_iv_sum.species_name, false, false, false))
-        document.getElementById("phase_iv_record_low").innerText = state.stats.current_phase.lowest_iv_sum.value
+        $("#phase_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.totals.phase_highest_iv_sum.species_name, false, false, false))
+        document.getElementById("phase_iv_record_high").innerText = state.stats.totals.phase_highest_iv_sum.value
+        $("#phase_iv_record_low_sprite").attr("src", pokemonSprite(state.stats.totals.phase_lowest_iv_sum.species_name, false, false, false))
+        document.getElementById("phase_iv_record_low").innerText = state.stats.totals.phase_lowest_iv_sum.value
 
         // Total IV records
         $("#total_iv_record_high_sprite").attr("src", pokemonSprite(state.stats.totals.total_highest_iv_sum.species_name, false, false, false))
