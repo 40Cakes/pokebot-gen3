@@ -11,7 +11,7 @@ CB2_OVERWORLD:
 Task_YesNoMenu_HandleInput:
   D: 0x809cf0c
   F: 0x809cfcc
-  I: ~
+  I: 0x809cef8
   J: ~
   S: ~
 Task_FlyIntoMap:
@@ -23,7 +23,7 @@ Task_FlyIntoMap:
 Task_ExitDoor:
   D: 0x807def4
   F: 0x807dfb4
-  I: ~
+  I: 0x807dee0
   J: ~
   S: ~
 WaitForAorBPress:
@@ -284,7 +284,7 @@ gBattleWeather:
 EventScript_EggHatch:
   D: 0x81c2fae
   F: 0x81bdeed
-  I: ~
+  I: 0x81bca9c
   J: ~
   S: ~
 
@@ -295,7 +295,7 @@ gSpecialVar_0x8004:
 Task_Fanfare:
   D: 0x8071c20
   F: 0x8079d44
-  I: ~
+  I: 0x8071c0c
   J: ~
   S: ~
 #----------------#
@@ -312,13 +312,13 @@ Task_EndQuestLog:
 Task_DrawFieldMessageBox:
   D: 0x8069360
   F: 0x8069420
-  I: ~
+  I: 0x806934c
   J: ~
   S: ~
 Task_MultichoiceMenu_HandleInput:
   D: 0x809cd50
   F: 0x809ce10
-  I: ~
+  I: 0x809cd3c
   J: ~
   S: ~
 gRngValue:
@@ -504,13 +504,13 @@ Task_SlideSelectedSlotsOnscreen:
 Task_PCMainMenu:
   D: 0x808c474
   F: 0x808c534
-  I: ~
+  I: 0x808c460
   J: ~
   S: ~
 Task_PokeStorageMain:
   D: 0x808d3a8
   F: 0x808d468
-  I: ~
+  I: 0x808d394
   J: ~
   S: ~
 gPokemonStoragePtr:
@@ -566,3 +566,5 @@ EventScript_FieldPoison:
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
 EventScript_CutTree:
   F: 0x0
+CableClub_Text_YouMayBattleHere:
+  I: 0x0
