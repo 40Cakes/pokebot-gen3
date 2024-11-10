@@ -6,6 +6,7 @@ from modules.items import get_item_bag, get_item_by_name
 from modules.player import get_player, get_player_avatar
 from modules.runtime import get_sprites_path
 from modules.map_data import is_safari_map
+from modules.battle_state import BattleOutcome
 from modules.safari_strategy import get_safari_balls_left
 from ._asserts import assert_item_exists_in_bag
 from ._interface import BotMode
@@ -29,8 +30,16 @@ class FishingMode(BotMode):
             if balls_left <= 15:
                 context.message = "You have less than 15 balls left, switching to manual mode..."
                 return context.set_manual_mode()
+        else:
+            if not outcome == BattleOutcome.Lost and get_item_bag().number_of_balls_except_master_ball == 0:
+                context.message = "Out of Poké Balls! Better grab more before the next shiny slips away..."
+                return context.set_manual_mode()
 
     def run(self) -> Generator:
+        if get_item_bag().number_of_balls_except_master_ball == 0:
+            context.message = "Out of Poké Balls! Better grab more before the next shiny slips away..."
+            return context.set_manual_mode()
+
         # Ask player to register a rod if they have one
         rod_names = ["Old Rod", "Good Rod", "Super Rod"]
         assert_item_exists_in_bag(rod_names, "You do not own any fishing rod, so you cannot fish.")

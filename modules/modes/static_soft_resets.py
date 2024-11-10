@@ -6,6 +6,7 @@ from modules.encounter import handle_encounter, log_encounter, EncounterInfo
 from modules.map_data import MapFRLG, MapRSE
 from modules.player import get_player_avatar
 from modules.save_data import get_save_data
+from modules.items import get_item_bag
 from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map
 from ._interface import BattleAction, BotMode, BotModeError
 from .util import (
@@ -104,6 +105,10 @@ class StaticSoftResetsMode(BotMode):
 
         if encounter.condition is not None and not encounter.condition():
             raise BotModeError(f"This {encounter.name} has already been encountered.")
+
+        if get_item_bag().number_of_balls_except_master_ball == 0:
+            context.message = "Out of Poké Balls! Better grab more before the next shiny slips away..."
+            return context.set_manual_mode()
 
         while context.bot_mode != "Manual":
             yield from soft_reset(mash_random_keys=True)

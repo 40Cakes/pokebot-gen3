@@ -115,6 +115,10 @@ class RoamerResetMode(BotMode):
                 f"{highest_encounter_level + 1} in order for Repel to work."
             )
 
+        if save_data.get_item_bag().number_of_balls_except_master_ball == 0:
+            context.message = "Out of Poké Balls! Better grab more before the next shiny slips away..."
+            return context.set_manual_mode()
+
         if save_data.get_item_bag().number_of_repels == 0:
             raise BotModeError("You do not have any repels in your item bag. Go and get some first!")
 

@@ -385,6 +385,10 @@ class ItemBag:
     def number_of_repels(self) -> int:
         return sum(slot.quantity for slot in self.items if slot.item.name in ("Repel", "Super Repel", "Max Repel"))
 
+    @property
+    def number_of_balls_except_master_ball(self) -> int:
+        return sum(slot.quantity for slot in self.poke_balls if slot.item.index != 1)
+
     def to_dict(self) -> dict:
         return {
             "items": [s.to_dict() for s in self.items],

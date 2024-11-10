@@ -7,6 +7,7 @@ from modules.map import get_map_data
 from modules.map_data import MapRSE
 from modules.player import get_player, get_player_avatar, AvatarFlags
 from modules.pokemon import get_party
+from modules.battle_state import BattleOutcome
 from . import BattleAction
 from ._interface import BotMode, BotModeError
 from .util import (
@@ -146,7 +147,16 @@ class FeebasMode(BotMode):
 
         return None
 
+    def on_battle_ended(self, outcome: "BattleOutcome") -> None:
+        if not outcome == BattleOutcome.Lost and get_item_bag().number_of_balls_except_master_ball == 0:
+            context.message = "Out of Poké Balls! Better grab more before the next shiny slips away..."
+            return context.set_manual_mode()
+
     def run(self) -> Generator:
+        if get_item_bag().number_of_balls_except_master_ball == 0:
+            context.message = "Out of Poké Balls! Better grab more before the next shiny slips away..."
+            return context.set_manual_mode()
+
         if not get_player_avatar().flags.Surfing:
             raise BotModeError("Player is not surfing, only start this mode while surfing in any water at Route 119.")
 
