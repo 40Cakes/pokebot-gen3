@@ -196,7 +196,15 @@ class FeebasMode(BotMode):
 
         while True:
             if not self._found_feebas:
-                player_location = get_player_avatar().map_location_in_front.local_position
+                map = player_location = get_player_avatar().map_location_in_front
+
+                # Sometimes when entering battle the map location is not available during a few frames
+                # We keep the mode going in this case
+                if map is None:
+                    yield
+                    continue
+
+                player_location = map.local_position
                 target_spot = self._fishing_spots.get_next_untested()
 
                 # This might happen if all tiles have been checked and no Feebas has been found.
