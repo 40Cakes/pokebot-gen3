@@ -282,7 +282,7 @@ gBattleWeather:
 #  Daycare Mode  #
 #----------------#
 EventScript_EggHatch:
-  D: ~
+  D: 0x81c2fae
   F: 0x81bdeed
   I: ~
   J: ~
@@ -293,8 +293,8 @@ gSpecialVar_0x8004:
   J: ~
 
 Task_Fanfare:
-  D: ~
-  F: 0x8071ce0
+  D: 0x8071c20
+  F: 0x8079d44
   I: ~
   J: ~
   S: ~
@@ -502,13 +502,13 @@ Task_SlideSelectedSlotsOnscreen:
 #    PC Menu / Storage    #
 #-------------------------#
 Task_PCMainMenu:
-  D: ~
+  D: 0x808c474
   F: 0x808c534
   I: ~
   J: ~
   S: ~
 Task_PokeStorageMain:
-  D: ~
+  D: 0x808d3a8
   F: 0x808d468
   I: ~
   J: ~
