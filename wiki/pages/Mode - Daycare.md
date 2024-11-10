@@ -38,9 +38,9 @@ not Shiny.
 | English  |   ✅    |     ✅      |     ✅     |     ✅     |      ✅      |
 | Japanese |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
 | German   |   ❌    |     ❌      |     ✅     |     ✅     |      ✅      |
-| Spanish  |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
+| Spanish  |   ❌    |     ❌      |     ✅     |     ✅     |      ✅      |
 | French   |   ❌    |     ❌      |     ✅     |     ✅     |      ✅      |
-| Italian  |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
+| Italian  |   ❌    |     ❌      |     ✅     |     ✅     |      ✅      |
 
 ✅ Tested, working
 
