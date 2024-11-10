@@ -39,7 +39,7 @@ not Shiny.
 | Japanese |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
 | German   |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
 | Spanish  |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
-| French   |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
+| French   |   ❌    |     ❌      |     ✅     |     ✅     |      ✅      |
 | Italian  |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
 
 ✅ Tested, working

@@ -4,13 +4,13 @@
 #--------------------------------#
 CB2_OVERWORLD:
   D: 0x80565d4
-  F: ~
-  I: ~
+  F: 0x8056694
+  I: 0x80565c0
   J: ~
-  S: ~
+  S: 0x80566a8
 Task_YesNoMenu_HandleInput:
   D: 0x809cf0c
-  F: ~
+  F: 0x809cfcc
   I: ~
   J: ~
   S: ~
@@ -22,7 +22,7 @@ Task_FlyIntoMap:
   S: ~
 Task_ExitDoor:
   D: 0x807def4
-  F: ~
+  F: 0x807dfb4
   I: ~
   J: ~
   S: ~
@@ -45,34 +45,34 @@ EventScript_UseStrength:
 #--------------------#
 gMapGroups:
   D: 0x83525ac
-  F: ~
-  I: ~
+  F: 0x834cad8
+  I: 0x834b768
   J: ~
-  S: ~
+  S: 0x834de50
 sMapNames:
   D: 0x83f1340
-  F: ~
-  I: ~
+  F: 0x83ea0a0
+  I: 0x83e8da0
   J: ~
-  S: ~
+  S: 0x83ebdb8
 gWildMonHeaders:
   D: 0x83c9940
-  F: ~
-  I: ~
+  F: 0x83c3e6c
+  I: 0x83c2afc
   J: ~
-  S: ~
+  S: 0x83c51e4
 gSaveBlock1Ptr:
   D: 0x3004f58
-  F: ~
-  I: ~
+  F: 0x3004f58
+  I: 0x3004f58
   J: ~
-  S: ~
+  S: 0x3004f58
 gSaveBlock2Ptr:
   D: 0x3004f5c
-  F: ~
-  I: ~
+  F: 0x3004f5c
+  I: 0x3004f5c
   J: ~
-  S: ~
+  S: 0x3004f5c
 CB2_RegionMap:
   D: 0x80c0a58
   F: ~
@@ -128,28 +128,28 @@ CB2_RETURNTOFIELDCONTINUESCRIPTPLAYMAPMUSIC:
   S: ~
 gMain:
   D: 0x3003040
-  F: ~
-  I: ~
+  F: 0x3003040
+  I: 0x3003040
   J: ~
-  S: ~
+  S: 0x3003040
 gBattleMainFunc:
   D: 0x3004ed4
-  F: ~
-  I: ~
+  F: 0x3004ed4
+  I: 0x3004ed4
   J: ~
-  S: ~
+  S: 0x3004ed4
 gBattlerControllerFuncs:
   D: 0x3004f30
-  F: ~
-  I: ~
+  F: 0x3004f30
+  I: 0x3004f30
   J: ~
-  S: ~
+  S: 0x3004f30
 GTASKS:
   D: 0x3004fe0
-  F: ~
-  I: ~
+  F: 0x3004fe0
+  I: 0x3004fe0
   J: ~
-  S: ~
+  S: 0x3004fe0
 BattleMainCB1:
   D: 0x8012368
   F: ~
@@ -283,7 +283,7 @@ gBattleWeather:
 #----------------#
 EventScript_EggHatch:
   D: ~
-  F: ~
+  F: 0x81bdeed
   I: ~
   J: ~
   S: ~
@@ -294,7 +294,7 @@ gSpecialVar_0x8004:
 
 Task_Fanfare:
   D: ~
-  F: ~
+  F: 0x8071ce0
   I: ~
   J: ~
   S: ~
@@ -311,13 +311,13 @@ Task_EndQuestLog:
   S: ~
 Task_DrawFieldMessageBox:
   D: 0x8069360
-  F: ~
+  F: 0x8069420
   I: ~
   J: ~
   S: ~
 Task_MultichoiceMenu_HandleInput:
   D: 0x809cd50
-  F: ~
+  F: 0x809ce10
   I: ~
   J: ~
   S: ~
@@ -503,22 +503,22 @@ Task_SlideSelectedSlotsOnscreen:
 #-------------------------#
 Task_PCMainMenu:
   D: ~
-  F: ~
+  F: 0x808c534
   I: ~
   J: ~
   S: ~
 Task_PokeStorageMain:
   D: ~
-  F: ~
+  F: 0x808d468
   I: ~
   J: ~
   S: ~
 gPokemonStoragePtr:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x3004f60
+  F: 0x3004f60
+  I: 0x3004f60
   J: ~
-  S: ~
+  S: 0x3004f60
 #-------------------------#
 
 #--------------#
@@ -561,3 +561,8 @@ EventScript_FieldPoison:
   J: ~
   S: ~
 #---------------#
+
+# Ununsed symbols that were conflicting with currently used symbols
+# We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
+EventScript_CutTree:
+  F: 0x0
