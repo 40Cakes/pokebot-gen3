@@ -571,13 +571,13 @@ EventScript_DoTrainerBattle:
   D: 0x81a7c81
   F: 0x81a3b32
   I: 0x81a296a
-  J: ~
+  J: 0x8192f0d
   S: 0x81a4ae3
 EventScript_DoTrainerBattleFromApproach:
   D: 0x81a7b68
   F: 0x81a3a19
   I: 0x81a2851
-  J: ~
+  J: 0x8192de3
   S: 0x81a49ca
 EventScript_FieldPoison:
   D: 0x81abc2f
