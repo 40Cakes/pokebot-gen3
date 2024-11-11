@@ -152,16 +152,16 @@ GTASKS:
   S: 0x3004fe0
 BattleMainCB1:
   D: 0x8012368
-  F: ~
-  I: ~
+  F: 0x8012354
+  I: 0x8012368
   J: ~
-  S: ~
+  S: 0x8012354
 BattleMainCB2:
   D: 0x8011084
-  F: ~
-  I: ~
+  F: 0x8011070
+  I: 0x8011084
   J: ~
-  S: ~
+  S: 0x8011070
 HandleTurnActionSelectionState:
   D: 0x8013fc4
   F: ~
@@ -270,10 +270,10 @@ gAbsentBattlerFlags:
   J: ~
 gBattleResults:
   D: 0x3004ee0
-  F: ~
-  I: ~
+  F: 0x3004ee0
+  I: 0x3004ee0
   J: ~
-  S: ~
+  S: 0x3004ee0
 gBattleWeather:
   J: ~
 #--------------------#
@@ -410,7 +410,7 @@ CB2_RETURNTOFIELDLOCAL:
   J: ~
   S: ~
 MAINCB2:
-  D: 0x8011084
+  D: ~
   F: ~
   I: ~
   J: ~
