@@ -208,16 +208,16 @@ Task_BattleStart:
   S: ~
 Task_EvolutionScene:
   D: 0x80cea50
-  F: ~
-  I: ~
+  F: 0x80ceb10
+  I: 0x80cea30
   J: ~
-  S: ~
+  S: 0x80ceb18
 Task_InputHandler_SelectOrForgetMove:
   D: 0x8139448
-  F: ~
-  I: ~
+  F: 0x8139504
+  I: 0x8139488
   J: ~
-  S: ~
+  S: 0x8139574
 Task_HandleChooseMonInput:
   D: 0x811fb34
   F: 0x811fbf4
@@ -237,17 +237,18 @@ EventScript_AfterWhiteOutHeal:
   J: ~
   S: ~
 BattleScript_AskToLearnMove:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x81dcc8d
+  F: 0x81d71c9
+  I: 0x81d5e61
   J: ~
-  S: ~
+  S: 0x81d8529
+# BattleScript_AskToLearnMove + 2d
 BattleScript_ForgotAndLearnedNewMove:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x81dccba
+  F: 0x81d71f6
+  I: 0x81d5e8e
   J: ~
-  S: ~
+  S: 0x81d8556
 gMoveSelectionCursor:
   J: ~
 gBattleOutcome:
@@ -578,3 +579,13 @@ CableClub_Text_YouMayBattleHere:
   I: 0x0
 Text_DontBeLikeThat:
   S: 0x0
+TrackStop_1:
+  D: 0x0
+TrackStop_2:
+  D: 0x0
+TrackStop_Done:
+  D: 0x0
+TrackStop_3:
+  D: 0x0
+ChnVolSetAsm:
+  D: 0x0
