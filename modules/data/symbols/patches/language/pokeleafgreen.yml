@@ -430,10 +430,10 @@ MAINCB2:
 #-----------------#
 Task_StartMenuHandleInput:
   D: 0x806f154
-  F: ~
-  I: ~
+  F: 0x806f214
+  I: 0x806f140
   J: ~
-  S: ~
+  S: 0x806f228
 sMenu:
   J: ~
 sStartMenuCursorPos:
@@ -494,10 +494,10 @@ Task_HandleInput:
   S: ~
 Task_HandleSelectionMenuInput:
   D: 0x8122c6c
-  F: ~
-  I: ~
+  F: 0x8122d28
+  I: 0x8122cac
   J: ~
-  S: ~
+  S: 0x8122d98
 Task_SlideSelectedSlotsOnscreen:
   D: 0x8123398
   F: ~
