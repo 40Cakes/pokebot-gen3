@@ -2,16 +2,13 @@ from typing import Generator
 
 from modules.context import context
 from modules.encounter import handle_encounter, EncounterInfo
-from modules.items import get_item_bag
 from modules.map_data import MapRSE
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
 from modules.pokemon import get_party
 from modules.save_data import get_last_heal_location
 from . import BattleAction
-from ._asserts import (
-    assert_has_pokemon_with_move,
-)
+from ._asserts import assert_has_pokemon_with_move, assert_player_has_poke_balls
 from ._interface import BotMode, BotModeError
 from .util import ensure_facing_direction, navigate_to
 from ..battle_strategies import BattleStrategy
@@ -44,9 +41,7 @@ class KecleonMode(BotMode):
         return True
 
     def run(self) -> Generator:
-        if get_item_bag().number_of_balls_except_master_ball == 0:
-            context.message = "Out of Poké Balls! Better grab more before the next shiny slips away..."
-            return context.set_manual_mode()
+        assert_player_has_poke_balls()
         assert_has_pokemon_with_move("Selfdestruct", "This mode requires a Pokémon with the move Selfdestruct.")
         if not (get_event_flag("RECEIVED_DEVON_SCOPE")):
             raise BotModeError("This mode requires the Devon Scope.")

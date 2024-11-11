@@ -14,12 +14,16 @@ from modules.player import TileTransitionState, get_player, get_player_avatar, A
 from modules.pokemon import get_opponent
 from modules.runtime import get_sprites_path
 from modules.battle_state import BattleOutcome
-from modules.safari_strategy import get_safari_balls_left
-from modules.map_data import is_safari_map
 from modules.save_data import get_save_data
 from modules.tasks import task_is_active, get_global_script_context
 from . import BattleAction
-from ._asserts import SavedMapLocation, assert_has_pokemon_with_move, assert_save_game_exists, assert_saved_on_map
+from ._asserts import (
+    SavedMapLocation,
+    assert_has_pokemon_with_move,
+    assert_save_game_exists,
+    assert_saved_on_map,
+    assert_player_has_poke_balls,
+)
 from ._interface import BotMode, BotModeError
 from .util import (
     navigate_to,
@@ -85,15 +89,8 @@ class RockSmashMode(BotMode):
         return handle_encounter(encounter)
 
     def on_battle_ended(self, outcome: "BattleOutcome") -> None:
-        if is_safari_map():
-            balls_left = get_safari_balls_left()
-            if balls_left <= 15:
-                context.message = "You have less than 15 balls left, switching to manual mode..."
-                return context.set_manual_mode()
-        else:
-            if not outcome == BattleOutcome.Lost and get_item_bag().number_of_balls_except_master_ball == 0:
-                context.message = "Out of Poké Balls! Better grab more before the next shiny slips away..."
-                return context.set_manual_mode()
+        if not outcome == BattleOutcome.Lost:
+            assert_player_has_poke_balls()
 
     def on_repel_effect_ended(self) -> None:
         if self._using_repel:
@@ -127,9 +124,7 @@ class RockSmashMode(BotMode):
                 "In order to rock smash for Shuckle you should save in the entrance building to the Safari Zone.",
             )
 
-        if get_item_bag().number_of_balls_except_master_ball == 0:
-            context.message = "Out of Poké Balls! Better grab more before the next shiny slips away..."
-            return context.set_manual_mode()
+        assert_player_has_poke_balls()
 
         if get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F and get_item_bag().number_of_repels > 0:
             mode = ask_for_choice(
