@@ -7,6 +7,7 @@ from modules.context import context
 from modules.items import ItemHoldEffect, get_item_bag, get_item_by_name
 from modules.memory import get_event_flag, read_symbol
 from modules.pokemon import StatusCondition, get_type_by_name, get_ability_by_name
+from modules.modes._interface import BotModeError
 
 if TYPE_CHECKING:
     from modules.battle_state import BattlePokemon, BattleState
@@ -235,6 +236,7 @@ class BattleStrategyUtil:
         move_strengths = []
         for learned_move in pokemon.moves:
             if learned_move.move.name in context.config.battle.banned_moves:
+                move_strengths.append(-1)
                 continue
             move = learned_move.move
             if learned_move.pp == 0 or pokemon.disabled_move is move:
@@ -242,8 +244,11 @@ class BattleStrategyUtil:
             else:
                 move_strengths.append(self.calculate_move_damage_range(move, pokemon, opponent).max)
 
-        strongest_move = move_strengths.index(max(move_strengths))
+        max_strength = max(move_strengths)
+        if max_strength <= 0:
+            raise BotModeError("No valid moves available! Check move setup or disable restrictions.")
 
+        strongest_move = move_strengths.index(max_strength)
         return strongest_move
 
     def _calculate_base_move_damage(
