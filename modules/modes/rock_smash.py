@@ -13,10 +13,17 @@ from modules.memory import get_event_flag, get_event_var
 from modules.player import TileTransitionState, get_player, get_player_avatar, AvatarFlags, get_player_location
 from modules.pokemon import get_opponent
 from modules.runtime import get_sprites_path
+from modules.battle_state import BattleOutcome
 from modules.save_data import get_save_data
 from modules.tasks import task_is_active, get_global_script_context
 from . import BattleAction
-from ._asserts import SavedMapLocation, assert_has_pokemon_with_move, assert_save_game_exists, assert_saved_on_map
+from ._asserts import (
+    SavedMapLocation,
+    assert_has_pokemon_with_move,
+    assert_save_game_exists,
+    assert_saved_on_map,
+    assert_player_has_poke_balls,
+)
 from ._interface import BotMode, BotModeError
 from .util import (
     navigate_to,
@@ -81,6 +88,10 @@ class RockSmashMode(BotMode):
                 debug.debug_values["Nosepass per Hour"] = encounter_rate_at_1x
         return handle_encounter(encounter)
 
+    def on_battle_ended(self, outcome: "BattleOutcome") -> None:
+        if not outcome == BattleOutcome.Lost:
+            assert_player_has_poke_balls()
+
     def on_repel_effect_ended(self) -> None:
         if self._using_repel:
             try:
@@ -112,6 +123,8 @@ class RockSmashMode(BotMode):
                 SavedMapLocation(MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE),
                 "In order to rock smash for Shuckle you should save in the entrance building to the Safari Zone.",
             )
+
+        assert_player_has_poke_balls()
 
         if get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F and get_item_bag().number_of_repels > 0:
             mode = ask_for_choice(

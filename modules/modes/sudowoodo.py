@@ -4,7 +4,13 @@ from modules.context import context
 from modules.encounter import handle_encounter, log_encounter, EncounterInfo
 from modules.map_data import MapRSE
 from modules.player import get_player_avatar
-from ._asserts import SavedMapLocation, assert_registered_item, assert_save_game_exists, assert_saved_on_map
+from ._asserts import (
+    SavedMapLocation,
+    assert_registered_item,
+    assert_save_game_exists,
+    assert_saved_on_map,
+    assert_player_has_poke_balls,
+)
 from ._interface import BattleAction, BotMode
 from .util import soft_reset, wait_for_task_to_start_and_finish, wait_for_unique_rng_value, wait_until_task_is_active
 
@@ -33,11 +39,14 @@ class SudowoodoMode(BotMode):
             SavedMapLocation(MapRSE.BATTLE_FRONTIER_OUTSIDE_EAST, (54, 62), facing=True),
             "The game has not been saved on this tile.",
         )
+
         assert_registered_item(
             ["Wailmer Pail"],
             "You need to register the Wailmer Pail for the Select button.",
             check_in_saved_game=True,
         )
+
+        assert_player_has_poke_balls()
 
         while context.bot_mode != "Manual":
             yield from soft_reset(mash_random_keys=True)

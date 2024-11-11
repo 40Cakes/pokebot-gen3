@@ -3,7 +3,9 @@ from dataclasses import dataclass
 from modules.context import context
 from modules.items import get_item_bag, get_item_by_name
 from modules.map import ObjectEvent, calculate_targeted_coords
-from modules.map_data import MapRSE, MapFRLG
+from modules.map_data import MapRSE, MapFRLG, is_safari_map
+from modules.safari_strategy import get_safari_balls_left
+from modules.battle_state import BattleOutcome
 from modules.player import get_player
 from modules.pokemon import get_party
 from modules.save_data import get_save_data
@@ -161,3 +163,16 @@ def assert_empty_slot_in_party(error_message: str, check_in_saved_game: bool = F
         if check_in_saved_game and len(get_party()) < 6:
             error_message += _error_message_addendum_if_assert_only_failed_in_saved_game
         raise BotModeError(error_message)
+
+
+def assert_player_has_poke_balls() -> None:
+    """
+    Raises an exception if the player doesn't have any Pokeballs when starting a catching mode
+    or if safari ball threshold is reached.
+    """
+    if is_safari_map():
+        if context.rom.is_frlg and get_safari_balls_left() <= 15:
+            raise BotModeError("You have less than 15 balls left, switching to manual mode...")
+    else:
+        if get_item_bag().number_of_balls_except_master_ball == 0:
+            raise BotModeError("Out of Pokéballs! Better grab more before the next shiny slips away...")

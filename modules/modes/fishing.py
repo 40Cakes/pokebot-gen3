@@ -5,9 +5,8 @@ from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.items import get_item_bag, get_item_by_name
 from modules.player import get_player, get_player_avatar
 from modules.runtime import get_sprites_path
-from modules.map_data import is_safari_map
-from modules.safari_strategy import get_safari_balls_left
-from ._asserts import assert_item_exists_in_bag
+from modules.battle_state import BattleOutcome
+from ._asserts import assert_item_exists_in_bag, assert_player_has_poke_balls
 from ._interface import BotMode
 from .util import fish, register_key_item
 
@@ -24,13 +23,12 @@ class FishingMode(BotMode):
         return targeted_tile is not None and targeted_tile.is_surfable
 
     def on_battle_ended(self, outcome: "BattleOutcome") -> None:
-        if is_safari_map():
-            balls_left = get_safari_balls_left()
-            if balls_left <= 15:
-                context.message = "You have less than 15 balls left, switching to manual mode..."
-                return context.set_manual_mode()
+        if not outcome == BattleOutcome.Lost:
+            assert_player_has_poke_balls()
 
     def run(self) -> Generator:
+        assert_player_has_poke_balls()
+
         # Ask player to register a rod if they have one
         rod_names = ["Old Rod", "Good Rod", "Super Rod"]
         assert_item_exists_in_bag(rod_names, "You do not own any fishing rod, so you cannot fish.")

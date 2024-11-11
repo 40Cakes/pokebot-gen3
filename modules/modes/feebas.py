@@ -7,7 +7,9 @@ from modules.map import get_map_data
 from modules.map_data import MapRSE
 from modules.player import get_player, get_player_avatar, AvatarFlags
 from modules.pokemon import get_party
+from modules.battle_state import BattleOutcome
 from . import BattleAction
+from ._asserts import assert_player_has_poke_balls
 from ._interface import BotMode, BotModeError
 from .util import (
     ensure_facing_direction,
@@ -146,7 +148,13 @@ class FeebasMode(BotMode):
 
         return None
 
+    def on_battle_ended(self, outcome: "BattleOutcome") -> None:
+        if not outcome == BattleOutcome.Lost:
+            assert_player_has_poke_balls()
+
     def run(self) -> Generator:
+        assert_player_has_poke_balls()
+
         if not get_player_avatar().flags.Surfing:
             raise BotModeError("Player is not surfing, only start this mode while surfing in any water at Route 119.")
 

@@ -7,6 +7,7 @@ from modules.map_data import MapFRLG, MapRSE
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
 from modules.pokemon import get_opponent
+from ._asserts import assert_player_has_poke_balls
 from ._interface import BattleAction, BotMode, BotModeError
 from .util import (
     follow_path,
@@ -182,6 +183,8 @@ class StaticRunAway(BotMode):
 
         if get_event_flag(flag_to_check):
             raise BotModeError(f"{pokemon_name} has already been caught.")
+
+        assert_player_has_poke_balls()
 
         while True:
             yield from path()
