@@ -226,16 +226,16 @@ Task_HandleChooseMonInput:
   S: 0x811fc60
 Task_RushInjuredPokemonToCenter:
   D: 0x807f394
-  F: ~
-  I: ~
+  F: 0x807f454
+  I: 0x807f380
   J: ~
-  S: ~
+  S: 0x807f468
 EventScript_AfterWhiteOutHeal:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x81abba5
+  F: 0x81a779c
+  I: 0x81a65fb
   J: ~
-  S: ~
+  S: 0x81a883c
 BattleScript_AskToLearnMove:
   D: 0x81dcc8d
   F: 0x81d71c9
@@ -589,3 +589,15 @@ TrackStop_3:
   D: 0x0
 ChnVolSetAsm:
   D: 0x0
+Route21_North_EventScript_IanRematch:
+  D: 0x0
+Route23_EventScript_MissingBoulderBadge:
+  F: 0x0
+EventScript_SetEnteringCyclingRoad:
+  F: 0x0
+Route23_EventScript_MissingBadge:
+  F: 0x0
+EventScript_PkmnCenterNurse_PlayerWaitingInUionRoom:
+  I: 0x0
+EventScript_Open9FDoor3:
+  S: 0x0
