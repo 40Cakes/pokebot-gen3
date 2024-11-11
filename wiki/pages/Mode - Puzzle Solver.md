@@ -124,6 +124,21 @@ Start mode inside Tanoby Key.
 
 ![image](../images/puzzle_tanoby.png)
 
+## Glass Workshop
+
+Automatically collects ashes on [Route 113](https://bulbapedia.bulbagarden.net/wiki/Hoenn_Route_113) for easy obtaining of [White Flute](https://bulbapedia.bulbagarden.net/wiki/White_Flute).
+
+### Requirements
+
+- [Repel](https://bulbapedia.bulbagarden.net/wiki/Repel), [Super Repel](https://bulbapedia.bulbagarden.net/wiki/Super_Repel), or [Max Repel](https://bulbapedia.bulbagarden.net/wiki/Max_Repel) stock in your bag. If it runs out of repel steps, it will re-apply
+- [Soot Sack](https://bulbapedia.bulbagarden.net/wiki/Soot_Sack) must be already obtained from glassblower
+
+### Starting Location
+
+Start bot mode anywhere inside the glass workshop.
+
+![image](../images/glass_workshop.png)
+
 # Game Support
 
 | Puzzle         | Game         | English | Japanese | German | Spanish | French | Italian |
@@ -146,6 +161,9 @@ Start mode inside Tanoby Key.
 |                | 🟢 Emerald   |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
 | **Tanoby Key** | 🔥 Fire Red  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
 |                | 🌿 LeafGreen |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+| **White Flute**| 🟥 Ruby      |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+|                | 🔷 Sapphire  |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
+|                | 🟢 Emerald   |   ✅    |    ❌    |   ❌   |   ❌    |   ❌   |   ❌    |
 
 ✅ Tested, working
 
