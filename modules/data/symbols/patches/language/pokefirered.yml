@@ -36,7 +36,7 @@ EventScript_UseStrength:
   D: 0x81c1be8
   F: 0x81bcafd
   I: 0x81bb77a
-  J: ~
+  J: 0x81a490e
   S: 0x81bde41
 #-------------------------------#
 
@@ -375,7 +375,7 @@ SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved:
   D: 0x8164f01
   F: 0x8164fb8
   I: 0x8164f39
-  J: ~
+  J: 0x816eecb
   S: 0x816502d
 #-------------------------#
 
