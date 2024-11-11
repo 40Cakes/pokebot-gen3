@@ -546,11 +546,11 @@ CB2_EggHatch_1:
   J: ~
   S: ~
 EventScript_RepelWoreOff:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x81c368c
+  F: 0x81be5b0
+  I: 0x81bd0f7
   J: ~
-  S: ~
+  S: 0x81bf7d0
 EventScript_DoTrainerBattle:
   D: ~
   F: ~
