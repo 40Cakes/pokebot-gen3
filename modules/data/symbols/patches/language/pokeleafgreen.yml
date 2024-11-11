@@ -164,22 +164,30 @@ BattleMainCB2:
   S: 0x8011070
 HandleTurnActionSelectionState:
   D: 0x8013fc4
-  F: ~
-  I: ~
+  F: 0x8013fb0
+  I: 0x8013fc5
   J: ~
-  S: ~
+  S: 0x8013fb0
 HandleInputChooseAction:
-  D: 0x802e3d0
-  F: ~
-  I: ~
+  D:
+    - 0x802e3d0
+    - 0x80dd7a0
+  F:
+    - 0x802e3a8
+    - 0x80dd860
+  I:
+    - 0x802e3bc
+    - 0x80dd7a0
   J: ~
-  S: ~
+  S:
+    - 0x802e3bc
+    - 0x80dd888
 HandleInputChooseMove:
   D: 0x802e9a8
-  F: ~
-  I: ~
+  F: 0x802e980
+  I: 0x802e994
   J: ~
-  S: ~
+  S: 0x802e994
 Task_DuckBGMForPokemonCry:
   D: 0x8072198
   F: ~
@@ -187,11 +195,11 @@ Task_DuckBGMForPokemonCry:
   J: ~
   S: ~
 BattleScript_HandleFaintedMon:
-  D: 0x81dcd45
-  F: ~
-  I: ~
+  D: 0x81dc944
+  F: 0x81d6e80
+  I: 0x81d5b18
   J: ~
-  S: ~
+  S: 0x81d81e0
 Task_BattleStart:
   D: 0x807f558
   F: ~
@@ -212,10 +220,10 @@ Task_InputHandler_SelectOrForgetMove:
   S: ~
 Task_HandleChooseMonInput:
   D: 0x811fb34
-  F: ~
-  I: ~
+  F: 0x811fbf4
+  I: 0x811fb78
   J: ~
-  S: ~
+  S: 0x811fc60
 Task_RushInjuredPokemonToCenter:
   D: 0x807f394
   F: ~
@@ -340,10 +348,10 @@ Std_MsgboxDefault:
 #-------------------#
 Task_Fishing:
   D: ~
-  F: ~
-  I: ~
+  F: 0x805d3c4
+  I: 0x805d2f0
   J: ~
-  S: ~
+  S: 0x805d3d8
 #-------------------#
 
 #-------------------------#
@@ -440,23 +448,23 @@ sStartMenuOrder:
 #   Bag Menu   #
 #--------------#
 CB2_BAGMENURUN:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x8107f34
+  F: 0x8107ff4
+  I: 0x8107f78
   J: ~
-  S: ~
+  S: 0x8108060
 Task_BagMenu_HandleInput:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x8108f60
+  F: 0x8109020
+  I: 0x8108fa4
   J: ~
-  S: ~
+  S: 0x8133d44
 Task_FieldItemContextMenuHandleInput:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x8109c14
+  F: 0x8109cd4
+  I: 0x8109c58
   J: ~
-  S: ~
+  S: 0x8109d40
 gBagMenuState:
   J: ~
 gPaletteFade:
@@ -468,10 +476,10 @@ gPaletteFade:
 #----------------#
 CB2_UPDATEPARTYMENU:
   D: 0x811ebac
-  F: ~
-  I: ~
+  F: 0x811ec6c
+  I: 0x811ebf0
   J: ~
-  S: ~
+  S: 0x811ecd8
 Task_PrintAndWaitForText:
   D: 0x8120334
   F: ~
