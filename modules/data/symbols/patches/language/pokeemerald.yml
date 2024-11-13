@@ -716,3 +716,15 @@ Task_SurfFieldEffect:
   I: 0x80b8d98
   J: 0x80b84dc
   S: 0x80b8d98
+BattleScript_TryNicknameCaughtMon:
+  D: 0x82f1aef
+  F: 0x82e4d83
+  I: 0x82dcd3b
+  J: 0x828a337
+  S: 0x82e353b
+CB2_NamingScreen:
+  D: 0x80e4bc1
+  F: 0x80e4be1
+  I: 0x80e4bad
+  J: 0x80e474d
+  S: 0x80e4bb5
