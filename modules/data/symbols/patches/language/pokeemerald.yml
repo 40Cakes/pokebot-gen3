@@ -717,7 +717,7 @@ Task_SurfFieldEffect:
   J: 0x80b84dc
   S: 0x80b8d98
 BattleScript_TryNicknameCaughtMon:
-  D: 0x82f1aef
+  D: 0x82f1ae5
   F: 0x82e4d79
   I: 0x82dcd3b
   J: 0x828a337
@@ -729,10 +729,14 @@ CB2_NamingScreen:
   J: 0x80e474c
   S: 0x80e4bb4
 BattleScript_SuccessBallThrowEnd:
+  D: 0x82f1247
   F: 0x82e4d97
 BattleScript_GotAwaySafely:
+  D: 0x82f0836
   F: 0x82e3ac4
 Task_NamingScreen:
+  D: 0x80e2e08
   F: 0x80e2e28
 BattleScript_GiveCaughtMonEnd:
+  D: 0x82f1aef
   F: 0x82e4d83

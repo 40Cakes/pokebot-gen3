@@ -13,7 +13,7 @@ with open(f"{DATA_DIRECTORY}/keyboard.json", "r", encoding="utf-8") as f:
     key_layout = json.load(f)
 
 # Will have to add more languages later and detect it
-lang = context.rom.language.value if context.rom.language.value in {"E", "F"} else "E"
+lang = context.rom.language.value if context.rom.language.value in {"E", "F", "D"} else "E"
 
 valid_characters = []
 for page in key_layout[lang]:
