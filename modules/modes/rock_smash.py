@@ -250,18 +250,24 @@ class RockSmashMode(BotMode):
         if self._using_repel and get_event_var("REPEL_STEP_COUNT") <= 0:
             with contextlib.suppress(RanOutOfRepels):
                 yield from apply_repel()
-        yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (6, 21))
-        yield from ensure_facing_direction("Down")
+
+        if self._using_mach_bike:
+            yield from self.mount_bicycle()
+        yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (7, 22))
         # With Repel active, White Flute boosts encounters by 30-40%, but without Repel it
         # actually _decreases_ encounter rates (due to so many regular encounters popping up
         # while walking around.) So we only enable White Flute if Repel is also active.
         if self._using_repel:
             yield from apply_white_flute_if_available()
+        yield from ensure_facing_direction("Left")
         yield from self.smash("TEMP_16")
 
-        yield from follow_path([(4, 21)])
+        if self._using_mach_bike:
+            yield from self.unmount_bicycle()
+        yield from follow_path([(7, 21), (4, 21)])
         yield from ensure_facing_direction("Left")
         yield from self.smash("TEMP_17")
+
         yield from ensure_facing_direction("Down")
         yield from self.smash("TEMP_15")
 
@@ -281,14 +287,22 @@ class RockSmashMode(BotMode):
         yield from ensure_facing_direction("Up")
         yield from self.smash("TEMP_14")
 
+        if self._using_mach_bike:
+            yield from self.mount_bicycle()
         yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (29, 13))
+        if self._using_mach_bike:
+            yield from self.unmount_bicycle()
         yield from walk_one_tile("Up")
         yield from walk_one_tile("Down")
+        if self._using_mach_bike:
+            yield from self.mount_bicycle()
         yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (7, 13))
         yield from ensure_facing_direction("Up")
         if self._using_repel:
             yield from apply_white_flute_if_available()
         yield from self.smash("TEMP_14")
+        if self._using_mach_bike:
+            yield from self.unmount_bicycle()
 
         yield from follow_path([(7, 14), (6, 14)])
         yield from ensure_facing_direction("Left")
@@ -312,8 +326,12 @@ class RockSmashMode(BotMode):
         yield from ensure_facing_direction("Down")
         yield from self.smash("TEMP_16")
 
+        if self._using_mach_bike:
+            yield from self.mount_bicycle()
         yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (28, 21))
         yield from wait_for_player_avatar_to_be_standing_still()
+        if self._using_mach_bike:
+            yield from self.unmount_bicycle()
         yield from walk_one_tile("Down")
         yield from walk_one_tile("Up")
 
