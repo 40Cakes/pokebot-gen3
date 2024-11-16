@@ -254,6 +254,9 @@ class RockSmashMode(BotMode):
         if self._using_mach_bike:
             yield from self.mount_bicycle()
         yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (7, 22))
+        if self._using_mach_bike:
+            yield from self.unmount_bicycle()
+
         # With Repel active, White Flute boosts encounters by 30-40%, but without Repel it
         # actually _decreases_ encounter rates (due to so many regular encounters popping up
         # while walking around.) So we only enable White Flute if Repel is also active.
@@ -262,8 +265,6 @@ class RockSmashMode(BotMode):
         yield from ensure_facing_direction("Left")
         yield from self.smash("TEMP_16")
 
-        if self._using_mach_bike:
-            yield from self.unmount_bicycle()
         yield from follow_path([(7, 21), (4, 21)])
         yield from ensure_facing_direction("Left")
         yield from self.smash("TEMP_17")
@@ -290,19 +291,22 @@ class RockSmashMode(BotMode):
         if self._using_mach_bike:
             yield from self.mount_bicycle()
         yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (29, 13))
+
         if self._using_mach_bike:
             yield from self.unmount_bicycle()
         yield from walk_one_tile("Up")
         yield from walk_one_tile("Down")
+
         if self._using_mach_bike:
             yield from self.mount_bicycle()
         yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (7, 13))
         yield from ensure_facing_direction("Up")
+
+        if self._using_mach_bike:
+            yield from self.unmount_bicycle()
         if self._using_repel:
             yield from apply_white_flute_if_available()
         yield from self.smash("TEMP_14")
-        if self._using_mach_bike:
-            yield from self.unmount_bicycle()
 
         yield from follow_path([(7, 14), (6, 14)])
         yield from ensure_facing_direction("Left")
@@ -330,6 +334,7 @@ class RockSmashMode(BotMode):
             yield from self.mount_bicycle()
         yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (28, 21))
         yield from wait_for_player_avatar_to_be_standing_still()
+
         if self._using_mach_bike:
             yield from self.unmount_bicycle()
         yield from walk_one_tile("Down")
