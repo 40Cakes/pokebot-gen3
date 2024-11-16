@@ -9,71 +9,75 @@ time_zone = "Australia/Sydney" // "Australia/Sydney"
 override_display_timezone = "AEDT" // "AEST"
 
 // Name of Pokemon for the "timers since last encounter" for a Pokemon to display on screen
-target_timer_1 = "Volbeat" // "Seedot"
-target_timer_2 = "Seedot"
+target_timer_1 = "Nosepass" // "Seedot"
+target_timer_2 = ""
 
 // Pokemon to display on the checklist (possible encounters via current bot mode are appended to top of list)
 // Leave it empty to only show encounters on the current route
 // TODO: Currently limited to the # of mon that can be displayed before table overflows - look at adding auto scrolling
 pokemon_checklist = {
-    "Gulpin": {
-        "goal": 2,
-        "hidden": false
-    },
-    "Plusle": {
+    "Nosepass": {
         "goal": 1,
         "hidden": false
     },
-    "Minun": {
-        "goal": 1,
-        "hidden": false
-    },
-    "Oddish": {
+    "Skitty": {
         "goal": 2,
         "hidden": false
     },
-    "Electrike": {
+    "Machop": {
         "goal": 2,
         "hidden": false
     },
-    "Illumise": {
-        "goal": 1,
-        "hidden": false
-    },
-    "Volbeat": {
-        "goal": 1,
-        "hidden": false
-    },
-    "Makuhita": {
+    "Numel": {
         "goal": 2,
         "hidden": false
     },
-    "Geodude": {
+    "Slugma": {
         "goal": 2,
         "hidden": false
     },
-    "Zubat": {
-        "goal": 3,
-        "hidden": false
-    },
-    "Aron": {
-        "goal": 3,
-        "hidden": false
-    },
-    "Sableye": {
+    "Torkoal": {
         "goal": 1,
         "hidden": false
     },
-    "Magikarp": {
+    "Grimer": {
+        "goal": 2,
+        "hidden": false
+    },
+    "Koffing": {
+        "goal": 2,
+        "hidden": false
+    },
+    "Spoink": {
+        "goal": 2,
+        "hidden": false
+    },
+    "Spinda": {
+        "goal": 1,
+        "hidden": false
+    },
+    "Skarmory": {
+        "goal": 1,
+        "hidden": false
+    },
+    "Swablu": {
+        "goal": 2,
+        "hidden": false
+    },
+    "Seviper": {
+        "goal": 1,
+        "hidden": false
+    },
+    "Solrock": {
+        "goal": 1,
+        "hidden": false
+    },
+    "Wynaut": {
         "goal": 2,
         "hidden": true
     },
-    "Tentacool": {
-        "goal": 2,
-        "hidden": true
-    },
-    "Goldeen": {
-        "goal": 2,
+    "Bellossom": {
+        "goal": 1,
         "hidden": true
     },
 }
@@ -437,8 +441,10 @@ function handleMapEncounters(data) {
     if (data.repel_level > 0) {
         $("#repel_level").text(data.repel_level);
         $("#repel_info").css("display", "inline-block");
+        $("#location_pin").attr("src", "sprites/items/Repel.png");
     } else {
         $("#repel_info").css("display", "none");
+        $("#location_pin").attr("src", "sprites/stream-overlay/pin.png")
     }
 
     const abilityInfo = $("#ability_info");
