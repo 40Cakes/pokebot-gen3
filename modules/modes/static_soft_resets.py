@@ -36,6 +36,12 @@ def _get_targeted_encounter() -> Encounter | None:
             Encounter(MapFRLG.CERULEAN_CAVE_B1F, (7, 12), "Mewtwo"),
             Encounter(MapFRLG.NAVEL_ROCK_BASE, (10, 15), "Lugia"),
             Encounter(MapFRLG.BIRTH_ISLAND_EXTERIOR, (15, 10), "Deoxys"),
+            Encounter(
+                MapFRLG.THREE_ISLAND_BERRY_FOREST,
+                (4, 8),
+                "Hypno",
+                lambda: not get_save_data().get_event_flag("RESCUED_LOSTELLE"),
+            ),
         ]
     elif context.rom.is_emerald:
         encounters = [
