@@ -1,16 +1,16 @@
 import math
 from typing import TYPE_CHECKING
 
-from modules.battle_state import Weather, TemporaryStatus, BattleType
+from modules.battle_state import BattlePokemon, BattleState, Weather, TemporaryStatus, BattleType
 from modules.battle_strategies import TurnAction
 from modules.context import context
 from modules.items import ItemHoldEffect, get_item_bag, get_item_by_name
 from modules.memory import get_event_flag, read_symbol
-from modules.pokemon import StatusCondition, get_type_by_name, get_ability_by_name
+from modules.pokemon import StatusCondition, Pokemon, LearnedMove, get_type_by_name, get_ability_by_name, get_party
 from modules.modes._interface import BotModeError
 
+
 if TYPE_CHECKING:
-    from modules.battle_state import BattlePokemon, BattleState
     from modules.pokemon import Move, Type
 
 
@@ -483,3 +483,67 @@ class BattleStrategyUtil:
             # todo: Flash Fire
 
         return damage + 2
+
+    def get_usable_party_indices(self, battle_state: BattleState | None = None) -> list[int]:
+        active_party_indices = []
+        if battle_state is not None:
+            if battle_state.own_side.left_battler is not None:
+                active_party_indices.append(battle_state.own_side.left_battler.party_index)
+            if battle_state.own_side.right_battler is not None:
+                active_party_indices.append(battle_state.own_side.right_battler.party_index)
+
+        party = get_party()
+        usable_pokemon = []
+        for index in range(len(party)):
+            pokemon = party[index]
+
+            if pokemon.is_egg or not self.pokemon_has_enough_hp(pokemon):
+                continue
+            if any(self.move_is_usable(move) for move in pokemon.moves) and index not in active_party_indices:
+                usable_pokemon.append(index)
+
+        return usable_pokemon
+
+    def select_rotation_target(self, battle_state: BattleState | None = None) -> int | None:
+        indices = self.get_usable_party_indices(battle_state)
+        if len(indices) == 0:
+            return None
+
+        party = get_party()
+        values = []
+        for index in indices:
+            pokemon = party[index]
+            if context.config.battle.switch_strategy == "lowest_level":
+                value = 100 - pokemon.level
+            else:
+                value = pokemon.current_hp
+                if pokemon.status_condition in (StatusCondition.Sleep, StatusCondition.Freeze):
+                    value *= 0.25
+                elif pokemon.status_condition == StatusCondition.BadPoison:
+                    value *= 0.5
+                elif pokemon.status_condition in (
+                    StatusCondition.BadPoison,
+                    StatusCondition.Poison,
+                    StatusCondition.Burn,
+                ):
+                    value *= 0.65
+                elif pokemon.status_condition == StatusCondition.Paralysis:
+                    value *= 0.8
+
+            values.append(value)
+
+        best_value = max(values)
+        index = indices[values.index(best_value)]
+
+        return index
+
+    def move_is_usable(self, move: LearnedMove):
+        return (
+            move is not None
+            and move.move.base_power > 0
+            and move.pp > 0
+            and move.move.name not in context.config.battle.banned_moves
+        )
+
+    def pokemon_has_enough_hp(self, pokemon: Pokemon | BattlePokemon):
+        return pokemon.current_hp_percentage > context.config.battle.hp_threshold

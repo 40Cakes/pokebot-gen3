@@ -90,3 +90,64 @@ def ask_for_choice(choices: list[Selection], window_title: str = "Choose...") ->
         time.sleep(1 / 60)
 
     return selected_value
+
+
+def ask_for_confirmation(message: str, window_title: str = "Confirmation") -> bool | None:
+    """
+    Displays a confirmation window with the given message and Yes/No buttons.
+
+    Parameters:
+        message (str): The message to display in the confirmation window.
+        window_title (str): The title of the window (default: "Confirmation").
+
+    Returns:
+        bool | None: True if 'Yes' is selected, False if 'No' is selected, or None if the window is closed.
+    """
+    if context.gui.is_headless:
+        response = Prompt.ask(message, choices=["Yes", "No"])
+        return response == "Yes"
+
+    window = Toplevel(context.gui.window)
+    user_choice: bool | None = None
+
+    def on_yes():
+        nonlocal user_choice
+        user_choice = True
+        window.destroy()
+
+    def on_no():
+        nonlocal user_choice
+        user_choice = False
+        window.destroy()
+
+    def remove_window(event=None):
+        nonlocal user_choice
+        user_choice = None
+        window.destroy()
+
+    window.title(window_title)
+    window.geometry("400x180")
+    window.protocol("WM_DELETE_WINDOW", remove_window)
+    window.bind("<Escape>", remove_window)
+    window.rowconfigure(0, weight=1)
+    window.columnconfigure(0, weight=1)
+
+    frame = ttk.Frame(window, padding=10)
+    frame.pack(fill="both", expand=True)
+
+    label = ttk.Label(frame, text=message, anchor="center", wraplength=250)
+    label.pack(pady=20)
+
+    button_frame = ttk.Frame(frame)
+    button_frame.pack()
+    yes_button = ttk.Button(button_frame, text="Yes", command=on_yes)
+    yes_button.grid(row=0, column=0, padx=10)
+    no_button = ttk.Button(button_frame, text="No", command=on_no)
+    no_button.grid(row=0, column=1, padx=10)
+
+    while user_choice is None:
+        window.update_idletasks()
+        window.update()
+        time.sleep(1 / 60)
+
+    return user_choice

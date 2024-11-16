@@ -16,7 +16,7 @@ class DefaultBattleStrategy(BattleStrategy):
     def party_can_battle(self) -> bool:
         return any(self.pokemon_can_battle(pokemon) for pokemon in get_party())
 
-    def pokemon_can_battle(self, pokemon: Pokemon):
+    def pokemon_can_battle(self, pokemon: Pokemon) -> bool:
         if pokemon.is_egg or not self._pokemon_has_enough_hp(pokemon):
             return False
 
@@ -140,14 +140,14 @@ class DefaultBattleStrategy(BattleStrategy):
     def choose_new_lead_after_battle(self) -> int | None:
         party = get_party()
         if not self.pokemon_can_battle(party[self._first_non_fainted_party_index_before_battle]):
-            return self._select_rotation_target()
+            return util.select_rotation_target()
 
         return None
 
     def decide_turn(self, battle_state: BattleState) -> tuple["TurnAction", any]:
         util = BattleStrategyUtil(battle_state)
 
-        if not self._pokemon_has_enough_hp(get_party()[battle_state.own_side.active_battler.party_index]):
+        if not util.pokemon_has_enough_hp(get_party()[battle_state.own_side.active_battler.party_index]):
             if context.config.battle.lead_cannot_battle_action == "flee" and not battle_state.is_trainer_battle:
                 # If it is impossible to escape, do not even attempt to do it but just keep battling.
                 best_escape_method = util.get_best_escape_method()
@@ -155,10 +155,10 @@ class DefaultBattleStrategy(BattleStrategy):
                     return best_escape_method
             elif (
                 context.config.battle.lead_cannot_battle_action == "rotate"
-                and len(self._get_usable_party_indices(battle_state)) > 0
+                and len(util.get_usable_party_indices(battle_state)) > 0
             ):
                 if util.can_switch():
-                    return TurnAction.rotate_lead(self._select_rotation_target(battle_state))
+                    return TurnAction.rotate_lead(util.select_rotation_target(battle_state))
             else:
                 context.message = "Leading Pokémon's HP fell below the minimum threshold."
                 return TurnAction.switch_to_manual()
@@ -174,8 +174,8 @@ class DefaultBattleStrategy(BattleStrategy):
         pokemon = get_party()[battler.party_index]
         partner_pokemon = get_party()[partner.party_index] if partner is not None else None
 
-        if not self._pokemon_has_enough_hp(pokemon):
-            if partner_pokemon is None or not self._pokemon_has_enough_hp(partner_pokemon):
+        if not util.pokemon_has_enough_hp(pokemon):
+            if partner_pokemon is None or not util.pokemon_has_enough_hp(partner_pokemon):
                 if context.config.battle.lead_cannot_battle_action == "flee" and not battle_state.is_trainer_battle:
                     # If it is impossible to escape, do not even attempt to do it but just keep battling.
                     best_escape_method = util.get_best_escape_method()
@@ -183,10 +183,10 @@ class DefaultBattleStrategy(BattleStrategy):
                         return best_escape_method
                 elif (
                     context.config.battle.lead_cannot_battle_action == "rotate"
-                    and len(self._get_usable_party_indices(battle_state)) > 0
+                    and len(util.get_usable_party_indices(battle_state)) > 0
                 ):
                     if util.can_switch():
-                        return TurnAction.rotate_lead(self._select_rotation_target(battle_state))
+                        return TurnAction.rotate_lead(util.select_rotation_target(battle_state))
                 else:
                     context.message = "Both battling Pokémon's HP fell below the minimum threshold."
                     return TurnAction.switch_to_manual()
@@ -201,59 +201,6 @@ class DefaultBattleStrategy(BattleStrategy):
     def decide_turn_in_safari_zone(self, battle_state: BattleState) -> tuple["SafariTurnAction", any]:
         return SafariTurnAction.switch_to_manual()
 
-    def _pokemon_has_enough_hp(self, pokemon: Pokemon | BattlePokemon):
-        return pokemon.current_hp_percentage > context.config.battle.hp_threshold
-
-    def _get_usable_party_indices(self, battle_state: BattleState | None = None) -> list[int]:
-        active_party_indices = []
-        if battle_state is not None:
-            if battle_state.own_side.left_battler is not None:
-                active_party_indices.append(battle_state.own_side.left_battler.party_index)
-            if battle_state.own_side.right_battler is not None:
-                active_party_indices.append(battle_state.own_side.right_battler.party_index)
-
-        party = get_party()
-        usable_pokemon = []
-        for index in range(len(party)):
-            pokemon = party[index]
-            if self.pokemon_can_battle(pokemon) and index not in active_party_indices:
-                usable_pokemon.append(index)
-
-        return usable_pokemon
-
-    def _select_rotation_target(self, battle_state: BattleState | None = None) -> int | None:
-        indices = self._get_usable_party_indices(battle_state)
-        if len(indices) == 0:
-            return None
-
-        party = get_party()
-        values = []
-        for index in indices:
-            pokemon = party[index]
-            if context.config.battle.switch_strategy == "lowest_level":
-                value = 100 - pokemon.level
-            else:
-                value = pokemon.current_hp
-                if pokemon.status_condition in (StatusCondition.Sleep, StatusCondition.Freeze):
-                    value *= 0.25
-                elif pokemon.status_condition == StatusCondition.BadPoison:
-                    value *= 0.5
-                elif pokemon.status_condition in (
-                    StatusCondition.BadPoison,
-                    StatusCondition.Poison,
-                    StatusCondition.Burn,
-                ):
-                    value *= 0.65
-                elif pokemon.status_condition == StatusCondition.Paralysis:
-                    value *= 0.8
-
-            values.append(value)
-
-        best_value = max(values)
-        index = indices[values.index(best_value)]
-
-        return index
-
     def _move_is_usable(self, move: LearnedMove):
         return (
             move is not None
@@ -261,3 +208,6 @@ class DefaultBattleStrategy(BattleStrategy):
             and move.pp > 0
             and move.move.name not in context.config.battle.banned_moves
         )
+
+    def _pokemon_has_enough_hp(self, pokemon: Pokemon | BattlePokemon):
+        return pokemon.current_hp_percentage > context.config.battle.hp_threshold
