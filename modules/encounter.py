@@ -101,7 +101,6 @@ class EncounterValue(Enum):
         return self in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch)
 
 
-
 def judge_encounter(pokemon: "Pokemon") -> EncounterValue:
     """
     Checks whether an encountered Pokémon matches any of the criteria that makes it
