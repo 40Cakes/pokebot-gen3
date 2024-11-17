@@ -219,7 +219,6 @@ def handle_encounter(
 
         case EncounterValue.AvoidedPokemon:
             console.print(f"Attempting to avoid {pokemon.species.name} because it is on avoided list")
-            EncounterValue.avoid = True
             alert = None
             is_of_interest = False
 
