@@ -47,7 +47,7 @@ closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
 }
 
 
-_list_of_stats = ("hp", "attack", "defence", "speed", "special_attack", "special_defence")
+_list_of_stats = ("hp", "attack", "defence", "special_attack", "special_defence", "speed")
 
 
 class NoRotateLeadDefaultBattleStrategy(DefaultBattleStrategy):
@@ -81,7 +81,6 @@ class EVTrainMode(BotMode):
 
     def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | BattleStrategy | None:
         action = handle_encounter(encounter, enable_auto_battle=True)
-        context.message = f"action is?: {action}"
         lead_pokemon = get_party()[0]
         # EV yield doubled with Macho Brace and Pokerus (this effect stacks)
         ev_multiplier = 1
