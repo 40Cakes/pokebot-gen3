@@ -100,15 +100,6 @@ class EncounterValue(Enum):
     def is_of_interest(self):
         return self in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch)
 
-    @property
-    def avoid(self):
-        return self._avoid
-
-    @avoid.setter
-    def avoid(self, avoid: "bool"):
-        if not isinstance(self,bool):
-            raise ValueError("avoid must be True or False")
-        self._avoid = avoid
 
 
 def judge_encounter(pokemon: "Pokemon") -> EncounterValue:
