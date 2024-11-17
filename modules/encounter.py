@@ -96,9 +96,6 @@ class EncounterValue(Enum):
     Trash = auto()
     AvoidedPokemon = auto()
 
-    def __init__(self, avoid = False):
-        self._avoid = avoid
-
     @property
     def is_of_interest(self):
         return self in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch)
