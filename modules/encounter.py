@@ -285,7 +285,7 @@ def handle_encounter(
             context.set_manual_mode()
             encounter_info.battle_action = BattleAction.CustomAction
 
-    elif EncounterValue.avoid == True:
+    elif encounter_info.value == EncounterValue.AvoidedPokemon:
         #I can't get the EncounterValue.avoid to automatically assign itself False, so checking if it is equal to True is necessary
         encounter_info.battle_action = BattleAction.RunAway
         EncounterValue.avoid = False
