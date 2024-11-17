@@ -274,7 +274,6 @@ def handle_encounter(
             encounter_info.battle_action = BattleAction.CustomAction
 
     elif encounter_info.value == EncounterValue.AvoidedPokemon:
-        #I can't get the EncounterValue.avoid to automatically assign itself False, so checking if it is equal to True is necessary
         encounter_info.battle_action = BattleAction.RunAway
 
     elif enable_auto_battle:
