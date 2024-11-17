@@ -94,10 +94,24 @@ class EncounterValue(Enum):
     RoamerOnBlockList = auto()
     CustomFilterMatch = auto()
     Trash = auto()
+    AvoidedPokemon = auto()
+
+    def __init__(self, avoid = False):
+        self._avoid = avoid
 
     @property
     def is_of_interest(self):
         return self in (EncounterValue.Shiny, EncounterValue.CustomFilterMatch)
+
+    @property
+    def avoid(self):
+        return self._avoid
+
+    @avoid.setter
+    def avoid(self, avoid: "bool"):
+        if not isinstance(self,bool):
+            raise ValueError("avoid must be True or False")
+        self._avoid = avoid
 
 
 def judge_encounter(pokemon: "Pokemon") -> EncounterValue:
@@ -119,6 +133,9 @@ def judge_encounter(pokemon: "Pokemon") -> EncounterValue:
 
     if run_custom_catch_filters(pokemon) is not False:
         return EncounterValue.CustomFilterMatch
+
+    if pokemon.species.name in context.config.battle.avoided_pokemon:
+        return EncounterValue.AvoidedPokemon
 
     roamer = get_roamer()
     if (
@@ -212,6 +229,12 @@ def handle_encounter(
                 save_pk3(pokemon)
             is_of_interest = True
 
+        case EncounterValue.AvoidedPokemon:
+            console.print(f"Attempting to avoid {pokemon.species.name} because it is on avoided list")
+            EncounterValue.avoid = True
+            alert = None
+            is_of_interest = False
+
         case EncounterValue.Roamer:
             console.print(f"[pink yellow]Roaming {pokemon.species.name} found![/]")
             alert = "Roaming Pokémon found!", f"Encountered a roaming {pokemon.species.name}."
@@ -261,6 +284,13 @@ def handle_encounter(
         else:
             context.set_manual_mode()
             encounter_info.battle_action = BattleAction.CustomAction
+
+    elif EncounterValue.avoid == True:
+        #I can't get the EncounterValue.avoid to automatically assign itself False, so checking if it is equal to True is necessary
+        console.print(f"elif EncounterValue.avoid: {EncounterValue.avoid}")
+        encounter_info.battle_action = BattleAction.RunAway
+        EncounterValue.avoid = False
+
     elif enable_auto_battle:
         encounter_info.battle_action = BattleAction.Fight
     else:
