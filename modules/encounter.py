@@ -287,7 +287,6 @@ def handle_encounter(
 
     elif EncounterValue.avoid == True:
         #I can't get the EncounterValue.avoid to automatically assign itself False, so checking if it is equal to True is necessary
-        console.print(f"elif EncounterValue.avoid: {EncounterValue.avoid}")
         encounter_info.battle_action = BattleAction.RunAway
         EncounterValue.avoid = False
 
