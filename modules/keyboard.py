@@ -1,23 +1,62 @@
 import contextlib
 import json
-from pathlib import Path
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from modules.context import context
 from modules.game import decode_string
 from modules.memory import read_symbol, unpack_uint32
+from modules.runtime import get_data_path
 from modules.tasks import task_is_active
 
-DATA_DIRECTORY = Path(__file__).parent / "data"
+if TYPE_CHECKING:
+    pass
 
-with open(f"{DATA_DIRECTORY}/keyboard.json", "r", encoding="utf-8") as f:
-    key_layout = json.load(f)
 
-lang = context.rom.language.value
+@dataclass
+class KeyboardPage:
+    width: int
+    height: int
+    rows: tuple[list[str], list[str], list[str], list[str]]
 
-valid_characters = []
-for page in key_layout[lang]:
-    for row in page["array"]:
-        valid_characters.extend(row)
+    @classmethod
+    def from_data(cls, data: dict) -> "KeyboardPage":
+        return KeyboardPage(
+            width=data["width"],
+            height=data["height"],
+            rows=(
+                data["array"][0],
+                data["array"][1],
+                data["array"][2],
+                data["array"][3],
+            ),
+        )
+
+    @property
+    def characters(self) -> list[str]:
+        return [*self.rows[0], *self.rows[1], *self.rows[2], *self.rows[3]]
+
+
+with open(get_data_path() / "keyboard.json", "r", encoding="utf-8") as f:
+    _raw_keyboard_layouts: dict[str, dict] = json.load(f)
+
+keyboard_layouts: dict[str, list[KeyboardPage]] = {}
+for language_code in _raw_keyboard_layouts:
+    keyboard_layouts[language_code] = [KeyboardPage.from_data(data) for data in _raw_keyboard_layouts[language_code]]
+
+
+def _get_keyboard_layout() -> list[KeyboardPage]:
+    if context.rom is None or context.rom.language.value not in keyboard_layouts:
+        return keyboard_layouts["E"]
+    else:
+        return keyboard_layouts[context.rom.language.value]
+
+
+def _get_valid_characters() -> list[str]:
+    valid_characters = []
+    for page in _get_keyboard_layout():
+        valid_characters.extend(page.characters)
+    return valid_characters
 
 
 class Keyboard:
@@ -42,7 +81,7 @@ class Keyboard:
                     context.emulator.read_bytes(unpack_uint32(read_symbol("namingScreenDataPtr")) + 0x11, 16)
                 )
         except Exception:
-            return None
+            return ""
 
     @property
     def cur_page(self) -> int:
@@ -54,7 +93,7 @@ class Keyboard:
             else:
                 return [0x3C, 0x42, 0x3F].index(context.emulator.read_bytes(0x03001858, 1)[0])
         except Exception:
-            return None
+            return 0
 
     @property
     def cur_pos(self) -> tuple:
@@ -122,9 +161,9 @@ class KeyboardNavigator(BaseMenuNavigator):
         super().__init__()
         if len(name) > max_length:
             name = name[:max_length]
-        self.name = "".join([char if char in valid_characters else " " for char in name])
-        self.h = key_layout[lang][0]["height"]
-        self.w = key_layout[lang][0]["width"]
+        self.name = "".join([char if char in _get_valid_characters() else " " for char in name])
+        self.h = _get_keyboard_layout()[0].height
+        self.w = _get_keyboard_layout()[0].width
         self.keyboard = Keyboard()
 
     def get_next_func(self):
@@ -177,17 +216,17 @@ class KeyboardNavigator(BaseMenuNavigator):
         last_pos = None
         cur_char = 0
         goto = [0, 0, 0]
-        for page in range(len(key_layout[lang])):
-            for num, row in enumerate(key_layout[lang][page]["array"]):
+        for page in range(len(_get_keyboard_layout())):
+            for num, row in enumerate(_get_keyboard_layout()[page].rows):
                 if self.name[0] in row:
                     goto = [row.index(self.name[0]), num, page]
                     break
         while context.bot_mode != "Manual":
             page = self.keyboard.cur_page
             if page <= 3:
-                if self.h != key_layout[lang][page]["height"] or self.w != key_layout[lang][page]["width"]:
-                    self.h = key_layout[lang][page]["height"]
-                    self.w = key_layout[lang][page]["width"]
+                if self.h != _get_keyboard_layout()[page].height or self.w != _get_keyboard_layout()[page].width:
+                    self.h = _get_keyboard_layout()[page].height
+                    self.w = _get_keyboard_layout()[page].width
                 spot = self.keyboard.cur_pos
                 if spot == last_pos or (last_pos is None and spot[0] <= self.w and spot[1] <= self.h):
                     if page != goto[2]:  # Press Select until on correct page
@@ -205,14 +244,14 @@ class KeyboardNavigator(BaseMenuNavigator):
                         if len(self.keyboard.text_buffer) >= len(self.name):
                             break
                         found = False
-                        for num, row in enumerate(key_layout[lang][page]["array"]):
+                        for num, row in enumerate(_get_keyboard_layout()[page].rows):
                             if self.name[cur_char] in row:
                                 goto = [row.index(self.name[cur_char]), num, page]
                                 found = True
                                 break
                         if not found:
-                            for page_num, new_page in enumerate(key_layout[lang]):
-                                for num, row in enumerate(new_page["array"]):
+                            for page_num, new_page in enumerate(_get_keyboard_layout()):
+                                for num, row in enumerate(new_page.rows):
                                     if self.name[cur_char] in row:
                                         goto = [row.index(self.name[cur_char]), num, page_num]
                                         found = True
