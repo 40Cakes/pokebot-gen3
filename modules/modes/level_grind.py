@@ -114,7 +114,7 @@ class LevelGrindMode(BotMode):
     def __init__(self):
         super().__init__()
         self._leave_pokemon_center = False
-        self._go_healing = False
+        self._go_healing = True
         self._level_balance = False
 
     def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | BattleStrategy | None:
@@ -199,7 +199,7 @@ class LevelGrindMode(BotMode):
             assert_party_can_fight("No Pokémon in the party has a usable attacking move!")
 
             try:
-                assert_leader_can_fight(party_lead_pokemon)
+                assert_pokemon_can_fight(party_lead_pokemon)
             except BotModeError:
                 self._handle_no_battle_moves(party_lead_pokemon)
 
@@ -214,7 +214,6 @@ class LevelGrindMode(BotMode):
             )
 
         if user_confirmed:
-            assert_pokemon_can_fight(party_lead_pokemon)
             self._level_balance = False
         else:
             context.set_manual_mode()

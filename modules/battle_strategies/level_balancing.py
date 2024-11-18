@@ -90,6 +90,7 @@ class NoRotateLeadDefaultBattleStrategy(DefaultBattleStrategy):
                     if (
                         move is not None
                         and move.move.base_power > 0
+                        and move.pp > 0
                         and move.move.name not in context.config.battle.banned_moves
                     ):
                         return True
