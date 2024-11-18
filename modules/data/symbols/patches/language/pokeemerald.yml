@@ -509,6 +509,8 @@ gBattlescriptCurrInstr:
   J: 0x2023eb8
 gRngValue:
   J: 0x3005ae0
+gPaletteFade:
+  J: 0x2037c74
 ITEMSTORAGE_HANDLEREMOVEITEM:
   I: 0x0
 Route120_Text_RileyIntro:
