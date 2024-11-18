@@ -177,7 +177,7 @@ class FeebasMode(BotMode):
         if get_event_flag("BADGE08_GET"):
             for pokemon in get_party():
                 for learned_move in pokemon.moves:
-                    if learned_move.move.name == "Waterfall":
+                    if learned_move is not None and learned_move.move.name == "Waterfall":
                         self._can_use_waterfall = True
                         break
 
