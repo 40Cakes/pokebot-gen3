@@ -125,8 +125,11 @@ declare module PokeBotApi {
      * Response body for `GET /map_encounters`.
      */
     export type GetMapEncountersResponse = {
-        "regular": RegularEncounterList;
-        "effective": EffectiveEncounterList;
+        repel_level: number;
+        active_ability: string | null;
+        active_items: string[];
+        regular: RegularEncounterList;
+        effective: EffectiveEncounterList;
     };
 
     /**
