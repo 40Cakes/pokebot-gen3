@@ -7,7 +7,7 @@ from modules.map_path import calculate_path, PathFindingError
 from modules.modes import BattleAction
 from modules.player import get_player_avatar
 from modules.pokemon import get_party, StatusCondition
-from ._asserts import assert_leader_can_fight
+from ._asserts import assert_pokemon_can_fight
 from ._interface import BotMode, BotModeError
 from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon, spin
 from ..battle_state import BattleOutcome
@@ -134,7 +134,7 @@ class LevelGrindMode(BotMode):
         elif level_mode_choice.startswith("Level-balance"):
             self._level_balance = True
         else:
-            assert_leader_can_fight(party_lead_pokemon)
+            assert_pokemon_can_fight(party_lead_pokemon)
             self._level_balance = False
 
         if self._level_balance:

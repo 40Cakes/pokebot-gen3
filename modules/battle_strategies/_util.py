@@ -246,7 +246,9 @@ class BattleStrategyUtil:
 
         max_strength = max(move_strengths)
         if max_strength <= 0:
-            raise BotModeError("No valid moves available! Check move setup or disable restrictions.")
+            raise BotModeError(
+                f"{pokemon.species.name} does not know any damage-dealing moves, or they are forbidden to use by bot configuration"
+            )
 
         strongest_move = move_strengths.index(max_strength)
         return strongest_move

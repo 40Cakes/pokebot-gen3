@@ -178,9 +178,9 @@ def assert_player_has_poke_balls() -> None:
             raise BotModeError("Out of Pokéballs! Better grab more before the next shiny slips away...")
 
 
-def assert_leader_can_fight(pokemon: Pokemon) -> None:
+def assert_pokemon_can_fight(pokemon: Pokemon) -> None:
     """
-    Ensures the lead Pokémon has at least one usable attacking move. Raises a BotModeError
+    Ensures the given Pokémon has at least one usable attacking move. Raises a BotModeError
     if the Pokémon lacks any attack-capable moves, indicating it cannot kill an opponent.
     """
     has_usable_move = any(
