@@ -7,7 +7,7 @@ from modules.map_data import MapRSE, MapFRLG, is_safari_map
 from modules.safari_strategy import get_safari_balls_left
 from modules.battle_state import BattleOutcome
 from modules.player import get_player
-from modules.pokemon import get_party
+from modules.pokemon import Pokemon, get_party
 from modules.save_data import get_save_data
 from ._interface import BotModeError
 
@@ -176,3 +176,17 @@ def assert_player_has_poke_balls() -> None:
     else:
         if get_item_bag().number_of_balls_except_master_ball == 0:
             raise BotModeError("Out of Pokéballs! Better grab more before the next shiny slips away...")
+
+
+def assert_pokemon_can_fight(pokemon: Pokemon) -> None:
+    """
+    Ensures the given Pokémon has at least one usable attacking move. Raises a BotModeError
+    if the Pokémon lacks any attack-capable moves, indicating it cannot kill an opponent.
+    """
+    has_usable_move = any(
+        move is not None and move.move.base_power > 0 and move.move.name not in context.config.battle.banned_moves
+        for move in pokemon.moves
+    )
+
+    if not has_usable_move:
+        raise BotModeError("Lead Pokémon has no usable moves!")
