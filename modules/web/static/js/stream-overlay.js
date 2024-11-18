@@ -456,6 +456,11 @@ function handleMapEncounters(data) {
         abilityInfo.css("display", "none");
     }
 
+    console.log(data.active_items);
+    $("#white_flute_info").css("display", data.active_items.includes("White Flute") ? "inline-block" : "none");
+    $("#black_flute_info").css("display", data.active_items.includes("Black Flute") ? "inline-block" : "none");
+    $("#cleanse_tag_info").css("display", data.active_items.includes("Cleanse Tag") ? "inline-block" : "none");
+
     refreshchecklist();
 }
 
