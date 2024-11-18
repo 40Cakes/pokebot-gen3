@@ -7,12 +7,14 @@ from typing import Literal
 
 from modules.context import context
 from modules.game import decode_string, get_event_flag_name, get_event_var_name
+from modules.items import get_item_by_name
 from modules.memory import (
     get_save_block,
     get_symbol_name,
     read_symbol,
     unpack_uint16,
     unpack_uint32,
+    get_event_flag,
     get_event_flag_by_number,
 )
 from modules.pokemon import (
@@ -1907,6 +1909,7 @@ class EffectiveWildEncounterList:
     map_number: int
     repel_level: int
     active_ability: Ability | None
+    active_items: list[Item]
     regular_encounters: WildEncounterList | None
 
     land_encounters: list[EffectiveWildEncounter]
@@ -1920,6 +1923,9 @@ class EffectiveWildEncounterList:
         if isinstance(other, EffectiveWildEncounterList):
             return (
                 other.repel_level == self.repel_level
+                and other.active_ability is self.active_ability
+                and len(other.active_items) == len(self.active_items)
+                and all(a is b for a, b in zip(other.active_items, self.active_items))
                 and other.map_group == self.map_group
                 and other.map_number == self.map_number
             )
@@ -1930,6 +1936,7 @@ class EffectiveWildEncounterList:
         return {
             "repel_level": self.repel_level,
             "active_ability": self.active_ability.name if self.active_ability is not None else None,
+            "active_items": [item.name for item in self.active_items],
             "regular": self.regular_encounters.to_dict(),
             "effective": {
                 "land_encounters": [encounter.to_dict() for encounter in self.land_encounters],
@@ -1950,7 +1957,7 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
 
     player = get_player_avatar()
     if player is None:
-        return EffectiveWildEncounterList(0, 0, 0, None, WildEncounterList.empty(), [], [], [], [], [], [])
+        return EffectiveWildEncounterList(0, 0, 0, None, [], WildEncounterList.empty(), [], [], [], [], [], [])
 
     map_group, map_number = player.map_group_and_number
 
@@ -2037,7 +2044,7 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
 
     if wild_encounters is None:
         encounter_list = EffectiveWildEncounterList(
-            map_group, map_number, repel_level, None, WildEncounterList.empty(), [], [], [], [], [], []
+            map_group, map_number, repel_level, None, [], WildEncounterList.empty(), [], [], [], [], [], []
         )
     else:
         if context.rom.is_emerald:
@@ -2077,6 +2084,18 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
         else:
             encounter_affecting_abilities = ("Stench", "Illuminate")
 
+        encounter_affecting_items = []
+        if (context.rom.is_frlg and get_event_flag("SYS_WHITE_FLUTE_ACTIVE")) or (
+            context.rom.is_rse and get_event_flag("SYS_ENC_UP_ITEM")
+        ):
+            encounter_affecting_items.append(get_item_by_name("White Flute"))
+        if (context.rom.is_frlg and get_event_flag("SYS_BLACK_FLUTE_ACTIVE")) or (
+            context.rom.is_rse and get_event_flag("SYS_ENC_DOWN_ITEM")
+        ):
+            encounter_affecting_items.append(get_item_by_name("Black Flute"))
+        if lead_pokemon.held_item is not None and lead_pokemon.held_item.name == "Cleanse Tag":
+            encounter_affecting_items.append(lead_pokemon.held_item)
+
         encounter_list = EffectiveWildEncounterList(
             map_group=map_group,
             map_number=map_number,
@@ -2084,6 +2103,7 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
             active_ability=(
                 lead_pokemon.ability if lead_pokemon.ability.name in encounter_affecting_abilities else None
             ),
+            active_items=encounter_affecting_items,
             regular_encounters=wild_encounters,
             land_encounters=calculate_effective_encounters(wild_encounters.land_encounters, "land"),
             surf_encounters=calculate_effective_encounters(wild_encounters.surf_encounters, "surf"),
