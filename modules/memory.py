@@ -14,6 +14,12 @@ from modules.game import (
 from modules.state_cache import state_cache
 
 
+def unpack_sint8(bytes: bytes | int) -> int:
+    if isinstance(bytes, int):
+        bytes = bytearray([bytes])
+    return struct.unpack("b", bytes)[0]
+
+
 def unpack_uint16(bytes: bytes) -> int:
     return struct.unpack("<H", bytes)[0]
 

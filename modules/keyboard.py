@@ -1,16 +1,39 @@
-import contextlib
 import json
 from dataclasses import dataclass
+from enum import Enum
 from typing import TYPE_CHECKING
 
 from modules.context import context
+from modules.debug import debug
 from modules.game import decode_string
-from modules.memory import read_symbol, unpack_uint32
+from modules.game_sprites import get_game_sprite_by_id
+from modules.memory import read_symbol, unpack_uint32, get_game_state, GameState
+from modules.modes import BotModeError
 from modules.runtime import get_data_path
-from modules.tasks import task_is_active
+from modules.tasks import get_task
 
 if TYPE_CHECKING:
     pass
+
+
+class KeyboardLayout:
+    def __init__(self, data: dict):
+        self.pages: tuple[KeyboardPage, KeyboardPage, KeyboardPage] = (
+            KeyboardPage.from_data(data[2]),
+            KeyboardPage.from_data(data[0]),
+            KeyboardPage.from_data(data[1]),
+        )
+
+    @property
+    def valid_characters(self) -> list[str]:
+        valid_characters = []
+        for page in self.pages:
+            valid_characters.extend(page.characters)
+        return valid_characters
+
+    def strip_invalid_characters(self, name: str) -> str:
+        valid_characters = self.valid_characters
+        return "".join([char if char in valid_characters else " " for char in name])
 
 
 @dataclass
@@ -36,279 +59,164 @@ class KeyboardPage:
     def characters(self) -> list[str]:
         return [*self.rows[0], *self.rows[1], *self.rows[2], *self.rows[3]]
 
+    def character_position(self, character: str) -> tuple[int, int]:
+        for row_index, characters in enumerate(self.rows):
+            if character in characters:
+                return characters.index(character), row_index
+        return 0, 0
+
 
 with open(get_data_path() / "keyboard.json", "r", encoding="utf-8") as f:
     _raw_keyboard_layouts: dict[str, dict] = json.load(f)
 
-keyboard_layouts: dict[str, list[KeyboardPage]] = {}
+keyboard_layouts: dict[str, KeyboardLayout] = {}
 for language_code in _raw_keyboard_layouts:
-    keyboard_layouts[language_code] = [KeyboardPage.from_data(data) for data in _raw_keyboard_layouts[language_code]]
+    keyboard_layouts[language_code] = KeyboardLayout(_raw_keyboard_layouts[language_code])
 
 
-def _get_keyboard_layout() -> list[KeyboardPage]:
+def get_current_keyboard_layout() -> KeyboardLayout:
     if context.rom is None or context.rom.language.value not in keyboard_layouts:
         return keyboard_layouts["E"]
     else:
         return keyboard_layouts[context.rom.language.value]
 
 
-def _get_valid_characters() -> list[str]:
-    valid_characters = []
-    for page in _get_keyboard_layout():
-        valid_characters.extend(page.characters)
-    return valid_characters
+class KeyboardPageType(Enum):
+    DigitsAndSymbols = 0
+    Uppercase = 1
+    Lowercase = 2
 
 
-class Keyboard:
-    @property
-    def enabled(self) -> bool:
-        if task_is_active("Task_NamingScreen"):
-            return True
-        elif task_is_active("Task_NamingScreenMain"):
-            return True
-        else:
-            return False
-
-    @property
-    def text_buffer(self) -> str:
-        try:
-            if context.rom.game_title not in ["POKEMON RUBY", "POKEMON SAPP"]:
-                return decode_string(
-                    context.emulator.read_bytes(unpack_uint32(read_symbol("sNamingScreen")) + 0x1800, 16)
-                )
-            else:
-                return decode_string(
-                    context.emulator.read_bytes(unpack_uint32(read_symbol("namingScreenDataPtr")) + 0x11, 16)
-                )
-        except Exception:
-            return ""
-
-    @property
-    def cur_page(self) -> int:
-        try:
-            if context.rom.game_title not in ["POKEMON RUBY", "POKEMON SAPP"]:
-                return [1, 2, 0].index(
-                    context.emulator.read_bytes(unpack_uint32(read_symbol("sNamingScreen")) + 0x1E22, 1)[0]
-                )
-            else:
-                return [0x3C, 0x42, 0x3F].index(context.emulator.read_bytes(0x03001858, 1)[0])
-        except Exception:
-            return 0
-
-    @property
-    def cur_pos(self) -> tuple:
-        x_val = None
-        y_val = None
-        if context.rom.game_title not in ["POKEMON RUBY", "POKEMON SAPP"]:
-            x_val = int(context.emulator.read_bytes(0x03007D98, 1)[0])
-            if context.rom.game_title == "POKEMON EMER":
-                y_val = int(context.emulator.read_bytes(0x030023A8, 1)[0] / 16) - 5
-            else:
-                y_val = int(context.emulator.read_bytes(0x030031D8, 1)[0] / 16) - 5
-        else:
-            with contextlib.suppress(Exception):
-                x_val = (
-                    [0x1B, 0x33, 0x4B, 0x63, 0x7B, 0x93, 0xBC].index(context.emulator.read_bytes(0x0300185E, 1)[0])
-                    if self.cur_page == 2
-                    else [
-                        0x1B,
-                        0x2B,
-                        0x3B,
-                        0x53,
-                        0x63,
-                        0x73,
-                        0x83,
-                        0x9B,
-                        0xBC,
-                    ].index(context.emulator.read_bytes(0x0300185E, 1)[0])
-                )
-            y_val = int(context.emulator.read_bytes(0x0300185C, 1)[0] / 16) - 4
-        return x_val, y_val
+class NamingScreenState(Enum):
+    FadeIn = 0
+    WaitForFadeIn = 1
+    HandleInput = 2
+    MoveToOKButton = 3
+    PageSwap = 4
+    WaitForPageSwap = 5
+    PressedOK = 6
+    WaitForSentToPCMessage = 7
+    FadeOut = 8
+    Exit = 9
 
 
-class BaseMenuNavigator:
-    def __init__(self, step: str = "None"):
-        self.navigator = None
-        self.current_step = step
-
-    def step(self):
-        """
-        Iterates through the steps of navigating the menu for the desired outcome.
-        """
-        while self.current_step != "exit":
-            if not self.navigator:
-                self.get_next_func()
-                self.update_navigator()
-            else:
-                yield from self.navigator
-                self.navigator = None
-
-    def get_next_func(self):
-        """
-        Advances through the steps of navigating the menu.
-        """
-        ...
-
-    def update_navigator(self):
-        """
-        Sets the navigator for the object to follow the steps for the desired outcome.
-        """
-        ...
+@dataclass
+class NamingScreen:
+    enabled: bool
+    state: NamingScreenState
+    current_input: str
+    keyboard_page: KeyboardPageType
+    cursor_position: tuple[int, int]
 
 
-class KeyboardNavigator(BaseMenuNavigator):
-    def __init__(self, name: str, max_length: int = 8):
-        super().__init__()
-        if len(name) > max_length:
-            name = name[:max_length]
-        self.name = "".join([char if char in _get_valid_characters() else " " for char in name])
-        self.h = _get_keyboard_layout()[0].height
-        self.w = _get_keyboard_layout()[0].width
-        self.keyboard = Keyboard()
+def get_naming_screen_data() -> NamingScreen | None:
+    task = get_task("Task_HandleInput")
+    if task is None:
+        return None
 
-    def get_next_func(self):
-        match self.current_step:
-            case "None":
-                self.current_step = "Check keyboard status"
-            case "Check keyboard status":
-                self.current_step = "Wait for keyboard"
-            case "Wait for keyboard":
-                self.current_step = "Navigate keyboard"
-            case "Navigate keyboard":
-                self.current_step = "Release keys"
-            case "Release keys":
-                self.current_step = "Confirm name"
-            case "Confirm name":
-                self.current_step = "exit"
-            case "Clear Input":
-                self.current_step = "None"
+    if context.rom.is_rs:
+        pointer = unpack_uint32(read_symbol("namingScreenDataPtr"))
+        if pointer == 0:
+            return None
+        data = context.emulator.read_bytes(pointer, 0x4A)
+        cursor_sprite = get_game_sprite_by_id(data[0x0F])
+        return NamingScreen(
+            enabled=bool(task.data_value(0)),
+            state=NamingScreenState(data[0x00]),
+            current_input=decode_string(data[0x11:0x21]),
+            keyboard_page=KeyboardPageType((data[0x0E] + 1) % 3),
+            cursor_position=(cursor_sprite.data_value(0), cursor_sprite.data_value(1)),
+        )
+    else:
+        pointer = unpack_uint32(read_symbol("sNamingScreen"))
+        if pointer == 0:
+            return None
+        data = context.emulator.read_bytes(pointer + 0x1E10, 0x14)
+        cursor_sprite = get_game_sprite_by_id(data[0x1E23 - 0x1E10])
+        return NamingScreen(
+            enabled=bool(task.data_value(0)),
+            state=NamingScreenState(data[0]),
+            current_input=decode_string(context.emulator.read_bytes(pointer + 0x1800, length=16)),
+            keyboard_page=KeyboardPageType(data[0x1E22 - 0x1E10]),
+            cursor_position=(cursor_sprite.data_value(0), cursor_sprite.data_value(1)),
+        )
 
-    def update_navigator(self):
-        match self.current_step:
-            case "Check keyboard status":
-                self.check_keyboard_status()
-            case "Wait for keyboard":
-                self.navigator = self.wait_for_keyboard()
-            case "Navigate keyboard":
-                self.navigator = self.navigate_keyboard()
-            case "Release keys":
-                self.navigator = self.release_keys()
-            case "Confirm name":
-                self.navigator = self.confirm_name()
-            case "Clear Input":
-                self.navigator = self.clear_input()
 
-    def check_keyboard_status(self):
-        if not self.keyboard.enabled:
-            self.current_step = "exit"
-            context.message = "Keyboard is not open"
+@debug.track
+def type_in_naming_screen(name: str, max_length: int = 8):
+    """
+    This will type a given string into the in-game keyboard.
+    It expects the Naming Screen to be active.
 
-    def wait_for_keyboard(self):
-        while (
-            self.keyboard.cur_pos[0] is None
-            or (self.keyboard.cur_pos[0] > self.w and self.keyboard.cur_pos[1] > self.h)
-            or len(self.keyboard.text_buffer) > 0
-        ):
-            context.emulator.press_button("B")
+    :param name: String to enter into the keyboard.
+    :param max_length: Maximum length that is supported at this point.
+    """
+
+    layout = get_current_keyboard_layout()
+    name = layout.strip_invalid_characters(name)[:max_length]
+
+    while True:
+        naming_screen = get_naming_screen_data()
+        if naming_screen is None:
+            raise BotModeError("The naming screen keyboard is not active.")
+
+        if not naming_screen.enabled or naming_screen.state != NamingScreenState.HandleInput:
             yield
+            continue
 
-    def navigate_keyboard(self):
-        last_pos = None
-        cur_char = 0
-        goto = [0, 0, 0]
-        for page in range(len(_get_keyboard_layout())):
-            for num, row in enumerate(_get_keyboard_layout()[page].rows):
-                if self.name[0] in row:
-                    goto = [row.index(self.name[0]), num, page]
-                    break
-        while context.bot_mode != "Manual":
-            page = self.keyboard.cur_page
-            if page <= 3:
-                if self.h != _get_keyboard_layout()[page].height or self.w != _get_keyboard_layout()[page].width:
-                    self.h = _get_keyboard_layout()[page].height
-                    self.w = _get_keyboard_layout()[page].width
-                spot = self.keyboard.cur_pos
-                if spot == last_pos or (last_pos is None and spot[0] <= self.w and spot[1] <= self.h):
-                    if page != goto[2]:  # Press Select until on correct page
-                        while page != goto[2]:
-                            context.emulator.press_button("Select")
-                            yield
-                            page = self.keyboard.cur_page
-                        last_pos = None
-                    elif spot[0] == goto[0] and spot[1] == goto[1]:  # Press A if on correct character
-                        last_pos = spot
-                        while len(self.keyboard.text_buffer) < cur_char + 1:
-                            context.emulator.press_button("A")
-                            yield
-                        cur_char += 1
-                        if len(self.keyboard.text_buffer) >= len(self.name):
-                            break
-                        found = False
-                        for num, row in enumerate(_get_keyboard_layout()[page].rows):
-                            if self.name[cur_char] in row:
-                                goto = [row.index(self.name[cur_char]), num, page]
-                                found = True
-                                break
-                        if not found:
-                            for page_num, new_page in enumerate(_get_keyboard_layout()):
-                                for num, row in enumerate(new_page.rows):
-                                    if self.name[cur_char] in row:
-                                        goto = [row.index(self.name[cur_char]), num, page_num]
-                                        found = True
-                                        break
-                                if found:
-                                    break
-                    else:
-                        if spot[0] < goto[0]:
-                            press = "Right"
-                        elif spot[0] > goto[0]:
-                            press = "Left"
-                        elif (spot[1] < goto[1] or (spot[1] == self.h - 1 and goto[1] == 0)) and (
-                            spot[1] != 0 or goto[1] != self.h - 1
-                        ):
-                            press = "Down"
-                        else:
-                            press = "Up"
-                        context.emulator.press_button(press)
-                        yield
-                        yield
-                        last_pos = None
-                else:
-                    last_pos = spot
-                    yield
-            else:
+        current_page: KeyboardPage = layout.pages[naming_screen.keyboard_page.value]
+
+        # Input exactly matched the name -> confirm
+        if naming_screen.current_input == name:
+            # Wait for cursor to get to the 'OK' button
+            if naming_screen.cursor_position != (current_page.width, 2):
+                context.emulator.press_button("Start")
+                yield
+                continue
+
+            # Spam 'A' until the naming screen is no longer active
+            while get_naming_screen_data() is not None or get_game_state() is GameState.NAMING_SCREEN:
+                context.emulator.press_button("A")
                 yield
 
-    def release_keys(self):
-        context.emulator.release_button("A")
-        context.emulator.release_button("Down")
-        context.emulator.release_button("Up")
-        context.emulator.release_button("Left")
-        context.emulator.release_button("Right")
-        context.emulator.release_button("Start")
-        context.emulator.release_button("Select")
-        yield
+            return
 
-    def clear_input(self):
-        while len(self.keyboard.text_buffer) > 0:
+        # If the current input does not match the name, delete the last character and try again.
+        if not name.startswith(naming_screen.current_input):
             context.emulator.press_button("B")
             yield
+            continue
 
-    def confirm_name(self):
-        while self.keyboard.enabled:
-            if (
-                context.rom.game_title not in ["POKEMON RUBY", "POKEMON SAPP"] and self.keyboard.cur_pos[0] > self.w
-            ) or (self.keyboard.cur_pos == (6, 0)):
-                context.emulator.press_button("A")
-            else:
-                if self.keyboard.text_buffer == self.name:
-                    context.emulator.press_button("Start")
-                    yield
-                    yield
-                    yield
-                    context.emulator.press_button("A")
-                else:
-                    self.navigator = None
-                    self.current_step = "Clear Input"
-                    break
+        next_character = name[len(naming_screen.current_input)]
+
+        # If the next character is not on the current page, switch pages.
+        if next_character not in current_page.characters:
+            context.emulator.press_button("Select")
             yield
+            continue
+
+        character_position = current_page.character_position(next_character)
+
+        # Move to the correct row
+        if character_position[1] != naming_screen.cursor_position[1]:
+            distance = abs(character_position[1] - naming_screen.cursor_position[1])
+            if character_position[1] > naming_screen.cursor_position[1]:
+                context.emulator.press_button("Down" if distance <= current_page.height // 2 else "Up")
+            else:
+                context.emulator.press_button("Up" if distance <= current_page.height // 2 else "Down")
+            yield
+            continue
+
+        # Move to the correct column
+        if character_position[0] != naming_screen.cursor_position[0]:
+            distance = abs(character_position[0] - naming_screen.cursor_position[0])
+            if character_position[0] > naming_screen.cursor_position[0]:
+                context.emulator.press_button("Right" if distance <= (current_page.width + 1) // 2 else "Left")
+            else:
+                context.emulator.press_button("Left" if distance <= (current_page.width + 1) // 2 else "Right")
+            yield
+            continue
+
+        # We have reached the correct character -> press A to confirm
+        context.emulator.press_button("A")
+        yield
