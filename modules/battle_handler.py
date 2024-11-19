@@ -13,13 +13,13 @@ from modules.battle_state import (
 from modules.battle_strategies import BattleStrategy
 from modules.context import context
 from modules.debug import debug
-from modules.keyboard import KeyboardNavigator
+from modules.keyboard import get_naming_screen_data, type_in_naming_screen
 from modules.memory import get_game_state, GameState
 from modules.menuing import scroll_to_party_menu_index
 from modules.plugins import plugin_should_nickname_pokemon
 from modules.pokemon import get_party, get_opponent
 from modules.pokemon_nicknaming import max_pokemon_name_length
-from modules.tasks import task_is_active, get_task
+from modules.tasks import task_is_active
 
 
 @debug.track
@@ -138,16 +138,16 @@ def handle_nickname_caught_pokemon():
             yield
 
         # Wait for the keyboard to become usable (skips the fade-in of the naming menu)
-        input_task = get_task("Task_HandleInput")
-        while input_task is None or input_task.data_value(0) == 0:
+        while get_naming_screen_data() is None:
             yield
 
         # Enter the name.
-        yield from KeyboardNavigator(name=nickname_choice, max_length=max_pokemon_name_length()).step()
-    else:
-        while get_current_battle_script_instruction() in (
-            "BattleScript_TryNicknameCaughtMon",
-            "BattleScript_CaughtPokemonSkipNewDex",
-        ):
-            context.emulator.press_button("B")
-            yield
+        yield from type_in_naming_screen(nickname_choice, max_pokemon_name_length())
+
+    # Skip the nicknaming dialogue.
+    while get_current_battle_script_instruction() in (
+        "BattleScript_TryNicknameCaughtMon",
+        "BattleScript_CaughtPokemonSkipNewDex",
+    ):
+        context.emulator.press_button("B")
+        yield

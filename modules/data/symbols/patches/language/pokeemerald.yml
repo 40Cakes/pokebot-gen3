@@ -223,11 +223,11 @@ Task_PrintAndWaitForText:
   J: 0x81b185c
   S: 0x81b17ac
 Task_HandleInput:
-  D: 0x81c0038
-  F: 0x81c014c
-  I: 0x81c0018
-  J: 0x81bfe44
-  S: 0x81c0130
+  D: [0x80e42b8, 0x81c0038]
+  F: [0x80e42d8, 0x81c014c]
+  I: [0x80e42ac, 0x81c0018]
+  J: [0x80e3b34, 0x81bfe44]
+  S: [0x80e42b4, 0x81c0130]
 Task_HandleYesNoInput:
   D: 0x80e1db4
   F: 0x80e1dd4
@@ -760,4 +760,6 @@ BattleScript_GiveCaughtMonEnd:
   S: 0x82e354e
 sNamingScreen:
   J: 0x2039c34
+gSprites:
+  J: 0x20205AC
 #---------------------#
