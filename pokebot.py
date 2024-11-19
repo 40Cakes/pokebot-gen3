@@ -2,6 +2,7 @@
 
 import argparse
 import atexit
+import os
 import pathlib
 import platform
 from dataclasses import dataclass
@@ -42,6 +43,7 @@ class StartupSettings:
     headless: bool
     no_video: bool
     no_audio: bool
+    no_theme: bool
     emulation_speed: int
     always_on_top: bool
     config_path: str
@@ -78,6 +80,7 @@ def parse_arguments(bot_mode_names: list[str]) -> StartupSettings:
     parser.add_argument("-hl", "--headless", action="store_true", help="Run without a GUI, only using the console.")
     parser.add_argument("-nv", "--no-video", action="store_true", help="Turn off video output by default.")
     parser.add_argument("-na", "--no-audio", action="store_true", help="Turn off audio output by default.")
+    parser.add_argument("-nt", "--no-theme", action="store_true", help="Turn off the fancy GUI theme.")
     parser.add_argument(
         "-t", "--always-on-top", action="store_true", help="Keep the bot window always on top of other windows."
     )
@@ -96,6 +99,7 @@ def parse_arguments(bot_mode_names: list[str]) -> StartupSettings:
         headless=bool(args.headless),
         no_video=bool(args.no_video),
         no_audio=bool(args.no_audio),
+        no_theme=bool(args.no_theme),
         emulation_speed=int(args.emulation_speed or "1"),
         always_on_top=bool(args.always_on_top),
         config_path=args.config_path,
@@ -144,7 +148,11 @@ if __name__ == "__main__":
     else:
         from modules.gui import PokebotGui
 
-        gui = PokebotGui(main_loop, on_exit)
+        # Previously, theming could _only_ be disabled through an environment flag. Now, it can
+        # be disabled using a command-line argument but for backward-compatibility reasons we
+        # accept either.
+        no_theme = os.getenv("POKEBOT_UNTHEMED") == "1" or startup_settings.no_theme
+        gui = PokebotGui(main_loop, on_exit, no_theme=no_theme)
     context.gui = gui
 
     gui.run(startup_settings)
