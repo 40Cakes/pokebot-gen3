@@ -32,7 +32,7 @@ class LevelBalancingBattleStrategy(DefaultBattleStrategy):
         # in the most powerful Pokémon in the party to defeat the opponent, so that the
         # lead Pokémon at least gets partial XP.
         # This helps if the lead has a much lower level than the encounters.
-        if battler.party_index == 0 and not util.pokemon_has_enough_hp(battler):
+        if battler.party_index == 0 and not super()._pokemon_has_enough_hp(battler):
             strongest_pokemon: tuple[int, int] = (0, 0)
             party = get_party()
             for index in range(len(party)):
@@ -65,7 +65,7 @@ class NoRotateLeadDefaultBattleStrategy(DefaultBattleStrategy):
                     return TurnAction.rotate_lead(util.select_rotation_target(battle_state))
             return self._escape(battle_state)
 
-        if not any(util.move_is_usable(move) for move in current_battler.moves) or not util.pokemon_has_enough_hp(
+        if not any(util.move_is_usable(move) for move in current_battler.moves) or not super()._pokemon_has_enough_hp(
             current_battler
         ):
             return handle_lead_cannot_battle()
@@ -94,7 +94,6 @@ class NoRotateLeadDefaultBattleStrategy(DefaultBattleStrategy):
                         and move.move.name not in context.config.battle.banned_moves
                     ):
                         return True
-
         return False
 
     def pokemon_can_battle(self, pokemon: Pokemon) -> bool:

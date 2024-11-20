@@ -9,7 +9,6 @@ from modules.memory import get_event_flag, read_symbol
 from modules.pokemon import StatusCondition, Pokemon, LearnedMove, get_type_by_name, get_ability_by_name, get_party
 from modules.modes._interface import BotModeError
 
-
 if TYPE_CHECKING:
     from modules.pokemon import Move, Type
 
@@ -541,8 +540,9 @@ class BattleStrategyUtil:
         usable_pokemon = []
 
         for index, pokemon in enumerate(party):
+            in_battle_index = battle_state.map_battle_party_index(index)
             # Skip eggs, fainted Pokémon, or already active Pokémon
-            if pokemon.is_egg or not self.pokemon_has_enough_hp(pokemon) or index in active_party_indices:
+            if pokemon.is_egg or not self.pokemon_has_enough_hp(pokemon) or in_battle_index in active_party_indices:
                 continue
 
             # Check if the Pokémon has any move that can deal damage to the opponent
@@ -551,13 +551,13 @@ class BattleStrategyUtil:
                 try:
                     # Attempt to get the strongest move against the opponent
                     self.get_strongest_move_against(pokemon, opponent)
-                    usable_pokemon.append(index)  # Pokémon has a valid move
+                    usable_pokemon.append(in_battle_index)  # Pokémon has a valid move
                 except BotModeError:
                     continue  # No valid moves; skip this Pokémon
             else:
                 # If there's no opponent context, fall back to checking move usability
                 if any(self.move_is_usable(move) for move in pokemon.moves):
-                    usable_pokemon.append(index)
+                    usable_pokemon.append(in_battle_index)
 
         return usable_pokemon
 

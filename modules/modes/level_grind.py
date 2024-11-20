@@ -137,7 +137,7 @@ class LevelGrindMode(BotMode):
             ):
                 self._go_healing = True
         else:
-            if not NoRotateLeadDefaultBattleStrategy().party_can_battle():
+            if lead_pokemon.current_hp == 0 or not NoRotateLeadDefaultBattleStrategy().party_can_battle():
                 self._go_healing = True
 
     def on_whiteout(self) -> bool:

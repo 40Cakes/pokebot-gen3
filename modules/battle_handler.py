@@ -98,11 +98,7 @@ def handle_fainted_pokemon(strategy: BattleStrategy):
     if new_lead_index < 0 or new_lead_index >= len(get_party()):
         raise RuntimeError(f"Cannot send out party index #{new_lead_index} because that does not exist.")
 
-    new_lead = get_party()[new_lead_index]
-    if new_lead.is_egg:
-        raise RuntimeError(f"Cannot send out party index #{new_lead_index} because it is an egg.")
-    if new_lead.current_hp <= 0:
-        raise RuntimeError(f"Cannot send out {new_lead.name} (#{new_lead_index}) because it has 0 HP.")
+    in_battle_index = battle_state.map_battle_party_index(new_lead_index)
 
     while (
         battle_is_active()
@@ -121,7 +117,7 @@ def handle_fainted_pokemon(strategy: BattleStrategy):
     if get_current_battle_script_instruction() == "BattleScript_FaintedMonEnd":
         return
 
-    yield from scroll_to_party_menu_index(new_lead_index)
+    yield from scroll_to_party_menu_index(in_battle_index)
     while get_game_state() == GameState.PARTY_MENU:
         context.emulator.press_button("A")
         yield
