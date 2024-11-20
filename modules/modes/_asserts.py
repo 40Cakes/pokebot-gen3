@@ -189,15 +189,6 @@ def is_pokemon_able_to_fight(pokemon: Pokemon) -> bool:
     )
 
 
-def assert_pokemon_can_fight(pokemon: Pokemon) -> None:
-    """
-    Ensures the given Pokémon has at least one usable attacking move.
-    Raises a BotModeError if the Pokémon lacks any attack-capable moves.
-    """
-    if not is_pokemon_able_to_fight(pokemon):
-        raise BotModeError("Lead Pokémon has no usable moves!")
-
-
 def assert_party_can_fight(error_message: str, check_in_saved_game: bool = False) -> None:
     """
     Ensures the party has at least one Pokémon with a usable attacking move.

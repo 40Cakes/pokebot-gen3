@@ -7,7 +7,7 @@ from modules.map_path import calculate_path, PathFindingError
 from modules.modes import BattleAction
 from modules.player import get_player_avatar
 from modules.pokemon import get_party, StatusCondition
-from ._asserts import assert_pokemon_can_fight, assert_party_can_fight
+from ._asserts import assert_party_can_fight
 from ._interface import BotMode, BotModeError
 from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon, spin
 from ..battle_state import BattleOutcome
@@ -17,7 +17,6 @@ from ..encounter import handle_encounter, EncounterInfo
 from ..gui.multi_select_window import ask_for_choice, Selection, ask_for_confirmation
 from ..runtime import get_sprites_path
 from ..sprites import get_sprite
-from modules.console import console
 
 
 closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
@@ -148,13 +147,36 @@ class LevelGrindMode(BotMode):
     def run(self) -> Generator:
         party_lead_pokemon, party_lead_index = self._get_party_lead()
         level_mode_choice = self._ask_for_leveling_mode(party_lead_pokemon)
-        console.print(level_mode_choice)
+
         if level_mode_choice is None:
             context.set_manual_mode()
             yield
             return
 
-        self._configure_leveling_mode(level_mode_choice, party_lead_pokemon)
+        if level_mode_choice.startswith("Level-balance"):
+            self._level_balance = True
+        else:
+            assert_party_can_fight("No Pokémon in the party has a usable attacking move!")
+
+            if not NoRotateLeadDefaultBattleStrategy().pokemon_can_battle(party_lead_pokemon):
+                user_confirmed = ask_for_confirmation(
+                    "Your party leader has no battle moves. The bot will maybe swap with other Pokémon depending on your bot configuration, causing them to gain XP. Are you sure you want to proceed with this strategy?"
+                )
+
+                if not user_confirmed:
+                    context.set_manual_mode()
+                    yield
+                    return
+
+                if context.config.battle.lead_cannot_battle_action == "flee":
+                    raise BotModeError(
+                        "Cannot level grind because your leader has no battle moves and lead_cannot_battle_action is set to flee!"
+                    )
+
+                if user_confirmed:
+                    self._level_balance = False
+                else:
+                    context.set_manual_mode()
 
         if self._level_balance:
             party_lead_index = LevelBalancingBattleStrategy().choose_new_lead_after_battle()
@@ -192,33 +214,6 @@ class LevelGrindMode(BotMode):
             ],
             "What to level?",
         )
-
-    def _configure_leveling_mode(self, leveling_mode_choice, party_lead_pokemon):
-        if leveling_mode_choice.startswith("Level-balance"):
-            self._level_balance = True
-        else:
-            assert_party_can_fight("No Pokémon in the party has a usable attacking move!")
-
-            try:
-                assert_pokemon_can_fight(party_lead_pokemon)
-            except BotModeError:
-                self._handle_no_battle_moves(party_lead_pokemon)
-
-    def _handle_no_battle_moves(self, party_lead_pokemon):
-        user_confirmed = ask_for_confirmation(
-            "Your party leader has no battle moves. The bot will maybe swap with other Pokémon depending on your bot configuration, causing them to gain XP. Are you sure you want to proceed with this strategy?"
-        )
-        console.print(user_confirmed)
-
-        if context.config.battle.lead_cannot_battle_action == "flee":
-            raise BotModeError(
-                "Cannot level grind because your leader has no battle moves and lead_cannot_battle_action is set to flee!"
-            )
-
-        if user_confirmed:
-            self._level_balance = False
-        else:
-            context.set_manual_mode()
 
     def _find_closest_pokemon_center(self, training_spot):
         training_spot_map = get_map_enum(training_spot)

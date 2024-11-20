@@ -113,12 +113,12 @@ def ask_for_confirmation(message: str, window_title: str = "Confirmation") -> bo
     def on_yes():
         nonlocal user_choice
         user_choice = True
-        window.destroy()
+        window.after(50, remove_window)
 
     def on_no():
         nonlocal user_choice
         user_choice = False
-        window.destroy()
+        window.after(50, remove_window)
 
     def remove_window(event=None):
         nonlocal window

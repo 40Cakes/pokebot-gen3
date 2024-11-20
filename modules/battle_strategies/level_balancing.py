@@ -97,6 +97,12 @@ class NoRotateLeadDefaultBattleStrategy(DefaultBattleStrategy):
 
         return False
 
+    def pokemon_can_battle(self, pokemon: Pokemon) -> bool:
+        return any(
+            move is not None and move.move.base_power > 0 and move.move.name not in context.config.battle.banned_moves
+            for move in pokemon.moves
+        )
+
     def _escape(self, battle_state: BattleState):
         util = BattleStrategyUtil(battle_state)
         best_escape_method = util.get_best_escape_method()
