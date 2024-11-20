@@ -47,7 +47,9 @@ closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
 }
 
 
+
 _list_of_stats = ("hp", "attack", "defence", "special_attack", "special_defence", "speed")
+
 
 
 class NoRotateLeadDefaultBattleStrategy(DefaultBattleStrategy):
@@ -101,6 +103,7 @@ class EVTrainMode(BotMode):
             return BattleAction.RunAway
         else:
             return action
+
 
     def on_battle_ended(self, outcome: "BattleOutcome") -> None:
         lead_pokemon = get_party()[0]
