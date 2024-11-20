@@ -59,6 +59,12 @@ img.encounter_log_held_item {
     right: 3px;
 }
 
+img.encounter_held_item {
+    height: 32px;
+    transform: scale(1.4);
+    image-rendering: crisp-edges;
+}
+
 img.encounter_sv_label {
     display: block;
     margin-left: auto;
@@ -376,12 +382,6 @@ td {
     border-top: 1px solid #ffffff2a;
     border-right: none;
     border-left: none;
-}
-
-td.encounter_held_item {
-    height: 32px;
-    transform: scale(1.4);
-    image-rendering: crisp-edges;
 }
 
 td.location {
