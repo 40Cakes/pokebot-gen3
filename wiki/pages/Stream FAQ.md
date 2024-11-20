@@ -69,9 +69,32 @@ The bot started on the **1st January 2023 AEST**.
 
 ## What does the bot do?
 
-### Why do we lead with Lotad?
+### Why did we lead with Lotad before?
 Lotad has a very short cry (12.2 frames), this saves fractions of seconds per encounter but adds up to days of saved time over the entire challenge.
 See [here](https://docs.google.com/spreadsheets/d/1rmtNdlIXiif1Sz20i-9mfhFdoqb1VnAOIntlr3tnPeU) for a full list of cry lengths for gen 3.
+
+### Why do we lead with Taillow in Fiery Path?
+Inside of caves, the [battle transition](Optimisations%20-%20Battle%20Transitions.md) (animation that plays before a battle starts) is
+shorter if your leading Pokémon has a lower or equal level to the encountered Pokémon. That
+is why we are leading with a Level-14 Pokémon.
+
+But in order to guarantee that we can successfully run away each time, our Pokémon needs to
+be faster than the opponent. Taillow has a very high base speed of 85, so even a Level-14
+Taillow outspeeds anything we could encounter in Fiery Path.
+
+Taillow also has a fairly short cry (17 frames.)
+
+### What do 'Illuminate' and 'White Flute' mean?
+
+[Illuminate](https://bulbapedia.bulbagarden.net/wiki/Illuminate_(Ability)) is an ability that
+doubles the odds of an encounter for every step. The first Pokémon in our party is a fainted
+Volbeat that has that ability.
+
+The [White Flute](https://bulbapedia.bulbagarden.net/wiki/White_Flute) is an item that when
+used also doubles encounter odds until we leave the map.
+
+Using both together means that we have to spin much less to get an encounter, increasing our
+encounters per hour somewhat.
 
 ### What happens when the bot encounters a shiny?
 The bot will simply throw the best ball available, once the Pokémon has been caught, the bot will save the game.
