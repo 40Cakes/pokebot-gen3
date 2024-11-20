@@ -85,7 +85,7 @@ class NoRotateLeadDefaultBattleStrategy(DefaultBattleStrategy):
             if pokemon.is_egg or pokemon.is_empty:
                 continue
 
-            if self._pokemon_has_enough_hp(pokemon) and pokemon.status_condition is StatusCondition.Healthy:
+            if super()._pokemon_has_enough_hp(pokemon) and pokemon.status_condition is StatusCondition.Healthy:
                 for move in pokemon.moves:
                     if (
                         move is not None
@@ -108,6 +108,3 @@ class NoRotateLeadDefaultBattleStrategy(DefaultBattleStrategy):
             "Unable to escape: 'lead_cannot_battle_action' is set to 'flee', but the flee chance is 0%. "
             "Switching to manual mode."
         )
-
-    def _pokemon_has_enough_hp(self, pokemon: Pokemon | BattlePokemon):
-        return pokemon.current_hp_percentage > context.config.battle.hp_threshold

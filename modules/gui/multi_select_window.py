@@ -121,9 +121,9 @@ def ask_for_confirmation(message: str, window_title: str = "Confirmation") -> bo
         window.destroy()
 
     def remove_window(event=None):
-        nonlocal user_choice
-        user_choice = None
+        nonlocal window
         window.destroy()
+        window = None
 
     window.title(window_title)
     window.geometry("400x180")
@@ -145,7 +145,7 @@ def ask_for_confirmation(message: str, window_title: str = "Confirmation") -> bo
     no_button = ttk.Button(button_frame, text="No", command=on_no)
     no_button.grid(row=0, column=1, padx=10)
 
-    while user_choice is None:
+    while window is not None:
         window.update_idletasks()
         window.update()
         time.sleep(1 / 60)
