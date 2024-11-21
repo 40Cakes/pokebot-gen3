@@ -1,4 +1,4 @@
-from operator import truediv
+import math
 from typing import TYPE_CHECKING
 
 from modules.battle_state import Weather, TemporaryStatus, BattleType
@@ -252,6 +252,31 @@ class BattleStrategyUtil:
 
         strongest_move = move_strengths.index(max_strength)
         return strongest_move
+
+    def calculate_catch_success_chance(self, battle_state: "BattleState", ball_multiplier: float = 1) -> float:
+        opponent = battle_state.opponent.active_battler
+
+        if opponent.status_permanent in (StatusCondition.Sleep, StatusCondition.Freeze):
+            status_multiplier = 2
+        elif opponent.status_permanent in (StatusCondition.Paralysis, StatusCondition.Poison, StatusCondition.Burn):
+            status_multiplier = 1.5
+        elif opponent.status_permanent is StatusCondition.BadPoison and not context.rom.is_rs:
+            # Due to a programming oversight in Ruby/Sapphire, the BadPoison state (which inflicts higher
+            # damage compared to 'regular' poison) is not considered for the status multiplier when catching.
+            status_multiplier = 1.5
+        else:
+            status_multiplier = 1
+
+        odds = opponent.species.catch_rate
+        odds *= ball_multiplier * 10
+        odds //= 10
+        odds *= 3 * opponent.total_hp - 2 * opponent.current_hp
+        odds //= 3 * opponent.total_hp
+        odds *= status_multiplier * 10
+        odds //= 10
+
+        shake_success_probability = (1048560 // int(math.sqrt(int(math.sqrt(16711680 // odds))))) / 65536
+        return shake_success_probability**4
 
     def _calculate_base_move_damage(
         self, move: "Move", attacker: "BattlePokemon", defender: "BattlePokemon", is_critical_hit: bool = False

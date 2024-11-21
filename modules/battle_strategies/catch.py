@@ -1,5 +1,5 @@
-from modules.battle_state import BattleState
-from modules.battle_strategies import SafariTurnAction, DefaultBattleStrategy
+from modules.battle_state import BattleState, TemporaryStatus
+from modules.battle_strategies import SafariTurnAction, DefaultBattleStrategy, BattleStrategyUtil
 from modules.battle_strategies import TurnAction
 from modules.context import context
 from modules.items import Item, get_item_bag
@@ -31,10 +31,20 @@ class CatchStrategy(DefaultBattleStrategy):
             context.message = "Player does not have any Poké Balls, cannot catch."
             return TurnAction.switch_to_manual()
 
+        # The chance of a Pokémon being caught increases if it has a status condition (sleeping,
+        # paralysed, poisoned, burned, frozen.) If possible, we will try to inflict a status
+        # condition to increase catch odds.
         if battle_state.opponent.active_battler.status_permanent == StatusCondition.Healthy:
-            status_move = self._get_best_status_changing_move(battle_state)
-            if status_move is not None:
-                return TurnAction.use_move(status_move)
+            catch_success_chance = BattleStrategyUtil(battle_state).calculate_catch_success_chance(
+                battle_state, self._get_poke_ball_catch_rate_multiplier(battle_state, ball_to_throw)
+            )
+
+            # Only bother inflicting a status condition if the chance of the opponent being caught
+            # in one turn is less than 50%, otherwise just throw balls and hope for the best.
+            if catch_success_chance < 0.5:
+                status_move = self._get_best_status_changing_move(battle_state)
+                if status_move is not None:
+                    return TurnAction.use_move(status_move)
 
         return TurnAction.use_item(ball_to_throw)
 
@@ -137,6 +147,10 @@ class CatchStrategy(DefaultBattleStrategy):
         return action, rocked
 
     def _get_best_status_changing_move(self, battle_state: BattleState) -> int | None:
+        # A Pokémon under the influence of Taunt can only use damaging moves.
+        if battle_state.own_side.active_battler.taunt_turns_remaining > 0:
+            return None
+
         status_move_index: int | None = None
         status_move_value: float = 0
 
