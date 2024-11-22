@@ -75,6 +75,11 @@ def plugin_profile_loaded(profile: "Profile") -> None:
         plugin.on_profile_loaded(profile)
 
 
+def plugin_config_reloaded() -> None:
+    for plugin in plugins:
+        plugin.on_config_reload()
+
+
 def plugin_battle_started(encounter: "EncounterInfo | None") -> Generator:
     for plugin in plugins:
         result = plugin.on_battle_started(encounter)
