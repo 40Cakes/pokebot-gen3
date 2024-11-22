@@ -134,8 +134,8 @@ def fish() -> Generator:
     yield
 
 
-def spin(stop_condition: Callable[[], bool] | None = None):
-    directions = ["Up", "Right", "Down", "Left"]
+def spin(stop_condition: Callable[[], bool] | None = None, counter_clockwise: bool = False):
+    directions = ["Up", "Left", "Down", "Right"] if counter_clockwise else ["Up", "Right", "Down", "Left"]
     while True:
         avatar = get_player_avatar()
         if (
