@@ -3,7 +3,7 @@ import string
 import struct
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Literal
+from typing import Literal, TYPE_CHECKING
 
 from modules.context import context
 from modules.game import decode_string, get_event_flag_name, get_event_var_name
@@ -28,6 +28,9 @@ from modules.pokemon import (
     get_type_by_name,
 )
 from modules.state_cache import state_cache
+
+if TYPE_CHECKING:
+    from modules.battle_state import EncounterType
 
 
 def _get_tile_type_name(tile_type: int):
@@ -1931,6 +1934,25 @@ class EffectiveWildEncounterList:
             )
         else:
             return NotImplemented
+
+    def for_type(self, encounter_type: "EncounterType") -> list[EffectiveWildEncounter]:
+        from modules.battle_state import EncounterType
+
+        match encounter_type:
+            case EncounterType.Land:
+                return self.land_encounters
+            case EncounterType.Surfing:
+                return self.surf_encounters
+            case EncounterType.RockSmash:
+                return self.rock_smash_encounters
+            case EncounterType.FishingWithOldRod:
+                return self.old_rod_encounters
+            case EncounterType.FishingWithGoodRod:
+                return self.good_rod_encounters
+            case EncounterType.FishingWithSuperRod:
+                return self.super_rod_encounters
+            case _:
+                return []
 
     def to_dict(self) -> dict:
         return {
