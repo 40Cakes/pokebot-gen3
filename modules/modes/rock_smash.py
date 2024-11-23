@@ -222,7 +222,8 @@ class RockSmashMode(BotMode):
     @debug.track
     def smash(flag_name):
         if not get_event_flag(flag_name):
-            yield from wait_for_script_to_start_and_finish("EventScript_RockSmash", "A")
+            script_name = "EventScript_RockSmash" if not context.rom.is_rs else "DoRockSmashMovement"
+            yield from wait_for_script_to_start_and_finish(script_name, "A")
             while get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING:
                 yield
             if task_is_active("Task_ReturnToFieldNoScript"):
