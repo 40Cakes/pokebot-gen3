@@ -16,7 +16,7 @@ from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
 from modules.tasks import task_is_active, get_global_script_context
 from . import BattleAction
-from ._asserts import SavedMapLocation, assert_has_pokemon_with_move, assert_save_game_exists, assert_saved_on_map
+from ._asserts import SavedMapLocation, assert_has_pokemon_with_any_move, assert_save_game_exists, assert_saved_on_map
 from ._interface import BotMode, BotModeError
 from .util import (
     navigate_to,
@@ -97,8 +97,8 @@ class RockSmashMode(BotMode):
                 "You do not have the Dynamo Badge, which is necessary to use Rock Smash outside of battle."
             )
 
-        assert_has_pokemon_with_move(
-            "Rock Smash", "None of your party Pokémon know the move Rock Smash. Please teach it to someone."
+        assert_has_pokemon_with_any_move(
+            ["Rock Smash"], "None of your party Pokémon know the move Rock Smash. Please teach it to someone."
         )
 
         if get_player_avatar().map_group_and_number in (
