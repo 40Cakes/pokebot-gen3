@@ -94,7 +94,8 @@ def assert_registered_item(
         if get_player().registered_item in expected_items:
             error_message += _error_message_addendum_if_assert_only_failed_in_saved_game
         raise BotModeError(error_message)
-    
+
+
 def assert_has_pokemon_with_any_move(moves: list[str], error_message: str, check_in_saved_game: bool = False) -> None:
     """
     Raises an exception if the player has no Pokémon that knows any of the given move in their

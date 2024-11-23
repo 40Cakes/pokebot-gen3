@@ -237,7 +237,9 @@ class PuzzleSolverMode(BotMode):
                     yield from wait_for_n_frames(5)
                     context.emulator.press_button("B")
                     if context.rom.is_emerald:
-                        assert_has_pokemon_with_any_move(["Flash"], "Registeel Puzzle (Emerald) requires Pokémon with Flash.")
+                        assert_has_pokemon_with_any_move(
+                            ["Flash"], "Registeel Puzzle (Emerald) requires Pokémon with Flash."
+                        )
                         context.message = "Using Flash..."
                         yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 25))
                         yield from use_party_hm_move("Flash")
