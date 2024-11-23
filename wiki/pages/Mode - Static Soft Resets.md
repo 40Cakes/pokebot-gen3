@@ -17,6 +17,7 @@
 ![](../../modules/web/static/sprites/pokemon/shiny/Kyogre.png)
 ![](../../modules/web/static/sprites/pokemon/shiny/Groudon.png)
 ![](../../modules/web/static/sprites/pokemon/shiny/Kecleon.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Hypno.png)
 
 > For modes that use soft resets such as starters, the bot will track RNG to ensure a unique frame is hit after every reset, this is to prevent repeatedly generating an identical Pokémon, this will cause soft resets to take progressively longer over time
 >
@@ -45,7 +46,7 @@ Static soft reset mode targets static Pokémon by simply spamming the A button u
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |   🟨    |     🟨      |     ✅      |     ✅      |      ✅       |
-| Japanese |    ❌    |      ❌      |     ❌      |     ❌      |      ❌       |
+| Japanese |    ❌    |      ❌      |     ❌      |     ✅      |      ❌       |
 | German   |    ❌    |      ❌      |     ❌      |     ✅      |      ❌       |
 | Spanish  |    ❌    |      ❌      |     ❌      |     ✅      |      ❌       |
 | French   |    ❌    |      ❌      |     ❌      |     ✅      |      ❌       |

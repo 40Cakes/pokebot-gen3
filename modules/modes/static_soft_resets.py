@@ -6,7 +6,7 @@ from modules.encounter import handle_encounter, log_encounter, EncounterInfo
 from modules.map_data import MapFRLG, MapRSE
 from modules.player import get_player_avatar
 from modules.save_data import get_save_data
-from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map
+from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map, assert_player_has_poke_balls
 from ._interface import BattleAction, BotMode, BotModeError
 from .util import (
     soft_reset,
@@ -36,6 +36,12 @@ def _get_targeted_encounter() -> Encounter | None:
             Encounter(MapFRLG.CERULEAN_CAVE_B1F, (7, 12), "Mewtwo"),
             Encounter(MapFRLG.NAVEL_ROCK_BASE, (10, 15), "Lugia"),
             Encounter(MapFRLG.BIRTH_ISLAND_EXTERIOR, (15, 10), "Deoxys"),
+            Encounter(
+                MapFRLG.THREE_ISLAND_BERRY_FOREST,
+                (4, 8),
+                "Hypno",
+                lambda: not get_save_data().get_event_flag("RESCUED_LOSTELLE"),
+            ),
         ]
     elif context.rom.is_emerald:
         encounters = [
@@ -104,6 +110,8 @@ class StaticSoftResetsMode(BotMode):
 
         if encounter.condition is not None and not encounter.condition():
             raise BotModeError(f"This {encounter.name} has already been encountered.")
+
+        assert_player_has_poke_balls()
 
         while context.bot_mode != "Manual":
             yield from soft_reset(mash_random_keys=True)

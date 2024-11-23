@@ -4,18 +4,16 @@ from modules.battle_action_selection import handle_battle_action_selection
 from modules.battle_evolution_scene import handle_evolution_scene
 from modules.battle_move_replacing import handle_move_replacement_dialogue
 from modules.battle_state import (
-    get_battle_state,
     battle_is_active,
     get_main_battle_callback,
     get_current_battle_script_instruction,
     BattlePokemon,
     get_battle_state,
-    get_battle_controller_callback,
 )
 from modules.battle_strategies import BattleStrategy
 from modules.context import context
 from modules.debug import debug
-from modules.keyboard import KeyboardNavigator
+from modules.keyboard import get_naming_screen_data, type_in_naming_screen
 from modules.memory import get_game_state, GameState
 from modules.menuing import scroll_to_party_menu_index
 from modules.plugins import plugin_should_nickname_pokemon
@@ -133,16 +131,23 @@ def handle_fainted_pokemon(strategy: BattleStrategy):
 def handle_nickname_caught_pokemon():
     nickname_choice = plugin_should_nickname_pokemon(get_opponent())
     if nickname_choice:
+        # Wait for the naming dialogue to appear (i.e. skip the 'Do you want to give a nickname
+        # to X' dialogue.)
         while get_game_state() != GameState.NAMING_SCREEN:
             context.emulator.press_button("A")
             yield
-        while get_game_state() == GameState.NAMING_SCREEN:
-            yield from KeyboardNavigator(name=nickname_choice, max_length=max_pokemon_name_length()).step()
+
+        # Wait for the keyboard to become usable (skips the fade-in of the naming menu)
+        while get_naming_screen_data() is None:
             yield
-    else:
-        while get_current_battle_script_instruction() in (
-            "BattleScript_TryNicknameCaughtMon",
-            "BattleScript_CaughtPokemonSkipNewDex",
-        ):
-            context.emulator.press_button("B")
-            yield
+
+        # Enter the name.
+        yield from type_in_naming_screen(nickname_choice, max_pokemon_name_length())
+
+    # Skip the nicknaming dialogue.
+    while get_current_battle_script_instruction() in (
+        "BattleScript_TryNicknameCaughtMon",
+        "BattleScript_CaughtPokemonSkipNewDex",
+    ):
+        context.emulator.press_button("B")
+        yield

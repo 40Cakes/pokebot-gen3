@@ -11,15 +11,34 @@ Fishing is a way to use a fishing rod to catch wild Pokémon in the water. Some 
 - (Recommended) The first Pokémon in the party (can be fainted) should have the ability [Sticky Hold](https://bulbapedia.bulbagarden.net/wiki/Sticky_Hold_(Ability)) or [Suction Cups](https://bulbapedia.bulbagarden.net/wiki/Suction_Cups_(Ability)) to increase the bite rate while fishing
 - Register any fishing rod and start the mode while facing water
 
+## Safari Zone
+
+### Ruby / Sapphire / Emerald
+> **Note:** The Safari Zone catch strategy is **not implemented** for these games.
+
+### Fire Red / Leaf Green
+
+The `auto_catch` Safari strategy for `Fire Red` and `Leaf Green` is designed using an in-depth
+[study](https://www.docdroid.net/Tx5NbeU/safari-zone-research-pdf),
+which calculate the most effective sequence for catching a Pokémon based on both the Pokémon encountered and
+the number of Safari Balls remaining at the start of the encounter.
+
+The bot uses optimal catch patterns, which are available in these
+[lookup tables](https://www.docdroid.net/g3I5Qtl/frlg-lookup-tables-pdf), to maximize catch rates for each Pokémon.
+
+### Note
+Since a high number of Safari Balls is essential for shiny hunting, the bot will automatically switch to manual mode
+if your Safari Ball count drops below `15`.
+
 ## Game Support
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
 | Japanese |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
-| German   |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
-| Spanish  |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
-| French   |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
-| Italian  |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
+| German   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Spanish  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| French   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Italian  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
 
 ✅ Tested, working
 

@@ -1,4 +1,4 @@
-from operator import truediv
+import math
 from typing import TYPE_CHECKING
 
 from modules.battle_state import Weather, TemporaryStatus, BattleType
@@ -7,6 +7,7 @@ from modules.context import context
 from modules.items import ItemHoldEffect, get_item_bag, get_item_by_name
 from modules.memory import get_event_flag, read_symbol
 from modules.pokemon import StatusCondition, get_type_by_name, get_ability_by_name
+from modules.modes._interface import BotModeError
 
 if TYPE_CHECKING:
     from modules.battle_state import BattlePokemon, BattleState
@@ -234,15 +235,48 @@ class BattleStrategyUtil:
     def get_strongest_move_against(self, pokemon: "BattlePokemon", opponent: "BattlePokemon"):
         move_strengths = []
         for learned_move in pokemon.moves:
+            if learned_move.move.name in context.config.battle.banned_moves:
+                move_strengths.append(-1)
+                continue
             move = learned_move.move
             if learned_move.pp == 0 or pokemon.disabled_move is move:
                 move_strengths.append(-1)
             else:
                 move_strengths.append(self.calculate_move_damage_range(move, pokemon, opponent).max)
 
-        strongest_move = move_strengths.index(max(move_strengths))
+        max_strength = max(move_strengths)
+        if max_strength <= 0:
+            raise BotModeError(
+                f"{pokemon.species.name} does not know any damage-dealing moves, or they are forbidden to use by bot configuration"
+            )
 
+        strongest_move = move_strengths.index(max_strength)
         return strongest_move
+
+    def calculate_catch_success_chance(self, battle_state: "BattleState", ball_multiplier: float = 1) -> float:
+        opponent = battle_state.opponent.active_battler
+
+        if opponent.status_permanent in (StatusCondition.Sleep, StatusCondition.Freeze):
+            status_multiplier = 2
+        elif opponent.status_permanent in (StatusCondition.Paralysis, StatusCondition.Poison, StatusCondition.Burn):
+            status_multiplier = 1.5
+        elif opponent.status_permanent is StatusCondition.BadPoison and not context.rom.is_rs:
+            # Due to a programming oversight in Ruby/Sapphire, the BadPoison state (which inflicts higher
+            # damage compared to 'regular' poison) is not considered for the status multiplier when catching.
+            status_multiplier = 1.5
+        else:
+            status_multiplier = 1
+
+        odds = opponent.species.catch_rate
+        odds *= ball_multiplier * 10
+        odds //= 10
+        odds *= 3 * opponent.total_hp - 2 * opponent.current_hp
+        odds //= 3 * opponent.total_hp
+        odds *= status_multiplier * 10
+        odds //= 10
+
+        shake_success_probability = (1048560 // int(math.sqrt(int(math.sqrt(16711680 // odds))))) / 65536
+        return shake_success_probability**4
 
     def _calculate_base_move_damage(
         self, move: "Move", attacker: "BattlePokemon", defender: "BattlePokemon", is_critical_hit: bool = False

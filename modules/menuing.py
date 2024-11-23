@@ -366,7 +366,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
             self.primary_option = "ITEM"
         if self.mode == "summary":
             self.primary_option = "SUMMARY"
-        elif self.mode == "switch":
+        elif self.mode in ["switch", "select_switch"]:
             self.primary_option = "SWITCH"
 
     def get_next_func(self):
@@ -391,7 +391,7 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                         self.current_step = "exit"
             case "navigate_to_lead":
                 self.current_step = "confirm_lead"
-            case "select_take_item" | "select_give_item" | "confirm_lead" | "select_summary":
+            case "select_take_item" | "select_give_item" | "confirm_lead" | "select_summary" | "select_switch":
                 self.current_step = "exit"
 
     def update_navigator(self):
@@ -412,6 +412,8 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                 self.navigator = self.switch_mon()
             case "select_summary":
                 self.navigator = self.select_summary()
+            case "select_switch":
+                self.navigator = self.select_switch()
 
     def navigate_to_mon(self):
         while get_party_menu_cursor_pos(len(self.party))["slot_id"] != self.idx:
@@ -934,24 +936,39 @@ def use_party_hm_move(move_name: str):
 
 
 class RotatePokemon(BaseMenuNavigator):
-    def __init__(self, new_lead: int):
+    def __init__(self, first_party_index: int, second_party_index: int = 0):
         super().__init__()
         self.party = get_party()
-        self.new_lead = new_lead
+
+        if first_party_index >= len(self.party):
+            raise RuntimeError(
+                f"Cannot rotate Pokémon #{first_party_index} because the party only has {len(self.party)} Pokémon."
+            )
+
+        if second_party_index >= len(self.party):
+            raise RuntimeError(
+                f"Cannot rotate Pokémon #{second_party_index} because the party only has {len(self.party)} Pokémon."
+            )
+
+        if first_party_index == second_party_index:
+            raise RuntimeError(f"Cannot rotate Pokémon #{first_party_index} with itself.")
+
+        self._first_party_index = first_party_index
+        self._second_party_index = second_party_index
 
     def get_next_func(self):
         match self.current_step:
             case "None":
-                match self.new_lead:
+                match self._first_party_index:
                     case None:
                         self.current_step = "exit"
                     case _:
                         self.current_step = "open_party_menu"
             case "open_party_menu":
-                self.current_step = "switch_pokemon"
-            case "switch_pokemon":
-                self.current_step = "confirm_switch"
-            case "confirm_switch":
+                self.current_step = "select_first_pokemon"
+            case "select_first_pokemon":
+                self.current_step = "select_second_pokemon"
+            case "select_second_pokemon":
                 self.current_step = "exit_to_overworld"
             case "exit_to_overworld":
                 self.current_step = "exit"
@@ -960,15 +977,23 @@ class RotatePokemon(BaseMenuNavigator):
         match self.current_step:
             case "open_party_menu":
                 self.navigator = StartMenuNavigator("POKEMON").step()
-            case "switch_pokemon":
-                self.navigator = PokemonPartyMenuNavigator(idx=self.new_lead, mode="switch").step()
-            case "switch_pokemon":
-                self.navigator = self.confirm_switch()
+            case "select_first_pokemon":
+                self.navigator = PokemonPartyMenuNavigator(idx=self._first_party_index, mode="select_switch").step()
+            case "select_second_pokemon":
+                self.navigator = self.select_replacement()
             case "exit_to_overworld":
                 self.navigator = PartyMenuExit().step()
 
-    @staticmethod
-    def confirm_switch():
-        while task_is_active("TASK_HANDLECHOOSEMONINPUT") or task_is_active("HANDLEPARTYMENUSWITCHPOKEMONINPUT"):
+    def select_replacement(self):
+        while get_party_menu_cursor_pos(len(self.party))["slot_id_2"] != self._second_party_index:
+            if get_party_menu_cursor_pos(len(self.party))["slot_id_2"] > self._second_party_index:
+                context.emulator.press_button("Up")
+            else:
+                context.emulator.press_button("Down")
+            yield
+
+        while not task_is_active("Task_SlideSelectedSlotsOnscreen") and not task_is_active("sub_806D198"):
             context.emulator.press_button("A")
+            yield
+        while task_is_active("Task_SlideSelectedSlotsOnscreen") or task_is_active("sub_806D198"):
             yield

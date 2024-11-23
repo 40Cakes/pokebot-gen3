@@ -63,11 +63,13 @@ class BotContext:
         Triggers a config reload, reload the global config then specific profile config.
         """
         from modules.console import console
+        from modules.plugins import plugin_config_reloaded
 
         try:
             new_config = Config()
             new_config.load(self.config.config_dir, strict=False)
             self.config = new_config
+            plugin_config_reloaded()
             console.print("[cyan]Profile settings loaded.[/]")
         except Exception as error:
             if self.debug:

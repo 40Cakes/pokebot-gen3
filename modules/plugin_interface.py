@@ -51,6 +51,13 @@ class BotPlugin:
         """
         pass
 
+    def on_config_reload(self) -> None:
+        """
+        This is called when a reload of the bot's configuration is triggered (e.g. by
+        pressing Ctrl+C.)
+        """
+        pass
+
     def on_battle_started(self, encounter: "EncounterInfo | None") -> Generator | None:
         """
         This is called once the game entered battle mode, so when the screen has faded

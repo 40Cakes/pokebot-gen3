@@ -4,16 +4,16 @@
 #--------------------------------#
 CB2_OVERWORLD:
   D: 0x80565d4
-  F: ~
-  I: ~
+  F: 0x8056694
+  I: 0x80565c0
   J: ~
-  S: ~
+  S: 0x80566a8
 Task_YesNoMenu_HandleInput:
   D: 0x809cf0c
-  F: ~
-  I: ~
+  F: 0x809cfcc
+  I: 0x809cef8
   J: ~
-  S: ~
+  S: 0x809cfe0
 Task_FlyIntoMap:
   D: 0x8084330
   F: ~
@@ -22,10 +22,10 @@ Task_FlyIntoMap:
   S: ~
 Task_ExitDoor:
   D: 0x807def4
-  F: ~
-  I: ~
+  F: 0x807dfb4
+  I: 0x807dee0
   J: ~
-  S: ~
+  S: 0x807dfc8
 WaitForAorBPress:
   D: 0x806b858
   F: ~
@@ -45,34 +45,34 @@ EventScript_UseStrength:
 #--------------------#
 gMapGroups:
   D: 0x83525ac
-  F: ~
-  I: ~
+  F: 0x834cad8
+  I: 0x834b768
   J: ~
-  S: ~
+  S: 0x834de50
 sMapNames:
   D: 0x83f1340
-  F: ~
-  I: ~
+  F: 0x83ea0a0
+  I: 0x83e8da0
   J: ~
-  S: ~
+  S: 0x83ebdb8
 gWildMonHeaders:
   D: 0x83c9940
-  F: ~
-  I: ~
+  F: 0x83c3e6c
+  I: 0x83c2afc
   J: ~
-  S: ~
+  S: 0x83c51e4
 gSaveBlock1Ptr:
   D: 0x3004f58
-  F: ~
-  I: ~
+  F: 0x3004f58
+  I: 0x3004f58
   J: ~
-  S: ~
+  S: 0x3004f58
 gSaveBlock2Ptr:
   D: 0x3004f5c
-  F: ~
-  I: ~
+  F: 0x3004f5c
+  I: 0x3004f5c
   J: ~
-  S: ~
+  S: 0x3004f5c
 CB2_RegionMap:
   D: 0x80c0a58
   F: ~
@@ -128,58 +128,66 @@ CB2_RETURNTOFIELDCONTINUESCRIPTPLAYMAPMUSIC:
   S: ~
 gMain:
   D: 0x3003040
-  F: ~
-  I: ~
+  F: 0x3003040
+  I: 0x3003040
   J: ~
-  S: ~
+  S: 0x3003040
 gBattleMainFunc:
   D: 0x3004ed4
-  F: ~
-  I: ~
+  F: 0x3004ed4
+  I: 0x3004ed4
   J: ~
-  S: ~
+  S: 0x3004ed4
 gBattlerControllerFuncs:
   D: 0x3004f30
-  F: ~
-  I: ~
+  F: 0x3004f30
+  I: 0x3004f30
   J: ~
-  S: ~
+  S: 0x3004f30
 GTASKS:
   D: 0x3004fe0
-  F: ~
-  I: ~
+  F: 0x3004fe0
+  I: 0x3004fe0
   J: ~
-  S: ~
+  S: 0x3004fe0
 BattleMainCB1:
   D: 0x8012368
-  F: ~
-  I: ~
+  F: 0x8012354
+  I: 0x8012368
   J: ~
-  S: ~
+  S: 0x8012354
 BattleMainCB2:
   D: 0x8011084
-  F: ~
-  I: ~
+  F: 0x8011070
+  I: 0x8011084
   J: ~
-  S: ~
+  S: 0x8011070
 HandleTurnActionSelectionState:
   D: 0x8013fc4
-  F: ~
-  I: ~
+  F: 0x8013fb0
+  I: 0x8013fc5
   J: ~
-  S: ~
+  S: 0x8013fb0
 HandleInputChooseAction:
-  D: 0x802e3d0
-  F: ~
-  I: ~
+  D:
+    - 0x802e3d0
+    - 0x80dd7a0
+  F:
+    - 0x802e3a8
+    - 0x80dd860
+  I:
+    - 0x802e3bc
+    - 0x80dd7a0
   J: ~
-  S: ~
+  S:
+    - 0x802e3bc
+    - 0x80dd888
 HandleInputChooseMove:
   D: 0x802e9a8
-  F: ~
-  I: ~
+  F: 0x802e980
+  I: 0x802e994
   J: ~
-  S: ~
+  S: 0x802e994
 Task_DuckBGMForPokemonCry:
   D: 0x8072198
   F: ~
@@ -187,11 +195,11 @@ Task_DuckBGMForPokemonCry:
   J: ~
   S: ~
 BattleScript_HandleFaintedMon:
-  D: 0x81dcd45
-  F: ~
-  I: ~
+  D: 0x81dc944
+  F: 0x81d6e80
+  I: 0x81d5b18
   J: ~
-  S: ~
+  S: 0x81d81e0
 Task_BattleStart:
   D: 0x807f558
   F: ~
@@ -200,46 +208,47 @@ Task_BattleStart:
   S: ~
 Task_EvolutionScene:
   D: 0x80cea50
-  F: ~
-  I: ~
+  F: 0x80ceb10
+  I: 0x80cea30
   J: ~
-  S: ~
+  S: 0x80ceb18
 Task_InputHandler_SelectOrForgetMove:
   D: 0x8139448
-  F: ~
-  I: ~
+  F: 0x8139504
+  I: 0x8139488
   J: ~
-  S: ~
+  S: 0x8139574
 Task_HandleChooseMonInput:
   D: 0x811fb34
-  F: ~
-  I: ~
+  F: 0x811fbf4
+  I: 0x811fb78
   J: ~
-  S: ~
+  S: 0x811fc60
 Task_RushInjuredPokemonToCenter:
   D: 0x807f394
-  F: ~
-  I: ~
+  F: 0x807f454
+  I: 0x807f380
   J: ~
-  S: ~
+  S: 0x807f468
 EventScript_AfterWhiteOutHeal:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x81abba5
+  F: 0x81a779c
+  I: 0x81a65fb
   J: ~
-  S: ~
+  S: 0x81a883c
 BattleScript_AskToLearnMove:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x81dcc8d
+  F: 0x81d71c9
+  I: 0x81d5e61
   J: ~
-  S: ~
+  S: 0x81d8529
+# BattleScript_AskToLearnMove + 2d
 BattleScript_ForgotAndLearnedNewMove:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x81dccba
+  F: 0x81d71f6
+  I: 0x81d5e8e
   J: ~
-  S: ~
+  S: 0x81d8556
 gMoveSelectionCursor:
   J: ~
 gBattleOutcome:
@@ -270,10 +279,10 @@ gAbsentBattlerFlags:
   J: ~
 gBattleResults:
   D: 0x3004ee0
-  F: ~
-  I: ~
+  F: 0x3004ee0
+  I: 0x3004ee0
   J: ~
-  S: ~
+  S: 0x3004ee0
 gBattleWeather:
   J: ~
 #--------------------#
@@ -282,22 +291,22 @@ gBattleWeather:
 #  Daycare Mode  #
 #----------------#
 EventScript_EggHatch:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x81c2fae
+  F: 0x81bdeed
+  I: 0x81bca9c
   J: ~
-  S: ~
+  S: 0x81bf14b
 
 # EggHatch party identification
 gSpecialVar_0x8004:
   J: ~
 
 Task_Fanfare:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x8071c20
+  F: 0x8079d44
+  I: 0x8071c0c
   J: ~
-  S: ~
+  S: 0x8071cf4
 #----------------#
 
 #---------------------------#
@@ -311,16 +320,16 @@ Task_EndQuestLog:
   S: ~
 Task_DrawFieldMessageBox:
   D: 0x8069360
-  F: ~
-  I: ~
+  F: 0x8069420
+  I: 0x806934c
   J: ~
-  S: ~
+  S: 0x8069434
 Task_MultichoiceMenu_HandleInput:
   D: 0x809cd50
-  F: ~
-  I: ~
+  F: 0x809ce10
+  I: 0x809cd3c
   J: ~
-  S: ~
+  S: 0x809ce24
 gRngValue:
   D: 0x3004f50
   F: ~
@@ -340,10 +349,10 @@ Std_MsgboxDefault:
 #-------------------#
 Task_Fishing:
   D: ~
-  F: ~
-  I: ~
+  F: 0x805d3c4
+  I: 0x805d2f0
   J: ~
-  S: ~
+  S: 0x805d3d8
 #-------------------#
 
 #-------------------------#
@@ -410,7 +419,7 @@ CB2_RETURNTOFIELDLOCAL:
   J: ~
   S: ~
 MAINCB2:
-  D: 0x8011084
+  D: ~
   F: ~
   I: ~
   J: ~
@@ -422,10 +431,10 @@ MAINCB2:
 #-----------------#
 Task_StartMenuHandleInput:
   D: 0x806f154
-  F: ~
-  I: ~
+  F: 0x806f214
+  I: 0x806f140
   J: ~
-  S: ~
+  S: 0x806f228
 sMenu:
   J: ~
 sStartMenuCursorPos:
@@ -440,23 +449,23 @@ sStartMenuOrder:
 #   Bag Menu   #
 #--------------#
 CB2_BAGMENURUN:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x8107f34
+  F: 0x8107ff4
+  I: 0x8107f78
   J: ~
-  S: ~
+  S: 0x8108060
 Task_BagMenu_HandleInput:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x8108f60
+  F: 0x8109020
+  I: 0x8108fa4
   J: ~
-  S: ~
+  S: 0x8133d44
 Task_FieldItemContextMenuHandleInput:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x8109c14
+  F: 0x8109cd4
+  I: 0x8109c58
   J: ~
-  S: ~
+  S: 0x8109d40
 gBagMenuState:
   J: ~
 gPaletteFade:
@@ -468,10 +477,10 @@ gPaletteFade:
 #----------------#
 CB2_UPDATEPARTYMENU:
   D: 0x811ebac
-  F: ~
-  I: ~
+  F: 0x811ec6c
+  I: 0x811ebf0
   J: ~
-  S: ~
+  S: 0x811ecd8
 Task_PrintAndWaitForText:
   D: 0x8120334
   F: ~
@@ -486,10 +495,10 @@ Task_HandleInput:
   S: ~
 Task_HandleSelectionMenuInput:
   D: 0x8122c6c
-  F: ~
-  I: ~
+  F: 0x8122d28
+  I: 0x8122cac
   J: ~
-  S: ~
+  S: 0x8122d98
 Task_SlideSelectedSlotsOnscreen:
   D: 0x8123398
   F: ~
@@ -502,23 +511,23 @@ Task_SlideSelectedSlotsOnscreen:
 #    PC Menu / Storage    #
 #-------------------------#
 Task_PCMainMenu:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x808c474
+  F: 0x808c534
+  I: 0x808c460
   J: ~
-  S: ~
+  S: 0x808c548
 Task_PokeStorageMain:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x808d3a8
+  F: 0x808d468
+  I: 0x808d394
   J: ~
-  S: ~
+  S: 0x808d47c
 gPokemonStoragePtr:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x3004f60
+  F: 0x3004f60
+  I: 0x3004f60
   J: ~
-  S: ~
+  S: 0x3004f60
 #-------------------------#
 
 #--------------#
@@ -537,11 +546,11 @@ CB2_EggHatch_1:
   J: ~
   S: ~
 EventScript_RepelWoreOff:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x81c368c
+  F: 0x81be5b0
+  I: 0x81bd0f7
   J: ~
-  S: ~
+  S: 0x81bf7d0
 EventScript_DoTrainerBattle:
   D: ~
   F: ~
@@ -561,3 +570,34 @@ EventScript_FieldPoison:
   J: ~
   S: ~
 #---------------#
+
+# Ununsed symbols that were conflicting with currently used symbols
+# We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
+EventScript_CutTree:
+  F: 0x0
+CableClub_Text_YouMayBattleHere:
+  I: 0x0
+Text_DontBeLikeThat:
+  S: 0x0
+TrackStop_1:
+  D: 0x0
+TrackStop_2:
+  D: 0x0
+TrackStop_Done:
+  D: 0x0
+TrackStop_3:
+  D: 0x0
+ChnVolSetAsm:
+  D: 0x0
+Route21_North_EventScript_IanRematch:
+  D: 0x0
+Route23_EventScript_MissingBoulderBadge:
+  F: 0x0
+EventScript_SetEnteringCyclingRoad:
+  F: 0x0
+Route23_EventScript_MissingBadge:
+  F: 0x0
+EventScript_PkmnCenterNurse_PlayerWaitingInUionRoom:
+  I: 0x0
+EventScript_Open9FDoor3:
+  S: 0x0

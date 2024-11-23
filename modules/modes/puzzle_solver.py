@@ -9,7 +9,7 @@ from modules.menuing import use_party_hm_move
 from modules.player import get_player_avatar
 from modules.tasks import get_global_script_context
 from . import BattleAction
-from ._asserts import assert_has_pokemon_with_any_move, assert_registered_item
+from ._asserts import assert_has_pokemon_with_any_move, assert_registered_item, assert_item_exists_in_bag
 from ._interface import BotMode, BotModeError
 from .util import (
     follow_path,
@@ -50,6 +50,7 @@ class PuzzleSolverMode(BotMode):
     def is_selectable() -> bool:
         if context.rom.is_rse:
             return get_player_avatar().map_group_and_number in [
+                MapRSE.ROUTE113_GLASS_WORKSHOP,
                 MapRSE.SKY_PILLAR_OUTSIDE,
                 MapRSE.ISLAND_CAVE,
                 MapRSE.DESERT_RUINS,
@@ -416,6 +417,76 @@ class PuzzleSolverMode(BotMode):
                         yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (7, 13))
                         yield from walk_one_tile("Down")
                         yield from walk_one_tile("Up")
+
+            # Glass Workshop
+            case MapRSE.ROUTE113_GLASS_WORKSHOP:
+                context.message = "Collecting ashes..."
+                use_repel = True
+                assert_item_exists_in_bag("Soot Sack", "This mode requires the Soot Sack to have been obtained.")
+
+                def path():
+                    # glass workshop exit
+                    yield from navigate_to(MapRSE.ROUTE113_GLASS_WORKSHOP, (3, 8))
+                    while get_event_var("ASH_GATHER_COUNT") < 1000:
+                        yield from walk_one_tile("Down")
+                        yield from navigate_to(MapRSE.ROUTE113, (32, 11))
+                        # collect 100 (E) / 101 (RS) ashes per lap
+                        yield from follow_path(
+                            [
+                                # first grass patch - 29 ashes
+                                (32, 11),
+                                (28, 11),
+                                (28, 9),
+                                (27, 9),
+                                (27, 13),
+                                (26, 13),
+                                (26, 14),
+                                (31, 14),
+                                (31, 13),
+                                (28, 13),
+                                (28, 12),
+                                (32, 12),
+                                (32, 13),
+                                (35, 13),
+                                # second grass patch - 71 ashes (E) / 72 ashes (RS)
+                                (35, 8),
+                                (37, 8),
+                                (37, 7),
+                                (42, 7),
+                                (42, 6),
+                                (44, 6),
+                                (44, 5),
+                                (47, 5),
+                                (47, 3),
+                                (52, 3),
+                                (52, 5),
+                                (54, 5),
+                                (54, 4),
+                                (53, 4),
+                                (53, 3),
+                                (54, 3),
+                                (54, 2),
+                                (42, 2),
+                                (42, 3),
+                                (46, 3),
+                                (46, 4),
+                                (43, 4),
+                                (43, 5),
+                                (42, 5),
+                                (42, 4),
+                                (37, 4),
+                                (37, 5),
+                                (41, 5),
+                                (41, 6),
+                                (36, 6),
+                                (36, 7),
+                                (35, 7),
+                            ]
+                        )
+                        # re-enter glass shop and exit to refresh ashes
+                        yield from navigate_to(MapRSE.ROUTE113, (33, 5))
+                    context.message = "1000 ashes collected! Talk to glassblower to exchange for White Flute."
+                    context.bot_mode = "Manual"
 
             case _:
                 raise BotModeError("You are not on the right map.")

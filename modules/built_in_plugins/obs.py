@@ -16,6 +16,8 @@ from datetime import datetime
 from modules.console import console
 from modules.context import context
 from modules.discord import discord_send, DiscordMessage
+from modules.files import make_string_safe_for_file_name
+from modules.modes.util import wait_for_n_frames
 from modules.plugin_interface import BotPlugin
 
 if TYPE_CHECKING:
@@ -29,7 +31,7 @@ def _obs_screenshot(client: obs.ReqClient, width: int, height: int) -> Path:
     if not screenshots_dir.exists():
         screenshots_dir.mkdir(parents=True)
 
-    file_name = datetime.now().isoformat() + ".png"
+    file_name = make_string_safe_for_file_name(f"{datetime.now().isoformat()}.png")
     file_path = screenshots_dir / file_name
 
     with file_path.open("wb") as file:
@@ -77,13 +79,9 @@ def _obs_thread(task_queue: Queue[str]):
         task = task_queue.get()
 
         if task == "save_screenshot":
-            if context.config.obs.shiny_delay > 0:
-                time.sleep(context.config.obs.shiny_delay)
             _obs_screenshot(client, video_width, video_height)
 
         elif task == "save_screenshot_and_send_to_discord":
-            if context.config.obs.shiny_delay > 0:
-                time.sleep(context.config.obs.shiny_delay)
             image_file = _obs_screenshot(client, video_width, video_height)
             if context.config.obs.discord_webhook_url:
                 if context.config.obs.discord_delay > 0:
@@ -101,7 +99,7 @@ def _obs_thread(task_queue: Queue[str]):
             client.save_replay_buffer()
 
         else:
-            console.print("[bold red]OBS Plugin:[/] [red]Unknown task: " + task + "[/]")
+            console.print(f"[bold red]OBS Plugin:[/] [red]Unknown task: {task}[/]")
 
 
 class OBSPlugin(BotPlugin):
@@ -110,6 +108,14 @@ class OBSPlugin(BotPlugin):
 
     def on_profile_loaded(self, profile: "Profile") -> None:
         Thread(target=_obs_thread, args=(self._task_queue,)).start()
+
+    def on_wild_encounter_visible(self, encounter: "EncounterInfo") -> Generator | None:
+        if not encounter.is_of_interest:
+            return
+
+        # Wait on shiny for shiny_delay to allow livestream chat reactions
+        if context.config.obs.shiny_delay > 0:
+            yield from wait_for_n_frames(context.config.obs.shiny_delay * 60)
 
     def on_logging_encounter(self, encounter: "EncounterInfo") -> Generator | None:
         if not encounter.is_of_interest:

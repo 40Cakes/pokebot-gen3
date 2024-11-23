@@ -27,8 +27,8 @@ if TYPE_CHECKING:
 
 
 class PokebotGui:
-    def __init__(self, main_loop: callable, on_exit: callable):
-        if os.getenv("POKEBOT_UNTHEMED") != "1":
+    def __init__(self, main_loop: callable, on_exit: callable, no_theme: bool = False):
+        if not no_theme:
             theme = "equilux" if darkdetect.isDark() else "clam"
             self.window = ThemedTk(className="PokeBot", theme=theme)
         else:

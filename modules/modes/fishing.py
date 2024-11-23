@@ -1,10 +1,12 @@
 from typing import Generator
 
+from modules.context import context
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.items import get_item_bag, get_item_by_name
 from modules.player import get_player, get_player_avatar
 from modules.runtime import get_sprites_path
-from ._asserts import assert_item_exists_in_bag
+from modules.battle_state import BattleOutcome
+from ._asserts import assert_item_exists_in_bag, assert_player_has_poke_balls
 from ._interface import BotMode
 from .util import fish, register_key_item
 
@@ -20,7 +22,13 @@ class FishingMode(BotMode):
         targeted_tile = player.map_location_in_front
         return targeted_tile is not None and targeted_tile.is_surfable
 
+    def on_battle_ended(self, outcome: "BattleOutcome") -> None:
+        if not outcome == BattleOutcome.Lost:
+            assert_player_has_poke_balls()
+
     def run(self) -> Generator:
+        assert_player_has_poke_balls()
+
         # Ask player to register a rod if they have one
         rod_names = ["Old Rod", "Good Rod", "Super Rod"]
         assert_item_exists_in_bag(rod_names, "You do not own any fishing rod, so you cannot fish.")

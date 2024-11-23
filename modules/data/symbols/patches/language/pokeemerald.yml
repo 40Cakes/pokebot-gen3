@@ -223,11 +223,11 @@ Task_PrintAndWaitForText:
   J: 0x81b185c
   S: 0x81b17ac
 Task_HandleInput:
-  D: 0x81c0038
-  F: 0x81c014c
-  I: 0x81c0018
-  J: 0x81bfe44
-  S: 0x81c0130
+  D: [0x80e42b8, 0x81c0038]
+  F: [0x80e42d8, 0x81c014c]
+  I: [0x80e42ac, 0x81c0018]
+  J: [0x80e3b34, 0x81bfe44]
+  S: [0x80e42b4, 0x81c0130]
 Task_HandleYesNoInput:
   D: 0x80e1db4
   F: 0x80e1dd4
@@ -509,6 +509,8 @@ gBattlescriptCurrInstr:
   J: 0x2023eb8
 gRngValue:
   J: 0x3005ae0
+gPaletteFade:
+  J: 0x2037c74
 ITEMSTORAGE_HANDLEREMOVEITEM:
   I: 0x0
 Route120_Text_RileyIntro:
@@ -716,3 +718,48 @@ Task_SurfFieldEffect:
   I: 0x80b8d98
   J: 0x80b84dc
   S: 0x80b8d98
+
+#---------------------#
+#   Pokemon renaming  #
+#---------------------#
+BattleScript_TryNicknameCaughtMon:
+  D: 0x82f1ae5
+  F: 0x82e4d79
+  I: 0x82dcd31
+  J: 0x828a337
+  S: 0x82e3531
+CB2_NamingScreen:
+  D: 0x80e4bc0
+  F: 0x80e4be0
+  I: 0x80e4bac
+  J: 0x80e474c
+  S: 0x80e4bb4
+BattleScript_SuccessBallThrowEnd:
+  D: 0x82f1247
+  F: 0x82e4d97
+  I: 0x82dcd4f
+  J: 0x828a34b
+  S: 0x82e354f
+BattleScript_GotAwaySafely:
+  D: 0x82f0836
+  F: 0x82e3ac4
+  I: 0x82dba7c
+  J: 0x8289078
+  S: 0x82e227c
+Task_NamingScreen:
+  D: 0x80e2e08
+  F: 0x80e2e28
+  I: 0x80e2e00
+  J: 0x80e2678
+  S: 0x80e2e08
+BattleScript_GiveCaughtMonEnd:
+  D: 0x82f1aef
+  F: 0x82e4d83
+  I: 0x82dcd4e
+  J: 0x828a347
+  S: 0x82e354e
+sNamingScreen:
+  J: 0x2039c34
+gSprites:
+  J: 0x20205AC
+#---------------------#

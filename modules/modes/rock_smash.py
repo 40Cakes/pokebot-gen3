@@ -2,6 +2,7 @@ import contextlib
 from collections import deque
 from typing import Generator
 
+from modules.battle_state import BattleOutcome
 from modules.context import context
 from modules.debug import debug
 from modules.encounter import handle_encounter, EncounterInfo
@@ -11,12 +12,17 @@ from modules.map_data import MapRSE
 from modules.map_path import calculate_path
 from modules.memory import get_event_flag, get_event_var
 from modules.player import TileTransitionState, get_player, get_player_avatar, AvatarFlags, get_player_location
-from modules.pokemon import get_opponent
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
 from modules.tasks import task_is_active, get_global_script_context
 from . import BattleAction
-from ._asserts import SavedMapLocation, assert_has_pokemon_with_any_move, assert_save_game_exists, assert_saved_on_map
+from ._asserts import (
+    SavedMapLocation,
+    assert_has_pokemon_with_any_move,
+    assert_save_game_exists,
+    assert_saved_on_map,
+    assert_player_has_poke_balls,
+)
 from ._interface import BotMode, BotModeError
 from .util import (
     navigate_to,
@@ -81,6 +87,10 @@ class RockSmashMode(BotMode):
                 debug.debug_values["Nosepass per Hour"] = encounter_rate_at_1x
         return handle_encounter(encounter)
 
+    def on_battle_ended(self, outcome: "BattleOutcome") -> None:
+        if not outcome == BattleOutcome.Lost:
+            assert_player_has_poke_balls()
+
     def on_repel_effect_ended(self) -> None:
         if self._using_repel:
             try:
@@ -112,6 +122,8 @@ class RockSmashMode(BotMode):
                 SavedMapLocation(MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE),
                 "In order to rock smash for Shuckle you should save in the entrance building to the Safari Zone.",
             )
+
+        assert_player_has_poke_balls()
 
         if get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F and get_item_bag().number_of_repels > 0:
             mode = ask_for_choice(
@@ -209,7 +221,12 @@ class RockSmashMode(BotMode):
     @debug.track
     def smash(flag_name):
         if not get_event_flag(flag_name):
-            yield from wait_for_script_to_start_and_finish("EventScript_RockSmash", "A")
+            if context.rom.is_rs:
+                while not get_event_flag(flag_name):
+                    context.emulator.press_button("A")
+                    yield
+            else:
+                yield from wait_for_script_to_start_and_finish("EventScript_RockSmash", "A")
             while get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING:
                 yield
             if task_is_active("Task_ReturnToFieldNoScript"):
@@ -237,18 +254,25 @@ class RockSmashMode(BotMode):
         if self._using_repel and get_event_var("REPEL_STEP_COUNT") <= 0:
             with contextlib.suppress(RanOutOfRepels):
                 yield from apply_repel()
-        yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (6, 21))
-        yield from ensure_facing_direction("Down")
+
+        if self._using_mach_bike:
+            yield from self.mount_bicycle()
+        yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (7, 22))
+        if self._using_mach_bike:
+            yield from self.unmount_bicycle()
+
         # With Repel active, White Flute boosts encounters by 30-40%, but without Repel it
         # actually _decreases_ encounter rates (due to so many regular encounters popping up
         # while walking around.) So we only enable White Flute if Repel is also active.
         if self._using_repel:
             yield from apply_white_flute_if_available()
+        yield from ensure_facing_direction("Left")
         yield from self.smash("TEMP_16")
 
-        yield from follow_path([(4, 21)])
+        yield from follow_path([(7, 21), (4, 21)])
         yield from ensure_facing_direction("Left")
         yield from self.smash("TEMP_17")
+
         yield from ensure_facing_direction("Down")
         yield from self.smash("TEMP_15")
 
@@ -268,11 +292,22 @@ class RockSmashMode(BotMode):
         yield from ensure_facing_direction("Up")
         yield from self.smash("TEMP_14")
 
+        if self._using_mach_bike:
+            yield from self.mount_bicycle()
         yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (29, 13))
+
+        if self._using_mach_bike:
+            yield from self.unmount_bicycle()
         yield from walk_one_tile("Up")
         yield from walk_one_tile("Down")
+
+        if self._using_mach_bike:
+            yield from self.mount_bicycle()
         yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (7, 13))
         yield from ensure_facing_direction("Up")
+
+        if self._using_mach_bike:
+            yield from self.unmount_bicycle()
         if self._using_repel:
             yield from apply_white_flute_if_available()
         yield from self.smash("TEMP_14")
@@ -299,8 +334,13 @@ class RockSmashMode(BotMode):
         yield from ensure_facing_direction("Down")
         yield from self.smash("TEMP_16")
 
+        if self._using_mach_bike:
+            yield from self.mount_bicycle()
         yield from navigate_to(MapRSE.GRANITE_CAVE_B2F, (28, 21))
         yield from wait_for_player_avatar_to_be_standing_still()
+
+        if self._using_mach_bike:
+            yield from self.unmount_bicycle()
         yield from walk_one_tile("Down")
         yield from walk_one_tile("Up")
 

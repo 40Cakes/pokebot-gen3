@@ -36,7 +36,7 @@ EventScript_UseStrength:
   D: 0x81c1be8
   F: 0x81bcafd
   I: 0x81bb77a
-  J: ~
+  J: 0x81a490e
   S: 0x81bde41
 #-------------------------------#
 
@@ -90,7 +90,7 @@ gPlayerPartyCount:
 gPlayerParty:
   J: 0x20241e4
 sMapCursor:
-  J: 0x2039930
+  J: 0x203995c
 #----------------#
 
 #--------------------#
@@ -352,7 +352,7 @@ Std_MsgboxDefault:
   D: 0x81a7b08
   F: 0x81a39b9
   I: 0x81a27f1
-  J: ~
+  J: 0x8192da5
   S: 0x81a496a
 #---------------------------#
 
@@ -375,7 +375,7 @@ SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved:
   D: 0x8164f01
   F: 0x8164fb8
   I: 0x8164f39
-  J: ~
+  J: 0x816eecb
   S: 0x816502d
 #-------------------------#
 
@@ -571,13 +571,13 @@ EventScript_DoTrainerBattle:
   D: 0x81a7c81
   F: 0x81a3b32
   I: 0x81a296a
-  J: ~
+  J: 0x8192f0d
   S: 0x81a4ae3
 EventScript_DoTrainerBattleFromApproach:
   D: 0x81a7b68
   F: 0x81a3a19
   I: 0x81a2851
-  J: ~
+  J: 0x8192de3
   S: 0x81a49ca
 EventScript_FieldPoison:
   D: 0x81abc2f

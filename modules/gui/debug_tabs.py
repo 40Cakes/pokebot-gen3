@@ -1448,7 +1448,12 @@ class MapTab(DebugTab):
             map_enum = MapFRLG(map_data.map_group_and_number)
             group_enum = MapGroupFRLG(map_data.map_group)
 
-        pt = _find_tile_by_local_coordinates(map_data.map_group_and_number, map_data.local_position)
+        # During warps (for example when entering/exiting a building) map data might not be loaded for a
+        # frame or so, in which case we just wait.
+        try:
+            pt = _find_tile_by_local_coordinates(map_data.map_group_and_number, map_data.local_position)
+        except IndexError:
+            return {}
 
         return {
             "Map": {

@@ -7,7 +7,9 @@ from modules.map import get_map_data
 from modules.map_data import MapRSE
 from modules.player import get_player, get_player_avatar, AvatarFlags
 from modules.pokemon import get_party
+from modules.battle_state import BattleOutcome
 from . import BattleAction
+from ._asserts import assert_player_has_poke_balls
 from ._interface import BotMode, BotModeError
 from .util import (
     ensure_facing_direction,
@@ -146,7 +148,13 @@ class FeebasMode(BotMode):
 
         return None
 
+    def on_battle_ended(self, outcome: "BattleOutcome") -> None:
+        if not outcome == BattleOutcome.Lost:
+            assert_player_has_poke_balls()
+
     def run(self) -> Generator:
+        assert_player_has_poke_balls()
+
         if not get_player_avatar().flags.Surfing:
             raise BotModeError("Player is not surfing, only start this mode while surfing in any water at Route 119.")
 
@@ -169,7 +177,7 @@ class FeebasMode(BotMode):
         if get_event_flag("BADGE08_GET"):
             for pokemon in get_party():
                 for learned_move in pokemon.moves:
-                    if learned_move.move.name == "Waterfall":
+                    if learned_move is not None and learned_move.move.name == "Waterfall":
                         self._can_use_waterfall = True
                         break
 
@@ -196,7 +204,15 @@ class FeebasMode(BotMode):
 
         while True:
             if not self._found_feebas:
-                player_location = get_player_avatar().map_location_in_front.local_position
+                map = player_location = get_player_avatar().map_location_in_front
+
+                # Sometimes when entering battle the map location is not available during a few frames
+                # We keep the mode going in this case
+                if map is None:
+                    yield
+                    continue
+
+                player_location = map.local_position
                 target_spot = self._fishing_spots.get_next_untested()
 
                 # This might happen if all tiles have been checked and no Feebas has been found.
