@@ -2,6 +2,7 @@ import contextlib
 from collections import deque
 from typing import Generator
 
+from modules.battle_state import BattleOutcome
 from modules.context import context
 from modules.debug import debug
 from modules.encounter import handle_encounter, EncounterInfo
@@ -11,9 +12,7 @@ from modules.map_data import MapRSE
 from modules.map_path import calculate_path
 from modules.memory import get_event_flag, get_event_var
 from modules.player import TileTransitionState, get_player, get_player_avatar, AvatarFlags, get_player_location
-from modules.pokemon import get_opponent
 from modules.runtime import get_sprites_path
-from modules.battle_state import BattleOutcome
 from modules.save_data import get_save_data
 from modules.tasks import task_is_active, get_global_script_context
 from . import BattleAction
@@ -222,8 +221,12 @@ class RockSmashMode(BotMode):
     @debug.track
     def smash(flag_name):
         if not get_event_flag(flag_name):
-            script_name = "EventScript_RockSmash" if not context.rom.is_rs else "DoRockSmashMovement"
-            yield from wait_for_script_to_start_and_finish(script_name, "A")
+            if context.rom.is_rs:
+                while not get_event_flag(flag_name):
+                    context.emulator.press_button("A")
+                    yield
+            else:
+                yield from wait_for_script_to_start_and_finish("EventScript_RockSmash", "A")
             while get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING:
                 yield
             if task_is_active("Task_ReturnToFieldNoScript"):
