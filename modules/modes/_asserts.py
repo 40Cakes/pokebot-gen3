@@ -121,6 +121,32 @@ def assert_has_pokemon_with_move(move: str, error_message: str, check_in_saved_g
         assert_has_pokemon_with_move(move, error_message)
         error_message += _error_message_addendum_if_assert_only_failed_in_saved_game
     raise BotModeError(error_message)
+    
+def assert_has_pokemon_with_any_move(moves: list[str], error_message: str, check_in_saved_game: bool = False) -> None:
+    """
+    Raises an exception if the player has no Pokémon that knows any of the given move in their
+    party.
+    :param moves: List of the names of moves to look for.
+    :param error_message: Error message to display if the assertion fails.
+    :param check_in_saved_game: Whether to get the party in the saved game, rather than th
+                                currently active one.
+    """
+    party = get_party() if not check_in_saved_game else get_save_data().get_party()
+    for pokemon in party:
+        if not pokemon.is_egg and not pokemon.is_empty:
+            for learned_move in pokemon.moves:
+                if learned_move is not None and learned_move.move.name not in moves:
+                    return
+
+    if check_in_saved_game:
+        # If the check has failed for the saved game, run it again for the active game -- if that fails
+        # too, the following line will raise an unmodified error message and stop the execution of this
+        # function. If the assertion is met in the active game but not in the saved one, the line
+        # after that will add a note to the error message saying that the check only failed for the
+        # saved game.
+        assert_has_pokemon_with_any_move(moves, error_message)
+        error_message += _error_message_addendum_if_assert_only_failed_in_saved_game
+    raise BotModeError(error_message)
 
 
 def assert_item_exists_in_bag(

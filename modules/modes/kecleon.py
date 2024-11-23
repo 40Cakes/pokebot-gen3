@@ -9,7 +9,7 @@ from modules.pokemon import get_party
 from modules.save_data import get_last_heal_location
 from . import BattleAction
 from ._asserts import (
-    assert_has_pokemon_with_move,
+    assert_has_pokemon_with_any_move,
 )
 from ._interface import BotMode, BotModeError
 from .util import ensure_facing_direction, navigate_to
@@ -43,7 +43,7 @@ class KecleonMode(BotMode):
         return True
 
     def run(self) -> Generator:
-        assert_has_pokemon_with_move("Selfdestruct", "This mode requires a Pokémon with the move Selfdestruct.")
+        assert_has_pokemon_with_any_move(["Selfdestruct", "Explosion"], "This mode requires a Pokémon with the move Selfdestruct.")
         if not (get_event_flag("RECEIVED_DEVON_SCOPE")):
             raise BotModeError("This mode requires the Devon Scope.")
         if get_event_flag("HIDE_ROUTE_119_KECLEON_1"):
