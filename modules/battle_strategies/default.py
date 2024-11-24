@@ -133,7 +133,8 @@ class DefaultBattleStrategy(BattleStrategy):
             ):
                 continue
             if not pokemon.is_egg and pokemon.current_hp > 0 and pokemon.current_hp > new_lead_current_hp:
-                new_lead = index
+                in_battle_index = battle_state.map_battle_party_index(index)
+                new_lead = in_battle_index
                 new_lead_current_hp = pokemon.current_hp
         return new_lead
 
