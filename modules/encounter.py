@@ -261,6 +261,8 @@ def handle_encounter(
         else:
             context.set_manual_mode()
             encounter_info.battle_action = BattleAction.CustomAction
+    elif encounter_info.pokemon.species.name in context.config.battle.avoided_pokemon:
+        encounter_info.battle_action = BattleAction.RunAway
     elif enable_auto_battle:
         encounter_info.battle_action = BattleAction.Fight
     else:
