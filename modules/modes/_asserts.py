@@ -111,7 +111,7 @@ def assert_has_pokemon_with_any_move(moves: list[str], error_message: str, check
     for pokemon in party:
         if not pokemon.is_egg and not pokemon.is_empty:
             for learned_move in pokemon.moves:
-                if learned_move is not None and learned_move.move.name not in moves:
+                if learned_move is not None and learned_move.move.name in moves:
                     return
 
     if check_in_saved_game:

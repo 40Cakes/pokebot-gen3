@@ -42,7 +42,9 @@ class KecleonMode(BotMode):
 
     def run(self) -> Generator:
         assert_player_has_poke_balls()
-        assert_has_pokemon_with_any_move(["Selfdestruct"], "This mode requires a Pokémon with the move Selfdestruct.")
+        assert_has_pokemon_with_any_move(
+            ["Selfdestruct", "Explosion"], "This mode requires a Pokémon with the move Selfdestruct."
+        )
         if not (get_event_flag("RECEIVED_DEVON_SCOPE")):
             raise BotModeError("This mode requires the Devon Scope.")
         if get_event_flag("HIDE_ROUTE_119_KECLEON_1"):
