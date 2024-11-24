@@ -94,7 +94,6 @@ class EncounterValue(Enum):
     RoamerOnBlockList = auto()
     CustomFilterMatch = auto()
     Trash = auto()
-    AvoidedPokemon = auto()
 
     @property
     def is_of_interest(self):
@@ -120,9 +119,6 @@ def judge_encounter(pokemon: "Pokemon") -> EncounterValue:
 
     if run_custom_catch_filters(pokemon) is not False:
         return EncounterValue.CustomFilterMatch
-
-    if pokemon.species.name in context.config.battle.avoided_pokemon:
-        return EncounterValue.AvoidedPokemon
 
     roamer = get_roamer()
     if (
@@ -216,11 +212,6 @@ def handle_encounter(
                 save_pk3(pokemon)
             is_of_interest = True
 
-        case EncounterValue.AvoidedPokemon:
-            console.print(f"Attempting to avoid {pokemon.species.name} because it is on avoided list")
-            alert = None
-            is_of_interest = False
-
         case EncounterValue.Roamer:
             console.print(f"[pink yellow]Roaming {pokemon.species.name} found![/]")
             alert = "Roaming Pokémon found!", f"Encountered a roaming {pokemon.species.name}."
@@ -270,10 +261,8 @@ def handle_encounter(
         else:
             context.set_manual_mode()
             encounter_info.battle_action = BattleAction.CustomAction
-
-    elif encounter_info.value == EncounterValue.AvoidedPokemon:
+    elif encounter_info.pokemon.species.name in context.config.battle.avoided_pokemon:
         encounter_info.battle_action = BattleAction.RunAway
-
     elif enable_auto_battle:
         encounter_info.battle_action = BattleAction.Fight
     else:
