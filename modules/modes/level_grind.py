@@ -12,12 +12,12 @@ from ._interface import BotMode, BotModeError
 from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon, spin
 from ..battle_state import BattleOutcome
 from ..battle_strategies import BattleStrategy, DefaultBattleStrategy
-from ..battle_strategies.level_balancing import LevelBalancingBattleStrategy, NoRotateLeadDefaultBattleStrategy
+from ..battle_strategies.level_balancing import LevelBalancingBattleStrategy
+from ..battle_strategies.no_rotate_lead import NoRotateLeadDefaultBattleStrategy
 from ..encounter import handle_encounter, EncounterInfo
 from ..gui.multi_select_window import ask_for_choice, Selection, ask_for_confirmation
 from ..runtime import get_sprites_path
 from ..sprites import get_sprite
-
 
 closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
     # Hoenn
@@ -221,17 +221,17 @@ class LevelGrindMode(BotMode):
         path_length_to_pokemon_center = None
 
         if training_spot_map in closest_pokemon_centers:
-            for candidate in closest_pokemon_centers[training_spot_map]:
+            for pokemon_center_candidate in closest_pokemon_centers[training_spot_map]:
                 try:
-                    path_length = self._calculate_path_length(training_spot, candidate)
+                    path_length = self._calculate_path_length(training_spot, pokemon_center_candidate)
                     if path_length_to_pokemon_center is None or path_length < path_length_to_pokemon_center:
-                        pokemon_center = candidate
+                        pokemon_center = pokemon_center_candidate
                         path_length_to_pokemon_center = path_length
                 except PathFindingError:
-                    continue
+                    pass
 
         if pokemon_center is None:
-            raise BotModeError("Could not find a suitable route to a Pokémon Center nearby.")
+            raise BotModeError("Could not find a suitable from here to a Pokemon Center nearby.")
 
         return pokemon_center
 

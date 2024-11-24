@@ -255,7 +255,6 @@ class BattleStrategyUtil:
             if learned_move.move.name in context.config.battle.banned_moves:
                 move_strengths.append(-1)
                 continue
-
             move = learned_move.move
             if learned_move.pp == 0 or (isinstance(pokemon, BattlePokemon) and pokemon.disabled_move is move):
                 move_strengths.append(-1)
