@@ -11,7 +11,7 @@ The mode checks that you have not already defeated this one, if you have, you wi
 
 - Play on Emerald (in Ruby and Sapphire, the Kecleon disappears even after a defeat so this mode cannot be used)
 - Received the [Devon Scope](https://bulbapedia.bulbagarden.net/wiki/Devon_Scope)
-- Single Pokémon in your party with [Selfdestruct](<https://bulbapedia.bulbagarden.net/wiki/Self-Destruct_(move)>) in the _first_ move slot.
+- Single Pokémon in your party with [Selfdestruct](<https://bulbapedia.bulbagarden.net/wiki/Self-Destruct_(move)>) or [Explosion](<https://bulbapedia.bulbagarden.net/wiki/Explosion_(move)>).
 - Have not defeated/captured the Kecleon on Route 119.
 - Last healed Pokémon center is Fortree City
 
