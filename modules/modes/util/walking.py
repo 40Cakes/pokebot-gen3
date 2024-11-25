@@ -1,3 +1,4 @@
+import time
 from typing import Generator, Iterable, Callable
 
 from modules.context import context
@@ -15,10 +16,12 @@ from modules.player import (
     player_avatar_is_standing_still,
     player_is_at,
     get_player_location,
+    AvatarFlags,
 )
 from modules.tasks import get_global_script_context, task_is_active
 from .sleep import wait_for_n_frames
 from .._interface import BotModeError
+from ...items import get_item_bag, get_item_by_name
 
 
 @debug.track
@@ -206,12 +209,35 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
                             context.emulator.press_button("A")
                     elif not task_is_active("Task_UseWaterfall"):
                         field_effect_is_active = False
+                elif (
+                    waypoint.action is WaypointAction.AcroBikeMount
+                    and AvatarFlags.OnAcroBike not in get_player_avatar().flags
+                ):
+                    from .higher_level_actions import mount_bicycle
+
+                    yield from mount_bicycle()
+                elif waypoint.action is WaypointAction.AcroBikeSideJump:
+                    context.emulator.press_button(waypoint.walking_direction)
+                    context.emulator.press_button("B")
+                elif waypoint.action is WaypointAction.AcroBikeBunnyHop:
+                    from .higher_level_actions import mount_bicycle
+
+                    yield from mount_bicycle()
+                    if get_player_avatar().acro_bike_state is not AcroBikeState.HOPPING_WHEELIE:
+                        context.emulator.release_button("B")
+                        yield
+                        context.emulator.hold_button("B")
+                        while get_player_avatar().acro_bike_state is not AcroBikeState.HOPPING_WHEELIE:
+                            yield
+                    context.emulator.hold_button(waypoint.walking_direction)
                 else:
                     context.emulator.hold_button(waypoint.walking_direction)
-                    if run:
+                    if run and not AvatarFlags.OnAcroBike in get_player_avatar().flags:
                         context.emulator.hold_button("B")
             else:
                 context.emulator.reset_held_buttons()
+                if waypoint.action is WaypointAction.AcroBikeBunnyHop:
+                    context.emulator.hold_button("B")
 
             yield
 
@@ -268,6 +294,7 @@ def navigate_to(
                     (map, coordinates),
                     avoid_encounters=avoid_encounters,
                     avoid_scripted_events=avoid_scripted_events,
+                    has_acro_bike=get_item_bag().quantity_of(get_item_by_name("Acro Bike")) > 0,
                 )
             except PathFindingError as e:
                 raise BotModeError(str(e))
