@@ -810,12 +810,14 @@ def extract_species(
 
             item1 = int.from_bytes(info[12:14], byteorder="little")
             item2 = int.from_bytes(info[14:16], byteorder="little")
-            if item1 == 0:
+            if item1 == 0 and item2 == 0:
                 held_items = []
             elif item1 == item2:
                 held_items = [(item_list[item1]["name"], 1)]
             elif item2 == 0:
                 held_items = [(item_list[item1]["name"], 0.5)]
+            elif item1 == 0:
+                held_items = [(item_list[item2]["name"], 0.05)]
             else:
                 held_items = [(item_list[item1]["name"], 0.5), (item_list[item2]["name"], 0.05)]
 

@@ -1174,7 +1174,12 @@
         "abilities": [
             "Compoundeyes"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Silverpowder",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 60,
             "attack": 45,
@@ -1382,7 +1387,12 @@
         "abilities": [
             "Swarm"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Poison Barb",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 65,
             "attack": 80,
@@ -2067,7 +2077,12 @@
         "abilities": [
             "Keen Eye"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Sharp Beak",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 65,
             "attack": 90,
@@ -2476,7 +2491,12 @@
         "abilities": [
             "Static"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Oran Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 60,
             "attack": 90,
@@ -2579,7 +2599,12 @@
         "abilities": [
             "Sand Veil"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Quick Claw",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 50,
             "attack": 75,
@@ -2693,7 +2718,12 @@
         "abilities": [
             "Sand Veil"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Quick Claw",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 75,
             "attack": 100,
@@ -6251,7 +6281,12 @@
             "Water Absorb",
             "Damp"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "King\u2019s Rock",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 65,
             "attack": 65,
@@ -6359,7 +6394,12 @@
             "Water Absorb",
             "Damp"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "King\u2019s Rock",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 90,
             "attack": 85,
@@ -6467,7 +6507,12 @@
             "Synchronize",
             "Inner Focus"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Twistedspoon",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 25,
             "attack": 20,
@@ -6578,7 +6623,12 @@
             "Synchronize",
             "Inner Focus"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Twistedspoon",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 40,
             "attack": 35,
@@ -6692,7 +6742,12 @@
             "Synchronize",
             "Inner Focus"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Twistedspoon",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 55,
             "attack": 50,
@@ -7626,7 +7681,12 @@
             "Rock Head",
             "Sturdy"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Everstone",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 40,
             "attack": 80,
@@ -7738,7 +7798,12 @@
             "Rock Head",
             "Sturdy"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Everstone",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 55,
             "attack": 95,
@@ -7846,7 +7911,12 @@
             "Rock Head",
             "Sturdy"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Everstone",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 80,
             "attack": 110,
@@ -8151,7 +8221,12 @@
             "Oblivious",
             "Own Tempo"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "King\u2019s Rock",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 90,
             "attack": 65,
@@ -8271,7 +8346,12 @@
             "Oblivious",
             "Own Tempo"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "King\u2019s Rock",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 95,
             "attack": 75,
@@ -8395,7 +8475,12 @@
             "Magnet Pull",
             "Sturdy"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Metal Coat",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 25,
             "attack": 35,
@@ -8489,7 +8574,12 @@
             "Magnet Pull",
             "Sturdy"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Metal Coat",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 50,
             "attack": 60,
@@ -8584,7 +8674,12 @@
             "Keen Eye",
             "Inner Focus"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Stick",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 52,
             "attack": 65,
@@ -8690,7 +8785,12 @@
             "Run Away",
             "Early Bird"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Sharp Beak",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 35,
             "attack": 85,
@@ -8788,7 +8888,12 @@
             "Run Away",
             "Early Bird"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Sharp Beak",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 60,
             "attack": 110,
@@ -9079,7 +9184,12 @@
             "Stench",
             "Sticky Hold"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Nugget",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 80,
             "attack": 80,
@@ -9190,7 +9300,12 @@
             "Stench",
             "Sticky Hold"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Nugget",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 105,
             "attack": 105,
@@ -10757,7 +10872,12 @@
             "Rock Head",
             "Lightningrod"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Thick Club",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 50,
             "attack": 50,
@@ -10878,7 +10998,12 @@
             "Rock Head",
             "Lightningrod"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Thick Club",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 60,
             "attack": 80,
@@ -11337,7 +11462,12 @@
         "abilities": [
             "Levitate"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Smoke Ball",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 40,
             "attack": 65,
@@ -11440,7 +11570,12 @@
         "abilities": [
             "Levitate"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Smoke Ball",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 65,
             "attack": 90,
@@ -11779,7 +11914,12 @@
             "Natural Cure",
             "Serene Grace"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Lucky Egg",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 250,
             "attack": 5,
@@ -12150,7 +12290,12 @@
         "abilities": [
             "Swift Swim"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Dragon Scale",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 30,
             "attack": 40,
@@ -12249,7 +12394,12 @@
         "abilities": [
             "Poison Point"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Dragon Scale",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 55,
             "attack": 65,
@@ -12753,7 +12903,12 @@
         "abilities": [
             "Soundproof"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Leppa Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 40,
             "attack": 45,
@@ -13804,7 +13959,12 @@
         "abilities": [
             "Limber"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Metal Powder",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 48,
             "attack": 48,
@@ -15324,7 +15484,12 @@
         "abilities": [
             "Shed Skin"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Dragon Scale",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 41,
             "attack": 64,
@@ -15434,7 +15599,12 @@
         "abilities": [
             "Shed Skin"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Dragon Scale",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 61,
             "attack": 84,
@@ -15538,7 +15708,12 @@
         "abilities": [
             "Inner Focus"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Dragon Scale",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 91,
             "attack": 134,
@@ -16905,7 +17080,12 @@
             "Run Away",
             "Keen Eye"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Oran Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 35,
             "attack": 46,
@@ -17849,7 +18029,12 @@
             "Volt Absorb",
             "Illuminate"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Yellow Shard",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 75,
             "attack": 38,
@@ -17950,7 +18135,12 @@
             "Volt Absorb",
             "Illuminate"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Yellow Shard",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 125,
             "attack": 58,
@@ -18046,7 +18236,12 @@
         "abilities": [
             "Static"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Oran Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 20,
             "attack": 40,
@@ -19561,7 +19756,12 @@
             "Water Absorb",
             "Damp"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "King\u2019s Rock",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 90,
             "attack": 75,
@@ -20907,7 +21107,12 @@
             "Oblivious",
             "Own Tempo"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "King\u2019s Rock",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 95,
             "attack": 75,
@@ -21028,7 +21233,12 @@
         "abilities": [
             "Levitate"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Spell Tag",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 60,
             "attack": 60,
@@ -21248,7 +21458,12 @@
             "Inner Focus",
             "Early Bird"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Persim Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 70,
             "attack": 80,
@@ -21794,7 +22009,12 @@
             "Rock Head",
             "Sturdy"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Metal Coat",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 75,
             "attack": 85,
@@ -22565,7 +22785,12 @@
             "Inner Focus",
             "Keen Eye"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Quick Claw",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 55,
             "attack": 95,
@@ -23334,7 +23559,12 @@
             "Hustle",
             "Natural Cure"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Red Shard",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 55,
             "attack": 55,
@@ -24186,7 +24416,12 @@
         "abilities": [
             "Swift Swim"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Dragon Scale",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 75,
             "attack": 95,
@@ -25413,7 +25648,12 @@
             "Natural Cure",
             "Serene Grace"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Lucky Egg",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 255,
             "attack": 10,
@@ -28885,7 +29125,12 @@
         "abilities": [
             "Run Away"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Pecha Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 35,
             "attack": 55,
@@ -28990,7 +29235,12 @@
         "abilities": [
             "Intimidate"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Pecha Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 70,
             "attack": 90,
@@ -29091,7 +29341,12 @@
         "abilities": [
             "Pickup"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Oran Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 38,
             "attack": 30,
@@ -29434,7 +29689,12 @@
         "abilities": [
             "Swarm"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Silverpowder",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 60,
             "attack": 70,
@@ -29581,7 +29841,12 @@
         "abilities": [
             "Shield Dust"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Silverpowder",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 60,
             "attack": 50,
@@ -31010,7 +31275,12 @@
         "abilities": [
             "Own Tempo"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Chesto Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 60,
             "attack": 60,
@@ -31442,7 +31712,12 @@
         "abilities": [
             "Intimidate"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Silverpowder",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 70,
             "attack": 60,
@@ -31755,7 +32030,12 @@
         "abilities": [
             "Cute Charm"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Leppa Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 50,
             "attack": 45,
@@ -31873,7 +32153,12 @@
         "abilities": [
             "Cute Charm"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Leppa Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 70,
             "attack": 65,
@@ -31977,7 +32262,12 @@
         "abilities": [
             "Color Change"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Persim Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 60,
             "attack": 90,
@@ -33583,7 +33873,12 @@
             "Hyper Cutter",
             "Arena Trap"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Soft Sand",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 45,
             "attack": 100,
@@ -34003,7 +34298,12 @@
             "Thick Fat",
             "Guts"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "King\u2019s Rock",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 144,
             "attack": 120,
@@ -34857,7 +35157,12 @@
         "abilities": [
             "Sand Veil"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Poison Barb",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 50,
             "attack": 85,
@@ -34967,7 +35272,12 @@
         "abilities": [
             "Sand Veil"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Poison Barb",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 70,
             "attack": 115,
@@ -35171,7 +35481,12 @@
         "abilities": [
             "Inner Focus"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Nevermeltice",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 80,
             "attack": 80,
@@ -35275,7 +35590,12 @@
         "abilities": [
             "Levitate"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Moon Stone",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 70,
             "attack": 55,
@@ -35379,7 +35699,12 @@
         "abilities": [
             "Levitate"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Sun Stone",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 70,
             "attack": 95,
@@ -36652,7 +36977,12 @@
         "abilities": [
             "Levitate"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Spell Tag",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 20,
             "attack": 40,
@@ -36759,7 +37089,12 @@
         "abilities": [
             "Pressure"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Spell Tag",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 40,
             "attack": 70,
@@ -36880,7 +37215,12 @@
             "Natural Cure",
             "Poison Point"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Poison Barb",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 50,
             "attack": 60,
@@ -37344,7 +37684,12 @@
             "Liquid Ooze",
             "Sticky Hold"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Big Pearl",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 70,
             "attack": 43,
@@ -37457,7 +37802,12 @@
             "Liquid Ooze",
             "Sticky Hold"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Big Pearl",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 100,
             "attack": 73,
@@ -37676,7 +38026,12 @@
         "abilities": [
             "Soundproof"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Chesto Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 64,
             "attack": 51,
@@ -37791,7 +38146,12 @@
         "abilities": [
             "Soundproof"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Chesto Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 84,
             "attack": 71,
@@ -37908,7 +38268,12 @@
         "abilities": [
             "Soundproof"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Chesto Berry",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 104,
             "attack": 91,
@@ -38027,7 +38392,12 @@
         "abilities": [
             "Shell Armor"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Blue Shard",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 35,
             "attack": 64,
@@ -38437,7 +38807,12 @@
         "abilities": [
             "Insomnia"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Spell Tag",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 44,
             "attack": 75,
@@ -38544,7 +38919,12 @@
         "abilities": [
             "Insomnia"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Spell Tag",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 64,
             "attack": 115,
@@ -38886,7 +39266,12 @@
             "Swift Swim",
             "Rock Head"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Green Shard",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 100,
             "attack": 90,
@@ -38999,7 +39384,12 @@
             "Sturdy",
             "Rock Head"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Hard Stone",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 50,
             "attack": 70,
@@ -39110,7 +39500,12 @@
             "Sturdy",
             "Rock Head"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Hard Stone",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 60,
             "attack": 90,
@@ -39216,7 +39611,12 @@
             "Sturdy",
             "Rock Head"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Hard Stone",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 70,
             "attack": 110,
@@ -40419,7 +40819,12 @@
         "abilities": [
             "Rock Head"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Dragon Scale",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 45,
             "attack": 75,
@@ -40524,7 +40929,12 @@
         "abilities": [
             "Rock Head"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Dragon Scale",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 65,
             "attack": 95,
@@ -40627,7 +41037,12 @@
         "abilities": [
             "Intimidate"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Dragon Scale",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 95,
             "attack": 135,
@@ -40737,7 +41152,12 @@
         "abilities": [
             "Clear Body"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Metal Coat",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 40,
             "attack": 55,
@@ -40792,7 +41212,12 @@
         "abilities": [
             "Clear Body"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Metal Coat",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 60,
             "attack": 75,
@@ -40904,7 +41329,12 @@
         "abilities": [
             "Clear Body"
         ],
-        "held_items": [],
+        "held_items": [
+            [
+                "Metal Coat",
+                0.05
+            ]
+        ],
         "base_stats": {
             "hp": 80,
             "attack": 135,
