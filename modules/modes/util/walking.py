@@ -4,7 +4,7 @@ from modules.context import context
 from modules.debug import debug
 from modules.map import get_map_data_for_current_position, get_player_map_object
 from modules.map_data import MapFRLG, MapRSE
-from modules.map_path import calculate_path, Waypoint, PathFindingError, Direction
+from modules.map_path import calculate_path, Waypoint, PathFindingError, Direction, WaypointAction
 from modules.memory import GameState, get_game_state
 from modules.player import (
     RunningState,
@@ -16,7 +16,7 @@ from modules.player import (
     player_is_at,
     get_player_location,
 )
-from modules.tasks import get_global_script_context
+from modules.tasks import get_global_script_context, task_is_active
 from .sleep import wait_for_n_frames
 from .._interface import BotModeError
 
@@ -160,12 +160,16 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
                 yield from ensure_facing_direction(waypoint.direction)
 
         last_waypoint = waypoint
-        timeout_exceeded = False
+        field_effect_is_active = False
         frames_remaining_until_timeout = timeout_in_frames
         if waypoint.is_warp:
             frames_remaining_until_timeout += extra_timeout_in_frames_for_warps
+        if waypoint.action is WaypointAction.Surf:
+            frames_remaining_until_timeout += 270
+        elif waypoint.action is WaypointAction.Waterfall:
+            frames_remaining_until_timeout += 195 + (get_player_location()[0][1] - waypoint.coordinates[1]) * 42
 
-        while not timeout_exceeded and not player_is_at(waypoint.map, waypoint.coordinates):
+        while not player_is_at(waypoint.map, waypoint.coordinates) or field_effect_is_active:
             player_object = get_player_map_object()
 
             if get_game_state() == GameState.OVERWORLD:
@@ -184,9 +188,28 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
             # preventing weird overshoot issues in cases where a listener handles an event (like a battle, PokeNav
             # call, ...)
             if player_object is not None and "heldMovementFinished" in player_object.flags:
-                context.emulator.hold_button(waypoint.walking_direction)
-                if run:
-                    context.emulator.hold_button("B")
+                if waypoint.action is WaypointAction.Surf:
+                    yield from ensure_facing_direction(waypoint.direction)
+                    if not field_effect_is_active:
+                        if task_is_active("Task_SurfFieldEffect"):
+                            field_effect_is_active = True
+                        else:
+                            context.emulator.press_button("A")
+                    elif not task_is_active("Task_SurfFieldEffect"):
+                        field_effect_is_active = False
+                elif waypoint.action is WaypointAction.Waterfall:
+                    yield from ensure_facing_direction(waypoint.direction)
+                    if not field_effect_is_active:
+                        if task_is_active("Task_UseWaterfall"):
+                            field_effect_is_active = True
+                        else:
+                            context.emulator.press_button("A")
+                    elif not task_is_active("Task_UseWaterfall"):
+                        field_effect_is_active = False
+                else:
+                    context.emulator.hold_button(waypoint.walking_direction)
+                    if run:
+                        context.emulator.hold_button("B")
             else:
                 context.emulator.reset_held_buttons()
 
