@@ -13,7 +13,7 @@ from modules.pokemon import get_party
 from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE, get_map_cursor, get_map_region
 from modules.tasks import get_task, task_is_active
 from ._util_helper import isolate_inputs
-from .items import scroll_to_item_in_bag
+from .items import scroll_to_item_in_bag, use_item_from_bag
 from .tasks_scripts import (
     wait_for_task_to_start_and_finish,
     wait_for_yes_no_question,
@@ -515,3 +515,22 @@ def talk_to_npc(local_object_id: int):
         except (PathFindingError, BotModeError):
             pass
         yield
+
+
+@debug.track
+def mount_bicycle():
+    if get_player_avatar().is_on_bike:
+        return
+
+    registered_item = get_player().registered_item
+    if registered_item is not None and registered_item.name in ("Bicycle", "Acro Bike", "Mach Bike"):
+        context.emulator.press_button("Select")
+        yield
+        return
+
+    for index, slot in enumerate(get_item_bag().key_items):
+        if slot.item.name in ("Bicycle", "Acro Bike", "Mach Bike"):
+            yield from use_item_from_bag(slot.item)
+            return
+
+    raise BotModeError("Player does not own a bicycle.")

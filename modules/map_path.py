@@ -58,6 +58,8 @@ class PathTile:
     on_enter_event_triggers: dict[int, int]
     warps_to: tuple[tuple[int, int], tuple[int, int], Direction | None] | None
     waterfall_to: tuple[int, int] | None
+    needs_acro_bike: bool
+    needs_bunny_hop: bool
 
     @property
     def global_coordinates(self) -> tuple[int, int]:
@@ -86,6 +88,8 @@ class PathMap:
             for tile in all_tiles:
                 accessible_from_direction = [False, False, False, False]
                 waterfall_to = None
+                needs_acro_bike = False
+                needs_bunny_hop = False
                 if tile.collision != 0:
                     if (
                         tile.tile_type.startswith("Jump ")
@@ -128,6 +132,16 @@ class PathMap:
                                     ]
                 elif tile.tile_type == "Muddy Slope":
                     accessible_from_direction = [False, False, True, False]
+                elif tile.tile_type in ("Horizontal Rail", "Isolated Horizontal Rail"):
+                    needs_acro_bike = True
+                    accessible_from_direction = [False, True, False, True]
+                elif tile.tile_type in ("Vertical Rail", "Isolated Vertical Rail"):
+                    needs_acro_bike = True
+                    accessible_from_direction = [True, False, True, False]
+                elif tile.tile_type == "Bumpy Slope":
+                    needs_acro_bike = True
+                    needs_bunny_hop = True
+                    accessible_from_direction = [True, False, False, False]
                 else:
                     accessible_from_direction = [True, True, True, True]
 
@@ -161,6 +175,8 @@ class PathMap:
                         on_enter_event_triggers,
                         warps_to,
                         waterfall_to.local_position if waterfall_to is not None else None,
+                        needs_acro_bike,
+                        needs_bunny_hop,
                     )
                 )
             for map_object in map_data.objects:
@@ -248,8 +264,6 @@ def _get_all_maps_metadata() -> dict[tuple[int, int], PathMap]:
                             map_queue.put_nowait(connection_address)
 
                             connected_map = _maps[connection_address]
-                            if connected_map.map_group_and_number in ((0, 2), (0, 32)):
-                                a = 1
                             connected_map.level = current_map_level
                             if direction is Direction.North:
                                 connected_map.offset = (
@@ -342,6 +356,7 @@ class PathNode:
     is_waterfall: bool = False
     is_diving: bool = False
     is_emerging: bool = False
+    is_acro_bike_side_jump: bool = False
 
     def __eq__(self, other):
         if isinstance(other, PathNode):
@@ -385,6 +400,9 @@ class WaypointAction(Enum):
     Waterfall = auto()
     Dive = auto()
     Emerge = auto()
+    AcroBikeMount = auto()
+    AcroBikeSideJump = auto()
+    AcroBikeBunnyHop = auto()
 
 
 @dataclass
@@ -411,6 +429,7 @@ def calculate_path(
     avoid_encounters: bool = True,
     avoid_scripted_events: bool = True,
     no_surfing: bool = False,
+    has_acro_bike: bool = False,
 ) -> list[Waypoint]:
     """
     Attempts to calculate the best path from one tile to another.
@@ -434,6 +453,8 @@ def calculate_path(
                        require using surf, even if that is the only way. If the source tile is a
                        water tile (i.e. the player is already surfing), it will still exit the
                        water just fine, but not re-enter it.
+    :param has_acro_bike: If `True`, the pathfinding algorithm will try to traverse the rails that
+                          can only be accessed by Acro Bike.
     :return: A list of waypoints describing the best path to take. If no valid path could be found,
              a `PathFindingError` is raised.
     """
@@ -524,6 +545,9 @@ def calculate_path(
             return True
         elif tile.waterfall_to is not None and from_direction is Direction.South:
             return True
+        if tile.needs_acro_bike:
+            if not tile.needs_bunny_hop or from_direction is Direction.North:
+                return has_acro_bike
         if not tile.accessible_from_direction[from_direction] and not (tile == destination_tile and tile.warps_to):
             return False
         if tile.dynamic_collision_flag is not None and not get_event_flag_by_number(tile.dynamic_collision_flag):
@@ -575,6 +599,12 @@ def calculate_path(
                     action = WaypointAction.Surf
                 elif node.is_waterfall and direction is Direction.North:
                     action = WaypointAction.Waterfall
+                elif node.tile.needs_bunny_hop:
+                    action = WaypointAction.AcroBikeBunnyHop
+                elif node.tile.needs_acro_bike and not node.came_from.tile.needs_acro_bike:
+                    action = WaypointAction.AcroBikeMount
+                elif node.tile.needs_acro_bike and not node.tile.accessible_from_direction[direction.value]:
+                    action = WaypointAction.AcroBikeSideJump
                 else:
                     action = None
 
@@ -659,6 +689,9 @@ def calculate_path(
                 cost += int(round((195 + 41 * waterfall_height) / 16))
                 neighbour = tile.map.get_tile(neighbour.waterfall_to)
                 is_waterfall = True
+
+            if neighbour.needs_bunny_hop:
+                cost += 1
 
             if neighbour.has_encounters and avoid_encounters:
                 cost += 1000
