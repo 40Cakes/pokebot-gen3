@@ -1,4 +1,5 @@
 import sqlite3
+import sys
 import time
 from collections import deque
 from dataclasses import dataclass
@@ -6,9 +7,10 @@ from datetime import datetime, timezone
 from enum import Enum
 from functools import cached_property
 from textwrap import dedent
-from typing import TYPE_CHECKING, Iterable, Optional
+from typing import TYPE_CHECKING, Iterable, Optional, Never
 
 from modules.battle_state import BattleOutcome, EncounterType
+from modules.console import console
 from modules.context import context
 from modules.fishing import FishingAttempt, FishingResult
 from modules.items import Item, get_item_by_index
@@ -613,7 +615,7 @@ class StatsDatabase:
         self._encounter_frames: deque[int] = deque(maxlen=100)
 
     def set_data(self, key: DataKey, value: str | None):
-        self._cursor.execute("REPLACE INTO base_data (data_key, value) VALUES (?, ?)", (key.value, value))
+        self._execute_write("REPLACE INTO base_data (data_key, value) VALUES (?, ?)", (key.value, value))
 
     def get_data(self, key: DataKey) -> str | None:
         return self._base_data[key] if key in self._base_data else None
@@ -967,7 +969,7 @@ class StatsDatabase:
             return result[0]
 
     def _insert_encounter(self, encounter: Encounter) -> None:
-        self._cursor.execute(
+        self._execute_write(
             """
             INSERT INTO encounters
                 (encounter_id, species_id, personality_value, shiny_phase_id, is_shiny, matching_custom_catch_filters, encounter_time, map, coordinates, bot_mode, type, outcome, data)
@@ -992,19 +994,19 @@ class StatsDatabase:
         )
 
     def _update_encounter_outcome(self, encounter: Encounter):
-        self._cursor.execute(
+        self._execute_write(
             "UPDATE encounters SET outcome = ? WHERE encounter_id = ?",
             (encounter.outcome.value, encounter.encounter_id),
         )
 
     def _insert_shiny_phase(self, shiny_phase: ShinyPhase) -> None:
-        self._cursor.execute(
+        self._execute_write(
             "INSERT INTO shiny_phases (shiny_phase_id, start_time) VALUES (?, ?)",
             (shiny_phase.shiny_phase_id, shiny_phase.start_time),
         )
 
     def _update_shiny_phase(self, shiny_phase: ShinyPhase) -> None:
-        self._cursor.execute(
+        self._execute_write(
             """
             UPDATE shiny_phases
             SET encounters = ?,
@@ -1062,12 +1064,12 @@ class StatsDatabase:
         :param encounter: Shiny encounter that ended the phase.
         """
 
-        self._cursor.execute(
+        self._execute_write(
             "UPDATE shiny_phases SET end_time = ?, shiny_encounter_id = ? WHERE shiny_phase_id = ?",
             (encounter.encounter_time, encounter.encounter_id, self.current_shiny_phase.shiny_phase_id),
         )
 
-        self._cursor.execute(
+        self._execute_write(
             """
             UPDATE encounter_summaries
                SET phase_encounters = 0,
@@ -1082,7 +1084,7 @@ class StatsDatabase:
         if encounter_summary.species is None:
             raise RuntimeError("Cannot save an encounter summary that is not associated to a species.")
 
-        self._cursor.execute(
+        self._execute_write(
             """
             REPLACE INTO encounter_summaries
                 (species_id, species_name, total_encounters, shiny_encounters, catches, total_highest_iv_sum, total_lowest_iv_sum, total_highest_sv, total_lowest_sv, phase_encounters, phase_highest_iv_sum, phase_lowest_iv_sum, phase_highest_sv, phase_lowest_sv, last_encounter_time)
@@ -1109,10 +1111,49 @@ class StatsDatabase:
         )
 
     def _insert_or_update_pickup_item(self, pickup_item: PickupItem) -> None:
-        self._cursor.execute(
+        self._execute_write(
             "REPLACE INTO pickup_items (item_id, item_name, times_picked_up) VALUES (?, ?, ?)",
             (pickup_item.item.index, pickup_item.item.name, pickup_item.times_picked_up),
         )
+
+    def _execute_write(self, query: str, parameters: list | tuple = ()):
+        try:
+            self._cursor.execute(query, parameters)
+        except (sqlite3.OperationalError, sqlite3.IntegrityError) as exception:
+            self._handle_sqlite_error(exception)
+            raise
+
+    def _commit(self) -> None:
+        try:
+            self._connection.commit()
+        except sqlite3.OperationalError as exception:
+            self._handle_sqlite_error(exception)
+            raise
+
+    def _handle_sqlite_error(self, exception: sqlite3.OperationalError | sqlite3.IntegrityError) -> None:
+        if exception.sqlite_errorname == "SQLITE_BUSY":
+            console.print(
+                "\n[bold red]Error: Stats database is locked[/]\n\n"
+                "[red]We could not write to the statistics database because it is being used by another process.\n"
+                "This might be because you are running the bot multiple times with the same profile, or because you "
+                "have opened `stats.db` in a database editing tool.\n\n"
+                "[bold]Close all instances of the bot and all associated terminal windows and close any tool that you "
+                "have opened `stats.db` with and try again.[/bold]\n\n"
+                "As a last resort, restarting your computer might help.[/]"
+            )
+            sys.exit(1)
+        elif exception.sqlite_errorname == "SQLITE_CONSTRAINT_PRIMARYKEY" and "encounters.encounter_id" in str(
+            exception
+        ):
+            console.print(
+                "\n[bold red]Error: Could not write encounter to stats database.[/]\n\n"
+                "[red]We could not log this encounter to the statistics database because the encounter ID we chose "
+                "has already been used. This probably means that you ran multiple instances of this profile at the "
+                "same time.\n\n"
+                "[bold]Close all instances of the bot and try again.[/bold]\n\n"
+                f"Original error: {str(exception)}[/]"
+            )
+            sys.exit(1)
 
     def _migrate_old_stats(self, profile: "Profile") -> None:
         """
@@ -1174,9 +1215,9 @@ class StatsDatabase:
         """
 
         if from_schema_version <= 0:
-            self._cursor.execute("CREATE TABLE schema_version (version INT UNSIGNED)")
+            self._execute_write("CREATE TABLE schema_version (version INT UNSIGNED)")
 
-            self._cursor.execute(
+            self._execute_write(
                 dedent(
                     """
                     CREATE TABLE base_data (
@@ -1187,7 +1228,7 @@ class StatsDatabase:
                 )
             )
 
-            self._cursor.execute(
+            self._execute_write(
                 dedent(
                     """
                     CREATE TABLE encounter_summaries (
@@ -1211,7 +1252,7 @@ class StatsDatabase:
                 )
             )
 
-            self._cursor.execute(
+            self._execute_write(
                 dedent(
                     """
                     CREATE TABLE shiny_phases (
@@ -1245,7 +1286,7 @@ class StatsDatabase:
                 )
             )
 
-            self._cursor.execute(
+            self._execute_write(
                 dedent(
                     """
                     CREATE TABLE encounters (
@@ -1268,7 +1309,7 @@ class StatsDatabase:
                 )
             )
 
-            self._cursor.execute(
+            self._execute_write(
                 dedent(
                     """
                     CREATE TABLE pickup_items (
@@ -1280,6 +1321,6 @@ class StatsDatabase:
                 )
             )
 
-        self._cursor.execute("DELETE FROM schema_version")
-        self._cursor.execute("INSERT INTO schema_version VALUES (?)", (current_schema_version,))
+        self._execute_write("DELETE FROM schema_version")
+        self._execute_write("INSERT INTO schema_version VALUES (?)", (current_schema_version,))
         self._connection.commit()
