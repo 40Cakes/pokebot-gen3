@@ -947,6 +947,14 @@ class Pokemon:
     def moves(self) -> tuple[LearnedMove | None, LearnedMove | None, LearnedMove | None, LearnedMove | None]:
         return self.move(0), self.move(1), self.move(2), self.move(3)
 
+    def knows_move(self, move: str | Move):
+        if isinstance(move, Move):
+            move = move.name
+        for learned_move in self.moves:
+            if learned_move is not None and learned_move.move.name == move:
+                return True
+        return False
+
     @property
     def evs(self) -> StatsValues:
         return StatsValues(

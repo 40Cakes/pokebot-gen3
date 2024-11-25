@@ -1,12 +1,13 @@
 from dataclasses import dataclass
-from enum import IntEnum
+from enum import Enum, IntEnum, auto
 from queue import SimpleQueue, PriorityQueue
 from typing import TypeAlias
 
 from modules.context import context
 from modules.map import MapLocation, get_map_all_tiles, get_map_data, get_map_objects
 from modules.map_data import MapFRLG, MapRSE
-from modules.memory import get_event_flag_by_number, get_event_var_by_number
+from modules.memory import get_event_flag, get_event_flag_by_number, get_event_var_by_number
+from modules.pokemon import get_party
 
 LocationType: TypeAlias = MapLocation | tuple[tuple[int, int] | MapFRLG | MapRSE, tuple[int, int]]
 
@@ -56,6 +57,7 @@ class PathTile:
     dynamic_object_id: int | None
     on_enter_event_triggers: dict[int, int]
     warps_to: tuple[tuple[int, int], tuple[int, int], Direction | None] | None
+    waterfall_to: tuple[int, int] | None
 
     @property
     def global_coordinates(self) -> tuple[int, int]:
@@ -80,8 +82,10 @@ class PathMap:
                 return y * map_data.map_size[0] + x
 
             self._tiles = []
-            for tile in get_map_all_tiles(map_data):
+            all_tiles = get_map_all_tiles(map_data)
+            for tile in all_tiles:
                 accessible_from_direction = [False, False, False, False]
+                waterfall_to = None
                 if tile.collision != 0:
                     if (
                         tile.tile_type.startswith("Jump ")
@@ -97,7 +101,32 @@ class PathMap:
                     for direction in impassable_directions:
                         dir = Direction[direction]
                         accessible_from_direction[dir.opposite()] = True
-                elif tile.tile_type in ("Waterfall", "Muddy Slope"):
+                elif tile.tile_type == "Waterfall":
+                    tile_south = all_tiles[tile_index(tile.local_position[0], tile.local_position[1] + 1)]
+                    if tile_south is not None:
+                        if tile_south.tile_type != "Waterfall":
+                            waterfall_to = tile
+                            while waterfall_to.tile_type == "Waterfall":
+                                if waterfall_to.local_position[1] == 0:
+                                    waterfall_to = None
+                                    break
+                                else:
+                                    waterfall_to = all_tiles[
+                                        tile_index(waterfall_to.local_position[0], waterfall_to.local_position[1] - 1)
+                                    ]
+                    tile_north = all_tiles[tile_index(tile.local_position[0], tile.local_position[1] - 1)]
+                    if tile_north is not None:
+                        if tile_north.tile_type != "Waterfall":
+                            waterfall_to = tile
+                            while waterfall_to.tile_type == "Waterfall":
+                                if waterfall_to.local_position[1] == map_data.map_size[1] - 1:
+                                    waterfall_to = None
+                                    break
+                                else:
+                                    waterfall_to = all_tiles[
+                                        tile_index(waterfall_to.local_position[0], waterfall_to.local_position[1] + 1)
+                                    ]
+                elif tile.tile_type == "Muddy Slope":
                     accessible_from_direction = [False, False, True, False]
                 else:
                     accessible_from_direction = [True, True, True, True]
@@ -131,6 +160,7 @@ class PathMap:
                         None,
                         on_enter_event_triggers,
                         warps_to,
+                        waterfall_to.local_position if waterfall_to is not None else None,
                     )
                 )
             for map_object in map_data.objects:
@@ -309,6 +339,9 @@ class PathNode:
     previous_direction: Direction | None
     current_cost: int
     estimated_total_cost: int
+    is_waterfall: bool = False
+    is_diving: bool = False
+    is_emerging: bool = False
 
     def __eq__(self, other):
         if isinstance(other, PathNode):
@@ -347,12 +380,20 @@ class PathNode:
             return NotImplemented
 
 
+class WaypointAction(Enum):
+    Surf = auto()
+    Waterfall = auto()
+    Dive = auto()
+    Emerge = auto()
+
+
 @dataclass
 class Waypoint:
     direction: Direction
     map: tuple[int, int]
     coordinates: tuple[int, int]
     is_warp: bool
+    action: WaypointAction | None = None
 
     @property
     def walking_direction(self) -> str:
@@ -369,7 +410,34 @@ def calculate_path(
     destination: LocationType,
     avoid_encounters: bool = True,
     avoid_scripted_events: bool = True,
+    no_surfing: bool = False,
 ) -> list[Waypoint]:
+    """
+    Attempts to calculate the best path from one tile to another.
+
+    This function supports paths across several maps, but only if they are connected. It is not
+    able to use warps or fly.
+
+    :param source: Map and coordinates of the source tile.
+    :param destination: Map and coordinates of the destination tile. If this tile is a warp tile,
+                        it will follow the warp. So setting a door as the destination will lead
+                        to the path leading to the map that door connects to.
+    :param avoid_encounters: If `True`, the pathfinding algorithm will _try_ to avoid tiles that
+                             may have encounters such as tall grass and water. But if there is no
+                             other way, it will still use those tiles. Also, it does not check for
+                             Repel or any other condition that might mean we wouldn't actually get
+                             any encounters on these tiles.
+    :param avoid_scripted_events: If `True`, the pathfinding algorithm will _try_ to avoid tiles
+                                  that might trigger scripted events. But if there is no other way,
+                                  it will still use those tiles.
+    :param no_surfing: If `True`, the pathfinding algorithm will not use any path that would
+                       require using surf, even if that is the only way. If the source tile is a
+                       water tile (i.e. the player is already surfing), it will still exit the
+                       water just fine, but not re-enter it.
+    :return: A list of waypoints describing the best path to take. If no valid path could be found,
+             a `PathFindingError` is raised.
+    """
+
     if isinstance(source, MapLocation):
         source_tile = _find_tile_by_location(source)
     else:
@@ -388,6 +456,45 @@ def calculate_path(
         )
 
     map_level = source_tile.map.level
+
+    # Helper variables that are only used for caching in `can_surf()`, `can_dive()` and
+    # `can_waterfall()` so we don't have to do all the lookups for each tile.
+    _can_surf = None
+    _can_dive = None
+    _can_waterfall = None
+
+    def can_surf():
+        nonlocal _can_surf
+        if _can_surf is None:
+            _can_surf = False
+            if not no_surfing and get_event_flag("BADGE05_GET"):
+                for pokemon in get_party():
+                    if pokemon.knows_move("Surf"):
+                        _can_surf = True
+                        break
+        return _can_surf
+
+    def can_dive():
+        nonlocal _can_dive
+        if _can_dive is None:
+            _can_dive = False
+            if context.rom.is_rse and get_event_flag("BADGE07_GET"):
+                for pokemon in get_party():
+                    if pokemon.knows_move("Dive"):
+                        _can_dive = True
+                        break
+        return _can_dive
+
+    def can_waterfall():
+        nonlocal _can_waterfall
+        if _can_waterfall is None:
+            _can_waterfall = False
+            if context.rom.is_rse and get_event_flag("BADGE08_GET"):
+                for pokemon in get_party():
+                    if pokemon.knows_move("Waterfall"):
+                        _can_waterfall = True
+                        break
+        return _can_waterfall
 
     # Get all currently loaded objects so we can use their _actual_ location for obstacle calculations, rather
     # than the initial location of their object templates.
@@ -413,6 +520,10 @@ def calculate_path(
         )
 
     def is_tile_accessible(tile: PathTile, from_direction: Direction, from_elevation: int) -> bool:
+        if tile.waterfall_to is not None and from_direction is Direction.North and can_waterfall():
+            return True
+        elif tile.waterfall_to is not None and from_direction is Direction.South:
+            return True
         if not tile.accessible_from_direction[from_direction] and not (tile == destination_tile and tile.warps_to):
             return False
         if tile.dynamic_collision_flag is not None and not get_event_flag_by_number(tile.dynamic_collision_flag):
@@ -421,6 +532,10 @@ def calculate_path(
                 or (tile.map.map_group_and_number, tile.dynamic_object_id) not in active_objects
             ):
                 return False
+        if tile.elevation == 1 and from_elevation == 3 and can_surf():
+            return True
+        if tile.elevation == 3 and from_elevation == 1:
+            return True
         if tile.elevation not in (0, 15) and from_elevation != 0 and tile.elevation != from_elevation:
             return False
         if (
@@ -456,7 +571,16 @@ def calculate_path(
                     waypoint = Waypoint(direction, warp_map, warp_coords, True)
 
             else:
-                waypoint = Waypoint(direction, node.tile.map.map_group_and_number, node.tile.local_coordinates, False)
+                if node.came_from.elevation == 3 and node.elevation == 1:
+                    action = WaypointAction.Surf
+                elif node.is_waterfall and direction is Direction.North:
+                    action = WaypointAction.Waterfall
+                else:
+                    action = None
+
+                waypoint = Waypoint(
+                    direction, node.tile.map.map_group_and_number, node.tile.local_coordinates, False, action
+                )
             result.append(waypoint)
 
             node = node.came_from
@@ -511,10 +635,33 @@ def calculate_path(
 
             if neighbour.warps_to is not None:
                 cost = 1000000
-            elif avoid_encounters and neighbour.has_encounters:
-                cost = node.current_cost + 1000
             else:
-                cost = node.current_cost + 1
+                cost = 1
+
+            # This handles the case where beginning to surf is required. The dialogue and animation
+            # take around 267 frames (depending on the length of the Pokémon's name), whereas a
+            # regular step takes 16 frames. So starting to surf is around 17× more expensive than
+            # just walking.
+            if tile.elevation == 3 and neighbour.elevation == 1:
+                cost += 16
+
+            # This handles the opposite case, i.e. jumping from water to land. This takes 33 frames,
+            # so about twice as much as a regular step.
+            if tile.elevation == 1 and neighbour.elevation == 3:
+                cost += 1
+
+            # This handles cases where we need to surf up a waterfall. Enabling the Waterfall move
+            # takes around 195 frames (depending on the length of the Pokémon's name) and another
+            # 41 frames for each tile climbed.
+            is_waterfall = False
+            if neighbour.waterfall_to is not None:
+                waterfall_height = neighbour_coordinates[1] - neighbour.waterfall_to[1]
+                cost += int(round((195 + 41 * waterfall_height) / 16))
+                neighbour = tile.map.get_tile(neighbour.waterfall_to)
+                is_waterfall = True
+
+            if neighbour.has_encounters and avoid_encounters:
+                cost += 1000
 
             # Prefer walking in a straight line if possible.
             if node.previous_direction != direction:
@@ -532,7 +679,9 @@ def calculate_path(
 
             neighbour_key = neighbour_coordinates[0], neighbour_coordinates[1], elevation
             if neighbour_key not in checked_tiles or checked_tiles[neighbour_key].current_cost > cost:
-                new_node = PathNode(neighbour, elevation, node, direction, cost, cost + cost_heuristic(neighbour))
+                new_node = PathNode(
+                    neighbour, elevation, node, direction, cost, cost + cost_heuristic(neighbour), is_waterfall
+                )
                 checked_tiles[neighbour_key] = new_node
                 open_queue.put(new_node)
 
