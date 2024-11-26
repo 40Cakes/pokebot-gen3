@@ -69,8 +69,4 @@ class LevelUpLeadBattleStrategy(DefaultBattleStrategy):
 
         if best_escape_method is not None:
             return best_escape_method
-
-        raise BotModeError(
-            "Unable to escape: 'lead_cannot_battle_action' is set to 'flee', but the flee chance is 0%. "
-            "Switching to manual mode."
-        )
+        return TurnAction.run_away()
