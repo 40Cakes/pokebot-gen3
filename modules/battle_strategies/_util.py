@@ -171,7 +171,7 @@ class BattleStrategyUtil:
     ) -> DamageRange:
         # todo: Bide, Counter, Endeavor, Mirror Coat
         defender_types = defender.species.types if isinstance(defender, Pokemon) else defender.types
-        attacker_types = attacker.species.types if isinstance(defender, Pokemon) else defender.types
+        attacker_types = attacker.species.types if isinstance(attacker, Pokemon) else attacker.types
 
         damage = self._calculate_base_move_damage(move, attacker, defender, is_critical_hit)
 
@@ -522,7 +522,7 @@ class BattleStrategyUtil:
 
         return damage + 2
 
-    def get_usable_party_indices(self, battle_state: BattleState | None = None) -> list[int]:
+    def get_potential_rotation_targets(self, battle_state: BattleState | None = None) -> list[int]:
         """
         Returns the indices of party Pokémon that are usable for battle.
         A Pokémon is considered usable if it has enough HP, is not an egg,

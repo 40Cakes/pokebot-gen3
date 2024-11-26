@@ -13,7 +13,7 @@ from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon
 from ..battle_state import BattleOutcome
 from ..battle_strategies import BattleStrategy, DefaultBattleStrategy
 from ..battle_strategies.level_balancing import LevelBalancingBattleStrategy
-from ..battle_strategies.no_rotate_lead import NoRotateLeadDefaultBattleStrategy
+from ..battle_strategies.level_up import LevelUpLeadBattleStrategy
 from ..encounter import handle_encounter, EncounterInfo
 from ..gui.multi_select_window import ask_for_choice, Selection, ask_for_confirmation
 from ..runtime import get_sprites_path
@@ -123,7 +123,7 @@ class LevelGrindMode(BotMode):
             if self._level_balance:
                 return LevelBalancingBattleStrategy()
             else:
-                return NoRotateLeadDefaultBattleStrategy()
+                return LevelUpLeadBattleStrategy()
         else:
             return action
 
@@ -137,7 +137,7 @@ class LevelGrindMode(BotMode):
             ):
                 self._go_healing = True
         else:
-            if lead_pokemon.current_hp == 0 or not NoRotateLeadDefaultBattleStrategy().party_can_battle():
+            if lead_pokemon.current_hp == 0 or not LevelUpLeadBattleStrategy().party_can_battle():
                 self._go_healing = True
 
     def on_whiteout(self) -> bool:
@@ -158,7 +158,7 @@ class LevelGrindMode(BotMode):
         else:
             assert_party_can_fight("No Pokémon in the party has a usable attacking move!")
 
-            if not NoRotateLeadDefaultBattleStrategy().pokemon_can_battle(party_lead_pokemon):
+            if not LevelUpLeadBattleStrategy().pokemon_can_battle(party_lead_pokemon):
                 user_confirmed = ask_for_confirmation(
                     "Your party leader has no battle moves. The bot will maybe swap with other Pokémon depending on your bot configuration, causing them to gain XP. Are you sure you want to proceed with this strategy?"
                 )
@@ -193,8 +193,6 @@ class LevelGrindMode(BotMode):
         training_spot = get_map_data_for_current_position()
         if not training_spot.has_encounters:
             raise BotModeError("There are no encounters on this tile.")
-        if training_spot.is_surfable:
-            raise BotModeError("This mode does not work when surfing.")
         return training_spot
 
     def _get_party_lead(self):

@@ -98,6 +98,12 @@ def handle_fainted_pokemon(strategy: BattleStrategy):
     if new_lead_index < 0 or new_lead_index >= len(get_party()):
         raise RuntimeError(f"Cannot send out party index #{new_lead_index} because that does not exist.")
 
+    new_lead = get_party()[new_lead_index]
+    if new_lead.is_egg:
+        raise RuntimeError(f"Cannot send out party index #{new_lead_index} because it is an egg.")
+    if new_lead.current_hp <= 0:
+        raise RuntimeError(f"Cannot send out {new_lead.name} (#{new_lead_index}) because it has 0 HP.")
+
     while (
         battle_is_active()
         and get_current_battle_script_instruction() != "BattleScript_FaintedMonEnd"
