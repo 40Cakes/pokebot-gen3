@@ -263,10 +263,7 @@ class BattleStrategyUtil:
 
         max_strength = max(move_strengths)
         if max_strength <= 0:
-            raise BotModeError(
-                f"{pokemon.species.name} does not know any damage-dealing moves, "
-                f"or they are forbidden to use by bot configuration."
-            )
+            return None
 
         strongest_move = move_strengths.index(max_strength)
         return strongest_move
@@ -539,24 +536,20 @@ class BattleStrategyUtil:
         usable_pokemon = []
 
         for index, pokemon in enumerate(party):
-            in_battle_index = battle_state.map_battle_party_index(index)
             # Skip eggs, fainted Pokémon, or already active Pokémon
-            if pokemon.is_egg or not self.pokemon_has_enough_hp(pokemon) or in_battle_index in active_party_indices:
+            if pokemon.is_egg or not self.pokemon_has_enough_hp(pokemon) or index in active_party_indices:
                 continue
 
             # Check if the Pokémon has any move that can deal damage to the opponent
             if battle_state is not None and battle_state.opponent.active_battler is not None:
                 opponent = battle_state.opponent.active_battler
-                try:
-                    # Attempt to get the strongest move against the opponent
-                    self.get_strongest_move_against(pokemon, opponent)
-                    usable_pokemon.append(in_battle_index)  # Pokémon has a valid move
-                except BotModeError:
-                    continue  # No valid moves; skip this Pokémon
+
+                if self.get_strongest_move_against(pokemon, opponent) is not None:
+                    usable_pokemon.append(index)
             else:
                 # If there's no opponent context, fall back to checking move usability
                 if any(self.move_is_usable(move) for move in pokemon.moves):
-                    usable_pokemon.append(in_battle_index)
+                    usable_pokemon.append(index)
 
         return usable_pokemon
 

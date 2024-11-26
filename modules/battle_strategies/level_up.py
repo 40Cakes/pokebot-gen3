@@ -31,11 +31,10 @@ class LevelUpLeadBattleStrategy(DefaultBattleStrategy):
         ):
             return handle_lead_cannot_battle()
 
-        try:
-            strongest_move = util.get_strongest_move_against(
-                battle_state.own_side.active_battler, battle_state.opponent.active_battler
-            )
-        except BotModeError:
+        strongest_move = util.get_strongest_move_against(
+            battle_state.own_side.active_battler, battle_state.opponent.active_battler
+        )
+        if strongest_move is None:
             return handle_lead_cannot_battle()
         return TurnAction.use_move(strongest_move)
 
