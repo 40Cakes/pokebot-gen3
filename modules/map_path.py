@@ -666,7 +666,7 @@ def calculate_path(
             if neighbour.warps_to is not None:
                 cost = 1000000
             else:
-                cost = 1
+                cost = node.current_cost + 1
 
             # This handles the case where beginning to surf is required. The dialogue and animation
             # take around 267 frames (depending on the length of the Pokémon's name), whereas a
