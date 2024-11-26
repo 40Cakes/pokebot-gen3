@@ -22,7 +22,7 @@ class LevelUpLeadBattleStrategy(DefaultBattleStrategy):
             if action == "flee":
                 return self._escape(battle_state)
             elif action == "rotate" and util.can_switch():
-                if len(util.get_usable_party_indices(battle_state)) > 0:
+                if len(util.get_potential_rotation_targets(battle_state)) > 0:
                     return TurnAction.rotate_lead(util.select_rotation_target(battle_state))
             return self._escape(battle_state)
 
@@ -38,6 +38,19 @@ class LevelUpLeadBattleStrategy(DefaultBattleStrategy):
         except BotModeError:
             return handle_lead_cannot_battle()
         return TurnAction.use_move(strongest_move)
+
+    def choose_new_lead_after_faint(self, battle_state: BattleState) -> int:
+        new_lead: int | None = None
+        new_lead_current_hp: int = 0
+        for index, pokemon in enumerate(get_party()):
+            if pokemon.current_hp > 0 and not pokemon.is_egg and self.pokemon_can_battle(pokemon):
+                if pokemon.current_hp > new_lead_current_hp:
+                    new_lead = index
+                    new_lead_current_hp = pokemon.current_hp
+        if new_lead is not None:
+            return new_lead
+        else:
+            return super().choose_new_lead_after_faint(battle_state)
 
     def party_can_battle(self) -> bool:
         party = get_party()

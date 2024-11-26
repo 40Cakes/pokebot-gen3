@@ -561,7 +561,7 @@ class BattleStrategyUtil:
         return usable_pokemon
 
     def select_rotation_target(self, battle_state: BattleState | None = None) -> int | None:
-        indices = self.get_usable_party_indices(battle_state)
+        indices = self.get_potential_rotation_targets(battle_state)
         if len(indices) == 0:
             return None
 

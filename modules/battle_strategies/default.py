@@ -155,7 +155,7 @@ class DefaultBattleStrategy(BattleStrategy):
                     return best_escape_method
             elif (
                 context.config.battle.lead_cannot_battle_action == "rotate"
-                and len(util.get_usable_party_indices(battle_state)) > 0
+                and len(util.get_potential_rotation_targets(battle_state)) > 0
             ):
                 if util.can_switch():
                     return TurnAction.rotate_lead(util.select_rotation_target(battle_state))
@@ -183,7 +183,7 @@ class DefaultBattleStrategy(BattleStrategy):
                         return best_escape_method
                 elif (
                     context.config.battle.lead_cannot_battle_action == "rotate"
-                    and len(util.get_usable_party_indices(battle_state)) > 0
+                    and len(util.get_potential_rotation_targets(battle_state)) > 0
                 ):
                     if util.can_switch():
                         return TurnAction.rotate_lead(util.select_rotation_target(battle_state))
