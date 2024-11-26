@@ -5,7 +5,7 @@ from modules.pokemon import Pokemon, get_party, StatusCondition
 from modules.modes import BotModeError
 
 
-class NoRotateLeadDefaultBattleStrategy(DefaultBattleStrategy):
+class LevelUpLeadBattleStrategy(DefaultBattleStrategy):
 
     def choose_new_lead_after_battle(self) -> int | None:
         return None
