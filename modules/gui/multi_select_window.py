@@ -5,6 +5,7 @@ from tkinter import Canvas, PhotoImage, Toplevel, ttk
 
 from rich.prompt import Prompt
 
+from modules.console import console
 from modules.context import context
 
 
@@ -17,7 +18,13 @@ class Selection:
 
 def ask_for_choice(choices: list[Selection], window_title: str = "Choose...") -> str | None:
     if context.gui.is_headless:
-        return Prompt.ask(window_title, choices=[choice.button_label for choice in choices])
+        console.print(f"\n[bold]{window_title}[/]")
+        for index, choice in enumerate(choices):
+            console.print(f"  [bold magenta]\\[{index + 1}][/] {choice.button_label.replace('\n', ' ')}")
+        chosen_index = Prompt.ask(
+            "Choose option (number)", show_choices=False, choices=[str(n + 1) for n in range(len(choices))]
+        )
+        return choices[int(chosen_index) - 1].button_label
 
     window = Toplevel(context.gui.window)
     selected_value: str | None = None
