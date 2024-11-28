@@ -137,6 +137,7 @@ class LevelGrindMode(BotMode):
             ):
                 self._go_healing = True
         else:
+            # TODO as Improvement : If lead can now battle, don't check for party_can_battle, and go heal
             if lead_pokemon.current_hp == 0 or not LevelUpLeadBattleStrategy().party_can_battle():
                 self._go_healing = True
 

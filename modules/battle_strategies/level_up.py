@@ -15,7 +15,7 @@ class LevelUpLeadBattleStrategy(DefaultBattleStrategy):
         Decides the turn's action based on the current battle state.
         """
         util = BattleStrategyUtil(battle_state)
-        current_battler = get_party()[battle_state.own_side.active_battler.party_index]
+        current_battler = battle_state.own_side.active_battler
 
         def handle_lead_cannot_battle() -> tuple["TurnAction", any]:
             action = context.config.battle.lead_cannot_battle_action

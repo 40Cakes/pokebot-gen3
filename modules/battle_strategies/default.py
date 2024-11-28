@@ -147,7 +147,7 @@ class DefaultBattleStrategy(BattleStrategy):
     def decide_turn(self, battle_state: BattleState) -> tuple["TurnAction", any]:
         util = BattleStrategyUtil(battle_state)
 
-        if not util.pokemon_has_enough_hp(get_party()[battle_state.own_side.active_battler.party_index]):
+        if not util.pokemon_has_enough_hp(battle_state.own_side.active_battler):
             if context.config.battle.lead_cannot_battle_action == "flee" and not battle_state.is_trainer_battle:
                 best_escape_method = util.get_best_escape_method()
                 if best_escape_method is not None:
