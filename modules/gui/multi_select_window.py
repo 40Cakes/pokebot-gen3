@@ -20,7 +20,7 @@ def ask_for_choice(choices: list[Selection], window_title: str = "Choose...") ->
     if context.gui.is_headless:
         console.print(f"\n[bold]{window_title}[/]")
         for index, choice in enumerate(choices):
-            console.print(f"  [bold magenta]\\[{index + 1}][/] {choice.button_label.replace('\n', ' ')}")
+            console.print(f"  [bold magenta]\\[{index + 1}][/] " + choice.button_label.replace('\n', ' '))
         chosen_index = Prompt.ask(
             "Choose option (number)", show_choices=False, choices=[str(n + 1) for n in range(len(choices))]
         )
