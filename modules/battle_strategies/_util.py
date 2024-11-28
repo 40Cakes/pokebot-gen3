@@ -241,7 +241,7 @@ class BattleStrategyUtil:
 
         return DamageRange(max(1, _percentage(damage, 85)), damage)
 
-    def get_strongest_move_against(self, pokemon: "Pokemon | BattlePokemon", opponent: "BattlePokemon") -> "Move":
+    def get_strongest_move_against(self, pokemon: "Pokemon | BattlePokemon", opponent: "BattlePokemon") -> int | None:
         """
         Determines the strongest move that a Pokémon can use against an opponent.
         Supports both `Pokemon` and `BattlePokemon` for the ally parameter.

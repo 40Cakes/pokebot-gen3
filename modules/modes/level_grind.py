@@ -145,6 +145,9 @@ class LevelGrindMode(BotMode):
         return True
 
     def run(self) -> Generator:
+        # Check training spot first to see if it has encounters to not print multi choices windows for nothing
+        training_spot = self._get_training_spot()
+
         party_lead_pokemon, party_lead_index = self._get_party_lead()
         level_mode_choice = self._ask_for_leveling_mode(party_lead_pokemon)
 
@@ -184,7 +187,6 @@ class LevelGrindMode(BotMode):
         if party_lead_index:
             yield from change_lead_party_pokemon(party_lead_index)
 
-        training_spot = self._get_training_spot()
         pokemon_center = self._find_closest_pokemon_center(training_spot)
 
         yield from self._leveling_loop(training_spot, pokemon_center)
