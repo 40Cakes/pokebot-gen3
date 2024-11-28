@@ -149,7 +149,6 @@ class DefaultBattleStrategy(BattleStrategy):
 
         if not util.pokemon_has_enough_hp(get_party()[battle_state.own_side.active_battler.party_index]):
             if context.config.battle.lead_cannot_battle_action == "flee" and not battle_state.is_trainer_battle:
-                # If it is impossible to escape, do not even attempt to do it but just keep battling.
                 best_escape_method = util.get_best_escape_method()
                 if best_escape_method is not None:
                     return best_escape_method
@@ -163,9 +162,24 @@ class DefaultBattleStrategy(BattleStrategy):
                 context.message = "Leading Pokémon's HP fell below the minimum threshold."
                 return TurnAction.switch_to_manual()
 
-        return TurnAction.use_move(
-            util.get_strongest_move_against(battle_state.own_side.active_battler, battle_state.opponent.active_battler)
+        strongest_move = util.get_strongest_move_against(
+            battle_state.own_side.active_battler, battle_state.opponent.active_battler
         )
+
+        if strongest_move is not None:
+            return TurnAction.use_move(strongest_move)
+        else:
+            if battle_state.is_trainer_battle:
+                # To be reworked maybe ?
+                # Trainer battle: fallback to first move if no strong moves are found
+                return TurnAction.use_move(0)
+            else:
+                best_escape_method = util.get_best_escape_method()
+                if best_escape_method is not None:
+                    return best_escape_method
+                else:
+                    # Even if escape chance is 0, maybe we can escape next turn
+                    return TurnAction.run_away()
 
     def decide_turn_in_double_battle(self, battle_state: BattleState, battler_index: int) -> tuple["TurnAction", any]:
         util = BattleStrategyUtil(battle_state)
@@ -193,9 +207,11 @@ class DefaultBattleStrategy(BattleStrategy):
 
         if battle_state.opponent.left_battler is not None:
             opponent = battle_state.opponent.left_battler
+            # TODO : Need to handle get_strongest_move_against is None
             return TurnAction.use_move_against_left_side_opponent(util.get_strongest_move_against(battler, opponent))
         else:
             opponent = battle_state.opponent.right_battler
+            # TODO : Need to handle get_strongest_move_against is None
             return TurnAction.use_move_against_right_side_opponent(util.get_strongest_move_against(battler, opponent))
 
     def decide_turn_in_safari_zone(self, battle_state: BattleState) -> tuple["SafariTurnAction", any]:
