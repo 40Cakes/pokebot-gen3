@@ -595,38 +595,38 @@ BattleScript_CaughtPokemonSkipNewDex:
   D: 0x81ddcfb
   F: 0x81d8237
   I: 0x81d6ecf
-  J: ~
+  J: 0x81bda1f
   S: 0x81d9597
 CB2_NamingScreen:
   D: 0x809fc64
   F: 0x809fd24
   I: 0x809fc44
-  J: ~
+  J: 0x809fa50
   S: 0x809fd2c
 # 0x6
 BattleScript_CaughtPokemonDone:
   D: 0x81ddd19
   F: 0x81d8255
   I: 0x81d6eed
-  J: ~
+  J: 0x81bda3d
   S: 0x81d95b5
 # 0x6
 BattleScript_GotAwaySafely:
   D: 0x81dcbac
   F: 0x81d70e8
   I: 0x81d5d80
-  J: ~
+  J: 0x81bc8d2
   S: 0x81d8448
 Task_NamingScreen:
   D: 0x809de6c
   F: 0x809df2c
   I: 0x809de58
-  J: ~
+  J: 0x809d7c0
   S: 0x809df40
 sNamingScreen:
-  J: ~
+  J: 0x20398d8
 gSprites:
-  J: ~
+  J: 0x20205bc
 #---------------------#
 
 # Ununsed symbols that were conflicting with currently used symbols
