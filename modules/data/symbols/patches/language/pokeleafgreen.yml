@@ -562,7 +562,7 @@ EventScript_RepelWoreOff:
   D: 0x81c368c
   F: 0x81be5b0
   I: 0x81bd0f7
-  J: ~
+  J: 0x81a5d60
   S: 0x81bf7d0
 EventScript_DoTrainerBattle:
   D: ~
@@ -580,7 +580,7 @@ EventScript_FieldPoison:
   D: ~
   F: ~
   I: ~
-  J: ~
+  J: 0x819637f
   S: ~
 #---------------#
 
