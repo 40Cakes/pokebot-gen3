@@ -180,6 +180,7 @@ HandleInputChooseAction:
     - 0x80dd7a0
   J:
     - 0x802dc14
+    - 0x80de564
   S:
     - 0x802e3bc
     - 0x80dd888
@@ -211,13 +212,13 @@ Task_EvolutionScene:
   D: 0x80cea50
   F: 0x80ceb10
   I: 0x80cea30
-  J: ~
+  J: 0x80cf9cc
   S: 0x80ceb18
 Task_InputHandler_SelectOrForgetMove:
   D: 0x8139448
   F: 0x8139504
   I: 0x8139488
-  J: ~
+  J: 0x8139b80
   S: 0x8139574
 Task_HandleChooseMonInput:
   D: 0x811fb34
@@ -241,14 +242,14 @@ BattleScript_AskToLearnMove:
   D: 0x81dcc8d
   F: 0x81d71c9
   I: 0x81d5e61
-  J: ~
+  J: 0x81bc9b3
   S: 0x81d8529
 # BattleScript_AskToLearnMove + 2d
 BattleScript_ForgotAndLearnedNewMove:
   D: 0x81dccba
   F: 0x81d71f6
   I: 0x81d5e8e
-  J: ~
+  J: 0x81bc9e0
   S: 0x81d8556
 sMoveSelectionCursorPos:
   J: 0x203b0e1
@@ -336,7 +337,7 @@ Task_MultichoiceMenu_HandleInput:
   D: 0x809cd50
   F: 0x809ce10
   I: 0x809cd3c
-  J: ~
+  J: 0x809c6a0
   S: 0x809ce24
 gRngValue:
   D: 0x3004f50
@@ -356,10 +357,10 @@ Std_MsgboxDefault:
 #   Fishing Mode    #
 #-------------------#
 Task_Fishing:
-  D: ~
+  D: ~ # Doesn't need mapping
   F: 0x805d3c4
   I: 0x805d2f0
-  J: ~
+  J: 0x805cbc0
   S: 0x805d3d8
 #-------------------#
 
@@ -441,16 +442,16 @@ Task_StartMenuHandleInput:
   D: 0x806f154
   F: 0x806f214
   I: 0x806f140
-  J: ~
+  J: 0x806e9e4
   S: 0x806f228
 sMenu:
-  J: ~
+  J: 0x203ad5c
 sStartMenuCursorPos:
-  J: ~
+  J: 0x2037028
 sNumStartMenuItems:
-  J: ~
+  J: 0x2037029
 sStartMenuOrder:
-  J: ~
+  J: 0x203702a
 #-----------------#
 
 #--------------#
@@ -466,7 +467,7 @@ Task_BagMenu_HandleInput:
   D: 0x8108f60
   F: 0x8109020
   I: 0x8108fa4
-  J: ~
+  J: 0x81099dc
   S: 0x8133d44
 Task_FieldItemContextMenuHandleInput:
   D: 0x8109c14
@@ -588,37 +589,37 @@ EventScript_FieldPoison:
 #---------------------#
 # 0xa
 BattleScript_CaughtPokemonSkipNewDex:
-  D: 0x81ddcd7
-  F: 0x81d8213
-  I: 0x81d6eab
+  D: ~
+  F: ~
+  I: ~
   J: 0x81bd9fb
-  S: 0x81d9573
+  S: ~
 CB2_NamingScreen:
-  D: 0x809fc38
-  F: 0x809fcf8
-  I: 0x809fc18
+  D: ~
+  F: ~
+  I: ~
   J: 0x809fa24
-  S: 0x809fd00
+  S: ~
 # 0x6
 BattleScript_CaughtPokemonDone:
-  D: 0x81ddcf5
-  F: 0x81d8231
-  I: 0x81d6ec9
+  D: ~
+  F: ~
+  I: ~
   J: 0x81bda19
-  S: 0x81d9591
+  S: ~
 # 0x6
 BattleScript_GotAwaySafely:
-  D: 0x81dcb88
-  F: 0x81d70c4
-  I: 0x81d5d5c
+  D: ~
+  F: ~
+  I: ~
   J: 0x81bc8ae
-  S: 0x81d842b
+  S: ~
 Task_NamingScreen:
-  D: 0x809de40
-  F: 0x809df00
-  I: 0x809de2c
+  D: ~
+  F: ~
+  I: ~
   J: 0x809d794
-  S: 0x809df14
+  S: ~
 sNamingScreen:
   J: 0x20398d8
 gSprites:
@@ -658,4 +659,6 @@ EventScript_Open9FDoor3:
 CeladonCity_Condominiums_3F_Text_ImGameDesignerShowMeFinishedPokedex:
   J: 0x0
 CableClub_Text_PleaseVisitAgain:
+  J: 0x0
+CableClub_Text_YouHaveAMonThatCantBeTaken:
   J: 0x0
