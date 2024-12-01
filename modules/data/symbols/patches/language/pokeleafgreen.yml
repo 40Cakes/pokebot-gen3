@@ -16,10 +16,10 @@ Task_YesNoMenu_HandleInput:
   S: 0x809cfe0
 Task_FlyIntoMap:
   D: 0x8084330
-  F: ~
-  I: ~
+  F: 0x80c5154
+  I: 0x80c5074
   J: ~
-  S: ~
+  S: 0x80c515c
 Task_ExitDoor:
   D: 0x807def4
   F: 0x807dfb4
@@ -75,10 +75,10 @@ gSaveBlock2Ptr:
   S: 0x3004f5c
 CB2_RegionMap:
   D: 0x80c0a58
-  F: ~
-  I: ~
+  F: 0x80c0b18
+  I: 0x80c0a38
   J: ~
-  S: ~
+  S: 0x80c0b20
 gMapHeader:
   J: ~
 gObjectEvents:
