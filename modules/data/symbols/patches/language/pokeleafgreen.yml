@@ -190,7 +190,7 @@ HandleInputChooseMove:
   S: 0x802e994
 Task_DuckBGMForPokemonCry:
   D: 0x8072198
-  F: ~
+  F: 0x8072258
   I: ~
   J: ~
   S: ~
@@ -314,7 +314,7 @@ Task_Fanfare:
 #---------------------------#
 Task_EndQuestLog:
   D: 0x8112148
-  F: ~
+  F: 0x8112208
   I: ~
   J: ~
   S: ~
@@ -332,10 +332,10 @@ Task_MultichoiceMenu_HandleInput:
   S: 0x809ce24
 gRngValue:
   D: 0x3004f50
-  F: ~
-  I: ~
+  F: 0x3004f50
+  I: 0x3004f50
   J: ~
-  S: ~
+  S: 0x3004f50
 Std_MsgboxDefault:
   D: 0x81a7ae4
   F: ~
@@ -372,19 +372,19 @@ SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved:
 #-----------------#
 CB2_InitCopyrightScreenAfterBootup:
   D: 0x80eca1c
-  F: ~
+  F: 0x80ecadc
   I: ~
   J: ~
   S: ~
 CB2_TitleScreenRun:
   D: 0x8078b00
-  F: ~
+  F: 0x8078bc0
   I: ~
   J: ~
   S: ~
 CB2_Intro:
   D: 0x80ecbd0
-  F: ~
+  F: 0x80ecc90
   I: ~
   J: ~
   S: ~
@@ -402,7 +402,7 @@ CB2_INITMAINMENU:
   S: ~
 CB2_MAINMENU:
   D: 0x800c254
-  F: ~
+  F: 0x800c240
   I: ~
   J: ~
   S: ~
