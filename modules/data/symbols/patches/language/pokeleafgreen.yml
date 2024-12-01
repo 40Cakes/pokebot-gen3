@@ -6,7 +6,7 @@ CB2_OVERWORLD:
   D: 0x80565d4
   F: 0x8056694
   I: 0x80565c0
-  J: ~
+  J: 0x8055e74
   S: 0x80566a8
 Task_YesNoMenu_HandleInput:
   D: 0x809cf0c
@@ -18,7 +18,7 @@ Task_FlyIntoMap:
   D: 0x8084330
   F: ~
   I: ~
-  J: ~
+  J: 0x80c60c0
   S: ~
 Task_ExitDoor:
   D: 0x807def4
@@ -47,31 +47,31 @@ gMapGroups:
   D: 0x83525ac
   F: 0x834cad8
   I: 0x834b768
-  J: ~
+  J: 0x8316738
   S: 0x834de50
 sMapNames:
   D: 0x83f1340
   F: 0x83ea0a0
   I: 0x83e8da0
-  J: ~
+  J: 0x83b86a4
   S: 0x83ebdb8
 gWildMonHeaders:
   D: 0x83c9940
   F: 0x83c3e6c
   I: 0x83c2afc
-  J: ~
+  J: 0x83909a4
   S: 0x83c51e4
 gSaveBlock1Ptr:
   D: 0x3004f58
   F: 0x3004f58
   I: 0x3004f58
-  J: ~
+  J: 0x3005048
   S: 0x3004f58
 gSaveBlock2Ptr:
   D: 0x3004f5c
   F: 0x3004f5c
   I: 0x3004f5c
-  J: ~
+  J: 0x300504c
   S: 0x3004f5c
 CB2_RegionMap:
   D: 0x80c0a58
@@ -80,17 +80,17 @@ CB2_RegionMap:
   J: ~
   S: ~
 gMapHeader:
-  J: ~
+  J: 0x2036d30
 gObjectEvents:
-  J: ~
+  J: 0x2036d6c
 gPlayerAvatar:
-  J: ~
+  J: 0x2036fac
 gPlayerPartyCount:
-  J: ~
+  J: 0x2023f89
 gPlayerParty:
-  J: ~
+  J: 0x20241e4
 sMapCursor:
-  J: ~
+  J: 0x203995c
 #----------------#
 
 #--------------------#
@@ -130,37 +130,37 @@ gMain:
   D: 0x3003040
   F: 0x3003040
   I: 0x3003040
-  J: ~
+  J: 0x3003130
   S: 0x3003040
 gBattleMainFunc:
   D: 0x3004ed4
   F: 0x3004ed4
   I: 0x3004ed4
-  J: ~
+  J: 0x3004fc4
   S: 0x3004ed4
 gBattlerControllerFuncs:
   D: 0x3004f30
   F: 0x3004f30
   I: 0x3004f30
-  J: ~
+  J: 0x3005020
   S: 0x3004f30
 GTASKS:
   D: 0x3004fe0
   F: 0x3004fe0
   I: 0x3004fe0
-  J: ~
+  J: 0x30050d0
   S: 0x3004fe0
 BattleMainCB1:
   D: 0x8012368
   F: 0x8012354
   I: 0x8012368
-  J: ~
+  J: 0x8011c34
   S: 0x8012354
 BattleMainCB2:
   D: 0x8011084
   F: 0x8011070
   I: 0x8011084
-  J: ~
+  J: 0x80109c0
   S: 0x8011070
 HandleTurnActionSelectionState:
   D: 0x8013fc4
@@ -505,6 +505,10 @@ Task_SlideSelectedSlotsOnscreen:
   I: ~
   J: ~
   S: ~
+gPartyMenu:
+  J: 0x203b014
+sPartyMenuInternal:
+  J: 0x203b010
 #----------------#
 
 #-------------------------#
@@ -526,7 +530,7 @@ gPokemonStoragePtr:
   D: 0x3004f60
   F: 0x3004f60
   I: 0x3004f60
-  J: ~
+  J: 0x3005050
   S: 0x3004f60
 #-------------------------#
 
