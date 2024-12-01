@@ -489,10 +489,10 @@ Task_PrintAndWaitForText:
   S: ~
 Task_HandleInput:
   D: 0x809f328
-  F: ~
-  I: ~
+  F: 0x809f3e8
+  I: 0x809f310
   J: ~
-  S: ~
+  S: 0x809f3f8
 Task_HandleSelectionMenuInput:
   D: 0x8122c6c
   F: 0x8122d28
@@ -570,6 +570,48 @@ EventScript_FieldPoison:
   J: ~
   S: ~
 #---------------#
+
+#---------------------#
+#   Pokemon renaming  #
+#---------------------#
+# 0xa
+BattleScript_CaughtPokemonSkipNewDex:
+  D: 0x81ddcd7
+  F: 0x81d8213
+  I: 0x81d6eab
+  J: ~
+  S: 0x81d9573
+CB2_NamingScreen:
+  D: 0x809fc38
+  F: 0x809fcf8
+  I: 0x809fc18
+  J: ~
+  S: 0x809fd00
+# 0x6
+BattleScript_CaughtPokemonDone:
+  D: 0x81ddcf5
+  F: 0x81d8231
+  I: 0x81d6ec9
+  J: ~
+  S: 0x81d9591
+# 0x6
+BattleScript_GotAwaySafely:
+  D: 0x81dcb88
+  F: 0x81d70c4
+  I: 0x81d5d5c
+  J: ~
+  S: 0x81d842b
+Task_NamingScreen:
+  D: 0x809de40
+  F: 0x809df00
+  I: 0x809de2c
+  J: ~
+  S: 0x809df14
+sNamingScreen:
+  J: ~
+gSprites:
+  J: ~
+#---------------------#
 
 # Ununsed symbols that were conflicting with currently used symbols
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
