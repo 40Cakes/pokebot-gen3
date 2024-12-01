@@ -165,8 +165,8 @@ BattleMainCB2:
 HandleTurnActionSelectionState:
   D: 0x8013fc4
   F: 0x8013fb0
-  I: 0x8013fc5
-  J: ~
+  I: 0x8013fc4
+  J: 0x8013860
   S: 0x8013fb0
 HandleInputChooseAction:
   D:
@@ -178,7 +178,8 @@ HandleInputChooseAction:
   I:
     - 0x802e3bc
     - 0x80dd7a0
-  J: ~
+  J:
+    - 0x802dc14
   S:
     - 0x802e3bc
     - 0x80dd888
@@ -186,7 +187,7 @@ HandleInputChooseMove:
   D: 0x802e9a8
   F: 0x802e980
   I: 0x802e994
-  J: ~
+  J: 0x802e1ec
   S: 0x802e994
 Task_DuckBGMForPokemonCry:
   D: 0x8072198
@@ -198,7 +199,7 @@ BattleScript_HandleFaintedMon:
   D: 0x81dc944
   F: 0x81d6e80
   I: 0x81d5b18
-  J: ~
+  J: 0x81bc635
   S: 0x81d81e0
 Task_BattleStart:
   D: 0x807f558
@@ -222,19 +223,19 @@ Task_HandleChooseMonInput:
   D: 0x811fb34
   F: 0x811fbf4
   I: 0x811fb78
-  J: ~
+  J: 0x81202f0
   S: 0x811fc60
 Task_RushInjuredPokemonToCenter:
   D: 0x807f394
   F: 0x807f454
   I: 0x807f380
-  J: ~
+  J: 0x807eb58
   S: 0x807f468
 EventScript_AfterWhiteOutHeal:
   D: 0x81abba5
   F: 0x81a779c
   I: 0x81a65fb
-  J: ~
+  J: 0x819631a
   S: 0x81a883c
 BattleScript_AskToLearnMove:
   D: 0x81dcc8d
@@ -249,42 +250,47 @@ BattleScript_ForgotAndLearnedNewMove:
   I: 0x81d5e8e
   J: ~
   S: 0x81d8556
+sMoveSelectionCursorPos:
+  J: 0x203b0e1
 gMoveSelectionCursor:
-  J: ~
+  J: 0x2023f5c
+# gBattleWeather + 92
 gBattleOutcome:
-  J: ~
+  J: 0x2023dea
 gActionSelectionCursor:
-  J: ~
+  J: 0x2023f58
 gEnemyParty:
-  J: ~
+  J: 0x2023f8c
 gBattlescriptCurrInstr:
-  J: ~
+  J: 0x2023cd4
 gBattleTypeFlags:
-  J: ~
+  J: 0x2022aac
 gSideTimers:
-  J: ~
+  J: 0x2023d44
 gBattlerPartyIndexes:
-  J: ~
+  J: 0x2023b2e
 gBattlePartyCurrentOrder:
-  J: ~
+  J: 0x203b050
 gBattlersCount:
-  J: ~
+  J: 0x2023b2c
 gBattleMons:
-  J: ~
+  J: 0x2023b44
 gStatuses3:
-  J: ~
+  J: 0x2023d5c
 gDisableStructs:
-  J: ~
+  J: 0x2023d6c
 gAbsentBattlerFlags:
-  J: ~
+  J: 0x2023cd0
 gBattleResults:
   D: 0x3004ee0
   F: 0x3004ee0
   I: 0x3004ee0
-  J: ~
+  J: 0x3004fd0
   S: 0x3004ee0
 gBattleWeather:
-  J: ~
+  J: 0x2023e7c
+sTextPrinters:
+  J: 0x2020030
 #--------------------#
 
 #----------------#
@@ -340,7 +346,7 @@ Std_MsgboxDefault:
   D: 0x81a7ae4
   F: ~
   I: ~
-  J: ~
+  J: 0x8192d81
   S: ~
 #---------------------------#
 
@@ -452,7 +458,7 @@ CB2_BAGMENURUN:
   D: 0x8107f34
   F: 0x8107ff4
   I: 0x8107f78
-  J: ~
+  J: 0x81089bc
   S: 0x8108060
 Task_BagMenu_HandleInput:
   D: 0x8108f60
@@ -464,12 +470,12 @@ Task_FieldItemContextMenuHandleInput:
   D: 0x8109c14
   F: 0x8109cd4
   I: 0x8109c58
-  J: ~
+  J: 0x810a6b8
   S: 0x8109d40
 gBagMenuState:
-  J: ~
+  J: 0x203ac74
 gPaletteFade:
-  J: ~
+  J: 0x20379ec
 #---------------#
 
 #----------------#
@@ -479,7 +485,7 @@ CB2_UPDATEPARTYMENU:
   D: 0x811ebac
   F: 0x811ec6c
   I: 0x811ebf0
-  J: ~
+  J: 0x811f380
   S: 0x811ecd8
 Task_PrintAndWaitForText:
   D: 0x8120334
@@ -491,13 +497,13 @@ Task_HandleInput:
   D: 0x809f328
   F: ~
   I: ~
-  J: ~
+  J: 0x809eca4
   S: ~
 Task_HandleSelectionMenuInput:
   D: 0x8122c6c
   F: 0x8122d28
   I: 0x8122cac
-  J: ~
+  J: 0x8123410
   S: 0x8122d98
 Task_SlideSelectedSlotsOnscreen:
   D: 0x8123398
@@ -575,6 +581,48 @@ EventScript_FieldPoison:
   S: ~
 #---------------#
 
+#---------------------#
+#   Pokemon renaming  #
+#---------------------#
+# 0xa
+BattleScript_CaughtPokemonSkipNewDex:
+  D: 0x81ddcd7
+  F: 0x81d8213
+  I: 0x81d6eab
+  J: 0x81bd9fb
+  S: 0x81d9573
+CB2_NamingScreen:
+  D: 0x809fc38
+  F: 0x809fcf8
+  I: 0x809fc18
+  J: 0x809fa24
+  S: 0x809fd00
+# 0x6
+BattleScript_CaughtPokemonDone:
+  D: 0x81ddcf5
+  F: 0x81d8231
+  I: 0x81d6ec9
+  J: 0x81bda19
+  S: 0x81d9591
+# 0x6
+BattleScript_GotAwaySafely:
+  D: 0x81dcb88
+  F: 0x81d70c4
+  I: 0x81d5d5c
+  J: 0x81bc8ae
+  S: 0x81d842b
+Task_NamingScreen:
+  D: 0x809de40
+  F: 0x809df00
+  I: 0x809de2c
+  J: 0x809d794
+  S: 0x809df14
+sNamingScreen:
+  J: 0x20398d8
+gSprites:
+  J: 0x20205bc
+#---------------------#
+
 # Ununsed symbols that were conflicting with currently used symbols
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
 EventScript_CutTree:
@@ -605,3 +653,7 @@ EventScript_PkmnCenterNurse_PlayerWaitingInUionRoom:
   I: 0x0
 EventScript_Open9FDoor3:
   S: 0x0
+CeladonCity_Condominiums_3F_Text_ImGameDesignerShowMeFinishedPokedex:
+  J: 0x0
+CableClub_Text_PleaseVisitAgain:
+  J: 0x0
