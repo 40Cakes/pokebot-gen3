@@ -109,7 +109,7 @@ class PuzzleSolverMode(BotMode):
                     yield from unmount_bike()
                     yield from navigate_to(MapRSE.MIRAGE_TOWER_4F, (6, 4))
                     context.message = "Mirage Tower puzzle complete!"
-                    context.bot_mode = "Manual"
+                    context.set_manual_mode()
 
             # Sky Pillar
             case MapRSE.SKY_PILLAR_OUTSIDE:
@@ -136,7 +136,7 @@ class PuzzleSolverMode(BotMode):
                     # floor 5
                     yield from navigate_to(MapRSE.SKY_PILLAR_5F, (10, 1))
                     context.message = "Sky Pillar puzzle complete!"
-                    context.bot_mode = "Manual"
+                    context.set_manual_mode()
 
             # Regirock
             case MapRSE.DESERT_RUINS:
@@ -158,7 +158,7 @@ class PuzzleSolverMode(BotMode):
                         yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
                         if get_event_flag("SYS_REGIROCK_PUZZLE_COMPLETED"):
                             context.message = "Regirock puzzle complete!"
-                            context.bot_mode = "Manual"
+                            context.set_manual_mode()
                         else:
                             yield from navigate_to(MapRSE.DESERT_RUINS, (8, 29))
                             yield from walk_one_tile("Down")
@@ -175,7 +175,7 @@ class PuzzleSolverMode(BotMode):
                         yield from walk_one_tile("Up")
                         if get_player_avatar().local_coordinates == (8, 11):
                             context.message = "Regirock puzzle complete!"
-                            context.bot_mode = "Manual"
+                            context.set_manual_mode()
                         else:
                             yield from navigate_to(MapRSE.DESERT_RUINS, (8, 29))
                             yield from walk_one_tile("Down")
@@ -211,7 +211,7 @@ class PuzzleSolverMode(BotMode):
                         )
                         if get_event_flag("SYS_BRAILLE_REGICE_COMPLETED"):
                             context.message = "Regice puzzle complete!"
-                            context.bot_mode = "Manual"
+                            context.set_manual_mode()
                         else:
                             yield from navigate_to(MapRSE.ISLAND_CAVE, (8, 29))
                             yield from walk_one_tile("Down")
@@ -222,7 +222,7 @@ class PuzzleSolverMode(BotMode):
                         yield from walk_one_tile("Up")
                         if get_player_avatar().local_coordinates == (8, 11):
                             context.message = "Regice puzzle complete!"
-                            context.bot_mode = "Manual"
+                            context.set_manual_mode()
                         else:
                             yield from navigate_to(MapRSE.ISLAND_CAVE, (8, 29))
                             yield from walk_one_tile("Down")
@@ -247,7 +247,7 @@ class PuzzleSolverMode(BotMode):
                         yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
                         if get_event_flag("SYS_REGISTEEL_PUZZLE_COMPLETED"):
                             context.message = "Registeel puzzle complete!"
-                            context.bot_mode = "Manual"
+                            context.set_manual_mode()
                         else:
                             yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 29))
                             yield from walk_one_tile("Down")
@@ -264,7 +264,7 @@ class PuzzleSolverMode(BotMode):
                         yield from walk_one_tile("Up")
                         if get_player_avatar().local_coordinates == (8, 11):
                             context.message = "Registeel puzzle complete!"
-                            context.bot_mode = "Manual"
+                            context.set_manual_mode()
                         else:
                             yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 29))
                             yield from walk_one_tile("Down")
@@ -338,7 +338,7 @@ class PuzzleSolverMode(BotMode):
 
                             case _:
                                 context.message = "Deoxys puzzle complete!"
-                                context.bot_mode = "Manual"
+                                context.set_manual_mode()
                                 return
 
                         yield
@@ -412,7 +412,7 @@ class PuzzleSolverMode(BotMode):
                     )
                     if get_event_flag("SYS_UNLOCKED_TANOBY_RUINS"):
                         context.message = "Tanoby Key puzzle complete!"
-                        context.bot_mode = "Manual"
+                        context.set_manual_mode()
                     else:
                         yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (7, 13))
                         yield from walk_one_tile("Down")
@@ -486,7 +486,7 @@ class PuzzleSolverMode(BotMode):
                         # re-enter glass shop and exit to refresh ashes
                         yield from navigate_to(MapRSE.ROUTE113, (33, 5))
                     context.message = "1000 ashes collected! Talk to glassblower to exchange for White Flute."
-                    context.bot_mode = "Manual"
+                    context.set_manual_mode()
 
             case _:
                 raise BotModeError("You are not on the right map.")

@@ -34,10 +34,10 @@ WaitForAorBPress:
   S: ~
 EventScript_UseStrength:
   D: 0x81c1bc4
-  F: ~
-  I: ~
+  F: 0x81bcae4
+  I: 0x81bb76b
   J: ~
-  S: ~
+  S: 0x81bde2e
 #-------------------------------#
 
 #--------------------#
@@ -360,11 +360,11 @@ Task_Fishing:
 #-------------------------#
 # Tanoby Puzzle
 SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x8164ed0
+  F: 0x8164f94
+  I: 0x8164f10
   J: ~
-  S: ~
+  S: 0x8164ffc
 #-------------------------#
 
 #-----------------#
@@ -637,7 +637,8 @@ EventScript_PkmnCenterNurse_PlayerWaitingInUionRoom:
   I: 0x0
 EventScript_Open9FDoor3:
   S: 0x0
-
+NavelRock_Summit_EventScript_HideHoOh:
+  F: 0x0
 # Unused
 CB2_CONTINUESAVEDGAME:
   D: 0x8056958
