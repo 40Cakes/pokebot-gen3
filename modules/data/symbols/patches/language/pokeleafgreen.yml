@@ -12,7 +12,7 @@ Task_YesNoMenu_HandleInput:
   D: 0x809cf0c
   F: 0x809cfcc
   I: 0x809cef8
-  J: ~
+  J: 0x809c85c
   S: 0x809cfe0
 Task_FlyIntoMap:
   D: 0x8084330
@@ -24,13 +24,13 @@ Task_ExitDoor:
   D: 0x807def4
   F: 0x807dfb4
   I: 0x807dee0
-  J: ~
+  J: 0x807d6c0
   S: 0x807dfc8
 WaitForAorBPress:
   D: 0x806b858
   F: ~
   I: ~
-  J: ~
+  J: 0x806b159
   S: ~
 EventScript_UseStrength:
   D: 0x81c1bc4
@@ -77,7 +77,7 @@ CB2_RegionMap:
   D: 0x80c0a58
   F: ~
   I: ~
-  J: ~
+  J: 0x80c1a6c
   S: ~
 gMapHeader:
   J: 0x2036d30
@@ -194,7 +194,7 @@ Task_DuckBGMForPokemonCry:
   D: 0x8072198
   F: ~
   I: ~
-  J: ~
+  J: 0x80719d8
   S: ~
 BattleScript_HandleFaintedMon:
   D: 0x81dc944
@@ -303,18 +303,18 @@ EventScript_EggHatch:
   D: 0x81c2fae
   F: 0x81bdeed
   I: 0x81bca9c
-  J: ~
+  J: 0x81a59a0
   S: 0x81bf14b
 
 # EggHatch party identification
 gSpecialVar_0x8004:
-  J: ~
+  J: 0x2036ff4
 
 Task_Fanfare:
   D: 0x8071c20
   F: 0x8079d44
   I: 0x8071c0c
-  J: ~
+  J: 0x8071460
   S: 0x8071cf4
 #----------------#
 
@@ -331,7 +331,7 @@ Task_DrawFieldMessageBox:
   D: 0x8069360
   F: 0x8069420
   I: 0x806934c
-  J: ~
+  J: 0x8068c30
   S: 0x8069434
 Task_MultichoiceMenu_HandleInput:
   D: 0x809cd50
@@ -343,7 +343,7 @@ gRngValue:
   D: 0x3004f50
   F: ~
   I: ~
-  J: ~
+  J: 0x3005040
   S: ~
 Std_MsgboxDefault:
   D: 0x81a7ae4
@@ -527,13 +527,13 @@ Task_PCMainMenu:
   D: 0x808c474
   F: 0x808c534
   I: 0x808c460
-  J: ~
+  J: 0x808bdac
   S: 0x808c548
 Task_PokeStorageMain:
   D: 0x808d3a8
   F: 0x808d468
   I: 0x808d394
-  J: ~
+  J: 0x808cccc
   S: 0x808d47c
 gPokemonStoragePtr:
   D: 0x3004f60
@@ -661,4 +661,6 @@ CeladonCity_Condominiums_3F_Text_ImGameDesignerShowMeFinishedPokedex:
 CableClub_Text_PleaseVisitAgain:
   J: 0x0
 CableClub_Text_YouHaveAMonThatCantBeTaken:
+  J: 0x0
+Trade_Text_WhatThatsNoMon:
   J: 0x0
