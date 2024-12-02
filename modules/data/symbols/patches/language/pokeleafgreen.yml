@@ -325,7 +325,7 @@ Task_EndQuestLog:
   D: 0x8112148
   F: 0x8112208
   I: 0x811218c
-  J: ~
+  J: 0x8112bcc
   S: 0x8112274
 Task_DrawFieldMessageBox:
   D: 0x8069360
@@ -383,19 +383,19 @@ CB2_InitCopyrightScreenAfterBootup:
   D: 0x80eca1c
   F: 0x80ecadc
   I: 0x80eca1c
-  J: ~
+  J: 0x80ed6f4
   S: 0x80ecb04
 CB2_TitleScreenRun:
   D: 0x8078b00
   F: 0x8078bc0
   I: 0x8078aec
-  J: ~
+  J: 0x8078334
   S: 0x8078bd4
 CB2_Intro:
   D: 0x80ecbd0
   F: 0x80ecc90
   I: 0x80ecbd0
-  J: ~
+  J: 0x80ed8a8
   S: 0x80eccb8
 CB2_INITTITLESCREEN:
   D: 0x8078878
