@@ -64,6 +64,8 @@ class GameCornerMode(BotMode):
             window_title="Select which one to buy...",
         )
         if game_corner_choice is None:
+            context.set_manual_mode()
+            yield
             return
 
         assert_saved_on_map(
