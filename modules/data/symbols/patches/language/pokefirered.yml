@@ -297,6 +297,8 @@ gBattleWeather:
   J: 0x2023e7c
 sTextPrinters:
   J: 0x2020030
+gNumSafariBalls:
+  J: 0x203990c
 #--------------------#
 
 #----------------#

@@ -69,7 +69,7 @@ The following routes are supported:
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
-| Japanese |    ❌    |      ❌      |     ✅      |     ✅      |      ❌       |
+| Japanese |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
 | German   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
 | Spanish  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
 | French   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
