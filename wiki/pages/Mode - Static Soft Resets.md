@@ -47,10 +47,10 @@ Static soft reset mode targets static Pokémon by simply spamming the A button u
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |   🟨    |     🟨      |     ✅      |     ✅      |      ✅       |
 | Japanese |    ❌    |      ❌      |     ❌      |     ✅      |      ❌       |
-| German   |    ❌    |      ❌      |     ❌      |     ✅      |      ❌       |
-| Spanish  |    ❌    |      ❌      |     ❌      |     ✅      |      ❌       |
-| French   |    ❌    |      ❌      |     ❌      |     ✅      |      ❌       |
-| Italian  |    ❌    |      ❌      |     ❌      |     ✅      |      ❌       |
+| German   |    ❌    |      ❌      |     ❌      |     ✅      |      ✅       |
+| Spanish  |    ❌    |      ❌      |     ❌      |     ✅      |      ✅       |
+| French   |    ❌    |      ❌      |     ❌      |     ✅      |      ✅       |
+| Italian  |    ❌    |      ❌      |     ❌      |     ✅      |      ✅       |
 
 ✅ Tested, working
 
