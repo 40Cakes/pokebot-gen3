@@ -4,6 +4,7 @@ from modules.context import context
 from modules.battle_strategies import SafariTurnAction
 from modules.pokemon import Pokemon
 from modules.runtime import get_data_path
+from modules.memory import read_symbol
 
 
 class FRLGSafariStrategy:
@@ -117,4 +118,4 @@ def is_watching_carefully() -> bool:
 
 
 def get_safari_balls_left() -> int:
-    return context.emulator.read_bytes(0x02039994, length=1)[0]
+    return read_symbol("gNumSafariBalls")[0]
