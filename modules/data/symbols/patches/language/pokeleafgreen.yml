@@ -16,10 +16,10 @@ Task_YesNoMenu_HandleInput:
   S: 0x809cfe0
 Task_FlyIntoMap:
   D: 0x8084330
-  F: ~
-  I: ~
+  F: 0x80c5154
+  I: 0x80c5074
   J: 0x80c60c0
-  S: ~
+  S: 0x80c515c
 Task_ExitDoor:
   D: 0x807def4
   F: 0x807dfb4
@@ -34,10 +34,10 @@ WaitForAorBPress:
   S: ~
 EventScript_UseStrength:
   D: 0x81c1bc4
-  F: ~
-  I: ~
+  F: 0x81bcae4
+  I: 0x81bb76b
   J: ~
-  S: ~
+  S: 0x81bde2e
 #-------------------------------#
 
 #--------------------#
@@ -75,10 +75,10 @@ gSaveBlock2Ptr:
   S: 0x3004f5c
 CB2_RegionMap:
   D: 0x80c0a58
-  F: ~
-  I: ~
+  F: 0x80c0b18
+  I: 0x80c0a38
   J: 0x80c1a6c
-  S: ~
+  S: 0x80c0b20
 gMapHeader:
   J: 0x2036d30
 gObjectEvents:
@@ -192,10 +192,10 @@ HandleInputChooseMove:
   S: 0x802e994
 Task_DuckBGMForPokemonCry:
   D: 0x8072198
-  F: ~
-  I: ~
+  F: 0x8072258
+  I: 0x8072184
   J: 0x80719d8
-  S: ~
+  S: 0x807226c
 BattleScript_HandleFaintedMon:
   D: 0x81dc944
   F: 0x81d6e80
@@ -323,10 +323,10 @@ Task_Fanfare:
 #---------------------------#
 Task_EndQuestLog:
   D: 0x8112148
-  F: ~
-  I: ~
+  F: 0x8112208
+  I: 0x811218c
   J: ~
-  S: ~
+  S: 0x8112274
 Task_DrawFieldMessageBox:
   D: 0x8069360
   F: 0x8069420
@@ -341,10 +341,10 @@ Task_MultichoiceMenu_HandleInput:
   S: 0x809ce24
 gRngValue:
   D: 0x3004f50
-  F: ~
-  I: ~
+  F: 0x3004f50
+  I: 0x3004f50
   J: 0x3005040
-  S: ~
+  S: 0x3004f50
 Std_MsgboxDefault:
   D: 0x81a7ae4
   F: ~
@@ -369,11 +369,11 @@ Task_Fishing:
 #-------------------------#
 # Tanoby Puzzle
 SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x8164ed0
+  F: 0x8164f94
+  I: 0x8164f10
   J: ~
-  S: ~
+  S: 0x8164ffc
 #-------------------------#
 
 #-----------------#
@@ -381,22 +381,22 @@ SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved:
 #-----------------#
 CB2_InitCopyrightScreenAfterBootup:
   D: 0x80eca1c
-  F: ~
-  I: ~
+  F: 0x80ecadc
+  I: 0x80eca1c
   J: ~
-  S: ~
+  S: 0x80ecb04
 CB2_TitleScreenRun:
   D: 0x8078b00
-  F: ~
-  I: ~
+  F: 0x8078bc0
+  I: 0x8078aec
   J: ~
-  S: ~
+  S: 0x8078bd4
 CB2_Intro:
   D: 0x80ecbd0
-  F: ~
-  I: ~
+  F: 0x80ecc90
+  I: 0x80ecbd0
   J: ~
-  S: ~
+  S: 0x80eccb8
 CB2_INITTITLESCREEN:
   D: 0x8078878
   F: ~
@@ -411,16 +411,10 @@ CB2_INITMAINMENU:
   S: ~
 CB2_MAINMENU:
   D: 0x800c254
-  F: ~
-  I: ~
-  J: ~
-  S: ~
-CB2_CONTINUESAVEDGAME:
-  D: 0x8056958
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x800c240
+  I: 0x800c254
+  J: 0x800bcb4
+  S: 0x800c240
 CB2_RETURNTOFIELDLOCAL:
   D: 0x8056828
   F: ~
@@ -498,10 +492,10 @@ Task_PrintAndWaitForText:
   S: ~
 Task_HandleInput:
   D: 0x809f328
-  F: ~
-  I: ~
+  F: 0x809f3e8
+  I: 0x809f310
   J: 0x809eca4
-  S: ~
+  S: 0x809f3f8
 Task_HandleSelectionMenuInput:
   D: 0x8122c6c
   F: 0x8122d28
@@ -589,37 +583,37 @@ EventScript_FieldPoison:
 #---------------------#
 # 0xa
 BattleScript_CaughtPokemonSkipNewDex:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x81ddcd7
+  F: 0x81d8213
+  I: 0x81d6eab
   J: 0x81bd9fb
-  S: ~
+  S: 0x81d9573
 CB2_NamingScreen:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x809fc38
+  F: 0x809fcf8
+  I: 0x809fc18
   J: 0x809fa24
-  S: ~
+  S: 0x809fd00
 # 0x6
 BattleScript_CaughtPokemonDone:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x81ddcf5
+  F: 0x81d8231
+  I: 0x81d6ec9
   J: 0x81bda19
-  S: ~
+  S: 0x81d9591
 # 0x6
 BattleScript_GotAwaySafely:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x81dcb88
+  F: 0x81d70c4
+  I: 0x81d5d5c
   J: 0x81bc8ae
-  S: ~
+  S: 0x81d842b
 Task_NamingScreen:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x809de40
+  F: 0x809df00
+  I: 0x809de2c
   J: 0x809d794
-  S: ~
+  S: 0x809df14
 sNamingScreen:
   J: 0x20398d8
 gSprites:
@@ -664,3 +658,12 @@ CableClub_Text_YouHaveAMonThatCantBeTaken:
   J: 0x0
 Trade_Text_WhatThatsNoMon:
   J: 0x0
+NavelRock_Summit_EventScript_HideHoOh:
+  F: 0x0
+# Unused
+CB2_CONTINUESAVEDGAME:
+  D: 0x8056958
+  F: ~
+  I: ~
+  J: ~
+  S: ~
