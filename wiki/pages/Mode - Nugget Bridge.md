@@ -29,10 +29,10 @@ The bot will repeatedly battle and white-out to the Rocket trainer, so any money
 |:---------|-------------|---------------|
 | English  | ✅           | ✅             |
 | Japanese | ✅           | ❌             |
-| German   | 🚫          | ❌             |
-| Spanish  | 🚫          | ❌             |
-| French   | 🚫          | ❌             |
-| Italian  | 🚫          | ❌             |
+| German   | 🚫          | 🚫            |
+| Spanish  | 🚫          | 🚫            |
+| French   | 🚫          | 🚫            |
+| Italian  | 🚫          | 🚫            |
 
 ✅ Tested, working
 
