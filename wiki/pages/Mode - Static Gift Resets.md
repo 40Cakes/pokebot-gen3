@@ -133,13 +133,13 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 ## Game Support
 
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
-| :------- | :-----: | :---------: | :--------: | :--------: | :----------: |
-| English  |   🟨    |     🟨      |     ✅     |     ✅     |      ✅      |
-| Japanese |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
-| German   |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
-| Spanish  |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
-| French   |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
-| Italian  |   ❌    |     ❌      |     ✅     |     ✅     |      ❌      |
+|:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
+| English  |   🟨    |     🟨      |     ✅      |     ✅      |      ✅       |
+| Japanese |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| German   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Spanish  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| French   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Italian  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
 
 ✅ Tested, working
 
