@@ -178,15 +178,25 @@ def assert_player_has_poke_balls() -> None:
             raise BotModeError("Out of Pokéballs! Better grab more before the next shiny slips away...")
 
 
-def assert_pokemon_can_fight(pokemon: Pokemon) -> None:
+def is_pokemon_able_to_fight(pokemon: Pokemon) -> bool:
     """
-    Ensures the given Pokémon has at least one usable attacking move. Raises a BotModeError
-    if the Pokémon lacks any attack-capable moves, indicating it cannot kill an opponent.
+    Checks if the given Pokémon has at least one usable attacking move.
+    Returns True if a usable move is found; otherwise, False.
     """
-    has_usable_move = any(
+    return any(
         move is not None and move.move.base_power > 0 and move.move.name not in context.config.battle.banned_moves
         for move in pokemon.moves
     )
 
-    if not has_usable_move:
-        raise BotModeError("Lead Pokémon has no usable moves!")
+
+def assert_party_can_fight(error_message: str, check_in_saved_game: bool = False) -> None:
+    """
+    Ensures the party has at least one Pokémon with a usable attacking move.
+    Raises a BotModeError if no Pokémon has any attack-capable moves.
+    """
+    party = get_party() if not check_in_saved_game else get_save_data().get_party()
+
+    if any(not pokemon.is_egg and not pokemon.is_empty and is_pokemon_able_to_fight(pokemon) for pokemon in party):
+        return
+
+    raise BotModeError(error_message)

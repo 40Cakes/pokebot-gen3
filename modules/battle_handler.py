@@ -91,6 +91,21 @@ def handle_fainted_pokemon(strategy: BattleStrategy):
                     return
 
     new_lead_index = strategy.choose_new_lead_after_faint(battle_state)
+
+    # If `choose_new_lead_after_faint()` has been called while NOT being in the party selection screen,
+    # `get_party()` still contains the 'original' (overworld) party order. Thus, we have to map the new
+    # index to the in-battle party index (because that's what we're going to select later) but only after
+    # all the sanity checks have been done.
+    # On the other hand, if this function was called IN the party menu, `get_party()` already returns the
+    # in-battle order and no mapping is needed.
+    #
+    # In practice, this function will be called OUTSIDE the party menu if the battle strategy chose to
+    # send out the next Pokémon (without trying to escape) because then the call happens during the
+    # dialogue.
+    # Whereas the function will be called IN the party menu if the strategy tried to escape and failed,
+    # because then the game automatically opens the party menu.
+    index_needs_mapping = get_game_state() != GameState.PARTY_MENU
+
     if context.bot_mode == "Manual":
         yield
         return
@@ -120,6 +135,9 @@ def handle_fainted_pokemon(strategy: BattleStrategy):
     # instead.
     if get_current_battle_script_instruction() == "BattleScript_FaintedMonEnd":
         return
+
+    if index_needs_mapping:
+        new_lead_index = battle_state.map_battle_party_index(new_lead_index)
 
     yield from scroll_to_party_menu_index(new_lead_index)
     while get_game_state() == GameState.PARTY_MENU:

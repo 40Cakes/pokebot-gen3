@@ -1,16 +1,15 @@
 import math
 from typing import TYPE_CHECKING
 
-from modules.battle_state import Weather, TemporaryStatus, BattleType
+from modules.battle_state import BattlePokemon, BattleState, Weather, TemporaryStatus, BattleType
 from modules.battle_strategies import TurnAction
 from modules.context import context
 from modules.items import ItemHoldEffect, get_item_bag, get_item_by_name
 from modules.memory import get_event_flag, read_symbol
-from modules.pokemon import StatusCondition, get_type_by_name, get_ability_by_name
+from modules.pokemon import StatusCondition, Pokemon, LearnedMove, get_type_by_name, get_ability_by_name, get_party
 from modules.modes._interface import BotModeError
 
 if TYPE_CHECKING:
-    from modules.battle_state import BattlePokemon, BattleState
     from modules.pokemon import Move, Type
 
 
@@ -164,9 +163,15 @@ class BattleStrategyUtil:
         return True
 
     def calculate_move_damage_range(
-        self, move: "Move", attacker: "BattlePokemon", defender: "BattlePokemon", is_critical_hit: bool = False
+        self,
+        move: "Move",
+        attacker: "Pokemon | BattlePokemon",
+        defender: "BattlePokemon",
+        is_critical_hit: bool = False,
     ) -> DamageRange:
         # todo: Bide, Counter, Endeavor, Mirror Coat
+        defender_types = defender.species.types if isinstance(defender, Pokemon) else defender.types
+        attacker_types = attacker.species.types if isinstance(attacker, Pokemon) else attacker.types
 
         damage = self._calculate_base_move_damage(move, attacker, defender, is_critical_hit)
 
@@ -177,7 +182,7 @@ class BattleStrategyUtil:
 
         if defender.ability.name == "Wonder Guard":
             super_effective = False
-            for defender_type in defender.types:
+            for defender_type in defender_types:
                 if move_type.get_effectiveness_against(defender_type) > 1:
                     super_effective = True
                     break
@@ -200,11 +205,11 @@ class BattleStrategyUtil:
             return DamageRange(0)
 
         # Same-type Attack Bonus
-        if move_type in attacker.types:
+        if move_type in attacker_types:
             damage = _percentage(damage, 150)
 
         # Type effectiveness
-        for defender_type in defender.types:
+        for defender_type in defender_types:
             damage = _percentage(damage, int(100 * move_type.get_effectiveness_against(defender_type)))
 
         if move.name == "Dragon Rage":
@@ -225,30 +230,40 @@ class BattleStrategyUtil:
         if is_critical_hit:
             damage *= 2
 
-        if TemporaryStatus.ChargedUp in attacker.status_temporary and move_type.name == "Electric":
+        if (
+            isinstance(attacker, BattlePokemon)
+            and TemporaryStatus.ChargedUp in attacker.status_temporary
+            and move_type.name == "Electric"
+        ):
             damage *= 2
 
         # todo: Helping Hand
 
         return DamageRange(max(1, _percentage(damage, 85)), damage)
 
-    def get_strongest_move_against(self, pokemon: "BattlePokemon", opponent: "BattlePokemon"):
+    def get_strongest_move_against(self, pokemon: "Pokemon | BattlePokemon", opponent: "BattlePokemon") -> int | None:
+        """
+        Determines the strongest move that a Pokémon can use against an opponent.
+        Supports both `Pokemon` and `BattlePokemon` for the ally parameter.
+        Raises BotModeError if no usable moves are found.
+        """
+        # Retrieve moves based on the type of the Pokémon object
+        moves = [move for move in pokemon.moves if move is not None]
+
         move_strengths = []
-        for learned_move in pokemon.moves:
+        for learned_move in moves:
             if learned_move.move.name in context.config.battle.banned_moves:
                 move_strengths.append(-1)
                 continue
             move = learned_move.move
-            if learned_move.pp == 0 or pokemon.disabled_move is move:
+            if learned_move.pp == 0 or (isinstance(pokemon, BattlePokemon) and pokemon.disabled_move is move):
                 move_strengths.append(-1)
             else:
                 move_strengths.append(self.calculate_move_damage_range(move, pokemon, opponent).max)
 
         max_strength = max(move_strengths)
         if max_strength <= 0:
-            raise BotModeError(
-                f"{pokemon.species.name} does not know any damage-dealing moves, or they are forbidden to use by bot configuration"
-            )
+            return None
 
         strongest_move = move_strengths.index(max_strength)
         return strongest_move
@@ -360,6 +375,16 @@ class BattleStrategyUtil:
                 defence *= 2
 
         # Abilities
+        if isinstance(attacker, Pokemon):
+            attacker_status = attacker.status_condition
+        else:
+            attacker_status = attacker.status_permanent
+
+        if isinstance(defender, Pokemon):
+            defender_status = defender.status_condition
+        else:
+            defender_status = defender.status_permanent
+
         if defender.ability.name == "Thick Fat" and move_type.name in ("Fire", "Ice"):
             special_attack //= 2
         if attacker.ability.name == "Hustle":
@@ -369,9 +394,9 @@ class BattleStrategyUtil:
                 special_attack = _percentage(special_attack, 150)
             if attacker.ability.name == "Minus" and attacker_partner.ability.name == "Plus":
                 special_attack = _percentage(special_attack, 150)
-        if attacker.ability.name == "Guts" and attacker.status_permanent is not StatusCondition.Healthy:
+        if attacker.ability.name == "Guts" and attacker_status is not StatusCondition.Healthy:
             attack = _percentage(attack, 150)
-        if defender.ability.name == "Marvel Scale" and attacker.status_permanent is not StatusCondition.Healthy:
+        if defender.ability.name == "Marvel Scale" and attacker_status is not StatusCondition.Healthy:
             defence = _percentage(defence, 150)
 
         # todo:
@@ -395,23 +420,29 @@ class BattleStrategyUtil:
         damage = 0
 
         if move_type.is_physical:
-            if is_critical_hit and attacker.stats_modifiers.attack <= 0:
-                damage = attack
+            if isinstance(attacker, BattlePokemon):
+                if is_critical_hit and attacker.stats_modifiers.attack <= 0:
+                    damage = attack
+                else:
+                    damage = _calculate_modified_stat(attack, attacker.stats_modifiers.attack)
             else:
-                damage = _calculate_modified_stat(attack, attacker.stats_modifiers.attack)
+                damage = attack
 
             damage *= move_power
             damage *= 2 * attacker.level // 5 + 2
 
-            if is_critical_hit and defender.stats_modifiers.defence > 0:
-                damage //= defence
+            if isinstance(defender, BattlePokemon):
+                if is_critical_hit and defender.stats_modifiers.defence > 0:
+                    damage //= defence
+                else:
+                    damage //= _calculate_modified_stat(defence, defender.stats_modifiers.defence)
             else:
-                damage //= _calculate_modified_stat(defence, defender.stats_modifiers.defence)
+                damage //= defence
 
             damage //= 50
 
             # Burn cuts attack in half
-            if attacker.status_permanent is StatusCondition.Burn:
+            if attacker_status is StatusCondition.Burn:
                 damage //= 2
 
             # Reflect
@@ -433,18 +464,22 @@ class BattleStrategyUtil:
             damage = 0
 
         if move_type.is_special:
-            if is_critical_hit and attacker.stats_modifiers.special_attack <= 0:
+            if is_critical_hit and isinstance(attacker, BattlePokemon) and attacker.stats_modifiers.special_attack <= 0:
                 damage = special_attack
-            else:
+            elif isinstance(attacker, BattlePokemon):
                 damage = _calculate_modified_stat(special_attack, attacker.stats_modifiers.special_attack)
+            else:
+                damage = special_attack
 
             damage *= move_power
             damage *= 2 * attacker.level // 5 + 2
 
-            if is_critical_hit and defender.stats_modifiers.special_defence > 0:
+            if is_critical_hit and isinstance(defender, BattlePokemon) and defender.stats_modifiers.special_defence > 0:
                 damage //= special_defence
-            else:
+            elif isinstance(defender, BattlePokemon):
                 damage //= _calculate_modified_stat(special_defence, defender.stats_modifiers.special_defence)
+            else:
+                damage //= special_defence
 
             damage //= 50
 
@@ -483,3 +518,81 @@ class BattleStrategyUtil:
             # todo: Flash Fire
 
         return damage + 2
+
+    def get_potential_rotation_targets(self, battle_state: BattleState | None = None) -> list[int]:
+        """
+        Returns the indices of party Pokémon that are usable for battle.
+        A Pokémon is considered usable if it has enough HP, is not an egg,
+        is not already active, and has a valid move to damage the opponent.
+        """
+        active_party_indices = []
+        if battle_state is not None:
+            if battle_state.own_side.left_battler is not None:
+                active_party_indices.append(battle_state.own_side.left_battler.party_index)
+            if battle_state.own_side.right_battler is not None:
+                active_party_indices.append(battle_state.own_side.right_battler.party_index)
+
+        party = get_party()
+        usable_pokemon = []
+
+        for index, pokemon in enumerate(party):
+            # Skip eggs, fainted Pokémon, or already active Pokémon
+            if pokemon.is_egg or not self.pokemon_has_enough_hp(pokemon) or index in active_party_indices:
+                continue
+
+            # Check if the Pokémon has any move that can deal damage to the opponent
+            if battle_state is not None and battle_state.opponent.active_battler is not None:
+                opponent = battle_state.opponent.active_battler
+
+                if self.get_strongest_move_against(pokemon, opponent) is not None:
+                    usable_pokemon.append(index)
+            else:
+                # If there's no opponent context, fall back to checking move usability
+                if any(self.move_is_usable(move) for move in pokemon.moves):
+                    usable_pokemon.append(index)
+
+        return usable_pokemon
+
+    def select_rotation_target(self, battle_state: BattleState | None = None) -> int | None:
+        indices = self.get_potential_rotation_targets(battle_state)
+        if len(indices) == 0:
+            return None
+
+        party = get_party()
+        values = []
+        for index in indices:
+            pokemon = party[index]
+            if context.config.battle.switch_strategy == "lowest_level":
+                value = 100 - pokemon.level
+            else:
+                value = pokemon.current_hp
+                if pokemon.status_condition in (StatusCondition.Sleep, StatusCondition.Freeze):
+                    value *= 0.25
+                elif pokemon.status_condition == StatusCondition.BadPoison:
+                    value *= 0.5
+                elif pokemon.status_condition in (
+                    StatusCondition.BadPoison,
+                    StatusCondition.Poison,
+                    StatusCondition.Burn,
+                ):
+                    value *= 0.65
+                elif pokemon.status_condition == StatusCondition.Paralysis:
+                    value *= 0.8
+
+            values.append(value)
+
+        best_value = max(values)
+        index = indices[values.index(best_value)]
+
+        return index
+
+    def move_is_usable(self, move: LearnedMove):
+        return (
+            move is not None
+            and move.move.base_power > 0
+            and move.pp > 0
+            and move.move.name not in context.config.battle.banned_moves
+        )
+
+    def pokemon_has_enough_hp(self, pokemon: Pokemon | BattlePokemon):
+        return pokemon.current_hp_percentage > context.config.battle.hp_threshold
