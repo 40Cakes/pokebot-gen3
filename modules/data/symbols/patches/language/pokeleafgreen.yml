@@ -251,6 +251,12 @@ BattleScript_ForgotAndLearnedNewMove:
   I: 0x81d5e8e
   J: 0x81bc9e0
   S: 0x81d8556
+HandleEndTurn_FinishBattle:
+  D: 0x8015894
+  F: 0x8015880
+  I: 0x8015894
+  J: 0x8015128
+  S: 0x8015880
 sMoveSelectionCursorPos:
   J: 0x203b0e1
 gMoveSelectionCursor:
