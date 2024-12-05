@@ -137,8 +137,24 @@ class LevelGrindMode(BotMode):
             ):
                 self._go_healing = True
         else:
-            # TODO as Improvement : If lead can now battle, don't check for party_can_battle, and go heal
-            if lead_pokemon.current_hp == 0 or not LevelUpLeadBattleStrategy().party_can_battle():
+            if lead_pokemon.current_hp_percentage < context.config.battle.hp_threshold:
+                self._go_healing = True
+
+            lead_pokemon_has_damaging_moves = False
+            lead_pokemon_has_damaging_move_with_pp = False
+            for learned_move in lead_pokemon.moves:
+                if (
+                    learned_move is not None
+                    and learned_move.move.base_power > 1
+                    and learned_move.move.name not in context.config.battle.banned_moves
+                ):
+                    lead_pokemon_has_damaging_moves = True
+                    if learned_move.pp > 0:
+                        lead_pokemon_has_damaging_move_with_pp = True
+            if lead_pokemon_has_damaging_moves and not lead_pokemon_has_damaging_move_with_pp:
+                self._go_healing = True
+
+            if not LevelUpLeadBattleStrategy().party_can_battle():
                 self._go_healing = True
 
     def on_whiteout(self) -> bool:
