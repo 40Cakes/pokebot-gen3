@@ -718,6 +718,12 @@ Task_SurfFieldEffect:
   I: 0x80b8d98
   J: 0x80b84dc
   S: 0x80b8d98
+HandleEndTurn_FinishBattle:
+  D: ~ # No need mapping
+  F: ~ # No need mapping
+  I: ~ # No need mapping
+  J: 0x803d918
+  S: ~ # No need mapping
 
 #---------------------#
 #   Pokemon renaming  #
