@@ -120,12 +120,6 @@ CB2_RETURNTOFIELD:
   I: ~
   J: ~
   S: ~
-CB2_RETURNTOFIELDCONTINUESCRIPTPLAYMAPMUSIC:
-  D: 0x80568e4
-  F: ~
-  I: ~
-  J: ~
-  S: ~
 gMain:
   D: 0x3003040
   F: 0x3003040
@@ -666,9 +660,16 @@ Trade_Text_WhatThatsNoMon:
   J: 0x0
 NavelRock_Summit_EventScript_HideHoOh:
   F: 0x0
+
 # Unused
 CB2_CONTINUESAVEDGAME:
   D: 0x8056958
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_RETURNTOFIELDCONTINUESCRIPTPLAYMAPMUSIC:
+  D: 0x80568e4
   F: ~
   I: ~
   J: ~
