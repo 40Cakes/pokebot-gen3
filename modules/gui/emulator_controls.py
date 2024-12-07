@@ -94,13 +94,15 @@ class EmulatorControls:
         self.save_menu.add_separator()
         self.save_menu.add_command(
             label="Help",
-            command=lambda: webbrowser.open_new_tab("https://github.com/40Cakes/pokebot-gen3/tree/main/wiki"),
+            command=lambda: webbrowser.open_new_tab(
+                "https://github.com/40Cakes/pokebot-gen3/blob/main/wiki/pages/Data%20Manipulation%20-%20Save%20Modification.md"
+            ),
         )
 
         self.menu_bar.add_cascade(label="Emulator", menu=self.emulator_menu)
         self.menu_bar.add_cascade(label="Profile", menu=self.profile_menu)
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
-        self.menu_bar.add_cascade(label="Save modifier", menu=self.save_menu)
+        self.menu_bar.add_cascade(label="Data Manipulation", menu=self.save_menu)
 
         self.window.config(menu=self.menu_bar)
 
