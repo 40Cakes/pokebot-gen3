@@ -8,7 +8,8 @@ from showinfm import show_in_file_manager
 from modules.console import console
 from modules.context import context
 from modules.libmgba import LibmgbaEmulator
-from modules.memory import GameState, get_game_state, export_flags_and_vars, write_flags_and_vars
+from modules.memory import GameState, get_game_state
+from modules.debug_utilities import export_flags_and_vars, write_flags_and_vars
 from modules.modes import get_bot_modes
 from modules.version import pokebot_name, pokebot_version
 from modules.runtime import get_base_path
@@ -81,28 +82,29 @@ class EmulatorControls:
             ),
         )
 
-        self.save_menu = Menu(self.window, tearoff=0)  # Creating save_menu here
-        self.save_menu.add_command(
-            label="Export events and vars",
-            command=lambda: self.export_flags_and_vars(),
-        )
-        self.save_menu.add_command(
-            label="Import events and vars",
-            command=lambda: self.write_flags_and_vars(),
-            state="normal" if (EVENT_FLAGS_FILE.exists() and EVENT_VARS_FILE.exists()) else "disabled",
-        )
-        self.save_menu.add_separator()
-        self.save_menu.add_command(
-            label="Help",
-            command=lambda: webbrowser.open_new_tab(
-                "https://github.com/40Cakes/pokebot-gen3/blob/main/wiki/pages/Data%20Manipulation%20-%20Save%20Modification.md"
-            ),
-        )
-
         self.menu_bar.add_cascade(label="Emulator", menu=self.emulator_menu)
         self.menu_bar.add_cascade(label="Profile", menu=self.profile_menu)
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
-        self.menu_bar.add_cascade(label="Data Manipulation", menu=self.save_menu)
+
+        if context.debug:
+            self.save_menu = Menu(self.window, tearoff=0)
+            self.save_menu.add_command(
+                label="Export events and vars",
+                command=lambda: self.export_flags_and_vars(),
+            )
+            self.save_menu.add_command(
+                label="Import events and vars",
+                command=lambda: self.write_flags_and_vars(),
+                state="normal" if (EVENT_FLAGS_FILE.exists() and EVENT_VARS_FILE.exists()) else "disabled",
+            )
+            self.save_menu.add_separator()
+            self.save_menu.add_command(
+                label="Help",
+                command=lambda: webbrowser.open_new_tab(
+                    "https://github.com/40Cakes/pokebot-gen3/blob/main/wiki/pages/Data%20Manipulation%20-%20Save%20Modification.md"
+                ),
+            )
+            self.menu_bar.add_cascade(label="Data Manipulation", menu=self.save_menu)
 
         self.window.config(menu=self.menu_bar)
 

@@ -1,5 +1,7 @@
 # 💾 Save Modification
 
+> ⚠️ **Warning**: This feature is only available using debug mode (use `--debug` option when running the bot)
+
 The **Save Modification** feature allows users to export and import event flags and variables for the emulator. 
 
 Below is a detailed guide to use this feature.
