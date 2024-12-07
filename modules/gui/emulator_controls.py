@@ -8,9 +8,15 @@ from showinfm import show_in_file_manager
 from modules.console import console
 from modules.context import context
 from modules.libmgba import LibmgbaEmulator
-from modules.memory import GameState, get_game_state
+from modules.memory import GameState, get_game_state, export_flags, write_flags_and_vars
 from modules.modes import get_bot_modes
 from modules.version import pokebot_name, pokebot_version
+from modules.runtime import get_base_path
+
+
+PROFILES_DIRECTORY = get_base_path() / "profiles"
+EVENT_FLAGS_FILE = PROFILES_DIRECTORY / "event_flags.txt"
+EVENT_VARS_FILE = PROFILES_DIRECTORY / "event_vars.txt"
 
 
 class EmulatorControls:
@@ -65,9 +71,27 @@ class EmulatorControls:
             ),
         )
 
+        save_menu = Menu(self.window, tearoff=0)
+        save_menu.add_command(
+            label="Export events and vars",
+            command=lambda: self.export_flags(),
+        )
+        save_menu.add_command(
+            label="Import events and vars",
+            command=lambda: write_flags_and_vars,
+            state="normal" if (EVENT_FLAGS_FILE.exists() and EVENT_VARS_FILE.exists()) else "disabled",
+        )
+        save_menu.add_separator()
+        save_menu.add_command(
+            label="Help",
+            command=lambda: webbrowser.open_new_tab("https://github.com/40Cakes/pokebot-gen3/tree/main/wiki"),
+        )
+
         self.menu_bar.add_cascade(label="Emulator", menu=emulator_menu)
         self.menu_bar.add_cascade(label="Profile", menu=profile_menu)
         self.menu_bar.add_cascade(label="Help", menu=help_menu)
+        self.menu_bar.add_cascade(label="Save modifier", menu=save_menu)
+
         self.window.config(menu=self.menu_bar)
 
         self.frame = ttk.Frame(self.window, padding=5)
@@ -82,6 +106,10 @@ class EmulatorControls:
         self._add_message_area(row=1, column=0, columnspan=3)
         self._add_stats_and_version_notice(row=2, column=0, columnspan=3)
 
+        self.update()
+
+    def export_flags(self) -> None:
+        export_flags()
         self.update()
 
     def remove_from_window(self) -> None:
