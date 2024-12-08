@@ -7,14 +7,14 @@ from showinfm import show_in_file_manager
 
 from modules.console import console
 from modules.context import context
+from modules.debug_utilities import export_flags_and_vars, write_flags_and_vars
+from modules.gui.debug_edit_party import run_edit_party_screen
+from modules.gui.multi_select_window import ask_for_confirmation
 from modules.libmgba import LibmgbaEmulator
 from modules.memory import GameState, get_game_state
-from modules.debug_utilities import export_flags_and_vars, write_flags_and_vars
 from modules.modes import get_bot_modes
-from modules.version import pokebot_name, pokebot_version
 from modules.runtime import get_base_path
-from modules.gui.multi_select_window import ask_for_confirmation
-
+from modules.version import pokebot_name, pokebot_version
 
 PROFILES_DIRECTORY = get_base_path() / "profiles"
 EVENT_FLAGS_FILE = PROFILES_DIRECTORY / "event_flags.txt"
@@ -41,7 +41,7 @@ class EmulatorControls:
         self.emulator_menu: Menu | None = None
         self.profile_menu: Menu | None = None
         self.help_menu: Menu | None = None
-        self.save_menu: Menu | None = None
+        self.debug_menu: Menu | None = None
 
     def get_additional_width(self) -> int:
         return 0
@@ -87,24 +87,30 @@ class EmulatorControls:
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
 
         if context.debug:
-            self.save_menu = Menu(self.window, tearoff=0)
-            self.save_menu.add_command(
+            self.debug_menu = Menu(self.window, tearoff=0)
+            self.debug_menu.add_command(
                 label="Export events and vars",
                 command=lambda: self.export_flags_and_vars(),
             )
-            self.save_menu.add_command(
+            self.debug_menu.add_command(
                 label="Import events and vars",
                 command=lambda: self.write_flags_and_vars(),
                 state="normal" if (EVENT_FLAGS_FILE.exists() and EVENT_VARS_FILE.exists()) else "disabled",
             )
-            self.save_menu.add_separator()
-            self.save_menu.add_command(
+            self.debug_menu.add_separator()
+            self.debug_menu.add_command(
+                label="Edit Party",
+                command=run_edit_party_screen,
+                state="normal" if get_game_state() == GameState.OVERWORLD else "disabled",
+            )
+            self.debug_menu.add_separator()
+            self.debug_menu.add_command(
                 label="Help",
                 command=lambda: webbrowser.open_new_tab(
                     "https://github.com/40Cakes/pokebot-gen3/blob/main/wiki/pages/Data%20Manipulation%20-%20Save%20Modification.md"
                 ),
             )
-            self.menu_bar.add_cascade(label="Data Manipulation", menu=self.save_menu)
+            self.menu_bar.add_cascade(label="Debug", menu=self.debug_menu)
 
         self.window.config(menu=self.menu_bar)
 
@@ -144,8 +150,8 @@ class EmulatorControls:
         """
         import_state = "normal" if (EVENT_FLAGS_FILE.exists() and EVENT_VARS_FILE.exists()) else "disabled"
 
-        if self.save_menu:
-            self.save_menu.entryconfig(1, state=import_state)
+        if self.debug_menu:
+            self.debug_menu.entryconfig(1, state=import_state)
 
     def remove_from_window(self) -> None:
         if self.frame:

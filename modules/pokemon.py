@@ -390,7 +390,10 @@ class LearnedMove:
     move: Move
     total_pp: int
     pp: int
-    added_pps: int
+    pp_ups: int
+
+    def added_pps(self) -> int:
+        return self.total_pp - self.move.pp
 
     def __str__(self):
         return f"{self.move.name} ({self.pp} / {self.total_pp})"
@@ -442,7 +445,7 @@ class StatsValues:
             # Shedinja always has 1 HP
             hp = 1
         else:
-            hp = ((2 * species.base_stats.hp + ivs.hp + (evs.hp // 4)) * level) / 100 + 5 + level
+            hp = ((2 * species.base_stats.hp + ivs.hp + (evs.hp // 4)) * level) // 100 + 10 + level
 
         stats = {
             i: (((2 * species.base_stats[i] + ivs[i] + (evs[i] // 4)) * level) // 100 + 5) * nature.modifiers[i]
@@ -504,6 +507,28 @@ class Nature:
 
     def __str__(self):
         return self.name
+
+    @property
+    def name_with_modifiers(self) -> str:
+        increased_stat = None
+        decreased_stat = None
+        for stat in self.modifiers:
+            if self.modifiers[stat] > 1:
+                increased_stat = stat
+            elif self.modifiers[stat] < 1:
+                decreased_stat = stat
+
+        if increased_stat is None or decreased_stat is None or increased_stat == decreased_stat:
+            return f"{self.name} (neutral)"
+
+        stat_name_map = {
+            "attack": "Atk",
+            "defence": "Def",
+            "speed": "Speed",
+            "special_attack": "SpAtk",
+            "special_defence": "SpDef",
+        }
+        return f"{self.name} (+{stat_name_map[increased_stat]}, -{stat_name_map[decreased_stat]})"
 
     @classmethod
     def from_dict(cls, index: int, data: dict) -> "Nature":
@@ -766,6 +791,23 @@ class StatusCondition(Enum):
             condition = StatusCondition.Sleep
         return condition
 
+    def to_bitfield(self) -> int:
+        match self:
+            case StatusCondition.Healthy:
+                return 0
+            case StatusCondition.Sleep:
+                return 0b0000_0111
+            case StatusCondition.Poison:
+                return 0b0000_1000
+            case StatusCondition.Burn:
+                return 0b0001_0000
+            case StatusCondition.Freeze:
+                return 0b0010_0000
+            case StatusCondition.Paralysis:
+                return 0b0100_0000
+            case StatusCondition.BadPoison:
+                return 0b1000_0000
+
 
 @dataclass
 class PokerusStatus:
@@ -941,7 +983,7 @@ class Pokemon:
         pp_bonuses = (self._decrypted_data[40] >> (2 * index)) & 0b11
         total_pp = move.pp + ((move.pp * 20 * pp_bonuses) // 100)
         pp = self._decrypted_data[52 + index]
-        return LearnedMove(move=move, total_pp=total_pp, pp=pp, added_pps=total_pp - move.pp)
+        return LearnedMove(move=move, total_pp=total_pp, pp=pp, pp_ups=pp_bonuses)
 
     @property
     def moves(self) -> tuple[LearnedMove | None, LearnedMove | None, LearnedMove | None, LearnedMove | None]:
