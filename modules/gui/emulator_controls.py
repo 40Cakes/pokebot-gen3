@@ -9,8 +9,16 @@ from modules.console import console
 from modules.context import context
 from modules.libmgba import LibmgbaEmulator
 from modules.memory import GameState, get_game_state
+from modules.debug_utilities import export_flags_and_vars, write_flags_and_vars
 from modules.modes import get_bot_modes
 from modules.version import pokebot_name, pokebot_version
+from modules.runtime import get_base_path
+from modules.gui.multi_select_window import ask_for_confirmation
+
+
+PROFILES_DIRECTORY = get_base_path() / "profiles"
+EVENT_FLAGS_FILE = PROFILES_DIRECTORY / "event_flags.txt"
+EVENT_VARS_FILE = PROFILES_DIRECTORY / "event_vars.txt"
 
 
 class EmulatorControls:
@@ -30,6 +38,11 @@ class EmulatorControls:
         self.bot_message: ttk.Label
         self.stats_label: ttk.Label
 
+        self.emulator_menu: Menu | None = None
+        self.profile_menu: Menu | None = None
+        self.help_menu: Menu | None = None
+        self.save_menu: Menu | None = None
+
     def get_additional_width(self) -> int:
         return 0
 
@@ -41,33 +54,58 @@ class EmulatorControls:
 
         self.menu_bar = Menu(self.window)
 
-        emulator_menu = Menu(self.window, tearoff=0)
-        emulator_menu.add_command(label="Load Save State", command=lambda: LoadStateWindow(self.window))
-        emulator_menu.add_command(label="New Save State", command=lambda: context.emulator.create_save_state("Manual"))
-        emulator_menu.add_command(label="Take Screenshot", command=lambda: context.emulator.take_screenshot("manual"))
-        emulator_menu.add_separator()
-        emulator_menu.add_command(label="Reset", command=context.emulator.reset)
+        self.emulator_menu = Menu(self.window, tearoff=0)
+        self.emulator_menu.add_command(label="Load Save State", command=lambda: LoadStateWindow(self.window))
+        self.emulator_menu.add_command(
+            label="New Save State", command=lambda: context.emulator.create_save_state("Manual")
+        )
+        self.emulator_menu.add_command(
+            label="Take Screenshot", command=lambda: context.emulator.take_screenshot("manual")
+        )
+        self.emulator_menu.add_separator()
+        self.emulator_menu.add_command(label="Reset", command=context.emulator.reset)
 
-        profile_menu = Menu(self.window, tearoff=0)
-        profile_menu.add_command(
+        self.profile_menu = Menu(self.window, tearoff=0)
+        self.profile_menu.add_command(
             label="Open Profile Folder", command=lambda: show_in_file_manager(str(context.profile.path))
         )
 
-        help_menu = Menu(self.window, tearoff=0)
-        help_menu.add_command(
+        self.help_menu = Menu(self.window, tearoff=0)
+        self.help_menu.add_command(
             label=f"{pokebot_name} Wiki",
             command=lambda: webbrowser.open_new_tab("https://github.com/40Cakes/pokebot-gen3/tree/main/wiki"),
         )
-        help_menu.add_command(
+        self.help_menu.add_command(
             label="Discord #pokebot-gen3-support",
             command=lambda: webbrowser.open_new_tab(
                 "https://discord.com/channels/1057088810950860850/1139190426834833528"
             ),
         )
 
-        self.menu_bar.add_cascade(label="Emulator", menu=emulator_menu)
-        self.menu_bar.add_cascade(label="Profile", menu=profile_menu)
-        self.menu_bar.add_cascade(label="Help", menu=help_menu)
+        self.menu_bar.add_cascade(label="Emulator", menu=self.emulator_menu)
+        self.menu_bar.add_cascade(label="Profile", menu=self.profile_menu)
+        self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
+
+        if context.debug:
+            self.save_menu = Menu(self.window, tearoff=0)
+            self.save_menu.add_command(
+                label="Export events and vars",
+                command=lambda: self.export_flags_and_vars(),
+            )
+            self.save_menu.add_command(
+                label="Import events and vars",
+                command=lambda: self.write_flags_and_vars(),
+                state="normal" if (EVENT_FLAGS_FILE.exists() and EVENT_VARS_FILE.exists()) else "disabled",
+            )
+            self.save_menu.add_separator()
+            self.save_menu.add_command(
+                label="Help",
+                command=lambda: webbrowser.open_new_tab(
+                    "https://github.com/40Cakes/pokebot-gen3/blob/main/wiki/pages/Data%20Manipulation%20-%20Save%20Modification.md"
+                ),
+            )
+            self.menu_bar.add_cascade(label="Data Manipulation", menu=self.save_menu)
+
         self.window.config(menu=self.menu_bar)
 
         self.frame = ttk.Frame(self.window, padding=5)
@@ -83,6 +121,31 @@ class EmulatorControls:
         self._add_stats_and_version_notice(row=2, column=0, columnspan=3)
 
         self.update()
+
+    def export_flags_and_vars(self) -> None:
+        export_flags_and_vars()
+        self.refresh_save_menu()
+        context.message = "Flags and vars copied !"
+
+    def write_flags_and_vars(self) -> None:
+        write_confirmation = ask_for_confirmation(
+            "Warning: This action will overwrite the current event flags and variables with the data from your local flags and vars text files. To apply these changes, make sure to save your game and reset the bot. Are you sure you want to proceed?"
+        )
+
+        if not write_confirmation:
+            return
+
+        write_flags_and_vars()
+        context.message = "Flags and vars successfully imported ! Save and reset your game to apply."
+
+    def refresh_save_menu(self):
+        """
+        Updates the state of the Save menu items dynamically.
+        """
+        import_state = "normal" if (EVENT_FLAGS_FILE.exists() and EVENT_VARS_FILE.exists()) else "disabled"
+
+        if self.save_menu:
+            self.save_menu.entryconfig(1, state=import_state)
 
     def remove_from_window(self) -> None:
         if self.frame:
