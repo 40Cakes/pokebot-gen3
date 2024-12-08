@@ -9,6 +9,7 @@ from showinfm import show_in_file_manager
 from modules.console import console
 from modules.context import context
 from modules.debug_utilities import export_flags_and_vars, import_flags_and_vars
+from modules.gui.debug_edit_party import run_edit_party_screen
 from modules.gui.multi_select_window import ask_for_confirmation
 from modules.libmgba import LibmgbaEmulator
 from modules.memory import GameState, get_game_state
@@ -85,6 +86,8 @@ class EmulatorControls:
             self.debug_menu = Menu(self.window, tearoff=0)
             self.debug_menu.add_command(label="Export events and vars", command=lambda: self.export_flags_and_vars())
             self.debug_menu.add_command(label="Import events and vars", command=lambda: self.import_flags_and_vars())
+            self.debug_menu.add_separator()
+            self.debug_menu.add_command(label="Edit Party", command=run_edit_party_screen)
             self.debug_menu.add_separator()
             self.debug_menu.add_command(
                 label="Help",
