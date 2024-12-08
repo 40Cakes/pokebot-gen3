@@ -13,15 +13,13 @@ from modules.gui.desktop_notification import desktop_notification
 from modules.map_data import get_map_enum
 from modules.memory import get_game_state, GameState
 from modules.modes import BattleAction
-from modules.player import get_player, get_player_avatar
+from modules.player import get_player_avatar
 from modules.plugins import plugin_judge_encounter, plugin_logging_encounter
 from modules.pokedex import get_pokedex
 from modules.roamer import get_roamer
 from modules.runtime import get_sprites_path
-from modules.tcg_card import generate_tcg_card
 
 if TYPE_CHECKING:
-    from modules.map_data import MapRSE, MapFRLG
     from modules.pokemon import Pokemon
 
 
@@ -244,7 +242,7 @@ def handle_encounter(
             get_sprites_path()
             / "pokemon"
             / f"{'shiny' if pokemon.is_shiny else 'normal'}"
-            / f"{pokemon.species.name}.png"
+            / f"{make_string_safe_for_file_name(pokemon.species.name)}.png"
         )
         desktop_notification(title=alert[0], message=alert[1], icon=alert_icon)
 
