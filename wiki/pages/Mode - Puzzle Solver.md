@@ -149,7 +149,7 @@ Start bot mode anywhere inside the glass workshop.
 |                  | 🔷 Sapphire  |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 |                  | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 |                  | 🔥 Fire Red  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🌿 LeafGreen |    ✅    |    ❌     |   ✅    |    ✅    |   ✅    |    ✅    |
+|                  | 🌿 LeafGreen |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 | **Regice**       | 🟥 Ruby      |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 |                  | 🔷 Sapphire  |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 |                  | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
@@ -160,7 +160,7 @@ Start bot mode anywhere inside the glass workshop.
 |                  | 🔷 Sapphire  |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 |                  | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 | **Tanoby Key**   | 🔥 Fire Red  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🌿 LeafGreen |    ✅    |    ❌     |   ✅    |    ✅    |   ✅    |    ✅    |
+|                  | 🌿 LeafGreen |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 | **White Flute**  | 🟥 Ruby      |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 |                  | 🔷 Sapphire  |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 |                  | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
