@@ -28,10 +28,10 @@ Task_ExitDoor:
   S: 0x807dfc8
 WaitForAorBPress:
   D: 0x806b858
-  F: ~
-  I: ~
-  J: 0x806b159
-  S: ~
+  F: 0x806b918
+  I: 0x806b844
+  J: 0x806b158
+  S: 0x806b92c
 EventScript_UseStrength:
   D: 0x81c1bc4
   F: 0x81bcae4
@@ -98,28 +98,28 @@ sMapCursor:
 #--------------------#
 CB2_OVERWORLDBASIC:
   D: 0x80565c8
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x8056688
+  I: ~ # No need mapping
+  J: 0x8055e68
+  S: 0x805669c
 CB2_INITBATTLE:
   D: 0x800fd20
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x800fd0c
+  I: 0x800fd20
+  J: 0x800f758
+  S: 0x800fd0c
 CB2_HANDLESTARTBATTLE:
   D: 0x801048c
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x8010478
+  I: 0x801048c
+  J: 0x800fec4
+  S: 0x8010478
 CB2_RETURNTOFIELD:
   D: 0x80567fc
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x80568bc
+  I: 0x80567e8
+  J: 0x805609c
+  S: 0x80568d0
 gMain:
   D: 0x3003040
   F: 0x3003040
@@ -198,10 +198,10 @@ BattleScript_HandleFaintedMon:
   S: 0x81d81e0
 Task_BattleStart:
   D: 0x807f558
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x807f618
+  I: 0x807f544
+  J: 0x807ed1c
+  S: 0x807f62c
 Task_EvolutionScene:
   D: 0x80cea50
   F: 0x80ceb10
@@ -399,16 +399,16 @@ CB2_Intro:
   S: 0x80eccb8
 CB2_INITTITLESCREEN:
   D: 0x8078878
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x8078938
+  I: 0x8078864
+  J: 0x80780ac
+  S: 0x807894c
 CB2_INITMAINMENU:
   D: 0x800c280
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x800c26c
+  I: 0x800c280
+  J: 0x800bce0
+  S: 0x800c26c
 CB2_MAINMENU:
   D: 0x800c254
   F: 0x800c240
@@ -417,16 +417,16 @@ CB2_MAINMENU:
   S: 0x800c240
 CB2_RETURNTOFIELDLOCAL:
   D: 0x8056828
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x80568e8
+  I: 0x8056814
+  J: 0x80560c8
+  S: 0x80568fc
 MAINCB2:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  D: 0x80cd640
+  F: 0x803cecc
+  I: 0x80cd520
+  J: 0x80ce4ec
+  S: 0x80cd608
 #-----------------#
 
 #-----------------#
@@ -486,10 +486,10 @@ CB2_UPDATEPARTYMENU:
   S: 0x811ecd8
 Task_PrintAndWaitForText:
   D: 0x8120334
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x81203f4
+  I: 0x8123c58
+  J: 0x8120af0
+  S: 0x8120460
 Task_HandleInput:
   D: 0x809f328
   F: 0x809f3e8
@@ -504,10 +504,10 @@ Task_HandleSelectionMenuInput:
   S: 0x8122d98
 Task_SlideSelectedSlotsOnscreen:
   D: 0x8123398
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x8123454
+  I: 0x81233d8
+  J: 0x8123b3c
+  S: 0x81234c4
 gPartyMenu:
   J: 0x203b014
 sPartyMenuInternal:
@@ -541,17 +541,17 @@ gPokemonStoragePtr:
 #   Listeners  #
 #--------------#
 CB2_EggHatch_0:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  D: 0x8046f48
+  F: 0x8047008
+  I: 0x8046f34
+  J: 0x80465d0
+  S: 0x804701c
 CB2_EggHatch_1:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  D: 0x804723c
+  F: 0x80472fc
+  I: 0x8047228
+  J: 0x80468c0
+  S: 0x8047310
 EventScript_RepelWoreOff:
   D: 0x81c368c
   F: 0x81be5b0
