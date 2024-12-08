@@ -571,11 +571,11 @@ EventScript_DoTrainerBattle:
   J: 0x8192ee5
   S: 0x81a4abf
 EventScript_FieldPoison:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x81abc0b
+  F: 0x81a7802
+  I: 0x81a6661
   J: 0x819637f
-  S: ~
+  S: 0x81a88a2
 #---------------#
 
 #---------------------#
