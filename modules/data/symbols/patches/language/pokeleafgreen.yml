@@ -558,18 +558,18 @@ EventScript_RepelWoreOff:
   I: 0x81bd0f7
   J: 0x81a5d60
   S: 0x81bf7d0
-EventScript_DoTrainerBattle:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
 EventScript_DoTrainerBattleFromApproach:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  D: 0x81a7b44
+  F: 0x81a39f5
+  I: 0x81a282d
+  J: 0x8192dd2
+  S: 0x81a49a6
+EventScript_DoTrainerBattle:
+  D: 0x81a7c5d
+  F: 0x81a3b0e
+  I: 0x81a2946
+  J: 0x8192ee5
+  S: 0x81a4abf
 EventScript_FieldPoison:
   D: ~
   F: ~
@@ -660,6 +660,8 @@ Trade_Text_WhatThatsNoMon:
   J: 0x0
 NavelRock_Summit_EventScript_HideHoOh:
   F: 0x0
+PokemonMansion_EventScript_DontPressSwitch:
+  D: 0x0
 
 # Unused
 CB2_CONTINUESAVEDGAME:
