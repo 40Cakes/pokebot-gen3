@@ -8092,7 +8092,7 @@
     },
     {
         "index": 279,
-        "name": "Go-goggles",
+        "name": "Go-Goggles",
         "price": 0,
         "type": "use_and_stay_in_item_menu",
         "battle_use": null,
@@ -10615,7 +10615,7 @@
     },
     {
         "index": 366,
-        "name": "Teachy Tv",
+        "name": "Teachy TV",
         "price": 0,
         "type": "use_and_return_to_overworld",
         "battle_use": null,
@@ -10644,7 +10644,7 @@
     },
     {
         "index": 367,
-        "name": "Tri-pass",
+        "name": "Tri-Pass",
         "price": 0,
         "type": "use_and_stay_in_item_menu",
         "battle_use": null,
@@ -10731,7 +10731,7 @@
     },
     {
         "index": 370,
-        "name": "Mysticticket",
+        "name": "MysticTicket",
         "price": 0,
         "type": "use_and_stay_in_item_menu",
         "battle_use": null,
@@ -10760,7 +10760,7 @@
     },
     {
         "index": 371,
-        "name": "Auroraticket",
+        "name": "AuroraTicket",
         "price": 0,
         "type": "use_and_stay_in_item_menu",
         "battle_use": null,
