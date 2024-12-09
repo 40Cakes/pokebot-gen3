@@ -225,6 +225,14 @@ def extract_items(english_rom: ROM, localised_roms: dict[str, ROM]) -> list[dict
                 pretty_name = pretty_name[:2].upper() + pretty_name[2:]
             if pretty_name.startswith("S.s."):
                 pretty_name = f"S.S.{pretty_name[4:]}"
+            if pretty_name == "Tri-pass":
+                pretty_name = "Tri-Pass"
+            if pretty_name == "Teachy Tv":
+                pretty_name = "Teachy TV"
+            if pretty_name == "Go-goggles":
+                pretty_name = "Go-Goggles"
+            if pretty_name.endswith("ticket"):
+                pretty_name = pretty_name[:-6] + "Ticket"
 
             pocket = int.from_bytes(item_data[26:27], byteorder="little")
 

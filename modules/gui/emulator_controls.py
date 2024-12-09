@@ -8,12 +8,19 @@ from showinfm import show_in_file_manager
 
 from modules.console import console
 from modules.context import context
-from modules.debug_utilities import export_flags_and_vars, import_flags_and_vars
+from modules.debug_utilities import (
+    export_flags_and_vars,
+    import_flags_and_vars,
+    debug_give_test_item_pack,
+    debug_give_test_party,
+    debug_give_max_coins_and_money,
+)
 from modules.gui.debug_edit_party import run_edit_party_screen
 from modules.gui.multi_select_window import ask_for_confirmation
 from modules.libmgba import LibmgbaEmulator
 from modules.memory import GameState, get_game_state
 from modules.modes import get_bot_modes
+from modules.pokemon import get_party
 from modules.version import pokebot_name, pokebot_version
 
 
@@ -89,6 +96,9 @@ class EmulatorControls:
             self.debug_menu.add_separator()
             self.debug_menu.add_command(label="Edit Party", command=run_edit_party_screen)
             self.debug_menu.add_separator()
+            self.debug_menu.add_command(label="Test Item Pack", command=self._give_test_item_pack)
+            self.debug_menu.add_command(label="Test Party", command=self._give_test_party)
+            self.debug_menu.add_separator()
             self.debug_menu.add_command(
                 label="Help",
                 command=lambda: webbrowser.open_new_tab(
@@ -148,6 +158,22 @@ class EmulatorControls:
         file_name = target_path[0].replace("\\", "/").split("/")[-1]
         affected_flags_and_vars = import_flags_and_vars(target_path[0])
         context.message = f"✅ Imported {affected_flags_and_vars:,} flags and vars from {file_name}"
+
+    def _give_test_party(self) -> None:
+        if len(get_party()) > 3:
+            sure = ask_for_confirmation("This will overwrite the last 3 slots of your party. Are you sure?")
+            if not sure:
+                return
+        debug_give_test_party()
+        context.message = "✅ Added a very strong Mewtwo, a Lotad for catching, and two HM slaves to your party."
+
+    def _give_test_item_pack(self) -> None:
+        sure = ask_for_confirmation("This will overwrite your existing item bag. Are you sure that's what you want?")
+        if not sure:
+            return
+        debug_give_test_item_pack()
+        debug_give_max_coins_and_money()
+        context.message = "✅ Added some goodies to your item bag."
 
     def remove_from_window(self) -> None:
         if self.frame:

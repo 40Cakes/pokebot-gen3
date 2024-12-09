@@ -1,7 +1,7 @@
 from enum import Enum
 
 from modules.context import context
-from modules.memory import get_save_block, unpack_uint32
+from modules.memory import get_save_block, unpack_uint32, decrypt32
 
 
 class GameStat(Enum):
@@ -62,17 +62,13 @@ class GameStat(Enum):
 def get_game_stat(game_stat: GameStat) -> int:
     if context.rom.is_rs:
         game_stats_offset = 0x1540
-        encryption_key_offset = 0xAC
     elif context.rom.is_emerald:
         game_stats_offset = 0x159C
-        encryption_key_offset = 0xAC
     else:
         game_stats_offset = 0x1200
-        encryption_key_offset = 0xF20
 
     game_stats_offset += game_stat.value * 4
-    encryption_key = unpack_uint32(get_save_block(2, encryption_key_offset, size=4))
-    return unpack_uint32(get_save_block(1, game_stats_offset, size=4)) ^ encryption_key
+    return decrypt32(unpack_uint32(get_save_block(1, game_stats_offset, size=4)))
 
 
 def get_total_number_of_battles() -> int:

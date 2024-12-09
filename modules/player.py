@@ -6,7 +6,16 @@ from modules.context import context
 from modules.game import decode_string
 from modules.map import MapLocation, ObjectEvent, calculate_targeted_coords, get_player_map_object
 from modules.map_data import MapFRLG, MapRSE, get_map_enum
-from modules.memory import get_save_block, read_symbol, unpack_uint16, unpack_uint32, get_game_state, GameState
+from modules.memory import (
+    get_save_block,
+    read_symbol,
+    unpack_uint16,
+    unpack_uint32,
+    get_game_state,
+    GameState,
+    decrypt32,
+    decrypt16,
+)
 from modules.pokemon import Item, get_item_by_index
 from modules.state_cache import state_cache
 from modules.tasks import task_is_active
@@ -154,7 +163,7 @@ class PlayerAvatar:
 
 
 class Player:
-    def __init__(self, save_block_1: bytes, save_block_2: bytes, encryption_key: bytes):
+    def __init__(self, save_block_1: bytes, save_block_2: bytes, encryption_key: int | None = None):
         self._save_block_1 = save_block_1
         self._save_block_2 = save_block_2
         self._encryption_key = encryption_key
@@ -189,11 +198,11 @@ class Player:
 
     @property
     def money(self) -> int:
-        return unpack_uint32(self._save_block_1[:4]) ^ unpack_uint32(self._encryption_key)
+        return decrypt32(unpack_uint32(self._save_block_1[:4]), self._encryption_key)
 
     @property
     def coins(self) -> int:
-        return unpack_uint16(self._save_block_1[4:6]) ^ (unpack_uint32(self._encryption_key) & 0xFFFF)
+        return decrypt16(unpack_uint16(self._save_block_1[4:6]), self._encryption_key)
 
     @property
     def registered_item(self) -> Item | None:
@@ -221,16 +230,13 @@ def get_player() -> Player:
 
     if context.rom.is_rse:
         save_block_1_offset = 0x490
-        encryption_key_offset = 0xAC
     else:
         save_block_1_offset = 0x290
-        encryption_key_offset = 0xF20
 
     save_block_1 = get_save_block(1, offset=save_block_1_offset, size=0x08)
     save_block_2 = get_save_block(2, size=0x0E)
-    encryption_key = get_save_block(2, encryption_key_offset, 4)
 
-    player = Player(save_block_1, save_block_2, encryption_key)
+    player = Player(save_block_1, save_block_2)
     state_cache.player = player
     return player
 
