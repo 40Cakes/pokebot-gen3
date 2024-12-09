@@ -356,43 +356,19 @@ def debug_write_item_bag(
     tms_hms: list[ItemSlot],
     berries: list[ItemSlot],
 ) -> None:
-    bags: dict[str, list[ItemSlot]] = {
-        "items": items,
-        "key_items": key_items,
-        "poke_balls": poke_balls,
-        "tms_hms": tms_hms,
-        "berries": berries,
+    bags: dict[str, tuple[list[ItemSlot], int]] = {
+        "items": (items, ItemPocket.Items.capacity),
+        "key_items": (key_items, ItemPocket.KeyItems.capacity),
+        "poke_balls": (poke_balls, ItemPocket.PokeBalls.capacity),
+        "tms_hms": (tms_hms, ItemPocket.TmsAndHms.capacity),
+        "berries": (berries, ItemPocket.Berries.capacity),
     }
-    counts = {}
-    if context.rom.is_frlg:
-        counts["items"] = 42
-        counts["key_items"] = 30
-        counts["poke_balls"] = 13
-        counts["tms_hms"] = 58
-        counts["berries"] = 43
-        item_bag_offset = 0x310
-        registered_item_offset = 0x296
-    elif context.rom.is_emerald:
-        counts["items"] = 30
-        counts["key_items"] = 30
-        counts["poke_balls"] = 16
-        counts["tms_hms"] = 64
-        counts["berries"] = 46
-        item_bag_offset = 0x560
-        registered_item_offset = 0x496
-    else:
-        counts["items"] = 20
-        counts["key_items"] = 20
-        counts["poke_balls"] = 16
-        counts["tms_hms"] = 64
-        counts["berries"] = 46
-        item_bag_offset = 0x560
-        registered_item_offset = 0x496
+    item_bag_offset = 0x310 if context.rom.is_frlg else 0x560
+    registered_item_offset = 0x296 if context.rom.is_frlg else 0x496
 
     data = b""
     for bag_name in bags:
-        bag = bags[bag_name]
-        count = counts[bag_name]
+        bag, count = bags[bag_name]
         if len(bag) > count:
             raise ValueError(f"Bag '{bag}' only fits {count} items, but {len(bag)} were provided.")
         bag_data = b""
@@ -488,13 +464,6 @@ def debug_give_test_item_pack(rse_bicycle: Literal["Acro Bike", "Mach Bike"] = "
     key_item_names.append("Itemfinder")
     key_item_names.append("S.S. Ticket")
 
-    if context.rom.is_rs:
-        item_count = 20
-    elif context.rom.is_emerald:
-        item_count = 30
-    else:
-        item_count = 42
-
     items_to_give = [
         "Full Restore",
         "Max Revive",
@@ -510,7 +479,7 @@ def debug_give_test_item_pack(rse_bicycle: Literal["Acro Bike", "Mach Bike"] = "
     ]
 
     debug_write_item_bag(
-        items=items[:item_count],
+        items=items[: ItemPocket.Items.capacity],
         key_items=[ItemSlot(get_item_by_name(name), 1) for name in sorted(key_item_names)],
         poke_balls=all_the_balls,
         tms_hms=all_the_tms_hms,

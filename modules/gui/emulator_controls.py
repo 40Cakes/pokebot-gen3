@@ -3,24 +3,14 @@ import webbrowser
 from tkinter import Menu, Tk, ttk
 from typing import Union
 
-import plyer
 from showinfm import show_in_file_manager
 
 from modules.console import console
 from modules.context import context
-from modules.debug_utilities import (
-    export_flags_and_vars,
-    import_flags_and_vars,
-    debug_give_test_item_pack,
-    debug_give_test_party,
-    debug_give_max_coins_and_money,
-)
-from modules.gui.debug_edit_party import run_edit_party_screen
-from modules.gui.multi_select_window import ask_for_confirmation
+from modules.gui.debug_menu import DebugMenu
 from modules.libmgba import LibmgbaEmulator
 from modules.memory import GameState, get_game_state
 from modules.modes import get_bot_modes
-from modules.pokemon import get_party
 from modules.version import pokebot_name, pokebot_version
 
 
@@ -90,21 +80,7 @@ class EmulatorControls:
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
 
         if context.debug:
-            self.debug_menu = Menu(self.window, tearoff=0)
-            self.debug_menu.add_command(label="Export events and vars", command=lambda: self.export_flags_and_vars())
-            self.debug_menu.add_command(label="Import events and vars", command=lambda: self.import_flags_and_vars())
-            self.debug_menu.add_separator()
-            self.debug_menu.add_command(label="Edit Party", command=run_edit_party_screen)
-            self.debug_menu.add_separator()
-            self.debug_menu.add_command(label="Test Item Pack", command=self._give_test_item_pack)
-            self.debug_menu.add_command(label="Test Party", command=self._give_test_party)
-            self.debug_menu.add_separator()
-            self.debug_menu.add_command(
-                label="Help",
-                command=lambda: webbrowser.open_new_tab(
-                    "https://github.com/40Cakes/pokebot-gen3/blob/main/wiki/pages/Data%20Manipulation%20-%20Save%20Modification.md"
-                ),
-            )
+            self.debug_menu = DebugMenu(self.window)
             self.menu_bar.add_cascade(label="Debug", menu=self.debug_menu)
 
         self.window.config(menu=self.menu_bar)
@@ -122,58 +98,6 @@ class EmulatorControls:
         self._add_stats_and_version_notice(row=2, column=0, columnspan=3)
 
         self.update()
-
-    def export_flags_and_vars(self) -> None:
-        target_path = plyer.filechooser.save_file(
-            path=str(context.profile.path / "event_vars_and_flags.txt"),
-            filters=[
-                ["Text Files", "*.txt", "*.ini"],
-                ["All Files", "*"],
-            ],
-        )
-        if target_path is None or len(target_path) != 1:
-            return
-
-        export_flags_and_vars(target_path[0])
-        context.message = f"✅ Exported flags and vars to {target_path[0].replace('\\', '/').split('/')[-1]}"
-
-    def import_flags_and_vars(self) -> None:
-        write_confirmation = ask_for_confirmation(
-            "Warning: This action will overwrite the current event flags and variables with the data from your local flags and vars text files. To apply these changes, make sure to save your game and reset the bot. Are you sure you want to proceed?"
-        )
-
-        if not write_confirmation:
-            return
-
-        target_path = plyer.filechooser.open_file(
-            path=str(context.profile.path / "event_vars_and_flags.txt"),
-            filters=[
-                ["Text Files", "*.txt", "*.ini"],
-                ["All Files", "*"],
-            ],
-        )
-        if target_path is None or len(target_path) != 1:
-            return
-
-        file_name = target_path[0].replace("\\", "/").split("/")[-1]
-        affected_flags_and_vars = import_flags_and_vars(target_path[0])
-        context.message = f"✅ Imported {affected_flags_and_vars:,} flags and vars from {file_name}"
-
-    def _give_test_party(self) -> None:
-        if len(get_party()) > 3:
-            sure = ask_for_confirmation("This will overwrite the last 3 slots of your party. Are you sure?")
-            if not sure:
-                return
-        debug_give_test_party()
-        context.message = "✅ Added a very strong Mewtwo, a Lotad for catching, and two HM slaves to your party."
-
-    def _give_test_item_pack(self) -> None:
-        sure = ask_for_confirmation("This will overwrite your existing item bag. Are you sure that's what you want?")
-        if not sure:
-            return
-        debug_give_test_item_pack()
-        debug_give_max_coins_and_money()
-        context.message = "✅ Added some goodies to your item bag."
 
     def remove_from_window(self) -> None:
         if self.frame:

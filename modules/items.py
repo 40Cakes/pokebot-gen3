@@ -45,8 +45,28 @@ class ItemPocket(Enum):
     def index(self) -> int:
         return self.rse_index if context.rom.is_rse else self.frlg_index
 
+    @property
+    def capacity(self) -> int:
+        sizes = {
+            ItemPocket.Items: {"rs": 20, "e": 30, "frlg": 42},
+            ItemPocket.KeyItems: {"rs": 20, "e": 30, "frlg": 30},
+            ItemPocket.PokeBalls: {"rs": 16, "e": 16, "frlg": 13},
+            ItemPocket.TmsAndHms: {"rs": 64, "e": 64, "frlg": 58},
+            ItemPocket.Berries: {"rs": 46, "e": 46, "frlg": 43},
+        }
+
+        if context.rom.is_rs:
+            return sizes[self]["rs"]
+        elif context.rom.is_emerald:
+            return sizes[self]["e"]
+        else:
+            return sizes[self]["frlg"]
+
     def __str__(self):
         return self.value
+
+    def __hash__(self):
+        return hash(self.value)
 
 
 class ItemBattleUse(Enum):
@@ -481,27 +501,12 @@ def get_item_bag() -> ItemBag:
     if state_cache.item_bag.age_in_frames == 0:
         return state_cache.item_bag.value
 
-    if context.rom.is_frlg:
-        items_count = 42
-        key_items_count = 30
-        poke_balls_count = 13
-        tms_hms_count = 58
-        berries_count = 43
-        offset = 0x310
-    elif context.rom.is_emerald:
-        items_count = 30
-        key_items_count = 30
-        poke_balls_count = 16
-        tms_hms_count = 64
-        berries_count = 46
-        offset = 0x560
-    else:
-        items_count = 20
-        key_items_count = 20
-        poke_balls_count = 16
-        tms_hms_count = 64
-        berries_count = 46
-        offset = 0x560
+    offset = 0x310 if context.rom.is_frlg else 0x560
+    items_count = ItemPocket.Items.capacity
+    key_items_count = ItemPocket.KeyItems.capacity
+    poke_balls_count = ItemPocket.PokeBalls.capacity
+    tms_hms_count = ItemPocket.TmsAndHms.capacity
+    berries_count = ItemPocket.Berries.capacity
 
     data_size = 4 * (items_count + key_items_count + poke_balls_count + tms_hms_count + berries_count)
     data = get_save_block(1, offset=offset, size=data_size)
