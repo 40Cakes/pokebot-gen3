@@ -9,6 +9,7 @@ from showinfm import show_in_file_manager
 from modules.console import console
 from modules.context import context
 from modules.debug_utilities import export_flags_and_vars, import_flags_and_vars
+from modules.gui.debug_edit_party import run_edit_party_screen
 from modules.gui.multi_select_window import ask_for_confirmation
 from modules.libmgba import LibmgbaEmulator
 from modules.memory import GameState, get_game_state
@@ -86,6 +87,8 @@ class EmulatorControls:
             self.debug_menu.add_command(label="Export events and vars", command=lambda: self.export_flags_and_vars())
             self.debug_menu.add_command(label="Import events and vars", command=lambda: self.import_flags_and_vars())
             self.debug_menu.add_separator()
+            self.debug_menu.add_command(label="Edit Party", command=run_edit_party_screen)
+            self.debug_menu.add_separator()
             self.debug_menu.add_command(
                 label="Help",
                 command=lambda: webbrowser.open_new_tab(
@@ -122,6 +125,7 @@ class EmulatorControls:
             return
 
         export_flags_and_vars(target_path[0])
+        context.message = f"✅ Exported flags and vars to {target_path[0].replace('\\', '/').split('/')[-1]}"
 
     def import_flags_and_vars(self) -> None:
         write_confirmation = ask_for_confirmation(
@@ -141,7 +145,9 @@ class EmulatorControls:
         if target_path is None or len(target_path) != 1:
             return
 
-        import_flags_and_vars(target_path[0])
+        file_name = target_path[0].replace("\\", "/").split("/")[-1]
+        affected_flags_and_vars = import_flags_and_vars(target_path[0])
+        context.message = f"✅ Imported {affected_flags_and_vars:,} flags and vars from {file_name}"
 
     def remove_from_window(self) -> None:
         if self.frame:
