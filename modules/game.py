@@ -358,12 +358,28 @@ def decode_string(
     return string
 
 
-def encode_string(string: str) -> bytes:
+def encode_string(
+    string: str,
+    character_set: Literal["international", "japanese", "rom_default"] = "rom_default",
+    ignore_errors: bool = False,
+) -> bytes:
+    if character_set == "rom_default":
+        character_table = _current_character_table
+    elif character_set == "international":
+        character_table = _character_table_international
+    elif character_set == "japanese":
+        character_table = _character_table_japanese
+    else:
+        raise RuntimeError(f"Invalid value for character set: '{character_set}'.")
+
     result = b""
     for index in range(len(string)):
         character = string[index]
-        if character not in _character_table_international:
-            raise ValueError(f"Cannot encode '{character}'.")
-        code = _character_table_international.index(character)
+        if character not in character_table:
+            if not ignore_errors:
+                raise ValueError(f"Cannot encode '{character}'.")
+            else:
+                continue
+        code = character_table.index(character)
         result += int.to_bytes(code)
     return result
