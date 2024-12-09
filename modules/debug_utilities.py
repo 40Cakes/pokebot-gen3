@@ -8,10 +8,36 @@ import numpy
 
 from modules.context import context
 from modules.game import _event_flags, _event_vars, encode_string
-from modules.items import Item
-from modules.memory import get_event_flag, get_event_var, set_event_flag, set_event_var, write_symbol
+from modules.items import Item, ItemSlot, get_item_bag, _items_by_index, ItemPocket, get_item_by_name
+from modules.memory import (
+    get_event_flag,
+    get_event_var,
+    set_event_flag,
+    set_event_var,
+    write_symbol,
+    write_to_save_block,
+    pack_uint8,
+    pack_uint16,
+    pack_uint32,
+    decrypt16,
+    decrypt32,
+    get_save_block,
+    unpack_uint16,
+)
 from modules.player import get_player
-from modules.pokemon import Pokemon, Species, Nature, StatsValues, StatusCondition, POKEMON_DATA_SUBSTRUCTS_ORDER
+from modules.pokemon import (
+    Pokemon,
+    Species,
+    Nature,
+    StatsValues,
+    StatusCondition,
+    POKEMON_DATA_SUBSTRUCTS_ORDER,
+    get_species_by_name,
+    get_nature_by_index,
+    get_move_by_name,
+    get_nature_by_name,
+    get_party,
+)
 from modules.roms import ROMLanguage
 
 
@@ -146,11 +172,11 @@ def debug_create_pokemon(
         original_pokemon = Pokemon(
             # Personality Value, gets generated later
             (b"\x00" * 4)
-            + player.trainer_id.to_bytes(2, byteorder="little")
-            + player.secret_id.to_bytes(2, byteorder="little")
+            + pack_uint16(player.trainer_id)
+            + pack_uint16(player.secret_id)
             # Nickname, gets generated later
             + (b"\x00" * 10)
-            + language.to_bytes(1)
+            + pack_uint8(language)
             + (b"\x06" if is_egg else b"\x02")
             + encode_string(player.name).ljust(7, b"\xFF")
             + (b"\x00" * 73)
@@ -175,7 +201,7 @@ def debug_create_pokemon(
             + b"\x00"
             # Met Location (0x88 and 0x39 are the Kanto and Hoenn Safari Zones)
             + (b"\x88" if context.rom.is_frlg else b"\x39")
-            + (
+            + pack_uint16(
                 # OT gender
                 bool(player.gender == "female") << 15
                 |
@@ -187,9 +213,9 @@ def debug_create_pokemon(
                 |
                 # Met at Level
                 level
-            ).to_bytes(2, "little")
+            )
             + (b"\x00" * 4)
-            + (0 if species.name not in ("Mew", "Deoxys") else 1 << 31).to_bytes(4, "little")
+            + pack_uint32(0 if species.name not in ("Mew", "Deoxys") else 1 << 31)
             + (b"\x00" * 20)
         )
     else:
@@ -199,28 +225,28 @@ def debug_create_pokemon(
         friendship = species.egg_cycles
 
     data_to_encrypt = (
-        species.index.to_bytes(2, byteorder="little")
-        + (held_item.index if held_item is not None else 0).to_bytes(2, byteorder="little")
-        + experience.to_bytes(4, byteorder="little")
-        + pp_bonuses.to_bytes(1)
-        + friendship.to_bytes(1)
+        pack_uint16(species.index)
+        + pack_uint16(held_item.index if held_item is not None else 0)
+        + pack_uint32(experience)
+        + pack_uint8(pp_bonuses)
+        + pack_uint8(friendship)
         + decrypted_data[42:44]
-        + moves[0]["id"].to_bytes(2, byteorder="little")
-        + moves[1]["id"].to_bytes(2, byteorder="little")
-        + moves[2]["id"].to_bytes(2, byteorder="little")
-        + moves[3]["id"].to_bytes(2, byteorder="little")
-        + moves[0]["remaining_pp"].to_bytes(1)
-        + moves[1]["remaining_pp"].to_bytes(1)
-        + moves[2]["remaining_pp"].to_bytes(1)
-        + moves[3]["remaining_pp"].to_bytes(1)
-        + evs.hp.to_bytes(1)
-        + evs.attack.to_bytes(1)
-        + evs.defence.to_bytes(1)
-        + evs.speed.to_bytes(1)
-        + evs.special_attack.to_bytes(1)
-        + evs.special_defence.to_bytes(1)
+        + pack_uint16(moves[0]["id"])
+        + pack_uint16(moves[1]["id"])
+        + pack_uint16(moves[2]["id"])
+        + pack_uint16(moves[3]["id"])
+        + pack_uint8(moves[0]["remaining_pp"])
+        + pack_uint8(moves[1]["remaining_pp"])
+        + pack_uint8(moves[2]["remaining_pp"])
+        + pack_uint8(moves[3]["remaining_pp"])
+        + pack_uint8(evs.hp)
+        + pack_uint8(evs.attack)
+        + pack_uint8(evs.defence)
+        + pack_uint8(evs.speed)
+        + pack_uint8(evs.special_attack)
+        + pack_uint8(evs.special_defence)
         + decrypted_data[62:72]
-        + iv_egg_ability.to_bytes(4, byteorder="little")
+        + pack_uint32(iv_egg_ability)
         + decrypted_data[76:80]
     )
 
@@ -269,26 +295,26 @@ def debug_create_pokemon(
         personality_value = random.randint(0, 2**32)
 
     data = (
-        personality_value.to_bytes(length=4, byteorder="little")
+        pack_uint32(personality_value)
         + original_pokemon.data[4:8]
         + encoded_nickname.ljust(10, b"\xFF")
         + original_pokemon.data[18:19]
         + (b"\x06" if is_egg else b"\x02")
         + original_pokemon.data[20:28]
-        + (sum(struct.unpack("<24H", data_to_encrypt)) & 0xFFFF).to_bytes(length=2, byteorder="little")
+        + pack_uint16(sum(struct.unpack("<24H", data_to_encrypt)) & 0xFFFF)
         + original_pokemon.data[30:32]
         + data_to_encrypt
-        + status_condition.to_bitfield().to_bytes(length=1, byteorder="little")
+        + pack_uint8(status_condition.to_bitfield())
         + original_pokemon.data[81:84]
-        + level.to_bytes(length=1, byteorder="little")
+        + pack_uint8(level)
         + original_pokemon.data[85:86]
-        + current_hp.to_bytes(length=2, byteorder="little")
-        + stats.hp.to_bytes(length=2, byteorder="little")
-        + stats.attack.to_bytes(length=2, byteorder="little")
-        + stats.defence.to_bytes(length=2, byteorder="little")
-        + stats.speed.to_bytes(length=2, byteorder="little")
-        + stats.special_attack.to_bytes(length=2, byteorder="little")
-        + stats.special_defence.to_bytes(length=2, byteorder="little")
+        + pack_uint16(current_hp)
+        + pack_uint16(stats.hp)
+        + pack_uint16(stats.attack)
+        + pack_uint16(stats.defence)
+        + pack_uint16(stats.speed)
+        + pack_uint16(stats.special_attack)
+        + pack_uint16(stats.special_defence)
     )
 
     u32le = numpy.dtype("<u4")
@@ -307,7 +333,7 @@ def debug_create_pokemon(
 def debug_write_party(party_pokemon: list[Pokemon]) -> None:
     """
     Replaces the current party in memory by a new list of Pokémon. If this
-    gets passed less than 6 Pokémon, the remaining slots will stay empty.
+    gets passed fewer than 6 Pokémon, the remaining slots will stay empty.
 
     :param party_pokemon: List of Pokémon to write to game memory.
     """
@@ -316,8 +342,295 @@ def debug_write_party(party_pokemon: list[Pokemon]) -> None:
     if len(party_pokemon) > 6:
         raise ValueError(f"A party can only consist of 6 Pokémon, {len(party_pokemon)} given instead.")
 
-    write_symbol("gPlayerPartyCount", len(party_pokemon).to_bytes(1, byteorder="little"))
+    write_symbol("gPlayerPartyCount", pack_uint8(len(party_pokemon)))
     new_party_data = b""
     for pokemon in party_pokemon:
         new_party_data += pokemon.data
     write_symbol("gPlayerParty", new_party_data.ljust(600, b"\x00"))
+
+
+def debug_write_item_bag(
+    items: list[ItemSlot],
+    key_items: list[ItemSlot],
+    poke_balls: list[ItemSlot],
+    tms_hms: list[ItemSlot],
+    berries: list[ItemSlot],
+) -> None:
+    bags: dict[str, list[ItemSlot]] = {
+        "items": items,
+        "key_items": key_items,
+        "poke_balls": poke_balls,
+        "tms_hms": tms_hms,
+        "berries": berries,
+    }
+    counts = {}
+    if context.rom.is_frlg:
+        counts["items"] = 42
+        counts["key_items"] = 30
+        counts["poke_balls"] = 13
+        counts["tms_hms"] = 58
+        counts["berries"] = 43
+        item_bag_offset = 0x310
+        registered_item_offset = 0x296
+    elif context.rom.is_emerald:
+        counts["items"] = 30
+        counts["key_items"] = 30
+        counts["poke_balls"] = 16
+        counts["tms_hms"] = 64
+        counts["berries"] = 46
+        item_bag_offset = 0x560
+        registered_item_offset = 0x496
+    else:
+        counts["items"] = 20
+        counts["key_items"] = 20
+        counts["poke_balls"] = 16
+        counts["tms_hms"] = 64
+        counts["berries"] = 46
+        item_bag_offset = 0x560
+        registered_item_offset = 0x496
+
+    data = b""
+    for bag_name in bags:
+        bag = bags[bag_name]
+        count = counts[bag_name]
+        if len(bag) > count:
+            raise ValueError(f"Bag '{bag}' only fits {count} items, but {len(bag)} were provided.")
+        bag_data = b""
+        for slot in bag:
+            bag_data += pack_uint16(slot.item.index)
+            bag_data += pack_uint16(decrypt16(slot.quantity))
+        while len(bag_data) < count * 4:
+            bag_data += pack_uint16(0)
+            bag_data += pack_uint16(decrypt16(0))
+        data += bag_data
+
+    write_to_save_block(data, 1, item_bag_offset)
+    write_symbol("gLoadedSaveData", data)
+
+    registered_item = unpack_uint16(get_save_block(1, registered_item_offset, 2))
+    if registered_item != 0:
+        still_owns_key_item = False
+        for slot in key_items:
+            if slot.item.index == registered_item:
+                still_owns_key_item = True
+                break
+        if not still_owns_key_item:
+            write_to_save_block(pack_uint16(0), 1, registered_item_offset)
+
+
+def debug_give_test_item_pack(rse_bicycle: Literal["Acro Bike", "Mach Bike"] = "Acro Bike") -> None:
+    all_the_balls = []
+    all_the_tms_hms = []
+    all_the_berries = []
+    stack_size = 999 if context.rom.is_frlg else 99
+    for item in _items_by_index:
+        if item.index == 0 or item.name.startswith("?"):
+            continue
+        if item.pocket is ItemPocket.PokeBalls:
+            all_the_balls.append(ItemSlot(item, stack_size))
+        elif item.pocket is ItemPocket.TmsAndHms:
+            if item.name != "HM08" or context.rom.is_rse:
+                all_the_tms_hms.append(ItemSlot(item, 1))
+        elif item.pocket is ItemPocket.Berries:
+            all_the_berries.append(ItemSlot(item, 999))
+
+    if context.rom.is_rse:
+        key_item_names = [
+            rse_bicycle,
+            "Basement Key",
+            "Devon Scope",
+            "Eon Ticket",
+            "Go-Goggles",
+            "Pokéblock Case",
+            "Rm. 1 Key",
+            "Rm. 2 Key",
+            "Rm. 4 Key",
+            "Rm. 6 Key",
+            "Scanner",
+            "Soot Sack",
+            "Wailmer Pail",
+        ]
+
+        if context.rom.is_rs:
+            key_item_names.append("Contest Pass")
+        else:
+            key_item_names.append("Magma Emblem")
+            key_item_names.append("Old Sea Map")
+    else:
+        key_item_names = [
+            "Berry Pouch",
+            "Bicycle",
+            "Card Key",
+            "Fame Checker",
+            "Gold Teeth",
+            "Lift Key",
+            "Poké Flute",
+            "Rainbow Pass",
+            "Secret Key",
+            "Silph Scope",
+            "Tea",
+            "Teachy TV",
+            "TM Case",
+            "Town Map",
+            "Tri-Pass",
+            "VS Seeker",
+        ]
+
+    if not context.rom.is_rs:
+        key_item_names.append("AuroraTicket")
+        key_item_names.append("MysticTicket")
+        key_item_names.append("Powder Jar")
+
+    key_item_names.append("Coin Case")
+    key_item_names.append("Super Rod")
+    key_item_names.append("Good Rod")
+    key_item_names.append("Old Rod")
+    key_item_names.append("Itemfinder")
+    key_item_names.append("S.S. Ticket")
+
+    if context.rom.is_rs:
+        item_count = 20
+    elif context.rom.is_emerald:
+        item_count = 30
+    else:
+        item_count = 42
+
+    items_to_give = [
+        "Full Restore",
+        "Max Revive",
+        "Max Elixir",
+        "Max Repel",
+        "Escape Rope",
+        "Rare Candy",
+        "White Flute",
+    ]
+    items = [
+        *[ItemSlot(get_item_by_name(name), stack_size) for name in items_to_give],
+        *[slot for slot in get_item_bag().items if slot.item.name not in items_to_give],
+    ]
+
+    debug_write_item_bag(
+        items=items[:item_count],
+        key_items=[ItemSlot(get_item_by_name(name), 1) for name in sorted(key_item_names)],
+        poke_balls=all_the_balls,
+        tms_hms=all_the_tms_hms,
+        berries=all_the_berries,
+    )
+
+
+def debug_give_test_party() -> None:
+    pokemon_to_give = [
+        debug_create_pokemon(
+            original_pokemon=None,
+            is_egg=False,
+            is_shiny=True,
+            gender=None,
+            species=get_species_by_name("Mewtwo"),
+            nickname="Hulk",
+            level=100,
+            held_item=get_item_by_name("Leftovers"),
+            has_second_ability=False,
+            nature=get_nature_by_name("Mild"),
+            experience=1250000,
+            friendship=255,
+            moves=[
+                {"id": get_move_by_name("Ice Beam").index, "remaining_pp": 16, "pp_ups": 3},
+                {"id": get_move_by_name("Thunderbolt").index, "remaining_pp": 24, "pp_ups": 3},
+                {"id": get_move_by_name("Psychic").index, "remaining_pp": 16, "pp_ups": 3},
+                {"id": get_move_by_name("Fire Blast").index, "remaining_pp": 8, "pp_ups": 3},
+            ],
+            ivs=StatsValues(31, 31, 31, 31, 31, 31),
+            evs=StatsValues(255, 255, 255, 255, 255, 255),
+            current_hp=416,
+            status_condition=StatusCondition.Healthy,
+        ),
+        debug_create_pokemon(
+            original_pokemon=None,
+            is_egg=False,
+            is_shiny=False,
+            gender=None,
+            species=get_species_by_name("Lotad"),
+            nickname="C",
+            level=100,
+            held_item=get_item_by_name("Lum Berry"),
+            has_second_ability=False,
+            nature=get_nature_by_name("Jolly"),
+            experience=1059860,
+            friendship=255,
+            moves=[
+                {"id": get_move_by_name("False Swipe").index, "remaining_pp": 64, "pp_ups": 3},
+                {"id": get_move_by_name("Spore").index, "remaining_pp": 24, "pp_ups": 3},
+                {"id": get_move_by_name("Foresight").index, "remaining_pp": 64, "pp_ups": 3},
+                {"id": get_move_by_name("Sweet Scent").index, "remaining_pp": 32, "pp_ups": 3},
+            ],
+            ivs=StatsValues(31, 31, 31, 31, 31, 31),
+            evs=StatsValues(255, 255, 255, 255, 255, 255),
+            current_hp=284,
+            status_condition=StatusCondition.Healthy,
+        ),
+        debug_create_pokemon(
+            original_pokemon=None,
+            is_egg=False,
+            is_shiny=False,
+            gender="female",
+            species=get_species_by_name("Magikarp"),
+            nickname="Fly",
+            level=100,
+            held_item=None,
+            has_second_ability=False,
+            nature=get_nature_by_index(0),
+            experience=1250000,
+            friendship=255,
+            moves=[
+                {"id": get_move_by_name("Fly").index, "remaining_pp": 15, "pp_ups": 0},
+                {"id": get_move_by_name("Strength").index, "remaining_pp": 15, "pp_ups": 0},
+                {"id": get_move_by_name("Rock Smash").index, "remaining_pp": 15, "pp_ups": 0},
+                {"id": get_move_by_name("Flash").index, "remaining_pp": 20, "pp_ups": 0},
+            ],
+            ivs=StatsValues(0, 0, 0, 0, 0, 0),
+            evs=StatsValues(0, 0, 0, 0, 0, 0),
+            current_hp=150,
+            status_condition=StatusCondition.Healthy,
+        ),
+        debug_create_pokemon(
+            original_pokemon=None,
+            is_egg=False,
+            is_shiny=False,
+            gender="male",
+            species=get_species_by_name("Chimecho"),
+            nickname="Swim",
+            level=100,
+            held_item=None,
+            has_second_ability=False,
+            nature=get_nature_by_index(0),
+            experience=800000,
+            friendship=255,
+            moves=[
+                {"id": get_move_by_name("Cut").index, "remaining_pp": 30, "pp_ups": 0},
+                {"id": get_move_by_name("Surf").index, "remaining_pp": 15, "pp_ups": 0},
+                {"id": get_move_by_name("Waterfall").index, "remaining_pp": 15, "pp_ups": 0},
+                {"id": get_move_by_name("Dive").index, "remaining_pp": 10, "pp_ups": 0},
+            ],
+            ivs=StatsValues(0, 0, 0, 0, 0, 0),
+            evs=StatsValues(0, 0, 0, 0, 0, 0),
+            current_hp=240,
+            status_condition=StatusCondition.Healthy,
+        ),
+    ]
+
+    debug_write_party([*get_party()[:3], *pokemon_to_give])
+
+
+def debug_give_max_coins_and_money() -> None:
+    if context.rom.is_rse:
+        money_offset = 0x490
+        coins_offset = 0x494
+    else:
+        money_offset = 0x290
+        coins_offset = 0x294
+
+    # We only give the player 900,000 money even though the maximum
+    # is 999,999. This is so they can still earn some and not
+    # potentially skip messages.
+    write_to_save_block(pack_uint32(decrypt32(900_000)), 1, money_offset)
+    write_to_save_block(pack_uint16(decrypt16(9999)), 1, coins_offset)

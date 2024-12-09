@@ -4,7 +4,7 @@ from enum import Enum
 from functools import cached_property
 
 from modules.context import context
-from modules.memory import get_save_block, unpack_uint16
+from modules.memory import get_save_block, unpack_uint16, decrypt16
 from modules.runtime import get_data_path
 from modules.state_cache import state_cache
 
@@ -267,7 +267,7 @@ class ItemBag:
         poke_balls_count: int,
         tms_hms_count: int,
         berries_count: int,
-        encryption_key: bytes,
+        encryption_key: int | None = None,
     ):
         self._data = data
         self._encryption_key = encryption_key
@@ -294,7 +294,7 @@ class ItemBag:
         for index in range(number_of_slots):
             offset = (slot_offset + index) * 4
             item_index = unpack_uint16(self._data[offset : offset + 2])
-            quantity = unpack_uint16(self._data[offset + 2 : offset + 4]) ^ unpack_uint16(self._encryption_key[:2])
+            quantity = decrypt16(unpack_uint16(self._data[offset + 2 : offset + 4]), self._encryption_key)
             if item_index != 0 and quantity > 0:
                 item = get_item_by_index(item_index)
                 result.append(ItemSlot(item, quantity))
@@ -488,7 +488,6 @@ def get_item_bag() -> ItemBag:
         tms_hms_count = 58
         berries_count = 43
         offset = 0x310
-        encryption_key = get_save_block(2, offset=0xF20, size=4)
     elif context.rom.is_emerald:
         items_count = 30
         key_items_count = 30
@@ -496,7 +495,6 @@ def get_item_bag() -> ItemBag:
         tms_hms_count = 64
         berries_count = 46
         offset = 0x560
-        encryption_key = get_save_block(2, offset=0xAC, size=4)
     else:
         items_count = 20
         key_items_count = 20
@@ -504,14 +502,11 @@ def get_item_bag() -> ItemBag:
         tms_hms_count = 64
         berries_count = 46
         offset = 0x560
-        encryption_key = b"\x00\x00\x00\x00"
 
     data_size = 4 * (items_count + key_items_count + poke_balls_count + tms_hms_count + berries_count)
     data = get_save_block(1, offset=offset, size=data_size)
 
-    item_bag = ItemBag(
-        data, items_count, key_items_count, poke_balls_count, tms_hms_count, berries_count, encryption_key
-    )
+    item_bag = ItemBag(data, items_count, key_items_count, poke_balls_count, tms_hms_count, berries_count)
     state_cache.item_bag = item_bag
     return item_bag
 
