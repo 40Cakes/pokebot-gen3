@@ -5,11 +5,12 @@ import plyer
 
 from modules.context import context
 from modules.debug_utilities import (
-    debug_give_test_party,
     debug_give_test_item_pack,
     debug_give_max_coins_and_money,
     import_flags_and_vars,
     export_flags_and_vars,
+    debug_get_test_party,
+    debug_write_party,
 )
 from modules.gui.debug_edit_item_bag import run_edit_item_bag_screen
 from modules.gui.debug_edit_party import run_edit_party_screen
@@ -42,11 +43,15 @@ def _import_flags_and_vars() -> None:
 
 
 def _give_test_party() -> None:
-    if len(get_party()) > 3:
-        sure = ask_for_confirmation("This will overwrite the last 3 slots of your party. Are you sure?")
+    pokemon_to_give = debug_get_test_party()
+
+    if len(get_party()) > (6 - len(pokemon_to_give)):
+        sure = ask_for_confirmation(
+            f"This will overwrite the last {len(pokemon_to_give)} slots of your party. Are you sure?"
+        )
         if not sure:
             return
-    debug_give_test_party()
+    debug_write_party([*get_party()[: (6 - len(pokemon_to_give))], *pokemon_to_give])
     context.message = "✅ Added a very strong Mewtwo, a Lotad for catching, and two HM slaves to your party."
 
 

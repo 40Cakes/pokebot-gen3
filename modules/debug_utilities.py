@@ -36,7 +36,6 @@ from modules.pokemon import (
     get_nature_by_index,
     get_move_by_name,
     get_nature_by_name,
-    get_party,
 )
 from modules.roms import ROMLanguage
 
@@ -487,8 +486,8 @@ def debug_give_test_item_pack(rse_bicycle: Literal["Acro Bike", "Mach Bike"] = "
     )
 
 
-def debug_give_test_party() -> None:
-    pokemon_to_give = [
+def debug_get_test_party() -> list[Pokemon]:
+    return [
         debug_create_pokemon(
             original_pokemon=None,
             is_egg=False,
@@ -586,8 +585,6 @@ def debug_give_test_party() -> None:
             status_condition=StatusCondition.Healthy,
         ),
     ]
-
-    debug_write_party([*get_party()[:3], *pokemon_to_give])
 
 
 def debug_give_max_coins_and_money() -> None:
