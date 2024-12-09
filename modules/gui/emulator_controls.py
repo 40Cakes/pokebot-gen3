@@ -125,6 +125,7 @@ class EmulatorControls:
             return
 
         export_flags_and_vars(target_path[0])
+        context.message = f"✅ Exported flags and vars to {target_path[0].replace('\\', '/').split('/')[-1]}"
 
     def import_flags_and_vars(self) -> None:
         write_confirmation = ask_for_confirmation(
@@ -144,7 +145,9 @@ class EmulatorControls:
         if target_path is None or len(target_path) != 1:
             return
 
-        import_flags_and_vars(target_path[0])
+        file_name = target_path[0].replace("\\", "/").split("/")[-1]
+        affected_flags_and_vars = import_flags_and_vars(target_path[0])
+        context.message = f"✅ Imported {affected_flags_and_vars:,} flags and vars from {file_name}"
 
     def remove_from_window(self) -> None:
         if self.frame:
