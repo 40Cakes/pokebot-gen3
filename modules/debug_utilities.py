@@ -25,12 +25,14 @@ def export_flags_and_vars(file_path: Path) -> None:
         )
 
 
-def import_flags_and_vars(file_path: Path) -> None:
+def import_flags_and_vars(file_path: Path) -> int:
     """
     Reads event flags and variables from a file and updates them.
     :param file_path: Path to the file to read from.
+    :return: Number of flags and variables that have been set.
     """
     in_flags_section = True
+    affected_flags_and_vars = 0
     with open(file_path, "r") as file:
         line_number = 0
         for line in file.readlines():
@@ -61,3 +63,5 @@ def import_flags_and_vars(file_path: Path) -> None:
                         )
                 else:
                     set_event_var(key, int(value))
+                affected_flags_and_vars += 1
+    return affected_flags_and_vars
