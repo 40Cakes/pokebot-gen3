@@ -145,9 +145,18 @@ def ask_for_confirmation(message: str, window_title: str = "Confirmation") -> bo
     no_button = ttk.Button(button_frame, text="No", command=on_no)
     no_button.grid(row=0, column=1, padx=10)
 
+    checked_window_height = False
     while window is not None:
         window.update_idletasks()
         window.update()
+
+        # Scale the window to fit the label.
+        if not checked_window_height:
+            checked_window_height = True
+            window_height = label.winfo_height() + 100
+            if window_height > 180:
+                window.geometry(f"400x{window_height}")
+
         time.sleep(1 / 60)
 
     return user_choice
