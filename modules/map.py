@@ -1978,7 +1978,7 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
     from modules.player import get_player_avatar
 
     player = get_player_avatar()
-    if player is None:
+    if player is None or not get_party():
         return EffectiveWildEncounterList(0, 0, 0, None, [], WildEncounterList.empty(), [], [], [], [], [], [])
 
     map_group, map_number = player.map_group_and_number
