@@ -5,7 +5,7 @@ from modules.items import get_item_bag, get_item_by_name
 from modules.map_data import MapFRLG
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
-from modules.pokemon import get_party
+from modules.pokemon_party import get_party, get_party_size
 from . import BattleAction
 from ._interface import BotMode, BotModeError
 from .util import navigate_to, wait_for_player_avatar_to_be_standing_still
@@ -44,7 +44,7 @@ class NuggetBridgeMode(BotMode):
     def run(self) -> Generator:
         if get_event_flag("HIDE_NUGGET_BRIDGE_ROCKET"):
             raise BotModeError("Unfortunately, you've already received the nugget. You cannot use this mode.")
-        if len(get_party()) > 1:
+        if get_party_size() > 1:
             raise BotModeError("Deposit all but one Pokémon to use this mode.")
         if get_party()[0].level > 6 and get_party()[0].species.name != "Magikarp":
             raise BotModeError(

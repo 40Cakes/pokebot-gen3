@@ -9,7 +9,7 @@ from modules.map_data import MapFRLG, MapRSE
 from modules.map_path import calculate_path
 from modules.memory import GameState, get_event_flag, get_game_state, get_game_state_symbol
 from modules.player import get_player_avatar, get_player_location
-from modules.pokemon import get_eggs_in_party, get_party
+from modules.pokemon_party import get_party, get_party_size
 from modules.tasks import get_global_script_context, task_is_active
 from ._interface import BotMode, BotModeError
 from .util import (
@@ -26,8 +26,9 @@ from .util import (
 
 
 def _update_message():
-    party_size = len(get_party())
-    egg_count = get_eggs_in_party()
+    party = get_party()
+    party_size = len(party)
+    egg_count = len(party.eggs)
     if egg_count == 0 and party_size == 6:
         context.message = "Releasing..."
     elif egg_count == 0 and not get_event_flag("PENDING_DAYCARE_EGG"):
@@ -99,11 +100,12 @@ class DaycareMode(BotMode):
             console.print(f"[bold yellow]{get_daycare_data().compatibility[1]}")
             console.print("[bold yellow]Egg generation rates may be affected.")
 
-        if context.rom.is_emerald and get_party()[0].ability.name not in ["Flame Body", "Magma Armor"]:
-            console.print(
-                "[bold yellow]WARNING: First Pokemon in party does not have Flame Body / Magma Armor ability."
-            )
-            console.print("[bold yellow]This will slow down the egg hatching process.")
+        if context.rom.is_emerald:
+            if not any(pokemon.ability.name in ("Flame Body", "Magma Armor") for pokemon in get_party()):
+                console.print(
+                    "[bold yellow]WARNING: No Pokémon in your party has the Flame Body or Magma Armor ability."
+                )
+                console.print("[bold yellow]This will slow down the egg hatching process.")
 
         item_bag = get_item_bag()
         if item_bag.quantity_of(get_item_by_name("Mach Bike")) > 0:
@@ -167,8 +169,7 @@ class DaycareMode(BotMode):
 
         def pc_release():
             party_indices_to_release = []
-            for index in range(len(get_party())):
-                pokemon = get_party()[index]
+            for index, pokemon in enumerate(get_party()):
                 if (
                     index != 0
                     and not pokemon.is_egg
@@ -215,7 +216,7 @@ class DaycareMode(BotMode):
             yield from wait_for_n_frames(60)
 
             # Release 5 baby Pokémon
-            for index in range(len(get_party())):
+            for index in range(get_party_size()):
                 if index not in party_indices_to_release:
                     context.emulator.press_button("Down")
                     yield from wait_for_n_frames(20)
@@ -232,8 +233,8 @@ class DaycareMode(BotMode):
                     context.emulator.press_button("Up")
                     yield from wait_for_n_frames(2)
                     context.emulator.press_button("A")
-                    party_size_before = len(get_party())
-                    while len(get_party()) == party_size_before:
+                    party_size_before = get_party_size()
+                    while get_party_size() == party_size_before:
                         yield from wait_for_n_frames(10)
                     for _ in range(2):
                         yield from wait_for_n_frames(3)
@@ -245,10 +246,11 @@ class DaycareMode(BotMode):
             yield from navigate_to(daycare_inside_map, daycare_exit)
 
         def should_pick_up_egg() -> bool:
-            return get_event_flag("PENDING_DAYCARE_EGG") and len(get_party()) < 6
+            return get_event_flag("PENDING_DAYCARE_EGG") and get_party_size() < 6
 
         def should_release_pokemon_at_pc() -> bool:
-            return get_eggs_in_party() == 0 and len(get_party()) == 6
+            party = get_party()
+            return len(party.eggs) == 0 and len(party) == 6
 
         def get_path():
             if context.rom.is_rse:

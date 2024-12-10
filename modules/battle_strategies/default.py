@@ -1,19 +1,17 @@
-from modules.battle_state import BattleState, BattlePokemon, get_battle_state
-from modules.context import context
-from modules.pokemon import get_party, Pokemon, Move, LearnedMove, StatusCondition
-from modules.modes._interface import BotModeError
 from typing import Optional
+
+from modules.battle_state import BattleState, BattlePokemon
+from modules.context import context
+from modules.modes._interface import BotModeError
+from modules.pokemon import Pokemon, Move, LearnedMove
+from modules.pokemon_party import get_party
 from ._interface import BattleStrategy, TurnAction, SafariTurnAction
 from ._util import BattleStrategyUtil
 
 
 class DefaultBattleStrategy(BattleStrategy):
     def __init__(self):
-        self._first_non_fainted_party_index_before_battle = 0
-        for index, pokemon in enumerate(get_party()):
-            if not pokemon.is_egg and pokemon.current_hp > 0:
-                self._first_non_fainted_party_index_before_battle = index
-                break
+        self._first_non_fainted_party_index_before_battle = get_party().first_non_fainted.index
 
     def party_can_battle(self) -> bool:
         return any(self.pokemon_can_battle(pokemon) for pokemon in get_party())

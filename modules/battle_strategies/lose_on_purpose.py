@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING
 
 from modules.battle_strategies import BattleStrategy, TurnAction, BattleStrategyUtil
-from modules.pokemon import get_party, StatusCondition
+from modules.pokemon import StatusCondition
+from modules.pokemon_party import get_party
 
 if TYPE_CHECKING:
     from modules.battle_state import BattleState, BattlePokemon, BattleType
@@ -26,10 +27,7 @@ def _get_weakest_move_against(battle_state: "BattleState", pokemon: "BattlePokem
 
         # If this is the last remaining non-fainted Pokémon in the party, using a
         # self-destructing move guarantees a loss.
-        if (
-            move.effect == "EXPLOSION"
-            and len([pokemon for pokemon in get_party() if not pokemon.is_egg and pokemon.current_hp > 0]) == 1
-        ):
+        if move.effect == "EXPLOSION" and len(get_party().non_fainted_pokemon) == 1:
             move_power = -2
 
         # Doing nothing is always the best idea.

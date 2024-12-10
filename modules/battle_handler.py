@@ -17,8 +17,9 @@ from modules.keyboard import get_naming_screen_data, type_in_naming_screen
 from modules.memory import get_game_state, GameState
 from modules.menuing import scroll_to_party_menu_index
 from modules.plugins import plugin_should_nickname_pokemon
-from modules.pokemon import get_party, get_opponent
+from modules.pokemon import get_opponent
 from modules.pokemon_nicknaming import max_pokemon_name_length
+from modules.pokemon_party import get_party, get_party_size
 from modules.tasks import task_is_active
 
 
@@ -42,7 +43,7 @@ def handle_battle(strategy: BattleStrategy) -> Generator:
         elif (
             (instruction == "BattleScript_HandleFaintedMon" or task_is_active("Task_HandleChooseMonInput"))
             and get_battle_state().own_side.is_fainted
-            and any(not pokemon.is_egg and pokemon.current_hp > 0 for pokemon in get_party())
+            and len(get_party().non_fainted_pokemon) > 0
         ):
             yield from handle_fainted_pokemon(strategy)
         elif instruction in ("BattleScript_TryNicknameCaughtMon", "BattleScript_CaughtPokemonSkipNewDex"):
@@ -110,7 +111,7 @@ def handle_fainted_pokemon(strategy: BattleStrategy):
         yield
         return
 
-    if new_lead_index < 0 or new_lead_index >= len(get_party()):
+    if new_lead_index < 0 or new_lead_index >= get_party_size():
         raise RuntimeError(f"Cannot send out party index #{new_lead_index} because that does not exist.")
 
     new_lead = get_party()[new_lead_index]
