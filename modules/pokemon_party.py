@@ -85,7 +85,7 @@ class Party:
 
 
 def get_party_size() -> int:
-    return read_symbol("gPlayerPartyCount", size=1)[0]
+    return len(get_party())
 
 
 def get_party() -> Party:
@@ -101,7 +101,8 @@ def get_party() -> Party:
         return party_pokemon if not party_pokemon.is_empty and party_pokemon.is_valid else None
 
     list_of_pokemon = []
-    for index in range(get_party_size()):
+    number_of_pokemon_in_party = read_symbol("gPlayerPartyCount", size=1)[0]
+    for index in range(number_of_pokemon_in_party):
         pokemon = read_party_pokemon(index)
 
         # It's possible for party data to be written while we are trying to read it, in which case
