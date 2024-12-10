@@ -14,6 +14,7 @@ from modules.debug_utilities import (
 )
 from modules.gui.debug_edit_item_bag import run_edit_item_bag_screen
 from modules.gui.debug_edit_party import run_edit_party_screen
+from modules.gui.debug_edit_pokedex import run_edit_pokedex_screen
 from modules.gui.multi_select_window import ask_for_confirmation, ask_for_choice, Selection
 from modules.pokemon import get_party
 from modules.runtime import get_sprites_path
@@ -97,6 +98,10 @@ def _edit_item_bag() -> None:
     run_edit_item_bag_screen()
 
 
+def _edit_pokedex() -> None:
+    run_edit_pokedex_screen()
+
+
 class DebugMenu(Menu):
     def __init__(self, window: Tk):
         super().__init__(window, tearoff=0)
@@ -106,9 +111,10 @@ class DebugMenu(Menu):
         self.add_separator()
         self.add_command(label="Edit Party", command=_edit_party)
         self.add_command(label="Edit Item Bag", command=_edit_item_bag)
+        self.add_command(label="Edit Pokédex", command=_edit_pokedex)
         self.add_separator()
-        self.add_command(label="Test Item Pack", command=_give_test_item_pack)
         self.add_command(label="Test Party", command=_give_test_party)
+        self.add_command(label="Test Item Pack", command=_give_test_item_pack)
         self.add_separator()
         self.add_command(
             label="Help",
