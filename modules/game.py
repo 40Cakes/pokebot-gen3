@@ -158,39 +158,21 @@ def set_rom(rom: ROM) -> None:
 
     match rom.game_code:
         case "AXV":
-            match rom.revision:
-                case 0:
-                    match rom.language.value:
-                        case "D":
-                            _load_symbols("pokeruby_de.sym", rom.language)
-                        case _:
-                            _load_symbols("pokeruby.sym", rom.language)
-                case 1:
-                    match rom.language.value:
-                        case "D":
-                            _load_symbols("pokeruby_de_rev1.sym", rom.language)
-                        case _:
-                            _load_symbols("pokeruby_rev1.sym", rom.language)
-                case 2:
-                    _load_symbols("pokeruby_rev2.sym", rom.language)
+            if rom.language is ROMLanguage.Japanese or (rom.language is ROMLanguage.English and rom.revision == 0):
+                _load_symbols("pokeruby.sym", rom.language)
+            elif rom.language is ROMLanguage.German:
+                _load_symbols("pokeruby_de.sym", rom.language)
+            else:
+                _load_symbols("pokeruby_rev1.sym", rom.language)
             _load_event_flags_and_vars("rs.txt")
 
         case "AXP":
-            match rom.revision:
-                case 0:
-                    match rom.language.value:
-                        case "D":
-                            _load_symbols("pokesapphire_de.sym", rom.language)
-                        case _:
-                            _load_symbols("pokesapphire.sym", rom.language)
-                case 1:
-                    match rom.language.value:
-                        case "D":
-                            _load_symbols("pokesapphire_de_rev1.sym", rom.language)
-                        case _:
-                            _load_symbols("pokesapphire_rev1.sym", rom.language)
-                case 2:
-                    _load_symbols("pokesapphire_rev2.sym", rom.language)
+            if rom.language is ROMLanguage.Japanese or (rom.language is ROMLanguage.English and rom.revision == 0):
+                _load_symbols("pokesapphire.sym", rom.language)
+            elif rom.language is ROMLanguage.German:
+                _load_symbols("pokesapphire_de.sym", rom.language)
+            else:
+                _load_symbols("pokesapphire_rev1.sym", rom.language)
             _load_event_flags_and_vars("rs.txt")
 
         case "BPE":
