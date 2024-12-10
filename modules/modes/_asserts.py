@@ -4,13 +4,12 @@ from modules.context import context
 from modules.items import get_item_bag, get_item_by_name
 from modules.map import ObjectEvent, calculate_targeted_coords
 from modules.map_data import MapRSE, MapFRLG, is_safari_map
-from modules.safari_strategy import get_safari_balls_left
-from modules.battle_state import BattleOutcome
 from modules.player import get_player
-from modules.pokemon import Pokemon, get_party
+from modules.pokemon import Pokemon
+from modules.pokemon_party import get_party, get_party_size
+from modules.safari_strategy import get_safari_balls_left
 from modules.save_data import get_save_data
 from ._interface import BotModeError
-
 
 _error_message_addendum_if_assert_only_failed_in_saved_game = (
     " (This is only the case in the saved game. Perhaps you just need to save again?)"
@@ -108,11 +107,9 @@ def assert_has_pokemon_with_any_move(moves: list[str], error_message: str, check
                                 currently active one.
     """
     party = get_party() if not check_in_saved_game else get_save_data().get_party()
-    for pokemon in party:
-        if not pokemon.is_egg and not pokemon.is_empty:
-            for learned_move in pokemon.moves:
-                if learned_move is not None and learned_move.move.name in moves:
-                    return
+    for move in moves:
+        if party.has_pokemon_with_move(move):
+            return
 
     if check_in_saved_game:
         # If the check has failed for the saved game, run it again for the active game -- if that fails
@@ -160,7 +157,7 @@ def assert_empty_slot_in_party(error_message: str, check_in_saved_game: bool = F
     """
     party = get_party() if not check_in_saved_game else get_save_data().get_party()
     if len(party) >= 6:
-        if check_in_saved_game and len(get_party()) < 6:
+        if check_in_saved_game and get_party_size() < 6:
             error_message += _error_message_addendum_if_assert_only_failed_in_saved_game
         raise BotModeError(error_message)
 
@@ -178,7 +175,7 @@ def assert_player_has_poke_balls() -> None:
             raise BotModeError("Out of Pokéballs! Better grab more before the next shiny slips away...")
 
 
-def is_pokemon_able_to_fight(pokemon: Pokemon) -> bool:
+def pokemon_has_usable_damaging_move(pokemon: Pokemon) -> bool:
     """
     Checks if the given Pokémon has at least one usable attacking move.
     Returns True if a usable move is found; otherwise, False.
@@ -195,8 +192,7 @@ def assert_party_can_fight(error_message: str, check_in_saved_game: bool = False
     Raises a BotModeError if no Pokémon has any attack-capable moves.
     """
     party = get_party() if not check_in_saved_game else get_save_data().get_party()
-
-    if any(not pokemon.is_egg and not pokemon.is_empty and is_pokemon_able_to_fight(pokemon) for pokemon in party):
+    if any(pokemon_has_usable_damaging_move(pokemon) for pokemon in party.non_fainted_pokemon):
         return
 
     raise BotModeError(error_message)

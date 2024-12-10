@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from modules.map import EffectiveWildEncounterList
     from modules.memory import GameState
     from modules.player import Player, PlayerAvatar
-    from modules.pokemon import Pokemon
+    from modules.pokemon_party import Party
     from modules.pokemon_storage import PokemonStorage
     from modules.pokedex import Pokedex
     from modules.tasks import TaskList, ScriptContext
@@ -50,8 +50,8 @@ class StateCacheItem(Generic[T]):
 
 class StateCache:
     def __init__(self):
-        self._party: StateCacheItem[list["Pokemon"]] = StateCacheItem([])
-        self._opponent: StateCacheItem["list[Pokemon] | None"] = StateCacheItem(None)
+        self._party: StateCacheItem["Party | None"] = StateCacheItem(None)
+        self._opponent: StateCacheItem["Party | None"] = StateCacheItem(None)
         self._fishing_attempt: StateCacheItem["FishingAttempt | None"] = StateCacheItem(None)
         self._player: StateCacheItem["Player | None"] = StateCacheItem(None)
         self._player_avatar: StateCacheItem["PlayerAvatar | None"] = StateCacheItem(None)
@@ -69,28 +69,22 @@ class StateCache:
         self._battle_state: StateCacheItem["BattleState | None"] = StateCacheItem(None)
 
     @property
-    def party(self) -> StateCacheItem[list["Pokemon"]]:
+    def party(self) -> StateCacheItem["Party | None"]:
         return self._party
 
     @party.setter
-    def party(self, party: list["Pokemon"]):
-        if len(self._party.value) != len(party):
+    def party(self, party: "Party"):
+        if self._party.value != party:
             self._party.value = party
-            return
-
-        for i in range(len(self._party.value)):
-            if self._party.value[i] != party[i]:
-                self._party.value = party
-                return
-
-        self._party.checked()
+        else:
+            self._party.checked()
 
     @property
-    def opponent(self) -> StateCacheItem["list[Pokemon] | None"]:
+    def opponent(self) -> StateCacheItem["Party | None"]:
         return self._opponent
 
     @opponent.setter
-    def opponent(self, opponent: "list[Pokemon] | None"):
+    def opponent(self, opponent: "Party | None"):
         if (
             (self._opponent.value is None and opponent is not None)
             or (self._opponent.value is not None and opponent is None)

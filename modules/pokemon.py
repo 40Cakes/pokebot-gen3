@@ -9,13 +9,11 @@ from typing import Literal
 
 import numpy
 
-from modules.context import context
 from modules.game import decode_string
 from modules.items import Item, get_item_by_index, get_item_by_move_id, get_item_by_name
-from modules.memory import pack_uint32, read_symbol, unpack_uint16, unpack_uint32, get_event_var
+from modules.memory import pack_uint32, read_symbol, unpack_uint16, unpack_uint32
 from modules.roms import ROMLanguage
 from modules.runtime import get_data_path
-from modules.state_cache import state_cache
 
 DATA_DIRECTORY = Path(__file__).parent / "data"
 
@@ -1421,94 +1419,12 @@ def get_species_by_national_dex(national_dex_number: int) -> Species:
     return _species_by_national_dex[national_dex_number]
 
 
-def get_eggs_in_party() -> int:
-    return sum(bool(pokemon.is_egg) for pokemon in get_party())
-
-
-def get_party() -> list[Pokemon]:
-    """
-    Checks how many Pokémon are in the trainer's party, decodes and returns them all.
-
-    :return: party (list)
-    """
-    if state_cache.party.age_in_frames == 0:
-        return state_cache.party.value
-
-    party = []
-    party_count = read_symbol("gPlayerPartyCount", size=1)[0]
-    for p in range(party_count):
-        o = p * 100
-        mon = parse_pokemon(read_symbol("gPlayerParty", o, 100))
-
-        # It's possible for party data to be written while we are trying to read it, in which case
-        # the checksum would be wrong and `parse_pokemon()` returns `None`.
-        #
-        # In order to still get a valid result, we will 'peek' into next frame's memory by
-        # (1) advancing the emulation by one frame, (2) reading the memory, (3) restoring the previous
-        # frame's state, so we don't mess with frame accuracy.
-        if mon is None:
-            retries = 5
-            with context.emulator.peek_frame():
-                while retries > 0 and mon is None:
-                    retries -= 1
-                    mon = parse_pokemon(read_symbol("gPlayerParty", o, 100))
-                    if mon is None:
-                        context.emulator._core.run_frame()
-        if mon is None:
-            if read_symbol("gPlayerParty", o, 100).count(b"\x00") >= 99:
-                continue
-            else:
-                raise RuntimeError(f"Party Pokémon #{p + 1} was invalid for two frames in a row.")
-
-        party.append(mon)
-
-    state_cache.party = party
-
-    return party
-
-
-def get_party_repel_level() -> int:
-    """
-    :return: The minimum level that wild encounters can have, given the current Repel
-             state and the level of the first non-fainted Pokémon.
-    """
-    if get_event_var("REPEL_STEP_COUNT") > 0:
-        for pokemon in get_party():
-            if pokemon.is_valid and not pokemon.is_egg and pokemon.current_hp > 0:
-                return pokemon.level
-
-    return 0
-
-
-def get_opponent_party() -> list[Pokemon] | None:
-    """
-    Gets the opponent's party (obviously only makes sense to check when in a battle.)
-    :return: The full party of the opponent, or None if there is no valid opponent at the moment.
-    """
-    if state_cache.opponent.age_in_frames == 0:
-        return state_cache.opponent.value
-
-    data = read_symbol("gEnemyParty")
-    result = []
-    for index in range(6):
-        offset = index * 100
-        pokemon = parse_pokemon(data[offset : offset + 100])
-        if pokemon is None:
-            if index == 0:
-                return None
-            else:
-                continue
-        result.append(pokemon)
-
-    state_cache.opponent = result
-
-    return result
-
-
 def get_opponent() -> Pokemon | None:
     """
     :return: The first Pokémon of the opponent's party, or None if there is no active opponent.
     """
+    from modules.pokemon_party import get_opponent_party
+
     opponent_party = get_opponent_party()
     if opponent_party is None:
         return None

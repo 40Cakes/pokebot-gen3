@@ -1,8 +1,8 @@
 from modules.battle_state import BattleState
 from modules.battle_strategies import DefaultBattleStrategy, TurnAction, BattleStrategyUtil
 from modules.context import context
-from modules.pokemon import Pokemon, get_party, StatusCondition
-from modules.modes import BotModeError
+from modules.pokemon import Pokemon, StatusCondition
+from modules.pokemon_party import get_party
 
 
 class LevelUpLeadBattleStrategy(DefaultBattleStrategy):
@@ -54,10 +54,7 @@ class LevelUpLeadBattleStrategy(DefaultBattleStrategy):
     def party_can_battle(self) -> bool:
         party = get_party()
 
-        for pokemon in party:
-            if pokemon.is_egg or pokemon.is_empty:
-                continue
-
+        for pokemon in party.non_fainted_pokemon:
             if super()._pokemon_has_enough_hp(pokemon) and pokemon.status_condition is StatusCondition.Healthy:
                 for move in pokemon.moves:
                     if (

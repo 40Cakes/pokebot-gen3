@@ -1,12 +1,11 @@
-from asyncio import log
 from typing import Generator
 
+from modules.battle_state import BattleOutcome
 from modules.context import context
 from modules.menu_parsers import CursorOptionEmerald, CursorOptionFRLG, CursorOptionRS
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.player import get_player_avatar
-from modules.battle_state import BattleOutcome
-from modules.pokemon import get_move_by_name, get_party
+from modules.pokemon_party import get_party
 from ._asserts import assert_player_has_poke_balls, assert_has_pokemon_with_any_move
 from ._interface import BotMode
 
@@ -33,13 +32,7 @@ class SweetScentMode(BotMode):
 
         yield from StartMenuNavigator("POKEMON").step()
 
-        move_pokemon = None
-        move_wanted = get_move_by_name("Sweet Scent")
-        for index in range(len(get_party())):
-            for learned_move in get_party()[index].moves:
-                if learned_move is not None and learned_move.move == move_wanted:
-                    move_pokemon = index
-                    break
+        move_pokemon = get_party().first_pokemon_with_move("Sweet Scent")
 
         cursor = None
         if context.rom.is_emerald:
@@ -49,4 +42,4 @@ class SweetScentMode(BotMode):
         elif context.rom.is_frlg:
             cursor = CursorOptionFRLG
 
-        yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.SWEET_SCENT).step()
+        yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.SWEET_SCENT).step()

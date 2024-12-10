@@ -5,9 +5,7 @@ from tkinter import Tk, Toplevel, ttk
 from modules.context import context
 from modules.debug_utilities import debug_create_pokemon, debug_write_party
 from modules.items import get_item_by_index, get_item_by_name
-from modules.memory import write_symbol
 from modules.pokemon import (
-    get_party,
     Pokemon,
     get_species_by_national_dex,
     get_nature_by_index,
@@ -18,6 +16,7 @@ from modules.pokemon import (
     get_move_by_name,
     get_species_by_name,
 )
+from modules.pokemon_party import get_party
 
 status_name_map = {
     "Healthy": StatusCondition.Healthy,

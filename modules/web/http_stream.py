@@ -14,7 +14,8 @@ from modules.map import get_effective_encounter_rates_for_current_map
 from modules.memory import GameState, get_game_state
 from modules.player import get_player, get_player_avatar
 from modules.pokedex import get_pokedex
-from modules.pokemon import get_opponent, get_party
+from modules.pokemon import get_opponent
+from modules.pokemon_party import get_party
 from modules.state_cache import state_cache
 
 update_interval_in_ms = 1000 / 60
@@ -230,8 +231,7 @@ def run_watcher():
                 work_queue.put_nowait(get_party)
             if state_cache.party.frame > previous_game_state["party"]:
                 previous_game_state["party"] = state_cache.party.frame
-                data = list(map(lambda x: x.to_dict() if x is not None else None, state_cache.party.value))
-                send_message(DataSubscription.Party, data=data, event_type="Party")
+                send_message(DataSubscription.Party, data=state_cache.party.value.to_list(), event_type="Party")
 
         if subscriptions["Pokedex"] > 0:
             if state_cache.pokedex.age_in_seconds > 0:

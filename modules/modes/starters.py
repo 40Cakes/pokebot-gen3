@@ -8,7 +8,7 @@ from modules.map_data import MapFRLG, MapRSE
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.modes.util.walking import navigate_to
 from modules.player import get_player_avatar
-from modules.pokemon import get_party
+from modules.pokemon_party import get_party_size, get_party
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
 from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map
@@ -22,7 +22,7 @@ from .util import (
     wait_until_task_is_active,
     wait_until_task_is_not_active,
 )
-from ..battle_state import battle_is_active, get_main_battle_callback, EncounterType
+from ..battle_state import get_main_battle_callback, EncounterType
 
 
 def run_frlg() -> Generator:
@@ -54,7 +54,7 @@ def run_frlg() -> Generator:
         yield from wait_for_unique_rng_value()
 
         # Wait for and confirm the first question (the 'Do you choose ...')
-        while len(get_party()) == 0:
+        while get_party_size() == 0:
             context.emulator.press_button("A")
             yield
 
@@ -172,7 +172,7 @@ def run_rse_johto():
             case "Totodile":
                 yield from navigate_to(map=MapRSE.LITTLEROOT_TOWN_PROFESSOR_BIRCHS_LAB, coordinates=(9, 5))
 
-        if len(get_party()) >= 6:
+        if get_party_size() >= 6:
             raise BotModeError("This mode requires at least one empty party slot, but your party is full.")
 
         yield from ensure_facing_direction("Up")
@@ -193,7 +193,7 @@ def run_rse_johto():
 
         # Navigate to the summary screen to check for shininess
         yield from StartMenuNavigator("POKEMON").step()
-        yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
+        yield from PokemonPartyMenuNavigator(get_party_size() - 1, "summary").step()
 
         handle_encounter(
             EncounterInfo.create(get_party()[-1], EncounterType.Gift),

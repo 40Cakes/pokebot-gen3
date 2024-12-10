@@ -7,7 +7,7 @@ from modules.context import context
 from modules.map import MapLocation, get_map_all_tiles, get_map_data, get_map_objects
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import get_event_flag, get_event_flag_by_number, get_event_var_by_number
-from modules.pokemon import get_party
+from modules.pokemon_party import get_party
 
 LocationType: TypeAlias = MapLocation | tuple[tuple[int, int] | MapFRLG | MapRSE, tuple[int, int]]
 
@@ -487,34 +487,23 @@ def calculate_path(
     def can_surf():
         nonlocal _can_surf
         if _can_surf is None:
-            _can_surf = False
-            if not no_surfing and get_event_flag("BADGE05_GET"):
-                for pokemon in get_party():
-                    if pokemon.knows_move("Surf"):
-                        _can_surf = True
-                        break
+            _can_surf = not no_surfing and get_event_flag("BADGE05_GET") and get_party().has_pokemon_with_move("Surf")
         return _can_surf
 
     def can_dive():
         nonlocal _can_dive
         if _can_dive is None:
-            _can_dive = False
-            if context.rom.is_rse and get_event_flag("BADGE07_GET"):
-                for pokemon in get_party():
-                    if pokemon.knows_move("Dive"):
-                        _can_dive = True
-                        break
+            _can_dive = (
+                context.rom.is_rse and get_event_flag("BADGE07_GET") and get_party().has_pokemon_with_move("Dive")
+            )
         return _can_dive
 
     def can_waterfall():
         nonlocal _can_waterfall
         if _can_waterfall is None:
-            _can_waterfall = False
-            if context.rom.is_rse and get_event_flag("BADGE08_GET"):
-                for pokemon in get_party():
-                    if pokemon.knows_move("Waterfall"):
-                        _can_waterfall = True
-                        break
+            _can_waterfall = (
+                context.rom.is_rse and get_event_flag("BADGE08_GET") and get_party().has_pokemon_with_move("Waterfall")
+            )
         return _can_waterfall
 
     # Get all currently loaded objects so we can use their _actual_ location for obstacle calculations, rather

@@ -8,7 +8,7 @@ from modules.map_data import MapFRLG, MapRSE
 from modules.map_path import calculate_path
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.player import get_player_avatar
-from modules.pokemon import get_party
+from modules.pokemon_party import get_party, get_party_size
 from modules.save_data import get_save_data
 from ._asserts import (
     assert_save_game_exists,
@@ -86,7 +86,7 @@ class StaticGiftResetsMode(BotMode):
         # so in order to make sure that it was Togepi/Wynaut that hatched, we verify that the
         # egg is in the last slot of the party -- since the egg was picked up at the start of
         # the mode, it's guaranteed to be in that slot.
-        if party_index == len(get_party()) - 1:
+        if party_index == get_party_size() - 1:
             self._egg_has_hatched = True
 
     def run(self) -> Generator:
@@ -184,11 +184,7 @@ class StaticGiftResetsMode(BotMode):
                 yield from wait_for_no_script_to_run("B")
 
             def egg_in_party() -> int:
-                total_eggs = 0
-                for pokemon in get_party():
-                    if pokemon.is_egg:
-                        total_eggs += 1
-                return total_eggs
+                return len(get_party().eggs)
 
             def hatch_egg() -> Generator:
                 if encounter[2] == "Wynaut":
@@ -225,6 +221,6 @@ class StaticGiftResetsMode(BotMode):
             else:
                 # Navigate to the summary screen to check for shininess
                 yield from StartMenuNavigator("POKEMON").step()
-                yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
+                yield from PokemonPartyMenuNavigator(get_party_size() - 1, "summary").step()
 
                 handle_encounter(EncounterInfo.create(get_party()[-1], EncounterType.Gift), disable_auto_catch=True)
