@@ -16,7 +16,7 @@ from modules.gui.debug_edit_item_bag import run_edit_item_bag_screen
 from modules.gui.debug_edit_party import run_edit_party_screen
 from modules.gui.debug_edit_pokedex import run_edit_pokedex_screen
 from modules.gui.multi_select_window import ask_for_confirmation, ask_for_choice, Selection
-from modules.pokemon import get_party
+from modules.pokemon_party import get_party, get_party_size
 from modules.runtime import get_sprites_path
 
 
@@ -46,7 +46,7 @@ def _import_flags_and_vars() -> None:
 def _give_test_party() -> None:
     pokemon_to_give = debug_get_test_party()
 
-    if len(get_party()) > (6 - len(pokemon_to_give)):
+    if get_party_size() > (6 - len(pokemon_to_give)):
         sure = ask_for_confirmation(
             f"This will overwrite the last {len(pokemon_to_give)} slots of your party. Are you sure?"
         )

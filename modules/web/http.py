@@ -34,7 +34,7 @@ from modules.memory import GameState, get_event_flag, get_game_state
 from modules.modes import get_bot_mode_names
 from modules.player import get_player, get_player_avatar
 from modules.pokedex import get_pokedex
-from modules.pokemon import get_party
+from modules.pokemon_party import get_party
 from modules.pokemon_storage import get_pokemon_storage
 from modules.runtime import get_base_path
 from modules.state_cache import state_cache, StateCacheItem
@@ -189,7 +189,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
         cached_party = state_cache.party
         _update_via_work_queue(cached_party, get_party)
 
-        return web.json_response([p.to_dict() for p in cached_party.value])
+        return web.json_response(cached_party.value.to_list())
 
     @route.get("/pokedex")
     async def http_get_pokedex(request: web.Request):

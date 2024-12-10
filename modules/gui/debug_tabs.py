@@ -54,7 +54,8 @@ from modules.memory import (
 from modules.menuing import is_fade_active
 from modules.player import get_player, get_player_avatar, AvatarFlags, TileTransitionState
 from modules.pokedex import get_pokedex
-from modules.pokemon import get_party, get_species_by_index, get_party_repel_level
+from modules.pokemon import get_species_by_index
+from modules.pokemon_party import get_party
 from modules.pokemon_storage import get_pokemon_storage
 from modules.roamer import get_roamer, get_roamer_location_history
 from modules.tasks import (

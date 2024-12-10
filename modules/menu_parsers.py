@@ -4,7 +4,8 @@ from enum import IntEnum
 from modules.context import context
 from modules.game import decode_string
 from modules.memory import get_symbol_name, read_symbol, unpack_uint32
-from modules.pokemon import Move, Pokemon, get_move_by_index, get_party, parse_pokemon
+from modules.pokemon import Move, Pokemon, get_move_by_index, parse_pokemon
+from modules.pokemon_party import get_party
 from modules.tasks import get_task, task_is_active
 
 

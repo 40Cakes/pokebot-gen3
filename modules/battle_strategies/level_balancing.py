@@ -1,6 +1,6 @@
 from modules.battle_state import BattleState
 from modules.battle_strategies import DefaultBattleStrategy, TurnAction, BattleStrategyUtil
-from modules.pokemon import get_party
+from modules.pokemon_party import get_party
 
 
 def _get_lowest_level_party_member_index(only_non_fainted: bool = False) -> int:

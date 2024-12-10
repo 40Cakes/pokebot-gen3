@@ -6,7 +6,8 @@ from modules.map_data import MapFRLG, MapRSE, PokemonCenter, get_map_enum
 from modules.map_path import calculate_path, PathFindingError
 from modules.modes import BattleAction
 from modules.player import get_player_avatar
-from modules.pokemon import get_party, StatusCondition
+from modules.pokemon import StatusCondition
+from modules.pokemon_party import get_party
 from ._asserts import assert_party_can_fight
 from ._interface import BotMode, BotModeError
 from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon, spin

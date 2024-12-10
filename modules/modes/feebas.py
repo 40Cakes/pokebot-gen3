@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from typing import Generator
 
+from modules.battle_state import BattleOutcome
 from modules.context import context
 from modules.items import get_item_by_name, get_item_bag
 from modules.map import get_map_data
 from modules.map_data import MapRSE
 from modules.player import get_player, get_player_avatar, AvatarFlags
-from modules.pokemon import get_party
-from modules.battle_state import BattleOutcome
+from modules.pokemon_party import get_party
 from . import BattleAction
 from ._asserts import assert_player_has_poke_balls
 from ._interface import BotMode, BotModeError
@@ -174,13 +174,7 @@ class FeebasMode(BotMode):
         ):
             raise BotModeError("Error: You cannot use this mode without having a fishing rod.")
 
-        if get_event_flag("BADGE08_GET"):
-            for pokemon in get_party():
-                for learned_move in pokemon.moves:
-                    if learned_move is not None and learned_move.move.name == "Waterfall":
-                        self._can_use_waterfall = True
-                        break
-
+        self._can_use_waterfall = get_event_flag("BADGE08_GET") and get_party().has_pokemon_with_move("Waterfall")
         if not self._can_use_waterfall:
             if not get_event_flag("BADGE08_GET"):
                 context.message = "Warning: You do not have the Rain Badge, so you cannot use Waterfall. There will be some water tiles that we cannot reach."

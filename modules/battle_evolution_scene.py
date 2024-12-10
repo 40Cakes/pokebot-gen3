@@ -9,7 +9,7 @@ from modules.battle_move_replacing import (
 from modules.battle_strategies import BattleStrategy
 from modules.context import context
 from modules.debug import debug
-from modules.pokemon import get_party
+from modules.pokemon_party import get_party
 from modules.tasks import get_task, task_is_active
 
 

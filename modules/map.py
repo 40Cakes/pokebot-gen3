@@ -22,11 +22,10 @@ from modules.pokemon import (
     Species,
     get_item_by_index,
     get_species_by_index,
-    get_party_repel_level,
     Ability,
-    get_party,
     get_type_by_name,
 )
+from modules.pokemon_party import get_current_repel_level, get_party
 from modules.state_cache import state_cache
 
 if TYPE_CHECKING:
@@ -1984,7 +1983,7 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
     map_group, map_number = player.map_group_and_number
 
     lead_pokemon = get_party()[0]
-    repel_level = get_party_repel_level()
+    repel_level = get_current_repel_level()
     wild_encounters = get_wild_encounters_for_map(map_group, map_number)
 
     def calculate_effective_encounters(

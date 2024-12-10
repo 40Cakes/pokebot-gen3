@@ -6,7 +6,8 @@ from modules.items import Item, ItemPocket, get_item_bag, get_item_by_name, get_
 from modules.memory import GameState, get_event_flag, get_game_state, read_symbol, unpack_uint16
 from modules.menuing import StartMenuNavigator, scroll_to_item_in_bag as real_scroll_to_item
 from modules.player import get_player
-from modules.pokemon import get_party, LearnedMove
+from modules.pokemon import LearnedMove
+from modules.pokemon_party import get_party, get_party_size
 from modules.tasks import task_is_active
 from ._util_helper import isolate_inputs
 from .sleep import wait_for_n_frames
@@ -161,7 +162,7 @@ def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int 
             f"Cannot teach {hm_or_tm.name} to party Pokémon #{party_index} because there aren't that many Pokémon in the party."
         )
 
-    target = party[party_index]
+    target = get_party()[party_index]
     if not target.species.can_learn_tm_hm(hm_or_tm):
         raise BotModeError(f"{target.name} is not able to learn {hm_or_tm.tm_hm_move().name}.")
 
@@ -216,7 +217,7 @@ def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int 
     # Select the target Pokémon in Party Menu
     while True:
         if context.rom.is_rs:
-            current_slot_index = context.emulator.read_bytes(0x0202002F + len(get_party()) * 136 + 3, length=1)[0]
+            current_slot_index = context.emulator.read_bytes(0x0202002F + get_party_size() * 136 + 3, length=1)[0]
         else:
             current_slot_index = read_symbol("gPartyMenu", offset=9, size=1)[0]
         if current_slot_index < party_index:

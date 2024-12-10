@@ -6,7 +6,7 @@ from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.map_data import MapFRLG
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.player import get_player_avatar
-from modules.pokemon import get_party
+from modules.pokemon_party import get_party, get_party_size
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
 from modules.tasks import task_is_active
@@ -126,7 +126,7 @@ class GameCornerMode(BotMode):
 
             # log the encounter
             yield from StartMenuNavigator("POKEMON").step()
-            yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
+            yield from PokemonPartyMenuNavigator(get_party_size() - 1, "summary").step()
 
             handle_encounter(
                 EncounterInfo.create(get_party()[-1], EncounterType.Gift),

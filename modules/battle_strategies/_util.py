@@ -6,8 +6,8 @@ from modules.battle_strategies import TurnAction
 from modules.context import context
 from modules.items import ItemHoldEffect, get_item_bag, get_item_by_name
 from modules.memory import get_event_flag, read_symbol
-from modules.pokemon import StatusCondition, Pokemon, LearnedMove, get_type_by_name, get_ability_by_name, get_party
-from modules.modes._interface import BotModeError
+from modules.pokemon import StatusCondition, Pokemon, LearnedMove, get_type_by_name, get_ability_by_name
+from modules.pokemon_party import get_party
 
 if TYPE_CHECKING:
     from modules.pokemon import Move, Type

@@ -9,7 +9,8 @@ from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_game_state, get_game_state_symbol, read_symbol, unpack_uint32, unpack_uint16
 from modules.menuing import CheckForPickup, MenuWrapper, should_check_for_pickup, RotatePokemon
 from modules.player import TileTransitionState, get_player_avatar, player_avatar_is_standing_still
-from modules.pokemon import StatusCondition, clear_opponent, get_opponent, get_party
+from modules.pokemon import StatusCondition, clear_opponent, get_opponent
+from modules.pokemon_party import get_party
 from modules.tasks import get_global_script_context, task_is_active, get_task
 from ._interface import BattleAction, BotListener, BotMode, FrameInfo
 from .util import isolate_inputs, save_the_game
@@ -191,12 +192,7 @@ class BattleListener(BotListener):
     @isolate_inputs
     @debug.track
     def fight(self, strategy: BattleStrategy):
-        first_non_fainted_lead_before_battle = 0
-        for index, pokemon in enumerate(get_party()):
-            if not pokemon.is_egg and pokemon.current_hp > 0:
-                first_non_fainted_lead_before_battle = index
-                break
-
+        first_non_fainted_lead_before_battle = get_party().first_non_fainted.index
         yield from plugin_battle_started(self._active_wild_encounter)
         yield from handle_battle(strategy)
         yield from self._wait_until_battle_is_over()
