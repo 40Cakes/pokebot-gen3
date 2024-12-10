@@ -23,6 +23,7 @@ from modules.memory import (
     decrypt32,
     get_save_block,
     unpack_uint16,
+    unpack_uint32,
 )
 from modules.player import get_player
 from modules.pokemon import (
@@ -36,6 +37,7 @@ from modules.pokemon import (
     get_nature_by_index,
     get_move_by_name,
     get_nature_by_name,
+    get_species_by_national_dex,
 )
 from modules.roms import ROMLanguage
 
@@ -600,3 +602,53 @@ def debug_give_max_coins_and_money() -> None:
     # potentially skip messages.
     write_to_save_block(pack_uint32(decrypt32(900_000)), 1, money_offset)
     write_to_save_block(pack_uint16(decrypt16(9999)), 1, coins_offset)
+
+
+def debug_write_pokedex(seen_species: list[Species], owned_species: list[Species]) -> None:
+    if context.rom.is_emerald:
+        seen1_offset = 0x988
+        seen2_offset = 0x3B24
+    elif context.rom.is_rs:
+        seen1_offset = 0x938
+        seen2_offset = 0x3A8C
+    else:
+        seen1_offset = 0x5F8
+        seen2_offset = 0x3A18
+
+    seen_data = b""
+    owned_data = b""
+    needs_national_dex = False
+    for byte in range(52):
+        value_seen = 0
+        value_owned = 0
+        for bit in range(8):
+            try:
+                species = get_species_by_national_dex(byte * 8 + bit + 1)
+            except KeyError:
+                continue
+            if species in seen_species:
+                value_seen |= 1 << bit
+                if species.national_dex_number <= 251:
+                    needs_national_dex = True
+            if species in owned_species:
+                value_seen |= 1 << bit
+                value_owned |= 1 << bit
+        seen_data += pack_uint8(value_seen)
+        owned_data += pack_uint8(value_owned)
+
+    write_to_save_block(seen_data, 1, offset=seen1_offset)
+    write_to_save_block(seen_data, 1, offset=seen2_offset)
+    write_to_save_block(owned_data + seen_data, 2, offset=0x28)
+
+    if needs_national_dex:
+        write_to_save_block(b"\xDA", 2, offset=0x1A)
+
+    if get_species_by_name("Unown") in seen_species:
+        unown_personality = unpack_uint32(get_save_block(2, offset=0x1C, size=4))
+        if unown_personality == 0:
+            write_to_save_block(pack_uint32(random.randint(0, 2**32)), 2, offset=0x1C)
+
+    if get_species_by_name("Spinda") in seen_species:
+        spinda_personality = unpack_uint32(get_save_block(2, offset=0x20, size=4))
+        if spinda_personality == 0:
+            write_to_save_block(pack_uint32(random.randint(0, 2**32)), 2, offset=0x20)
