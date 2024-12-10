@@ -160,13 +160,13 @@ def set_rom(rom: ROM) -> None:
         case "AXV":
             match rom.revision:
                 case 0:
-                    match rom.language:
+                    match rom.language.value:
                         case "D":
                             _load_symbols("pokeruby_de.sym", rom.language)
                         case _:
                             _load_symbols("pokeruby.sym", rom.language)
                 case 1:
-                    match rom.language:
+                    match rom.language.value:
                         case "D":
                             _load_symbols("pokeruby_de_rev1.sym", rom.language)
                         case _:
@@ -178,13 +178,13 @@ def set_rom(rom: ROM) -> None:
         case "AXP":
             match rom.revision:
                 case 0:
-                    match rom.language:
+                    match rom.language.value:
                         case "D":
                             _load_symbols("pokesapphire_de.sym", rom.language)
                         case _:
                             _load_symbols("pokesapphire.sym", rom.language)
                 case 1:
-                    match rom.language:
+                    match rom.language.value:
                         case "D":
                             _load_symbols("pokesapphire_de_rev1.sym", rom.language)
                         case _:

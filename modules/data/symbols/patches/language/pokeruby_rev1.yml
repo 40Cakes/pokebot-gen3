@@ -1,0 +1,42 @@
+---
+
+#--------------------#
+#    Map Symbols     #
+#--------------------#
+gMapGroups:
+  F: 0x830f1ec
+  I: ~
+  J: ~
+  S: ~
+gRegionMapEntries:
+  F: 0x83ef168
+  I: ~
+  J: ~
+  S: ~
+gWildMonHeaders:
+  F: 0x83a40d4
+  I: ~
+  J: ~
+  S: ~
+gMapHeader:
+  J: ~
+gObjectEvents:
+  F: 0x30048b0
+  J: ~
+gPlayerAvatar:
+  J: ~
+# English rev 2 + 10
+gPlayerPartyCount:
+  F: 0x3004360
+  J: ~
+# English rev 2 + 10
+gPlayerParty:
+  F: 0x3004370
+  J: ~
+sMapCursor:
+  J: ~
+gSaveBlock1:
+  J: ~
+gSaveBlock2:
+  J: ~
+#----------------#
