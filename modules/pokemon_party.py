@@ -46,7 +46,10 @@ class Party:
     def __len__(self) -> int:
         return len(self._pokemon)
 
-    def __getitem__(self, item: int) -> PartyPokemon | None:
+    def __getitem__(self, item: int | slice):
+        if isinstance(item, slice):
+            return self._pokemon[item]
+
         if item not in (0, 1, 2, 3, 4, 5):
             raise KeyError(f"Cannot access a party index of `{item}`.")
 
