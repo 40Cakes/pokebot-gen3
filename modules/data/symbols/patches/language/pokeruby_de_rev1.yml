@@ -1,0 +1,18 @@
+---
+
+#--------------------#
+#    Map Symbols     #
+#--------------------#
+gMapGroups:
+  D: ~
+gRegionMapEntries:
+  D: ~
+gWildMonHeaders:
+  D: ~
+gObjectEvents:
+  D: ~
+gPlayerPartyCount:
+  D: ~
+gPlayerParty:
+  D: ~
+#----------------#

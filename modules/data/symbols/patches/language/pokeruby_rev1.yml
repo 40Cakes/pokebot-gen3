@@ -4,38 +4,17 @@
 #    Map Symbols     #
 #--------------------#
 gMapGroups:
-  D: ~
   F: 0x830f1ec
   I: ~
   J: ~
   S: ~
 gRegionMapEntries:
-  D: ~
   F: 0x83ef168
   I: ~
   J: ~
   S: ~
 gWildMonHeaders:
-  D: ~
   F: 0x83a40d4
-  I: ~
-  J: ~
-  S: ~
-gSaveBlock1:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
-gSaveBlock2:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
-CB2_RegionMap:
-  D: ~
-  F: ~
   I: ~
   J: ~
   S: ~
@@ -55,5 +34,9 @@ gPlayerParty:
   F: 0x3004370
   J: ~
 sMapCursor:
+  J: ~
+gSaveBlock1:
+  J: ~
+gSaveBlock2:
   J: ~
 #----------------#
