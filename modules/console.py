@@ -210,11 +210,12 @@ def print_stats(stats: "GlobalStats", encounter: "EncounterInfo") -> None:
     grid.add_column()
     grid.add_row(pokemon_table, Group(iv_table, move_list, ev_yields))
 
+    map_name = encounter.map.pretty_name if encounter.map is not None else pokemon.location_met
     console.print(
         Panel.fit(
             Group(grid, "\n", stats_table),
             border_style=type_colour,
-            title=f"{rich_name} [default]{encounter.type.verb} at [bold]{pokemon.location_met}[/bold][/default]",
+            title=f"{rich_name} [default]{encounter.type.verb} at [bold]{map_name}[/bold][/default]",
         )
     )
 

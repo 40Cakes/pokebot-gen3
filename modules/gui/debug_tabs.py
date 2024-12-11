@@ -891,11 +891,11 @@ class MiscTab(DebugTab):
             location_history = {"__value": []}
             for index, location in enumerate(get_roamer_location_history()):
                 if index == 0:
-                    location_history["Current Map"] = location.name
+                    location_history["Current Map"] = location.pretty_name
                 else:
                     # Do not show the current map in the short-form location history to save space.
-                    location_history["__value"].append(location.name)
-                    location_history[f"Current-{index} Map"] = location.name
+                    location_history["__value"].append(location.pretty_name)
+                    location_history[f"Current-{index} Map"] = location.pretty_name
             location_history["__value"] = ", ".join(location_history["__value"])
         else:
             location_history = None
@@ -1490,7 +1490,8 @@ class MapTab(DebugTab):
 
         return {
             "Map": {
-                "__value": map_enum.name,
+                "__value": map_enum.pretty_name,
+                "Enum Name": map_enum.name,
                 "In-game Name": map_data.map_name,
                 "Group": group_enum.name,
                 "Group Number": map_data.map_group,
