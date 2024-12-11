@@ -12,6 +12,7 @@ from modules.clock import get_clock_time, get_play_time
 from modules.context import context
 from modules.daycare import get_daycare_data
 from modules.debug import debug
+from modules.fishing import get_feebas_tiles
 from modules.game import (
     decode_string,
     _symbols,
@@ -904,6 +905,7 @@ class MiscTab(DebugTab):
             "Daycare": daycare_information,
             "Roamer": get_roamer() if game_has_started() else None,
             "Location History": location_history,
+            "Feebas Tiles": get_feebas_tiles() if game_has_started() else None,
             "Region Map Cursor": get_map_cursor(),
             "Text Printer #1": get_text_printer(0),
             "gMain.state": read_symbol("gMain", offset=0x438, size=1)[0],
