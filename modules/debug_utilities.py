@@ -9,6 +9,7 @@ import numpy
 from modules.context import context
 from modules.game import _event_flags, _event_vars, encode_string
 from modules.items import Item, ItemSlot, get_item_bag, _items_by_index, ItemPocket, get_item_by_name
+from modules.map import get_encounter_affecting_abilities
 from modules.memory import (
     get_event_flag,
     get_event_var,
@@ -39,6 +40,7 @@ from modules.pokemon import (
     get_nature_by_name,
     get_species_by_national_dex,
 )
+from modules.pokemon_party import get_party
 from modules.roms import ROMLanguage
 
 
@@ -587,6 +589,69 @@ def debug_get_test_party() -> list[Pokemon]:
             status_condition=StatusCondition.Healthy,
         ),
     ]
+
+
+def debug_give_fainted_first_slot_pokemon_with_special_ability(ability: str) -> None:
+    match ability:
+        case "Illuminate":
+            species = "Staryu" if context.rom.is_frlg else "Volbeat"
+        case "Compoundeyes":
+            species = "Nincada"
+        case "Pressure":
+            species = "Absol"
+        case "Intimidate":
+            species = "Masquerain"
+        case "Magnet Pull":
+            species = "Nosepass"
+        case "Static":
+            species = "Electrike"
+        case "Sticky Hold":
+            species = "Gulpin"
+        case "Synchronize":
+            species = "Ralts"
+        case "Cute Charm":
+            species = "Delcatty"
+        case _:
+            raise ValueError(f"Ability not supported: {ability}")
+
+    party = get_party()
+    if not party[0].is_egg and party[0].level == 1 and party[0].ability.name in get_encounter_affecting_abilities():
+        # If the first Pokémon looks like it might be another 'special ability' Pokémon, just replace that one.
+        remaining_party = party[1:]
+    else:
+        # Otherwise, move all other party slots one down.
+        remaining_party = party[0:5]
+
+    species = get_species_by_name(species)
+    debug_write_party(
+        [
+            debug_create_pokemon(
+                original_pokemon=None,
+                is_egg=False,
+                is_shiny=False,
+                gender="male",
+                species=species,
+                nickname="Ability",
+                level=1,
+                held_item=None,
+                has_second_ability=species.abilities[0].name != ability,
+                nature=get_nature_by_index(0),
+                experience=1,
+                friendship=0,
+                moves=[
+                    {"id": get_move_by_name("Explosion").index, "remaining_pp": 5, "pp_ups": 0},
+                    {"id": get_move_by_name("Selfdestruct").index, "remaining_pp": 5, "pp_ups": 0},
+                    {"id": get_move_by_name("Memento").index, "remaining_pp": 10, "pp_ups": 0},
+                    {"id": 0, "remaining_pp": 0, "pp_ups": 0},
+                ],
+                ivs=StatsValues(0, 0, 0, 0, 0, 0),
+                evs=StatsValues(0, 0, 0, 0, 0, 0),
+                current_hp=0,
+                status_condition=StatusCondition.Healthy,
+            ),
+            *remaining_party,
+        ]
+    )
 
 
 def debug_give_max_coins_and_money() -> None:
