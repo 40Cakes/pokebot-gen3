@@ -5,38 +5,94 @@
 #--------------------#
 gMapGroups:
   F: 0x830f1ec
-  I: ~
+  I: 0x8308a78
   J: ~
-  S: ~
+  S: 0x830bb20
 gRegionMapEntries:
   F: 0x83ef168
-  I: ~
+  I: 0x83e82e4
   J: ~
-  S: ~
+  S: 0x83eb370
 gWildMonHeaders:
   F: 0x83a40d4
-  I: ~
+  I: 0x839d948
   J: ~
-  S: ~
-gMapHeader:
+  S: 0x83a09f0
+sTileBitAttributes:
+  F: 0x830fa90
+  I: 0x830931c
   J: ~
+  S: 0x830c3c4
 gObjectEvents:
   F: 0x30048b0
+  I: 0x30048b0
+  J: ~
+  S: 0x30048b0
+# English rev 1 + 10
+gPlayerPartyCount:
+  F: 0x3004360
+  I: 0x3004360
+  J: ~
+  S: 0x3004360
+# English rev 1 + 10
+gPlayerParty:
+  F: 0x3004370
+  I: 0x3004370
+  J: ~
+  S: 0x3004370
+gMapHeader:
   J: ~
 gPlayerAvatar:
   J: ~
-# English rev 2 + 10
-gPlayerPartyCount:
-  F: 0x3004360
-  J: ~
-# English rev 2 + 10
-gPlayerParty:
-  F: 0x3004370
-  J: ~
-sMapCursor:
+gRegionMap:
   J: ~
 gSaveBlock1:
   J: ~
 gSaveBlock2:
   J: ~
 #----------------#
+
+#--------------------#
+#  Battling Symbols  #
+#--------------------#
+BattleMainCB1:
+  F: 0x80109f8
+  I: 0x80109f0
+  J: ~
+  S: 0x80109f0
+BattleMainCB2:
+  F: 0x800f9dc
+  I: 0x800f9d4
+  J: ~
+  S: 0x800f9d4
+gBattleMainFunc:
+  F: 0x30042e4
+  I: 0x30042e4
+  J: ~
+  S: 0x30042e4
+gBattlerControllerFuncs:
+  F: 0x3004340
+  I: 0x3004340
+  J: ~
+  S: 0x3004340
+gBattlescriptCurrInstr:
+  F: ~ # No need mapping
+  I: ~ # No need mapping
+  J: ~
+  S: ~ # No need mapping
+gBattleResults:
+  F: 0x30042f0
+  I: 0x30042f0
+  J: ~
+  S: 0x30042f0
+GTASKS:
+  F: 0x3004b30
+  I: 0x3004b30
+  J: ~
+  S: 0x3004b30
+gEnemyParty:
+  F: 0x030045d0
+  I: 0x030045d0
+  J: ~
+  S: 0x030045d0
+#--------------------#
