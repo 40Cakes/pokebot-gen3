@@ -11,6 +11,7 @@ from modules.debug_utilities import (
     export_flags_and_vars,
     debug_get_test_party,
     debug_write_party,
+    debug_give_fainted_first_slot_pokemon_with_special_ability,
 )
 from modules.gui.debug_edit_item_bag import run_edit_item_bag_screen
 from modules.gui.debug_edit_party import run_edit_party_screen
@@ -106,6 +107,45 @@ class DebugMenu(Menu):
     def __init__(self, window: Tk):
         super().__init__(window, tearoff=0)
 
+        ability_menu = Menu(self, tearoff=0)
+        ability_menu.add_command(
+            label="Illuminate (double encounter rate)",
+            command=lambda: debug_give_fainted_first_slot_pokemon_with_special_ability("Illuminate"),
+        )
+        if context.rom.is_emerald:
+            ability_menu.add_command(
+                label="Sticky Hold (more fishing encounters)",
+                command=lambda: debug_give_fainted_first_slot_pokemon_with_special_ability("Sticky Hold"),
+            )
+            ability_menu.add_command(
+                label="Compound Eyes (higher chance of holding item)",
+                command=lambda: debug_give_fainted_first_slot_pokemon_with_special_ability("Compoundeyes"),
+            )
+            ability_menu.add_command(
+                label="Pressure (higher level encounters)",
+                command=lambda: debug_give_fainted_first_slot_pokemon_with_special_ability("Pressure"),
+            )
+            ability_menu.add_command(
+                label="Intimidate (fewer level<=5 encounters)",
+                command=lambda: debug_give_fainted_first_slot_pokemon_with_special_ability("Intimidate"),
+            )
+            ability_menu.add_command(
+                label="Magnet Pull (more Steel encounters)",
+                command=lambda: debug_give_fainted_first_slot_pokemon_with_special_ability("Magnet Pull"),
+            )
+            ability_menu.add_command(
+                label="Static (more Electric encounters)",
+                command=lambda: debug_give_fainted_first_slot_pokemon_with_special_ability("Static"),
+            )
+            ability_menu.add_command(
+                label="Synchronize (more same nature encounters)",
+                command=lambda: debug_give_fainted_first_slot_pokemon_with_special_ability("Synchronize"),
+            )
+            ability_menu.add_command(
+                label="Cute Charm (more opposite gender encounters)",
+                command=lambda: debug_give_fainted_first_slot_pokemon_with_special_ability("Cute Charm"),
+            )
+
         self.add_command(label="Export events and vars", command=_export_flags_and_vars)
         self.add_command(label="Import events and vars", command=_import_flags_and_vars)
         self.add_separator()
@@ -113,8 +153,9 @@ class DebugMenu(Menu):
         self.add_command(label="Edit Item Bag", command=_edit_item_bag)
         self.add_command(label="Edit Pokédex", command=_edit_pokedex)
         self.add_separator()
-        self.add_command(label="Test Party", command=_give_test_party)
-        self.add_command(label="Test Item Pack", command=_give_test_item_pack)
+        self.add_command(label="Give Test Party", command=_give_test_party)
+        self.add_command(label="Give Test Item Pack", command=_give_test_item_pack)
+        self.add_cascade(label="Give Lead with Ability", menu=ability_menu)
         self.add_separator()
         self.add_command(
             label="Help",
