@@ -57,14 +57,14 @@ gSaveBlock2:
 #--------------------#
 BattleMainCB1:
   F: 0x80109f8
-  I: ~
+  I: 0x80109f0
   J: ~
-  S: ~
+  S: 0x80109f0
 BattleMainCB2:
   F: 0x800f9dc
-  I: ~
+  I: 0x800f9d4
   J: ~
-  S: ~
+  S: 0x800f9d4
 gBattleMainFunc:
   F: 0x30042e4
   I: 0x30042e4
@@ -77,9 +77,9 @@ gBattlerControllerFuncs:
   S: 0x3004340
 gBattlescriptCurrInstr:
   F: ~ # No need mapping
-  F: ~ # No need mapping
-  F: ~ # No need mapping
-  F: ~ # No need mapping
+  I: ~ # No need mapping
+  J: ~
+  S: ~ # No need mapping
 gBattleResults:
   F: 0x30042f0
   I: 0x30042f0
