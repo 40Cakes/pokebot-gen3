@@ -101,7 +101,8 @@ class DaycareMode(BotMode):
             console.print("[bold yellow]Egg generation rates may be affected.")
 
         if context.rom.is_emerald:
-            if not any(pokemon.ability.name in ("Flame Body", "Magma Armor") for pokemon in get_party()):
+            party = get_party()
+            if not party.has_pokemon_with_ability("Flame Body") and not party.has_pokemon_with_ability("Magma Armor"):
                 console.print(
                     "[bold yellow]WARNING: No Pokémon in your party has the Flame Body or Magma Armor ability."
                 )
