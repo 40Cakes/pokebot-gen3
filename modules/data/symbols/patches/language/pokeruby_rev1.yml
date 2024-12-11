@@ -40,3 +40,48 @@ gSaveBlock1:
 gSaveBlock2:
   J: ~
 #----------------#
+
+#--------------------#
+#  Battling Symbols  #
+#--------------------#
+BattleMainCB1:
+  F: 0x80109f8
+  I: ~
+  J: ~
+  S: ~
+BattleMainCB2:
+  F: 0x800f9dc
+  I: ~
+  J: ~
+  S: ~
+gBattleMainFunc:
+  F: 0x30042e4
+  I: 0x30042e4
+  J: ~
+  S: 0x30042e4
+gBattlerControllerFuncs:
+  F: 0x3004340
+  I: 0x3004340
+  J: ~
+  S: 0x3004340
+gBattlescriptCurrInstr:
+  F: ~ # No need mapping
+  F: ~ # No need mapping
+  F: ~ # No need mapping
+  F: ~ # No need mapping
+gBattleResults:
+  F: 0x30042f0
+  I: 0x30042f0
+  J: ~
+  S: 0x30042f0
+GTASKS:
+  F: 0x3004b30
+  I: 0x3004b30
+  J: ~
+  S: 0x3004b30
+gEnemyParty:
+  F: 0x030045d0
+  I: 0x030045d0
+  J: ~
+  S: 0x030045d0
+#--------------------#
