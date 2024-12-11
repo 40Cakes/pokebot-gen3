@@ -2,7 +2,7 @@ from typing import Generator
 
 from modules.context import context
 from modules.memory import read_symbol, get_event_var
-from modules.pokemon import Pokemon, Move, Species
+from modules.pokemon import Pokemon, Move, Species, Ability
 from modules.state_cache import state_cache
 
 
@@ -74,12 +74,23 @@ class Party:
     def first_non_fainted(self) -> PartyPokemon:
         return self.non_fainted_pokemon[0]
 
-    def has_pokemon_with_move(self, move: Move | str) -> bool:
-        return any(pokemon.knows_move(move) for pokemon in self._pokemon)
+    def has_pokemon_with_move(self, move: Move | str, with_pp_remaining: bool = False) -> bool:
+        return any(pokemon.knows_move(move, with_pp_remaining) and not pokemon.is_egg for pokemon in self._pokemon)
 
-    def first_pokemon_with_move(self, move: Move | str) -> PartyPokemon | None:
+    def first_pokemon_with_move(self, move: Move | str, with_pp_remaining: bool = False) -> PartyPokemon | None:
         for pokemon in self._pokemon:
-            if pokemon.knows_move(move):
+            if not pokemon.is_egg and pokemon.knows_move(move, with_pp_remaining):
+                return pokemon
+        return None
+
+    def has_pokemon_with_ability(self, ability: Ability | str) -> bool:
+        ability_name = ability.name if isinstance(ability, Ability) else str(ability)
+        return any(pokemon.ability.name == ability_name and not pokemon.is_egg for pokemon in self._pokemon)
+
+    def first_pokemon_with_ability(self, ability: Ability | str) -> PartyPokemon | None:
+        ability_name = ability.name if isinstance(ability, Ability) else str(ability)
+        for pokemon in self._pokemon:
+            if not pokemon.is_egg and pokemon.ability.name == ability_name:
                 return pokemon
         return None
 
