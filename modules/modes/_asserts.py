@@ -97,7 +97,9 @@ def assert_registered_item(
         raise BotModeError(error_message)
 
 
-def assert_has_pokemon_with_any_move(moves: list[str], error_message: str, check_in_saved_game: bool = False) -> None:
+def assert_has_pokemon_with_any_move(
+    moves: list[str], error_message: str, check_in_saved_game: bool = False, with_pp_remaining: bool = False
+) -> None:
     """
     Raises an exception if the player has no Pokémon that knows any of the given move in their
     party.
@@ -105,10 +107,12 @@ def assert_has_pokemon_with_any_move(moves: list[str], error_message: str, check
     :param error_message: Error message to display if the assertion fails.
     :param check_in_saved_game: Whether to get the party in the saved game, rather than th
                                 currently active one.
+    :param with_pp_remaining: Also make sure that the Pokémon has at least 1 PP remaining, i.e.
+                              can actually use it in battle.
     """
     party = get_party() if not check_in_saved_game else get_save_data().get_party()
     for move in moves:
-        if party.has_pokemon_with_move(move):
+        if party.has_pokemon_with_move(move, with_pp_remaining):
             return
 
     if check_in_saved_game:

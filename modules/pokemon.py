@@ -994,11 +994,15 @@ class Pokemon:
     def moves(self) -> tuple[LearnedMove | None, LearnedMove | None, LearnedMove | None, LearnedMove | None]:
         return self.move(0), self.move(1), self.move(2), self.move(3)
 
-    def knows_move(self, move: str | Move):
+    def knows_move(self, move: str | Move, with_pp_remaining: bool = False):
         if isinstance(move, Move):
             move = move.name
         for learned_move in self.moves:
-            if learned_move is not None and learned_move.move.name == move:
+            if (
+                learned_move is not None
+                and learned_move.move.name == move
+                and (not with_pp_remaining or learned_move.pp > 0)
+            ):
                 return True
         return False
 
