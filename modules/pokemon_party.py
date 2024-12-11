@@ -47,16 +47,7 @@ class Party:
         return len(self._pokemon)
 
     def __getitem__(self, item: int | slice):
-        if isinstance(item, slice):
-            return self._pokemon[item]
-
-        if item not in (0, 1, 2, 3, 4, 5):
-            raise KeyError(f"Cannot access a party index of `{item}`.")
-
-        if len(self._pokemon) > item:
-            return self._pokemon[item]
-        else:
-            return None
+        return self._pokemon[item]
 
     @property
     def contains_eggs(self) -> bool:
