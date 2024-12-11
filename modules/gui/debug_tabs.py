@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Union, Optional
 
 from PIL import Image, ImageDraw, ImageTk, ImageOps
 
-from modules.battle_state import get_battle_state
+from modules.battle_state import get_battle_state, battle_is_active
 from modules.clock import get_clock_time, get_play_time
 from modules.context import context
 from modules.daycare import get_daycare_data
@@ -411,14 +411,17 @@ class BattleTab(DebugTab):
         root.add(frame, text="Battle")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        self._tv.update_data(self._get_data())
+        if game_has_started():
+            self._tv.update_data(self._get_data())
+        else:
+            self._tv.update_data({"": "Game has not been started yet."})
 
     def _get_data(self):
         data = read_symbol("gBattleResults")
         currins = unpack_uint32(read_symbol("gBattleScriptCurrInstr", size=4))
 
         return {
-            "State": get_battle_state(),
+            "State": get_battle_state() if battle_is_active() else None,
             "Current Instruction": hex(currins),
             "Instruction Symbol": get_symbol_name(currins, True),
             "Instruction Symbol #2": get_symbol_name_before(currins, True),
@@ -676,7 +679,7 @@ class PlayerTab(DebugTab):
         if game_has_started():
             self._tv.update_data(self._get_data())
         else:
-            self._tv.update_data({})
+            self._tv.update_data({"": "Game has not been started yet."})
 
     def _get_data(self):
         player = get_player()
@@ -821,51 +824,58 @@ class MiscTab(DebugTab):
         root.add(frame, text="Misc")
 
     def update(self, emulator: "LibmgbaEmulator"):
-        self._tv.update_data(self._get_data())
+        try:
+            data = self._get_data()
+        except Exception as e:
+            if game_has_started():
+                raise
+            else:
+                data = {e.__class__.__name__: str(e)}
+
+        self._tv.update_data(data)
 
     def _get_data(self):
         data = get_daycare_data()
         if data is None:
-            return {}
-
-        pokemon1 = "n/a"
-        if data.pokemon1 is not None and not data.pokemon1.is_empty:
-            gender = ""
-            if data.pokemon1.gender is not None:
-                gender = f" ({data.pokemon1.gender})"
-
-            pokemon1 = {
-                "__value": f"{data.pokemon1.species.name}{gender}; {data.pokemon1_steps:,} steps",
-                "pokemon": data.pokemon1,
-                "steps": data.pokemon1_steps,
-                "egg_groups": ", ".join(set(data.pokemon1_egg_groups)),
-            }
-
-        pokemon2 = "n/a"
-        if data.pokemon2 is not None and not data.pokemon2.is_empty:
-            gender = "" if data.pokemon2.gender is None else f" ({data.pokemon2.gender})"
-            pokemon2 = {
-                "__value": f"{data.pokemon2.species.name}{gender}; {data.pokemon1_steps:,} steps",
-                "pokemon": data.pokemon2,
-                "steps": data.pokemon2_steps,
-                "egg_groups": ", ".join(set(data.pokemon2_egg_groups)),
-            }
-
-        if pokemon1 == "n/a" and pokemon2 == "n/a":
-            daycare_value = "None"
-        elif pokemon2 == "n/a":
-            daycare_value = pokemon1["__value"]
-        elif pokemon1 == "n/a":
-            daycare_value = pokemon2["__value"]
+            daycare_information = {}
         else:
-            daycare_value = (
-                f"{data.compatibility[0].name}: {data.pokemon1.species.name} and {data.pokemon2.species.name}"
-            )
+            if data.pokemon1 is not None and not data.pokemon1.is_empty:
+                gender = ""
+                if data.pokemon1.gender is not None:
+                    gender = f" ({data.pokemon1.gender})"
 
-        from modules.region_map import get_map_cursor
+                pokemon1 = {
+                    "__value": f"{data.pokemon1.species.name}{gender}; {data.pokemon1_steps:,} steps",
+                    "pokemon": data.pokemon1,
+                    "steps": data.pokemon1_steps,
+                    "egg_groups": ", ".join(set(data.pokemon1_egg_groups)),
+                }
+            else:
+                pokemon1 = "n/a"
 
-        block_data = {
-            "Daycare": {
+            if data.pokemon2 is not None and not data.pokemon2.is_empty:
+                gender = "" if data.pokemon2.gender is None else f" ({data.pokemon2.gender})"
+                pokemon2 = {
+                    "__value": f"{data.pokemon2.species.name}{gender}; {data.pokemon1_steps:,} steps",
+                    "pokemon": data.pokemon2,
+                    "steps": data.pokemon2_steps,
+                    "egg_groups": ", ".join(set(data.pokemon2_egg_groups)),
+                }
+            else:
+                pokemon2 = "n/a"
+
+            if pokemon1 == "n/a" and pokemon2 == "n/a":
+                daycare_value = "None"
+            elif pokemon2 == "n/a":
+                daycare_value = pokemon1["__value"]
+            elif pokemon1 == "n/a":
+                daycare_value = pokemon2["__value"]
+            else:
+                daycare_value = (
+                    f"{data.compatibility[0].name}: {data.pokemon1.species.name} and {data.pokemon2.species.name}"
+                )
+
+            daycare_information = {
                 "__value": daycare_value,
                 "Pokémon #1": pokemon1,
                 "Pokémon #2": pokemon2,
@@ -873,9 +883,27 @@ class MiscTab(DebugTab):
                 "Step Counter": data.step_counter,
                 "Compatibility": data.compatibility[0].name,
                 "Compatibility Reason": data.compatibility[1],
-            },
-            "Roamer": get_roamer(),
-            "Roamer History": get_roamer_location_history(),
+            }
+
+        from modules.region_map import get_map_cursor
+
+        if game_has_started():
+            location_history = {"__value": []}
+            for index, location in enumerate(get_roamer_location_history()):
+                if index == 0:
+                    location_history["Current Map"] = location.name
+                else:
+                    # Do not show the current map in the short-form location history to save space.
+                    location_history["__value"].append(location.name)
+                    location_history[f"Current-{index} Map"] = location.name
+            location_history["__value"] = ", ".join(location_history["__value"])
+        else:
+            location_history = None
+
+        block_data = {
+            "Daycare": daycare_information,
+            "Roamer": get_roamer() if game_has_started() else None,
+            "Location History": location_history,
             "Region Map Cursor": get_map_cursor(),
             "Text Printer #1": get_text_printer(0),
             "gMain.state": read_symbol("gMain", offset=0x438, size=1)[0],
@@ -1150,6 +1178,10 @@ class MapTab(DebugTab):
         root.add(frame, text="Map")
 
     def update(self, emulator: "LibmgbaEmulator"):
+        if not game_has_started():
+            self._tv.update_data({"": "Game has not been started yet."})
+            return
+
         player = get_player_avatar()
         show_different_tile = self._marker_rectangle is not None and task_is_active("Task_WeatherMain")
         self._map.update()
