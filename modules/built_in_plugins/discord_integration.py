@@ -40,12 +40,15 @@ def iv_table(pokemon: "Pokemon") -> str:
     )
 
 
-def pokemon_label(pokemon: "Pokemon") -> str:
+def pokemon_label(encounter: "EncounterInfo") -> str:
+    pokemon = encounter.pokemon
     if pokemon.gender is not None and not pokemon.species.name.startswith("Nidoran"):
         gender_code = "♂" if pokemon.gender == "male" else "♀"
     else:
         gender_code = ""
-    return f"{pokemon.nature.name} **{pokemon.species_name_for_stats}{gender_code}** (Lv. {pokemon.level:,}) at {pokemon.location_met}!"
+
+    map_name = encounter.map.pretty_name if encounter.map is not None else pokemon.location_met
+    return f"{pokemon.nature.name} **{pokemon.species_name_for_stats}{gender_code}** (Lv. {pokemon.level:,}) at {map_name}!"
 
 
 def pokemon_fields(pokemon: "Pokemon", species_stats: "EncounterSummary", short: bool = False) -> dict[str, str]:
@@ -139,7 +142,7 @@ class DiscordPlugin(BotPlugin):
                 content=f"{encounter.type.verb.title()} a shiny ✨ {opponent.species_name_for_stats} ✨!",
                 embed=DiscordMessageEmbed(
                     title=f"Shiny {encounter.type.verb}!",
-                    description=pokemon_label(opponent),
+                    description=pokemon_label(encounter),
                     fields=pokemon_fields(opponent, species_stats)
                     | phase_summary_fields(opponent, shiny_phase, global_stats),
                     thumbnail=get_shiny_sprite(opponent),
@@ -160,7 +163,7 @@ class DiscordPlugin(BotPlugin):
                 content=f"{encounter.type.verb.title()} a shiny ✨ {opponent.species_name_for_stats} ✨.\n❌ But this species is on the block list, so it will not be caught. ❌",
                 embed=DiscordMessageEmbed(
                     title=f"(Blocked) Shiny {encounter.type.verb}",
-                    description=pokemon_label(opponent),
+                    description=pokemon_label(encounter),
                     fields=pokemon_fields(opponent, species_stats, short=True)
                     | phase_summary_fields(opponent, shiny_phase, global_stats),
                     thumbnail=get_shiny_sprite(opponent),
@@ -261,7 +264,7 @@ class DiscordPlugin(BotPlugin):
                 content=f"{encounter.type.verb.title()} an anti-shiny 💀 {opponent.species_name_for_stats} 💀!",
                 embed=DiscordMessageEmbed(
                     title=f"Anti-Shiny {encounter.type.verb}!",
-                    description=pokemon_label(opponent),
+                    description=pokemon_label(encounter),
                     fields=pokemon_fields(opponent, species_stats)
                     | phase_summary_fields(opponent, shiny_phase, global_stats),
                     thumbnail=get_anti_shiny_sprite(opponent),
@@ -280,7 +283,7 @@ class DiscordPlugin(BotPlugin):
                 webhook_config=context.config.discord.custom_filter_pokemon_encounter,
                 content=f"{encounter.type.verb.title()} a {opponent.species_name_for_stats} matching custom filter: `{encounter.catch_filters_result}`!",
                 embed=DiscordMessageEmbed(
-                    description=pokemon_label(opponent),
+                    description=pokemon_label(encounter),
                     fields=pokemon_fields(opponent, species_stats)
                     | phase_summary_fields(opponent, shiny_phase, global_stats),
                     thumbnail=get_regular_sprite(opponent),
