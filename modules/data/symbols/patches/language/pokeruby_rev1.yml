@@ -1,4 +1,45 @@
 ---
+#--------------------------------#
+#    Overworld / Util Symbols    #
+#--------------------------------#
+CB2_OVERWORLD:
+  F: 0x80547d0
+  I: 0x80546f8
+  J: ~
+  S: 0x80547e0
+# Door exit
+sub_8080B9C:
+  F: 0x80810b8
+  I: 0x8080f70
+  J: ~
+  S: 0x8081058
+Task_HandleYesNoInput:
+  F: 0x80b5720
+  I: 0x80b562c
+  J: ~
+  S: 0x80b5730
+Task_FieldMessageBox:
+  F: 0x8064ecc
+  I: 0x8064df4
+  J: ~
+  S: 0x8064edc
+Std_MsgboxDefault:
+  F: 0x81a4bf8
+  I: 0x81a019d
+  J: ~
+  S: 0x81a2abd
+# 0x6
+Std_MsgboxYesNo:
+  F: 0x81a4c00
+  I: 0x81a01a5
+  J: ~
+  S: 0x81a2ac5
+WaitForAorBPress:
+  F: 0x80674ed
+  I: 0x8067415
+  J: ~
+  S: 0x80674fd
+#-------------------------------#
 
 #--------------------#
 #    Map Symbols     #
@@ -96,3 +137,59 @@ gEnemyParty:
   J: ~
   S: 0x030045d0
 #--------------------#
+
+#----------------#
+#  Daycare Mode  #
+#----------------#
+S_EggHatch:
+  F: 0x81b8bc8
+  I: 0x81b384e
+  J: ~
+  S: 0x81b5e5b
+
+# EggHatch party identification
+gSpecialVar_0x8004:
+  J: ~
+
+Task_Fanfare:
+  F: 0x80753c8
+  I: 0x80752ec
+  J: ~
+  S: 0x80753d4
+#----------------#
+
+#--------------#
+#   Listeners  #
+#--------------#
+
+CB2_EggHatch_1:
+  F: 0x804341c
+  I: 0x8043344
+  J: ~
+  S: 0x804342c
+#---------------#
+
+#-------------------------#
+#    PC Menu / Storage    #
+#-------------------------#
+Task_PokemonStorageSystem:
+  F: 0x80960ec
+  I: 0x8095ff8
+  J: ~
+  S: 0x80960e4
+Task_HandleMultichoiceInput:
+  F: 0x80b54f0
+  I: 0x80b53fc
+  J: ~
+  S: 0x80b5500
+SUB_8096B38:
+  F: 0x8096d70
+  I: 0x8096c7c
+  J: ~
+  S: 0x8096d68
+#-------------------------#
+
+# Ununsed symbols that were conflicting with currently used symbols
+# We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
+EventScript_SetupRivalOnBikeGfxIdFemale:
+  I: 0x0
