@@ -223,7 +223,10 @@ class FeebasMode(BotMode):
                         yield from walk_one_tile("Right")
                         yield from navigate_to(MapRSE.ROUTE119, (24, 42))
                         yield from ensure_facing_direction("Left")
-                        yield from wait_for_task_to_start_and_finish("Task_SurfFieldEffect", "A")
+                        if context.rom.is_rs:
+                            yield from wait_for_task_to_start_and_finish("sub_8088954", "A")
+                        else:
+                            yield from wait_for_task_to_start_and_finish("Task_SurfFieldEffect", "A")
                         yield
 
                     # Move from upper lake to the lower lake.
@@ -232,7 +235,10 @@ class FeebasMode(BotMode):
                         yield from walk_one_tile("Up")
                         yield from navigate_to(MapRSE.ROUTE119, (26, 107))
                         yield from ensure_facing_direction("Left")
-                        yield from wait_for_task_to_start_and_finish("Task_SurfFieldEffect", "A")
+                        if context.rom.is_rs:
+                            yield from wait_for_task_to_start_and_finish("sub_8088954", "A")
+                        else:
+                            yield from wait_for_task_to_start_and_finish("Task_SurfFieldEffect", "A")
                         yield
 
                     # Swim up the waterfall is necessary.
@@ -240,7 +246,11 @@ class FeebasMode(BotMode):
                         yield from navigate_to(MapRSE.ROUTE119, (18, 29))
                         yield from ensure_facing_direction("Up")
                         context.emulator.press_button("A")
-                        yield from wait_for_task_to_start_and_finish("Task_UseWaterfall", "A")
+
+                        if context.rom.is_rs:
+                            yield from wait_for_task_to_start_and_finish("sub_8086F64", "A")
+                        else:
+                            yield from wait_for_task_to_start_and_finish("Task_UseWaterfall", "A")
                         yield
 
                     # Surf to the closest tile next to the target.
