@@ -173,6 +173,38 @@ BattleScript_FaintedMonEnd:
   I: 0x81daa12
   J: ~
   S: 0x81dda96
+CB2_WhiteOut:
+  F: 0x8054894
+  I: 0x80547bc
+  J: ~
+  S: 0x80548a4
+BattleScript_AskToLearnMove:
+  F: 0x81e1311
+  I: 0x81daba5
+  J: ~
+  S: 0x81ddc29
+BattleScript_ForgotAndLearnedNewMove:
+  F: 0x81e133e
+  I: 0x81dabd2
+  J: ~
+  S: 0x81ddc56
+# Replace move
+sub_809E260:
+  F: 0x809e49c
+  I: 0x809e3a8
+  J: ~
+  S: 0x809e494
+CB2_EvolutionSceneUpdate:
+  F: 0x8112770
+  I: 0x8112668
+  J: ~
+  S: 0x8112768
+Task_EvolutionScene:
+  F: 0x811290c
+  I: 0x8112804
+  J: ~
+  S: 0x8112904
+
 #--------------------#
 
 #----------------#
