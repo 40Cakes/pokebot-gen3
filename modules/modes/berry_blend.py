@@ -95,7 +95,17 @@ class BerryBlendMode(BotMode):
             speed = struct.unpack("<H", context.emulator.read_bytes(pointer + speed_offset, 2))[0]
 
             arrow_hit_ranges = read_symbol(hit_range_symbol)
-            player_offset = 0 if number_of_players == 4 else 1
+
+            # The player_offset is different between EM and R/S
+            # As R/S only have berry blender of 4 people, offset will always be 4
+            # For EM, it will either be 4 or 0 depending on the blender used.
+            if number_of_players == 4:
+                player_offset = 0
+            elif context.rom.is_rs:
+                player_offset = 4
+            else:
+                player_offset = 1
+
             hit_range_start = arrow_hit_ranges[player_offset] + 20
             hit_range_end = arrow_hit_ranges[player_offset] + 28
 
