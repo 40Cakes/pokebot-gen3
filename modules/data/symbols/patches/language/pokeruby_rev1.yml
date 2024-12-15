@@ -147,6 +147,12 @@ sub_802C098:
   I: 0x802c264
   J: ~
   S: 0x802c264
+# Turn selection Safari
+bx_battle_menu_t6_2:
+  F: 0x812b95c
+  I: 0x812b854
+  J: ~
+  S: 0x812b954
 HandleEndTurn_FinishBattle:
   F: 0x8013e70
   I: 0x8013e68
@@ -251,9 +257,6 @@ sub_8089D94:
   J: ~
   S: 0x808a270
 #----------------#
-
-
-
 
 #-------------------#
 #   Fishing Mode    #
