@@ -39,6 +39,11 @@ WaitForAorBPress:
   I: 0x8067415
   J: ~
   S: 0x80674fd
+Task_DuckBGMForPokemonCry:
+  F: 0x80758b8
+  I: 0x80757dc
+  J: ~
+  S: 0x80758c4
 #-------------------------------#
 
 #--------------------#
@@ -158,6 +163,16 @@ HandleEndTurn_FinishBattle:
   I: 0x8013e68
   J: ~
   S: 0x8013e68
+BattleScript_HandleFaintedMon:
+  F: 0x81e1073
+  I: 0x81da907
+  J: ~
+  S: 0x81dd98b
+BattleScript_FaintedMonEnd:
+  F: 0x81e117e
+  I: 0x81daa12
+  J: ~
+  S: 0x81dda96
 #--------------------#
 
 #----------------#
@@ -256,6 +271,16 @@ sub_8089D94:
   I: 0x808a188
   J: ~
   S: 0x808a270
+HandleBattlePartyMenu:
+  F: 0x8095350
+  I: 0x809525c
+  J: ~
+  S: 0x8095348
+Task_HandlePopupMenuInput:
+  F: 0x8095640
+  I: 0x809554c
+  J: ~
+  S: 0x8095638
 #----------------#
 
 #-------------------#
