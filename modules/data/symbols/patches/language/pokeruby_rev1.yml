@@ -363,6 +363,25 @@ namingScreenDataPtr:
   S: 0x83d1d1c
 #---------------------#
 
+#---------------------#
+#    Berry blending   #
+#---------------------#
+SUB_80501FC:
+  F: 0x8050654
+  I: 0x805057c
+  J: ~
+  S: 0x8050664
+gUnknown_08216303:
+  F: 0x821e74b
+  I: 0x8217fd7
+  J: ~
+  S: 0x821b07f
+gBerryBlenderData:
+  F: 0x3004864
+  I: 0x3004864
+  J: ~
+  S: 0x3004864
+#---------------------#
 
 # Ununsed symbols that were conflicting with currently used symbols
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
