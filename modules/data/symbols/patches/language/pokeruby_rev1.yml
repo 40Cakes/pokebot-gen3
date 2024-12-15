@@ -136,6 +136,22 @@ gEnemyParty:
   I: 0x030045d0
   J: ~
   S: 0x030045d0
+# Turn selection
+sub_8012324:
+  F: 0x80124f8
+  I: 0x80124f0
+  J: ~
+  S: 0x80124f0
+sub_802C098:
+  F: 0x802c26c
+  I: 0x802c264
+  J: ~
+  S: 0x802c264
+HandleEndTurn_FinishBattle:
+  F: 0x8013e70
+  I: 0x8013e68
+  J: ~
+  S: 0x8013e68
 #--------------------#
 
 #----------------#
@@ -189,6 +205,26 @@ SUB_8096B38:
   S: 0x8096d68
 #-------------------------#
 
+#--------------#
+#   Bag Menu   #
+#--------------#
+sub_80A3118:
+  F: 0x80a3350
+  I: 0x80a325c
+  J: ~
+  S: 0x80a3360
+sCurrentBagPocket:
+  F: ~ # No need mapping
+  I: ~ # No need mapping
+  J: ~
+  S: ~ # No need mapping
+gBagPocketScrollStates:
+  F: 0x03005d20
+  I: 0x03005d20
+  J: ~
+  S: 0x03005d20
+#---------------#
+
 #-------------------#
 #   Fishing Mode    #
 #-------------------#
@@ -197,9 +233,50 @@ Task_Fishing:
   I: 0x805a6d0
   J: ~
   S: 0x805a7b8
-  #-------------------#
+#-------------------#
+
+#---------------------#
+#   Pokemon renaming  #
+#---------------------#
+# 0xa
+BattleScript_TryNicknameCaughtMon:
+  F: 0x81e22db
+  I: 0x81dbb6f
+  J: ~
+  S: 0x81debf3
+sub_80B5AA0:
+  F: 0x80b5d34
+  I: 0x80b5c40
+  J: ~
+  S: 0x80b5d44
+Task_HandleInput:
+  F: 0x80b64d0
+  I: 0x80b63dc
+  J: ~
+  S: 0x80b64e0
+# 0x7
+BattleScript_GiveCaughtMonEnd:
+  F: 0x81e22f0
+  I: 0x81dbb84
+  J: ~
+  S: 0x81dec08
+# 0x6
+BattleScript_GotAwaySafely:
+  F: 0x81e1220
+  I: 0x81daab5
+  J: ~
+  S: 0x81ddb39
+namingScreenDataPtr:
+  F: 0x83d5d0c
+  I: 0x83ced58
+  J: ~
+  S: 0x83d1d1c
+#---------------------#
+
 
 # Ununsed symbols that were conflicting with currently used symbols
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
 EventScript_SetupRivalOnBikeGfxIdFemale:
   I: 0x0
+__fpcmp_parts_f:
+  F: 0x0
