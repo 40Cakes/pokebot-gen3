@@ -189,6 +189,16 @@ SUB_8096B38:
   S: 0x8096d68
 #-------------------------#
 
+#-------------------#
+#   Fishing Mode    #
+#-------------------#
+Task_Fishing:
+  F: 0x805a7a8
+  I: 0x805a6d0
+  J: ~
+  S: 0x805a7b8
+  #-------------------#
+
 # Ununsed symbols that were conflicting with currently used symbols
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
 EventScript_SetupRivalOnBikeGfxIdFemale:
