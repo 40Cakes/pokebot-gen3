@@ -7,7 +7,7 @@ from . import BotModeError
 from ._interface import BotMode
 from .util import scroll_to_item_in_bag
 from ..context import context
-from ..gui.multi_select_window import Selection, ask_for_choice
+from ..gui.multi_select_window import Selection, ask_for_choice_scroll
 from ..map_data import MapRSE
 from ..memory import get_game_state, GameState, get_game_state_symbol, read_symbol, unpack_uint32, unpack_uint16
 from ..runtime import get_sprites_path
@@ -67,7 +67,16 @@ class BerryBlendMode(BotMode):
             if len(berry_choices) == 0:
                 raise BotModeError("Player does not have any berries.")
 
-            berry_to_use = get_item_by_name(ask_for_choice(berry_choices))
+            berry_choice = ask_for_choice_scroll(
+                berry_choices, window_title="Select a berry to blender...", options_per_row=3
+            )
+
+            if berry_choice is None:
+                context.set_manual_mode()
+                yield
+                return
+
+            berry_to_use = get_item_by_name(berry_choice)
 
             while get_game_state() != GameState.BAG_MENU:
                 context.emulator.press_button("A")
