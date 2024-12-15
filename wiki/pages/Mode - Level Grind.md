@@ -53,10 +53,10 @@ Try another route that has an easy overland path to a Pokémon Center.
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
 | Japanese |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| German   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| Spanish  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| French   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| Italian  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| German   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Spanish  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| French   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Italian  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
 
 ✅ Tested, working
 
