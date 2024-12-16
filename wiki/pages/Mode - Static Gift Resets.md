@@ -15,6 +15,8 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 ![](../../modules/web/static/sprites/pokemon/shiny/Kabuto.png)
 ![](../../modules/web/static/sprites/pokemon/shiny/Aerodactyl.png)
 
+- Hand a fossil to the Scientist
+- Leave the room and come back in
 - Place the player in front of the Scientist in the Eastern most room of [Cinnibar Lab](https://bulbapedia.bulbagarden.net/wiki/Cinnabar_Island#Cinnabar_Lab)
 - The scientist may be trapped on either of the two marked tiles, please stand facing these to activate the mode
 - Save the game (**in-game, not a save state**)
