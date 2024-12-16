@@ -144,12 +144,12 @@ Start bot mode anywhere inside the glass workshop.
 | Puzzle           | Game         | English | Japanese | German | Spanish | French | Italian |
 |:-----------------|:-------------|:-------:|:--------:|:------:|:-------:|:------:|:-------:|
 | **Mirage Tower** | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
-| **Sky Pillar**   | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
+| **Sky Pillar**   | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🟥 Ruby      |    ✅    |    ❌     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🔷 Sapphire  |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 | **Deoxys**       | 🟥 Ruby      |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 |                  | 🔷 Sapphire  |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
-|                  | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
+|                  | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🔥 Fire Red  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🌿 LeafGreen |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 | **Regice**       | 🟥 Ruby      |    ✅    |    ❌     |   ✅    |    ✅    |   ✅    |    ✅    |
