@@ -769,3 +769,22 @@ sNamingScreen:
 gSprites:
   J: 0x20205AC
 #---------------------#
+
+#---------------------#
+#    Berry blending   #
+#---------------------#
+CB2_PlayBlender:
+  D: 0x808189c
+  F: 0x8081890
+  I: 0x8081894
+  J: 0x80812b4
+  S: 0x8081894
+sArrowHitRangeStart:
+  D: 0x834e383
+  F: 0x834153f
+  I: 0x8339397
+  J: 0x830f8d7
+  S: 0x833fcaf
+sBerryBlender:
+  J: 0x2031f44
+#---------------------#

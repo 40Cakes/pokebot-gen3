@@ -7,7 +7,7 @@ from . import BotModeError
 from ._interface import BotMode
 from .util import scroll_to_item_in_bag
 from ..context import context
-from ..gui.multi_select_window import Selection, ask_for_choice
+from ..gui.multi_select_window import Selection, ask_for_choice_scroll
 from ..map_data import MapRSE
 from ..memory import get_game_state, GameState, get_game_state_symbol, read_symbol, unpack_uint32, unpack_uint16
 from ..runtime import get_sprites_path
@@ -67,7 +67,16 @@ class BerryBlendMode(BotMode):
             if len(berry_choices) == 0:
                 raise BotModeError("Player does not have any berries.")
 
-            berry_to_use = get_item_by_name(ask_for_choice(berry_choices))
+            berry_choice = ask_for_choice_scroll(
+                berry_choices, window_title="Select a berry to blender...", options_per_row=3
+            )
+
+            if berry_choice is None:
+                context.set_manual_mode()
+                yield
+                return
+
+            berry_to_use = get_item_by_name(berry_choice)
 
             while get_game_state() != GameState.BAG_MENU:
                 context.emulator.press_button("A")
@@ -86,7 +95,17 @@ class BerryBlendMode(BotMode):
             speed = struct.unpack("<H", context.emulator.read_bytes(pointer + speed_offset, 2))[0]
 
             arrow_hit_ranges = read_symbol(hit_range_symbol)
-            player_offset = 0 if number_of_players == 4 else 1
+
+            # The player_offset is different between EM and R/S
+            # As R/S only have berry blender of 4 people, offset will always be 4
+            # For EM, it will either be 4 or 0 depending on the blender used.
+            if number_of_players == 4:
+                player_offset = 0
+            elif context.rom.is_rs:
+                player_offset = 4
+            else:
+                player_offset = 1
+
             hit_range_start = arrow_hit_ranges[player_offset] + 20
             hit_range_end = arrow_hit_ranges[player_offset] + 28
 

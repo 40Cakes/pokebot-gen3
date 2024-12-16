@@ -160,3 +160,98 @@ def ask_for_confirmation(message: str, window_title: str = "Confirmation") -> bo
         time.sleep(1 / 60)
 
     return user_choice
+
+
+def ask_for_choice_scroll(
+    choices: list[Selection], window_title: str = "Choose...", options_per_row: int = 3
+) -> str | None:
+    if context.gui.is_headless:
+        console.print(f"\n[bold]{window_title}[/]")
+        for index, choice in enumerate(choices):
+            console.print(f"  [bold magenta]\\[{index + 1}][/] " + choice.button_label.replace("\n", " "))
+        chosen_index = Prompt.ask(
+            "Choose option (number)", show_choices=False, choices=[str(n + 1) for n in range(len(choices))]
+        )
+        return choices[int(chosen_index) - 1].button_label
+
+    window = Toplevel(context.gui.window)
+    selected_value: str | None = None
+
+    def remove_window(event=None):
+        nonlocal window
+        window.destroy()
+        window = None
+
+    def return_selection(value: str):
+        nonlocal selected_value
+        selected_value = value
+        window.after(50, remove_window)
+
+    button_width = 165
+    button_height = 165
+    scrollbar_width = 20
+    visible_rows = 2
+
+    window_width = options_per_row * button_width + scrollbar_width
+    window_height = visible_rows * button_height + 50
+    window_geometry = (window_width, window_height)
+
+    window.title(window_title)
+    window.geometry(f"{window_geometry[0]}x{window_geometry[1]}")
+    window.protocol("WM_DELETE_WINDOW", remove_window)
+    window.bind("<Escape>", remove_window)
+
+    frame = ttk.Frame(window)
+    frame.pack(fill="both", expand=True)
+
+    canvas = Canvas(frame)
+    canvas.pack(side="left", fill="both", expand=True)
+
+    scrollbar = ttk.Scrollbar(frame, orient="vertical", command=canvas.yview)
+    scrollbar.pack(side="right", fill="y")
+
+    canvas.configure(yscrollcommand=scrollbar.set)
+    canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+    content_frame = ttk.Frame(canvas)
+    canvas.create_window((0, 0), window=content_frame, anchor="nw")
+
+    photo_buffer = []
+    row = 0
+    column = 0
+
+    for selection in choices:
+        photo = PhotoImage(master=canvas, file=selection.sprite)
+        if photo.width() < 128:
+            photo = photo.zoom(128 // photo.width())
+
+        photo_buffer.append(photo)
+        button_frame = ttk.Frame(content_frame, padding=5)
+        button_frame.grid(row=row, column=column, sticky="NSWE", padx=5, pady=5)
+
+        button = ttk.Button(
+            button_frame,
+            text=selection.button_label,
+            image=photo,
+            compound="top",
+            padding=10,
+            width=1,
+            command=lambda s=selection.button_label: return_selection(s),
+        )
+        button.grid(sticky="NSWE")
+        button.state(["!disabled"] if selection.button_enable else ["disabled"])
+
+        column += 1
+        if column >= options_per_row:
+            column = 0
+            row += 1
+
+    for i in range(options_per_row):
+        content_frame.columnconfigure(i, weight=1)
+
+    while window is not None:
+        window.update_idletasks()
+        window.update()
+        time.sleep(1 / 60)
+
+    return selected_value
