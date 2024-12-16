@@ -276,6 +276,16 @@ gBagPocketScrollStates:
   I: 0x03005d20
   J: ~
   S: 0x03005d20
+sub_80A5414:
+  F: 0x80a564c
+  I: 0x80a5558
+  J: ~
+  S: 0x80a565c
+sub_80A50C8:
+  F: 0x80a5300
+  I: 0x80a520c
+  J: ~
+  S: 0x80a5310
 #---------------#
 
 #-----------------#
@@ -399,6 +409,19 @@ sub_8088954:
   J: ~
   S: 0x8088e30
 #-----------#
+
+#----------------#
+#    Listeners   #
+#----------------#
+# 0x8
+S_RepelWoreOff:
+  F: 0x81cb370
+  I: 0x81c504a
+  J: ~
+  S: 0x81c807a
+#----------------#
+
+
 # Ununsed symbols that were conflicting with currently used symbols
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
 EventScript_SetupRivalOnBikeGfxIdFemale:
