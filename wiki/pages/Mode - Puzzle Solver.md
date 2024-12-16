@@ -147,9 +147,7 @@ Start bot mode anywhere inside the glass workshop.
 | **Sky Pillar**   | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🟥 Ruby      |    ✅    |    ❌     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🔷 Sapphire  |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
-| **Deoxys**       | 🟥 Ruby      |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
-|                  | 🔷 Sapphire  |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
-|                  | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
+| **Deoxys**       | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🔥 Fire Red  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🌿 LeafGreen |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 | **Regice**       | 🟥 Ruby      |    ✅    |    ❌     |   ✅    |    ✅    |   ✅    |    ✅    |
@@ -163,9 +161,9 @@ Start bot mode anywhere inside the glass workshop.
 |                  | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 | **Tanoby Key**   | 🔥 Fire Red  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🌿 LeafGreen |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-| **White Flute**  | 🟥 Ruby      |    ✅    |    ❌     |   ✅    |    ✅    |   ✅    |    ❌    |
+| **White Flute**  | 🟥 Ruby      |    ✅    |    ❌     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🔷 Sapphire  |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
-|                  | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
+|                  | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 
 ✅ Tested, working
 

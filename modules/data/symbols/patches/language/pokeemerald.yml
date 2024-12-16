@@ -398,7 +398,7 @@ EventScript_SmashRock:
   S: 0x829568d
 # 0x8
 EventScript_RepelWoreOff:
-  D: 0x82b6715
+  D: 0x82b670d
   F: 0x82ad0ed
   I: 0x82a5fcb
   J: 0x8262393
