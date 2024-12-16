@@ -795,3 +795,16 @@ sArrowHitRangeStart:
 sBerryBlender:
   J: 0x2031f44
 #---------------------#
+
+#---------------------#
+#    Puzzle Solver    #
+#---------------------#
+
+# Regirock
+Task_DoFieldMove_RunFunc:
+  D: 0x8135240
+  F: 0x8135260
+  I: 0x813522c
+  J: 0x8135670
+  S: 0x8135234
+#---------------------#
