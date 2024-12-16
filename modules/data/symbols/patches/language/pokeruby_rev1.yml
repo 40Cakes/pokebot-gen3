@@ -383,6 +383,22 @@ gBerryBlenderData:
   S: 0x3004864
 #---------------------#
 
+#-----------#
+#   Feebas  #
+#-----------#
+# Waterfall
+sub_8086F64:
+  F: 0x80874a0
+  I: 0x8087358
+  J: ~
+  S: 0x8087440
+# Surf
+sub_8088954:
+  F: 0x8088e90
+  I: 0x8088d48
+  J: ~
+  S: 0x8088e30
+#-----------#
 # Ununsed symbols that were conflicting with currently used symbols
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
 EventScript_SetupRivalOnBikeGfxIdFemale:
