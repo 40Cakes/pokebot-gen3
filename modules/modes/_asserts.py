@@ -190,13 +190,13 @@ def pokemon_has_usable_damaging_move(pokemon: Pokemon) -> bool:
     )
 
 
-def assert_party_can_fight(error_message: str, check_in_saved_game: bool = False) -> None:
+def assert_party_has_damaging_move(error_message: str, check_in_saved_game: bool = False) -> None:
     """
     Ensures the party has at least one Pokémon with a usable attacking move.
     Raises a BotModeError if no Pokémon has any attack-capable moves.
     """
     party = get_party() if not check_in_saved_game else get_save_data().get_party()
-    if any(pokemon_has_usable_damaging_move(pokemon) for pokemon in party.non_fainted_pokemon):
+    if any(pokemon_has_usable_damaging_move(pokemon) and not pokemon.is_egg for pokemon in party):
         return
 
     raise BotModeError(error_message)
