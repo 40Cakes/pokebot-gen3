@@ -44,6 +44,11 @@ Task_DuckBGMForPokemonCry:
   I: 0x80757dc
   J: ~
   S: 0x80758c4
+CB2_FlyRegionMap:
+  F: 0x80fc6bc
+  I: 0x80fc5b4
+  J: ~
+  S: 0x80fc6b8
 #-------------------------------#
 
 #--------------------#
@@ -98,6 +103,60 @@ gSaveBlock2:
   J: ~
 #----------------#
 
+#-----------------#
+#    Main Menu    #
+#-----------------#
+CB2_InitCopyrightScreenAfterBootup:
+  F: 0x813bf2c
+  I: 0x813be68
+  J: ~
+  S: 0x813bf68
+MainCB2_Intro:
+  F: 0x813bc80
+  I: 0x813bbbc
+  J: ~
+  S: 0x813bcbc
+CB2_InitTitleScreen:
+  F: 0x807c60c
+  I: 0x807c828
+  J: ~
+  S: 0x807c5ac
+MainCB2:
+  F: 0x807c970
+  I: 0x807c4c4
+  J: ~
+  S: 0x807c910
+CB2_MainMenu:
+  F: 0x8009890
+  I: 0x8009890
+  J: ~
+  S: 0x8009890
+CB2_ReturnToFieldLocal:
+  F: 0x8054b60
+  I: 0x8054964
+  J: ~
+  S: 0x8054a4c
+#-----------------#
+
+#---------------------------#
+#    SSR/SRA/SGR/Roamers    #
+#---------------------------#
+gRngValue:
+  F: 0x3004828
+  I: 0x3004828
+  J: ~
+  S: 0x3004828
+# Fly
+Task_MapNamePopup:
+  F: 0x80a322c
+  I: 0x80a3138
+  J: ~
+  S: 0x80a323c
+CB2_LoadMap:
+  F: ~
+  I: 0x8054831
+  J: ~
+  S: 0x8054948
 #--------------------#
 #  Battling Symbols  #
 #--------------------#
@@ -297,6 +356,11 @@ sub_80712B4:
   I: 0x80715e4
   J: ~
   S: 0x80716cc
+HandleDefaultPartyMenu:
+  F: 0x808a210
+  I: 0x808a0c8
+  J: ~
+  S: ~
 #-----------------#
 
 #----------------#
