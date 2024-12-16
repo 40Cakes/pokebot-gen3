@@ -192,22 +192,24 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
             # call, ...)
             if player_object is not None and "heldMovementFinished" in player_object.flags:
                 if waypoint.action is WaypointAction.Surf:
+                    surf_task = "Task_SurfFieldEffect" if not context.rom.is_rs else "sub_8088954"
                     yield from ensure_facing_direction(waypoint.direction)
                     if not field_effect_is_active:
-                        if task_is_active("Task_SurfFieldEffect"):
+                        if task_is_active(surf_task):
                             field_effect_is_active = True
                         else:
                             context.emulator.press_button("A")
-                    elif not task_is_active("Task_SurfFieldEffect"):
+                    elif not task_is_active(surf_task):
                         field_effect_is_active = False
                 elif waypoint.action is WaypointAction.Waterfall:
+                    waterfall_task = "Task_UseWaterfall" if not context.rom.is_rs else "sub_8086F64"
                     yield from ensure_facing_direction(waypoint.direction)
                     if not field_effect_is_active:
-                        if task_is_active("Task_UseWaterfall"):
+                        if task_is_active(waterfall_task):
                             field_effect_is_active = True
                         else:
                             context.emulator.press_button("A")
-                    elif not task_is_active("Task_UseWaterfall"):
+                    elif not task_is_active(waterfall_task):
                         field_effect_is_active = False
                 elif (
                     waypoint.action is WaypointAction.AcroBikeMount
