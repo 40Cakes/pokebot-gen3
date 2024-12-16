@@ -16,7 +16,6 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 ![](../../modules/web/static/sprites/pokemon/shiny/Aerodactyl.png)
 
 - Place the player in front of the Scientist in the Eastern most room of [Cinnibar Lab](https://bulbapedia.bulbagarden.net/wiki/Cinnabar_Island#Cinnabar_Lab)
-- **Note**: You must have already walked enough steps for the fossil to be reanimated and be ready for collection!
 - The scientist may be trapped on either of the two marked tiles, please stand facing these to activate the mode
 - Save the game (**in-game, not a save state**)
 - Start mode
@@ -111,10 +110,10 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 ![](../../modules/web/static/sprites/pokemon/shiny/Anorith.png)
 ![](../../modules/web/static/sprites/pokemon/shiny/Lileep.png)
 
-- Place the player in front of the Scientist in the [Devon Corporation](https://bulbapedia.bulbagarden.net/wiki/Devon_Corporation)
-- Hand the fossil to the Scientist
-- Leave the room and come back in (**Note**: You must have already walked enough steps for the fossil to be reanimated and be ready for collection)
-- Place the player in front of the Scientist again
+- Go to the first floor of [Devon Corporation](https://bulbapedia.bulbagarden.net/wiki/Devon_Corporation) in Rustboro City
+- Hand the fossil to the Scientist at the back of the room
+- Leave the room and come back in
+- Place the player in front of that Scientist again
 - Save the game (**in-game, not a save state**)
 - Start mode
 
