@@ -768,6 +768,13 @@ sNamingScreen:
   J: 0x2039c34
 gSprites:
   J: 0x20205AC
+
+
+#---------------------#
+#    Starters Hoenn   #
+#---------------------#
+TryDoEventsBeforeFirstTurn:
+  J: 0x803b26c
 #---------------------#
 
 #---------------------#
