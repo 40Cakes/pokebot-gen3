@@ -160,7 +160,7 @@ Start bot mode anywhere inside the glass workshop.
 |                  | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 | **Registeel**    | 🟥 Ruby      |    ✅    |    ❌     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🔷 Sapphire  |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
-|                  | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
+|                  | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 | **Tanoby Key**   | 🔥 Fire Red  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🌿 LeafGreen |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 | **White Flute**  | 🟥 Ruby      |    ✅    |    ❌     |   ✅    |    ✅    |   ✅    |    ❌    |
