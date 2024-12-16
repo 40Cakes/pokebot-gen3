@@ -88,7 +88,7 @@ def _export_flags_and_vars() -> None:
         return
 
     export_flags_and_vars(target_path[0])
-    context.message = f"✅ Exported flags and vars to {target_path[0].replace('\\', '/').split('/')[-1]}"
+    context.message = f"✅ Exported flags and vars to " + target_path[0].replace("\\", "/").split("/")[-1]
 
 
 def _edit_party() -> None:
