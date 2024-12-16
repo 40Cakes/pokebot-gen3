@@ -23,14 +23,14 @@ Start the mode facing the invisible Kecleon on Route 119.
 
 ## Game Support
 
-|          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald |
-|:---------|:-------:|:-----------:|:----------:|
-| English  |    ❌    |      ❌      |     ✅      |
-| Japanese |    ❌    |      ❌      |     ✅      |
-| German   |    ❌    |      ❌      |     ✅      |
-| Spanish  |    ❌    |      ❌      |     ✅      |
-| French   |    ❌    |      ❌      |     ✅      |
-| Italian  |    ❌    |      ❌      |     ✅      |
+|          | 🟢 Emerald |
+|:---------|:----------:|
+| English  |     ✅      |
+| Japanese |     ✅      |
+| German   |     ✅      |
+| Spanish  |     ✅      |
+| French   |     ✅      |
+| Italian  |     ✅      |
 
 ✅ Tested, working
 
