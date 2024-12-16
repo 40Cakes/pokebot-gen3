@@ -143,8 +143,10 @@ Start bot mode anywhere inside the glass workshop.
 
 | Puzzle           | Game         | English | Japanese | German | Spanish | French | Italian |
 |:-----------------|:-------------|:-------:|:--------:|:------:|:-------:|:------:|:-------:|
-| **Sky Pillar**   | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 | **Mirage Tower** | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
+| **Sky Pillar**   | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
+|                  | 🟥 Ruby      |    ✅    |    ❌     |   ✅    |    ✅    |   ✅    |    ✅    |
+|                  | 🔷 Sapphire  |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 | **Deoxys**       | 🟥 Ruby      |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 |                  | 🔷 Sapphire  |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 |                  | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
@@ -161,7 +163,7 @@ Start bot mode anywhere inside the glass workshop.
 |                  | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 | **Tanoby Key**   | 🔥 Fire Red  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🌿 LeafGreen |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-| **White Flute**  | 🟥 Ruby      |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
+| **White Flute**  | 🟥 Ruby      |    ✅    |    ❌     |   ✅    |    ✅    |   ✅    |    ❌    |
 |                  | 🔷 Sapphire  |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 |                  | 🟢 Emerald   |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 
