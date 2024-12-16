@@ -112,7 +112,9 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 ![](../../modules/web/static/sprites/pokemon/shiny/Lileep.png)
 
 - Place the player in front of the Scientist in the [Devon Corporation](https://bulbapedia.bulbagarden.net/wiki/Devon_Corporation)
-- **Note**: You must have already walked enough steps for the fossil to be reanimated and be ready for collection
+- Hand the fossil to the Scientist
+- Leave the room and come back in (**Note**: You must have already walked enough steps for the fossil to be reanimated and be ready for collection)
+- Place the player in front of the Scientist again
 - Save the game (**in-game, not a save state**)
 - Start mode
 
