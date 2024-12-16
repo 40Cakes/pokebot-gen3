@@ -217,42 +217,6 @@ class FeebasMode(BotMode):
                     continue
 
                 if target_spot.coordinates != player_location:
-                    # Move from the lower lake to the upper lake.
-                    if target_spot.coordinates[1] < 98 <= player_location[1]:
-                        yield from navigate_to(MapRSE.ROUTE119, (25, 107))
-                        yield from walk_one_tile("Right")
-                        yield from navigate_to(MapRSE.ROUTE119, (24, 42))
-                        yield from ensure_facing_direction("Left")
-                        if context.rom.is_rs:
-                            yield from wait_for_task_to_start_and_finish("sub_8088954", "A")
-                        else:
-                            yield from wait_for_task_to_start_and_finish("Task_SurfFieldEffect", "A")
-                        yield
-
-                    # Move from upper lake to the lower lake.
-                    if target_spot.coordinates[1] >= 98 > player_location[1]:
-                        yield from navigate_to(MapRSE.ROUTE119, (25, 43))
-                        yield from walk_one_tile("Up")
-                        yield from navigate_to(MapRSE.ROUTE119, (26, 107))
-                        yield from ensure_facing_direction("Left")
-                        if context.rom.is_rs:
-                            yield from wait_for_task_to_start_and_finish("sub_8088954", "A")
-                        else:
-                            yield from wait_for_task_to_start_and_finish("Task_SurfFieldEffect", "A")
-                        yield
-
-                    # Swim up the waterfall is necessary.
-                    if target_spot.coordinates[1] < 28 < player_location[1]:
-                        yield from navigate_to(MapRSE.ROUTE119, (18, 29))
-                        yield from ensure_facing_direction("Up")
-                        context.emulator.press_button("A")
-
-                        if context.rom.is_rs:
-                            yield from wait_for_task_to_start_and_finish("sub_8086F64", "A")
-                        else:
-                            yield from wait_for_task_to_start_and_finish("Task_UseWaterfall", "A")
-                        yield
-
                     # Surf to the closest tile next to the target.
                     target_tile, direction = _get_nearest_accessible_neighbour(target_spot.coordinates, player_location)
                     yield from navigate_to(MapRSE.ROUTE119, target_tile)
