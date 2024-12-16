@@ -30,6 +30,7 @@ from .util import (
     wait_for_no_script_to_run,
 )
 from ..battle_state import EncounterType
+from ..memory import get_event_var
 
 
 def _get_targeted_encounter() -> tuple[MapFRLG | MapRSE, tuple[int, int], str] | None:
@@ -130,6 +131,26 @@ class StaticGiftResetsMode(BotMode):
                 raise BotModeError(
                     "The first Pokémon in your party in the saved game must have max friendship (255) to receive the egg."
                 )
+        if encounter[2] == "Hoenn Fossils":
+            if (
+                save_data.get_event_var("FOSSIL_RESURRECTION_STATE") == 0
+                or get_event_var("FOSSIL_RESURRECTION_STATE") == 0
+            ):
+                if get_event_var("FOSSIL_RESURRECTION_STATE") == 0:
+                    raise BotModeError(
+                        "You need to first give a Fossil to the Scientist, then re-enter the room, and then save the game before using this mode."
+                    )
+                else:
+                    raise BotModeError(
+                        "You need to save the game after giving a Fossil to the Scientist before using this mode."
+                    )
+            if save_data.get_event_var("FOSSIL_RESURRECTION_STATE") == 1:
+                if get_event_var("FOSSIL_RESURRECTION_STATE") == 1:
+                    raise BotModeError(
+                        "The Scientist is not ready yet. Try leaving the room and coming back, then save the game before using this mode."
+                    )
+                else:
+                    raise BotModeError("You need to save the game before using this mode.")
 
         assert_empty_slot_in_party(
             "This mode requires at least one empty party slot, but your party is full.", check_in_saved_game=True
