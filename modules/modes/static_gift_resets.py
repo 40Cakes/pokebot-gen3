@@ -131,12 +131,14 @@ class StaticGiftResetsMode(BotMode):
                 raise BotModeError(
                     "The first Pokémon in your party in the saved game must have max friendship (255) to receive the egg."
                 )
-        if encounter[2] == "Hoenn Fossils":
-            if (
-                save_data.get_event_var("FOSSIL_RESURRECTION_STATE") == 0
-                or get_event_var("FOSSIL_RESURRECTION_STATE") == 0
-            ):
-                if get_event_var("FOSSIL_RESURRECTION_STATE") == 0:
+        if encounter[2] in ("Hoenn Fossils", "Kanto Fossils"):
+            var_name = (
+                "FOSSIL_RESURRECTION_STATE"
+                if context.rom.is_rse
+                else "MAP_SCENE_CINNABAR_ISLAND_POKEMON_LAB_EXPERIMENT_ROOM_REVIVE_STATE"
+            )
+            if save_data.get_event_var(var_name) == 0 or get_event_var(var_name) == 0:
+                if get_event_var(var_name) == 0:
                     raise BotModeError(
                         "You need to first give a Fossil to the Scientist, then re-enter the room, and then save the game before using this mode."
                     )
@@ -144,8 +146,8 @@ class StaticGiftResetsMode(BotMode):
                     raise BotModeError(
                         "You need to save the game after giving a Fossil to the Scientist before using this mode."
                     )
-            if save_data.get_event_var("FOSSIL_RESURRECTION_STATE") == 1:
-                if get_event_var("FOSSIL_RESURRECTION_STATE") == 1:
+            if save_data.get_event_var(var_name) == 1:
+                if get_event_var(var_name) == 1:
                     raise BotModeError(
                         "The Scientist is not ready yet. Try leaving the room and coming back, then save the game before using this mode."
                     )
