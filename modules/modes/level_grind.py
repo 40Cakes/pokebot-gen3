@@ -8,7 +8,7 @@ from modules.modes import BattleAction
 from modules.player import get_player_avatar
 from modules.pokemon import StatusCondition
 from modules.pokemon_party import get_party
-from ._asserts import assert_party_can_fight
+from ._asserts import assert_party_has_damaging_move
 from ._interface import BotMode, BotModeError
 from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon, spin
 from ..battle_state import BattleOutcome
@@ -177,7 +177,7 @@ class LevelGrindMode(BotMode):
         if level_mode_choice.startswith("Level-balance"):
             self._level_balance = True
         else:
-            assert_party_can_fight("No Pokémon in the party has a usable attacking move!")
+            assert_party_has_damaging_move("No Pokémon in the party has a usable attacking move!")
 
             if not LevelUpLeadBattleStrategy().pokemon_can_battle(party_lead_pokemon):
                 user_confirmed = ask_for_confirmation(
