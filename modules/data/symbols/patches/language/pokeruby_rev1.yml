@@ -153,10 +153,15 @@ Task_MapNamePopup:
   J: ~
   S: 0x80a323c
 CB2_LoadMap:
-  F: ~
+  F: 0x8054938
   I: 0x8054831
   J: ~
   S: 0x8054948
+Task_BattleStart:
+  F: 0x8081e7c
+  I: 0x8081d34
+  J: ~
+  S: 0x8081e1c
 #--------------------#
 #  Battling Symbols  #
 #--------------------#
@@ -360,7 +365,7 @@ HandleDefaultPartyMenu:
   F: 0x808a210
   I: 0x808a0c8
   J: ~
-  S: ~
+  S: 0x808a1b0
 #-----------------#
 
 #----------------#
