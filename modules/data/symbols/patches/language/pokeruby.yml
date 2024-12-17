@@ -1,0 +1,271 @@
+---
+#--------------------------------#
+#    Overworld / Util Symbols    #
+#--------------------------------#
+CB2_OVERWORLD:
+  J: ~
+# Door exit
+sub_8080B9C:
+  J: ~
+Task_HandleYesNoInput:
+  J: ~
+Task_FieldMessageBox:
+  J: ~
+Std_MsgboxDefault:
+  J: ~
+# 0x6
+Std_MsgboxYesNo:
+  J: ~
+WaitForAorBPress:
+  J: ~
+Task_DuckBGMForPokemonCry:
+  J: ~
+CB2_FlyRegionMap:
+  J: ~
+#-------------------------------#
+
+#--------------------#
+#    Map Symbols     #
+#--------------------#
+gMapGroups:
+  J: ~
+gRegionMapEntries:
+  J: ~
+gWildMonHeaders:
+  J: ~
+sTileBitAttributes:
+  J: ~
+gObjectEvents:
+  J: ~
+# English rev 1 + 10
+gPlayerPartyCount:
+  J: ~
+# English rev 1 + 10
+gPlayerParty:
+  J: ~
+gMapHeader:
+  J: ~
+gPlayerAvatar:
+  J: ~
+gRegionMap:
+  J: ~
+gSaveBlock1:
+  J: ~
+gSaveBlock2:
+  J: ~
+#----------------#
+
+#-----------------#
+#    Main Menu    #
+#-----------------#
+CB2_InitCopyrightScreenAfterBootup:
+  J: ~
+MainCB2_Intro:
+  J: ~
+CB2_InitTitleScreen:
+  J: ~
+MainCB2:
+  J: ~
+CB2_MainMenu:
+  J: ~
+CB2_ReturnToFieldLocal:
+  J: ~
+#-----------------#
+
+#---------------------------#
+#    SSR/SRA/SGR/Roamers    #
+#---------------------------#
+gRngValue:
+  J: ~
+# Fly
+Task_MapNamePopup:
+  J: ~
+CB2_LoadMap:
+  J: ~
+Task_BattleStart:
+  J: ~
+#--------------------#
+#  Battling Symbols  #
+#--------------------#
+BattleMainCB1:
+  J: ~
+BattleMainCB2:
+  J: ~
+gBattleMainFunc:
+  J: ~
+gBattlerControllerFuncs:
+  J: ~
+gBattlescriptCurrInstr:
+  J: ~
+gBattleResults:
+  J: ~
+GTASKS:
+  J: ~
+gEnemyParty:
+    J: ~0
+# Turn selection
+sub_8012324:
+  J: ~
+sub_802C098:
+  J: ~
+# Turn selection Safari
+bx_battle_menu_t6_2:
+  J: ~
+HandleEndTurn_FinishBattle:
+  J: ~
+BattleScript_HandleFaintedMon:
+  J: ~
+BattleScript_FaintedMonEnd:
+  J: ~
+CB2_WhiteOut:
+  J: ~
+BattleScript_AskToLearnMove:
+  J: ~
+BattleScript_ForgotAndLearnedNewMove:
+  J: ~
+# Replace move
+sub_809E260:
+  J: ~
+CB2_EvolutionSceneUpdate:
+  J: ~
+Task_EvolutionScene:
+  J: ~
+#--------------------#
+
+#----------------#
+#  Daycare Mode  #
+#----------------#
+S_EggHatch:
+  J: ~
+# EggHatch party identification
+gSpecialVar_0x8004:
+  J: ~
+Task_Fanfare:
+  J: ~
+#----------------#
+
+#--------------#
+#   Listeners  #
+#--------------#
+
+CB2_EggHatch_1:
+  J: ~
+#---------------#
+
+#-------------------------#
+#    PC Menu / Storage    #
+#-------------------------#
+Task_PokemonStorageSystem:
+  J: ~
+Task_HandleMultichoiceInput:
+  J: ~
+SUB_8096B38:
+  J: ~
+#-------------------------#
+
+#--------------#
+#   Bag Menu   #
+#--------------#
+sub_80A3118:
+  J: ~
+sCurrentBagPocket:
+  J: ~
+gBagPocketScrollStates:
+  J: ~
+sub_80A5414:
+  J: ~
+sub_80A50C8:
+  J: ~
+#---------------#
+
+#-----------------#
+#  In game Menu   #
+#-----------------#
+# Start Menu
+sub_80712B4:
+  J: ~
+HandleDefaultPartyMenu:
+  J: ~
+#-----------------#
+
+#----------------#
+#   Party Menu   #
+#----------------#
+CB2_PartyMenuMain:
+  J: ~
+# Pokemon action menu
+sub_8089D94:
+  J: ~
+HandleBattlePartyMenu:
+  J: ~
+Task_HandlePopupMenuInput:
+  J: ~
+#----------------#
+
+#-------------------#
+#   Fishing Mode    #
+#-------------------#
+Task_Fishing:
+  J: ~
+#-------------------#
+
+#---------------------#
+#   Pokemon renaming  #
+#---------------------#
+# 0xa
+BattleScript_TryNicknameCaughtMon:
+  J: ~
+sub_80B5AA0:
+  J: ~
+Task_HandleInput:
+  J: ~
+# 0x7
+BattleScript_GiveCaughtMonEnd:
+  J: ~
+# 0x6
+BattleScript_GotAwaySafely:
+  J: ~
+namingScreenDataPtr:
+  J: ~
+#---------------------#
+
+#---------------------#
+#    Berry blending   #
+#---------------------#
+SUB_80501FC:
+  J: ~
+gUnknown_08216303:
+  J: ~
+gBerryBlenderData:
+  J: ~
+#---------------------#
+
+#-----------#
+#   Feebas  #
+#-----------#
+# Waterfall
+sub_8086F64:
+  J: ~
+# Surf
+sub_8088954:
+  J: ~
+#-----------#
+
+#---------------------#
+#    Starters Hoenn   #
+#---------------------#
+Task_StarterChoose2:
+  J: ~
+BattleBeginFirstTurn:
+  J: ~
+#---------------------#
+
+#----------------#
+#    Listeners   #
+#----------------#
+# 0x8
+S_RepelWoreOff:
+  J: ~
+gEggHatchData:
+  J: ~
+#----------------#

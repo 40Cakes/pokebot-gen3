@@ -146,8 +146,6 @@ Start bot mode anywhere inside the glass workshop.
 | **Mirage Tower** | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 | **Sky Pillar**   | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🟥 Ruby      |    ✅    |    ❌     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🔷 Sapphire  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🟥 Ruby      |    ✅    |    ❌     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🔷 Sapphire  |    ✅    |    ❌     |   ❌    |    ❌    |   ❌    |    ❌    |
 | **Deoxys**       | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
 |                  | 🔥 Fire Red  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
