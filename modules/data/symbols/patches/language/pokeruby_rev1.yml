@@ -498,6 +498,11 @@ S_RepelWoreOff:
   I: 0x81c504a
   J: ~
   S: 0x81c807a
+gEggHatchData:
+  F: 0x300482c
+  I: 0x300482c
+  J: ~
+  S: 0x300482c
 #----------------#
 
 
