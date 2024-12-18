@@ -8,7 +8,8 @@ from modules.debug import debug
 from modules.encounter import handle_encounter, EncounterInfo
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.items import get_item_bag, get_item_by_name
-from modules.map_data import MapRSE
+from modules.map_data import MapRSE, is_safari_map
+from modules.safari_strategy import get_safari_balls_left
 from modules.map_path import calculate_path
 from modules.memory import get_event_flag, get_event_var, read_symbol, unpack_uint16
 from modules.player import TileTransitionState, get_player, get_player_avatar, AvatarFlags, get_player_location
@@ -91,7 +92,12 @@ class RockSmashMode(BotMode):
 
     def on_battle_ended(self, outcome: "BattleOutcome") -> None:
         if not outcome == BattleOutcome.Lost:
-            assert_player_has_poke_balls()
+            # TODO: Remove and use the assert below when RSE safari auto catch is implemented
+            # Shuckle catch rate is 35%. So 10 balls should be enough to catch it
+            if is_safari_map() and get_safari_balls_left() <= 10:
+                raise BotModeError("You have less than 10 balls left, switching to manual mode...")
+            else:
+                assert_player_has_poke_balls()
 
     def on_repel_effect_ended(self) -> None:
         if self._using_repel:
