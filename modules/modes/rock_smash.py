@@ -54,13 +54,16 @@ class RockSmashMode(BotMode):
         if not context.rom.is_rse:
             return False
 
-        return get_player_avatar().map_group_and_number in (
-            MapRSE.GRANITE_CAVE_B2F,
-            MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE,
-            MapRSE.SAFARI_ZONE_SOUTH,
-            MapRSE.SAFARI_ZONE_NORTHEAST,
-            MapRSE.SAFARI_ZONE_SOUTHEAST,
-        )
+        if context.rom.is_rs:
+            return get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F
+        else:
+            return get_player_avatar().map_group_and_number in (
+                MapRSE.GRANITE_CAVE_B2F,
+                MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE,
+                MapRSE.SAFARI_ZONE_SOUTH,
+                MapRSE.SAFARI_ZONE_NORTHEAST,
+                MapRSE.SAFARI_ZONE_SOUTHEAST,
+            )
 
     def __init__(self):
         super().__init__()
