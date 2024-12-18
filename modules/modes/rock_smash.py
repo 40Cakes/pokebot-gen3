@@ -180,8 +180,6 @@ class RockSmashMode(BotMode):
                             break
                         yield
                 case MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE:
-                    if get_item_bag().quantity_of(get_item_by_name("Pokéblock Case")) == 0:
-                        raise BotModeError("Player does not own the Pokéblock Case yet.")
                     current_cash = get_player().money
                     if current_cash < 500 or starting_cash - current_cash > 25000:
                         yield from soft_reset()
