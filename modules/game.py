@@ -31,8 +31,7 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
                 label = label.strip()
 
                 _symbols[label.upper()] = (address, length)
-                if address not in _reverse_symbols or (_reverse_symbols[address][2] == 0 and length > 0):
-                    _reverse_symbols[address] = (label.upper(), label, length)
+                _reverse_symbols[address] = (label.upper(), label, length)
 
     language_code = str(language)
     language_patch_file = symbols_file.replace(".sym", ".yml")
@@ -51,15 +50,23 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
                         addresses_list = [addresses_list]
 
                     if label.upper() in _symbols:
-                        _reverse_symbols.pop(_symbols[label.upper()][0], None)
+                        existing_address = _symbols[label.upper()][0]
+                        if (
+                            existing_address in _reverse_symbols
+                            and _reverse_symbols[existing_address][0] == label.upper()
+                        ):
+                            _reverse_symbols.pop(existing_address, None)
 
                     for addr in addresses_list:
                         if addr is not None:
-                            _symbols[label.upper()] = (addr, _symbols[label.upper()][1])
+                            _symbols[label.upper()] = (
+                                addr,
+                                _symbols[label.upper()][1] if label.upper() in _symbols else 0,
+                            )
                             _reverse_symbols[addr] = (
                                 label.upper(),
                                 label,
-                                _symbols[label.upper()][1],
+                                _symbols[label.upper()][1] if label.upper() in _symbols else 0,
                             )
 
 
