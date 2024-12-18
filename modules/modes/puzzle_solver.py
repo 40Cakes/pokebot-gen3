@@ -238,7 +238,7 @@ class PuzzleSolverMode(BotMode):
                     yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 21))
                     yield from ensure_facing_direction("Up")
                     context.emulator.press_button("A")
-                    yield from wait_for_n_frames(5)
+                    yield from wait_for_n_frames(10)
                     context.emulator.press_button("B")
                     if context.rom.is_emerald:
                         assert_has_pokemon_with_any_move(

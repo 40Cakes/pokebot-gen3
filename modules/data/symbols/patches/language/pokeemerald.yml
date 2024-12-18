@@ -396,12 +396,13 @@ EventScript_SmashRock:
   I: 0x82914c3
   J: 0x82566d1
   S: 0x829568d
+# 0x8
 EventScript_RepelWoreOff:
-  D: 0x82b6715
-  F: 0x82ad0f5
-  I: 0x82a5fd3
-  J: 0x826239b
-  S: 0x82aadf3
+  D: 0x82b670d
+  F: 0x82ad0ed
+  I: 0x82a5fcb
+  J: 0x8262393
+  S: 0x82aadeb
 EventScript_EggHatch:
   D: 0x82a0780
   F: 0x829887c
@@ -794,4 +795,17 @@ sArrowHitRangeStart:
   S: 0x833fcaf
 sBerryBlender:
   J: 0x2031f44
+#---------------------#
+
+#---------------------#
+#    Puzzle Solver    #
+#---------------------#
+
+# Regirock
+Task_DoFieldMove_RunFunc:
+  D: 0x8135240
+  F: 0x8135260
+  I: 0x813522c
+  J: 0x8135670
+  S: 0x8135234
 #---------------------#
