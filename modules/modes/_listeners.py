@@ -131,7 +131,8 @@ class BattleListener(BotListener):
                 clear_opponent()
                 bot_mode.on_battle_ended(outcome)
                 _ensure_plugin_hook_will_run(plugin_battle_ended(outcome))
-                context.stats.log_end_of_battle(outcome)
+                if self._active_wild_encounter is not None:
+                    context.stats.log_end_of_battle(outcome, self._active_wild_encounter)
 
             if (
                 get_game_state_symbol() != "CB2_RETURNTOFIELD"
