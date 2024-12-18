@@ -77,7 +77,7 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 
 ![image](../images/gift_togepi.png)
 
-## Emerald
+## Emerald / Ruby / Sapphire
 
 ### [Castform](<https://bulbapedia.bulbagarden.net/wiki/Castform_(Pok%C3%A9mon)>)
 
@@ -137,12 +137,12 @@ Soft reset for a static gift Pokémon that are directly added to your party with
 
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
-| English  |   🟨    |     🟨      |     ✅      |     ✅      |      ✅       |
+| English  |    ✅    |     🟨      |     ✅      |     ✅      |      ✅       |
 | Japanese |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| German   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| Spanish  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| French   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| Italian  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| German   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Spanish  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| French   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Italian  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
 
 ✅ Tested, working
 

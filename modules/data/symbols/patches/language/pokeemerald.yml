@@ -396,13 +396,6 @@ EventScript_SmashRock:
   I: 0x82914c3
   J: 0x82566d1
   S: 0x829568d
-# 0x8
-EventScript_RepelWoreOff:
-  D: 0x82b670d
-  F: 0x82ad0ed
-  I: 0x82a5fcb
-  J: 0x8262393
-  S: 0x82aadeb
 EventScript_EggHatch:
   D: 0x82a0780
   F: 0x829887c
@@ -809,3 +802,17 @@ Task_DoFieldMove_RunFunc:
   J: 0x8135670
   S: 0x8135234
 #---------------------#
+
+#----------------#
+#    Listeners   #
+#----------------#
+# 0x8
+EventScript_RepelWoreOff:
+  D: 0x82b670d
+  F: 0x82ad0ed
+  I: 0x82a5fcb
+  J: 0x8262393
+  S: 0x82aadeb
+gSpecialVar_0x8004:
+  J: 0x2037280
+#----------------#
