@@ -172,6 +172,7 @@ def assert_player_has_poke_balls() -> None:
     or if safari ball threshold is reached.
     """
     if is_safari_map():
+        # TODO : Remove rom check when RSE safari auto catch is implemented
         if context.rom.is_frlg and get_safari_balls_left() <= 15:
             raise BotModeError("You have less than 15 balls left, switching to manual mode...")
     else:
