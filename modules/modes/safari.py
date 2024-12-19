@@ -8,6 +8,9 @@ from modules.player import TileTransitionState, get_player, get_player_avatar
 from modules.tasks import task_is_active
 from modules.memory import get_game_state, GameState
 from modules.modes.util.walking import wait_for_player_avatar_to_be_controllable
+from modules.safari_strategy import SafariPokemon, get_safari_pokemon
+from modules.runtime import get_sprites_path
+from modules.gui.multi_select_window import Selection, ask_for_choice_scroll
 from ._interface import BotMode
 from ._asserts import assert_player_has_poke_balls
 from .util import (
@@ -35,8 +38,29 @@ class SafariMode(BotMode):
             assert_player_has_poke_balls()
 
     def run(self) -> Generator:
+
+        pokemon_choices = []
+        for safari_pokemon in SafariPokemon.available_pokemon(context.rom):
+            sprite_path = get_sprites_path() / "pokemon/normal" / f"{safari_pokemon.name}.png"
+            pokemon_choices.append(Selection(f"{safari_pokemon.value.name}", sprite_path))
+
+        pokemon_choice = ask_for_choice_scroll(
+            choices=pokemon_choices,
+            window_title="Select a Pokemon to hunt...",
+            button_width=172,
+            button_height=170,
+            options_per_row=3,
+        )
+
+        if pokemon_choice is None:
+            context.set_manual_mode()
+            yield
+            return
+
+        safari_pokemon = get_safari_pokemon(pokemon_choice)
+
         yield from self.enter_safari_zone()
-        yield from self._navigate_and_hunt(MapFRLG.SAFARI_ZONE_NORTH, "spin")
+        yield from self._navigate_and_hunt(safari_pokemon.value.map_location, safari_pokemon.value.mode)
 
     def _navigate_and_hunt(self, target_map, mode) -> Generator:
         """Navigates to the target map and performs the desired hunting mode."""
@@ -76,7 +100,6 @@ class SafariMode(BotMode):
                         if warp_direction:
                             console.print(f"Warping to {map_group} in direction {warp_direction}.")
                             yield from self._warp(warp_direction)
-                            console.print("warped")
                         break
                     else:
                         console.print(f"Navigating within {map_group} to {coords}.")
