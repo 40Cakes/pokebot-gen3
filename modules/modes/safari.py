@@ -10,7 +10,14 @@ from modules.memory import get_game_state, GameState
 from modules.modes.util.walking import wait_for_player_avatar_to_be_controllable
 from ._interface import BotMode
 from ._asserts import assert_player_has_poke_balls
-from .util import spin, navigate_to, ensure_facing_direction, wait_for_script_to_start_and_finish
+from .util import (
+    spin,
+    navigate_to,
+    ensure_facing_direction,
+    wait_for_script_to_start_and_finish,
+    fish,
+    wait_for_player_avatar_to_be_standing_still,
+)
 from modules.console import console
 
 
@@ -29,25 +36,71 @@ class SafariMode(BotMode):
 
     def run(self) -> Generator:
         yield from self.enter_safari_zone()
+        yield from self._navigate_and_hunt(MapFRLG.SAFARI_ZONE_NORTH, "spin")
 
-        while True:
-            match get_player_avatar().map_group_and_number:
-                case MapFRLG.FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE:
-                    yield from self.enter_safari_zone()
-                case MapFRLG.SAFARI_ZONE_CENTER:
+    def _navigate_and_hunt(self, target_map, mode) -> Generator:
+        """Navigates to the target map and performs the desired hunting mode."""
 
-                    def is_at_entrance_door():
-                        return (
-                            get_player_avatar().map_group_and_number == MapFRLG.SAFARI_ZONE_CENTER
-                            and get_player_avatar().local_coordinates in (26, 30)
-                        )
+        def is_at_entrance_door():
+            return (
+                get_player_avatar().map_group_and_number == MapFRLG.SAFARI_ZONE_CENTER
+                and get_player_avatar().local_coordinates in (26, 30)
+            )
 
-                    if is_at_entrance_door():
-                        yield from wait_for_player_avatar_to_be_standing_still()
-                    yield from navigate_to(MapFRLG.SAFARI_ZONE_CENTER, (43, 16))
-                    yield from spin()
+        if is_at_entrance_door():
+            yield from wait_for_player_avatar_to_be_standing_still()
+
+        navigation_paths = {
+            MapFRLG.SAFARI_ZONE_NORTH: [
+                (MapFRLG.SAFARI_ZONE_CENTER, (42, 16), "Right"),
+                (MapFRLG.SAFARI_ZONE_EAST, (9, 9), "Left"),
+                (MapFRLG.SAFARI_ZONE_NORTH, (35, 30), None),
+            ]
+        }
+
+        path = navigation_paths.get(target_map)
+        if not path:
+            console.print(f"Error: No navigation path defined for {target_map}.")
+            return
+
+        for map_group, coords, warp_direction in path:
+            while True:
+                console.print(f"Current map: {get_player_avatar().map_group_and_number}, Target map: {map_group}")
+                console.print(f"Current coordinates: {get_player_avatar().local_coordinates}, Target coordinates: {coords}")
+
+                if get_player_avatar().map_group_and_number == map_group:
+                    if get_player_avatar().local_coordinates == coords:
+                        console.print(f"Arrived at destination {map_group}, {coords}.")
+                        if warp_direction:
+                            console.print(f"Warping to {map_group} in direction {warp_direction}.")
+                            yield from self._warp(warp_direction)
+                            console.print("warped")
+                        break
+                    else:
+                        console.print(f"Navigating within {map_group} to {coords}.")
+                        yield from navigate_to(map_group, coords)
+                else:
+                    console.print(f"Navigating to map group {map_group}, coordinates {coords}.")
+                    yield from navigate_to(map_group, coords)
+
+        if mode == "spin":
+            yield from spin()
+        elif mode == "fish":
+            while True:
+                yield from fish()
+        else:
+            console.print(f"Error: Unknown mode {mode}.")
+
+    def _warp(self, direction):
+        yield from ensure_facing_direction(direction)
+        context.emulator.hold_button(direction)
+        for _ in range(50):
+            yield
+        context.emulator.release_button(direction)
+        yield from wait_for_player_avatar_to_be_controllable()
 
     def enter_safari_zone(self):
+        """Handles entering the Safari Zone."""
         if get_player().money < 500:
             raise BotModeError("You do not have enough cash to re-enter the Safari Zone.")
         yield from navigate_to(MapFRLG.FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE, (4, 4))
@@ -68,6 +121,6 @@ class SafariMode(BotMode):
             or task_is_active("Task_RunMapPreviewScreenForest")
             or get_game_state() == GameState.CHANGE_MAP
         ):
-            console.print("here")
             yield
         yield from wait_for_player_avatar_to_be_controllable()
+
