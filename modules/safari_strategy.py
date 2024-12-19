@@ -1,7 +1,8 @@
 import yaml
 from enum import Enum
+from modules.roms import ROM
 from dataclasses import dataclass
-from typing import Union, Tuple, Optional
+from typing import Union, Tuple, Optional, Callable
 from modules.context import context
 from modules.battle_strategies import SafariTurnAction
 from modules.pokemon import Pokemon
@@ -24,35 +25,50 @@ class SafariCatchingLocation:
     map_location: Union[MapFRLG, MapRSE]
     tile_location: Tuple[int, int]
     mode: SafariHuntingMode
+    availability: Callable[[object], bool] = lambda context: True
 
 
 class SafariPokemon(Enum):
     """Enum for Pokémon locations and strategies in the Safari Zone."""
 
-    MAGIKARP = SafariCatchingLocation("MAGIKARP", MapFRLG.SAFARI_ZONE_CENTER, (15, 22), SafariHuntingMode.FISHING)
-    NIDORAN_F = SafariCatchingLocation("NIDORAN_F", MapFRLG.SAFARI_ZONE_EAST, (10, 10), SafariHuntingMode.SWEET_SCENT)
-    NIDORAN_M = SafariCatchingLocation("NIDORAN_M", MapFRLG.SAFARI_ZONE_EAST, (10, 12), SafariHuntingMode.SWEET_SCENT)
-    PARAS = SafariCatchingLocation("PARAS", MapFRLG.SAFARI_ZONE_NORTH, (12, 18), SafariHuntingMode.SWEET_SCENT)
-    VENONAT = SafariCatchingLocation("VENONAT", MapFRLG.SAFARI_ZONE_CENTER, (20, 20), SafariHuntingMode.SWEET_SCENT)
-    PSYDUCK = SafariCatchingLocation("PSYDUCK", MapFRLG.SAFARI_ZONE_NORTH, (12, 20), SafariHuntingMode.SURF)
-    POLIWAG = SafariCatchingLocation("POLIWAG", MapFRLG.SAFARI_ZONE_NORTH, (13, 22), SafariHuntingMode.SURF)
-    SLOWPOKE = SafariCatchingLocation("SLOWPOKE", MapFRLG.SAFARI_ZONE_NORTH, (14, 24), SafariHuntingMode.SURF)
-    DODUO = SafariCatchingLocation("DODUO", MapFRLG.SAFARI_ZONE_NORTH, (30, 25), SafariHuntingMode.SPIN)
-    GOLDEEN = SafariCatchingLocation("GOLDEEN", MapFRLG.SAFARI_ZONE_CENTER, (15, 22), SafariHuntingMode.FISHING)
-    NIDORINO = SafariCatchingLocation("NIDORINO", MapFRLG.SAFARI_ZONE_EAST, (10, 14), SafariHuntingMode.SWEET_SCENT)
-    NIDORINA = SafariCatchingLocation("NIDORINA", MapFRLG.SAFARI_ZONE_EAST, (11, 15), SafariHuntingMode.SWEET_SCENT)
-    EXEGGCUTE = SafariCatchingLocation("EXEGGCUTE", MapFRLG.SAFARI_ZONE_CENTER, (25, 30), SafariHuntingMode.SPIN)
-    RHYHORN = SafariCatchingLocation("RHYHORN", MapFRLG.SAFARI_ZONE_NORTH, (35, 35), SafariHuntingMode.SPIN)
-    SEAKING = SafariCatchingLocation("SEAKING", MapFRLG.SAFARI_ZONE_CENTER, (15, 22), SafariHuntingMode.FISHING)
-    PARASECT = SafariCatchingLocation("PARASECT", MapFRLG.SAFARI_ZONE_NORTH, (12, 18), SafariHuntingMode.SWEET_SCENT)
-    VENOMOTH = SafariCatchingLocation("VENOMOTH", MapFRLG.SAFARI_ZONE_NORTH, (14, 18), SafariHuntingMode.SWEET_SCENT)
-    DRATINI = SafariCatchingLocation("DRATINI", MapFRLG.SAFARI_ZONE_CENTER, (43, 16), SafariHuntingMode.FISHING)
+    NIDORAN_F = SafariCatchingLocation("NIDORAN_F", MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN)
+    NIDORAN_M = SafariCatchingLocation("NIDORAN_M", MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN)
+    NIDORINO = SafariCatchingLocation("NIDORINO", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN)
+    NIDORINA = SafariCatchingLocation("NIDORINA", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN)
+    PARAS = SafariCatchingLocation("PARAS", MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN)
+    VENONAT = SafariCatchingLocation("VENONAT", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN)
+    DODUO = SafariCatchingLocation("DODUO", MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN)
+    RHYHORN = SafariCatchingLocation("RHYHORN", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN)
+    VENOMOTH = SafariCatchingLocation("VENOMOTH", MapFRLG.SAFARI_ZONE_NORTH, (35, 30), SafariHuntingMode.SPIN)
+    PARASECT = SafariCatchingLocation("PARASECT", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN)
+    EXEGGCUTE = SafariCatchingLocation("EXEGGCUTE", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN)
+    TAUROS = SafariCatchingLocation("TAUROS", MapFRLG.SAFARI_ZONE_WEST, (15, 27), SafariHuntingMode.SPIN)
     CHANSEY = SafariCatchingLocation("CHANSEY", MapFRLG.SAFARI_ZONE_NORTH, (35, 30), SafariHuntingMode.SPIN)
     KANGASKHAN = SafariCatchingLocation("KANGASKHAN", MapFRLG.SAFARI_ZONE_EAST, (8, 9), SafariHuntingMode.SPIN)
-    SCYTHER = SafariCatchingLocation("SCYTHER", MapFRLG.SAFARI_ZONE_EAST, (10, 14), SafariHuntingMode.SPIN)
-    PINSIR = SafariCatchingLocation("PINSIR", MapFRLG.SAFARI_ZONE_EAST, (8, 9), SafariHuntingMode.SPIN)
-    TAUROS = SafariCatchingLocation("TAUROS", MapFRLG.SAFARI_ZONE_NORTH, (35, 30), SafariHuntingMode.SPIN)
-    DRAGONAIR = SafariCatchingLocation("DRAGONAIR", MapFRLG.SAFARI_ZONE_CENTER, (44, 17), SafariHuntingMode.FISHING)
+
+    POLIWAG = SafariCatchingLocation("POLIWAG", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING)
+    MAGIKARP = SafariCatchingLocation("MAGIKARP", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING)
+    GOLDEEN = SafariCatchingLocation("GOLDEEN", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING)
+    SEAKING = SafariCatchingLocation("SEAKING", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING)
+    DRATINI = SafariCatchingLocation("DRATINI", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING)
+    DRAGONAIR = SafariCatchingLocation("DRAGONAIR", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING)
+
+    PINSIR = SafariCatchingLocation(
+        "PINSIR", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN, availability=lambda context: rom.is_lg
+    )
+    SCYTHER = SafariCatchingLocation(
+        "SCYTHER", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN, availability=lambda context: rom.is_fr
+    )
+    PSYDUCK = SafariCatchingLocation(
+        "PSYDUCK", MapFRLG.SAFARI_ZONE_CENTER, (32, 18), SafariHuntingMode.SURF, availability=lambda context: rom.is_fr
+    )
+    SLOWPOKE = SafariCatchingLocation(
+        "SLOWPOKE", MapFRLG.SAFARI_ZONE_CENTER, (32, 18), SafariHuntingMode.SURF, availability=lambda context: rom.is_lg
+    )
+
+    @staticmethod
+    def available_pokemon(rom: ROM) -> list:
+        return [pokemon for pokemon in SafariPokemon if pokemon.value.availability(context)]
 
 
 class FRLGSafariStrategy:
