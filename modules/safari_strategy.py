@@ -1,54 +1,107 @@
 import yaml
-from typing import Union, Tuple
+from enum import Enum
+from dataclasses import dataclass
+from typing import Union, Tuple, Optional
 from modules.context import context
 from modules.battle_strategies import SafariTurnAction
 from modules.pokemon import Pokemon
 from modules.runtime import get_data_path
 from modules.memory import read_symbol
+from modules.files import make_string_safe_for_file_name
+from modules.map_data import MapFRLG, MapRSE
+
+
+class SafariHuntingMode(Enum):
+    FISHING = "Fishing"
+    SPIN = "Spin"
+    SWEET_SCENT = "Sweet Scent"
+    SURF = "Surf"
+
+
+@dataclass(frozen=True)
+class SafariCatchingLocation:
+    name: str
+    map_location: Union[MapFRLG, MapRSE]
+    tile_location: Tuple[int, int]
+    mode: SafariHuntingMode
+
+
+class SafariPokemon(Enum):
+    """Enum for Pokémon locations and strategies in the Safari Zone."""
+
+    MAGIKARP = SafariCatchingLocation("MAGIKARP", MapFRLG.SAFARI_ZONE_CENTER, (15, 22), SafariHuntingMode.FISHING)
+    NIDORAN_F = SafariCatchingLocation("NIDORAN_F", MapFRLG.SAFARI_ZONE_EAST, (10, 10), SafariHuntingMode.SWEET_SCENT)
+    NIDORAN_M = SafariCatchingLocation("NIDORAN_M", MapFRLG.SAFARI_ZONE_EAST, (10, 12), SafariHuntingMode.SWEET_SCENT)
+    PARAS = SafariCatchingLocation("PARAS", MapFRLG.SAFARI_ZONE_NORTH, (12, 18), SafariHuntingMode.SWEET_SCENT)
+    VENONAT = SafariCatchingLocation("VENONAT", MapFRLG.SAFARI_ZONE_CENTER, (20, 20), SafariHuntingMode.SWEET_SCENT)
+    PSYDUCK = SafariCatchingLocation("PSYDUCK", MapFRLG.SAFARI_ZONE_NORTH, (12, 20), SafariHuntingMode.SURF)
+    POLIWAG = SafariCatchingLocation("POLIWAG", MapFRLG.SAFARI_ZONE_NORTH, (13, 22), SafariHuntingMode.SURF)
+    SLOWPOKE = SafariCatchingLocation("SLOWPOKE", MapFRLG.SAFARI_ZONE_NORTH, (14, 24), SafariHuntingMode.SURF)
+    DODUO = SafariCatchingLocation("DODUO", MapFRLG.SAFARI_ZONE_NORTH, (30, 25), SafariHuntingMode.SPIN)
+    GOLDEEN = SafariCatchingLocation("GOLDEEN", MapFRLG.SAFARI_ZONE_CENTER, (15, 22), SafariHuntingMode.FISHING)
+    NIDORINO = SafariCatchingLocation("NIDORINO", MapFRLG.SAFARI_ZONE_EAST, (10, 14), SafariHuntingMode.SWEET_SCENT)
+    NIDORINA = SafariCatchingLocation("NIDORINA", MapFRLG.SAFARI_ZONE_EAST, (11, 15), SafariHuntingMode.SWEET_SCENT)
+    EXEGGCUTE = SafariCatchingLocation("EXEGGCUTE", MapFRLG.SAFARI_ZONE_CENTER, (25, 30), SafariHuntingMode.SPIN)
+    RHYHORN = SafariCatchingLocation("RHYHORN", MapFRLG.SAFARI_ZONE_NORTH, (35, 35), SafariHuntingMode.SPIN)
+    SEAKING = SafariCatchingLocation("SEAKING", MapFRLG.SAFARI_ZONE_CENTER, (15, 22), SafariHuntingMode.FISHING)
+    PARASECT = SafariCatchingLocation("PARASECT", MapFRLG.SAFARI_ZONE_NORTH, (12, 18), SafariHuntingMode.SWEET_SCENT)
+    VENOMOTH = SafariCatchingLocation("VENOMOTH", MapFRLG.SAFARI_ZONE_NORTH, (14, 18), SafariHuntingMode.SWEET_SCENT)
+    DRATINI = SafariCatchingLocation("DRATINI", MapFRLG.SAFARI_ZONE_CENTER, (43, 16), SafariHuntingMode.FISHING)
+    CHANSEY = SafariCatchingLocation("CHANSEY", MapFRLG.SAFARI_ZONE_NORTH, (35, 30), SafariHuntingMode.SPIN)
+    KANGASKHAN = SafariCatchingLocation("KANGASKHAN", MapFRLG.SAFARI_ZONE_EAST, (8, 9), SafariHuntingMode.SPIN)
+    SCYTHER = SafariCatchingLocation("SCYTHER", MapFRLG.SAFARI_ZONE_EAST, (10, 14), SafariHuntingMode.SPIN)
+    PINSIR = SafariCatchingLocation("PINSIR", MapFRLG.SAFARI_ZONE_EAST, (8, 9), SafariHuntingMode.SPIN)
+    TAUROS = SafariCatchingLocation("TAUROS", MapFRLG.SAFARI_ZONE_NORTH, (35, 30), SafariHuntingMode.SPIN)
+    DRAGONAIR = SafariCatchingLocation("DRAGONAIR", MapFRLG.SAFARI_ZONE_CENTER, (44, 17), SafariHuntingMode.FISHING)
 
 
 class FRLGSafariStrategy:
-    # Class attributes for Pokémon strategy categories
     NO_STRATEGY = {
-        "MAGIKARP",
-        "NIDORAN♀",
-        "NIDORAN♂",
-        "PARAS",
-        "VENONAT",
-        "PSYDUCK",
-        "POLIWAG",
-        "SLOWPOKE",
-        "DODUO",
-        "GOLDEEN",
-        "NIDORINO",
-        "NIDORINA",
-        "EXEGGCUTE",
-        "RHYHORN",
+        SafariPokemon.MAGIKARP,
+        SafariPokemon.NIDORAN_F,
+        SafariPokemon.NIDORAN_M,
+        SafariPokemon.PARAS,
+        SafariPokemon.VENONAT,
+        SafariPokemon.PSYDUCK,
+        SafariPokemon.POLIWAG,
+        SafariPokemon.SLOWPOKE,
+        SafariPokemon.DODUO,
+        SafariPokemon.GOLDEEN,
+        SafariPokemon.NIDORINO,
+        SafariPokemon.NIDORINA,
+        SafariPokemon.EXEGGCUTE,
+        SafariPokemon.RHYHORN,
     }
-    LOOKUP_4_OR_6 = {"SEAKING"}
-    LOOKUP_5_OR_6 = {"PARASECT", "VENOMOTH"}
-    LOOKUP_3 = {"DRATINI"}
-    LOOKUP_1_OR_2 = {"CHANSEY"}
-    LOOKUP_2 = {"KANGASKHAN", "SCYTHER", "PINSIR", "TAUROS", "DRAGONAIR"}
+    LOOKUP_4_OR_6 = {SafariPokemon.SEAKING}
+    LOOKUP_5_OR_6 = {SafariPokemon.PARASECT, SafariPokemon.VENOMOTH}
+    LOOKUP_3 = {SafariPokemon.DRATINI}
+    LOOKUP_1_OR_2 = {SafariPokemon.CHANSEY}
+    LOOKUP_2 = {
+        SafariPokemon.KANGASKHAN,
+        SafariPokemon.SCYTHER,
+        SafariPokemon.PINSIR,
+        SafariPokemon.TAUROS,
+        SafariPokemon.DRAGONAIR,
+    }
 
     @classmethod
     def get_strategy_file(cls, pokemon: Pokemon, has_been_baited: bool) -> Union[str, None]:
         """
         Determines the strategy file based on the Pokémon name and baited status.
         """
-        name = pokemon.species.name.upper()
-        match name:
-            case name if name in cls.NO_STRATEGY:
+        safari_pokemon = get_safari_pokemon(pokemon.species.name)
+        match safari_pokemon:
+            case safari_pokemon if safari_pokemon in cls.NO_STRATEGY:
                 return None
-            case name if name in cls.LOOKUP_4_OR_6:
+            case safari_pokemon if safari_pokemon in cls.LOOKUP_4_OR_6:
                 file_name = "lookup-4.yml" if not has_been_baited else "lookup-6.yml"
-            case name if name in cls.LOOKUP_5_OR_6:
+            case safari_pokemon if safari_pokemon in cls.LOOKUP_5_OR_6:
                 file_name = "lookup-5.yml" if not has_been_baited else "lookup-6.yml"
-            case name if name in cls.LOOKUP_3:
+            case safari_pokemon if safari_pokemon in cls.LOOKUP_3:
                 file_name = "lookup-3.yml"
-            case name if name in cls.LOOKUP_1_OR_2:
+            case safari_pokemon if safari_pokemon in cls.LOOKUP_1_OR_2:
                 file_name = "lookup-1.yml" if not has_been_baited else "lookup-2.yml"
-            case name if name in cls.LOOKUP_2:
+            case safari_pokemon if safari_pokemon in cls.LOOKUP_2:
                 file_name = "lookup-2.yml"
             case _:
                 raise RuntimeError(f"Pokemon `{name}` doesn't have a safari strategy.")
@@ -119,3 +172,12 @@ def is_watching_carefully() -> bool:
 
 def get_safari_balls_left() -> int:
     return read_symbol("gNumSafariBalls")[0]
+
+
+def get_safari_pokemon(name: str) -> Optional[SafariPokemon]:
+    name = make_string_safe_for_file_name(name).upper()
+    for safari_pokemon in SafariPokemon:
+        if safari_pokemon.name == name:
+            return safari_pokemon
+
+    return None

@@ -28,7 +28,7 @@ class SafariMode(BotMode):
 
     @staticmethod
     def is_selectable() -> bool:
-        return is_safari_map()
+        return get_player_avatar().map_group_and_number == MapFRLG.FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE
 
     def on_battle_ended(self, outcome: "BattleOutcome") -> None:
         if not outcome == BattleOutcome.Lost:
@@ -66,7 +66,9 @@ class SafariMode(BotMode):
         for map_group, coords, warp_direction in path:
             while True:
                 console.print(f"Current map: {get_player_avatar().map_group_and_number}, Target map: {map_group}")
-                console.print(f"Current coordinates: {get_player_avatar().local_coordinates}, Target coordinates: {coords}")
+                console.print(
+                    f"Current coordinates: {get_player_avatar().local_coordinates}, Target coordinates: {coords}"
+                )
 
                 if get_player_avatar().map_group_and_number == map_group:
                     if get_player_avatar().local_coordinates == coords:
@@ -123,4 +125,3 @@ class SafariMode(BotMode):
         ):
             yield
         yield from wait_for_player_avatar_to_be_controllable()
-
