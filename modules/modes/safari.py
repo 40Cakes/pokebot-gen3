@@ -19,7 +19,7 @@ from modules.safari_strategy import (
     get_safari_balls_left,
 )
 from modules.runtime import get_sprites_path
-from modules.gui.multi_select_window import Selection, ask_for_choice_scroll
+from modules.gui.multi_select_window import Selection, ask_for_choice_scroll, ask_for_choice
 from ._interface import BotMode, BotModeError
 from ._asserts import (
     SavedMapLocation,
@@ -33,6 +33,8 @@ from .util import (
     fish,
     soft_reset,
     navigate_to,
+    apply_repel,
+    repel_is_active,
     ensure_facing_direction,
     wait_for_script_to_start_and_finish,
     wait_for_player_avatar_to_be_standing_still,
@@ -49,6 +51,7 @@ class SafariMode(BotMode):
         self._should_reset = False
         self._should_reenter = False
         self._atleast_one_pokemon_catched = False
+        self._use_repel = False
         self._money_spent_limit = 2000
 
     @staticmethod
@@ -102,6 +105,23 @@ class SafariMode(BotMode):
 
         self._target_pokemon = get_safari_pokemon(pokemon_choice)
         self._check_mode_requirement(self._target_pokemon.value.mode, self._target_pokemon.value.hunting_object)
+
+        if self._target_pokemon.value.mode != SafariHuntingMode.FISHING:
+            mode = ask_for_choice(
+                [
+                    Selection("Use Repel", get_sprites_path() / "items" / "Repel.png"),
+                    Selection("No Repel", get_sprites_path() / "other" / "No Repel.png"),
+                ],
+                window_title="Use Repel?",
+            )
+
+            if mode is None:
+                context.set_manual_mode()
+                yield
+                return
+
+            if mode == "Use Repel":
+                self._use_repel = True
 
         if self._target_pokemon.value.hunting_object:
             yield from register_key_item(get_item_by_name(self._target_pokemon.value.hunting_object))
@@ -185,6 +205,8 @@ class SafariMode(BotMode):
                     yield from navigate_to(map_group, coords)
 
         if mode in (SafariHuntingMode.SPIN, SafariHuntingMode.SURF):
+            if self._use_repel and not repel_is_active():
+                yield from apply_repel()
             yield from apply_white_flute_if_available()
             yield from spin(stop_condition=stop_condition)
         elif mode == SafariHuntingMode.FISHING:

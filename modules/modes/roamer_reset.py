@@ -19,6 +19,7 @@ from ._interface import BattleAction, BotMode, BotModeError
 from .util import (
     RanOutOfRepels,
     apply_repel,
+    repel_is_active,
     ensure_facing_direction,
     fly_to,
     navigate_to,
@@ -43,10 +44,6 @@ def _get_allowed_starting_map() -> MapFRLG | MapRSE | None:
             return MapRSE.LITTLEROOT_TOWN_MAYS_HOUSE_1F
         else:
             return MapRSE.LITTLEROOT_TOWN_BRENDANS_HOUSE_1F
-
-
-def _get_repel_steps_remaining():
-    return get_event_var("REPEL_STEP_COUNT")
 
 
 class RoamerResetMode(BotMode):
@@ -207,7 +204,7 @@ class RoamerResetMode(BotMode):
             yield from fly_to(FlyDestinationRSE.SlateportCity)
 
             def inner_loop():
-                if _get_repel_steps_remaining() <= 0:
+                if not repel_is_active():
                     yield from apply_repel()
 
                 # Walk up to tall grass, spin, return
@@ -277,7 +274,7 @@ class RoamerResetMode(BotMode):
             yield from fly_to(FlyDestinationFRLG.PalletTown)
 
             def inner_loop():
-                if _get_repel_steps_remaining() <= 0:
+                if not repel_is_active():
                     yield from apply_repel()
 
                 # Go to the first spot of tall grass on Route 1 and spin around for a while
@@ -334,7 +331,7 @@ class RoamerResetMode(BotMode):
             yield from wait_for_player_avatar_to_be_standing_still()
 
             def inner_loop():
-                if _get_repel_steps_remaining() <= 0:
+                if not repel_is_active():
                     yield from apply_repel()
 
                 # Walk up to tall grass, spin, return

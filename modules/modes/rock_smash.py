@@ -31,6 +31,7 @@ from .util import (
     follow_waypoints,
     RanOutOfRepels,
     apply_repel,
+    repel_is_active,
     apply_white_flute_if_available,
     ensure_facing_direction,
     follow_path,
@@ -283,7 +284,7 @@ class RockSmashMode(BotMode):
 
     @debug.track
     def granite_cave(self) -> Generator:
-        if self._using_repel and get_event_var("REPEL_STEP_COUNT") <= 0:
+        if self._using_repel and not repel_is_active():
             with contextlib.suppress(RanOutOfRepels):
                 yield from apply_repel()
 
