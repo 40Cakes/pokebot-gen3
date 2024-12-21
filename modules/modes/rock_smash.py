@@ -51,19 +51,23 @@ class RockSmashMode(BotMode):
 
     @staticmethod
     def is_selectable() -> bool:
-        if not context.rom.is_rse:
+        if context.rom.is_frlg:
             return False
 
+        player_map = get_player_avatar().map_group_and_number
+
         if context.rom.is_rs:
-            return get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F
-        else:
-            return get_player_avatar().map_group_and_number in (
-                MapRSE.GRANITE_CAVE_B2F,
-                MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE,
-                MapRSE.SAFARI_ZONE_SOUTH,
-                MapRSE.SAFARI_ZONE_NORTHEAST,
-                MapRSE.SAFARI_ZONE_SOUTHEAST,
-            )
+            return player_map == MapRSE.GRANITE_CAVE_B2F
+
+        allowed_maps = {
+            MapRSE.GRANITE_CAVE_B2F,
+            MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE,
+            MapRSE.SAFARI_ZONE_SOUTH,
+            MapRSE.SAFARI_ZONE_NORTHEAST,
+            MapRSE.SAFARI_ZONE_SOUTHEAST,
+        }
+
+        return player_map in allowed_maps
 
     def __init__(self):
         super().__init__()
@@ -95,12 +99,7 @@ class RockSmashMode(BotMode):
 
     def on_battle_ended(self, outcome: "BattleOutcome") -> None:
         if not outcome == BattleOutcome.Lost:
-            # TODO: Remove and use the assert below when RSE safari auto catch is implemented
-            # Shuckle catch rate is 35%. So 10 balls should be enough to catch it
-            if is_safari_map() and get_safari_balls_left() <= 10:
-                raise BotModeError("You have less than 10 balls left, switching to manual mode...")
-            else:
-                assert_player_has_poke_balls()
+            assert_player_has_poke_balls()
 
     def on_repel_effect_ended(self) -> None:
         if self._using_repel:
@@ -142,7 +141,10 @@ class RockSmashMode(BotMode):
                 check_in_saved_game=True,
             )
 
-        assert_player_has_poke_balls()
+        # TODO: Remove and use the assert_player_has_poke_balls when RSE safari auto catch is implemented
+        # Shuckle catch rate is 35%. So 10 balls should be enough to catch it
+        if is_safari_map() and get_safari_balls_left() < 10:
+            raise BotModeError("Cannot rock smash with less than 10 safari balls")
 
         if get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F and get_item_bag().number_of_repels > 0:
             mode = ask_for_choice(
