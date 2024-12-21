@@ -11,24 +11,30 @@ from modules.menuing import StartMenuNavigator
 from modules.modes.util.walking import wait_for_player_avatar_to_be_controllable
 from modules.safari_strategy import (
     SafariPokemon,
+    SafariHuntingMode,
+    SafariHuntingObject,
     get_safari_pokemon,
     get_navigation_path,
     get_safari_balls_left,
-    SafariHuntingMode,
-    SafariHuntingObject,
 )
 from modules.runtime import get_sprites_path
 from modules.gui.multi_select_window import Selection, ask_for_choice_scroll
 from ._interface import BotMode, BotModeError
-from ._asserts import assert_item_exists_in_bag, assert_registered_item
+from ._asserts import (
+    SavedMapLocation,
+    assert_item_exists_in_bag,
+    assert_registered_item,
+    assert_save_game_exists,
+    assert_saved_on_map,
+)
 from .util import (
     spin,
+    fish,
+    soft_reset,
     navigate_to,
     ensure_facing_direction,
     wait_for_script_to_start_and_finish,
-    fish,
     wait_for_player_avatar_to_be_standing_still,
-    soft_reset,
     wait_for_unique_rng_value,
 )
 
@@ -66,7 +72,11 @@ class SafariMode(BotMode):
     def run(self) -> Generator:
         self._starting_cash = get_player().money
 
-        # TODO: Assert Save
+        assert_save_game_exists("There is no saved game. Cannot start Safari mode. Please save your game.")
+        assert_saved_on_map(
+            SavedMapLocation(MapFRLG.FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE),
+            "In order to start the Safari mode you should save in the entrance building to the Safari Zone.",
+        )
 
         pokemon_choices = []
         for safari_pokemon in SafariPokemon.available_pokemon(context.rom):
