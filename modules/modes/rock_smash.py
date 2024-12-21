@@ -145,6 +145,8 @@ class RockSmashMode(BotMode):
         # Shuckle catch rate is 35%. So 10 balls should be enough to catch it
         if is_safari_map() and get_safari_balls_left() < 10:
             raise BotModeError("Cannot rock smash with less than 10 safari balls")
+        else:
+            assert_player_has_poke_balls()
 
         if get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F and get_item_bag().number_of_repels > 0:
             mode = ask_for_choice(

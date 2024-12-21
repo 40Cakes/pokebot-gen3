@@ -51,7 +51,7 @@ class SafariPokemon(Enum):
     EXEGGCUTE = SafariCatchingLocation("Exeggcute", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN)
     TAUROS = SafariCatchingLocation("Tauros", MapFRLG.SAFARI_ZONE_WEST, (15, 27), SafariHuntingMode.SPIN)
     CHANSEY = SafariCatchingLocation("Chansey", MapFRLG.SAFARI_ZONE_NORTH, (35, 30), SafariHuntingMode.SPIN)
-    KANGASKHAN = SafariCatchingLocation("Kangaskhan", MapFRLG.SAFARI_ZONE_EAST, (8, 9), SafariHuntingMode.SPIN)
+    KANGASKHAN = SafariCatchingLocation("Kangaskhan", MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN)
     PINSIR = SafariCatchingLocation(
         "Pinsir",
         MapFRLG.SAFARI_ZONE_CENTER,
