@@ -8,7 +8,8 @@ from modules.debug import debug
 from modules.encounter import handle_encounter, EncounterInfo
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.items import get_item_bag, get_item_by_name
-from modules.map_data import MapRSE
+from modules.map_data import MapRSE, is_safari_map
+from modules.safari_strategy import get_safari_balls_left
 from modules.map_path import calculate_path
 from modules.memory import get_event_flag, get_event_var, read_symbol, unpack_uint16
 from modules.player import TileTransitionState, get_player, get_player_avatar, AvatarFlags, get_player_location
@@ -50,16 +51,23 @@ class RockSmashMode(BotMode):
 
     @staticmethod
     def is_selectable() -> bool:
-        if not context.rom.is_rse:
+        if context.rom.is_frlg:
             return False
 
-        return get_player_avatar().map_group_and_number in (
+        player_map = get_player_avatar().map_group_and_number
+
+        if context.rom.is_rs:
+            return player_map == MapRSE.GRANITE_CAVE_B2F
+
+        allowed_maps = {
             MapRSE.GRANITE_CAVE_B2F,
             MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE,
             MapRSE.SAFARI_ZONE_SOUTH,
             MapRSE.SAFARI_ZONE_NORTHEAST,
             MapRSE.SAFARI_ZONE_SOUTHEAST,
-        )
+        }
+
+        return player_map in allowed_maps
 
     def __init__(self):
         super().__init__()
@@ -133,7 +141,10 @@ class RockSmashMode(BotMode):
                 check_in_saved_game=True,
             )
 
-        assert_player_has_poke_balls()
+        # TODO: Remove and use the assert_player_has_poke_balls when RSE safari auto catch is implemented
+        # Shuckle catch rate is 35%. So 10 balls should be enough to catch it
+        if is_safari_map() and get_safari_balls_left() < 10:
+            raise BotModeError("Cannot rock smash with less than 10 safari balls")
 
         if get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F and get_item_bag().number_of_repels > 0:
             mode = ask_for_choice(

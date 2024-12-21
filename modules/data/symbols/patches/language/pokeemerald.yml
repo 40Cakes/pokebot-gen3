@@ -384,18 +384,6 @@ EventScript_DoTrainerBattle:
   I: 0x82710ab
   J: 0x82424ee
   S: 0x8275258
-EventScript_RockSmash:
-  D: 0x829ef03
-  F: 0x8297028
-  I: 0x829146e
-  J: 0x825667c
-  S: 0x8295638
-EventScript_SmashRock:
-  D: 0x829ef58
-  F: 0x829707d
-  I: 0x82914c3
-  J: 0x82566d1
-  S: 0x829568d
 EventScript_EggHatch:
   D: 0x82a0780
   F: 0x829887c
@@ -611,12 +599,6 @@ LittlerootTown_ProfessorBirchsLab_EventScript_UpgradeToNationalDex:
   I: 0x81f9a6d
   J: 0x81f141b
   S: 0x81fa666
-SafariZone_EventScript_TimesUp:
-  D: 0x82b676d
-  F: 0x82ad154
-  I: 0x82a6033
-  J: 0x82623e9
-  S: 0x82aae5a
 SouthernIsland_Interior_EventScript_Lati:
   D: 0x824b6cd
   F: 0x8247d7c
@@ -816,3 +798,46 @@ EventScript_RepelWoreOff:
 gSpecialVar_0x8004:
   J: 0x2037280
 #----------------#
+
+#-----------------#
+#    Rock Smash   #
+#-----------------#
+EventScript_RockSmash:
+  D: 0x829ef03
+  F: 0x8297028
+  I: 0x829146e
+  J: 0x825667c
+  S: 0x8295638
+EventScript_SmashRock:
+  D: 0x829ef58
+  F: 0x829707d
+  I: 0x82914c3
+  J: 0x82566d1
+  S: 0x829568d
+sSafariZoneStepCounter:
+  J: 0x2039d1a
+gNumSafariBalls:
+  J: 0x2039d18
+# 0xb
+SafariZone_EventScript_TimesUp:
+  D: 0x82b676d
+  F: 0x82ad154
+  I: 0x82a6033
+  J: 0x82623e8
+  S: 0x82aae5a
+# 0xb
+Route121_SafariZoneEntrance_EventScript_ExitSafariZone:
+  D: 0x8232697
+  F: 0x822fb48
+  I: 0x822b9b9
+  J: 0x82129eb
+  S: 0x822de23
+
+# We map it here to exit Safari otherwise the RepelScript is mapping at this address
+MatchCall_PersonalizedText20:
+  F: 0x82ad142
+MatchCall_Text_MrStone10:
+  D: 0x82b675b
+#----------------#
+
+
