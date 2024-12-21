@@ -24,7 +24,6 @@ from ._interface import BotMode, BotModeError
 from ._asserts import (
     SavedMapLocation,
     assert_item_exists_in_bag,
-    assert_registered_item,
     assert_save_game_exists,
     assert_saved_on_map,
 )

@@ -31,7 +31,7 @@ Before starting Safari Mode, ensure you meet the following criteria:
 3. **Choose a Pokémon** to hunt from the available Safari Zone list.
 
 ![Safari Mode Start Screen](../images/safari_target.png)
-4. **Decide whether to use Repel**, especially for Pokémon not hunted by Fishing. Bring some repels because so target might be far away from Safari entrance, and you might need several when doing a few runs before soft reset.
+4. **Decide whether to use Repel**, especially for Pokémon not hunted by Fishing. Since some targets are located far from the Safari entrance, ensure you have enough repels to do a full cycle (4 re-entries) before a soft reset.
 
 ![Safari Mode Start Screen](../images/repel_prompt_windows.png)
 
