@@ -86,7 +86,7 @@ class Party:
         return None
 
     def to_list(self) -> list[PartyPokemon]:
-        return self._pokemon
+        return [pokemon.to_dict() for pokemon in self._pokemon]
 
 
 def get_party_size() -> int:
