@@ -61,8 +61,6 @@ The mode will continuously try to enter the Safari Zone, so make sure you have s
 - Save the game (**in-game, not a save state**)
 - Start mode
 
-**NOTE** : You can also start the mode inside the safari zone, but you will have to save at the tile below before entering
-
 ![image](../images/safari_zone.png)
 
 
