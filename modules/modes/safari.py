@@ -9,6 +9,7 @@ from modules.pokemon_party import get_party
 from modules.memory import get_event_flag
 from modules.menuing import StartMenuNavigator
 from modules.modes.util.walking import wait_for_player_avatar_to_be_controllable
+from modules.items import get_item_by_name
 from modules.safari_strategy import (
     SafariPokemon,
     SafariHuntingMode,
@@ -36,6 +37,8 @@ from .util import (
     wait_for_script_to_start_and_finish,
     wait_for_player_avatar_to_be_standing_still,
     wait_for_unique_rng_value,
+    apply_white_flute_if_available,
+    register_key_item,
 )
 
 
@@ -46,6 +49,7 @@ class SafariMode(BotMode):
         self._should_reset = False
         self._should_reenter = False
         self._atleast_one_pokemon_catched = False
+        self._money_spent_limit = 2000
 
     @staticmethod
     def name() -> str:
@@ -61,10 +65,10 @@ class SafariMode(BotMode):
         update flags to manage the re-entry or reset logic.
         """
         if outcome is BattleOutcome.Caught:
-            self._atleast_one_pokemon_catched = False
+            self._atleast_one_pokemon_catched = True
         if get_safari_balls_left() < 30:
             current_cash = get_player().money
-            if (self._starting_cash - current_cash > 2000) or (current_cash < 500):
+            if (self._starting_cash - current_cash > self._money_spent_limit) or (current_cash < 500):
                 self._should_reset = True
             else:
                 self._should_reenter = True
@@ -99,15 +103,18 @@ class SafariMode(BotMode):
         self._target_pokemon = get_safari_pokemon(pokemon_choice)
         self._check_mode_requirement(self._target_pokemon.value.mode, self._target_pokemon.value.hunting_object)
 
+        if self._target_pokemon.value.hunting_object:
+            yield from register_key_item(get_item_by_name(self._target_pokemon.value.hunting_object))
+
         while True:
             if self._should_reset:
                 if not self._atleast_one_pokemon_catched:
                     yield from self._soft_reset()
+                    self._starting_cash = get_player().money
                 else:
                     yield from self._exit_safari_zone()
-                    context.message = "You have reached the money threshold (either out of money or have spent over 20,000₽), but you've caught a Pokémon during this phase. It's recommended to save your game and restart the mode."
+                    context.message = f"You have reached the money threshold (either out of money or have spent over {self._money_spent_limit}₽), but you've caught a Pokémon during this phase. It's recommended to save your game and restart the mode."
                     context.set_manual_mode()
-
             if self._should_reenter:
                 yield from self._re_enter_safari_zone()
 
@@ -178,9 +185,10 @@ class SafariMode(BotMode):
                     yield from navigate_to(map_group, coords)
 
         if mode in (SafariHuntingMode.SPIN, SafariHuntingMode.SURF):
+            yield from apply_white_flute_if_available()
             yield from spin(stop_condition=stop_condition)
         elif mode == SafariHuntingMode.FISHING:
-            yield from fish(stop_condition=stop_condition)
+            yield from fish(stop_condition=stop_condition, loop=True)
         else:
             raise BotModeError(f"Error: Unknown mode {mode}.")
 
@@ -196,10 +204,6 @@ class SafariMode(BotMode):
                     object,
                     error_message=f"You need to own the {object} in order to hunt this Pokémon in the Safari Zone.",
                     check_in_saved_game=True,
-                )
-                assert_registered_item(
-                    object,
-                    error_message=f"You need to register the {object} to SELCT in order to hunt this Pokémon in the Safari Zone.",
                 )
             case _:
                 return True
