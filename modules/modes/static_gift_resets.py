@@ -49,6 +49,7 @@ def _get_targeted_encounter() -> tuple[MapFRLG | MapRSE, tuple[int, int], str] |
         encounters = [
             (MapRSE.ROUTE119_WEATHER_INSTITUTE_2F, (2, 2), "Castform"),
             (MapRSE.ROUTE119_WEATHER_INSTITUTE_2F, (18, 6), "Castform"),
+            (MapRSE.ROUTE119_WEATHER_INSTITUTE_2F, (4, 6), "Castform"),
             (MapRSE.RUSTBORO_CITY_DEVON_CORP_2F, (14, 8), "Hoenn Fossils"),
             (MapRSE.MOSSDEEP_CITY_STEVENS_HOUSE, (4, 3), "Beldum"),
             (MapRSE.LAVARIDGE_TOWN, (4, 7), "Wynaut"),
