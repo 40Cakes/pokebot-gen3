@@ -19,12 +19,19 @@ class SafariHuntingMode(Enum):
     SURF = "Surf"
 
 
+class SafariHuntingObject:
+    OLD_ROD = "Old Rod"
+    GOOD_ROD = "Good Rod"
+    SUPER_ROD = "Super Rod"
+
+
 @dataclass(frozen=True)
 class SafariCatchingLocation:
     name: str
     map_location: Union[MapFRLG, MapRSE]
     tile_location: Tuple[int, int]
     mode: SafariHuntingMode
+    hunting_object: SafariHuntingObject = None
     availability: Callable[[object], bool] = lambda context: True
 
 
@@ -60,12 +67,24 @@ class SafariPokemon(Enum):
         availability=lambda rom: context.rom.is_fr,
     )
 
-    POLIWAG = SafariCatchingLocation("Poliwag", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING)
-    MAGIKARP = SafariCatchingLocation("Magikarp", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING)
-    GOLDEEN = SafariCatchingLocation("Goldeen", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING)
-    SEAKING = SafariCatchingLocation("Seaking", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING)
-    DRATINI = SafariCatchingLocation("Dratini", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING)
-    DRAGONAIR = SafariCatchingLocation("Dragonair", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING)
+    POLIWAG = SafariCatchingLocation(
+        "Poliwag", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING, SafariHuntingObject.GOOD_ROD
+    )
+    MAGIKARP = SafariCatchingLocation(
+        "Magikarp", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING, SafariHuntingObject.OLD_ROD
+    )
+    GOLDEEN = SafariCatchingLocation(
+        "Goldeen", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING, SafariHuntingObject.GOOD_ROD
+    )
+    SEAKING = SafariCatchingLocation(
+        "Seaking", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING, SafariHuntingObject.SUPER_ROD
+    )
+    DRATINI = SafariCatchingLocation(
+        "Dratini", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING, SafariHuntingObject.SUPER_ROD
+    )
+    DRAGONAIR = SafariCatchingLocation(
+        "Dragonair", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING, SafariHuntingObject.SUPER_ROD
+    )
     PSYDUCK = SafariCatchingLocation(
         "Psyduck",
         MapFRLG.SAFARI_ZONE_CENTER,
@@ -236,7 +255,7 @@ def get_navigation_path(
         ],
         MapFRLG.SAFARI_ZONE_EAST: [
             (MapFRLG.SAFARI_ZONE_CENTER, (42, 16), "Right"),
-            (MapFRLG.SAFARI_ZONE_CENTER, tile_location, None),
+            (MapFRLG.SAFARI_ZONE_EAST, tile_location, None),
         ],
         MapFRLG.SAFARI_ZONE_NORTH: [
             (MapFRLG.SAFARI_ZONE_CENTER, (42, 16), "Right"),

@@ -9,11 +9,17 @@ from modules.tasks import task_is_active
 from modules.pokemon_party import get_party
 from modules.memory import get_game_state, GameState, get_event_flag
 from modules.modes.util.walking import wait_for_player_avatar_to_be_controllable
-from modules.safari_strategy import SafariPokemon, get_safari_pokemon, get_navigation_path, SafariHuntingMode
+from modules.safari_strategy import (
+    SafariPokemon,
+    get_safari_pokemon,
+    get_navigation_path,
+    SafariHuntingMode,
+    SafariHuntingObject,
+)
 from modules.runtime import get_sprites_path
 from modules.gui.multi_select_window import Selection, ask_for_choice_scroll
 from ._interface import BotMode, BotModeError
-from ._asserts import assert_player_has_poke_balls
+from ._asserts import assert_player_has_poke_balls, assert_item_exists_in_bag, assert_registered_item
 from .util import (
     spin,
     navigate_to,
@@ -22,7 +28,6 @@ from .util import (
     fish,
     wait_for_player_avatar_to_be_standing_still,
 )
-from modules.console import console
 
 
 class SafariMode(BotMode):
@@ -35,8 +40,10 @@ class SafariMode(BotMode):
         return get_player_avatar().map_group_and_number == MapFRLG.FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE
 
     def on_battle_ended(self, outcome: "BattleOutcome") -> None:
-        if not outcome == BattleOutcome.Lost:
+        try:
             assert_player_has_poke_balls()
+        except BotModeError:
+            return
 
     def run(self) -> Generator:
 
@@ -60,7 +67,7 @@ class SafariMode(BotMode):
 
         safari_pokemon = get_safari_pokemon(pokemon_choice)
 
-        self._check_mode_requirement(safari_pokemon.value.mode)
+        self._check_mode_requirement(safari_pokemon.value.mode, safari_pokemon.value.hunting_object)
 
         yield from self.enter_safari_zone()
         yield from self._navigate_and_hunt(
@@ -93,7 +100,7 @@ class SafariMode(BotMode):
                 else:
                     yield from navigate_to(map_group, coords)
 
-        if mode in (SafariHuntingMode.SPIN, SafariHuntingMode.SURF) :
+        if mode in (SafariHuntingMode.SPIN, SafariHuntingMode.SURF):
             yield from spin()
         elif mode == SafariHuntingMode.FISHING:
             while True:
@@ -126,15 +133,9 @@ class SafariMode(BotMode):
         yield from wait_for_script_to_start_and_finish(
             "FuchsiaCity_SafariZone_Entrance_EventScript_TryEnterSafariZone", "A"
         )
-        while (
-            get_player_avatar().local_coordinates != (26, 30)
-            or task_is_active("Task_RunMapPreviewScreenForest")
-            or get_game_state() == GameState.CHANGE_MAP
-        ):
-            yield
         yield from wait_for_player_avatar_to_be_controllable()
 
-    def _check_mode_requirement(self, mode: SafariHuntingMode):
+    def _check_mode_requirement(self, mode: SafariHuntingMode, object: SafariHuntingObject):
         match mode:
             case SafariHuntingMode.SURF:
                 if not (get_event_flag("BADGE05_GET") and get_party().has_pokemon_with_move("Surf")):
@@ -142,12 +143,14 @@ class SafariMode(BotMode):
                         f"Cannot start mode {mode.value}. You're missing Badge 05 or you don't have any Pokémon with Surf"
                     )
             case SafariHuntingMode.FISHING:
-                # TODO: check select rod
                 assert_item_exists_in_bag(
-                    "Old Rod",
-                    error_message=f"You need to own the Pokéblock Case in order to enter the Safari Zone.",
+                    object,
+                    error_message=f"You need to own the {object} in order to hunt this Pokémon in the Safari Zone.",
                     check_in_saved_game=True,
                 )
-                assert_registered_item()
+                assert_registered_item(
+                    object,
+                    error_message=f"You need to register the {object} to SELCT in order to hunt this Pokémon in the Safari Zone.",
+                )
             case _:
                 return True

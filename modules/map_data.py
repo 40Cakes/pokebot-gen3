@@ -1576,7 +1576,6 @@ def is_safari_map() -> bool:
             MapFRLG.SAFARI_ZONE_EAST,
             MapFRLG.SAFARI_ZONE_NORTH,
             MapFRLG.SAFARI_ZONE_WEST,
-            MapFRLG.FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE,
         }
     elif context.rom.is_rse:
         return (map.map_group, map.map_number) in {
