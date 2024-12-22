@@ -61,7 +61,7 @@ Unlike Emerald version, Ruby and Sapphire are not restricted by the sequence tha
 | German   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
 | Spanish  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
 | French   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
-| Italian  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Italian  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
 
 ✅ Tested, working
 
