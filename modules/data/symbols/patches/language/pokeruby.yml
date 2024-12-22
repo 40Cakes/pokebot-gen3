@@ -194,17 +194,15 @@ SUB_8096B38:
 #   Bag Menu   #
 #--------------#
 sub_80A3118:
-  J: 0x809f6dc
+  J: ~
 sCurrentBagPocket:
-  J: 0x2038258
+  J: ~
 gBagPocketScrollStates:
-  J: 0x3005c30
+  J: ~
 sub_80A5414:
-  J: 0x80a15d4
-gPaletteFade:
-  J: 0x202f0a8
+  J: ~
 sub_80A50C8:
-  J: 0x80a12c0
+  J: ~
 #---------------#
 
 #-----------------#
@@ -212,9 +210,9 @@ sub_80A50C8:
 #-----------------#
 # Start Menu
 sub_80712B4:
-  J: 0x806e5f4
+  J: ~
 HandleDefaultPartyMenu:
-  J: 0x8086b4c
+  J: ~
 sStartMenuCursorPos:
   J: 0x202e64c
 sNumStartMenuActions:
@@ -227,25 +225,14 @@ sCurrentStartMenuActions:
 #   Party Menu   #
 #----------------#
 CB2_PartyMenuMain:
-  J: 0x80681f4
+  J: ~
 # Pokemon action menu
 sub_8089D94:
-  J: 0x8086c04
+  J: ~
 HandleBattlePartyMenu:
-  J: 0x8091c90
+  J: ~
 Task_HandlePopupMenuInput:
-  J: 0x8091f80
-# Pokemon switch
-sub_806D198:
-  J: 0x806a408
-HandlePartyMenuSwitchPokemonInput:
-  J: 0x8069dd4
-sPokeMenuCursorPos:
-  J: 0x202fcc4
-sPokeMenuOptionsNo:
-  J: 0x202fcc5
-sPokeMenuOptionsOrder:
-  J: 0x202fcc6
+  J: ~
 #----------------#
 
 #-------------------#
