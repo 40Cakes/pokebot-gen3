@@ -414,6 +414,21 @@ gEggHatchData:
   F: 0x300482c
   I: 0x300482c
   S: 0x300482c
+# Poison faint 0x5
+gUnknown_081A14B8:
+  F: 0x81a699c
+  I: 0x81a1ed3
+  S: 0x81a483a
+# 0x8
+EventScript_StartTrainerBattle:
+  F: 0x81a4c10
+  I: 0x81a01b5
+  S: 0x81a2ad5
+# 0x4
+EventScript_DoTrainerBattle:
+  F: 0x81a4cf7
+  I: 0x81a029c
+  S: 0x81a2bbc
 #----------------#
 
 
@@ -423,3 +438,5 @@ EventScript_SetupRivalOnBikeGfxIdFemale:
   I: 0x0
 __fpcmp_parts_f:
   F: 0x0
+Common_EventScript_SetupEvilTeamGfxIds:
+  I: 0x0
