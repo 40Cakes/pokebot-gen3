@@ -28,31 +28,29 @@ CB2_FlyRegionMap:
 #    Map Symbols     #
 #--------------------#
 gMapGroups:
-  J: ~
+  J: 0x82e09f0
 gRegionMapEntries:
-  J: ~
+  J: 0x83bef6c
 gWildMonHeaders:
-  J: ~
+  J: 0x8379304
 sTileBitAttributes:
-  J: ~
+  J: 0x82e1294
 gObjectEvents:
-  J: ~
-# English rev 1 + 10
+  J: 0x30047d0
 gPlayerPartyCount:
-  J: ~
-# English rev 1 + 10
+  J: 0x3004280
 gPlayerParty:
-  J: ~
+  J: 0x3004290
 gMapHeader:
-  J: ~
+  J: 0x202e588
 gPlayerAvatar:
-  J: ~
+  J: 0x202e5b8
 gRegionMap:
-  J: ~
+  J: 0x20385e8
 gSaveBlock1:
-  J: ~
+  J: 0x2025494
 gSaveBlock2:
-  J: ~
+  J: 0x2024c04
 #----------------#
 
 #-----------------#
