@@ -28,6 +28,7 @@ For quick help and support, reach out in Discord [#pokebot-gen3-support❔](http
 - 🎰 [Game Corner](pages/Mode%20-%20Game%20Corner.md)
 - 🎨 [Kecleon](pages/Mode%20-%20Kecleon.md)
 - 🔄️ [Level Grind](pages/Mode%20-%20Level%20Grind.md)
+- 💊 [EV Train](pages/Mode%20-%20EV%20Train.md)
 - 🟡 [Nugget Bridge](pages/Mode%20-%20Nugget%20Bridge.md)
 - 🧩 [Puzzle Solver](pages/Mode%20-%20Puzzle%20Solver.md)
 - 🏃 [Roamer Resets](pages/Mode%20-%20Roamer%20Resets.md)
