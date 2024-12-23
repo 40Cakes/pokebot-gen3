@@ -314,6 +314,15 @@ Task_HandlePopupMenuInput:
   F: 0x8095640
   I: 0x809554c
   S: 0x8095638
+# Pokemon switch
+sub_806D198:
+  F: 0x806d5c8
+  I: 0x806d4ec
+  S: 0x806d5d4
+HandlePartyMenuSwitchPokemonInput:
+  F: 0x806cfa4
+  I: 0x806cec8
+  S: 0x806cfb0
 #----------------#
 
 #-------------------#

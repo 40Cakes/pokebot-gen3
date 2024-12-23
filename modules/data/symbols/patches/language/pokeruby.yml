@@ -3,7 +3,7 @@
 #    Overworld / Util Symbols    #
 #--------------------------------#
 CB2_OVERWORLD:
-  J: ~
+  J: 0x8051618
 # Door exit
 sub_8080B9C:
   J: ~
@@ -22,37 +22,41 @@ Task_DuckBGMForPokemonCry:
   J: ~
 CB2_FlyRegionMap:
   J: ~
+gMain:
+  J: 0x30016e0
+gFieldMessageBoxWindow:
+  J: 0x202e5dc
+sScriptContext2:
+  J: 0x30005a0
 #-------------------------------#
 
 #--------------------#
 #    Map Symbols     #
 #--------------------#
 gMapGroups:
-  J: ~
+  J: 0x82e09f0
 gRegionMapEntries:
-  J: ~
+  J: 0x83bef6c
 gWildMonHeaders:
-  J: ~
+  J: 0x8379304
 sTileBitAttributes:
-  J: ~
+  J: 0x82e1294
 gObjectEvents:
-  J: ~
-# English rev 1 + 10
+  J: 0x30047d0
 gPlayerPartyCount:
-  J: ~
-# English rev 1 + 10
+  J: 0x3004280
 gPlayerParty:
-  J: ~
+  J: 0x3004290
 gMapHeader:
-  J: ~
+  J: 0x202e588
 gPlayerAvatar:
-  J: ~
+  J: 0x202e5b8
 gRegionMap:
-  J: ~
+  J: 0x20385e8
 gSaveBlock1:
-  J: ~
+  J: 0x2025494
 gSaveBlock2:
-  J: ~
+  J: 0x2024c04
 #----------------#
 
 #-----------------#
@@ -88,21 +92,44 @@ Task_BattleStart:
 #  Battling Symbols  #
 #--------------------#
 BattleMainCB1:
-  J: ~
+  J: 0x800db30
 BattleMainCB2:
-  J: ~
+  J: 0x800cb38
 gBattleMainFunc:
-  J: ~
-gBattlerControllerFuncs:
-  J: ~
-gBattlescriptCurrInstr:
-  J: ~
+  J: 0x3004204
 gBattleResults:
-  J: ~
+  J: 0x3004210
+gBattlerControllerFuncs:
+  J: 0x3004378
+gBattlescriptCurrInstr:
+  J: 0x2024970
 GTASKS:
-  J: ~
+  J: 0x3004a50
 gEnemyParty:
-    J: ~0
+  J: 0x30044f0
+gBattleTypeFlags:
+  J: 0x2023758
+gBattlersCount:
+  J: 0x20247c8
+gSideTimers:
+  J: 0x20249e0
+gStatuses3:
+  J: 0x20249f8
+gBattlerPartyIndexes:
+  J: 0x20247ca
+gBattleMons:
+  J: 0x20247e0
+gDisableStructs:
+  J: 0x2024a08
+gAbsentBattlerFlags:
+  J: 0x202496c
+gBattleWeather:
+  J: 0x2024b18
+gBattleOutcome:
+  J: 0x2024a86
+gBattlePartyCurrentOrder:
+  J: 0x2038190
+
 # Turn selection
 sub_8012324:
   J: ~
@@ -167,15 +194,17 @@ SUB_8096B38:
 #   Bag Menu   #
 #--------------#
 sub_80A3118:
-  J: ~
+  J: 0x809f6dc
 sCurrentBagPocket:
-  J: ~
+  J: 0x2038258
 gBagPocketScrollStates:
-  J: ~
+  J: 0x3005c30
 sub_80A5414:
-  J: ~
+  J: 0x80a15d4
+gPaletteFade:
+  J: 0x202f0a8
 sub_80A50C8:
-  J: ~
+  J: 0x80a12c0
 #---------------#
 
 #-----------------#
@@ -183,23 +212,40 @@ sub_80A50C8:
 #-----------------#
 # Start Menu
 sub_80712B4:
-  J: ~
+  J: 0x806e5f4
 HandleDefaultPartyMenu:
-  J: ~
+  J: 0x8086b4c
+sStartMenuCursorPos:
+  J: 0x202e64c
+sNumStartMenuActions:
+  J: 0x202e64d
+sCurrentStartMenuActions:
+  J: 0x202e64e
 #-----------------#
 
 #----------------#
 #   Party Menu   #
 #----------------#
 CB2_PartyMenuMain:
-  J: ~
+  J: 0x80681f4
 # Pokemon action menu
 sub_8089D94:
-  J: ~
+  J: 0x8086c04
 HandleBattlePartyMenu:
-  J: ~
+  J: 0x8091c90
 Task_HandlePopupMenuInput:
-  J: ~
+  J: 0x8091f80
+# Pokemon switch
+sub_806D198:
+  J: 0x806a408
+HandlePartyMenuSwitchPokemonInput:
+  J: 0x8069dd4
+sPokeMenuCursorPos:
+  J: 0x202fcc4
+sPokeMenuOptionsNo:
+  J: 0x202fcc5
+sPokeMenuOptionsOrder:
+  J: 0x202fcc6
 #----------------#
 
 #-------------------#
