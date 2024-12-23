@@ -6,6 +6,7 @@ from modules.battle_state import BattleOutcome
 from modules.map_data import MapFRLG
 from modules.player import get_player, get_player_avatar
 from modules.pokemon_party import get_party
+from modules.pokemon import get_species_by_name
 from modules.memory import get_event_flag
 from modules.menuing import StartMenuNavigator
 from modules.modes.util.walking import wait_for_player_avatar_to_be_controllable
@@ -19,6 +20,7 @@ from modules.safari_strategy import (
     get_safari_balls_left,
 )
 from modules.runtime import get_sprites_path
+from modules.sprites import get_regular_sprite
 from modules.gui.multi_select_window import Selection, ask_for_choice_scroll, ask_for_choice
 from ._interface import BotMode, BotModeError
 from ._asserts import (
@@ -86,7 +88,8 @@ class SafariMode(BotMode):
 
         pokemon_choices = []
         for safari_pokemon in SafariPokemon.available_pokemon(context.rom):
-            sprite_path = get_sprites_path() / "pokemon/normal" / f"{safari_pokemon.name}.png"
+            species = get_species_by_name(safari_pokemon.value.name)
+            sprite_path = get_regular_sprite(species)
             pokemon_choices.append(Selection(f"{safari_pokemon.value.name}", sprite_path))
 
         pokemon_choice = ask_for_choice_scroll(
