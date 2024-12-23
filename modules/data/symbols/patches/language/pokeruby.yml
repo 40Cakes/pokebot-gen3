@@ -198,7 +198,7 @@ sub_80A3118:
 sCurrentBagPocket:
   J: 0x2038258
 gBagPocketScrollStates:
-  J: 0x3005c40
+  J: 0x3005c30
 sub_80A5414:
   J: 0x80a15d4
 gPaletteFade:
