@@ -8,7 +8,8 @@ from modules.map_data import MapFRLG, MapRSE, PokemonCenter, get_map_enum
 from modules.map_path import calculate_path, PathFindingError
 from modules.modes import BattleAction
 from modules.player import get_player_avatar
-from modules.pokemon import get_party, get_opponent, StatusCondition, StatsValues
+from modules.pokemon import get_opponent, StatusCondition, StatsValues
+from modules.pokemon_party import get_party
 from ._interface import BotMode, BotModeError
 from .util import navigate_to, heal_in_pokemon_center, spin
 from ..battle_state import BattleOutcome
@@ -23,29 +24,77 @@ closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
     MapRSE.ROUTE102: [PokemonCenter.OldaleTown, PokemonCenter.PetalburgCity],
     MapRSE.ROUTE103: [PokemonCenter.OldaleTown],
     MapRSE.ROUTE104: [PokemonCenter.PetalburgCity, PokemonCenter.RustboroCity],
-    MapRSE.ROUTE116: [PokemonCenter.RustboroCity],
+    MapRSE.ROUTE105: [PokemonCenter.PetalburgCity, PokemonCenter.DewfordTown],
+    MapRSE.ROUTE106: [PokemonCenter.DewfordTown],
+    MapRSE.ROUTE107: [PokemonCenter.DewfordTown],
+    MapRSE.ROUTE108: [PokemonCenter.DewfordTown],
+    MapRSE.ROUTE109: [PokemonCenter.SlateportCity],
     MapRSE.ROUTE110: [PokemonCenter.SlateportCity, PokemonCenter.MauvilleCity],
-    MapRSE.ROUTE117: [PokemonCenter.MauvilleCity, PokemonCenter.VerdanturfTown],
+    MapRSE.ROUTE111: [PokemonCenter.MauvilleCity, PokemonCenter.MauvilleCity, PokemonCenter.FallarborTown],
+    MapRSE.ROUTE112: [PokemonCenter.LavaridgeTown, PokemonCenter.MauvilleCity, PokemonCenter.FallarborTown],
     MapRSE.ROUTE113: [PokemonCenter.FallarborTown],
     MapRSE.ROUTE114: [PokemonCenter.FallarborTown],
-    MapRSE.ROUTE119: [PokemonCenter.FortreeCity],
+    MapRSE.ROUTE115: [PokemonCenter.RustboroCity],
+    MapRSE.ROUTE116: [PokemonCenter.RustboroCity],
+    MapRSE.ROUTE117: [PokemonCenter.MauvilleCity, PokemonCenter.VerdanturfTown],
+    MapRSE.ROUTE118: [PokemonCenter.MauvilleCity],
+    MapRSE.ROUTE119: [PokemonCenter.FortreeCity, PokemonCenter.MauvilleCity],
     MapRSE.ROUTE120: [PokemonCenter.FortreeCity],
     MapRSE.ROUTE121: [PokemonCenter.LilycoveCity],
+    MapRSE.ROUTE122: [PokemonCenter.LilycoveCity],
+    MapRSE.ROUTE123: [PokemonCenter.LilycoveCity, PokemonCenter.MauvilleCity],
+    MapRSE.ROUTE124: [PokemonCenter.LilycoveCity, PokemonCenter.MossdeepCity],
+    MapRSE.ROUTE125: [PokemonCenter.MossdeepCity],
+    MapRSE.ROUTE126: [PokemonCenter.MossdeepCity],
+    MapRSE.ROUTE127: [PokemonCenter.MossdeepCity],
+    MapRSE.ROUTE128: [PokemonCenter.EvergrandeCity],
+    MapRSE.ROUTE129: [PokemonCenter.EvergrandeCity],
+    MapRSE.ROUTE130: [PokemonCenter.PacifidlogTown],
+    MapRSE.ROUTE131: [PokemonCenter.PacifidlogTown],
+    MapRSE.ROUTE132: [PokemonCenter.PacifidlogTown],
+    MapRSE.ROUTE133: [PokemonCenter.PacifidlogTown, PokemonCenter.SlateportCity],
+    MapRSE.ROUTE134: [PokemonCenter.SlateportCity],
+    MapRSE.PETALBURG_CITY: [PokemonCenter.PetalburgCity],
+    MapRSE.SLATEPORT_CITY: [PokemonCenter.SlateportCity],
+    MapRSE.MAUVILLE_CITY: [PokemonCenter.MauvilleCity],
+    MapRSE.RUSTBORO_CITY: [PokemonCenter.RustboroCity],
+    MapRSE.FORTREE_CITY: [PokemonCenter.FortreeCity],
+    MapRSE.LILYCOVE_CITY: [PokemonCenter.LilycoveCity],
+    MapRSE.MOSSDEEP_CITY: [PokemonCenter.MossdeepCity],
+    MapRSE.EVER_GRANDE_CITY: [PokemonCenter.EvergrandeCity],
+    MapRSE.OLDALE_TOWN: [PokemonCenter.OldaleTown],
+    MapRSE.DEWFORD_TOWN: [PokemonCenter.DewfordTown],
+    MapRSE.LAVARIDGE_TOWN: [PokemonCenter.LavaridgeTown],
+    MapRSE.FALLARBOR_TOWN: [PokemonCenter.FallarborTown],
+    MapRSE.VERDANTURF_TOWN: [PokemonCenter.VerdanturfTown],
+    MapRSE.PACIFIDLOG_TOWN: [PokemonCenter.PacifidlogTown],
     # Kanto
     MapFRLG.ROUTE1: [PokemonCenter.ViridianCity],
-    MapFRLG.ROUTE22: [PokemonCenter.ViridianCity],
     MapFRLG.ROUTE2: [PokemonCenter.ViridianCity, PokemonCenter.PewterCity],
     MapFRLG.ROUTE3: [PokemonCenter.PewterCity, PokemonCenter.Route4],
     MapFRLG.ROUTE4: [PokemonCenter.Route4, PokemonCenter.CeruleanCity],
-    MapFRLG.ROUTE24: [PokemonCenter.CeruleanCity],
     MapFRLG.ROUTE6: [PokemonCenter.VermilionCity],
-    MapFRLG.ROUTE11: [PokemonCenter.VermilionCity],
+    MapFRLG.ROUTE7: [PokemonCenter.CeladonCity],
     MapFRLG.ROUTE9: [PokemonCenter.Route10],
     MapFRLG.ROUTE10: [PokemonCenter.Route10],
-    MapFRLG.ROUTE7: [PokemonCenter.CeladonCity],
+    MapFRLG.ROUTE11: [PokemonCenter.VermilionCity],
     MapFRLG.ROUTE18: [PokemonCenter.FuchsiaCity],
+    MapFRLG.ROUTE19: [PokemonCenter.FuchsiaCity],
+    MapFRLG.ROUTE20: [PokemonCenter.CinnabarIsland, PokemonCenter.FuchsiaCity],
+    MapFRLG.ROUTE21_NORTH: [PokemonCenter.CinnabarIsland],
+    MapFRLG.ROUTE21_SOUTH: [PokemonCenter.CinnabarIsland],
+    MapFRLG.ROUTE22: [PokemonCenter.ViridianCity],
+    MapFRLG.ROUTE24: [PokemonCenter.CeruleanCity],
+    MapFRLG.VIRIDIAN_CITY: [PokemonCenter.ViridianCity],
+    MapFRLG.PEWTER_CITY: [PokemonCenter.PewterCity],
+    MapFRLG.CERULEAN_CITY: [PokemonCenter.CeruleanCity],
+    MapFRLG.LAVENDER_TOWN: [PokemonCenter.LavenderTown],
+    MapFRLG.VERMILION_CITY: [PokemonCenter.VermilionCity],
+    MapFRLG.CELADON_CITY: [PokemonCenter.CeladonCity],
+    MapFRLG.FUCHSIA_CITY: [PokemonCenter.FuchsiaCity],
+    MapFRLG.CINNABAR_ISLAND: [PokemonCenter.CinnabarIsland],
+    MapFRLG.SAFFRON_CITY: [PokemonCenter.SaffronCity],
 }
-
 
 _list_of_stats = ("hp", "attack", "defence", "special_attack", "special_defence", "speed")
 
@@ -66,11 +115,7 @@ class EVTrainMode(BotMode):
         if current_location is None:
             return False
 
-        return (
-            current_location.has_encounters
-            and not current_location.is_surfable
-            and current_location.map_group_and_number in closest_pokemon_centers
-        )
+        return current_location.has_encounters and current_location.map_group_and_number in closest_pokemon_centers
 
     def __init__(self):
         super().__init__()
@@ -146,8 +191,6 @@ class EVTrainMode(BotMode):
         training_spot = get_map_data_for_current_position()
         if not training_spot.has_encounters:
             raise BotModeError("There are no encounters on this tile.")
-        if training_spot.is_surfable:
-            raise BotModeError("This mode does not work when surfing.")
 
         training_spot_map = get_map_enum(training_spot)
         training_spot_coordinates = training_spot.local_position
