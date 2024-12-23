@@ -1,3 +1,4 @@
+import re
 from enum import Enum
 from typing import Generator
 
@@ -629,6 +630,110 @@ class MapFRLG(Enum):
     @property
     def exists_on_rs(self) -> bool:
         return False
+
+    @property
+    def pretty_name(self) -> str:
+        name = self.name.replace("_", " ").title().split()
+
+        substitutions = {
+            "Pokemon": "Pokémon",
+            "Ssanne": "S.S. Anne",
+            "Digletts": "Diglett’s",
+            "Co": "Co.",
+            "Mt": "Mt.",
+            "Loreleis": "Lorelei’s",
+            "Brunos": "Bruno’s",
+            "Agathas": "Agatha’s",
+            "Lances": "Lance’s",
+            "Champions": "Champion’s",
+            "Players": "Player’s",
+            "Rivals": "Rival’s",
+            "Oaks": "Oak’s",
+            "Wardens": "Warden’s",
+            "Copycats": "Copycat’s",
+            "Mr": "Mr.",
+            "Psychics": "Psychic’s",
+            "Captains": "Captain’s",
+        }
+
+        for index in range(len(name)):
+            if name[index] in substitutions:
+                name[index] = substitutions[name[index]]
+
+            if match := re.match("^([A-Z][a-z]+)(\\d+)$", name[index]):
+                name[index] = f"{match.group(1)} {match.group(2)}"
+                if len(name) > index + 1:
+                    name[index] += ","
+
+            if re.match("^B?\\d+[FP]$", name[index]):
+                name[index] = f"({name[index]})"
+
+        name = " ".join(name).replace(", (", " (")
+
+        prefixes = (
+            "S.S. Anne",
+            "Underground Path",
+            "Diglett’s Cave",
+            "Rocket Hideout",
+            "Safari Zone",
+            "Safari Zone, Center",
+            "Safari Zone, East",
+            "Safari Zone, North",
+            "Safari Zone, West",
+            "Pokémon League",
+            "Mt. Ember",
+            "One Island",
+            "One Island, Kindle Road",
+            "Two Island",
+            "Two Island, Cape Brink",
+            "Three Island",
+            "Four Island",
+            "Four Island, Icefall Cave",
+            "Five Island",
+            "Five Island, Lost Cave",
+            "Five Island, Resort Gorgeous",
+            "Six Island",
+            "Six Island, Dotted Hole",
+            "Six Island, Water Path",
+            "Seven Island",
+            "Seven Island, Tanoby Ruins",
+            "Seven Island, Sevault Canyon",
+            "Navel Rock",
+            "Trainer Tower",
+            "Birth Island",
+            "Indigo Plateau",
+            "Saffron City",
+            "Pallet Town",
+            "Viridian City",
+            "Pewter City",
+            "Cerulean City",
+            "Lavender Town",
+            "Vermilion City",
+            "Celadon City",
+            "Celadon City, Game Corner",
+            "Fuchsia City",
+            "Cinnabar Island",
+            "Cinnabar Island, Pokémon Lab",
+        )
+
+        for prefix in prefixes:
+            if name.startswith(prefix):
+                first_part = prefix
+                next_part = name[len(prefix) :].strip()
+                if next_part.startswith("("):
+                    first_part += " " + next_part[: next_part.index(")") + 1]
+                    next_part = next_part[next_part.index(")") + 1 :].strip()
+                if next_part not in ("", "Gym", "School", "Mart", "Museum"):
+                    name = f"{first_part}, {next_part}"
+
+        full_substitutions = {
+            "North South Tunnel": "North/South Tunnel",
+            "East West Tunnel": "East/West Tunnel",
+        }
+        for substitution in full_substitutions:
+            name = name.replace(substitution, full_substitutions[substitution])
+
+        return name
 
 
 class MapGroupRSE(Enum):
@@ -1318,6 +1423,102 @@ class MapRSE(Enum):
     def exists_on_rs(self) -> bool:
         emerald_only_maps = [(0, 54), (0, 55), (0, 56), (5, 7), (6, 8), (9, 13), (15, 13), (15, 14), (16, 14)]
         return self.value not in emerald_only_maps and (self.value[0] != 26 or self.value[1] <= 11)
+
+    @property
+    def pretty_name(self) -> str:
+        name = self.name.replace("_", " ").title().split()
+
+        substitutions = {
+            "Pokemon": "Pokémon",
+            "Brendans": "Brendan’s",
+            "Mays": "May’s",
+            "Birchs": "Birch’s",
+            "Cozmos": "Cozmo’s",
+            "Wandas": "Wanda’s",
+            "Relearners": "Relearner’s",
+            "Raters": "Rater’s",
+            "Wallys": "Wally’s",
+            "Sterns": "Stern’s",
+            "Cutters": "Cutter’s",
+            "Deleters": "Deleter’s",
+            "Stevens": "Steven’s",
+            "Sidneys": "Sidney’s",
+            "Phoebes": "Phoebe’s",
+            "Glacias": "Glacia’s",
+            "Drakes": "Drake’s",
+            "Champions": "Champion’s",
+            "Brineys": "Briney’s",
+            "Familys": "Family’s",
+            "Ladys": "Lady’s",
+            "Tunnelers": "Tunneler’s",
+            "Maniacs": "Maniac’s",
+            "Captains": "Captain’s",
+            "Mt": "Mt.",
+            "Ss": "S.S.",
+            "Corp": "Corp.",
+            "Northwest": "North/West",
+            "Southwest": "South/West",
+            "Northeast": "North/East",
+            "Southeast": "South/East",
+        }
+
+        for index in range(len(name)):
+            if name[index] in substitutions:
+                name[index] = substitutions[name[index]]
+
+            if match := re.match("^([A-Z][a-z]+)(\\d+)$", name[index]):
+                name[index] = f"{match.group(1)} {match.group(2)}"
+                if len(name) > index + 1:
+                    name[index] += ","
+
+            if re.match("^B?\\d+[FP]$", name[index]):
+                name[index] = f"({name[index]})"
+
+        if self.name.startswith("CONTEST_HALL_"):
+            name[2] = f"({name[2]})"
+
+        if "_BATTLE_TENT_" in self.name:
+            name[3] += ","
+
+        if (
+            self.name.startswith("BATTLE_FRONTIER_")
+            or self.name.startswith("SAFARI_ZONE_")
+            or self.name.startswith("BATTLE_PYRAMID_")
+            or self.name.startswith("SS_TIDAL_")
+            or self.name.startswith("NEW_MAUVILLE_")
+            or self.name.startswith("ABANDONED_SHIP_")
+            or self.name.startswith("SEALED_CHAMBER_")
+            or self.name.startswith("SECRET_BASE_")
+            or re.match("^SKY_PILLAR_[A-Z]", self.name)
+            or (len(name) > 2 and (name[1] == "Town" or name[1] == "City"))
+        ):
+            if len(name) > 2 and name[2] != "Gym" and name[2] != "Mart":
+                name[1] += ","
+
+        if self.name.startswith("EVER_GRANDE_CITY_"):
+            if len(name) > 3 and name[3] != "Gym" and name[3] != "Mart":
+                name[2] += ","
+
+        if self.name.startswith("SHOAL_CAVE_"):
+            name[2] = f"({name[2]}"
+            name[3] = f"{name[3]})"
+
+        if (
+            self.name.startswith("BATTLE_FRONTIER_BATTLE_TOWER_")
+            or self.name.startswith("BATTLE_FRONTIER_BATTLE_DOME_")
+            or self.name.startswith("BATTLE_FRONTIER_BATTLE_PALACE_")
+            or self.name.startswith("BATTLE_FRONTIER_BATTLE_PYRAMID_")
+            or self.name.startswith("BATTLE_FRONTIER_BATTLE_ARENA_")
+            or self.name.startswith("BATTLE_FRONTIER_BATTLE_FACTORY_")
+            or self.name.startswith("BATTLE_FRONTIER_BATTLE_PIKE_")
+            or self.name.startswith("ROUTE110_SEASIDE_CYCLING_ROAD_")
+            or self.name.startswith("SHOAL_CAVE_LOW_TIDE")
+            or self.name.startswith("SHOAL_CAVE_HIGH_TIDE")
+        ):
+            name[3] += ","
+
+        name = " ".join(name).replace(", (", " (")
+        return name
 
 
 class PokemonCenter(Enum):

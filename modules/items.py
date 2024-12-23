@@ -4,7 +4,7 @@ from enum import Enum
 from functools import cached_property
 
 from modules.context import context
-from modules.memory import get_save_block, unpack_uint16
+from modules.memory import get_save_block, unpack_uint16, decrypt16
 from modules.runtime import get_data_path
 from modules.state_cache import state_cache
 
@@ -45,8 +45,28 @@ class ItemPocket(Enum):
     def index(self) -> int:
         return self.rse_index if context.rom.is_rse else self.frlg_index
 
+    @property
+    def capacity(self) -> int:
+        sizes = {
+            ItemPocket.Items: {"rs": 20, "e": 30, "frlg": 42},
+            ItemPocket.KeyItems: {"rs": 20, "e": 30, "frlg": 30},
+            ItemPocket.PokeBalls: {"rs": 16, "e": 16, "frlg": 13},
+            ItemPocket.TmsAndHms: {"rs": 64, "e": 64, "frlg": 58},
+            ItemPocket.Berries: {"rs": 46, "e": 46, "frlg": 43},
+        }
+
+        if context.rom.is_rs:
+            return sizes[self]["rs"]
+        elif context.rom.is_emerald:
+            return sizes[self]["e"]
+        else:
+            return sizes[self]["frlg"]
+
     def __str__(self):
         return self.value
+
+    def __hash__(self):
+        return hash(self.value)
 
 
 class ItemBattleUse(Enum):
@@ -267,7 +287,7 @@ class ItemBag:
         poke_balls_count: int,
         tms_hms_count: int,
         berries_count: int,
-        encryption_key: bytes,
+        encryption_key: int | None = None,
     ):
         self._data = data
         self._encryption_key = encryption_key
@@ -294,7 +314,7 @@ class ItemBag:
         for index in range(number_of_slots):
             offset = (slot_offset + index) * 4
             item_index = unpack_uint16(self._data[offset : offset + 2])
-            quantity = unpack_uint16(self._data[offset + 2 : offset + 4]) ^ unpack_uint16(self._encryption_key[:2])
+            quantity = decrypt16(unpack_uint16(self._data[offset + 2 : offset + 4]), self._encryption_key)
             if item_index != 0 and quantity > 0:
                 item = get_item_by_index(item_index)
                 result.append(ItemSlot(item, quantity))
@@ -481,37 +501,17 @@ def get_item_bag() -> ItemBag:
     if state_cache.item_bag.age_in_frames == 0:
         return state_cache.item_bag.value
 
-    if context.rom.is_frlg:
-        items_count = 42
-        key_items_count = 30
-        poke_balls_count = 13
-        tms_hms_count = 58
-        berries_count = 43
-        offset = 0x310
-        encryption_key = get_save_block(2, offset=0xF20, size=4)
-    elif context.rom.is_emerald:
-        items_count = 30
-        key_items_count = 30
-        poke_balls_count = 16
-        tms_hms_count = 64
-        berries_count = 46
-        offset = 0x560
-        encryption_key = get_save_block(2, offset=0xAC, size=4)
-    else:
-        items_count = 20
-        key_items_count = 20
-        poke_balls_count = 16
-        tms_hms_count = 64
-        berries_count = 46
-        offset = 0x560
-        encryption_key = b"\x00\x00\x00\x00"
+    offset = 0x310 if context.rom.is_frlg else 0x560
+    items_count = ItemPocket.Items.capacity
+    key_items_count = ItemPocket.KeyItems.capacity
+    poke_balls_count = ItemPocket.PokeBalls.capacity
+    tms_hms_count = ItemPocket.TmsAndHms.capacity
+    berries_count = ItemPocket.Berries.capacity
 
     data_size = 4 * (items_count + key_items_count + poke_balls_count + tms_hms_count + berries_count)
     data = get_save_block(1, offset=offset, size=data_size)
 
-    item_bag = ItemBag(
-        data, items_count, key_items_count, poke_balls_count, tms_hms_count, berries_count, encryption_key
-    )
+    item_bag = ItemBag(data, items_count, key_items_count, poke_balls_count, tms_hms_count, berries_count)
     state_cache.item_bag = item_bag
     return item_bag
 

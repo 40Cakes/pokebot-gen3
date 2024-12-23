@@ -1,7 +1,6 @@
 from modules.battle_state import BattleState
 from modules.battle_strategies import DefaultBattleStrategy, TurnAction, BattleStrategyUtil
-from modules.context import context
-from modules.pokemon import get_party
+from modules.pokemon_party import get_party
 
 
 def _get_lowest_level_party_member_index(only_non_fainted: bool = False) -> int:
@@ -31,7 +30,7 @@ class LevelBalancingBattleStrategy(DefaultBattleStrategy):
         # in the most powerful Pokémon in the party to defeat the opponent, so that the
         # lead Pokémon at least gets partial XP.
         # This helps if the lead has a much lower level than the encounters.
-        if battler.party_index == 0 and not self._pokemon_has_enough_hp(battler):
+        if battler.party_index == 0 and not super()._pokemon_has_enough_hp(battler):
             strongest_pokemon: tuple[int, int] = (0, 0)
             party = get_party()
             for index in range(len(party)):

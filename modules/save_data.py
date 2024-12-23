@@ -7,7 +7,7 @@ from modules.items import ItemBag
 from modules.map import ObjectEvent
 from modules.memory import get_save_block, unpack_uint16, unpack_uint32
 from modules.player import Player
-from modules.pokemon import Pokemon, parse_pokemon
+from modules.pokemon_party import Party, PartyPokemon
 
 
 def get_last_heal_location() -> tuple[int, int]:
@@ -33,7 +33,7 @@ class SaveData:
         save_block_2 = self.get_save_block(2, size=0x0E)
         encryption_key = self.get_save_block(2, encryption_key_offset, 4)
 
-        return Player(save_block_1, save_block_2, encryption_key)
+        return Player(save_block_1, save_block_2, unpack_uint32(encryption_key))
 
     def get_player_map_object(self) -> ObjectEvent | None:
         if context.rom.is_rs:
@@ -84,7 +84,7 @@ class SaveData:
 
         return unpack_uint16(self.get_save_block(1, offset=var_offset, size=2))
 
-    def get_party(self) -> list[Pokemon]:
+    def get_party(self) -> Party:
         party = []
         if context.rom.is_frlg:
             party_count = self.sections[1][0x034]
@@ -94,8 +94,8 @@ class SaveData:
             party_offset = 0x238
         for index in range(party_count):
             offset = party_offset + index * 100
-            party.append(parse_pokemon(self.sections[1][offset : offset + 100]))
-        return party
+            party.append(PartyPokemon(self.sections[1][offset : offset + 100], index))
+        return Party(party)
 
     def get_item_bag(self) -> ItemBag:
         if context.rom.is_frlg:
@@ -105,7 +105,7 @@ class SaveData:
             tms_hms_count = 58
             berries_count = 43
             offset = 0x310
-            encryption_key = self.sections[1][0xF20:0xF24]
+            encryption_key = unpack_uint32(self.sections[1][0xF20:0xF24])
         elif context.rom.is_emerald:
             items_count = 30
             key_items_count = 30
@@ -113,7 +113,7 @@ class SaveData:
             tms_hms_count = 64
             berries_count = 46
             offset = 0x560
-            encryption_key = self.sections[0][0xAC:0xB0]
+            encryption_key = unpack_uint32(self.sections[0][0xAC:0xB0])
         else:
             items_count = 20
             key_items_count = 20
@@ -121,7 +121,7 @@ class SaveData:
             tms_hms_count = 64
             berries_count = 46
             offset = 0x560
-            encryption_key = b"\x00\x00\x00\x00"
+            encryption_key = 0
 
         data_size = 4 * (items_count + key_items_count + poke_balls_count + tms_hms_count + berries_count)
         data = self.sections[1][offset : offset + data_size]

@@ -28,15 +28,15 @@ Task_ExitDoor:
   S: 0x807dfc8
 WaitForAorBPress:
   D: 0x806b858
-  F: ~
-  I: ~
-  J: 0x806b159
-  S: ~
+  F: 0x806b918
+  I: 0x806b844
+  J: 0x806b158
+  S: 0x806b92c
 EventScript_UseStrength:
   D: 0x81c1bc4
   F: 0x81bcae4
   I: 0x81bb76b
-  J: ~
+  J: 0x81a48f0
   S: 0x81bde2e
 #-------------------------------#
 
@@ -98,34 +98,28 @@ sMapCursor:
 #--------------------#
 CB2_OVERWORLDBASIC:
   D: 0x80565c8
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x8056688
+  I: ~ # No need mapping
+  J: 0x8055e68
+  S: 0x805669c
 CB2_INITBATTLE:
   D: 0x800fd20
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x800fd0c
+  I: 0x800fd20
+  J: 0x800f758
+  S: 0x800fd0c
 CB2_HANDLESTARTBATTLE:
   D: 0x801048c
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x8010478
+  I: 0x801048c
+  J: 0x800fec4
+  S: 0x8010478
 CB2_RETURNTOFIELD:
   D: 0x80567fc
-  F: ~
-  I: ~
-  J: ~
-  S: ~
-CB2_RETURNTOFIELDCONTINUESCRIPTPLAYMAPMUSIC:
-  D: 0x80568e4
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x80568bc
+  I: 0x80567e8
+  J: 0x805609c
+  S: 0x80568d0
 gMain:
   D: 0x3003040
   F: 0x3003040
@@ -204,10 +198,10 @@ BattleScript_HandleFaintedMon:
   S: 0x81d81e0
 Task_BattleStart:
   D: 0x807f558
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x807f618
+  I: 0x807f544
+  J: 0x807ed1c
+  S: 0x807f62c
 Task_EvolutionScene:
   D: 0x80cea50
   F: 0x80ceb10
@@ -251,6 +245,12 @@ BattleScript_ForgotAndLearnedNewMove:
   I: 0x81d5e8e
   J: 0x81bc9e0
   S: 0x81d8556
+HandleEndTurn_FinishBattle:
+  D: 0x8015894
+  F: 0x8015880
+  I: 0x8015894
+  J: 0x8015128
+  S: 0x8015880
 sMoveSelectionCursorPos:
   J: 0x203b0e1
 gMoveSelectionCursor:
@@ -294,6 +294,8 @@ sTextPrinters:
   J: 0x2020030
 gNumSafariBalls:
   J: 0x203990c
+gSafariZoneStepCounter:
+  J: 0x203990e
 #--------------------#
 
 #----------------#
@@ -325,7 +327,7 @@ Task_EndQuestLog:
   D: 0x8112148
   F: 0x8112208
   I: 0x811218c
-  J: ~
+  J: 0x8112bcc
   S: 0x8112274
 Task_DrawFieldMessageBox:
   D: 0x8069360
@@ -347,10 +349,10 @@ gRngValue:
   S: 0x3004f50
 Std_MsgboxDefault:
   D: 0x81a7ae4
-  F: ~
-  I: ~
+  F: 0x81a3995
+  I: 0x81a27cd
   J: 0x8192d81
-  S: ~
+  S: 0x81a4946
 #---------------------------#
 
 #-------------------#
@@ -372,7 +374,7 @@ SevenIsland_SevaultCanyon_TanobyKey_EventScript_PuzzleSolved:
   D: 0x8164ed0
   F: 0x8164f94
   I: 0x8164f10
-  J: ~
+  J: 0x816eea7
   S: 0x8164ffc
 #-------------------------#
 
@@ -383,32 +385,32 @@ CB2_InitCopyrightScreenAfterBootup:
   D: 0x80eca1c
   F: 0x80ecadc
   I: 0x80eca1c
-  J: ~
+  J: 0x80ed6f4
   S: 0x80ecb04
 CB2_TitleScreenRun:
   D: 0x8078b00
   F: 0x8078bc0
   I: 0x8078aec
-  J: ~
+  J: 0x8078334
   S: 0x8078bd4
 CB2_Intro:
   D: 0x80ecbd0
   F: 0x80ecc90
   I: 0x80ecbd0
-  J: ~
+  J: 0x80ed8a8
   S: 0x80eccb8
 CB2_INITTITLESCREEN:
   D: 0x8078878
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x8078938
+  I: 0x8078864
+  J: 0x80780ac
+  S: 0x807894c
 CB2_INITMAINMENU:
   D: 0x800c280
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x800c26c
+  I: 0x800c280
+  J: 0x800bce0
+  S: 0x800c26c
 CB2_MAINMENU:
   D: 0x800c254
   F: 0x800c240
@@ -417,16 +419,16 @@ CB2_MAINMENU:
   S: 0x800c240
 CB2_RETURNTOFIELDLOCAL:
   D: 0x8056828
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x80568e8
+  I: 0x8056814
+  J: 0x80560c8
+  S: 0x80568fc
 MAINCB2:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  D: 0x80cd640
+  F: 0x803cecc
+  I: 0x80cd520
+  J: 0x80ce4ec
+  S: 0x80cd608
 #-----------------#
 
 #-----------------#
@@ -486,10 +488,10 @@ CB2_UPDATEPARTYMENU:
   S: 0x811ecd8
 Task_PrintAndWaitForText:
   D: 0x8120334
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x81203f4
+  I: 0x8123c58
+  J: 0x8120af0
+  S: 0x8120460
 Task_HandleInput:
   D: 0x809f328
   F: 0x809f3e8
@@ -504,10 +506,10 @@ Task_HandleSelectionMenuInput:
   S: 0x8122d98
 Task_SlideSelectedSlotsOnscreen:
   D: 0x8123398
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  F: 0x8123454
+  I: 0x81233d8
+  J: 0x8123b3c
+  S: 0x81234c4
 gPartyMenu:
   J: 0x203b014
 sPartyMenuInternal:
@@ -541,41 +543,41 @@ gPokemonStoragePtr:
 #   Listeners  #
 #--------------#
 CB2_EggHatch_0:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  D: 0x8046f48
+  F: 0x8047008
+  I: 0x8046f34
+  J: 0x80465d0
+  S: 0x804701c
 CB2_EggHatch_1:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  D: 0x804723c
+  F: 0x80472fc
+  I: 0x8047228
+  J: 0x80468c0
+  S: 0x8047310
 EventScript_RepelWoreOff:
   D: 0x81c368c
   F: 0x81be5b0
   I: 0x81bd0f7
   J: 0x81a5d60
   S: 0x81bf7d0
-EventScript_DoTrainerBattle:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
 EventScript_DoTrainerBattleFromApproach:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  D: 0x81a7b44
+  F: 0x81a39f5
+  I: 0x81a282d
+  J: 0x8192dd2
+  S: 0x81a49a6
+EventScript_DoTrainerBattle:
+  D: 0x81a7c5d
+  F: 0x81a3b0e
+  I: 0x81a2946
+  J: 0x8192ee5
+  S: 0x81a4abf
 EventScript_FieldPoison:
-  D: ~
-  F: ~
-  I: ~
+  D: 0x81abc0b
+  F: 0x81a7802
+  I: 0x81a6661
   J: 0x819637f
-  S: ~
+  S: 0x81a88a2
 #---------------#
 
 #---------------------#
@@ -660,9 +662,18 @@ Trade_Text_WhatThatsNoMon:
   J: 0x0
 NavelRock_Summit_EventScript_HideHoOh:
   F: 0x0
+PokemonMansion_EventScript_DontPressSwitch:
+  D: 0x0
+
 # Unused
 CB2_CONTINUESAVEDGAME:
   D: 0x8056958
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+CB2_RETURNTOFIELDCONTINUESCRIPTPLAYMAPMUSIC:
+  D: 0x80568e4
   F: ~
   I: ~
   J: ~

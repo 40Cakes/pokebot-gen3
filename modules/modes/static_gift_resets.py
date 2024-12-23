@@ -8,7 +8,7 @@ from modules.map_data import MapFRLG, MapRSE
 from modules.map_path import calculate_path
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.player import get_player_avatar
-from modules.pokemon import get_party
+from modules.pokemon_party import get_party, get_party_size
 from modules.save_data import get_save_data
 from ._asserts import (
     assert_save_game_exists,
@@ -30,6 +30,7 @@ from .util import (
     wait_for_no_script_to_run,
 )
 from ..battle_state import EncounterType
+from ..memory import get_event_var
 
 
 def _get_targeted_encounter() -> tuple[MapFRLG | MapRSE, tuple[int, int], str] | None:
@@ -48,6 +49,7 @@ def _get_targeted_encounter() -> tuple[MapFRLG | MapRSE, tuple[int, int], str] |
         encounters = [
             (MapRSE.ROUTE119_WEATHER_INSTITUTE_2F, (2, 2), "Castform"),
             (MapRSE.ROUTE119_WEATHER_INSTITUTE_2F, (18, 6), "Castform"),
+            (MapRSE.ROUTE119_WEATHER_INSTITUTE_2F, (4, 6), "Castform"),
             (MapRSE.RUSTBORO_CITY_DEVON_CORP_2F, (14, 8), "Hoenn Fossils"),
             (MapRSE.MOSSDEEP_CITY_STEVENS_HOUSE, (4, 3), "Beldum"),
             (MapRSE.LAVARIDGE_TOWN, (4, 7), "Wynaut"),
@@ -86,7 +88,7 @@ class StaticGiftResetsMode(BotMode):
         # so in order to make sure that it was Togepi/Wynaut that hatched, we verify that the
         # egg is in the last slot of the party -- since the egg was picked up at the start of
         # the mode, it's guaranteed to be in that slot.
-        if party_index == len(get_party()) - 1:
+        if party_index == get_party_size() - 1:
             self._egg_has_hatched = True
 
     def run(self) -> Generator:
@@ -130,6 +132,28 @@ class StaticGiftResetsMode(BotMode):
                 raise BotModeError(
                     "The first Pokémon in your party in the saved game must have max friendship (255) to receive the egg."
                 )
+        if encounter[2] in ("Hoenn Fossils", "Kanto Fossils"):
+            var_name = (
+                "FOSSIL_RESURRECTION_STATE"
+                if context.rom.is_rse
+                else "MAP_SCENE_CINNABAR_ISLAND_POKEMON_LAB_EXPERIMENT_ROOM_REVIVE_STATE"
+            )
+            if save_data.get_event_var(var_name) == 0 or get_event_var(var_name) == 0:
+                if get_event_var(var_name) == 0:
+                    raise BotModeError(
+                        "You need to first give a Fossil to the Scientist, then re-enter the room, and then save the game before using this mode."
+                    )
+                else:
+                    raise BotModeError(
+                        "You need to save the game after giving a Fossil to the Scientist before using this mode."
+                    )
+            if save_data.get_event_var(var_name) == 1:
+                if get_event_var(var_name) == 1:
+                    raise BotModeError(
+                        "The Scientist is not ready yet. Try leaving the room and coming back, then save the game before using this mode."
+                    )
+                else:
+                    raise BotModeError("You need to save the game before using this mode.")
 
         assert_empty_slot_in_party(
             "This mode requires at least one empty party slot, but your party is full.", check_in_saved_game=True
@@ -184,11 +208,7 @@ class StaticGiftResetsMode(BotMode):
                 yield from wait_for_no_script_to_run("B")
 
             def egg_in_party() -> int:
-                total_eggs = 0
-                for pokemon in get_party():
-                    if pokemon.is_egg:
-                        total_eggs += 1
-                return total_eggs
+                return len(get_party().eggs)
 
             def hatch_egg() -> Generator:
                 if encounter[2] == "Wynaut":
@@ -225,6 +245,6 @@ class StaticGiftResetsMode(BotMode):
             else:
                 # Navigate to the summary screen to check for shininess
                 yield from StartMenuNavigator("POKEMON").step()
-                yield from PokemonPartyMenuNavigator(len(get_party()) - 1, "summary").step()
+                yield from PokemonPartyMenuNavigator(get_party_size() - 1, "summary").step()
 
                 handle_encounter(EncounterInfo.create(get_party()[-1], EncounterType.Gift), disable_auto_catch=True)

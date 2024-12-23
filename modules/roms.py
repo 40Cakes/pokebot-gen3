@@ -1,14 +1,14 @@
-import contextlib
 import hashlib
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+from typing import BinaryIO
 
 from modules.runtime import get_base_path
 
 ROMS_DIRECTORY = get_base_path() / "roms"
 
-GAME_NAME_MAP = {
+GBA_GAME_NAME_MAP = {
     "POKEMON EMER": "Pokémon Emerald",
     "POKEMON SAPP": "Pokémon Sapphire",
     "POKEMON RUBY": "Pokémon Ruby",
@@ -16,7 +16,7 @@ GAME_NAME_MAP = {
     "POKEMON LEAF": "Pokémon LeafGreen",
 }
 
-ROM_HASHES = [
+GBA_ROMS = [
     # Sapphire
     "5a087835009d552d4c5c1f96be3be3206e378153",  # Pokémon - Saphir-Edition (Germany).gba
     "7e6e034f9cdca6d2c4a270fdb50a94def5883d17",  # Pokémon - Saphir-Edition (Germany) (Rev 1).gba
@@ -71,7 +71,7 @@ ROM_HASHES = [
     "7c7107b87c3ccf6e3dbceb9cf80ceeffb25a1857",  # Pocket Monsters - FireRed (Japan) (Rev 1).gba
     "ab8f6bfe0ccdaf41188cd015c8c74c314d02296a",  # Pokémon - Edicion Rojo Fuego (Spain).gba
 ]
-ROM_HASHES = list(map(lambda x: x.lower(), ROM_HASHES))
+GBA_ROMS = list(map(lambda x: x.lower(), GBA_ROMS))
 
 
 class ROMLanguage(Enum):
@@ -84,6 +84,15 @@ class ROMLanguage(Enum):
 
     def __str__(self):
         return self.value
+
+
+GB_ROMS = {
+    "f4cd194bdee0d04ca4eac29e09b8e4e9d818c133": ("Pokémon Crystal", 0, ROMLanguage.English),
+    "f2f52230b536214ef7c9924f483392993e226cfb": ("Pokémon Crystal", 1, ROMLanguage.English),
+    "a0fc810f1d4e124434f7be2c989ab5b5892ddf36": ("Pokémon Crystal (Australia)", 1, ROMLanguage.English),
+    "d8b8a3600a465308c9953dfa04f0081c05bdcb94": ("Pokémon Gold", 0, ROMLanguage.English),
+    "49b163f7e57702bc939d642a18f591de55d92dae": ("Pokémon Silver", 0, ROMLanguage.English),
+}
 
 
 @dataclass
@@ -132,6 +141,30 @@ class ROM:
     def is_lg(self) -> bool:
         return self.game_title == "POKEMON LEAF"
 
+    @property
+    def is_crystal(self) -> bool:
+        return self.game_title == "PM_CRYSTAL"
+
+    @property
+    def is_gold(self) -> bool:
+        return self.game_title == "POKEMON_GLD"
+
+    @property
+    def is_silver(self) -> bool:
+        return self.game_title == "POKEMON_SLV"
+
+    @property
+    def is_gs(self) -> bool:
+        return self.is_gold or self.is_silver
+
+    @property
+    def is_gen3(self) -> bool:
+        return self.is_rse or self.is_frlg
+
+    @property
+    def is_gen2(self) -> bool:
+        return self.is_crystal or self.is_gs
+
 
 class InvalidROMError(Exception):
     pass
@@ -143,11 +176,14 @@ rom_cache: dict[str, ROM] = {}
 def list_available_roms(force_recheck: bool = False) -> list[ROM]:
     """
     This scans all files in the `roms/` directory and returns any entry that might
-    be a valid GBA ROM, along with some metadata that could be extracted from the
+    be a valid GB/GBA ROM, along with some metadata that could be extracted from the
     ROM header.
 
-    The ROM (header) structure is described on this website:
+    The GBA ROM (header) structure is described on this website:
     https://problemkaputt.de/gbatek-gba-cartridge-header.htm
+
+    And here is the same for GB(C) ROMs:
+    https://gbdev.gg8.se/wiki/articles/The_Cartridge_Header
 
     :param force_recheck: Whether to ignore the cached ROM list that is generated
                           the first time this function is called. This might be a
@@ -166,9 +202,55 @@ def list_available_roms(force_recheck: bool = False) -> list[ROM]:
     result = []
     for file in ROMS_DIRECTORY.iterdir():
         if file.is_file():
-            with contextlib.suppress(InvalidROMError):
-                result.append(load_rom_data(file))
+            try:
+                rom = load_rom_data(file)
+                if rom.is_gen3:
+                    result.append(rom)
+            except InvalidROMError:
+                pass
     return result
+
+
+def _load_gba_rom(file: Path, handle: BinaryIO) -> ROM:
+    handle.seek(0x0)
+    sha1 = hashlib.sha1()
+    sha1.update(handle.read())
+    if sha1.hexdigest() not in GBA_ROMS:
+        raise InvalidROMError("ROM not supported.")
+
+    handle.seek(0xA0)
+    game_title = handle.read(12).decode("ascii")
+    game_code = handle.read(4).decode("ascii")
+    maker_code = handle.read(2).decode("ascii")
+
+    handle.seek(0xBC)
+    revision = int.from_bytes(handle.read(1), byteorder="little")
+
+    game_name = game_title
+    if game_title in GBA_GAME_NAME_MAP:
+        game_name = GBA_GAME_NAME_MAP[game_title]
+
+    game_name += f" ({game_code[3]})"
+    if revision > 0:
+        game_name += f" (Rev {revision})"
+
+    return ROM(file, game_name, game_title, game_code[:3], ROMLanguage(game_code[3]), maker_code, revision)
+
+
+def _load_gb_rom(file: Path, handle: BinaryIO) -> ROM:
+    handle.seek(0x134)
+    game_title = handle.read(11).rstrip(b"\x00").decode("ascii")
+    maker_code = handle.read(4).decode("ascii")
+
+    handle.seek(0x0)
+    sha1 = hashlib.sha1()
+    sha1.update(handle.read())
+    rom_hash = sha1.hexdigest()
+    if rom_hash not in GB_ROMS:
+        raise InvalidROMError(f"{file.name}: ROM not supported. ('{game_title}')")
+
+    game_name, revision, language = GB_ROMS[rom_hash]
+    return ROM(file, f"{game_name} ({language.value})", game_title, "GBCR", language, maker_code, revision)
 
 
 def load_rom_data(file: Path) -> ROM:
@@ -177,40 +259,24 @@ def load_rom_data(file: Path) -> ROM:
     if str(file) in rom_cache:
         return rom_cache[str(file)]
 
-    # GBA cartridge headers are 0xC0 bytes long, so any files smaller than that cannot be a ROM
+    # GBA cartridge headers are 0xC0 bytes long and GB(C) headers are even longer, so any
+    # files smaller than that cannot be a ROM.
     if file.stat().st_size < 0xC0:
         raise InvalidROMError("This does not seem to be a valid ROM (file size too small.)")
 
     with open(file, "rb") as handle:
         # The byte at location 0xB2 must have value 0x96 in valid GBA ROMs
         handle.seek(0xB2)
-        magic_number = int.from_bytes(handle.read(1), byteorder="little")
-        if magic_number != 0x96:
-            raise InvalidROMError("This does not seem to be a valid ROM (magic number missing.)")
+        gba_magic_number = handle.read(1)
+        if gba_magic_number == b"\x96":
+            rom_cache[str(file)] = _load_gba_rom(file, handle)
+            return rom_cache[str(file)]
 
-        handle.seek(0x0)
-        sha1 = hashlib.sha1()
-        sha1.update(handle.read())
-        if sha1.hexdigest() not in ROM_HASHES:
-            raise InvalidROMError("ROM not supported.")
+        # GB(C) ROMs contain the Nintendo logo, which starts with 0xCEED6666
+        handle.seek(0x104)
+        gb_magic_string = handle.read(4)
+        if gb_magic_string == b"\xCE\xED\x66\x66":
+            rom_cache[str(file)] = _load_gb_rom(file, handle)
+            return rom_cache[str(file)]
 
-        handle.seek(0xA0)
-        game_title = handle.read(12).decode("ascii")
-        game_code = handle.read(4).decode("ascii")
-        maker_code = handle.read(2).decode("ascii")
-
-        handle.seek(0xBC)
-        revision = int.from_bytes(handle.read(1), byteorder="little")
-
-        game_name = game_title
-        if game_title in GAME_NAME_MAP:
-            game_name = GAME_NAME_MAP[game_title]
-
-        game_name += f" ({game_code[3]})"
-        if revision > 0:
-            game_name += f" (Rev {revision})"
-
-        rom = ROM(file, game_name, game_title, game_code[:3], ROMLanguage(game_code[3]), maker_code, revision)
-        rom_cache[str(file)] = rom
-
-        return rom
+    raise InvalidROMError(f"File `{file.name}` does not seem to be a valid ROM (magic number missing.)")

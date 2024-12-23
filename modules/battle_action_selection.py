@@ -14,7 +14,7 @@ from modules.debug import debug
 from modules.items import Item, ItemBattleUse, get_pokeblocks
 from modules.memory import read_symbol, unpack_uint32, get_game_state, GameState, get_game_state_symbol, unpack_uint16
 from modules.menuing import scroll_to_item_in_bag, scroll_to_party_menu_index
-from modules.pokemon import get_party
+from modules.pokemon_party import get_party, get_party_size
 
 
 @debug.track
@@ -85,9 +85,9 @@ def handle_battle_action_selection(strategy: BattleStrategy) -> Generator:
                 yield from battle_action_use_item(battle_state, index, target_index)
 
             case TurnAction.RotateLead:
-                if index >= len(get_party()):
+                if index >= get_party_size():
                     raise RuntimeError(
-                        f"Cannot switch in party slot #{index} because the party only has {len(get_party())} Pokémon."
+                        f"Cannot switch in party slot #{index} because the party only has {get_party_size()} Pokémon."
                     )
 
                 if index == battle_state.battling_pokemon[0].party_index or (

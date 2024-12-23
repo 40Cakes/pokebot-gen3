@@ -22,11 +22,10 @@ from modules.pokemon import (
     Species,
     get_item_by_index,
     get_species_by_index,
-    get_party_repel_level,
     Ability,
-    get_party,
     get_type_by_name,
 )
+from modules.pokemon_party import get_current_repel_level, get_party
 from modules.state_cache import state_cache
 
 if TYPE_CHECKING:
@@ -1971,6 +1970,45 @@ class EffectiveWildEncounterList:
         }
 
 
+def get_encounter_affecting_abilities() -> list[str]:
+    if context.rom.is_emerald:
+        return [
+            # Doubles encounter rate.
+            "Arena Trap",
+            "Illuminate",
+            # Increases the chance of a wild encounter holding an item from 50%/5% to 60%/20%.
+            "Compoundeyes",
+            # 2/3 chance that a wild encounter is of the opposite gender to the lead Pokémon.
+            "Cute Charm",
+            # 50% chance that a wild encounter has the maximum possible level of that encounter slot.
+            "Hustle",
+            "Pressure",
+            "Vital Spirit",
+            # 50% chance that a wild encounter with a level of 5 or lower than the lead Pokémon
+            # is rejected.
+            "Intimidate",
+            "Keen Eye",
+            # 50% chance that a Steel Pokémon is encountered, if such a Pokémon can be encountered
+            # on the current map (only for land encounters.)
+            "Magnet Pull",
+            # Halves encounter rates in areas with a sandstorm
+            "Sand Veil",
+            # 50% chance that an Electric Pokémon is encountered, if such a Pokémon can be
+            # encountered on the current map (only for land and surfing encounters.)
+            "Static",
+            # Halves encounter rates.
+            "Stench",
+            "White Smoke",
+            # Increases bite rates while fishing.
+            "Sticky Hold",
+            "Suction Cups",
+            # 50% chance that an encountered Pokémon has the same nature as the lead Pokémon.
+            "Synchronize",
+        ]
+    else:
+        return ["Stench", "Illuminate"]
+
+
 def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterList | None:
     if state_cache.effective_wild_encounters.age_in_frames == 0:
         return state_cache.effective_wild_encounters.value
@@ -1978,13 +2016,13 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
     from modules.player import get_player_avatar
 
     player = get_player_avatar()
-    if player is None:
+    if player is None or not get_party():
         return EffectiveWildEncounterList(0, 0, 0, None, [], WildEncounterList.empty(), [], [], [], [], [], [])
 
     map_group, map_number = player.map_group_and_number
 
     lead_pokemon = get_party()[0]
-    repel_level = get_party_repel_level()
+    repel_level = get_current_repel_level()
     wild_encounters = get_wild_encounters_for_map(map_group, map_number)
 
     def calculate_effective_encounters(
@@ -2069,42 +2107,7 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
             map_group, map_number, repel_level, None, [], WildEncounterList.empty(), [], [], [], [], [], []
         )
     else:
-        if context.rom.is_emerald:
-            encounter_affecting_abilities = (
-                # Doubles encounter rate.
-                "Arena Trap",
-                "Illuminate",
-                # Increases the chance of a wild encounter holding an item from 50%/5% to 60%/20%.
-                "Compound Eyes",
-                # 2/3 chance that a wild encounter is of the opposite gender to the lead Pokémon.
-                "Cute Charm",
-                # 50% chance that a wild encounter has the maximum possible level of that encounter slot.
-                "Hustle",
-                "Pressure",
-                "Vital Spirit",
-                # 50% chance that a wild encounter with a level of 5 or lower than the lead Pokémon
-                # is rejected.
-                "Intimidate",
-                "Keen Eye",
-                # 50% chance that a Steel Pokémon is encountered, if such a Pokémon can be encountered
-                # on the current map (only for land encounters.)
-                "Magnet Pull",
-                # Halves encounter rates in areas with a sandstorm
-                "Sand Veil",
-                # 50% chance that an Electric Pokémon is encountered, if such a Pokémon can be
-                # encountered on the current map (only for land and surfing encounters.)
-                "Static",
-                # Halves encounter rates.
-                "Stench",
-                "White Smoke",
-                # Increases bite rates while fishing.
-                "Sticky Hold",
-                "Suction Cups",
-                # 50% chance that an encountered Pokémon has the same nature as the lead Pokémon.
-                "Synchronize",
-            )
-        else:
-            encounter_affecting_abilities = ("Stench", "Illuminate")
+        encounter_affecting_abilities = get_encounter_affecting_abilities()
 
         encounter_affecting_items = []
         if (context.rom.is_frlg and get_event_flag("SYS_WHITE_FLUTE_ACTIVE")) or (

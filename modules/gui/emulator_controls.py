@@ -7,6 +7,7 @@ from showinfm import show_in_file_manager
 
 from modules.console import console
 from modules.context import context
+from modules.gui.debug_menu import DebugMenu
 from modules.libmgba import LibmgbaEmulator
 from modules.memory import GameState, get_game_state
 from modules.modes import get_bot_modes
@@ -30,6 +31,11 @@ class EmulatorControls:
         self.bot_message: ttk.Label
         self.stats_label: ttk.Label
 
+        self.emulator_menu: Menu | None = None
+        self.profile_menu: Menu | None = None
+        self.help_menu: Menu | None = None
+        self.debug_menu: Menu | None = None
+
     def get_additional_width(self) -> int:
         return 0
 
@@ -41,33 +47,42 @@ class EmulatorControls:
 
         self.menu_bar = Menu(self.window)
 
-        emulator_menu = Menu(self.window, tearoff=0)
-        emulator_menu.add_command(label="Load Save State", command=lambda: LoadStateWindow(self.window))
-        emulator_menu.add_command(label="New Save State", command=lambda: context.emulator.create_save_state("Manual"))
-        emulator_menu.add_command(label="Take Screenshot", command=lambda: context.emulator.take_screenshot("manual"))
-        emulator_menu.add_separator()
-        emulator_menu.add_command(label="Reset", command=context.emulator.reset)
+        self.emulator_menu = Menu(self.window, tearoff=0)
+        self.emulator_menu.add_command(label="Load Save State", command=lambda: LoadStateWindow(self.window))
+        self.emulator_menu.add_command(
+            label="New Save State", command=lambda: context.emulator.create_save_state("Manual")
+        )
+        self.emulator_menu.add_command(
+            label="Take Screenshot", command=lambda: context.emulator.take_screenshot("manual")
+        )
+        self.emulator_menu.add_separator()
+        self.emulator_menu.add_command(label="Reset", command=context.emulator.reset)
 
-        profile_menu = Menu(self.window, tearoff=0)
-        profile_menu.add_command(
+        self.profile_menu = Menu(self.window, tearoff=0)
+        self.profile_menu.add_command(
             label="Open Profile Folder", command=lambda: show_in_file_manager(str(context.profile.path))
         )
 
-        help_menu = Menu(self.window, tearoff=0)
-        help_menu.add_command(
+        self.help_menu = Menu(self.window, tearoff=0)
+        self.help_menu.add_command(
             label=f"{pokebot_name} Wiki",
             command=lambda: webbrowser.open_new_tab("https://github.com/40Cakes/pokebot-gen3/tree/main/wiki"),
         )
-        help_menu.add_command(
+        self.help_menu.add_command(
             label="Discord #pokebot-gen3-support",
             command=lambda: webbrowser.open_new_tab(
                 "https://discord.com/channels/1057088810950860850/1139190426834833528"
             ),
         )
 
-        self.menu_bar.add_cascade(label="Emulator", menu=emulator_menu)
-        self.menu_bar.add_cascade(label="Profile", menu=profile_menu)
-        self.menu_bar.add_cascade(label="Help", menu=help_menu)
+        self.menu_bar.add_cascade(label="Emulator", menu=self.emulator_menu)
+        self.menu_bar.add_cascade(label="Profile", menu=self.profile_menu)
+        self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
+
+        if context.debug:
+            self.debug_menu = DebugMenu(self.window)
+            self.menu_bar.add_cascade(label="Debug", menu=self.debug_menu)
+
         self.window.config(menu=self.menu_bar)
 
         self.frame = ttk.Frame(self.window, padding=5)

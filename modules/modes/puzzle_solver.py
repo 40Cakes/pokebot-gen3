@@ -144,6 +144,7 @@ class PuzzleSolverMode(BotMode):
 
                 def path():
                     yield from navigate_to(MapRSE.DESERT_RUINS, (8, 21))
+                    yield from ensure_facing_direction("Up")
                     context.emulator.press_button("A")
                     yield from wait_for_n_frames(5)
                     context.emulator.press_button("B")
@@ -187,6 +188,7 @@ class PuzzleSolverMode(BotMode):
 
                 def path():
                     yield from navigate_to(MapRSE.ISLAND_CAVE, (8, 21))
+                    yield from ensure_facing_direction("Up")
                     context.emulator.press_button("A")
                     yield from wait_for_n_frames(5)
                     context.emulator.press_button("B")
@@ -234,8 +236,9 @@ class PuzzleSolverMode(BotMode):
 
                 def path():
                     yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 21))
+                    yield from ensure_facing_direction("Up")
                     context.emulator.press_button("A")
-                    yield from wait_for_n_frames(5)
+                    yield from wait_for_n_frames(10)
                     context.emulator.press_button("B")
                     if context.rom.is_emerald:
                         assert_has_pokemon_with_any_move(
@@ -255,7 +258,7 @@ class PuzzleSolverMode(BotMode):
 
                     if context.rom.is_rs:
                         assert_has_pokemon_with_any_move(
-                            ["Fly"], "Regirock Puzzle (Ruby/Sapphire) requires Pokémon with Fly."
+                            ["Fly"], "Registeel Puzzle (Ruby/Sapphire) requires Pokémon with Fly."
                         )
                         yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 25))
                         yield from use_party_hm_move("Fly")

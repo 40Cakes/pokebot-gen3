@@ -9,13 +9,11 @@ from typing import Literal
 
 import numpy
 
-from modules.context import context
 from modules.game import decode_string
 from modules.items import Item, get_item_by_index, get_item_by_move_id, get_item_by_name
-from modules.memory import pack_uint32, read_symbol, unpack_uint16, unpack_uint32, get_event_var
+from modules.memory import pack_uint32, read_symbol, unpack_uint16, unpack_uint32
 from modules.roms import ROMLanguage
 from modules.runtime import get_data_path
-from modules.state_cache import state_cache
 
 DATA_DIRECTORY = Path(__file__).parent / "data"
 
@@ -282,6 +280,7 @@ LOCATION_MAP = [
     "Altering Cave",
     "Navel Rock",
     "Trainer Hill",
+    *["?" for n in range(40)],
     "Gift Egg",
     "In-game Trade",
     "Fateful Encounter",
@@ -390,7 +389,10 @@ class LearnedMove:
     move: Move
     total_pp: int
     pp: int
-    added_pps: int
+    pp_ups: int
+
+    def added_pps(self) -> int:
+        return self.total_pp - self.move.pp
 
     def __str__(self):
         return f"{self.move.name} ({self.pp} / {self.total_pp})"
@@ -442,7 +444,7 @@ class StatsValues:
             # Shedinja always has 1 HP
             hp = 1
         else:
-            hp = ((2 * species.base_stats.hp + ivs.hp + (evs.hp // 4)) * level) / 100 + 5 + level
+            hp = ((2 * species.base_stats.hp + ivs.hp + (evs.hp // 4)) * level) // 100 + 10 + level
 
         stats = {
             i: (((2 * species.base_stats[i] + ivs[i] + (evs[i] // 4)) * level) // 100 + 5) * nature.modifiers[i]
@@ -504,6 +506,28 @@ class Nature:
 
     def __str__(self):
         return self.name
+
+    @property
+    def name_with_modifiers(self) -> str:
+        increased_stat = None
+        decreased_stat = None
+        for stat in self.modifiers:
+            if self.modifiers[stat] > 1:
+                increased_stat = stat
+            elif self.modifiers[stat] < 1:
+                decreased_stat = stat
+
+        if increased_stat is None or decreased_stat is None or increased_stat == decreased_stat:
+            return f"{self.name} (neutral)"
+
+        stat_name_map = {
+            "attack": "Atk",
+            "defence": "Def",
+            "speed": "Speed",
+            "special_attack": "SpAtk",
+            "special_defence": "SpDef",
+        }
+        return f"{self.name} (+{stat_name_map[increased_stat]}, -{stat_name_map[decreased_stat]})"
 
     @classmethod
     def from_dict(cls, index: int, data: dict) -> "Nature":
@@ -665,6 +689,7 @@ class Species:
     base_experience_yield: int
     ev_yield: StatsValues
     learnset: SpeciesMoveLearnset
+    localised_names: dict[str, str]
 
     def has_type(self, type_to_find: Type) -> bool:
         return any(t.index == type_to_find.index for t in self.types)
@@ -706,6 +731,7 @@ class Species:
             base_experience_yield=data["base_experience_yield"],
             ev_yield=StatsValues.from_dict(data["ev_yield"]),
             learnset=SpeciesMoveLearnset.from_dict(data["learnset"]),
+            localised_names=data["localised_names"],
         )
 
 
@@ -766,6 +792,23 @@ class StatusCondition(Enum):
             condition = StatusCondition.Sleep
         return condition
 
+    def to_bitfield(self) -> int:
+        match self:
+            case StatusCondition.Healthy:
+                return 0
+            case StatusCondition.Sleep:
+                return 0b0000_0111
+            case StatusCondition.Poison:
+                return 0b0000_1000
+            case StatusCondition.Burn:
+                return 0b0001_0000
+            case StatusCondition.Freeze:
+                return 0b0010_0000
+            case StatusCondition.Paralysis:
+                return 0b0100_0000
+            case StatusCondition.BadPoison:
+                return 0b1000_0000
+
 
 @dataclass
 class PokerusStatus:
@@ -825,6 +868,10 @@ class Pokemon:
             [numpy.frombuffer(self.data, count=3, offset=32 + (order[i] * 12), dtype=u32le) ^ key for i in range(4)]
         )
         return self.data[:32] + decrypted.tobytes() + self.data[80:100]
+
+    @property
+    def _foo_data(self) -> str:
+        return self._decrypted_data[32:80].hex(" ", 12)
 
     @property
     def _character_set(self) -> Literal["international", "japanese"]:
@@ -941,17 +988,21 @@ class Pokemon:
         pp_bonuses = (self._decrypted_data[40] >> (2 * index)) & 0b11
         total_pp = move.pp + ((move.pp * 20 * pp_bonuses) // 100)
         pp = self._decrypted_data[52 + index]
-        return LearnedMove(move=move, total_pp=total_pp, pp=pp, added_pps=total_pp - move.pp)
+        return LearnedMove(move=move, total_pp=total_pp, pp=pp, pp_ups=pp_bonuses)
 
     @property
     def moves(self) -> tuple[LearnedMove | None, LearnedMove | None, LearnedMove | None, LearnedMove | None]:
         return self.move(0), self.move(1), self.move(2), self.move(3)
 
-    def knows_move(self, move: str | Move):
+    def knows_move(self, move: str | Move, with_pp_remaining: bool = False):
         if isinstance(move, Move):
             move = move.name
         for learned_move in self.moves:
-            if learned_move is not None and learned_move.move.name == move:
+            if (
+                learned_move is not None
+                and learned_move.move.name == move
+                and (not with_pp_remaining or learned_move.pp > 0)
+            ):
                 return True
         return False
 
@@ -1372,94 +1423,12 @@ def get_species_by_national_dex(national_dex_number: int) -> Species:
     return _species_by_national_dex[national_dex_number]
 
 
-def get_eggs_in_party() -> int:
-    return sum(bool(pokemon.is_egg) for pokemon in get_party())
-
-
-def get_party() -> list[Pokemon]:
-    """
-    Checks how many Pokémon are in the trainer's party, decodes and returns them all.
-
-    :return: party (list)
-    """
-    if state_cache.party.age_in_frames == 0:
-        return state_cache.party.value
-
-    party = []
-    party_count = read_symbol("gPlayerPartyCount", size=1)[0]
-    for p in range(party_count):
-        o = p * 100
-        mon = parse_pokemon(read_symbol("gPlayerParty", o, 100))
-
-        # It's possible for party data to be written while we are trying to read it, in which case
-        # the checksum would be wrong and `parse_pokemon()` returns `None`.
-        #
-        # In order to still get a valid result, we will 'peek' into next frame's memory by
-        # (1) advancing the emulation by one frame, (2) reading the memory, (3) restoring the previous
-        # frame's state, so we don't mess with frame accuracy.
-        if mon is None:
-            retries = 5
-            with context.emulator.peek_frame():
-                while retries > 0 and mon is None:
-                    retries -= 1
-                    mon = parse_pokemon(read_symbol("gPlayerParty", o, 100))
-                    if mon is None:
-                        context.emulator._core.run_frame()
-        if mon is None:
-            if read_symbol("gPlayerParty", o, 100).count(b"\x00") >= 99:
-                continue
-            else:
-                raise RuntimeError(f"Party Pokémon #{p + 1} was invalid for two frames in a row.")
-
-        party.append(mon)
-
-    state_cache.party = party
-
-    return party
-
-
-def get_party_repel_level() -> int:
-    """
-    :return: The minimum level that wild encounters can have, given the current Repel
-             state and the level of the first non-fainted Pokémon.
-    """
-    if get_event_var("REPEL_STEP_COUNT") > 0:
-        for pokemon in get_party():
-            if pokemon.is_valid and not pokemon.is_egg and pokemon.current_hp > 0:
-                return pokemon.level
-
-    return 0
-
-
-def get_opponent_party() -> list[Pokemon] | None:
-    """
-    Gets the opponent's party (obviously only makes sense to check when in a battle.)
-    :return: The full party of the opponent, or None if there is no valid opponent at the moment.
-    """
-    if state_cache.opponent.age_in_frames == 0:
-        return state_cache.opponent.value
-
-    data = read_symbol("gEnemyParty")
-    result = []
-    for index in range(6):
-        offset = index * 100
-        pokemon = parse_pokemon(data[offset : offset + 100])
-        if pokemon is None:
-            if index == 0:
-                return None
-            else:
-                continue
-        result.append(pokemon)
-
-    state_cache.opponent = result
-
-    return result
-
-
 def get_opponent() -> Pokemon | None:
     """
     :return: The first Pokémon of the opponent's party, or None if there is no active opponent.
     """
+    from modules.pokemon_party import get_opponent_party
+
     opponent_party = get_opponent_party()
     if opponent_party is None:
         return None

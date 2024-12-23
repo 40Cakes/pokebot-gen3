@@ -8,9 +8,10 @@ from modules.debug import debug
 from modules.encounter import handle_encounter, EncounterInfo
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.items import get_item_bag, get_item_by_name
-from modules.map_data import MapRSE
+from modules.map_data import MapRSE, is_safari_map
+from modules.safari_strategy import get_safari_balls_left
 from modules.map_path import calculate_path
-from modules.memory import get_event_flag, get_event_var
+from modules.memory import get_event_flag, get_event_var, read_symbol, unpack_uint16
 from modules.player import TileTransitionState, get_player, get_player_avatar, AvatarFlags, get_player_location
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
@@ -22,6 +23,7 @@ from ._asserts import (
     assert_save_game_exists,
     assert_saved_on_map,
     assert_player_has_poke_balls,
+    assert_item_exists_in_bag,
 )
 from ._interface import BotMode, BotModeError
 from .util import (
@@ -39,6 +41,7 @@ from .util import (
     wait_until_task_is_not_active,
     walk_one_tile,
 )
+from ..menuing import StartMenuNavigator
 
 
 class RockSmashMode(BotMode):
@@ -48,16 +51,23 @@ class RockSmashMode(BotMode):
 
     @staticmethod
     def is_selectable() -> bool:
-        if not context.rom.is_rse:
+        if context.rom.is_frlg:
             return False
 
-        return get_player_avatar().map_group_and_number in (
+        player_map = get_player_avatar().map_group_and_number
+
+        if context.rom.is_rs:
+            return player_map == MapRSE.GRANITE_CAVE_B2F
+
+        allowed_maps = {
             MapRSE.GRANITE_CAVE_B2F,
             MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE,
             MapRSE.SAFARI_ZONE_SOUTH,
             MapRSE.SAFARI_ZONE_NORTHEAST,
             MapRSE.SAFARI_ZONE_SOUTHEAST,
-        )
+        }
+
+        return player_map in allowed_maps
 
     def __init__(self):
         super().__init__()
@@ -122,8 +132,19 @@ class RockSmashMode(BotMode):
                 SavedMapLocation(MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE),
                 "In order to rock smash for Shuckle you should save in the entrance building to the Safari Zone.",
             )
+            assert_item_exists_in_bag(
+                "Pokéblock Case", error_message="You need to own the Pokéblock Case in order to enter the Safari Zone."
+            )
+            assert_item_exists_in_bag(
+                "Pokéblock Case",
+                error_message="You need to own the Pokéblock Case in order to enter the Safari Zone.",
+                check_in_saved_game=True,
+            )
 
-        assert_player_has_poke_balls()
+        # TODO: Remove and use the assert_player_has_poke_balls when RSE safari auto catch is implemented
+        # Shuckle catch rate is 35%. So 10 balls should be enough to catch it
+        if is_safari_map() and get_safari_balls_left() < 10:
+            raise BotModeError("Cannot rock smash with less than 10 safari balls")
 
         if get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F and get_item_bag().number_of_repels > 0:
             mode = ask_for_choice(
@@ -202,12 +223,21 @@ class RockSmashMode(BotMode):
                             yield
                         yield from wait_for_player_avatar_to_be_standing_still()
 
+                    self._in_safari_zone = True
                     if self._using_mach_bike:
-                        yield from self.mount_bicycle()
-                        yield from navigate_to(MapRSE.SAFARI_ZONE_NORTHEAST, (15, 7))
+                        self._in_safari_zone = True
+                        for _ in navigate_to(MapRSE.SAFARI_ZONE_NORTHEAST, (15, 7)):
+                            if self._in_safari_zone:
+                                yield
+                            else:
+                                break
                         yield from self.unmount_bicycle()
                     else:
-                        yield from navigate_to(MapRSE.SAFARI_ZONE_NORTHEAST, (12, 7))
+                        for _ in navigate_to(MapRSE.SAFARI_ZONE_NORTHEAST, (12, 7)):
+                            if self._in_safari_zone:
+                                yield
+                            else:
+                                break
 
     @staticmethod
     @debug.track
@@ -388,6 +418,19 @@ class RockSmashMode(BotMode):
         yield from follow_path([(8, 12)])
         yield from ensure_facing_direction("Down")
         yield from self.smash("TEMP_13")
+
+        # This mode is only available on Emerald anyway. I'm still leaving the symbol name for R/S
+        # and FR/LG in here though, in case someone wants to copy/paste this at some point.
+        steps_remaining_symbol = "sSafariZoneStepCounter" if context.rom.is_emerald else "gSafariZoneStepCounter"
+        steps_remaining = unpack_uint16(read_symbol(steps_remaining_symbol))
+        if steps_remaining < 161:
+            yield from StartMenuNavigator("RETIRE").step()
+            yield from wait_for_script_to_start_and_finish(
+                "Route121_SafariZoneEntrance_EventScript_ExitSafariZone", "A"
+            )
+            yield from wait_for_player_avatar_to_be_standing_still()
+            self._in_safari_zone = False
+            return
 
         if self._using_mach_bike:
             yield from self.mount_bicycle()

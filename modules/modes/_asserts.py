@@ -4,13 +4,12 @@ from modules.context import context
 from modules.items import get_item_bag, get_item_by_name
 from modules.map import ObjectEvent, calculate_targeted_coords
 from modules.map_data import MapRSE, MapFRLG, is_safari_map
-from modules.safari_strategy import get_safari_balls_left
-from modules.battle_state import BattleOutcome
 from modules.player import get_player
-from modules.pokemon import Pokemon, get_party
+from modules.pokemon import Pokemon
+from modules.pokemon_party import get_party, get_party_size
+from modules.safari_strategy import get_safari_balls_left
 from modules.save_data import get_save_data
 from ._interface import BotModeError
-
 
 _error_message_addendum_if_assert_only_failed_in_saved_game = (
     " (This is only the case in the saved game. Perhaps you just need to save again?)"
@@ -98,7 +97,9 @@ def assert_registered_item(
         raise BotModeError(error_message)
 
 
-def assert_has_pokemon_with_any_move(moves: list[str], error_message: str, check_in_saved_game: bool = False) -> None:
+def assert_has_pokemon_with_any_move(
+    moves: list[str], error_message: str, check_in_saved_game: bool = False, with_pp_remaining: bool = False
+) -> None:
     """
     Raises an exception if the player has no Pokémon that knows any of the given move in their
     party.
@@ -106,13 +107,13 @@ def assert_has_pokemon_with_any_move(moves: list[str], error_message: str, check
     :param error_message: Error message to display if the assertion fails.
     :param check_in_saved_game: Whether to get the party in the saved game, rather than th
                                 currently active one.
+    :param with_pp_remaining: Also make sure that the Pokémon has at least 1 PP remaining, i.e.
+                              can actually use it in battle.
     """
     party = get_party() if not check_in_saved_game else get_save_data().get_party()
-    for pokemon in party:
-        if not pokemon.is_egg and not pokemon.is_empty:
-            for learned_move in pokemon.moves:
-                if learned_move is not None and learned_move.move.name in moves:
-                    return
+    for move in moves:
+        if party.has_pokemon_with_move(move, with_pp_remaining):
+            return
 
     if check_in_saved_game:
         # If the check has failed for the saved game, run it again for the active game -- if that fails
@@ -160,7 +161,7 @@ def assert_empty_slot_in_party(error_message: str, check_in_saved_game: bool = F
     """
     party = get_party() if not check_in_saved_game else get_save_data().get_party()
     if len(party) >= 6:
-        if check_in_saved_game and len(get_party()) < 6:
+        if check_in_saved_game and get_party_size() < 6:
             error_message += _error_message_addendum_if_assert_only_failed_in_saved_game
         raise BotModeError(error_message)
 
@@ -171,22 +172,32 @@ def assert_player_has_poke_balls() -> None:
     or if safari ball threshold is reached.
     """
     if is_safari_map():
-        if context.rom.is_frlg and get_safari_balls_left() <= 15:
+        # TODO : Remove rom check when RSE safari auto catch is implemented
+        if context.rom.is_frlg and get_safari_balls_left() < 15:
             raise BotModeError("You have less than 15 balls left, switching to manual mode...")
     else:
         if get_item_bag().number_of_balls_except_master_ball == 0:
             raise BotModeError("Out of Pokéballs! Better grab more before the next shiny slips away...")
 
 
-def assert_pokemon_can_fight(pokemon: Pokemon) -> None:
+def pokemon_has_usable_damaging_move(pokemon: Pokemon) -> bool:
     """
-    Ensures the given Pokémon has at least one usable attacking move. Raises a BotModeError
-    if the Pokémon lacks any attack-capable moves, indicating it cannot kill an opponent.
+    Checks if the given Pokémon has at least one usable attacking move.
+    Returns True if a usable move is found; otherwise, False.
     """
-    has_usable_move = any(
+    return any(
         move is not None and move.move.base_power > 0 and move.move.name not in context.config.battle.banned_moves
         for move in pokemon.moves
     )
 
-    if not has_usable_move:
-        raise BotModeError("Lead Pokémon has no usable moves!")
+
+def assert_party_has_damaging_move(error_message: str, check_in_saved_game: bool = False) -> None:
+    """
+    Ensures the party has at least one Pokémon with a usable attacking move.
+    Raises a BotModeError if no Pokémon has any attack-capable moves.
+    """
+    party = get_party() if not check_in_saved_game else get_save_data().get_party()
+    if any(pokemon_has_usable_damaging_move(pokemon) and not pokemon.is_egg for pokemon in party):
+        return
+
+    raise BotModeError(error_message)

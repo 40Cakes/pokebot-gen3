@@ -14,26 +14,30 @@ from modules.game import (
 from modules.state_cache import state_cache
 
 
-def unpack_sint8(bytes: bytes | int) -> int:
-    if isinstance(bytes, int):
-        bytes = bytearray([bytes])
-    return struct.unpack("b", bytes)[0]
+def unpack_sint8(value: bytes | int) -> int:
+    if isinstance(value, int):
+        value = bytearray([value])
+    return struct.unpack("b", value)[0]
 
 
-def unpack_uint16(bytes: bytes) -> int:
-    return struct.unpack("<H", bytes)[0]
+def unpack_uint16(value: bytes) -> int:
+    return struct.unpack("<H", value)[0]
 
 
-def unpack_uint32(bytes: bytes) -> int:
-    return struct.unpack("<I", bytes)[0]
+def unpack_uint32(value: bytes) -> int:
+    return struct.unpack("<I", value)[0]
 
 
-def pack_uint16(int: int) -> bytes:
-    return struct.pack("<H", int)
+def pack_uint8(value: int) -> bytes:
+    return struct.pack("B", value)
 
 
-def pack_uint32(int: int) -> bytes:
-    return struct.pack("<I", int)
+def pack_uint16(value: int) -> bytes:
+    return struct.pack("<H", value)
+
+
+def pack_uint32(value: int) -> bytes:
+    return struct.pack("<I", value)
 
 
 def read_symbol(name: str, offset: int = 0x0, size: int = 0x0) -> bytes:
@@ -167,6 +171,50 @@ def write_to_save_block(data: bytes, num: int = 1, offset: int = 0) -> bool:
         if save_block_pointer == 0:
             return False
         return context.emulator.write_bytes(save_block_pointer + offset, data)
+
+
+def get_encryption_key() -> int:
+    """
+    On Emerald and FR/LG, certain values in memory are 'encrypted' by XORing
+    them with a key that is also stored in a save block.
+    :return: The encryption key
+    """
+    if context.rom.is_frlg:
+        return unpack_uint32(get_save_block(2, offset=0xF20, size=4))
+    elif context.rom.is_emerald:
+        return unpack_uint32(get_save_block(2, offset=0xAC, size=4))
+    else:
+        # R/S does not 'encrypt' save data yet, so the key is effectively `0`.
+        # Since the encryption is just XOR, this makes it ia no-op.
+        return 0
+
+
+def decrypt16(value: int, encryption_key: int | None = None) -> int:
+    """
+    Decrypts (or encrypts, same thing) a 16-bit value using the encryption key
+    of the active game.
+    :param value: The value to encrypt/decrypt.
+    :param encryption_key: An optional encryption key to use. If not provided,
+                           the one from the active game will be used.
+    :return: The encrypted/decrypted value.
+    """
+    if encryption_key is None:
+        encryption_key = get_encryption_key()
+    return value ^ (encryption_key & 0xFFFF)
+
+
+def decrypt32(value: int, encryption_key: int | None = None) -> int:
+    """
+    Decrypts (or encrypts, same thing) a 32-bit value using the encryption key
+    of the active game.
+    :param value: The value to encrypt/decrypt.
+    :param encryption_key: An optional encryption key to use. If not provided,
+                           the one from the active game will be used.
+    :return: The encrypted/decrypted value.
+    """
+    if encryption_key is None:
+        encryption_key = get_encryption_key()
+    return value ^ encryption_key
 
 
 class GameState(IntEnum):

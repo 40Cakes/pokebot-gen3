@@ -5,7 +5,7 @@ from modules.encounter import handle_encounter, EncounterInfo
 from modules.map_data import MapRSE
 from modules.memory import get_event_flag
 from modules.player import get_player_avatar
-from modules.pokemon import get_party
+from modules.pokemon_party import get_party_size
 from modules.save_data import get_last_heal_location
 from . import BattleAction
 from ._asserts import assert_has_pokemon_with_any_move, assert_player_has_poke_balls
@@ -43,7 +43,9 @@ class KecleonMode(BotMode):
     def run(self) -> Generator:
         assert_player_has_poke_balls()
         assert_has_pokemon_with_any_move(
-            ["Selfdestruct", "Explosion"], "This mode requires a Pokémon with the move Selfdestruct."
+            ["Selfdestruct", "Explosion"],
+            error_message="This mode requires a Pokémon with the move Selfdestruct.",
+            with_pp_remaining=True,
         )
         if not (get_event_flag("RECEIVED_DEVON_SCOPE")):
             raise BotModeError("This mode requires the Devon Scope.")
@@ -51,7 +53,7 @@ class KecleonMode(BotMode):
             raise BotModeError("This Kecleon has already been encountered.")
         if get_last_heal_location() != MapRSE.FORTREE_CITY:
             raise BotModeError("This mode requires the last heal location to be Fortree City.")
-        if len(get_party()) > 1:
+        if get_party_size() > 1:
             raise BotModeError("This mode requires only one Pokémon in the party.")
 
         while context.bot_mode != "Manual":

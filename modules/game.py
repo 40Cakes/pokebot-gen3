@@ -31,8 +31,7 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
                 label = label.strip()
 
                 _symbols[label.upper()] = (address, length)
-                if address not in _reverse_symbols or (_reverse_symbols[address][2] == 0 and length > 0):
-                    _reverse_symbols[address] = (label.upper(), label, length)
+                _reverse_symbols[address] = (label.upper(), label, length)
 
     language_code = str(language)
     language_patch_file = symbols_file.replace(".sym", ".yml")
@@ -51,15 +50,23 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
                         addresses_list = [addresses_list]
 
                     if label.upper() in _symbols:
-                        _reverse_symbols.pop(_symbols[label.upper()][0], None)
+                        existing_address = _symbols[label.upper()][0]
+                        if (
+                            existing_address in _reverse_symbols
+                            and _reverse_symbols[existing_address][0] == label.upper()
+                        ):
+                            _reverse_symbols.pop(existing_address, None)
 
                     for addr in addresses_list:
                         if addr is not None:
-                            _symbols[label.upper()] = (addr, _symbols[label.upper()][1])
+                            _symbols[label.upper()] = (
+                                addr,
+                                _symbols[label.upper()][1] if label.upper() in _symbols else 0,
+                            )
                             _reverse_symbols[addr] = (
                                 label.upper(),
                                 label,
-                                _symbols[label.upper()][1],
+                                _symbols[label.upper()][1] if label.upper() in _symbols else 0,
                             )
 
 
@@ -158,39 +165,21 @@ def set_rom(rom: ROM) -> None:
 
     match rom.game_code:
         case "AXV":
-            match rom.revision:
-                case 0:
-                    match rom.language:
-                        case "D":
-                            _load_symbols("pokeruby_de.sym", rom.language)
-                        case _:
-                            _load_symbols("pokeruby.sym", rom.language)
-                case 1:
-                    match rom.language:
-                        case "D":
-                            _load_symbols("pokeruby_de_rev1.sym", rom.language)
-                        case _:
-                            _load_symbols("pokeruby_rev1.sym", rom.language)
-                case 2:
-                    _load_symbols("pokeruby_rev2.sym", rom.language)
+            if rom.language is ROMLanguage.Japanese or (rom.language is ROMLanguage.English and rom.revision == 0):
+                _load_symbols("pokeruby.sym", rom.language)
+            elif rom.language is ROMLanguage.German:
+                _load_symbols("pokeruby_de.sym", rom.language)
+            else:
+                _load_symbols("pokeruby_rev1.sym", rom.language)
             _load_event_flags_and_vars("rs.txt")
 
         case "AXP":
-            match rom.revision:
-                case 0:
-                    match rom.language:
-                        case "D":
-                            _load_symbols("pokesapphire_de.sym", rom.language)
-                        case _:
-                            _load_symbols("pokesapphire.sym", rom.language)
-                case 1:
-                    match rom.language:
-                        case "D":
-                            _load_symbols("pokesapphire_de_rev1.sym", rom.language)
-                        case _:
-                            _load_symbols("pokesapphire_rev1.sym", rom.language)
-                case 2:
-                    _load_symbols("pokesapphire_rev2.sym", rom.language)
+            if rom.language is ROMLanguage.Japanese or (rom.language is ROMLanguage.English and rom.revision == 0):
+                _load_symbols("pokesapphire.sym", rom.language)
+            elif rom.language is ROMLanguage.German:
+                _load_symbols("pokesapphire_de.sym", rom.language)
+            else:
+                _load_symbols("pokesapphire_rev1.sym", rom.language)
             _load_event_flags_and_vars("rs.txt")
 
         case "BPE":
@@ -358,12 +347,28 @@ def decode_string(
     return string
 
 
-def encode_string(string: str) -> bytes:
+def encode_string(
+    string: str,
+    character_set: Literal["international", "japanese", "rom_default"] = "rom_default",
+    ignore_errors: bool = False,
+) -> bytes:
+    if character_set == "rom_default":
+        character_table = _current_character_table
+    elif character_set == "international":
+        character_table = _character_table_international
+    elif character_set == "japanese":
+        character_table = _character_table_japanese
+    else:
+        raise RuntimeError(f"Invalid value for character set: '{character_set}'.")
+
     result = b""
     for index in range(len(string)):
         character = string[index]
-        if character not in _character_table_international:
-            raise ValueError(f"Cannot encode '{character}'.")
-        code = _character_table_international.index(character)
+        if character not in character_table:
+            if not ignore_errors:
+                raise ValueError(f"Cannot encode '{character}'.")
+            else:
+                continue
+        code = character_table.index(character)
         result += int.to_bytes(code)
     return result

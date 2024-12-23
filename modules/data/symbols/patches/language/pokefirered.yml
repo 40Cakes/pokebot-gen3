@@ -120,12 +120,6 @@ CB2_RETURNTOFIELD:
   I: 0x80567e8
   J: 0x805609c
   S: 0x80568d0
-CB2_RETURNTOFIELDCONTINUESCRIPTPLAYMAPMUSIC:
-  D: 0x8056800
-  F: 0x80569c0
-  I: 0x80568ec
-  J: 0x80561a0
-  S: 0x80569d4
 gMain:
   D: 0x3003040
   F: 0x3003040
@@ -256,6 +250,12 @@ BattleScript_ForgotAndLearnedNewMove:
   I: 0x81d5eb2
   J: 0x81bca04
   S: 0x81d857a
+HandleEndTurn_FinishBattle:
+  D: 0x8015894
+  F: 0x8015880
+  I: 0x8015894
+  J: 0x8015128
+  S: 0x8015894
 sMoveSelectionCursorPos:
   J: 0x203b0e1
 gMoveSelectionCursor:
@@ -299,6 +299,8 @@ sTextPrinters:
   J: 0x2020030
 gNumSafariBalls:
   J: 0x203990c
+gSafariZoneStepCounter:
+  J: 0x203990e
 #--------------------#
 
 #----------------#
@@ -703,3 +705,9 @@ CB2_CONTINUESAVEDGAME:
   I: 0x8056944
   J: 0x80561f8
   S: 0x8056a2c
+CB2_RETURNTOFIELDCONTINUESCRIPTPLAYMAPMUSIC:
+  D: 0x8056800
+  F: 0x80569c0
+  I: 0x80568ec
+  J: 0x80561a0
+  S: 0x80569d4

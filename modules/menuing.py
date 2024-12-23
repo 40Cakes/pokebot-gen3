@@ -17,7 +17,8 @@ from modules.menu_parsers import (
 )
 from modules.modes._asserts import assert_has_pokemon_with_any_move
 from modules.modes._interface import BotModeError
-from modules.pokemon import get_move_by_name, get_party
+from modules.pokemon import get_move_by_name
+from modules.pokemon_party import get_party, get_party_size
 from modules.tasks import get_task, task_is_active
 
 
@@ -106,9 +107,9 @@ def scroll_to_item_in_bag(item: Item) -> Generator:
 
 
 def scroll_to_party_menu_index(target_index: int) -> Generator:
-    if len(get_party()) <= target_index:
+    if get_party_size() <= target_index:
         raise RuntimeError(
-            f"Cannot scroll to party index #{target_index} because the party only contains {len(get_party())} Pokémon."
+            f"Cannot scroll to party index #{target_index} because the party only contains {get_party_size()} Pokémon."
         )
 
     # Wait for fade-in to finish (happens when the bag is opened, during which time inputs
@@ -134,7 +135,7 @@ def scroll_to_party_menu_index(target_index: int) -> Generator:
 
 def get_current_party_menu_index():
     if context.rom.is_rs:
-        cursor = context.emulator.read_bytes(0x0202002F + len(get_party()) * 136 + 3, length=1)[0]
+        cursor = context.emulator.read_bytes(0x0202002F + get_party_size() * 136 + 3, length=1)[0]
     else:
         party_menu = read_symbol("gPartyMenu")
         cursor = party_menu[9]
@@ -826,6 +827,7 @@ def should_check_for_pickup():
         for pokemon in get_party():
             if (
                 pokemon.ability.name == "Pickup"
+                and not pokemon.is_egg
                 and pokemon.held_item is not None
                 and pokemon.held_item.name in items_available_for_pickup
             ):
@@ -897,13 +899,10 @@ def use_party_hm_move(move_name: str):
     yield from StartMenuNavigator("POKEMON").step()
 
     # find Pokémon with desired HM move
-    move_pokemon = None
     move_wanted = get_move_by_name(move_name)
-    for index in range(len(get_party())):
-        for learned_move in get_party()[index].moves:
-            if learned_move is not None and learned_move.move == move_wanted:
-                move_pokemon = index
-                break
+    move_pokemon = get_party().first_pokemon_with_move(move_wanted)
+    if move_pokemon is None:
+        raise RuntimeError(f"Could not find a Pokémon that knows {move_wanted.name}.")
 
     cursor = None
     if context.rom.is_emerald:
@@ -915,21 +914,21 @@ def use_party_hm_move(move_name: str):
 
     match move_name_upper:
         case "CUT":
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.CUT).step()
+            yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.CUT).step()
         case "FLY":
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.FLY).step()
+            yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.FLY).step()
         case "SURF":
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.SURF).step()
+            yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.SURF).step()
         case "STRENGTH":
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.STRENGTH).step()
+            yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.STRENGTH).step()
         case "FLASH":
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.FLASH).step()
+            yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.FLASH).step()
         case "ROCK SMASH":
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.ROCK_SMASH).step()
+            yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.ROCK_SMASH).step()
         case "WATERFALL":
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.WATERFALL).step()
+            yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.WATERFALL).step()
         case "DIVE":
-            yield from PokemonPartyMenuNavigator(move_pokemon, "", cursor.DIVE).step()
+            yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.DIVE).step()
         case _:
             raise BotModeError("Invalid HM move name.")
     return

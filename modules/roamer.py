@@ -2,6 +2,7 @@ from typing import Literal
 
 from modules.context import context
 from modules.map import get_map_data
+from modules.map_data import MapRSE, MapFRLG
 from modules.memory import get_save_block, read_symbol, unpack_uint16, unpack_uint32
 from modules.pokemon import (
     ContestConditions,
@@ -166,10 +167,14 @@ def get_roamer() -> Roamer | None:
         return None
 
 
-def get_roamer_location_history() -> list[str]:
+def get_roamer_location_history() -> list[MapRSE | MapFRLG]:
     data = read_symbol("sLocationHistory")
-    return [
-        get_map_data((data[index * 2], data[index * 2 + 1]), (0, 0)).map_name
-        for index in range(3)
-        if data[index * 2] != 0 or data[index * 2 + 1] != 0
-    ]
+    history = []
+    for index in range(3):
+        if data[index * 2] != 0 or data[index * 2 + 1] != 0:
+            map_group_and_number = data[index * 2], data[index * 2 + 1]
+            if context.rom.is_rse:
+                history.append(MapRSE(map_group_and_number))
+            else:
+                history.append(MapFRLG(map_group_and_number))
+    return history

@@ -32,37 +32,20 @@ Try another route that has an easy overland path to a Pokémon Center.
 
 ## FireRed and LeafGreen
 
-The following routes are supported:
+### Supported Routes
+- **Routes 1–4**: Route 1, Route 2, Route 3, Route 4
+- **Routes 6–11**: Route 6, Route 7, Route 9, Route 10, Route 11
+- **Routes 18–24**: Route 18, Route 19, Route 20, Route 21 (North and South), Route 22, Route 24
 
-- Route 1
-- Route 2
-- Route 3
-- Route 4
-- Route 6
-- Route 7
-- Route 9
-- Route 10
-- Route 11
-- Route 18
-- Route 22
-- Route 24
+---
 
 ## Emerald
 
-The following routes are supported:
+### Supported Routes
+- **Routes 101–109**: Route 101, Route 102, Route 103, Route 104, Route 105, Route 106, Route 107, Route 108, Route 109
+- **Routes 110–119**: Route 110, Route 111, Route 112, Route 113, Route 114, Route 115, Route 116, Route 117, Route 118, Route 119
+- **Routes 120–134**: Route 120, Route 121, Route 122, Route 123, Route 124, Route 125, Route 126, Route 127, Route 128, Route 129, Route 130, Route 131, Route 132, Route 133, Route 134
 
-- Route 101
-- Route 102
-- Route 103
-- Route 104
-- Route 110
-- Route 113
-- Route 114
-- Route 116
-- Route 117
-- Route 119
-- Route 120
-- Route 121
 
 ## Game Support
 
@@ -70,10 +53,10 @@ The following routes are supported:
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
 | Japanese |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| German   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| Spanish  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| French   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| Italian  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| German   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Spanish  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| French   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Italian  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
 
 ✅ Tested, working
 
