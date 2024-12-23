@@ -21,6 +21,7 @@ from .util import (
     wait_for_task_to_start_and_finish,
     walk_one_tile,
     apply_repel,
+    repel_is_active,
     wait_for_no_script_to_run,
 )
 from ..battle_strategies import BattleStrategy
@@ -495,7 +496,7 @@ class PuzzleSolverMode(BotMode):
                 raise BotModeError("You are not on the right map.")
 
         while True and context.bot_mode != "Manual":
-            if use_repel and get_event_var("REPEL_STEP_COUNT") == 0:
+            if use_repel and not repel_is_active():
                 yield from apply_repel()
 
             yield from path()

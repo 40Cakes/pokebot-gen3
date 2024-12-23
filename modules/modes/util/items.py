@@ -3,7 +3,7 @@ from typing import Generator
 from modules.context import context
 from modules.debug import debug
 from modules.items import Item, ItemPocket, get_item_bag, get_item_by_name, get_item_by_move_id
-from modules.memory import GameState, get_event_flag, get_game_state, read_symbol, unpack_uint16
+from modules.memory import GameState, get_event_flag, get_game_state, read_symbol, unpack_uint16, get_event_var
 from modules.menuing import StartMenuNavigator, scroll_to_item_in_bag as real_scroll_to_item
 from modules.player import get_player
 from modules.pokemon import LearnedMove
@@ -135,6 +135,17 @@ def apply_repel() -> Generator:
         raise RanOutOfRepels("Player is out or Repels.")
 
     yield from use_item_from_bag(repel_item)
+
+
+def repel_is_active() -> bool:
+    """
+    Checks if a Repel is currently active.
+
+    Returns:
+        bool: True if the Repel is active (REPEL_STEP_COUNT > 0), False otherwise.
+    """
+    repel_step_count = get_event_var("REPEL_STEP_COUNT")
+    return repel_step_count > 0
 
 
 @debug.track

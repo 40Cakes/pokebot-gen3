@@ -163,7 +163,12 @@ def ask_for_confirmation(message: str, window_title: str = "Confirmation") -> bo
 
 
 def ask_for_choice_scroll(
-    choices: list[Selection], window_title: str = "Choose...", options_per_row: int = 3
+    choices: list[Selection],
+    window_title: str = "Choose...",
+    options_per_row: int = 3,
+    button_width: int = 165,
+    button_height: int = 165,
+    visible_rows: int = 2,
 ) -> str | None:
     if context.gui.is_headless:
         console.print(f"\n[bold]{window_title}[/]")
@@ -187,10 +192,7 @@ def ask_for_choice_scroll(
         selected_value = value
         window.after(50, remove_window)
 
-    button_width = 165
-    button_height = 165
     scrollbar_width = 20
-    visible_rows = 2
 
     window_width = options_per_row * button_width + scrollbar_width
     window_height = visible_rows * button_height + 50

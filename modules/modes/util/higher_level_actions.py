@@ -111,19 +111,28 @@ class TaskFishing(Enum):
 
 
 @debug.track
-def fish() -> Generator:
-    task_fishing = get_task("Task_Fishing")
-    if task_fishing is not None:
-        match task_fishing.data[0]:
-            case TaskFishing.WAIT_FOR_A.value | TaskFishing.END_NO_MON.value:
-                context.emulator.press_button("A")
-            case TaskFishing.NOT_EVEN_NIBBLE.value:
-                context.emulator.press_button("B")
-            case TaskFishing.START_ENCOUNTER.value:
-                context.emulator.press_button("A")
-    else:
-        context.emulator.press_button("Select")
-    yield
+def fish(stop_condition: Callable[[], bool] | None = None, loop: bool = False) -> Generator:
+    """Handles both single fishing actions or continuous fishing loop."""
+
+    while True:
+        if stop_condition is not None and stop_condition():
+            return
+
+        task_fishing = get_task("Task_Fishing")
+        if task_fishing is not None:
+            match task_fishing.data[0]:
+                case TaskFishing.WAIT_FOR_A.value | TaskFishing.END_NO_MON.value:
+                    context.emulator.press_button("A")
+                case TaskFishing.NOT_EVEN_NIBBLE.value:
+                    context.emulator.press_button("B")
+                case TaskFishing.START_ENCOUNTER.value:
+                    context.emulator.press_button("A")
+        else:
+            context.emulator.press_button("Select")
+        yield
+
+        if not loop:
+            break
 
 
 def spin(stop_condition: Callable[[], bool] | None = None, counter_clockwise: bool = False):

@@ -622,6 +622,80 @@ gSprites:
   J: 0x20205bc
 #---------------------#
 
+#-----------------#
+#   Safari Mode   #
+#-----------------#
+# 0xa
+FuchsiaCity_SafariZone_Entrance_EventScript_AskEnterSafariZone:
+  D: 0x816d2d9
+  F: 0x816d395
+  I: 0x816d319
+  J: 0x8186a0e
+  S: 0x816d405
+# 0x28
+FuchsiaCity_SafariZone_Entrance_EventScript_TryEnterSafariZone:
+  D: 0x816d312
+  F: 0x816d3ce
+  I: 0x816d352
+  J: 0x8186a47
+  S: 0x816d43e
+# 0x1
+FuchsiaCity_SafariZone_Entrance_EventScript_ExitWarpIn:
+  D: 0x816d244
+  F: 0x816d300
+  I: 0x816d284
+  J: 0x8186979
+  S: 0x816d370
+#-----------------#
+
+# FR/LG Safari scripts are annoying for Safari Mode
+FuchsiaCity_SafariZone_Entrance_EventScript_ExitEarly:
+  D: 0x0
+FuchsiaCity_SafariZone_Entrance_EventScript_ReturnToSafariZone:
+  D: 0x0
+  I: 0x0
+FuchsiaCity_SafariZone_Entrance_EventScript_EntryTriggerMid:
+  D: 0x0
+FuchsiaCity_SafariZone_Entrance_Movement_ApproachCounter:
+  D: 0x0
+FuchsiaCity_SafariZone_Entrance_Movement_Exit2:
+  D: 0x0
+FuchsiaCity_SafariZone_Entrance_Movement_ReEnter:
+  D: 0x0
+FuchsiaCity_SafariZone_Entrance_Movement_Exit:
+  D: 0x0
+FuchsiaCity_SafariZone_Entrance_EventScript_EntryTriggerLeft:
+  D: 0x0
+  I: 0x0
+FuchsiaCity_SafariZone_Entrance_EventScript_EntryTriggerRight:
+  D: 0x0
+  F: 0x0
+  I: 0x0
+  S: 0x0
+FuchsiaCity_SafariZone_Entrance_EventScript_EnterSafariZoneRight:
+  F: 0x0
+  S: 0x0
+FuchsiaCity_SafariZone_Entrance_EventScript_ForcePlayerBack:
+  S: 0x0
+FuchsiaCity_SafariZone_Entrance_EventScript_NotEnoughMoney:
+  S: 0x0
+FuchsiaCity_SafariZone_Entrance_Movement_EnterSafariZoneRight:
+  S: 0x0
+FuchsiaCity_SafariZone_Entrance_EventScript_ExplainSafariZone:
+  S: 0x0
+FuchsiaCity_SafariZone_Entrance_Movement_EnterSafariZoneMid:
+  S: 0x0
+FuchsiaCity_SafariZone_Entrance_Movement_ForceBack:
+  S: 0x0
+Route15_Text_RouteSign:
+  J: 0x0
+Route15_Text_YazminDefeat:
+  J: 0x0
+Route15_Text_MyaIntro:
+  J: 0x0
+Route15_Text_MyaDefeat:
+  J: 0x0
+
 # Ununsed symbols that were conflicting with currently used symbols
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
 EventScript_CutTree:

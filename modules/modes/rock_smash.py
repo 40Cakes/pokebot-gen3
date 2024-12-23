@@ -31,6 +31,7 @@ from .util import (
     follow_waypoints,
     RanOutOfRepels,
     apply_repel,
+    repel_is_active,
     apply_white_flute_if_available,
     ensure_facing_direction,
     follow_path,
@@ -145,6 +146,8 @@ class RockSmashMode(BotMode):
         # Shuckle catch rate is 35%. So 10 balls should be enough to catch it
         if is_safari_map() and get_safari_balls_left() < 10:
             raise BotModeError("Cannot rock smash with less than 10 safari balls")
+        else:
+            assert_player_has_poke_balls()
 
         if get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F and get_item_bag().number_of_repels > 0:
             mode = ask_for_choice(
@@ -281,7 +284,7 @@ class RockSmashMode(BotMode):
 
     @debug.track
     def granite_cave(self) -> Generator:
-        if self._using_repel and get_event_var("REPEL_STEP_COUNT") <= 0:
+        if self._using_repel and not repel_is_active():
             with contextlib.suppress(RanOutOfRepels):
                 yield from apply_repel()
 
