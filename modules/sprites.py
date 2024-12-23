@@ -5,7 +5,7 @@ import PIL.Image
 import PIL.ImageDraw
 
 from modules.files import make_string_safe_for_file_name
-from modules.pokemon import Pokemon
+from modules.pokemon import Pokemon, Species
 from modules.runtime import get_sprites_path
 
 
@@ -93,31 +93,28 @@ def generate_placeholder_image(width: int, height: int) -> PIL.Image:
     return placeholder
 
 
-def get_regular_sprite(pokemon: Pokemon) -> Path:
-    return (
-        get_sprites_path()
-        / "pokemon"
-        / "normal"
-        / f"{make_string_safe_for_file_name(pokemon.species_name_for_stats)}.png"
-    )
+def _get_pokemon_sprite_path(pokemon_or_species: Pokemon | Species, sprite_directory: str) -> Path:
+    if isinstance(pokemon_or_species, Pokemon):
+        file_name = pokemon_or_species.species_name_for_stats
+    elif pokemon_or_species.name == "Unown":
+        # P for Pokebot!
+        file_name = "Unown (P)"
+    else:
+        file_name = pokemon_or_species.name
+
+    return get_sprites_path() / "pokemon" / sprite_directory / f"{make_string_safe_for_file_name(file_name)}.png"
 
 
-def get_shiny_sprite(pokemon: Pokemon) -> Path:
-    return (
-        get_sprites_path()
-        / "pokemon"
-        / "shiny"
-        / f"{make_string_safe_for_file_name(pokemon.species_name_for_stats)}.png"
-    )
+def get_regular_sprite(pokemon_or_species: Pokemon | Species) -> Path:
+    return _get_pokemon_sprite_path(pokemon_or_species, sprite_directory="normal")
 
 
-def get_anti_shiny_sprite(pokemon: Pokemon) -> Path:
-    return (
-        get_sprites_path()
-        / "pokemon"
-        / "anti-shiny"
-        / f"{make_string_safe_for_file_name(pokemon.species_name_for_stats)}.png"
-    )
+def get_shiny_sprite(pokemon_or_species: Pokemon | Species) -> Path:
+    return _get_pokemon_sprite_path(pokemon_or_species, sprite_directory="shiny")
+
+
+def get_anti_shiny_sprite(pokemon_or_species: Pokemon | Species) -> Path:
+    return _get_pokemon_sprite_path(pokemon_or_species, sprite_directory="anti-shiny")
 
 
 def get_sprite(pokemon: Pokemon) -> Path:
