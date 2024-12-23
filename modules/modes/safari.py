@@ -6,7 +6,7 @@ from modules.battle_state import BattleOutcome
 from modules.map_data import MapFRLG
 from modules.player import get_player, get_player_avatar
 from modules.pokemon_party import get_party
-from modules.pokemon import get_species_by_name
+from modules.pokemon import get_species_by_name, get_opponent
 from modules.memory import get_event_flag
 from modules.menuing import StartMenuNavigator
 from modules.modes.util.walking import wait_for_player_avatar_to_be_controllable
@@ -52,8 +52,9 @@ class SafariMode(BotMode):
         self._should_reset = False
         self._should_reenter = False
         self._atleast_one_pokemon_catched = False
+        self._target_caught = False
         self._use_repel = False
-        self._money_spent_limit = 2000
+        self._money_spent_limit = 25000
 
     @staticmethod
     def name() -> str:
@@ -69,6 +70,9 @@ class SafariMode(BotMode):
         update flags to manage the re-entry or reset logic.
         """
         if outcome is BattleOutcome.Caught:
+            catched_pokemon = get_opponent().species.name
+            if catched_pokemon == self._target_pokemon:
+                self._target_caught = True
             self._atleast_one_pokemon_catched = True
         if get_safari_balls_left() < 30:
             current_cash = get_player().money
@@ -88,9 +92,9 @@ class SafariMode(BotMode):
 
         pokemon_choices = []
         for safari_pokemon in SafariPokemon.available_pokemon(context.rom):
-            species = get_species_by_name(safari_pokemon.value.name)
+            species = safari_pokemon.value.species
             sprite_path = get_regular_sprite(species)
-            pokemon_choices.append(Selection(f"{safari_pokemon.value.name}", sprite_path))
+            pokemon_choices.append(Selection(f"{safari_pokemon.value.species.name}", sprite_path))
 
         pokemon_choice = ask_for_choice_scroll(
             choices=pokemon_choices,
@@ -105,10 +109,11 @@ class SafariMode(BotMode):
             yield
             return
 
-        self._target_pokemon = get_safari_pokemon(pokemon_choice)
-        self._check_mode_requirement(self._target_pokemon.value.mode, self._target_pokemon.value.hunting_object)
+        target = get_safari_pokemon(pokemon_choice)
+        self._target_pokemon = target.value.species.name
+        self._check_mode_requirement(target.value.mode, target.value.hunting_object)
 
-        if self._target_pokemon.value.mode != SafariHuntingMode.FISHING:
+        if target.value.mode != SafariHuntingMode.FISHING:
             mode = ask_for_choice(
                 [
                     Selection("Use Repel", get_sprites_path() / "items" / "Repel.png"),
@@ -125,22 +130,28 @@ class SafariMode(BotMode):
             if mode == "Use Repel":
                 self._use_repel = True
 
-        if self._target_pokemon.value.hunting_object:
-            yield from register_key_item(get_item_by_name(self._target_pokemon.value.hunting_object))
+        if target.value.hunting_object:
+            yield from register_key_item(get_item_by_name(target.value.hunting_object))
 
         while True:
-            if self._should_reset:
+            if self._target_caught:
+                yield from self._exit_safari_zone()
+                context.message = f"{self._target_pokemon} has been caught ! Save your game !"
+                context.set_manual_mode()
+                break
+            elif self._should_reset:
                 if not self._atleast_one_pokemon_catched:
                     yield from self._soft_reset()
                     self._starting_cash = get_player().money
                 else:
                     yield from self._exit_safari_zone()
-                    context.message = f"You have reached the money threshold (either out of money or have spent over {self._money_spent_limit}₽), but you've caught a Pokémon during this phase. It's recommended to save your game and restart the mode."
+                    context.message = f"You have hit the money threshold (either you've run out of funds or spent over {self._money_spent_limit}₽), but you managed to catch at least one Pokémon during this cycle. Consider saving your game."
                     context.set_manual_mode()
-            if self._should_reenter:
+                    break
+            elif self._should_reenter:
                 yield from self._re_enter_safari_zone()
 
-            yield from self._start_safari_hunt(self._target_pokemon)
+            yield from self._start_safari_hunt(target)
 
     def _start_safari_hunt(self, safari_pokemon: SafariPokemon) -> Generator:
         current_cash = get_player().money

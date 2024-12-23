@@ -5,11 +5,12 @@ from dataclasses import dataclass
 from typing import Union, Tuple, Optional, Callable, List
 from modules.context import context
 from modules.battle_strategies import SafariTurnAction
-from modules.pokemon import Pokemon
+from modules.pokemon import Pokemon, Species, get_species_by_name
 from modules.runtime import get_data_path
 from modules.memory import read_symbol
 from modules.files import make_string_safe_for_file_name
 from modules.map_data import MapFRLG, MapRSE
+from modules.modes._interface import BotModeError
 
 
 class SafariHuntingMode(Enum):
@@ -27,7 +28,7 @@ class SafariHuntingObject:
 
 @dataclass(frozen=True)
 class SafariCatchingLocation:
-    name: str
+    species: Species
     map_location: Union[MapFRLG, MapRSE]
     tile_location: Tuple[int, int]
     mode: SafariHuntingMode
@@ -38,29 +39,57 @@ class SafariCatchingLocation:
 class SafariPokemon(Enum):
     """Enum for Pokémon locations and strategies in the Safari Zone."""
 
-    NIDORAN_F = SafariCatchingLocation("Nidoran♀", MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN)
-    NIDORINA = SafariCatchingLocation("Nidorina", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN)
-    NIDORAN_M = SafariCatchingLocation("Nidoran♂", MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN)
-    NIDORINO = SafariCatchingLocation("Nidorino", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN)
-    PARAS = SafariCatchingLocation("Paras", MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN)
-    PARASECT = SafariCatchingLocation("Parasect", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN)
-    VENONAT = SafariCatchingLocation("Venonat", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN)
-    VENOMOTH = SafariCatchingLocation("Venomoth", MapFRLG.SAFARI_ZONE_NORTH, (35, 30), SafariHuntingMode.SPIN)
-    DODUO = SafariCatchingLocation("Doduo", MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN)
-    RHYHORN = SafariCatchingLocation("Rhyhorn", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN)
-    EXEGGCUTE = SafariCatchingLocation("Exeggcute", MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN)
-    TAUROS = SafariCatchingLocation("Tauros", MapFRLG.SAFARI_ZONE_WEST, (15, 27), SafariHuntingMode.SPIN)
-    CHANSEY = SafariCatchingLocation("Chansey", MapFRLG.SAFARI_ZONE_NORTH, (35, 30), SafariHuntingMode.SPIN)
-    KANGASKHAN = SafariCatchingLocation("Kangaskhan", MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN)
+    NIDORAN_F = SafariCatchingLocation(
+        get_species_by_name("Nidoran♀"), MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN
+    )
+    NIDORINA = SafariCatchingLocation(
+        get_species_by_name("Nidorina"), MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN
+    )
+    NIDORAN_M = SafariCatchingLocation(
+        get_species_by_name("Nidoran♂"), MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN
+    )
+    NIDORINO = SafariCatchingLocation(
+        get_species_by_name("Nidorino"), MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN
+    )
+    PARAS = SafariCatchingLocation(
+        get_species_by_name("Paras"), MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN
+    )
+    PARASECT = SafariCatchingLocation(
+        get_species_by_name("Parasect"), MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN
+    )
+    VENONAT = SafariCatchingLocation(
+        get_species_by_name("Venonat"), MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN
+    )
+    VENOMOTH = SafariCatchingLocation(
+        get_species_by_name("Venomoth"), MapFRLG.SAFARI_ZONE_NORTH, (35, 30), SafariHuntingMode.SPIN
+    )
+    DODUO = SafariCatchingLocation(
+        get_species_by_name("Doduo"), MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN
+    )
+    RHYHORN = SafariCatchingLocation(
+        get_species_by_name("Rhyhorn"), MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN
+    )
+    EXEGGCUTE = SafariCatchingLocation(
+        get_species_by_name("Exeggcute"), MapFRLG.SAFARI_ZONE_CENTER, (24, 27), SafariHuntingMode.SPIN
+    )
+    TAUROS = SafariCatchingLocation(
+        get_species_by_name("Tauros"), MapFRLG.SAFARI_ZONE_WEST, (15, 27), SafariHuntingMode.SPIN
+    )
+    CHANSEY = SafariCatchingLocation(
+        get_species_by_name("Chansey"), MapFRLG.SAFARI_ZONE_NORTH, (35, 30), SafariHuntingMode.SPIN
+    )
+    KANGASKHAN = SafariCatchingLocation(
+        get_species_by_name("Kangaskhan"), MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN
+    )
     PINSIR = SafariCatchingLocation(
-        "Pinsir",
+        get_species_by_name("Pinsir"),
         MapFRLG.SAFARI_ZONE_CENTER,
         (24, 27),
         SafariHuntingMode.SPIN,
         availability=lambda rom: context.rom.is_lg,
     )
     SCYTHER = SafariCatchingLocation(
-        "Scyther",
+        get_species_by_name("Scyther"),
         MapFRLG.SAFARI_ZONE_CENTER,
         (24, 27),
         SafariHuntingMode.SPIN,
@@ -68,32 +97,56 @@ class SafariPokemon(Enum):
     )
 
     POLIWAG = SafariCatchingLocation(
-        "Poliwag", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING, SafariHuntingObject.GOOD_ROD
+        get_species_by_name("Poliwag"),
+        MapFRLG.SAFARI_ZONE_CENTER,
+        (32, 19),
+        SafariHuntingMode.FISHING,
+        SafariHuntingObject.GOOD_ROD,
     )
     MAGIKARP = SafariCatchingLocation(
-        "Magikarp", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING, SafariHuntingObject.OLD_ROD
+        get_species_by_name("Magikarp"),
+        MapFRLG.SAFARI_ZONE_CENTER,
+        (32, 19),
+        SafariHuntingMode.FISHING,
+        SafariHuntingObject.OLD_ROD,
     )
     GOLDEEN = SafariCatchingLocation(
-        "Goldeen", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING, SafariHuntingObject.GOOD_ROD
+        get_species_by_name("Goldeen"),
+        MapFRLG.SAFARI_ZONE_CENTER,
+        (32, 19),
+        SafariHuntingMode.FISHING,
+        SafariHuntingObject.GOOD_ROD,
     )
     SEAKING = SafariCatchingLocation(
-        "Seaking", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING, SafariHuntingObject.SUPER_ROD
+        get_species_by_name("Seaking"),
+        MapFRLG.SAFARI_ZONE_CENTER,
+        (32, 19),
+        SafariHuntingMode.FISHING,
+        SafariHuntingObject.SUPER_ROD,
     )
     DRATINI = SafariCatchingLocation(
-        "Dratini", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING, SafariHuntingObject.SUPER_ROD
+        get_species_by_name("Dratini"),
+        MapFRLG.SAFARI_ZONE_CENTER,
+        (32, 19),
+        SafariHuntingMode.FISHING,
+        SafariHuntingObject.SUPER_ROD,
     )
     DRAGONAIR = SafariCatchingLocation(
-        "Dragonair", MapFRLG.SAFARI_ZONE_CENTER, (32, 19), SafariHuntingMode.FISHING, SafariHuntingObject.SUPER_ROD
+        get_species_by_name("Dragonair"),
+        MapFRLG.SAFARI_ZONE_CENTER,
+        (32, 19),
+        SafariHuntingMode.FISHING,
+        SafariHuntingObject.SUPER_ROD,
     )
     PSYDUCK = SafariCatchingLocation(
-        "Psyduck",
+        get_species_by_name("Psyduck"),
         MapFRLG.SAFARI_ZONE_CENTER,
         (32, 18),
         SafariHuntingMode.SURF,
         availability=lambda rom: context.rom.is_fr,
     )
     SLOWPOKE = SafariCatchingLocation(
-        "Slowpoke",
+        get_species_by_name("Slowpoke"),
         MapFRLG.SAFARI_ZONE_CENTER,
         (32, 18),
         SafariHuntingMode.SURF,
@@ -272,7 +325,6 @@ def get_navigation_path(
 
     path = navigation_paths.get(target_map)
     if path is None:
-        console.print(f"Error: No navigation path defined for {target_map}.")
-        return []
+        raise BotModeError(f"Error: No navigation path defined for {target_map}.")
 
     return path
