@@ -20,9 +20,9 @@ Std_MsgboxYesNo:
 WaitForAorBPress:
   J: 0x8064401
 Task_DuckBGMForPokemonCry:
-  J: ~
+  J: 0x8072440
 CB2_FlyRegionMap:
-  J: ~
+  J: 0x80f71b0
 gMain:
   J: 0x30016e0
 gFieldMessageBoxWindow:
@@ -103,7 +103,7 @@ gBattleMainFunc:
 gBattleResults:
   J: 0x3004210
 gBattlerControllerFuncs:
-  J: 0x3004378
+  J: 0x3004260
 gBattlescriptCurrInstr:
   J: 0x2024970
 GTASKS:
@@ -135,25 +135,31 @@ gBattlePartyCurrentOrder:
 
 # Turn selection
 sub_8012324:
-  J: ~
+  J: 0x800f630
 sub_802C098:
-  J: ~
+  J: 0x8029320
+HandleAction_ChooseMove:
+  J: 0x80298fd
 # Turn selection Safari
 bx_battle_menu_t6_2:
-  J: ~
+  J: 0x8126310
 HandleEndTurn_FinishBattle:
-  J: ~
+  J: 0x8010fa4
 BattleScript_HandleFaintedMon:
   J: ~
 BattleScript_FaintedMonEnd:
   J: ~
 CB2_WhiteOut:
   J: ~
+gActionSelectionCursor:
+  J: 0x2024bc0
+gMoveSelectionCursor:
+  J: 0x2024bc4
+# Replace move
 BattleScript_AskToLearnMove:
   J: ~
 BattleScript_ForgotAndLearnedNewMove:
   J: ~
-# Replace move
 sub_809E260:
   J: ~
 CB2_EvolutionSceneUpdate:
@@ -178,11 +184,11 @@ Task_Fanfare:
 #    PC Menu / Storage    #
 #-------------------------#
 Task_PokemonStorageSystem:
-  J: ~
+  J: 0x8092a14
 Task_HandleMultichoiceInput:
-  J: ~
+  J: 0x80b0928
 SUB_8096B38:
-  J: ~
+  J: 0x809363c
 #-------------------------#
 
 #--------------#
@@ -255,19 +261,20 @@ Task_Fishing:
 #---------------------#
 # 0xa
 BattleScript_TryNicknameCaughtMon:
-  J: ~
+  J: 0x81aa97b
 sub_80B5AA0:
-  J: ~
+  J: 0x80b10e0
 Task_HandleInput:
-  J: ~
+  J: 0x80b1838
 # 0x7
 BattleScript_GiveCaughtMonEnd:
-  J: ~
+  J: 0x81aa990
 # 0x6
 BattleScript_GotAwaySafely:
-  J: ~
+  J: 0x81a98c1
 namingScreenDataPtr:
-  J: ~
+  J: 0x83a3198
+
 #---------------------#
 
 #---------------------#
