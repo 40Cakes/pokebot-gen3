@@ -6,18 +6,19 @@ CB2_OVERWORLD:
   J: 0x8051618
 # Door exit
 sub_8080B9C:
-  J: ~
+  J: 0x807da78
 Task_HandleYesNoInput:
-  J: ~
+  J: 0x80b0b4c
 Task_FieldMessageBox:
-  J: ~
+  J: 0x8061c2c
+# 0x7
 Std_MsgboxDefault:
-  J: ~
-# 0x6
+  J: 0x817f404
+# 0x9
 Std_MsgboxYesNo:
-  J: ~
+  J: 0x817f40c
 WaitForAorBPress:
-  J: ~
+  J: 0x8064401
 Task_DuckBGMForPokemonCry:
   J: ~
 CB2_FlyRegionMap:
@@ -26,6 +27,8 @@ gMain:
   J: 0x30016e0
 gFieldMessageBoxWindow:
   J: 0x202e5dc
+sScriptContext1:
+  J: 0x3000520
 sScriptContext2:
   J: 0x30005a0
 #-------------------------------#
@@ -163,21 +166,13 @@ Task_EvolutionScene:
 #  Daycare Mode  #
 #----------------#
 S_EggHatch:
-  J: ~
+  J: 0x818bee4
 # EggHatch party identification
 gSpecialVar_0x8004:
-  J: ~
+  J: 0x202e620
 Task_Fanfare:
-  J: ~
+  J: 0x8071f50
 #----------------#
-
-#--------------#
-#   Listeners  #
-#--------------#
-
-CB2_EggHatch_1:
-  J: ~
-#---------------#
 
 #-------------------------#
 #    PC Menu / Storage    #
@@ -313,5 +308,12 @@ BattleBeginFirstTurn:
 S_RepelWoreOff:
   J: ~
 gEggHatchData:
-  J: ~
+  J: 0x300474c
+CB2_EggHatch_1:
+  J: 0x804022d
 #----------------#
+
+# Ununsed symbols that were conflicting with currently used symbols
+# We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
+LilycoveCity_House4_Text_18BEE8:
+  J: 0x0
