@@ -11,6 +11,7 @@ from modules.memory import read_symbol, unpack_uint32, get_game_state, GameState
 from modules.modes import BotModeError
 from modules.runtime import get_data_path
 from modules.tasks import get_task
+from modules.roms import ROMLanguage
 
 if TYPE_CHECKING:
     pass
@@ -120,11 +121,13 @@ def get_naming_screen_data() -> NamingScreen | None:
             return None
         data = context.emulator.read_bytes(pointer, 0x4A)
         cursor_sprite = get_game_sprite_by_id(data[0x0F])
+        language_offset = 0 if context.rom.language == ROMLanguage.Japanese else 1
+
         return NamingScreen(
             enabled=bool(task.data_value(0)),
             state=NamingScreenState(data[0x00]),
             current_input=decode_string(data[0x11:0x21]),
-            keyboard_page=KeyboardPageType((data[0x0E] + 1) % 3),
+            keyboard_page=KeyboardPageType((data[0x0E]+language_offset) % 3),
             cursor_position=(cursor_sprite.data_value(0), cursor_sprite.data_value(1)),
         )
     else:
