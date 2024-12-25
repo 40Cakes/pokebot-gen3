@@ -26,7 +26,7 @@ CB2_FlyRegionMap:
 gMain:
   J: 0x30016e0
 gFieldMessageBoxWindow:
-  J: 0x202e5dc
+  J: 0x202e5d4
 sScriptContext1:
   J: 0x3000520
 sScriptContext2:
@@ -131,8 +131,7 @@ gBattleWeather:
 gBattleOutcome:
   J: 0x2024a86
 gBattlePartyCurrentOrder:
-  J: 0x2038190
-
+  J: 0x203818c
 # Turn selection
 sub_8012324:
   J: 0x800f630
@@ -144,28 +143,30 @@ HandleAction_ChooseMove:
 bx_battle_menu_t6_2:
   J: 0x8126310
 HandleEndTurn_FinishBattle:
-  J: 0x8010fa4
+  J: ~ # 0x8010fa4
 BattleScript_HandleFaintedMon:
-  J: ~
+  J: 0x81a9713
 BattleScript_FaintedMonEnd:
-  J: ~
+  J: 0x81a981e
 CB2_WhiteOut:
-  J: ~
+  J: 0x80516dc
 gActionSelectionCursor:
   J: 0x2024bc0
 gMoveSelectionCursor:
   J: 0x2024bc4
 # Replace move
 BattleScript_AskToLearnMove:
-  J: ~
+  J: 0x81a99b1
 BattleScript_ForgotAndLearnedNewMove:
-  J: ~
+  J: 0x81a99de
 sub_809E260:
-  J: ~
+  J: 0x809ab9c
 CB2_EvolutionSceneUpdate:
-  J: ~
+  J: 0x810d168
 Task_EvolutionScene:
-  J: ~
+  J: 0x810d304
+RunBattleScriptCommands_PopCallbacksStack:
+  J: 0x801125c
 #--------------------#
 
 #----------------#
@@ -253,7 +254,7 @@ sPokeMenuOptionsOrder:
 #   Fishing Mode    #
 #-------------------#
 Task_Fishing:
-  J: ~
+  J: 0x80575c8
 #-------------------#
 
 #---------------------#
@@ -318,9 +319,20 @@ gEggHatchData:
   J: 0x300474c
 CB2_EggHatch_1:
   J: 0x804022d
+# Poison faint 0x5
+gUnknown_081A14B8:
+  J: 0x8180bf5
+# 0x8
+EventScript_StartTrainerBattle:
+  J: ~
+# 0x4
+EventScript_DoTrainerBattle:
+  J: ~
 #----------------#
 
 # Ununsed symbols that were conflicting with currently used symbols
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
 LilycoveCity_House4_Text_18BEE8:
+  J: 0x0
+gTVRecentHappeningsText3:
   J: 0x0
