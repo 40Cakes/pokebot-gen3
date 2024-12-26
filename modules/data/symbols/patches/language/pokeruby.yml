@@ -314,7 +314,7 @@ BattleBeginFirstTurn:
 #----------------#
 # 0x8
 S_RepelWoreOff:
-  J: ~
+  J: 0x8195926
 gEggHatchData:
   J: 0x300474c
 CB2_EggHatch_1:
