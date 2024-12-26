@@ -282,11 +282,11 @@ namingScreenDataPtr:
 #    Berry blending   #
 #---------------------#
 SUB_80501FC:
-  J: ~
+  J: 0x804d378
 gUnknown_08216303:
-  J: ~
+  J: 0x81ec313
 gBerryBlenderData:
-  J: ~
+  J: 0x3004784
 #---------------------#
 
 #-----------#
