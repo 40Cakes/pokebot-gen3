@@ -326,10 +326,10 @@ gUnknown_081A14B8:
   J: 0x8180bf5
 # 0x8
 EventScript_StartTrainerBattle:
-  J: ~
+  J: 0x817f41c
 # 0x4
 EventScript_DoTrainerBattle:
-  J: ~
+  J: 0x817f503
 #----------------#
 
 # Ununsed symbols that were conflicting with currently used symbols
