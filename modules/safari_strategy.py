@@ -1,16 +1,19 @@
-import yaml
-from enum import Enum
-from modules.roms import ROM
 from dataclasses import dataclass
+from enum import Enum
 from typing import Union, Tuple, Optional, Callable, List
-from modules.context import context
+
+import yaml
+
 from modules.battle_strategies import SafariTurnAction
-from modules.pokemon import Pokemon, Species, get_species_by_name
-from modules.runtime import get_data_path
-from modules.memory import read_symbol
+from modules.context import context
 from modules.files import make_string_safe_for_file_name
 from modules.map_data import MapFRLG, MapRSE
+from modules.memory import read_symbol, get_event_flag
 from modules.modes._interface import BotModeError
+from modules.pokemon import Pokemon, Species, get_species_by_name
+from modules.pokemon_party import get_party
+from modules.roms import ROM
+from modules.runtime import get_data_path
 
 
 class SafariHuntingMode(Enum):
@@ -286,45 +289,60 @@ def get_safari_pokemon(name: str) -> Optional[SafariPokemon]:
     return None
 
 
-def get_navigation_path(
-    target_map: MapFRLG, tile_location: Tuple[int, int]
-) -> List[Tuple[MapFRLG, Tuple[int, int], Optional[str]]]:
+def get_navigation_path(target_map: MapFRLG, tile_location: tuple[int, int]) -> list[tuple[MapFRLG, tuple[int, int]]]:
     """
     Returns the navigation path for a given target map.
 
     Args:
         target_map (MapFRLG): The target map for which the navigation path is required.
+        tile_location: Local coordinates on the destination map.
 
     Returns:
-        List[Tuple[MapFRLG, Tuple[int, int], Optional[str]]]: A list of tuples, where each tuple represents a step
+        List[Tuple[MapFRLG, Tuple[int, int]]]: A list of tuples, where each tuple represents a step
         in the navigation path. Each tuple contains:
         - A MapFRLG enum value for the destination map.
         - A tuple of (x, y) coordinates for the target location.
-        - An optional string for the direction to move.
     """
-    navigation_paths = {
-        MapFRLG.SAFARI_ZONE_CENTER: [
-            (MapFRLG.SAFARI_ZONE_CENTER, tile_location, None),
-        ],
-        MapFRLG.SAFARI_ZONE_EAST: [
-            (MapFRLG.SAFARI_ZONE_CENTER, (42, 16), "Right"),
-            (MapFRLG.SAFARI_ZONE_EAST, tile_location, None),
-        ],
-        MapFRLG.SAFARI_ZONE_NORTH: [
-            (MapFRLG.SAFARI_ZONE_CENTER, (42, 16), "Right"),
-            (MapFRLG.SAFARI_ZONE_EAST, (9, 9), "Left"),
-            (MapFRLG.SAFARI_ZONE_NORTH, tile_location, None),
-        ],
-        MapFRLG.SAFARI_ZONE_WEST: [
-            (MapFRLG.SAFARI_ZONE_CENTER, (42, 16), "Right"),
-            (MapFRLG.SAFARI_ZONE_EAST, (9, 9), "Left"),
-            (MapFRLG.SAFARI_ZONE_NORTH, (21, 33), "Down"),
-            (MapFRLG.SAFARI_ZONE_WEST, tile_location, None),
-        ],
-    }
 
-    path = navigation_paths.get(target_map)
-    if path is None:
-        raise BotModeError(f"Error: No navigation path defined for {target_map}.")
+    def can_surf():
+        return get_event_flag("BADGE05_GET") and get_party().has_pokemon_with_move("Surf")
 
-    return path
+    match target_map:
+        case MapFRLG.SAFARI_ZONE_CENTER:
+            return [(MapFRLG.SAFARI_ZONE_CENTER, tile_location)]
+
+        case MapFRLG.SAFARI_ZONE_EAST:
+            return [
+                (MapFRLG.SAFARI_ZONE_CENTER, (43, 16)),
+                (MapFRLG.SAFARI_ZONE_EAST, tile_location),
+            ]
+
+        case MapFRLG.SAFARI_ZONE_NORTH:
+            if can_surf():
+                return [
+                    (MapFRLG.SAFARI_ZONE_CENTER, (26, 5)),
+                    (MapFRLG.SAFARI_ZONE_NORTH, tile_location),
+                ]
+            else:
+                return [
+                    (MapFRLG.SAFARI_ZONE_CENTER, (43, 16)),
+                    (MapFRLG.SAFARI_ZONE_EAST, (8, 9)),
+                    (MapFRLG.SAFARI_ZONE_NORTH, tile_location),
+                ]
+
+        case MapFRLG.SAFARI_ZONE_WEST:
+            if can_surf():
+                return [
+                    (MapFRLG.SAFARI_ZONE_CENTER, (8, 17)),
+                    (MapFRLG.SAFARI_ZONE_WEST, tile_location),
+                ]
+            else:
+                return [
+                    (MapFRLG.SAFARI_ZONE_CENTER, (43, 16)),
+                    (MapFRLG.SAFARI_ZONE_EAST, (8, 9)),
+                    (MapFRLG.SAFARI_ZONE_NORTH, (21, 34)),
+                    (MapFRLG.SAFARI_ZONE_WEST, tile_location),
+                ]
+
+        case _:
+            raise BotModeError(f"Error: No navigation path defined for {target_map}.")

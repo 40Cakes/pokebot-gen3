@@ -205,17 +205,8 @@ class SafariMode(BotMode):
 
         path = get_navigation_path(target_map, tile_location)
 
-        for map_group, coords, warp_direction in path:
-            while True:
-                if get_player_avatar().map_group_and_number == map_group:
-                    if get_player_avatar().local_coordinates == coords:
-                        if warp_direction:
-                            yield from self._warp(warp_direction)
-                        break
-                    else:
-                        yield from navigate_to(map_group, coords)
-                else:
-                    yield from navigate_to(map_group, coords)
+        for map_group, coords in path:
+            yield from navigate_to(map_group, coords)
 
         if mode in (SafariHuntingMode.SPIN, SafariHuntingMode.SURF):
             if self._use_repel and not repel_is_active():
@@ -242,14 +233,6 @@ class SafariMode(BotMode):
                 )
             case _:
                 return True
-
-    def _warp(self, direction: str) -> Generator:
-        yield from ensure_facing_direction(direction)
-        context.emulator.hold_button(direction)
-        for _ in range(50):
-            yield
-        context.emulator.release_button(direction)
-        yield from wait_for_player_avatar_to_be_controllable()
 
     def _soft_reset(self) -> Generator:
         """Handles soft resetting if cash difference exceeds the limit."""
