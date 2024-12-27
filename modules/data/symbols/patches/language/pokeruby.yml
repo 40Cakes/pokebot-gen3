@@ -91,6 +91,8 @@ CB2_LoadMap:
   J: 0x8051750
 Task_BattleStart:
   J: ~
+SummaryScreenHandleKeyInput:
+  J: 0x809aad8
 #--------------------#
 #  Battling Symbols  #
 #--------------------#
