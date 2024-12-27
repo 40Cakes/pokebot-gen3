@@ -90,7 +90,7 @@ Task_MapNamePopup:
 CB2_LoadMap:
   J: 0x8051750
 Task_BattleStart:
-  J: ~
+  J: 0x807e838
 SummaryScreenHandleKeyInput:
   J: 0x809aad8
 #--------------------#
@@ -145,7 +145,7 @@ HandleAction_ChooseMove:
 bx_battle_menu_t6_2:
   J: 0x8126310
 HandleEndTurn_FinishBattle:
-  J: ~ # 0x8010fa4
+  J: 0x8010fa4
 BattleScript_HandleFaintedMon:
   J: 0x81a9713
 BattleScript_FaintedMonEnd:

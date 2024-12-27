@@ -127,7 +127,7 @@ def get_naming_screen_data() -> NamingScreen | None:
             enabled=bool(task.data_value(0)),
             state=NamingScreenState(data[0x00]),
             current_input=decode_string(data[0x11:0x21]),
-            keyboard_page=KeyboardPageType((data[0x0E]+language_offset) % 3),
+            keyboard_page=KeyboardPageType((data[0x0E] + language_offset) % 3),
             cursor_position=(cursor_sprite.data_value(0), cursor_sprite.data_value(1)),
         )
     else:
