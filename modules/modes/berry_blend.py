@@ -3,6 +3,8 @@ from typing import Generator
 
 from modules.items import get_item_by_name, get_item_bag, get_pokeblocks
 from modules.player import get_player_avatar
+from modules.roms import ROMLanguage
+from modules.context import context
 from . import BotModeError
 from ._interface import BotMode
 from .util import scroll_to_item_in_bag
@@ -47,9 +49,16 @@ class BerryBlendMode(BotMode):
             play_callback_name = "SUB_80501FC"
             data_symbol = "gBerryBlenderData"
             hit_range_symbol = "gUnknown_08216303"
-            arrow_position_offset = 84
-            speed_offset = 86
-            number_of_players_offset = 136
+
+            if context.rom.language == ROMLanguage.Japanese:
+                arrow_position_offset = 74
+                speed_offset = 76
+                number_of_players_offset = 126
+            else:
+                arrow_position_offset = 84
+                speed_offset = 86
+                number_of_players_offset = 136
+
         else:
             play_callback_name = "CB2_PLAYBLENDER"
             data_symbol = "sBerryBlender"

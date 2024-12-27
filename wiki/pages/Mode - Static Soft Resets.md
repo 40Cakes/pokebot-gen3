@@ -46,7 +46,7 @@ Static soft reset mode targets static Pokémon by simply spamming the A button u
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |     🟨      |     ✅      |     ✅      |      ✅       |
-| Japanese |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Japanese |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
 | German   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
 | Spanish  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
 | French   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
