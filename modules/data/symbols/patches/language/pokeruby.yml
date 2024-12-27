@@ -55,7 +55,7 @@ gMapHeader:
 gPlayerAvatar:
   J: 0x202e5b8
 gRegionMap:
-  J: 0x20385e8
+  J: 0x20385C4
 gSaveBlock1:
   J: 0x2025494
 gSaveBlock2:
@@ -66,29 +66,29 @@ gSaveBlock2:
 #    Main Menu    #
 #-----------------#
 CB2_InitCopyrightScreenAfterBootup:
-  J: ~
+  J: 0x813668c
 MainCB2_Intro:
-  J: ~
+  J: 0x813634c
 CB2_InitTitleScreen:
-  J: ~
+  J: 0x80790c4
 MainCB2:
-  J: ~
+  J: 0x8079418
 CB2_MainMenu:
-  J: ~
+  J: 0x8006cd0
 CB2_ReturnToFieldLocal:
-  J: ~
+  J: 0x8051880
 #-----------------#
 
 #---------------------------#
 #    SSR/SRA/SGR/Roamers    #
 #---------------------------#
 gRngValue:
-  J: ~
+  J: 0x3004748
 # Fly
 Task_MapNamePopup:
-  J: ~
+  J: 0x809f568
 CB2_LoadMap:
-  J: ~
+  J: 0x8051750
 Task_BattleStart:
   J: ~
 #--------------------#
