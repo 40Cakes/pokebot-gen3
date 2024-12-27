@@ -27,10 +27,12 @@ Before starting Safari Mode, ensure you meet the following criteria:
 1. **Save your game** at the Safari Zone entrance building in **Fuchsia City**.
 
 ![Safari Mode Start Screen](../images/safari_mode_start.png)
+
 2. **Have enough money**: You need more than ₽500 to start the hunt.
 3. **Choose a Pokémon** to hunt from the available Safari Zone list.
 
 ![Safari Mode Start Screen](../images/safari_target.png)
+
 4. **Decide whether to use Repel**, especially for Pokémon not hunted by Fishing. Since some targets are located far from the Safari entrance, ensure you have enough repels to do a full cycle (4 re-entries) before a soft reset.
 
 ![Safari Mode Start Screen](../images/repel_prompt_windows.png)
@@ -45,7 +47,7 @@ Before starting Safari Mode, ensure you meet the following criteria:
 3. Some Pokémon may require many Safari Balls (e.g., a Shiny Chansey). Ensure you have a full inventory.
 4. After spending ₽25.000 without catching a Pokémon in the last 50 Safari runs, the bot will:
     - Perform a soft reset to save cash.
-    - Or exit Safari Mode and switch to manual control for you to save your game if a Pokémon was captured during these 5 Safari runs.
+    - Or exit Safari Mode and switch to manual control for you to save your game if a Pokémon was captured during these 50 Safari runs.
 
 ---
 
