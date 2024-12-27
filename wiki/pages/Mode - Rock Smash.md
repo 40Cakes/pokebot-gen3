@@ -68,7 +68,7 @@ The mode will continuously try to enter the Safari Zone, so make sure you have s
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald |
 |:---------|:-------:|:-----------:|:----------:|
 | English  |    ✅    |      ✅      |     ✅      |
-| Japanese |    ❌    |      ❌      |     ✅      |
+| Japanese |    ✅    |      ❌      |     ✅      |
 | German   |    ✅    |      ❌      |     ✅      |
 | Spanish  |    ✅    |      ❌      |     ✅      |
 | French   |    ✅    |      ❌      |     ✅      |
