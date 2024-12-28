@@ -69,7 +69,7 @@ The mode will continuously try to enter the Safari Zone, so make sure you have s
 |:---------|:-------:|:-----------:|:----------:|
 | English  |    ✅    |      ✅      |     ✅      |
 | Japanese |    ✅    |      ❌      |     ✅      |
-| German   |    ✅    |      ❌      |     ✅      |
+| German   |    ✅    |      ✅      |     ✅      |
 | Spanish  |    ✅    |      ❌      |     ✅      |
 | French   |    ✅    |      ❌      |     ✅      |
 | Italian  |    ✅    |      ❌      |     ✅      |

@@ -57,7 +57,7 @@ The lakes marked in red are highly likely to contain a Feebas tile.
 |:---------|:-------:|:-----------:|:----------:|
 | English  |    ✅    |      ✅      |     ✅      |
 | Japanese |    ✅    |      ❌      |     ✅      |
-| German   |    ✅    |      ❌      |     ✅      |
+| German   |    ✅    |      ✅      |     ✅      |
 | Spanish  |    ✅    |      ❌      |     ✅      |
 | French   |    ✅    |      ❌      |     ✅      |
 | Italian  |    ✅    |      ❌      |     ✅      |
