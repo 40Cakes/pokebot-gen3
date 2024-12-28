@@ -67,6 +67,7 @@ def _get_targeted_encounter() -> Encounter | None:
                     "HIDE_ROUTE_119_KECLEON_1" if context.rom.is_emerald else "HIDE_KECLEON_ROUTE119_1"
                 ),
             ),
+            Encounter(MapRSE.SOUTHERN_ISLAND_INTERIOR, (13, 11), "Latios/Latias"),
         ]
 
     targeted_tile = get_player_avatar().map_location_in_front

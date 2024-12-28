@@ -13,6 +13,8 @@
 ![](../../modules/web/static/sprites/pokemon/shiny/Regice.png)
 ![](../../modules/web/static/sprites/pokemon/shiny/Registeel.png)
 ![](../../modules/web/static/sprites/pokemon/shiny/Rayquaza.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Latios.png)
+![](../../modules/web/static/sprites/pokemon/shiny/Latias.png)
 ![](../../modules/web/static/sprites/pokemon/shiny/Deoxys.png)
 ![](../../modules/web/static/sprites/pokemon/shiny/Kyogre.png)
 ![](../../modules/web/static/sprites/pokemon/shiny/Groudon.png)
@@ -40,6 +42,13 @@ Static soft reset mode targets static Pokémon by simply spamming the A button u
 - Place the Player in the Cave of Origin facing the tile _before_ the encounter triggers.
 
 ![image](../images/groudon_ruby.png)
+
+### Latios/Latias (Ruby/Sapphire)
+
+- Place the player in front of the egg on [Southern Island](https://bulbapedia.bulbagarden.net/wiki/Southern_Island)
+- Start mode
+
+![image](../images/lati_SSR.png)
 
 # Game Support
 
