@@ -44,9 +44,9 @@ Soft resets for starter Pokémon.
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
 | Japanese |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
 | German   |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
-| Spanish  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
-| French   |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
-| Italian  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
+| Spanish  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| French   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Italian  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
 
 ✅ Tested, working
 
