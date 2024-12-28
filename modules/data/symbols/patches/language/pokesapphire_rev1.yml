@@ -3,35 +3,35 @@
 #    Overworld / Util Symbols    #
 #--------------------------------#
 CB2_OVERWORLD:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80547d4
+  I: 0x80546fc
+  S: 0x80547e4
 # Door exit
 sub_8080B9C:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80810b8
+  I: 0x8080f70
+  S: 0x8081058
 Task_HandleYesNoInput:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80b5720
+  I: 0x80b562c
+  S: 0x80b5730
 Task_FieldMessageBox:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x8064ed0
+  I: 0x8064df8
+  S: 0x8064ee0
 Std_MsgboxDefault:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81a4b88
+  I: 0x81a012d
+  S: 0x81a2a4d
 # 0x6
 Std_MsgboxYesNo:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81a4b90
+  I: 0x81a0135
+  S: 0x81a2a55
 WaitForAorBPress:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80674f1
+  I: 0x8067419
+  S: 0x8067501
 Task_DuckBGMForPokemonCry:
   F: ~
   I: ~
@@ -115,9 +115,9 @@ gRngValue:
   S: 0x3004828
 # Fly
 Task_MapNamePopup:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80a322c
+  I: 0x80a3138
+  S: 0x80a323c
 CB2_LoadMap:
   F: ~
   I: ~
@@ -218,31 +218,32 @@ Task_EvolutionScene:
 #----------------#
 #  Daycare Mode  #
 #----------------#
+# 0x9
 S_EggHatch:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81b8b58
+  I: 0x81b37de
+  S: 0x81b5deb
 Task_Fanfare:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80753cc
+  I: 0x80752f0
+  S: 0x80753d8
 #----------------#
 
 #-------------------------#
 #    PC Menu / Storage    #
 #-------------------------#
 Task_PokemonStorageSystem:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80960ec
+  I: 0x8095ff8
+  S: 0x80960e4
 Task_HandleMultichoiceInput:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80b54f0
+  I: 0x80b53fc
+  S: 0x80b5500
 SUB_8096B38:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x8096d70
+  I: 0x8096c7c
+  S: 0x8096d68
 #-------------------------#
 
 #--------------#
@@ -333,13 +334,13 @@ BattleScript_TryNicknameCaughtMon:
   I: ~
   S: ~
 sub_80B5AA0:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80b5d34
+  I: 0x80b5c40
+  S: 0x80b5d44
 Task_HandleInput:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80b64d0
+  I: 0x80b63dc
+  S: 0x80b64e0
 # 0x7
 BattleScript_GiveCaughtMonEnd:
   F: ~
@@ -414,9 +415,9 @@ gEggHatchData:
   I: 0x300482c
   S: 0x300482c
 CB2_EggHatch_1:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x804341c
+  I: 0x8043344
+  S: 0x804342c
 # Poison faint 0x5
 gUnknown_081A14B8:
   F: ~
