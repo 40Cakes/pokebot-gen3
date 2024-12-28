@@ -1,3 +1,445 @@
-# Dummy file for now
+---
+#--------------------------------#
+#    Overworld / Util Symbols    #
+#--------------------------------#
+CB2_OVERWORLD:
+  F: ~
+  I: ~
+  S: ~
+# Door exit
+sub_8080B9C:
+  F: ~
+  I: ~
+  S: ~
+Task_HandleYesNoInput:
+  F: ~
+  I: ~
+  S: ~
+Task_FieldMessageBox:
+  F: ~
+  I: ~
+  S: ~
+Std_MsgboxDefault:
+  F: ~
+  I: ~
+  S: ~
+# 0x6
+Std_MsgboxYesNo:
+  F: ~
+  I: ~
+  S: ~
+WaitForAorBPress:
+  F: ~
+  I: ~
+  S: ~
+Task_DuckBGMForPokemonCry:
+  F: ~
+  I: ~
+  S: ~
+CB2_FlyRegionMap:
+  F: ~
+  I: ~
+  S: ~
+#-------------------------------#
+
+#--------------------#
+#    Map Symbols     #
+#--------------------#
 gMapGroups:
-  D: ~
+  F: 0x830f17c
+  I: 0x8308a08
+  S: 0x830bab0
+gRegionMapEntries:
+  F: 0x83eec90
+  I: 0x83e7f80
+  S: 0x83eb0a4
+gWildMonHeaders:
+  F: 0x83a3f1c
+  I: 0x839d790
+  S: 0x83a0838
+sTileBitAttributes:
+  F: 0x830fa20
+  I: 0x83092ac
+  S: 0x830c354
+gObjectEvents:
+  F: 0x30048b0
+  I: 0x30048b0
+  S: 0x30048b0
+# English rev 1 + 10
+gPlayerPartyCount:
+  F: 0x3004360
+  I: 0x3004360
+  S: 0x3004360
+# English rev 1 + 10
+gPlayerParty:
+  F: 0x3004370
+  I: 0x3004370
+  S: 0x3004370
+#----------------#
+
+#-----------------#
+#    Main Menu    #
+#-----------------#
+CB2_InitCopyrightScreenAfterBootup:
+  F: ~
+  I: ~
+  S: ~
+MainCB2_Intro:
+  F: ~
+  I: ~
+  S: ~
+CB2_InitTitleScreen:
+  F: ~
+  I: ~
+  S: ~
+MainCB2:
+  F: ~
+  I: ~
+  S: ~
+CB2_MainMenu:
+  F: ~
+  I: ~
+  S: ~
+CB2_ReturnToFieldLocal:
+  F: ~
+  I: ~
+  S: ~
+#-----------------#
+
+#---------------------------#
+#    SSR/SRA/SGR/Roamers    #
+#---------------------------#
+gRngValue:
+  F: 0x3004828
+  I: 0x3004828
+  S: 0x3004828
+# Fly
+Task_MapNamePopup:
+  F: ~
+  I: ~
+  S: ~
+CB2_LoadMap:
+  F: ~
+  I: ~
+  S: ~
+Task_BattleStart:
+  F: ~
+  I: ~
+  S: ~
+#--------------------#
+#  Battling Symbols  #
+#--------------------#
+BattleMainCB1:
+  F: ~
+  I: ~
+  S: ~
+BattleMainCB2:
+  F: ~
+  I: ~
+  S: ~
+gBattleMainFunc:
+  F: 0x30042e4
+  I: 0x30042e4
+  S: 0x30042e4
+gBattlerControllerFuncs:
+  F: 0x3004340
+  I: 0x3004340
+  S: 0x3004340
+gBattlescriptCurrInstr:
+  F: ~ # No need mapping
+  I: ~ # No need mapping
+  S: ~ # No need mapping
+gBattleResults:
+  F: 0x30042f0
+  I: 0x30042f0
+  S: 0x30042f0
+GTASKS:
+  F: 0x3004b30
+  I: 0x3004b30
+  S: 0x3004b30
+gEnemyParty:
+  F: 0x030045d0
+  I: 0x030045d0
+  S: 0x030045d0
+# Turn selection
+sub_8012324:
+  F: ~
+  I: ~
+  S: ~
+sub_802C098:
+  F: ~
+  I: ~
+  S: ~
+# Turn selection Safari
+bx_battle_menu_t6_2:
+  F: ~
+  I: ~
+  S: ~
+HandleEndTurn_FinishBattle:
+  F: ~
+  I: ~
+  S: ~
+BattleScript_HandleFaintedMon:
+  F: ~
+  I: ~
+  S: ~
+BattleScript_FaintedMonEnd:
+  F: ~
+  I: ~
+  S: ~
+CB2_WhiteOut:
+  F: ~
+  I: ~
+  S: ~
+BattleScript_AskToLearnMove:
+  F: ~
+  I: ~
+  S: ~
+BattleScript_ForgotAndLearnedNewMove:
+  F: ~
+  I: ~
+  S: ~
+# Replace move
+sub_809E260:
+  F: ~
+  I: ~
+  S: ~
+CB2_EvolutionSceneUpdate:
+  F: ~
+  I: ~
+  S: ~
+Task_EvolutionScene:
+  F: ~
+  I: ~
+  S: ~
+
+#--------------------#
+
+#----------------#
+#  Daycare Mode  #
+#----------------#
+S_EggHatch:
+  F: ~
+  I: ~
+  S: ~
+Task_Fanfare:
+  F: ~
+  I: ~
+  S: ~
+#----------------#
+
+#-------------------------#
+#    PC Menu / Storage    #
+#-------------------------#
+Task_PokemonStorageSystem:
+  F: ~
+  I: ~
+  S: ~
+Task_HandleMultichoiceInput:
+  F: ~
+  I: ~
+  S: ~
+SUB_8096B38:
+  F: ~
+  I: ~
+  S: ~
+#-------------------------#
+
+#--------------#
+#   Bag Menu   #
+#--------------#
+sub_80A3118:
+  F: ~
+  I: ~
+  S: ~
+sCurrentBagPocket:
+  F: ~ # No need mapping
+  I: ~ # No need mapping
+  S: ~ # No need mapping
+gBagPocketScrollStates:
+  F: 0x03005d20
+  I: 0x03005d20
+  S: 0x03005d20
+sub_80A5414:
+  F: ~
+  I: ~
+  S: ~
+sub_80A50C8:
+  F: ~
+  I: ~
+  S: ~
+#---------------#
+
+#-----------------#
+#  In game Menu   #
+#-----------------#
+# Start Menu
+sub_80712B4:
+  F: ~
+  I: ~
+  S: ~
+HandleDefaultPartyMenu:
+  F: ~
+  I: ~
+  S: ~
+#-----------------#
+
+#----------------#
+#   Party Menu   #
+#----------------#
+CB2_PartyMenuMain:
+  F: ~
+  I: ~
+  S: ~
+# Pokemon action menu
+sub_8089D94:
+  F: ~
+  I: ~
+  S: ~
+HandleBattlePartyMenu:
+  F: ~
+  I: ~
+  S: ~
+Task_HandlePopupMenuInput:
+  F: ~
+  I: ~
+  S: ~
+# Pokemon switch
+sub_806D198:
+  F: ~
+  I: ~
+  S: ~
+HandlePartyMenuSwitchPokemonInput:
+  F: ~
+  I: ~
+  S: ~
+#----------------#
+
+#-------------------#
+#   Fishing Mode    #
+#-------------------#
+Task_Fishing:
+  F: ~
+  I: ~
+  S: ~
+#-------------------#
+
+#---------------------#
+#   Pokemon renaming  #
+#---------------------#
+# 0xa
+BattleScript_TryNicknameCaughtMon:
+  F: ~
+  I: ~
+  S: ~
+sub_80B5AA0:
+  F: ~
+  I: ~
+  S: ~
+Task_HandleInput:
+  F: ~
+  I: ~
+  S: ~
+# 0x7
+BattleScript_GiveCaughtMonEnd:
+  F: ~
+  I: ~
+  S: ~
+# 0x6
+BattleScript_GotAwaySafely:
+  F: ~
+  I: ~
+  S: ~
+namingScreenDataPtr:
+  F: ~
+  I: ~
+  S: ~
+#---------------------#
+
+#---------------------#
+#    Berry blending   #
+#---------------------#
+SUB_80501FC:
+  F: ~
+  I: ~
+  S: ~
+gUnknown_08216303:
+  F: ~
+  I: ~
+  S: ~
+gBerryBlenderData:
+  F: 0x3004864
+  I: 0x3004864
+  S: 0x3004864
+#---------------------#
+
+#-----------#
+#   Feebas  #
+#-----------#
+# Waterfall
+sub_8086F64:
+  F: ~
+  I: ~
+  S: ~
+# Surf
+sub_8088954:
+  F: ~
+  I: ~
+  S: ~
+#-----------#
+
+#---------------------#
+#    Starters Hoenn   #
+#---------------------#
+Task_StarterChoose2:
+  F: ~
+  I: ~
+  S: ~
+BattleBeginFirstTurn:
+  F: ~
+  I: ~
+  S: ~
+#---------------------#
+
+#----------------#
+#    Listeners   #
+#----------------#
+# 0x8
+S_RepelWoreOff:
+  F: ~
+  I: ~
+  S: ~
+gEggHatchData:
+  F: 0x300482c
+  I: 0x300482c
+  S: 0x300482c
+CB2_EggHatch_1:
+  F: ~
+  I: ~
+  S: ~
+# Poison faint 0x5
+gUnknown_081A14B8:
+  F: ~
+  I: ~
+  S: ~
+# 0x8
+EventScript_StartTrainerBattle:
+  F: ~
+  I: ~
+  S: ~
+# 0x4
+EventScript_DoTrainerBattle:
+  F: ~
+  I: ~
+  S: ~
+#----------------#
+
+
+# Ununsed symbols that were conflicting with currently used symbols
+# We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
+EventScript_SetupRivalOnBikeGfxIdFemale:
+  I: 0x0
+__fpcmp_parts_f:
+  F: 0x0
+Common_EventScript_SetupEvilTeamGfxIds:
+  I: 0x0
