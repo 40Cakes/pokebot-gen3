@@ -17,9 +17,9 @@ one with 1-3 NPCs around it as the empty ones are for multiplayer only.)
 | English  |    ✅    |      ✅      |     ✅      |
 | Japanese |    ✅    |      ❌      |     ✅      |
 | German   |    ✅    |      ✅      |     ✅      |
-| Spanish  |    ✅    |      ❌      |     ✅      |
-| French   |    ✅    |      ❌      |     ✅      |
-| Italian  |    ✅    |      ❌      |     ✅      |
+| Spanish  |    ✅    |      ✅      |     ✅      |
+| French   |    ✅    |      ✅      |     ✅      |
+| Italian  |    ✅    |      ✅      |     ✅      |
 
 ✅ Tested, working
 

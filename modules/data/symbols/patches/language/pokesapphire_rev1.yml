@@ -250,9 +250,9 @@ SUB_8096B38:
 #   Bag Menu   #
 #--------------#
 sub_80A3118:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80a3350
+  I: 0x80a325c
+  S: 0x80a3360
 sCurrentBagPocket:
   F: ~ # No need mapping
   I: ~ # No need mapping
@@ -262,13 +262,13 @@ gBagPocketScrollStates:
   I: 0x03005d20
   S: 0x03005d20
 sub_80A5414:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80a564c
+  I: 0x80a5558
+  S: 0x80a565c
 sub_80A50C8:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80a5300
+  I: 0x80a520c
+  S: 0x80a5310
 #---------------#
 
 #-----------------#
@@ -276,27 +276,27 @@ sub_80A50C8:
 #-----------------#
 # Start Menu
 sub_80712B4:
-  F: ~
-  I: ~
-  S: ~
-HandleDefaultPartyMenu:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80716c4
+  I: 0x80715e8
+  S: 0x80716d0
 #-----------------#
 
 #----------------#
 #   Party Menu   #
 #----------------#
+HandleDefaultPartyMenu:
+  F: 0x808a210
+  I: 0x808a0c8
+  S: 0x808a1b0
 CB2_PartyMenuMain:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x806b310
+  I: 0x806b234
+  S: 0x806b31c
 # Pokemon action menu
 sub_8089D94:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x808a2d0
+  I: 0x808a188
+  S: 0x808a270
 HandleBattlePartyMenu:
   F: ~
   I: ~
@@ -307,9 +307,9 @@ Task_HandlePopupMenuInput:
   S: ~
 # Pokemon switch
 sub_806D198:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x806d5cc
+  I: 0x806d4f0
+  S: 0x806d5d8
 HandlePartyMenuSwitchPokemonInput:
   F: ~
   I: ~
@@ -361,13 +361,13 @@ namingScreenDataPtr:
 #    Berry blending   #
 #---------------------#
 SUB_80501FC:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x8050654
+  I: 0x805057c
+  S: 0x8050664
 gUnknown_08216303:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x821e6db
+  I: 0x8217f67
+  S: 0x821b00f
 gBerryBlenderData:
   F: 0x3004864
   I: 0x3004864
