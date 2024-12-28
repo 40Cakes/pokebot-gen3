@@ -33,13 +33,13 @@ WaitForAorBPress:
   I: 0x8067419
   S: 0x8067501
 Task_DuckBGMForPokemonCry:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80758bc
+  I: 0x80757e0
+  S: 0x80758c8
 CB2_FlyRegionMap:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80fc6bc
+  I: 0x80fc5b4
+  S: 0x80fc6b8
 #-------------------------------#
 
 #--------------------#
@@ -130,13 +130,13 @@ Task_BattleStart:
 #  Battling Symbols  #
 #--------------------#
 BattleMainCB1:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80109f8
+  I: 0x80109f0
+  S: 0x80109f0
 BattleMainCB2:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x800f9dc
+  I: 0x800f9d4
+  S: 0x800f9d4
 gBattleMainFunc:
   F: 0x30042e4
   I: 0x30042e4
@@ -163,55 +163,58 @@ gEnemyParty:
   S: 0x030045d0
 # Turn selection
 sub_8012324:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x80124f8
+  I: 0x80124f0
+  S: 0x80124f0
 sub_802C098:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x802c26c
+  I: 0x802c264
+  S: 0x802c264
 # Turn selection Safari
 bx_battle_menu_t6_2:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x812b95c
+  I: 0x812b854
+  S: 0x812b954
 HandleEndTurn_FinishBattle:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x8013e70
+  I: 0x8013e68
+  S: 0x8013e68
 BattleScript_HandleFaintedMon:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81e1003
+  I: 0x81da897
+  S: 0x81dd91b
 BattleScript_FaintedMonEnd:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81e110e
+  I: 0x81da9a2
+  S: 0x81dda26
 CB2_WhiteOut:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x8054898
+  I: 0x80547c0
+  S: 0x80548a8
 BattleScript_AskToLearnMove:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81e12a1
+  I: 0x81dab35
+  S: 0x81ddbb9
 BattleScript_ForgotAndLearnedNewMove:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81e12ce
+  I: 0x81dab62
+  S: 0x81ddbe4
 # Replace move
 sub_809E260:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x809e49c
+  I: 0x809e3a8
+  S: 0x809da78
 CB2_EvolutionSceneUpdate:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x8112770
+  I: 0x8112668
+  S: 0x8112768
 Task_EvolutionScene:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x811290c
+  I: 0x8112804
+  S: 0x8112904
+RunBattleScriptCommands_PopCallbacksStack:
+  F: 0x8014128
+  I: 0x8014120
 
 #--------------------#
 
@@ -298,31 +301,31 @@ sub_8089D94:
   I: 0x808a188
   S: 0x808a270
 HandleBattlePartyMenu:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x8095350
+  I: 0x809525c
+  S: 0x8095348
 Task_HandlePopupMenuInput:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x8095640
+  I: 0x809554c
+  S: 0x8095638
 # Pokemon switch
 sub_806D198:
   F: 0x806d5cc
   I: 0x806d4f0
   S: 0x806d5d8
 HandlePartyMenuSwitchPokemonInput:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x806cfa8
+  I: 0x806cfb4
+  S: 0x806cfb4
 #----------------#
 
 #-------------------#
 #   Fishing Mode    #
 #-------------------#
 Task_Fishing:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x805a7ac
+  I: 0x805a6d4
+  S: 0x805a7bc
 #-------------------#
 
 #---------------------#
@@ -330,9 +333,9 @@ Task_Fishing:
 #---------------------#
 # 0xa
 BattleScript_TryNicknameCaughtMon:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81e226b
+  I: 0x81dbaff
+  S: 0x81deb83
 sub_80B5AA0:
   F: 0x80b5d34
   I: 0x80b5c40
@@ -343,18 +346,18 @@ Task_HandleInput:
   S: 0x80b64e0
 # 0x7
 BattleScript_GiveCaughtMonEnd:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81e2280
+  I: 0x81dbb14
+  S: 0x81deb98
 # 0x6
 BattleScript_GotAwaySafely:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81e11b1
+  I: 0x81daa45
+  S: 0x81ddac9
 namingScreenDataPtr:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x83d583c
+  I: 0x83ce9fc
+  S: 0x83d1a58
 #---------------------#
 
 #---------------------#
@@ -438,9 +441,27 @@ EventScript_DoTrainerBattle:
 
 # Ununsed symbols that were conflicting with currently used symbols
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
-EventScript_SetupRivalOnBikeGfxIdFemale:
+AI_CV_Facade:
   I: 0x0
-__fpcmp_parts_f:
-  F: 0x0
-Common_EventScript_SetupEvilTeamGfxIds:
+_081DD9A4:
+  S: 0x0
+_081DD998:
+  S: 0x0
+_081DD994:
+  S: 0x0
+_081DD990:
+  S: 0x0
+_081DD98E:
+  S: 0x0
+AI_CV_SelfKO_Encourage2:
+  I: 0x0
+AI_CV_SelfKO_Encourage1:
+  I: 0x0
+AI_CV_SelfKO:
+  I: 0x0
+AI_CV_Absorb_End:
+  I: 0x0
+AI_CV_AbsorbEncourageMaybe:
+  I: 0x0
+AI_CV_SelfKO_Encourage3:
   I: 0x0

@@ -110,13 +110,17 @@ class StaticGiftResetsMode(BotMode):
             )
             if save_data.get_event_flag("RECEIVED_LAVARIDGE_EGG"):
                 raise BotModeError("You have already received the Wynaut egg in your saved game.")
-        if context.rom.is_emerald and encounter[2] in ["Wynaut", "Togepi"] and not any(
-            pokemon.ability.name
-            in [
-                "Flame Body",
-                "Magma Armor",
-            ]
-            for pokemon in save_data.get_party()
+        if (
+            context.rom.is_emerald
+            and encounter[2] in ["Wynaut", "Togepi"]
+            and not any(
+                pokemon.ability.name
+                in [
+                    "Flame Body",
+                    "Magma Armor",
+                ]
+                for pokemon in save_data.get_party()
+            )
         ):
             console.print("[bold yellow]WARNING: None of your Pokémon has the Flame Body / Magma Armor ability.[/]")
             console.print("[yellow]Hatching will take twice as long this way.[/]")
