@@ -110,7 +110,7 @@ class StaticGiftResetsMode(BotMode):
             )
             if save_data.get_event_flag("RECEIVED_LAVARIDGE_EGG"):
                 raise BotModeError("You have already received the Wynaut egg in your saved game.")
-        if encounter[2] in ["Wynaut", "Togepi"] and not any(
+        if context.rom.is_emerald and encounter[2] in ["Wynaut", "Togepi"] and not any(
             pokemon.ability.name
             in [
                 "Flame Body",
