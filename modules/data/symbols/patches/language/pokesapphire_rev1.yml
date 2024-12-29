@@ -119,13 +119,13 @@ Task_MapNamePopup:
   I: 0x80a3138
   S: 0x80a323c
 CB2_LoadMap:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x805490c
+  I: 0x8054834
+  S: 0x805491c
 Task_BattleStart:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x8081e7c
+  I: 0x8081d34
+  S: 0x8081e1c
 #--------------------#
 #  Battling Symbols  #
 #--------------------#
