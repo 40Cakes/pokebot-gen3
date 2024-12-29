@@ -410,9 +410,9 @@ BattleBeginFirstTurn:
 #----------------#
 # 0x8
 S_RepelWoreOff:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81cb300
+  I: 0x81c4fda
+  S: 0x81c800a
 gEggHatchData:
   F: 0x300482c
   I: 0x300482c
