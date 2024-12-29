@@ -396,13 +396,13 @@ sub_8088954:
 #    Starters Hoenn   #
 #---------------------#
 Task_StarterChoose2:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x810a66c
+  I: 0x810a564
+  S: 0x810a668
 BattleBeginFirstTurn:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x8011cd4
+  I: 0x8011ccc
+  S: 0x8011ccc
 #---------------------#
 
 #----------------#
