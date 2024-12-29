@@ -423,19 +423,19 @@ CB2_EggHatch_1:
   S: 0x804342c
 # Poison faint 0x5
 gUnknown_081A14B8:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81a692c
+  I: 0x81a1e63
+  S: 0x81a47ca
 # 0x8
 EventScript_StartTrainerBattle:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81a4ba0
+  I: 0x81a0145
+  S: 0x81a2a65
 # 0x4
 EventScript_DoTrainerBattle:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81a4c87
+  I: 0x81a022d
+  S: 0x81a2b4c
 #----------------#
 
 
@@ -464,4 +464,6 @@ AI_CV_Absorb_End:
 AI_CV_AbsorbEncourageMaybe:
   I: 0x0
 AI_CV_SelfKO_Encourage3:
+  I: 0x0
+Common_EventScript_SetupEvilTeamGfxIds:
   I: 0x0
