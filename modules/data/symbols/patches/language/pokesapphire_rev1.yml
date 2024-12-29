@@ -81,29 +81,29 @@ gPlayerParty:
 #    Main Menu    #
 #-----------------#
 CB2_InitCopyrightScreenAfterBootup:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x813bf2c
+  I: 0x813be68
+  S: 0x813bf68
 MainCB2_Intro:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x813bc80
+  I: 0x813bbbc
+  S: 0x813bcbc
 CB2_InitTitleScreen:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x807c610
+  I: 0x807c4c8
+  S: 0x807c5b0
 MainCB2:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x807c974
+  I: 0x807c82c
+  S: 0x807c914
 CB2_MainMenu:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x8009890
+  I: 0x8009890
+  S: 0x8009890
 CB2_ReturnToFieldLocal:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x8054a40
+  I: 0x8054968
+  S: 0x8054a50
 #-----------------#
 
 #---------------------------#
