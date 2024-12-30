@@ -3,26 +3,26 @@
 #    Overworld / Util Symbols    #
 #--------------------------------#
 CB2_OVERWORLD:
-  J: 0x8051614
+  J: 0x805161c
 # Door exit
 sub_8080B9C:
-  J: ~
+  J: 0x807da78
 Task_HandleYesNoInput:
-  J: ~
+  J: 0x80b0b4c
 Task_FieldMessageBox:
-  J: ~
+  J: 0x8061c30
 # 0x7
 Std_MsgboxDefault:
-  J: ~
+  J: 0x817f394
 # 0x9
 Std_MsgboxYesNo:
-  J: ~
+  J: 0x817f39c
 WaitForAorBPress:
-  J: ~
+  J: 0x8064405
 Task_DuckBGMForPokemonCry:
-  J: ~
+  J: 0x8072444
 CB2_FlyRegionMap:
-  J: ~
+  J: 0x80f71b0
 gMain:
   J: 0x30016e0
 gFieldMessageBoxWindow:
@@ -86,13 +86,13 @@ gRngValue:
   J: 0x3004748
 # Fly
 Task_MapNamePopup:
-  J: ~
+  J: 0x809f568
 CB2_LoadMap:
   J: ~
 Task_BattleStart:
   J: ~
 SummaryScreenHandleKeyInput:
-  J: ~
+  J: 0x809aad8
 #--------------------#
 #  Battling Symbols  #
 #--------------------#
@@ -175,40 +175,40 @@ RunBattleScriptCommands_PopCallbacksStack:
 #  Daycare Mode  #
 #----------------#
 S_EggHatch:
-  J: ~
+  J: 0x818be74
 # EggHatch party identification
 gSpecialVar_0x8004:
   J: 0x202e620
 Task_Fanfare:
-  J: ~
+  J: 0x8071f54
 #----------------#
 
 #-------------------------#
 #    PC Menu / Storage    #
 #-------------------------#
 Task_PokemonStorageSystem:
-  J: ~
+  J: 0x8092a14
 Task_HandleMultichoiceInput:
-  J: ~
+  J: 0x80b0928
 SUB_8096B38:
-  J: ~
+  J: 0x809363c
 #-------------------------#
 
 #--------------#
 #   Bag Menu   #
 #--------------#
 sub_80A3118:
-  J: ~
+  J: 0x809f6dc
 sCurrentBagPocket:
   J: 0x2038258
 gBagPocketScrollStates:
   J: 0x3005c30
 sub_80A5414:
-  J: ~
+  J: 0x80a15d4
 gPaletteFade:
   J: 0x202f0a8
 sub_80A50C8:
-  J: ~
+  J: 0x80a12c0
 #---------------#
 
 #-----------------#
@@ -216,7 +216,7 @@ sub_80A50C8:
 #-----------------#
 # Start Menu
 sub_80712B4:
-  J: ~
+  J: 0x806e5f8
 sStartMenuCursorPos:
   J: 0x202e64c
 sNumStartMenuActions:
@@ -229,21 +229,21 @@ sCurrentStartMenuActions:
 #   Party Menu   #
 #----------------#
 HandleDefaultPartyMenu:
-  J: ~
+  J: 0x8086b4c
 CB2_PartyMenuMain:
-  J: ~
+  J: 0x80681f8
 # Pokemon action menu
 sub_8089D94:
-  J: ~
+  J: 0x8086c04
 HandleBattlePartyMenu:
-  J: ~
+  J: 0x8091c90
 Task_HandlePopupMenuInput:
-  J: ~
+  J: 0x8091f80
 # Pokemon switch
 sub_806D198:
-  J: ~
+  J: 0x806a40c
 HandlePartyMenuSwitchPokemonInput:
-  J: ~
+  J: 0x8069dd8
 sPokeMenuCursorPos:
   J: 0x202fcc4
 sPokeMenuOptionsNo:
@@ -320,7 +320,7 @@ S_RepelWoreOff:
 gEggHatchData:
   J: 0x300474c
 CB2_EggHatch_1:
-  J: ~
+  J: 0x804022c
 # Poison faint 0x5
 gUnknown_081A14B8:
   J: ~
