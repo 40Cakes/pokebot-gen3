@@ -97,15 +97,15 @@ SummaryScreenHandleKeyInput:
 #  Battling Symbols  #
 #--------------------#
 BattleMainCB1:
-  J: ~
+  J: 0x800db30
 BattleMainCB2:
-  J: ~
+  J: 0x800cb38
 gBattleMainFunc:
   J: 0x3004204
-gBattleResults:
-  J: 0x3004210
 gBattlerControllerFuncs:
   J: 0x3004260
+gBattleResults:
+  J: 0x3004210
 gBattlescriptCurrInstr:
   J: 0x2024970
 GTASKS:
@@ -136,39 +136,37 @@ gBattlePartyCurrentOrder:
   J: 0x203818c
 # Turn selection
 sub_8012324:
-  J: ~
+  J: 0x800f630
 sub_802C098:
-  J: ~
+  J: 0x8029320
 HandleAction_ChooseMove:
-  J: ~
+  J: 0x80298fc
 # Turn selection Safari
 bx_battle_menu_t6_2:
-  J: ~
+  J: 0x8126310
 HandleEndTurn_FinishBattle:
-  J: ~
+  J: 0x8010fa4
 BattleScript_HandleFaintedMon:
-  J: ~
+  J: 0x81a96a3
 BattleScript_FaintedMonEnd:
-  J: ~
+  J: 0x81a97ae
 CB2_WhiteOut:
-  J: ~
+  J: 0x80516e0
 gActionSelectionCursor:
   J: 0x2024bc0
 gMoveSelectionCursor:
   J: 0x2024bc4
 # Replace move
 BattleScript_AskToLearnMove:
-  J: ~
+  J: 0x81a9941
 BattleScript_ForgotAndLearnedNewMove:
-  J: ~
+  J: 0x81a996e
 sub_809E260:
-  J: ~
+  J: 0x809ab9c
 CB2_EvolutionSceneUpdate:
-  J: ~
+  J: 0x810d168
 Task_EvolutionScene:
-  J: ~
-RunBattleScriptCommands_PopCallbacksStack:
-  J: ~
+  J: 0x810d304
 #--------------------#
 
 #----------------#
@@ -256,7 +254,7 @@ sPokeMenuOptionsOrder:
 #   Fishing Mode    #
 #-------------------#
 Task_Fishing:
-  J: ~
+  J: 0x80575cc
 #-------------------#
 
 #---------------------#
@@ -264,19 +262,19 @@ Task_Fishing:
 #---------------------#
 # 0xa
 BattleScript_TryNicknameCaughtMon:
-  J: ~
+  J: 0x81aa90b
 sub_80B5AA0:
-  J: ~
+  J: 0x80b10e0
 Task_HandleInput:
-  J: ~
+  J: 0x80b1838
 # 0x7
 BattleScript_GiveCaughtMonEnd:
-  J: ~
+  J: 0x81aa920
 # 0x6
 BattleScript_GotAwaySafely:
-  J: ~
+  J: 0x81a9851
 namingScreenDataPtr:
-  J: ~
+  J: 0x83a317c
 
 #---------------------#
 
