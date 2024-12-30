@@ -56,7 +56,7 @@ The lakes marked in red are highly likely to contain a Feebas tile.
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald |
 |:---------|:-------:|:-----------:|:----------:|
 | English  |    ✅    |      ✅      |     ✅      |
-| Japanese |    ✅    |      ❌      |     ✅      |
+| Japanese |    ✅    |      ✅      |     ✅      |
 | German   |    ✅    |      ✅      |     ✅      |
 | Spanish  |    ✅    |      ✅      |     ✅      |
 | French   |    ✅    |      ✅      |     ✅      |
