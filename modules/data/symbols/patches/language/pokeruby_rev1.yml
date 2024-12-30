@@ -278,15 +278,15 @@ sub_80712B4:
   F: 0x80716c0
   I: 0x80715e4
   S: 0x80716cc
-HandleDefaultPartyMenu:
-  F: 0x808a210
-  I: 0x808a0c8
-  S: 0x808a1b0
 #-----------------#
 
 #----------------#
 #   Party Menu   #
 #----------------#
+HandleDefaultPartyMenu:
+  F: 0x808a210
+  I: 0x808a0c8
+  S: 0x808a1b0
 CB2_PartyMenuMain:
   F: 0x806b30c
   I: 0x806b230

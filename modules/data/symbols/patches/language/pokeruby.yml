@@ -217,8 +217,6 @@ sub_80A50C8:
 # Start Menu
 sub_80712B4:
   J: 0x806e5f4
-HandleDefaultPartyMenu:
-  J: 0x8086b4c
 sStartMenuCursorPos:
   J: 0x202e64c
 sNumStartMenuActions:
@@ -230,6 +228,8 @@ sCurrentStartMenuActions:
 #----------------#
 #   Party Menu   #
 #----------------#
+HandleDefaultPartyMenu:
+  J: 0x8086b4c
 CB2_PartyMenuMain:
   J: 0x80681f4
 # Pokemon action menu
