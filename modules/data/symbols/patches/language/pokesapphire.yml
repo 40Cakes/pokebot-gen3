@@ -88,9 +88,9 @@ gRngValue:
 Task_MapNamePopup:
   J: 0x809f568
 CB2_LoadMap:
-  J: ~
+  J: 0x8051754
 Task_BattleStart:
-  J: ~
+  J: 0x807e838
 SummaryScreenHandleKeyInput:
   J: 0x809aad8
 #--------------------#
@@ -321,13 +321,13 @@ CB2_EggHatch_1:
   J: 0x804022c
 # Poison faint 0x5
 gUnknown_081A14B8:
-  J: ~
+  J: 0x8180b85
 # 0x8
 EventScript_StartTrainerBattle:
-  J: ~
+  J: 0x817f3ac
 # 0x4
 EventScript_DoTrainerBattle:
-  J: ~
+  J: 0x817f493
 #----------------#
 
 # Ununsed symbols that were conflicting with currently used symbols

@@ -10,11 +10,11 @@ Press `Tab` at any time to switch between manual mode and the most recently sele
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
-| Japanese |   🟨    |     🟨      |     🟨     |     🟨     |      🟨      |
-| German   |   🟨    |     🟨      |     🟨     |     🟨     |      🟨      |
-| Spanish  |   🟨    |     🟨      |     🟨     |     🟨     |      🟨      |
-| French   |   🟨    |     🟨      |     🟨     |     🟨     |      🟨      |
-| Italian  |   🟨    |     🟨      |     🟨     |     🟨     |      🟨      |
+| Japanese |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
+| German   |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
+| Spanish  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
+| French   |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
+| Italian  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
 
 ✅ Tested, working
 
