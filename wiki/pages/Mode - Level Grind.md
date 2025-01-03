@@ -52,7 +52,7 @@ Try another route that has an easy overland path to a Pokémon Center.
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
-| Japanese |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Japanese |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
 | German   |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
 | Spanish  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
 | French   |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |

@@ -1,0 +1,338 @@
+---
+#--------------------------------#
+#    Overworld / Util Symbols    #
+#--------------------------------#
+CB2_OVERWORLD:
+  J: 0x805161c
+# Door exit
+sub_8080B9C:
+  J: 0x807da78
+Task_HandleYesNoInput:
+  J: 0x80b0b4c
+Task_FieldMessageBox:
+  J: 0x8061c30
+# 0x7
+Std_MsgboxDefault:
+  J: 0x817f394
+# 0x9
+Std_MsgboxYesNo:
+  J: 0x817f39c
+WaitForAorBPress:
+  J: 0x8064405
+Task_DuckBGMForPokemonCry:
+  J: 0x8072444
+CB2_FlyRegionMap:
+  J: 0x80f71b0
+gMain:
+  J: 0x30016e0
+gFieldMessageBoxWindow:
+  J: 0x202e5d4
+sScriptContext1:
+  J: 0x3000520
+sScriptContext2:
+  J: 0x30005a0
+#-------------------------------#
+
+#--------------------#
+#    Map Symbols     #
+#--------------------#
+gMapGroups:
+  J: 0x82e0980
+gRegionMapEntries:
+  J: 0x83bef50
+gWildMonHeaders:
+  J: 0x83792fc
+sTileBitAttributes:
+  J: 0x82e1224
+gObjectEvents:
+  J: 0x30047d0
+gPlayerPartyCount:
+  J: 0x3004280
+gPlayerParty:
+  J: 0x3004290
+gMapHeader:
+  J: 0x202e588
+gPlayerAvatar:
+  J: 0x202e5b8
+gRegionMap:
+  J: 0x20385C4
+gSaveBlock1:
+  J: 0x2025494
+gSaveBlock2:
+  J: 0x2024c04
+#----------------#
+
+#-----------------#
+#    Main Menu    #
+#-----------------#
+CB2_InitCopyrightScreenAfterBootup:
+  J: 0x813668c
+MainCB2_Intro:
+  J: 0x813634c
+CB2_InitTitleScreen:
+  J: 0x80790c8
+MainCB2:
+  J: 0x807941c
+CB2_MainMenu:
+  J: 0x8006cd0
+CB2_ReturnToFieldLocal:
+  J: 0x8051884
+#-----------------#
+
+#---------------------------#
+#    SSR/SRA/SGR/Roamers    #
+#---------------------------#
+gRngValue:
+  J: 0x3004748
+# Fly
+Task_MapNamePopup:
+  J: 0x809f568
+CB2_LoadMap:
+  J: 0x8051754
+Task_BattleStart:
+  J: 0x807e838
+SummaryScreenHandleKeyInput:
+  J: 0x809aad8
+#--------------------#
+#  Battling Symbols  #
+#--------------------#
+BattleMainCB1:
+  J: 0x800db30
+BattleMainCB2:
+  J: 0x800cb38
+gBattleMainFunc:
+  J: 0x3004204
+gBattlerControllerFuncs:
+  J: 0x3004260
+gBattleResults:
+  J: 0x3004210
+gBattlescriptCurrInstr:
+  J: 0x2024970
+GTASKS:
+  J: 0x3004a50
+gEnemyParty:
+  J: 0x30044f0
+gBattleTypeFlags:
+  J: 0x2023758
+gBattlersCount:
+  J: 0x20247c8
+gSideTimers:
+  J: 0x20249e0
+gStatuses3:
+  J: 0x20249f8
+gBattlerPartyIndexes:
+  J: 0x20247ca
+gBattleMons:
+  J: 0x20247e0
+gDisableStructs:
+  J: 0x2024a08
+gAbsentBattlerFlags:
+  J: 0x202496c
+gBattleWeather:
+  J: 0x2024b18
+gBattleOutcome:
+  J: 0x2024a86
+gBattlePartyCurrentOrder:
+  J: 0x203818c
+# Turn selection
+sub_8012324:
+  J: 0x800f630
+sub_802C098:
+  J: 0x8029320
+HandleAction_ChooseMove:
+  J: 0x80298fc
+# Turn selection Safari
+bx_battle_menu_t6_2:
+  J: 0x8126310
+HandleEndTurn_FinishBattle:
+  J: 0x8010fa4
+BattleScript_HandleFaintedMon:
+  J: 0x81a96a3
+BattleScript_FaintedMonEnd:
+  J: 0x81a97ae
+CB2_WhiteOut:
+  J: 0x80516e0
+gActionSelectionCursor:
+  J: 0x2024bc0
+gMoveSelectionCursor:
+  J: 0x2024bc4
+# Replace move
+BattleScript_AskToLearnMove:
+  J: 0x81a9941
+BattleScript_ForgotAndLearnedNewMove:
+  J: 0x81a996e
+sub_809E260:
+  J: 0x809ab9c
+CB2_EvolutionSceneUpdate:
+  J: 0x810d168
+Task_EvolutionScene:
+  J: 0x810d304
+#--------------------#
+
+#----------------#
+#  Daycare Mode  #
+#----------------#
+S_EggHatch:
+  J: 0x818be74
+# EggHatch party identification
+gSpecialVar_0x8004:
+  J: 0x202e620
+Task_Fanfare:
+  J: 0x8071f54
+#----------------#
+
+#-------------------------#
+#    PC Menu / Storage    #
+#-------------------------#
+Task_PokemonStorageSystem:
+  J: 0x8092a14
+Task_HandleMultichoiceInput:
+  J: 0x80b0928
+SUB_8096B38:
+  J: 0x809363c
+#-------------------------#
+
+#--------------#
+#   Bag Menu   #
+#--------------#
+sub_80A3118:
+  J: 0x809f6dc
+sCurrentBagPocket:
+  J: 0x2038258
+gBagPocketScrollStates:
+  J: 0x3005c30
+sub_80A5414:
+  J: 0x80a15d4
+gPaletteFade:
+  J: 0x202f0a8
+sub_80A50C8:
+  J: 0x80a12c0
+#---------------#
+
+#-----------------#
+#  In game Menu   #
+#-----------------#
+# Start Menu
+sub_80712B4:
+  J: 0x806e5f8
+sStartMenuCursorPos:
+  J: 0x202e64c
+sNumStartMenuActions:
+  J: 0x202e64d
+sCurrentStartMenuActions:
+  J: 0x202e64e
+#-----------------#
+
+#----------------#
+#   Party Menu   #
+#----------------#
+HandleDefaultPartyMenu:
+  J: 0x8086b4c
+CB2_PartyMenuMain:
+  J: 0x80681f8
+# Pokemon action menu
+sub_8089D94:
+  J: 0x8086c04
+HandleBattlePartyMenu:
+  J: 0x8091c90
+Task_HandlePopupMenuInput:
+  J: 0x8091f80
+# Pokemon switch
+sub_806D198:
+  J: 0x806a40c
+HandlePartyMenuSwitchPokemonInput:
+  J: 0x8069dd8
+sPokeMenuCursorPos:
+  J: 0x202fcc4
+sPokeMenuOptionsNo:
+  J: 0x202fcc5
+sPokeMenuOptionsOrder:
+  J: 0x202fcc6
+#----------------#
+
+#-------------------#
+#   Fishing Mode    #
+#-------------------#
+Task_Fishing:
+  J: 0x80575cc
+#-------------------#
+
+#---------------------#
+#   Pokemon renaming  #
+#---------------------#
+# 0xa
+BattleScript_TryNicknameCaughtMon:
+  J: 0x81aa90b
+sub_80B5AA0:
+  J: 0x80b10e0
+Task_HandleInput:
+  J: 0x80b1838
+# 0x7
+BattleScript_GiveCaughtMonEnd:
+  J: 0x81aa920
+# 0x6
+BattleScript_GotAwaySafely:
+  J: 0x81a9851
+namingScreenDataPtr:
+  J: 0x83a317c
+
+#---------------------#
+
+#---------------------#
+#    Berry blending   #
+#---------------------#
+SUB_80501FC:
+  J: 0x804d378
+gUnknown_08216303:
+  J: 0x81ec2a3
+gBerryBlenderData:
+  J: 0x3004784
+#---------------------#
+
+#-----------#
+#   Feebas  #
+#-----------#
+# Waterfall
+sub_8086F64:
+  J: 0x8083e20
+# Surf
+sub_8088954:
+  J: 0x8085804
+#-----------#
+
+#---------------------#
+#    Starters Hoenn   #
+#---------------------#
+Task_StarterChoose2:
+  J: 0x81050f8
+BattleBeginFirstTurn:
+  J: 0x800ee0c
+#---------------------#
+
+#----------------#
+#    Listeners   #
+#----------------#
+# 0x8
+S_RepelWoreOff:
+  J: 0x81958b6
+gEggHatchData:
+  J: 0x300474c
+CB2_EggHatch_1:
+  J: 0x804022c
+# Poison faint 0x5
+gUnknown_081A14B8:
+  J: 0x8180b85
+# 0x8
+EventScript_StartTrainerBattle:
+  J: 0x817f3ac
+# 0x4
+EventScript_DoTrainerBattle:
+  J: 0x817f493
+#----------------#
+
+# Ununsed symbols that were conflicting with currently used symbols
+# We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
+LilycoveCity_House4_Text_18BEE8:
+  J: 0x0
+gTVRecentHappeningsText3:
+  J: 0x0
