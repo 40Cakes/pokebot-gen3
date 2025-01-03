@@ -15,7 +15,7 @@ one with 1-3 NPCs around it as the empty ones are for multiplayer only.)
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald |
 |:---------|:-------:|:-----------:|:----------:|
 | English  |    ✅    |      ✅      |     ✅      |
-| Japanese |    ✅    |      ❌      |     ✅      |
+| Japanese |    ✅    |      ✅      |     ✅      |
 | German   |    ✅    |      ✅      |     ✅      |
 | Spanish  |    ✅    |      ✅      |     ✅      |
 | French   |    ✅    |      ✅      |     ✅      |
