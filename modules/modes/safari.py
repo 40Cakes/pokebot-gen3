@@ -1,10 +1,9 @@
 from typing import Generator, Tuple
 
 from modules.context import context
-from modules.player import get_player_avatar
 from modules.battle_state import BattleOutcome
-from modules.map_data import MapFRLG
-from modules.player import get_player, get_player_avatar
+from modules.map_data import MapFRLG, MapRSE
+from modules.player import get_player, get_player_avatar, TileTransitionState, AvatarFlags
 from modules.pokemon_party import get_party
 from modules.pokemon import get_species_by_name, get_opponent
 from modules.memory import get_event_flag
@@ -13,11 +12,13 @@ from modules.modes.util.walking import wait_for_player_avatar_to_be_controllable
 from modules.items import get_item_by_name
 from modules.safari_strategy import (
     SafariPokemon,
+    SafariPokemonRSE,
     SafariHuntingMode,
     SafariHuntingObject,
     get_safari_pokemon,
     get_navigation_path,
     get_safari_balls_left,
+    get_safari_zone_config,
 )
 from modules.runtime import get_sprites_path
 from modules.sprites import get_regular_sprite
@@ -47,6 +48,7 @@ from .util import (
 
 class SafariMode(BotMode):
     def __init__(self):
+        self._safari_config = get_safari_zone_config(context.rom)
         self._target_pokemon = None
         self._starting_cash = None
         self._should_reset = False
@@ -62,7 +64,10 @@ class SafariMode(BotMode):
 
     @staticmethod
     def is_selectable() -> bool:
-        return get_player_avatar().map_group_and_number == MapFRLG.FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE
+        return get_player_avatar().map_group_and_number in (
+            MapFRLG.FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE,
+            MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE,
+        )
 
     def on_battle_ended(self, outcome: "BattleOutcome") -> None:
         """
@@ -85,13 +90,16 @@ class SafariMode(BotMode):
         self._starting_cash = get_player().money
 
         assert_save_game_exists("There is no saved game. Cannot start Safari mode. Please save your game.")
+
         assert_saved_on_map(
-            SavedMapLocation(MapFRLG.FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE),
-            "In order to start the Safari mode you should save in the entrance building to the Safari Zone.",
+            SavedMapLocation(self._safari_config["map"]),
+            self._safari_config["save_message"],
         )
 
         pokemon_choices = []
-        for safari_pokemon in SafariPokemon.available_pokemon(context.rom):
+        safari_pokemon_list = self._safari_config["safari_pokemon_list"]
+
+        for safari_pokemon in safari_pokemon_list.available_pokemon():
             species = safari_pokemon.value.species
             sprite_path = get_regular_sprite(species)
             pokemon_choices.append(Selection(f"{safari_pokemon.value.species.name}", sprite_path))
@@ -112,6 +120,7 @@ class SafariMode(BotMode):
         target = get_safari_pokemon(pokemon_choice)
         self._target_pokemon = target.value.species.name
         self._check_mode_requirement(target.value.mode, target.value.hunting_object)
+        self._check_map_requirement(target.value.map_location)
 
         if target.value.mode != SafariHuntingMode.FISHING:
             mode = ask_for_choice(
@@ -158,20 +167,26 @@ class SafariMode(BotMode):
         if current_cash < 500:
             raise BotModeError("You do not have enough cash to enter the Safari Zone.")
 
-        yield from navigate_to(MapFRLG.FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE, (4, 4))
-        yield from ensure_facing_direction("Up")
-        context.emulator.hold_button("Up")
+        yield from navigate_to(self._safari_config["map"], self._safari_config["entrance_tile"])
+        yield from ensure_facing_direction(self._safari_config["facing_direction"])
+
+        context.emulator.hold_button(self._safari_config["facing_direction"])
         for _ in range(10):
             yield
-        context.emulator.release_button("Up")
+        context.emulator.release_button(self._safari_config["facing_direction"])
         yield
-        yield from wait_for_script_to_start_and_finish(
-            "FuchsiaCity_SafariZone_Entrance_EventScript_AskEnterSafariZone", "A"
-        )
-        yield from wait_for_script_to_start_and_finish(
-            "FuchsiaCity_SafariZone_Entrance_EventScript_TryEnterSafariZone", "A"
-        )
-        yield from wait_for_player_avatar_to_be_controllable()
+        yield from wait_for_script_to_start_and_finish(self._safari_config["ask_script"], "A")
+        yield from wait_for_script_to_start_and_finish(self._safari_config["enter_script"], "A")
+
+        if context.rom.is_frlg:
+            yield from wait_for_player_avatar_to_be_controllable()
+        else:
+            while (
+                get_player_avatar().local_coordinates != (32, 35)
+                or get_player_avatar().tile_transition_state != TileTransitionState.NOT_MOVING
+            ):
+                yield
+
         yield from self._navigate_and_hunt(
             safari_pokemon.value.map_location, safari_pokemon.value.tile_location, safari_pokemon.value.mode
         )
@@ -185,28 +200,40 @@ class SafariMode(BotMode):
     def _exit_safari_zone(self) -> Generator:
         """Handles re-entry into the Safari Zone."""
         yield from StartMenuNavigator("RETIRE").step()
-        yield from wait_for_script_to_start_and_finish("FuchsiaCity_SafariZone_Entrance_EventScript_ExitWarpIn", "A")
+        yield from wait_for_script_to_start_and_finish(self._safari_config["exit_script"], "A")
         yield from wait_for_player_avatar_to_be_standing_still()
 
     def _navigate_and_hunt(
-        self, target_map: MapFRLG, tile_location: Tuple[int, int], mode: SafariHuntingMode
+        self, target_map: MapFRLG | MapRSE, tile_location: Tuple[int, int], mode: SafariHuntingMode
     ) -> Generator:
+
         def stop_condition():
             return self._should_reset or self._should_reenter
 
         def is_at_entrance_door():
-            return (
-                get_player_avatar().map_group_and_number == MapFRLG.SAFARI_ZONE_CENTER
-                and get_player_avatar().local_coordinates in (26, 30)
-            )
+            return self._safari_config["is_at_entrance_door"]()
 
         if is_at_entrance_door():
+            yield from wait_for_player_avatar_to_be_standing_still()
+        elif context.rom.is_rse and self._safari_config.get("is_script_active", lambda: False)():
+            while is_at_entrance_door() or self._safari_config["is_script_active"]():
+                yield
             yield from wait_for_player_avatar_to_be_standing_still()
 
         path = get_navigation_path(target_map, tile_location)
 
-        for map_group, coords in path:
-            yield from navigate_to(map_group, coords)
+        for map_group, coords, *requirements in path:
+            if "Mach Bike" in requirements:
+                yield from register_key_item(get_item_by_name("Mach Bike"))
+                yield from self._mount_bicycle()
+                avatar = get_player_avatar()
+                for _ in range(30):
+                    context.emulator.hold_button("Up")
+                    yield
+                context.emulator.reset_held_buttons()
+                yield from self._unmount_bicycle()
+            else:
+                yield from navigate_to(map_group, coords)
 
         if mode in (SafariHuntingMode.SPIN, SafariHuntingMode.SURF):
             if self._use_repel and not repel_is_active():
@@ -234,6 +261,23 @@ class SafariMode(BotMode):
             case _:
                 return True
 
+    def _check_map_requirement(self, map: MapFRLG | MapRSE) -> bool:
+        match map:
+            case MapRSE.SAFARI_ZONE_NORTHWEST:
+                assert_item_exists_in_bag(
+                    "Mach Bike",
+                    error_message=f"You need to own the Mach Bike in order to hunt this Pokémon in the Safari Zone.",
+                    check_in_saved_game=True,
+                )
+            case MapRSE.SAFARI_ZONE_NORTH:
+                assert_item_exists_in_bag(
+                    "Acro Bike",
+                    error_message=f"You need to own the Acro Bike in order to hunt this Pokémon in the Safari Zone.",
+                    check_in_saved_game=True,
+                )
+            case _:
+                return True
+
     def _soft_reset(self) -> Generator:
         """Handles soft resetting if cash difference exceeds the limit."""
         yield from soft_reset()
@@ -241,3 +285,15 @@ class SafariMode(BotMode):
         self._should_reset = False
         for _ in range(5):
             yield
+
+    def _mount_bicycle(self) -> Generator:
+        while AvatarFlags.OnMachBike not in get_player_avatar().flags:
+            context.emulator.press_button("Select")
+            yield
+        yield
+
+    def _unmount_bicycle(self) -> Generator:
+        while AvatarFlags.OnMachBike in get_player_avatar().flags:
+            context.emulator.press_button("Select")
+            yield
+        yield

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Union, Tuple, Optional, Callable, List
+from typing import Union, Tuple, Optional, Callable, List, Dict
 
 import yaml
 
@@ -10,10 +10,12 @@ from modules.files import make_string_safe_for_file_name
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import read_symbol, get_event_flag
 from modules.modes._interface import BotModeError
+from modules.player import get_player_avatar
 from modules.pokemon import Pokemon, Species, get_species_by_name
 from modules.pokemon_party import get_party
 from modules.roms import ROM
 from modules.runtime import get_data_path
+from modules.tasks import get_global_script_context
 
 
 class SafariHuntingMode(Enum):
@@ -21,6 +23,7 @@ class SafariHuntingMode(Enum):
     SPIN = "Spin"
     SWEET_SCENT = "Sweet Scent"
     SURF = "Surf"
+    ROCK_SMASH = "Rock Smash"
 
 
 class SafariHuntingObject:
@@ -36,11 +39,20 @@ class SafariCatchingLocation:
     tile_location: Tuple[int, int]
     mode: SafariHuntingMode
     hunting_object: SafariHuntingObject = None
-    availability: Callable[[object], bool] = lambda context: True
+    availability: Callable[[], bool] = lambda: True
+
+    def is_available(self) -> bool:
+        return self.availability()
 
 
 class SafariPokemon(Enum):
     """Enum for Pokémon locations and strategies in the Safari Zone."""
+
+    def is_leaf_green() -> bool:
+        return context.rom.is_lg
+
+    def is_fire_red() -> bool:
+        return context.rom.is_fr
 
     NIDORAN_F = SafariCatchingLocation(
         get_species_by_name("Nidoran♀"), MapFRLG.SAFARI_ZONE_EAST, (29, 28), SafariHuntingMode.SPIN
@@ -89,14 +101,14 @@ class SafariPokemon(Enum):
         MapFRLG.SAFARI_ZONE_CENTER,
         (24, 27),
         SafariHuntingMode.SPIN,
-        availability=lambda rom: context.rom.is_lg,
+        availability=is_leaf_green,
     )
     SCYTHER = SafariCatchingLocation(
         get_species_by_name("Scyther"),
         MapFRLG.SAFARI_ZONE_CENTER,
         (24, 27),
         SafariHuntingMode.SPIN,
-        availability=lambda rom: context.rom.is_fr,
+        availability=is_fire_red,
     )
 
     POLIWAG = SafariCatchingLocation(
@@ -146,19 +158,321 @@ class SafariPokemon(Enum):
         MapFRLG.SAFARI_ZONE_CENTER,
         (32, 18),
         SafariHuntingMode.SURF,
-        availability=lambda rom: context.rom.is_fr,
+        availability=is_fire_red,
     )
     SLOWPOKE = SafariCatchingLocation(
         get_species_by_name("Slowpoke"),
         MapFRLG.SAFARI_ZONE_CENTER,
         (32, 18),
         SafariHuntingMode.SURF,
-        availability=lambda rom: context.rom.is_lg,
+        availability=is_leaf_green,
     )
 
     @staticmethod
-    def available_pokemon(rom: ROM) -> list:
-        return [pokemon for pokemon in SafariPokemon if pokemon.value.availability(rom)]
+    def available_pokemon() -> list:
+        return [pokemon for pokemon in SafariPokemon if pokemon.value.availability()]
+
+
+class SafariPokemonRSE(Enum):
+    """Enum for Pokémon locations and strategies in the Safari Zone."""
+
+    def emerald_and_elite_four_defeated() -> bool:
+        elite_four_defeated = not get_event_flag("HIDE_SAFARI_ZONE_SOUTH_EAST_EXPANSION")
+        return context.rom.is_emerald and elite_four_defeated
+
+    PIKACHU = SafariCatchingLocation(
+        get_species_by_name("Pikachu"),
+        MapRSE.SAFARI_ZONE_SOUTH,
+        (25, 34),
+        SafariHuntingMode.SPIN,
+    )
+    ODDISH = SafariCatchingLocation(
+        get_species_by_name("Oddish"),
+        MapRSE.SAFARI_ZONE_NORTHWEST,
+        (6, 32),
+        SafariHuntingMode.SPIN,
+    )
+    GLOOM = SafariCatchingLocation(
+        get_species_by_name("Gloom"),
+        MapRSE.SAFARI_ZONE_NORTHWEST,
+        (6, 32),
+        SafariHuntingMode.SPIN,
+    )
+    DODUO = SafariCatchingLocation(
+        get_species_by_name("Doduo"),
+        MapRSE.SAFARI_ZONE_NORTHWEST,
+        (6, 32),
+        SafariHuntingMode.SPIN,
+    )
+    DODRIO = SafariCatchingLocation(
+        get_species_by_name("Dodrio"),
+        MapRSE.SAFARI_ZONE_NORTHWEST,
+        (6, 32),
+        SafariHuntingMode.SPIN,
+    )
+    RHYHORN = SafariCatchingLocation(
+        get_species_by_name("Rhyhorn"),
+        MapRSE.SAFARI_ZONE_NORTHWEST,
+        (6, 32),
+        SafariHuntingMode.SPIN,
+    )
+    PINSIR = SafariCatchingLocation(
+        get_species_by_name("Pinsir"),
+        MapRSE.SAFARI_ZONE_NORTHWEST,
+        (6, 32),
+        SafariHuntingMode.SPIN,
+    )
+    NATU = SafariCatchingLocation(
+        get_species_by_name("Natu"),
+        MapRSE.SAFARI_ZONE_NORTH,
+        (14, 33),
+        SafariHuntingMode.SPIN,
+    )
+    GIRAFARIG = SafariCatchingLocation(
+        get_species_by_name("Girafarig"),
+        MapRSE.SAFARI_ZONE_SOUTH,
+        (25, 34),
+        SafariHuntingMode.SPIN,
+    )
+    WOBBUFFET = SafariCatchingLocation(
+        get_species_by_name("Wobbuffet"),
+        MapRSE.SAFARI_ZONE_SOUTH,
+        (25, 34),
+        SafariHuntingMode.SPIN,
+    )
+    XATU = SafariCatchingLocation(
+        get_species_by_name("Xatu"),
+        MapRSE.SAFARI_ZONE_NORTH,
+        (14, 33),
+        SafariHuntingMode.SPIN,
+    )
+    HERACROSS = SafariCatchingLocation(
+        get_species_by_name("Heracross"),
+        MapRSE.SAFARI_ZONE_NORTH,
+        (14, 33),
+        SafariHuntingMode.SPIN,
+    )
+    PHANPY = SafariCatchingLocation(
+        get_species_by_name("Phanpy"),
+        MapRSE.SAFARI_ZONE_NORTH,
+        (14, 33),
+        SafariHuntingMode.SPIN,
+    )
+    PSYDUCK = SafariCatchingLocation(
+        get_species_by_name("Psyduck"),
+        MapRSE.SAFARI_ZONE_SOUTHWEST,
+        (20, 19),
+        SafariHuntingMode.SURF,
+    )
+    GOLDUCK = SafariCatchingLocation(
+        get_species_by_name("Golduck"),
+        MapRSE.SAFARI_ZONE_NORTHWEST,
+        (25, 13),
+        SafariHuntingMode.SURF,
+    )
+    GOLDEEN = SafariCatchingLocation(
+        get_species_by_name("Goldeen"),
+        MapRSE.SAFARI_ZONE_SOUTHWEST,
+        (20, 20),
+        SafariHuntingMode.FISHING,
+        SafariHuntingObject.SUPER_ROD,
+    )
+    MAGIKARP = SafariCatchingLocation(
+        get_species_by_name("Magikarp"),
+        MapRSE.SAFARI_ZONE_SOUTHWEST,
+        (20, 20),
+        SafariHuntingMode.FISHING,
+        SafariHuntingObject.OLD_ROD,
+    )
+    SEAKING = SafariCatchingLocation(
+        get_species_by_name("Seaking"),
+        MapRSE.SAFARI_ZONE_SOUTHWEST,
+        (20, 20),
+        SafariHuntingMode.FISHING,
+        SafariHuntingObject.SUPER_ROD,
+    )
+    HOOTHOOT = SafariCatchingLocation(
+        get_species_by_name("Hoothoot"),
+        MapRSE.SAFARI_ZONE_SOUTHEAST,
+        (7, 15),
+        SafariHuntingMode.SPIN,
+        availability=emerald_and_elite_four_defeated,
+    )
+    SPINARAK = SafariCatchingLocation(
+        get_species_by_name("Spinarak"),
+        MapRSE.SAFARI_ZONE_SOUTHEAST,
+        (7, 15),
+        SafariHuntingMode.SURF,
+        availability=emerald_and_elite_four_defeated,
+    )
+    MAREEP = SafariCatchingLocation(
+        get_species_by_name("Mareep"),
+        MapRSE.SAFARI_ZONE_SOUTHEAST,
+        (7, 15),
+        SafariHuntingMode.SPIN,
+        availability=emerald_and_elite_four_defeated,
+    )
+    AIPOM = SafariCatchingLocation(
+        get_species_by_name("Aipom"),
+        MapRSE.SAFARI_ZONE_NORTHEAST,
+        (29, 24),
+        SafariHuntingMode.SPIN,
+        availability=emerald_and_elite_four_defeated,
+    )
+    SUNKERN = SafariCatchingLocation(
+        get_species_by_name("Sunkern"),
+        MapRSE.SAFARI_ZONE_SOUTHEAST,
+        (7, 15),
+        SafariHuntingMode.SPIN,
+        availability=emerald_and_elite_four_defeated,
+    )
+    GLIGAR = SafariCatchingLocation(
+        get_species_by_name("Gligar"),
+        MapRSE.SAFARI_ZONE_SOUTHEAST,
+        (7, 15),
+        SafariHuntingMode.SPIN,
+        availability=emerald_and_elite_four_defeated,
+    )
+    SNUBBULL = SafariCatchingLocation(
+        get_species_by_name("Snubbull"),
+        MapRSE.SAFARI_ZONE_SOUTHEAST,
+        (7, 15),
+        SafariHuntingMode.SPIN,
+        availability=emerald_and_elite_four_defeated,
+    )
+    STANTLER = SafariCatchingLocation(
+        get_species_by_name("Stantler"),
+        MapRSE.SAFARI_ZONE_SOUTHEAST,
+        (7, 15),
+        SafariHuntingMode.SPIN,
+        availability=emerald_and_elite_four_defeated,
+    )
+    MARILL = SafariCatchingLocation(
+        get_species_by_name("Marill"),
+        MapRSE.SAFARI_ZONE_SOUTHEAST,
+        (21, 12),
+        SafariHuntingMode.SURF,
+        availability=emerald_and_elite_four_defeated,
+    )
+    WOOPER = SafariCatchingLocation(
+        get_species_by_name("Wooper"),
+        MapRSE.SAFARI_ZONE_SOUTHEAST,
+        (21, 12),
+        SafariHuntingMode.SURF,
+        availability=emerald_and_elite_four_defeated,
+    )
+    QUAGSIRE = SafariCatchingLocation(
+        get_species_by_name("Quagsire"),
+        MapRSE.SAFARI_ZONE_SOUTHEAST,
+        (21, 12),
+        SafariHuntingMode.SURF,
+        availability=emerald_and_elite_four_defeated,
+    )
+    REMORAID = SafariCatchingLocation(
+        get_species_by_name("Remoraid"),
+        MapRSE.SAFARI_ZONE_SOUTHEAST,
+        (20, 12),
+        SafariHuntingMode.FISHING,
+        SafariHuntingObject.SUPER_ROD,
+        availability=emerald_and_elite_four_defeated,
+    )
+    OCTILLERY = SafariCatchingLocation(
+        get_species_by_name("Octillery"),
+        MapRSE.SAFARI_ZONE_SOUTHEAST,
+        (20, 12),
+        SafariHuntingMode.FISHING,
+        SafariHuntingObject.SUPER_ROD,
+        availability=emerald_and_elite_four_defeated,
+    )
+    LEDYBA = SafariCatchingLocation(
+        get_species_by_name("Ledyba"),
+        MapRSE.SAFARI_ZONE_NORTHEAST,
+        (29, 24),
+        SafariHuntingMode.SPIN,
+        availability=emerald_and_elite_four_defeated,
+    )
+    PINECO = SafariCatchingLocation(
+        get_species_by_name("Pineco"),
+        MapRSE.SAFARI_ZONE_NORTHEAST,
+        (29, 24),
+        SafariHuntingMode.SPIN,
+        availability=emerald_and_elite_four_defeated,
+    )
+    TEDDIURSA = SafariCatchingLocation(
+        get_species_by_name("Teddiursa"),
+        MapRSE.SAFARI_ZONE_NORTHEAST,
+        (29, 24),
+        SafariHuntingMode.SPIN,
+        availability=emerald_and_elite_four_defeated,
+    )
+    HOUNDOUR = SafariCatchingLocation(
+        get_species_by_name("Houndour"),
+        MapRSE.SAFARI_ZONE_NORTHEAST,
+        (29, 24),
+        SafariHuntingMode.SPIN,
+        availability=emerald_and_elite_four_defeated,
+    )
+
+    MILTANK = SafariCatchingLocation(
+        get_species_by_name("Miltank"),
+        MapRSE.SAFARI_ZONE_NORTHEAST,
+        (29, 24),
+        SafariHuntingMode.SPIN,
+        availability=emerald_and_elite_four_defeated,
+    )
+
+    SHUCKLE = SafariCatchingLocation(
+        get_species_by_name("Shuckle"),
+        MapRSE.SAFARI_ZONE_NORTHEAST,
+        (12, 7),
+        SafariHuntingMode.ROCK_SMASH,
+        availability=emerald_and_elite_four_defeated,
+    )
+    ## Need to implement a rock smash route, but this is not the best location to catch it...
+    #     GEODUDE = SafariCatchingLocation(
+    #         get_species_by_name("Geodude"),
+    #         MapRSE.SAFARI_ZONE_NORTHEAST,
+    #         (12, 7),
+    #         SafariHuntingMode.ROCK_SMASH,
+    #         availability=emerald_and_elite_four_defeated,
+    #     )
+
+    @staticmethod
+    def available_pokemon() -> list:
+        return [pokemon for pokemon in SafariPokemonRSE if pokemon.value.availability()]
+
+
+SAFARI_ZONE_CONFIG: Dict[str, Dict[str, object]] = {
+    "FRLG": {
+        "map": MapFRLG.FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE,
+        "entrance_tile": (4, 4),
+        "facing_direction": "Up",
+        "save_message": "In order to start the Safari mode you should save in the entrance building to the Safari Zone.",
+        "ask_script": "FuchsiaCity_SafariZone_Entrance_EventScript_AskEnterSafariZone",
+        "enter_script": "FuchsiaCity_SafariZone_Entrance_EventScript_TryEnterSafariZone",
+        "exit_script": "FuchsiaCity_SafariZone_Entrance_EventScript_ExitWarpIn",
+        "is_at_entrance_door": lambda: (
+            get_player_avatar().map_group_and_number == MapFRLG.SAFARI_ZONE_CENTER
+            and get_player_avatar().local_coordinates == (26, 30)
+        ),
+        "safari_pokemon_list": SafariPokemon,
+    },
+    "RSE": {
+        "map": MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE,
+        "entrance_tile": (8, 4),
+        "facing_direction": "Left",
+        "save_message": "In order to start the Safari mode you should save in the entrance building to the Safari Zone.",
+        "ask_script": "Route121_SafariZoneEntrance_EventScript_EntranceCounterTrigger",
+        "enter_script": "Route121_SafariZoneEntrance_EventScript_TryEnterSafariZone",
+        "exit_script": "Route121_SafariZoneEntrance_EventScript_ExitSafariZone",
+        "is_at_entrance_door": lambda: (
+            get_player_avatar().map_group_and_number == MapRSE.SAFARI_ZONE_SOUTH
+            and get_player_avatar().local_coordinates in ((32, 33), (32, 34))
+        ),
+        "is_script_active": lambda: get_global_script_context().is_active,
+        "safari_pokemon_list": SafariPokemonRSE,
+    },
+}
 
 
 class FRLGSafariStrategy:
@@ -280,28 +594,38 @@ def get_safari_balls_left() -> int:
     return read_symbol("gNumSafariBalls")[0]
 
 
-def get_safari_pokemon(name: str) -> Optional[SafariPokemon]:
+def get_safari_pokemon(name: str) -> Optional[Union[SafariPokemon, SafariPokemonRSE]]:
+    rom_type = "FRLG" if context.rom.is_frlg else "RSE"
+    safari_pokemon_list = SAFARI_ZONE_CONFIG[rom_type]["safari_pokemon_list"]
+
     name = make_string_safe_for_file_name(name).upper()
-    for safari_pokemon in SafariPokemon:
+
+    for safari_pokemon in safari_pokemon_list:
         if safari_pokemon.name == name:
             return safari_pokemon
 
     return None
 
 
-def get_navigation_path(target_map: MapFRLG, tile_location: tuple[int, int]) -> list[tuple[MapFRLG, tuple[int, int]]]:
+def get_navigation_path(
+    target_map: Union[MapFRLG, MapRSE], tile_location: tuple[int, int]
+) -> list[tuple[Union[MapFRLG, MapRSE], tuple[int, int], Optional[str]]]:
     """
-    Returns the navigation path for a given target map.
+    Returns the navigation path for a given target map, considering any special requirements like the use of a "Mach Bike".
 
     Args:
-        target_map (MapFRLG): The target map for which the navigation path is required.
-        tile_location: Local coordinates on the destination map.
+        target_map (Union[MapFRLG, MapRSE]): The target map for which the navigation path is required. This can be from either the FireRed/LeafGreen or Ruby/Sapphire/Emerald versions.
+        tile_location (tuple[int, int]): Local coordinates on the destination map.
 
     Returns:
-        List[Tuple[MapFRLG, Tuple[int, int]]]: A list of tuples, where each tuple represents a step
+        List[Tuple[Union[MapFRLG, MapRSE], Tuple[int, int], Optional[str]]]: A list of tuples, where each tuple represents a step
         in the navigation path. Each tuple contains:
-        - A MapFRLG enum value for the destination map.
+        - A MapFRLG or MapRSE enum value for the destination map.
         - A tuple of (x, y) coordinates for the target location.
+        - An optional string indicating a special requirement, such as "Mach Bike", if needed for the path.
+
+    Raises:
+        BotModeError: If no navigation path is defined for the given target map.
     """
 
     def can_surf():
@@ -343,6 +667,40 @@ def get_navigation_path(target_map: MapFRLG, tile_location: tuple[int, int]) -> 
                     (MapFRLG.SAFARI_ZONE_NORTH, (21, 34)),
                     (MapFRLG.SAFARI_ZONE_WEST, tile_location),
                 ]
-
+        case MapRSE.SAFARI_ZONE_NORTHWEST:
+            return [
+                (MapRSE.SAFARI_ZONE_SOUTHWEST, (8, 5)),
+                (MapRSE.SAFARI_ZONE_NORTHWEST, (8, 38), "Mach Bike"),
+                (MapRSE.SAFARI_ZONE_NORTHWEST, tile_location),
+            ]
+        case MapRSE.SAFARI_ZONE_NORTH:
+            return [
+                (MapRSE.SAFARI_ZONE_NORTH, tile_location),
+            ]
+        case MapRSE.SAFARI_ZONE_NORTHEAST:
+            return [
+                (MapRSE.SAFARI_ZONE_NORTHEAST, tile_location),
+            ]
+        case MapRSE.SAFARI_ZONE_SOUTHWEST:
+            return [
+                (MapRSE.SAFARI_ZONE_SOUTHWEST, tile_location),
+            ]
+        case MapRSE.SAFARI_ZONE_SOUTH:
+            return [
+                (MapRSE.SAFARI_ZONE_SOUTH, tile_location),
+            ]
+        case MapRSE.SAFARI_ZONE_SOUTHEAST:
+            return [
+                (MapRSE.SAFARI_ZONE_SOUTHEAST, tile_location),
+            ]
         case _:
             raise BotModeError(f"Error: No navigation path defined for {target_map}.")
+
+
+def get_safari_zone_config(rom: ROM) -> Dict[str, object]:
+    if rom.is_frlg:
+        return SAFARI_ZONE_CONFIG["FRLG"]
+    elif rom.is_rse:
+        return SAFARI_ZONE_CONFIG["RSE"]
+    else:
+        raise ValueError("Unsupported ROM for Safari Mode.")
