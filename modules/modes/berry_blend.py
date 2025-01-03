@@ -105,15 +105,7 @@ class BerryBlendMode(BotMode):
 
             arrow_hit_ranges = read_symbol(hit_range_symbol)
 
-            # The player_offset is different between EM and R/S
-            # As R/S only have berry blender of 4 people, offset will always be 4
-            # For EM, it will either be 4 or 0 depending on the blender used.
-            if number_of_players == 4:
-                player_offset = 0
-            elif context.rom.is_rs:
-                player_offset = 4
-            else:
-                player_offset = 1
+            player_offset = _get_player_offset(number_of_players, context)
 
             hit_range_start = arrow_hit_ranges[player_offset] + 20
             hit_range_end = arrow_hit_ranges[player_offset] + 28
@@ -143,3 +135,12 @@ def _get_berry_blender_locations() -> list[tuple[MapRSE, tuple[int, int]]]:
         ]
     else:
         return []
+
+
+def _get_player_offset(number_of_players, context):
+    if number_of_players not in [2, 3, 4]:
+        raise ValueError("Invalid number of players. Supported values are 2, 3, or 4.")
+
+    offsets = {2: 1, 3: 1, 4: 0}
+
+    return offsets[number_of_players]
