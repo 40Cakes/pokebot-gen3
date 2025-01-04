@@ -228,16 +228,6 @@ Task_Fanfare:
   S: 0x80753d4
 #----------------#
 
-#--------------#
-#   Listeners  #
-#--------------#
-
-CB2_EggHatch_1:
-  F: 0x804341c
-  I: 0x8043344
-  S: 0x804342c
-#---------------#
-
 #-------------------------#
 #    PC Menu / Storage    #
 #-------------------------#
@@ -288,15 +278,15 @@ sub_80712B4:
   F: 0x80716c0
   I: 0x80715e4
   S: 0x80716cc
-HandleDefaultPartyMenu:
-  F: 0x808a210
-  I: 0x808a0c8
-  S: 0x808a1b0
 #-----------------#
 
 #----------------#
 #   Party Menu   #
 #----------------#
+HandleDefaultPartyMenu:
+  F: 0x808a210
+  I: 0x808a0c8
+  S: 0x808a1b0
 CB2_PartyMenuMain:
   F: 0x806b30c
   I: 0x806b230
@@ -314,6 +304,15 @@ Task_HandlePopupMenuInput:
   F: 0x8095640
   I: 0x809554c
   S: 0x8095638
+# Pokemon switch
+sub_806D198:
+  F: 0x806d5c8
+  I: 0x806d4ec
+  S: 0x806d5d4
+HandlePartyMenuSwitchPokemonInput:
+  F: 0x806cfa4
+  I: 0x806cec8
+  S: 0x806cfb0
 #----------------#
 
 #-------------------#
@@ -414,6 +413,10 @@ gEggHatchData:
   F: 0x300482c
   I: 0x300482c
   S: 0x300482c
+CB2_EggHatch_1:
+  F: 0x804341c
+  I: 0x8043344
+  S: 0x804342c
 # Poison faint 0x5
 gUnknown_081A14B8:
   F: 0x81a699c

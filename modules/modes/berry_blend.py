@@ -3,6 +3,8 @@ from typing import Generator
 
 from modules.items import get_item_by_name, get_item_bag, get_pokeblocks
 from modules.player import get_player_avatar
+from modules.roms import ROMLanguage
+from modules.context import context
 from . import BotModeError
 from ._interface import BotMode
 from .util import scroll_to_item_in_bag
@@ -47,9 +49,16 @@ class BerryBlendMode(BotMode):
             play_callback_name = "SUB_80501FC"
             data_symbol = "gBerryBlenderData"
             hit_range_symbol = "gUnknown_08216303"
-            arrow_position_offset = 84
-            speed_offset = 86
-            number_of_players_offset = 136
+
+            if context.rom.language == ROMLanguage.Japanese:
+                arrow_position_offset = 74
+                speed_offset = 76
+                number_of_players_offset = 126
+            else:
+                arrow_position_offset = 84
+                speed_offset = 86
+                number_of_players_offset = 136
+
         else:
             play_callback_name = "CB2_PLAYBLENDER"
             data_symbol = "sBerryBlender"
@@ -96,15 +105,7 @@ class BerryBlendMode(BotMode):
 
             arrow_hit_ranges = read_symbol(hit_range_symbol)
 
-            # The player_offset is different between EM and R/S
-            # As R/S only have berry blender of 4 people, offset will always be 4
-            # For EM, it will either be 4 or 0 depending on the blender used.
-            if number_of_players == 4:
-                player_offset = 0
-            elif context.rom.is_rs:
-                player_offset = 4
-            else:
-                player_offset = 1
+            player_offset = _get_player_offset(number_of_players, context)
 
             hit_range_start = arrow_hit_ranges[player_offset] + 20
             hit_range_end = arrow_hit_ranges[player_offset] + 28
@@ -134,3 +135,12 @@ def _get_berry_blender_locations() -> list[tuple[MapRSE, tuple[int, int]]]:
         ]
     else:
         return []
+
+
+def _get_player_offset(number_of_players, context):
+    if number_of_players not in [2, 3, 4]:
+        raise ValueError("Invalid number of players. Supported values are 2, 3, or 4.")
+
+    offsets = {2: 1, 3: 1, 4: 0}
+
+    return offsets[number_of_players]

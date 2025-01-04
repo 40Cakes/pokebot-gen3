@@ -3,24 +3,24 @@
 #    Overworld / Util Symbols    #
 #--------------------------------#
 CB2_OVERWORLD:
-  J: 0x8051618
+  J: 0x805161c
 # Door exit
 sub_8080B9C:
   J: 0x807da78
 Task_HandleYesNoInput:
   J: 0x80b0b4c
 Task_FieldMessageBox:
-  J: 0x8061c2c
+  J: 0x8061c30
 # 0x7
 Std_MsgboxDefault:
-  J: 0x817f404
+  J: 0x817f394
 # 0x9
 Std_MsgboxYesNo:
-  J: 0x817f40c
+  J: 0x817f39c
 WaitForAorBPress:
-  J: 0x8064401
+  J: 0x8064405
 Task_DuckBGMForPokemonCry:
-  J: 0x8072440
+  J: 0x8072444
 CB2_FlyRegionMap:
   J: 0x80f71b0
 gMain:
@@ -37,13 +37,13 @@ sScriptContext2:
 #    Map Symbols     #
 #--------------------#
 gMapGroups:
-  J: 0x82e09f0
+  J: 0x82e0980
 gRegionMapEntries:
-  J: 0x83bef6c
+  J: 0x83bef50
 gWildMonHeaders:
-  J: 0x8379304
+  J: 0x83792fc
 sTileBitAttributes:
-  J: 0x82e1294
+  J: 0x82e1224
 gObjectEvents:
   J: 0x30047d0
 gPlayerPartyCount:
@@ -70,13 +70,13 @@ CB2_InitCopyrightScreenAfterBootup:
 MainCB2_Intro:
   J: 0x813634c
 CB2_InitTitleScreen:
-  J: 0x80790c4
+  J: 0x80790c8
 MainCB2:
-  J: 0x8079418
+  J: 0x807941c
 CB2_MainMenu:
   J: 0x8006cd0
 CB2_ReturnToFieldLocal:
-  J: 0x8051880
+  J: 0x8051884
 #-----------------#
 
 #---------------------------#
@@ -88,7 +88,7 @@ gRngValue:
 Task_MapNamePopup:
   J: 0x809f568
 CB2_LoadMap:
-  J: 0x8051750
+  J: 0x8051754
 Task_BattleStart:
   J: 0x807e838
 SummaryScreenHandleKeyInput:
@@ -102,10 +102,10 @@ BattleMainCB2:
   J: 0x800cb38
 gBattleMainFunc:
   J: 0x3004204
-gBattleResults:
-  J: 0x3004210
 gBattlerControllerFuncs:
   J: 0x3004260
+gBattleResults:
+  J: 0x3004210
 gBattlescriptCurrInstr:
   J: 0x2024970
 GTASKS:
@@ -140,47 +140,45 @@ sub_8012324:
 sub_802C098:
   J: 0x8029320
 HandleAction_ChooseMove:
-  J: 0x80298fd
+  J: 0x80298fc
 # Turn selection Safari
 bx_battle_menu_t6_2:
   J: 0x8126310
 HandleEndTurn_FinishBattle:
   J: 0x8010fa4
 BattleScript_HandleFaintedMon:
-  J: 0x81a9713
+  J: 0x81a96a3
 BattleScript_FaintedMonEnd:
-  J: 0x81a981e
+  J: 0x81a97ae
 CB2_WhiteOut:
-  J: 0x80516dc
+  J: 0x80516e0
 gActionSelectionCursor:
   J: 0x2024bc0
 gMoveSelectionCursor:
   J: 0x2024bc4
 # Replace move
 BattleScript_AskToLearnMove:
-  J: 0x81a99b1
+  J: 0x81a9941
 BattleScript_ForgotAndLearnedNewMove:
-  J: 0x81a99de
+  J: 0x81a996e
 sub_809E260:
   J: 0x809ab9c
 CB2_EvolutionSceneUpdate:
   J: 0x810d168
 Task_EvolutionScene:
   J: 0x810d304
-RunBattleScriptCommands_PopCallbacksStack:
-  J: 0x801125c
 #--------------------#
 
 #----------------#
 #  Daycare Mode  #
 #----------------#
 S_EggHatch:
-  J: 0x818bee4
+  J: 0x818be74
 # EggHatch party identification
 gSpecialVar_0x8004:
   J: 0x202e620
 Task_Fanfare:
-  J: 0x8071f50
+  J: 0x8071f54
 #----------------#
 
 #-------------------------#
@@ -216,7 +214,7 @@ sub_80A50C8:
 #-----------------#
 # Start Menu
 sub_80712B4:
-  J: 0x806e5f4
+  J: 0x806e5f8
 sStartMenuCursorPos:
   J: 0x202e64c
 sNumStartMenuActions:
@@ -231,7 +229,7 @@ sCurrentStartMenuActions:
 HandleDefaultPartyMenu:
   J: 0x8086b4c
 CB2_PartyMenuMain:
-  J: 0x80681f4
+  J: 0x80681f8
 # Pokemon action menu
 sub_8089D94:
   J: 0x8086c04
@@ -241,9 +239,9 @@ Task_HandlePopupMenuInput:
   J: 0x8091f80
 # Pokemon switch
 sub_806D198:
-  J: 0x806a408
+  J: 0x806a40c
 HandlePartyMenuSwitchPokemonInput:
-  J: 0x8069dd4
+  J: 0x8069dd8
 sPokeMenuCursorPos:
   J: 0x202fcc4
 sPokeMenuOptionsNo:
@@ -256,7 +254,7 @@ sPokeMenuOptionsOrder:
 #   Fishing Mode    #
 #-------------------#
 Task_Fishing:
-  J: 0x80575c8
+  J: 0x80575cc
 #-------------------#
 
 #---------------------#
@@ -264,19 +262,19 @@ Task_Fishing:
 #---------------------#
 # 0xa
 BattleScript_TryNicknameCaughtMon:
-  J: 0x81aa97b
+  J: 0x81aa90b
 sub_80B5AA0:
   J: 0x80b10e0
 Task_HandleInput:
   J: 0x80b1838
 # 0x7
 BattleScript_GiveCaughtMonEnd:
-  J: 0x81aa990
+  J: 0x81aa920
 # 0x6
 BattleScript_GotAwaySafely:
-  J: 0x81a98c1
+  J: 0x81a9851
 namingScreenDataPtr:
-  J: 0x83a3198
+  J: 0x83a317c
 
 #---------------------#
 
@@ -286,7 +284,7 @@ namingScreenDataPtr:
 SUB_80501FC:
   J: 0x804d378
 gUnknown_08216303:
-  J: 0x81ec313
+  J: 0x81ec2a3
 gBerryBlenderData:
   J: 0x3004784
 #---------------------#
@@ -316,20 +314,20 @@ BattleBeginFirstTurn:
 #----------------#
 # 0x8
 S_RepelWoreOff:
-  J: 0x8195926
+  J: 0x81958b6
 gEggHatchData:
   J: 0x300474c
 CB2_EggHatch_1:
-  J: 0x804022d
+  J: 0x804022c
 # Poison faint 0x5
 gUnknown_081A14B8:
-  J: 0x8180bf5
+  J: 0x8180b85
 # 0x8
 EventScript_StartTrainerBattle:
-  J: 0x817f41c
+  J: 0x817f3ac
 # 0x4
 EventScript_DoTrainerBattle:
-  J: 0x817f503
+  J: 0x817f493
 #----------------#
 
 # Ununsed symbols that were conflicting with currently used symbols

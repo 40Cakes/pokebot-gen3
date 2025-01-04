@@ -13,11 +13,11 @@ Start the mode while in the overworld, in any patch of grass/water/cave with enc
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:---------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | English  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
-| Japanese |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| German   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
-| Spanish  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
-| French   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
-| Italian  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| Japanese |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
+| German   |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
+| Spanish  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
+| French   |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
+| Italian  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
 
 ✅ Tested, working
 
