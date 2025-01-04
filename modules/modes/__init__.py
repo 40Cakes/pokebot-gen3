@@ -18,6 +18,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .berry_blend import BerryBlendMode
         from .bunny_hop import BunnyHopMode
         from .daycare import DaycareMode
+        from .ev_train import EVTrainMode
         from .feebas import FeebasMode
         from .fishing import FishingMode
         from .game_corner import GameCornerMode
@@ -27,6 +28,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .puzzle_solver import PuzzleSolverMode
         from .roamer_reset import RoamerResetMode
         from .rock_smash import RockSmashMode
+        from .safari import SafariMode
         from .spin import SpinMode
         from .starters import StartersMode
         from .sudowoodo import SudowoodoMode
@@ -34,12 +36,12 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .static_gift_resets import StaticGiftResetsMode
         from .static_soft_resets import StaticSoftResetsMode
         from .sweet_scent import SweetScentMode
-        from .safari import SafariMode
 
         _bot_modes = [
             BerryBlendMode,
             BunnyHopMode,
             DaycareMode,
+            EVTrainMode,
             FeebasMode,
             FishingMode,
             GameCornerMode,
@@ -49,6 +51,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
             PuzzleSolverMode,
             RoamerResetMode,
             RockSmashMode,
+            SafariMode,
             SpinMode,
             StartersMode,
             StaticRunAway,
@@ -56,7 +59,6 @@ def get_bot_modes() -> list[Type[BotMode]]:
             StaticSoftResetsMode,
             SweetScentMode,
             SudowoodoMode,
-            SafariMode,
         ]
 
         for mode in plugin_get_additional_bot_modes():
