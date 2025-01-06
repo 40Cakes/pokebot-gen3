@@ -1,9 +1,8 @@
 from typing import Generator
 
 from modules.context import context
-from modules.map import get_map_data_for_current_position, get_map_data
-from modules.map_data import MapFRLG, MapRSE, PokemonCenter, get_map_enum
-from modules.map_path import calculate_path, PathFindingError
+from modules.map import get_map_data_for_current_position
+from modules.map_data import get_map_enum
 from modules.modes import BattleAction
 from modules.player import get_player_avatar
 from modules.pokemon import StatusCondition
@@ -11,6 +10,7 @@ from modules.pokemon_party import get_party
 from ._asserts import assert_party_has_damaging_move
 from ._interface import BotMode, BotModeError
 from .util import navigate_to, heal_in_pokemon_center, change_lead_party_pokemon, spin
+from .util.map import map_has_pokemon_center_nearby, find_closest_pokemon_center
 from ..battle_state import BattleOutcome
 from ..battle_strategies import BattleStrategy, DefaultBattleStrategy
 from ..battle_strategies.level_balancing import LevelBalancingBattleStrategy
@@ -19,84 +19,6 @@ from ..encounter import handle_encounter, EncounterInfo
 from ..gui.multi_select_window import ask_for_choice, Selection, ask_for_confirmation
 from ..runtime import get_sprites_path
 from ..sprites import get_sprite
-
-closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
-    # Hoenn
-    MapRSE.ROUTE101: [PokemonCenter.OldaleTown],
-    MapRSE.ROUTE102: [PokemonCenter.OldaleTown, PokemonCenter.PetalburgCity],
-    MapRSE.ROUTE103: [PokemonCenter.OldaleTown],
-    MapRSE.ROUTE104: [PokemonCenter.PetalburgCity, PokemonCenter.RustboroCity],
-    MapRSE.ROUTE105: [PokemonCenter.PetalburgCity, PokemonCenter.DewfordTown],
-    MapRSE.ROUTE106: [PokemonCenter.DewfordTown],
-    MapRSE.ROUTE107: [PokemonCenter.DewfordTown],
-    MapRSE.ROUTE108: [PokemonCenter.DewfordTown],
-    MapRSE.ROUTE109: [PokemonCenter.SlateportCity],
-    MapRSE.ROUTE110: [PokemonCenter.SlateportCity, PokemonCenter.MauvilleCity],
-    MapRSE.ROUTE111: [PokemonCenter.MauvilleCity, PokemonCenter.MauvilleCity, PokemonCenter.FallarborTown],
-    MapRSE.ROUTE112: [PokemonCenter.LavaridgeTown, PokemonCenter.MauvilleCity, PokemonCenter.FallarborTown],
-    MapRSE.ROUTE113: [PokemonCenter.FallarborTown],
-    MapRSE.ROUTE114: [PokemonCenter.FallarborTown],
-    MapRSE.ROUTE115: [PokemonCenter.RustboroCity],
-    MapRSE.ROUTE116: [PokemonCenter.RustboroCity],
-    MapRSE.ROUTE117: [PokemonCenter.MauvilleCity, PokemonCenter.VerdanturfTown],
-    MapRSE.ROUTE118: [PokemonCenter.MauvilleCity],
-    MapRSE.ROUTE119: [PokemonCenter.FortreeCity, PokemonCenter.MauvilleCity],
-    MapRSE.ROUTE120: [PokemonCenter.FortreeCity],
-    MapRSE.ROUTE121: [PokemonCenter.LilycoveCity],
-    MapRSE.ROUTE122: [PokemonCenter.LilycoveCity],
-    MapRSE.ROUTE123: [PokemonCenter.LilycoveCity, PokemonCenter.MauvilleCity],
-    MapRSE.ROUTE124: [PokemonCenter.LilycoveCity, PokemonCenter.MossdeepCity],
-    MapRSE.ROUTE125: [PokemonCenter.MossdeepCity],
-    MapRSE.ROUTE126: [PokemonCenter.MossdeepCity],
-    MapRSE.ROUTE127: [PokemonCenter.MossdeepCity],
-    MapRSE.ROUTE128: [PokemonCenter.EvergrandeCity],
-    MapRSE.ROUTE129: [PokemonCenter.EvergrandeCity],
-    MapRSE.ROUTE130: [PokemonCenter.PacifidlogTown],
-    MapRSE.ROUTE131: [PokemonCenter.PacifidlogTown],
-    MapRSE.ROUTE132: [PokemonCenter.PacifidlogTown],
-    MapRSE.ROUTE133: [PokemonCenter.PacifidlogTown, PokemonCenter.SlateportCity],
-    MapRSE.ROUTE134: [PokemonCenter.SlateportCity],
-    MapRSE.PETALBURG_CITY: [PokemonCenter.PetalburgCity],
-    MapRSE.SLATEPORT_CITY: [PokemonCenter.SlateportCity],
-    MapRSE.MAUVILLE_CITY: [PokemonCenter.MauvilleCity],
-    MapRSE.RUSTBORO_CITY: [PokemonCenter.RustboroCity],
-    MapRSE.FORTREE_CITY: [PokemonCenter.FortreeCity],
-    MapRSE.LILYCOVE_CITY: [PokemonCenter.LilycoveCity],
-    MapRSE.MOSSDEEP_CITY: [PokemonCenter.MossdeepCity],
-    MapRSE.EVER_GRANDE_CITY: [PokemonCenter.EvergrandeCity],
-    MapRSE.OLDALE_TOWN: [PokemonCenter.OldaleTown],
-    MapRSE.DEWFORD_TOWN: [PokemonCenter.DewfordTown],
-    MapRSE.LAVARIDGE_TOWN: [PokemonCenter.LavaridgeTown],
-    MapRSE.FALLARBOR_TOWN: [PokemonCenter.FallarborTown],
-    MapRSE.VERDANTURF_TOWN: [PokemonCenter.VerdanturfTown],
-    MapRSE.PACIFIDLOG_TOWN: [PokemonCenter.PacifidlogTown],
-    # Kanto
-    MapFRLG.ROUTE1: [PokemonCenter.ViridianCity],
-    MapFRLG.ROUTE2: [PokemonCenter.ViridianCity, PokemonCenter.PewterCity],
-    MapFRLG.ROUTE3: [PokemonCenter.PewterCity, PokemonCenter.Route4],
-    MapFRLG.ROUTE4: [PokemonCenter.Route4, PokemonCenter.CeruleanCity],
-    MapFRLG.ROUTE6: [PokemonCenter.VermilionCity],
-    MapFRLG.ROUTE7: [PokemonCenter.CeladonCity],
-    MapFRLG.ROUTE9: [PokemonCenter.Route10],
-    MapFRLG.ROUTE10: [PokemonCenter.Route10],
-    MapFRLG.ROUTE11: [PokemonCenter.VermilionCity],
-    MapFRLG.ROUTE18: [PokemonCenter.FuchsiaCity],
-    MapFRLG.ROUTE19: [PokemonCenter.FuchsiaCity],
-    MapFRLG.ROUTE20: [PokemonCenter.CinnabarIsland, PokemonCenter.FuchsiaCity],
-    MapFRLG.ROUTE21_NORTH: [PokemonCenter.CinnabarIsland],
-    MapFRLG.ROUTE21_SOUTH: [PokemonCenter.CinnabarIsland],
-    MapFRLG.ROUTE22: [PokemonCenter.ViridianCity],
-    MapFRLG.ROUTE24: [PokemonCenter.CeruleanCity],
-    MapFRLG.VIRIDIAN_CITY: [PokemonCenter.ViridianCity],
-    MapFRLG.PEWTER_CITY: [PokemonCenter.PewterCity],
-    MapFRLG.CERULEAN_CITY: [PokemonCenter.CeruleanCity],
-    MapFRLG.LAVENDER_TOWN: [PokemonCenter.LavenderTown],
-    MapFRLG.VERMILION_CITY: [PokemonCenter.VermilionCity],
-    MapFRLG.CELADON_CITY: [PokemonCenter.CeladonCity],
-    MapFRLG.FUCHSIA_CITY: [PokemonCenter.FuchsiaCity],
-    MapFRLG.CINNABAR_ISLAND: [PokemonCenter.CinnabarIsland],
-    MapFRLG.SAFFRON_CITY: [PokemonCenter.SaffronCity],
-}
 
 
 class LevelGrindMode(BotMode):
@@ -110,7 +32,7 @@ class LevelGrindMode(BotMode):
         if current_location is None:
             return False
 
-        return current_location.has_encounters and current_location.map_group_and_number in closest_pokemon_centers
+        return current_location.has_encounters and map_has_pokemon_center_nearby(current_location.map_group_and_number)
 
     def __init__(self):
         super().__init__()
@@ -205,7 +127,7 @@ class LevelGrindMode(BotMode):
         if party_lead_index:
             yield from change_lead_party_pokemon(party_lead_index)
 
-        pokemon_center = self._find_closest_pokemon_center(training_spot)
+        pokemon_center = find_closest_pokemon_center(training_spot)
 
         yield from self._leveling_loop(training_spot, pokemon_center)
 
@@ -232,32 +154,6 @@ class LevelGrindMode(BotMode):
             ],
             "What to level?",
         )
-
-    def _find_closest_pokemon_center(self, training_spot):
-        training_spot_map = get_map_enum(training_spot)
-        pokemon_center = None
-        path_length_to_pokemon_center = None
-
-        if training_spot_map in closest_pokemon_centers:
-            for pokemon_center_candidate in closest_pokemon_centers[training_spot_map]:
-                try:
-                    path_length = self._calculate_path_length(training_spot, pokemon_center_candidate)
-                    if path_length_to_pokemon_center is None or path_length < path_length_to_pokemon_center:
-                        pokemon_center = pokemon_center_candidate
-                        path_length_to_pokemon_center = path_length
-                except PathFindingError:
-                    pass
-
-        if pokemon_center is None:
-            raise BotModeError("Could not find a suitable from here to a Pokemon Center nearby.")
-
-        return pokemon_center
-
-    def _calculate_path_length(self, training_spot, pokemon_center_candidate) -> int:
-        center_location = get_map_data(*pokemon_center_candidate.value)
-        path_to = calculate_path(training_spot, center_location)
-        path_from = []
-        return len(path_to) + len(path_from)
 
     def _leveling_loop(self, training_spot, pokemon_center):
         training_spot_map = get_map_enum(training_spot)
