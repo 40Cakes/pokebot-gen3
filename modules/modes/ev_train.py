@@ -3,11 +3,11 @@ from typing import Generator
 from rich.table import Table
 
 from modules.context import context
-from modules.map import get_map_data_for_current_position
+from modules.map import get_map_data_for_current_position, get_effective_encounter_rates_for_current_map
 from modules.map_data import get_map_enum
 from modules.modes import BattleAction
 from modules.player import get_player_avatar
-from modules.pokemon import get_opponent, StatusCondition, StatsValues
+from modules.pokemon import get_opponent, StatusCondition, StatsValues, Pokemon
 from modules.pokemon_party import get_party
 from ._interface import BotMode, BotModeError
 from .util import navigate_to, heal_in_pokemon_center, spin
@@ -19,6 +19,38 @@ from ..encounter import handle_encounter, EncounterInfo
 from ..gui.ev_selection_window import ask_for_ev_targets
 
 _list_of_stats = ("hp", "attack", "defence", "special_attack", "special_defence", "speed")
+
+
+def _is_target_reached(pokemon: Pokemon, target_evs: StatsValues) -> bool:
+    return all([pokemon.evs[stat] >= target_evs[stat] for stat in _list_of_stats])
+
+
+def _current_encounter_table_helps_with_target(pokemon: Pokemon, target_evs: StatsValues) -> bool:
+    for encounter in get_effective_encounter_rates_for_current_map().land_encounters:
+        useful_encounter = False
+        for stat in _list_of_stats:
+            if encounter.species.ev_yield[stat] > 0:
+                if (
+                    pokemon.evs[stat] < target_evs[stat]
+                    and pokemon.evs[stat] + encounter.species.ev_yield[stat] <= target_evs[stat]
+                ):
+                    return True
+                else:
+                    useful_encounter = False
+                    break
+        if useful_encounter:
+            return True
+    return False
+
+
+def _assert_that_running_makes_sense(pokemon: Pokemon, target_evs: StatsValues) -> None:
+    if _is_target_reached(pokemon, target_evs):
+        raise BotModeError("The target EVs have been reached.")
+
+    if not _current_encounter_table_helps_with_target(pokemon, target_evs):
+        raise BotModeError(
+            "There are no land encounters on this map that yield EVs we want. Choose a different map to train on."
+        )
 
 
 class NoRotateLeadDefaultBattleStrategy(DefaultBattleStrategy):
@@ -105,6 +137,8 @@ class EVTrainMode(BotMode):
                 f"{'/'.join([str(get_opponent().species.ev_yield[stat]) for stat in _list_of_stats])} EVs gained"
             )
 
+        _assert_that_running_makes_sense(lead_pokemon, self._ev_targets)
+
     def on_whiteout(self) -> bool:
         self._leave_pokemon_center = True
         return True
@@ -141,6 +175,8 @@ class EVTrainMode(BotMode):
                 raise BotModeError(
                     f"Selected EV target for {stat} ('{self._ev_targets[stat]}') must be equal to or larger than the current EV number ({target_pokemon.evs[stat]}.)"
                 )
+
+        _assert_that_running_makes_sense(target_pokemon, self._ev_targets)
 
         while True:
             if self._leave_pokemon_center:
