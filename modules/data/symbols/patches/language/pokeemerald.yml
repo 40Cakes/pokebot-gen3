@@ -459,7 +459,7 @@ gBattlePartyCurrentOrder:
 gAbsentBattlerFlags:
   J: 0x2023eb4
 gBattleResults:
-  J: 0x3005A72
+  J: 0x3005A70
 HandleInputChooseTarget:
   J: 0x8057434
   X: 0x8057435
@@ -766,17 +766,17 @@ Route121_SafariZoneEntrance_EventScript_ExitSafariZone:
 #      Safari     #
 #-----------------#
 CB2_POKEBLOCKMENU:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  D: 0x8135540
+  F: 0x8135560
+  I: 0x813552c
+  J: 0x813596c
+  S: 0x8135534
 sSavedPokeblockData:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  D: 0x203ab48
+  F: 0x203ab48
+  I: 0x203ab48
+  J: 0x203a814
+  S: 0x203ab48
 #-----------------#
 
 # We map it here to exit Safari otherwise the RepelScript is mapping at this address

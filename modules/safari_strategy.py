@@ -428,13 +428,13 @@ class SafariPokemonRSE(Enum):
         availability=emerald_and_elite_four_defeated,
     )
 
-    SHUCKLE = SafariCatchingLocation(
-        get_species_by_name("Shuckle"),
-        MapRSE.SAFARI_ZONE_NORTHEAST,
-        (12, 7),
-        SafariHuntingMode.ROCK_SMASH,
-        availability=emerald_and_elite_four_defeated,
-    )
+    #     SHUCKLE = SafariCatchingLocation(
+    #         get_species_by_name("Shuckle"),
+    #         MapRSE.SAFARI_ZONE_NORTHEAST,
+    #         (12, 7),
+    #         SafariHuntingMode.ROCK_SMASH,
+    #         availability=emerald_and_elite_four_defeated,
+    #     )
     ## Need to implement a rock smash route, but this is not the best location to catch it...
     #     GEODUDE = SafariCatchingLocation(
     #         get_species_by_name("Geodude"),
@@ -464,7 +464,7 @@ SAFARI_ZONE_CONFIG: Dict[str, Dict[str, object]] = {
         ),
         "safari_pokemon_list": SafariPokemon,
     },
-    "RSE": {
+    "E": {
         "map": MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE,
         "entrance_tile": (8, 4),
         "facing_direction": "Left",
@@ -479,14 +479,31 @@ SAFARI_ZONE_CONFIG: Dict[str, Dict[str, object]] = {
         "is_script_active": lambda: get_global_script_context().is_active,
         "safari_pokemon_list": SafariPokemonRSE,
     },
+    "RS": {
+        "map": MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE,
+        "entrance_tile": (8, 4),
+        "facing_direction": "Left",
+        "save_message": "In order to start the Safari mode you should save in the entrance building to the Safari Zone.",
+        "ask_script": "Route121_SafariZoneEntrance_EventScript_15C383",
+        "enter_script": "Route121_SafariZoneEntrance_EventScript_15C3B3",
+        "exit_script": "Route121_SafariZoneEntrance_EventScript_15C333",
+        "is_at_entrance_door": lambda: (
+            get_player_avatar().map_group_and_number == MapRSE.SAFARI_ZONE_SOUTH
+            and get_player_avatar().local_coordinates in ((32, 33), (32, 34))
+        ),
+        "is_script_active": lambda: get_global_script_context().is_active,
+        "safari_pokemon_list": SafariPokemonRSE,
+    },
 }
 
 
 def get_safari_zone_config(rom: ROM) -> Dict[str, object]:
     if rom.is_frlg:
         return SAFARI_ZONE_CONFIG["FRLG"]
-    elif rom.is_rse:
-        return SAFARI_ZONE_CONFIG["RSE"]
+    elif rom.is_emerald:
+        return SAFARI_ZONE_CONFIG["E"]
+    elif rom.is_rs:
+        return SAFARI_ZONE_CONFIG["RS"]
     else:
         raise ValueError("Unsupported ROM for Safari Mode.")
 
@@ -611,7 +628,15 @@ def get_safari_balls_left() -> int:
 
 
 def get_safari_pokemon(name: str) -> Optional[Union[SafariPokemon, SafariPokemonRSE]]:
-    rom_type = "FRLG" if context.rom.is_frlg else "RSE"
+    if context.rom.is_frlg:
+        rom_type = "FRLG"
+    elif context.rom.is_rs:
+        rom_type = "RS"
+    elif context.rom.is_emerald:
+        rom_type = "E"
+    else:
+        raise ValueError("Unknown ROM type")
+
     safari_pokemon_list = SAFARI_ZONE_CONFIG[rom_type]["safari_pokemon_list"]
 
     name = make_string_safe_for_file_name(name).upper()
@@ -642,7 +667,7 @@ class RSESafariStrategy:
         SafariPokemonRSE.MARILL,
         SafariPokemonRSE.PINECO,
         SafariPokemonRSE.SNUBBULL,
-        SafariPokemonRSE.SHUCKLE,
+        # SafariPokemonRSE.SHUCKLE,
         SafariPokemonRSE.REMORAID,
     }
     POKEBLOCK = {

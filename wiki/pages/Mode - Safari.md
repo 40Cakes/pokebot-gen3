@@ -55,12 +55,12 @@ Before starting Safari Mode, ensure you meet the following criteria:
 
 |              | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:-------------|:-------:|:-----------:|:----------:|:----------:|:------------:|
-| **English**  |    ❌    |      ❌      |     ❌      |     ✅      |      ✅       |
-| **Japanese** |    ❌    |      ❌      |     ❌      |     ✅      |      ✅       |
-| **German**   |    ❌    |      ❌      |     ❌      |     ✅      |      ✅       |
-| **Spanish**  |    ❌    |      ❌      |     ❌      |     ✅      |      ✅       |
-| **French**   |    ❌    |      ❌      |     ❌      |     ✅      |      ✅       |
-| **Italian**  |    ❌    |      ❌      |     ❌      |     ✅      |      ✅       |
+| **English**  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| **Japanese** |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| **German**   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| **Spanish**  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| **French**   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| **Italian**  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
 
 ✅ Tested, working
 
