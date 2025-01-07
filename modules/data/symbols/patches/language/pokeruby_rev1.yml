@@ -434,6 +434,18 @@ EventScript_DoTrainerBattle:
   S: 0x81a2bbc
 #----------------#
 
+#-----------------#
+#      Safari     #
+#-----------------#
+SUB_810B674:
+  F: ~
+  I: ~
+  S: ~
+gUnknown_02039248:
+  F: ~
+  I: ~
+  S: ~
+#-----------------#
 
 # Ununsed symbols that were conflicting with currently used symbols
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol

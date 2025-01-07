@@ -330,6 +330,15 @@ EventScript_DoTrainerBattle:
   J: 0x817f493
 #----------------#
 
+#-----------------#
+#      Safari     #
+#-----------------#
+SUB_810B674:
+  J: ~
+gUnknown_02039248:
+  J: ~
+#-----------------#
+
 # Ununsed symbols that were conflicting with currently used symbols
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
 LilycoveCity_House4_Text_18BEE8:

@@ -493,94 +493,6 @@ gRngValue:
   J: 0x3005ae0
 gPaletteFade:
   J: 0x2037c74
-ITEMSTORAGE_HANDLEREMOVEITEM:
-  I: 0x0
-Route120_Text_RileyIntro:
-  D: 0x0
-Route104_Text_HaleyIntro:
-  S: 0x0
-Route104_Text_HaleyDefeat:
-  S: 0x0
-BattleFrontier_BattleArenaLobby_Text_NotEnoughValidMonsLv50:
-  J: 0x0
-Route108_Text_CoryRematchDefeated:
-  F: 0x0
-Route108_Text_CoryRematchPostBattle:
-  F: 0x0
-VictoryRoad_1F_EventScript_ItemPPUp:
-  I: 0x0
-VictoryRoad_B1F_EventScript_ItemFullRestore:
-  I: 0x0
-VictoryRoad_1F_EventScript_ItemMaxElixir:
-  I: 0x0
-VictoryRoad_B1F_EventScript_ItemTMPsychic:
-  I: 0x0
-Route110_TrickHousePuzzle8_EventScript_ItemBeadMail:
-  I: 0x0
-RivalsHouse_2F_Text_MayWhereShouldIGoNext:
-  I: 0x0
-OldaleTown_PokemonCenter_1F_EventScript_Gentleman:
-  D: 0x0
-OldaleTown_PokemonCenter_1F_EventScript_Boy:
-  D: 0x0
-OldaleTown_PokemonCenter_1F_EventScript_Girl:
-  D: 0x0
-OldaleTown_PokemonCenter_1F_EventScript_WirelessClubAvailable:
-  D: 0x0
-OldaleTown_PokemonCenter_1F_Text_TrainersCanUsePC:
-  D: 0x0
-OldaleTown_PokemonCenter_1F_Text_PokemonCentersAreGreat:
-  D: 0x0
-OldaleTown_PokemonCenter_1F_EventScript_Nurse:
-  D: 0x0
-Route111_EventScript_Celia:
-  J: 0x0
-Route111_EventScript_Bryan:
-  J: 0x0
-Route111_EventScript_Branden:
-  J: 0x0
-Route111_Text_BattleOurFamily:
-  J: 0x0
-Route111_EventScript_TrainerHillSign:
-  J: 0x0
-LittlerootTown_ProfessorBirchsLab_Text_BirchEnjoysRivalsHelpToo:
-  S: 0x0
-BattleFrontier_BattleDomePreBattleRoom_Text_ReadyForFinals:
-  D: 0x0
-BattleFrontier_BattleDomePreBattleRoom_Text_ChooseTwoMons:
-  D: 0x0
-BattleFrontier_BattleDomePreBattleRoom_Text_Round1Complete:
-  D: 0x0
-BattleFrontier_BattleDomePreBattleRoom_Text_RightThisWay:
-  D: 0x0
-BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacIntro:
-  F: 0x0
-BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacMon1:
-  F: 0x0
-BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacAccept:
-  F: 0x0
-BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacMon2Ask:
-  F: 0x0
-MossdeepCity_StevensHouse_EventScript_SendBeldumParty:
-  J: 0x0
-MossdeepCity_StevensHouse_EventScript_SendBeldumPC:
-  J: 0x0
-MossdeepCity_StevensHouse_EventScript_ReceivedBeldumFanfare:
-  J: 0x0
-BattleFrontier_BattleTowerMultiPartnerRoom_Text_Apprentice16Mon2Ask:
-  S: 0x0
-BattleFrontier_BattleTowerMultiPartnerRoom_Text_Apprentice16Accept:
-  S: 0x0
-PlayersHouse_1F_EventScript_GetSSTicketAndSeeLatiTV:
-  I: 0x0
-BattleFrontier_BattleArenaBattleRoom_EventScript_DefeatedGretaSilver:
-  J: 0x0
-Route108_Text_JeromePostBattle:
-  S: 0x0
-Route111_Text_DrewPostBattle:
-  F: 0x0
-Route123_Text_AlbertoPostBattle:
-  D: 0x0
 Route121_SafariZoneEntrance_EventScript_EntranceCounterTrigger:
   D: 0x82326e4
   F: 0x822fb95
@@ -832,6 +744,24 @@ Route121_SafariZoneEntrance_EventScript_ExitSafariZone:
   I: 0x822b9b9
   J: 0x82129eb
   S: 0x822de23
+#----------------#
+
+#-----------------#
+#      Safari     #
+#-----------------#
+CB2_POKEBLOCKMENU:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+sSavedPokeblockData:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+#-----------------#
 
 # We map it here to exit Safari otherwise the RepelScript is mapping at this address
 MatchCall_PersonalizedText20:
@@ -840,4 +770,93 @@ MatchCall_Text_MrStone10:
   D: 0x82b675b
 #----------------#
 
-
+# Ununsed symbols that were conflicting with currently used symbols
+# We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
+ITEMSTORAGE_HANDLEREMOVEITEM:
+  I: 0x0
+Route120_Text_RileyIntro:
+  D: 0x0
+Route104_Text_HaleyIntro:
+  S: 0x0
+Route104_Text_HaleyDefeat:
+  S: 0x0
+BattleFrontier_BattleArenaLobby_Text_NotEnoughValidMonsLv50:
+  J: 0x0
+Route108_Text_CoryRematchDefeated:
+  F: 0x0
+Route108_Text_CoryRematchPostBattle:
+  F: 0x0
+VictoryRoad_1F_EventScript_ItemPPUp:
+  I: 0x0
+VictoryRoad_B1F_EventScript_ItemFullRestore:
+  I: 0x0
+VictoryRoad_1F_EventScript_ItemMaxElixir:
+  I: 0x0
+VictoryRoad_B1F_EventScript_ItemTMPsychic:
+  I: 0x0
+Route110_TrickHousePuzzle8_EventScript_ItemBeadMail:
+  I: 0x0
+RivalsHouse_2F_Text_MayWhereShouldIGoNext:
+  I: 0x0
+OldaleTown_PokemonCenter_1F_EventScript_Gentleman:
+  D: 0x0
+OldaleTown_PokemonCenter_1F_EventScript_Boy:
+  D: 0x0
+OldaleTown_PokemonCenter_1F_EventScript_Girl:
+  D: 0x0
+OldaleTown_PokemonCenter_1F_EventScript_WirelessClubAvailable:
+  D: 0x0
+OldaleTown_PokemonCenter_1F_Text_TrainersCanUsePC:
+  D: 0x0
+OldaleTown_PokemonCenter_1F_Text_PokemonCentersAreGreat:
+  D: 0x0
+OldaleTown_PokemonCenter_1F_EventScript_Nurse:
+  D: 0x0
+Route111_EventScript_Celia:
+  J: 0x0
+Route111_EventScript_Bryan:
+  J: 0x0
+Route111_EventScript_Branden:
+  J: 0x0
+Route111_Text_BattleOurFamily:
+  J: 0x0
+Route111_EventScript_TrainerHillSign:
+  J: 0x0
+LittlerootTown_ProfessorBirchsLab_Text_BirchEnjoysRivalsHelpToo:
+  S: 0x0
+BattleFrontier_BattleDomePreBattleRoom_Text_ReadyForFinals:
+  D: 0x0
+BattleFrontier_BattleDomePreBattleRoom_Text_ChooseTwoMons:
+  D: 0x0
+BattleFrontier_BattleDomePreBattleRoom_Text_Round1Complete:
+  D: 0x0
+BattleFrontier_BattleDomePreBattleRoom_Text_RightThisWay:
+  D: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacIntro:
+  F: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacMon1:
+  F: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacAccept:
+  F: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_RuinManiacMon2Ask:
+  F: 0x0
+MossdeepCity_StevensHouse_EventScript_SendBeldumParty:
+  J: 0x0
+MossdeepCity_StevensHouse_EventScript_SendBeldumPC:
+  J: 0x0
+MossdeepCity_StevensHouse_EventScript_ReceivedBeldumFanfare:
+  J: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_Apprentice16Mon2Ask:
+  S: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_Apprentice16Accept:
+  S: 0x0
+PlayersHouse_1F_EventScript_GetSSTicketAndSeeLatiTV:
+  I: 0x0
+BattleFrontier_BattleArenaBattleRoom_EventScript_DefeatedGretaSilver:
+  J: 0x0
+Route108_Text_JeromePostBattle:
+  S: 0x0
+Route111_Text_DrewPostBattle:
+  F: 0x0
+Route123_Text_AlbertoPostBattle:
+  D: 0x0
