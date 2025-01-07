@@ -11,11 +11,12 @@ from modules.map_data import MapFRLG, MapRSE
 from modules.memory import read_symbol, get_event_flag
 from modules.modes._interface import BotModeError
 from modules.player import get_player_avatar
-from modules.pokemon import Pokemon, Species, get_species_by_name
+from modules.pokemon import Pokemon, Species, get_species_by_name, get_opponent
 from modules.pokemon_party import get_party
 from modules.roms import ROM
 from modules.runtime import get_data_path
 from modules.tasks import get_global_script_context
+from modules.items import Pokeblock, PokeblockType, get_pokeblocks
 
 
 class SafariHuntingMode(Enum):
@@ -30,6 +31,12 @@ class SafariHuntingObject:
     OLD_ROD = "Old Rod"
     GOOD_ROD = "Good Rod"
     SUPER_ROD = "Super Rod"
+
+
+class PokeblockState(Enum):
+    IGNORED = 1
+    ENTHRALLED = 2
+    CURIOUS = 3
 
 
 @dataclass(frozen=True)
@@ -475,6 +482,15 @@ SAFARI_ZONE_CONFIG: Dict[str, Dict[str, object]] = {
 }
 
 
+def get_safari_zone_config(rom: ROM) -> Dict[str, object]:
+    if rom.is_frlg:
+        return SAFARI_ZONE_CONFIG["FRLG"]
+    elif rom.is_rse:
+        return SAFARI_ZONE_CONFIG["RSE"]
+    else:
+        raise ValueError("Unsupported ROM for Safari Mode.")
+
+
 class FRLGSafariStrategy:
     NO_STRATEGY = {
         SafariPokemon.MAGIKARP,
@@ -584,7 +600,7 @@ def load_safari_data(file_path: str) -> dict:
 def is_watching_carefully() -> bool:
     """
     We do not intentionally check on the bait count to mimic a real user behavior
-    We juste check it to know if the monster was watching carefully or eating the previous turn
+    We just check it to know if the monster was watching carefully or eating the previous turn
     This information is displayed on the player screen
     """
     return context.emulator.read_bytes(0x0200008A, length=1)[0] == 0
@@ -605,6 +621,115 @@ def get_safari_pokemon(name: str) -> Optional[Union[SafariPokemon, SafariPokemon
             return safari_pokemon
 
     return None
+
+
+class RSESafariStrategy:
+    NO_STRATEGY = {
+        SafariPokemonRSE.MAREEP,
+        SafariPokemonRSE.SUNKERN,
+        SafariPokemonRSE.ODDISH,
+        # SafariPokemonRSE.GEODUDE,
+        SafariPokemonRSE.GOLDEEN,
+        SafariPokemonRSE.MAGIKARP,
+        SafariPokemonRSE.HOOTHOOT,
+        SafariPokemonRSE.LEDYBA,
+        SafariPokemonRSE.SPINARAK,
+        SafariPokemonRSE.WOOPER,
+        SafariPokemonRSE.PIKACHU,
+        SafariPokemonRSE.PSYDUCK,
+        SafariPokemonRSE.DODUO,
+        SafariPokemonRSE.NATU,
+        SafariPokemonRSE.MARILL,
+        SafariPokemonRSE.PINECO,
+        SafariPokemonRSE.SNUBBULL,
+        SafariPokemonRSE.SHUCKLE,
+        SafariPokemonRSE.REMORAID,
+    }
+    POKEBLOCK = {
+        SafariPokemonRSE.DODRIO,
+        SafariPokemonRSE.PINSIR,
+        SafariPokemonRSE.AIPOM,
+        SafariPokemonRSE.WOBBUFFET,
+        SafariPokemonRSE.HERACROSS,
+        SafariPokemonRSE.STANTLER,
+        SafariPokemonRSE.MILTANK,
+        SafariPokemonRSE.GOLDUCK,
+        SafariPokemonRSE.XATU,
+        SafariPokemonRSE.OCTILLERY,
+        SafariPokemonRSE.SEAKING,
+        SafariPokemonRSE.GIRAFARIG,
+        SafariPokemonRSE.GLIGAR,
+        SafariPokemonRSE.QUAGSIRE,
+        SafariPokemonRSE.GLOOM,
+        SafariPokemonRSE.RHYHORN,
+        SafariPokemonRSE.TEDDIURSA,
+        SafariPokemonRSE.HOUNDOUR,
+        SafariPokemonRSE.PHANPY,
+    }
+
+    @classmethod
+    def should_start_pokeblock_strategy(cls, pokemon: Pokemon) -> bool:
+        """
+        Determines if we should start a Pokéblock strategy.
+        """
+        safari_pokemon = get_safari_pokemon(pokemon.species.name)
+        return safari_pokemon in cls.POKEBLOCK
+
+
+def get_baiting_state(pokeblock: Pokeblock) -> int | None:
+    """
+    We do not intentionally check on the Pokémon to know what Pokéblock to throw to mimic a real user behavior
+    We just check it to know if the monster was watching neutral/enthralled/disliked the given Pokéblock
+    This information is displayed on the player screen
+    """
+    pokeblock_type = pokeblock.type.value
+    opponent_nature = get_opponent().nature
+    liked_flavor = opponent_nature.pokeblock_preferences.get("liked")
+    disliked_flavor = opponent_nature.pokeblock_preferences.get("disliked")
+
+    # Some natures doesn't have like / disliked flavors
+    if liked_flavor is None and disliked_flavor is None:
+        return PokeblockState.CURIOUS
+
+    if pokeblock_type == disliked_flavor.lower():
+        return PokeblockState.IGNORED
+
+    if pokeblock_type == liked_flavor.lower():
+        return PokeblockState.ENTHRALLED
+
+    return PokeblockState.CURIOUS
+
+
+def get_lowest_feel_any_pokeblock() -> tuple[int | None, Pokeblock | None]:
+    """Return the index and the Pokéblock with the lowest feel when there are no flavor preferences."""
+    pokeblocks = get_pokeblocks()
+    lowest_feel = float("inf")
+    best_index = None
+    best_pokeblock = None
+
+    for index, pokeblock in enumerate(pokeblocks):
+        if pokeblock.feel < lowest_feel:
+            lowest_feel = pokeblock.feel
+            best_index = index
+            best_pokeblock = pokeblock
+
+    return best_index, best_pokeblock
+
+
+def get_lowest_feel_excluding_type(excluded_type: PokeblockType) -> tuple[int | None, Pokeblock | None]:
+    """Return the index and the Pokéblock with the lowest feel that is not of the excluded PokéblockType."""
+    pokeblocks = get_pokeblocks()
+    lowest_feel = float("inf")
+    best_index = None
+    best_pokeblock = None
+
+    for index, pokeblock in enumerate(pokeblocks):
+        if pokeblock.type != excluded_type and pokeblock.feel < lowest_feel:
+            lowest_feel = pokeblock.feel
+            best_index = index
+            best_pokeblock = pokeblock
+
+    return best_index, best_pokeblock
 
 
 def get_navigation_path(
@@ -695,12 +820,3 @@ def get_navigation_path(
             ]
         case _:
             raise BotModeError(f"Error: No navigation path defined for {target_map}.")
-
-
-def get_safari_zone_config(rom: ROM) -> Dict[str, object]:
-    if rom.is_frlg:
-        return SAFARI_ZONE_CONFIG["FRLG"]
-    elif rom.is_rse:
-        return SAFARI_ZONE_CONFIG["RSE"]
-    else:
-        raise ValueError("Unsupported ROM for Safari Mode.")
