@@ -53,6 +53,30 @@ def _assert_that_running_makes_sense(pokemon: Pokemon, target_evs: StatsValues) 
         )
 
 
+def _print_target_table(pokemon: Pokemon, target_evs: StatsValues) -> None:
+    def format_stat(stat: str) -> str:
+        if target_evs[stat] == 0 or target_evs[stat] < pokemon.evs[stat]:
+            return str(pokemon.evs[stat])
+        elif target_evs[stat] == pokemon.evs[stat]:
+            return f"[green]{pokemon.evs[stat]}/{target_evs[stat]}[/green]"
+        else:
+            return f"[yellow]{pokemon.evs[stat]}/{target_evs[stat]}[/yellow]"
+
+    ev_table = Table(title=f"{pokemon.species.name} EVs/Target")
+    ev_table.add_column("HP", justify="center")
+    ev_table.add_column("ATK", justify="center")
+    ev_table.add_column("DEF", justify="center")
+    ev_table.add_column("SPATK", justify="center")
+    ev_table.add_column("SPDEF", justify="center")
+    ev_table.add_column("SPD", justify="center")
+    ev_table.add_column("Total", justify="right")
+    ev_table.add_row(
+        *[format_stat(stat) for stat in _list_of_stats],
+        str(pokemon.evs.sum()),
+    )
+    console.print(ev_table)
+
+
 class NoRotateLeadDefaultBattleStrategy(DefaultBattleStrategy):
     def choose_new_lead_after_battle(self) -> int | None:
         return None
@@ -109,26 +133,8 @@ class EVTrainMode(BotMode):
         ):
             self._go_healing = True
 
-        ev_multiplier = 1
-        if lead_pokemon.held_item is not None and lead_pokemon.held_item.name == "Macho Brace":
-            ev_multiplier *= 2
-        if lead_pokemon.pokerus_status.days_remaining > 0:
-            ev_multiplier *= 2
-
         # Ugly table to keep track of progress
-        ev_table = Table(title=f"{lead_pokemon.species.name} EVs/Target")
-        ev_table.add_column("HP", justify="center")
-        ev_table.add_column("ATK", justify="center")
-        ev_table.add_column("DEF", justify="center")
-        ev_table.add_column("SPA", justify="center")
-        ev_table.add_column("SPD", justify="center")
-        ev_table.add_column("SPE", justify="center")
-        ev_table.add_column("Total", justify="right")
-        ev_table.add_row(
-            *[f"{str(lead_pokemon.evs[stat])}/{str(self._ev_targets[stat])}" for stat in _list_of_stats],
-            str(lead_pokemon.evs.sum()),
-        )
-        console.print(ev_table)
+        _print_target_table(lead_pokemon, self._ev_targets)
 
         if outcome == BattleOutcome.RanAway:
             context.message = "EVs not needed, skipping"
