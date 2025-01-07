@@ -45,7 +45,7 @@ Before starting Safari Mode, ensure you meet the following criteria:
 2. If a Pokémon of interest (e.g., Shiny or meeting a custom catch filter) appears, the bot will attempt to catch it.
 3. If you used atleast one safari ball, the bot will exit the Safari and re-entry if you have enough money or soft reset. Since some Pokémon catching can take 20+ Safari balls, you might want to have a full bag when finding that Shiny Chansey.
 3. Some Pokémon may require many Safari Balls (e.g., a Shiny Chansey). Ensure you have a full inventory.
-4. After spending ₽25.000 without catching a Pokémon in the last 50 Safari runs, the bot will:
+4. After spending ₽15.000 without catching a Pokémon in the last 30 Safari runs, the bot will:
     - Perform a soft reset to save cash.
     - Or exit Safari Mode and switch to manual control for you to save your game if a Pokémon was captured during these 50 Safari runs.
 
