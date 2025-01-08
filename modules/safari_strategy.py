@@ -759,9 +759,9 @@ def get_lowest_feel_excluding_type(excluded_type: PokeblockType) -> tuple[int | 
 
 def get_navigation_path(
     target_map: Union[MapFRLG, MapRSE], tile_location: tuple[int, int]
-) -> list[tuple[Union[MapFRLG, MapRSE], tuple[int, int], Optional[str]]]:
+) -> list[tuple[Union[MapFRLG, MapRSE], tuple[int, int]]]:
     """
-    Returns the navigation path for a given target map, considering any special requirements like the use of a "Mach Bike".
+    Returns the navigation path for a given target map.
 
     Args:
         target_map (Union[MapFRLG, MapRSE]): The target map for which the navigation path is required. This can be from either the FireRed/LeafGreen or Ruby/Sapphire/Emerald versions.
@@ -772,7 +772,6 @@ def get_navigation_path(
         in the navigation path. Each tuple contains:
         - A MapFRLG or MapRSE enum value for the destination map.
         - A tuple of (x, y) coordinates for the target location.
-        - An optional string indicating a special requirement, such as "Mach Bike", if needed for the path.
 
     Raises:
         BotModeError: If no navigation path is defined for the given target map.
@@ -819,8 +818,6 @@ def get_navigation_path(
                 ]
         case MapRSE.SAFARI_ZONE_NORTHWEST:
             return [
-                (MapRSE.SAFARI_ZONE_SOUTHWEST, (8, 5)),
-                (MapRSE.SAFARI_ZONE_NORTHWEST, (8, 38), "Mach Bike"),
                 (MapRSE.SAFARI_ZONE_NORTHWEST, tile_location),
             ]
         case MapRSE.SAFARI_ZONE_NORTH:
