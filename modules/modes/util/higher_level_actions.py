@@ -8,7 +8,13 @@ from modules.memory import get_event_flag, get_game_state_symbol, unpack_uint32,
 from modules.menu_parsers import CursorOptionEmerald, CursorOptionFRLG, CursorOptionRS
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.modes.util.sleep import wait_for_n_frames
-from modules.player import get_player_avatar, get_player, TileTransitionState, RunningState
+from modules.player import (
+    get_player_avatar,
+    get_player,
+    TileTransitionState,
+    RunningState,
+    player_avatar_is_standing_still,
+)
 from modules.pokemon_party import get_party
 from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE, get_map_cursor, get_map_region
 from modules.tasks import get_task, task_is_active
@@ -531,7 +537,30 @@ def mount_bicycle():
 
     for index, slot in enumerate(get_item_bag().key_items):
         if slot.item.name in ("Bicycle", "Acro Bike", "Mach Bike"):
-            yield from use_item_from_bag(slot.item)
+            yield from use_item_from_bag(slot.item, False)
+            while get_game_state() is not GameState.OVERWORLD or not player_avatar_is_standing_still():
+                yield
+            return
+
+    raise BotModeError("Player does not own a bicycle.")
+
+
+@debug.track
+def unmount_bicycle():
+    if not get_player_avatar().is_on_bike:
+        return
+
+    registered_item = get_player().registered_item
+    if registered_item is not None and registered_item.name in ("Bicycle", "Acro Bike", "Mach Bike"):
+        context.emulator.press_button("Select")
+        yield
+        return
+
+    for index, slot in enumerate(get_item_bag().key_items):
+        if slot.item.name in ("Bicycle", "Acro Bike", "Mach Bike"):
+            yield from use_item_from_bag(slot.item, False)
+            while get_game_state() is not GameState.OVERWORLD or not player_avatar_is_standing_still():
+                yield
             return
 
     raise BotModeError("Player does not own a bicycle.")

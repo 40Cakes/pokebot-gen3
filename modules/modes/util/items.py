@@ -37,7 +37,7 @@ class RanOutOfRepels(BotModeError):
 
 @isolate_inputs
 @debug.track
-def use_item_from_bag(item: Item) -> Generator:
+def use_item_from_bag(item: Item, wait_for_start_menu_to_reappear: bool = True) -> Generator:
     yield from StartMenuNavigator("BAG").step()
     yield from scroll_to_item_in_bag(item)
 
@@ -52,7 +52,8 @@ def use_item_from_bag(item: Item) -> Generator:
         start_menu_task = "Task_StartMenuHandleInput"
 
     yield from wait_for_task_to_start_and_finish(confirmation_menu_task, "A")
-    yield from wait_for_task_to_start_and_finish(start_menu_task, "B")
+    if wait_for_start_menu_to_reappear:
+        yield from wait_for_task_to_start_and_finish(start_menu_task, "B")
     yield
 
 

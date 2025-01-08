@@ -58,6 +58,7 @@ class PathTile:
     on_enter_event_triggers: dict[int, int]
     warps_to: tuple[tuple[int, int], tuple[int, int], Direction | None] | None
     waterfall_to: tuple[int, int] | None
+    muddy_slope_to: tuple[int, int] | None
     needs_acro_bike: bool
     needs_bunny_hop: bool
 
@@ -88,6 +89,7 @@ class PathMap:
             for tile in all_tiles:
                 accessible_from_direction = [False, False, False, False]
                 waterfall_to = None
+                muddy_slope_to = None
                 needs_acro_bike = False
                 needs_bunny_hop = False
                 if tile.collision != 0:
@@ -131,7 +133,34 @@ class PathMap:
                                         tile_index(waterfall_to.local_position[0], waterfall_to.local_position[1] + 1)
                                     ]
                 elif tile.tile_type == "Muddy Slope":
-                    accessible_from_direction = [False, False, True, False]
+                    tile_south = all_tiles[tile_index(tile.local_position[0], tile.local_position[1] + 1)]
+                    if tile_south is not None:
+                        if tile_south.tile_type != "Muddy Slope":
+                            muddy_slope_to = tile
+                            while muddy_slope_to.tile_type == "Muddy Slope":
+                                if muddy_slope_to.local_position[1] == 0:
+                                    muddy_slope_to = None
+                                    break
+                                else:
+                                    muddy_slope_to = all_tiles[
+                                        tile_index(
+                                            muddy_slope_to.local_position[0], muddy_slope_to.local_position[1] - 1
+                                        )
+                                    ]
+                    tile_north = all_tiles[tile_index(tile.local_position[0], tile.local_position[1] - 1)]
+                    if tile_north is not None:
+                        if tile_north.tile_type != "Muddy Slope":
+                            muddy_slope_to = tile
+                            while muddy_slope_to.tile_type == "Muddy Slope":
+                                if muddy_slope_to.local_position[1] == map_data.map_size[1] - 1:
+                                    muddy_slope_to = None
+                                    break
+                                else:
+                                    muddy_slope_to = all_tiles[
+                                        tile_index(
+                                            muddy_slope_to.local_position[0], muddy_slope_to.local_position[1] + 1
+                                        )
+                                    ]
                 elif tile.tile_type in ("Horizontal Rail", "Isolated Horizontal Rail"):
                     needs_acro_bike = True
                     accessible_from_direction = [False, True, False, True]
@@ -175,6 +204,7 @@ class PathMap:
                         on_enter_event_triggers,
                         warps_to,
                         waterfall_to.local_position if waterfall_to is not None else None,
+                        muddy_slope_to.local_position if muddy_slope_to is not None else None,
                         needs_acro_bike,
                         needs_bunny_hop,
                     )
@@ -357,6 +387,7 @@ class PathNode:
     is_diving: bool = False
     is_emerging: bool = False
     is_acro_bike_side_jump: bool = False
+    is_mach_bike_slope: bool = False
 
     def __eq__(self, other):
         if isinstance(other, PathNode):
@@ -403,6 +434,8 @@ class WaypointAction(Enum):
     AcroBikeMount = auto()
     AcroBikeSideJump = auto()
     AcroBikeBunnyHop = auto()
+    MachBikeMount = auto()
+    MachBikeSlope = auto()
 
 
 @dataclass
@@ -430,6 +463,7 @@ def calculate_path(
     avoid_scripted_events: bool = True,
     no_surfing: bool = False,
     has_acro_bike: bool = False,
+    has_mach_bike: bool = False,
 ) -> list[Waypoint]:
     """
     Attempts to calculate the best path from one tile to another.
@@ -455,6 +489,8 @@ def calculate_path(
                        water just fine, but not re-enter it.
     :param has_acro_bike: If `True`, the pathfinding algorithm will try to traverse the rails that
                           can only be accessed by Acro Bike.
+    :param has_mach_bike: If `True`, the pathfinding algorithm will traverse Muddy Slopes using the
+                          Mach Bike.
     :return: A list of waypoints describing the best path to take. If no valid path could be found,
              a `PathFindingError` is raised.
     """
@@ -536,8 +572,12 @@ def calculate_path(
             return True
         if tile.needs_acro_bike:
             if not tile.needs_bunny_hop or from_direction is Direction.North:
-                return has_acro_bike
-        if not tile.accessible_from_direction[from_direction] and not (tile == destination_tile and tile.warps_to):
+                if not has_acro_bike:
+                    return False
+        elif tile.muddy_slope_to:
+            if from_direction is Direction.North and not has_mach_bike:
+                return False
+        elif not tile.accessible_from_direction[from_direction] and not (tile == destination_tile and tile.warps_to):
             return False
         if tile.dynamic_collision_flag is not None and not get_event_flag_by_number(tile.dynamic_collision_flag):
             if (
@@ -588,6 +628,10 @@ def calculate_path(
                     action = WaypointAction.Surf
                 elif node.is_waterfall and direction is Direction.North:
                     action = WaypointAction.Waterfall
+                elif len(result) > 0 and result[-1].action is WaypointAction.MachBikeSlope:
+                    action = WaypointAction.MachBikeMount
+                elif node.is_mach_bike_slope:
+                    action = WaypointAction.MachBikeSlope
                 elif node.tile.needs_bunny_hop:
                     action = WaypointAction.AcroBikeBunnyHop
                 elif node.tile.needs_acro_bike and not node.came_from.tile.needs_acro_bike:
@@ -677,7 +721,19 @@ def calculate_path(
                 waterfall_height = neighbour_coordinates[1] - neighbour.waterfall_to[1]
                 cost += int(round((195 + 41 * waterfall_height) / 16))
                 neighbour = tile.map.get_tile(neighbour.waterfall_to)
+                neighbour_coordinates = neighbour.global_coordinates
                 is_waterfall = True
+
+            is_muddy_slope = False
+            if neighbour.muddy_slope_to is not None and direction is Direction.North:
+                muddy_slope_to = neighbour.map.get_tile(neighbour.muddy_slope_to)
+                muddy_slope_height = neighbour_coordinates[1] - neighbour.muddy_slope_to[1]
+                cost += muddy_slope_height
+                neighbour = _find_tile_by_global_coordinates(
+                    (muddy_slope_to.global_coordinates[0], muddy_slope_to.global_coordinates[1] - 2), map_level
+                )
+                neighbour_coordinates = neighbour.global_coordinates
+                is_muddy_slope = True
 
             if neighbour.needs_bunny_hop:
                 cost += 1
@@ -702,7 +758,14 @@ def calculate_path(
             neighbour_key = neighbour_coordinates[0], neighbour_coordinates[1], elevation
             if neighbour_key not in checked_tiles or checked_tiles[neighbour_key].current_cost > cost:
                 new_node = PathNode(
-                    neighbour, elevation, node, direction, cost, cost + cost_heuristic(neighbour), is_waterfall
+                    neighbour,
+                    elevation,
+                    node,
+                    direction,
+                    cost,
+                    cost + cost_heuristic(neighbour),
+                    is_waterfall,
+                    is_mach_bike_slope=is_muddy_slope,
                 )
                 checked_tiles[neighbour_key] = new_node
                 open_queue.put(new_node)
