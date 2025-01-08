@@ -1,9 +1,8 @@
-import time
 from typing import Generator, Iterable, Callable
 
 from modules.context import context
 from modules.debug import debug
-from modules.map import get_map_data_for_current_position, get_player_map_object
+from modules.map import get_map_data, get_map_data_for_current_position, get_player_map_object
 from modules.map_data import MapFRLG, MapRSE
 from modules.map_path import calculate_path, Waypoint, PathFindingError, Direction, WaypointAction
 from modules.memory import GameState, get_game_state
@@ -211,6 +210,35 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
                             context.emulator.press_button("A")
                     elif not task_is_active(waterfall_task):
                         field_effect_is_active = False
+                elif waypoint.action is WaypointAction.MachBikeSlope:
+                    from .higher_level_actions import mount_bicycle, unmount_bicycle
+
+                    if AvatarFlags.OnMachBike not in get_player_avatar().flags:
+                        yield from mount_bicycle()
+
+                    last_known_location = get_player_location()
+                    context.emulator.hold_button("Up")
+                    while True:
+                        player_location = get_player_location()
+                        if last_known_location != player_location:
+                            tile_to_north = get_map_data(
+                                player_location[0], (player_location[1][0], player_location[1][1] - 1)
+                            )
+                            if tile_to_north.tile_type != "Muddy Slope":
+                                break
+                        yield
+                    context.emulator.release_button("Up")
+                    while get_player_avatar().running_state is not RunningState.NOT_MOVING:
+                        yield
+                    yield from unmount_bicycle()
+                    yield
+                elif (
+                    waypoint.action is WaypointAction.MachBikeMount
+                    and AvatarFlags.OnMachBike not in get_player_avatar().flags
+                ):
+                    from .higher_level_actions import mount_bicycle
+
+                    yield from mount_bicycle()
                 elif (
                     waypoint.action is WaypointAction.AcroBikeMount
                     and AvatarFlags.OnAcroBike not in get_player_avatar().flags
@@ -297,6 +325,7 @@ def navigate_to(
                     avoid_encounters=avoid_encounters,
                     avoid_scripted_events=avoid_scripted_events,
                     has_acro_bike=get_item_bag().quantity_of(get_item_by_name("Acro Bike")) > 0,
+                    has_mach_bike=get_item_bag().quantity_of(get_item_by_name("Mach Bike")) > 0,
                 )
             except PathFindingError as e:
                 raise BotModeError(str(e))
