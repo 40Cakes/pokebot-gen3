@@ -344,10 +344,16 @@ EventScript_DoTrainerBattle:
 #-----------------#
 #      Safari     #
 #-----------------#
+Route121_SafariZoneEntrance_EventScript_15C383:
+  J: 0x8170911
+Route121_SafariZoneEntrance_EventScript_15C3B3:
+  J: 0x8170941
+Route121_SafariZoneEntrance_EventScript_15C333:
+  J: 0x81708c1
 SUB_810B674:
-  J: ~
+  J: 0x810661c
 gUnknown_02039248:
-  J: ~
+  J: 0x2038f40
 #-----------------#
 
 # Ununsed symbols that were conflicting with currently used symbols
@@ -355,4 +361,8 @@ gUnknown_02039248:
 LilycoveCity_House4_Text_18BEE8:
   J: 0x0
 gTVRecentHappeningsText3:
+  J: 0x0
+Route116_Text_170921:
+  J: 0x0
+Route116_Text_17094D:
   J: 0x0

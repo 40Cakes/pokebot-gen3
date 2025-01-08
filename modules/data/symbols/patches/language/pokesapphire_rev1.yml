@@ -454,6 +454,18 @@ EventScript_DoTrainerBattle:
 #-----------------#
 #      Safari     #
 #-----------------#
+Route121_SafariZoneEntrance_EventScript_15C383:
+  F: ~
+  I: ~
+  S: ~
+Route121_SafariZoneEntrance_EventScript_15C3B3:
+  F: ~
+  I: ~
+  S: ~
+Route121_SafariZoneEntrance_EventScript_15C333:
+  F: ~
+  I: ~
+  S: ~
 SUB_810B674:
   F: ~
   I: ~
