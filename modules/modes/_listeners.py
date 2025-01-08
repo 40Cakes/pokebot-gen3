@@ -121,6 +121,7 @@ class BattleListener(BotListener):
 
         elif (
             self._in_battle
+            and self._reported_start_of_battle
             and get_game_state() not in self.battle_states
             and not frame.task_is_active("Task_BattleStart")
             and get_last_battle_outcome() != BattleOutcome.InProgress
