@@ -212,12 +212,7 @@ def battle_action_use_pokeblock(poke_block_index: int):
     while get_game_state_symbol() in ("CB2_POKEBLOCKMENU", "SUB_810B674"):
         context.emulator.press_button("A")
         yield
-
     yield
-    if context.rom.is_rs:
-        while get_battle_controller_callback(0) != "bx_battle_menu_t6_2":
-            yield
-        yield
 
 
 @debug.track

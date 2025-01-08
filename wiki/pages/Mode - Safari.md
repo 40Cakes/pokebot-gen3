@@ -73,11 +73,11 @@ The bot uses optimal catch patterns, which are available in these
 |              | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:-------------|:-------:|:-----------:|:----------:|:----------:|:------------:|
 | **English**  |    ✅    |      ✅      |     ✅      |     ✅      |      ✅       |
-| **Japanese** |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| **German**   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| **Spanish**  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| **French**   |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
-| **Italian**  |    ❌    |      ❌      |     ✅      |     ✅      |      ✅       |
+| **Japanese** |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| **German**   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| **Spanish**  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| **French**   |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
+| **Italian**  |    ✅    |      ❌      |     ✅      |     ✅      |      ✅       |
 
 ✅ Tested, working
 
