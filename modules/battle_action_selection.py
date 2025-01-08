@@ -129,6 +129,7 @@ def handle_battle_action_selection(strategy: BattleStrategy) -> Generator:
                     raise RuntimeError("The 'Pokéblock' option is not available in FR/LG Safari battles.")
 
                 yield from battle_action_use_pokeblock(index)
+                break
 
             case SafariTurnAction.Bait:
                 if context.rom.is_rse:
