@@ -10,6 +10,7 @@ from modules.memory import get_event_flag
 from modules.menuing import StartMenuNavigator
 from modules.modes.util.walking import wait_for_player_avatar_to_be_controllable
 from modules.items import get_item_by_name
+from modules.modes.util.higher_level_actions import unmount_bicycle
 from modules.safari_strategy import (
     SafariPokemon,
     SafariPokemonRSE,
@@ -222,22 +223,13 @@ class SafariMode(BotMode):
 
         path = get_navigation_path(target_map, tile_location)
 
-        for map_group, coords, *requirements in path:
-            if "Mach Bike" in requirements:
-                yield from register_key_item(get_item_by_name("Mach Bike"))
-                yield from self._mount_bicycle()
-                avatar = get_player_avatar()
-                for _ in range(30):
-                    context.emulator.hold_button("Up")
-                    yield
-                context.emulator.reset_held_buttons()
-                yield from self._unmount_bicycle()
-            else:
-                yield from navigate_to(map_group, coords)
+        for map_group, coords in path:
+            yield from navigate_to(map_group, coords)
 
         if mode in (SafariHuntingMode.SPIN, SafariHuntingMode.SURF):
             if self._use_repel and not repel_is_active():
                 yield from apply_repel()
+            yield from unmount_bicycle()
             yield from apply_white_flute_if_available()
             yield from spin(stop_condition=stop_condition)
         elif mode == SafariHuntingMode.FISHING:
@@ -285,15 +277,3 @@ class SafariMode(BotMode):
         self._should_reset = False
         for _ in range(5):
             yield
-
-    def _mount_bicycle(self) -> Generator:
-        while AvatarFlags.OnMachBike not in get_player_avatar().flags:
-            context.emulator.press_button("Select")
-            yield
-        yield
-
-    def _unmount_bicycle(self) -> Generator:
-        while AvatarFlags.OnMachBike in get_player_avatar().flags:
-            context.emulator.press_button("Select")
-            yield
-        yield
