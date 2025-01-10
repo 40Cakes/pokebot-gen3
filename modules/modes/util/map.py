@@ -100,7 +100,7 @@ def find_closest_pokemon_center(
             try:
                 path_to = calculate_path(location, pokemon_center_candidate.value)
                 path_from = calculate_path(pokemon_center_candidate.value, location)
-                path_length = path_to + path_from
+                path_length = len(path_to) + len(path_from)
                 if path_length_to_pokemon_center is None or path_length < path_length_to_pokemon_center:
                     pokemon_center = pokemon_center_candidate
                     path_length_to_pokemon_center = path_length
