@@ -4736,7 +4736,6 @@
 0806af34 g 000000d8 Task_ShowResetRtcPrompt
 0806b00c g 00000210 Task_ResetRtcScreen
 0806b21c g 00000058 CB2_PartyMenuMain
-0806b21c l 00000000 .gcc2_compiled.
 0806b274 g 00000016 VBlankCB_PartyMenu
 0806b28c g 00000040 SetPartyMenuSettings
 0806b2cc g 00000020 DoOpenPartyMenu
