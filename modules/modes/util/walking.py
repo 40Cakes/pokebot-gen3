@@ -139,12 +139,7 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
     # this flag will just be ignored.
     # Similarly, running is not possible when surfing or swimming underwater, but pressing B can
     # cause the game to try and dive/emerge which we don't want.
-    if run and get_player_avatar().flags in (
-        AvatarFlags.OnAcroBike,
-        AvatarFlags.OnMachBike,
-        AvatarFlags.Surfing,
-        AvatarFlags.Underwater,
-    ):
+    if run and (get_player_avatar().is_on_bike or get_player_avatar().is_in_water):
         run = False
 
     # For each waypoint (i.e. each step of the path) we set a timeout. If the player avatar does not reach the

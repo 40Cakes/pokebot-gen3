@@ -133,6 +133,10 @@ class PlayerAvatar:
         return AvatarFlags.OnAcroBike in self.flags or AvatarFlags.OnMachBike in self.flags
 
     @property
+    def is_in_water(self) -> bool:
+        return AvatarFlags.Surfing in self.flags or AvatarFlags.Underwater in self.flags
+
+    @property
     def running_state(self) -> RunningState:
         return RunningState(self._player_avatar_data[2])
 
