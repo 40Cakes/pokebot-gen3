@@ -60,8 +60,10 @@ class LoadStateWindow:
 
         def filter_state_files(files: list[Path]):
             maximum_number_of_autosave_files = 3
+            maximum_number_of_entries = 128
 
             autosaves_already_included = 0
+            number_of_entries_so_far = 0
             autosave_pattern = re.compile("^\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}\\.ss1$")
             files.sort(reverse=True, key=lambda file: file.stat().st_mtime)
             for file in files:
@@ -69,6 +71,9 @@ class LoadStateWindow:
                     if autosaves_already_included >= maximum_number_of_autosave_files:
                         continue
                     autosaves_already_included += 1
+                number_of_entries_so_far += 1
+                if number_of_entries_so_far > maximum_number_of_entries:
+                    break
                 yield file
 
         photo_buffer = []
