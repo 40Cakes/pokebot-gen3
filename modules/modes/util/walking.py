@@ -16,6 +16,7 @@ from modules.player import (
     player_is_at,
     get_player_location,
     AvatarFlags,
+    PlayerAvatar,
 )
 from modules.tasks import get_global_script_context, task_is_active
 from .sleep import wait_for_n_frames
@@ -136,7 +137,14 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
     # 'Running' means holding B, which on the Acro Bike leads to doing a Wheelie which is actually
     # slower than normal riding. On other bikes it just doesn't do anything, so if we are riding one,
     # this flag will just be ignored.
-    if run and get_player_avatar().is_on_bike:
+    # Similarly, running is not possible when surfing or swimming underwater, but pressing B can
+    # cause the game to try and dive/emerge which we don't want.
+    if run and get_player_avatar().flags in (
+        AvatarFlags.OnAcroBike,
+        AvatarFlags.OnMachBike,
+        AvatarFlags.Surfing,
+        AvatarFlags.Underwater,
+    ):
         run = False
 
     # For each waypoint (i.e. each step of the path) we set a timeout. If the player avatar does not reach the
