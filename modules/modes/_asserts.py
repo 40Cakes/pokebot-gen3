@@ -204,23 +204,25 @@ def assert_party_has_damaging_move(error_message: str, check_in_saved_game: bool
 
 
 def assert_pokemon_in_party_slot(
-    pokemon: str, slot: int, error_message: str, check_in_saved_game: bool = False
+    species_name: str, slot: int, error_message: str, check_in_saved_game: bool = False
 ) -> None:
     """
     Raises an exception if the pokemon specified is not in the party slot required
-    :param pokemon: The pokemon to check for in the party.
+    :param species_name: The pokemon species to check for in the party.
     :param slot: The slot in the party (0 indexed) to check for the pokemon.
     :param error_message: Error message to display if the assertion fails.
     :param check_in_saved_game: If True, this assertion will check the saved game instead of the
                                 current party (which is the default.)
     """
-    if not isinstance(pokemon, str):
+    if not isinstance(species_name, str):
         raise BotModeError("Pokemon must be a string")
     if not isinstance(slot, int):
         raise BotModeError("Slot must be an integer")
+    if slot > get_party_size() - 1:
+        raise BotModeError("Slot must be less than the current party size")
     if slot < 0 or slot > 5:
         raise BotModeError("Slot must be between 0 and 5")
 
     party = get_party() if not check_in_saved_game else get_save_data().get_party()
-    if party[slot].species.name != pokemon:
+    if party[slot].species.name != species_name:
         raise BotModeError(error_message)

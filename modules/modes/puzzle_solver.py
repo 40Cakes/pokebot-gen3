@@ -8,6 +8,7 @@ from modules.memory import get_event_flag, get_event_var
 from modules.menuing import use_party_hm_move
 from modules.modes.util.higher_level_actions import dive, surface_from_dive
 from modules.player import get_player_avatar
+from modules.pokemon_party import get_party_size
 from modules.tasks import get_global_script_context
 from . import BattleAction
 from ._asserts import assert_has_pokemon_with_any_move, assert_registered_item, assert_pokemon_in_party_slot
@@ -27,6 +28,7 @@ from .util import (
 )
 from ..battle_strategies import BattleStrategy
 from ..encounter import handle_encounter, EncounterInfo
+
 
 
 @debug.track
@@ -68,10 +70,10 @@ class PuzzleSolverMode(BotMode):
             ]
         else:
             return False
-
+        
     def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | BattleStrategy | None:
-        return handle_encounter(encounter, enable_auto_battle=True)
-
+        return handle_encounter(encounter, enable_auto_battle=True) if encounter is not None else BattleAction.Fight
+    
     def on_repel_effect_ended(self) -> None:
         yield from apply_repel()
 
@@ -154,14 +156,14 @@ class PuzzleSolverMode(BotMode):
                         "Wailord", 0, "Sealed Chamber Puzzle requires Wailord in the first party slot."
                     )
                     assert_pokemon_in_party_slot(
-                        "Relicanth", 5, "Sealed Chamber Puzzle requires Relicanth in the last party slot."
+                        "Relicanth", get_party_size() - 1, "Sealed Chamber Puzzle requires Relicanth in the last party slot."
                     )
                 if context.rom.is_rs:
                     assert_pokemon_in_party_slot(
                         "Relicanth", 0, "Sealed Chamber Puzzle requires Relicanth in the first party slot."
                     )
                     assert_pokemon_in_party_slot(
-                        "Wailord", 5, "Sealed Chamber Puzzle requires Wailord in the last party slot."
+                        "Wailord", get_party_size() - 1, "Sealed Chamber Puzzle requires Wailord in the last party slot."
                     )
 
                 def path():
