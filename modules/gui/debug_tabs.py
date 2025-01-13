@@ -37,7 +37,7 @@ from modules.map import (
     EffectiveWildEncounter,
 )
 from modules.map_data import MapGroupFRLG, MapFRLG, MapGroupRSE, MapRSE, get_map_enum
-from modules.map_path import _find_tile_by_local_coordinates
+from modules.map_path import _find_tile_by_local_coordinates, Direction
 from modules.memory import (
     get_symbol,
     read_symbol,
@@ -1520,7 +1520,19 @@ class MapTab(DebugTab):
             "Global Coordinate": {
                 "__value": f"{pt.global_coordinates[0]}/{pt.global_coordinates[1]}",
                 "Has Encounters": pt.has_encounters,
-                "Accessible From Direction": pt.accessible_from_direction,
+                "Accessible From Direction": {
+                    "__value": ", ".join(
+                        [
+                            Direction(index).name
+                            for index in range(len(pt.accessible_from_direction))
+                            if pt.accessible_from_direction[index]
+                        ]
+                    ),
+                    **{
+                        Direction(index).name: pt.accessible_from_direction[index]
+                        for index in range(len(pt.accessible_from_direction))
+                    },
+                },
                 "Dynamic Collision Flag": pt.dynamic_collision_flag,
                 "Dynamic Object ID": pt.dynamic_object_id,
                 "On Enter Triggers": pt.on_enter_event_triggers,

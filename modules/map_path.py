@@ -175,13 +175,13 @@ class PathMap:
                     accessible_from_direction = [True, False, False, False]
                 elif tile.tile_type.endswith(" Current"):
                     if tile.tile_type == "Eastward Current":
-                        accessible_from_direction = [True, False, True, True]
-                    elif tile.tile_type == "Westward Current":
                         accessible_from_direction = [True, True, True, False]
+                    elif tile.tile_type == "Westward Current":
+                        accessible_from_direction = [True, False, True, True]
                     elif tile.tile_type == "Northward Current":
-                        accessible_from_direction = [False, True, True, True]
-                    elif tile.tile_type == "Southward Current":
                         accessible_from_direction = [True, True, False, True]
+                    elif tile.tile_type == "Southward Current":
+                        accessible_from_direction = [False, True, True, True]
 
                     destination = all_tiles[tile_index(tile.local_position[0], tile.local_position[1])]
                     steps = 0
@@ -216,8 +216,12 @@ class PathMap:
                                 y = get_map_data(current_map, (0, 0)).map_size[1] - 1
                             else:
                                 y -= 1
-                        destination = get_map_data(current_map, (x, y))
-                        steps += 1
+                        next_tile = get_map_data(current_map, (x, y))
+                        if next_tile.elevation == 1 and not next_tile.collision:
+                            destination = next_tile
+                            steps += 1
+                        else:
+                            break
                     forced_movement_to = destination, steps
                 else:
                     accessible_from_direction = [True, True, True, True]
@@ -259,7 +263,7 @@ class PathMap:
                                 forced_movement_to[0].local_position,
                                 forced_movement_to[1],
                             )
-                            if forced_movement_to is not None
+                            if forced_movement_to is not None and forced_movement_to[1] > 0
                             else None
                         ),
                         needs_acro_bike,
@@ -661,15 +665,7 @@ def calculate_path(
     def unroll_path(node: PathNode) -> list[Waypoint]:
         result = []
         while node.came_from is not None:
-            if node.came_from.tile.global_coordinates[0] < node.tile.global_coordinates[0]:
-                direction = Direction.East
-            elif node.came_from.tile.global_coordinates[0] > node.tile.global_coordinates[0]:
-                direction = Direction.West
-            elif node.came_from.tile.global_coordinates[1] < node.tile.global_coordinates[1]:
-                direction = Direction.South
-            else:
-                direction = Direction.North
-
+            direction = node.previous_direction
             if node.tile.warps_to and len(result) == 0:
                 warp_map, warp_coords, extra_warp_direction = node.tile.warps_to
                 if extra_warp_direction is not None:
