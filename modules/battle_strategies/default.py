@@ -171,20 +171,35 @@ class DefaultBattleStrategy(BattleStrategy):
 
         if not util.pokemon_has_enough_hp(pokemon):
             if partner_pokemon is None or not util.pokemon_has_enough_hp(partner_pokemon):
-                return self.handle_lead_cannot_battle(battle_state, util)
+                return self._handle_lead_cannot_battle(battle_state, util)
 
         left_opponent = battle_state.opponent.left_battler
         right_opponent = battle_state.opponent.right_battler
+
+        def first_available_move():
+            for index, learned_move in enumerate(battler.moves):
+                if (
+                    learned_move is not None
+                    and learned_move.pp > 0
+                    and battler.disabled_move is None
+                    or battler.disabled_move is not learned_move.move
+                ):
+                    return index
+            return 0
 
         if left_opponent is not None:
             strongest_move = util.get_strongest_move_against(battler, left_opponent)
             if strongest_move is not None:
                 return TurnAction.use_move_against_left_side_opponent(strongest_move)
+            else:
+                return TurnAction.use_move_against_left_side_opponent(first_available_move())
 
         if right_opponent is not None:
             strongest_move = util.get_strongest_move_against(battler, right_opponent)
             if strongest_move is not None:
                 return TurnAction.use_move_against_right_side_opponent(strongest_move)
+            else:
+                return TurnAction.use_move_against_right_side_opponent(first_available_move())
 
         return self._handle_lead_cannot_battle(battle_state, util, reason="No damaging moves available")
 

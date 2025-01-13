@@ -155,7 +155,6 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
     current_position = get_map_data_for_current_position()
     last_waypoint = None
     for waypoint in path:
-        print(waypoint)
         # For the first waypoint it is possible that the player avatar is not facing the same way as it needs to
         # walk. This leads to the first navigation step to actually become two: Turning around, then doing the step.
         # When in tall grass, that could lead to an encounter starting mid-step which messes up the battle handling.
