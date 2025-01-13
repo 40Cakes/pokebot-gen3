@@ -155,6 +155,7 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
     current_position = get_map_data_for_current_position()
     last_waypoint = None
     for waypoint in path:
+        print(waypoint)
         # For the first waypoint it is possible that the player avatar is not facing the same way as it needs to
         # walk. This leads to the first navigation step to actually become two: Turning around, then doing the step.
         # When in tall grass, that could lead to an encounter starting mid-step which messes up the battle handling.
@@ -170,7 +171,7 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
         if waypoint.is_warp:
             frames_remaining_until_timeout += extra_timeout_in_frames_for_warps
         if waypoint.action is WaypointAction.Surf:
-            frames_remaining_until_timeout += 270
+            frames_remaining_until_timeout += 300
         elif waypoint.action is WaypointAction.Waterfall:
             frames_remaining_until_timeout += 195 + (get_player_location()[0][1] - waypoint.coordinates[1]) * 42
 
