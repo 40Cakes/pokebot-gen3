@@ -6,10 +6,11 @@ from modules.map import get_map_objects
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import get_event_flag, get_event_var
 from modules.menuing import use_party_hm_move
+from modules.modes.util.higher_level_actions import dive, surface_from_dive
 from modules.player import get_player_avatar
 from modules.tasks import get_global_script_context
 from . import BattleAction
-from ._asserts import assert_has_pokemon_with_any_move, assert_registered_item, assert_item_exists_in_bag
+from ._asserts import assert_has_pokemon_with_any_move, assert_registered_item, assert_pokemon_in_party_slot
 from ._interface import BotMode, BotModeError
 from .util import (
     follow_path,
@@ -58,6 +59,7 @@ class PuzzleSolverMode(BotMode):
                 MapRSE.ANCIENT_TOMB,
                 MapRSE.BIRTH_ISLAND_EXTERIOR,
                 MapRSE.MIRAGE_TOWER_1F,
+                MapRSE.PACIFIDLOG_TOWN,
             ]
         elif context.rom.is_frlg:
             return get_player_avatar().map_group_and_number in [
@@ -86,7 +88,7 @@ class PuzzleSolverMode(BotMode):
                 context.message = "Solving Mirage Tower..."
                 use_repel = True
                 assert_registered_item("Mach Bike", "This mode requires the Mach Bike registered to the Select button.")
-                assert_has_pokemon_with_any_move(["Rock Smash"], "This mode requires Pokémon with Rock Smash.")
+                assert_(["Rock Smash"], "This mode requires Pokémon with Rock Smash.")
 
                 def path():
                     # floor 1
@@ -137,6 +139,47 @@ class PuzzleSolverMode(BotMode):
                     # floor 5
                     yield from navigate_to(MapRSE.SKY_PILLAR_5F, (10, 1))
                     context.message = "Sky Pillar puzzle complete!"
+                    context.set_manual_mode()
+
+            # Regi Initial Puzzle
+            case MapRSE.PACIFIDLOG_TOWN:
+                context.message = "Solving Sealed Chamber Puzzle...\nNavigating to Sealed Chamber..."
+
+                use_repel = True
+                assert_has_pokemon_with_any_move(["Dig"], "Regi Initial Puzzle requires Pokémon with Dig.")
+                assert_has_pokemon_with_any_move(["Dive"], "Regi Initial Puzzle requires Pokémon with Dive.")
+                assert_has_pokemon_with_any_move(["Surf"], "Regi Initial Puzzle requires Pokémon with Surf.")
+                if context.rom.is_emerald:
+                    assert_pokemon_in_party_slot(
+                        "Wailord", 0, "Sealed Chamber Puzzle requires Wailord in the first party slot."
+                    )
+                    assert_pokemon_in_party_slot(
+                        "Relicanth", 5, "Sealed Chamber Puzzle requires Relicanth in the last party slot."
+                    )
+                if context.rom.is_rs:
+                    assert_pokemon_in_party_slot(
+                        "Relicanth", 0, "Sealed Chamber Puzzle requires Relicanth in the first party slot."
+                    )
+                    assert_pokemon_in_party_slot(
+                        "Wailord", 5, "Sealed Chamber Puzzle requires Wailord in the last party slot."
+                    )
+
+                def path():
+                    yield from navigate_to(MapRSE.ROUTE134, (61, 31))
+                    yield from dive()
+                    yield from navigate_to(MapRSE.UNDERWATER_ROUTE134, (8, 8))
+                    yield from navigate_to(MapRSE.UNDERWATER_SEALED_CHAMBER, (12, 44))
+                    yield from surface_from_dive()
+                    context.message = "Solving Sealed Chamber Puzzle...\nStarting solution..."
+                    yield from navigate_to(MapRSE.SEALED_CHAMBER_OUTER_ROOM, (10, 3))
+                    yield from use_party_hm_move("Dig")
+                    yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry")
+                    yield from navigate_to(MapRSE.SEALED_CHAMBER_OUTER_ROOM, (10, 2))
+                    yield from navigate_to(MapRSE.SEALED_CHAMBER_INNER_ROOM, (10, 5))
+                    while get_event_flag("REGI_DOORS_OPENED") == 0:
+                        context.emulator.press_button("A")
+                        yield
+                    context.message = "Sealed Chamber puzzle complete!\nEncounters for Regis are now available."
                     context.set_manual_mode()
 
             # Regirock

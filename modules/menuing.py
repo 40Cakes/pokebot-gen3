@@ -868,8 +868,7 @@ def use_party_hm_move(move_name: str):
             case "WATERFALL":
                 if not get_event_flag("BADGE08_GET"):
                     raise BotModeError("You do not have the Rain Badge to use Waterfall outside of battle.")
-            case _:
-                raise BotModeError("Invalid HM move name.")
+
     if context.rom.is_frlg:
         match move_name_upper:
             case "FLASH":
@@ -929,6 +928,8 @@ def use_party_hm_move(move_name: str):
             yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.WATERFALL).step()
         case "DIVE":
             yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.DIVE).step()
+        case "DIG":
+            yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.DIG).step()
         case _:
             raise BotModeError("Invalid HM move name.")
     return

@@ -55,6 +55,24 @@ For `Fire Red / Leaf Green`
 
 ![image](../images/puzzle_deoxys_frlg.png)
 
+## Sealed Chamber (Regi-Trio) Puzzle
+
+Navigates to [Sealed Chamber](https://bulbapedia.bulbagarden.net/wiki/Sealed_Chamber) from [Pacifidlog Town](https://bulbapedia.bulbagarden.net/wiki/Pacifidlog_Town), and solves the puzzle required to access the regi trio.
+
+### Requirements
+
+- Pokemon which knows [Surf](<https://bulbapedia.bulbagarden.net/wiki/Surf_(move)>)
+- Pokemon which knows [Dive](<https://bulbapedia.bulbagarden.net/wiki/Dive_(move)>)
+- Pokemon which knows [Dig](<https://bulbapedia.bulbagarden.net/wiki/Dig_(move)>)
+- Wailord in the **first** party slot (Emerald) or **last** party slot (Ruby/Sapphire)
+- Relicanth in the **last** party slot (Emerald) or **first** party slot (Ruby/Sapphire)
+
+### Starting Location
+
+Start anywhere in Pacifidlog town with all of the above requirements fulfilled.
+
+![image](../images/puzzle_sealed_chamber.png)
+
 ## Regice
 
 For [Regice](<https://bulbapedia.bulbagarden.net/wiki/Regice_(Pok%C3%A9mon)>), start the bot mode _inside_ [Island Cave](https://bulbapedia.bulbagarden.net/wiki/Island_Cave).
@@ -141,29 +159,32 @@ Start bot mode anywhere inside the glass workshop.
 
 # Game Support
 
-| Puzzle           | Game         | English | Japanese | German | Spanish | French | Italian |
-|:-----------------|:-------------|:-------:|:--------:|:------:|:-------:|:------:|:-------:|
-| **Mirage Tower** | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-| **Sky Pillar**   | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🟥 Ruby      |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🔷 Sapphire  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-| **Deoxys**       | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🔥 Fire Red  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🌿 LeafGreen |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-| **Regice**       | 🟥 Ruby      |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🔷 Sapphire  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-| **Regirock**     | 🟥 Ruby      |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🔷 Sapphire  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-| **Registeel**    | 🟥 Ruby      |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🔷 Sapphire  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-| **Tanoby Key**   | 🔥 Fire Red  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🌿 LeafGreen |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-| **White Flute**  | 🟥 Ruby      |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🔷 Sapphire  |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
-|                  | 🟢 Emerald   |    ✅    |    ✅     |   ✅    |    ✅    |   ✅    |    ✅    |
+| Puzzle             | Game         | English | Japanese | German | Spanish | French | Italian |
+| :----------------- | :----------- | :-----: | :------: | :----: | :-----: | :----: | :-----: |
+| **Mirage Tower**   | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **Sky Pillar**     | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                    | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                    | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **Deoxys**         | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                    | 🔥 Fire Red  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                    | 🌿 LeafGreen |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **Sealed Chamber** | 🟥 Ruby      |   🟨    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
+|                    | 🔷 Sapphire  |   ✅    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
+|                    | 🟢 Emerald   |   ✅    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
+| **Regice**         | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                    | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                    | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **Regirock**       | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                    | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                    | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **Registeel**      | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                    | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                    | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **Tanoby Key**     | 🔥 Fire Red  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                    | 🌿 LeafGreen |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **White Flute**    | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                    | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                    | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
 
 ✅ Tested, working
 
