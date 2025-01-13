@@ -1,6 +1,6 @@
 from typing import Optional
 
-from modules.battle_state import BattleState, BattlePokemon
+from modules.battle_state import BattleState, BattlePokemon, get_battle_state
 from modules.context import context
 from modules.modes._interface import BotModeError
 from modules.pokemon import Pokemon, Move, LearnedMove
@@ -140,6 +140,7 @@ class DefaultBattleStrategy(BattleStrategy):
     def choose_new_lead_after_battle(self) -> int | None:
         party = get_party()
         if not self.pokemon_can_battle(party[self._first_non_fainted_party_index_before_battle]):
+            util = BattleStrategyUtil(get_battle_state())
             return util.select_rotation_target()
 
         return None
