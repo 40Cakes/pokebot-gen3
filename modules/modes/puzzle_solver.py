@@ -178,7 +178,7 @@ class PuzzleSolverMode(BotMode):
                     context.message = "Solving Sealed Chamber Puzzle...\nStarting solution..."
                     yield from navigate_to(MapRSE.SEALED_CHAMBER_OUTER_ROOM, (10, 3))
                     yield from use_party_hm_move("Dig")
-                    yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry")
+                    yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
                     yield from navigate_to(MapRSE.SEALED_CHAMBER_OUTER_ROOM, (10, 2))
                     yield from navigate_to(MapRSE.SEALED_CHAMBER_INNER_ROOM, (10, 5))
                     while get_event_flag("REGI_DOORS_OPENED") == 0:
