@@ -6,7 +6,7 @@ from modules.debug import debug
 from modules.map_data import PokemonCenter
 from modules.memory import get_event_flag, get_game_state_symbol, unpack_uint32, read_symbol, get_game_state, GameState
 from modules.menu_parsers import CursorOptionEmerald, CursorOptionFRLG, CursorOptionRS
-from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
+from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator, use_party_hm_move
 from modules.modes.util.sleep import wait_for_n_frames
 from modules.player import (
     get_player_avatar,
@@ -14,6 +14,7 @@ from modules.player import (
     TileTransitionState,
     RunningState,
     player_avatar_is_standing_still,
+    AvatarFlags,
 )
 from modules.pokemon_party import get_party
 from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE, get_map_cursor, get_map_region
@@ -23,6 +24,7 @@ from .items import scroll_to_item_in_bag, use_item_from_bag
 from .tasks_scripts import (
     wait_for_task_to_start_and_finish,
     wait_for_yes_no_question,
+    wait_until_script_is_active,
     wait_for_no_script_to_run,
     wait_until_task_is_active,
     wait_for_fade_to_finish,
@@ -564,3 +566,47 @@ def unmount_bicycle():
             return
 
     raise BotModeError("Player does not own a bicycle.")
+
+
+def dive():
+    if context.rom.is_frlg:
+        raise BotModeError("The diving mechanic does not exist in FR/LG.")
+    elif context.rom.is_rs:
+        task_name = "Task_Dive"
+    else:
+        task_name = "Task_UseDive"
+
+    if AvatarFlags.Underwater in get_player_avatar().flags:
+        raise BotModeError("Cannot dive because the player is already underwater.")
+
+    if get_map_data_for_current_position().tile_type not in (
+        "Deep Water",
+        "Interior Deep Water",
+        "Semi-Deep Water",
+        "Sootopolis Deep Water",
+    ):
+        raise BotModeError("Cannot dive because the player is not on a deep water tile.")
+
+    yield from wait_for_task_to_start_and_finish(task_name, "A")
+    yield from wait_for_player_avatar_to_be_standing_still()
+
+
+def surface_from_dive():
+    if context.rom.is_frlg:
+        raise BotModeError("The diving mechanic does not exist in FR/LG.")
+    elif context.rom.is_rs:
+        script_name = "S_UseDiveUnderwater"
+        task_name = "Task_Dive"
+    else:
+        script_name = "EventScript_UseDiveUnderwater"
+        task_name = "Task_UseDive"
+
+    if AvatarFlags.Underwater not in get_player_avatar().flags:
+        raise BotModeError("Cannot surface from dive because the player is not underwater.")
+
+    if get_map_data_for_current_position().tile_type in ("Underwater Blocked Above", "Seaweed No Surfacing"):
+        raise BotModeError("This tile does not allow surfacing from a dive.")
+
+    yield from wait_until_script_is_active(script_name, "B")
+    yield from wait_for_task_to_start_and_finish(task_name, "A")
+    yield from wait_for_player_avatar_to_be_standing_still()
