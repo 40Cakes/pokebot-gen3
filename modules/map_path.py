@@ -237,7 +237,15 @@ class PathMap:
                         destination = warp.destination_location
                         extra_warp_direction = None
                         if tile.tile_type.endswith(" Arrow Warp"):
-                            extra_warp_direction = Direction[tile.tile_type.replace(" Arrow Warp", "")]
+                            match tile.tile_type:
+                                case "North Arrow Warp":
+                                    extra_warp_direction = Direction.North
+                                case "South Arrow Warp" | "Water South Arrow Warp":
+                                    extra_warp_direction = Direction.South
+                                case "East Arrow Warp":
+                                    extra_warp_direction = Direction.East
+                                case "West Arrow Warp":
+                                    extra_warp_direction = Direction.West
                         warps_to = (
                             (destination.map_group, destination.map_number),
                             destination.local_position,
