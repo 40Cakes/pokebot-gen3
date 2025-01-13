@@ -88,7 +88,7 @@ class PuzzleSolverMode(BotMode):
                 context.message = "Solving Mirage Tower..."
                 use_repel = True
                 assert_registered_item("Mach Bike", "This mode requires the Mach Bike registered to the Select button.")
-                assert_(["Rock Smash"], "This mode requires Pokémon with Rock Smash.")
+                assert_has_pokemon_with_any_move(["Rock Smash"], "This mode requires Pokémon with Rock Smash.")
 
                 def path():
                     # floor 1
