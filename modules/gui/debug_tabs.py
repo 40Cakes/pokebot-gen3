@@ -36,7 +36,7 @@ from modules.map import (
     get_effective_encounter_rates_for_current_map,
     EffectiveWildEncounter,
 )
-from modules.map_data import MapGroupFRLG, MapFRLG, MapGroupRSE, MapRSE
+from modules.map_data import MapGroupFRLG, MapFRLG, MapGroupRSE, MapRSE, get_map_enum
 from modules.map_path import _find_tile_by_local_coordinates
 from modules.memory import (
     get_symbol,
@@ -1527,6 +1527,11 @@ class MapTab(DebugTab):
                 "Warps To": pt.warps_to,
                 "Waterfall To": pt.waterfall_to,
                 "Muddy Slope To": pt.muddy_slope_to,
+                "Forced Movement To": (
+                    f"{pt.forced_movement_to[1]} @ {get_map_enum(pt.forced_movement_to[0]).pretty_name} ({pt.forced_movement_to[2]} steps)"
+                    if pt.forced_movement_to is not None
+                    else "None"
+                ),
                 "Needs Acro Bike": pt.needs_acro_bike,
                 "Needs Bunny Hop": pt.needs_bunny_hop,
             },
