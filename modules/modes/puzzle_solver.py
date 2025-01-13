@@ -30,7 +30,6 @@ from ..battle_strategies import BattleStrategy
 from ..encounter import handle_encounter, EncounterInfo
 
 
-
 @debug.track
 def mount_bike() -> Generator:
     while not get_player_avatar().is_on_bike:
@@ -70,10 +69,10 @@ class PuzzleSolverMode(BotMode):
             ]
         else:
             return False
-        
+
     def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | BattleStrategy | None:
         return handle_encounter(encounter, enable_auto_battle=True) if encounter is not None else BattleAction.Fight
-    
+
     def on_repel_effect_ended(self) -> None:
         yield from apply_repel()
 
@@ -156,14 +155,18 @@ class PuzzleSolverMode(BotMode):
                         "Wailord", 0, "Sealed Chamber Puzzle requires Wailord in the first party slot."
                     )
                     assert_pokemon_in_party_slot(
-                        "Relicanth", get_party_size() - 1, "Sealed Chamber Puzzle requires Relicanth in the last party slot."
+                        "Relicanth",
+                        get_party_size() - 1,
+                        "Sealed Chamber Puzzle requires Relicanth in the last party slot.",
                     )
                 if context.rom.is_rs:
                     assert_pokemon_in_party_slot(
                         "Relicanth", 0, "Sealed Chamber Puzzle requires Relicanth in the first party slot."
                     )
                     assert_pokemon_in_party_slot(
-                        "Wailord", get_party_size() - 1, "Sealed Chamber Puzzle requires Wailord in the last party slot."
+                        "Wailord",
+                        get_party_size() - 1,
+                        "Sealed Chamber Puzzle requires Wailord in the last party slot.",
                     )
 
                 def path():
