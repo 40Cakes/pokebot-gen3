@@ -731,7 +731,7 @@ class MapBgEvent:
         return data
 
 
-_map_layout_cache: dict[tuple[int, int], bytes] = {}
+_map_layout_cache: dict[str, dict[tuple[int, int], bytes]] = {}
 
 
 class MapLocation:
@@ -744,10 +744,14 @@ class MapLocation:
     @cached_property
     def _map_layout(self) -> bytes:
         global _map_layout_cache
-        if self.map_group_and_number not in _map_layout_cache:
+        if context.rom.id not in _map_layout_cache:
+            _map_layout_cache[context.rom.id] = {}
+        if self.map_group_and_number not in _map_layout_cache[context.rom.id]:
             map_layout_pointer = unpack_uint32(self._map_header[:4])
-            _map_layout_cache[self.map_group_and_number] = context.emulator.read_bytes(map_layout_pointer, 24)
-        return _map_layout_cache[self.map_group_and_number]
+            _map_layout_cache[context.rom.id][self.map_group_and_number] = context.emulator.read_bytes(
+                map_layout_pointer, 24
+            )
+        return _map_layout_cache[context.rom.id][self.map_group_and_number]
 
     @cached_property
     def _metatile_attributes(self) -> tuple[int, int, int]:
@@ -1704,7 +1708,7 @@ def get_map_data_for_current_position() -> MapLocation | None:
     return MapLocation(read_symbol("gMapHeader"), map_group, map_number, player.local_coordinates)
 
 
-_map_header_cache: dict[tuple[int, int], bytes] = {}
+_map_header_cache: dict[str, dict[tuple[int, int], bytes]] = {}
 
 
 def get_map_data(
@@ -1714,7 +1718,10 @@ def get_map_data(
     if not isinstance(map_group_and_number, tuple):
         map_group_and_number = map_group_and_number.value
 
-    if len(_map_header_cache) == 0:
+    if context.rom.id not in _map_header_cache:
+        _map_header_cache[context.rom.id] = {}
+
+    if len(_map_header_cache[context.rom.id]) == 0:
         from modules.map_data import MapGroupFRLG, MapGroupRSE, MapRSE
 
         if context.rom.is_rse:
@@ -1734,13 +1741,16 @@ def get_map_data(
 
                 map_header_pointer = unpack_uint32(context.emulator.read_bytes(group_pointer + 4 * map_index, 4))
                 map_header = context.emulator.read_bytes(map_header_pointer, 0x1C)
-                _map_header_cache[(group_index, map_index)] = map_header
+                _map_header_cache[context.rom.id][(group_index, map_index)] = map_header
 
-    if map_group_and_number not in _map_header_cache:
+    if map_group_and_number not in _map_header_cache[context.rom.id]:
         raise ValueError(f"Tried to access invalid map: ({map_group_and_number})")
 
     return MapLocation(
-        _map_header_cache[map_group_and_number], map_group_and_number[0], map_group_and_number[1], local_position
+        _map_header_cache[context.rom.id][map_group_and_number],
+        map_group_and_number[0],
+        map_group_and_number[1],
+        local_position,
     )
 
 
@@ -1827,12 +1837,16 @@ class WildEncounterList:
         }
 
 
-_wild_encounters_cache: dict[tuple[int, int], WildEncounterList] = {}
+_wild_encounters_cache: dict[str, dict[tuple[int, int], WildEncounterList]] = {}
 
 
 def get_wild_encounters_for_map(map_group: int, map_number: int) -> WildEncounterList | None:
     global _wild_encounters_cache
-    if len(_wild_encounters_cache) == 0:
+
+    if context.rom.id not in _wild_encounters_cache:
+        _wild_encounters_cache[context.rom.id] = {}
+
+    if len(_wild_encounters_cache[context.rom.id]) == 0:
         types = (
             (4, 8, "land", 12, (20, 20, 10, 10, 10, 10, 5, 5, 4, 4, 1, 1)),
             (8, 12, "surf", 5, (60, 30, 5, 4, 1)),
@@ -1883,9 +1897,9 @@ def get_wild_encounters_for_map(map_group: int, map_number: int) -> WildEncounte
                             data["old_rod_encounters"] = get_encounters_list(list_pointer, 2, rates[:2])
                             data["good_rod_encounters"] = get_encounters_list(list_pointer + 8, 3, rates[2:5])
                             data["super_rod_encounters"] = get_encounters_list(list_pointer + 20, 5, rates[5:10])
-            _wild_encounters_cache[(group, number)] = WildEncounterList(**data)
+            _wild_encounters_cache[context.rom.id][(group, number)] = WildEncounterList(**data)
 
-    return _wild_encounters_cache.get((map_group, map_number))
+    return _wild_encounters_cache[context.rom.id].get((map_group, map_number))
 
 
 @dataclass

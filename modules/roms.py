@@ -165,6 +165,10 @@ class ROM:
     def is_gen2(self) -> bool:
         return self.is_crystal or self.is_gs
 
+    @property
+    def id(self) -> str:
+        return f"{self.game_code}{self.language.value}{self.revision}"
+
 
 class InvalidROMError(Exception):
     pass
