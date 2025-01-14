@@ -88,17 +88,19 @@ def _load_event_flags_and_vars(file_name: str) -> None:  # TODO Japanese ROMs no
 
     _event_flags.clear()
     _reverse_event_flags.clear()
-    for s in open(get_data_path() / "event_flags" / file_name):
-        number, name = s.strip().split(" ")
-        _event_flags[name] = (int(number) // 8) + flags_offset, int(number) % 8
-        _reverse_event_flags[int(number)] = name
+    with open(get_data_path() / "event_flags" / file_name) as file_handle:
+        for s in file_handle:
+            number, name = s.strip().split(" ")
+            _event_flags[name] = (int(number) // 8) + flags_offset, int(number) % 8
+            _reverse_event_flags[int(number)] = name
 
     _event_vars.clear()
     _reverse_event_vars.clear()
-    for s in open(get_data_path() / "event_vars" / file_name):
-        number, name = s.strip().split(" ")
-        _event_vars[name] = int(number) * 2 + vars_offset
-        _reverse_event_vars[int(number)] = name
+    with open(get_data_path() / "event_vars" / file_name) as file_handle:
+        for s in file_handle:
+            number, name = s.strip().split(" ")
+            _event_vars[name] = int(number) * 2 + vars_offset
+            _reverse_event_vars[int(number)] = name
 
 
 def _prepare_character_tables() -> None:

@@ -107,8 +107,9 @@ class LibmgbaEmulator:
     _audio_sample_rate: int = 32768
     _last_audio_data: Queue[bytes]
 
-    def __init__(self, profile: Profile, on_frame_callback: callable):
-        console.print(f"Running [cyan]{libmgba_version_string()}[/]")
+    def __init__(self, profile: Profile, on_frame_callback: callable, is_test_run: bool = False):
+        if not is_test_run:
+            console.print(f"Running [cyan]{libmgba_version_string()}[/]")
 
         # Prevents relentless spamming to stdout by libmgba.
         mgba.log.silence()
@@ -121,12 +122,12 @@ class LibmgbaEmulator:
         # libmgba needs a save file to be loaded, or otherwise it will not save anything
         # to disk if the player saves the game. This can be an empty file.
         self._current_save_path = profile.path / "current_save.sav"
-        if not self._current_save_path.exists():
+        if not is_test_run and not self._current_save_path.exists():
             # Create an empty file if a save game does not exist yet.
             with open(self._current_save_path, "wb"):
                 pass
-        self._save = mgba.vfs.open_path(str(self._current_save_path), "r+")
-        self._core.load_save(self._save)
+            self._save = mgba.vfs.open_path(str(self._current_save_path), "r+")
+            self._core.load_save(self._save)
         self._last_audio_data = Queue(maxsize=128)
 
         self._screen = mgba.image.Image(*self._core.desired_video_dimensions())
@@ -136,7 +137,7 @@ class LibmgbaEmulator:
         # Whenever the emulator closes, it stores the current state in `current_state.ss1`.
         # Load this file if it exists, to continue exactly where we left off.
         self._current_state_path = profile.path / "current_state.ss1"
-        if self._current_state_path.exists():
+        if not is_test_run and self._current_state_path.exists():
             with open(self._current_state_path, "rb") as state_file:
                 self.load_save_state(state_file.read())
 
@@ -151,8 +152,9 @@ class LibmgbaEmulator:
         self._pressed_inputs: int = 0
         self._held_inputs: int = 0
 
-        atexit.register(self.shutdown)
-        self._core._callbacks.savedata_updated.append(self.backup_current_save_game)
+        if not is_test_run:
+            atexit.register(self.shutdown)
+            self._core._callbacks.savedata_updated.append(self.backup_current_save_game)
 
     def _reset_audio(self) -> None:
         """
@@ -367,6 +369,18 @@ class LibmgbaEmulator:
         vfile.write(state, len(state))
         vfile.seek(0, whence=0)
         self._core.load_state(vfile)
+
+    def load_save_game(self, save_game: bytes) -> None:
+        """
+        Loads GBA save data from a string. This should only be used for testing
+        because it means that save data will not be written out to a file after
+        an in-game save.
+        :param save_game: The raw save game data.
+        """
+        vfile = mgba.vfs.VFile.fromEmpty()
+        vfile.write(save_game, len(save_game))
+        vfile.seek(0, whence=0)
+        self._core.load_save(vfile)
 
     def read_save_data(self) -> bytes:
         """
