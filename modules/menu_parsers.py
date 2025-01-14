@@ -38,7 +38,7 @@ class CursorOptionFRLG(IntEnum):
     TELEPORT = 25
     DIG = 26
     MILK_DRINK = 27
-    SOFT_BOILED = 28
+    SOFTBOILED = 28
     SWEET_SCENT = 29
 
 

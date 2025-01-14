@@ -838,8 +838,8 @@ def should_check_for_pickup():
         return get_game_stat(GameStat.TOTAL_BATTLES) % context.config.battle.pickup_check_frequency == 0
 
 
-def use_party_hm_move(move_name: str):
-    assert_has_pokemon_with_any_move([move_name], "No Pokémon with move {move_name} in party.")
+def use_field_move(move_name: str):
+    assert_has_pokemon_with_any_move([move_name], f"No Pokémon with move {move_name} in party.")
     move_name_upper = move_name.upper()
     # badge checks
     if context.rom.is_rse:
@@ -892,16 +892,12 @@ def use_party_hm_move(move_name: str):
             case "WATERFALL":
                 if not get_event_flag("BADGE07_GET"):
                     raise BotModeError("You do not have the Volcano Badge to use Waterfall outside of battle.")
-            case _:
-                raise BotModeError("Invalid HM move name.")
 
     yield from StartMenuNavigator("POKEMON").step()
 
     # find Pokémon with desired HM move
     move_wanted = get_move_by_name(move_name)
     move_pokemon = get_party().first_pokemon_with_move(move_wanted)
-    if move_pokemon is None:
-        raise RuntimeError(f"Could not find a Pokémon that knows {move_wanted.name}.")
 
     cursor = None
     if context.rom.is_emerald:
@@ -927,9 +923,25 @@ def use_party_hm_move(move_name: str):
         case "WATERFALL":
             yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.WATERFALL).step()
         case "DIVE":
-            yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.DIVE).step()
+            if context.rom.is_frlg:
+                raise BotModeError("Diving is not possible on FR/LG.")
+            else:
+                yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.DIVE).step()
+        case "TELEPORT":
+            yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.TELEPORT).step()
         case "DIG":
             yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.DIG).step()
+        case "SECRET POWER":
+            if context.rom.is_frlg:
+                raise BotModeError("There is no Secret Power on FR/LG.")
+            else:
+                yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.SECRET_POWER).step()
+        case "MILK DRINK":
+            yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.MILK_DRINK).step()
+        case "SOFTBOILED":
+            yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.SOFTBOILED).step()
+        case "SWEET SCENT":
+            yield from PokemonPartyMenuNavigator(move_pokemon.index, "", cursor.SWEET_SCENT).step()
         case _:
             raise BotModeError("Invalid HM move name.")
     return

@@ -5,7 +5,7 @@ from modules.debug import debug
 from modules.map import get_map_objects
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import get_event_flag, get_event_var
-from modules.menuing import use_party_hm_move
+from modules.menuing import use_field_move
 from modules.modes.util.higher_level_actions import dive, surface_from_dive
 from modules.player import get_player_avatar
 from modules.pokemon_party import get_party_size
@@ -100,14 +100,14 @@ class PuzzleSolverMode(BotMode):
                     # floor 3
                     yield from navigate_to(MapRSE.MIRAGE_TOWER_3F, (3, 8))
                     yield from ensure_facing_direction("Up")
-                    yield from use_party_hm_move("Rock Smash")
+                    yield from use_field_move("Rock Smash")
                     yield from wait_for_script_to_start_and_finish("EventScript_SmashRock")
                     yield
                     yield from navigate_to(MapRSE.MIRAGE_TOWER_3F, (2, 4))
                     # floor 4
                     yield from navigate_to(MapRSE.MIRAGE_TOWER_4F, (5, 7))
                     yield from ensure_facing_direction("Right")
-                    yield from use_party_hm_move("Rock Smash")
+                    yield from use_field_move("Rock Smash")
                     yield from wait_for_script_to_start_and_finish("EventScript_SmashRock")
                     yield
                     yield from unmount_bike()
@@ -177,7 +177,7 @@ class PuzzleSolverMode(BotMode):
                     yield from surface_from_dive()
                     context.message = "Solving Sealed Chamber Puzzle...\nStarting solution..."
                     yield from navigate_to(MapRSE.SEALED_CHAMBER_OUTER_ROOM, (10, 3))
-                    yield from use_party_hm_move("Dig")
+                    yield from use_field_move("Dig")
                     yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
                     yield from navigate_to(MapRSE.SEALED_CHAMBER_OUTER_ROOM, (10, 2))
                     yield from navigate_to(MapRSE.SEALED_CHAMBER_INNER_ROOM, (10, 5))
@@ -204,7 +204,7 @@ class PuzzleSolverMode(BotMode):
                         context.message = "Two Left, Two Down, Rock Smash..."
                         yield from follow_path([(6, 21), (6, 23)])
                         # use rock smash
-                        yield from use_party_hm_move("Rock Smash")
+                        yield from use_field_move("Rock Smash")
                         yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
                         if get_event_flag("SYS_REGIROCK_PUZZLE_COMPLETED"):
                             context.message = "Regirock puzzle complete!"
@@ -219,7 +219,7 @@ class PuzzleSolverMode(BotMode):
                         )
                         context.message = "Two Right, Two Down, Strength..."
                         yield from follow_path([(10, 21), (10, 23)])
-                        yield from use_party_hm_move("Strength")
+                        yield from use_field_move("Strength")
                         yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry")
                         yield from navigate_to(MapRSE.DESERT_RUINS, (8, 21))
                         yield from walk_one_tile("Up")
@@ -295,7 +295,7 @@ class PuzzleSolverMode(BotMode):
                         )
                         context.message = "Using Flash..."
                         yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 25))
-                        yield from use_party_hm_move("Flash")
+                        yield from use_field_move("Flash")
                         yield from wait_for_task_to_start_and_finish("Task_DoFieldMove_RunFunc")
                         if get_event_flag("SYS_REGISTEEL_PUZZLE_COMPLETED"):
                             context.message = "Registeel puzzle complete!"
@@ -310,7 +310,7 @@ class PuzzleSolverMode(BotMode):
                             ["Fly"], "Registeel Puzzle (Ruby/Sapphire) requires Pokémon with Fly."
                         )
                         yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 25))
-                        yield from use_party_hm_move("Fly")
+                        yield from use_field_move("Fly")
                         yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry")
                         yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 21))
                         yield from walk_one_tile("Up")
@@ -403,7 +403,7 @@ class PuzzleSolverMode(BotMode):
 
                 def path():
                     yield from navigate_to(MapFRLG.SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY, (7, 7))
-                    yield from use_party_hm_move("Strength")
+                    yield from use_field_move("Strength")
                     yield from wait_for_script_to_start_and_finish("EventScript_UseStrength", "B")
                     yield
                     yield from walk_one_tile("Up")
