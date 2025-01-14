@@ -6,7 +6,7 @@ from modules.debug import debug
 from modules.map_data import PokemonCenter
 from modules.memory import get_event_flag, get_game_state_symbol, unpack_uint32, read_symbol, get_game_state, GameState
 from modules.menu_parsers import CursorOptionEmerald, CursorOptionFRLG, CursorOptionRS
-from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator, use_party_hm_move
+from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.modes.util.sleep import wait_for_n_frames
 from modules.player import (
     get_player_avatar,
