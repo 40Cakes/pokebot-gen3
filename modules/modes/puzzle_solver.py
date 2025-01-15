@@ -11,7 +11,12 @@ from modules.player import get_player_avatar
 from modules.pokemon_party import get_party_size
 from modules.tasks import get_global_script_context
 from . import BattleAction
-from ._asserts import assert_has_pokemon_with_any_move, assert_registered_item, assert_pokemon_in_party_slot
+from ._asserts import (
+    assert_has_pokemon_with_any_move,
+    assert_item_exists_in_bag,
+    assert_registered_item,
+    assert_pokemon_in_party_slot,
+)
 from ._interface import BotMode, BotModeError
 from .util import (
     follow_path,
@@ -61,6 +66,7 @@ class PuzzleSolverMode(BotMode):
                 MapRSE.BIRTH_ISLAND_EXTERIOR,
                 MapRSE.MIRAGE_TOWER_1F,
                 MapRSE.PACIFIDLOG_TOWN,
+                MapRSE.SEAFLOOR_CAVERN_ENTRANCE,
             ]
         elif context.rom.is_frlg:
             return get_player_avatar().map_group_and_number in [
@@ -321,6 +327,109 @@ class PuzzleSolverMode(BotMode):
                             yield from navigate_to(MapRSE.ANCIENT_TOMB, (8, 29))
                             yield from walk_one_tile("Down")
                             yield from walk_one_tile("Up")
+
+            # Seafloor Cavern
+            case MapRSE.SEAFLOOR_CAVERN_ENTRANCE:
+                context.message = "Solving Seafloor Cavern Puzzle..."
+                use_repel = True
+                assert_has_pokemon_with_any_move(["Strength"], "Seafloor Cavern Puzzle requires Pokémon with Strength.")
+                assert_has_pokemon_with_any_move(
+                    ["Rock Smash"], "Seafloor Cavern Puzzle requires Pokémon with Rock Smash."
+                )
+                assert_has_pokemon_with_any_move(["Surf"], "Seafloor Cavern Puzzle requires Pokémon with Surf.")
+
+                def path():
+                    # Entrance
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ENTRANCE, (10, 1))
+                    # 1F
+                    context.message = "Solving Seafloor Cavern Puzzle...\nSolving room 1 / 6..."
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM1, (4, 10))
+                    yield from ensure_facing_direction("Right")
+                    yield from wait_for_script_to_start_and_finish("DoRockSmashMovement", "A")
+                    yield from wait_for_player_avatar_to_be_controllable()
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM1, (5, 10))
+                    yield from ensure_facing_direction("Down")
+                    yield from wait_for_script_to_start_and_finish("Std_MsgboxSign", "A")
+                    yield from walk_one_tile("Down")
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM1, (11, 11))
+                    yield from walk_one_tile("Right")
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM1, (6, 2))
+                    # 2F
+                    context.message = "Solving Seafloor Cavern Puzzle...\nSolving room 2 / 6..."
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (11, 15))
+                    yield from wait_for_script_to_start_and_finish("Std_MsgboxSign", "A")
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (15, 12))
+                    yield from walk_one_tile("Up")
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (12, 10))
+                    yield from walk_one_tile("Left")
+                    yield from ensure_facing_direction("Up")
+                    yield from wait_for_script_to_start_and_finish("DoRockSmashMovement", "A")
+                    yield from wait_for_player_avatar_to_be_controllable()
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (11, 7))
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (8, 6))
+                    yield from wait_for_script_to_start_and_finish("DoRockSmashMovement", "A")
+                    yield from wait_for_player_avatar_to_be_controllable()
+                    yield from walk_one_tile("Left")
+                    yield from walk_one_tile("Left")
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (5, 2))
+                    # 6F
+                    context.message = "Solving Seafloor Cavern Puzzle...\nSolving room 3 / 6..."
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM6, (4, 1))
+                    # 3F
+                    context.message = "Solving Seafloor Cavern Puzzle...\nSolving room 4 / 6..."
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM3, (6, 14))
+                    yield from ensure_facing_direction("Up")
+                    yield from wait_for_script_to_start_and_finish("Std_MsgboxSign", "A")
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM3, (7, 12))
+                    yield from walk_one_tile("Left")
+                    yield from walk_one_tile("Right")
+                    yield from walk_one_tile("Right")
+                    yield from walk_one_tile("Up")
+                    yield from walk_one_tile("Left")
+                    yield from walk_one_tile("Left")
+                    yield from walk_one_tile("Right")
+                    yield from walk_one_tile("Up")
+                    yield from walk_one_tile("Left")
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM3, (7, 8))
+                    yield from walk_one_tile("Down")
+                    yield from walk_one_tile("Right")
+                    yield from walk_one_tile("Right")
+                    yield from walk_one_tile("Right")
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM3, (8, 1))
+                    # 8F
+                    context.message = "Solving Seafloor Cavern Puzzle...\nSolving room 5 / 6..."
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM8, (5, 8))
+                    yield from ensure_facing_direction("Up")
+                    yield from wait_for_script_to_start_and_finish("Std_MsgboxSign", "A")
+                    yield from walk_one_tile("Up")
+                    yield from walk_one_tile("Left")
+                    yield from walk_one_tile("Right")
+                    yield from walk_one_tile("Right")
+                    yield from walk_one_tile("Up")
+                    yield from walk_one_tile("Left")
+                    yield from walk_one_tile("Up")
+                    yield from walk_one_tile("Left")
+                    yield from walk_one_tile("Right")
+                    yield from walk_one_tile("Right")
+                    yield from walk_one_tile("Up")
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM8, (4, 5))
+                    yield from walk_one_tile("Up")
+                    yield from walk_one_tile("Right")
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM8, (5, 2))
+                    # 9F
+                    context.message = "Solving Seafloor Cavern Puzzle...\nSolving room 6 / 6"
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM9, (13, 5))
+                    # Pick up tm26
+                    yield from ensure_facing_direction("Right")
+                    yield from wait_for_script_to_start_and_finish("Std_MsgboxDefault", "A")
+                    yield from wait_for_player_avatar_to_be_controllable("B")
+                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM9, (16, 42))
+                    context.message = "Seafloor Cavern puzzle complete!"
+                    context.set_manual_mode()
 
             # Deoxys
             case MapFRLG.BIRTH_ISLAND_EXTERIOR | MapRSE.BIRTH_ISLAND_EXTERIOR:
