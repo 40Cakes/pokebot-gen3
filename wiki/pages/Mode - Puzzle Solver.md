@@ -128,6 +128,23 @@ Start mode in Ancient Tomb.
 
 ![image](../images/puzzle_regi.png)
 
+## Seafloor Cavern
+
+In Emerald and Sapphire, this mode should navigate through Seafloor Cavern until it reaches Kyogre.
+
+### Requirements
+
+- Pokemon which knows [Rock Smash](<https://bulbapedia.bulbagarden.net/wiki/Rock_Smash_(move)>)
+- Pokemon which knows [Strength](<https://bulbapedia.bulbagarden.net/wiki/Strength_(move)>)
+- Pokemon which knows [Surf](<https://bulbapedia.bulbagarden.net/wiki/Surf_(move)>)
+- A strong enough party to defeat up to two trainers, plus Archie at the end.
+
+### Starting Location
+
+Start the mode in the Seafloor Cavern, just after surfacing.
+
+![image](../images/puzzle_seafloor_cavern.png)
+
 ## Tanoby Key
 
 For [Tanoby Key](https://bulbapedia.bulbagarden.net/wiki/Tanoby_Key), start the bot mode just inside the room.
@@ -159,32 +176,34 @@ Start bot mode anywhere inside the glass workshop.
 
 # Game Support
 
-| Puzzle             | Game         | English | Japanese | German | Spanish | French | Italian |
-| :----------------- | :----------- | :-----: | :------: | :----: | :-----: | :----: | :-----: |
-| **Mirage Tower**   | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-| **Sky Pillar**     | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-|                    | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-|                    | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-| **Deoxys**         | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-|                    | 🔥 Fire Red  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-|                    | 🌿 LeafGreen |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-| **Sealed Chamber** | 🟥 Ruby      |   🟨    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
-|                    | 🔷 Sapphire  |   ✅    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
-|                    | 🟢 Emerald   |   ✅    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
-| **Regice**         | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-|                    | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-|                    | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-| **Regirock**       | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-|                    | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-|                    | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-| **Registeel**      | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-|                    | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-|                    | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-| **Tanoby Key**     | 🔥 Fire Red  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-|                    | 🌿 LeafGreen |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-| **White Flute**    | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-|                    | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
-|                    | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| Puzzle              | Game         | English | Japanese | German | Spanish | French | Italian |
+| :------------------ | :----------- | :-----: | :------: | :----: | :-----: | :----: | :-----: |
+| **Mirage Tower**    | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **Sky Pillar**      | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                     | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                     | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **Deoxys**          | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                     | 🔥 Fire Red  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                     | 🌿 LeafGreen |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **Sealed Chamber**  | 🟥 Ruby      |   🟨    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
+|                     | 🔷 Sapphire  |   ✅    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
+|                     | 🟢 Emerald   |   ✅    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
+| **Seafloor Cavern** | 🔷 Sapphire  |   ✅    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
+|                     | 🟢 Emerald   |   🟨    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
+| **Regice**          | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                     | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                     | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **Regirock**        | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                     | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                     | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **Registeel**       | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                     | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                     | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **Tanoby Key**      | 🔥 Fire Red  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                     | 🌿 LeafGreen |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+| **White Flute**     | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                     | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
+|                     | 🟢 Emerald   |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
 
 ✅ Tested, working
 
