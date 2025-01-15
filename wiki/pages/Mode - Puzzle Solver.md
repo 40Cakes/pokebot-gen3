@@ -130,7 +130,7 @@ Start mode in Ancient Tomb.
 
 ## Seafloor Cavern
 
-In Emerald and Sapphire, this mode should navigate through Seafloor Cavern until it reaches Kyogre.
+This mode should navigate through Seafloor Cavern until it reaches the end.
 
 ### Requirements
 
@@ -188,7 +188,8 @@ Start bot mode anywhere inside the glass workshop.
 | **Sealed Chamber**  | 🟥 Ruby      |   🟨    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
 |                     | 🔷 Sapphire  |   ✅    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
 |                     | 🟢 Emerald   |   ✅    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
-| **Seafloor Cavern** | 🔷 Sapphire  |   ✅    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
+| **Seafloor Cavern** | 🟥 Ruby      |   🟨    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
+|                     | 🔷 Sapphire  |   ✅    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
 |                     | 🟢 Emerald   |   🟨    |    🟨    |   🟨   |   🟨    |   🟨   |   🟨    |
 | **Regice**          | 🟥 Ruby      |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
 |                     | 🔷 Sapphire  |   ✅    |    ✅    |   ✅   |   ✅    |   ✅   |   ✅    |
