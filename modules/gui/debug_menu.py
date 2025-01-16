@@ -1,8 +1,12 @@
+import tkinter
 import webbrowser
+import zlib
 from tkinter import Tk, Menu
 
+import PIL.PngImagePlugin
 import plyer
 
+from modules.battle_state import battle_is_active
 from modules.context import context
 from modules.debug_utilities import (
     debug_give_test_item_pack,
@@ -17,8 +21,31 @@ from modules.gui.debug_edit_item_bag import run_edit_item_bag_screen
 from modules.gui.debug_edit_party import run_edit_party_screen
 from modules.gui.debug_edit_pokedex import run_edit_pokedex_screen
 from modules.gui.multi_select_window import ask_for_confirmation, ask_for_choice, Selection
+from modules.memory import write_symbol, pack_uint16, pack_uint8, pack_uint32, set_event_var
+from modules.modes import BotListener, BotMode, FrameInfo
 from modules.pokemon_party import get_party, get_party_size
-from modules.runtime import get_sprites_path
+from modules.runtime import get_sprites_path, get_base_path
+
+
+def _create_save_state() -> None:
+    target_path = plyer.filechooser.save_file(
+        path=str(get_base_path() / "tests" / "states"),
+        filters=[".ss1"],
+    )
+    if target_path is None or len(target_path) != 1:
+        return
+
+    with open(target_path[0], "wb") as file:
+        screenshot = context.emulator.get_screenshot()
+        extra_chunks = PIL.PngImagePlugin.PngInfo()
+        extra_chunks.add(b"gbAs", zlib.compress(context.emulator.get_save_state()))
+
+        save_game = context.emulator.read_save_data()
+        extra_chunks.add(b"gbAx", pack_uint32(2) + pack_uint32(len(save_game)) + zlib.compress(save_game))
+
+        screenshot.save(file, format="PNG", pnginfo=extra_chunks)
+
+    context.message = f"State saved to `{target_path[0]}`."
 
 
 def _import_flags_and_vars() -> None:
@@ -103,9 +130,47 @@ def _edit_pokedex() -> None:
     run_edit_pokedex_screen()
 
 
+class InfiniteRepelListener(BotListener):
+    def __del__(self) -> None:
+        _disable_listener(InfiniteRepelListener)
+
+    def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
+        set_event_var("REPEL_STEP_COUNT", 250)
+
+
+class InfiniteSafariZoneListener(BotListener):
+    def __del__(self) -> None:
+        _disable_listener(InfiniteSafariZoneListener)
+
+    def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
+        if not battle_is_active():
+            write_symbol("gNumSafariBalls", pack_uint8(30))
+            write_symbol("sSafariZoneStepCounter", pack_uint16(500))
+
+
+def _enable_listener(listener_class: type[BotListener]) -> None:
+    context.bot_listeners.append(listener_class())
+
+
+def _disable_listener(listener_class: type[BotListener]) -> None:
+    context.bot_listeners = [listener for listener in context.bot_listeners if not isinstance(listener, listener_class)]
+
+
 class DebugMenu(Menu):
     def __init__(self, window: Tk):
         super().__init__(window, tearoff=0)
+
+        def toggleable_listener(listener_class: type[BotListener]) -> tkinter.BooleanVar:
+            var = tkinter.BooleanVar()
+
+            def update_handler(*args):
+                _disable_listener(listener_class)
+                if var.get():
+                    _enable_listener(listener_class)
+
+            var.trace("w", update_handler)
+
+            return var
 
         ability_menu = Menu(self, tearoff=0)
         ability_menu.add_command(
@@ -145,10 +210,11 @@ class DebugMenu(Menu):
                 label="Cute Charm (more opposite gender encounters)",
                 command=lambda: debug_give_fainted_first_slot_pokemon_with_special_ability("Cute Charm"),
             )
+            ability_menu.add_command(
+                label="Magma Armor (halves time for eggs to hatch)",
+                command=lambda: debug_give_fainted_first_slot_pokemon_with_special_ability("Magma Armor"),
+            )
 
-        self.add_command(label="Export events and vars", command=_export_flags_and_vars)
-        self.add_command(label="Import events and vars", command=_import_flags_and_vars)
-        self.add_separator()
         self.add_command(label="Edit Party", command=_edit_party)
         self.add_command(label="Edit Item Bag", command=_edit_item_bag)
         self.add_command(label="Edit Pokédex", command=_edit_pokedex)
@@ -157,6 +223,14 @@ class DebugMenu(Menu):
         self.add_command(label="Give Test Item Pack", command=_give_test_item_pack)
         self.add_cascade(label="Give Lead with Ability", menu=ability_menu)
         self.add_separator()
+        self.add_checkbutton(label="Infinite Repel", variable=toggleable_listener(InfiniteRepelListener))
+        self.add_checkbutton(label="Infinite Safari Zone", variable=toggleable_listener(InfiniteSafariZoneListener))
+        self.add_separator()
+        self.add_command(label="Export events and vars", command=_export_flags_and_vars)
+        self.add_command(label="Import events and vars", command=_import_flags_and_vars)
+        self.add_command(label="Create state with save game", command=_create_save_state)
+        self.add_separator()
+
         self.add_command(
             label="Help",
             command=lambda: webbrowser.open_new_tab(

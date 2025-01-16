@@ -611,6 +611,8 @@ def debug_give_fainted_first_slot_pokemon_with_special_ability(ability: str) -> 
             species = "Ralts"
         case "Cute Charm":
             species = "Delcatty"
+        case "Magma Armor":
+            species = "Slugma"
         case _:
             raise ValueError(f"Ability not supported: {ability}")
 
