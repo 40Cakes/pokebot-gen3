@@ -2,9 +2,13 @@
 
 # 💊 EV Train Mode
 
-This mode will continuously fight battles in order to EV Train your lead Pokémon. It
-will not rotate the lead Pokémon regardless of configuration, so that none of your
-other party members' EVs are messed up.
+This mode will continuously fight battles in order to EV Train your lead Pokémon.
+If the lead is unable to battle, the mode will swap to another mon in the party if
+that is enabled in the profile battle settings (see
+[⚔ Battling and Pickup config](Configuration%20-%20Battling%20and%20Pickup.md)).
+This is useful for training weak mons, but keep in mind it will alter the EVs of
+the mon switched to. The mode only tracks the lead's EVs and does not switch the
+lead outside of battle.
 
 When the active Pokémon is defeated or gets low on HP, it will heal at the nearest
 Pokémon Center automatically. Likewise, if your entire party gets defeated it will
