@@ -49,6 +49,25 @@ def unmount_bike() -> Generator:
         yield
 
 
+def use_rock_smash(facing_direction: str):
+    yield from ensure_facing_direction(facing_direction)
+    if context.rom.is_rs:
+        yield from wait_for_script_to_start_and_finish("DoRockSmashMovement", "A")
+    if context.rom.is_emerald:
+        yield from wait_for_script_to_start_and_finish("EventScript_SmashRock", "A")
+    yield from wait_for_player_avatar_to_be_controllable()
+
+
+def use_strength(direction_to_push: str):
+    yield from ensure_facing_direction(direction_to_push)
+    if context.rom.is_rs:
+        yield from wait_for_script_to_start_and_finish("Std_MsgboxSign", "A")
+        yield from walk_one_tile(direction_to_push)
+    if context.rom.is_emerald:
+        yield from wait_for_script_to_start_and_finish("Std_MsgboxDefault", "A")
+        yield from walk_one_tile(direction_to_push)
+
+
 class PuzzleSolverMode(BotMode):
     @staticmethod
     def name() -> str:
@@ -344,68 +363,76 @@ class PuzzleSolverMode(BotMode):
                     # 1F
                     context.message = "Solving Seafloor Cavern Puzzle...\nSolving room 1 / 6..."
                     yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM1, (4, 10))
-                    yield from ensure_facing_direction("Right")
-                    yield from wait_for_script_to_start_and_finish("DoRockSmashMovement", "A")
-                    yield from wait_for_player_avatar_to_be_controllable()
+                    yield from use_rock_smash("Right")
                     yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM1, (5, 10))
-                    yield from ensure_facing_direction("Down")
-                    yield from wait_for_script_to_start_and_finish("Std_MsgboxSign", "A")
-                    yield from walk_one_tile("Down")
+                    yield from use_strength("Down")
                     yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM1, (11, 11))
                     yield from walk_one_tile("Right")
                     yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM1, (6, 2))
                     # 2F
                     context.message = "Solving Seafloor Cavern Puzzle...\nSolving room 2 / 6..."
-                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (11, 15))
-                    yield from wait_for_script_to_start_and_finish("Std_MsgboxSign", "A")
-                    yield from walk_one_tile("Up")
-                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (15, 12))
-                    yield from walk_one_tile("Up")
-                    yield from walk_one_tile("Up")
-                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (12, 10))
-                    yield from walk_one_tile("Left")
-                    yield from ensure_facing_direction("Up")
-                    yield from wait_for_script_to_start_and_finish("DoRockSmashMovement", "A")
-                    yield from wait_for_player_avatar_to_be_controllable()
-                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (11, 7))
-                    yield from walk_one_tile("Up")
-                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (8, 6))
-                    yield from wait_for_script_to_start_and_finish("DoRockSmashMovement", "A")
-                    yield from wait_for_player_avatar_to_be_controllable()
-                    yield from walk_one_tile("Left")
-                    yield from walk_one_tile("Left")
-                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (5, 2))
+                    if context.rom.is_rs:
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (11, 15))
+                        yield from use_strength("Up")
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (15, 12))
+                        yield from walk_one_tile("Up")
+                        yield from walk_one_tile("Up")
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (12, 10))
+                        yield from walk_one_tile("Left")
+                        yield from use_rock_smash("Up")
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (11, 7))
+                        yield from walk_one_tile("Up")
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (8, 6))
+                        yield from use_rock_smash("Left")
+                        yield from walk_one_tile("Left")
+                        yield from walk_one_tile("Left")
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (5, 2))
+                    if context.rom.is_emerald:
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (9, 7))
+                        yield from use_rock_smash("Left")
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (4, 6))
+                        yield from use_strength("Up")
+                        yield from walk_one_tile("Up")
+                        yield from walk_one_tile("Up")
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM2, (6, 1))
                     # 6F
                     context.message = "Solving Seafloor Cavern Puzzle...\nSolving room 3 / 6..."
                     yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM6, (4, 1))
                     # 3F
                     context.message = "Solving Seafloor Cavern Puzzle...\nSolving room 4 / 6..."
-                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM3, (6, 14))
-                    yield from ensure_facing_direction("Up")
-                    yield from wait_for_script_to_start_and_finish("Std_MsgboxSign", "A")
-                    yield from walk_one_tile("Up")
-                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM3, (7, 12))
-                    yield from walk_one_tile("Left")
-                    yield from walk_one_tile("Right")
-                    yield from walk_one_tile("Right")
-                    yield from walk_one_tile("Up")
-                    yield from walk_one_tile("Left")
-                    yield from walk_one_tile("Left")
-                    yield from walk_one_tile("Right")
-                    yield from walk_one_tile("Up")
-                    yield from walk_one_tile("Left")
-                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM3, (7, 8))
-                    yield from walk_one_tile("Down")
-                    yield from walk_one_tile("Right")
-                    yield from walk_one_tile("Right")
-                    yield from walk_one_tile("Right")
-                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM3, (8, 1))
+                    if context.rom.is_rs:
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM3, (6, 14))
+                        yield from use_strength("Up")
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM3, (7, 12))
+                        yield from walk_one_tile("Left")
+                        yield from walk_one_tile("Right")
+                        yield from walk_one_tile("Right")
+                        yield from walk_one_tile("Up")
+                        yield from walk_one_tile("Left")
+                        yield from walk_one_tile("Left")
+                        yield from walk_one_tile("Right")
+                        yield from walk_one_tile("Up")
+                        yield from walk_one_tile("Left")
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM3, (7, 8))
+                        yield from walk_one_tile("Down")
+                        yield from walk_one_tile("Right")
+                        yield from walk_one_tile("Right")
+                        yield from walk_one_tile("Right")
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM3, (8, 1))
+                    if context.rom.is_emerald:
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM3, (13, 11))
+                        yield from use_strength("Left")
+                        yield from walk_one_tile("Up")
+                        yield from walk_one_tile("Up")
+                        yield from walk_one_tile("Right")
+                        yield from walk_one_tile("Up")
+                        yield from walk_one_tile("Up")
+                        yield from walk_one_tile("Left")
+                        yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM3, (8, 1))
                     # 8F
                     context.message = "Solving Seafloor Cavern Puzzle...\nSolving room 5 / 6..."
                     yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM8, (5, 8))
-                    yield from ensure_facing_direction("Up")
-                    yield from wait_for_script_to_start_and_finish("Std_MsgboxSign", "A")
-                    yield from walk_one_tile("Up")
+                    yield from use_strength("Up")
                     yield from walk_one_tile("Left")
                     yield from walk_one_tile("Right")
                     yield from walk_one_tile("Right")
@@ -422,11 +449,6 @@ class PuzzleSolverMode(BotMode):
                     yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM8, (5, 2))
                     # 9F
                     context.message = "Solving Seafloor Cavern Puzzle...\nSolving room 6 / 6"
-                    yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM9, (13, 5))
-                    # Pick up tm26
-                    yield from ensure_facing_direction("Right")
-                    yield from wait_for_script_to_start_and_finish("Std_MsgboxDefault", "A")
-                    yield from wait_for_player_avatar_to_be_controllable("B")
                     yield from navigate_to(MapRSE.SEAFLOOR_CAVERN_ROOM9, (16, 42))
                     context.message = "Seafloor Cavern puzzle complete!"
                     context.set_manual_mode()
