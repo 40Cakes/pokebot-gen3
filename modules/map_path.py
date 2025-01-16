@@ -757,7 +757,7 @@ def calculate_path(
             if neighbour is None or not is_tile_accessible(neighbour, direction, node.elevation):
                 continue
 
-            if neighbour.warps_to is not None:
+            if neighbour.warps_to is not None and neighbour.global_coordinates != destination_tile.global_coordinates:
                 cost = 1000000
             else:
                 cost = node.current_cost + 1
