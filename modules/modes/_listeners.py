@@ -362,7 +362,7 @@ class EggHatchListener(BotListener):
             egg_data_pointer = unpack_uint32(read_symbol(self._symbol_name))
             if egg_data_pointer & 0x0200_0000:
                 egg_data = context.emulator.read_bytes(egg_data_pointer, length=16)
-                if egg_data[2] >= 6:
+                if 4 <= egg_data[2] <= 12:
                     self._encounter_info.pokemon = get_party()[self._hatching_party_index]
                     bot_mode.on_egg_hatched(self._encounter_info, self._hatching_party_index)
 
