@@ -1,3 +1,4 @@
+import random
 import tkinter
 import webbrowser
 import zlib
@@ -16,15 +17,28 @@ from modules.debug_utilities import (
     debug_get_test_party,
     debug_write_party,
     debug_give_fainted_first_slot_pokemon_with_special_ability,
+    debug_create_pokemon,
 )
 from modules.gui.debug_edit_item_bag import run_edit_item_bag_screen
 from modules.gui.debug_edit_party import run_edit_party_screen
 from modules.gui.debug_edit_pokedex import run_edit_pokedex_screen
 from modules.gui.multi_select_window import ask_for_confirmation, ask_for_choice, Selection
-from modules.memory import write_symbol, pack_uint16, pack_uint8, pack_uint32, set_event_var
+from modules.memory import (
+    write_symbol,
+    pack_uint16,
+    pack_uint8,
+    pack_uint32,
+    set_event_var,
+    get_game_state,
+    GameState,
+    read_symbol,
+)
 from modules.modes import BotListener, BotMode, FrameInfo
+from modules.player import get_player
+from modules.pokemon import get_opponent
 from modules.pokemon_party import get_party, get_party_size
 from modules.runtime import get_sprites_path, get_base_path
+from modules.tasks import task_is_active
 
 
 def _create_save_state() -> None:
@@ -133,6 +147,7 @@ def _edit_pokedex() -> None:
 class InfiniteRepelListener(BotListener):
     def __del__(self) -> None:
         _disable_listener(InfiniteRepelListener)
+        set_event_var("REPEL_STEP_COUNT", 0)
 
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
         set_event_var("REPEL_STEP_COUNT", 250)
@@ -148,8 +163,58 @@ class InfiniteSafariZoneListener(BotListener):
             write_symbol("sSafariZoneStepCounter", pack_uint16(500))
 
 
+class ForceShinyEncounterListener(BotListener):
+    def __init__(self):
+        self._battle_was_active = False
+        self._game_state_was_battle = False
+
+    def __del__(self) -> None:
+        _disable_listener(ForceShinyEncounterListener)
+
+    def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
+        if not self._battle_was_active and frame.task_is_active("Task_BattleStart"):
+            self._battle_was_active = True
+            player = get_player()
+            opponent = get_opponent()
+            ot = opponent.original_trainer
+            if ot.id == player.trainer_id and ot.secret_id == player.secret_id and not opponent.is_shiny:
+                new_opponent = debug_create_pokemon(
+                    original_pokemon=opponent,
+                    is_egg=False,
+                    is_shiny=True,
+                    gender=opponent.gender,
+                    species=opponent.species,
+                    nickname="CHEAT",
+                    level=opponent.level,
+                    held_item=opponent.held_item,
+                    has_second_ability=opponent.ability is not opponent.species.abilities[0],
+                    nature=opponent.nature,
+                    experience=opponent.total_exp,
+                    friendship=opponent.friendship,
+                    moves=[
+                        {
+                            "id": move.move.index if move is not None else 0,
+                            "remaining_pp": move.pp if move is not None else 0,
+                            "pp_ups": move.pp_ups if move is not None else 0,
+                        }
+                        for move in opponent.moves
+                    ],
+                    ivs=opponent.ivs,
+                    evs=opponent.evs,
+                    current_hp=opponent.current_hp,
+                    status_condition=opponent.status_condition,
+                )
+                write_symbol("gEnemyParty", new_opponent.data)
+
+        elif self._battle_was_active and not self._game_state_was_battle and frame.game_state is GameState.BATTLE:
+            self._game_state_was_battle = True
+        elif self._battle_was_active and self._game_state_was_battle and frame.game_state is not GameState.BATTLE:
+            self._battle_was_active = False
+            self._game_state_was_battle = False
+
+
 def _enable_listener(listener_class: type[BotListener]) -> None:
-    context.bot_listeners.append(listener_class())
+    context.bot_listeners = [listener_class(), *context.bot_listeners]
 
 
 def _disable_listener(listener_class: type[BotListener]) -> None:
@@ -225,6 +290,7 @@ class DebugMenu(Menu):
         self.add_separator()
         self.add_checkbutton(label="Infinite Repel", variable=toggleable_listener(InfiniteRepelListener))
         self.add_checkbutton(label="Infinite Safari Zone", variable=toggleable_listener(InfiniteSafariZoneListener))
+        self.add_checkbutton(label="Force Shiny Encounter", variable=toggleable_listener(ForceShinyEncounterListener))
         self.add_separator()
         self.add_command(label="Export events and vars", command=_export_flags_and_vars)
         self.add_command(label="Import events and vars", command=_import_flags_and_vars)

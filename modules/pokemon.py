@@ -870,10 +870,6 @@ class Pokemon:
         return self.data[:32] + decrypted.tobytes() + self.data[80:100]
 
     @property
-    def _foo_data(self) -> str:
-        return self._decrypted_data[32:80].hex(" ", 12)
-
-    @property
     def _character_set(self) -> Literal["international", "japanese"]:
         """
         Figures out which character set needs to be used for decoding nickname and
