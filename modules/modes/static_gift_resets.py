@@ -90,6 +90,8 @@ class StaticGiftResetsMode(BotMode):
         # the mode, it's guaranteed to be in that slot.
         if party_index == get_party_size() - 1:
             self._egg_has_hatched = True
+        if not encounter.is_of_interest:
+            context.controller_stack.pop()
 
     def run(self) -> Generator:
         encounter = _get_targeted_encounter()
@@ -216,7 +218,7 @@ class StaticGiftResetsMode(BotMode):
 
             def hatch_egg() -> Generator:
                 if encounter[2] == "Wynaut":
-                    point_a = get_map_data(MapRSE.LAVARIDGE_TOWN, (2, 9))
+                    point_a = get_map_data(MapRSE.LAVARIDGE_TOWN, (4, 9))
                     point_b = get_map_data(MapRSE.LAVARIDGE_TOWN, (19, 10))
                 elif encounter[2] == "Togepi":
                     point_a = get_map_data(MapFRLG.FIVE_ISLAND_WATER_LABYRINTH, (11, 9))
@@ -231,11 +233,15 @@ class StaticGiftResetsMode(BotMode):
                 def hatching_path():
                     path_to_point_a = calculate_path(point_b, point_a)
                     path_to_point_b = calculate_path(point_a, point_b)
-                    while not self._egg_has_hatched:
+                    while True:
                         yield from path_to_point_b
                         yield from path_to_point_a
 
-                yield from follow_waypoints(hatching_path())
+                for _ in follow_waypoints(hatching_path()):
+                    if self._egg_has_hatched:
+                        break
+                    yield
+                context.emulator.reset_held_buttons()
 
             if encounter[2] in ["Wynaut", "Togepi"]:
                 yield from wait_until_task_is_not_active("Task_Fanfare", "B")
