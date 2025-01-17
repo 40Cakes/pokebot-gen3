@@ -169,6 +169,8 @@ class PuzzleSolverMode(BotMode):
 
             # Regi Initial Puzzle
             case MapRSE.PACIFIDLOG_TOWN:
+                if get_event_flag("REGI_DOORS_OPENED") == 1:
+                    raise BotModeError("You already solved the sealed chamber puzzle")
                 context.message = "Solving Sealed Chamber Puzzle...\nNavigating to Sealed Chamber..."
 
                 use_repel = True
@@ -202,8 +204,11 @@ class PuzzleSolverMode(BotMode):
                     yield from surface_from_dive()
                     context.message = "Solving Sealed Chamber Puzzle...\nStarting solution..."
                     yield from navigate_to(MapRSE.SEALED_CHAMBER_OUTER_ROOM, (10, 3))
-                    yield from use_field_move("Dig")
-                    yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
+
+                    # First door already opened or not
+                    if get_event_flag("SYS_BRAILLE_DIG") == 0:
+                        yield from use_field_move("Dig")
+                        yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
                     yield from navigate_to(MapRSE.SEALED_CHAMBER_OUTER_ROOM, (10, 2))
                     yield from navigate_to(MapRSE.SEALED_CHAMBER_INNER_ROOM, (10, 5))
                     while get_event_flag("REGI_DOORS_OPENED") == 0:

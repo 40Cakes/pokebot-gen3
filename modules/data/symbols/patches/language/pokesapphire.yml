@@ -309,6 +309,15 @@ BattleBeginFirstTurn:
   J: 0x800ee0c
 #---------------------#
 
+#---------------------#
+#    Puzzle Solver    #
+#---------------------#
+S_UseDiveUnderwater:
+  J: 0x818ae63
+Task_Dive:
+  J: 0x8083fa8
+#---------------------#
+
 #----------------#
 #    Listeners   #
 #----------------#
