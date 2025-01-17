@@ -6,6 +6,7 @@ from modules.map import get_map_data, get_map_data_for_current_position, get_pla
 from modules.map_data import MapFRLG, MapRSE
 from modules.map_path import calculate_path, Waypoint, PathFindingError, Direction, WaypointAction
 from modules.memory import GameState, get_game_state
+from modules.roms import ROMLanguage
 from modules.player import (
     RunningState,
     AcroBikeState,
@@ -170,7 +171,10 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
         if waypoint.is_warp:
             frames_remaining_until_timeout += extra_timeout_in_frames_for_warps
         if waypoint.action is WaypointAction.Surf:
-            frames_remaining_until_timeout += 300
+            if context.rom.language == ROMLanguage.Japanese:
+                frames_remaining_until_timeout += 400
+            else:
+                frames_remaining_until_timeout += 300
         elif waypoint.action is WaypointAction.Waterfall:
             frames_remaining_until_timeout += 195 + (get_player_location()[0][1] - waypoint.coordinates[1]) * 42
 

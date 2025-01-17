@@ -206,7 +206,7 @@ class PuzzleSolverMode(BotMode):
                     yield from navigate_to(MapRSE.SEALED_CHAMBER_OUTER_ROOM, (10, 3))
 
                     # First door already opened or not
-                    if get_event_flag("SYS_BRAILLE_DIG"):
+                    if get_event_flag("SYS_BRAILLE_DIG") == 0:
                         yield from use_field_move("Dig")
                         yield from wait_for_task_to_start_and_finish("Task_DuckBGMForPokemonCry", "A")
                     yield from navigate_to(MapRSE.SEALED_CHAMBER_OUTER_ROOM, (10, 2))

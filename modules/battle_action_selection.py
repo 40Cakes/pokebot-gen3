@@ -98,6 +98,9 @@ def handle_battle_action_selection(strategy: BattleStrategy) -> Generator:
                 in_battle_index = battle_state.map_battle_party_index(index)
 
                 yield from scroll_to_battle_action(2)
+                # JP roms need a little delay
+                for _ in range(5):
+                    yield
                 context.emulator.press_button("A")
                 yield from scroll_to_party_menu_index(in_battle_index)
                 while get_game_state() == GameState.PARTY_MENU:
