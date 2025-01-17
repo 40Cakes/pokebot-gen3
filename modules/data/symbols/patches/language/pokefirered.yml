@@ -38,6 +38,12 @@ EventScript_UseStrength:
   I: 0x81bb77a
   J: 0x81a490e
   S: 0x81bde41
+PalletTown_PlayersHouse_1F_EventScript_MomHeal:
+  D: 0x8168bb5
+  F: 0x8168c71
+  I: 0x8168bf5
+  J: 0x817bcfc
+  S: 0x8168ce1
 #-------------------------------#
 
 #--------------------#
@@ -693,6 +699,16 @@ CableClub_Text_OtherTrainerNotReady:
   J: 0x0
 CableClub_Text_NotSetUpForFarAwayRegion:
   J: 0x0
+PalletTown_PlayersHouse_2F_EventScript_PC:
+  S: 0x0
+PalletTown_PlayersHouse_1F_EventScript_Mom:
+  I: 0x0
+PalletTown_PlayersHouse_1F_EventScript_TVScreen:
+  F: 0x0
+SixIsland_RuinValley_EventScript_IgnoreDottedHoleDoor:
+  D: 0x0
+SixIsland_RuinValley_EventScript_DottedHoleDoorOpen:
+  D: 0x0
 
 # FR/LG Safari scripts are annoying for Safari Mode
 FuchsiaCity_SafariZone_Entrance_EventScript_ExitEarly:

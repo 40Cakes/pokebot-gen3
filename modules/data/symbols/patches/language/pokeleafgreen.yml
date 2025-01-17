@@ -38,6 +38,12 @@ EventScript_UseStrength:
   I: 0x81bb76b
   J: 0x81a48f0
   S: 0x81bde2e
+PalletTown_PlayersHouse_1F_EventScript_MomHeal:
+  D: 0x8168b91
+  F: 0x8168c4d
+  I: 0x8168bd1
+  J: 0x817bcd8
+  S: 0x8168cbd
 #-------------------------------#
 
 #--------------------#
@@ -738,6 +744,24 @@ NavelRock_Summit_EventScript_HideHoOh:
   F: 0x0
 PokemonMansion_EventScript_DontPressSwitch:
   D: 0x0
+SixIsland_RuinValley_EventScript_IgnoreDottedHoleDoor:
+  D: 0x0
+SixIsland_RuinValley_EventScript_DottedHoleDoorOpen:
+  D: 0x0
+PalletTown_PlayersHouse_1F_EventScript_TVScreen:
+  F: 0x0
+PalletTown_PlayersHouse_1F_EventScript_Mom:
+  I: 0x0
+PalletTown_PlayersHouse_1F_MapScripts:
+  I: 0x0
+SevenIsland_TanobyRuins_MapScripts:
+  I: 0x0
+SevenIsland_SevaultCanyon_EventScript_RouteSign:
+  I: 0x0
+SevenIsland_SevaultCanyon_MapScripts:
+  I: 0x0
+PalletTown_PlayersHouse_2F_EventScript_PC:
+  S: 0x0
 
 # Unused
 CB2_CONTINUESAVEDGAME:
