@@ -25,6 +25,7 @@ from .tasks_scripts import (
     wait_for_task_to_start_and_finish,
     wait_for_yes_no_question,
     wait_until_script_is_active,
+    wait_for_script_to_start_and_finish,
     wait_for_no_script_to_run,
     wait_until_task_is_active,
     wait_for_fade_to_finish,
@@ -165,16 +166,24 @@ def heal_in_pokemon_center(pokemon_center_door_location: PokemonCenter) -> Gener
     # Walk to and enter the Pokémon centre
     yield from navigate_to(pokemon_center_door_location.value[0], pokemon_center_door_location.value[1])
 
-    # Walk up to the nurse and talk to her
-    yield from navigate_to(get_player_avatar().map_group_and_number, (7, 4))
-    yield
-    context.emulator.press_button("A")
-    yield from wait_for_yes_no_question("Yes")
-    yield from wait_for_no_script_to_run("B")
-    yield from wait_for_player_avatar_to_be_standing_still("B")
+    if pokemon_center_door_location is PokemonCenter.PalletTown:
+        # Player's house in Pallet Town, where Mum can heal us.
+        yield from talk_to_npc(1)
+        yield from wait_for_script_to_start_and_finish("PalletTown_PlayersHouse_1F_EventScript_MomHeal", "B")
+        yield from wait_for_player_avatar_to_be_standing_still("B")
+        yield from navigate_to(get_player_avatar().map_group_and_number, (4, 8))
 
-    # Get out
-    yield from navigate_to(get_player_avatar().map_group_and_number, (7, 8))
+    else:
+        # Walk up to the nurse and talk to her
+        yield from navigate_to(get_player_avatar().map_group_and_number, (7, 4))
+        yield
+        context.emulator.press_button("A")
+        yield from wait_for_yes_no_question("Yes")
+        yield from wait_for_no_script_to_run("B")
+        yield from wait_for_player_avatar_to_be_standing_still("B")
+
+        # Get out
+        yield from navigate_to(get_player_avatar().map_group_and_number, (7, 8))
 
 
 @debug.track

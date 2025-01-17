@@ -1537,6 +1537,7 @@ class PokemonCenter(Enum):
     EvergrandeCity = (MapRSE.EVER_GRANDE_CITY, (27, 48))
     PacifidlogTown = (MapRSE.PACIFIDLOG_TOWN, (8, 15))
 
+    PalletTown = (MapFRLG.PALLET_TOWN, (6, 7))
     ViridianCity = (MapFRLG.VIRIDIAN_CITY, (26, 26))
     PewterCity = (MapFRLG.PEWTER_CITY, (17, 25))
     Route4 = (MapFRLG.ROUTE4, (12, 5))
