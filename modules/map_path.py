@@ -332,12 +332,18 @@ def _get_all_maps_metadata() -> dict[tuple[int, int], PathMap]:
             continue
 
         map_data = get_map_data(map_address, (0, 0))
-        map_connections = [
-            _get_connection_for_direction(map_data, "North"),
-            _get_connection_for_direction(map_data, "East"),
-            _get_connection_for_direction(map_data, "South"),
-            _get_connection_for_direction(map_data, "West"),
-        ]
+        if context.rom.is_rs and map_address.name.startswith("BATTLE_PYRAMID_"):
+            # For some reason, a few Battle Pyramid maps indicate that they are connected to the
+            # Hoenn Safari Zone, which confuses pathfinding (particularly for Muddy Slope traversal)
+            # in the SZ. So we'll just ignore those connections.
+            map_connections = [None, None, None, None]
+        else:
+            map_connections = [
+                _get_connection_for_direction(map_data, "North"),
+                _get_connection_for_direction(map_data, "East"),
+                _get_connection_for_direction(map_data, "South"),
+                _get_connection_for_direction(map_data, "West"),
+            ]
         _maps[map_address.value] = PathMap(map_address.value, map_data.map_size, None, -1, map_connections, None)
 
     # For each map, find all connected maps and set an offset for each of them
