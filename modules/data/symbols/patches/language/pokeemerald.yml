@@ -784,6 +784,22 @@ Task_DoFieldMove_RunFunc:
   J: 0x8135670
   S: 0x8135234
 #---------------------#
+#    Puzzle Solver    #
+#---------------------#
+EventScript_UseDiveUnderwater:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+Task_UseDive:
+  D: ~
+  F: ~
+  I: ~
+  J: ~
+  S: ~
+#---------------------#
+#---------------------#
 
 #----------------#
 #    Listeners   #
