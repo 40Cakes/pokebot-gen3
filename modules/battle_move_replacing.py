@@ -11,7 +11,6 @@ from modules.memory import unpack_uint16
 from modules.pokemon import get_move_by_index
 from modules.pokemon_party import get_party
 from modules.tasks import task_is_active, get_task, Task
-from modules.console import console
 
 
 class LearnMoveState(Enum):
