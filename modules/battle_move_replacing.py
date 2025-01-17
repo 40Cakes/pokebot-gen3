@@ -11,6 +11,7 @@ from modules.memory import unpack_uint16
 from modules.pokemon import get_move_by_index
 from modules.pokemon_party import get_party
 from modules.tasks import task_is_active, get_task, Task
+from modules.console import console
 
 
 class LearnMoveState(Enum):
@@ -87,8 +88,9 @@ def handle_move_replacement_dialogue(strategy: BattleStrategy) -> Generator:
                     party_index = context.emulator.read_bytes(0x02016018, length=1)[0]
             else:
                 party_index = read_symbol("gBattleStruct", 16, 1)[0]
-            in_battle_index = get_battle_state().map_battle_party_index(party_index)
-            pokemon = get_party()[in_battle_index]
+            if context.rom.is_emerald or context.rom.is_frlg:
+                party_index = get_battle_state().map_battle_party_index(party_index)
+            pokemon = get_party()[party_index]
             decision = strategy.which_move_should_be_replaced(pokemon, move_to_learn)
 
             if context.bot_mode == "Manual":
