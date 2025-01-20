@@ -9,11 +9,11 @@ from modules.encounter import handle_encounter, EncounterInfo
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.items import get_item_bag, get_item_by_name
 from modules.map_data import MapRSE, is_safari_map
-from modules.safari_strategy import get_safari_balls_left
 from modules.map_path import calculate_path
-from modules.memory import get_event_flag, get_event_var, read_symbol, unpack_uint16
+from modules.memory import get_event_flag, read_symbol, unpack_uint16
 from modules.player import TileTransitionState, get_player, get_player_avatar, AvatarFlags, get_player_location
 from modules.runtime import get_sprites_path
+from modules.safari_strategy import get_safari_balls_left
 from modules.save_data import get_save_data
 from modules.tasks import task_is_active, get_global_script_context
 from . import BattleAction
@@ -41,8 +41,8 @@ from .util import (
     wait_for_unique_rng_value,
     wait_until_task_is_not_active,
     walk_one_tile,
+    leave_safari_zone,
 )
-from ..menuing import StartMenuNavigator
 
 
 class RockSmashMode(BotMode):
@@ -433,11 +433,7 @@ class RockSmashMode(BotMode):
         steps_remaining_symbol = "sSafariZoneStepCounter" if context.rom.is_emerald else "gSafariZoneStepCounter"
         steps_remaining = unpack_uint16(read_symbol(steps_remaining_symbol))
         if steps_remaining < 161:
-            yield from StartMenuNavigator("RETIRE").step()
-            yield from wait_for_script_to_start_and_finish(
-                "Route121_SafariZoneEntrance_EventScript_ExitSafariZone", "A"
-            )
-            yield from wait_for_player_avatar_to_be_standing_still()
+            yield from leave_safari_zone()
             self._in_safari_zone = False
             return
 

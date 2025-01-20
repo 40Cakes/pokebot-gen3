@@ -278,6 +278,18 @@ def save_the_game():
     yield
 
 
+def leave_safari_zone():
+    yield from StartMenuNavigator("RETIRE").step()
+    if context.rom.is_frlg:
+        exit_script = "FuchsiaCity_SafariZone_Entrance_EventScript_ExitWarpIn"
+    elif context.rom.is_emerald:
+        exit_script = "Route121_SafariZoneEntrance_EventScript_ExitSafariZone"
+    else:
+        exit_script = "Route121_SafariZoneEntrance_EventScript_15C333"
+    yield from wait_for_script_to_start_and_finish(exit_script, "A")
+    yield from wait_for_player_avatar_to_be_standing_still()
+
+
 @debug.track
 def buy_in_shop(shopping_list: list[tuple[Item, int]]):
     """

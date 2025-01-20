@@ -5,7 +5,7 @@ from modules.context import context
 from modules.debug import debug
 from modules.encounter import handle_encounter, EncounterInfo, log_encounter
 from modules.map import get_map_objects, get_map_data_for_current_position
-from modules.map_data import MapFRLG, MapRSE
+from modules.map_data import MapFRLG, MapRSE, is_safari_map
 from modules.memory import GameState, get_game_state, get_game_state_symbol, read_symbol, unpack_uint32, unpack_uint16
 from modules.menuing import CheckForPickup, MenuWrapper, should_check_for_pickup, RotatePokemon
 from modules.player import TileTransitionState, get_player_avatar, player_avatar_is_standing_still
@@ -13,7 +13,7 @@ from modules.pokemon import StatusCondition, clear_opponent, get_opponent
 from modules.pokemon_party import get_party
 from modules.tasks import get_global_script_context, task_is_active, get_task
 from ._interface import BattleAction, BotListener, BotMode, FrameInfo
-from .util import isolate_inputs, save_the_game
+from .util import isolate_inputs, save_the_game, leave_safari_zone
 from ..battle_handler import handle_battle
 from ..battle_state import (
     get_last_battle_outcome,
@@ -231,7 +231,17 @@ class BattleListener(BotListener):
         yield from handle_battle(CatchStrategy())
         yield from self._wait_until_battle_is_over()
         if context.config.battle.save_after_catching:
-            yield from save_the_game()
+            if is_safari_map():
+                # Saving is not possible inside the Safari Zone, so we need to leave it first.
+                yield from leave_safari_zone()
+                yield from save_the_game()
+                if not context.bot_mode_instance.on_safari_zone_timeout():
+                    context.message = (
+                        f"We had to leave the Safari Zone in order to save the game. Switched back to manual mode."
+                    )
+                    context.set_manual_mode()
+            else:
+                yield from save_the_game()
 
     @isolate_inputs
     @debug.track
