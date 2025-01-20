@@ -216,7 +216,9 @@ class RoamerResetMode(BotMode):
                 # Run to Battle Tent, enter, leave, go back to Route 110
                 # This is necessary because the game saves the last 3 locations the player
                 # has been in and avoids them, so we need additional map transitions.
-                yield from navigate_to(MapRSE.SLATEPORT_CITY, (10, 12))
+                yield from navigate_to(MapRSE.SLATEPORT_CITY, (10, 13))
+                yield from walk_one_tile("Up")
+                yield from wait_for_player_avatar_to_be_standing_still()
                 yield from walk_one_tile("Down")
 
             while not self._should_reset and not self._ran_out_of_repels:
@@ -344,7 +346,9 @@ class RoamerResetMode(BotMode):
                 # This is necessary because the game saves the last 3 locations the player
                 # has been in and avoids them, so we need additional map transitions.
                 # The NPC that can block the way to Contest Hall is avoided.
-                yield from navigate_to(MapRSE.SLATEPORT_CITY, (19, 19))
+                yield from navigate_to(MapRSE.SLATEPORT_CITY, (19, 20))
+                yield from walk_one_tile("Up")
+                yield from wait_for_player_avatar_to_be_standing_still()
                 yield from walk_one_tile("Down")
 
             while not self._should_reset and not self._ran_out_of_repels:
