@@ -99,6 +99,12 @@ class RockSmashMode(BotMode):
         return handle_encounter(encounter)
 
     def on_battle_ended(self, outcome: "BattleOutcome") -> None:
+        if outcome is BattleOutcome.Caught and not context.config.battle.save_after_catching:
+            context.message = (
+                "A Pokémon has been caught. Switching to manual mode so we don't lose it when soft-resetting."
+            )
+            context.set_manual_mode()
+
         if not outcome == BattleOutcome.Lost:
             assert_player_has_poke_balls()
 
