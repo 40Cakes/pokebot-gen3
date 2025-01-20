@@ -160,7 +160,8 @@ class InfiniteSafariZoneListener(BotListener):
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
         if not battle_is_active():
             write_symbol("gNumSafariBalls", pack_uint8(30))
-            write_symbol("sSafariZoneStepCounter", pack_uint16(500))
+            step_counter_symbol = "sSafariZoneStepCounter" if context.rom.is_emerald else "gSafariZoneStepCounter"
+            write_symbol(step_counter_symbol, pack_uint16(500))
 
 
 class ForceShinyEncounterListener(BotListener):
