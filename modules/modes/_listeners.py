@@ -230,7 +230,7 @@ class BattleListener(BotListener):
         yield from plugin_battle_started(self._active_wild_encounter)
         yield from handle_battle(CatchStrategy())
         yield from self._wait_until_battle_is_over()
-        if context.config.battle.save_after_catching:
+        if context.config.battle.save_after_catching and get_last_battle_outcome() is BattleOutcome.Caught:
             if is_safari_map():
                 # Saving is not possible inside the Safari Zone, so we need to leave it first.
                 yield from leave_safari_zone()
