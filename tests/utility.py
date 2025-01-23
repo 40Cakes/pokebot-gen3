@@ -309,6 +309,8 @@ def _run_test(test_generator: Generator) -> None:
         for listener in context.bot_listeners.copy():
             listener.handle_frame(bot_mode, frame_info)
         if len(context.controller_stack) > 0:
+            while len(context.controller_stack) > 1 and context.bot_mode == "Manual":
+                context.controller_stack.pop()
             try:
                 next(context.controller_stack[-1])
             except (StopIteration, GeneratorExit):
@@ -422,4 +424,24 @@ class BotTestCase(unittest.TestCase):
 
         return context.rom
 
-    pass
+    def assertIsInManualMode(self) -> None:
+        from modules.context import context
+
+        self.assertEqual(
+            "Manual", context.bot_mode, f"Expected bot to be in Manual mode, but it is in {context.bot_mode} mode."
+        )
+
+    def assertIsNotInManualMode(self) -> None:
+        from modules.context import context
+
+        self.assertEqual(
+            context.bot_mode,
+            AutomatedTestBotMode.name(),
+            f"Expected bot to be in {AutomatedTestBotMode.name()} mode, but it is in {context.bot_mode} mode.",
+        )
+
+        self.assertIsInstance(
+            context.bot_mode_instance,
+            AutomatedTestBotMode,
+            f"Bot mode is not an instance of AutomatedTestBotMode but {context.bot_mode_instance.__class__.__name__} instead.",
+        )

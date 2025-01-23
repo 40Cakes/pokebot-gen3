@@ -67,6 +67,6 @@ class TestStarter(BotTestCase):
             if self.stats.last_encounter is not None:
                 self.assertEqual(expected_species, self.stats.last_encounter.species_name)
                 self.assertTrue(self.stats.last_encounter.is_shiny, "Encountered starter Pokémon was not shiny.")
-                self.assertEqual("Manual", context.bot_mode)
+                self.assertIsInManualMode()
                 return
             yield
