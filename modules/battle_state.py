@@ -528,6 +528,18 @@ class BattlePokemon:
             result.append(LearnedMove(move, total_pp, current_pp, total_pp - move.pp))
         return result
 
+    def knows_move(self, move: str | Move, with_pp_remaining: bool = False):
+        if isinstance(move, Move):
+            move = move.name
+        for learned_move in self.moves:
+            if (
+                learned_move is not None
+                and learned_move.move.name == move
+                and (not with_pp_remaining or learned_move.pp > 0)
+            ):
+                return True
+        return False
+
     @property
     def is_egg(self) -> bool:
         return bool(self._data[0x17] & 1)
