@@ -58,6 +58,10 @@ class Party:
         return [pokemon for pokemon in self._pokemon if pokemon.is_egg]
 
     @property
+    def non_eggs(self) -> list[Pokemon]:
+        return [pokemon for pokemon in self._pokemon if not pokemon.is_egg]
+
+    @property
     def non_fainted_pokemon(self) -> list[PartyPokemon]:
         return list(filter(lambda pokemon: not pokemon.is_egg and pokemon.current_hp > 0, self._pokemon))
 
