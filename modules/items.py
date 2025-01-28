@@ -251,6 +251,14 @@ class PokeblockColour(Enum):
     Gold = 14
 
 
+class PokeblockType(Enum):
+    Spicy = "spicy"
+    Dry = "dry"
+    Sweet = "sweet"
+    Bitter = "bitter"
+    Sour = "sour"
+
+
 @dataclass
 class Pokeblock:
     colour: PokeblockColour
@@ -264,6 +272,17 @@ class Pokeblock:
     @property
     def level(self):
         return max(self.spicy, self.dry, self.sweet, self.bitter, self.sour)
+
+    @property
+    def type(self):
+        flavors = {
+            PokeblockType.Spicy: self.spicy,
+            PokeblockType.Dry: self.dry,
+            PokeblockType.Sweet: self.sweet,
+            PokeblockType.Bitter: self.bitter,
+            PokeblockType.Sour: self.sour,
+        }
+        return max(flavors, key=flavors.get)
 
 
 @dataclass
