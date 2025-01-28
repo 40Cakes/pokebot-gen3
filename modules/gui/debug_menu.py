@@ -1,4 +1,3 @@
-import random
 import tkinter
 import webbrowser
 import zlib
@@ -29,16 +28,13 @@ from modules.memory import (
     pack_uint8,
     pack_uint32,
     set_event_var,
-    get_game_state,
     GameState,
-    read_symbol,
 )
 from modules.modes import BotListener, BotMode, FrameInfo
 from modules.player import get_player
 from modules.pokemon import get_opponent
 from modules.pokemon_party import get_party, get_party_size
 from modules.runtime import get_sprites_path, get_base_path
-from modules.tasks import task_is_active
 
 
 def _create_save_state() -> None:

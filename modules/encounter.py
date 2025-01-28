@@ -249,10 +249,11 @@ def handle_encounter(
     battle_is_active = get_game_state() in (GameState.BATTLE, GameState.BATTLE_STARTING, GameState.BATTLE_ENDING)
 
     if is_of_interest:
-        filename_suffix = (
-            f"{encounter_info.value.name}_{make_string_safe_for_file_name(pokemon.species_name_for_stats)}"
-        )
-        context.emulator.create_save_state(suffix=filename_suffix)
+        if not context.testing:
+            filename_suffix = (
+                f"{encounter_info.value.name}_{make_string_safe_for_file_name(pokemon.species_name_for_stats)}"
+            )
+            context.emulator.create_save_state(suffix=filename_suffix)
 
         if context.config.battle.auto_catch and not disable_auto_catch and battle_is_active:
             encounter_info.battle_action = BattleAction.Catch

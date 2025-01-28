@@ -19,3 +19,4 @@ roms/*
 stats/
 stream/
 plugins/
+tests/last_frame_timeout.png

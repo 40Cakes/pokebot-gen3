@@ -305,7 +305,7 @@ class PathMap:
         )
 
 
-_maps: dict[tuple[int, int], PathMap] = {}
+_maps: dict[str, dict[tuple[int, int], PathMap]] = {}
 
 
 def _get_connection_for_direction(map_data: MapLocation, direction: str) -> tuple[tuple[int, int], int] | None:
@@ -318,8 +318,11 @@ def _get_connection_for_direction(map_data: MapLocation, direction: str) -> tupl
 def _get_all_maps_metadata() -> dict[tuple[int, int], PathMap]:
     global _maps
 
-    if len(_maps) > 0:
-        return _maps
+    game_key = context.rom.id
+    if game_key in _maps:
+        return _maps[game_key]
+
+    _maps[game_key] = {}
 
     if context.rom.is_rse:
         maps_enum = MapRSE
@@ -344,12 +347,14 @@ def _get_all_maps_metadata() -> dict[tuple[int, int], PathMap]:
                 _get_connection_for_direction(map_data, "South"),
                 _get_connection_for_direction(map_data, "West"),
             ]
-        _maps[map_address.value] = PathMap(map_address.value, map_data.map_size, None, -1, map_connections, None)
+        _maps[game_key][map_address.value] = PathMap(
+            map_address.value, map_data.map_size, None, -1, map_connections, None
+        )
 
     # For each map, find all connected maps and set an offset for each of them
     current_map_level = 0
-    for map_address in reversed(_maps):
-        map = _maps[map_address]
+    for map_address in reversed(_maps[game_key]):
+        map = _maps[game_key][map_address]
         if map.offset is None:
             map.offset = (0, 0)
             map.level = current_map_level
@@ -359,7 +364,7 @@ def _get_all_maps_metadata() -> dict[tuple[int, int], PathMap]:
             map_queue.put_nowait(map_address)
 
             while not map_queue.empty():
-                map_to_check = _maps[map_queue.get_nowait()]
+                map_to_check = _maps[game_key][map_queue.get_nowait()]
                 for direction in Direction:
                     connection = map_to_check.connections[direction]
                     if connection is not None:
@@ -368,7 +373,7 @@ def _get_all_maps_metadata() -> dict[tuple[int, int], PathMap]:
                             interconnected_maps.add(connection_address)
                             map_queue.put_nowait(connection_address)
 
-                            connected_map = _maps[connection_address]
+                            connected_map = _maps[game_key][connection_address]
                             connected_map.level = current_map_level
                             if direction is Direction.North:
                                 connected_map.offset = (
@@ -395,7 +400,7 @@ def _get_all_maps_metadata() -> dict[tuple[int, int], PathMap]:
 
             current_map_level += 1
 
-    return _maps
+    return _maps[game_key]
 
 
 def _get_map_metadata(map_address: tuple[int, int]) -> PathMap:
