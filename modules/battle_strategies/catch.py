@@ -2,11 +2,20 @@ from modules.battle_state import BattleState, TemporaryStatus
 from modules.battle_strategies import SafariTurnAction, DefaultBattleStrategy, BattleStrategyUtil
 from modules.battle_strategies import TurnAction
 from modules.context import context
-from modules.items import Item, get_item_bag
+from modules.items import Item, get_item_bag, PokeblockType
 from modules.map import get_map_data_for_current_position
 from modules.pokedex import get_pokedex
 from modules.pokemon import Pokemon, get_type_by_name, StatusCondition, get_opponent
-from modules.safari_strategy import get_safari_strategy_action, is_watching_carefully, get_safari_balls_left
+from modules.safari_strategy import (
+    get_safari_strategy_action,
+    is_watching_carefully,
+    get_safari_balls_left,
+    get_lowest_feel_any_pokeblock,
+    get_lowest_feel_excluding_type,
+    get_baiting_state,
+    PokeblockState,
+    RSESafariStrategy,
+)
 
 
 class CatchStrategy(DefaultBattleStrategy):
@@ -18,6 +27,8 @@ class CatchStrategy(DefaultBattleStrategy):
         self._number_of_balls_strategy = 0
         self._has_been_baited = False
         self._has_been_rocked = False
+        self._pokeblock_state = None
+        self._given_pokeblock = None
 
     def pokemon_can_battle(self, pokemon: Pokemon) -> bool:
         return not pokemon.is_egg and pokemon.current_hp > 0
@@ -71,7 +82,27 @@ class CatchStrategy(DefaultBattleStrategy):
         """
         Handles the turn decision for RSE games.
         """
-        return SafariTurnAction.switch_to_manual()
+
+        if RSESafariStrategy.should_start_pokeblock_strategy(get_opponent()):
+            if battle_state.current_turn == 0:
+                pokeblock_index, pokeblock = get_lowest_feel_any_pokeblock()
+                if pokeblock_index is None:
+                    return SafariTurnAction.ThrowBall, None
+
+                self._pokeblock_state = get_baiting_state(pokeblock)
+                self._given_pokeblock = pokeblock.type.value
+
+                return SafariTurnAction.Pokeblock, pokeblock_index
+
+            if battle_state.current_turn == 1:
+                if self._pokeblock_state == PokeblockState.IGNORED:
+                    excluded_type = PokeblockType(self._given_pokeblock)
+                    pokeblock_index, pokeblock = get_lowest_feel_excluding_type(excluded_type)
+                    if pokeblock_index is None:
+                        return SafariTurnAction.ThrowBall, None
+                    return SafariTurnAction.Pokeblock, pokeblock_index
+
+        return SafariTurnAction.ThrowBall, None
 
     def _decide_turn_safari_frlg(self, battle_state: BattleState) -> tuple["SafariTurnAction", any]:
         """

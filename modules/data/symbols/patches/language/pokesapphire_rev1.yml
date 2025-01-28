@@ -451,6 +451,34 @@ EventScript_DoTrainerBattle:
   S: 0x81a2b4c
 #----------------#
 
+#-----------------#
+#      Safari     #
+#-----------------#
+Route121_SafariZoneEntrance_EventScript_15C383:
+  F: 0x815c7d3
+  I: 0x815c737
+  S: 0x815c80f
+Route121_SafariZoneEntrance_EventScript_15C3B3:
+  F: 0x815c803
+  I: 0x815c767
+  S: 0x815c83f
+Route121_SafariZoneEntrance_EventScript_15C333:
+  F: 0x815c783
+  I: 0x815c6e7
+  S: 0x815c7bf
+SUB_810B674:
+  F: 0x810bb70
+  I: 0x810ba68
+  S: 0x810bb6c
+gUnknown_02039248:
+  F: ~ # No mapping needed
+  I: ~ # No mapping needed
+  S: ~ # No mapping needed
+#-----------------#
+
+# We map it here to exit Safari otherwise the RepelScript is mapping at this address
+gUnknown_081C342D:
+  S: 0x81c805e
 
 # Ununsed symbols that were conflicting with currently used symbols
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol
@@ -480,3 +508,20 @@ AI_CV_SelfKO_Encourage3:
   I: 0x0
 Common_EventScript_SetupEvilTeamGfxIds:
   I: 0x0
+RusturfTunnel_EventScript_15C880:
+  F: 0x0
+RusturfTunnel_EventScript_15C892:
+  F: 0x0
+  S: 0x0
+RusturfTunnel_EventScript_15C799:
+  I: 0x0
+RusturfTunnel_EventScript_15C7D1:
+  I: 0x0
+RusturfTunnel_EventScript_15C7BC:
+  I: 0x0
+RusturfTunnel_EventScript_15C8AE:
+  S: 0x0
+RusturfTunnel_EventScript_15C8CA:
+  S: 0x0
+RusturfTunnel_EventScript_15C8DF:
+  S: 0x0
