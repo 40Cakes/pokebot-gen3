@@ -47,6 +47,7 @@ class BotContext:
         self.profile: Optional["Profile"] = None
         self.stats: Optional["StatsDatabase"] = None
         self.debug: bool = False
+        self.testing: bool = False
 
         self._current_message: str = ""
 

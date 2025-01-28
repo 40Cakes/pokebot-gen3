@@ -13,10 +13,26 @@ class MigrationError(Exception):
 
 
 def migrate_save_state(file: IO, profile_name: str, selected_rom: ROM) -> Profile:
+    selected_rom, state_data, savegame_data = guess_rom_from_save_state(file, selected_rom)
+
+    profile = create_profile(profile_name, selected_rom)
+    if state_data is not None:
+        with open(profile.path / "current_state.ss1", "wb") as state_file:
+            state_file.write(state_data)
+
+    if savegame_data is not None:
+        with open(profile.path / "current_save.sav", "wb") as save_file:
+            save_file.write(savegame_data)
+
+    file.close()
+
+    return profile
+
+
+def guess_rom_from_save_state(file, selected_rom) -> tuple[ROM, bytes, bytes | None]:
     file.seek(0)
     magic = file.read(4)
     file.seek(0)
-
     # mGBA state files can either contain the raw serialised state data, or it can
     # contain a PNG file that contains a custom 'gbAs' chunk, which in turn contains
     # the actual (zlib-compressed) state data. We'd like to support both.
@@ -58,19 +74,7 @@ def migrate_save_state(file: IO, profile_name: str, selected_rom: ROM) -> Profil
                 'Please place your .gba ROMs in the "roms/" folder.'
             )
         selected_rom = matching_rom
-
-    profile = create_profile(profile_name, selected_rom)
-    if state_data is not None:
-        with open(profile.path / "current_state.ss1", "wb") as state_file:
-            state_file.write(state_data)
-
-    if savegame_data is not None:
-        with open(profile.path / "current_save.sav", "wb") as save_file:
-            save_file.write(savegame_data)
-
-    file.close()
-
-    return profile
+    return selected_rom, state_data, savegame_data
 
 
 def get_state_data_from_mgba_state_file(file: IO) -> tuple[bytes, bytes | None]:
