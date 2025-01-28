@@ -2,7 +2,7 @@ from typing import Generator, Tuple
 
 from modules.context import context
 from modules.battle_state import BattleOutcome
-from modules.map_data import MapFRLG, MapRSE
+from modules.map_data import MapFRLG, MapRSE, is_safari_map
 from modules.player import get_player, get_player_avatar, TileTransitionState, AvatarFlags
 from modules.pokemon_party import get_party
 from modules.pokemon import get_species_by_name, get_opponent
@@ -69,6 +69,9 @@ class SafariMode(BotMode):
             MapFRLG.FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE,
             MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE,
         )
+
+    def on_safari_zone_timeout(self):
+        return True
 
     def on_battle_ended(self, outcome: "BattleOutcome") -> None:
         """
@@ -145,8 +148,12 @@ class SafariMode(BotMode):
 
         while True:
             if self._target_caught:
-                yield from self._exit_safari_zone()
-                context.message = f"{self._target_pokemon} has been caught ! Save your game !"
+                if is_safari_map():
+                    yield from self._exit_safari_zone()
+                if not context.config.battle.save_after_catching:
+                    context.message = f"{self._target_pokemon} has been caught ! Save your game !"
+                else:
+                    context.message = f"{self._target_pokemon} has been caught !"
                 context.set_manual_mode()
                 break
             elif self._should_reset:
@@ -154,7 +161,8 @@ class SafariMode(BotMode):
                     yield from self._soft_reset()
                     self._starting_cash = get_player().money
                 else:
-                    yield from self._exit_safari_zone()
+                    if is_safari_map():
+                        yield from self._exit_safari_zone()
                     context.message = f"You have hit the money threshold (either you've run out of funds or spent over {self._money_spent_limit}₽), but you managed to catch at least one Pokémon during this cycle. Consider saving your game."
                     context.set_manual_mode()
                     break
@@ -194,7 +202,8 @@ class SafariMode(BotMode):
 
     def _re_enter_safari_zone(self) -> Generator:
         """Handles re-entry into the Safari Zone."""
-        yield from self._exit_safari_zone()
+        if is_safari_map():
+            yield from self._exit_safari_zone()
         self._should_reenter = False
         return
 
