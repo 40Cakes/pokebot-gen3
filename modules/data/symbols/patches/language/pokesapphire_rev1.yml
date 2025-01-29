@@ -157,6 +157,10 @@ GTASKS:
   F: 0x3004b30
   I: 0x3004b30
   S: 0x3004b30
+gWindowTemplate_Contest_MoveDescription:
+  F: 0x3004220
+  I: 0x3004220
+  S: 0x3004220
 gEnemyParty:
   F: 0x030045d0
   I: 0x030045d0
