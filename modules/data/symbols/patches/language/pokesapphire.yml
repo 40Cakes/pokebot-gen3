@@ -110,6 +110,8 @@ gBattlescriptCurrInstr:
   J: 0x2024970
 GTASKS:
   J: 0x3004a50
+gWindowTemplate_Contest_MoveDescription:
+  J: 0x3004160
 gEnemyParty:
   J: 0x30044f0
 gBattleTypeFlags:
