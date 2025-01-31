@@ -8,7 +8,11 @@ from modules.player import get_player_avatar
 from modules.pokemon_party import get_party_size
 from modules.save_data import get_last_heal_location
 from . import BattleAction
-from ._asserts import assert_has_pokemon_with_any_move, assert_player_has_poke_balls
+from ._asserts import (
+    assert_has_pokemon_with_any_move,
+    assert_player_has_poke_balls,
+    assert_boxes_or_party_can_fit_pokemon,
+)
 from ._interface import BotMode, BotModeError
 from .util import ensure_facing_direction, navigate_to
 from ..battle_strategies import BattleStrategy
@@ -42,6 +46,7 @@ class KecleonMode(BotMode):
 
     def run(self) -> Generator:
         assert_player_has_poke_balls()
+        assert_boxes_or_party_can_fit_pokemon()
         assert_has_pokemon_with_any_move(
             ["Selfdestruct", "Explosion"],
             error_message="This mode requires a Pokémon with the move Selfdestruct.",

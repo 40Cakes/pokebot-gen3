@@ -10,6 +10,7 @@ from ._asserts import (
     assert_save_game_exists,
     assert_saved_on_map,
     assert_player_has_poke_balls,
+    assert_boxes_or_party_can_fit_pokemon,
 )
 from ._interface import BattleAction, BotMode
 from .util import soft_reset, wait_for_task_to_start_and_finish, wait_for_unique_rng_value, wait_until_task_is_active
@@ -47,6 +48,7 @@ class SudowoodoMode(BotMode):
         )
 
         assert_player_has_poke_balls()
+        assert_boxes_or_party_can_fit_pokemon(check_in_saved_game=True)
 
         while context.bot_mode != "Manual":
             yield from soft_reset(mash_random_keys=True)

@@ -8,6 +8,7 @@ from modules.map import ObjectEvent
 from modules.memory import get_save_block, unpack_uint16, unpack_uint32
 from modules.player import Player
 from modules.pokemon_party import Party, PartyPokemon
+from modules.pokemon_storage import PokemonStorage
 
 
 def get_last_heal_location() -> tuple[int, int]:
@@ -57,7 +58,7 @@ class SaveData:
 
     @cached_property
     def _save_block_1(self) -> bytes:
-        return self.sections[1] + self.sections[2] + self.sections[3] + self.sections[4]
+        return b"".join([self.sections[1], self.sections[2], self.sections[3], self.sections[4]])
 
     def get_save_block(self, num: int = 1, offset: int = 0, size: int = 1) -> bytes:
         if num == 2:
@@ -96,6 +97,10 @@ class SaveData:
             offset = party_offset + index * 100
             party.append(PartyPokemon(self.sections[1][offset : offset + 100], index))
         return Party(party)
+
+    def get_pokemon_storage(self) -> PokemonStorage:
+        data = b"".join(self.sections[5:])
+        return PokemonStorage(0, data)
 
     def get_item_bag(self) -> ItemBag:
         if context.rom.is_frlg:
