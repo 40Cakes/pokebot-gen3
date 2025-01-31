@@ -10,6 +10,7 @@ from modules.pokemon_party import get_party, get_party_size
 from modules.safari_strategy import get_safari_balls_left
 from modules.save_data import get_save_data
 from ._interface import BotModeError
+from ..pokemon_storage import get_pokemon_storage
 
 _error_message_addendum_if_assert_only_failed_in_saved_game = (
     " (This is only the case in the saved game. Perhaps you just need to save again?)"
@@ -166,17 +167,47 @@ def assert_empty_slot_in_party(error_message: str, check_in_saved_game: bool = F
         raise BotModeError(error_message)
 
 
-def assert_player_has_poke_balls() -> None:
+def assert_boxes_or_party_can_fit_pokemon(error_message: str | None = None, check_in_saved_game: bool = False) -> None:
+    """
+    Raises an exception if all boxes are full and there is no empty slot in the player's party,
+    i.e. if catching a Pokémon will fail due to lack of space.
+    :param error_message: Error message to display if the assertion fails.
+    :param check_in_saved_game: If True, this assertion will check the saved game instead of the
+                                current party (which is the default.)
+    """
+    pc_storage_capacity = 30 * 14
+
+    if error_message is None:
+        error_message = "Both the party and all the boxes are full. Cannot catch any more Pokémon."
+
+    if check_in_saved_game:
+        save_data = get_save_data()
+        if len(save_data.get_party()) >= 6 and save_data.get_pokemon_storage().pokemon_count >= pc_storage_capacity:
+            if len(get_party()) < 6 or get_pokemon_storage().pokemon_count < pc_storage_capacity:
+                error_message += _error_message_addendum_if_assert_only_failed_in_saved_game
+            raise BotModeError(error_message)
+    elif len(get_party()) >= 6 and get_pokemon_storage().pokemon_count >= pc_storage_capacity:
+        raise BotModeError(error_message)
+
+
+def assert_player_has_poke_balls(check_in_saved_game: bool = False) -> None:
     """
     Raises an exception if the player doesn't have any Pokeballs when starting a catching mode
     or if safari ball threshold is reached.
     """
+    out_of_safari_balls_error = "You have less than 15 Safari balls left, switching to manual mode..."
+    out_of_poke_balls_error = "Out of Poké balls! Better grab more before the next shiny slips away..."
+
     if is_safari_map():
         if get_safari_balls_left() < 15:
-            raise BotModeError("You have less than 15 balls left, switching to manual mode...")
-    else:
-        if get_item_bag().number_of_balls_except_master_ball == 0:
-            raise BotModeError("Out of Pokéballs! Better grab more before the next shiny slips away...")
+            raise BotModeError(out_of_safari_balls_error)
+    elif check_in_saved_game and get_save_data().get_item_bag().number_of_balls_except_master_ball == 0:
+        if get_item_bag().number_of_balls_except_master_ball > 1:
+            raise BotModeError(out_of_poke_balls_error + _error_message_addendum_if_assert_only_failed_in_saved_game)
+        else:
+            raise BotModeError(out_of_poke_balls_error)
+    elif get_item_bag().number_of_balls_except_master_ball == 0:
+        raise BotModeError(out_of_poke_balls_error)
 
 
 def pokemon_has_usable_damaging_move(pokemon: Pokemon) -> bool:

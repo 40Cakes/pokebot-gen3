@@ -23,6 +23,7 @@ from ._asserts import (
     assert_save_game_exists,
     assert_saved_on_map,
     assert_player_has_poke_balls,
+    assert_boxes_or_party_can_fit_pokemon,
     assert_item_exists_in_bag,
 )
 from ._interface import BotMode, BotModeError
@@ -105,8 +106,9 @@ class RockSmashMode(BotMode):
             )
             context.set_manual_mode()
 
-        if not outcome == BattleOutcome.Lost:
+        if outcome is not BattleOutcome.Lost:
             assert_player_has_poke_balls()
+            assert_boxes_or_party_can_fit_pokemon()
 
     def on_repel_effect_ended(self) -> None:
         if self._using_repel:
@@ -124,6 +126,7 @@ class RockSmashMode(BotMode):
                 "You do not have the Dynamo Badge, which is necessary to use Rock Smash outside of battle."
             )
 
+        assert_boxes_or_party_can_fit_pokemon()
         assert_has_pokemon_with_any_move(
             ["Rock Smash"], "None of your party Pokémon know the move Rock Smash. Please teach it to someone."
         )
@@ -135,6 +138,7 @@ class RockSmashMode(BotMode):
             MapRSE.SAFARI_ZONE_SOUTHEAST,
         ):
             assert_save_game_exists("There is no saved game. Cannot soft reset.")
+            assert_boxes_or_party_can_fit_pokemon(check_in_saved_game=True)
             assert_saved_on_map(
                 SavedMapLocation(MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE),
                 "In order to rock smash for Shuckle you should save in the entrance building to the Safari Zone.",
@@ -166,6 +170,8 @@ class RockSmashMode(BotMode):
 
             if mode == "Use Repel":
                 assert_save_game_exists("There is no saved game. Cannot soft reset.")
+                assert_player_has_poke_balls(check_in_saved_game=True)
+                assert_boxes_or_party_can_fit_pokemon(check_in_saved_game=True)
                 assert_saved_on_map(
                     SavedMapLocation(MapRSE.GRANITE_CAVE_B2F),
                     "In order to use Repel, you need to save on this map.",

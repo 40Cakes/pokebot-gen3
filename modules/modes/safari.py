@@ -30,6 +30,7 @@ from ._asserts import (
     assert_item_exists_in_bag,
     assert_save_game_exists,
     assert_saved_on_map,
+    assert_boxes_or_party_can_fit_pokemon,
 )
 from .util import (
     spin,
@@ -83,6 +84,7 @@ class SafariMode(BotMode):
             if catched_pokemon == self._target_pokemon:
                 self._target_caught = True
             self._atleast_one_pokemon_catched = True
+            assert_boxes_or_party_can_fit_pokemon()
         if get_safari_balls_left() < 30:
             current_cash = get_player().money
             if (self._starting_cash - current_cash > self._money_spent_limit) or (current_cash < 500):
@@ -94,6 +96,9 @@ class SafariMode(BotMode):
         self._starting_cash = get_player().money
 
         assert_save_game_exists("There is no saved game. Cannot start Safari mode. Please save your game.")
+
+        assert_boxes_or_party_can_fit_pokemon()
+        assert_boxes_or_party_can_fit_pokemon(check_in_saved_game=True)
 
         assert_saved_on_map(
             SavedMapLocation(self._safari_config["map"]),

@@ -14,7 +14,13 @@ from modules.region_map import FlyDestinationFRLG, FlyDestinationRSE
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
 from modules.tasks import get_global_script_context
-from ._asserts import SavedMapLocation, assert_save_game_exists, assert_saved_on_map, assert_player_has_poke_balls
+from ._asserts import (
+    SavedMapLocation,
+    assert_save_game_exists,
+    assert_saved_on_map,
+    assert_player_has_poke_balls,
+    assert_boxes_or_party_can_fit_pokemon,
+)
 from ._interface import BattleAction, BotMode, BotModeError
 from .util import (
     RanOutOfRepels,
@@ -112,7 +118,8 @@ class RoamerResetMode(BotMode):
                 f"{highest_encounter_level + 1} in order for Repel to work."
             )
 
-        assert_player_has_poke_balls()
+        assert_player_has_poke_balls(check_in_saved_game=True)
+        assert_boxes_or_party_can_fit_pokemon(check_in_saved_game=True)
 
         if save_data.get_item_bag().number_of_repels == 0:
             raise BotModeError("You do not have any repels in your item bag. Go and get some first!")
