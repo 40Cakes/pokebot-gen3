@@ -59,7 +59,7 @@ class PathTile:
     warps_to: tuple[tuple[int, int], tuple[int, int], Direction | None] | None
     waterfall_to: tuple[int, int] | None
     muddy_slope_to: tuple[int, int] | None
-    forced_movement_to: tuple[tuple[int, int], tuple[int, int], tuple] | None
+    forced_movement_to: tuple[tuple[int, int], tuple[int, int], int] | None
     needs_acro_bike: bool
     needs_bunny_hop: bool
 
@@ -790,7 +790,7 @@ def calculate_path(
             # 41 frames for each tile climbed.
             is_waterfall = False
             if neighbour.waterfall_to is not None:
-                waterfall_height = neighbour_coordinates[1] - neighbour.waterfall_to[1]
+                waterfall_height = abs(neighbour.local_coordinates[1] - neighbour.waterfall_to[1])
                 cost += int(round((195 + 41 * waterfall_height) / 16))
                 neighbour = tile.map.get_tile(neighbour.waterfall_to)
                 neighbour_coordinates = neighbour.global_coordinates
@@ -799,7 +799,7 @@ def calculate_path(
             is_muddy_slope = False
             if neighbour.muddy_slope_to is not None and direction is Direction.North:
                 muddy_slope_to = neighbour.map.get_tile(neighbour.muddy_slope_to)
-                muddy_slope_height = neighbour_coordinates[1] - neighbour.muddy_slope_to[1]
+                muddy_slope_height = abs(neighbour.local_coordinates[1] - neighbour.muddy_slope_to[1])
                 cost += muddy_slope_height
                 neighbour = _find_tile_by_global_coordinates(
                     (muddy_slope_to.global_coordinates[0], muddy_slope_to.global_coordinates[1] - 2), map_level
@@ -809,6 +809,10 @@ def calculate_path(
 
             if neighbour.forced_movement_to is not None:
                 cost += neighbour.forced_movement_to[2]
+                if neighbour.forced_movement_to[2] < 0:
+                    raise RuntimeError(
+                        f"Encountered a negative-length forced movement from {neighbour.local_coordinates} to {neighbour.forced_movement_to}."
+                    )
                 neighbour = _find_tile_by_local_coordinates(
                     neighbour.forced_movement_to[0], neighbour.forced_movement_to[1]
                 )
