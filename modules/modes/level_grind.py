@@ -64,6 +64,7 @@ class LevelGrindMode(BotMode):
                 yield from change_lead_party_pokemon(party_lead_index)
         else:
             self._controller.battle_strategy = LevelUpLeadBattleStrategy
+            self._controller._focus_on_lead_pokemon = True
             assert_party_has_damaging_move("No Pokémon in the party has a usable attacking move!")
 
             if not LevelUpLeadBattleStrategy().pokemon_can_battle(party_lead_pokemon):
