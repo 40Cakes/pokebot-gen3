@@ -67,9 +67,23 @@ class LevelUpLeadBattleStrategy(DefaultBattleStrategy):
         return False
 
     def pokemon_can_battle(self, pokemon: Pokemon) -> bool:
-        return any(
-            move is not None and move.move.base_power > 0 and move.move.name not in context.config.battle.banned_moves
-            for move in pokemon.moves
+        return self._can_battle(pokemon)
+
+    def party_can_battle(self) -> bool:
+        return any(self._can_battle(pokemon) for pokemon in get_party().non_fainted_pokemon)
+
+    def _can_battle(self, pokemon: Pokemon) -> bool:
+        return (
+            pokemon is not None
+            and super()._pokemon_has_enough_hp(pokemon)
+            and pokemon.status_condition is StatusCondition.Healthy
+            and any(
+                move is not None
+                and move.move.base_power > 0
+                and move.pp > 0
+                and move.move.name not in context.config.battle.banned_moves
+                for move in pokemon.moves
+            )
         )
 
     def _escape(self, battle_state: BattleState):

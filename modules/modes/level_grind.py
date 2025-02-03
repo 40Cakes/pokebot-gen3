@@ -60,10 +60,11 @@ class LevelGrindMode(BotMode):
         if level_mode_choice.startswith("Level-balance"):
             self._controller.battle_strategy = LevelBalancingBattleStrategy
             party_lead_index = LevelBalancingBattleStrategy().choose_new_lead_after_battle()
-            if party_lead_index != 0:
+            if party_lead_index != None:
                 yield from change_lead_party_pokemon(party_lead_index)
         else:
             self._controller.battle_strategy = LevelUpLeadBattleStrategy
+            self._controller._focus_on_lead_pokemon = True
             assert_party_has_damaging_move("No Pokémon in the party has a usable attacking move!")
 
             if not LevelUpLeadBattleStrategy().pokemon_can_battle(party_lead_pokemon):
