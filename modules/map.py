@@ -25,7 +25,7 @@ from modules.pokemon import (
     Ability,
     get_type_by_name,
 )
-from modules.pokemon_party import get_current_repel_level, get_party
+from modules.pokemon_party import get_current_repel_level, get_party, PartyPokemon
 from modules.state_cache import state_cache
 
 if TYPE_CHECKING:
@@ -2023,6 +2023,146 @@ def get_encounter_affecting_abilities() -> list[str]:
         return ["Stench", "Illuminate"]
 
 
+def _calculate_repel_rate_and_species_map(
+    encounters: list[WildEncounter], repel_level: int
+) -> tuple[float, dict[int, EffectiveWildEncounter]]:
+    """Calcualtes rate of all possibilities for the given encounter list.
+
+    Returns the rate at which encounters will be repeled in the first return, and a dict from species index to rate in
+    the second return.  The rates for repel and all species given in the return will be in (0.0,1.0].  Furthermore,
+    repel rate and rates for all species will sum to 1."""
+    species = {}
+    total = 0
+    repeled = 0
+    for encounter in encounters:
+        total += encounter.encounter_rate
+        frac_repeled = 0
+        if repel_level > encounter.max_level:
+            frac_repeled = 1
+        elif repel_level > encounter.min_level:
+            frac_repeled = (repel_level - encounter.min_level) / (encounter.max_level - encounter.min_level + 1)
+        repeled += frac_repeled * encounter.encounter_rate
+        if frac_repeled >= 1:
+            continue
+        rate = (1 - frac_repeled) * encounter.encounter_rate
+        if encounter.species.index not in species:
+            species[encounter.species.index] = EffectiveWildEncounter(
+                species=encounter.species,
+                min_level=max(encounter.min_level, repel_level),
+                max_level=encounter.max_level,
+                encounter_rate=rate,
+            )
+        else:
+            species_entry = species[encounter.species.index]
+            species_entry.encounter_rate += rate
+            species_entry.min_level = min(species_entry.min_level, max(encounter.min_level, repel_level))
+            species_entry.max_level = max(species_entry.max_level, encounter.max_level)
+    for encounter in species:
+        species[encounter].encounter_rate /= total
+    repel_rate = repeled / total if total != 0 else 1
+    return repel_rate, species
+
+
+def calculate_effective_encounters(
+    encounters: list[WildEncounter], encounter_type: str, lead_pokemon: PartyPokemon, repel_level: int
+) -> list[EffectiveWildEncounter]:
+    # Repels don't work for fishing.
+    if encounter_type not in ("land", "surf", "rock_smash"):
+        repel_level = 0
+    # Start by getting the repel rate and rate for each species for the base encounter table.
+    base_repel_rate, base_species_rate = _calculate_repel_rate_and_species_map(encounters, repel_level)
+
+    # To calcualte each species effectie encounter rate given both a repel and an affecting ability, consider the system
+    #
+    #    (repel rate)
+    #  /---------------B--> species is found
+    #  |              /
+    #  v             / (ability does not activate)
+    #  A------------<
+    #  ^             \ (ability activates)
+    #  |              \
+    #  \---------------C--> species is found
+    #    (repel rate)
+    #
+    # The node A represents the game generating an encounter.  If the ability activates, we have a certain chance to
+    # find the species, and a certain chance to repel.  When repeled, the game drops the encounter and the player keeps
+    # spinning until an encounter happens.  Similarly, if the ability doesn't activate, there's a differenct chance to
+    # find the species or for the encounter to be repeled.  The chance to find the species for an encounter is
+    #
+    #  A = (1/2)(B + C)
+    #  B = base_encounter_rate + base_repel_rate * A
+    #  C = ability_encounter_rate + ability_repel_rate * A
+    #  A = (1/2)(base_encounter_rate + base_repel_rate * A + ability_encounter_rate + ability_repel_rate * A)
+    #  A = (1/2)*(base_repel_rate + ability_repel_rate)*A + (1/2)*(base_enconter_rate + ability_encounter_rate)
+    #  (1 - (1/2)*(base_repel_rate + ability_repel_rate))*A = (1/2)*(base_encounter_rate + ability_encounter_rate)
+    #  A = [(1/2)*(base_encounter_rate + ability_encounter_rate)]/[1 - (1/2)*(base_repel_rate + ability_repel_rate)]
+    #  A = (base_encounter_rate + ability_encounter_rate)/[2 - (base_repel_rate + ability_repel_rate)]
+    #
+    # This is the complicated case.  When just repel is active, there is no split, which is why the `paths` variable is
+    # tracked.  If just the ability is active, repel rates will be 0, and the formula still works.
+    paths = 1
+    ability_repel_rate = 0
+    ability_species_rate = {}
+    if (
+        not lead_pokemon.is_egg
+        and lead_pokemon.ability.name in ("Keen Eye", "Intimidate")
+        and encounter_type in ("land", "surf", "rock_smash")
+        and lead_pokemon.level >= repel_level + 5
+    ):
+        # For Keen Eye and Intimidate, we create the new encounter table by using a different repel level.
+        paths = 2
+        ability_repel_rate, ability_species_rate = _calculate_repel_rate_and_species_map(
+            encounters, lead_pokemon.level - 4
+        )
+    elif (
+        not lead_pokemon.is_egg
+        and lead_pokemon.ability.name in ("Pressure", "Vital Spirit", "Hustle")
+        # purely a shortcut since in all mainline games land slots have the same min and max levels.
+        and encounter_type not in ("land")
+    ):
+        # For Pressure, Vital Spirit, and Hustle, we rewrite the WildEncounter to force min level to be the max level.
+        paths = 2
+        new_encounters = list()
+        for encounter in encounters:
+            new_encounters.append(
+                WildEncounter(encounter.species, encounter.max_level, encounter.max_level, encounter.encounter_rate)
+            )
+        ability_repel_rate, ability_species_rate = _calculate_repel_rate_and_species_map(new_encounters, repel_level)
+    elif not lead_pokemon.is_egg and lead_pokemon.ability.name in ("Static", "Magnet Pull"):
+        # For Static and Magnet Pull, we rewrite the WildEncounter list with just the type we're matching.  The
+        # encounter_rate is set to 1, since all new slots are equally weighted, and the helper function will normalize
+        # the rates so we don't have to worry about our comparison with the base rates.
+        if lead_pokemon.ability.name == "Static":
+            boosted_type = get_type_by_name("Electric")
+        if lead_pokemon.ability.name == "Magnet Pull":
+            boosted_type = get_type_by_name("Steel")
+        new_encounters = list()
+        for encounter in encounters:
+            if encounter.species.has_type(boosted_type):
+                new_encounters.append(WildEncounter(encounter.species, encounter.min_level, encounter.max_level, 1))
+        if len(new_encounters) > 0:
+            paths = 2
+            ability_repel_rate, ability_species_rate = _calculate_repel_rate_and_species_map(
+                new_encounters, repel_level
+            )
+
+    # Finally, calculate the effective rate for each species.
+    effective_wild_encounters = list()
+    denominator = paths - (base_repel_rate + ability_repel_rate)
+    for index in base_species_rate.keys():
+        encounter = base_species_rate[index]
+        ability_encounter_rate = 0
+        if index in ability_species_rate:
+            ability_encounter_rate = ability_species_rate[index].encounter_rate
+        rate = (encounter.encounter_rate + ability_encounter_rate) / denominator
+        effective_wild_encounters.append(
+            EffectiveWildEncounter(encounter.species, encounter.min_level, encounter.max_level, rate)
+        )
+
+    effective_wild_encounters.sort(reverse=True, key=lambda e: e.encounter_rate)
+    return effective_wild_encounters
+
+
 def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterList | None:
     if state_cache.effective_wild_encounters.age_in_frames == 0:
         return state_cache.effective_wild_encounters.value
@@ -2038,83 +2178,6 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
     lead_pokemon = get_party()[0]
     repel_level = get_current_repel_level()
     wild_encounters = get_wild_encounters_for_map(map_group, map_number)
-
-    def calculate_effective_encounters(
-        encounters: list[WildEncounter], encounter_type: str
-    ) -> list[EffectiveWildEncounter]:
-        species = {}
-        total_rate = 0
-        for encounter in encounters:
-            if repel_level > encounter.max_level:
-                # Entire encounter slot blocked by Repel
-                continue
-            elif repel_level >= encounter.min_level:
-                # Some levels blocked by repel
-                modifier = 1 - (repel_level - encounter.min_level) / (1 + encounter.max_level - encounter.min_level)
-            elif (
-                not lead_pokemon.is_egg
-                and lead_pokemon.ability.name in ("Keen Eye", "Intimidate")
-                and encounter_type in ("land", "surf", "rock_smash")
-                and lead_pokemon.level > encounter.min_level + 5
-            ):
-                # Some levels potentially blocked by Keen Eye/Intimidate
-                # If the lead Pokémon has one of these abilities, encounters with 5 or more levels
-                # below that of the lead Pokémon have a 50% chance of being rejected on generation.
-                possible_levels = 1 + encounter.max_level - encounter.min_level
-                fraction_below_threshold = ((lead_pokemon.level - 5) - encounter.min_level + 1) / possible_levels
-                fraction_above_threshold = 1 - fraction_below_threshold
-                modifier = fraction_below_threshold * 0.5 + fraction_above_threshold
-            else:
-                # Not affected by Repel or Keen Eye/Intimidate
-                modifier = 1
-
-            rate = encounter.encounter_rate * modifier
-            min_level = max(encounter.min_level, repel_level)
-
-            total_rate += rate
-            if encounter.species.index not in species:
-                species[encounter.species.index] = EffectiveWildEncounter(
-                    species=encounter.species, min_level=min_level, max_level=encounter.max_level, encounter_rate=rate
-                )
-            else:
-                species_entry = species[encounter.species.index]
-                species_entry.encounter_rate += rate
-                species_entry.min_level = min(min_level, species_entry.min_level)
-                species_entry.max_level = max(encounter.max_level, species_entry.max_level)
-
-        for index in species:
-            species[index].encounter_rate /= total_rate
-
-        if lead_pokemon.ability.name == "Static" and encounter_type in ("land", "surf"):
-            boosted_type = get_type_by_name("Electric")
-        elif lead_pokemon.ability.name == "Magnet Pull" and encounter_type == "land":
-            boosted_type = get_type_by_name("Steel")
-        else:
-            boosted_type = None
-
-        if boosted_type is not None:
-            number_of_encounter_slots_with_boosted_type = 0
-            encounter_slots_by_species = {}
-            for encounter in encounters:
-                if encounter.species.has_type(boosted_type):
-                    if encounter.species.index not in encounter_slots_by_species:
-                        encounter_slots_by_species[encounter.species.index] = 0
-                    encounter_slots_by_species[encounter.species.index] += 1
-                    number_of_encounter_slots_with_boosted_type += 1
-
-            if number_of_encounter_slots_with_boosted_type > 0:
-                for index in species:
-                    species[index].encounter_rate /= 2
-                    if species[index].species.has_type(boosted_type):
-                        species[index].encounter_rate += 0.5 * (
-                            encounter_slots_by_species[species[index].species.index]
-                            / number_of_encounter_slots_with_boosted_type
-                        )
-
-        result = list(species.values())
-        result.sort(reverse=True, key=lambda e: e.encounter_rate)
-
-        return result
 
     if wild_encounters is None:
         encounter_list = EffectiveWildEncounterList(
@@ -2144,12 +2207,24 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
             ),
             active_items=encounter_affecting_items,
             regular_encounters=wild_encounters,
-            land_encounters=calculate_effective_encounters(wild_encounters.land_encounters, "land"),
-            surf_encounters=calculate_effective_encounters(wild_encounters.surf_encounters, "surf"),
-            rock_smash_encounters=calculate_effective_encounters(wild_encounters.rock_smash_encounters, "rock_smash"),
-            old_rod_encounters=calculate_effective_encounters(wild_encounters.old_rod_encounters, "fishing"),
-            good_rod_encounters=calculate_effective_encounters(wild_encounters.good_rod_encounters, "fishing"),
-            super_rod_encounters=calculate_effective_encounters(wild_encounters.super_rod_encounters, "fishing"),
+            land_encounters=calculate_effective_encounters(
+                wild_encounters.land_encounters, "land", lead_pokemon, repel_level
+            ),
+            surf_encounters=calculate_effective_encounters(
+                wild_encounters.surf_encounters, "surf", lead_pokemon, repel_level
+            ),
+            rock_smash_encounters=calculate_effective_encounters(
+                wild_encounters.rock_smash_encounters, "rock_smash", lead_pokemon, repel_level
+            ),
+            old_rod_encounters=calculate_effective_encounters(
+                wild_encounters.old_rod_encounters, "fishing", lead_pokemon, repel_level
+            ),
+            good_rod_encounters=calculate_effective_encounters(
+                wild_encounters.good_rod_encounters, "fishing", lead_pokemon, repel_level
+            ),
+            super_rod_encounters=calculate_effective_encounters(
+                wild_encounters.super_rod_encounters, "fishing", lead_pokemon, repel_level
+            ),
         )
 
     state_cache.effective_wild_encounters = encounter_list
