@@ -15,6 +15,7 @@ from ..battle_strategies.level_balancing import LevelBalancingBattleStrategy
 from ..battle_strategies.level_up import LevelUpLeadBattleStrategy
 from ..encounter import EncounterInfo
 from ..gui.multi_select_window import ask_for_choice, Selection, ask_for_confirmation
+from ..pokemon import pokemon_has_usable_damaging_move
 from ..runtime import get_sprites_path
 from ..sprites import get_sprite
 
@@ -67,7 +68,7 @@ class LevelGrindMode(BotMode):
             self._controller._focus_on_lead_pokemon = True
             assert_party_has_damaging_move("No Pokémon in the party has a usable attacking move!")
 
-            if not LevelUpLeadBattleStrategy().pokemon_can_battle(party_lead_pokemon):
+            if not pokemon_has_usable_damaging_move(party_lead_pokemon):
                 user_confirmed = ask_for_confirmation(
                     "Your party leader has no battle moves. The bot will maybe swap with other Pokémon depending on your bot configuration, causing them to gain XP. Are you sure you want to proceed with this strategy?"
                 )
