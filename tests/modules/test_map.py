@@ -6,8 +6,12 @@ Unit tests for modules/map.py
 import unittest
 import modules.map
 
+from datetime import datetime
 from modules.pokemon_party import PartyPokemon
 from modules.pokemon import get_species_by_index
+from modules.context import context
+from modules.profiles import Profile
+from modules.roms import ROM, ROMLanguage
 
 # Common lead definitions
 regular_lead = bytearray(
@@ -129,6 +133,9 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
                 )
             self.assertTrue(found, msg=f"No matching encounters in second for species {encounter.species.name}")
 
+    def setUp(self):
+        context.profile = Profile(ROM("", "", "POKEMON EMER", "", ROMLanguage.English, "", 0), "", datetime.now())
+
     def test_route102_plain(self):
         encounters = [
             modules.map.WildEncounter(poochyena, 3, 3, 20),
@@ -155,14 +162,14 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
             modules.map.EffectiveWildEncounter(seedot, 3, 3, 0.01),
         ]
 
-        got = modules.map.calculate_effective_encounters(encounters, "land", party_lead, 0)
+        got = modules.map._calculate_effective_encounters(encounters, "land", party_lead, 0)
 
         self.assertEffectiveEncountersEqual(got, want)
 
     def test_empty_encounters(self):
         party_lead = PartyPokemon(regular_lead, 0)
-        got = modules.map.calculate_effective_encounters([], "rock_smash", party_lead, 0)
-        # Imprtantly, doesn't crash.
+        got = modules.map._calculate_effective_encounters([], "rock_smash", party_lead, 0)
+        # Importantly, doesn't crash.
         self.assertEqual(got, [])
 
     # Nosepass for testing repel on level range encounters, and interactions
@@ -175,7 +182,7 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
             modules.map.EffectiveWildEncounter(nosepass, 10, 20, 0.3),
         ]
 
-        got = modules.map.calculate_effective_encounters(granite_cave_rock_smash, "rock_smash", party_lead, 0)
+        got = modules.map._calculate_effective_encounters(granite_cave_rock_smash, "rock_smash", party_lead, 0)
 
         self.assertEffectiveEncountersEqual(got, want)
 
@@ -187,7 +194,7 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
             modules.map.EffectiveWildEncounter(nosepass, 13, 20, 48 / 125),
         ]
 
-        got = modules.map.calculate_effective_encounters(granite_cave_rock_smash, "rock_smash", party_lead, 13)
+        got = modules.map._calculate_effective_encounters(granite_cave_rock_smash, "rock_smash", party_lead, 13)
 
         self.assertEffectiveEncountersEqual(got, want)
 
@@ -199,7 +206,7 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
             modules.map.EffectiveWildEncounter(nosepass, 10, 20, 0.3),
         ]
 
-        got = modules.map.calculate_effective_encounters(granite_cave_rock_smash, "rock_smash", party_lead, 0)
+        got = modules.map._calculate_effective_encounters(granite_cave_rock_smash, "rock_smash", party_lead, 0)
 
         self.assertEffectiveEncountersEqual(got, want)
 
@@ -211,7 +218,7 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
             modules.map.EffectiveWildEncounter(nosepass, 10, 20, 135 / 377),
         ]
 
-        got = modules.map.calculate_effective_encounters(granite_cave_rock_smash, "rock_smash", party_lead, 0)
+        got = modules.map._calculate_effective_encounters(granite_cave_rock_smash, "rock_smash", party_lead, 0)
 
         self.assertEffectiveEncountersEqual(got, want)
 
@@ -223,7 +230,7 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
             modules.map.EffectiveWildEncounter(nosepass, 13, 20, 216 / 469),
         ]
 
-        got = modules.map.calculate_effective_encounters(granite_cave_rock_smash, "rock_smash", party_lead, 13)
+        got = modules.map._calculate_effective_encounters(granite_cave_rock_smash, "rock_smash", party_lead, 13)
 
         self.assertEffectiveEncountersEqual(got, want)
 
@@ -235,7 +242,7 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
             modules.map.EffectiveWildEncounter(nosepass, 13, 20, 57 / 167),
         ]
 
-        got = modules.map.calculate_effective_encounters(granite_cave_rock_smash, "rock_smash", party_lead, 13)
+        got = modules.map._calculate_effective_encounters(granite_cave_rock_smash, "rock_smash", party_lead, 13)
 
         self.assertEffectiveEncountersEqual(got, want)
 
@@ -249,7 +256,7 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
             modules.map.EffectiveWildEncounter(skarmory, 16, 16, 0.525),
         ]
 
-        got = modules.map.calculate_effective_encounters(route113_land, "land", party_lead, 0)
+        got = modules.map._calculate_effective_encounters(route113_land, "land", party_lead, 0)
 
         self.assertEffectiveEncountersEqual(got, want)
 
@@ -262,7 +269,7 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
             modules.map.EffectiveWildEncounter(skarmory, 16, 16, 0.875),
         ]
 
-        got = modules.map.calculate_effective_encounters(route113_land, "land", party_lead, 16)
+        got = modules.map._calculate_effective_encounters(route113_land, "land", party_lead, 16)
 
         self.assertEffectiveEncountersEqual(got, want)
 
@@ -280,7 +287,7 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
             modules.map.EffectiveWildEncounter(wingull, 12, 12, 0.04),
         ]
 
-        got = modules.map.calculate_effective_encounters(route110_land, "land", party_lead, 0)
+        got = modules.map._calculate_effective_encounters(route110_land, "land", party_lead, 0)
 
         self.assertEffectiveEncountersEqual(got, want)
 
@@ -295,7 +302,7 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
             modules.map.EffectiveWildEncounter(oddish, 13, 13, 30 / 323),
         ]
 
-        got = modules.map.calculate_effective_encounters(route110_land, "land", party_lead, 13)
+        got = modules.map._calculate_effective_encounters(route110_land, "land", party_lead, 13)
 
         self.assertEffectiveEncountersEqual(got, want)
 
@@ -309,7 +316,7 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
             modules.map.EffectiveWildEncounter(relicanth, 30, 35, 1 / 40),
         ]
 
-        got = modules.map.calculate_effective_encounters(underwater, "surf", party_lead, 0)
+        got = modules.map._calculate_effective_encounters(underwater, "surf", party_lead, 0)
 
         self.assertEffectiveEncountersEqual(got, want)
 
@@ -322,11 +329,10 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
             modules.map.EffectiveWildEncounter(relicanth, 30, 35, 55 / 1060),
         ]
 
-        got = modules.map.calculate_effective_encounters(underwater, "surf", party_lead, 26)
+        got = modules.map._calculate_effective_encounters(underwater, "surf", party_lead, 26)
 
         self.assertEffectiveEncountersEqual(got, want)
 
 
 if __name__ == "__main__":
-    print("pls")
     unittest.main()
