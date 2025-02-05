@@ -9,6 +9,7 @@ from typing import Literal
 
 import numpy
 
+from modules.context import context
 from modules.game import decode_string
 from modules.items import Item, get_item_by_index, get_item_by_move_id, get_item_by_name
 from modules.memory import pack_uint32, read_symbol, unpack_uint16, unpack_uint32
@@ -1466,6 +1467,17 @@ def opponent_changed() -> bool:
         raise
     except Exception:
         return False
+
+
+def pokemon_has_usable_damaging_move(pokemon: Pokemon) -> bool:
+    """
+    Checks if the given Pokémon has at least one usable attacking move.
+    Returns True if a usable move is found; otherwise, False.
+    """
+    return any(
+        move is not None and move.move.base_power > 0 and move.move.name not in context.config.battle.banned_moves
+        for move in pokemon.moves
+    )
 
 
 def _to_dict_helper(value) -> any:

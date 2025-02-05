@@ -5,7 +5,7 @@ from modules.items import get_item_bag, get_item_by_name
 from modules.map import ObjectEvent, calculate_targeted_coords
 from modules.map_data import MapRSE, MapFRLG, is_safari_map
 from modules.player import get_player
-from modules.pokemon import Pokemon
+from modules.pokemon import pokemon_has_usable_damaging_move
 from modules.pokemon_party import get_party, get_party_size
 from modules.safari_strategy import get_safari_balls_left
 from modules.save_data import get_save_data
@@ -208,17 +208,6 @@ def assert_player_has_poke_balls(check_in_saved_game: bool = False) -> None:
             raise BotModeError(out_of_poke_balls_error)
     elif get_item_bag().number_of_balls_except_master_ball == 0:
         raise BotModeError(out_of_poke_balls_error)
-
-
-def pokemon_has_usable_damaging_move(pokemon: Pokemon) -> bool:
-    """
-    Checks if the given Pokémon has at least one usable attacking move.
-    Returns True if a usable move is found; otherwise, False.
-    """
-    return any(
-        move is not None and move.move.base_power > 0 and move.move.name not in context.config.battle.banned_moves
-        for move in pokemon.moves
-    )
 
 
 def assert_party_has_damaging_move(error_message: str, check_in_saved_game: bool = False) -> None:
