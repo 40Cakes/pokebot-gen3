@@ -392,6 +392,12 @@ class LearnedMove:
     pp: int
     pp_ups: int
 
+    @classmethod
+    def create(cls, move: Move, remaining_pp: int | None = None, pp_ups: int = 0) -> "LearnedMove":
+        total_pp = move.pp + ((move.pp * 20 * pp_ups) // 100)
+        remaining_pp = total_pp if remaining_pp is None else min(total_pp, remaining_pp)
+        return LearnedMove(move=move, total_pp=total_pp, pp=remaining_pp, pp_ups=pp_ups)
+
     def added_pps(self) -> int:
         return self.total_pp - self.move.pp
 

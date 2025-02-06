@@ -15,6 +15,7 @@ from modules.pokemon import (
     StatusCondition,
     get_move_by_name,
     get_species_by_name,
+    LearnedMove,
 )
 from modules.pokemon_party import get_party
 
@@ -171,11 +172,9 @@ class PokemonEditFrame:
             if selection != "(None)":
                 move = get_move_by_name(selection)
                 moves.append(
-                    {
-                        "id": move.index,
-                        "remaining_pp": self._move_pp_vars[n].get(),
-                        "pp_ups": self._move_pp_ups_vars[n].get(),
-                    }
+                    LearnedMove.create(
+                        move, remaining_pp=self._move_pp_vars[n].get(), pp_ups=self._move_pp_ups_vars[n].get()
+                    )
                 )
         if len(moves) == 0:
             moves.append({"id": get_move_by_name("Splash").index, "remaining_pp": 1, "pp_ups": 0})
@@ -183,13 +182,13 @@ class PokemonEditFrame:
             moves.append({"id": 0, "remaining_pp": 0, "pp_ups": 0})
 
         return debug_create_pokemon(
-            self._pokemon,
+            species=self._species,
+            level=self._level.get(),
+            original_pokemon=self._pokemon,
             is_shiny=self._is_shiny_var.get(),
             is_egg=self._is_egg_var.get(),
             gender=None if self._gender_var.get() not in ("male", "female") else self._gender_var.get(),
-            species=self._species,
             nickname=self._nickname_var.get(),
-            level=self._level.get(),
             held_item=held_item,
             has_second_ability=self._ability.current() != 0,
             nature=get_nature_by_index(self._nature.current()),
