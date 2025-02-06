@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Unit tests for modules/map.py
 """
@@ -332,7 +331,3 @@ class TestEffectiveEncounterRatesForCurrentMap(unittest.TestCase):
         got = modules.map._calculate_effective_encounters(underwater, "surf", party_lead, 26)
 
         self.assertEffectiveEncountersEqual(got, want)
-
-
-if __name__ == "__main__":
-    unittest.main()
