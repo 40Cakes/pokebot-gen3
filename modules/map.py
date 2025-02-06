@@ -2137,7 +2137,7 @@ def _calculate_effective_encounters(
     #  B = base_encounter_rate + base_repel_rate * A
     #  C = ability_encounter_rate + ability_repel_rate * A
     #  A = (1/2)(base_encounter_rate + base_repel_rate * A + ability_encounter_rate + ability_repel_rate * A)
-    #  A = (1/2)*(base_repel_rate + ability_repel_rate)*A + (1/2)*(base_enconter_rate + ability_encounter_rate)
+    #  A = (1/2)*(base_repel_rate + ability_repel_rate)*A + (1/2)*(base_encounter_rate + ability_encounter_rate)
     #  (1 - (1/2)*(base_repel_rate + ability_repel_rate))*A = (1/2)*(base_encounter_rate + ability_encounter_rate)
     #  A = [(1/2)*(base_encounter_rate + ability_encounter_rate)]/[1 - (1/2)*(base_repel_rate + ability_repel_rate)]
     #  A = (base_encounter_rate + ability_encounter_rate)/[2 - (base_repel_rate + ability_repel_rate)]
