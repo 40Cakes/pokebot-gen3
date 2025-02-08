@@ -15,6 +15,10 @@ def _get_lowest_level_party_member_index(only_non_fainted: bool = False) -> int:
 
 
 class LevelBalancingBattleStrategy(DefaultBattleStrategy):
+    def party_can_battle(self) -> bool:
+        lowest_level_index = _get_lowest_level_party_member_index()
+        return super().party_can_battle() and get_party()[lowest_level_index].current_hp > 0
+
     def choose_new_lead_after_faint(self, battle_state: BattleState) -> int:
         return _get_lowest_level_party_member_index(only_non_fainted=True)
 
