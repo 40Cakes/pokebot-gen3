@@ -18,19 +18,19 @@
 
 ### Windows
 
-- [Python 3.12](https://www.python.org/downloads/windows/) **Windows installer 64-bit**
+- [Python 3.13](https://www.python.org/downloads/windows/) **Windows installer 64-bit**
   - Tick `Add Python to PATH` when installing Python
 
 ### MacOS
 
-- [Python 3.12](https://www.python.org/downloads/macos/) **macOS 64-bit universal2 installer** or `brew install python@3.12`
+- [Python 3.13](https://www.python.org/downloads/macos/) **macOS 64-bit universal2 installer** or `brew install python@3.13`
 - mGBA 0.10.x `brew install mgba`
 
 Note: `brew` requires [Homebrew](https://brew.sh/) to be installed.
 
 ### Linux
 
-- [Python 3.12](https://www.python.org/downloads/source/) or `sudo apt install python3.12`
+- [Python 3.13](https://www.python.org/downloads/source/) or `sudo apt install python3.13`
 - Install the following packages with `apt` or appropriate package manager: `sudo apt install python3-distutils python3-tk libmgba0.10 portaudio19-dev`
 - If `libmgba0.10` is not available on your distro, you can manually install the [mGBA 0.10.x .deb package](https://mgba.io/downloads.html) which includes `libmgba0.10`
 
