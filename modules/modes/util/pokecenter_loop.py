@@ -24,10 +24,26 @@ class PokecenterLoopController:
         return self.battle_strategy() if action is BattleAction.Fight else action
 
     def on_battle_ended(self) -> None:
-        if len(get_party().non_fainted_pokemon) == 0 or not self.battle_strategy().party_can_battle():
-            self._needs_healing = True
-        elif self._focus_on_lead_pokemon and not self.battle_strategy().pokemon_can_battle(get_party().non_eggs[0]):
-            self._needs_healing = True
+        lead_pokemon = get_party().non_eggs[0]
+        if not self.battle_strategy().pokemon_can_battle(lead_pokemon):
+            # Generally, if the lead Pokémon cannot battle (out of PP or fainted) we want to go and
+            # heal, even in Level-balancing mode (because in that case the weakest Pokémon should
+            # always be the lead Pokémon.)
+            #
+            # But there's one exception: If the lead Pokémon is out of PP but does not even know any
+            # damaging moves (think Magikarp, Abra, ...) but the party as a whole still has some
+            # capable Pokémon, we do NOT want to heal because the strategy is to immediately switch
+            # in the strongest Pokémon immediately to allow the weak Pokémon to gain at least some
+            # PP.
+            lead_knows_damaging_moves = any(
+                [learned_move.move.base_power for learned_move in lead_pokemon.moves if learned_move is not None]
+            )
+            if (
+                lead_pokemon.current_hp <= 0
+                or lead_knows_damaging_moves
+                or not self.battle_strategy().party_can_battle()
+            ):
+                self._needs_healing = True
 
     def on_whiteout(self) -> bool:
         self._leave_pokemon_center = True
