@@ -4,8 +4,7 @@ import sys
 from modules.runtime import get_base_path, is_bundled_app, is_virtualenv
 from modules.version import pokebot_name, pokebot_version
 
-# We keep recommending Python 3.12 because not all features are available on Python 3.13.
-recommended_python_version = "3.12"
+recommended_python_version = "3.13"
 supported_python_versions = ["3.11", "3.12", "3.13"]
 
 libmgba_tag = "0.2.0-2"
@@ -32,14 +31,8 @@ required_modules = [
     "darkdetect~=0.8.0",
     "show-in-file-manager~=1.1.4",
     "aiohttp~=3.10.9",
+    "aiortc~=1.10.0",
 ]
-
-# aiortc does not have any Python 3.13-compatible version (due to it requiring an outdated version
-# of the `av` library.) Because this is only needed for WebRTC-based video/audio stream of the
-# emulator output via the HTTP server, we consider it optional and just don't install it if the
-# Python version is too new.
-if int(platform.python_version_tuple()[1]) < 13:
-    required_modules.append("aiortc~=1.9.0")
 
 if platform.system() == "Windows":
     required_modules.extend(["pywin32>=306", "psutil~=5.9.5"])
