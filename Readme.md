@@ -1,5 +1,5 @@
 # PokéBot Gen3 (libmgba)
-[![Wiki](wiki/images/badge_wiki.svg)](wiki/Readme.md) [![Python 3.12](wiki/images/badge_python.svg)](https://www.python.org/downloads/release/python-3120/) [![Code Formatting](wiki/images/badge_black.svg)](https://github.com/psf/black)
+[![Wiki](wiki/images/badge_wiki.svg)](wiki/Readme.md) [![Python 3.12](wiki/images/badge_python.svg)](https://www.python.org/downloads/release/python-3132/) [![Code Formatting](wiki/images/badge_black.svg)](https://github.com/psf/black)
 
 [![Discord](wiki/images/badge_discord.svg)](https://discord.com/invite/UtxR3cazUa) [![YouTube](wiki/images/badge_youtube.svg)](https://www.youtube.com/@40_Cakes/streams)
 

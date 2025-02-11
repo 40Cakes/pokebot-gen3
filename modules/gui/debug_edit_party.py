@@ -177,9 +177,7 @@ class PokemonEditFrame:
                     )
                 )
         if len(moves) == 0:
-            moves.append({"id": get_move_by_name("Splash").index, "remaining_pp": 1, "pp_ups": 0})
-        while len(moves) < 4:
-            moves.append({"id": 0, "remaining_pp": 0, "pp_ups": 0})
+            moves.append(LearnedMove.create(get_move_by_name("Splash"), remaining_pp=1, pp_ups=0))
 
         return debug_create_pokemon(
             species=self._species,
