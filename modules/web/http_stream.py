@@ -258,7 +258,10 @@ def run_watcher():
                 send_message(DataSubscription.Opponent, data=None, event_type="Opponent")
 
         if subscriptions["WildEncounter"] > 0:
-            if context.stats.last_encounter.encounter_id != previous_game_state["wild_encounter"]:
+            if (
+                context.stats.last_encounter is not None
+                and context.stats.last_encounter.encounter_id != previous_game_state["wild_encounter"]
+            ):
                 send_message(
                     DataSubscription.WildEncounter,
                     data=context.stats.last_encounter.to_dict(),
