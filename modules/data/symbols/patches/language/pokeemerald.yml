@@ -300,6 +300,10 @@ Task_PokeStorageMain:
   I: 0x80c7f00
   J: 0x80c7b48
   S: 0x80c7f00
+gPokemonStorage:
+  J: 0x20294ac
+gPokemonStoragePtr:
+  J: 0x3005af4
 Task_ExitDoor:
   D: 0x80af454
   F: 0x80af44c
