@@ -48,7 +48,7 @@ Static soft reset mode targets static Pokémon by simply spamming the A button u
 - Place the player in front of the egg on [Southern Island](https://bulbapedia.bulbagarden.net/wiki/Southern_Island)
 - Start mode
 
-![image](../images/lati_SSR.png)
+![image](../images/Lati_SSR.png)
 
 # Game Support
 

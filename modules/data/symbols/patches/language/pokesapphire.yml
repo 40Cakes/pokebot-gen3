@@ -192,6 +192,8 @@ Task_HandleMultichoiceInput:
   J: 0x80b0928
 SUB_8096B38:
   J: 0x809363c
+gPokemonStorage:
+  J: 0x202fdbc
 #-------------------------#
 
 #--------------#
