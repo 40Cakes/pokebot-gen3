@@ -72,6 +72,7 @@ GBA_ROMS = [
     "ab8f6bfe0ccdaf41188cd015c8c74c314d02296a",  # Pokémon - Edicion Rojo Fuego (Spain).gba
 ]
 GBA_ROMS = list(map(lambda x: x.lower(), GBA_ROMS))
+CUSTOM_GBA_ROM_HASHES: set[str] | None = None
 
 
 class ROMLanguage(Enum):
@@ -216,11 +217,28 @@ def list_available_roms(force_recheck: bool = False) -> list[ROM]:
 
 
 def _load_gba_rom(file: Path, handle: BinaryIO) -> ROM:
+    global CUSTOM_GBA_ROM_HASHES
+    custom_gba_rom_hashes_file = get_base_path() / "profiles" / "extra_allowed_roms.txt"
+    if CUSTOM_GBA_ROM_HASHES is None and custom_gba_rom_hashes_file.exists():
+        CUSTOM_GBA_ROM_HASHES = set()
+        with open(custom_gba_rom_hashes_file, "r") as custom_gba_rom_hashes_file_handle:
+            for line in custom_gba_rom_hashes_file_handle.readlines():
+                if line.strip() != "":
+                    CUSTOM_GBA_ROM_HASHES.add(line.strip().lower())
+
     handle.seek(0x0)
     sha1 = hashlib.sha1()
     sha1.update(handle.read())
+    is_unsupported = False
     if sha1.hexdigest() not in GBA_ROMS:
-        raise InvalidROMError("ROM not supported.")
+        if CUSTOM_GBA_ROM_HASHES is not None and (
+            sha1.hexdigest() in CUSTOM_GBA_ROM_HASHES
+            or file.name.lower() in CUSTOM_GBA_ROM_HASHES
+            or "*" in CUSTOM_GBA_ROM_HASHES
+        ):
+            is_unsupported = True
+        else:
+            raise InvalidROMError("ROM not supported.")
 
     handle.seek(0xA0)
     game_title = handle.read(12).decode("ascii")
@@ -230,9 +248,10 @@ def _load_gba_rom(file: Path, handle: BinaryIO) -> ROM:
     handle.seek(0xBC)
     revision = int.from_bytes(handle.read(1), byteorder="little")
 
-    game_name = game_title
-    if game_title in GBA_GAME_NAME_MAP:
-        game_name = GBA_GAME_NAME_MAP[game_title]
+    if game_title not in GBA_GAME_NAME_MAP:
+        raise InvalidROMError(f"Unsupported game: {game_title}")
+    else:
+        game_name = GBA_GAME_NAME_MAP[game_title] if not is_unsupported else f"Unsupported {game_title[8:]}"
 
     game_name += f" ({game_code[3]})"
     if revision > 0:
@@ -279,7 +298,7 @@ def load_rom_data(file: Path) -> ROM:
         # GB(C) ROMs contain the Nintendo logo, which starts with 0xCEED6666
         handle.seek(0x104)
         gb_magic_string = handle.read(4)
-        if gb_magic_string == b"\xCE\xED\x66\x66":
+        if gb_magic_string == b"\xce\xed\x66\x66":
             rom_cache[str(file)] = _load_gb_rom(file, handle)
             return rom_cache[str(file)]
 

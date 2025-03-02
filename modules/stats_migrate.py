@@ -1023,10 +1023,10 @@ def _create_pokemon_data(
         personality_value.to_bytes(length=4, byteorder="little")
         + ot_trainer_id.to_bytes(length=2, byteorder="little")
         + ot_secret_id.to_bytes(length=2, byteorder="little")
-        + encode_string(species.name.upper()).ljust(10, b"\xFF")
+        + encode_string(species.name.upper()).ljust(10, b"\xff")
         + origin_language.to_bytes(length=1, byteorder="little")
         + b"\x01"
-        + encode_string(get_player().name).ljust(7, b"\xFF")
+        + encode_string(get_player().name).ljust(7, b"\xff")
         + b"\x00"
         + (sum(struct.unpack("<24H", data_to_encrypt)) & 0xFFFF).to_bytes(length=2, byteorder="little")
         + b"\x00\x00"

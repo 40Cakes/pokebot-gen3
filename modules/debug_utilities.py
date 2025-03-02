@@ -225,7 +225,7 @@ def debug_create_pokemon(
             + (b"\x00" * 10)
             + pack_uint8(language)
             + (b"\x06" if is_egg else b"\x02")
-            + encode_string(player.name).ljust(7, b"\xFF")
+            + encode_string(player.name).ljust(7, b"\xff")
             + (b"\x00" * 73)
         )
 
@@ -344,7 +344,7 @@ def debug_create_pokemon(
     data = (
         pack_uint32(personality_value)
         + original_pokemon.data[4:8]
-        + encoded_nickname.ljust(10, b"\xFF")
+        + encoded_nickname.ljust(10, b"\xff")
         + original_pokemon.data[18:19]
         + (b"\x06" if is_egg else b"\x02")
         + original_pokemon.data[20:28]
@@ -707,7 +707,7 @@ def debug_write_pokedex(seen_species: list[Species], owned_species: list[Species
     write_to_save_block(owned_data + seen_data, 2, offset=0x28)
 
     if needs_national_dex:
-        write_to_save_block(b"\xDA", 2, offset=0x1A)
+        write_to_save_block(b"\xda", 2, offset=0x1A)
 
     if get_species_by_name("Unown") in seen_species:
         unown_personality = unpack_uint32(get_save_block(2, offset=0x1C, size=4))
