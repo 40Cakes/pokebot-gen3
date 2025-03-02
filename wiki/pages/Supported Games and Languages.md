@@ -17,12 +17,7 @@ The following legend will be under a table of supported/tested games on many pag
 
 ROM hacks will likely not work, and are 🚫 **not supported** or planned to be supported! Please do not seek support or complain if you find that your ROM hack does not work with the bot.
 
-The ROMs in the `roms/` folder are checked and verified against a list of all known official gen3 game hashes. If you **really** want to test a ROM hack with the bot, you must add the SHA1 hash of the ROM to [`modules/roms.py`](https://github.com/40Cakes/pokebot-gen3/blob/main/modules/roms.py).
-
-The SHA1 hash of a ROM can be calculated with any of the following methods:
-- [ROM Hasher](https://www.romhacking.net/utilities/1002/)
-- Windows Powershell: `Get-FileHash 'rom_name.gba' -Algorithm SHA1`
-- Linux: `sha1sum 'rom_name.gba'`
+The ROMs in the `roms/` folder are checked and verified against a list of all known official gen3 game hashes. If you **really** want to test a ROM hack with the bot, follow the instructions on [this page](Using%20Unsupported%20ROMs.md).
 
 List of ROM hashes that the bot will accept:
 
