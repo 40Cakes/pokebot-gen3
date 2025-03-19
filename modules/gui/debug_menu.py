@@ -176,26 +176,19 @@ class ForceShinyEncounterListener(BotListener):
             ot = opponent.original_trainer
             if ot.id == player.trainer_id and ot.secret_id == player.secret_id and not opponent.is_shiny:
                 new_opponent = debug_create_pokemon(
+                    species=opponent.species,
+                    level=opponent.level,
                     original_pokemon=opponent,
                     is_egg=False,
                     is_shiny=True,
                     gender=opponent.gender,
-                    species=opponent.species,
                     nickname="CHEAT",
-                    level=opponent.level,
                     held_item=opponent.held_item,
                     has_second_ability=opponent.ability is not opponent.species.abilities[0],
                     nature=opponent.nature,
                     experience=opponent.total_exp,
                     friendship=opponent.friendship,
-                    moves=[
-                        {
-                            "id": move.move.index if move is not None else 0,
-                            "remaining_pp": move.pp if move is not None else 0,
-                            "pp_ups": move.pp_ups if move is not None else 0,
-                        }
-                        for move in opponent.moves
-                    ],
+                    moves=[move for move in opponent.moves if move is not None],
                     ivs=opponent.ivs,
                     evs=opponent.evs,
                     current_hp=opponent.current_hp,

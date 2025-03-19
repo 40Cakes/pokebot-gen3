@@ -542,11 +542,11 @@ class BattlePokemon:
 
     @property
     def is_egg(self) -> bool:
-        return bool(self._data[0x17] & 1)
+        return bool(self._data[0x17] & 0b0100_0000)
 
     @property
     def ability(self) -> Ability:
-        if len(self.species.abilities) > 1 and self._data[0x17] & 0b10:
+        if len(self.species.abilities) > 1 and self._data[0x17] & 0b1000_0000:
             return self.species.abilities[1]
         else:
             return self.species.abilities[0]

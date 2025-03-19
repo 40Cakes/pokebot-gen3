@@ -281,7 +281,7 @@ class EmulatorControls:
         version_label = ttk.Label(
             group,
             text=f"{context.rom.short_game_name} - {pokebot_name} {pokebot_version}",
-            foreground="grey",
+            foreground="grey" if not context.rom.game_name.startswith("Unsupported") else "red",
             font=tkinter.font.Font(size=9),
         )
 

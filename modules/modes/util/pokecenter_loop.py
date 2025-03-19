@@ -2,6 +2,7 @@ from collections.abc import Callable
 from typing import Optional
 
 from modules.battle_strategies import BattleStrategy, DefaultBattleStrategy
+from modules.context import context
 from modules.encounter import handle_encounter
 from modules.map import get_map_data_for_current_position, get_effective_encounter_rates_for_current_map
 from modules.map_data import MapFRLG, get_map_enum
@@ -23,10 +24,26 @@ class PokecenterLoopController:
         return self.battle_strategy() if action is BattleAction.Fight else action
 
     def on_battle_ended(self) -> None:
-        if not self.battle_strategy().party_can_battle():
-            self._needs_healing = True
-        elif self._focus_on_lead_pokemon and not self.battle_strategy().pokemon_can_battle(get_party().non_eggs[0]):
-            self._needs_healing = True
+        lead_pokemon = get_party().non_eggs[0]
+        if not self.battle_strategy().pokemon_can_battle(lead_pokemon):
+            # Generally, if the lead Pokémon cannot battle (out of PP or fainted) we want to go and
+            # heal, even in Level-balancing mode (because in that case the weakest Pokémon should
+            # always be the lead Pokémon.)
+            #
+            # But there's one exception: If the lead Pokémon is out of PP but does not even know any
+            # damaging moves (think Magikarp, Abra, ...) but the party as a whole still has some
+            # capable Pokémon, we do NOT want to heal because the strategy is to immediately switch
+            # in the strongest Pokémon immediately to allow the weak Pokémon to gain at least some
+            # PP.
+            lead_knows_damaging_moves = any(
+                [learned_move.move.base_power for learned_move in lead_pokemon.moves if learned_move is not None]
+            )
+            if (
+                lead_pokemon.current_hp <= 0
+                or lead_knows_damaging_moves
+                or not self.battle_strategy().party_can_battle()
+            ):
+                self._needs_healing = True
 
     def on_whiteout(self) -> bool:
         self._leave_pokemon_center = True
@@ -62,12 +79,13 @@ class PokecenterLoopController:
             if self._leave_pokemon_center:
                 # This will run after a whiteout when the player respawns
                 # inside the Pokémon Center.
-                current_map = get_player_location()[0]
-                if current_map is MapFRLG.PALLET_TOWN_PLAYERS_HOUSE_1F:
-                    door_coordinates = (4, 8)
-                else:
-                    door_coordinates = (7, 8)
-                yield from navigate_to(current_map, door_coordinates)
+                if context.rom.is_frlg:
+                    current_map = get_player_location()[0]
+                    if current_map is MapFRLG.PALLET_TOWN_PLAYERS_HOUSE_1F:
+                        door_coordinates = (4, 8)
+                    else:
+                        door_coordinates = (7, 8)
+                    yield from navigate_to(current_map, door_coordinates)
             elif self._needs_healing:
                 yield from heal_in_pokemon_center(pokemon_center)
 

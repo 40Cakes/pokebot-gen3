@@ -317,6 +317,14 @@ HandlePartyMenuSwitchPokemonInput:
   F: 0x806cfa4
   I: 0x806cec8
   S: 0x806cfb0
+SUB_808A060:
+  F: 0x808a59c
+  I: 0x808a454
+  S: 0x808a53c
+Task_PartyMenuPrintRun:
+  F: 0x806ecb4
+  I: 0x806ebd8
+  S: 0x806ecc0
 #----------------#
 
 #-------------------#

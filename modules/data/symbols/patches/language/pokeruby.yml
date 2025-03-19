@@ -194,6 +194,8 @@ Task_HandleMultichoiceInput:
   J: 0x80b0928
 SUB_8096B38:
   J: 0x809363c
+gPokemonStorage:
+  J: 0x202fdbc
 #-------------------------#
 
 #--------------#
@@ -252,6 +254,10 @@ sPokeMenuOptionsNo:
   J: 0x202fcc5
 sPokeMenuOptionsOrder:
   J: 0x202fcc6
+SUB_808A060:
+  J: 0x8086ea8
+Task_PartyMenuPrintRun:
+  J: 0x806bb8c
 #----------------#
 
 #-------------------#

@@ -31,6 +31,8 @@ from modules.pokemon import (
     Pokemon,
     Species,
     Nature,
+    Move,
+    LearnedMove,
     StatsValues,
     StatusCondition,
     POKEMON_DATA_SUBSTRUCTS_ORDER,
@@ -39,6 +41,7 @@ from modules.pokemon import (
     get_move_by_name,
     get_nature_by_name,
     get_species_by_national_dex,
+    LearnedMove,
 )
 from modules.pokemon_party import get_party
 from modules.roms import ROMLanguage
@@ -106,23 +109,23 @@ def import_flags_and_vars(file_path: Path) -> int:
 
 
 def debug_create_pokemon(
-    original_pokemon: Pokemon | None,
-    is_egg: bool,
-    is_shiny: bool,
-    gender: Literal["male", "female"] | None,
     species: Species,
-    nickname: str,
     level: int,
-    held_item: Item | None,
-    has_second_ability: bool,
-    nature: Nature,
-    experience: int,
-    friendship: int,
-    moves: list[dict],
-    ivs: StatsValues,
-    evs: StatsValues,
-    current_hp: int,
-    status_condition: StatusCondition,
+    original_pokemon: Pokemon | None = None,
+    is_egg: bool = False,
+    is_shiny: bool = False,
+    gender: Literal["male", "female"] | None = None,
+    nickname: str = "",
+    held_item: Item | None = None,
+    has_second_ability: bool = False,
+    nature: Nature | None = None,
+    experience: int | None = None,
+    friendship: int = 70,
+    moves: list[LearnedMove] | None = None,
+    ivs: StatsValues | None = None,
+    evs: StatsValues | None = None,
+    current_hp: int | None = None,
+    status_condition: StatusCondition = StatusCondition.Healthy,
 ) -> Pokemon:
     """
     Generates a Pokémon data block given a set of criteria.
@@ -138,6 +141,44 @@ def debug_create_pokemon(
     if some chosen criteria (such as gender, shininess or nature) do not match it,
     a new one will be generated.
     """
+    if ivs is None:
+        ivs = StatsValues(15, 15, 15, 15, 15, 15) if original_pokemon is None else original_pokemon.ivs
+
+    if evs is None:
+        evs = StatsValues(0, 0, 0, 0, 0, 0) if original_pokemon is None else original_pokemon.evs
+
+    if gender is None and species.gender_ratio != 255:
+        if original_pokemon is None:
+            gender = "male" if species.gender_ratio <= 127 else "female"
+        else:
+            gender = original_pokemon.gender
+
+    if nature is None:
+        nature = get_nature_by_index(0) if original_pokemon is None else original_pokemon.nature
+
+    if level == 100:
+        experience = species.level_up_type.get_experience_needed_for_level(100)
+    elif experience is None:
+        experience = (
+            species.level_up_type.get_experience_needed_for_level(level)
+            if original_pokemon is None
+            else original_pokemon.total_exp
+        )
+    else:
+        min_exp = species.level_up_type.get_experience_needed_for_level(level)
+        max_exp = species.level_up_type.get_experience_needed_for_level(level + 1) - 1
+        experience = max(min_exp, min(max_exp, experience))
+
+    if moves is None:
+        potential_moves: list[Move] = [entry.move for entry in species.learnset.level_up if entry.level <= level]
+        moves = [LearnedMove.create(move) for move in potential_moves[-4:]]
+    moves = moves[:4]
+
+    max_hp = StatsValues.calculate(species, ivs, evs, nature, level).hp
+    if current_hp is None:
+        current_hp = max_hp if original_pokemon is None else original_pokemon.current_hp
+    current_hp = min(current_hp, max_hp)
+
     iv_egg_ability = (
         ivs.hp
         | (ivs.attack << 5)
@@ -146,13 +187,16 @@ def debug_create_pokemon(
         | (ivs.special_attack << 20)
         | (ivs.special_defence << 25)
     )
-    if has_second_ability:
+    if has_second_ability and len(species.abilities) > 1:
         iv_egg_ability |= 1 << 31
     if is_egg:
         iv_egg_ability |= 1 << 30
 
     pp_bonuses = (
-        (moves[0]["pp_ups"] << 6) | (moves[1]["pp_ups"] << 4) | (moves[2]["pp_ups"] << 2) | (moves[3]["pp_ups"] << 0)
+        ((moves[0].pp_ups if len(moves) > 0 else 0) << 6)
+        | ((moves[1].pp_ups if len(moves) > 1 else 0) << 4)
+        | ((moves[2].pp_ups if len(moves) > 2 else 0) << 2)
+        | ((moves[3].pp_ups if len(moves) > 3 else 0) << 0)
     )
 
     if original_pokemon is None or original_pokemon.is_empty:
@@ -181,7 +225,7 @@ def debug_create_pokemon(
             + (b"\x00" * 10)
             + pack_uint8(language)
             + (b"\x06" if is_egg else b"\x02")
-            + encode_string(player.name).ljust(7, b"\xFF")
+            + encode_string(player.name).ljust(7, b"\xff")
             + (b"\x00" * 73)
         )
 
@@ -208,8 +252,8 @@ def debug_create_pokemon(
                 # OT gender
                 bool(player.gender == "female") << 15
                 |
-                # Ball (12 = Premier Ball)
-                (12 << 11)
+                # Ball
+                (get_item_by_name("Premier Ball").index << 11)
                 |
                 # Game of Origin
                 (game_number << 7)
@@ -234,14 +278,14 @@ def debug_create_pokemon(
         + pack_uint8(pp_bonuses)
         + pack_uint8(friendship)
         + decrypted_data[42:44]
-        + pack_uint16(moves[0]["id"])
-        + pack_uint16(moves[1]["id"])
-        + pack_uint16(moves[2]["id"])
-        + pack_uint16(moves[3]["id"])
-        + pack_uint8(moves[0]["remaining_pp"])
-        + pack_uint8(moves[1]["remaining_pp"])
-        + pack_uint8(moves[2]["remaining_pp"])
-        + pack_uint8(moves[3]["remaining_pp"])
+        + pack_uint16(moves[0].move.index if len(moves) > 0 else 0)
+        + pack_uint16(moves[1].move.index if len(moves) > 1 else 0)
+        + pack_uint16(moves[2].move.index if len(moves) > 2 else 0)
+        + pack_uint16(moves[3].move.index if len(moves) > 3 else 0)
+        + pack_uint8(moves[0].pp if len(moves) > 0 else 0)
+        + pack_uint8(moves[1].pp if len(moves) > 1 else 0)
+        + pack_uint8(moves[2].pp if len(moves) > 2 else 0)
+        + pack_uint8(moves[3].pp if len(moves) > 3 else 0)
         + pack_uint8(evs.hp)
         + pack_uint8(evs.attack)
         + pack_uint8(evs.defence)
@@ -300,7 +344,7 @@ def debug_create_pokemon(
     data = (
         pack_uint32(personality_value)
         + original_pokemon.data[4:8]
-        + encoded_nickname.ljust(10, b"\xFF")
+        + encoded_nickname.ljust(10, b"\xff")
         + original_pokemon.data[18:19]
         + (b"\x06" if is_egg else b"\x02")
         + original_pokemon.data[20:28]
@@ -493,100 +537,67 @@ def debug_give_test_item_pack(rse_bicycle: Literal["Acro Bike", "Mach Bike"] = "
 def debug_get_test_party() -> list[Pokemon]:
     return [
         debug_create_pokemon(
-            original_pokemon=None,
-            is_egg=False,
-            is_shiny=True,
-            gender=None,
             species=get_species_by_name("Mewtwo"),
+            level=100,
+            is_shiny=True,
             nickname="Hulk",
-            level=100,
             held_item=get_item_by_name("Leftovers"),
-            has_second_ability=False,
             nature=get_nature_by_name("Mild"),
-            experience=1250000,
             friendship=255,
             moves=[
-                {"id": get_move_by_name("Ice Beam").index, "remaining_pp": 16, "pp_ups": 3},
-                {"id": get_move_by_name("Thunderbolt").index, "remaining_pp": 24, "pp_ups": 3},
-                {"id": get_move_by_name("Psychic").index, "remaining_pp": 16, "pp_ups": 3},
-                {"id": get_move_by_name("Fire Blast").index, "remaining_pp": 8, "pp_ups": 3},
+                LearnedMove.create(get_move_by_name("Ice Beam"), pp_ups=3),
+                LearnedMove.create(get_move_by_name("Thunderbolt"), pp_ups=3),
+                LearnedMove.create(get_move_by_name("Psychic"), pp_ups=3),
+                LearnedMove.create(get_move_by_name("Fire Blast"), pp_ups=3),
             ],
             ivs=StatsValues(31, 31, 31, 31, 31, 31),
             evs=StatsValues(255, 255, 255, 255, 255, 255),
-            current_hp=416,
-            status_condition=StatusCondition.Healthy,
         ),
         debug_create_pokemon(
-            original_pokemon=None,
-            is_egg=False,
-            is_shiny=False,
-            gender=None,
             species=get_species_by_name("Lotad"),
-            nickname="C",
             level=100,
+            nickname="C",
             held_item=get_item_by_name("Lum Berry"),
-            has_second_ability=False,
             nature=get_nature_by_name("Jolly"),
-            experience=1059860,
             friendship=255,
             moves=[
-                {"id": get_move_by_name("False Swipe").index, "remaining_pp": 64, "pp_ups": 3},
-                {"id": get_move_by_name("Spore").index, "remaining_pp": 24, "pp_ups": 3},
-                {"id": get_move_by_name("Foresight").index, "remaining_pp": 64, "pp_ups": 3},
-                {"id": get_move_by_name("Sweet Scent").index, "remaining_pp": 32, "pp_ups": 3},
+                LearnedMove.create(get_move_by_name("False Swipe"), pp_ups=3),
+                LearnedMove.create(get_move_by_name("Spore"), pp_ups=3),
+                LearnedMove.create(get_move_by_name("Foresight"), pp_ups=3),
+                LearnedMove.create(get_move_by_name("Sweet Scent"), pp_ups=3),
             ],
             ivs=StatsValues(31, 31, 31, 31, 31, 31),
             evs=StatsValues(255, 255, 255, 255, 255, 255),
-            current_hp=284,
-            status_condition=StatusCondition.Healthy,
         ),
         debug_create_pokemon(
-            original_pokemon=None,
-            is_egg=False,
-            is_shiny=False,
-            gender="female",
             species=get_species_by_name("Magikarp"),
-            nickname="Fly",
             level=100,
-            held_item=None,
-            has_second_ability=False,
-            nature=get_nature_by_index(0),
-            experience=1250000,
+            gender="female",
+            nickname="Fly",
             friendship=255,
             moves=[
-                {"id": get_move_by_name("Fly").index, "remaining_pp": 15, "pp_ups": 0},
-                {"id": get_move_by_name("Strength").index, "remaining_pp": 15, "pp_ups": 0},
-                {"id": get_move_by_name("Rock Smash").index, "remaining_pp": 15, "pp_ups": 0},
-                {"id": get_move_by_name("Flash").index, "remaining_pp": 20, "pp_ups": 0},
+                LearnedMove.create(get_move_by_name("Fly")),
+                LearnedMove.create(get_move_by_name("Strength")),
+                LearnedMove.create(get_move_by_name("Rock Smash")),
+                LearnedMove.create(get_move_by_name("Flash")),
             ],
             ivs=StatsValues(0, 0, 0, 0, 0, 0),
             evs=StatsValues(0, 0, 0, 0, 0, 0),
-            current_hp=150,
-            status_condition=StatusCondition.Healthy,
         ),
         debug_create_pokemon(
-            original_pokemon=None,
-            is_egg=False,
-            is_shiny=False,
-            gender="male",
             species=get_species_by_name("Chimecho"),
-            nickname="Swim",
             level=100,
-            held_item=None,
-            has_second_ability=False,
-            nature=get_nature_by_index(0),
-            experience=800000,
+            gender="male",
+            nickname="Swim",
             friendship=255,
             moves=[
-                {"id": get_move_by_name("Cut").index, "remaining_pp": 30, "pp_ups": 0},
-                {"id": get_move_by_name("Surf").index, "remaining_pp": 15, "pp_ups": 0},
-                {"id": get_move_by_name("Waterfall").index, "remaining_pp": 15, "pp_ups": 0},
-                {"id": get_move_by_name("Dive").index, "remaining_pp": 10, "pp_ups": 0},
+                LearnedMove.create(get_move_by_name("Cut")),
+                LearnedMove.create(get_move_by_name("Surf")),
+                LearnedMove.create(get_move_by_name("Waterfall")),
+                LearnedMove.create(get_move_by_name("Dive")),
             ],
             ivs=StatsValues(0, 0, 0, 0, 0, 0),
             evs=StatsValues(0, 0, 0, 0, 0, 0),
-            current_hp=240,
-            status_condition=StatusCondition.Healthy,
         ),
     ]
 
@@ -628,28 +639,16 @@ def debug_give_fainted_first_slot_pokemon_with_special_ability(ability: str) -> 
     debug_write_party(
         [
             debug_create_pokemon(
-                original_pokemon=None,
-                is_egg=False,
-                is_shiny=False,
-                gender="male",
                 species=species,
-                nickname="Ability",
                 level=1,
-                held_item=None,
+                nickname="Ability",
                 has_second_ability=species.abilities[0].name != ability,
-                nature=get_nature_by_index(0),
-                experience=1,
-                friendship=0,
                 moves=[
-                    {"id": get_move_by_name("Explosion").index, "remaining_pp": 5, "pp_ups": 0},
-                    {"id": get_move_by_name("Selfdestruct").index, "remaining_pp": 5, "pp_ups": 0},
-                    {"id": get_move_by_name("Memento").index, "remaining_pp": 10, "pp_ups": 0},
-                    {"id": 0, "remaining_pp": 0, "pp_ups": 0},
+                    LearnedMove.create(get_move_by_name("Explosion")),
+                    LearnedMove.create(get_move_by_name("Selfdestruct")),
+                    LearnedMove.create(get_move_by_name("Memento")),
                 ],
-                ivs=StatsValues(0, 0, 0, 0, 0, 0),
-                evs=StatsValues(0, 0, 0, 0, 0, 0),
                 current_hp=0,
-                status_condition=StatusCondition.Healthy,
             ),
             *remaining_party,
         ]
@@ -708,7 +707,7 @@ def debug_write_pokedex(seen_species: list[Species], owned_species: list[Species
     write_to_save_block(owned_data + seen_data, 2, offset=0x28)
 
     if needs_national_dex:
-        write_to_save_block(b"\xDA", 2, offset=0x1A)
+        write_to_save_block(b"\xda", 2, offset=0x1A)
 
     if get_species_by_name("Unown") in seen_species:
         unown_personality = unpack_uint32(get_save_block(2, offset=0x1C, size=4))

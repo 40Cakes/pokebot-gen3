@@ -84,7 +84,7 @@ _closest_pokemon_centers: dict[MapFRLG | MapRSE, list[PokemonCenter]] = {
 
 
 def find_closest_pokemon_center(
-    location: MapLocation | tuple[MapFRLG | MapRSE, tuple[int, int]] | None = None
+    location: MapLocation | tuple[MapFRLG | MapRSE, tuple[int, int]] | None = None,
 ) -> PokemonCenter:
     if isinstance(location, MapLocation):
         training_spot_map = location.map_group_and_number
