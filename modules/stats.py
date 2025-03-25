@@ -731,7 +731,7 @@ class StatsDatabase:
         )
 
     def get_encounter_log(self) -> list[Encounter]:
-        return list(self._query_encounters())
+        return list(self.query_encounters())
 
     def get_shiny_phase_by_shiny(self, shiny_pokemon: Pokemon) -> ShinyPhase | None:
         return self._query_single_shiny_phase("encounters.personality_value = ?", (shiny_pokemon.personality_value,))
@@ -739,7 +739,7 @@ class StatsDatabase:
     def get_shiny_log(self) -> list[ShinyPhase]:
         return list(self._query_shiny_phases("end_time IS NOT NULL ORDER BY end_time DESC"))
 
-    def _query_encounters(
+    def query_encounters(
         self,
         where_clause: str | None = None,
         parameters: tuple | list | None = None,
@@ -772,6 +772,18 @@ class StatsDatabase:
         )
         for row in result:
             yield Encounter.from_row_data(row)
+
+    def count_encounters(self, where_clause: str | None = None, parameters: tuple | list | None = None) -> int:
+        result = self._cursor.execute(
+            f"""
+            SELECT COUNT(*)
+            FROM encounters
+            {f'WHERE {where_clause}' if where_clause is not None else ''}
+            """,
+            [] if parameters is None else parameters,
+        )
+
+        return int(result.fetchone()[0])
 
     def _update_encounter_rates(self) -> None:
         self._encounter_timestamps.append(time.time())
@@ -962,7 +974,7 @@ class StatsDatabase:
         return data_list
 
     def _get_last_encounter(self) -> Encounter | None:
-        result = list(self._query_encounters(limit=1))
+        result = list(self.query_encounters(limit=1))
         if len(result) == 0:
             return None
         else:
@@ -1172,7 +1184,7 @@ class StatsDatabase:
             self._update_shiny_phase,
             self._insert_or_update_encounter_summary,
             self._get_encounter_summaries,
-            self._query_encounters,
+            self.query_encounters,
             self._query_shiny_phases,
             self._cursor.execute,
             self._connection.commit,
