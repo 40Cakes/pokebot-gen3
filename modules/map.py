@@ -2087,22 +2087,24 @@ def _get_ability_repel_rate_and_species_map(
             )
         return _calculate_repel_rate_and_species_map(new_encounters, repel_level)
 
-    elif lead_pokemon.ability.name in ("Static", "Magnet Pull"):
+    elif lead_pokemon.ability.name in ("Static", "Magnet Pull") and encounter_type in ("land", "surf"):
         # For Static and Magnet Pull, we rewrite the WildEncounter list with just the type we're matching.  The
         # encounter_rate is set to 1, since all new slots are equally weighted, and the helper function will normalize
         # the rates so we don't have to worry about our comparison with the base rates.
-        if lead_pokemon.ability.name == "Static" and encounter_type in ("land", "surf"):
+        boosted_type = None
+        if lead_pokemon.ability.name == "Static":
             boosted_type = get_type_by_name("Electric")
-        if lead_pokemon.ability.name == "Magnet Pull" and encounter_type in ("land"):
+        elif lead_pokemon.ability.name == "Magnet Pull" and encounter_type == "land":
             boosted_type = get_type_by_name("Steel")
-        new_encounters = list()
-        for encounter in encounters:
-            if encounter.species.has_type(boosted_type):
-                new_encounters.append(WildEncounter(encounter.species, encounter.min_level, encounter.max_level, 1))
-        if len(new_encounters) > 0:
-            paths = 2
-            return _calculate_repel_rate_and_species_map(new_encounters, repel_level)
 
+        if boosted_type:
+            new_encounters = [
+                WildEncounter(enc.species, enc.min_level, enc.max_level, 1)
+                for enc in encounters
+                if enc.species.has_type(boosted_type)
+            ]
+            if new_encounters:
+                return _calculate_repel_rate_and_species_map(new_encounters, repel_level)
     return 1, {}
 
 
