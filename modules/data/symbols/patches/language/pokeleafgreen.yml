@@ -320,7 +320,7 @@ gSpecialVar_0x8004:
 
 Task_Fanfare:
   D: 0x8071c20
-  F: 0x8079d44
+  F: 0x8071ce0
   I: 0x8071c0c
   J: 0x8071460
   S: 0x8071cf4
