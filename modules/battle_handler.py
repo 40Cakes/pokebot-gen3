@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Generator, TYPE_CHECKING
 
 from modules.battle_action_selection import handle_battle_action_selection
 from modules.battle_evolution_scene import handle_evolution_scene
@@ -13,14 +13,15 @@ from modules.battle_state import (
 from modules.battle_strategies import BattleStrategy
 from modules.context import context
 from modules.debug import debug
-from modules.keyboard import get_naming_screen_data, type_in_naming_screen
+from modules.keyboard import handle_naming_screen
 from modules.memory import get_game_state, GameState
 from modules.menuing import scroll_to_party_menu_index
 from modules.plugins import plugin_should_nickname_pokemon
-from modules.pokemon import get_opponent
-from modules.pokemon_nicknaming import max_pokemon_name_length
 from modules.pokemon_party import get_party, get_party_size
 from modules.tasks import task_is_active
+
+if TYPE_CHECKING:
+    from modules.encounter import EncounterInfo
 
 
 @debug.track
@@ -47,7 +48,7 @@ def handle_battle(strategy: BattleStrategy) -> Generator:
         ):
             yield from handle_fainted_pokemon(strategy)
         elif instruction in ("BattleScript_TryNicknameCaughtMon", "BattleScript_CaughtPokemonSkipNewDex"):
-            yield from handle_nickname_caught_pokemon()
+            yield from handle_nickname_caught_pokemon(context.stats.last_encounter)
         else:
             context.emulator.press_button("B")
             yield
@@ -147,21 +148,10 @@ def handle_fainted_pokemon(strategy: BattleStrategy):
 
 
 @debug.track
-def handle_nickname_caught_pokemon():
-    nickname_choice = plugin_should_nickname_pokemon(get_opponent())
+def handle_nickname_caught_pokemon(encounter: "EncounterInfo"):
+    nickname_choice = plugin_should_nickname_pokemon(encounter)
     if nickname_choice:
-        # Wait for the naming dialogue to appear (i.e. skip the 'Do you want to give a nickname
-        # to X' dialogue.)
-        while get_game_state() != GameState.NAMING_SCREEN:
-            context.emulator.press_button("A")
-            yield
-
-        # Wait for the keyboard to become usable (skips the fade-in of the naming menu)
-        while get_naming_screen_data() is None:
-            yield
-
-        # Enter the name.
-        yield from type_in_naming_screen(nickname_choice, max_pokemon_name_length())
+        yield from handle_naming_screen(nickname_choice)
 
     # Skip the nicknaming dialogue.
     while get_current_battle_script_instruction() in (

@@ -172,12 +172,12 @@ class BotPlugin:
         """
         return False
 
-    def on_should_nickname_pokemon(self, pokemon: "Pokemon") -> str | None:
+    def on_should_nickname_pokemon(self, encounter: "EncounterInfo") -> str | None:
         """
         This is called when the player is asked whether to give a nickname to a newly
         acquired Pokémon.
 
-        :param pokemon: The newly received Pokémon.
+        :param encounter: The newly received Pokémon.
         :return: The nickname (max. 10 characters) to give to the Pokémon, or `None` to
                  not give a nickname.
         """

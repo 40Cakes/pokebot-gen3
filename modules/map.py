@@ -1467,6 +1467,21 @@ class ObjectEvent:
                 return "Left"
             case 4:
                 return "Right"
+        return "???"
+
+    @property
+    def facing_coordinates(self) -> tuple[int, int]:
+        x, y = self.current_coords
+        match self.facing_direction:
+            case "Down":
+                return x, y + 1
+            case "Up":
+                return x, y - 1
+            case "Left":
+                return x - 1, y
+            case "Right":
+                return x + 1, y
+        return x, y + 1
 
     @property
     def movement_direction(self) -> str:
@@ -1480,6 +1495,7 @@ class ObjectEvent:
                 return "Left"
             case 4:
                 return "Right"
+        return "???"
 
     @property
     def range_x(self) -> int:
