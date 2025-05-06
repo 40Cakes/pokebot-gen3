@@ -34,6 +34,7 @@ class DataSubscription(IntFlag):
     Map = auto()
     MapTile = auto()
     MapEncounters = auto()
+    PokenavCall = auto()
     BotMode = auto()
     Message = auto()
     EmulatorSettings = auto()
@@ -175,6 +176,9 @@ def run_watcher():
         "map_group_and_number": map_group_and_number,
         "map_local_coordinates": map_local_coordinates,
         "map_encounters": state_cache.effective_wild_encounters.frame,
+        "pokenav_calls": (
+            context.stats.current_shiny_phase.pokenav_calls if context.stats.current_shiny_phase is not None else 0
+        ),
         "game_state": get_game_state(),
     }
     previous_emulator_state = {
@@ -316,6 +320,17 @@ def run_watcher():
                 encounters = state_cache.effective_wild_encounters.value
                 previous_game_state["map_encounters"] = state_cache.effective_wild_encounters.frame
                 send_message(DataSubscription.MapEncounters, data=encounters.to_dict(), event_type="MapEncounters")
+
+        if subscriptions["PokenavCall"] > 0:
+            if (
+                context.stats.current_shiny_phase is not None
+                and previous_game_state["pokenav_calls"] != context.stats.current_shiny_phase.pokenav_calls
+            ):
+                if previous_game_state["pokenav_calls"] < context.stats.current_shiny_phase.pokenav_calls:
+                    # Only report a Pokénav call if the number has increased. It will 'decrease' (reset
+                    # to 0) when the shiny phase ends.
+                    send_message(DataSubscription.PokenavCall, data=None, event_type="PokenavCall")
+                previous_game_state["pokenav_calls"] = context.stats.current_shiny_phase.pokenav_calls
 
         if subscriptions["BotMode"] > 0 and context.bot_mode != previous_emulator_state["bot_mode"]:
             previous_emulator_state["bot_mode"] = context.bot_mode

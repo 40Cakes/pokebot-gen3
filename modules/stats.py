@@ -4,10 +4,9 @@ import time
 from collections import deque
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from enum import Enum
 from functools import cached_property
 from textwrap import dedent
-from typing import TYPE_CHECKING, Iterable, Optional, Never
+from typing import TYPE_CHECKING, Iterable, Optional
 
 from modules.battle_state import BattleOutcome, EncounterType
 from modules.console import console
@@ -21,20 +20,15 @@ if TYPE_CHECKING:
     from modules.profiles import Profile
 
 
-current_schema_version = 1
+current_schema_version = 2
 
 
 class StatsDatabaseSchemaTooNew(Exception):
     pass
 
 
-class DataKey(Enum):
-    TrainerID = 1
-    SecretTrainerID = 2
-
-
 class BaseData:
-    key: DataKey
+    key: str
     value: str | None
 
 
@@ -201,6 +195,7 @@ class ShinyPhase:
     successful_fishing_attempts: int = 0
     longest_unsuccessful_fishing_streak: int = 0
     current_unsuccessful_fishing_streak: int = 0
+    pokenav_calls: int = 0
 
     snapshot_total_encounters: int | None = None
     snapshot_total_shiny_encounters: int | None = None
@@ -229,6 +224,7 @@ class ShinyPhase:
             row[22],
             row[23],
             row[24],
+            row[25],
         )
 
     @classmethod
@@ -297,6 +293,7 @@ class ShinyPhase:
                 "successful_fishing_attempts": self.successful_fishing_attempts,
                 "longest_unsuccessful_fishing_streak": self.longest_unsuccessful_fishing_streak,
                 "current_unsuccessful_fishing_streak": self.current_unsuccessful_fishing_streak,
+                "pokenav_calls": self.pokenav_calls,
             },
             "snapshot": {
                 "total_encounters": self.snapshot_total_encounters,
@@ -609,15 +606,16 @@ class StatsDatabase:
         self._next_encounter_id: int = self._get_next_encounter_id()
         self._encounter_summaries: dict[int, EncounterSummary] = self._get_encounter_summaries()
         self._pickup_items: dict[int, PickupItem] = self._get_pickup_items()
-        self._base_data: dict[DataKey, str | None] = self._get_base_data()
+        self._base_data: dict[str, str | None] = self._get_base_data()
 
         self._encounter_timestamps: deque[float] = deque(maxlen=100)
         self._encounter_frames: deque[int] = deque(maxlen=100)
 
-    def set_data(self, key: DataKey, value: str | None):
+    def set_data(self, key: str, value: str | None):
         self._execute_write("REPLACE INTO base_data (data_key, value) VALUES (?, ?)", (key.value, value))
+        self._commit()
 
-    def get_data(self, key: DataKey) -> str | None:
+    def get_data(self, key: str) -> str | None:
         return self._base_data[key] if key in self._base_data else None
 
     def log_encounter(self, encounter_info: "EncounterInfo") -> Encounter:
@@ -660,7 +658,7 @@ class StatsDatabase:
             self._encounter_summaries[species_index].update(encounter)
 
         self._insert_or_update_encounter_summary(self._encounter_summaries[species_index])
-        self._connection.commit()
+        self.commit()
         self._next_encounter_id += 1
 
         return encounter
@@ -693,7 +691,7 @@ class StatsDatabase:
             encounter_summary.phase_highest_sv = None
             encounter_summary.phase_lowest_sv = None
 
-        self._connection.commit()
+        self.commit()
 
     def log_end_of_battle(self, battle_outcome: "BattleOutcome", encounter_info: "EncounterInfo"):
         if self.last_encounter is not None:
@@ -702,6 +700,7 @@ class StatsDatabase:
             if self.last_encounter.species_id in self._encounter_summaries and encounter_info.is_of_interest:
                 self._encounter_summaries[self.last_encounter.species_id].update_outcome(battle_outcome)
                 self._insert_or_update_encounter_summary(self._encounter_summaries[self.last_encounter.species_id])
+            self._commit()
 
     def log_pickup_items(self, picked_up_items: list["Item"]) -> None:
         need_updating: set[int] = set()
@@ -712,6 +711,7 @@ class StatsDatabase:
             need_updating.add(item.index)
         for item_index in need_updating:
             self._insert_or_update_pickup_item(self._pickup_items[item_index])
+            self._commit()
 
     def log_fishing_attempt(self, attempt: FishingAttempt):
         self.last_fishing_attempt = attempt
@@ -719,7 +719,14 @@ class StatsDatabase:
             self.current_shiny_phase.update_fishing_attempt(attempt)
             if attempt.result is not FishingResult.Encounter:
                 self._update_shiny_phase(self.current_shiny_phase)
+                self._commit()
         context.message = f"Fishing attempt with {attempt.rod.name} and result {attempt.result.name}"
+
+    def log_pokenav_call(self):
+        if self.current_shiny_phase is not None:
+            self.current_shiny_phase.pokenav_calls += 1
+            self._update_shiny_phase(self.current_shiny_phase)
+            self._commit()
 
     def get_global_stats(self) -> GlobalStats:
         return GlobalStats(
@@ -860,6 +867,7 @@ class StatsDatabase:
                 shiny_phases.successful_fishing_attempts,
                 shiny_phases.longest_unsuccessful_fishing_streak,
                 shiny_phases.current_unsuccessful_fishing_streak,
+                shiny_phases.pokenav_calls,
                 shiny_phases.snapshot_total_encounters,
                 shiny_phases.snapshot_total_shiny_encounters,
                 shiny_phases.snapshot_species_encounters,
@@ -888,12 +896,12 @@ class StatsDatabase:
         )
 
         for row in result:
-            if row[25] is not None:
-                encounter = Encounter.from_row_data(row[25:])
+            if row[26] is not None:
+                encounter = Encounter.from_row_data(row[26:])
             else:
                 encounter = None
 
-            yield ShinyPhase.from_row_data(row[:25], encounter)
+            yield ShinyPhase.from_row_data(row[:26], encounter)
 
     def _query_single_shiny_phase(self, where_clause: str, parameters: tuple | None = None) -> ShinyPhase | None:
         result = list(self._query_shiny_phases(where_clause, parameters, limit=1))
@@ -966,11 +974,11 @@ class StatsDatabase:
             pickup_items[int(row[0])] = PickupItem(get_item_by_index(int(row[0])), int(row[2]))
         return pickup_items
 
-    def _get_base_data(self) -> dict[DataKey, str | None]:
+    def _get_base_data(self) -> dict[str, str | None]:
         data_list = {}
         result = self._cursor.execute("SELECT data_key, value FROM base_data ORDER BY data_key")
         for row in result:
-            data_list[DataKey(row[0])] = row[1]
+            data_list[row[0]] = row[1]
         return data_list
 
     def _get_last_encounter(self) -> Encounter | None:
@@ -1038,6 +1046,7 @@ class StatsDatabase:
                 successful_fishing_attempts = ?,
                 longest_unsuccessful_fishing_streak = ?,
                 current_unsuccessful_fishing_streak = ?,
+                pokenav_calls = ?,
                 snapshot_total_encounters = ?,
                 snapshot_total_shiny_encounters = ?,
                 snapshot_species_encounters = ?,
@@ -1062,6 +1071,7 @@ class StatsDatabase:
                 shiny_phase.successful_fishing_attempts,
                 shiny_phase.longest_unsuccessful_fishing_streak,
                 shiny_phase.current_unsuccessful_fishing_streak,
+                shiny_phase.pokenav_calls,
                 shiny_phase.snapshot_total_encounters,
                 shiny_phase.snapshot_total_shiny_encounters,
                 shiny_phase.snapshot_species_encounters,
@@ -1328,6 +1338,35 @@ class StatsDatabase:
                         item_id INT UNSIGNED PRIMARY KEY,
                         item_name TEXT NOT NULL,
                         times_picked_up INT NOT NULL DEFAULT 0
+                    )
+                    """
+                )
+            )
+
+        if from_schema_version <= 1:
+            self._execute_write(
+                dedent(
+                    """
+                    ALTER TABLE shiny_phases
+                        ADD pokenav_calls INT UNSIGNED DEFAULT 0
+                    """
+                )
+            )
+
+            self._execute_write(
+                dedent(
+                    """
+                    DROP TABLE base_data
+                    """
+                )
+            )
+
+            self._execute_write(
+                dedent(
+                    """
+                    CREATE TABLE base_data (
+                        data_key TEXT PRIMARY KEY,
+                        value TEXT DEFAULT NULL
                     )
                     """
                 )
