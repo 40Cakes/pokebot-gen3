@@ -143,9 +143,9 @@ def plugin_judge_encounter(pokemon: Pokemon) -> str | bool:
     return False
 
 
-def plugin_should_nickname_pokemon(pokemon: Pokemon) -> str | None:
+def plugin_should_nickname_pokemon(encounter: "EncounterInfo") -> str | None:
     for plugin in plugins:
-        nickname = plugin.on_should_nickname_pokemon(pokemon)
+        nickname = plugin.on_should_nickname_pokemon(encounter)
         if nickname:
             return nickname
 

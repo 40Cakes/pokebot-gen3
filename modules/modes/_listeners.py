@@ -28,6 +28,7 @@ from ..battle_strategies import DefaultBattleStrategy, BattleStrategy
 from ..battle_strategies.catch import CatchStrategy
 from ..battle_strategies.run_away import RunAwayStrategy
 from ..fishing import FishingAttempt, FishingRod, FishingResult
+from ..keyboard import handle_naming_screen
 from ..plugins import (
     plugin_battle_started,
     plugin_battle_ended,
@@ -35,6 +36,7 @@ from ..plugins import (
     plugin_egg_hatched,
     plugin_wild_encounter_visible,
     plugin_egg_starting_to_hatch,
+    plugin_should_nickname_pokemon,
 )
 from ..text_printer import get_text_printer, TextPrinterState
 
@@ -388,7 +390,16 @@ class EggHatchListener(BotListener):
     @debug.track
     def handle_hatching_egg(self):
         yield from plugin_egg_starting_to_hatch(self._encounter_info)
+        nickname_choice = plugin_should_nickname_pokemon(self._encounter_info)
         while self._script_name in get_global_script_context().stack:
+            if nickname_choice is not None:
+                egg_data_pointer = unpack_uint32(read_symbol(self._symbol_name))
+                if egg_data_pointer & 0x0200_0000:
+                    hatch_state = context.emulator.read_bytes(egg_data_pointer, length=16)[2]
+                    if hatch_state == 10:
+                        yield from handle_naming_screen(nickname_choice)
+                        nickname_choice = None
+
             context.emulator.press_button("B")
             yield
         self._is_hatching = False

@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import Generator
 
 from modules.context import context
 from modules.debug import debug
@@ -9,12 +9,10 @@ from modules.game import decode_string
 from modules.game_sprites import get_game_sprite_by_id
 from modules.memory import read_symbol, unpack_uint32, get_game_state, GameState
 from modules.modes import BotModeError
+from modules.pokemon_nicknaming import max_pokemon_name_length
+from modules.roms import ROMLanguage
 from modules.runtime import get_data_path
 from modules.tasks import get_task
-from modules.roms import ROMLanguage
-
-if TYPE_CHECKING:
-    pass
 
 
 class KeyboardLayout:
@@ -223,3 +221,19 @@ def type_in_naming_screen(name: str, max_length: int = 8):
         # We have reached the correct character -> press A to confirm
         context.emulator.press_button("A")
         yield
+
+
+@debug.track
+def handle_naming_screen(nickname_choice: str) -> Generator:
+    # Wait for the naming dialogue to appear (i.e. skip the 'Do you want to give a nickname
+    # to X' dialogue.)
+    while get_game_state() != GameState.NAMING_SCREEN:
+        context.emulator.press_button("A")
+        yield
+
+    # Wait for the keyboard to become usable (skips the fade-in of the naming menu)
+    while get_naming_screen_data() is None:
+        yield
+
+    # Enter the name.
+    yield from type_in_naming_screen(nickname_choice, max_pokemon_name_length())
