@@ -663,7 +663,62 @@ class StatsDatabase:
 
         return encounter
 
+    def clear_current_shiny_phase(self):
+        """
+        This will clear all the stats for the current shiny phase WITHOUT marking it
+        as completed. This can be used to make it start again from a clean 0 encounters
+        in case there have been some bogus encounters from walking around or something
+        like that.
+
+        It will not affect total numbers.
+        """
+
+        if self.current_shiny_phase is None:
+            return
+
+        self.current_shiny_phase.start_time = datetime.now(timezone.utc)
+        self.current_shiny_phase.shiny_encounter = 0
+        self.current_shiny_phase.encounters = 0
+        self.current_shiny_phase.highest_iv_sum = None
+        self.current_shiny_phase.lowest_iv_sum = None
+        self.current_shiny_phase.highest_sv = None
+        self.current_shiny_phase.lowest_sv = None
+        self.current_shiny_phase.longest_streak = None
+        self.current_shiny_phase.current_streak = None
+        self.current_shiny_phase.fishing_attempts = 0
+        self.current_shiny_phase.successful_fishing_attempts = 0
+        self.current_shiny_phase.longest_unsuccessful_fishing_streak = 0
+        self.current_shiny_phase.current_unsuccessful_fishing_streak = 0
+        self.current_shiny_phase.pokenav_calls = 0
+        self._update_shiny_phase(self.current_shiny_phase)
+
+        self._execute_write(
+            """
+            UPDATE encounter_summaries
+            SET phase_encounters = 0,
+                phase_highest_iv_sum = NULL,
+                phase_lowest_iv_sum = NULL,
+                phase_highest_sv = NULL,
+                phase_lowest_sv = NULL
+            """
+        )
+
+        for index in self._encounter_summaries:
+            summary = self._encounter_summaries[index]
+            summary.phase_encounters = 0
+            summary.phase_highest_iv_sum = None
+            summary.phase_lowest_iv_sum = None
+            summary.phase_highest_sv = None
+            summary.phase_lowest_sv = None
+
+        self._commit()
+
     def reset_shiny_phase(self, encounter: Encounter):
+        """
+        Marks the current shiny phase as completed and starts a new one.
+
+        :param encounter: Shiny encounter that ended the phase
+        """
         self.current_shiny_phase.shiny_encounter = encounter
         self.current_shiny_phase.end_time = encounter.encounter_time
         self.current_shiny_phase.update_snapshot(self._encounter_summaries)
