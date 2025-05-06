@@ -120,11 +120,17 @@ def plugin_egg_starting_to_hatch(hatching_pokemon: "EncounterInfo") -> Generator
             yield from result
 
 
-def plugin_egg_hatched(hatched_pokemon: "EncounterInfo") -> Generator:
+def plugin_egg_hatched(hatched_pokemon: "EncounterInfo") -> Generator[None, None, bool]:
+    do_not_switch_to_manual = False
     for plugin in plugins:
         result = plugin.on_egg_hatched(hatched_pokemon)
         if isinstance(result, GeneratorType):
-            yield from result
+            return_value = yield from result
+            if return_value is True:
+                do_not_switch_to_manual = True
+        elif result is True:
+            do_not_switch_to_manual = True
+    return do_not_switch_to_manual
 
 
 def plugin_whiteout() -> Generator:

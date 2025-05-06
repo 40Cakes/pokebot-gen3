@@ -377,11 +377,16 @@ class EggHatchListener(BotListener):
                 egg_data = context.emulator.read_bytes(egg_data_pointer, length=16)
                 if 4 <= egg_data[2] <= 12:
                     self._encounter_info.pokemon = get_party()[self._hatching_party_index]
-                    bot_mode.on_egg_hatched(self._encounter_info, self._hatching_party_index)
+                    do_not_switch_to_manual = False
+                    if bot_mode.on_egg_hatched(self._encounter_info, self._hatching_party_index) is True:
+                        do_not_switch_to_manual = True
 
                     def report_hatched():
-                        yield from plugin_egg_hatched(self._encounter_info)
-                        handle_encounter(self._encounter_info)
+                        nonlocal do_not_switch_to_manual
+                        result = yield from plugin_egg_hatched(self._encounter_info)
+                        if result is True:
+                            do_not_switch_to_manual = True
+                        handle_encounter(self._encounter_info, do_not_switch_to_manual=do_not_switch_to_manual)
 
                     _ensure_plugin_hook_will_run(report_hatched())
                     self._reported_hatched_egg = True
