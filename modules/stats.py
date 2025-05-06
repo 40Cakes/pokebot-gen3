@@ -658,7 +658,7 @@ class StatsDatabase:
             self._encounter_summaries[species_index].update(encounter)
 
         self._insert_or_update_encounter_summary(self._encounter_summaries[species_index])
-        self.commit()
+        self._commit()
         self._next_encounter_id += 1
 
         return encounter
@@ -691,7 +691,7 @@ class StatsDatabase:
             encounter_summary.phase_highest_sv = None
             encounter_summary.phase_lowest_sv = None
 
-        self.commit()
+        self._commit()
 
     def log_end_of_battle(self, battle_outcome: "BattleOutcome", encounter_info: "EncounterInfo"):
         if self.last_encounter is not None:
