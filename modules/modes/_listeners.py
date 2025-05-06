@@ -322,6 +322,7 @@ class PokenavListener(BotListener):
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
         if frame.game_state == GameState.OVERWORLD and (not self._in_call and frame.task_is_active("ExecuteMatchCall")):
             self._in_call = True
+            context.stats.log_pokenav_call()
             bot_mode.on_pokenav_call()
             context.controller_stack.append(self.ignore_call())
 
