@@ -60,7 +60,21 @@ def load_built_in_plugins():
         plugins.insert(1, DiscordPlugin())
 
 
-def plugin_get_additional_bot_modes() -> Iterable["BotMode"]:
+def is_plugin_loaded(plugin_class: type[BotPlugin]) -> bool:
+    for plugin in plugins:
+        if isinstance(plugin, plugin_class):
+            return True
+    return False
+
+
+def get_plugin_instance(plugin_class: type[BotPlugin]) -> BotPlugin | None:
+    for plugin in plugins:
+        if isinstance(plugin, plugin_class):
+            return plugin
+    return None
+
+
+def plugin_get_additional_bot_modes() -> Iterable["type[BotMode]"]:
     for plugin in plugins:
         yield from plugin.get_additional_bot_modes()
 
