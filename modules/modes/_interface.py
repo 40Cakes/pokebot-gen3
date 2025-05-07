@@ -190,7 +190,7 @@ class BotMode:
         """
         return False
 
-    def on_egg_hatched(self, encounter: "EncounterInfo", party_index: int) -> None:
+    def on_egg_hatched(self, encounter: "EncounterInfo", party_index: int) -> bool | None:
         """
         This is called when an egg is hatching.
 
@@ -199,6 +199,8 @@ class BotMode:
 
         :param encounter: Information about the Pokémon that has hatched.
         :param party_index: Party index (0-5) of the Pokémon that has hatched.
+        :return: If `True`, the bot will not be switched to manual mode once a
+                 shiny or CCF match are found.
         """
         pass
 

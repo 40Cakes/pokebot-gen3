@@ -132,7 +132,7 @@ class BotPlugin:
 
         pass
 
-    def on_egg_hatched(self, hatched_pokemon: "EncounterInfo") -> Generator | None:
+    def on_egg_hatched(self, hatched_pokemon: "EncounterInfo") -> Generator[None, None, bool | None] | bool | None:
         """
         This is called during the egg-hatching cutscene once the egg has hatched and the
         Pokémon is visible.
@@ -141,6 +141,10 @@ class BotPlugin:
         :return: This _may_ return a Generator (so you can use `yield` inside here), in
                  which case the current bot mode is suspended and this generator function
                  takes control.
+
+                 And/or it can return a boolean, which if True indicates that the bot
+                 should not switch to manual mode in any case (which is the default for
+                 gift Pokémon and hatched eggs once a shiny/CCF match is found.)
         """
         pass
 

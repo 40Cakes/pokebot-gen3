@@ -192,6 +192,7 @@ def handle_encounter(
     disable_auto_catch: bool = False,
     enable_auto_battle: bool = False,
     do_not_log_battle_action: bool = False,
+    do_not_switch_to_manual: bool = False,
 ) -> BattleAction:
     pokemon = encounter_info.pokemon
     match encounter_info.value:
@@ -258,7 +259,8 @@ def handle_encounter(
         if context.config.battle.auto_catch and not disable_auto_catch and battle_is_active:
             encounter_info.battle_action = BattleAction.Catch
         else:
-            context.set_manual_mode()
+            if not do_not_switch_to_manual:
+                context.set_manual_mode()
             encounter_info.battle_action = BattleAction.CustomAction
     elif encounter_info.pokemon.species.name in context.config.battle.avoided_pokemon:
         encounter_info.battle_action = BattleAction.RunAway
