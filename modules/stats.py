@@ -612,7 +612,8 @@ class StatsDatabase:
         self._encounter_frames: deque[int] = deque(maxlen=100)
 
     def set_data(self, key: str, value: str | None):
-        self._execute_write("REPLACE INTO base_data (data_key, value) VALUES (?, ?)", (key.value, value))
+        self._execute_write("REPLACE INTO base_data (data_key, value) VALUES (?, ?)", (key, value))
+        self._base_data[key] = value
         self._commit()
 
     def get_data(self, key: str) -> str | None:
