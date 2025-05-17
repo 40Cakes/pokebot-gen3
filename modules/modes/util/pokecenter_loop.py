@@ -7,7 +7,13 @@ from modules.encounter import handle_encounter
 from modules.map import get_map_data_for_current_position, get_effective_encounter_rates_for_current_map
 from modules.map_data import MapFRLG, get_map_enum
 from modules.modes import BotModeError, BattleAction
-from modules.modes.util import find_closest_pokemon_center, navigate_to, heal_in_pokemon_center, spin
+from modules.modes.util import (
+    apply_white_flute_if_available,
+    find_closest_pokemon_center,
+    navigate_to,
+    heal_in_pokemon_center,
+    spin,
+)
 from modules.player import get_player_location
 from modules.pokemon_party import get_party
 
@@ -93,6 +99,7 @@ class PokecenterLoopController:
             self._needs_healing = False
 
             yield from navigate_to(get_map_enum(encounter_spot), encounter_spot.local_position)
+            yield from apply_white_flute_if_available()
             yield from spin(
                 stop_condition=lambda: self._needs_healing
                 or self._leave_pokemon_center
