@@ -13,6 +13,7 @@ from .util import (
     navigate_to,
     wait_for_player_avatar_to_be_controllable,
     wait_for_script_to_start_and_finish,
+    wait_for_n_frames,
     walk_one_tile,
 )
 
@@ -171,6 +172,10 @@ class StaticRunAway(BotMode):
                 def path():
                     yield from navigate_to(MapRSE.FARAWAY_ISLAND_ENTRANCE, (22, 7))
                     yield from follow_path([(12, 16), (16, 16), (16, 13)])
+
+                    # Sometimes the bot would press "A" a little bit too early, resulting the bot being stuck and doing nothing (~1/150 chance)
+                    yield from wait_for_n_frames(5)
+
                     context.emulator.press_button("A")
                     while len(get_map_objects()) != 1:
                         yield
