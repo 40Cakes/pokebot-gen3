@@ -51,6 +51,8 @@ export enum EncounterType {
     FishingWithGoodRod = "fishing_good_rod",
     FishingWithSuperRod = "fishing_super_rod",
     RockSmash = "rock_smash",
+    Hatched = "hatched",
+    Gift = "gift",
 }
 
 type BattleOutcome =
