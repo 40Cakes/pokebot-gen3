@@ -1,4 +1,4 @@
-import {calculatePSP, diffHoursMinutes, formatInteger, formatRecords, getSpriteFor} from "./helper.js";
+import {calculatePSP, diffHoursMinutes, formatInteger, formatRecords, speciesSprite} from "./helper.js";
 
 const phaseTimer = document.querySelector("#phase-timer-stat");
 const phaseEncounters = document.querySelector("#phase-encounters-stat");
@@ -18,7 +18,7 @@ function updatePhaseStats(stats) {
 
     longestStreak.innerHTML = "";
     if (currentPhase.longest_streak?.species_name) {
-        const sprite = getSpriteFor(currentPhase.longest_streak.species_name);
+        const sprite = speciesSprite(currentPhase.longest_streak.species_name);
         longestStreak.append(sprite);
         longestStreak.append(currentPhase.longest_streak.value.toLocaleString("en") + " ");
 

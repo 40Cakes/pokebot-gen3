@@ -2,7 +2,7 @@ import {
     colouredIVSum,
     colouredShinyValue,
     formatInteger,
-    getSpriteFor,
+    speciesSprite,
     renderTableRow,
     br,
     small,
@@ -30,8 +30,9 @@ const updateMapName = map => {
  * @param {EncounterType} encounterType
  * @param {StreamOverlay.Config.speciesChecklist} checklistConfig
  * @param {string[] | null} [additionalRouteSpecies]
+ * @param {string} [animateSpecies]
  */
-const updateRouteEncountersList = (encounters, stats, encounterType, checklistConfig, additionalRouteSpecies = null) => {
+const updateRouteEncountersList = (encounters, stats, encounterType, checklistConfig, additionalRouteSpecies = null, animateSpecies = null) => {
     tbody.innerHTML = "";
 
     /** @type {MapEncounter[]} encounterList */
@@ -52,7 +53,16 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
 
     if (Array.isArray(additionalRouteSpecies)) {
         for (const speciesName of additionalRouteSpecies) {
-            encounterList.push({species_name: speciesName, encounter_rate: 1 / additionalRouteSpecies.length});
+            let alreadyInList = false;
+            for (const encounterSpecies of encounterList) {
+                if (encounterSpecies.species_name === speciesName) {
+                    alreadyInList = true;
+                }
+            }
+
+            if (!alreadyInList) {
+                encounterList.push({species_name: speciesName, encounter_rate: 0});
+            }
         }
     }
 
@@ -94,8 +104,8 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
         }
 
         tbody.append(renderTableRow({
-            sprite: getSpriteFor(encounter.species_name, "shiny"),
-            odds: Math.round(encounter.encounter_rate * 100) + "%",
+            sprite: speciesSprite(encounter.species_name, "shiny", encounter.species_name === animateSpecies),
+            odds: encounter.encounter_rate > 0 ? Math.round(encounter.encounter_rate * 100) + "%" : "",
             svRecords: species && species.phase_lowest_sv && species.phase_highest_sv
                 ? [colouredShinyValue(species.phase_lowest_sv), br(), colouredShinyValue(species.phase_highest_sv)]
                 : "",
@@ -128,7 +138,7 @@ const updateSpeciesChecklist = (checklistConfig, stats) => {
         }
 
         const li = document.createElement("li");
-        const img = getSpriteFor(speciesName, "shiny-cropped");
+        const img = speciesSprite(speciesName, "shiny-cropped");
         const span = document.createElement("span");
 
         const goal = config.speciesChecklist[speciesName].goal;

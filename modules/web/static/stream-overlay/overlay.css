@@ -93,7 +93,7 @@ body > section {
         position: relative;
 
         #clock {
-            background-color: #00000088;
+            background-color: #000000f6;
             border-radius: 1vh;
             position: absolute;
             top: 1vh;
@@ -124,6 +124,10 @@ body > section {
                     }
                 }
             }
+
+            &:last-child {
+                margin-bottom: 0;
+            }
         }
 
         table#encounter-stats {
@@ -132,7 +136,7 @@ body > section {
             right: 1vh;
             top: 1vh;
 
-            background-color: #00000088;
+            background-color: #000000f6;
             border-radius: 1vh;
 
             th {
@@ -179,7 +183,7 @@ body > section {
             right: 1vh;
             top: 6.5vh;
 
-            background-color: #00000088;
+            background-color: #000000f6;
             border-radius: 1vh;
 
             th {
@@ -214,16 +218,24 @@ body > section {
             gap: 1vh;
 
             .info-bubble {
-                background-color: #00000088;
+                background-color: #000000f6;
                 border-radius: 2vh;
                 padding: .5vh 1.5vh;
                 font-size: .9rem;
+                position: relative;
 
                 .icon-item {
                     height: 1rem;
                     vertical-align: middle;
                     margin-right: .5rem;
                     transform: scale(2.5);
+                }
+
+                .icon-cross {
+                    height: 1.25rem;
+                    position: absolute;
+                    left: 1.2rem;
+                    top: .5rem;
                 }
 
                 .icon-species {
@@ -239,6 +251,13 @@ body > section {
                     }
                 }
 
+                .icon-species-static {
+                    height: 1rem;
+                    vertical-align: middle;
+                    margin-right: 1rem;
+                    transform: scale(2) translateY(-.1vh);
+                }
+
                 small {
                     font-size: .6rem;
                 }
@@ -249,8 +268,16 @@ body > section {
             position: absolute;
         }
 
-        #arrow-up, #arrow-down, #arrow-left, #arrow-right, #svg-a, #svg-b, #svg-start, #svg-select {
-            opacity: .15;
+        #arrow-up, #arrow-down, #arrow-left, #arrow-right, #button-a, #button-b, #button-start, #button-select {
+            fill: #33333326;
+            stroke: #88888888;
+            stroke-width: .15;
+            transform: scale(.9);
+
+            &.pressed {
+                fill: #333333ce;
+                stroke: #888888ce;
+            }
         }
 
         #svg-dpad {
@@ -322,6 +349,7 @@ body > section {
 
             img {
                 height: .75rem;
+                float: left;
             }
         }
 
@@ -529,7 +557,7 @@ body > section {
         transform: scale(2.75);
 
         &.unsuccessful {
-            filter: saturate(.33);
+            /*filter: saturate(.33);*/
             opacity: .66;
         }
     }
@@ -621,19 +649,25 @@ body > section {
             margin-left: .3vw;
             flex: 1;
             position: relative;
+            text-align: center;
 
             &:first-child {
                 margin-left: 0;
             }
 
             img.sprite {
-                width: 2.2vw;
+                max-width: 2.2vw;
+                max-height: 4.5vh;
                 margin-bottom: 4px;
                 transform: scale(1.2);
 
                 &.fainted {
                     transform: scale(1.4);
                     filter: saturate(.75) brightness(.55);
+                }
+
+                &.egg-sprite {
+                    transform: scale(1.75) translateY(.35vh);
                 }
             }
 

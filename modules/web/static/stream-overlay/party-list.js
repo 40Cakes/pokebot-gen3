@@ -1,4 +1,4 @@
-import {getSpriteFor} from "./helper.js";
+import {eggSprite, speciesSprite} from "./helper.js";
 
 const ul = document.querySelector("#party-list ul")
 
@@ -11,17 +11,19 @@ function updatePartyList(party) {
     for (const member of party) {
         const li = document.createElement("li");
 
-        const hpPercentage = Math.round(100 * member.current_hp / member.total_hp);
-        const expPercentage = Math.round(100 * member.exp_fraction_to_next_level);
+        let hpPercentage = Math.round(100 * member.current_hp / member.total_hp);
+        let expPercentage = Math.round(100 * member.exp_fraction_to_next_level);
 
         let sprite;
         if (member.is_egg) {
-            sprite = getSpriteFor("Egg", "normal", true);
+            sprite = eggSprite(true);
+            hpPercentage = 0;
+            expPercentage = Math.round(100 * (member.species.egg_cycles - member.friendship) / member.species.egg_cycles);
         } else if (member.current_hp === 0) {
-            sprite = getSpriteFor(member.species.name, member.is_shiny ? "shiny" : "normal", false);
+            sprite = speciesSprite(member.species.name, member.is_shiny ? "shiny" : "normal", false);
             sprite.classList.add("fainted");
         } else {
-            sprite = getSpriteFor(member.species.name, member.is_shiny ? "shiny" : "normal", true);
+            sprite = speciesSprite(member.species.name, member.is_shiny ? "shiny" : "normal", true);
         }
 
         let statusCondition = "";
@@ -71,6 +73,10 @@ function updatePartyList(party) {
         }
 
         ul.append(li);
+    }
+
+    for (let index = party.length; index < 6; index++) {
+        ul.append(document.createElement("li"));
     }
 }
 

@@ -3,8 +3,8 @@ import {
     colouredIVSum,
     colouredShinyValue,
     genderSprite,
-    getSpriteFor,
-    heldItemSprite,
+    speciesSprite,
+    itemSprite,
     renderTableRow
 } from "./helper.js";
 
@@ -16,7 +16,7 @@ const tbody = document.querySelector("#encounter-log tbody");
 function updateEncounterLog(encounterLog) {
     tbody.innerHTML = "";
 
-    for (let index = 0; index < 9; index++) {
+    for (let index = 0; index < 8; index++) {
         if (encounterLog.length <= index) {
             continue;
         }
@@ -32,9 +32,9 @@ function updateEncounterLog(encounterLog) {
 
         tbody.append(renderTableRow({
             sprite: [
-                getSpriteFor(entry.pokemon.species.name, entry.pokemon.is_shiny ? "shiny" : "normal"),
+                speciesSprite(entry.pokemon.species.name, entry.pokemon.is_shiny ? "shiny" : "normal"),
                 genderSprite(entry.pokemon.gender),
-                heldItemSprite(entry.pokemon.held_item),
+                itemSprite(entry.pokemon.held_item),
             ],
             hpIV: colouredIV(entry.pokemon.ivs.hp),
             attackIV: colouredIV(entry.pokemon.ivs.attack, entry.pokemon.nature.modifiers.attack),

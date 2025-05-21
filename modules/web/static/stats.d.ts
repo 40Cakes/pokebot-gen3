@@ -127,6 +127,7 @@ export type GlobalStats = {
         successful_fishing_attempts: number;
         longest_unsuccessful_fishing_streak: number;
         current_unsuccessful_fishing_streak: number;
+        pokenav_calls: number;
     };
     longest_phase: SpeciesRecord;
     shortest_phase: SpeciesRecord;

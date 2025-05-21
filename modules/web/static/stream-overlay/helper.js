@@ -4,18 +4,34 @@
  * @param {boolean} [animated]
  * @return {HTMLImageElement}
  */
-export function getSpriteFor(speciesName, type = "normal", animated = false) {
+export function speciesSprite(speciesName, type = "normal", animated = false) {
+    speciesName = speciesName
+        .replaceAll("♂", "_m")
+        .replaceAll("♀", "_f")
+        .replaceAll("!", "em")
+        .replaceAll("?", "qm")
+        .replaceAll(/[^-_.()' a-zA-Z0-9]/g, "_");
+
     const img = document.createElement("img");
-    if (speciesName === "Egg") {
-        img.src = `/static/sprites/pokemon${animated ? '-animated' : ''}/Egg.png`;
-    } else if (animated) {
-        img.src = `/static/sprites/pokemon-animated/${type}/${speciesName}.gif`;
-    } else {
-        img.src = `/static/sprites/pokemon/${type}/${speciesName}.png`;
-    }
+    img.src = animated
+        ? `/static/sprites/pokemon-animated/${type}/${speciesName}.gif`
+        : img.src = `/static/sprites/pokemon/${type}/${speciesName}.png`;
     img.alt = speciesName;
     img.classList.add("sprite");
 
+    return img;
+}
+
+/**
+ * @param {boolean} [animated]
+ * @return {HTMLImageElement}
+ */
+export function eggSprite(animated = false) {
+    const img = document.createElement("img");
+    img.src = `/static/sprites/pokemon${animated ? '-animated' : ''}/Egg.png`;
+    img.alt = "Egg";
+    img.classList.add("sprite");
+    img.classList.add("egg-sprite");
     return img;
 }
 
@@ -38,14 +54,15 @@ export function genderSprite(gender) {
 }
 
 /**
- * @param {Item | null} heldItem
+ * @param {Item | null} item
  * @return {string | HTMLImageElement}
  */
-export function heldItemSprite(heldItem) {
-    if (heldItem) {
+export function itemSprite(item) {
+    if (item) {
         const itemSprite = document.createElement("img");
         itemSprite.classList.add("item-sprite");
-        itemSprite.src = `../sprites/items/${heldItem.name}.png`;
+        itemSprite.src = `../sprites/items/${item.name}.png`;
+        itemSprite.alt = item.name;
         return itemSprite;
     } else {
         return "";
@@ -155,8 +172,8 @@ export function formatShinyAverage(summary) {
  * @return {(string|Node)[]}
  */
 export function formatRecords(max, min) {
-    const maxSprite = getSpriteFor(max.species_name);
-    const minSprite = getSpriteFor(min.species_name);
+    const maxSprite = speciesSprite(max.species_name);
+    const minSprite = speciesSprite(min.species_name);
 
     const maxValueLabel = document.createElement("small");
     maxValueLabel.classList.add("text-green");

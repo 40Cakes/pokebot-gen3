@@ -9,7 +9,13 @@ import {updatePhaseStats} from "./phase-stats.js";
 import {updateTotalStats} from "./total-stats.js";
 import {updateInputs} from "./inputs.js";
 import {updateClock} from "./clock.js";
-import {updateEncounterInfoBubble, updateInfoBubbles} from "./info-bubbles.js";
+import {
+    hideFishingInfoBubble,
+    updateEncounterInfoBubble,
+    updateFishingInfoBubble,
+    updateInfoBubbles,
+    updatePokeNavInfoBubble
+} from "./info-bubbles.js";
 import {hideEncounterStats, showEncounterStats} from "./encounter-stats.js";
 
 let interval;
@@ -56,6 +62,8 @@ export default function initOverlay() {
             const wildEncounterTypes = ["land", "surfing", "fishing_old_rod", "fishing_good_rod", "fishing_super_rod", "rock_smash"];
             /** @type {EncounterType} lastEncounterType */
             let lastEncounterType = "land";
+            /** @type {Encounter} */
+            let lastEncounter = encounterLog.length > 0 ? encounterLog[0] : null;
             let additionalRouteSpecies = [];
             if (encounterLog.length > 0 && wildEncounterTypes.includes(encounterLog[0].type)) {
                 lastEncounterType = encounterLog[0].type;
@@ -78,10 +86,11 @@ export default function initOverlay() {
             updateSectionProgressBar(config.speciesChecklist, stats);
             updatePhaseStats(stats);
             updateTotalStats(stats, encounterRate.encounter_rate);
-            updateInfoBubbles(mapEncounters, stats, config.targetTimers);
+            updateInfoBubbles(mapEncounters, stats, config.targetTimers, lastEncounterType, party);
 
             const battleStates = ["BATTLE_STARTING", "BATTLE", "BATTLE_ENDING"];
             let isInBattle = battleStates.includes(gameState);
+            let isInEggHatch = gameState === "EGG_HATCH";
             let wasShinyEncounter = false;
 
             /** @param {StreamEvents.PerformanceData} data */
@@ -93,6 +102,12 @@ export default function initOverlay() {
             /** @param {StreamEvents.GameState} gameState */
             const handleGameState = gameState => {
                 console.warn(gameState);
+                if (isInEggHatch && gameState !== "EGG_HATCH") {
+                    updatePartyList(party);
+                    isInEggHatch = false;
+                } else if (!isInEggHatch && gameState === "EGG_HATCH") {
+                    isInEggHatch = true;
+                }
                 if (isInBattle && gameState === "OVERWORLD") {
                     hideEncounterStats();
                     if (wasShinyEncounter) {
@@ -127,7 +142,10 @@ export default function initOverlay() {
 
             /** @param {StreamEvents.Party} data */
             const handleParty = data => {
-                updatePartyList(data);
+                party = data;
+                if (!isInEggHatch) {
+                    updatePartyList(data);
+                }
             };
 
             /** @param {StreamEvents.PlayerAvatar} data */
@@ -146,13 +164,48 @@ export default function initOverlay() {
             /** @param {StreamEvents.MapChange} data */
             const handleMap = data => {
                 updateMapName(data);
+                hideFishingInfoBubble();
                 additionalRouteSpecies = [];
+                if (lastEncounter && ["hatched", "gift", "static"].includes(lastEncounter.type) && !additionalRouteSpecies.includes(lastEncounter.pokemon.species.name)) {
+                    additionalRouteSpecies.push(lastEncounter.pokemon.species.name);
+                }
             };
 
             /** @param {StreamEvents.MapEncounters} data */
             const handleMapEncounters = data => {
                 mapEncounters = data;
                 updateRouteEncountersList(mapEncounters, stats, lastEncounterType, config.speciesChecklist, additionalRouteSpecies);
+            };
+
+            const handlePokenavCall = () => {
+                if (stats.current_phase) {
+                    stats.current_phase.pokenav_calls++;
+                    updatePokeNavInfoBubble(stats);
+                }
+            };
+
+            /** @param {StreamEvents.FishingAttempt} attempt */
+            const handleFishingAttempt = attempt => {
+                console.warn(attempt);
+                if (stats.current_phase) {
+                    stats.current_phase.fishing_attempts++;
+                    if (attempt.result === "Encounter") {
+                        stats.current_phase.successful_fishing_attempts++;
+                        stats.current_phase.current_unsuccessful_fishing_streak = 0;
+                    } else {
+                        stats.current_phase.current_unsuccessful_fishing_streak++;
+                        if (stats.current_phase.longest_unsuccessful_fishing_streak < stats.current_phase.current_unsuccessful_fishing_streak) {
+                            stats.current_phase.longest_unsuccessful_fishing_streak = stats.current_phase.current_unsuccessful_fishing_streak
+                        }
+                    }
+                    let rod = "Old";
+                    if (attempt.rod === "GoodRod") {
+                        rod = "Good";
+                    } else if (attempt.rod === "SuperRod") {
+                        rod = "Super";
+                    }
+                    updateFishingInfoBubble(stats, rod);
+                }
             };
 
             /** @param {StreamEvents.Inputs} inputs */
@@ -166,6 +219,7 @@ export default function initOverlay() {
                     window.clearTimeout(hideEncounterStatsTimeout);
                 }
 
+                lastEncounter = encounter;
                 if (wildEncounterTypes.includes(encounter.type)) {
                     lastEncounterType = encounter.type;
                 } else {
@@ -340,12 +394,14 @@ export default function initOverlay() {
                     wasShinyEncounter = true;
                     stats.totals.shiny_encounters++;
                     stats.pokemon[encounter.pokemon.species.name].shiny_encounters++;
+                    updatePokeNavInfoBubble(null);
                 }
 
-                updateRouteEncountersList(mapEncounters, stats, lastEncounterType, config.speciesChecklist, additionalRouteSpecies);
+                updateRouteEncountersList(mapEncounters, stats, lastEncounterType, config.speciesChecklist, additionalRouteSpecies, encounter.pokemon.species.name);
                 updatePhaseStats(stats);
                 updateTotalStats(stats, encounterRate.encounter_rate);
                 updateEncounterInfoBubble(encounter.pokemon.species.name, stats);
+                updateInfoBubbles(mapEncounters, stats, config.targetTimers, encounter.type, party);
                 updateEncounterLog(encounterLog);
                 showEncounterStats(encounter);
             };
@@ -361,6 +417,8 @@ export default function initOverlay() {
             url.searchParams.append("topic", "Player");
             url.searchParams.append("topic", "PlayerAvatar");
             url.searchParams.append("topic", "Inputs");
+            url.searchParams.append("topic", "PokenavCall");
+            url.searchParams.append("topic", "FishingAttempt");
 
             const eventSource = new EventSource(url);
             eventSource.addEventListener("PerformanceData", event => handlePerformanceData(JSON.parse(event.data)));
@@ -370,6 +428,8 @@ export default function initOverlay() {
             eventSource.addEventListener("MapChange", event => handleMap(JSON.parse(event.data)));
             eventSource.addEventListener("MapEncounters", event => handleMapEncounters(JSON.parse(event.data)));
             eventSource.addEventListener("PlayerAvatar", event => handlePlayerAvatar(JSON.parse(event.data)));
+            eventSource.addEventListener("PokenavCall", event => handlePokenavCall());
+            eventSource.addEventListener("FishingAttempt", event => handleFishingAttempt(JSON.parse(event.data)));
             // eventSource.addEventListener("Player", event => handlePlayer(JSON.parse(event.data)));
             eventSource.addEventListener("Inputs", event => handleInput(JSON.parse(event.data)));
         });

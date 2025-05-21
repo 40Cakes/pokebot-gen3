@@ -1,4 +1,5 @@
-import {getSpriteFor, small} from "./helper.js";
+import config from "./config.js";
+import {speciesSprite} from "./helper.js";
 
 const bubbleContainer = document.querySelector("#info-bubbles");
 const infoBubbleAbility = document.querySelector("#info-bubble-ability");
@@ -7,6 +8,12 @@ const infoBubbleBlackFlute = document.querySelector("#info-bubble-black-flute");
 const infoBubbleCleanseTag = document.querySelector("#info-bubble-cleanse-tag");
 const infoBubbleRepel = document.querySelector("#info-bubble-repel");
 const infoBubbleRepelLevel = document.querySelector("#info-bubble-repel span");
+const infoBubbleFailedFishing = document.querySelector("#info-bubble-failed-fishing");
+const infoBubbleFailedFishingSprite = document.querySelector("#info-bubble-failed-fishing img:first-of-type");
+const infoBubbleFailedFishingCurrent = document.querySelector("#info-bubble-failed-fishing span");
+const infoBubbleFailedFishingRecord = document.querySelector("#info-bubble-failed-fishing small");
+const infoBubblePokeNav = document.querySelector("#info-bubble-pokenav");
+const infoBubblePokeNavCalls = document.querySelector("#info-bubble-pokenav span");
 
 let lastSetAbility = null;
 let lastRepelLevel = null;
@@ -17,16 +24,51 @@ const targetTimerBubbles = {};
  * @param {StreamEvents.MapEncounters} mapEncounters
  * @param {PokeBotApi.GetStatsResponse} stats
  * @param {string[] | null} targetTimers
+ * @param {EncounterType} lastEncounterType
+ * @param {Pokemon[]} party
  */
-function updateInfoBubbles(mapEncounters, stats, targetTimers) {
-    if (mapEncounters.active_ability !== lastSetAbility) {
-        if (mapEncounters.active_ability) {
+function updateInfoBubbles(mapEncounters, stats, targetTimers, lastEncounterType, party) {
+    let activeAbility = mapEncounters.active_ability;
+    console.warn(lastEncounterType);
+    if (lastEncounterType === "hatched") {
+        for (const member of party) {
+            if (["Magma Armor", "Flame Body"].includes(member.ability.name)) {
+                activeAbility = member.ability.name;
+                break;
+            }
+        }
+    }
+
+    if (activeAbility !== lastSetAbility) {
+        infoBubbleAbility.innerText = "";
+
+        if (activeAbility) {
             infoBubbleAbility.style.display = "block";
-            infoBubbleAbility.innerText = mapEncounters.active_ability;
+            infoBubbleAbility.innerText = activeAbility;
+
+            let sprite = null;
+            if (["Magma Armor", "Flame Body"].includes(activeAbility)) {
+                for (const member of party) {
+                    if (member.ability.name === activeAbility) {
+                        sprite = speciesSprite(member.species.name, member.is_shiny ? "shiny-cropped" : "normal-cropped", false);
+                        sprite.classList.add("icon-species-static");
+                        break;
+                    }
+                }
+            } else {
+                if (party[0].ability.name === activeAbility) {
+                    sprite = speciesSprite(party[0].species.name, party[0].is_shiny ? "shiny-cropped" : "normal-cropped", false);
+                    sprite.classList.add("icon-species-static");
+                }
+            }
+
+            if (sprite) {
+                infoBubbleAbility.prepend(sprite);
+            }
         } else {
             infoBubbleAbility.style.display = "none";
         }
-        lastSetAbility = mapEncounters.active_ability;
+        lastSetAbility = activeAbility;
     }
 
     if (mapEncounters.repel_level !== lastRepelLevel) {
@@ -46,10 +88,14 @@ function updateInfoBubbles(mapEncounters, stats, targetTimers) {
     let isFirst = true;
     for (const index in targetTimers) {
         const speciesName = targetTimers[index];
+        if (targetTimerBubbles.hasOwnProperty(speciesName)) {
+            continue;
+        }
+
         const bubble = document.createElement("div");
         bubble.classList.add("info-bubble");
 
-        const sprite = getSpriteFor(speciesName, "normal", true);
+        const sprite = speciesSprite(speciesName, "normal", true);
         sprite.classList.add("icon-species");
         let span = document.createElement("span");
         if (isFirst) {
@@ -63,6 +109,9 @@ function updateInfoBubbles(mapEncounters, stats, targetTimers) {
         bubbleContainer.append(bubble);
         updateEncounterInfoBubble(speciesName, stats);
     }
+
+    updateFishingInfoBubble(stats);
+    updatePokeNavInfoBubble(stats);
 }
 
 /**
@@ -102,4 +151,35 @@ function updateEncounterInfoBubble(speciesName, stats) {
     window.setTimeout(() => updateEncounterInfoBubble(speciesName, stats), msUntilNextMinute + 1)
 }
 
-export {updateInfoBubbles, updateEncounterInfoBubble};
+/**
+ * @param {PokeBotApi.GetStatsResponse} stats
+ * @param {"Old" | "Good" | "Super"} rod
+ */
+function updateFishingInfoBubble(stats, rod = "Old") {
+    if (stats.current_phase?.current_unsuccessful_fishing_streak > 0) {
+        infoBubbleFailedFishingSprite.src = `../sprites/items/${rod}%20Rod.png`;
+        infoBubbleFailedFishing.style.display = "block";
+        infoBubbleFailedFishingCurrent.innerText = stats.current_phase.current_unsuccessful_fishing_streak.toLocaleString("en");
+        infoBubbleFailedFishingRecord.innerText = `(${stats.current_phase.longest_unsuccessful_fishing_streak.toLocaleString("en")})`;
+    } else {
+        infoBubbleFailedFishing.style.display = "none";
+    }
+}
+
+function hideFishingInfoBubble() {
+    infoBubbleFailedFishing.style.display = "none";
+}
+
+/**
+ * @param {PokeBotApi.GetStatsResponse|null} stats
+ */
+function updatePokeNavInfoBubble(stats) {
+    if (stats === null || !stats.current_phase || !config.showPokeNavCallCounter) {
+        infoBubblePokeNav.style.display = "none";
+    } else if (stats.current_phase.pokenav_calls > 0) {
+        infoBubblePokeNav.style.display = "block";
+        infoBubblePokeNavCalls.innerText = stats.current_phase.pokenav_calls.toLocaleString("en");
+    }
+}
+
+export {updateInfoBubbles, updateEncounterInfoBubble, updateFishingInfoBubble, hideFishingInfoBubble, updatePokeNavInfoBubble};
