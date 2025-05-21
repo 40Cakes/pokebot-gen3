@@ -29,7 +29,6 @@ const targetTimerBubbles = {};
  */
 function updateInfoBubbles(mapEncounters, stats, targetTimers, lastEncounterType, party) {
     let activeAbility = mapEncounters.active_ability;
-    console.warn(lastEncounterType);
     if (lastEncounterType === "hatched") {
         for (const member of party) {
             if (["Magma Armor", "Flame Body"].includes(member.ability.name)) {

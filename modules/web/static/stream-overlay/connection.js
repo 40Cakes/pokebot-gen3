@@ -102,7 +102,6 @@ export default function initOverlay() {
 
             /** @param {StreamEvents.GameState} gameState */
             const handleGameState = gameState => {
-                console.warn(gameState);
                 if (isInEggHatch && gameState !== "EGG_HATCH") {
                     updatePartyList(party);
                     isInEggHatch = false;
@@ -151,7 +150,6 @@ export default function initOverlay() {
 
             /** @param {StreamEvents.PlayerAvatar} data */
             const handlePlayerAvatar = data => {
-                console.log(data);
                 playerAvatar = data;
                 if (lastEncounterType === "land" && playerAvatar.flags.Surfing) {
                     lastEncounterType = "surfing";
@@ -187,7 +185,6 @@ export default function initOverlay() {
 
             /** @param {StreamEvents.FishingAttempt} attempt */
             const handleFishingAttempt = attempt => {
-                console.warn(attempt);
                 if (stats.current_phase) {
                     stats.current_phase.fishing_attempts++;
                     if (attempt.result === "Encounter") {
