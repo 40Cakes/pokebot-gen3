@@ -1,3 +1,5 @@
+export const numberOfEncounterLogEntries = 8;
+
 /**
  * @param {string} speciesName
  * @param {"normal" | "shiny" | "normal-cropped" | "shiny-cropped"} [type]
@@ -241,6 +243,18 @@ export function renderTableRow(columns) {
         tr.append(td);
     }
 
+    return tr;
+}
+
+/**
+ * @param {number} columns
+ * @returns {HTMLTableRowElement}
+ */
+export function emptyTableRow(columns) {
+    const tr = document.createElement("tr");
+    for (let index = 0; index < columns; index++) {
+        tr.append(document.createElement("td"));
+    }
     return tr;
 }
 

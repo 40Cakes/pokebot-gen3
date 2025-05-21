@@ -24,6 +24,10 @@ const config = {
     // In seconds.
     nonBattleEncounterStatsTimeoutInSeconds: 15,
 
+    // If we receive a PokéNav call, count them (per phase) and
+    // display the counter as an info bubble.
+    showPokeNavCallCounter: false,
+
     // These can be used to hardcode the longest phase in case
     // this data is incorrect in the stats database.
     overrideLongestPhase: {

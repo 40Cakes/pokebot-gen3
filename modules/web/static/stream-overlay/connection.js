@@ -17,6 +17,7 @@ import {
     updatePokeNavInfoBubble
 } from "./info-bubbles.js";
 import {hideEncounterStats, showEncounterStats} from "./encounter-stats.js";
+import {numberOfEncounterLogEntries} from "./helper.js";
 
 let interval;
 let hideEncounterStatsTimeout;
@@ -231,7 +232,9 @@ export default function initOverlay() {
                 }
 
                 encounterLog.unshift(encounter);
-                encounterLog.pop();
+                while (encounterLog.length > numberOfEncounterLogEntries) {
+                    encounterLog.pop();
+                }
 
                 stats.totals.total_encounters++;
 

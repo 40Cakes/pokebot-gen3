@@ -5,7 +5,7 @@ import {
     formatInteger, genderSprite,
     speciesSprite, itemSprite, overlaySprite,
     renderTableRow,
-    shortInteger
+    shortInteger, emptyTableRow, numberOfEncounterLogEntries
 } from "./helper.js";
 
 const tbody = document.querySelector("#shiny-log tbody");
@@ -16,8 +16,9 @@ const tbody = document.querySelector("#shiny-log tbody");
 function updateShinyLog(shinyLog) {
     tbody.innerHTML = "";
 
-    for (let index = 0; index < 8; index++) {
+    for (let index = 0; index < numberOfEncounterLogEntries; index++) {
         if (shinyLog.length <= index) {
+            tbody.append(emptyTableRow(9));
             continue;
         }
 

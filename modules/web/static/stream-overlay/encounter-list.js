@@ -5,7 +5,7 @@ import {
     genderSprite,
     speciesSprite,
     itemSprite,
-    renderTableRow
+    renderTableRow, numberOfEncounterLogEntries, emptyTableRow
 } from "./helper.js";
 
 const tbody = document.querySelector("#encounter-log tbody");
@@ -16,8 +16,9 @@ const tbody = document.querySelector("#encounter-log tbody");
 function updateEncounterLog(encounterLog) {
     tbody.innerHTML = "";
 
-    for (let index = 0; index < 8; index++) {
+    for (let index = 0; index < numberOfEncounterLogEntries; index++) {
         if (encounterLog.length <= index) {
+            tbody.append(emptyTableRow(9));
             continue;
         }
 

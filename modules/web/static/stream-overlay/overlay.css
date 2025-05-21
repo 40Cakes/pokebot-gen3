@@ -551,6 +551,10 @@ body > section {
         }
     }
 
+    tr {
+        height: 2.5vh;
+    }
+
     tbody .sprite {
         width: 1em;
         height: 1em;
