@@ -557,6 +557,7 @@ class GlobalStats:
                 "successful_fishing_attempts": phase.successful_fishing_attempts,
                 "longest_unsuccessful_fishing_streak": phase.longest_unsuccessful_fishing_streak,
                 "current_unsuccessful_fishing_streak": phase.current_unsuccessful_fishing_streak,
+                "pokenav_calls": phase.pokenav_calls,
             },
             "longest_phase": {
                 "value": longest_shiny_phase.encounters,

@@ -892,11 +892,17 @@ def http_server(host: str, port: int) -> web.AppRunner:
 
     @route.get("/docs")
     async def http_docs(request: web.Request):
-        raise web.HTTPFound(location="static/api-doc.html")
+        raise web.HTTPFound(location="/static/api-doc.html")
+
+    @route.get("/stream-overlay")
+    @route.get("/static/stream-overlay")
+    @route.get("/static/stream-overlay/")
+    async def http_stream_overlay_redirect(request: web.Request):
+        return web.HTTPFound(location="/static/stream-overlay/index.html")
 
     @route.get("/")
     async def http_index(request: web.Request):
-        raise web.HTTPFound(location="static/index.html")
+        raise web.HTTPFound(location="/static/index.html")
 
     route.static("/static", get_base_path() / "modules" / "web" / "static")
 

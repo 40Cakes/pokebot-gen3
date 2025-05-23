@@ -1,7 +1,7 @@
 import {MapLocation, Pokemon, Player as PlayerType, Pokedex as PokedexType} from "./pokemon";
 import {EffectiveEncounterList, Encounter, RegularEncounterList} from "./stats";
 
-declare module StreamEvents {
+declare namespace StreamEvents {
     export type PerformanceData = {
         // Most recently recorded FPS value (usually within the last second.)
         fps: number;
@@ -22,6 +22,8 @@ declare module StreamEvents {
 
     // Contains some basic data about the player (such as name, IDs, current money, ...)
     export type Player = PlayerType;
+
+    export type PlayerAvatar = PlayerType;
 
     // Lists Pokémon in the current party. May contain between 0 and 6 entries.
     export type Party = Pokemon[];
