@@ -369,12 +369,17 @@ body > section {
             transform: scale(2);
         }
 
-        .shiny-rate {
+        .shiny-rate, .missed-shinies {
             display: block;
             margin-top: .2rem;
+
+            img {
+                vertical-align: middle;
+                height: 1.1em;
+            }
         }
 
-        small, .shiny-rate {
+        small, .shiny-rate, .missed-shinies {
             font-size: .66rem;
             opacity: .66;
         }

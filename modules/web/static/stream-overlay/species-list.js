@@ -6,7 +6,7 @@ import {
     renderTableRow,
     br,
     small,
-    getSpeciesGoal
+    getSpeciesGoal, overlaySprite
 } from "./helper.js";
 import config from "./config.js";
 
@@ -79,6 +79,7 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
         const currentPhase = stats.current_phase;
 
         let catches = "0";
+        let totalEncounters = "0";
         if (species) {
             const goal = getSpeciesGoal(encounter.species_name, checklistConfig, stats);
             if (goal) {
@@ -86,13 +87,23 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
             } else {
                 catches = [formatInteger(species.catches)];
             }
+            totalEncounters = [formatInteger(species.total_encounters)];
 
             if (species.catches > 0) {
                 const shinyRate = Math.round(species.total_encounters / species.shiny_encounters).toLocaleString("en");
                 const shinyRateLabel = document.createElement("span");
                 shinyRateLabel.classList.add("shiny-rate");
-                shinyRateLabel.textContent = `(1/${shinyRate})`;
-                catches.push(shinyRateLabel);
+                const sparkles = overlaySprite("sparkles");
+                shinyRateLabel.append("(", sparkles, ` 1/${shinyRate})`);
+                totalEncounters.push(shinyRateLabel);
+            }
+
+            if (species.shiny_encounters > species.catches) {
+                const missedShinies = species.shiny_encounters - species.catches;
+                const missedShiniesLabel = document.createElement("span");
+                missedShiniesLabel.classList.add("missed-shinies")
+                missedShiniesLabel.textContent = `(${formatInteger(missedShinies)} missed)`;
+                catches.push(missedShiniesLabel);
             }
 
             if (goal && species.catches >= goal) {
@@ -119,7 +130,7 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
                     small((100 * species.phase_encounters / currentPhase.encounters).toLocaleString("en", {maximumFractionDigits: 2}) + "%"),
                 ]
                 : "0",
-            totalEncounters: species ? formatInteger(species.total_encounters) : "0",
+            totalEncounters: totalEncounters,
             catches: catches,
         }));
     }
