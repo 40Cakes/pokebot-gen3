@@ -12,11 +12,6 @@ html, body {
     padding: 0;
 }
 
-body {
-    background-size: cover;
-    background-image: url("../background.png");
-}
-
 img {
     image-rendering: crisp-edges;
 }

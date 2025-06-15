@@ -69,7 +69,7 @@ const updateSectionChecklist = (checklistConfig, stats) => {
             if (Array.isArray(configEntry.similarSpecies)) {
                 for (const similarSpecies of configEntry.similarSpecies) {
                     if (stats.pokemon.hasOwnProperty(similarSpecies)) {
-                        completion += stats.pokemon[speciesName].catches;
+                        completion += stats.pokemon[similarSpecies].catches;
                     }
                 }
             }
