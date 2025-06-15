@@ -1,0 +1,76 @@
+#route-encounters {
+    table {
+        width: 100%;
+        flex: 1;
+    }
+
+    table thead th {
+        height: 3vh;
+
+        img {
+            padding: 0 .25rem;
+            vertical-align: middle;
+        }
+
+        &:first-child {
+            width: 6%;
+
+            img {
+                height: .75rem;
+            }
+        }
+
+        &:nth-child(2) {
+            width: 9%;
+        }
+
+        &:nth-child(3), &:nth-child(4), &:nth-child(5), &:nth-child(6), &:nth-child(7) {
+            width: 17%;
+        }
+    }
+
+    table td {
+        pokemon-sprite img {
+            max-height: 3vh;
+            max-width: 3vh;
+            transform: scale(2);
+        }
+
+        .shiny-rate, .missed-shinies {
+            display: block;
+            margin-top: .2rem;
+
+            img {
+                vertical-align: middle;
+                height: 1.1em;
+            }
+        }
+
+        small, .shiny-rate, .missed-shinies {
+            font-size: .66rem;
+            opacity: var(--muted-font-opacity);
+        }
+
+        &.column-catches {
+            position: relative;
+
+            .tick {
+                position: absolute;
+                right: .8rem;
+                top: 50%;
+                margin-top: -.6rem;
+                height: 1.2rem;
+            }
+        }
+    }
+
+    #no-encounters-on-this-route-message {
+        display: none;
+        position: absolute;
+        top: calc(50% - .5rem);
+        left: 0;
+        right: 0;
+        text-align: center;
+        color: var(--no-encounters-on-route-font-colour);
+    }
+}

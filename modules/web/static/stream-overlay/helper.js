@@ -4,9 +4,9 @@ export const numberOfEncounterLogEntries = 8;
  * @param {string} speciesName
  * @param {"normal" | "shiny" | "normal-cropped" | "shiny-cropped"} [type]
  * @param {boolean} [animated]
- * @return {HTMLImageElement}
+ * @return {string}
  */
-export function speciesSprite(speciesName, type = "normal", animated = false) {
+export function speciesSpritePath(speciesName, type = "normal", animated = false) {
     speciesName = speciesName
         .replaceAll("♂", "_m")
         .replaceAll("♀", "_f")
@@ -14,27 +14,60 @@ export function speciesSprite(speciesName, type = "normal", animated = false) {
         .replaceAll("?", "qm")
         .replaceAll(/[^-_.()' a-zA-Z0-9]/g, "_");
 
-    const img = document.createElement("img");
-    img.src = animated
-        ? `/static/sprites/pokemon-animated/${type}/${speciesName}.gif`
-        : img.src = `/static/sprites/pokemon/${type}/${speciesName}.png`;
-    img.alt = speciesName;
-    img.classList.add("sprite");
-
-    return img;
+    if (animated) {
+        return `/static/sprites/pokemon-animated/${type}/${speciesName}.gif`;
+    } else {
+        return `/static/sprites/pokemon/${type}/${speciesName}.png`;
+    }
 }
 
 /**
  * @param {boolean} [animated]
- * @return {HTMLImageElement}
+ * @return {string}
+ */
+export function eggSpritePath(animated = false) {
+    if (animated) {
+        return "/static/sprites/pokemon-animated/Egg.gif";
+    } else {
+        return "/static/sprites/pokemon/Egg.png";
+    }
+}
+
+/**
+ * @param {string} speciesName
+ * @param {"normal" | "shiny" | "normal-cropped" | "shiny-cropped"} [type]
+ * @param {boolean} [animated]
+ * @return {PokemonSprite}
+ */
+export function speciesSprite(speciesName, type = "normal", animated = false) {
+    const sprite = document.createElement("pokemon-sprite");
+    sprite.setAttribute("species", speciesName);
+    if (type === "shiny" || type === "shiny-cropped") {
+        sprite.setAttribute("shiny", "shiny");
+    }
+    if (type === "shiny-cropped" || type === "normal-cropped") {
+        sprite.setAttribute("cropped", "cropped");
+    }
+    if (animated) {
+        sprite.setAttribute("continuously-animated", "continuously-animated");
+    }
+
+    return sprite;
+}
+
+/**
+ * @param {boolean} [animated]
+ * @return {PokemonSprite}
  */
 export function eggSprite(animated = false) {
-    const img = document.createElement("img");
-    img.src = `/static/sprites/pokemon${animated ? '-animated' : ''}/Egg.png`;
-    img.alt = "Egg";
-    img.classList.add("sprite");
-    img.classList.add("egg-sprite");
-    return img;
+    const sprite = document.createElement("pokemon-sprite");
+    sprite.setAttribute("species", "Egg");
+    if (animated) {
+        sprite.setAttribute("continuously-animated", "continuously-animated");
+    }
+    sprite.classList.add("egg-sprite");
+
+    return sprite;
 }
 
 /**
@@ -57,9 +90,10 @@ export function genderSprite(gender) {
 
 /**
  * @param {Item | null} item
+ * @param {HTMLImageElement | null} element
  * @return {string | HTMLImageElement}
  */
-export function itemSprite(item) {
+export function itemSprite(item, element = null) {
     if (item) {
         const itemSprite = document.createElement("img");
         itemSprite.classList.add("item-sprite");
@@ -374,7 +408,7 @@ export function calculatePSP(encounters) {
 
 /**
  * @param {string} speciesName
- * @param {StreamOverlay.Config.speciesChecklist} checklistConfig
+ * @param {StreamOverlay.SectionChecklist} checklistConfig
  * @param {PokeBotApi.GetStatsResponse} stats
  * @return {number}
  */
@@ -386,4 +420,33 @@ export function getSpeciesGoal(speciesName, checklistConfig, stats) {
     }
 
     return 0;
+}
+
+/**
+ * @param {StreamOverlay.SectionChecklist} sectionChecklist
+ * @param {PokeBotApi.GetStatsResponse} stats
+ * @return {{caught: number; goal: number}}
+ */
+export function getSectionProgress(sectionChecklist, stats) {
+    let goal = 0;
+    let caught = 0;
+    for (const [checklistSpeciesName, checklistEntry] of Object.entries(sectionChecklist)) {
+        goal += checklistEntry.goal;
+
+        let entryCaught = 0;
+        if (stats.pokemon.hasOwnProperty(checklistSpeciesName)) {
+            entryCaught += stats.pokemon[checklistSpeciesName].catches;
+        }
+        if (Array.isArray(checklistEntry.similarSpecies)) {
+            for (const similarSpeciesName of checklistEntry.similarSpecies) {
+                if (stats.pokemon.hasOwnProperty(similarSpeciesName)) {
+                    entryCaught += stats.pokemon[similarSpeciesName].catches;
+                }
+            }
+        }
+
+        caught += clamp(entryCaught, 0, checklistEntry.goal);
+    }
+
+    return {caught, goal};
 }

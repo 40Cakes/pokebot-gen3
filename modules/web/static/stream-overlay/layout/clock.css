@@ -1,0 +1,37 @@
+#clock {
+    background-color: var(--video-overlay-background-colour);
+    border-radius: 1vh;
+    position: absolute;
+    top: 1vh;
+    left: 1vh;
+    width: 22vh;
+
+    p {
+        margin: .4vh;
+        display: flex;
+
+        .icon {
+            flex: 0 0 3vh;
+            text-align: center;
+
+            img {
+                height: 2vh;
+                image-rendering: smooth;
+                vertical-align: center;
+            }
+        }
+
+        span:nth-child(2) {
+            flex: 1;
+            text-align: center;
+
+            small {
+                font-size: .7rem;
+            }
+        }
+    }
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}

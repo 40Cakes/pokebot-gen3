@@ -6,7 +6,7 @@ import {
     speciesSprite, itemSprite, overlaySprite,
     renderTableRow,
     shortInteger, emptyTableRow, numberOfEncounterLogEntries
-} from "./helper.js";
+} from "../helper.js";
 
 const tbody = document.querySelector("#shiny-log tbody");
 

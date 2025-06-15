@@ -12,6 +12,10 @@ const config = {
     timeZone: "Australia/Sydney",
     overrideDisplayTimezone: "AEST",
 
+    // Number of individual shiny species required to complete the
+    // challenge.
+    totalShinySpeciesTarget: 212,
+
     // A list of species names (can be empty) that a timer since
     // the last encounter should be displayed for in the bottom
     // right corner of the game video.
@@ -50,7 +54,7 @@ const config = {
     // Setting the `hidden` property to `true` means that the
     // entry will be used for calculating the progress bar, but
     // it will not show up in the checklist widget.
-    speciesChecklist: !isSectionSix
+    sectionChecklist: !isSectionSix
         ? {
             "Sandshrew": {
                 goal: 2,

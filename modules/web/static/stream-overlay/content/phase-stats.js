@@ -1,4 +1,4 @@
-import {calculatePSP, diffHoursMinutes, formatInteger, formatRecords, speciesSprite} from "./helper.js";
+import {calculatePSP, diffHoursMinutes, formatInteger, formatRecords, speciesSprite} from "../helper.js";
 
 const phaseTimer = document.querySelector("#phase-timer-stat");
 const phaseEncounters = document.querySelector("#phase-encounters-stat");

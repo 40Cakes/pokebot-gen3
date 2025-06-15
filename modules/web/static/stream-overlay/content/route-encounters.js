@@ -7,50 +7,74 @@ import {
     br,
     small,
     getSpeciesGoal, overlaySprite
-} from "./helper.js";
-import config from "./config.js";
+} from "../helper.js";
 
-const mapName = document.querySelector("#map-name");
-const ul = document.querySelector("#species-list ul");
-const tbody = document.querySelector("#species-list tbody");
-const table = document.querySelector("#species-list table");
+const mapNameSpan = document.querySelector("#route-encounters > h2 > span");
+const tbody = document.querySelector("#route-encounters tbody");
+const table = document.querySelector("#route-encounters table");
 const noEncountersMessage = document.querySelector("#no-encounters-on-this-route-message");
 
 /**
  * @param {PokeBotApi.GetMapResponse} map
  */
 const updateMapName = map => {
-    mapName.innerHTML = `<img src="/static/sprites/stream-overlay/pin.png">`;
-    mapName.append(map.map.name);
+    mapNameSpan.innerText = map.map.name;
 };
 
 /**
  * @param {PokeBotApi.GetMapEncountersResponse} encounters
  * @param {PokeBotApi.GetStatsResponse} stats
  * @param {EncounterType} encounterType
- * @param {StreamOverlay.Config.speciesChecklist} checklistConfig
+ * @param {StreamOverlay.SectionChecklist} checklistConfig
  * @param {string[] | null} [additionalRouteSpecies]
  * @param {string} [animateSpecies]
  */
 const updateRouteEncountersList = (encounters, stats, encounterType, checklistConfig, additionalRouteSpecies = null, animateSpecies = null) => {
-    tbody.innerHTML = "";
-
     /** @type {MapEncounter[]} encounterList */
     let encounterList;
+    /** @type {MapEncounter[]} regularEncounterList */
+    let regularEncounterList;
     if (encounterType === "surfing") {
         encounterList = [...encounters.effective.surf_encounters];
+        regularEncounterList = [...encounters.regular.surf_encounters];
     } else if (encounterType === "fishing_old_rod") {
         encounterList = [...encounters.effective.old_rod_encounters];
+        regularEncounterList = [...encounters.regular.old_rod_encounters];
     } else if (encounterType === "fishing_good_rod") {
         encounterList = [...encounters.effective.good_rod_encounters];
+        regularEncounterList = [...encounters.regular.good_rod_encounters];
     } else if (encounterType === "fishing_super_rod") {
         encounterList = [...encounters.effective.super_rod_encounters];
+        regularEncounterList = [...encounters.regular.super_rod_encounters];
     } else if (encounterType === "rock_smash") {
         encounterList = [...encounters.effective.rock_smash_encounters];
+        regularEncounterList = [...encounters.regular.rock_smash_encounters];
     } else {
         encounterList = [...encounters.effective.land_encounters];
+        regularEncounterList = [...encounters.regular.land_encounters];
     }
 
+    // Add species that could appear on this map but are currently blocked by Repel and
+    // therefore not part of the 'effective encounters' list.
+    for (const regularEncounter of regularEncounterList) {
+        let alreadyInList = false;
+        for (const encounterSpecies of encounterList) {
+            if (encounterSpecies.species_name === regularEncounter.species_name) {
+                alreadyInList = true;
+            }
+        }
+
+        if (!alreadyInList) {
+            encounterList.push({
+                species_name: regularEncounter.species_name,
+                max_level: regularEncounter.max_level,
+                encounter_rate: 0
+            });
+        }
+    }
+
+    // Add species to this list that have been encountered here but are not part of the
+    // regular encounter table (i.e. egg hatches, gift Pokémon, ...)
     if (Array.isArray(additionalRouteSpecies)) {
         for (const speciesName of additionalRouteSpecies) {
             let alreadyInList = false;
@@ -66,13 +90,17 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
         }
     }
 
+    // Display a 'no encounters on this map' message if no encounters exist at all.
     if (encounterList.length === 0) {
         noEncountersMessage.style.display = "block";
         table.style.display = "none";
-    } else {
-        noEncountersMessage.style.display = "none";
-        table.style.display = "table";
+        return;
     }
+
+    noEncountersMessage.style.display = "none";
+    table.style.display = "table";
+
+    tbody.innerHTML = "";
 
     for (const encounter of encounterList) {
         const species = stats.pokemon[encounter.species_name] ?? null;
@@ -136,47 +164,4 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
     }
 };
 
-/**
- * @param {StreamOverlay.Config.speciesChecklist} checklistConfig
- * @param {PokeBotApi.GetStatsResponse} stats
- */
-const updateSpeciesChecklist = (checklistConfig, stats) => {
-    ul.innerHTML = "";
-
-    for (const speciesName in checklistConfig) {
-        if (checklistConfig[speciesName].hidden) {
-            continue;
-        }
-
-        const li = document.createElement("li");
-        const img = speciesSprite(speciesName, "shiny-cropped");
-        const span = document.createElement("span");
-
-        const goal = config.speciesChecklist[speciesName].goal;
-        let completion = 0;
-        if (stats.pokemon.hasOwnProperty(speciesName)) {
-            completion += stats.pokemon[speciesName].catches;
-        }
-        if (Array.isArray(checklistConfig[speciesName].similarSpecies)) {
-            for (const similarSpecies of checklistConfig[speciesName].similarSpecies) {
-                if (stats.pokemon.hasOwnProperty(similarSpecies)) {
-                    completion += stats.pokemon[speciesName].catches;
-                }
-            }
-        }
-
-        span.append(completion.toLocaleString("en"), small(`/${goal}`));
-        if (completion >= goal) {
-            li.classList.add("complete");
-            const tick = document.createElement("img");
-            tick.src = "/static/sprites/stream-overlay/tick.png";
-            span.append(tick);
-        } else if (completion > 0) {
-            li.classList.add("partial");
-        }
-        li.append(img, span);
-        ul.append(li);
-    }
-};
-
-export {updateMapName, updateRouteEncountersList, updateSpeciesChecklist};
+export {updateMapName, updateRouteEncountersList};

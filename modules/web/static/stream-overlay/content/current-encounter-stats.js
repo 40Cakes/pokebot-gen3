@@ -1,4 +1,4 @@
-import {colouredIV, colouredIVSum, colouredShinyValue} from "./helper.js";
+import {colouredIV, colouredIVSum, colouredShinyValue} from "../helper.js";
 
 const encounterStats = document.querySelector("#encounter-stats");
 const encounterSVContainer = document.querySelector("#encounter-sv");
@@ -18,7 +18,7 @@ const encounterSV = document.querySelector("#encounter-sv td");
 /**
  * @param {Encounter} encounter
  */
-function showEncounterStats(encounter) {
+function showCurrentEncounterStats(encounter) {
     encounterPersonality.textContent = "";
     encounterItem.textContent = "";
     encounterHPIV.textContent = "";
@@ -86,9 +86,9 @@ function showEncounterStats(encounter) {
     encounterSVContainer.style.display = "block";
 }
 
-function hideEncounterStats() {
+function hideCurrentEncounterStats() {
     encounterStats.style.display = "none";
     encounterSVContainer.style.display = "none";
 }
 
-export {showEncounterStats, hideEncounterStats};
+export {showCurrentEncounterStats, hideCurrentEncounterStats};

@@ -1,4 +1,4 @@
-import {eggSprite, speciesSprite} from "./helper.js";
+import {eggSprite, speciesSprite} from "../helper.js";
 
 const ul = document.querySelector("#party-list ul")
 

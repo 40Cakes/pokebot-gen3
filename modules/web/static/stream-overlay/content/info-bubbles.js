@@ -1,5 +1,5 @@
-import config from "./config.js";
-import {speciesSprite} from "./helper.js";
+import config from "../config.js";
+import {speciesSprite} from "../helper.js";
 
 const bubbleContainer = document.querySelector("#info-bubbles");
 const infoBubbleAbility = document.querySelector("#info-bubble-ability");
@@ -156,7 +156,7 @@ function updateEncounterInfoBubble(speciesName, stats) {
  */
 function updateFishingInfoBubble(stats, rod = "Old") {
     if (stats.current_phase?.current_unsuccessful_fishing_streak > 0) {
-        infoBubbleFailedFishingSprite.src = `../sprites/items/${rod}%20Rod.png`;
+        infoBubbleFailedFishingSprite.setAttribute("item", `${rod} Rod`);
         infoBubbleFailedFishing.style.display = "block";
         infoBubbleFailedFishingCurrent.innerText = stats.current_phase.current_unsuccessful_fishing_streak.toLocaleString("en");
         infoBubbleFailedFishingRecord.innerText = `(${stats.current_phase.longest_unsuccessful_fishing_streak.toLocaleString("en")})`;

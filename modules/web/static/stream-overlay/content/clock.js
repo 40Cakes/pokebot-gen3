@@ -1,4 +1,4 @@
-import {small} from "./helper.js";
+import {small} from "../helper.js";
 
 /** @type {Intl.DateTimeFormat} */
 let dateFormatter;

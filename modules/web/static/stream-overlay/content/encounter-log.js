@@ -6,7 +6,7 @@ import {
     speciesSprite,
     itemSprite,
     renderTableRow, numberOfEncounterLogEntries, emptyTableRow
-} from "./helper.js";
+} from "../helper.js";
 
 const tbody = document.querySelector("#encounter-log tbody");
 

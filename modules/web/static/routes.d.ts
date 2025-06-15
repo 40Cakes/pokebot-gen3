@@ -1,4 +1,4 @@
-import {ItemBag, ItemStorage, MapLocation, Player, PlayerAvatar, Pokedex, Pokemon} from "./pokemon";
+import {ItemBag, ItemStorage, MapLocation, Player, PlayerAvatar, Pokedex, Pokemon, PokemonStorage} from "./pokemon";
 import {EffectiveEncounterList, Encounter, GlobalStats, RegularEncounterList, ShinyPhase} from "./stats";
 
 declare module PokeBotApi {
@@ -104,6 +104,11 @@ declare module PokeBotApi {
      * Response body for `GET /opponent`.
      */
     export type GetOpponentResponse = Pokemon | null;
+
+    /**
+     * Response body for `GET /pokemon_storage`.
+     */
+    export type GetPokemonStorageResponse = PokemonStorage;
 
     /**
      * Response body for `GET /items`.
