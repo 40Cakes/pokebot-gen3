@@ -87,7 +87,7 @@ export default function initOverlay() {
             updatePartyList(party);
             updateBadgeList(emulator.game.title, eventFlags);
             updatePhaseStats(stats);
-            updatePCStorage(pokemonStorage);
+            updatePCStorage(pokemonStorage, party);
             updateTotalStats(stats, encounterRate.encounter_rate);
             updateInfoBubbles(mapEncounters, stats, config.targetTimers, lastEncounterType, party);
 

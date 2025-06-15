@@ -13,8 +13,9 @@ let shiniesFromBeforeThisSection = 0;
 
 /**
  * @param {PokemonStorage} storage
+ * @param {Pokemon[]} party
  */
-function updatePCStorage(storage) {
+function updatePCStorage(storage, party) {
     const ignoreSpecies = new Set();
     for (const speciesName in config.sectionChecklist) {
         ignoreSpecies.add(speciesName);
@@ -31,6 +32,12 @@ function updatePCStorage(storage) {
             if (slot.pokemon.is_shiny && !ignoreSpecies.has(slot.pokemon.species.name)) {
                 species.add(slot.pokemon.species.name);
             }
+        }
+    }
+
+    for (const pokemon of party) {
+        if (pokemon.is_shiny && !ignoreSpecies.has(pokemon.species.name)) {
+            species.add(pokemon.species.name);
         }
     }
 
