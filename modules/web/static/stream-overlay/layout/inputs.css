@@ -1,0 +1,45 @@
+#svg-dpad, #svg-a, #svg-b, #svg-start, #svg-select {
+    position: absolute;
+}
+
+#arrow-up, #arrow-down, #arrow-left, #arrow-right, #button-a, #button-b, #button-start, #button-select {
+    fill: var(--input-unpressed-fill-colour);
+    stroke: var(--input-unpressed-stroke-colour);
+    stroke-width: .15;
+    transform: scale(.9);
+
+    &.pressed {
+        fill: var(--input-pressed-fill-colour);
+        stroke: var(--input-pressed-stroke-colour);
+    }
+}
+
+#svg-dpad {
+    height: 7vh;
+    bottom: 1.2vh;
+    left: 1vh;
+}
+
+#svg-a {
+    height: 3vh;
+    bottom: 2vh;
+    left: 12.5vh;
+}
+
+#svg-b {
+    height: 3vh;
+    bottom: 1.2vh;
+    left: 9vh;
+}
+
+#svg-select {
+    height: 2vh;
+    bottom: 5.2vh;
+    left: 9vh;
+}
+
+#svg-start {
+    height: 2vh;
+    bottom: 6.5vh;
+    left: 12vh;
+}

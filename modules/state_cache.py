@@ -42,7 +42,10 @@ class StateCacheItem(Generic[T]):
 
     @property
     def age_in_frames(self) -> int | None:
-        return context.emulator.get_frame_count() - self._last_check_frame
+        current_frame_count = context.emulator.get_frame_count()
+        if self._last_check_frame > current_frame_count:
+            self._last_check_frame = current_frame_count
+        return current_frame_count - self._last_check_frame
 
     def checked(self) -> None:
         self._last_check_frame = context.emulator.get_frame_count()

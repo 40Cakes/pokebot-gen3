@@ -20,3 +20,4 @@ stats/
 stream/
 plugins/
 tests/last_frame_timeout.png
+modules/web/static/stream-overlay/config.js
