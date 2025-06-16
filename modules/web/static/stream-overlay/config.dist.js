@@ -1,6 +1,12 @@
-// 'Temporary' thing for Cakes: Just change this to `true` after
-// the desert and fossil section has been completed.
-const isSectionSix = false;
+// 'Temporary' thing for Cakes: Just change this to the next number
+// whenever a section is completed.
+//    4 = before badges 4 and 5 (desert and fossil)
+//    5 = before Mind Badge (first Safari Zone etc.)
+//    6 = before Rain Badge (the one with the Regis and Rayquaza)
+//    7 = before Feather Badge (Mawile and Bagon)
+//    8 = post E4
+//    9 = Event Pokémon
+const section = 4;
 
 
 /** @type {StreamOverlay.Config} config */
@@ -54,8 +60,8 @@ const config = {
     // Setting the `hidden` property to `true` means that the
     // entry will be used for calculating the progress bar, but
     // it will not show up in the checklist widget.
-    sectionChecklist: !isSectionSix
-        ? {
+    sectionChecklist: {
+        4: {
             "Sandshrew": {
                 goal: 2,
                 similarSpecies: ["Sandslash"],
@@ -85,9 +91,9 @@ const config = {
                 similarSpecies: ["Armaldo"],
                 hidden: false,
             },
-        }
+        },
 
-        : {
+        5: {
             "Jigglypuff": {
                 goal: 1,
                 similarSpecies: ["Wigglytuff"],
@@ -279,7 +285,274 @@ const config = {
                 similarSpecies: [],
                 hidden: false,
             },
+        },
+
+        6: {
+            "Chinchou": {
+                goal: 2,
+                similarSpecies: ["Lanturn"],
+                hidden: false,
+            },
+
+            "Clamperl": {
+                goal: 1,
+                similarSpecies: ["Huntail", "Gorebyss"],
+                hidden: false,
+            },
+
+            "Relicanth": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Regirock": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Regice": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Registeel": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Rayquaza": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Vileplume": {
+                goal: 3,
+                similarSpecies: ["Oddish", "Gloom"],
+                hidden: false,
+            },
+
+            "Starmie": {
+                goal: 2,
+                similarSpecies: ["Staryu"],
+                hidden: false,
+            },
+
+            "Ludicolo": {
+                goal: 3,
+                similarSpecies: ["Lotad", "Lombre"],
+                hidden: false,
+            },
+        },
+
+        7: {
+            "Mawile": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Bagon": {
+                goal: 3,
+                similarSpecies: ["Shelgon", "Salamence"],
+                hidden: false,
+            },
+        },
+
+        8: {
+            "Latias": {
+                goal: 1,
+                similarSpecies: ["Latios"],
+                hidden: false,
+            },
+
+            "Lileep": {
+                goal: 2,
+                similarSpecies: ["Cradily"],
+                hidden: false,
+            },
+
+            "Beldum": {
+                goal: 3,
+                similarSpecies: ["Metang", "Metagross"],
+                hidden: false,
+            },
+
+            "Kyogre": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Groudon": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Ditto": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Sudowoodo": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Smeargle": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Hoothoot": {
+                goal: 2,
+                similarSpecies: ["Noctowl"],
+                hidden: false,
+            },
+
+            "Ledyba": {
+                goal: 2,
+                similarSpecies: ["Ledian"],
+                hidden: false,
+            },
+
+            "Spinarak": {
+                goal: 2,
+                similarSpecies: ["Ariados"],
+                hidden: false,
+            },
+
+            "Mareep": {
+                goal: 3,
+                similarSpecies: ["Flaaffy", "Ampharos"],
+                hidden: false,
+            },
+
+            "Aipom": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Sunkern": {
+                goal: 2,
+                similarSpecies: ["Sunflora"],
+                hidden: false,
+            },
+
+            "Wooper": {
+                goal: 2,
+                similarSpecies: ["Quagsire"],
+                hidden: false,
+            },
+
+            "Pineco": {
+                goal: 2,
+                similarSpecies: ["Forretress"],
+                hidden: false,
+            },
+
+            "Gligar": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Snubbull": {
+                goal: 2,
+                similarSpecies: ["Granbull"],
+                hidden: false,
+            },
+
+            "Shuckle": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Teddiursa": {
+                goal: 1,
+                similarSpecies: ["Ursaring"],
+                hidden: false,
+            },
+
+            "Remoraid": {
+                goal: 2,
+                similarSpecies: ["Octillery"],
+                hidden: false,
+            },
+
+            "Houndour": {
+                goal: 2,
+                similarSpecies: ["Houndoom"],
+                hidden: false,
+            },
+
+            "Stantler": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Miltank": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Meowth": {
+                goal: 2,
+                similarSpecies: ["Persian"],
+                hidden: false,
+            },
+
+            "Mudkip": {
+                goal: 3,
+                similarSpecies: ["Mashtomp", "Swampert"],
+                hidden: false,
+            },
+        },
+
+        9: {
+            "Mew": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Lugia": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Ho-Oh": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Latios": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
+
+            "Deoxys": {
+                goal: 1,
+                similarSpecies: [],
+                hidden: false,
+            },
         }
+    }[section],
 
 };
 
