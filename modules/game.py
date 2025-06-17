@@ -30,6 +30,12 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
                 length = int(length, 16)
                 label = label.strip()
 
+                # This label sometimes appear for the same memory address as others,
+                # blocking the names we're actually interested in. Thus, we just
+                # ignore those.
+                if label == ".gcc2_compiled" or label == ".gcc2_compiled.":
+                    continue
+
                 _symbols[label.upper()] = (address, length)
                 _reverse_symbols[address] = (label.upper(), label, length)
 
