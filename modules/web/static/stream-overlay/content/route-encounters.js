@@ -26,7 +26,7 @@ const updateMapName = map => {
  * @param {PokeBotApi.GetStatsResponse} stats
  * @param {EncounterType} encounterType
  * @param {StreamOverlay.SectionChecklist} checklistConfig
- * @param {string[] | null} [additionalRouteSpecies]
+ * @param {Set<string>} [additionalRouteSpecies]
  * @param {string} [animateSpecies]
  */
 const updateRouteEncountersList = (encounters, stats, encounterType, checklistConfig, additionalRouteSpecies = null, animateSpecies = null) => {
@@ -75,18 +75,16 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
 
     // Add species to this list that have been encountered here but are not part of the
     // regular encounter table (i.e. egg hatches, gift Pokémon, ...)
-    if (Array.isArray(additionalRouteSpecies)) {
-        for (const speciesName of additionalRouteSpecies) {
-            let alreadyInList = false;
-            for (const encounterSpecies of encounterList) {
-                if (encounterSpecies.species_name === speciesName) {
-                    alreadyInList = true;
-                }
+    for (const speciesName of additionalRouteSpecies) {
+        let alreadyInList = false;
+        for (const encounterSpecies of encounterList) {
+            if (encounterSpecies.species_name === speciesName) {
+                alreadyInList = true;
             }
+        }
 
-            if (!alreadyInList) {
-                encounterList.push({species_name: speciesName, encounter_rate: 0});
-            }
+        if (!alreadyInList) {
+            encounterList.push({species_name: speciesName, encounter_rate: 0});
         }
     }
 

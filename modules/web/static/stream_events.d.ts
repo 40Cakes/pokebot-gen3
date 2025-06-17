@@ -1,4 +1,4 @@
-import {MapLocation, Pokemon, Player as PlayerType, Pokedex as PokedexType} from "./pokemon";
+import {MapLocation, Pokemon, Player as PlayerType, Pokedex as PokedexType, PlayerAvatarType} from "./pokemon";
 import {EffectiveEncounterList, Encounter, RegularEncounterList} from "./stats";
 
 declare namespace StreamEvents {
@@ -23,7 +23,7 @@ declare namespace StreamEvents {
     // Contains some basic data about the player (such as name, IDs, current money, ...)
     export type Player = PlayerType;
 
-    export type PlayerAvatar = PlayerType;
+    export type PlayerAvatar = PlayerAvatarType;
 
     // Lists Pokémon in the current party. May contain between 0 and 6 entries.
     export type Party = Pokemon[];

@@ -248,6 +248,8 @@ export type Pokemon = {
 
     species: Species;
 
+    species_name_for_stats: string;
+
     held_item: Item | null;
 
     // Total number of Experience that this Pokémon has collected.
@@ -562,7 +564,7 @@ export type Player = {
     registered_item: string;
 };
 
-export type PlayerAvatar = {
+export type PlayerAvatarType = {
     map_group_and_number: [number, number];
 
     // Local coordinates (in tiles) on the current map.

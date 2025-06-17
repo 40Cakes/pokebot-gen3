@@ -10,6 +10,7 @@ html, body {
     font-size: 1.75vh;
     margin: 0;
     padding: 0;
+    overflow: hidden;
 }
 
 img {
