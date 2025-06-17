@@ -285,6 +285,12 @@ const config = {
                 similarSpecies: [],
                 hidden: false,
             },
+
+            "Vileplume": {
+                goal: 3,
+                similarSpecies: ["Oddish", "Gloom"],
+                hidden: false,
+            },
         },
 
         6: {
@@ -330,9 +336,9 @@ const config = {
                 hidden: false,
             },
 
-            "Vileplume": {
+            "Shiftry": {
                 goal: 3,
-                similarSpecies: ["Oddish", "Gloom"],
+                similarSpecies: ["Seedot", "Nuzleaf"],
                 hidden: false,
             },
 

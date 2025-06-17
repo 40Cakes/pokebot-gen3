@@ -28,7 +28,7 @@ function updateShinyLog(shinyLog) {
             entry.shiny_encounter.outcome === "InProgress" ||
             entry.shiny_encounter.outcome === null;
 
-        const sprite = speciesSprite(entry.shiny_encounter.pokemon.species.name, "shiny");
+        const sprite = speciesSprite(entry.shiny_encounter.pokemon.species_name_for_stats, "shiny");
         if (!successful) {
             sprite.classList.add("unsuccessful");
         }

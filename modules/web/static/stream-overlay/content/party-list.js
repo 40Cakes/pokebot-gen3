@@ -20,10 +20,10 @@ function updatePartyList(party) {
             hpPercentage = 0;
             expPercentage = Math.round(100 * (member.species.egg_cycles - member.friendship) / member.species.egg_cycles);
         } else if (member.current_hp === 0) {
-            sprite = speciesSprite(member.species.name, member.is_shiny ? "shiny" : "normal", false);
+            sprite = speciesSprite(member.species_name_for_stats, member.is_shiny ? "shiny" : "normal", false);
             sprite.classList.add("fainted");
         } else {
-            sprite = speciesSprite(member.species.name, member.is_shiny ? "shiny" : "normal", true);
+            sprite = speciesSprite(member.species_name_for_stats, member.is_shiny ? "shiny" : "normal", true);
         }
 
         let statusCondition = "";

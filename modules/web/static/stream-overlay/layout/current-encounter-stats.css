@@ -37,6 +37,11 @@ table#encounter-stats {
 
     td {
         padding: .5vh 0;
+
+        &:nth-child(2) img {
+            height: 1rem;
+            transform: scale(1.5);
+        }
     }
 
     .arrow-sprite {

@@ -33,7 +33,7 @@ function updateEncounterLog(encounterLog) {
 
         tbody.append(renderTableRow({
             sprite: [
-                speciesSprite(entry.pokemon.species.name, entry.pokemon.is_shiny ? "shiny" : "normal"),
+                speciesSprite(entry.pokemon.species_name_for_stats, entry.pokemon.is_shiny ? "shiny" : "normal"),
                 genderSprite(entry.pokemon.gender),
                 itemSprite(entry.pokemon.held_item),
             ],

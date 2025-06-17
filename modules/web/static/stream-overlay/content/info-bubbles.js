@@ -49,14 +49,14 @@ function updateInfoBubbles(mapEncounters, stats, targetTimers, lastEncounterType
             if (["Magma Armor", "Flame Body"].includes(activeAbility)) {
                 for (const member of party) {
                     if (member.ability.name === activeAbility) {
-                        sprite = speciesSprite(member.species.name, member.is_shiny ? "shiny-cropped" : "normal-cropped", false);
+                        sprite = speciesSprite(member.species_name_for_stats, member.is_shiny ? "shiny-cropped" : "normal-cropped", false);
                         sprite.classList.add("icon-species-static");
                         break;
                     }
                 }
             } else {
                 if (party[0].ability.name === activeAbility) {
-                    sprite = speciesSprite(party[0].species.name, party[0].is_shiny ? "shiny-cropped" : "normal-cropped", false);
+                    sprite = speciesSprite(party[0].species_name_for_stats, party[0].is_shiny ? "shiny-cropped" : "normal-cropped", false);
                     sprite.classList.add("icon-species-static");
                 }
             }
@@ -123,6 +123,7 @@ function updateEncounterInfoBubble(speciesName, stats) {
     }
 
     if (!stats.pokemon.hasOwnProperty(speciesName)) {
+        targetTimerBubbles[speciesName][1].style.display = "none";
         targetTimerBubbles[speciesName][1].innerText = "?";
         return;
     }
@@ -144,6 +145,7 @@ function updateEncounterInfoBubble(speciesName, stats) {
         } else {
             targetTimerBubbles[speciesName][1].innerHTML = `${hours} <small>hr</small> ${minutes} <small>min</small>`;
         }
+        targetTimerBubbles[speciesName][1].style.display = "inline-block";
     }
 
     const msUntilNextMinute = ((diffInMinutes + 1) * 60000) - diffInMS;
