@@ -100,7 +100,6 @@ class StateCache:
         self._last_shiny_log = StateCacheItem(None)
         self._battle_state = StateCacheItem(None)
 
-
     @property
     def party(self) -> StateCacheItem["Party | None"]:
         return self._party
