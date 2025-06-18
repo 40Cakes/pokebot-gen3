@@ -43,8 +43,18 @@ class StateCacheItem(Generic[T]):
     @property
     def age_in_frames(self) -> int | None:
         current_frame_count = context.emulator.get_frame_count()
+
+        # This condition will trigger when the emulator has been reset, and
+        # probably also when doing some debug mode shenanigans.
+        # If the emulator's frame count is lower than that of the data, we
+        # must assume that the data is no longer current/valid anymore. This
+        # shouldn't happen due to the state cache's `reset()` method being
+        # called after an emulator reset, but just in case we'll report a
+        # ridiculously high age so no part of the code will consider using
+        # this data.
         if self._last_check_frame > current_frame_count:
-            self._last_check_frame = current_frame_count
+            return 1000000
+
         return current_frame_count - self._last_check_frame
 
     def checked(self) -> None:
@@ -70,6 +80,25 @@ class StateCache:
         self._last_encounter_log: StateCacheItem["dict | None"] = StateCacheItem(None)
         self._last_shiny_log: StateCacheItem["dict | None"] = StateCacheItem(None)
         self._battle_state: StateCacheItem["BattleState | None"] = StateCacheItem(None)
+
+    def reset(self) -> None:
+        self._party = StateCacheItem(None)
+        self._opponent = StateCacheItem(None)
+        self._fishing_attempt = StateCacheItem(None)
+        self._player = StateCacheItem(None)
+        self._player_avatar = StateCacheItem(None)
+        self._pokedex = StateCacheItem(None)
+        self._pokemon_storage = StateCacheItem(None)
+        self._effective_wild_encounters = StateCacheItem(None)
+        self._item_bag = StateCacheItem(None)
+        self._item_storage = StateCacheItem(None)
+        self._tasks = StateCacheItem(None)
+        self._global_script_context = StateCacheItem(None)
+        self._immediate_script_context = StateCacheItem(None)
+        self._game_state = StateCacheItem(None)
+        self._last_encounter_log = StateCacheItem(None)
+        self._last_shiny_log = StateCacheItem(None)
+        self._battle_state = StateCacheItem(None)
 
     @property
     def party(self) -> StateCacheItem["Party | None"]:
