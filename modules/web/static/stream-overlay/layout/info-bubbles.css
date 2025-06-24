@@ -52,6 +52,23 @@
                     background-size: contain;
                 }
             }
+
+            &.female {
+                position: relative;
+
+                &::after {
+                    content: "";
+                    height: 33%;
+                    width: 100%;
+                    position: absolute;
+                    bottom: 10%;
+                    right: 7px;
+                    background-image: url("/static/sprites/other/Female.png");
+                    background-position: center;
+                    background-repeat: no-repeat;
+                    background-size: contain;
+                }
+            }
         }
 
         item-sprite, overlay-sprite {

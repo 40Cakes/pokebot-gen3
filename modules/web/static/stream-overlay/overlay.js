@@ -168,7 +168,7 @@ function handleWildEncounter(event, state) {
     updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.additionalRouteSpecies, event.pokemon.species_name_for_stats);
     updatePhaseStats(state.stats);
     updateTotalStats(state.stats, state.encounterRate);
-    updateEncounterInfoBubble(event.pokemon.species_name_for_stats, state.stats);
+    updateEncounterInfoBubble(event.pokemon.species_name_for_stats, state.stats, event.pokemon.gender);
     updateInfoBubbles(state.mapEncounters, state.stats, config.targetTimers, event.type, state.party);
     updateEncounterLog(state.encounterLog);
     showCurrentEncounterStats(event);
