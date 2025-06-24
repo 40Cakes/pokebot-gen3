@@ -25,6 +25,12 @@
             transform: scale(2.5);
         }
 
+        .icon-female {
+            height: 1.5vh;
+            margin-right: .75vh;
+            transform: translateY(.25vh);
+        }
+
         item-sprite, overlay-sprite, pokemon-sprite {
             display: inline-block;
             vertical-align: middle;
@@ -48,23 +54,6 @@
                     right: 0;
                     background-image: url("/static/sprites/stream-overlay/cross.png");
                     background-position: center right;
-                    background-repeat: no-repeat;
-                    background-size: contain;
-                }
-            }
-
-            &.female {
-                position: relative;
-
-                &::after {
-                    content: "";
-                    height: 33%;
-                    width: 100%;
-                    position: absolute;
-                    bottom: 10%;
-                    right: 7px;
-                    background-image: url("/static/sprites/other/Female.png");
-                    background-position: center;
                     background-repeat: no-repeat;
                     background-size: contain;
                 }

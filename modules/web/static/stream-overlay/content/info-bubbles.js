@@ -102,7 +102,10 @@ function updateInfoBubbles(mapEncounters, stats, targetTimers, lastEncounterType
         sprite.classList.add("icon-species");
 
         if (FOSSIL_SPECIES.includes(speciesName)) {
-            sprite.classList.add("female");
+            const femaleIcon = document.createElement("img");
+            femaleIcon.src = "/static/sprites/other/Female.png";
+            femaleIcon.classList.add("icon-female");
+            bubble.append(femaleIcon);
         }
 
         let span = document.createElement("span");

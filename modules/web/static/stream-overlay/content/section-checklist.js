@@ -38,6 +38,7 @@ const updateSectionChecklist = (checklistConfig, stats) => {
 
             elements.sprite.setAttribute("species", speciesName);
             elements.sprite.setAttribute("cropped", "cropped");
+            elements.sprite.setAttribute("shiny", "shiny");
 
             const span = document.createElement("span");
             span.append(elements.countSpan);

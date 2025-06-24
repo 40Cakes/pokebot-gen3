@@ -141,7 +141,7 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
         }
 
         tbody.append(renderTableRow({
-            sprite: speciesSprite(encounter.species_name, "shiny", encounter.species_name === animateSpecies),
+            sprite: speciesSprite(encounter.species_name, "normal", encounter.species_name === animateSpecies),
             odds: encounter.encounter_rate > 0 ? Math.round(encounter.encounter_rate * 100) + "%" : "",
             svRecords: species && species.phase_lowest_sv && species.phase_highest_sv
                 ? [colouredShinyValue(species.phase_lowest_sv), br(), colouredShinyValue(species.phase_highest_sv)]
