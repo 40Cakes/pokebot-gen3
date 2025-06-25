@@ -2,7 +2,7 @@ export const numberOfEncounterLogEntries = 8;
 
 /**
  * @param {string} speciesName
- * @param {"normal" | "shiny" | "normal-cropped" | "shiny-cropped"} [type]
+ * @param {"normal" | "shiny" | "anti-shiny" | "normal-cropped" | "shiny-cropped"} [type]
  * @param {boolean} [animated]
  * @return {string}
  */
@@ -35,7 +35,7 @@ export function eggSpritePath(animated = false) {
 
 /**
  * @param {string} speciesName
- * @param {"normal" | "shiny" | "normal-cropped" | "shiny-cropped"} [type]
+ * @param {"normal" | "shiny" | "anti-shiny" | "normal-cropped" | "shiny-cropped"} [type]
  * @param {boolean} [animated]
  * @return {PokemonSprite}
  */
@@ -44,6 +44,9 @@ export function speciesSprite(speciesName, type = "normal", animated = false) {
     sprite.setAttribute("species", speciesName);
     if (type === "shiny" || type === "shiny-cropped") {
         sprite.setAttribute("shiny", "shiny");
+    }
+    if (type === "anti-shiny") {
+        sprite.setAttribute("shiny", "anti");
     }
     if (type === "shiny-cropped" || type === "normal-cropped") {
         sprite.setAttribute("cropped", "cropped");
@@ -449,4 +452,30 @@ export function getSectionProgress(sectionChecklist, stats) {
     }
 
     return {caught, goal};
+}
+
+/**
+ * @param {Encounter[]|null} encounterLog
+ * @return {boolean}
+ */
+export function getLastEncounterSpecies(encounterLog) {
+    if (Array.isArray(encounterLog) && encounterLog.length > 0) {
+        return encounterLog[0].pokemon.species_name_for_stats;
+    } else {
+        return null;
+    }
+}
+
+/**
+ * @param {Encounter[]} encounterLog
+ * @returns {Set<string>}
+ */
+export function getRecentAntiShinies(encounterLog) {
+    let antiShinySpecies = new Set();
+    for (const previousEncounter of encounterLog) {
+        if (previousEncounter.pokemon.is_anti_shiny) {
+            antiShinySpecies.add(previousEncounter.pokemon.species_name_for_stats);
+        }
+    }
+    return antiShinySpecies;
 }

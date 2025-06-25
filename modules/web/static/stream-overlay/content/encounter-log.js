@@ -31,9 +31,16 @@ function updateEncounterLog(encounterLog) {
             entry.pokemon.ivs.special_defence +
             entry.pokemon.ivs.speed;
 
+        let speciesSpriteType = "normal";
+        if (entry.pokemon.is_shiny) {
+            speciesSpriteType = "shiny";
+        } else if (entry.pokemon.is_anti_shiny) {
+            speciesSpriteType = "anti-shiny";
+        }
+
         tbody.append(renderTableRow({
             sprite: [
-                speciesSprite(entry.pokemon.species_name_for_stats, entry.pokemon.is_shiny ? "shiny" : "normal"),
+                speciesSprite(entry.pokemon.species_name_for_stats, speciesSpriteType),
                 genderSprite(entry.pokemon.gender),
                 itemSprite(entry.pokemon.held_item),
             ],

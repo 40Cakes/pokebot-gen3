@@ -425,6 +425,7 @@ export default class PokemonSprite extends HTMLElement {
         /** @type {HTMLImageElement | null} */
         this.sprite = null;
         this.shiny = false;
+        this.antiShiny = false;
         this.cropped = false;
         this.continuouslyAnimated = false;
         this.species = null;
@@ -439,6 +440,11 @@ export default class PokemonSprite extends HTMLElement {
 
         if (this.cropped) {
             console.error(`Cannot animate sprite of '${this.species}' because it is cropped.`);
+            return;
+        }
+
+        if (this.antiShiny) {
+            console.error(`Cannot animate sprite of '${this.species}' because it is anti-shiny.`);
             return;
         }
 
@@ -464,7 +470,16 @@ export default class PokemonSprite extends HTMLElement {
 
     attributeChangedCallback(name, oldValue, newValue) {
         if (name === "shiny") {
-            this.shiny = newValue !== null;
+            if (newValue === "anti") {
+                this.shiny = false;
+                this.antiShiny = true;
+            } else if (newValue !== null && newValue !== "no" && newValue !== "false") {
+                this.shiny = true;
+                this.antiShiny = false;
+            } else {
+                this.shiny = false;
+                this.antiShiny = false;
+            }
         }
 
         if (name === "cropped") {
@@ -482,6 +497,12 @@ export default class PokemonSprite extends HTMLElement {
         let type = this.shiny ? "shiny" : "normal";
         if (this.cropped && !this.continuouslyAnimated) {
             type += "-cropped";
+        }
+        if (this.antiShiny) {
+            console.log(this);
+        }
+        if (!this.cropped && !this.continuouslyAnimated && this.antiShiny) {
+            type = "anti-shiny";
         }
 
         let src = "";
