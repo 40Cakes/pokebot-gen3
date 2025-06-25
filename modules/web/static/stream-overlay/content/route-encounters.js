@@ -115,7 +115,7 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
             }
             totalEncounters = [formatInteger(species.total_encounters)];
 
-            if (species.catches > 0) {
+            if (species.shiny_encounters > 0) {
                 const shinyRate = Math.round(species.total_encounters / species.shiny_encounters).toLocaleString("en");
                 const shinyRateLabel = document.createElement("span");
                 shinyRateLabel.classList.add("shiny-rate");
@@ -141,7 +141,7 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
         }
 
         tbody.append(renderTableRow({
-            sprite: speciesSprite(encounter.species_name, "shiny", encounter.species_name === animateSpecies),
+            sprite: speciesSprite(encounter.species_name, "normal", encounter.species_name === animateSpecies),
             odds: encounter.encounter_rate > 0 ? Math.round(encounter.encounter_rate * 100) + "%" : "",
             svRecords: species && species.phase_lowest_sv && species.phase_highest_sv
                 ? [colouredShinyValue(species.phase_lowest_sv), br(), colouredShinyValue(species.phase_highest_sv)]

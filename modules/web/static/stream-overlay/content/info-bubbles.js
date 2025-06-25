@@ -15,10 +15,14 @@ const infoBubbleFailedFishingRecord = document.querySelector("#info-bubble-faile
 const infoBubblePokeNav = document.querySelector("#info-bubble-pokenav");
 const infoBubblePokeNavCalls = document.querySelector("#info-bubble-pokenav span");
 
+const FOSSIL_SPECIES = ["Anorith", "Lileep", "Omanyte", "Kabuto", "Aerodactyl"];
+
 let lastSetAbility = null;
 let lastRepelLevel = null;
 /** @type {{[k: string]: [HTMLDivElement, HTMLSpanElement, number, number | undefined]}} */
 const targetTimerBubbles = {};
+/** @type {Date | null} */
+let lastFemale = null;
 
 /**
  * @param {StreamEvents.MapEncounters} mapEncounters
@@ -96,6 +100,14 @@ function updateInfoBubbles(mapEncounters, stats, targetTimers, lastEncounterType
 
         const sprite = speciesSprite(speciesName, "normal", true);
         sprite.classList.add("icon-species");
+
+        if (FOSSIL_SPECIES.includes(speciesName)) {
+            const femaleIcon = document.createElement("img");
+            femaleIcon.src = "/static/sprites/other/Female.png";
+            femaleIcon.classList.add("icon-female");
+            bubble.append(femaleIcon);
+        }
+
         let span = document.createElement("span");
         if (isFirst) {
             bubble.append(span, sprite);
@@ -116,14 +128,15 @@ function updateInfoBubbles(mapEncounters, stats, targetTimers, lastEncounterType
 /**
  * @param {string} speciesName
  * @param {PokeBotApi.GetStatsResponse} stats
+ * @param {"male" | "female" | null} [encounterGender]
  */
-function updateEncounterInfoBubble(speciesName, stats) {
+function updateEncounterInfoBubble(speciesName, stats, encounterGender) {
     if (!targetTimerBubbles.hasOwnProperty(speciesName)) {
         return;
     }
 
     if (!stats.pokemon.hasOwnProperty(speciesName)) {
-        targetTimerBubbles[speciesName][1].style.display = "none";
+        targetTimerBubbles[speciesName][0].style.display = "none";
         targetTimerBubbles[speciesName][1].innerText = "?";
         return;
     }
@@ -132,7 +145,20 @@ function updateEncounterInfoBubble(speciesName, stats) {
         window.clearTimeout(targetTimerBubbles[speciesName][3]);
     }
 
-    const diffInMS = new Date().getTime() - new Date(stats.pokemon[speciesName].last_encounter_time).getTime();
+    let lastEncounterTime = new Date(stats.pokemon[speciesName].last_encounter_time);
+    if (FOSSIL_SPECIES.includes(speciesName)) {
+        if (encounterGender === "female") {
+            lastFemale = new Date();
+        }
+        lastEncounterTime = lastFemale;
+
+        if (lastEncounterTime === null) {
+            targetTimerBubbles[speciesName][1].innerText = "?";
+            return;
+        }
+    }
+
+    const diffInMS = new Date().getTime() - lastEncounterTime.getTime();
     const diffInMinutes = Math.floor(diffInMS / 60000);
     if (targetTimerBubbles[speciesName][2] !== diffInMinutes) {
         targetTimerBubbles[speciesName][2] = diffInMinutes;
@@ -149,7 +175,9 @@ function updateEncounterInfoBubble(speciesName, stats) {
     }
 
     const msUntilNextMinute = ((diffInMinutes + 1) * 60000) - diffInMS;
-    window.setTimeout(() => updateEncounterInfoBubble(speciesName, stats), msUntilNextMinute + 1)
+    targetTimerBubbles[speciesName][3] = window.setTimeout(
+        () => updateEncounterInfoBubble(speciesName, stats),
+        msUntilNextMinute + 1);
 }
 
 /**
@@ -183,4 +211,10 @@ function updatePokeNavInfoBubble(stats) {
     }
 }
 
-export {updateInfoBubbles, updateEncounterInfoBubble, updateFishingInfoBubble, hideFishingInfoBubble, updatePokeNavInfoBubble};
+export {
+    updateInfoBubbles,
+    updateEncounterInfoBubble,
+    updateFishingInfoBubble,
+    hideFishingInfoBubble,
+    updatePokeNavInfoBubble
+};

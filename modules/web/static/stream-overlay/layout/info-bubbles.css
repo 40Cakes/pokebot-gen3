@@ -25,6 +25,12 @@
             transform: scale(2.5);
         }
 
+        .icon-female {
+            height: 1.5vh;
+            margin-right: .75vh;
+            transform: translateY(.25vh);
+        }
+
         item-sprite, overlay-sprite, pokemon-sprite {
             display: inline-block;
             vertical-align: middle;
