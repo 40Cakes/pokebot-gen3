@@ -24,7 +24,7 @@ function updatePhaseStats(stats) {
 
         if (currentPhase.current_streak?.species_name) {
             const currentStreakNumber = document.createElement("small");
-            currentStreakNumber.innerText = `(${currentPhase.current_streak.value})`;
+            currentStreakNumber.innerText = `(${currentPhase.current_streak.value.toLocaleString("en")})`;
             longestStreak.append(currentStreakNumber);
         }
     }
