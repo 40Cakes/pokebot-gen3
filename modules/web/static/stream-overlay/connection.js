@@ -34,6 +34,9 @@ export const fetchers = {
 
     /** @return {Promise<PokeBotApi.GetPokemonStorageResponse>} */
     pokemonStorage: () => fetch("/pokemon_storage").then(response => response.json()),
+
+    /** @return {Promise<PokeBotApi.GetDaycareResponse>} */
+    daycare: () => fetch("/daycare").then(response => response.json()),
 };
 
 /**
@@ -55,6 +58,7 @@ export function loadAllData(state) {
                 fetchers.encounterRate(),
                 fetchers.gameState(),
                 fetchers.pokemonStorage(),
+                fetchers.daycare(),
             ]).then(
                 data => {
                     state.stats = data[0];
@@ -69,6 +73,7 @@ export function loadAllData(state) {
                     state.encounterRate = data[9].encounter_rate;
                     state.gameState = data[10];
                     state.pokemonStorage = data[11];
+                    state.daycare = data[12];
                     state.reset();
                     resolve();
                 },

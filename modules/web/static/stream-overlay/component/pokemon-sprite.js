@@ -498,9 +498,6 @@ export default class PokemonSprite extends HTMLElement {
         if (this.cropped && !this.continuouslyAnimated) {
             type += "-cropped";
         }
-        if (this.antiShiny) {
-            console.log(this);
-        }
         if (!this.cropped && !this.continuouslyAnimated && this.antiShiny) {
             type = "anti-shiny";
         }

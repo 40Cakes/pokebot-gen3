@@ -20,6 +20,7 @@ import {hideCurrentEncounterStats, showCurrentEncounterStats} from "./content/cu
 import {updateInputs} from "./content/inputs.js";
 import {updateClock} from "./content/clock.js";
 import {getLastEncounterSpecies, getRecentAntiShinies} from "./helper.js";
+import {updateDaycareBox} from "./content/daycare.js";
 
 const BATTLE_STATES = ["BATTLE_STARTING", "BATTLE", "BATTLE_ENDING"];
 
@@ -43,16 +44,17 @@ async function doFullUpdate(state) {
     isInMainMenu = state.gameState === "MAIN_MENU" || state.gameState === "TITLE_SCREEN";
 
     updateMapName(state.map);
-    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog), getRecentAntiShinies(state.encounterLog));
+    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog), getRecentAntiShinies(state.encounterLog));
     updateSectionChecklist(config.sectionChecklist, state.stats);
     updateShinyLog(state.shinyLog);
     updateEncounterLog(state.encounterLog);
     updatePartyList(state.party);
     updateBadgeList(state.emulator.game.title, state.eventFlags);
     updatePhaseStats(state.stats);
-    updatePCStorage(state.pokemonStorage, state.party);
+    updatePCStorage(state.pokemonStorage, state.party, state.daycare);
     updateTotalStats(state.stats, state.encounterRate);
     updateInfoBubbles(state.mapEncounters, state.stats, config.targetTimers, state.lastEncounterType, state.party);
+    updateDaycareBox(state.emulator.bot_mode, state);
 }
 
 /**
@@ -68,7 +70,7 @@ async function doUpdateAfterEncounter(state) {
 
         updateShinyLog(state.shinyLog);
         updateSectionChecklist(config.sectionChecklist, state.stats);
-        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog), getRecentAntiShinies(state.encounterLog));
+        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog), getRecentAntiShinies(state.encounterLog));
         updatePhaseStats(state.stats);
         updateTotalStats(state.stats, state.encounterRate);
         updatePokeNavInfoBubble(null);
@@ -130,10 +132,28 @@ function handleGameState(event, state) {
     // hide the encounter stats again.
     if (isInBattle && state.gameState === "OVERWORLD") {
         hideCurrentEncounterStats();
-        doUpdateAfterEncounter(state).then(() => {});
+        doUpdateAfterEncounter(state).then(() => {
+        });
         isInBattle = false;
     } else if (!isInBattle && BATTLE_STATES.includes(state.gameState)) {
         isInBattle = true;
+    }
+}
+
+/**
+ * @param {StreamEvents.BotMode} event
+ * @param {OverlayState} state
+ */
+function handleBotMode(event, state) {
+    const previousMode = state.emulator.bot_mode;
+    state.emulator.bot_mode = event;
+
+    const previousModeWasDaycare = previousMode.toLowerCase().includes("daycare");
+    const newModeIsDaycare = event.toLowerCase().includes("daycare");
+
+    if (previousModeWasDaycare !== newModeIsDaycare) {
+        updateDaycareBox(event, state);
+        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog), getRecentAntiShinies(state.encounterLog));
     }
 }
 
@@ -166,7 +186,7 @@ function handleWildEncounter(event, state) {
         wasShinyEncounter = true;
     }
 
-    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.additionalRouteSpecies, event.pokemon.species_name_for_stats, getRecentAntiShinies(state.encounterLog));
+    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, event.pokemon.species_name_for_stats, getRecentAntiShinies(state.encounterLog));
     updatePhaseStats(state.stats);
     updateTotalStats(state.stats, state.encounterRate);
     updateEncounterInfoBubble(event.pokemon.species_name_for_stats, state.stats, event.pokemon.gender);
@@ -196,7 +216,7 @@ function handleMapChange(event, state) {
  */
 function handleMapEncounters(event, state) {
     state.mapEncounters = event;
-    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog), getRecentAntiShinies(state.encounterLog));
+    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog), getRecentAntiShinies(state.encounterLog));
 }
 
 /**
@@ -205,7 +225,7 @@ function handleMapEncounters(event, state) {
  */
 function handlePlayerAvatar(event, state) {
     if (state.logPlayerAvatarChange(event)) {
-        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog), getRecentAntiShinies(state.encounterLog));
+        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog), getRecentAntiShinies(state.encounterLog));
     }
 }
 
@@ -255,6 +275,7 @@ export default async function runOverlay() {
 
     eventSource.addEventListener("PerformanceData", event => handlePerformanceData(JSON.parse(event.data), state));
     eventSource.addEventListener("GameState", event => handleGameState(JSON.parse(event.data), state));
+    eventSource.addEventListener("BotMode", event => handleBotMode(JSON.parse(event.data), state));
     eventSource.addEventListener("Party", event => handleParty(JSON.parse(event.data), state));
     eventSource.addEventListener("WildEncounter", event => handleWildEncounter(JSON.parse(event.data), state));
     eventSource.addEventListener("MapChange", event => handleMapChange(JSON.parse(event.data), state));

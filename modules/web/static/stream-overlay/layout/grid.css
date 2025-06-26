@@ -24,15 +24,15 @@ body > section {
         height: 66.66vh;
         width: calc(100% - 99.99vh);
 
+        > div {
+            flex: 0;
+        }
+
         > div:nth-child(1) {
             flex: 1;
             position: relative;
             display: flex;
             flex-direction: column;
-        }
-
-        > div:nth-child(2) {
-            flex: 0;
         }
     }
 

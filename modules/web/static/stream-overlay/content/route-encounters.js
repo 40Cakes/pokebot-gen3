@@ -26,16 +26,20 @@ const updateMapName = map => {
  * @param {PokeBotApi.GetStatsResponse} stats
  * @param {EncounterType} encounterType
  * @param {StreamOverlay.SectionChecklist} checklistConfig
+ * @param {string} botMode
  * @param {Set<string>} [additionalRouteSpecies]
  * @param {string} [animateSpecies]
  * @param {Set<string>} [antiShinySpecies]
  */
-const updateRouteEncountersList = (encounters, stats, encounterType, checklistConfig, additionalRouteSpecies = null, animateSpecies = null, antiShinySpecies = null) => {
+const updateRouteEncountersList = (encounters, stats, encounterType, checklistConfig, botMode, additionalRouteSpecies = null, animateSpecies = null, antiShinySpecies = null) => {
     /** @type {MapEncounter[]} encounterList */
     let encounterList;
     /** @type {MapEncounter[]} regularEncounterList */
     let regularEncounterList;
-    if (encounterType === "surfing") {
+    if (botMode.toLowerCase().includes("daycare")) {
+        encounterList = [];
+        regularEncounterList = [];
+    } else if (encounterType === "surfing") {
         encounterList = [...encounters.effective.surf_encounters];
         regularEncounterList = [...encounters.regular.surf_encounters];
     } else if (encounterType === "fishing_old_rod") {
