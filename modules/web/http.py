@@ -12,6 +12,8 @@ from aiohttp import web
 from apispec import APISpec
 from apispec.yaml_utils import load_operations_from_docstring
 
+from modules.daycare import get_daycare_data
+
 try:
     from aiortc import MediaStreamTrack, VideoStreamTrack, RTCPeerConnection, RTCSessionDescription
     from aiortc.contrib.media import MediaRelay
@@ -229,6 +231,21 @@ def http_server(host: str, port: int) -> web.AppRunner:
         _update_via_work_queue(cached_storage, get_pokemon_storage)
 
         return web.json_response(cached_storage.value.to_dict())
+
+    @route.get("/daycare")
+    async def http_get_daycare(request: web.Request):
+        """
+        ---
+        get:
+          description: Returns information about which Pokémon have been deposited in the Daycare.
+          responses:
+            200:
+              content:
+                application/json: {}
+          tags:
+            - pokemon
+        """
+        return web.json_response(get_daycare_data().to_dict())
 
     @route.get("/opponent")
     async def http_get_opponent(request: web.Request):

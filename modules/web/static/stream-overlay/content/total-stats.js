@@ -14,8 +14,9 @@ let shiniesFromBeforeThisSection = 0;
 /**
  * @param {PokemonStorage} storage
  * @param {Pokemon[]} party
+ * @param {PokeBotApi.GetDaycareResponse} daycare
  */
-function updatePCStorage(storage, party) {
+function updatePCStorage(storage, party, daycare) {
     const ignoreSpecies = new Set();
     for (const speciesName in config.sectionChecklist) {
         ignoreSpecies.add(speciesName);
@@ -39,6 +40,14 @@ function updatePCStorage(storage, party) {
         if (pokemon.is_shiny && !ignoreSpecies.has(pokemon.species.name)) {
             species.add(pokemon.species.name);
         }
+    }
+
+    if (daycare.pokemon1 && daycare.pokemon1.is_shiny && !ignoreSpecies.has(daycare.pokemon1.species.name)) {
+        species.add(daycare.pokemon1.species.name);
+    }
+
+    if (daycare.pokemon2 && daycare.pokemon2.is_shiny && !ignoreSpecies.has(daycare.pokemon2.species.name)) {
+        species.add(daycare.pokemon2.species.name);
     }
 
     shiniesFromBeforeThisSection = species.size;

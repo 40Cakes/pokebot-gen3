@@ -1,0 +1,48 @@
+#daycare-info {
+    display: none;
+
+    > ul {
+        display: flex;
+        justify-content: space-evenly;
+        list-style: none;
+        margin: 1vh 0;
+        padding: 0;
+
+        > li {
+            width: 35%;
+            position: relative;
+            border: 1px var(--separator-line-colour) solid;
+            background-color: var(--lighter-background-colour);
+            border-radius: 1vh;
+            padding: 1vh;
+
+            pokemon-sprite {
+                img {
+                    float: left;
+                    margin-right: 2vh;
+                    height: 6vh;
+                }
+            }
+
+            .gender-icon {
+                position: absolute;
+                left: 6vh;
+                bottom: 1vh;
+            }
+
+            > div {
+                margin-bottom: .5vh;
+                font-size: 80%;
+
+                &:first-of-type {
+                    margin-bottom: 1vh;
+                    font-size: 100%;
+                }
+            }
+
+            small {
+                opacity: var(--muted-font-opacity);
+            }
+        }
+    }
+}

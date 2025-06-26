@@ -95,6 +95,17 @@ export default class OverlayState {
         boxes: [],
     };
 
+    /** @type {PokeBotApi.GetDaycareResponse} */
+    daycare = {
+        pokemon1: null,
+        pokemon1_steps: 0,
+        pokemon2: null,
+        pokemon2_steps: 0,
+        compatibility: "",
+        compatibility_explanation: "",
+        step_counter: 0,
+    };
+
     /** @type {Set<string>} */
     additionalRouteSpecies = new Set();
 
@@ -141,6 +152,7 @@ export default class OverlayState {
                 this.#cachedLastEncounterType = this.lastEncounter.type;
             } else if (["hatched", "gift", "static"].includes(this.lastEncounter.type)) {
                 this.additionalRouteSpecies.add(this.lastEncounter.pokemon.species_name_for_stats)
+                this.#cachedLastEncounterType = this.lastEncounter.type;
             }
 
             if (this.#cachedLastEncounterType === "land" && this.playerAvatar && this.playerAvatar.flags.Surfing) {

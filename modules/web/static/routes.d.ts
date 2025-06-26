@@ -1,4 +1,4 @@
-import {ItemBag, ItemStorage, MapLocation, Player, PlayerAvatar, Pokedex, Pokemon, PokemonStorage} from "./pokemon";
+import {ItemBag, ItemStorage, MapLocation, Player, PlayerAvatarType, Pokedex, Pokemon, PokemonStorage} from "./pokemon";
 import {EffectiveEncounterList, Encounter, GlobalStats, RegularEncounterList, ShinyPhase} from "./stats";
 
 declare module PokeBotApi {
@@ -88,7 +88,7 @@ declare module PokeBotApi {
     /**
      * Response body for `GET /player_avatar`
      */
-    export type GetPlayerAvatarResponse = null | PlayerAvatar;
+    export type GetPlayerAvatarResponse = null | PlayerAvatarType;
 
     /**
      * Response body for `GET /pokedex`
@@ -109,6 +109,22 @@ declare module PokeBotApi {
      * Response body for `GET /pokemon_storage`.
      */
     export type GetPokemonStorageResponse = PokemonStorage;
+
+    /**
+     * Response body for `GET /daycare`.
+     */
+    export type GetDaycareResponse = {
+        pokemon1: Pokemon;
+        pokemon1_steps: number;
+
+        pokemon2: Pokemon;
+        pokemon2_steps: number;
+
+        compatibility: string;
+        compatibility_explanation: string;
+
+        step_counter: number;
+    }
 
     /**
      * Response body for `GET /items`.
