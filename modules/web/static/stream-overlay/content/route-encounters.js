@@ -18,7 +18,7 @@ const noEncountersMessage = document.querySelector("#no-encounters-on-this-route
  * @param {PokeBotApi.GetMapResponse} map
  */
 const updateMapName = map => {
-    mapNameSpan.innerText = map.map.name;
+    mapNameSpan.innerText = map.map.pretty_name;
 };
 
 /**
