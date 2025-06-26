@@ -1047,10 +1047,23 @@ class MapLocation:
         return result
 
     def dict_for_map(self) -> dict:
+        pretty_name = self.map_name
+        try:
+            from modules.map_data import MapFRLG, MapRSE
+
+            if context.rom.is_frlg:
+                map_enum = MapFRLG(*self.map_group_and_number)
+            else:
+                map_enum = MapRSE(*self.map_group_and_number)
+            pretty_name = map_enum.pretty_name
+        except:
+            pass
+
         return {
             "map_group": self.map_group,
             "map_number": self.map_number,
             "name": self.map_name,
+            "pretty_name": pretty_name,
             "size": self.map_size,
             "type": self.map_type,
             "weather": self.weather,
