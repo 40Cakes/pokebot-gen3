@@ -7,10 +7,10 @@ from modules.encounter import judge_encounter, EncounterInfo
 from modules.items import get_item_bag, get_item_by_name, get_item_storage
 from modules.map_data import MapFRLG, MapRSE
 from modules.map_path import calculate_path
-from modules.memory import GameState, get_event_flag, get_game_state, get_game_state_symbol
+from modules.memory import GameState, get_event_flag, get_game_state
 from modules.player import get_player_avatar, get_player_location
 from modules.pokemon_party import get_party, get_party_size
-from modules.tasks import get_global_script_context, task_is_active
+from modules.tasks import get_global_script_context
 from ._interface import BotMode, BotModeError
 from .util import (
     ensure_facing_direction,
@@ -18,11 +18,10 @@ from .util import (
     navigate_to,
     register_key_item,
     talk_to_npc,
-    wait_for_player_avatar_to_be_controllable,
     wait_for_n_frames,
     wait_for_task_to_start_and_finish,
-    wait_until_task_is_active,
 )
+from .util.pc_interaction import interact_with_pc, PCAction
 
 
 def _update_message():
@@ -196,54 +195,12 @@ class DaycareMode(BotMode):
             yield from ensure_facing_direction("Up")
 
             # Interact with PC
-            if context.rom.is_rs:
-                yield from wait_until_task_is_active("Task_PokemonStorageSystem", "A")
-            else:
-                yield from wait_until_task_is_active("Task_PCMainMenu", "A")
-            yield from wait_for_n_frames(10)
-            for _ in range(2):
-                context.emulator.press_button("Down")
-                yield from wait_for_n_frames(5)
-            while not task_is_active("Task_PokeStorageMain") and get_game_state_symbol() != "SUB_8096B38":
-                context.emulator.press_button("A")
-                yield
-
-            # Navigate to party list
-            yield from wait_for_n_frames(50)
-            for _ in range(2):
-                context.emulator.press_button("Up")
-                yield from wait_for_n_frames(10)
-            context.emulator.press_button("A")
-            yield from wait_for_n_frames(60)
-
-            # Release 5 baby Pokémon
-            for index in range(get_party_size()):
-                if index not in party_indices_to_release:
-                    context.emulator.press_button("Down")
-                    yield from wait_for_n_frames(20)
-                else:
-                    yield from wait_for_n_frames(5)
-                    context.emulator.press_button("A")
-                    yield from wait_for_n_frames(5)
-                    for _ in range(2):
-                        yield from wait_for_n_frames(10)
-                        context.emulator.press_button("Up")
-                        yield from wait_for_n_frames(2)
-                    context.emulator.press_button("A")
-                    yield from wait_for_n_frames(4)
-                    context.emulator.press_button("Up")
-                    yield from wait_for_n_frames(2)
-                    context.emulator.press_button("A")
-                    party_size_before = get_party_size()
-                    while get_party_size() == party_size_before:
-                        yield from wait_for_n_frames(10)
-                    for _ in range(2):
-                        yield from wait_for_n_frames(3)
-                        context.emulator.press_button("A")
-                    yield from wait_for_n_frames(20)
+            party = get_party()
+            yield from interact_with_pc(
+                [PCAction.release_pokemon_from_party(party[index]) for index in party_indices_to_release]
+            )
 
             # Leave daycare
-            yield from wait_for_player_avatar_to_be_controllable("B")
             yield from navigate_to(daycare_inside_map, daycare_exit)
 
         def should_pick_up_egg() -> bool:
