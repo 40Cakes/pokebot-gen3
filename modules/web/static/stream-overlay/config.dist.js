@@ -38,6 +38,10 @@ const config = {
     // display the counter as an info bubble.
     showPokeNavCallCounter: false,
 
+    // Display the info bubble that shows the number of Pokémon
+    // in the PC storage system.
+    showPCStorageCounter: false,
+
     // These can be used to hardcode the longest phase in case
     // this data is incorrect in the stats database.
     overrideLongestPhase: {

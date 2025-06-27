@@ -20,6 +20,7 @@ declare namespace StreamOverlay {
         nonBattleEncounterStatsTimeoutInSeconds: number;
 
         showPokeNavCallCounter: boolean;
+        showPCStorageCounter: boolean;
 
         overrideLongestPhase?: {
             species_name: string;

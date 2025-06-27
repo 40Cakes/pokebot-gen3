@@ -35,6 +35,9 @@ export const fetchers = {
     /** @return {Promise<PokeBotApi.GetPokemonStorageResponse>} */
     pokemonStorage: () => fetch("/pokemon_storage").then(response => response.json()),
 
+    /** @return {Promise<PokeBotApi.GetPokemonStorageSizeResponse>} */
+    pokemonStorageSize: () => fetch("/pokemon_storage?format=size-only").then(response => response.json()),
+
     /** @return {Promise<PokeBotApi.GetDaycareResponse>} */
     daycare: () => fetch("/daycare").then(response => response.json()),
 };

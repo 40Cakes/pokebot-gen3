@@ -3,6 +3,7 @@ import json
 import queue
 import threading
 from enum import IntFlag, auto
+from queue import Queue, Empty, Full
 from threading import Thread
 from time import sleep, time
 
@@ -40,6 +41,7 @@ class DataSubscription(IntFlag):
     EmulatorSettings = auto()
     Inputs = auto()
     PerformanceData = auto()
+    CustomEvent = auto()
 
     @classmethod
     def all_names(cls):
@@ -118,6 +120,7 @@ timer_thread: Thread
 subscribers: list[tuple[int, queue.Queue, int, callable, ThreadSafeEvent]] = []
 subscriptions: dict[str, ThreadSafeCounter] = {name: ThreadSafeCounter() for name in DataSubscription.all_names()}
 max_client_id: ThreadSafeCounter = ThreadSafeCounter()
+custom_events_queue: Queue[str] = Queue()
 
 
 def add_subscriber(subscribed_topics: list[str]) -> tuple[queue.Queue, callable, ThreadSafeEvent]:
@@ -152,6 +155,21 @@ def add_subscriber(subscribed_topics: list[str]) -> tuple[queue.Queue, callable,
         timer_thread.start()
 
     return message_queue, unsubscribe, new_message_event
+
+
+def send_custom_http_stream_event(event_data: str) -> None:
+    """
+    Sends a custom event via the HTTP stream endpoint.
+    This can be used by plugins to communicate things to API consumers.
+    The 'vanilla' bot doesn't use this.
+
+    :param event_data: An arbitrary string that can be interpreted by HTTP stream clients.
+    """
+    global custom_events_queue
+    try:
+        custom_events_queue.put_nowait(event_data)
+    except Full:
+        pass
 
 
 def run_watcher():
@@ -364,6 +382,20 @@ def run_watcher():
                 previous_emulator_state["video_enabled"] = context.video
                 send_message(DataSubscription.EmulatorSettings, data=context.video, event_type="VideoEnabled")
 
+        if custom_events_queue.qsize() > 0:
+            try:
+                while True:
+                    custom_event = custom_events_queue.get_nowait()
+                    if subscriptions["CustomEvent"] > 0:
+                        send_message(
+                            DataSubscription.CustomEvent,
+                            data=custom_event,
+                            event_type="CustomEvent",
+                            do_not_json_encode=True,
+                        )
+            except Empty:
+                pass
+
         if current_game_state != previous_game_state["game_state"]:
             previous_game_state["game_state"] = current_game_state
 
@@ -377,9 +409,10 @@ def send_message(
     subscription_flag: DataSubscription,
     data: str | list | tuple | dict | int | float | None,
     event_type: str | None = None,
+    do_not_json_encode: bool = False,
 ) -> None:
     if event_type is not None:
-        message = f"event: {event_type}\ndata: {json.dumps(data)}"
+        message = f"event: {event_type}\ndata: {json.dumps(data) if not do_not_json_encode else data}"
     else:
         message = f"data: {json.dumps(data)}"
 
