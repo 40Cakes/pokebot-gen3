@@ -16,6 +16,7 @@
             flex: 1;
             position: relative;
             text-align: center;
+            height: 100%;
 
             &:first-child {
                 margin-left: 0;
@@ -27,6 +28,8 @@
                     max-height: 4.5vh;
                     margin-bottom: 4px;
                     transform: scale(1.2);
+                    height: 100%;
+                    object-fit: contain;
                 }
 
                 &.fainted img {
