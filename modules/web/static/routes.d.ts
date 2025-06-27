@@ -116,9 +116,11 @@ declare module PokeBotApi {
     export type GetDaycareResponse = {
         pokemon1: Pokemon;
         pokemon1_steps: number;
+        pokemon1_new_level: number;
 
         pokemon2: Pokemon;
         pokemon2_steps: number;
+        pokemon2_new_level: number;
 
         compatibility: string;
         compatibility_explanation: string;
