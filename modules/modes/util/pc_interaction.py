@@ -30,6 +30,7 @@ class PCStorageActionType(Enum):
     Withdraw = auto()
     Deposit = auto()
     ReleaseFromParty = auto()
+    ReleaseFromBox = auto()
 
 
 class PCAction:
@@ -52,6 +53,10 @@ class PCAction:
     @classmethod
     def release_pokemon_from_party(cls, pokemon: Pokemon) -> "PCAction":
         return cls(PCStorageSection.DepositPokemon, PCStorageActionType.ReleaseFromParty, pokemon)
+
+    @classmethod
+    def release_pokemon_from_box(cls, pokemon: Pokemon) -> "PCAction":
+        return cls(PCStorageSection.WithdrawPokemon, PCStorageActionType.ReleaseFromBox, pokemon)
 
 
 @dataclass
@@ -259,6 +264,32 @@ def _do_withdraw_actions(actions: list[PCAction]) -> Generator:
                 context.emulator.press_button("A")
                 yield
             while _get_storage_state().state != 0 or _get_storage_state().cursor_area != 0:
+                yield
+            yield
+
+        if action.action is PCStorageActionType.ReleaseFromBox:
+            box, slot = get_pokemon_storage().get_slot_for_pokemon(action.pokemon)
+
+            yield from _select_box(box)
+            yield from _select_box_slot(slot)
+            while _get_storage_state().state != (2 if not context.rom.is_rs else 1):
+                context.emulator.press_button("A")
+                yield
+            yield from _select_menu_option("RELEASE", _get_storage_menu())
+            context.emulator.press_button("A")
+            yield
+            yield
+            yield
+            if context.rom.is_frlg:
+                yield
+            context.emulator.press_button("Up")
+            yield
+            if context.rom.is_frlg:
+                yield
+            while _get_storage_state().state != 7:
+                context.emulator.press_button("A")
+                yield
+            while _get_storage_state().state != 0:
                 yield
             yield
 
