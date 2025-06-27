@@ -167,7 +167,7 @@ class DaycareMode(BotMode):
                     yield from wait_for_n_frames(5)
                 break
 
-        def pc_release():
+        def get_party_indices_to_release() -> list[int]:
             party_indices_to_release = []
             for index, pokemon in enumerate(get_party()):
                 if (
@@ -179,13 +179,17 @@ class DaycareMode(BotMode):
                     and not judge_encounter(pokemon).is_of_interest
                 ):
                     party_indices_to_release.append(index)
+            return party_indices_to_release
+
+        def pc_release():
+            party_indices_to_release = get_party_indices_to_release()
 
             if not party_indices_to_release:
                 context.message = "There are no more empty slots in your party!"
                 context.set_manual_mode()
 
-            if get_player_avatar().is_on_bike:
-                context.emulator.press_button("Select")
+            # if get_player_avatar().is_on_bike:
+            #     context.emulator.press_button("Select")
 
             # Enter daycare
             yield from navigate_to(daycare_route, daycare_door)
@@ -208,15 +212,15 @@ class DaycareMode(BotMode):
 
         def should_release_pokemon_at_pc() -> bool:
             party = get_party()
-            return len(party.eggs) == 0 and len(party) == 6
+            return len(get_party_indices_to_release()) > 0 and len(party) == 6
 
         def get_path():
             if context.rom.is_rse:
-                point_a = (MapRSE.ROUTE117, (47, 7))
-                point_b = (MapRSE.ROUTE117, (47, 8))
-                point_c = (MapRSE.ROUTE117, (55, 8))
-                point_d = (MapRSE.ROUTE117, (55, 7))
-                if self._use_bike:
+                point_d = (MapRSE.ROUTE117, (47, 7))
+                point_c = (MapRSE.ROUTE117, (47, 8))
+                point_b = (MapRSE.ROUTE117, (55, 8))
+                point_a = (MapRSE.ROUTE117, (55, 7))
+                if self._use_bike and False:
                     stopping_point_daycare_man = (MapRSE.ROUTE117, (50, 7))
                     stopping_point_daycare_house = (MapRSE.ROUTE117, (54, 7))
                 else:
@@ -268,10 +272,10 @@ class DaycareMode(BotMode):
 
             yield from follow_waypoints(get_path())
 
-            if get_player_avatar().is_on_bike:
-                context.emulator.press_button("Select")
-                yield
-                yield
+            # if get_player_avatar().is_on_bike:
+            #     context.emulator.press_button("Select")
+            #     yield
+            #     yield
 
             if should_pick_up_egg():
                 yield from handle_egg_collecting()
