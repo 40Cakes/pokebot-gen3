@@ -44,7 +44,7 @@ from modules.version import pokebot_version, pokebot_name
 from modules.web.http_stream import add_subscriber
 
 
-# from apispec import APISpec
+custom_state: dict = {}
 
 
 def _update_via_work_queue(
@@ -219,6 +219,15 @@ def http_server(host: str, port: int) -> web.AppRunner:
         ---
         get:
           description: Returns detailed information about all boxes in PC storage.
+          parameters:
+            - in: query
+              name: format
+              schema:
+                type: string
+              required: false
+              description: >
+                If this is set to `size-only` the endpoint will only report the
+                number of Pokémon, not the full data.
           responses:
             200:
               content:
@@ -230,7 +239,15 @@ def http_server(host: str, port: int) -> web.AppRunner:
         cached_storage = state_cache.pokemon_storage
         _update_via_work_queue(cached_storage, get_pokemon_storage)
 
-        return web.json_response(cached_storage.value.to_dict())
+        if "format" in request.query and request.query.getone("format") == "size-only":
+            return web.json_response(
+                {
+                    "pokemon_stored": cached_storage.value.pokemon_count,
+                    "boxes": [len(box.slots) for box in cached_storage.value.boxes],
+                }
+            )
+        else:
+            return web.json_response(cached_storage.value.to_dict())
 
     @route.get("/daycare")
     async def http_get_daycare(request: web.Request):
@@ -388,6 +405,23 @@ def http_server(host: str, port: int) -> web.AppRunner:
             game_state = game_state.name
 
         return web.json_response(game_state)
+
+    @route.get("/custom_state")
+    async def http_get_custom_state(request: web.Request):
+        """
+        ---
+        get:
+          description: >
+            Returns a dictionary that can be filled with arbitrary data by bot plugins.
+            The bot itself will not use this.
+          responses:
+            200:
+              content:
+                application/json: {}
+          tags:
+            - stats
+        """
+        return web.json_response(custom_state)
 
     @route.get("/event_flags")
     async def http_get_event_flags(request: web.Request):

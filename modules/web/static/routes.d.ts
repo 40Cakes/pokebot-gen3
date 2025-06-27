@@ -111,6 +111,14 @@ declare module PokeBotApi {
     export type GetPokemonStorageResponse = PokemonStorage;
 
     /**
+     * Response body for `GET /pokemon_storage?format=size-only`.
+     */
+    export type GetPokemonStorageSizeResponse = {
+        pokemon_stored: number;
+        boxes: number[];
+    };
+
+    /**
      * Response body for `GET /daycare`.
      */
     export type GetDaycareResponse = {

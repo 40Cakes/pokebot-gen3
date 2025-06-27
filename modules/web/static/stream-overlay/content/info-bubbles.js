@@ -1,5 +1,6 @@
 import config from "../config.js";
 import {speciesSprite} from "../helper.js";
+import {fetchers} from "../connection.js";
 
 const bubbleContainer = document.querySelector("#info-bubbles");
 const infoBubbleAbility = document.querySelector("#info-bubble-ability");
@@ -14,6 +15,8 @@ const infoBubbleFailedFishingCurrent = document.querySelector("#info-bubble-fail
 const infoBubbleFailedFishingRecord = document.querySelector("#info-bubble-failed-fishing small");
 const infoBubblePokeNav = document.querySelector("#info-bubble-pokenav");
 const infoBubblePokeNavCalls = document.querySelector("#info-bubble-pokenav span");
+const infoBubblePCStorage = document.querySelector("#info-bubble-pc-storage");
+const infoBubblePCStorageNumber = document.querySelector("#info-bubble-pc-storage span");
 
 const FOSSIL_SPECIES = ["Anorith", "Lileep", "Omanyte", "Kabuto", "Aerodactyl"];
 
@@ -23,6 +26,8 @@ let lastRepelLevel = null;
 const targetTimerBubbles = {};
 /** @type {Date | null} */
 let lastFemale = null;
+/** @type {number | null} */
+let pcStorageTimer = null;
 
 /**
  * @param {StreamEvents.MapEncounters} mapEncounters
@@ -123,6 +128,18 @@ function updateInfoBubbles(mapEncounters, stats, targetTimers, lastEncounterType
 
     updateFishingInfoBubble(stats);
     updatePokeNavInfoBubble(stats);
+
+    if (config.showPCStorageCounter && !pcStorageTimer) {
+        const updatePCStorageCounter = () => {
+            fetchers.pokemonStorageSize().then(data => {
+                infoBubblePCStorageNumber.innerText = data.pokemon_stored.toString();
+            });
+        }
+
+        infoBubblePCStorage.style.display = "inline-block";
+        updatePCStorageCounter();
+        window.setInterval(updatePCStorageCounter, 10000);
+    }
 }
 
 /**
