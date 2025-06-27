@@ -47,7 +47,12 @@ const updateDaycareBox = (botMode, state) => {
 
     daycareInfoList.innerHTML = "";
 
-    const createPokemonBox = (pokemon) => {
+    /**
+     * @param {Pokemon} pokemon
+     * @param {number} newLevel
+     * @returns {HTMLLIElement}
+     */
+    const createPokemonBox = (pokemon, newLevel) => {
         const li = document.createElement("li");
 
         const sprite = speciesSprite(pokemon.species.name, pokemon.is_shiny ? "shiny-cropped" : "normal-cropped");
@@ -73,7 +78,7 @@ const updateDaycareBox = (botMode, state) => {
         const level = document.createElement("div");
         const levelLabel = document.createElement("small");
         levelLabel.innerText = "Level: ";
-        level.innerText = pokemon.level.toString();
+        level.innerText = newLevel.toString();
         level.prepend(levelLabel);
         li.append(level);
 
@@ -88,11 +93,11 @@ const updateDaycareBox = (botMode, state) => {
     };
 
     if (state.daycare.pokemon1 !== null) {
-        daycareInfoList.append(createPokemonBox(state.daycare.pokemon1));
+        daycareInfoList.append(createPokemonBox(state.daycare.pokemon1, state.daycare.pokemon1_new_level));
     }
 
     if (state.daycare.pokemon2 !== null) {
-        daycareInfoList.append(createPokemonBox(state.daycare.pokemon2));
+        daycareInfoList.append(createPokemonBox(state.daycare.pokemon2, state.daycare.pokemon2_new_level));
     }
 };
 
