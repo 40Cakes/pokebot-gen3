@@ -89,6 +89,12 @@ class Party:
                 return pokemon
         return None
 
+    def get_index_for_pokemon(self, pokemon: Pokemon) -> int:
+        for party_index, party_pokemon in enumerate(self._pokemon):
+            if pokemon.data[:4] == party_pokemon.data[:4]:
+                return party_index
+        raise RuntimeError("This Pokémon is not in the player's party.")
+
     def to_list(self) -> list[PartyPokemon]:
         return [pokemon.to_dict() for pokemon in self._pokemon]
 
