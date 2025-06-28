@@ -359,9 +359,11 @@ export function diffHoursMinutes(fromTimestamp, toTimestamp = null) {
 /**
  * @param {Date|string|number} fromTimestamp
  * @param {Date|string|number|null} toTimestamp
+ * @param {boolean} [max24Hours] If true, anything longer than 24 hours will be shown in days.
+ *                               If false, days are only used at 100+ hours.
  * @returns {string}
  */
-export function diffTime(fromTimestamp, toTimestamp = null) {
+export function diffTime(fromTimestamp, toTimestamp = null, max24Hours = false) {
     fromTimestamp = getTimeFromArg(fromTimestamp);
     toTimestamp = getTimeFromArg(toTimestamp);
 
@@ -376,7 +378,7 @@ export function diffTime(fromTimestamp, toTimestamp = null) {
     } else if (deltaInSeconds < 36000) {
         duration = (deltaInSeconds / 3600).toLocaleString("en", {maximumFractionDigits: 1});
         durationUnit = "hr";
-    } else if (deltaInSeconds < 360000) {
+    } else if (deltaInSeconds < (max24Hours ? 3600 * 24 : 360000)) {
         duration = Math.round(deltaInSeconds / 3600);
         durationUnit = "hr";
     } else if (deltaInSeconds < 864000) {

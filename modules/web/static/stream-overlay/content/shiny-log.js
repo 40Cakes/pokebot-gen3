@@ -34,7 +34,7 @@ function updateShinyLog(shinyLog) {
         }
 
         tbody.append(renderTableRow({
-            timeSinceEncounter: diffTime(entry.phase.end_time),
+            timeSinceEncounter: diffTime(entry.phase.end_time, null, true),
             sprite: [
                 sprite,
                 genderSprite(entry.shiny_encounter.pokemon.gender),
