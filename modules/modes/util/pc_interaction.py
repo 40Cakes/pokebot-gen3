@@ -30,6 +30,7 @@ class PCStorageActionType(Enum):
     Withdraw = auto()
     Deposit = auto()
     ReleaseFromParty = auto()
+    ReleaseFromBox = auto()
 
 
 class PCAction:
@@ -52,6 +53,10 @@ class PCAction:
     @classmethod
     def release_pokemon_from_party(cls, pokemon: Pokemon) -> "PCAction":
         return cls(PCStorageSection.DepositPokemon, PCStorageActionType.ReleaseFromParty, pokemon)
+
+    @classmethod
+    def release_pokemon_from_box(cls, pokemon: Pokemon) -> "PCAction":
+        return cls(PCStorageSection.MovePokemon, PCStorageActionType.ReleaseFromBox, pokemon)
 
 
 @dataclass
@@ -360,6 +365,37 @@ def _do_deposit_actions(actions: list[PCAction]) -> Generator:
     yield from _close_pc_menu()
 
 
+def _do_move_pokemon_actions(actions: list[PCAction]) -> Generator:
+    yield from _open_pc_menu(2)
+    for action in actions:
+        if action.action is PCStorageActionType.ReleaseFromBox:
+            box, slot = get_pokemon_storage().get_slot_for_pokemon(action.pokemon)
+
+            yield from _select_box(box)
+            yield from _select_box_slot(slot)
+            while _get_storage_state().state != (2 if not context.rom.is_rs else 1):
+                context.emulator.press_button("A")
+                yield
+            yield from _select_menu_option("RELEASE", _get_storage_menu())
+            context.emulator.press_button("A")
+            yield
+            yield
+            yield
+            if context.rom.is_frlg:
+                yield
+            context.emulator.press_button("Up")
+            yield
+            if context.rom.is_frlg:
+                yield
+            while _get_storage_state().state != 7:
+                context.emulator.press_button("A")
+                yield
+            while _get_storage_state().state != 0:
+                yield
+            yield
+    yield from _close_pc_menu()
+
+
 def interact_with_pc(actions: list[PCAction]) -> Generator:
     targeted_tile = get_player_avatar().map_location_in_front
     if targeted_tile.tile_type != "PC":
@@ -378,6 +414,10 @@ def interact_with_pc(actions: list[PCAction]) -> Generator:
     actions_for_deposit_menu = [action for action in actions if action.section is PCStorageSection.DepositPokemon]
     if len(actions_for_deposit_menu) > 0:
         yield from _do_deposit_actions(actions_for_deposit_menu)
+
+    actions_for_move_pokemon_menu = [action for action in actions if action.section is PCStorageSection.MovePokemon]
+    if len(actions_for_move_pokemon_menu) > 0:
+        yield from _do_move_pokemon_actions(actions_for_move_pokemon_menu)
 
     yield from wait_for_no_script_to_run("B")
     yield from wait_for_player_avatar_to_be_controllable("B")
