@@ -663,6 +663,9 @@ class StatsDatabase:
         self._commit()
         self._next_encounter_id += 1
 
+        if encounter_info.battle_outcome is not None:
+            self.log_end_of_battle(encounter_info.battle_outcome, encounter_info)
+
         return encounter
 
     def clear_current_shiny_phase(self):

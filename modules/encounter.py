@@ -5,7 +5,7 @@ from enum import Enum, auto
 from pathlib import Path
 from typing import Callable, TYPE_CHECKING
 
-from modules.battle_state import get_encounter_type, EncounterType
+from modules.battle_state import get_encounter_type, EncounterType, BattleOutcome
 from modules.console import console, print_stats
 from modules.context import context
 from modules.files import save_pk3, make_string_safe_for_file_name
@@ -37,6 +37,7 @@ class EncounterInfo:
     bot_mode: str
     catch_filters_result: str | None
     battle_action: "BattleAction | None" = None
+    battle_outcome: "BattleOutcome | None" = None
     gif_path: Path | None = None
     tcg_card_path: Path | None = None
 

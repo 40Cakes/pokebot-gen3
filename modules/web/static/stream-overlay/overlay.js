@@ -98,6 +98,8 @@ function handleGameState(event, state) {
     // game mode ended.
     if (isInEggHatch && state.gameState !== "EGG_HATCH") {
         updatePartyList(state.party);
+        doUpdateAfterEncounter(state).then(() => {
+        });
         isInEggHatch = false;
     } else if (!isInEggHatch && state.gameState === "EGG_HATCH") {
         isInEggHatch = true;

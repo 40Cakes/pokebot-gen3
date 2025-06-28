@@ -57,30 +57,30 @@ const updateSectionChecklist = (checklistConfig, stats) => {
             ul.append(elements.li);
             speciesListElements[speciesName] = elements;
         }
+    }
 
-        // Updates the data inside the entries.
-        for (const speciesName in checklistConfig) {
-            const configEntry = checklistConfig[speciesName];
-            const elements = speciesListElements[speciesName];
+    // Updates the data inside the entries.
+    for (const speciesName in checklistConfig) {
+        const configEntry = checklistConfig[speciesName];
+        const elements = speciesListElements[speciesName];
 
-            let completion = 0;
-            if (stats.pokemon.hasOwnProperty(speciesName)) {
-                completion += stats.pokemon[speciesName].catches;
-            }
-            if (Array.isArray(configEntry.similarSpecies)) {
-                for (const similarSpecies of configEntry.similarSpecies) {
-                    if (stats.pokemon.hasOwnProperty(similarSpecies)) {
-                        completion += stats.pokemon[similarSpecies].catches;
-                    }
+        let completion = 0;
+        if (stats.pokemon.hasOwnProperty(speciesName)) {
+            completion += stats.pokemon[speciesName].catches;
+        }
+        if (Array.isArray(configEntry.similarSpecies)) {
+            for (const similarSpecies of configEntry.similarSpecies) {
+                if (stats.pokemon.hasOwnProperty(similarSpecies)) {
+                    completion += stats.pokemon[similarSpecies].catches;
                 }
             }
+        }
 
-            elements.countSpan.innerText = formatInteger(completion);
-            if (configEntry.goal && completion >= configEntry.goal && !elements.li.classList.contains("completed")) {
-                elements.li.classList.add("completed");
-            } else if (elements.li.classList.contains("completed")) {
-                elements.li.classList.remove("completed");
-            }
+        elements.countSpan.innerText = formatInteger(completion);
+        if (configEntry.goal && completion >= configEntry.goal && !elements.li.classList.contains("completed")) {
+            elements.li.classList.add("completed");
+        } else if (elements.li.classList.contains("completed")) {
+            elements.li.classList.remove("completed");
         }
 
         // Updates the progress bar.
