@@ -290,6 +290,11 @@ export default class OverlayState {
             this.stats.totals.shiny_encounters++;
             this.stats.pokemon[speciesName].shiny_encounters++;
 
+            if (["hatched", "gift", "static"].includes(encounter.type)) {
+                this.stats.totals.catches++;
+                this.stats.pokemon[speciesName].catches++;
+            }
+
             for (const species in this.stats.pokemon) {
                 this.stats.pokemon[species].phase_encounters = 0;
                 this.stats.pokemon[species].phase_highest_iv_sum = null;
