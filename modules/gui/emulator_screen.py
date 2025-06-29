@@ -55,7 +55,26 @@ class EmulatorScreen:
         self._controls = controls
 
     def enable(self) -> None:
-        self.window.title(f"{context.profile.path.name} | {pokebot_name} {pokebot_version}")
+        app_name = pokebot_name
+        try:
+            language = ""
+            with contextlib.suppress(ImportError):
+                import locale
+                import platform
+
+                if platform.system() == "Windows":
+                    import ctypes
+
+                    language = locale.windows_locale[ctypes.windll.kernel32.GetUserDefaultUILanguage()]
+                else:
+                    language = locale.getlocale()[0]
+
+            if language.startswith("fr_"):
+                app_name = "Un bot qui joue à Pokémon"
+        except:
+            pass
+
+        self.window.title(f"{context.profile.path.name} | {app_name} {pokebot_version}")
         self.window.resizable(context.debug, context.debug)
         self.window.rowconfigure(0, weight=1)
         self.window.columnconfigure(0, weight=1)
