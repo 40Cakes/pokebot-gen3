@@ -71,7 +71,7 @@ def _get_menu_cursor() -> MenuCursor:
     return MenuCursor(data[2], (data[3], data[4]))
 
 
-def _get_storage_menu() -> list[str]:
+def _get_storage_menu() -> list[tuple[int, str]]:
     if context.rom.is_rs:
         storage_symbol = "gPokemonStorageSystemPtr"
         offset = 0x1180
@@ -91,7 +91,8 @@ def _get_storage_menu() -> list[str]:
         text_ptr = unpack_uint32(data[index * 8 : index * 8 + 4])
         if text_ptr >> 24 != 0x08:
             return []
-        result.append(decode_string(context.emulator.read_bytes(text_ptr, length=16)))
+        text_id = unpack_uint32(data[index * 8 + 4 : index * 8 + 8])
+        result.append((text_id, decode_string(context.emulator.read_bytes(text_ptr, length=16))))
     return result
 
 
@@ -233,10 +234,30 @@ def _select_box_slot(slot_index: int) -> Generator:
             yield
 
 
-def _select_menu_option(option_to_select: str, available_options: list[str]) -> Generator:
-    if option_to_select not in available_options:
+def _select_menu_option(option_to_select: str) -> Generator:
+    menu_option_map = [
+        "CANCEL",
+        "STORE",
+        "WITHDRAW",
+        "MOVE",
+        "SHIFT",
+        "PLACE",
+        "SUMMARY",
+        "RELEASE",
+        "MARK",
+        # more in `pokemon_storage_system.c`
+    ]
+    if option_to_select not in menu_option_map:
+        raise BotModeError(f"Value `{option_to_select}` is not a known option.")
+
+    available_options = _get_storage_menu()
+    target_index = None
+    for option_index, option in enumerate(available_options):
+        if option[0] == menu_option_map.index(option_to_select):
+            target_index = option_index
+    if target_index is None:
         raise BotModeError(f"Option `{option_to_select}` is not available in this menu.")
-    target_index = available_options.index(option_to_select)
+
     current_index = _get_menu_cursor().cursor_position
     if current_index != target_index:
         direction = _get_scroll_direction(current_index, target_index, len(available_options))
@@ -259,7 +280,7 @@ def _do_withdraw_actions(actions: list[PCAction]) -> Generator:
             while _get_storage_state().state != (2 if not context.rom.is_rs else 1):
                 context.emulator.press_button("A")
                 yield
-            yield from _select_menu_option("WITHDRAW", _get_storage_menu())
+            yield from _select_menu_option("WITHDRAW")
             while _get_storage_state().state != 4:
                 context.emulator.press_button("A")
                 yield
@@ -303,8 +324,7 @@ def _do_deposit_actions(actions: list[PCAction]) -> Generator:
             while _get_storage_state().state != (2 if not context.rom.is_rs else 1):
                 context.emulator.press_button("A")
                 yield
-            option = "STORE" if not context.rom.is_rs else "DEPOSIT"
-            yield from _select_menu_option(option, _get_storage_menu())
+            yield from _select_menu_option("STORE")
             if context.rom.is_rs:
                 context.emulator.press_button("A")
                 yield
@@ -345,7 +365,7 @@ def _do_deposit_actions(actions: list[PCAction]) -> Generator:
             while _get_storage_state().state != (2 if not context.rom.is_rs else 1):
                 context.emulator.press_button("A")
                 yield
-            yield from _select_menu_option("RELEASE", _get_storage_menu())
+            yield from _select_menu_option("RELEASE")
             context.emulator.press_button("A")
             yield
             yield
@@ -376,7 +396,7 @@ def _do_move_pokemon_actions(actions: list[PCAction]) -> Generator:
             while _get_storage_state().state != (2 if not context.rom.is_rs else 1):
                 context.emulator.press_button("A")
                 yield
-            yield from _select_menu_option("RELEASE", _get_storage_menu())
+            yield from _select_menu_option("RELEASE")
             context.emulator.press_button("A")
             yield
             yield
