@@ -299,6 +299,7 @@ def _run_test(test_generator: Generator) -> None:
             game_state=game_state,
             active_tasks=active_tasks,
             script_stack=script_stack,
+            controller_stack=[controller.__qualname__ for controller in context.controller_stack],
             previous_frame=previous_frame_info,
         )
 

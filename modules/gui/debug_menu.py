@@ -7,6 +7,7 @@ import PIL.PngImagePlugin
 import plyer
 
 from modules.battle_state import battle_is_active
+from modules.clock import get_clock_time
 from modules.context import context
 from modules.debug_utilities import (
     debug_give_test_item_pack,
@@ -29,6 +30,7 @@ from modules.memory import (
     pack_uint32,
     set_event_var,
     GameState,
+    read_symbol,
 )
 from modules.modes import BotListener, BotMode, FrameInfo
 from modules.player import get_player
@@ -203,6 +205,15 @@ class ForceShinyEncounterListener(BotListener):
             self._game_state_was_battle = False
 
 
+class ForcePokenavCallListener(BotListener):
+    def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
+        match_call_state = read_symbol("sMatchCallState")
+        new_match_call_state = (
+            pack_uint32(get_clock_time().total_minutes() - 30) + match_call_state[4:6] + b"\x70" + match_call_state[7:8]
+        )
+        write_symbol("sMatchCallState", new_match_call_state)
+
+
 def _enable_listener(listener_class: type[BotListener]) -> None:
     context.bot_listeners = [listener_class(), *context.bot_listeners]
 
@@ -281,6 +292,7 @@ class DebugMenu(Menu):
         self.add_checkbutton(label="Infinite Repel", variable=toggleable_listener(InfiniteRepelListener))
         self.add_checkbutton(label="Infinite Safari Zone", variable=toggleable_listener(InfiniteSafariZoneListener))
         self.add_checkbutton(label="Force Shiny Encounter", variable=toggleable_listener(ForceShinyEncounterListener))
+        self.add_checkbutton(label="Force PokeNav Call", variable=toggleable_listener(ForcePokenavCallListener))
         self.add_separator()
         self.add_command(label="Export events and vars", command=_export_flags_and_vars)
         self.add_command(label="Import events and vars", command=_import_flags_and_vars)
