@@ -221,6 +221,7 @@ class FrameInfo:
     game_state: "GameState"
     script_stack: list[str]
     active_tasks: list[str]
+    controller_stack: list[str]
     previous_frame: Optional["FrameInfo"]
 
     def game_state_changed(self) -> bool:
