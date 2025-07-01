@@ -79,7 +79,7 @@ const updateSectionChecklist = (checklistConfig, stats) => {
         elements.countSpan.innerText = formatInteger(completion);
         if (configEntry.goal && completion >= configEntry.goal && !elements.li.classList.contains("completed")) {
             elements.li.classList.add("completed");
-        } else if (elements.li.classList.contains("completed")) {
+        } else if ((!configEntry.goal || completion < configEntry.goal) && elements.li.classList.contains("completed")) {
             elements.li.classList.remove("completed");
         }
 
