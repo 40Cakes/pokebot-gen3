@@ -443,11 +443,6 @@ export default class PokemonSprite extends HTMLElement {
             return;
         }
 
-        if (this.antiShiny) {
-            console.error(`Cannot animate sprite of '${this.species}' because it is anti-shiny.`);
-            return;
-        }
-
         if (this.animationTimeout) {
             return;
         }
@@ -494,12 +489,14 @@ export default class PokemonSprite extends HTMLElement {
             this.species = newValue ? newValue : null;
         }
 
-        let type = this.shiny ? "shiny" : "normal";
-        if (this.cropped && !this.continuouslyAnimated) {
-            type += "-cropped";
-        }
-        if (!this.cropped && !this.continuouslyAnimated && this.antiShiny) {
+        let type = "normal";
+        if (this.shiny) {
+            type = "shiny";
+        } else if (this.antiShiny) {
             type = "anti-shiny";
+        }
+        if (this.cropped && !this.continuouslyAnimated && !this.antiShiny) {
+            type += "-cropped";
         }
 
         let src = "";

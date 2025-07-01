@@ -19,7 +19,7 @@ import {
 import {hideCurrentEncounterStats, showCurrentEncounterStats} from "./content/current-encounter-stats.js";
 import {updateInputs} from "./content/inputs.js";
 import {updateClock} from "./content/clock.js";
-import {getLastEncounterSpecies, getRecentAntiShinies} from "./helper.js";
+import {getLastEncounterSpecies} from "./helper.js";
 import {updateDaycareBox} from "./content/daycare.js";
 
 const BATTLE_STATES = ["BATTLE_STARTING", "BATTLE", "BATTLE_ENDING"];
@@ -44,7 +44,7 @@ async function doFullUpdate(state) {
     isInMainMenu = state.gameState === "MAIN_MENU" || state.gameState === "TITLE_SCREEN";
 
     updateMapName(state.map);
-    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog), getRecentAntiShinies(state.encounterLog));
+    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
     updateSectionChecklist(config.sectionChecklist, state.stats);
     updateShinyLog(state.shinyLog);
     updateEncounterLog(state.encounterLog);
@@ -70,7 +70,7 @@ async function doUpdateAfterEncounter(state) {
 
         updateShinyLog(state.shinyLog);
         updateSectionChecklist(config.sectionChecklist, state.stats);
-        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog), getRecentAntiShinies(state.encounterLog));
+        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
         updatePhaseStats(state.stats);
         updateTotalStats(state.stats, state.encounterRate);
         updatePokeNavInfoBubble(null);
@@ -155,7 +155,7 @@ function handleBotMode(event, state) {
 
     if (previousModeWasDaycare !== newModeIsDaycare) {
         updateDaycareBox(event, state);
-        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog), getRecentAntiShinies(state.encounterLog));
+        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
     }
 }
 
@@ -188,7 +188,7 @@ function handleWildEncounter(event, state) {
         wasShinyEncounter = true;
     }
 
-    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, event.pokemon.species_name_for_stats, getRecentAntiShinies(state.encounterLog));
+    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, event.pokemon.species_name_for_stats);
     updatePhaseStats(state.stats);
     updateTotalStats(state.stats, state.encounterRate);
     updateEncounterInfoBubble(event.pokemon.species_name_for_stats, state.stats, event.pokemon.gender);
@@ -218,7 +218,7 @@ function handleMapChange(event, state) {
  */
 function handleMapEncounters(event, state) {
     state.mapEncounters = event;
-    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog), getRecentAntiShinies(state.encounterLog));
+    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
 }
 
 /**
@@ -227,7 +227,7 @@ function handleMapEncounters(event, state) {
  */
 function handlePlayerAvatar(event, state) {
     if (state.logPlayerAvatarChange(event)) {
-        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog), getRecentAntiShinies(state.encounterLog));
+        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
     }
 }
 
