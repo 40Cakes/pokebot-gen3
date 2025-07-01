@@ -138,7 +138,7 @@ function updateInfoBubbles(mapEncounters, stats, targetTimers, lastEncounterType
 
         infoBubblePCStorage.style.display = "inline-block";
         updatePCStorageCounter();
-        window.setInterval(updatePCStorageCounter, 10000);
+        pcStorageTimer = window.setInterval(updatePCStorageCounter, 10000);
     }
 }
 
