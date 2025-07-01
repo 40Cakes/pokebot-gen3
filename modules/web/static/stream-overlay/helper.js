@@ -467,17 +467,3 @@ export function getLastEncounterSpecies(encounterLog) {
         return null;
     }
 }
-
-/**
- * @param {Encounter[]} encounterLog
- * @returns {Set<string>}
- */
-export function getRecentAntiShinies(encounterLog) {
-    let antiShinySpecies = new Set();
-    for (const previousEncounter of encounterLog) {
-        if (previousEncounter.pokemon.is_anti_shiny) {
-            antiShinySpecies.add(previousEncounter.pokemon.species_name_for_stats);
-        }
-    }
-    return antiShinySpecies;
-}

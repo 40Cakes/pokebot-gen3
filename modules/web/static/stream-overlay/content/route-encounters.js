@@ -29,9 +29,8 @@ const updateMapName = map => {
  * @param {string} botMode
  * @param {Set<string>} [additionalRouteSpecies]
  * @param {string} [animateSpecies]
- * @param {Set<string>} [antiShinySpecies]
  */
-const updateRouteEncountersList = (encounters, stats, encounterType, checklistConfig, botMode, additionalRouteSpecies = null, animateSpecies = null, antiShinySpecies = null) => {
+const updateRouteEncountersList = (encounters, stats, encounterType, checklistConfig, botMode, additionalRouteSpecies = null, animateSpecies = null) => {
     /** @type {MapEncounter[]} encounterList */
     let encounterList;
     /** @type {MapEncounter[]} regularEncounterList */
@@ -147,9 +146,8 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
 
         let spriteType = "normal";
         let animate = encounter.species_name === animateSpecies;
-        if (antiShinySpecies && antiShinySpecies.has(encounter.species_name)) {
+        if (species.phase_highest_sv > 65527) {
             spriteType = "anti-shiny";
-            animate = false;
         }
 
         tbody.append(renderTableRow({

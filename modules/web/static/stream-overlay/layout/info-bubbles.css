@@ -76,13 +76,12 @@
         }
 
         .icon-species {
-            height: 1rem;
             vertical-align: middle;
             margin-right: 1rem;
             transform: scale(2.5) translateY(-.1vh);
 
             &:last-child {
-                transform: scale(-3.5, 3.5) translateY(-.2vh);
+                transform: scale(-2.5, 2.5) translateY(-.2vh);
                 margin-right: 0;
                 margin-left: 1rem;
             }
