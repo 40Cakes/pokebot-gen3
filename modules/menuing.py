@@ -22,6 +22,23 @@ from modules.pokemon_party import get_party, get_party_size
 from modules.tasks import get_task, task_is_active
 
 
+def get_scroll_direction(current_index: int, target_index: int, total_items: int, horizontal: bool = False):
+    # Normalize indices
+    current_index %= total_items
+    target_index %= total_items
+
+    # Steps to scroll down (forward)
+    forward_steps = (target_index - current_index + total_items) % total_items
+
+    # Steps to scroll up (backward)
+    backward_steps = (current_index - target_index + total_items) % total_items
+
+    if forward_steps <= backward_steps:
+        return "Down" if not horizontal else "Right"
+    else:
+        return "Up" if not horizontal else "Left"
+
+
 def is_fade_active() -> bool:
     return bool(read_symbol("gPaletteFade", offset=0x07, size=1)[0] & 0x80)
 
@@ -417,11 +434,9 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                 self.navigator = self.select_switch()
 
     def navigate_to_mon(self):
-        while get_party_menu_cursor_pos(len(self.party))["slot_id"] != self.idx:
-            if get_party_menu_cursor_pos(len(self.party))["slot_id"] > self.idx:
-                context.emulator.press_button("Up")
-            else:
-                context.emulator.press_button("Down")
+        party_size = get_party_size()
+        while (current_slot := get_party_menu_cursor_pos(len(self.party))["slot_id"]) != self.idx:
+            context.emulator.press_button(get_scroll_direction(current_slot, self.idx, total_items=party_size + 1))
             yield
 
     def navigate_to_lead(self):
