@@ -5,6 +5,7 @@ from typing import Generator
 from modules.context import context
 from modules.game import decode_string
 from modules.memory import get_game_state, get_game_state_symbol, read_symbol, GameState, unpack_uint32
+from modules.menuing import get_scroll_direction
 from modules.modes import BotModeError
 from modules.modes.util import (
     wait_until_task_is_active,
@@ -166,23 +167,6 @@ def _close_pc_menu() -> Generator:
         yield
 
 
-def _get_scroll_direction(current_index: int, target_index: int, total_items: int, horizontal: bool = False):
-    # Normalize indices
-    current_index %= total_items
-    target_index %= total_items
-
-    # Steps to scroll down (forward)
-    forward_steps = (target_index - current_index + total_items) % total_items
-
-    # Steps to scroll up (backward)
-    backward_steps = (current_index - target_index + total_items) % total_items
-
-    if forward_steps <= backward_steps:
-        return "Down" if not horizontal else "Right"
-    else:
-        return "Up" if not horizontal else "Left"
-
-
 def _select_box(box_index: int) -> Generator:
     state = _get_storage_state()
     if state.active_box != box_index:
@@ -193,7 +177,7 @@ def _select_box(box_index: int) -> Generator:
             yield
 
         # Select the correct box
-        direction = _get_scroll_direction(_get_storage_state().active_box, box_index, total_items=14, horizontal=True)
+        direction = get_scroll_direction(_get_storage_state().active_box, box_index, total_items=14, horizontal=True)
         while _get_storage_state().active_box != box_index:
             context.emulator.press_button(direction)
             yield
@@ -217,14 +201,14 @@ def _select_box_slot(slot_index: int) -> Generator:
         else:
             current_row = 0
 
-        direction = _get_scroll_direction(current_row, row, total_items=7)
+        direction = get_scroll_direction(current_row, row, total_items=7)
         while (state := _get_storage_state()).cursor_area != 0 or 2 + state.cursor_position // 6 != row:
             context.emulator.press_button(direction)
             yield
 
         # Navigate to the correct column
         current_column = _get_storage_state().cursor_position % 6
-        direction = _get_scroll_direction(current_column, column, total_items=6, horizontal=True)
+        direction = get_scroll_direction(current_column, column, total_items=6, horizontal=True)
         while (state := _get_storage_state()).cursor_area != 0 or state.cursor_position % 6 != column:
             context.emulator.press_button(direction)
             yield
@@ -260,7 +244,7 @@ def _select_menu_option(option_to_select: str) -> Generator:
 
     current_index = _get_menu_cursor().cursor_position
     if current_index != target_index:
-        direction = _get_scroll_direction(current_index, target_index, len(available_options))
+        direction = get_scroll_direction(current_index, target_index, len(available_options))
         while _get_menu_cursor().cursor_position != target_index:
             context.emulator.press_button(direction)
             yield
@@ -317,7 +301,7 @@ def _do_deposit_actions(actions: list[PCAction]) -> Generator:
                 raise BotModeError("Cannot deposit that Pokémon because all boxes are full.")
 
             target_index = party.get_index_for_pokemon(action.pokemon)
-            direction = _get_scroll_direction(_get_storage_state().cursor_position, target_index, total_items=7)
+            direction = get_scroll_direction(_get_storage_state().cursor_position, target_index, total_items=7)
             while _get_storage_state().cursor_position != target_index:
                 context.emulator.press_button(direction)
                 yield
@@ -331,7 +315,7 @@ def _do_deposit_actions(actions: list[PCAction]) -> Generator:
             while _get_storage_state().state != 1:
                 context.emulator.press_button("A")
                 yield
-            direction = _get_scroll_direction(
+            direction = get_scroll_direction(
                 _get_storage_state().selected_target_box, target_box, total_items=14, horizontal=True
             )
             while _get_storage_state().selected_target_box != target_box:
@@ -358,7 +342,7 @@ def _do_deposit_actions(actions: list[PCAction]) -> Generator:
                     "Cannot release that Pokémon because only fainted Pokémon would remain in the party."
                 )
             target_index = party.get_index_for_pokemon(action.pokemon)
-            direction = _get_scroll_direction(_get_storage_state().cursor_position, target_index, total_items=7)
+            direction = get_scroll_direction(_get_storage_state().cursor_position, target_index, total_items=7)
             while _get_storage_state().cursor_position != target_index:
                 context.emulator.press_button(direction)
                 yield
