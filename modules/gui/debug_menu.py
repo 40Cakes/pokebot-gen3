@@ -115,6 +115,11 @@ def _give_test_item_pack() -> None:
     context.message = "✅ Added some goodies to your item bag."
 
 
+def _advance_rtc() -> None:
+    context.emulator._core.rtc.advance_time(3_600_000)
+    context.message = "Time has passed!"
+
+
 def _export_flags_and_vars() -> None:
     target_path = plyer.filechooser.save_file(
         path=str(context.profile.path / "event_vars_and_flags.txt"),
@@ -293,6 +298,7 @@ class DebugMenu(Menu):
         self.add_checkbutton(label="Infinite Safari Zone", variable=toggleable_listener(InfiniteSafariZoneListener))
         self.add_checkbutton(label="Force Shiny Encounter", variable=toggleable_listener(ForceShinyEncounterListener))
         self.add_checkbutton(label="Force PokeNav Call", variable=toggleable_listener(ForcePokenavCallListener))
+        self.add_command(label="Advance RTC by one hour", command=_advance_rtc)
         self.add_separator()
         self.add_command(label="Export events and vars", command=_export_flags_and_vars)
         self.add_command(label="Import events and vars", command=_import_flags_and_vars)
