@@ -198,6 +198,98 @@
         <div id="section-progress-bar"><div></div></div>
         <ul></ul>
     </div>
+
+    <div class="content-box" id="gym-message" style="display: none;">
+        <h2>
+            <img src="../sprites/stream-overlay/target.png">Dewford/Petalburg Gyms and Awakening of Groudon
+        </h2>
+
+        <p style="text-align: center; line-height: 1.5rem;">
+            We have completed the previous section! 🥳<br>
+            <span style="opacity: var(--muted-font-opacity); font-size: 90%;">Right now, 40 Cakes is playing manually and progressing the storyline.</span>
+        </p>
+
+        <ul>
+            <li data-flag="BADGE02_GET">Defeat Brawly at Dewford Gym to get the Knuckle Badge</li>
+            <li data-flag="BADGE05_GET">Defeat Norman at Petalburg Gym to get the Balance Badge</li>
+            <li data-flag="RECEIVED_HM_SURF">Receive HM03 Surf</li>
+            <li data-flag="HIDE_ROUTE_119_TEAM_AQUA">Defeat Team Aqua at the Weather Institute</li>
+            <li data-flag="RECEIVED_HM_FLY">Rival Battle on Route 119</li>
+            <li data-flag="RECEIVED_DEVON_SCOPE">Get the Devon Scope</li>
+            <li data-flag="HIDE_MT_PYRE_SUMMIT_ARCHIE">Defeat Team Aqua at Mt. Pyre</li>
+            <li data-flag="HIDE_MAGMA_HIDEOUT_GRUNTS">Defeat Team Magma at the Jagged Pass, Groudon awakens</li>
+            <li data-flag="ITEM_AQUA_HIDEOUT_B1F_MASTER_BALL">Get the Master Ball</li>
+            <li data-flag="TEAM_AQUA_ESCAPED_IN_SUBMARINE">Clear Team Aqua's base in Lilycove City</li>
+        </ul>
+        <div class="current-location">
+            <img src="/static/sprites/stream-overlay/pin.png"><span></span>
+        </div>
+        <style>
+            #gym-message ul {
+                list-style: none;
+                border-left: .3vh #666 solid;
+                margin-left: 5vh;
+                padding: 1vh 0 1vh 3vh;
+
+                li {
+                    position: relative;
+                    padding: 1.5vh 0;
+
+                    &::before {
+                        content: "";
+                        position: absolute;
+                        left: -4vh;
+                        top: 1.6vh;
+                        width: 1.2vh;
+                        height: 1.2vh;
+                        border-radius: 2vh;
+                        border: .3vh #aaa solid;
+                        background-color: black;
+                    }
+
+                    &.completed {
+                        color: var(--green-text-colour);
+
+                        &::before {
+                            position: absolute;
+                            content: "";
+                            background-image: url("/static/sprites/stream-overlay/tick.png");
+                            background-size: contain;
+                            background-repeat: no-repeat;
+                            height: 3vh;
+                            width: 4vh;
+                            top: .66vh;
+                            left: -4.67vh;
+                            border-color: transparent;
+                            background-color: transparent;
+                        }
+                    }
+                }
+            }
+
+            #gym-message {
+                position: relative;
+
+                .current-location {
+                    position: absolute;
+                    bottom: 1.5vh;
+                    right: 2vh;
+                    font-size: 80%;
+                    text-align: right;
+
+                    img {
+                        height: 2vh;
+                        vertical-align: middle;
+                        margin-right: 1vh;
+                    }
+
+                    span {
+                        opacity: var(--muted-font-opacity);
+                    }
+                }
+            }
+        </style>
+    </div>
 </section>
 <section id="youtube-chat"></section>
 <section id="shiny-log">

@@ -13,6 +13,8 @@ declare namespace StreamOverlay {
         timeZone?: string | null;
         overrideDisplayTimezone?: string | null;
 
+        gymMode: boolean;
+
         totalShinySpeciesTarget: number;
 
         targetTimers: string[];
