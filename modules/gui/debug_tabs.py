@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Union, Optional
 from PIL import Image, ImageDraw, ImageTk, ImageOps
 
 from modules.battle_state import get_battle_state, battle_is_active
+from modules.berry_trees import get_all_berry_trees, get_berry_tree_by_id
 from modules.clock import get_clock_time, get_play_time
 from modules.context import context
 from modules.daycare import get_daycare_data
@@ -1335,10 +1336,14 @@ class MapTab(DebugTab):
                 "flag": get_event_flag_name(obj.flag_id),
             }
             if obj.kind == "normal":
-                object_templates_list[key]["movement_type"] = obj.movement_type
-                object_templates_list[key]["movement_range"] = obj.movement_range
-                object_templates_list[key]["trainer_type"] = obj.trainer_type
-                object_templates_list[key]["trainer_range"] = obj.trainer_range
+                if obj.movement_type == "BERRY_TREE_GROWTH":
+                    object_templates_list[key]["berry_tree_id"] = obj.trainer_range
+                    object_templates_list[key]["berry_tree"] = get_berry_tree_by_id(obj.berry_tree_id).to_dict()
+                else:
+                    object_templates_list[key]["movement_type"] = obj.movement_type
+                    object_templates_list[key]["movement_range"] = obj.movement_range
+                    object_templates_list[key]["trainer_type"] = obj.trainer_type
+                    object_templates_list[key]["trainer_range"] = obj.trainer_range
             else:
                 object_templates_list[key]["target_local_id"] = obj.clone_target_local_id
                 target_map = obj.clone_target_map

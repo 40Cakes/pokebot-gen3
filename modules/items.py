@@ -363,7 +363,7 @@ class ItemBag:
         offset = self.items_size + self.key_items_size + self.poke_balls_size + self.tms_hms_size
         return self._get_pocket(slot_offset=offset, number_of_slots=self.berries_size)
 
-    def has_space_for(self, item: Item) -> bool:
+    def has_space_for(self, item: Item, quantity: int = 1) -> bool:
         match item.pocket:
             case ItemPocket.Items:
                 pocket = self.items
@@ -393,7 +393,7 @@ class ItemBag:
         else:
             stack_size = 99
 
-        return any(slot.item == item and slot.quantity < stack_size for slot in pocket)
+        return any(slot.item == item and slot.quantity + quantity <= stack_size for slot in pocket)
 
     def pocket_for(self, item: Item) -> list[ItemSlot]:
         match item.pocket:

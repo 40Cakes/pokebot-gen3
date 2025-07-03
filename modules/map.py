@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Literal, TYPE_CHECKING
 
+from modules.berry_trees import get_berry_tree_by_id
 from modules.context import context
 from modules.game import decode_string, get_event_flag_name, get_event_var_name
 from modules.items import get_item_by_name
@@ -1006,6 +1007,12 @@ class MapLocation:
             None,
         )
 
+    def object_by_coordinates(self, coordinates: tuple[int, int]) -> "ObjectEventTemplate | None":
+        return next(
+            (object_template for object_template in self.objects if object_template.local_coordinates == coordinates),
+            None,
+        )
+
     @property
     def coord_events(self) -> list[MapCoordEvent]:
         coord_event_count = self._event_list[2]
@@ -1722,6 +1729,12 @@ class ObjectEventTemplate:
                 return f"Buried Trainer {defeated} at {self.local_coordinates}"
             else:
                 return f"Trainer {defeated} at {self.local_coordinates}"
+        elif self.movement_type == "BERRY_TREE_GROWTH":
+            berry_tree = get_berry_tree_by_id(self.berry_tree_id)
+            if berry_tree.berry is not None:
+                return f"Berry Tree ({berry_tree.berry.name}, {berry_tree.stage.name})"
+            else:
+                return "Berry Tree Spot (empty)"
         else:
             return f"Entity at {self.local_coordinates}"
 
