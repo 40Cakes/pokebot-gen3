@@ -58,6 +58,10 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
         regularEncounterList = [...encounters.regular.land_encounters];
     }
 
+    if (botMode.toLowerCase().includes("feebas") && ["surfing", "fishing_old_rod", "fishing_good_rod", "fishing_super_rod"].includes(encounterType)) {
+        additionalRouteSpecies.add("Feebas");
+    }
+
     // Add species that could appear on this map but are currently blocked by Repel and
     // therefore not part of the 'effective encounters' list.
     for (const regularEncounter of regularEncounterList) {
