@@ -35,7 +35,7 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
     let encounterList;
     /** @type {MapEncounter[]} regularEncounterList */
     let regularEncounterList;
-    if (botMode.toLowerCase().includes("daycare")) {
+    if (botMode.toLowerCase().includes("daycare") || botMode.toLowerCase().includes("kecleon")) {
         encounterList = [];
         regularEncounterList = [];
     } else if (encounterType === "surfing") {
@@ -146,7 +146,7 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
 
         let spriteType = "normal";
         let animate = encounter.species_name === animateSpecies;
-        if (species.phase_highest_sv > 65527) {
+        if (species && species.phase_highest_sv > 65527) {
             spriteType = "anti-shiny";
         }
 

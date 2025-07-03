@@ -286,4 +286,39 @@ export default async function runOverlay() {
     eventSource.addEventListener("PokenavCall", event => handlePokenavCall(state));
     eventSource.addEventListener("FishingAttempt", event => handleFishingAttempt(JSON.parse(event.data), state));
     eventSource.addEventListener("Inputs", event => handleInputs(JSON.parse(event.data), state));
+
+    if (config.gymMode) {
+        document.getElementById("route-encounters").style.display = "none";
+        document.getElementById("daycare-info").style.display = "none";
+        document.getElementById("section-checklist").style.display = "none";
+        document.getElementById("gym-message").style.display = "block";
+        document.getElementById("gym-message").style.flex = "1";
+
+        const gymListEntries = document.querySelectorAll("#gym-message ul li");
+        const updateChecklist = () => {
+            fetchers.eventFlags().then(flags => {
+                for (const li of gymListEntries) {
+                    if (flags[li.dataset.flag]) {
+                        li.className = "completed";
+                    } else {
+                        li.className = "";
+                    }
+                }
+            });
+        }
+        window.setInterval(updateChecklist, 10000);
+        updateChecklist();
+
+        const currentLocation = document.querySelector("#gym-message .current-location span");
+        currentLocation.innerText = state.map.map.pretty_name
+            .replace("é", "e")
+            .replace("’", "'");
+        eventSource.addEventListener("MapChange", event => {
+            /** @type {MapLocation} */
+            const eventData = JSON.parse(event.data);
+            currentLocation.innerText = eventData.map.pretty_name
+                .replace("é", "e")
+                .replace("’", "'");
+        });
+    }
 }
