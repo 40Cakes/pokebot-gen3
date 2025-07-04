@@ -266,6 +266,18 @@ const config = {
                 hidden: false,
             },
 
+            "Snorunt": {
+                goal: 2,
+                similarSpecies: ["Glalie"],
+                hidden: false,
+            },
+
+            "Spheal": {
+                goal: 3,
+                similarSpecies: ["Sealeo", "Walrein"],
+                hidden: false,
+            },
+
             "Pichu": {
                 goal: 1,
                 similarSpecies: [],
@@ -299,7 +311,7 @@ const config = {
             "Vileplume": {
                 goal: 3,
                 similarSpecies: ["Oddish", "Gloom"],
-                hidden: true,
+                hidden: false,
             },
         },
 
