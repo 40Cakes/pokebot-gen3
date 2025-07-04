@@ -30,6 +30,11 @@
                     transform: scale(1.2);
                     height: 100%;
                     object-fit: contain;
+                    object-position: bottom;
+
+                    @media screen and (min-height: 1440px) {
+                        max-height: 5vh;
+                    }
                 }
 
                 &.fainted img {
