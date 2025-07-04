@@ -280,7 +280,7 @@ const config = {
 
             "Wynaut": {
                 goal: 2,
-                similarSpecies: [],
+                similarSpecies: ["Wobbuffet"],
                 hidden: false,
             },
 
