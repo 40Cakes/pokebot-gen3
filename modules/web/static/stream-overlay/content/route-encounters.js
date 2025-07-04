@@ -27,10 +27,11 @@ const updateMapName = map => {
  * @param {EncounterType} encounterType
  * @param {StreamOverlay.SectionChecklist} checklistConfig
  * @param {string} botMode
+ * @param {Encounter[]} [encounterLog]
  * @param {Set<string>} [additionalRouteSpecies]
  * @param {string} [animateSpecies]
  */
-const updateRouteEncountersList = (encounters, stats, encounterType, checklistConfig, botMode, additionalRouteSpecies = null, animateSpecies = null) => {
+const updateRouteEncountersList = (encounters, stats, encounterType, checklistConfig, botMode, encounterLog = [], additionalRouteSpecies = null, animateSpecies = null) => {
     /** @type {MapEncounter[]} encounterList */
     let encounterList;
     /** @type {MapEncounter[]} regularEncounterList */
@@ -56,10 +57,6 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
     } else {
         encounterList = [...encounters.effective.land_encounters];
         regularEncounterList = [...encounters.regular.land_encounters];
-    }
-
-    if (botMode.toLowerCase().includes("feebas") && ["surfing", "fishing_old_rod", "fishing_good_rod", "fishing_super_rod"].includes(encounterType)) {
-        additionalRouteSpecies.add("Feebas");
     }
 
     // Add species that could appear on this map but are currently blocked by Repel and
@@ -93,6 +90,33 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
 
         if (!alreadyInList) {
             encounterList.push({species_name: speciesName, encounter_rate: 0});
+        }
+    }
+
+    if (botMode.toLowerCase().includes("feebas") && ["surfing", "fishing_old_rod", "fishing_good_rod", "fishing_super_rod"].includes(encounterType)) {
+        let hasRecentlySeenFeebas = false;
+        for (const recentEncounter of encounterLog) {
+            if (recentEncounter.pokemon.species.name === "Feebas") {
+                hasRecentlySeenFeebas = true;
+                break;
+            }
+        }
+
+        if (hasRecentlySeenFeebas) {
+            let newEncounterList = [];
+            for (const encounter of encounterList) {
+                const newEncounter = {...encounter};
+                newEncounter.encounter_rate /= 2;
+                newEncounterList.push(newEncounter);
+            }
+            newEncounterList.push({
+                species_id: 328,
+                species_name: "Feebas",
+                min_level: 20,
+                max_level: 25,
+                encounter_rate: 0.5
+            });
+            encounterList = newEncounterList;
         }
     }
 
