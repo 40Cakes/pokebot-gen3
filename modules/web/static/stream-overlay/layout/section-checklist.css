@@ -33,10 +33,14 @@
             display: inline-block;
             border: 1px solid var(--separator-line-colour);
             border-radius: 10px;
-            width: 6.1vh;
+            width: 5.58vh;
             text-align: center;
             margin: 3px;
             padding: .4vh 0;
+
+            @media screen and (min-width: 2560px) {
+                width: 5.7vh;
+            }
 
             > pokemon-sprite img {
                 height: 4vh;

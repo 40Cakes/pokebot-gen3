@@ -260,6 +260,24 @@ const config = {
                 hidden: false,
             },
 
+            "Phanpy": {
+                goal: 2,
+                similarSpecies: ["Donphan"],
+                hidden: false,
+            },
+
+            "Snorunt": {
+                goal: 2,
+                similarSpecies: ["Glalie"],
+                hidden: false,
+            },
+
+            "Spheal": {
+                goal: 3,
+                similarSpecies: ["Sealeo", "Walrein"],
+                hidden: false,
+            },
+
             "Pichu": {
                 goal: 1,
                 similarSpecies: [],
@@ -280,7 +298,7 @@ const config = {
 
             "Wynaut": {
                 goal: 2,
-                similarSpecies: [],
+                similarSpecies: ["Wobbuffet"],
                 hidden: false,
             },
 
