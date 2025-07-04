@@ -260,6 +260,12 @@ const config = {
                 hidden: false,
             },
 
+            "Phanpy": {
+                goal: 2,
+                similarSpecies: ["Donphan"],
+                hidden: false,
+            },
+
             "Pichu": {
                 goal: 1,
                 similarSpecies: [],
@@ -293,7 +299,7 @@ const config = {
             "Vileplume": {
                 goal: 3,
                 similarSpecies: ["Oddish", "Gloom"],
-                hidden: false,
+                hidden: true,
             },
         },
 
