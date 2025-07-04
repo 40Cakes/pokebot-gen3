@@ -699,6 +699,15 @@ class StatsDatabase:
 
         self._execute_write(
             """
+            UPDATE shiny_phases
+            SET start_time = ?
+            WHERE shiny_phase_id = ?
+            """,
+            (self.current_shiny_phase.start_time, self.current_shiny_phase.shiny_phase_id),
+        )
+
+        self._execute_write(
+            """
             UPDATE encounter_summaries
             SET phase_encounters = 0,
                 phase_highest_iv_sum = NULL,
