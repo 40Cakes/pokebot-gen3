@@ -1,18 +1,21 @@
 from typing import Generator
 
+from modules.battle_evolution_scene import handle_evolution_scene
+from modules.battle_move_replacing import handle_move_replacement_dialogue
+from modules.battle_strategies import DefaultBattleStrategy, BattleStrategy
 from modules.context import context
 from modules.debug import debug
 from modules.items import Item, ItemPocket, get_item_bag, get_item_by_name, get_item_by_move_id
 from modules.memory import GameState, get_event_flag, get_game_state, read_symbol, unpack_uint16, get_event_var
-from modules.menuing import StartMenuNavigator, scroll_to_item_in_bag as real_scroll_to_item
+from modules.menuing import StartMenuNavigator, scroll_to_item_in_bag as real_scroll_to_item, is_fade_active
+from modules.modes._interface import BotModeError
 from modules.player import get_player
 from modules.pokemon import LearnedMove
-from modules.pokemon_party import get_party, get_party_size
+from modules.pokemon_party import get_party, get_party_size, PartyPokemon
 from modules.tasks import task_is_active
 from ._util_helper import isolate_inputs
 from .sleep import wait_for_n_frames
 from .tasks_scripts import wait_for_task_to_start_and_finish, wait_until_task_is_active
-from .._interface import BotModeError
 
 
 @debug.track
@@ -38,7 +41,8 @@ class RanOutOfRepels(BotModeError):
 @isolate_inputs
 @debug.track
 def use_item_from_bag(item: Item, wait_for_start_menu_to_reappear: bool = True) -> Generator:
-    yield from StartMenuNavigator("BAG").step()
+    if get_game_state() is not GameState.BAG_MENU:
+        yield from StartMenuNavigator("BAG").step()
     yield from scroll_to_item_in_bag(item)
 
     if context.rom.is_rs:
@@ -272,3 +276,88 @@ def teach_hm_or_tm(hm_or_tm: Item, party_index: int, move_index_to_replace: int 
     else:
         yield from wait_for_task_to_start_and_finish("Task_ShowStartMenu", "B")
     yield
+
+
+def apply_rare_candy(
+    target: PartyPokemon,
+    quantity: int = 1,
+    battle_strategy: BattleStrategy | None = None,
+    allow_evolution: bool | None = None,
+) -> Generator:
+    """
+    Applies one or more Rare Candy to a party Pokémon and will handle
+    any evolution or move-learning dialogue, too.
+
+    :param target: The party member that should receive the Candy.
+    :param quantity: Amount of candy to give.
+    :param battle_strategy: The battle strategy to use for determining
+                            whether an evolution should happen, and
+                            which moves to replace.
+    :param allow_evolution: If used, this serves as an override to the
+                            battle strategy's decision on whether to
+                            allow the Pokémon to evolve.
+    :return:
+    """
+
+    rare_candies_in_inventory = get_item_bag().quantity_of(get_item_by_name("Rare Candy"))
+    if rare_candies_in_inventory < quantity:
+        raise BotModeError(
+            f"Cannot use {quantity} Rare Candies because there are only {rare_candies_in_inventory} in the Item Bag."
+        )
+
+    if target.is_egg:
+        raise BotModeError("Cannot use Rare Candies because the target is an egg.")
+
+    if target.level >= 100:
+        raise BotModeError("Cannot use Rare Candies because the target is already at level 100.")
+
+    if battle_strategy is None:
+        battle_strategy = DefaultBattleStrategy()
+
+    close_bag_after = False
+    if get_game_state() is not GameState.BAG_MENU:
+        close_bag_after = True
+        yield from StartMenuNavigator("BAG").step()
+
+    for _ in range(quantity):
+        yield from scroll_to_item_in_bag(get_item_by_name("Rare Candy"))
+
+        while get_game_state() != GameState.PARTY_MENU:
+            context.emulator.press_button("A")
+            yield
+
+        # Select the target Pokémon in Party Menu
+        while True:
+            if context.rom.is_rs:
+                current_slot_index = context.emulator.read_bytes(0x0202002F + get_party_size() * 136 + 3, length=1)[0]
+            else:
+                current_slot_index = read_symbol("gPartyMenu", offset=9, size=1)[0]
+            if current_slot_index < target.index:
+                context.emulator.press_button("Down")
+                yield
+            elif current_slot_index > target.index:
+                context.emulator.press_button("Up")
+                yield
+            else:
+                break
+
+        while True:
+            if task_is_active("Task_HandleReplaceMoveYesNoInput") or task_is_active("sub_806F390"):
+                yield from handle_move_replacement_dialogue(battle_strategy)
+            if task_is_active("Task_EvolutionScene"):
+                yield from handle_evolution_scene(battle_strategy, allow_evolution=allow_evolution)
+            if get_game_state() is GameState.BAG_MENU and not is_fade_active():
+                break
+            context.emulator.press_button("A")
+            yield
+
+    if close_bag_after:
+        if context.rom.is_rs:
+            start_menu_task = "sub_80712B4"
+        elif context.rom.is_emerald:
+            start_menu_task = "Task_ShowStartMenu"
+        else:
+            start_menu_task = "Task_StartMenuHandleInput"
+
+        yield from wait_for_task_to_start_and_finish(start_menu_task, "B")
+        yield

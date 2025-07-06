@@ -8,8 +8,9 @@ from modules.debug import debug
 from modules.game import get_symbol
 from modules.memory import read_symbol, unpack_uint32
 from modules.memory import unpack_uint16
+from modules.menu_parsers import get_party_menu_cursor_pos
 from modules.pokemon import get_move_by_index
-from modules.pokemon_party import get_party
+from modules.pokemon_party import get_party, get_party_size
 from modules.tasks import task_is_active, get_task, Task
 
 
@@ -39,6 +40,15 @@ def get_learn_move_state() -> LearnMoveState:
 
         if is_in_move_learning_stage and _is_asking_whether_to_cancel_learning_move(task_evolution_scene):
             return LearnMoveState.ConfirmCancellation
+
+    elif task_is_active(move_selection_task):
+        return LearnMoveState.SelectMoveToReplace
+
+    elif task_is_active("Task_HandleReplaceMoveYesNoInput") or task_is_active("sub_806F390"):
+        return LearnMoveState.AskWhetherToLearn
+
+    elif task_is_active("Task_HandleStopLearningMoveYesNoInput") or task_is_active("StopTryingToTeachMove_806F6B4"):
+        return LearnMoveState.ConfirmCancellation
 
     elif battle_is_active():
         ask_to_learn_move_script = get_symbol("BattleScript_AskToLearnMove")[0]
@@ -79,16 +89,21 @@ def handle_move_replacement_dialogue(strategy: BattleStrategy) -> Generator:
 
         if state == LearnMoveState.AskWhetherToLearn and not already_confirmed:
             debug.action_stack.append("LearnMoveState.AskWhetherToLearn")
-            move_to_learn = get_move_by_index(unpack_uint16(read_symbol("gMoveToLearn", size=2)))
-            if context.rom.is_rs:
-                if evolution_task is not None:
-                    party_index = evolution_task.data_value(12)
-                else:
-                    party_index = context.emulator.read_bytes(0x02016018, length=1)[0]
+            if task_is_active("Task_HandleReplaceMoveYesNoInput") or task_is_active("sub_806F390"):
+                party_menu_data = get_party_menu_cursor_pos(get_party_size())
+                move_to_learn = get_move_by_index(party_menu_data["data1"])
+                party_index = party_menu_data["slot_id"]
             else:
-                party_index = read_symbol("gBattleStruct", 16, 1)[0]
-            if context.rom.is_emerald or context.rom.is_frlg:
-                party_index = get_battle_state().map_battle_party_index(party_index)
+                move_to_learn = get_move_by_index(unpack_uint16(read_symbol("gMoveToLearn", size=2)))
+                if context.rom.is_rs:
+                    if evolution_task is not None:
+                        party_index = evolution_task.data_value(12)
+                    else:
+                        party_index = context.emulator.read_bytes(0x02016018, length=1)[0]
+                else:
+                    party_index = read_symbol("gBattleStruct", 16, 1)[0]
+                if context.rom.is_emerald or context.rom.is_frlg:
+                    party_index = get_battle_state().map_battle_party_index(party_index)
             pokemon = get_party()[party_index]
             decision = strategy.which_move_should_be_replaced(pokemon, move_to_learn)
 
