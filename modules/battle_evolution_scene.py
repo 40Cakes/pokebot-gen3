@@ -14,7 +14,7 @@ from modules.tasks import get_task, task_is_active
 
 
 @debug.track
-def handle_evolution_scene(strategy: BattleStrategy) -> Generator:
+def handle_evolution_scene(strategy: BattleStrategy, allow_evolution: bool | None = None) -> Generator:
     queried_stategy = False
     should_stop = True
     while context.bot_mode != "Manual":
@@ -32,7 +32,10 @@ def handle_evolution_scene(strategy: BattleStrategy) -> Generator:
         if not queried_stategy:
             if task_state >= 4:
                 party_index = task.data_value(10)
-                should_stop = not strategy.should_allow_evolution(get_party()[party_index], party_index)
+                if allow_evolution is None:
+                    should_stop = not strategy.should_allow_evolution(get_party()[party_index], party_index)
+                else:
+                    should_stop = not allow_evolution
                 queried_stategy = True
 
         context.emulator.press_button("B" if should_stop else "A")

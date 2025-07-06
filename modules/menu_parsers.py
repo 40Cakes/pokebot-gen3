@@ -3,7 +3,7 @@ from enum import IntEnum
 
 from modules.context import context
 from modules.game import decode_string
-from modules.memory import get_symbol_name, read_symbol, unpack_uint32
+from modules.memory import get_symbol_name, read_symbol, unpack_uint32, unpack_uint16
 from modules.pokemon import Move, Pokemon, get_move_by_index, parse_pokemon
 from modules.pokemon_party import get_party
 from modules.tasks import get_task, task_is_active
@@ -158,6 +158,8 @@ def get_party_menu_cursor_pos(party_length: int) -> dict:
             context.emulator.read_bytes(0x0202002F + party_length * 136 + 3, length=1), "little"
         )
         party_menu["slot_id_2"] = party_menu["slot_id"]
+        # 0x0201C00 is the location of `gPartyMenu`
+        party_menu["data1"] = unpack_uint16(context.emulator.read_bytes(0x0201C000 + 8, length=2))
 
     if party_menu["slot_id"] == -1:
         context.message = "Error detecting cursor position, switching to manual mode..."
