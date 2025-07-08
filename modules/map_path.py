@@ -524,6 +524,7 @@ class Waypoint:
     map: tuple[int, int]
     coordinates: tuple[int, int]
     is_warp: bool
+    is_water_tile: bool
     action: WaypointAction | None = None
 
     @property
@@ -665,17 +666,17 @@ def calculate_path(
                 or (tile.map.map_group_and_number, tile.dynamic_object_id) not in active_objects
             ):
                 return False
-        if tile.elevation == 1 and from_elevation == 3 and can_surf():
-            return True
-        if tile.elevation == 3 and from_elevation == 1:
-            return True
-        if tile.elevation not in (0, 15) and from_elevation != 0 and tile.elevation != from_elevation:
-            return False
         if (
             tile.dynamic_collision_flag is None
             and tile.dynamic_object_id
             and (tile.map.map_group_and_number, tile.dynamic_object_id) not in active_objects
         ):
+            return False
+        if tile.elevation == 1 and from_elevation == 3 and can_surf():
+            return True
+        if tile.elevation == 3 and from_elevation == 1:
+            return True
+        if tile.elevation not in (0, 15) and from_elevation != 0 and tile.elevation != from_elevation:
             return False
         if tile.global_coordinates in blocked_coordinates:
             return False
@@ -688,12 +689,16 @@ def calculate_path(
             if node.tile.warps_to and len(result) == 0:
                 warp_map, warp_coords, extra_warp_direction = node.tile.warps_to
                 if extra_warp_direction is not None:
-                    result.append(Waypoint(extra_warp_direction, warp_map, warp_coords, True))
+                    result.append(Waypoint(extra_warp_direction, warp_map, warp_coords, True, node.elevation == 1))
                     waypoint = Waypoint(
-                        direction, node.tile.map.map_group_and_number, node.tile.local_coordinates, False
+                        direction,
+                        node.tile.map.map_group_and_number,
+                        node.tile.local_coordinates,
+                        False,
+                        node.elevation == 1,
                     )
                 else:
-                    waypoint = Waypoint(direction, warp_map, warp_coords, True)
+                    waypoint = Waypoint(direction, warp_map, warp_coords, True, node.elevation == 1)
 
             else:
                 if node.came_from.elevation == 3 and node.elevation == 1:
@@ -714,7 +719,12 @@ def calculate_path(
                     action = None
 
                 waypoint = Waypoint(
-                    direction, node.tile.map.map_group_and_number, node.tile.local_coordinates, False, action
+                    direction,
+                    node.tile.map.map_group_and_number,
+                    node.tile.local_coordinates,
+                    False,
+                    node.elevation == 1,
+                    action,
                 )
             result.append(waypoint)
 
