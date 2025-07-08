@@ -342,6 +342,13 @@ class PokemonPartySubMenuNavigator(BaseMenuNavigator):
             for _ in range(5):
                 yield
 
+        # TAKE_ITEM
+        chosen_option = self.party_menu_internal["actions"][self.desired_option]
+        if chosen_option == 5:
+            while not task_is_active("Task_HandleChooseMonInput"):
+                context.emulator.press_button("A")
+                yield
+
     def get_next_func(self):
         match self.current_step:
             case "None":
@@ -435,8 +442,11 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
 
     def navigate_to_mon(self):
         party_size = get_party_size()
-        while (current_slot := get_party_menu_cursor_pos(len(self.party))["slot_id"]) != self.idx:
-            context.emulator.press_button(get_scroll_direction(current_slot, self.idx, total_items=party_size + 1))
+        direction = get_scroll_direction(
+            min(party_size, get_party_menu_cursor_pos(len(self.party))["slot_id"]), self.idx, total_items=party_size + 1
+        )
+        while get_party_menu_cursor_pos(len(self.party))["slot_id"] != self.idx:
+            context.emulator.press_button(direction)
             yield
 
     def navigate_to_lead(self):
