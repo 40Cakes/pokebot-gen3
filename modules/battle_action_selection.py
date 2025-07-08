@@ -182,7 +182,9 @@ def battle_action_use_item(battle_state: BattleState, item: Item, target_index: 
 @debug.track
 def battle_action_use_pokeblock(poke_block_index: int):
     yield from scroll_to_battle_action(1)
-    context.emulator.press_button("A")
+    while get_game_state_symbol() == "BATTLEMAINCB2":
+        context.emulator.press_button("A")
+        yield
     while get_game_state_symbol() not in ("CB2_POKEBLOCKMENU", "SUB_810B674"):
         yield
     for _ in range(22):
@@ -214,6 +216,11 @@ def battle_action_use_pokeblock(poke_block_index: int):
 
     while get_game_state_symbol() in ("CB2_POKEBLOCKMENU", "SUB_810B674"):
         context.emulator.press_button("A")
+        yield
+    while get_game_state_symbol() != "BATTLEMAINCB2":
+        context.emulator.press_button("B")
+        yield
+    while get_battle_controller_callback(0) == "CompleteWhenChosePokeblock":
         yield
     yield
 
