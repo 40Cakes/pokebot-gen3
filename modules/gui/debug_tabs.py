@@ -1,6 +1,7 @@
 import contextlib
 import time
 import tkinter
+from datetime import datetime
 from enum import Enum
 from tkinter import ttk, Canvas
 from typing import TYPE_CHECKING, Union, Optional
@@ -1150,6 +1151,19 @@ class EmulatorTab(DebugTab):
         session_seconds = int(session_total_seconds % 60)
         session_time_at_1x = f"{session_hours:,}:{session_minutes:02}:{session_seconds:02}"
 
+        rtc_core = context.emulator._core.rtc._core.rtc
+        match rtc_core.override:
+            case 0:
+                rtc = datetime.now()
+            case 1:
+                rtc = datetime.fromtimestamp(rtc_core.value / 1000)
+            case 2:
+                rtc = datetime.fromtimestamp(rtc_core.value / 1000)
+            case 3:
+                rtc = datetime.fromtimestamp(datetime.now().timestamp() + rtc_core.value / 1000)
+            case _:
+                rtc = None
+
         return {
             "Inputs": inputs_dict,
             "Emulator Frame": f"{context.emulator.get_frame_count():,}",
@@ -1157,6 +1171,8 @@ class EmulatorTab(DebugTab):
             "Session Time at 1×": f"{session_time_at_1x}",
             "RNG Seed": hex(unpack_uint32(read_symbol("gRngValue"))),
             "Encounters/h (at 1×)": context.stats.encounter_rate_at_1x,
+            "Controller Stack": [controller.__qualname__ for controller in context.controller_stack],
+            "RTC": rtc.isoformat() if rtc is not None else None,
             "Currently Running Actions": debug.action_stack,
             "Debug Values": debug.debug_values,
         }

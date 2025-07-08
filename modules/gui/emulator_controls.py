@@ -327,7 +327,7 @@ class EmulatorControls:
                 as encounters, IV/SV records, fishing attempts etc. -- to zero.
                 
                 That can be useful if for example you have changed location and
-                would like tostart hunting on this route with a clean slate
+                would like to start hunting on this route with a clean slate
                 instead of having some random encounters from the way to get
                 here show up.
                 
