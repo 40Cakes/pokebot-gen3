@@ -1,8 +1,41 @@
+import os
 from collections import deque
 from tkinter import Button, PhotoImage, Tk
 
 import PIL.Image
 import PIL.ImageTk
+
+try:
+    if "WAYLAND_DISPLAY" in os.environ:
+        os.environ["PYOPENGL_PLATFORM"] = "glx"
+    from mgba import ffi
+    from OpenGL.GL import (
+        glViewport,
+        glClearColor,
+        glGenTextures,
+        glBindTexture,
+        glTexParameteri,
+        glClear,
+        glTexImage2D,
+        glEnable,
+        glBegin,
+        glTexCoord2f,
+        glVertex2f,
+        glEnd,
+        GL_TEXTURE_2D,
+        GL_TEXTURE_MIN_FILTER,
+        GL_NEAREST,
+        GL_TEXTURE_MAG_FILTER,
+        GL_COLOR_BUFFER_BIT,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+        GL_QUADS,
+    )
+    from pyopengltk import OpenGLFrame
+
+    can_use_opengl = True
+except ImportError:
+    can_use_opengl = False
 
 from modules.gui.debug_tabs import *
 from modules.gui.emulator_controls import DebugEmulatorControls, EmulatorControls
@@ -16,15 +49,52 @@ stepping_mode_forward_key = "<space>"
 stepping_mode_reverse_key = "<Control-space>"
 
 
+if can_use_opengl or TYPE_CHECKING:
+
+    class EmulatorFrame(OpenGLFrame):
+        def initgl(self):
+            glViewport(0, 0, self.width, self.height)
+            glClearColor(0.0, 0.0, 0.0, 0.0)
+            texture = glGenTextures(1)
+            glBindTexture(GL_TEXTURE_2D, texture)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+
+        def redraw(self):
+            frame_data = bytes(ffi.buffer(context.emulator._screen.buffer))
+
+            glClear(GL_COLOR_BUFFER_BIT)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 240, 160, 0, GL_RGBA, GL_UNSIGNED_BYTE, frame_data)
+
+            glEnable(GL_TEXTURE_2D)
+            glBegin(GL_QUADS)
+            glTexCoord2f(0, 1)
+            glVertex2f(-1, -1)
+            glTexCoord2f(1, 1)
+            glVertex2f(1, -1)
+            glTexCoord2f(1, 0)
+            glVertex2f(1, 1)
+            glTexCoord2f(0, 0)
+            glVertex2f(-1, 1)
+            glEnd()
+
+
 class EmulatorScreen:
-    def __init__(self, window: Tk):
+    def __init__(self, window: Tk, use_opengl: bool = False):
+        if use_opengl and not can_use_opengl:
+            raise RuntimeError(
+                "Cannot use OpenGL because importing the library failed. Did you do `pip install PyOpenGL PyOpenGL_accelerate pyopengltk`?"
+            )
+
         self.window = window
         self.frame: Union[ttk.Frame, None] = None
         self.canvas: Union[Canvas, None] = None
         self.current_canvas_image: Union[PhotoImage, None] = None
         self._current_canvas_image_id: int | None = None
+        self._open_gl_frame: "EmulatorFrame | None" = None
         self._placeholder_image: Union[PhotoImage, None] = None
         self.center_of_canvas: tuple[int, int] = (240, 160)
+        self._use_opengl: bool = use_opengl
 
         self.width: int = 240
         self.height: int = 160
@@ -139,6 +209,8 @@ class EmulatorScreen:
         self.window.columnconfigure(0, weight=0, minsize=self.width * self._scale)
         self.window.columnconfigure(1, weight=1)
 
+        if self._use_opengl:
+            self._open_gl_frame.config(width=self.width * self._scale, height=self.height * self._scale)
         self.canvas.config(width=self.width * self._scale, height=self.height * self._scale)
         self.center_of_canvas = (self._scale * self.width // 2, self._scale * self.height // 2)
 
@@ -211,14 +283,15 @@ class EmulatorScreen:
         self.canvas.create_image(self.center_of_canvas, image=self.current_canvas_image, state="normal")
 
     def _update_image(self, image: PIL.Image):
-        if self._current_canvas_image_id:
-            self.canvas.delete(self._current_canvas_image_id)
-        self.current_canvas_image = PIL.ImageTk.PhotoImage(
-            image=image.resize((self.width * self.scale, self.height * self.scale), resample=False)
-        )
-        self._current_canvas_image_id = self.canvas.create_image(
-            self.center_of_canvas, image=self.current_canvas_image, state="normal"
-        )
+        if not self._use_opengl:
+            if self._current_canvas_image_id:
+                self.canvas.delete(self._current_canvas_image_id)
+            self.current_canvas_image = PIL.ImageTk.PhotoImage(
+                image=image.resize((self.width * self.scale, self.height * self.scale), resample=False)
+            )
+            self._current_canvas_image_id = self.canvas.create_image(
+                self.center_of_canvas, image=self.current_canvas_image, state="normal"
+            )
         self._update_window()
 
     def _update_window(self):
@@ -229,8 +302,14 @@ class EmulatorScreen:
         self.window.update()
 
     def _add_canvas(self) -> None:
+        if self._use_opengl:
+            self._open_gl_frame = EmulatorFrame(self.window, width=480, height=320)
+            self._open_gl_frame.animate = 1
+            self._open_gl_frame.grid(sticky="NW", row=0, column=0)
         self.canvas = Canvas(self.window, width=480, height=320)
-        self.canvas.grid(sticky="NW", row=0, column=0)
+        if not self._use_opengl:
+            self.canvas.grid(sticky="NW", row=0, column=0)
+
         if context.debug:
 
             def handle_click_on_video_output(event):

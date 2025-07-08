@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 
 class PokebotGui:
-    def __init__(self, main_loop: callable, on_exit: callable, no_theme: bool = False):
+    def __init__(self, main_loop: callable, on_exit: callable, no_theme: bool = False, use_opengl: bool = False):
         if not no_theme:
             theme = "equilux" if darkdetect.isDark() else "clam"
             self.window = ThemedTk(className="PokeBot", theme=theme)
@@ -55,7 +55,7 @@ class PokebotGui:
         self._select_profile_screen = SelectProfileScreen(
             self.window, self._enable_create_profile_screen, self._run_profile
         )
-        self._emulator_screen = EmulatorScreen(self.window)
+        self._emulator_screen = EmulatorScreen(self.window, use_opengl)
         self._set_app_icon()
 
     def _apply_key_config(self) -> None:
