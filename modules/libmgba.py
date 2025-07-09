@@ -22,6 +22,8 @@ from modules.console import console
 from modules.profiles import Profile
 from modules.tasks import task_is_active
 
+SAMPLE_RATE_MULTIPLIER = 59.727500569606 / 60
+
 input_map = {
     "A": 0x1,
     "B": 0x2,
@@ -180,7 +182,7 @@ class LibmgbaEmulator:
                     "Your audio device does not support stereo. What on earth are you using, a yoghurt pot telephone?!"
                 )
 
-            self._gba_audio.set_rate(sample_rate)
+            self._gba_audio.set_rate(int(sample_rate * SAMPLE_RATE_MULTIPLIER))
             self._audio_stream = sounddevice.RawOutputStream(channels=2, samplerate=sample_rate, dtype="int16")
             if self._throttled:
                 self._audio_stream.start()
@@ -189,7 +191,7 @@ class LibmgbaEmulator:
             console.print(f"[red]{str(error)}[/]")
             console.print("[red bold]Failed to initialise sound![/] [red]Sound will be disabled.[/]")
             self._audio_stream = None
-            self._gba_audio.set_rate(32768)
+            self._gba_audio.set_rate(int(32768 * SAMPLE_RATE_MULTIPLIER))
             self._audio_sample_rate = 32768
 
     def reset(self) -> None:
@@ -352,7 +354,7 @@ class LibmgbaEmulator:
         self._speed_factor = speed_factor
 
         if self._audio_stream is not None:
-            self._gba_audio.set_rate(self._audio_stream.samplerate // speed_factor)
+            self._gba_audio.set_rate(int(SAMPLE_RATE_MULTIPLIER * self._audio_stream.samplerate / speed_factor))
 
     def get_save_state(self) -> bytes:
         """
