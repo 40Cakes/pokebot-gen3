@@ -21,9 +21,11 @@ def soft_reset(mash_random_keys: bool = True) -> Generator:
     context.emulator.reset()
     yield
 
+    was_in_title_screen = False
     while True:
         match get_game_state():
             case GameState.TITLE_SCREEN:
+                was_in_title_screen = True
                 if mash_random_keys:
                     context.emulator.press_button(random.choice(["A", "Start", "Left", "Right", "Up"]))
             case GameState.MAIN_MENU:
@@ -31,13 +33,14 @@ def soft_reset(mash_random_keys: bool = True) -> Generator:
             case GameState.QUEST_LOG:
                 context.emulator.press_button("B")
             case GameState.OVERWORLD:
-                if context.rom.is_frlg:
-                    while read_symbol("gQuestLogState") != b"\x00":
-                        context.emulator.press_button("B")
-                        yield
-                    yield from wait_for_task_to_start_and_finish("Task_EndQuestLog", "B")
-                yield from wait_for_player_avatar_to_be_controllable()
-                return
+                if was_in_title_screen:
+                    if context.rom.is_frlg:
+                        while read_symbol("gQuestLogState") != b"\x00":
+                            context.emulator.press_button("B")
+                            yield
+                        yield from wait_for_task_to_start_and_finish("Task_EndQuestLog", "B")
+                    yield from wait_for_player_avatar_to_be_controllable()
+                    return
 
         yield
 

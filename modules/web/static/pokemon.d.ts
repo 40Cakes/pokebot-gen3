@@ -248,6 +248,8 @@ export type Pokemon = {
 
     species: Species;
 
+    species_name_for_stats: string;
+
     held_item: Item | null;
 
     // Total number of Experience that this Pokémon has collected.
@@ -470,8 +472,12 @@ type MapData = {
     map_group: number;
     map_number: number;
 
-    // In-game name of the current map.
+    // In-game name of the current map. For indoor routes, this is the name
+    // of the city/town/route associated with it.
     name: string;
+
+    // A more accurate name based on the pret project's map name constants.
+    pretty_name: string;
 
     // Size in tiles.
     size: [number, number];
@@ -562,7 +568,7 @@ export type Player = {
     registered_item: string;
 };
 
-export type PlayerAvatar = {
+export type PlayerAvatarType = {
     map_group_and_number: [number, number];
 
     // Local coordinates (in tiles) on the current map.

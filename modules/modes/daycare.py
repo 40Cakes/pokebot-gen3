@@ -7,10 +7,10 @@ from modules.encounter import judge_encounter, EncounterInfo
 from modules.items import get_item_bag, get_item_by_name, get_item_storage
 from modules.map_data import MapFRLG, MapRSE
 from modules.map_path import calculate_path
-from modules.memory import GameState, get_event_flag, get_game_state, get_game_state_symbol
+from modules.memory import GameState, get_event_flag, get_game_state
 from modules.player import get_player_avatar, get_player_location
 from modules.pokemon_party import get_party, get_party_size
-from modules.tasks import get_global_script_context, task_is_active
+from modules.tasks import get_global_script_context
 from ._interface import BotMode, BotModeError
 from .util import (
     ensure_facing_direction,
@@ -18,11 +18,10 @@ from .util import (
     navigate_to,
     register_key_item,
     talk_to_npc,
-    wait_for_player_avatar_to_be_controllable,
     wait_for_n_frames,
     wait_for_task_to_start_and_finish,
-    wait_until_task_is_active,
 )
+from .util.pc_interaction import interact_with_pc, PCAction
 
 
 def _update_message():
@@ -168,7 +167,7 @@ class DaycareMode(BotMode):
                     yield from wait_for_n_frames(5)
                 break
 
-        def pc_release():
+        def get_party_indices_to_release() -> list[int]:
             party_indices_to_release = []
             for index, pokemon in enumerate(get_party()):
                 if (
@@ -180,13 +179,17 @@ class DaycareMode(BotMode):
                     and not judge_encounter(pokemon).is_of_interest
                 ):
                     party_indices_to_release.append(index)
+            return party_indices_to_release
+
+        def pc_release():
+            party_indices_to_release = get_party_indices_to_release()
 
             if not party_indices_to_release:
                 context.message = "There are no more empty slots in your party!"
                 context.set_manual_mode()
 
-            if get_player_avatar().is_on_bike:
-                context.emulator.press_button("Select")
+            # if get_player_avatar().is_on_bike:
+            #     context.emulator.press_button("Select")
 
             # Enter daycare
             yield from navigate_to(daycare_route, daycare_door)
@@ -196,54 +199,12 @@ class DaycareMode(BotMode):
             yield from ensure_facing_direction("Up")
 
             # Interact with PC
-            if context.rom.is_rs:
-                yield from wait_until_task_is_active("Task_PokemonStorageSystem", "A")
-            else:
-                yield from wait_until_task_is_active("Task_PCMainMenu", "A")
-            yield from wait_for_n_frames(10)
-            for _ in range(2):
-                context.emulator.press_button("Down")
-                yield from wait_for_n_frames(5)
-            while not task_is_active("Task_PokeStorageMain") and get_game_state_symbol() != "SUB_8096B38":
-                context.emulator.press_button("A")
-                yield
-
-            # Navigate to party list
-            yield from wait_for_n_frames(50)
-            for _ in range(2):
-                context.emulator.press_button("Up")
-                yield from wait_for_n_frames(10)
-            context.emulator.press_button("A")
-            yield from wait_for_n_frames(60)
-
-            # Release 5 baby Pokémon
-            for index in range(get_party_size()):
-                if index not in party_indices_to_release:
-                    context.emulator.press_button("Down")
-                    yield from wait_for_n_frames(20)
-                else:
-                    yield from wait_for_n_frames(5)
-                    context.emulator.press_button("A")
-                    yield from wait_for_n_frames(5)
-                    for _ in range(2):
-                        yield from wait_for_n_frames(10)
-                        context.emulator.press_button("Up")
-                        yield from wait_for_n_frames(2)
-                    context.emulator.press_button("A")
-                    yield from wait_for_n_frames(4)
-                    context.emulator.press_button("Up")
-                    yield from wait_for_n_frames(2)
-                    context.emulator.press_button("A")
-                    party_size_before = get_party_size()
-                    while get_party_size() == party_size_before:
-                        yield from wait_for_n_frames(10)
-                    for _ in range(2):
-                        yield from wait_for_n_frames(3)
-                        context.emulator.press_button("A")
-                    yield from wait_for_n_frames(20)
+            party = get_party()
+            yield from interact_with_pc(
+                [PCAction.release_pokemon_from_party(party[index]) for index in party_indices_to_release]
+            )
 
             # Leave daycare
-            yield from wait_for_player_avatar_to_be_controllable("B")
             yield from navigate_to(daycare_inside_map, daycare_exit)
 
         def should_pick_up_egg() -> bool:
@@ -251,15 +212,15 @@ class DaycareMode(BotMode):
 
         def should_release_pokemon_at_pc() -> bool:
             party = get_party()
-            return len(party.eggs) == 0 and len(party) == 6
+            return len(get_party_indices_to_release()) > 0 and len(party) == 6
 
         def get_path():
             if context.rom.is_rse:
-                point_a = (MapRSE.ROUTE117, (47, 7))
-                point_b = (MapRSE.ROUTE117, (47, 8))
-                point_c = (MapRSE.ROUTE117, (55, 8))
-                point_d = (MapRSE.ROUTE117, (55, 7))
-                if self._use_bike:
+                point_d = (MapRSE.ROUTE117, (47, 7))
+                point_c = (MapRSE.ROUTE117, (47, 8))
+                point_b = (MapRSE.ROUTE117, (55, 8))
+                point_a = (MapRSE.ROUTE117, (55, 7))
+                if self._use_bike and False:
                     stopping_point_daycare_man = (MapRSE.ROUTE117, (50, 7))
                     stopping_point_daycare_house = (MapRSE.ROUTE117, (54, 7))
                 else:
@@ -311,10 +272,10 @@ class DaycareMode(BotMode):
 
             yield from follow_waypoints(get_path())
 
-            if get_player_avatar().is_on_bike:
-                context.emulator.press_button("Select")
-                yield
-                yield
+            # if get_player_avatar().is_on_bike:
+            #     context.emulator.press_button("Select")
+            #     yield
+            #     yield
 
             if should_pick_up_egg():
                 yield from handle_egg_collecting()

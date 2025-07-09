@@ -6,7 +6,7 @@ from modules.context import context
 from modules.items import get_item_by_name, get_item_bag
 from modules.map import get_map_data
 from modules.map_data import MapRSE
-from modules.player import get_player, get_player_avatar, AvatarFlags
+from modules.player import get_player, get_player_avatar, AvatarFlags, get_player_location
 from modules.pokemon_party import get_party
 from . import BattleAction
 from ._asserts import assert_player_has_poke_balls, assert_boxes_or_party_can_fit_pokemon
@@ -61,6 +61,15 @@ class FishingSpotList:
             if self._fishing_spots[index].fishing_attempts < maximum_number_of_fishing_attempts_per_tile:
                 return self._fishing_spots[index]
         return None
+
+    def mark_as_tested_up_to_coordinates(self, coordinates: tuple[int, int]) -> None:
+        if coordinates in self:
+            while True:
+                spot = self.get_next_untested()
+                if spot is None or spot.coordinates == coordinates:
+                    break
+                else:
+                    spot.fishing_attempts = maximum_number_of_fishing_attempts_per_tile
 
     def reset(self, can_use_waterfall: bool) -> None:
         for index in self._fishing_spots:
@@ -128,18 +137,25 @@ class FeebasMode(BotMode):
         self._found_feebas: ClockTime | None = None
         self._fishing_spots: FishingSpotList = _get_fishing_spots()
         self._can_use_waterfall: bool = False
+        self._fishing_attempts_without_seeing_feebas = False
         super().__init__()
 
     def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | None:
         if encounter.type.is_fishing:
-            # Feebas tiles change each in-game day (based on RTC)
-            if self._found_feebas is not None and self._found_feebas.days != get_clock_time().days:
+            # If we see more than 20 non-Feebas encounters in a row, we assume that
+            # something has gone wrong and start the search again.
+            if self._found_feebas is not None and self._fishing_attempts_without_seeing_feebas > 20:
                 self._found_feebas = None
                 self._fishing_spots.reset(self._can_use_waterfall)
+                if encounter.coordinates:
+                    player_location = get_player_avatar().map_location_in_front.local_position
+                    self._fishing_spots.mark_as_tested_up_to_coordinates(player_location)
 
             if encounter.pokemon.species.name == "Feebas":
                 self._found_feebas = get_clock_time()
+                self._fishing_attempts_without_seeing_feebas = 0
             else:
+                self._fishing_attempts_without_seeing_feebas += 1
                 spot = self._fishing_spots.get_by_coordinates(get_player_avatar().map_location_in_front.local_position)
                 if spot is not None:
                     spot.fishing_attempts += 1
@@ -188,17 +204,11 @@ class FeebasMode(BotMode):
         # which tile is the Feebas tile, for example because they just used the mode and
         # briefly switched back to Manual mode.
         player_location = get_player_avatar().map_location_in_front.local_position
-        if player_location in self._fishing_spots:
-            while True:
-                spot = self._fishing_spots.get_next_untested()
-                if spot is None or spot.coordinates == player_location:
-                    break
-                else:
-                    spot.fishing_attempts = maximum_number_of_fishing_attempts_per_tile
+        self._fishing_spots.mark_as_tested_up_to_coordinates(player_location)
 
         while True:
             if not self._found_feebas:
-                map = player_location = get_player_avatar().map_location_in_front
+                map = get_player_avatar().map_location_in_front
 
                 # Sometimes when entering battle the map location is not available during a few frames
                 # We keep the mode going in this case

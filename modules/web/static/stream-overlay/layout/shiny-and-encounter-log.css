@@ -1,0 +1,75 @@
+#shiny-log, #encounter-log {
+    thead tr th:first-child {
+        img {
+            height: .75rem;
+        }
+    }
+
+    tr {
+        height: 2.5vh;
+    }
+
+    tbody pokemon-sprite {
+        img {
+            width: 1em;
+            height: 1em;
+            transform: scale(2.75);
+        }
+
+        &.unsuccessful {
+            opacity: .66;
+        }
+    }
+
+    tbody td.column-sprite {
+        position: relative;
+    }
+
+    .gender-sprite {
+        position: absolute;
+        top: .3vh;
+        height: 1vh;
+    }
+
+    .item-sprite {
+        position: absolute;
+        bottom: -.3vh;
+        right: 0;
+        height: 2vh;
+    }
+
+    .overlay-sprite {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        height: 1.75vh;
+    }
+}
+
+#shiny-log {
+    tbody tr {
+        td:nth-child(1), td:nth-child(5), td:nth-child(6) {
+            font-size: .85rem;
+        }
+    }
+}
+
+#encounter-log {
+    tbody tr {
+        td:nth-child(1) {
+            width: 10%;
+        }
+
+        .text-white, .text-green, .text-red, .text-purple, .text-yellow {
+            position: relative;
+
+            .overlay-sprite {
+                position: absolute;
+                height: .55vh;
+                filter: brightness(.75) saturate(.75);
+                top: 0;
+                right: -.6vh;
+            }
+        }
+    }
+}

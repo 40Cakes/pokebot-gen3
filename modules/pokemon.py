@@ -621,7 +621,7 @@ class LevelUpType(Enum):
         :return: The level a Pokémon would have with that amount of EXP
         """
         level = 0
-        while total_experience >= self.get_experience_needed_for_level(level + 1):
+        while level < 100 and total_experience >= self.get_experience_needed_for_level(level + 1):
             level += 1
         return level
 

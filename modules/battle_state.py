@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, Flag, KEEP, auto
+from typing import Literal
 
 from modules.context import context
 from modules.fishing import FishingRod
@@ -13,10 +14,12 @@ from modules.pokemon import (
     Move,
     LearnedMove,
     Item,
+    Nature,
     get_species_by_index,
     get_type_by_index,
     get_move_by_index,
     get_item_by_index,
+    get_nature_by_index,
     StatsValues,
     StatusCondition,
     get_opponent,
@@ -614,6 +617,23 @@ class BattlePokemon:
     @property
     def total_hp(self) -> int:
         return unpack_uint16(self._data[0x2C:0x2E])
+
+    @property
+    def nature(self) -> Nature:
+        return get_nature_by_index(self.personality_value % 25)
+
+    @property
+    def gender(self) -> Literal["male", "female", None]:
+        ratio = self.species.gender_ratio
+        if ratio == 0:
+            return "male"
+
+        elif ratio == 254:
+            return "female"
+        elif ratio == 255:
+            return None
+        value = self.personality_value & 0xFF
+        return "male" if value >= ratio else "female"
 
     @property
     def level(self) -> int:

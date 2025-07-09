@@ -153,7 +153,7 @@ def ask_for_confirmation(message: str, window_title: str = "Confirmation") -> bo
         # Scale the window to fit the label.
         if not checked_window_height:
             checked_window_height = True
-            window_height = label.winfo_height() + 100
+            window_height = label.winfo_reqheight() + 100
             if window_height > 180:
                 window.geometry(f"400x{window_height}")
 

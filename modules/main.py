@@ -8,6 +8,7 @@ from modules.context import context
 from modules.memory import get_game_state
 from modules.modes import BotMode, BotModeError, FrameInfo, get_bot_listeners, get_bot_mode_by_name
 from modules.plugins import plugin_profile_loaded, load_built_in_plugins
+from modules.state_cache import state_cache
 from modules.stats import StatsDatabase
 from modules.tasks import get_global_script_context, get_tasks
 
@@ -91,11 +92,13 @@ def main_loop() -> None:
                 game_state=game_state,
                 active_tasks=active_tasks,
                 script_stack=script_stack,
+                controller_stack=[controller.__qualname__ for controller in context.controller_stack],
                 previous_frame=previous_frame_info,
             )
 
             # Reset all bot listeners if the emulator has been reset.
             if previous_frame_info is not None and previous_frame_info.frame_count > frame_info.frame_count:
+                state_cache.reset()
                 context.bot_listeners = get_bot_listeners(context.rom)
 
             if context.bot_mode == "Manual":

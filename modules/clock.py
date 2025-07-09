@@ -14,6 +14,9 @@ class ClockTime:
     def __str__(self):
         return f"{self.days} day{'s' if self.days != 1 else ''}, {self.hours:02d}:{self.minutes:02d}:{self.seconds:02d}"
 
+    def total_minutes(self) -> int:
+        return self.days * 24 * 60 + self.hours * 60 + self.minutes
+
 
 def get_clock_time() -> ClockTime:
     """

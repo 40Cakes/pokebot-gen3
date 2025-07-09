@@ -72,6 +72,31 @@ class DaycareData:
     step_counter: int
     compatibility: tuple[DaycareCompatibility, str]
 
+    def to_dict(self) -> dict:
+        pokemon1_new_level = None
+        if self.pokemon1 is not None:
+            pokemon1_new_level = self.pokemon1.species.level_up_type.get_level_from_total_experience(
+                self.pokemon1.total_exp + self.pokemon1_steps
+            )
+
+        pokemon2_new_level = None
+        if self.pokemon2 is not None:
+            pokemon2_new_level = self.pokemon2.species.level_up_type.get_level_from_total_experience(
+                self.pokemon2.total_exp + self.pokemon2_steps
+            )
+
+        return {
+            "pokemon1": self.pokemon1.to_dict() if self.pokemon1 else None,
+            "pokemon1_steps": self.pokemon1_steps,
+            "pokemon1_new_level": pokemon1_new_level,
+            "pokemon2": self.pokemon2.to_dict() if self.pokemon2 else None,
+            "pokemon2_steps": self.pokemon1_steps,
+            "pokemon2_new_level": pokemon1_new_level,
+            "compatibility": self.compatibility[0].name,
+            "compatibility_explanation": self.compatibility[1],
+            "step_counter": self.step_counter,
+        }
+
 
 def get_daycare_data() -> DaycareData | None:
     if context.rom.is_rs:

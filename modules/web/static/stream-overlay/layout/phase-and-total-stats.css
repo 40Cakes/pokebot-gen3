@@ -1,0 +1,62 @@
+#phase-stats, #total-stats {
+    h2 {
+        margin-bottom: 0;
+    }
+
+    .stats-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+            display: flex;
+            align-items: center;
+            border-top: 1px solid var(--separator-line-colour);
+            padding: .45vh 1vh;
+
+            &:first-child {
+                border-top: 0;
+            }
+
+            .icon {
+                flex: 0 0 12%;
+
+                img {
+                    height: 2.2vh;
+                }
+            }
+
+            .label {
+                font-size: .7rem;
+                line-height: .85rem;
+            }
+
+            .value {
+                flex: 1;
+                text-align: right;
+            }
+        }
+    }
+
+    pokemon-sprite img {
+        height: 1rem;
+        transform: scale(2);
+        margin: 0 1vh;
+        vertical-align: middle;
+    }
+
+    #badge-list {
+        display: flex;
+        justify-content: space-between;
+        margin: 1.2vh 1vh;
+
+        img {
+            width: 1.5rem;
+
+            &.unobtained {
+                filter: grayscale(1);
+                opacity: .15;
+            }
+        }
+    }
+}

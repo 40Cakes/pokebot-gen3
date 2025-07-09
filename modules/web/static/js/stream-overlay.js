@@ -1,85 +1,41 @@
 // 40 Cakes' Stream Overlay
-// Ported over from the Bizhawk bot, consider this overlay an *alpha* with the libmgba bot
 // If you do decide to stream this yourself, please at least try to put your own unique spin on the design/or layout!
 // This is intended to be loaded into OBS as a browser source, with a resolution of 2560x1440
+// Comes with no warranty, or guide on how to use/setup
 
 // Start date for the top-left "time elapsed since challenge started" timer
 start_date = "2023-01-01"
 time_zone = "Australia/Sydney" // "Australia/Sydney"
-override_display_timezone = "AEDT" // "AEST"
+override_display_timezone = "AEST" // "AEST"
 
 // Name of Pokemon for the "timers since last encounter" for a Pokemon to display on screen
-target_timer_1 = "Nosepass" // "Seedot"
+target_timer_1 = "Cacnea" // "Seedot"
 target_timer_2 = ""
 
 // Pokemon to display on the checklist (possible encounters via current bot mode are appended to top of list)
 // Leave it empty to only show encounters on the current route
 // TODO: Currently limited to the # of mon that can be displayed before table overflows - look at adding auto scrolling
 pokemon_checklist = {
-    "Nosepass": {
-        "goal": 1,
-        "hidden": false
-    },
-    "Skitty": {
+    "Sandshrew": {
         "goal": 2,
         "hidden": false
     },
-    "Machop": {
+    "Trapinch": {
+        "goal": 3,
+        "hidden": false
+    },
+    "Cacnea": {
         "goal": 2,
         "hidden": false
     },
-    "Numel": {
+    "Baltoy": {
         "goal": 2,
         "hidden": false
     },
-    "Slugma": {
+    "Anorith": {
         "goal": 2,
         "hidden": false
-    },
-    "Torkoal": {
-        "goal": 1,
-        "hidden": false
-    },
-    "Grimer": {
-        "goal": 2,
-        "hidden": false
-    },
-    "Koffing": {
-        "goal": 2,
-        "hidden": false
-    },
-    "Spoink": {
-        "goal": 2,
-        "hidden": false
-    },
-    "Spinda": {
-        "goal": 1,
-        "hidden": false
-    },
-    "Skarmory": {
-        "goal": 1,
-        "hidden": false
-    },
-    "Swablu": {
-        "goal": 2,
-        "hidden": false
-    },
-    "Seviper": {
-        "goal": 1,
-        "hidden": false
-    },
-    "Solrock": {
-        "goal": 1,
-        "hidden": false
-    },
-    "Wynaut": {
-        "goal": 2,
-        "hidden": true
-    },
-    "Bellossom": {
-        "goal": 1,
-        "hidden": true
-    },
+    }
 }
 
 /**
@@ -456,7 +412,6 @@ function handleMapEncounters(data) {
         abilityInfo.css("display", "none");
     }
 
-    console.log(data.active_items);
     $("#white_flute_info").css("display", data.active_items.includes("White Flute") ? "inline-block" : "none");
     $("#black_flute_info").css("display", data.active_items.includes("Black Flute") ? "inline-block" : "none");
     $("#cleanse_tag_info").css("display", data.active_items.includes("Cleanse Tag") ? "inline-block" : "none");

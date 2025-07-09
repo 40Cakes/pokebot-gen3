@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import Generator
 
 from modules.context import context
 from modules.debug import debug
@@ -9,12 +9,9 @@ from modules.game import decode_string
 from modules.game_sprites import get_game_sprite_by_id
 from modules.memory import read_symbol, unpack_uint32, get_game_state, GameState
 from modules.modes import BotModeError
+from modules.roms import ROMLanguage
 from modules.runtime import get_data_path
 from modules.tasks import get_task
-from modules.roms import ROMLanguage
-
-if TYPE_CHECKING:
-    pass
 
 
 class KeyboardLayout:
@@ -200,16 +197,6 @@ def type_in_naming_screen(name: str, max_length: int = 8):
 
         character_position = current_page.character_position(next_character)
 
-        # Move to the correct row
-        if character_position[1] != naming_screen.cursor_position[1]:
-            distance = abs(character_position[1] - naming_screen.cursor_position[1])
-            if character_position[1] > naming_screen.cursor_position[1]:
-                context.emulator.press_button("Down" if distance <= current_page.height // 2 else "Up")
-            else:
-                context.emulator.press_button("Up" if distance <= current_page.height // 2 else "Down")
-            yield
-            continue
-
         # Move to the correct column
         if character_position[0] != naming_screen.cursor_position[0]:
             distance = abs(character_position[0] - naming_screen.cursor_position[0])
@@ -220,6 +207,33 @@ def type_in_naming_screen(name: str, max_length: int = 8):
             yield
             continue
 
+        # Move to the correct row
+        if character_position[1] != naming_screen.cursor_position[1]:
+            distance = abs(character_position[1] - naming_screen.cursor_position[1])
+            if character_position[1] > naming_screen.cursor_position[1]:
+                context.emulator.press_button("Down" if distance <= current_page.height // 2 else "Up")
+            else:
+                context.emulator.press_button("Up" if distance <= current_page.height // 2 else "Down")
+            yield
+            continue
+
         # We have reached the correct character -> press A to confirm
         context.emulator.press_button("A")
         yield
+
+
+@debug.track
+def handle_naming_screen(nickname_choice: str) -> Generator:
+    # Wait for the naming dialogue to appear (i.e. skip the 'Do you want to give a nickname
+    # to X' dialogue.)
+    while get_game_state() != GameState.NAMING_SCREEN:
+        context.emulator.press_button("A")
+        yield
+
+    # Wait for the keyboard to become usable (skips the fade-in of the naming menu)
+    while get_naming_screen_data() is None:
+        yield
+
+    # Enter the name.
+    max_pokemon_name_length = 10 if context.rom.language is not ROMLanguage.Japanese else 5
+    yield from type_in_naming_screen(nickname_choice, max_pokemon_name_length)

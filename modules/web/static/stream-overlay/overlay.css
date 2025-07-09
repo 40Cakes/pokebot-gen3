@@ -1,0 +1,46 @@
+@import "layout/global.css";
+@import "layout/grid.css";
+@import "layout/content-box.css";
+
+@import "layout/clock.css";
+@import "layout/current-encounter-stats.css";
+@import "layout/daycare.css";
+@import "layout/info-bubbles.css";
+@import "layout/inputs.css";
+@import "layout/party-list.css";
+@import "layout/phase-and-total-stats.css";
+@import "layout/route-encounters.css";
+@import "layout/section-checklist.css";
+@import "layout/shiny-and-encounter-log.css";
+
+:root {
+    --headline-background-colour: #66778833;
+    --table-background-colour: #000000c2;
+    --video-overlay-background-colour: #000000f6;
+    --separator-line-colour: #ffffff2a;
+    --lighter-background-colour: #66666655;
+    --success-background-colour: #00800055;
+
+    --health-bar-red-colour: #ff424288;
+    --health-bar-yellow-colour: #ffd70088;
+    --health-bar-green-colour: #16c40c88;
+    --exp-bar-colour: #6495ed88;
+
+    --section-progress-unfilled-colour: #363636;
+    --section-progress-progress-colour: #ffd000;
+    --section-progress-completed-colour: #16c40c;
+
+    --input-unpressed-fill-colour: #33333326;
+    --input-unpressed-stroke-colour: #88888888;
+    --input-pressed-fill-colour: #333333ce;
+    --input-pressed-stroke-colour: #888888ce;
+
+    --no-encounters-on-route-font-colour: #888;
+
+    --white-text-colour: #ffffff;
+    --purple-text-colour: #ff00ff;
+    --red-text-colour: #ff4242;
+    --green-text-colour: #16c40c;
+    --yellow-text-colour: #ffd700;
+    --muted-font-opacity: .66;
+}

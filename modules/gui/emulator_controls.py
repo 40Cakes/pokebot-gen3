@@ -1,5 +1,6 @@
 import tkinter.font
 import webbrowser
+from textwrap import dedent
 from tkinter import Menu, Tk, ttk
 from typing import Union
 
@@ -8,6 +9,7 @@ from showinfm import show_in_file_manager
 from modules.console import console
 from modules.context import context
 from modules.gui.debug_menu import DebugMenu
+from modules.gui.multi_select_window import ask_for_confirmation
 from modules.libmgba import LibmgbaEmulator
 from modules.memory import GameState, get_game_state
 from modules.modes import get_bot_modes
@@ -62,6 +64,7 @@ class EmulatorControls:
         self.profile_menu.add_command(
             label="Open Profile Folder", command=lambda: show_in_file_manager(str(context.profile.path))
         )
+        self.profile_menu.add_command(label="Reset Shiny Phase Stats", command=self._reset_shiny_phase_stats)
 
         self.help_menu = Menu(self.window, tearoff=0)
         self.help_menu.add_command(
@@ -315,6 +318,29 @@ class EmulatorControls:
         if context.debug:
             stats.append(f"{round(current_load * 100, 1)}%")
         self.stats_label.config(text=" | ".join(stats))
+
+    def _reset_shiny_phase_stats(self):
+        is_the_user_sure = ask_for_confirmation(
+            dedent(
+                """
+                This will reset all stats from your current shiny phase -- such
+                as encounters, IV/SV records, fishing attempts etc. -- to zero.
+                
+                That can be useful if for example you have changed location and
+                would like to start hunting on this route with a clean slate
+                instead of having some random encounters from the way to get
+                here show up.
+                
+                Total encounter numbers will not be affected.
+                
+                This cannot be undone! Are you sure you want to proceed?
+                """
+            )
+        )
+
+        if is_the_user_sure:
+            context.stats.clear_current_shiny_phase()
+            context.message = "Shiny phase stats have been reset to zero."
 
 
 class DebugTab:

@@ -237,6 +237,7 @@ class GameState(IntEnum):
     WHITEOUT = auto()
     NAMING_SCREEN = auto()
     POKE_STORAGE = auto()
+    POKEMON_SUMMARY_SCREEN = auto()
     UNKNOWN = auto()
     QUEST_LOG = auto()
 
@@ -300,6 +301,18 @@ def get_game_state() -> GameState:
             result = GameState.WHITEOUT
         case "CB2_LOADNAMINGSCREEN" | "CB2_NAMINGSCREEN" | "SUB_80B5AA0":
             result = GameState.NAMING_SCREEN
+        case (
+            "CB2_SHOWPOKEMONSUMMARYSCREEN"
+            | "CB2_INITSUMMARYSCREEN"
+            | "MAINCB2_SUMMARYSCREEN"
+            | "CB2_RETURNTOPARTYMENUFROMSUMMARYSCREEN"
+            | "CB2_SETUPPSS"
+            | "CB2_RUNPOKEMONSUMMARYSCREEN"
+            | "SUB_809DE44"
+            | "SUB_809D844"
+            | "SUB_8089F14"
+        ):
+            result = GameState.POKEMON_SUMMARY_SCREEN
         case "CB2_POKESTORAGE":
             result = GameState.POKE_STORAGE
         case _:

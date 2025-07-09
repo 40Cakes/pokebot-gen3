@@ -122,6 +122,13 @@ class PokemonStorage:
                     return True
         return False
 
+    def get_slot_for_pokemon(self, pokemon: Pokemon) -> tuple[int, int]:
+        for box_index, box in enumerate(self.boxes):
+            for slot_index, slot in enumerate(box.slots):
+                if slot.pokemon.data[:4] == pokemon.data[:4] and slot.pokemon.species.index == pokemon.species.index:
+                    return box_index, slot.slot_index
+        raise RuntimeError("Could not find this Pokémon in the PC storage system.")
+
     def to_dict(self) -> dict:
         return {
             "active_box_index": self.active_box_index,

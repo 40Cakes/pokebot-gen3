@@ -60,7 +60,21 @@ def load_built_in_plugins():
         plugins.insert(1, DiscordPlugin())
 
 
-def plugin_get_additional_bot_modes() -> Iterable["BotMode"]:
+def is_plugin_loaded(plugin_class: type[BotPlugin]) -> bool:
+    for plugin in plugins:
+        if isinstance(plugin, plugin_class):
+            return True
+    return False
+
+
+def get_plugin_instance(plugin_class: type[BotPlugin]) -> BotPlugin | None:
+    for plugin in plugins:
+        if isinstance(plugin, plugin_class):
+            return plugin
+    return None
+
+
+def plugin_get_additional_bot_modes() -> Iterable["type[BotMode]"]:
     for plugin in plugins:
         yield from plugin.get_additional_bot_modes()
 
@@ -120,11 +134,17 @@ def plugin_egg_starting_to_hatch(hatching_pokemon: "EncounterInfo") -> Generator
             yield from result
 
 
-def plugin_egg_hatched(hatched_pokemon: "EncounterInfo") -> Generator:
+def plugin_egg_hatched(hatched_pokemon: "EncounterInfo") -> Generator[None, None, bool]:
+    do_not_switch_to_manual = False
     for plugin in plugins:
         result = plugin.on_egg_hatched(hatched_pokemon)
         if isinstance(result, GeneratorType):
-            yield from result
+            return_value = yield from result
+            if return_value is True:
+                do_not_switch_to_manual = True
+        elif result is True:
+            do_not_switch_to_manual = True
+    return do_not_switch_to_manual
 
 
 def plugin_whiteout() -> Generator:
@@ -143,9 +163,9 @@ def plugin_judge_encounter(pokemon: Pokemon) -> str | bool:
     return False
 
 
-def plugin_should_nickname_pokemon(pokemon: Pokemon) -> str | None:
+def plugin_should_nickname_pokemon(encounter: "EncounterInfo") -> str | None:
     for plugin in plugins:
-        nickname = plugin.on_should_nickname_pokemon(pokemon)
+        nickname = plugin.on_should_nickname_pokemon(encounter)
         if nickname:
             return nickname
 

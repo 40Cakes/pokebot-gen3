@@ -144,6 +144,7 @@ def fish(stop_condition: Callable[[], bool] | None = None, loop: bool = False) -
             break
 
 
+@debug.track
 def spin(stop_condition: Callable[[], bool] | None = None, counter_clockwise: bool = False):
     directions = ["Up", "Left", "Down", "Right"] if counter_clockwise else ["Up", "Right", "Down", "Left"]
     while True:

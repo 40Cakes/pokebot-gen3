@@ -1,0 +1,107 @@
+#info-bubbles {
+    position: absolute;
+    bottom: 1vh;
+    right: 1vh;
+    left: 18vh;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    flex-wrap: wrap-reverse;
+    gap: 1vh;
+
+    .info-bubble, info-bubble {
+        background-color: var(--video-overlay-background-colour);
+        border-radius: 2vh;
+        padding: .5vh 1.5vh;
+        font-size: .9rem;
+        position: relative;
+
+
+        .icon-item {
+            display: inline-block;
+            height: 1rem;
+            vertical-align: middle;
+            margin-right: .7rem;
+            transform: scale(2.5);
+        }
+
+        .icon-female {
+            height: 1.5vh;
+            margin-right: .75vh;
+            transform: translateY(.25vh);
+        }
+
+        item-sprite, overlay-sprite, pokemon-sprite {
+            display: inline-block;
+            vertical-align: middle;
+
+            height: 1rem;
+            margin-right: .7rem;
+
+            img {
+                height: 100%;
+            }
+
+            &.crossed-out {
+                position: relative;
+
+                &::after {
+                    content: "";
+                    height: 50%;
+                    width: 100%;
+                    position: absolute;
+                    bottom: 10%;
+                    right: 0;
+                    background-image: url("/static/sprites/stream-overlay/cross.png");
+                    background-position: center right;
+                    background-repeat: no-repeat;
+                    background-size: contain;
+                }
+            }
+        }
+
+        item-sprite, overlay-sprite {
+            transform: scale(2.5);
+        }
+
+        pokemon-sprite {
+            transform: scale(2.8) translateY(-.1vh);
+        }
+
+        .icon-cross {
+            height: 1.25rem;
+            position: absolute;
+            left: 1.2rem;
+            top: .5rem;
+        }
+
+        .icon-species {
+            vertical-align: middle;
+            margin-right: 1rem;
+            transform: scale(2.5) translateY(-.1vh);
+
+            &:last-child {
+                transform: scale(-2.5, 2.5) translateY(-.2vh);
+                margin-right: 0;
+                margin-left: 1rem;
+            }
+        }
+
+        .icon-species-static {
+            height: 1rem;
+            vertical-align: middle;
+            margin-right: 1rem;
+            transform: scale(2) translateY(-.1vh);
+        }
+
+        .sprite-right {
+            margin-right: 0;
+            margin-left: 1rem;
+            float: right;
+        }
+
+        small {
+            font-size: .6rem;
+        }
+    }
+}

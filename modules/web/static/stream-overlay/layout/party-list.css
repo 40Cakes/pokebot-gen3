@@ -1,0 +1,95 @@
+#party-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    ul {
+        flex: 1;
+        margin: -.5vh .5vw 1vh;
+        padding: 0;
+        display: flex;
+        list-style: none;
+        align-items: flex-end;
+
+        li {
+            margin-left: .3vw;
+            flex: 1;
+            position: relative;
+            text-align: center;
+            height: 100%;
+
+            &:first-child {
+                margin-left: 0;
+            }
+
+            pokemon-sprite {
+                img {
+                    max-width: 2.2vw;
+                    max-height: 4.5vh;
+                    margin-bottom: 4px;
+                    transform: scale(1.2);
+                    height: 100%;
+                    object-fit: contain;
+                    object-position: bottom;
+
+                    @media screen and (min-height: 1440px) {
+                        max-height: 5vh;
+                    }
+                }
+
+                &.fainted img {
+                    transform: scale(1.4);
+                    filter: saturate(.75) brightness(.55);
+                }
+
+                &.egg-sprite img {
+                    transform: scale(1.75) translateY(.35vh);
+                }
+            }
+
+            img.held-item {
+                display: none;
+                height: 1rem;
+                position: absolute;
+                right: calc(50% - .5rem);
+                bottom: -1.15rem;
+                border-radius: 100%;
+                transform: scale(1.1);
+            }
+
+            img.status-condition {
+                position: absolute;
+                bottom: 8px;
+                box-shadow: 0 0 1px #000;
+                left: 0;
+            }
+
+            .health-bar {
+                position: absolute;
+                bottom: 4px;
+                left: 0;
+                height: 3px;
+
+                &.red {
+                    background-color: var(--health-bar-red-colour);
+                }
+
+                &.yellow {
+                    background-color: var(--health-bar-yellow-colour);
+                }
+
+                &.green {
+                    background-color: var(--health-bar-green-colour);
+                }
+            }
+
+            .exp-bar {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                height: 3px;
+                background-color: var(--exp-bar-colour);
+            }
+        }
+    }
+}

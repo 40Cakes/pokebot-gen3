@@ -28,6 +28,7 @@ from ..battle_strategies import DefaultBattleStrategy, BattleStrategy
 from ..battle_strategies.catch import CatchStrategy
 from ..battle_strategies.run_away import RunAwayStrategy
 from ..fishing import FishingAttempt, FishingRod, FishingResult
+from ..keyboard import handle_naming_screen
 from ..plugins import (
     plugin_battle_started,
     plugin_battle_ended,
@@ -35,6 +36,7 @@ from ..plugins import (
     plugin_egg_hatched,
     plugin_wild_encounter_visible,
     plugin_egg_starting_to_hatch,
+    plugin_should_nickname_pokemon,
 )
 from ..text_printer import get_text_printer, TextPrinterState
 
@@ -254,12 +256,9 @@ class BattleListener(BotListener):
 
 
 class TrainerApproachListener(BotListener):
-    def __init__(self):
-        self._trainer_is_approaching = False
-
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
         if frame.game_state == GameState.OVERWORLD and (
-            not self._trainer_is_approaching
+            self.handle_trainer_approach.__qualname__ not in frame.controller_stack
             and (
                 frame.script_is_active("EventScript_TrainerApproach")
                 or frame.script_is_active("EventScript_DoTrainerBattleFromApproach")
@@ -267,7 +266,6 @@ class TrainerApproachListener(BotListener):
                 or frame.script_is_active("EventScript_DoTrainerBattle")
             )
         ):
-            self._trainer_is_approaching = True
             bot_mode.on_spotted_by_trainer()
             context.controller_stack.append(self.handle_trainer_approach())
 
@@ -277,7 +275,6 @@ class TrainerApproachListener(BotListener):
         while get_global_script_context().is_active:
             context.emulator.press_button("B")
             yield
-        self._trainer_is_approaching = False
 
 
 class FishingListener(BotListener):
@@ -316,12 +313,13 @@ class FishingListener(BotListener):
 
 
 class PokenavListener(BotListener):
-    def __init__(self):
-        self._in_call = False
-
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
-        if frame.game_state == GameState.OVERWORLD and (not self._in_call and frame.task_is_active("ExecuteMatchCall")):
-            self._in_call = True
+        if (
+            frame.game_state == GameState.OVERWORLD
+            and frame.task_is_active("ExecuteMatchCall")
+            and self.ignore_call.__qualname__ not in frame.controller_stack
+        ):
+            context.stats.log_pokenav_call()
             bot_mode.on_pokenav_call()
             context.controller_stack.append(self.ignore_call())
 
@@ -351,10 +349,11 @@ class EggHatchListener(BotListener):
             self._symbol_name = "sEggHatchData"
 
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
+        is_handling_hatch = self.handle_hatching_egg.__qualname__ in frame.controller_stack
+
         if frame.game_state in [GameState.OVERWORLD, GameState.EGG_HATCH] and (
-            not self._is_hatching and frame.script_is_active(self._script_name)
+            not is_handling_hatch and frame.script_is_active(self._script_name)
         ):
-            self._is_hatching = True
             self._reported_hatched_egg = False
             self._hatching_party_index = unpack_uint16(read_symbol("gSpecialVar_0x8004"))
             self._encounter_info = EncounterInfo.create(get_party()[self._hatching_party_index], EncounterType.Hatched)
@@ -362,23 +361,27 @@ class EggHatchListener(BotListener):
                 context.controller_stack.append(self.handle_hatching_egg())
             else:
                 _ensure_plugin_hook_will_run(plugin_egg_starting_to_hatch(self._encounter_info))
-        elif self._is_hatching and not frame.script_is_active(self._script_name):
+        elif is_handling_hatch and not frame.script_is_active(self._script_name):
             if not self._reported_hatched_egg and self._encounter_info is not None:
                 log_encounter(self._encounter_info)
-            self._is_hatching = False
             self._reported_hatched_egg = False
             self._encounter_info = None
-        elif self._is_hatching and not self._reported_hatched_egg and frame.script_is_active(self._script_name):
+        elif is_handling_hatch and not self._reported_hatched_egg and frame.script_is_active(self._script_name):
             egg_data_pointer = unpack_uint32(read_symbol(self._symbol_name))
             if egg_data_pointer & 0x0200_0000:
                 egg_data = context.emulator.read_bytes(egg_data_pointer, length=16)
                 if 4 <= egg_data[2] <= 12:
                     self._encounter_info.pokemon = get_party()[self._hatching_party_index]
-                    bot_mode.on_egg_hatched(self._encounter_info, self._hatching_party_index)
+                    do_not_switch_to_manual = False
+                    if bot_mode.on_egg_hatched(self._encounter_info, self._hatching_party_index) is True:
+                        do_not_switch_to_manual = True
 
                     def report_hatched():
-                        yield from plugin_egg_hatched(self._encounter_info)
-                        handle_encounter(self._encounter_info)
+                        nonlocal do_not_switch_to_manual
+                        result = yield from plugin_egg_hatched(self._encounter_info)
+                        if result is True:
+                            do_not_switch_to_manual = True
+                        handle_encounter(self._encounter_info, do_not_switch_to_manual=do_not_switch_to_manual)
 
                     _ensure_plugin_hook_will_run(report_hatched())
                     self._reported_hatched_egg = True
@@ -387,15 +390,22 @@ class EggHatchListener(BotListener):
     @debug.track
     def handle_hatching_egg(self):
         yield from plugin_egg_starting_to_hatch(self._encounter_info)
+        nickname_choice = plugin_should_nickname_pokemon(self._encounter_info)
         while self._script_name in get_global_script_context().stack:
+            if nickname_choice is not None:
+                egg_data_pointer = unpack_uint32(read_symbol(self._symbol_name))
+                if egg_data_pointer & 0x0200_0000:
+                    hatch_state = context.emulator.read_bytes(egg_data_pointer, length=16)[2]
+                    if hatch_state == 10:
+                        yield from handle_naming_screen(nickname_choice)
+                        nickname_choice = None
+
             context.emulator.press_button("B")
             yield
-        self._is_hatching = False
 
 
 class RepelListener(BotListener):
     def __init__(self):
-        self._message_active = False
         if context.rom.is_rs:
             self._script_name = "S_RepelWoreOff"
         else:
@@ -403,11 +413,10 @@ class RepelListener(BotListener):
 
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
         if (
-            not self._message_active
-            and frame.game_state == GameState.OVERWORLD
+            frame.game_state == GameState.OVERWORLD
             and frame.script_is_active(self._script_name)
+            and self.handle_repel_expiration_message.__qualname__ not in frame.controller_stack
         ):
-            self._message_active = True
             context.controller_stack.append(self.handle_repel_expiration_message(bot_mode))
 
     @isolate_inputs
@@ -418,7 +427,6 @@ class RepelListener(BotListener):
             context.emulator.press_button("B")
             yield
         context.emulator.restore_held_buttons(previous_inputs)
-        self._message_active = False
 
         mode_callback_result = bot_mode.on_repel_effect_ended()
         if isinstance(mode_callback_result, GeneratorType):
@@ -427,7 +435,6 @@ class RepelListener(BotListener):
 
 class PoisonListener(BotListener):
     def __init__(self):
-        self._message_active = False
         if context.rom.is_rs:
             self._script_name = "gUnknown_081A14B8"
         else:
@@ -435,11 +442,10 @@ class PoisonListener(BotListener):
 
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
         if (
-            not self._message_active
-            and frame.game_state == GameState.OVERWORLD
+            frame.game_state == GameState.OVERWORLD
             and frame.script_is_active(self._script_name)
+            and self.handle_fainting_message.__qualname__ not in frame.controller_stack
         ):
-            self._message_active = True
             party = get_party()
             for index in range(len(party)):
                 pokemon = party[index]
@@ -457,15 +463,11 @@ class PoisonListener(BotListener):
         while self._script_name in get_global_script_context().stack:
             context.emulator.press_button("B")
             yield
-        self._message_active = False
 
 
 class WhiteoutListener(BotListener):
-    def __init__(self):
-        self._whiteout_active = False
-
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
-        if not self._whiteout_active and (
+        if (
             frame.game_state == GameState.WHITEOUT
             or (frame.game_state == GameState.OVERWORLD and frame.task_is_active("Task_RushInjuredPokemonToCenter"))
             or frame.script_is_active("EventScript_FieldWhiteOut")
@@ -473,8 +475,7 @@ class WhiteoutListener(BotListener):
             or frame.script_is_active("EventScript_FieldWhiteOutHasMoney")
             or frame.script_is_active("EventScript_FieldWhiteOutFade")
             or frame.script_is_active("EventScript_1A14CA")
-        ):
-            self._whiteout_active = True
+        ) and self.handle_whiteout_dialogue.__qualname__ not in frame.controller_stack:
             context.controller_stack.append(self.handle_whiteout_dialogue(bot_mode))
 
     @debug.track
@@ -507,12 +508,9 @@ class WhiteoutListener(BotListener):
             context.message = "Player whited out. Switched back to manual mode."
             context.set_manual_mode()
 
-        self._whiteout_active = False
-
 
 class SafariZoneListener(BotListener):
     def __init__(self):
-        self._times_up = False
         if context.rom.is_rse:
             self._safari_zone_maps = (
                 MapRSE.SAFARI_ZONE_NORTHWEST,
@@ -538,23 +536,20 @@ class SafariZoneListener(BotListener):
 
     def handle_frame(self, bot_mode: BotMode, frame: FrameInfo):
         if (
-            not self._times_up
-            and frame.game_state == GameState.OVERWORLD
+            frame.game_state == GameState.OVERWORLD
             and get_player_avatar().map_group_and_number in self._safari_zone_maps
+            and self.handle_safari_zone_timeout.__qualname__ not in frame.controller_stack
         ):
             if frame.script_is_active("SafariZone_EventScript_TimesUp") or frame.script_is_active("gUnknown_081C3448"):
                 context.controller_stack.append(self.handle_safari_zone_timeout(bot_mode, "steps"))
-                self._times_up = True
             if frame.script_is_active("SafariZone_EventScript_OutOfBalls") or frame.script_is_active(
                 "gUnknown_081C3459"
             ):
                 context.controller_stack.append(self.handle_safari_zone_timeout(bot_mode, "Safari balls"))
-                self._times_up = True
 
     @debug.track
     def handle_safari_zone_timeout(self, bot_mode: BotMode, limited_by: str):
         yield from SafariZoneListener.handle_safari_zone_timeout_global(bot_mode, limited_by)
-        self._times_up = False
 
     @staticmethod
     @debug.track

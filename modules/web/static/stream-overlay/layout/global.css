@@ -1,0 +1,42 @@
+@font-face {
+    font-family: "Small Pixel Regular";
+    src: local("Small Pixel Regular"),
+    url("/static/font/small_pixel.woff2") format("woff2");
+}
+
+html, body {
+    font-family: "Small Pixel Regular", monospace;
+    color: white;
+    font-size: 1.75vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+img {
+    image-rendering: crisp-edges;
+}
+
+.text-yellow {
+    color: var(--yellow-text-colour);
+}
+
+.text-green {
+    color: var(--green-text-colour);
+}
+
+.text-white {
+    color: var(--white-text-colour);
+}
+
+.text-red {
+    color: var(--red-text-colour);
+}
+
+.text-purple {
+    color: var(--purple-text-colour);
+}
+
+.arrow-upside-down {
+    transform: scale(1, -1);
+}

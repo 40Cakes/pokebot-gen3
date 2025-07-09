@@ -51,6 +51,8 @@ export enum EncounterType {
     FishingWithGoodRod = "fishing_good_rod",
     FishingWithSuperRod = "fishing_super_rod",
     RockSmash = "rock_smash",
+    Hatched = "hatched",
+    Gift = "gift",
 }
 
 type BattleOutcome =
@@ -125,6 +127,7 @@ export type GlobalStats = {
         successful_fishing_attempts: number;
         longest_unsuccessful_fishing_streak: number;
         current_unsuccessful_fishing_streak: number;
+        pokenav_calls: number;
     };
     longest_phase: SpeciesRecord;
     shortest_phase: SpeciesRecord;

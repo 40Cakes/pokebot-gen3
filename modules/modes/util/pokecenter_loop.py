@@ -1,13 +1,21 @@
 from collections.abc import Callable
-from typing import Optional
+from typing import Optional, Literal
 
 from modules.battle_strategies import BattleStrategy, DefaultBattleStrategy
 from modules.context import context
+from modules.debug import debug
 from modules.encounter import handle_encounter
 from modules.map import get_map_data_for_current_position, get_effective_encounter_rates_for_current_map
 from modules.map_data import MapFRLG, get_map_enum
 from modules.modes import BotModeError, BattleAction
-from modules.modes.util import find_closest_pokemon_center, navigate_to, heal_in_pokemon_center, spin
+from modules.modes.util import (
+    apply_white_flute_if_available,
+    find_closest_pokemon_center,
+    navigate_to,
+    heal_in_pokemon_center,
+    spin,
+    fish,
+)
 from modules.player import get_player_location
 from modules.pokemon_party import get_party
 
@@ -66,7 +74,8 @@ class PokecenterLoopController:
         # Pokémon Center.
         find_closest_pokemon_center(current_location)
 
-    def run(self, stop_condition: Optional[Callable[[], bool]] = None):
+    @debug.track
+    def run(self, stop_condition: Optional[Callable[[], bool]] = None, activity: Literal["spin", "fish"] = "spin"):
         encounter_spot = get_map_data_for_current_position()
         pokemon_center = find_closest_pokemon_center(encounter_spot)
 
@@ -93,8 +102,16 @@ class PokecenterLoopController:
             self._needs_healing = False
 
             yield from navigate_to(get_map_enum(encounter_spot), encounter_spot.local_position)
-            yield from spin(
-                stop_condition=lambda: self._needs_healing
-                or self._leave_pokemon_center
-                or (stop_condition is not None and stop_condition())
-            )
+
+            def activity_stop_condition() -> bool:
+                return (
+                    self._needs_healing
+                    or self._leave_pokemon_center
+                    or (stop_condition is not None and stop_condition())
+                )
+
+            if activity == "fish":
+                yield from fish(stop_condition=activity_stop_condition, loop=True)
+            else:
+                yield from apply_white_flute_if_available()
+                yield from spin(stop_condition=activity_stop_condition)
