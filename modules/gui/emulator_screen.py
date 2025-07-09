@@ -52,6 +52,10 @@ stepping_mode_reverse_key = "<Control-space>"
 if can_use_opengl or TYPE_CHECKING:
 
     class EmulatorFrame(OpenGLFrame):
+        def __init__(self, *args, **kw):
+            super().__init__(*args, **kw)
+            self.gba_frame: bytes | None = None
+
         def initgl(self):
             glViewport(0, 0, self.width, self.height)
             glClearColor(0.0, 0.0, 0.0, 0.0)
@@ -61,10 +65,9 @@ if can_use_opengl or TYPE_CHECKING:
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
 
         def redraw(self):
-            frame_data = bytes(ffi.buffer(context.emulator._screen.buffer))
-
             glClear(GL_COLOR_BUFFER_BIT)
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 240, 160, 0, GL_RGBA, GL_UNSIGNED_BYTE, frame_data)
+            if self.gba_frame is not None:
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 240, 160, 0, GL_RGBA, GL_UNSIGNED_BYTE, self.gba_frame)
 
             glEnable(GL_TEXTURE_2D)
             glBegin(GL_QUADS)
@@ -165,7 +168,15 @@ class EmulatorScreen:
         self.window.resizable(context.debug, True)
 
     def update(self) -> None:
-        if context.emulator._performance_tracker.time_since_last_render() >= (1 / 60) * 1_000_000_000:
+        if self._use_opengl:
+            if (
+                context.emulator.get_speed_factor() == 1
+                or context.emulator._performance_tracker.time_since_last_render() >= (1 / 60) * 1_000_000_000
+            ):
+                self._open_gl_frame.gba_frame = bytes(ffi.buffer(context.emulator._screen.buffer))
+                self._update_window()
+                context.emulator._performance_tracker.track_render()
+        elif context.emulator._performance_tracker.time_since_last_render() >= (1 / 60) * 1_000_000_000:
             if context.emulator.get_video_enabled():
                 self._update_image(context.emulator.get_current_screen_image())
             else:

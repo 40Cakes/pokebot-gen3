@@ -136,6 +136,7 @@ class LibmgbaEmulator:
         self._screen = mgba.image.Image(*self._core.desired_video_dimensions())
         self._core.set_video_buffer(self._screen)
         self._core.reset()
+        self._frame_data = None
 
         # Whenever the emulator closes, it stores the current state in `current_state.ss1`.
         # Load this file if it exists, to continue exactly where we left off.
