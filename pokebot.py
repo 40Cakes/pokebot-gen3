@@ -44,6 +44,7 @@ class StartupSettings:
     no_video: bool
     no_audio: bool
     no_theme: bool
+    use_opengl: bool
     emulation_speed: int
     always_on_top: bool
     config_path: str
@@ -82,6 +83,9 @@ def parse_arguments(bot_mode_names: list[str]) -> StartupSettings:
     parser.add_argument("-na", "--no-audio", action="store_true", help="Turn off audio output by default.")
     parser.add_argument("-nt", "--no-theme", action="store_true", help="Turn off the fancy GUI theme.")
     parser.add_argument(
+        "-gl", "--use-opengl", action="store_true", help="Use OpenGL to render the video output (potentially faster)"
+    )
+    parser.add_argument(
         "-t", "--always-on-top", action="store_true", help="Keep the bot window always on top of other windows."
     )
     parser.add_argument("-d", "--debug", action="store_true", help="Enable extra debug options and a debug menu.")
@@ -100,6 +104,7 @@ def parse_arguments(bot_mode_names: list[str]) -> StartupSettings:
         no_video=bool(args.no_video),
         no_audio=bool(args.no_audio),
         no_theme=bool(args.no_theme),
+        use_opengl=bool(args.use_opengl),
         emulation_speed=int(args.emulation_speed or "1"),
         always_on_top=bool(args.always_on_top),
         config_path=args.config_path,
@@ -152,7 +157,7 @@ if __name__ == "__main__":
         # be disabled using a command-line argument but for backward-compatibility reasons we
         # accept either.
         no_theme = os.getenv("POKEBOT_UNTHEMED") == "1" or startup_settings.no_theme
-        gui = PokebotGui(main_loop, on_exit, no_theme=no_theme)
+        gui = PokebotGui(main_loop, on_exit, no_theme=no_theme, use_opengl=startup_settings.use_opengl)
     context.gui = gui
 
     gui.run(startup_settings)
