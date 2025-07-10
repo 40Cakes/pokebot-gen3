@@ -170,10 +170,10 @@ class EmulatorScreen:
     def update(self) -> None:
         if self._use_opengl:
             if (
-                context.emulator.get_speed_factor() == 1
-                or context.emulator._performance_tracker.time_since_last_render() >= (1 / 60) * 1_000_000_000
-            ):
-                self._open_gl_frame.gba_frame = bytes(ffi.buffer(context.emulator._screen.buffer))
+                context.emulator.get_throttle() and context.emulator.get_speed_factor() == 1
+            ) or context.emulator._performance_tracker.time_since_last_render() >= (1 / 60) * 1_000_000_000:
+                if context.emulator.get_video_enabled():
+                    self._open_gl_frame.gba_frame = bytes(ffi.buffer(context.emulator._screen.buffer))
                 self._update_window()
                 context.emulator._performance_tracker.track_render()
         elif context.emulator._performance_tracker.time_since_last_render() >= (1 / 60) * 1_000_000_000:
@@ -294,15 +294,14 @@ class EmulatorScreen:
         self.canvas.create_image(self.center_of_canvas, image=self.current_canvas_image, state="normal")
 
     def _update_image(self, image: PIL.Image):
-        if not self._use_opengl:
-            if self._current_canvas_image_id:
-                self.canvas.delete(self._current_canvas_image_id)
-            self.current_canvas_image = PIL.ImageTk.PhotoImage(
-                image=image.resize((self.width * self.scale, self.height * self.scale), resample=False)
-            )
-            self._current_canvas_image_id = self.canvas.create_image(
-                self.center_of_canvas, image=self.current_canvas_image, state="normal"
-            )
+        if self._current_canvas_image_id:
+            self.canvas.delete(self._current_canvas_image_id)
+        self.current_canvas_image = PIL.ImageTk.PhotoImage(
+            image=image.resize((self.width * self.scale, self.height * self.scale), resample=False)
+        )
+        self._current_canvas_image_id = self.canvas.create_image(
+            self.center_of_canvas, image=self.current_canvas_image, state="normal"
+        )
         self._update_window()
 
     def _update_window(self):
