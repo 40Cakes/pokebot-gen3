@@ -1,4 +1,3 @@
-import os
 from collections import deque
 from tkinter import Button, PhotoImage, Tk
 
@@ -6,32 +5,8 @@ import PIL.Image
 import PIL.ImageTk
 
 try:
-    if "WAYLAND_DISPLAY" in os.environ:
-        os.environ["PYOPENGL_PLATFORM"] = "glx"
-    from mgba import ffi
-    from OpenGL.GL import (
-        glViewport,
-        glClearColor,
-        glGenTextures,
-        glBindTexture,
-        glTexParameteri,
-        glClear,
-        glTexImage2D,
-        glEnable,
-        glBegin,
-        glTexCoord2f,
-        glVertex2f,
-        glEnd,
-        GL_TEXTURE_2D,
-        GL_TEXTURE_MIN_FILTER,
-        GL_NEAREST,
-        GL_TEXTURE_MAG_FILTER,
-        GL_COLOR_BUFFER_BIT,
-        GL_RGBA,
-        GL_UNSIGNED_BYTE,
-        GL_QUADS,
-    )
-    from pyopengltk import OpenGLFrame
+    from modules.gui.glfw import GlfwGui
+    import threading
 
     can_use_opengl = True
 except ImportError:
@@ -49,39 +24,6 @@ stepping_mode_forward_key = "<space>"
 stepping_mode_reverse_key = "<Control-space>"
 
 
-if can_use_opengl or TYPE_CHECKING:
-
-    class EmulatorFrame(OpenGLFrame):
-        def __init__(self, *args, **kw):
-            super().__init__(*args, **kw)
-            self.gba_frame: bytes | None = None
-
-        def initgl(self):
-            glViewport(0, 0, self.width, self.height)
-            glClearColor(0.0, 0.0, 0.0, 0.0)
-            texture = glGenTextures(1)
-            glBindTexture(GL_TEXTURE_2D, texture)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-
-        def redraw(self):
-            glClear(GL_COLOR_BUFFER_BIT)
-            if self.gba_frame is not None:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 240, 160, 0, GL_RGBA, GL_UNSIGNED_BYTE, self.gba_frame)
-
-            glEnable(GL_TEXTURE_2D)
-            glBegin(GL_QUADS)
-            glTexCoord2f(0, 1)
-            glVertex2f(-1, -1)
-            glTexCoord2f(1, 1)
-            glVertex2f(1, -1)
-            glTexCoord2f(1, 0)
-            glVertex2f(1, 1)
-            glTexCoord2f(0, 0)
-            glVertex2f(-1, 1)
-            glEnd()
-
-
 class EmulatorScreen:
     def __init__(self, window: Tk, use_opengl: bool = False):
         if use_opengl and not can_use_opengl:
@@ -94,7 +36,7 @@ class EmulatorScreen:
         self.canvas: Union[Canvas, None] = None
         self.current_canvas_image: Union[PhotoImage, None] = None
         self._current_canvas_image_id: int | None = None
-        self._open_gl_frame: "EmulatorFrame | None" = None
+        self._glfw_gui: "GlfwGui | None" = None
         self._placeholder_image: Union[PhotoImage, None] = None
         self.center_of_canvas: tuple[int, int] = (240, 160)
         self._use_opengl: bool = use_opengl
@@ -168,16 +110,8 @@ class EmulatorScreen:
         self.window.resizable(context.debug, True)
 
     def update(self) -> None:
-        if self._use_opengl:
-            if (
-                context.emulator.get_throttle() and context.emulator.get_speed_factor() == 1
-            ) or context.emulator._performance_tracker.time_since_last_render() >= (1 / 60) * 1_000_000_000:
-                if context.emulator.get_video_enabled():
-                    self._open_gl_frame.gba_frame = bytes(ffi.buffer(context.emulator._screen.buffer))
-                self._update_window()
-                context.emulator._performance_tracker.track_render()
-        elif context.emulator._performance_tracker.time_since_last_render() >= (1 / 60) * 1_000_000_000:
-            if context.emulator.get_video_enabled():
+        if context.emulator._performance_tracker.time_since_last_render() >= (1 / 60) * 1_000_000_000:
+            if not self._use_opengl and context.emulator.get_video_enabled():
                 self._update_image(context.emulator.get_current_screen_image())
             else:
                 self._update_window()
@@ -220,8 +154,6 @@ class EmulatorScreen:
         self.window.columnconfigure(0, weight=0, minsize=self.width * self._scale)
         self.window.columnconfigure(1, weight=1)
 
-        if self._use_opengl:
-            self._open_gl_frame.config(width=self.width * self._scale, height=self.height * self._scale)
         self.canvas.config(width=self.width * self._scale, height=self.height * self._scale)
         self.center_of_canvas = (self._scale * self.width // 2, self._scale * self.height // 2)
 
@@ -313,9 +245,8 @@ class EmulatorScreen:
 
     def _add_canvas(self) -> None:
         if self._use_opengl:
-            self._open_gl_frame = EmulatorFrame(self.window, width=480, height=320)
-            self._open_gl_frame.animate = 1
-            self._open_gl_frame.grid(sticky="NW", row=0, column=0)
+            self._glfw_gui = GlfwGui(None, None)
+            threading.Thread(target=self._glfw_gui.run_opengl_window, daemon=True).start()
         self.canvas = Canvas(self.window, width=480, height=320)
         if not self._use_opengl:
             self.canvas.grid(sticky="NW", row=0, column=0)
