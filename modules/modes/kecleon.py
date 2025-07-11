@@ -1,10 +1,12 @@
 from typing import Generator
 
 from modules.context import context
+from modules.debug import debug
 from modules.encounter import handle_encounter, EncounterInfo
+from modules.items import get_item_by_name
 from modules.map_data import MapRSE
 from modules.memory import get_event_flag
-from modules.player import get_player_avatar
+from modules.player import get_player_avatar, get_player, AvatarFlags
 from modules.pokemon_party import get_party_size
 from modules.save_data import get_last_heal_location
 from . import BattleAction
@@ -35,6 +37,7 @@ class KecleonMode(BotMode):
     def __init__(self):
         super().__init__()
         self._has_whited_out = False
+        self._using_bike = False
 
     def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | BattleStrategy | None:
         handle_encounter(encounter, disable_auto_catch=True, enable_auto_battle=True)
@@ -43,6 +46,13 @@ class KecleonMode(BotMode):
     def on_whiteout(self) -> bool:
         self._has_whited_out = True
         return True
+
+    @debug.track
+    def mount_bicycle(self) -> Generator:
+        while AvatarFlags.OnAcroBike not in get_player_avatar().flags:
+            context.emulator.press_button("Select")
+            yield
+        yield
 
     def run(self) -> Generator:
         assert_player_has_poke_balls()
@@ -61,8 +71,14 @@ class KecleonMode(BotMode):
         if get_party_size() > 1:
             raise BotModeError("This mode requires only one Pokémon in the party.")
 
+        registered = get_player().registered_item
+        if registered == get_item_by_name("Acro Bike"):
+            self._using_bike = True
+
         while context.bot_mode != "Manual":
             self._has_whited_out = False
+            if self._using_bike:
+                yield from self.mount_bicycle()
             yield from navigate_to(MapRSE.ROUTE119, (31, 7))
             yield from ensure_facing_direction("Up")
             while not self._has_whited_out:
