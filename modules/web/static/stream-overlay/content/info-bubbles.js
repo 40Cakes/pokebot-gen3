@@ -18,6 +18,9 @@ const infoBubblePokeNavCalls = document.querySelector("#info-bubble-pokenav span
 const infoBubblePCStorage = document.querySelector("#info-bubble-pc-storage");
 const infoBubblePCStorageNumber = document.querySelector("#info-bubble-pc-storage span");
 
+/** @type {array<InfoBubble>} */
+const customInfoBubbles = [];
+
 const FOSSIL_SPECIES = ["Anorith", "Lileep", "Omanyte", "Kabuto", "Aerodactyl"];
 
 let lastSetAbility = null;
@@ -228,10 +231,42 @@ function updatePokeNavInfoBubble(stats) {
     }
 }
 
+/**
+ * @param {{info_bubble_id: string, info_bubble_type?: string | null, info_bubble_icon?: string | null, quantity?: number, quantityTarget?: number, content?: string}} data
+ */
+function addInfoBubble(data) {
+    if (!customInfoBubbles[data.info_bubble_id]) {
+        customInfoBubbles[data.info_bubble_id] = document.createElement("info-bubble");
+        bubbleContainer.prepend(customInfoBubbles[data.info_bubble_id]);
+    }
+    let infoBubble = customInfoBubbles[data.info_bubble_id];
+
+    if (data.info_bubble_type && data.info_bubble_icon && infoBubble.getAttribute("sprite-type") !== data.info_bubble_type && infoBubble.getAttribute("sprite-icon") !== data.info_bubble_icon) {
+        customInfoBubbles[data.info_bubble_id].setAttribute("sprite-type", data.info_bubble_type);
+        customInfoBubbles[data.info_bubble_id].setAttribute("sprite-icon", data.info_bubble_icon);
+    }
+    if (data.quantity) {
+        customInfoBubbles[data.info_bubble_id].setAttribute("quantity", data.quantity);
+        if (data.quantity_target) {
+            customInfoBubbles[data.info_bubble_id].setAttribute("quantity-target", data.quantity_target);
+        }
+    } else if (data.content) {
+        customInfoBubbles[data.info_bubble_id].setAttribute("content", data.content);
+    }
+}
+
+function hideInfoBubble(infoBubbleID) {
+    if (customInfoBubbles[infoBubbleID]) {
+        customInfoBubbles[infoBubbleID].remove();
+    }
+}
+
 export {
     updateInfoBubbles,
     updateEncounterInfoBubble,
     updateFishingInfoBubble,
     hideFishingInfoBubble,
-    updatePokeNavInfoBubble
+    updatePokeNavInfoBubble,
+    addInfoBubble,
+    hideInfoBubble,
 };

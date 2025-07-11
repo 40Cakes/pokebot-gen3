@@ -100,5 +100,6 @@ export function getEventSource() {
     url.searchParams.append("topic", "Inputs");
     url.searchParams.append("topic", "PokenavCall");
     url.searchParams.append("topic", "FishingAttempt");
+    url.searchParams.append("topic", "CustomEvent");
     return new EventSource(url);
 }

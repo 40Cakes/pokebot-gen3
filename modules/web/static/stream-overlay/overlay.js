@@ -10,7 +10,8 @@ import {updateBadgeList} from "./content/badge-list.js";
 import {updatePhaseStats} from "./content/phase-stats.js";
 import {updatePCStorage, updateTotalStats} from "./content/total-stats.js";
 import {
-    hideFishingInfoBubble,
+    addInfoBubble,
+    hideFishingInfoBubble, hideInfoBubble,
     updateEncounterInfoBubble,
     updateFishingInfoBubble,
     updateInfoBubbles,
@@ -257,6 +258,28 @@ function handleInputs(event, state) {
 }
 
 
+/**
+ * @param {*} event
+ * @param {OverlayState} state
+ */
+function handleCustomEvent(event, state) {
+    console.log(event);
+    if (typeof event !== "object" || !event["action"]) {
+        return;
+    }
+
+    switch (event["action"]) {
+        case "show_info_bubble":
+            addInfoBubble(event);
+            break;
+
+        case "hide_info_bubble":
+            hideInfoBubble(event.info_bubble_id);
+            break;
+    }
+}
+
+
 export default async function runOverlay() {
     const state = new OverlayState();
     window.overlayState = state;
@@ -286,6 +309,7 @@ export default async function runOverlay() {
     eventSource.addEventListener("PokenavCall", event => handlePokenavCall(state));
     eventSource.addEventListener("FishingAttempt", event => handleFishingAttempt(JSON.parse(event.data), state));
     eventSource.addEventListener("Inputs", event => handleInputs(JSON.parse(event.data), state));
+    eventSource.addEventListener("CustomEvent", event => handleCustomEvent(JSON.parse(event.data), state));
 
     if (config.gymMode) {
         document.getElementById("route-encounters").style.display = "none";
@@ -321,4 +345,6 @@ export default async function runOverlay() {
                 .replace("’", "'");
         });
     }
+
+    window.handleCustomEvent = handleCustomEvent;
 }
