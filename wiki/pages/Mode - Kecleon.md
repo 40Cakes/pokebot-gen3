@@ -15,6 +15,10 @@ The mode checks that you have not already defeated this one, if you have, you wi
 - Have not defeated/captured the Kecleon on Route 119.
 - Last healed Pokémon center is Fortree City
 
+### Recommendations
+
+- Have the Acro Bike registered
+
 ### Where to start
 
 Start the mode facing the invisible Kecleon on Route 119.
