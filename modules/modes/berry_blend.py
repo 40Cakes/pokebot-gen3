@@ -8,7 +8,6 @@ from modules.context import context
 from . import BotModeError
 from ._interface import BotMode
 from .util import scroll_to_item_in_bag
-from ..context import context
 from ..gui.multi_select_window import Selection, ask_for_choice_scroll
 from ..map_data import MapRSE
 from ..memory import get_game_state, GameState, get_game_state_symbol, read_symbol, unpack_uint32, unpack_uint16
@@ -54,10 +53,12 @@ class BerryBlendMode(BotMode):
                 arrow_position_offset = 74
                 speed_offset = 76
                 number_of_players_offset = 126
+                progress_offset = 280
             else:
                 arrow_position_offset = 84
                 speed_offset = 86
                 number_of_players_offset = 136
+                progress_offset = 290
 
         else:
             play_callback_name = "CB2_PLAYBLENDER"
@@ -66,6 +67,7 @@ class BerryBlendMode(BotMode):
             arrow_position_offset = 74
             speed_offset = 76
             number_of_players_offset = 124
+            progress_offset = 280
 
         if get_game_state_symbol() != play_callback_name:
             berry_choices = []
@@ -97,6 +99,7 @@ class BerryBlendMode(BotMode):
                 context.emulator.press_button("A")
                 yield
 
+        self._last_was_a = False
         pointer = unpack_uint32(read_symbol(data_symbol))
         number_of_players = context.emulator.read_bytes(pointer + number_of_players_offset, 1)[0]
         while get_game_state_symbol() == play_callback_name:
@@ -107,16 +110,26 @@ class BerryBlendMode(BotMode):
 
             player_offset = _get_player_offset(number_of_players, context)
 
-            hit_range_start = arrow_hit_ranges[player_offset] + 20
-            hit_range_end = arrow_hit_ranges[player_offset] + 28
+            hit_range_start = arrow_hit_ranges[player_offset]
+            hit_range_end = arrow_hit_ranges[player_offset] + 48
 
             position_next_frame = (raw_arrow_position + speed) // 256 + 24
-            if hit_range_start <= position_next_frame < hit_range_end:
-                context.emulator.press_button("A")
+            progress = unpack_uint16(context.emulator.read_bytes(pointer + progress_offset, 2))
+            if (progress > 800) ^ (hit_range_start <= position_next_frame < hit_range_end):
+                self.press_a()
 
             yield
 
         context.set_manual_mode()
+
+    def press_a(self):
+        """Alternates between L and A presses to allow for more hits when the L=A setting is on."""
+        if self._last_was_a:
+            self._last_was_a = False
+            context.emulator.press_button("L")
+            return
+        self._last_was_a = True
+        context.emulator.press_button("A")
 
 
 def _get_berry_blender_locations() -> list[tuple[MapRSE, tuple[int, int]]]:
