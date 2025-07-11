@@ -4,6 +4,14 @@ from tkinter import Button, PhotoImage, Tk
 import PIL.Image
 import PIL.ImageTk
 
+try:
+    from modules.gui.glfw import GlfwGui
+    import threading
+
+    can_use_opengl = True
+except ImportError:
+    can_use_opengl = False
+
 from modules.gui.debug_tabs import *
 from modules.gui.emulator_controls import DebugEmulatorControls, EmulatorControls
 from modules.sprites import generate_placeholder_image
@@ -17,14 +25,21 @@ stepping_mode_reverse_key = "<Control-space>"
 
 
 class EmulatorScreen:
-    def __init__(self, window: Tk):
+    def __init__(self, window: Tk, use_opengl: bool = False):
+        if use_opengl and not can_use_opengl:
+            raise RuntimeError(
+                "Cannot use OpenGL because importing the library failed. Did you do `pip install PyOpenGL PyOpenGL_accelerate pyopengltk`?"
+            )
+
         self.window = window
         self.frame: Union[ttk.Frame, None] = None
         self.canvas: Union[Canvas, None] = None
         self.current_canvas_image: Union[PhotoImage, None] = None
         self._current_canvas_image_id: int | None = None
+        self._glfw_gui: "GlfwGui | None" = None
         self._placeholder_image: Union[PhotoImage, None] = None
         self.center_of_canvas: tuple[int, int] = (240, 160)
+        self._use_opengl: bool = use_opengl
 
         self.width: int = 240
         self.height: int = 160
@@ -96,7 +111,7 @@ class EmulatorScreen:
 
     def update(self) -> None:
         if context.emulator._performance_tracker.time_since_last_render() >= (1 / 60) * 1_000_000_000:
-            if context.emulator.get_video_enabled():
+            if not self._use_opengl and context.emulator.get_video_enabled():
                 self._update_image(context.emulator.get_current_screen_image())
             else:
                 self._update_window()
@@ -229,8 +244,13 @@ class EmulatorScreen:
         self.window.update()
 
     def _add_canvas(self) -> None:
+        if self._use_opengl:
+            self._glfw_gui = GlfwGui(None, None)
+            threading.Thread(target=self._glfw_gui.run_opengl_window, daemon=True).start()
         self.canvas = Canvas(self.window, width=480, height=320)
-        self.canvas.grid(sticky="NW", row=0, column=0)
+        if not self._use_opengl:
+            self.canvas.grid(sticky="NW", row=0, column=0)
+
         if context.debug:
 
             def handle_click_on_video_output(event):
