@@ -21,6 +21,7 @@ class Direction(IntEnum):
     def opposite(self):
         return Direction((self.value + 2) % 4)
 
+    @property
     def button_name(self):
         if self is Direction.North:
             return "Up"
