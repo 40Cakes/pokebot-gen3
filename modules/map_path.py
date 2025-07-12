@@ -277,7 +277,11 @@ class PathMap:
                         ),
                         needs_acro_bike,
                         needs_bunny_hop,
-                        tile.tile_type == "Long Grass",
+                        cannot_run=(
+                            map_data.map_type == "Underwater"
+                            or not map_data.is_running_possible
+                            or tile.tile_type in ("Long Grass", "No Running", "Hot Springs", "Fortree Bridge")
+                        ),
                     )
                 )
             for map_object in map_data.objects:
