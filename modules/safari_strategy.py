@@ -268,7 +268,7 @@ class SafariPokemonRSE(Enum):
     PSYDUCK = SafariCatchingLocation(
         get_species_by_name("Psyduck"),
         MapRSE.SAFARI_ZONE_SOUTHWEST,
-        (20, 19),
+        (7, 31),
         SafariHuntingMode.SURF,
     )
     GOLDUCK = SafariCatchingLocation(
