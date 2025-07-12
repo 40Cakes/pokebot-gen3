@@ -112,7 +112,9 @@ class TimedOutTryingToReachWaypointError(BotModeError):
 
 
 @debug.track
-def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
+def follow_waypoints(
+    path: Iterable[Waypoint], run: bool = True, final_facing_direction: Direction | None = None
+) -> Generator:
     """
     Follows a given set of waypoints.
 
@@ -126,6 +128,9 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
     :param path: A list (or generator) of waypoints to follow.
     :param run: Whether to run (hold `B`.) This is ignored when on a bicycle, since it would be either
                 meaningless or actively detrimental (Acro Bike, where it would initiate wheelie mode.)
+    :param final_facing_direction: A direction that the player avatar should face after reaching its
+                                   destination. This can be useful to make it bump into an obstacle with
+                                   the Mach Bike.
     """
 
     if get_game_state() != GameState.OVERWORLD:
@@ -276,6 +281,12 @@ def follow_waypoints(path: Iterable[Waypoint], run: bool = True) -> Generator:
                 if waypoint.action is WaypointAction.AcroBikeBunnyHop:
                     context.emulator.hold_button("B")
 
+            yield
+
+    if final_facing_direction is not None:
+        context.emulator.reset_held_buttons()
+        while get_player_avatar().facing_direction != final_facing_direction.button_name:
+            context.emulator.hold_button(final_facing_direction.button_name)
             yield
 
     # Wait for player to come to a full stop.
@@ -438,7 +449,7 @@ def ensure_facing_direction(facing_direction: str | Direction | tuple[int, int])
             raise BotModeError(f"Tile ({x}, {y}) is not adjacent to the player.")
 
     if isinstance(facing_direction, Direction):
-        facing_direction = facing_direction.button_name()
+        facing_direction = facing_direction.button_name
 
     while True:
         avatar = get_player_avatar()
