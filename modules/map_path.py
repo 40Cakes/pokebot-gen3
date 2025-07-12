@@ -62,6 +62,7 @@ class PathTile:
     forced_movement_to: tuple[tuple[int, int], tuple[int, int], int] | None
     needs_acro_bike: bool
     needs_bunny_hop: bool
+    cannot_run: bool
 
     @property
     def global_coordinates(self) -> tuple[int, int]:
@@ -276,6 +277,11 @@ class PathMap:
                         ),
                         needs_acro_bike,
                         needs_bunny_hop,
+                        cannot_run=(
+                            map_data.map_type == "Underwater"
+                            or not map_data.is_running_possible
+                            or tile.tile_type in ("Long Grass", "No Running", "Hot Springs", "Fortree Bridge")
+                        ),
                     )
                 )
             for map_object in map_data.objects:
@@ -782,6 +788,9 @@ def calculate_path(
                 cost = 1000000
             else:
                 cost = node.current_cost + 1
+
+            if tile.cannot_run:
+                cost += 1
 
             # This handles the case where beginning to surf is required. The dialogue and animation
             # take around 267 frames (depending on the length of the Pokémon's name), whereas a
