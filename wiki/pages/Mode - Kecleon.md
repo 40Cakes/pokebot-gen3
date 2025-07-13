@@ -17,7 +17,7 @@ The mode checks that you have not already defeated this one, if you have, you wi
 
 ### Recommendations
 
-- Have the Acro Bike registered
+- Have the Mach Bike or Acro Bike as your registered item
 
 ### Where to start
 
