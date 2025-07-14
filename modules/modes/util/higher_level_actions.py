@@ -6,7 +6,7 @@ from modules.debug import debug
 from modules.map_data import PokemonCenter
 from modules.memory import get_event_flag, get_game_state_symbol, unpack_uint32, read_symbol, get_game_state, GameState
 from modules.menu_parsers import CursorOptionEmerald, CursorOptionFRLG, CursorOptionRS
-from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
+from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator, is_fade_active
 from modules.modes.util.sleep import wait_for_n_frames
 from modules.player import (
     get_player_avatar,
@@ -30,13 +30,19 @@ from .tasks_scripts import (
     wait_until_task_is_active,
     wait_for_fade_to_finish,
 )
-from .walking import navigate_to, ensure_facing_direction, wait_for_player_avatar_to_be_standing_still
+from .walking import (
+    navigate_to,
+    ensure_facing_direction,
+    wait_for_player_avatar_to_be_standing_still,
+    wait_for_player_avatar_to_be_controllable,
+)
 from .._interface import BotModeError
 from ...game import get_symbol_name_before
-from ...items import Item, get_item_bag, ItemPocket
+from ...items import Item, get_item_bag, ItemPocket, Pokeblock, get_pokeblocks
 from ...map import get_map_objects, get_map_data_for_current_position
 from ...map_path import calculate_path, PathFindingError
 from ...mart import get_mart_buyable_items, get_mart_buy_menu_scroll_position, get_mart_main_menu_scroll_position
+from ...pokeblock_feeder import get_active_pokeblock_feeder_for_location
 
 
 @isolate_inputs
@@ -632,3 +638,61 @@ def surface_from_dive():
     yield from wait_until_script_is_active(script_name, "B")
     yield from wait_for_task_to_start_and_finish(task_name, "A")
     yield from wait_for_player_avatar_to_be_standing_still()
+
+
+def put_pokeblock_in_feeder(pokeblock: Pokeblock) -> Generator:
+    if context.rom.is_frlg:
+        raise BotModeError("There are no Pokéblocks in FR/LG.")
+    elif context.rom.is_emerald:
+        game_state_symbol = "CB2_POKEBLOCKMENU"
+        script_name = "SafariZone_EventScript_PokeblockPlaced"
+    else:
+        game_state_symbol = "SUB_810B674"
+        script_name = "EventScript_1C34A0"
+
+    tile = get_player_avatar().map_location_in_front
+    if tile.tile_type != "Pokeblock Feeder":
+        raise BotModeError("The player is not facing a Pokéblock Feeder.")
+
+    block_index = None
+    for index, block in enumerate(get_pokeblocks()):
+        if block == pokeblock:
+            block_index = index
+            break
+    if block_index is None:
+        raise BotModeError("Could not find this Pokéblock in the Pokéblock Case.")
+
+    active_feeder = get_active_pokeblock_feeder_for_location()
+    if active_feeder is not None:
+        raise BotModeError(f"This feeder still contains a Pokéblock for another {active_feeder.step_counter} steps.")
+
+    while get_game_state_symbol() != game_state_symbol or is_fade_active():
+        context.emulator.press_button("A")
+        yield
+
+    while True:
+        if context.rom.is_emerald:
+            list_task = get_task("ListMenuDummyTask")
+            if list_task is None:
+                break
+            current_index = list_task.data_value(12) + list_task.data_value(13)
+        else:
+            menu_data = read_symbol("gUnknown_02039248")
+            current_index = menu_data[0] + menu_data[1]
+        if current_index == block_index:
+            break
+        elif current_index < block_index:
+            context.emulator.press_button("Down")
+            yield
+            yield
+        else:
+            context.emulator.press_button("Up")
+            yield
+            yield
+
+    while get_game_state() is not GameState.OVERWORLD:
+        context.emulator.press_button("A")
+        yield
+
+    yield from wait_for_script_to_start_and_finish(script_name, "A")
+    yield from wait_for_player_avatar_to_be_controllable()
