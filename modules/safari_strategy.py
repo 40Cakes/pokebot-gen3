@@ -190,85 +190,85 @@ class SafariPokemonRSE(Enum):
     PIKACHU = SafariCatchingLocation(
         get_species_by_name("Pikachu"),
         MapRSE.SAFARI_ZONE_SOUTH,
-        (25, 34),
+        (25, 30),
         SafariHuntingMode.SPIN,
     )
     ODDISH = SafariCatchingLocation(
         get_species_by_name("Oddish"),
         MapRSE.SAFARI_ZONE_NORTHWEST,
-        (6, 32),
+        (5, 7),
         SafariHuntingMode.SPIN,
     )
     GLOOM = SafariCatchingLocation(
         get_species_by_name("Gloom"),
         MapRSE.SAFARI_ZONE_NORTHWEST,
-        (6, 32),
+        (5, 7),
         SafariHuntingMode.SPIN,
     )
     DODUO = SafariCatchingLocation(
         get_species_by_name("Doduo"),
         MapRSE.SAFARI_ZONE_NORTHWEST,
-        (6, 32),
+        (5, 7),
         SafariHuntingMode.SPIN,
     )
     DODRIO = SafariCatchingLocation(
         get_species_by_name("Dodrio"),
         MapRSE.SAFARI_ZONE_NORTHWEST,
-        (6, 32),
+        (5, 7),
         SafariHuntingMode.SPIN,
     )
     RHYHORN = SafariCatchingLocation(
         get_species_by_name("Rhyhorn"),
         MapRSE.SAFARI_ZONE_NORTHWEST,
-        (6, 32),
+        (5, 7),
         SafariHuntingMode.SPIN,
     )
     PINSIR = SafariCatchingLocation(
         get_species_by_name("Pinsir"),
         MapRSE.SAFARI_ZONE_NORTHWEST,
-        (6, 32),
+        (5, 7),
         SafariHuntingMode.SPIN,
     )
     NATU = SafariCatchingLocation(
         get_species_by_name("Natu"),
         MapRSE.SAFARI_ZONE_NORTH,
-        (14, 33),
+        (5, 33),
         SafariHuntingMode.SPIN,
     )
     GIRAFARIG = SafariCatchingLocation(
         get_species_by_name("Girafarig"),
         MapRSE.SAFARI_ZONE_SOUTH,
-        (25, 34),
+        (25, 30),
         SafariHuntingMode.SPIN,
     )
     WOBBUFFET = SafariCatchingLocation(
         get_species_by_name("Wobbuffet"),
         MapRSE.SAFARI_ZONE_SOUTH,
-        (25, 34),
+        (25, 30),
         SafariHuntingMode.SPIN,
     )
     XATU = SafariCatchingLocation(
         get_species_by_name("Xatu"),
         MapRSE.SAFARI_ZONE_NORTH,
-        (14, 33),
+        (5, 33),
         SafariHuntingMode.SPIN,
     )
     HERACROSS = SafariCatchingLocation(
         get_species_by_name("Heracross"),
         MapRSE.SAFARI_ZONE_NORTH,
-        (14, 33),
+        (5, 33),
         SafariHuntingMode.SPIN,
     )
     PHANPY = SafariCatchingLocation(
         get_species_by_name("Phanpy"),
         MapRSE.SAFARI_ZONE_NORTH,
-        (14, 33),
+        (5, 33),
         SafariHuntingMode.SPIN,
     )
     PSYDUCK = SafariCatchingLocation(
         get_species_by_name("Psyduck"),
         MapRSE.SAFARI_ZONE_SOUTHWEST,
-        (7, 31),
+        (18, 17),
         SafariHuntingMode.SURF,
     )
     GOLDUCK = SafariCatchingLocation(
@@ -301,77 +301,77 @@ class SafariPokemonRSE(Enum):
     HOOTHOOT = SafariCatchingLocation(
         get_species_by_name("Hoothoot"),
         MapRSE.SAFARI_ZONE_SOUTHEAST,
-        (7, 15),
+        (18, 33),
         SafariHuntingMode.SPIN,
         availability=emerald_and_elite_four_defeated,
     )
     SPINARAK = SafariCatchingLocation(
         get_species_by_name("Spinarak"),
         MapRSE.SAFARI_ZONE_SOUTHEAST,
-        (7, 15),
+        (18, 33),
         SafariHuntingMode.SURF,
         availability=emerald_and_elite_four_defeated,
     )
     MAREEP = SafariCatchingLocation(
         get_species_by_name("Mareep"),
         MapRSE.SAFARI_ZONE_SOUTHEAST,
-        (7, 15),
+        (18, 33),
         SafariHuntingMode.SPIN,
         availability=emerald_and_elite_four_defeated,
     )
     AIPOM = SafariCatchingLocation(
         get_species_by_name("Aipom"),
         MapRSE.SAFARI_ZONE_NORTHEAST,
-        (29, 24),
+        (6, 22),
         SafariHuntingMode.SPIN,
         availability=emerald_and_elite_four_defeated,
     )
     SUNKERN = SafariCatchingLocation(
         get_species_by_name("Sunkern"),
         MapRSE.SAFARI_ZONE_SOUTHEAST,
-        (7, 15),
+        (18, 33),
         SafariHuntingMode.SPIN,
         availability=emerald_and_elite_four_defeated,
     )
     GLIGAR = SafariCatchingLocation(
         get_species_by_name("Gligar"),
         MapRSE.SAFARI_ZONE_SOUTHEAST,
-        (7, 15),
+        (18, 33),
         SafariHuntingMode.SPIN,
         availability=emerald_and_elite_four_defeated,
     )
     SNUBBULL = SafariCatchingLocation(
         get_species_by_name("Snubbull"),
         MapRSE.SAFARI_ZONE_SOUTHEAST,
-        (7, 15),
+        (18, 33),
         SafariHuntingMode.SPIN,
         availability=emerald_and_elite_four_defeated,
     )
     STANTLER = SafariCatchingLocation(
         get_species_by_name("Stantler"),
         MapRSE.SAFARI_ZONE_SOUTHEAST,
-        (7, 15),
+        (18, 33),
         SafariHuntingMode.SPIN,
         availability=emerald_and_elite_four_defeated,
     )
     MARILL = SafariCatchingLocation(
         get_species_by_name("Marill"),
         MapRSE.SAFARI_ZONE_SOUTHEAST,
-        (21, 12),
+        (24, 21),
         SafariHuntingMode.SURF,
         availability=emerald_and_elite_four_defeated,
     )
     WOOPER = SafariCatchingLocation(
         get_species_by_name("Wooper"),
         MapRSE.SAFARI_ZONE_SOUTHEAST,
-        (21, 12),
+        (24, 21),
         SafariHuntingMode.SURF,
         availability=emerald_and_elite_four_defeated,
     )
     QUAGSIRE = SafariCatchingLocation(
         get_species_by_name("Quagsire"),
         MapRSE.SAFARI_ZONE_SOUTHEAST,
-        (21, 12),
+        (24, 21),
         SafariHuntingMode.SURF,
         availability=emerald_and_elite_four_defeated,
     )
@@ -394,28 +394,28 @@ class SafariPokemonRSE(Enum):
     LEDYBA = SafariCatchingLocation(
         get_species_by_name("Ledyba"),
         MapRSE.SAFARI_ZONE_NORTHEAST,
-        (29, 24),
+        (6, 22),
         SafariHuntingMode.SPIN,
         availability=emerald_and_elite_four_defeated,
     )
     PINECO = SafariCatchingLocation(
         get_species_by_name("Pineco"),
         MapRSE.SAFARI_ZONE_NORTHEAST,
-        (29, 24),
+        (6, 22),
         SafariHuntingMode.SPIN,
         availability=emerald_and_elite_four_defeated,
     )
     TEDDIURSA = SafariCatchingLocation(
         get_species_by_name("Teddiursa"),
         MapRSE.SAFARI_ZONE_NORTHEAST,
-        (29, 24),
+        (6, 22),
         SafariHuntingMode.SPIN,
         availability=emerald_and_elite_four_defeated,
     )
     HOUNDOUR = SafariCatchingLocation(
         get_species_by_name("Houndour"),
         MapRSE.SAFARI_ZONE_NORTHEAST,
-        (29, 24),
+        (6, 22),
         SafariHuntingMode.SPIN,
         availability=emerald_and_elite_four_defeated,
     )
@@ -423,7 +423,7 @@ class SafariPokemonRSE(Enum):
     MILTANK = SafariCatchingLocation(
         get_species_by_name("Miltank"),
         MapRSE.SAFARI_ZONE_NORTHEAST,
-        (29, 24),
+        (6, 22),
         SafariHuntingMode.SPIN,
         availability=emerald_and_elite_four_defeated,
     )
