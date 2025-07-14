@@ -102,7 +102,6 @@ def main_loop() -> None:
                 context.bot_listeners = get_bot_listeners(context.rom)
 
             if context.bot_mode == "Manual":
-                context.controller_stack = []
                 if not isinstance(context.bot_mode_instance, ManualBotMode):
                     context.emulator.reset_held_buttons()
                 context.bot_mode_instance = ManualBotMode()
@@ -113,6 +112,8 @@ def main_loop() -> None:
             try:
                 for listener in context.bot_listeners.copy():
                     listener.handle_frame(context.bot_mode_instance, frame_info)
+                if context.bot_mode == "Manual":
+                    context.controller_stack = []
                 if len(context.controller_stack) > 0:
                     next(context.controller_stack[-1])
             except (StopIteration, GeneratorExit):
