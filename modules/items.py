@@ -269,6 +269,17 @@ class Pokeblock:
     sour: int
     feel: int
 
+    def __eq__(self, __value):
+        return (
+            self.colour is __value.colour
+            and self.spicy == __value.spicy
+            and self.dry == __value.dry
+            and self.sweet == __value.sweet
+            and self.bitter == __value.bitter
+            and self.sour == __value.sour
+            and self.feel == __value.feel
+        )
+
     @property
     def level(self):
         return max(self.spicy, self.dry, self.sweet, self.bitter, self.sour)
