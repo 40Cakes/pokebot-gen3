@@ -13,8 +13,11 @@ const speciesListElements = {};
 /**
  * @param {typeof StreamOverlay.SectionChecklist} checklistConfig
  * @param {PokeBotApi.GetStatsResponse} stats
+ * @param {PokeBotApi.GetMapEncountersResponse} mapEncounters
+ * @param {string[]} additionalRouteSpecies
+ * @param {EncounterType} encounterType
  */
-const updateSectionChecklist = (checklistConfig, stats) => {
+const updateSectionChecklist = (checklistConfig, stats, mapEncounters, additionalRouteSpecies, encounterType) => {
     // Special case for then the checklist is empty or undefined.
     if (!checklistConfig || Object.keys(checklistConfig).length === 0) {
         ul.parentElement.style.display = "none";
@@ -76,11 +79,45 @@ const updateSectionChecklist = (checklistConfig, stats) => {
             }
         }
 
+        const isCompleted = configEntry.goal && completion >= configEntry.goal;
         elements.countSpan.innerText = formatInteger(completion);
-        if (configEntry.goal && completion >= configEntry.goal && !elements.li.classList.contains("completed")) {
+        if (isCompleted && !elements.li.classList.contains("completed")) {
             elements.li.classList.add("completed");
-        } else if ((!configEntry.goal || completion < configEntry.goal) && elements.li.classList.contains("completed")) {
+        } else if (!isCompleted && elements.li.classList.contains("completed")) {
             elements.li.classList.remove("completed");
+        }
+
+        let isAvailableOnThisRoute = false;
+        let routeEncounters = mapEncounters.effective.land_encounters;
+        if (encounterType === "surfing") {
+            routeEncounters = mapEncounters.effective.surf_encounters;
+        } else if (encounterType === "fishing_old_rod") {
+            routeEncounters = mapEncounters.effective.old_rod_encounters;
+        } else if (encounterType === "fishing_good_rod") {
+            routeEncounters = mapEncounters.effective.good_rod_encounters;
+        } else if (encounterType === "fishing_super_rod") {
+            routeEncounters = mapEncounters.effective.super_rod_encounters;
+        } else if (encounterType === "rock_smash") {
+            routeEncounters = mapEncounters.effective.rock_smash_encounters;
+        }
+
+        for (const encounter of routeEncounters) {
+            if (encounter.species_name === speciesName) {
+                isAvailableOnThisRoute = true;
+                break;
+            }
+        }
+        for (const additionalSpeciesName of additionalRouteSpecies) {
+            if (additionalSpeciesName === speciesName) {
+                isAvailableOnThisRoute = true;
+                break;
+            }
+        }
+
+        if (isAvailableOnThisRoute && !isCompleted && !elements.li.classList.contains("in-progress")) {
+            elements.li.classList.add("in-progress");
+        } else if ((!isAvailableOnThisRoute || isCompleted) && elements.li.classList.contains("in-progress")) {
+            elements.li.classList.remove("in-progress");
         }
 
         // Updates the progress bar.

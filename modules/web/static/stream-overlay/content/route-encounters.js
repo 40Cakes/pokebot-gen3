@@ -169,6 +169,11 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
                 tick.src = "/static/sprites/stream-overlay/tick.png";
                 tick.classList.add("tick");
                 catches.push(tick);
+            } else if (goal) {
+                const tick = document.createElement("img")
+                tick.src = "/static/sprites/stream-overlay/target.png";
+                tick.classList.add("tick");
+                catches.push(tick);
             }
         }
 

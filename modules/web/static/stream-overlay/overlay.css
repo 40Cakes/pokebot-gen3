@@ -19,7 +19,10 @@
     --video-overlay-background-colour: #000000f6;
     --separator-line-colour: #ffffff2a;
     --lighter-background-colour: #66666655;
-    --success-background-colour: #00800085;
+    --success-background-colour: #00800066;
+
+    --success-border-colour: #018f01;
+    --in-progress-border-colour: #8c8c0d;
 
     --health-bar-red-colour: #ff424288;
     --health-bar-yellow-colour: #ffd70088;
