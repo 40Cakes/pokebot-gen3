@@ -30,6 +30,7 @@
         padding: 0;
 
         li {
+            position: relative;
             display: inline-block;
             border: 1px solid var(--separator-line-colour);
             border-radius: 10px;
@@ -48,13 +49,12 @@
             }
 
             > span {
-                position: relative;
                 display: block;
                 font-size: .75rem;
 
                 img {
                     position: absolute;
-                    bottom: 0;
+                    top: .1em;
                     right: .2em;
                     height: 1em;
                     width: 1em;
@@ -76,10 +76,17 @@
 
             &.completed {
                 background-color: var(--success-background-colour);
+                border: 3px var(--success-border-colour) solid;
+                margin: 2px;
 
                 .tick {
                     display: inline-block;
                 }
+            }
+
+            &.in-progress {
+                border: 3px var(--in-progress-border-colour) solid;
+                margin: 2px;
             }
         }
     }
