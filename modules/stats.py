@@ -1,5 +1,6 @@
 import sqlite3
 import sys
+import threading
 import time
 from collections import deque
 from dataclasses import dataclass
@@ -586,6 +587,7 @@ class StatsDatabase:
 
         self._connection = sqlite3.connect(profile.path / "stats.db", check_same_thread=False)
         self._cursor = self._connection.cursor()
+        self._lock = threading.Lock()
 
         db_schema_version = self._get_schema_version()
         if db_schema_version < current_schema_version:
@@ -1208,11 +1210,12 @@ class StatsDatabase:
         )
 
     def _execute_write(self, query: str, parameters: list | tuple = ()):
-        try:
-            self._cursor.execute(query, parameters)
-        except (sqlite3.OperationalError, sqlite3.IntegrityError) as exception:
-            self._handle_sqlite_error(exception)
-            raise
+        with self._lock:
+            try:
+                self._cursor.execute(query, parameters)
+            except (sqlite3.OperationalError, sqlite3.IntegrityError) as exception:
+                self._handle_sqlite_error(exception)
+                raise
 
     def _commit(self) -> None:
         try:
