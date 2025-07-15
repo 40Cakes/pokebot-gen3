@@ -17,6 +17,7 @@ from modules.roms import ROM
 from modules.runtime import get_data_path
 from modules.tasks import get_global_script_context
 from modules.items import Pokeblock, PokeblockType, get_pokeblocks
+from collections import Counter
 
 
 class SafariHuntingMode(Enum):
@@ -700,6 +701,23 @@ class RSESafariStrategy:
         safari_pokemon = get_safari_pokemon(pokemon.species.name)
         return safari_pokemon in cls.POKEBLOCK
 
+    @staticmethod
+    def get_facing_direction_for_position(position: tuple[int, int]) -> str | None:
+        SAFARI_FEEDER_DIRECTIONS = {
+            (25, 30): "Left",  # PIKACHU, GIRAFARIG, WOBBUFFET
+            (5, 7): "Left",  # ODDISH, GLOOM, DODUO, DODRIO, RHYHORN, PINSIR
+            (5, 33): "Down",  # NATU, XATU, HERACROSS, PHANPY
+            (18, 17): "Up",  # PSYDUCK
+            (25, 13): None,  # GOLDUCK
+            (20, 20): None,  # GOLDEEN, MAGIKARP, SEAKING
+            (18, 33): "Right",  # HOOTHOOT, SPINARAK, MAREEP, SUNKERN, GLIGAR, SNUBBULL, STANTLER
+            (6, 22): "Left",  # AIPOM, LEDYBA, PINECO, TEDDIURSA, HOUNDOUR, MILTANK
+            (24, 21): "Right",  # MARILL, WOOPER, QUAGSIRE
+            (20, 12): None,  # REMORAID, OCTILLERY
+        }
+
+        return SAFARI_FEEDER_DIRECTIONS.get(position, None)
+
 
 def get_baiting_state(pokeblock: Pokeblock) -> int | None:
     """
@@ -741,6 +759,31 @@ def get_lowest_feel_any_pokeblock() -> tuple[int | None, Pokeblock | None]:
     return best_index, best_pokeblock
 
 
+def get_lowest_feel_pokeblock_by_type(
+    flavor_str: str,
+) -> Tuple[Optional[int], Optional[Pokeblock]]:
+    """
+    Return the index and Pokéblock with the lowest feel among those whose type matches the given flavor string.
+    """
+    try:
+        flavor = PokeblockType[flavor_str.capitalize()]
+    except KeyError:
+        raise ValueError(f"Invalid Pokéblock type: '{flavor_str}'")
+
+    pokeblocks = get_pokeblocks()
+    lowest_feel = float("inf")
+    best_index = None
+    best_pokeblock = None
+
+    for index, pokeblock in enumerate(pokeblocks):
+        if pokeblock.type == flavor and pokeblock.feel < lowest_feel:
+            lowest_feel = pokeblock.feel
+            best_index = index
+            best_pokeblock = pokeblock
+
+    return best_index, best_pokeblock
+
+
 def get_lowest_feel_excluding_type(excluded_type: PokeblockType) -> tuple[int | None, Pokeblock | None]:
     """Return the index and the Pokéblock with the lowest feel that is not of the excluded PokéblockType."""
     pokeblocks = get_pokeblocks()
@@ -755,6 +798,16 @@ def get_lowest_feel_excluding_type(excluded_type: PokeblockType) -> tuple[int | 
             best_pokeblock = pokeblock
 
     return best_index, best_pokeblock
+
+
+def get_pokeblock_type_counts() -> list[tuple[str, int]]:
+    """
+    Returns a list of tuples (type_name: str, count: int)
+    for each Pokéblock type present in the inventory.
+    """
+    pokeblocks = get_pokeblocks()
+    type_counter = Counter(pokeblock.type.name for pokeblock in pokeblocks)
+    return list(type_counter.items())
 
 
 def get_navigation_path(
