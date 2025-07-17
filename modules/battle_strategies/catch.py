@@ -6,12 +6,14 @@ from modules.items import Item, get_item_bag, PokeblockType
 from modules.map import get_map_data_for_current_position
 from modules.pokedex import get_pokedex
 from modules.pokemon import Pokemon, get_type_by_name, StatusCondition, get_opponent
+from modules.pokeblock_feeder import get_active_pokeblock_feeder_for_location
 from modules.safari_strategy import (
     get_safari_strategy_action,
     is_watching_carefully,
     get_safari_balls_left,
     get_lowest_feel_any_pokeblock,
     get_lowest_feel_excluding_type,
+    get_lowest_feel_pokeblock_by_type,
     get_baiting_state,
     PokeblockState,
     RSESafariStrategy,
@@ -82,10 +84,14 @@ class CatchStrategy(DefaultBattleStrategy):
         """
         Handles the turn decision for RSE games.
         """
-
         if RSESafariStrategy.should_start_pokeblock_strategy(get_opponent()):
             if battle_state.current_turn == 0:
-                pokeblock_index, pokeblock = get_lowest_feel_any_pokeblock()
+                feeder = get_active_pokeblock_feeder_for_location()
+                if feeder:
+                    flavor_str = feeder.pokeblock.type.value
+                    pokeblock_index, pokeblock = get_lowest_feel_pokeblock_by_type(flavor_str)
+                else:
+                    pokeblock_index, pokeblock = get_lowest_feel_any_pokeblock()
                 if pokeblock_index is None:
                     return SafariTurnAction.ThrowBall, None
 

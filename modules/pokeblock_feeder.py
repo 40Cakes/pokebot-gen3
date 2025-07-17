@@ -29,15 +29,16 @@ def get_all_active_pokeblock_feeders() -> list[PokeblockFeeder]:
         if x == 0 and y == 0 and map_number == 0:
             continue
 
-        block_data = data[index * 0x10 + 8 :]
+        block_data = data[index * 0x10 + 8 : index * 0x10 + 16]
         result.append(
             PokeblockFeeder(
-                on_map=MapRSE((MapGroupRSE.SpecialArea, map_number)),
-                coordinates=(x, y),
+                on_map=MapRSE((MapGroupRSE.SpecialArea.value, map_number)),
+                coordinates=(x - 7, y - 7),
                 step_counter=data[index * 0x10 + 5],
-                pokeblock=Pokeblock(PokeblockColour(block_data[0]), *block_data[1:]),
+                pokeblock=Pokeblock(PokeblockColour(block_data[0]), *block_data[1:7]),
             )
         )
+
     return result
 
 
@@ -50,7 +51,7 @@ def get_active_pokeblock_feeder_for_location(
     for feeder in get_all_active_pokeblock_feeders():
         if feeder.on_map != location[0]:
             continue
-        if abs(feeder.coordinates[0] - location[0][0]) + (feeder.coordinates[1] - location[0][1]) <= 5:
+        if abs(feeder.coordinates[0] - location[1][0]) + abs(feeder.coordinates[1] - location[1][1]) <= 5:
             return feeder
 
     return None
