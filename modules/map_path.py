@@ -84,11 +84,27 @@ class PathMap:
         if self._tiles is None:
             map_data = get_map_data(self.map_group_and_number, (0, 0))
 
-            def tile_index(x: int, y: int):
+            def tile_index(x: int, y: int) -> int:
                 return y * map_data.map_size[0] + x
 
             self._tiles = []
             all_tiles = get_map_all_tiles(map_data)
+
+            event_triggers: dict[int, list[tuple[int, int]]] = {}
+            for event in map_data.coord_events:
+                if event.type != "weather":
+                    key = tile_index(*event.local_coordinates)
+                    if key not in event_triggers:
+                        event_triggers[key] = []
+                    event_triggers[key].append((event.trigger_var_number, event.trigger_value))
+
+            warp_cache: dict[int, list[MapLocation]] = {}
+            for warp in map_data.warps:
+                key = tile_index(*warp.local_coordinates)
+                if key not in warp_cache:
+                    warp_cache[key] = []
+                warp_cache[key].append(warp.destination_location)
+
             for tile in all_tiles:
                 accessible_from_direction = [False, False, False, False]
                 waterfall_to = None
@@ -229,14 +245,14 @@ class PathMap:
                     accessible_from_direction = [True, True, True, True]
 
                 on_enter_event_triggers = {}
-                for event in map_data.coord_events:
-                    if event.local_coordinates == tile.local_position and event.type != "weather":
-                        on_enter_event_triggers[event.trigger_var_number] = event.trigger_value
+                key = tile_index(*tile.local_position)
+                if key in event_triggers:
+                    for trigger_var_number, trigger_value in event_triggers[key]:
+                        on_enter_event_triggers[trigger_var_number] = trigger_value
 
                 warps_to = None
-                for warp in map_data.warps:
-                    if warp.local_coordinates == tile.local_position:
-                        destination = warp.destination_location
+                if key in warp_cache:
+                    for destination in warp_cache[key]:
                         extra_warp_direction = None
                         if tile.tile_type.endswith(" Arrow Warp"):
                             match tile.tile_type:
