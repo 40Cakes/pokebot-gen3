@@ -11,7 +11,7 @@ import {updatePhaseStats} from "./content/phase-stats.js";
 import {updatePCStorage, updateTotalStats} from "./content/total-stats.js";
 import {
     addInfoBubble,
-    hideFishingInfoBubble, hideInfoBubble,
+    hideFishingInfoBubble, hideInfoBubble, resetCustomInfoBubbles,
     updateEncounterInfoBubble,
     updateFishingInfoBubble,
     updateInfoBubbles,
@@ -22,6 +22,7 @@ import {updateInputs} from "./content/inputs.js";
 import {updateClock} from "./content/clock.js";
 import {getLastEncounterSpecies} from "./helper.js";
 import {updateDaycareBox} from "./content/daycare.js";
+import {fireConfetti} from "./content/effects.js";
 
 const BATTLE_STATES = ["BATTLE_STARTING", "BATTLE", "BATTLE_ENDING"];
 
@@ -37,7 +38,25 @@ let wasShinyEncounter = false;
 
 /** @param {OverlayState} state */
 async function doFullUpdate(state) {
-    await loadAllData(state);
+    const customState = await loadAllData(state);
+
+    if (customState["countdown_target"]) {
+        state.countdownTarget = customState["countdown_target"];
+    }
+
+    state.additionalTargetTimers.clear();
+    if (customState["species_timers"] && Array.isArray(customState["species_timers"])) {
+        for (const speciesName of customState["species_timers"]) {
+            state.additionalTargetTimers.add(speciesName);
+        }
+    }
+
+    resetCustomInfoBubbles();
+    if (customState["info_bubbles"] && Array.isArray(customState["info_bubbles"])) {
+        for (const infoBubble of customState["info_bubbles"]) {
+            addInfoBubble(infoBubble);
+        }
+    }
 
     isInBattle = BATTLE_STATES.includes(state.gameState);
     isInEggHatch = state.gameState === "EGG_HATCH";
@@ -54,7 +73,7 @@ async function doFullUpdate(state) {
     updatePhaseStats(state.stats);
     updatePCStorage(state.pokemonStorage, state.party, state.daycare);
     updateTotalStats(state.stats, state.encounterRate);
-    updateInfoBubbles(state.mapEncounters, state.stats, config.targetTimers, state.lastEncounterType, state.party);
+    updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, state.lastEncounterType, state.party, state.countdownTarget);
     updateDaycareBox(state.emulator.bot_mode, state);
 }
 
@@ -196,7 +215,7 @@ function handleWildEncounter(event, state) {
     updatePhaseStats(state.stats);
     updateTotalStats(state.stats, state.encounterRate);
     updateEncounterInfoBubble(event.pokemon.species_name_for_stats, state.stats, event.pokemon.gender);
-    updateInfoBubbles(state.mapEncounters, state.stats, config.targetTimers, event.type, state.party);
+    updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, event.type, state.party, state.countdownTarget);
     updateEncounterLog(state.encounterLog);
     showCurrentEncounterStats(event);
 }
@@ -280,6 +299,44 @@ function handleCustomEvent(event, state) {
 
         case "hide_info_bubble":
             hideInfoBubble(event.info_bubble_id);
+            break;
+
+        case "reset_custom_info_bubbles":
+            resetCustomInfoBubbles();
+            break;
+
+        case "add_species_timer":
+            state.additionalTargetTimers.add(event.species_name);
+            updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, state.lastEncounterType, state.party, state.countdownTarget);
+            break;
+
+        case "hide_species_timer":
+            state.additionalTargetTimers.delete(event.species_name);
+            updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, state.lastEncounterType, state.party, state.countdownTarget);
+            break;
+
+        case "reset_species_timers":
+            state.additionalTargetTimers.clear();
+            updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, state.lastEncounterType, state.party, state.countdownTarget);
+            break;
+
+        case "set_countdown":
+            state.countdownTarget = event.timestamp;
+            updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, state.lastEncounterType, state.party, state.countdownTarget);
+            break;
+
+        case "confetti":
+            let booms = 50;
+            if (event["booms"] && Number.isInteger(event["booms"])) {
+                booms = event["booms"];
+            }
+
+            let durationInSeconds = 10;
+            if (event["duration_in_seconds"] && typeof event["duration_in_seconds"] === "number") {
+                durationInSeconds = event["duration_in_seconds"];
+            }
+
+            fireConfetti(booms, durationInSeconds);
             break;
     }
 }

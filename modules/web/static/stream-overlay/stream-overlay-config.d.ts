@@ -23,6 +23,7 @@ declare namespace StreamOverlay {
 
         showPokeNavCallCounter: boolean;
         showPCStorageCounter: boolean;
+        countdownTarget: string | number;
 
         overrideLongestPhase?: {
             species_name: string;

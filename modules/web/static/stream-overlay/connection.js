@@ -40,11 +40,14 @@ export const fetchers = {
 
     /** @return {Promise<PokeBotApi.GetDaycareResponse>} */
     daycare: () => fetch("/daycare").then(response => response.json()),
+
+    /** @return {Promise<object>} */
+    customState: () => fetch("/custom_state").then(response => response.json()),
 };
 
 /**
  * @param {OverlayState} state
- * @return {Promise<OverlayState>}
+ * @return {Promise<object>}
  */
 export function loadAllData(state) {
     return new Promise((resolve, reject) => {
@@ -62,6 +65,7 @@ export function loadAllData(state) {
                 fetchers.gameState(),
                 fetchers.pokemonStorage(),
                 fetchers.daycare(),
+                fetchers.customState(),
             ]).then(
                 data => {
                     state.stats = data[0];
@@ -78,7 +82,7 @@ export function loadAllData(state) {
                     state.pokemonStorage = data[11];
                     state.daycare = data[12];
                     state.reset();
-                    resolve();
+                    resolve(data[13]);
                 },
                 reject);
         }
