@@ -225,7 +225,7 @@ class PathMap:
                         else:
                             break
                     forced_movement_to = destination, steps
-                else:
+                elif not self._is_optional_blocker(tile.local_position):
                     accessible_from_direction = [True, True, True, True]
 
                 on_enter_event_triggers = {}
@@ -310,6 +310,36 @@ class PathMap:
             self.offset[0] <= global_coordinates[0] < self.offset[0] + self.size[0]
             and self.offset[1] <= global_coordinates[1] < self.offset[1] + self.size[1]
         )
+
+    def _is_optional_blocker(self, local_coordinates: tuple[int, int]) -> bool:
+        """
+        There are some tiles that are modified dynamically, which doesn't
+        play nicely with the map meta data cache that we are using. So
+        instead of trying to fix it properly, here's just a list of
+        problematic tiles that the bot will check against.
+
+        :param local_coordinates: Tuple (x, y) of coordinates to check.
+        :return: True if this tile is blocked right now.
+        """
+
+        blockers: list[tuple[MapRSE | MapFRLG, tuple[int, int], str]] = []
+        if context.rom.is_emerald:
+            blockers = [
+                (MapRSE.SHOAL_CAVE_LOW_TIDE_INNER_ROOM, (31, 8), "RECEIVED_SHOAL_SALT_1"),
+                (MapRSE.SHOAL_CAVE_LOW_TIDE_INNER_ROOM, (14, 26), "RECEIVED_SHOAL_SALT_2"),
+                (MapRSE.SHOAL_CAVE_LOW_TIDE_STAIRS_ROOM, (11, 11), "RECEIVED_SHOAL_SALT_3"),
+                (MapRSE.SHOAL_CAVE_LOW_TIDE_LOWER_ROOM, (18, 2), "RECEIVED_SHOAL_SALT_4"),
+            ]
+
+        for blocker in blockers:
+            if (
+                blocker[0].value == self.map_group_and_number
+                and local_coordinates == blocker[1]
+                and not get_event_flag(blocker[2])
+            ):
+                return True
+
+        return False
 
 
 _maps: dict[str, dict[tuple[int, int], PathMap]] = {}
