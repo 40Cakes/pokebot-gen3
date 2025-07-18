@@ -1,3 +1,5 @@
+import config from "./config.js";
+
 export const WILD_ENCOUNTER_TYPES = [
     "land",
     "surfing",
@@ -106,6 +108,12 @@ export default class OverlayState {
         step_counter: 0,
     };
 
+    /** @type {number | null} */
+    countdownTarget = config.countdownTarget ?? null;
+
+    /** @type {Set<string>} */
+    additionalTargetTimers = new Set();
+
     /** @type {Set<string>} */
     additionalRouteSpecies = new Set();
 
@@ -126,6 +134,18 @@ export default class OverlayState {
         if (this.lastEncounter && ["hatched", "gift", "static"].includes(this.lastEncounter.type)) {
             this.additionalRouteSpecies.add(this.lastEncounter.pokemon.species_name_for_stats);
         }
+    }
+
+    /** @returns {string[]} */
+    get targetTimers() {
+        const timers = new Set();
+        for (const speciesName of config.targetTimers) {
+            timers.add(speciesName);
+        }
+        for (const speciesName of this.additionalTargetTimers) {
+            timers.add(speciesName);
+        }
+        return [...timers];
     }
 
     /** @return {Encounter|null} */
