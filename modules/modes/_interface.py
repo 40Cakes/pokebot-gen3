@@ -142,7 +142,7 @@ class BotMode:
         """
         pass
 
-    def on_repel_effect_ended(self) -> None:
+    def on_repel_effect_ended(self) -> Generator | None:
         """
         When the Repel effect expires (number of steps have been reached), the game will
         display a message.

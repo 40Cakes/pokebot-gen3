@@ -75,7 +75,8 @@ class GenerateEncounterMediaPlugin(BotPlugin):
 
     def on_battle_started(self, encounter: "EncounterInfo | None") -> Generator | None:
         if self._listener is not None:
-            context.bot_listeners.remove(self._listener)
+            if self._listener in context.bot_listeners:
+                context.bot_listeners.remove(self._listener)
             self._listener = None
 
         if context.config.logging.shiny_gifs:
