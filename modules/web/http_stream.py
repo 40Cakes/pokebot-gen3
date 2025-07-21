@@ -329,7 +329,7 @@ def run_watcher():
                     send_message(DataSubscription.Map, data=current_coords, event_type="MapTileChange")
                     previous_game_state["map_local_coordinates"] = current_coords
 
-        if subscriptions["MapEncounters"] > 0:
+        if subscriptions["MapEncounters"] > 0 and current_game_state is GameState.OVERWORLD:
             if state_cache.effective_wild_encounters.age_in_frames >= 300:
                 # If the cached encounter data is too old, tell the main thread to update it at the next
                 # possible opportunity.
