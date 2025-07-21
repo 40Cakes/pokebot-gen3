@@ -510,7 +510,6 @@ class Nature:
     index: int
     name: str
     modifiers: dict[str, float]
-    pokeblock_preferences: dict[str, str]
 
     def __str__(self):
         return self.name
@@ -537,6 +536,24 @@ class Nature:
         }
         return f"{self.name} (+{stat_name_map[increased_stat]}, -{stat_name_map[decreased_stat]})"
 
+    @property
+    def pokeblock_preferences(self) -> dict[str, str | None]:
+        flavour_map = {
+            "spicy": "attack",
+            "dry": "special_attack",
+            "sweet": "speed",
+            "bitter": "special_defence",
+            "sour": "defence",
+        }
+        liked = None
+        disliked = None
+        for flavour, stat_name in flavour_map.items():
+            if self.modifiers[stat_name] > 1:
+                liked = flavour
+            elif self.modifiers[stat_name] < 1:
+                disliked = flavour
+        return {"liked": liked, "disliked": disliked}
+
     @classmethod
     def from_dict(cls, index: int, data: dict) -> "Nature":
         return Nature(
@@ -548,10 +565,6 @@ class Nature:
                 "speed": data["speed_modifier"],
                 "special_attack": data["special_attack_modifier"],
                 "special_defence": data["special_defence_modifier"],
-            },
-            pokeblock_preferences={
-                "liked": data["pokeblock"].get("liked", None),
-                "disliked": data["pokeblock"].get("disliked", None),
             },
         )
 
@@ -682,6 +695,21 @@ class SpeciesMoveLearnset:
 
 
 @dataclass
+class SpeciesEvolution:
+    method: str
+    method_param: int
+    target_species_index: int
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "SpeciesEvolution":
+        return cls(
+            method=data["method"],
+            method_param=int(data["method_param"]),
+            target_species_index=int(data["target_species"]),
+        )
+
+
+@dataclass
 class Species:
     index: int
     national_dex_number: int
@@ -702,6 +730,9 @@ class Species:
     ev_yield: StatsValues
     learnset: SpeciesMoveLearnset
     localised_names: dict[str, str]
+    evolutions: list[SpeciesEvolution]
+    evolves_from: int | None
+    family: list[int]
 
     def has_type(self, type_to_find: Type) -> bool:
         return any(t.index == type_to_find.index for t in self.types)
@@ -744,6 +775,9 @@ class Species:
             ev_yield=StatsValues.from_dict(data["ev_yield"]),
             learnset=SpeciesMoveLearnset.from_dict(data["learnset"]),
             localised_names=data["localised_names"],
+            evolutions=[SpeciesEvolution.from_dict(evo_data) for evo_data in data["evolutions"]],
+            evolves_from=data["evolves_from"],
+            family=data["family"],
         )
 
 
