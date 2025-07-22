@@ -11,7 +11,9 @@ import {updatePhaseStats} from "./content/phase-stats.js";
 import {updatePCStorage, updateTotalStats} from "./content/total-stats.js";
 import {
     addInfoBubble,
-    hideFishingInfoBubble, hideInfoBubble, resetCustomInfoBubbles,
+    hideFishingInfoBubble,
+    hideInfoBubble,
+    resetCustomInfoBubbles,
     updateEncounterInfoBubble,
     updateFishingInfoBubble,
     updateInfoBubbles,
@@ -40,6 +42,10 @@ let wasShinyEncounter = false;
 async function doFullUpdate(state) {
     const customState = await loadAllData(state);
 
+    if (customState["daycare_mode"]) {
+        state.daycareMode = true;
+    }
+
     if (customState["countdown_target"]) {
         state.countdownTarget = customState["countdown_target"];
     }
@@ -64,7 +70,7 @@ async function doFullUpdate(state) {
     isInMainMenu = state.gameState === "MAIN_MENU" || state.gameState === "TITLE_SCREEN";
 
     updateMapName(state.map);
-    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
     updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
     updateShinyLog(state.shinyLog);
     updateEncounterLog(state.encounterLog);
@@ -90,7 +96,7 @@ async function doUpdateAfterEncounter(state) {
 
         updateShinyLog(state.shinyLog);
         updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
-        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
         updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
         updatePhaseStats(state.stats);
         updateTotalStats(state.stats, state.encounterRate);
@@ -176,7 +182,7 @@ function handleBotMode(event, state) {
 
     if (previousModeWasDaycare !== newModeIsDaycare) {
         updateDaycareBox(event, state);
-        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
         updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
     }
 }
@@ -210,7 +216,7 @@ function handleWildEncounter(event, state) {
         wasShinyEncounter = true;
     }
 
-    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.encounterLog, state.additionalRouteSpecies, event.pokemon.species_name_for_stats);
+    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, event.pokemon.species_name_for_stats);
     updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
     updatePhaseStats(state.stats);
     updateTotalStats(state.stats, state.encounterRate);
@@ -241,7 +247,7 @@ function handleMapChange(event, state) {
  */
 function handleMapEncounters(event, state) {
     state.mapEncounters = event;
-    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
     updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
 }
 
@@ -251,7 +257,7 @@ function handleMapEncounters(event, state) {
  */
 function handlePlayerAvatar(event, state) {
     if (state.logPlayerAvatarChange(event)) {
-        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
         updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
     }
 }
@@ -323,6 +329,22 @@ function handleCustomEvent(event, state) {
         case "set_countdown":
             state.countdownTarget = event.timestamp;
             updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, state.lastEncounterType, state.party, state.countdownTarget);
+            break;
+
+        case "enable_daycare_mode":
+        case "disable_daycare_mode":
+            state.daycareMode = event["action"] === "enable_daycare_mode";
+            if (state.daycareMode) {
+                fetchers.daycare().then(data => {
+                    state.daycare = data;
+                    updateDaycareBox(state.emulator.bot_mode, state);
+                    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+                });
+            } else {
+                updateDaycareBox(state.emulator.bot_mode, state);
+                updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+                updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
+            }
             break;
 
         case "confetti":

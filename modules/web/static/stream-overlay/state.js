@@ -108,6 +108,9 @@ export default class OverlayState {
         step_counter: 0,
     };
 
+    /** @type {boolean} */
+    daycareMode = false;
+
     /** @type {number | null} */
     countdownTarget = config.countdownTarget ?? null;
 

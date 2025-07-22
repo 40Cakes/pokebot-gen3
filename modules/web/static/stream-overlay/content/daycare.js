@@ -17,7 +17,7 @@ let daycareUpdateTimer = null;
  * @param {OverlayState} state
  */
 const updateDaycareBox = (botMode, state) => {
-    const isInDaycareMode = botMode.toLowerCase().includes("daycare");
+    const isInDaycareMode = state.daycareMode || botMode.toLowerCase().includes("daycare");
 
     if (isInDaycareMode && !daycareBoxIsVisible) {
         daycareInfoBox.style.display = "block";

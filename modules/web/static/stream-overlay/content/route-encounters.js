@@ -27,16 +27,17 @@ const updateMapName = map => {
  * @param {EncounterType} encounterType
  * @param {StreamOverlay.SectionChecklist} checklistConfig
  * @param {string} botMode
+ * @param {boolean} daycareMode
  * @param {Encounter[]} [encounterLog]
  * @param {Set<string>} [additionalRouteSpecies]
  * @param {string} [animateSpecies]
  */
-const updateRouteEncountersList = (encounters, stats, encounterType, checklistConfig, botMode, encounterLog = [], additionalRouteSpecies = null, animateSpecies = null) => {
+const updateRouteEncountersList = (encounters, stats, encounterType, checklistConfig, botMode, daycareMode, encounterLog = [], additionalRouteSpecies = null, animateSpecies = null) => {
     /** @type {MapEncounter[]} encounterList */
     let encounterList;
     /** @type {MapEncounter[]} regularEncounterList */
     let regularEncounterList;
-    if (botMode.toLowerCase().includes("daycare") || botMode.toLowerCase().includes("kecleon")) {
+    if (daycareMode || botMode.toLowerCase().includes("daycare") || botMode.toLowerCase().includes("kecleon")) {
         encounterList = [];
         regularEncounterList = [];
     } else if (encounterType === "surfing") {

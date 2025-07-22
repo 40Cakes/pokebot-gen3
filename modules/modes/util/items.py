@@ -127,6 +127,9 @@ def apply_repel() -> Generator:
 
     If the player does not have any Repel items, it raises a `RanOutOfRepels` error.
     """
+    if get_event_var("REPEL_STEP_COUNT") > 0:
+        return
+
     item_bag = get_item_bag()
     repel_item = get_item_by_name("Max Repel")
     repel_slot = item_bag.first_slot_index_for(repel_item)
