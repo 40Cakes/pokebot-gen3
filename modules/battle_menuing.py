@@ -29,14 +29,14 @@ def _select_in_menu(cursor_symbol: str, target_index: int, use_third_byte: bool 
                 yield
             break
         else:
-            if current_index > 1 and target_index <= 1:
-                context.emulator.press_button("Up")
-            elif current_index <= 1 and target_index > 1:
-                context.emulator.press_button("Down")
-            elif current_index in (1, 3):
+            if current_index in (1, 3) and target_index in (0, 2):
                 context.emulator.press_button("Left")
-            else:
+            elif current_index in (0, 2) and target_index in (1, 3):
                 context.emulator.press_button("Right")
+            elif current_index > 1 and target_index <= 1:
+                context.emulator.press_button("Up")
+            else:
+                context.emulator.press_button("Down")
         yield
         yield
         first_iteration = False
