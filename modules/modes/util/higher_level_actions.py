@@ -556,7 +556,8 @@ def talk_to_npc(local_object_id: int):
 
 @debug.track
 def mount_bicycle():
-    if get_player_avatar().is_on_bike:
+    avatar = get_player_avatar()
+    if avatar.is_on_bike or avatar.is_in_water:
         return
 
     registered_item = get_player().registered_item
@@ -577,7 +578,8 @@ def mount_bicycle():
 
 @debug.track
 def unmount_bicycle():
-    if not get_player_avatar().is_on_bike:
+    avatar = get_player_avatar()
+    if not avatar.is_on_bike or avatar.is_in_water:
         return
 
     registered_item = get_player().registered_item
