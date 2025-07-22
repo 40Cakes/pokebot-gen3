@@ -61,7 +61,12 @@
             "I": "??????????",
             "J": "\uff1f\uff1f\uff1f\uff1f\uff1f",
             "S": "??????????"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            0
+        ]
     },
     {
         "name": "Bulbasaur",
@@ -169,7 +174,20 @@
             "I": "BULBASAUR",
             "J": "\u30d5\u30b7\u30ae\u30c0\u30cd",
             "S": "BULBASAUR"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 16,
+                "target_species": 2
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            1,
+            2,
+            3
+        ]
     },
     {
         "name": "Ivysaur",
@@ -268,7 +286,20 @@
             "I": "IVYSAUR",
             "J": "\u30d5\u30b7\u30ae\u30bd\u30a6",
             "S": "IVYSAUR"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 32,
+                "target_species": 3
+            }
+        ],
+        "evolves_from": 1,
+        "family": [
+            1,
+            2,
+            3
+        ]
     },
     {
         "name": "Venusaur",
@@ -370,7 +401,14 @@
             "I": "VENUSAUR",
             "J": "\u30d5\u30b7\u30ae\u30d0\u30ca",
             "S": "VENUSAUR"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 2,
+        "family": [
+            1,
+            2,
+            3
+        ]
     },
     {
         "name": "Charmander",
@@ -488,7 +526,20 @@
             "I": "CHARMANDER",
             "J": "\u30d2\u30c8\u30ab\u30b2",
             "S": "CHARMANDER"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 16,
+                "target_species": 5
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            4,
+            5,
+            6
+        ]
     },
     {
         "name": "Charmeleon",
@@ -597,7 +648,20 @@
             "I": "CHARMELEON",
             "J": "\u30ea\u30b6\u30fc\u30c9",
             "S": "CHARMELEON"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 36,
+                "target_species": 6
+            }
+        ],
+        "evolves_from": 4,
+        "family": [
+            4,
+            5,
+            6
+        ]
     },
     {
         "name": "Charizard",
@@ -713,7 +777,14 @@
             "I": "CHARIZARD",
             "J": "\u30ea\u30b6\u30fc\u30c9\u30f3",
             "S": "CHARIZARD"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 5,
+        "family": [
+            4,
+            5,
+            6
+        ]
     },
     {
         "name": "Squirtle",
@@ -831,7 +902,20 @@
             "I": "SQUIRTLE",
             "J": "\u30bc\u30cb\u30ac\u30e1",
             "S": "SQUIRTLE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 16,
+                "target_species": 8
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            8,
+            9,
+            7
+        ]
     },
     {
         "name": "Wartortle",
@@ -940,7 +1024,20 @@
             "I": "WARTORTLE",
             "J": "\u30ab\u30e1\u30fc\u30eb",
             "S": "WARTORTLE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 36,
+                "target_species": 9
+            }
+        ],
+        "evolves_from": 7,
+        "family": [
+            8,
+            9,
+            7
+        ]
     },
     {
         "name": "Blastoise",
@@ -1052,7 +1149,14 @@
             "I": "BLASTOISE",
             "J": "\u30ab\u30e1\u30c3\u30af\u30b9",
             "S": "BLASTOISE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 8,
+        "family": [
+            8,
+            9,
+            7
+        ]
     },
     {
         "name": "Caterpie",
@@ -1107,7 +1211,20 @@
             "I": "CATERPIE",
             "J": "\u30ad\u30e3\u30bf\u30d4\u30fc",
             "S": "CATERPIE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 7,
+                "target_species": 11
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            10,
+            11,
+            12
+        ]
     },
     {
         "name": "Metapod",
@@ -1161,7 +1278,20 @@
             "I": "METAPOD",
             "J": "\u30c8\u30e9\u30f3\u30bb\u30eb",
             "S": "METAPOD"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 10,
+                "target_species": 12
+            }
+        ],
+        "evolves_from": 10,
+        "family": [
+            10,
+            11,
+            12
+        ]
     },
     {
         "name": "Butterfree",
@@ -1263,7 +1393,14 @@
             "I": "BUTTERFREE",
             "J": "\u30d0\u30bf\u30d5\u30ea\u30fc",
             "S": "BUTTERFREE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 11,
+        "family": [
+            10,
+            11,
+            12
+        ]
     },
     {
         "name": "Weedle",
@@ -1319,7 +1456,20 @@
             "I": "WEEDLE",
             "J": "\u30d3\u30fc\u30c9\u30eb",
             "S": "WEEDLE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 7,
+                "target_species": 14
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            13,
+            14,
+            15
+        ]
     },
     {
         "name": "Kakuna",
@@ -1374,7 +1524,20 @@
             "I": "KAKUNA",
             "J": "\u30b3\u30af\u30fc\u30f3",
             "S": "KAKUNA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 10,
+                "target_species": 15
+            }
+        ],
+        "evolves_from": 13,
+        "family": [
+            13,
+            14,
+            15
+        ]
     },
     {
         "name": "Beedrill",
@@ -1473,7 +1636,14 @@
             "I": "BEEDRILL",
             "J": "\u30b9\u30d4\u30a2\u30fc",
             "S": "BEEDRILL"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 14,
+        "family": [
+            13,
+            14,
+            15
+        ]
     },
     {
         "name": "Pidgey",
@@ -1569,7 +1739,20 @@
             "I": "PIDGEY",
             "J": "\u30dd\u30c3\u30dd",
             "S": "PIDGEY"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 18,
+                "target_species": 17
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            16,
+            17,
+            18
+        ]
     },
     {
         "name": "Pidgeotto",
@@ -1659,7 +1842,20 @@
             "I": "PIDGEOTTO",
             "J": "\u30d4\u30b8\u30e7\u30f3",
             "S": "PIDGEOTTO"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 36,
+                "target_species": 18
+            }
+        ],
+        "evolves_from": 16,
+        "family": [
+            16,
+            17,
+            18
+        ]
     },
     {
         "name": "Pidgeot",
@@ -1750,7 +1946,14 @@
             "I": "PIDGEOT",
             "J": "\u30d4\u30b8\u30e7\u30c3\u30c8",
             "S": "PIDGEOT"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 17,
+        "family": [
+            16,
+            17,
+            18
+        ]
     },
     {
         "name": "Rattata",
@@ -1861,7 +2064,19 @@
             "I": "RATTATA",
             "J": "\u30b3\u30e9\u30c3\u30bf",
             "S": "RATTATA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 20,
+                "target_species": 20
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            19,
+            20
+        ]
     },
     {
         "name": "Raticate",
@@ -1966,7 +2181,13 @@
             "I": "RATICATE",
             "J": "\u30e9\u30c3\u30bf",
             "S": "RATICATE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 19,
+        "family": [
+            19,
+            20
+        ]
     },
     {
         "name": "Spearow",
@@ -2064,7 +2285,19 @@
             "I": "SPEAROW",
             "J": "\u30aa\u30cb\u30b9\u30ba\u30e1",
             "S": "SPEAROW"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 20,
+                "target_species": 22
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            21,
+            22
+        ]
     },
     {
         "name": "Fearow",
@@ -2159,7 +2392,13 @@
             "I": "FEAROW",
             "J": "\u30aa\u30cb\u30c9\u30ea\u30eb",
             "S": "FEAROW"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 21,
+        "family": [
+            21,
+            22
+        ]
     },
     {
         "name": "Ekans",
@@ -2263,7 +2502,19 @@
             "I": "EKANS",
             "J": "\u30a2\u30fc\u30dc",
             "S": "EKANS"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 22,
+                "target_species": 24
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            24,
+            23
+        ]
     },
     {
         "name": "Arbok",
@@ -2362,7 +2613,13 @@
             "I": "ARBOK",
             "J": "\u30a2\u30fc\u30dc\u30c3\u30af",
             "S": "ARBOK"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 23,
+        "family": [
+            24,
+            23
+        ]
     },
     {
         "name": "Pikachu",
@@ -2479,7 +2736,20 @@
             "I": "PIKACHU",
             "J": "\u30d4\u30ab\u30c1\u30e5\u30a6",
             "S": "PIKACHU"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 96,
+                "target_species": 26
+            }
+        ],
+        "evolves_from": 172,
+        "family": [
+            25,
+            26,
+            172
+        ]
     },
     {
         "name": "Raichu",
@@ -2587,7 +2857,14 @@
             "I": "RAICHU",
             "J": "\u30e9\u30a4\u30c1\u30e5\u30a6",
             "S": "RAICHU"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 25,
+        "family": [
+            25,
+            26,
+            172
+        ]
     },
     {
         "name": "Sandshrew",
@@ -2706,7 +2983,19 @@
             "I": "SANDSHREW",
             "J": "\u30b5\u30f3\u30c9",
             "S": "SANDSHREW"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 22,
+                "target_species": 28
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            27,
+            28
+        ]
     },
     {
         "name": "Sandslash",
@@ -2817,7 +3106,13 @@
             "I": "SANDSLASH",
             "J": "\u30b5\u30f3\u30c9\u30d1\u30f3",
             "S": "SANDSLASH"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 27,
+        "family": [
+            27,
+            28
+        ]
     },
     {
         "name": "Nidoran\u2640",
@@ -2928,7 +3223,20 @@
             "I": "NIDORAN\u2640",
             "J": "\u30cb\u30c9\u30e9\u30f3\u2640",
             "S": "NIDORAN\u2640"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 16,
+                "target_species": 30
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            29,
+            30,
+            31
+        ]
     },
     {
         "name": "Nidorina",
@@ -3030,7 +3338,20 @@
             "I": "NIDORINA",
             "J": "\u30cb\u30c9\u30ea\u30fc\u30ca",
             "S": "NIDORINA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 94,
+                "target_species": 31
+            }
+        ],
+        "evolves_from": 29,
+        "family": [
+            29,
+            30,
+            31
+        ]
     },
     {
         "name": "Nidoqueen",
@@ -3151,7 +3472,14 @@
             "I": "NIDOQUEEN",
             "J": "\u30cb\u30c9\u30af\u30a4\u30f3",
             "S": "NIDOQUEEN"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 30,
+        "family": [
+            29,
+            30,
+            31
+        ]
     },
     {
         "name": "Nidoran\u2642",
@@ -3261,7 +3589,20 @@
             "I": "NIDORAN\u2642",
             "J": "\u30cb\u30c9\u30e9\u30f3\u2642",
             "S": "NIDORAN\u2642"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 16,
+                "target_species": 33
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            32,
+            33,
+            34
+        ]
     },
     {
         "name": "Nidorino",
@@ -3363,7 +3704,20 @@
             "I": "NIDORINO",
             "J": "\u30cb\u30c9\u30ea\u30fc\u30ce",
             "S": "NIDORINO"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 94,
+                "target_species": 34
+            }
+        ],
+        "evolves_from": 32,
+        "family": [
+            32,
+            33,
+            34
+        ]
     },
     {
         "name": "Nidoking",
@@ -3484,7 +3838,14 @@
             "I": "NIDOKING",
             "J": "\u30cb\u30c9\u30ad\u30f3\u30b0",
             "S": "NIDOKING"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 33,
+        "family": [
+            32,
+            33,
+            34
+        ]
     },
     {
         "name": "Clefairy",
@@ -3619,7 +3980,20 @@
             "I": "CLEFAIRY",
             "J": "\u30d4\u30c3\u30d4",
             "S": "CLEFAIRY"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 94,
+                "target_species": 36
+            }
+        ],
+        "evolves_from": 173,
+        "family": [
+            35,
+            36,
+            173
+        ]
     },
     {
         "name": "Clefable",
@@ -3746,7 +4120,14 @@
             "I": "CLEFABLE",
             "J": "\u30d4\u30af\u30b7\u30fc",
             "S": "CLEFABLE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 35,
+        "family": [
+            35,
+            36,
+            173
+        ]
     },
     {
         "name": "Vulpix",
@@ -3853,7 +4234,19 @@
             "I": "VULPIX",
             "J": "\u30ed\u30b3\u30f3",
             "S": "VULPIX"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 95,
+                "target_species": 38
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            37,
+            38
+        ]
     },
     {
         "name": "Ninetales",
@@ -3946,7 +4339,13 @@
             "I": "NINETALES",
             "J": "\u30ad\u30e5\u30a6\u30b3\u30f3",
             "S": "NINETALES"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 37,
+        "family": [
+            37,
+            38
+        ]
     },
     {
         "name": "Jigglypuff",
@@ -4066,7 +4465,20 @@
             "I": "JIGGLYPUFF",
             "J": "\u30d7\u30ea\u30f3",
             "S": "JIGGLYPUFF"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 94,
+                "target_species": 40
+            }
+        ],
+        "evolves_from": 174,
+        "family": [
+            40,
+            174,
+            39
+        ]
     },
     {
         "name": "Wigglytuff",
@@ -4180,7 +4592,14 @@
             "I": "WIGGLYTUFF",
             "J": "\u30d7\u30af\u30ea\u30f3",
             "S": "WIGGLYTUFF"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 39,
+        "family": [
+            40,
+            174,
+            39
+        ]
     },
     {
         "name": "Zubat",
@@ -4282,7 +4701,20 @@
             "I": "ZUBAT",
             "J": "\u30ba\u30d0\u30c3\u30c8",
             "S": "ZUBAT"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 22,
+                "target_species": 42
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            41,
+            42,
+            169
+        ]
     },
     {
         "name": "Golbat",
@@ -4379,7 +4811,20 @@
             "I": "GOLBAT",
             "J": "\u30b4\u30eb\u30d0\u30c3\u30c8",
             "S": "GOLBAT"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level_with_friendship",
+                "method_param": 0,
+                "target_species": 169
+            }
+        ],
+        "evolves_from": 41,
+        "family": [
+            41,
+            42,
+            169
+        ]
     },
     {
         "name": "Oddish",
@@ -4475,7 +4920,21 @@
             "I": "ODDISH",
             "J": "\u30ca\u30be\u30ce\u30af\u30b5",
             "S": "ODDISH"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 21,
+                "target_species": 44
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            43,
+            44,
+            45,
+            182
+        ]
     },
     {
         "name": "Gloom",
@@ -4564,7 +5023,26 @@
             "I": "GLOOM",
             "J": "\u30af\u30b5\u30a4\u30cf\u30ca",
             "S": "GLOOM"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 98,
+                "target_species": 45
+            },
+            {
+                "method": "item",
+                "method_param": 93,
+                "target_species": 182
+            }
+        ],
+        "evolves_from": 43,
+        "family": [
+            43,
+            44,
+            45,
+            182
+        ]
     },
     {
         "name": "Vileplume",
@@ -4652,7 +5130,14 @@
             "I": "VILEPLUME",
             "J": "\u30e9\u30d5\u30ec\u30b7\u30a2",
             "S": "VILEPLUME"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 44,
+        "family": [
+            43,
+            44,
+            45
+        ]
     },
     {
         "name": "Paras",
@@ -4768,7 +5253,19 @@
             "I": "PARAS",
             "J": "\u30d1\u30e9\u30b9",
             "S": "PARAS"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 24,
+                "target_species": 47
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            46,
+            47
+        ]
     },
     {
         "name": "Parasect",
@@ -4876,7 +5373,13 @@
             "I": "PARASECT",
             "J": "\u30d1\u30e9\u30bb\u30af\u30c8",
             "S": "PARASECT"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 46,
+        "family": [
+            46,
+            47
+        ]
     },
     {
         "name": "Venonat",
@@ -4974,7 +5477,19 @@
             "I": "VENONAT",
             "J": "\u30b3\u30f3\u30d1\u30f3",
             "S": "VENONAT"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 31,
+                "target_species": 49
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            48,
+            49
+        ]
     },
     {
         "name": "Venomoth",
@@ -5071,7 +5586,13 @@
             "I": "VENOMOTH",
             "J": "\u30e2\u30eb\u30d5\u30a9\u30f3",
             "S": "VENOMOTH"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 48,
+        "family": [
+            48,
+            49
+        ]
     },
     {
         "name": "Diglett",
@@ -5173,7 +5694,19 @@
             "I": "DIGLETT",
             "J": "\u30c7\u30a3\u30b0\u30c0",
             "S": "DIGLETT"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 26,
+                "target_species": 51
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            50,
+            51
+        ]
     },
     {
         "name": "Dugtrio",
@@ -5270,7 +5803,13 @@
             "I": "DUGTRIO",
             "J": "\u30c0\u30b0\u30c8\u30ea\u30aa",
             "S": "DUGTRIO"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 50,
+        "family": [
+            50,
+            51
+        ]
     },
     {
         "name": "Meowth",
@@ -5381,7 +5920,19 @@
             "I": "MEOWTH",
             "J": "\u30cb\u30e3\u30fc\u30b9",
             "S": "MEOWTH"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 28,
+                "target_species": 53
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            52,
+            53
+        ]
     },
     {
         "name": "Persian",
@@ -5487,7 +6038,13 @@
             "I": "PERSIAN",
             "J": "\u30da\u30eb\u30b7\u30a2\u30f3",
             "S": "PERSIAN"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 52,
+        "family": [
+            52,
+            53
+        ]
     },
     {
         "name": "Psyduck",
@@ -5607,7 +6164,19 @@
             "I": "PSYDUCK",
             "J": "\u30b3\u30c0\u30c3\u30af",
             "S": "PSYDUCK"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 33,
+                "target_species": 55
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            54,
+            55
+        ]
     },
     {
         "name": "Golduck",
@@ -5720,7 +6289,13 @@
             "I": "GOLDUCK",
             "J": "\u30b4\u30eb\u30c0\u30c3\u30af",
             "S": "GOLDUCK"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 54,
+        "family": [
+            54,
+            55
+        ]
     },
     {
         "name": "Mankey",
@@ -5843,7 +6418,19 @@
             "I": "MANKEY",
             "J": "\u30de\u30f3\u30ad\u30fc",
             "S": "MANKEY"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 28,
+                "target_species": 57
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            56,
+            57
+        ]
     },
     {
         "name": "Primeape",
@@ -5959,7 +6546,13 @@
             "I": "PRIMEAPE",
             "J": "\u30aa\u30b3\u30ea\u30b6\u30eb",
             "S": "PRIMEAPE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 56,
+        "family": [
+            56,
+            57
+        ]
     },
     {
         "name": "Growlithe",
@@ -6068,7 +6661,19 @@
             "I": "GROWLITHE",
             "J": "\u30ac\u30fc\u30c7\u30a3",
             "S": "GROWLITHE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 95,
+                "target_species": 59
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            58,
+            59
+        ]
     },
     {
         "name": "Arcanine",
@@ -6165,7 +6770,13 @@
             "I": "ARCANINE",
             "J": "\u30a6\u30a4\u30f3\u30c7\u30a3",
             "S": "ARCANINE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 58,
+        "family": [
+            58,
+            59
+        ]
     },
     {
         "name": "Poliwag",
@@ -6268,7 +6879,21 @@
             "I": "POLIWAG",
             "J": "\u30cb\u30e7\u30ed\u30e2",
             "S": "POLIWAG"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 25,
+                "target_species": 61
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            186,
+            60,
+            61,
+            62
+        ]
     },
     {
         "name": "Poliwhirl",
@@ -6380,7 +7005,26 @@
             "I": "POLIWHIRL",
             "J": "\u30cb\u30e7\u30ed\u30be",
             "S": "POLIWHIRL"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 97,
+                "target_species": 62
+            },
+            {
+                "method": "trade_with_item",
+                "method_param": 187,
+                "target_species": 186
+            }
+        ],
+        "evolves_from": 60,
+        "family": [
+            186,
+            60,
+            61,
+            62
+        ]
     },
     {
         "name": "Poliwrath",
@@ -6494,7 +7138,14 @@
             "I": "POLIWRATH",
             "J": "\u30cb\u30e7\u30ed\u30dc\u30f3",
             "S": "POLIWRATH"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 61,
+        "family": [
+            60,
+            61,
+            62
+        ]
     },
     {
         "name": "Abra",
@@ -6610,7 +7261,20 @@
             "I": "ABRA",
             "J": "\u30b1\u30fc\u30b7\u30a3",
             "S": "ABRA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 16,
+                "target_species": 64
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            64,
+            65,
+            63
+        ]
     },
     {
         "name": "Kadabra",
@@ -6729,7 +7393,20 @@
             "I": "KADABRA",
             "J": "\u30e6\u30f3\u30b2\u30e9\u30fc",
             "S": "KADABRA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "trade",
+                "method_param": 0,
+                "target_species": 65
+            }
+        ],
+        "evolves_from": 63,
+        "family": [
+            64,
+            65,
+            63
+        ]
     },
     {
         "name": "Alakazam",
@@ -6849,7 +7526,14 @@
             "I": "ALAKAZAM",
             "J": "\u30d5\u30fc\u30c7\u30a3\u30f3",
             "S": "ALAKAZAM"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 64,
+        "family": [
+            64,
+            65,
+            63
+        ]
     },
     {
         "name": "Machop",
@@ -6966,7 +7650,20 @@
             "I": "MACHOP",
             "J": "\u30ef\u30f3\u30ea\u30ad\u30fc",
             "S": "MACHOP"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 28,
+                "target_species": 67
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            66,
+            67,
+            68
+        ]
     },
     {
         "name": "Machoke",
@@ -7075,7 +7772,20 @@
             "I": "MACHOKE",
             "J": "\u30b4\u30fc\u30ea\u30ad\u30fc",
             "S": "MACHOKE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "trade",
+                "method_param": 0,
+                "target_species": 68
+            }
+        ],
+        "evolves_from": 66,
+        "family": [
+            66,
+            67,
+            68
+        ]
     },
     {
         "name": "Machamp",
@@ -7185,7 +7895,14 @@
             "I": "MACHAMP",
             "J": "\u30ab\u30a4\u30ea\u30ad\u30fc",
             "S": "MACHAMP"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 67,
+        "family": [
+            66,
+            67,
+            68
+        ]
     },
     {
         "name": "Bellsprout",
@@ -7285,7 +8002,20 @@
             "I": "BELLSPROUT",
             "J": "\u30de\u30c0\u30c4\u30dc\u30df",
             "S": "BELLSPROUT"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 21,
+                "target_species": 70
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            69,
+            70,
+            71
+        ]
     },
     {
         "name": "Weepinbell",
@@ -7377,7 +8107,20 @@
             "I": "WEEPINBELL",
             "J": "\u30a6\u30c4\u30c9\u30f3",
             "S": "WEEPINBELL"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 98,
+                "target_species": 71
+            }
+        ],
+        "evolves_from": 69,
+        "family": [
+            69,
+            70,
+            71
+        ]
     },
     {
         "name": "Victreebel",
@@ -7465,7 +8208,14 @@
             "I": "VICTREEBEL",
             "J": "\u30a6\u30c4\u30dc\u30c3\u30c8",
             "S": "VICTREEBEL"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 70,
+        "family": [
+            69,
+            70,
+            71
+        ]
     },
     {
         "name": "Tentacool",
@@ -7569,7 +8319,19 @@
             "I": "TENTACOOL",
             "J": "\u30e1\u30ce\u30af\u30e9\u30b2",
             "S": "TENTACOOL"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 73
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            72,
+            73
+        ]
     },
     {
         "name": "Tentacruel",
@@ -7667,7 +8429,13 @@
             "I": "TENTACRUEL",
             "J": "\u30c9\u30af\u30af\u30e9\u30b2",
             "S": "TENTACRUEL"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 72,
+        "family": [
+            72,
+            73
+        ]
     },
     {
         "name": "Geodude",
@@ -7784,7 +8552,20 @@
             "I": "GEODUDE",
             "J": "\u30a4\u30b7\u30c4\u30d6\u30c6",
             "S": "GEODUDE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 25,
+                "target_species": 75
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            74,
+            75,
+            76
+        ]
     },
     {
         "name": "Graveler",
@@ -7897,7 +8678,20 @@
             "I": "GRAVELER",
             "J": "\u30b4\u30ed\u30fc\u30f3",
             "S": "GRAVELER"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "trade",
+                "method_param": 0,
+                "target_species": 76
+            }
+        ],
+        "evolves_from": 74,
+        "family": [
+            74,
+            75,
+            76
+        ]
     },
     {
         "name": "Golem",
@@ -8014,7 +8808,14 @@
             "I": "GOLEM",
             "J": "\u30b4\u30ed\u30fc\u30cb\u30e3",
             "S": "GOLEM"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 75,
+        "family": [
+            74,
+            75,
+            76
+        ]
     },
     {
         "name": "Ponyta",
@@ -8113,7 +8914,19 @@
             "I": "PONYTA",
             "J": "\u30dd\u30cb\u30fc\u30bf",
             "S": "PONYTA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 40,
+                "target_species": 78
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            77,
+            78
+        ]
     },
     {
         "name": "Rapidash",
@@ -8207,7 +9020,13 @@
             "I": "RAPIDASH",
             "J": "\u30ae\u30e3\u30ed\u30c3\u30d7",
             "S": "RAPIDASH"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 77,
+        "family": [
+            77,
+            78
+        ]
     },
     {
         "name": "Slowpoke",
@@ -8332,7 +9151,25 @@
             "I": "SLOWPOKE",
             "J": "\u30e4\u30c9\u30f3",
             "S": "SLOWPOKE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 37,
+                "target_species": 80
+            },
+            {
+                "method": "trade_with_item",
+                "method_param": 187,
+                "target_species": 199
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            80,
+            199,
+            79
+        ]
     },
     {
         "name": "Slowbro",
@@ -8461,7 +9298,13 @@
             "I": "SLOWBRO",
             "J": "\u30e4\u30c9\u30e9\u30f3",
             "S": "SLOWBRO"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 79,
+        "family": [
+            80,
+            79
+        ]
     },
     {
         "name": "Magnemite",
@@ -8560,7 +9403,19 @@
             "I": "MAGNEMITE",
             "J": "\u30b3\u30a4\u30eb",
             "S": "MAGNEMITE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 82
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            81,
+            82
+        ]
     },
     {
         "name": "Magneton",
@@ -8660,7 +9515,13 @@
             "I": "MAGNETON",
             "J": "\u30ec\u30a2\u30b3\u30a4\u30eb",
             "S": "MAGNETON"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 81,
+        "family": [
+            81,
+            82
+        ]
     },
     {
         "name": "Farfetch\u2019d",
@@ -8771,7 +9632,12 @@
             "I": "FARFETCH\u2019D",
             "J": "\u30ab\u30e2\u30cd\u30ae",
             "S": "FARFETCH\u2019D"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            83
+        ]
     },
     {
         "name": "Doduo",
@@ -8874,7 +9740,19 @@
             "I": "DODUO",
             "J": "\u30c9\u30fc\u30c9\u30fc",
             "S": "DODUO"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 31,
+                "target_species": 85
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            84,
+            85
+        ]
     },
     {
         "name": "Dodrio",
@@ -8973,7 +9851,13 @@
             "I": "DODRIO",
             "J": "\u30c9\u30fc\u30c9\u30ea\u30aa",
             "S": "DODRIO"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 84,
+        "family": [
+            84,
+            85
+        ]
     },
     {
         "name": "Seel",
@@ -9075,7 +9959,19 @@
             "I": "SEEL",
             "J": "\u30d1\u30a6\u30ef\u30a6",
             "S": "SEEL"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 34,
+                "target_species": 87
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            86,
+            87
+        ]
     },
     {
         "name": "Dewgong",
@@ -9171,7 +10067,13 @@
             "I": "DEWGONG",
             "J": "\u30b8\u30e5\u30b4\u30f3",
             "S": "DEWGONG"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 86,
+        "family": [
+            86,
+            87
+        ]
     },
     {
         "name": "Grimer",
@@ -9287,7 +10189,19 @@
             "I": "GRIMER",
             "J": "\u30d9\u30c8\u30d9\u30bf\u30fc",
             "S": "GRIMER"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 38,
+                "target_species": 89
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            88,
+            89
+        ]
     },
     {
         "name": "Muk",
@@ -9400,7 +10314,13 @@
             "I": "MUK",
             "J": "\u30d9\u30c8\u30d9\u30c8\u30f3",
             "S": "MUK"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 88,
+        "family": [
+            88,
+            89
+        ]
     },
     {
         "name": "Shellder",
@@ -9506,7 +10426,19 @@
             "I": "SHELLDER",
             "J": "\u30b7\u30a7\u30eb\u30c0\u30fc",
             "S": "SHELLDER"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 97,
+                "target_species": 91
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            90,
+            91
+        ]
     },
     {
         "name": "Cloyster",
@@ -9606,7 +10538,13 @@
             "I": "CLOYSTER",
             "J": "\u30d1\u30eb\u30b7\u30a7\u30f3",
             "S": "CLOYSTER"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 90,
+        "family": [
+            90,
+            91
+        ]
     },
     {
         "name": "Gastly",
@@ -9710,7 +10648,20 @@
             "I": "GASTLY",
             "J": "\u30b4\u30fc\u30b9",
             "S": "GASTLY"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 25,
+                "target_species": 93
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            92,
+            93,
+            94
+        ]
     },
     {
         "name": "Haunter",
@@ -9807,7 +10758,20 @@
             "I": "HAUNTER",
             "J": "\u30b4\u30fc\u30b9\u30c8",
             "S": "HAUNTER"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "trade",
+                "method_param": 0,
+                "target_species": 94
+            }
+        ],
+        "evolves_from": 92,
+        "family": [
+            92,
+            93,
+            94
+        ]
     },
     {
         "name": "Gengar",
@@ -9921,7 +10885,14 @@
             "I": "GENGAR",
             "J": "\u30b2\u30f3\u30ac\u30fc",
             "S": "GENGAR"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 93,
+        "family": [
+            92,
+            93,
+            94
+        ]
     },
     {
         "name": "Onix",
@@ -10027,7 +10998,19 @@
             "I": "ONIX",
             "J": "\u30a4\u30ef\u30fc\u30af",
             "S": "ONIX"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "trade_with_item",
+                "method_param": 199,
+                "target_species": 208
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            208,
+            95
+        ]
     },
     {
         "name": "Drowzee",
@@ -10145,7 +11128,19 @@
             "I": "DROWZEE",
             "J": "\u30b9\u30ea\u30fc\u30d7",
             "S": "DROWZEE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 26,
+                "target_species": 97
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            96,
+            97
+        ]
     },
     {
         "name": "Hypno",
@@ -10257,7 +11252,13 @@
             "I": "HYPNO",
             "J": "\u30b9\u30ea\u30fc\u30d1\u30fc",
             "S": "HYPNO"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 96,
+        "family": [
+            96,
+            97
+        ]
     },
     {
         "name": "Krabby",
@@ -10365,7 +11366,19 @@
             "I": "KRABBY",
             "J": "\u30af\u30e9\u30d6",
             "S": "KRABBY"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 28,
+                "target_species": 99
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            98,
+            99
+        ]
     },
     {
         "name": "Kingler",
@@ -10466,7 +11479,13 @@
             "I": "KINGLER",
             "J": "\u30ad\u30f3\u30b0\u30e9\u30fc",
             "S": "KINGLER"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 98,
+        "family": [
+            98,
+            99
+        ]
     },
     {
         "name": "Voltorb",
@@ -10561,7 +11580,19 @@
             "I": "VOLTORB",
             "J": "\u30d3\u30ea\u30ea\u30c0\u30de",
             "S": "VOLTORB"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 101
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            100,
+            101
+        ]
     },
     {
         "name": "Electrode",
@@ -10657,7 +11688,13 @@
             "I": "ELECTRODE",
             "J": "\u30de\u30eb\u30de\u30a4\u30f3",
             "S": "ELECTRODE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 100,
+        "family": [
+            100,
+            101
+        ]
     },
     {
         "name": "Exeggcute",
@@ -10764,7 +11801,19 @@
             "I": "EXEGGCUTE",
             "J": "\u30bf\u30de\u30bf\u30de",
             "S": "EXEGGCUTE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 98,
+                "target_species": 103
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            102,
+            103
+        ]
     },
     {
         "name": "Exeggutor",
@@ -10859,7 +11908,13 @@
             "I": "EXEGGUTOR",
             "J": "\u30ca\u30c3\u30b7\u30fc",
             "S": "EXEGGUTOR"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 102,
+        "family": [
+            102,
+            103
+        ]
     },
     {
         "name": "Cubone",
@@ -10985,7 +12040,19 @@
             "I": "CUBONE",
             "J": "\u30ab\u30e9\u30ab\u30e9",
             "S": "CUBONE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 28,
+                "target_species": 105
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            104,
+            105
+        ]
     },
     {
         "name": "Marowak",
@@ -11104,7 +12171,13 @@
             "I": "MAROWAK",
             "J": "\u30ac\u30e9\u30ac\u30e9",
             "S": "MAROWAK"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 104,
+        "family": [
+            104,
+            105
+        ]
     },
     {
         "name": "Hitmonlee",
@@ -11209,7 +12282,13 @@
             "I": "HITMONLEE",
             "J": "\u30b5\u30ef\u30e0\u30e9\u30fc",
             "S": "HITMONLEE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 236,
+        "family": [
+            106,
+            236
+        ]
     },
     {
         "name": "Hitmonchan",
@@ -11316,7 +12395,13 @@
             "I": "HITMONCHAN",
             "J": "\u30a8\u30d3\u30ef\u30e9\u30fc",
             "S": "HITMONCHAN"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 236,
+        "family": [
+            107,
+            236
+        ]
     },
     {
         "name": "Lickitung",
@@ -11450,7 +12535,12 @@
             "I": "LICKITUNG",
             "J": "\u30d9\u30ed\u30ea\u30f3\u30ac",
             "S": "LICKITUNG"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            108
+        ]
     },
     {
         "name": "Koffing",
@@ -11558,7 +12648,19 @@
             "I": "KOFFING",
             "J": "\u30c9\u30ac\u30fc\u30b9",
             "S": "KOFFING"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 35,
+                "target_species": 110
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            109,
+            110
+        ]
     },
     {
         "name": "Weezing",
@@ -11660,7 +12762,13 @@
             "I": "WEEZING",
             "J": "\u30de\u30bf\u30c9\u30ac\u30b9",
             "S": "WEEZING"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 109,
+        "family": [
+            109,
+            110
+        ]
     },
     {
         "name": "Rhyhorn",
@@ -11779,7 +12887,19 @@
             "I": "RHYHORN",
             "J": "\u30b5\u30a4\u30db\u30fc\u30f3",
             "S": "RHYHORN"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 42,
+                "target_species": 112
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            112,
+            111
+        ]
     },
     {
         "name": "Rhydon",
@@ -11901,7 +13021,13 @@
             "I": "RHYDON",
             "J": "\u30b5\u30a4\u30c9\u30f3",
             "S": "RHYDON"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 111,
+        "family": [
+            112,
+            111
+        ]
     },
     {
         "name": "Chansey",
@@ -12041,7 +13167,19 @@
             "I": "CHANSEY",
             "J": "\u30e9\u30c3\u30ad\u30fc",
             "S": "CHANSEY"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level_with_friendship",
+                "method_param": 0,
+                "target_species": 242
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            113,
+            242
+        ]
     },
     {
         "name": "Tangela",
@@ -12146,7 +13284,12 @@
             "I": "TANGELA",
             "J": "\u30e2\u30f3\u30b8\u30e3\u30e9",
             "S": "TANGELA"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            114
+        ]
     },
     {
         "name": "Kangaskhan",
@@ -12278,7 +13421,12 @@
             "I": "KANGASKHAN",
             "J": "\u30ac\u30eb\u30fc\u30e9",
             "S": "KANGASKHAN"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            115
+        ]
     },
     {
         "name": "Horsea",
@@ -12382,7 +13530,20 @@
             "I": "HORSEA",
             "J": "\u30bf\u30c3\u30c4\u30fc",
             "S": "HORSEA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 32,
+                "target_species": 117
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            116,
+            117,
+            230
+        ]
     },
     {
         "name": "Seadra",
@@ -12479,7 +13640,20 @@
             "I": "SEADRA",
             "J": "\u30b7\u30fc\u30c9\u30e9",
             "S": "SEADRA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "trade_with_item",
+                "method_param": 201,
+                "target_species": 230
+            }
+        ],
+        "evolves_from": 116,
+        "family": [
+            116,
+            117,
+            230
+        ]
     },
     {
         "name": "Goldeen",
@@ -12578,7 +13752,19 @@
             "I": "GOLDEEN",
             "J": "\u30c8\u30b5\u30ad\u30f3\u30c8",
             "S": "GOLDEEN"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 33,
+                "target_species": 119
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            118,
+            119
+        ]
     },
     {
         "name": "Seaking",
@@ -12672,7 +13858,13 @@
             "I": "SEAKING",
             "J": "\u30a2\u30ba\u30de\u30aa\u30a6",
             "S": "SEAKING"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 118,
+        "family": [
+            118,
+            119
+        ]
     },
     {
         "name": "Staryu",
@@ -12783,7 +13975,19 @@
             "I": "STARYU",
             "J": "\u30d2\u30c8\u30c7\u30de\u30f3",
             "S": "STARYU"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 97,
+                "target_species": 121
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            120,
+            121
+        ]
     },
     {
         "name": "Starmie",
@@ -12891,7 +14095,13 @@
             "I": "STARMIE",
             "J": "\u30b9\u30bf\u30fc\u30df\u30fc",
             "S": "STARMIE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 120,
+        "family": [
+            120,
+            121
+        ]
     },
     {
         "name": "Mr. Mime",
@@ -13024,7 +14234,12 @@
             "I": "MR. MIME",
             "J": "\u30d0\u30ea\u30e4\u30fc\u30c9",
             "S": "MR. MIME"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            122
+        ]
     },
     {
         "name": "Scyther",
@@ -13129,7 +14344,19 @@
             "I": "SCYTHER",
             "J": "\u30b9\u30c8\u30e9\u30a4\u30af",
             "S": "SCYTHER"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "trade_with_item",
+                "method_param": 199,
+                "target_species": 212
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            123,
+            212
+        ]
     },
     {
         "name": "Jynx",
@@ -13248,7 +14475,13 @@
             "I": "JYNX",
             "J": "\u30eb\u30fc\u30b8\u30e5\u30e9",
             "S": "JYNX"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 238,
+        "family": [
+            124,
+            238
+        ]
     },
     {
         "name": "Electabuzz",
@@ -13354,7 +14587,13 @@
             "I": "ELECTABUZZ",
             "J": "\u30a8\u30ec\u30d6\u30fc",
             "S": "ELECTABUZZ"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 239,
+        "family": [
+            125,
+            239
+        ]
     },
     {
         "name": "Magmar",
@@ -13460,7 +14699,13 @@
             "I": "MAGMAR",
             "J": "\u30d6\u30fc\u30d0\u30fc",
             "S": "MAGMAR"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 240,
+        "family": [
+            240,
+            126
+        ]
     },
     {
         "name": "Pinsir",
@@ -13565,7 +14810,12 @@
             "I": "PINSIR",
             "J": "\u30ab\u30a4\u30ed\u30b9",
             "S": "PINSIR"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            127
+        ]
     },
     {
         "name": "Tauros",
@@ -13667,7 +14917,12 @@
             "I": "TAUROS",
             "J": "\u30b1\u30f3\u30bf\u30ed\u30b9",
             "S": "TAUROS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            128
+        ]
     },
     {
         "name": "Magikarp",
@@ -13724,7 +14979,19 @@
             "I": "MAGIKARP",
             "J": "\u30b3\u30a4\u30ad\u30f3\u30b0",
             "S": "MAGIKARP"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 20,
+                "target_species": 130
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            129,
+            130
+        ]
     },
     {
         "name": "Gyarados",
@@ -13830,7 +15097,13 @@
             "I": "GYARADOS",
             "J": "\u30ae\u30e3\u30e9\u30c9\u30b9",
             "S": "GYARADOS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 129,
+        "family": [
+            129,
+            130
+        ]
     },
     {
         "name": "Lapras",
@@ -13947,7 +15220,12 @@
             "I": "LAPRAS",
             "J": "\u30e9\u30d7\u30e9\u30b9",
             "S": "LAPRAS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            131
+        ]
     },
     {
         "name": "Ditto",
@@ -14006,7 +15284,12 @@
             "I": "DITTO",
             "J": "\u30e1\u30bf\u30e2\u30f3",
             "S": "DITTO"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            132
+        ]
     },
     {
         "name": "Eevee",
@@ -14102,7 +15385,43 @@
             "I": "EEVEE",
             "J": "\u30a4\u30fc\u30d6\u30a4",
             "S": "EEVEE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 96,
+                "target_species": 135
+            },
+            {
+                "method": "item",
+                "method_param": 97,
+                "target_species": 134
+            },
+            {
+                "method": "item",
+                "method_param": 95,
+                "target_species": 136
+            },
+            {
+                "method": "level_with_friendship_during_day",
+                "method_param": 0,
+                "target_species": 196
+            },
+            {
+                "method": "level_with_friendship_during_night",
+                "method_param": 0,
+                "target_species": 197
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            196,
+            133,
+            134,
+            135,
+            136,
+            197
+        ]
     },
     {
         "name": "Vaporeon",
@@ -14203,7 +15522,13 @@
             "I": "VAPOREON",
             "J": "\u30b7\u30e3\u30ef\u30fc\u30ba",
             "S": "VAPOREON"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 133,
+        "family": [
+            133,
+            134
+        ]
     },
     {
         "name": "Jolteon",
@@ -14301,7 +15626,13 @@
             "I": "JOLTEON",
             "J": "\u30b5\u30f3\u30c0\u30fc\u30b9",
             "S": "JOLTEON"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 133,
+        "family": [
+            133,
+            135
+        ]
     },
     {
         "name": "Flareon",
@@ -14397,7 +15728,13 @@
             "I": "FLAREON",
             "J": "\u30d6\u30fc\u30b9\u30bf\u30fc",
             "S": "FLAREON"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 133,
+        "family": [
+            136,
+            133
+        ]
     },
     {
         "name": "Porygon",
@@ -14499,7 +15836,19 @@
             "I": "PORYGON",
             "J": "\u30dd\u30ea\u30b4\u30f3",
             "S": "PORYGON"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "trade_with_item",
+                "method_param": 218,
+                "target_species": 233
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            137,
+            233
+        ]
     },
     {
         "name": "Omanyte",
@@ -14608,7 +15957,19 @@
             "I": "OMANYTE",
             "J": "\u30aa\u30e0\u30ca\u30a4\u30c8",
             "S": "OMANYTE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 40,
+                "target_species": 139
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            138,
+            139
+        ]
     },
     {
         "name": "Omastar",
@@ -14712,7 +16073,13 @@
             "I": "OMASTAR",
             "J": "\u30aa\u30e0\u30b9\u30bf\u30fc",
             "S": "OMASTAR"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 138,
+        "family": [
+            138,
+            139
+        ]
     },
     {
         "name": "Kabuto",
@@ -14823,7 +16190,19 @@
             "I": "KABUTO",
             "J": "\u30ab\u30d6\u30c8",
             "S": "KABUTO"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 40,
+                "target_species": 141
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            140,
+            141
+        ]
     },
     {
         "name": "Kabutops",
@@ -14935,7 +16314,13 @@
             "I": "KABUTOPS",
             "J": "\u30ab\u30d6\u30c8\u30d7\u30b9",
             "S": "KABUTOPS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 140,
+        "family": [
+            140,
+            141
+        ]
     },
     {
         "name": "Aerodactyl",
@@ -15045,7 +16430,12 @@
             "I": "AERODACTYL",
             "J": "\u30d7\u30c6\u30e9",
             "S": "AERODACTYL"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            142
+        ]
     },
     {
         "name": "Snorlax",
@@ -15180,7 +16570,12 @@
             "I": "SNORLAX",
             "J": "\u30ab\u30d3\u30b4\u30f3",
             "S": "SNORLAX"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            143
+        ]
     },
     {
         "name": "Articuno",
@@ -15278,7 +16673,12 @@
             "I": "ARTICUNO",
             "J": "\u30d5\u30ea\u30fc\u30b6\u30fc",
             "S": "ARTICUNO"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            144
+        ]
     },
     {
         "name": "Zapdos",
@@ -15376,7 +16776,12 @@
             "I": "ZAPDOS",
             "J": "\u30b5\u30f3\u30c0\u30fc",
             "S": "ZAPDOS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            145
+        ]
     },
     {
         "name": "Moltres",
@@ -15472,7 +16877,12 @@
             "I": "MOLTRES",
             "J": "\u30d5\u30a1\u30a4\u30e4\u30fc",
             "S": "MOLTRES"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            146
+        ]
     },
     {
         "name": "Dratini",
@@ -15587,7 +16997,20 @@
             "I": "DRATINI",
             "J": "\u30df\u30cb\u30ea\u30e5\u30a6",
             "S": "DRATINI"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 148
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            147,
+            148,
+            149
+        ]
     },
     {
         "name": "Dragonair",
@@ -15695,7 +17118,20 @@
             "I": "DRAGONAIR",
             "J": "\u30cf\u30af\u30ea\u30e5\u30fc",
             "S": "DRAGONAIR"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 55,
+                "target_species": 149
+            }
+        ],
+        "evolves_from": 147,
+        "family": [
+            147,
+            148,
+            149
+        ]
     },
     {
         "name": "Dragonite",
@@ -15825,7 +17261,14 @@
             "I": "DRAGONITE",
             "J": "\u30ab\u30a4\u30ea\u30e5\u30fc",
             "S": "DRAGONITE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 148,
+        "family": [
+            147,
+            148,
+            149
+        ]
     },
     {
         "name": "Mewtwo",
@@ -15957,7 +17400,12 @@
             "I": "MEWTWO",
             "J": "\u30df\u30e5\u30a6\u30c4\u30fc",
             "S": "MEWTWO"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            150
+        ]
     },
     {
         "name": "Mew",
@@ -16111,7 +17559,12 @@
             "I": "MEW",
             "J": "\u30df\u30e5\u30a6",
             "S": "MEW"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            151
+        ]
     },
     {
         "name": "Chikorita",
@@ -16217,7 +17670,20 @@
             "I": "CHIKORITA",
             "J": "\u30c1\u30b3\u30ea\u30fc\u30bf",
             "S": "CHIKORITA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 16,
+                "target_species": 153
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            152,
+            153,
+            154
+        ]
     },
     {
         "name": "Bayleef",
@@ -16317,7 +17783,20 @@
             "I": "BAYLEEF",
             "J": "\u30d9\u30a4\u30ea\u30fc\u30d5",
             "S": "BAYLEEF"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 32,
+                "target_species": 154
+            }
+        ],
+        "evolves_from": 152,
+        "family": [
+            152,
+            153,
+            154
+        ]
     },
     {
         "name": "Meganium",
@@ -16419,7 +17898,14 @@
             "I": "MEGANIUM",
             "J": "\u30e1\u30ac\u30cb\u30a6\u30e0",
             "S": "MEGANIUM"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 153,
+        "family": [
+            152,
+            153,
+            154
+        ]
     },
     {
         "name": "Cyndaquil",
@@ -16520,7 +18006,20 @@
             "I": "CYNDAQUIL",
             "J": "\u30d2\u30ce\u30a2\u30e9\u30b7",
             "S": "CYNDAQUIL"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 14,
+                "target_species": 156
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            155,
+            156,
+            157
+        ]
     },
     {
         "name": "Quilava",
@@ -16618,7 +18117,20 @@
             "I": "QUILAVA",
             "J": "\u30de\u30b0\u30de\u30e9\u30b7",
             "S": "QUILAVA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 36,
+                "target_species": 157
+            }
+        ],
+        "evolves_from": 155,
+        "family": [
+            155,
+            156,
+            157
+        ]
     },
     {
         "name": "Typhlosion",
@@ -16726,7 +18238,14 @@
             "I": "TYPHLOSION",
             "J": "\u30d0\u30af\u30d5\u30fc\u30f3",
             "S": "TYPHLOSION"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 156,
+        "family": [
+            155,
+            156,
+            157
+        ]
     },
     {
         "name": "Totodile",
@@ -16842,7 +18361,20 @@
             "I": "TOTODILE",
             "J": "\u30ef\u30cb\u30ce\u30b3",
             "S": "TOTODILE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 18,
+                "target_species": 159
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            160,
+            158,
+            159
+        ]
     },
     {
         "name": "Croconaw",
@@ -16953,7 +18485,20 @@
             "I": "CROCONAW",
             "J": "\u30a2\u30ea\u30b2\u30a4\u30c4",
             "S": "CROCONAW"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 160
+            }
+        ],
+        "evolves_from": 158,
+        "family": [
+            160,
+            158,
+            159
+        ]
     },
     {
         "name": "Feraligatr",
@@ -17067,7 +18612,14 @@
             "I": "FERALIGATR",
             "J": "\u30aa\u30fc\u30c0\u30a4\u30eb",
             "S": "FERALIGATR"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 159,
+        "family": [
+            160,
+            158,
+            159
+        ]
     },
     {
         "name": "Sentret",
@@ -17189,7 +18741,19 @@
             "I": "SENTRET",
             "J": "\u30aa\u30bf\u30c1",
             "S": "SENTRET"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 15,
+                "target_species": 162
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            161,
+            162
+        ]
     },
     {
         "name": "Furret",
@@ -17311,7 +18875,13 @@
             "I": "FURRET",
             "J": "\u30aa\u30aa\u30bf\u30c1",
             "S": "FURRET"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 161,
+        "family": [
+            161,
+            162
+        ]
     },
     {
         "name": "Hoothoot",
@@ -17415,7 +18985,19 @@
             "I": "HOOTHOOT",
             "J": "\u30db\u30fc\u30db\u30fc",
             "S": "HOOTHOOT"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 20,
+                "target_species": 164
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            163,
+            164
+        ]
     },
     {
         "name": "Noctowl",
@@ -17512,7 +19094,13 @@
             "I": "NOCTOWL",
             "J": "\u30e8\u30eb\u30ce\u30ba\u30af",
             "S": "NOCTOWL"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 163,
+        "family": [
+            163,
+            164
+        ]
     },
     {
         "name": "Ledyba",
@@ -17619,7 +19207,19 @@
             "I": "LEDYBA",
             "J": "\u30ec\u30c7\u30a3\u30d0",
             "S": "LEDYBA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 18,
+                "target_species": 166
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            165,
+            166
+        ]
     },
     {
         "name": "Ledian",
@@ -17723,7 +19323,13 @@
             "I": "LEDIAN",
             "J": "\u30ec\u30c7\u30a3\u30a2\u30f3",
             "S": "LEDIAN"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 165,
+        "family": [
+            165,
+            166
+        ]
     },
     {
         "name": "Spinarak",
@@ -17823,7 +19429,19 @@
             "I": "SPINARAK",
             "J": "\u30a4\u30c8\u30de\u30eb",
             "S": "SPINARAK"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 22,
+                "target_species": 168
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            168,
+            167
+        ]
     },
     {
         "name": "Ariados",
@@ -17917,7 +19535,13 @@
             "I": "ARIADOS",
             "J": "\u30a2\u30ea\u30a2\u30c9\u30b9",
             "S": "ARIADOS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 167,
+        "family": [
+            168,
+            167
+        ]
     },
     {
         "name": "Crobat",
@@ -18015,7 +19639,14 @@
             "I": "CROBAT",
             "J": "\u30af\u30ed\u30d0\u30c3\u30c8",
             "S": "CROBAT"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 42,
+        "family": [
+            41,
+            42,
+            169
+        ]
     },
     {
         "name": "Chinchou",
@@ -18121,7 +19752,19 @@
             "I": "CHINCHOU",
             "J": "\u30c1\u30e7\u30f3\u30c1\u30fc",
             "S": "CHINCHOU"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 27,
+                "target_species": 171
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            170,
+            171
+        ]
     },
     {
         "name": "Lanturn",
@@ -18224,7 +19867,13 @@
             "I": "LANTURN",
             "J": "\u30e9\u30f3\u30bf\u30fc\u30f3",
             "S": "LANTURN"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 170,
+        "family": [
+            170,
+            171
+        ]
     },
     {
         "name": "Pichu",
@@ -18331,7 +19980,20 @@
             "I": "PICHU",
             "J": "\u30d4\u30c1\u30e5\u30fc",
             "S": "PICHU"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level_with_friendship",
+                "method_param": 0,
+                "target_species": 25
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            25,
+            26,
+            172
+        ]
     },
     {
         "name": "Cleffa",
@@ -18455,7 +20117,20 @@
             "I": "CLEFFA",
             "J": "\u30d4\u30a3",
             "S": "CLEFFA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level_with_friendship",
+                "method_param": 0,
+                "target_species": 35
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            35,
+            36,
+            173
+        ]
     },
     {
         "name": "Igglybuff",
@@ -18564,7 +20239,20 @@
             "I": "IGGLYBUFF",
             "J": "\u30d7\u30d7\u30ea\u30f3",
             "S": "IGGLYBUFF"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level_with_friendship",
+                "method_param": 0,
+                "target_species": 39
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            40,
+            174,
+            39
+        ]
     },
     {
         "name": "Togepi",
@@ -18683,7 +20371,19 @@
             "I": "TOGEPI",
             "J": "\u30c8\u30b2\u30d4\u30fc",
             "S": "TOGEPI"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level_with_friendship",
+                "method_param": 0,
+                "target_species": 176
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            176,
+            175
+        ]
     },
     {
         "name": "Togetic",
@@ -18802,7 +20502,13 @@
             "I": "TOGETIC",
             "J": "\u30c8\u30b2\u30c1\u30c3\u30af",
             "S": "TOGETIC"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 175,
+        "family": [
+            176,
+            175
+        ]
     },
     {
         "name": "Natu",
@@ -18911,7 +20617,19 @@
             "I": "NATU",
             "J": "\u30cd\u30a4\u30c6\u30a3",
             "S": "NATU"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 25,
+                "target_species": 178
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            177,
+            178
+        ]
     },
     {
         "name": "Xatu",
@@ -19013,7 +20731,13 @@
             "I": "XATU",
             "J": "\u30cd\u30a4\u30c6\u30a3\u30aa",
             "S": "XATU"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 177,
+        "family": [
+            177,
+            178
+        ]
     },
     {
         "name": "Mareep",
@@ -19112,7 +20836,20 @@
             "I": "MAREEP",
             "J": "\u30e1\u30ea\u30fc\u30d7",
             "S": "MAREEP"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 15,
+                "target_species": 180
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            179,
+            180,
+            181
+        ]
     },
     {
         "name": "Flaaffy",
@@ -19214,7 +20951,20 @@
             "I": "FLAAFFY",
             "J": "\u30e2\u30b3\u30b3",
             "S": "FLAAFFY"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 181
+            }
+        ],
+        "evolves_from": 179,
+        "family": [
+            179,
+            180,
+            181
+        ]
     },
     {
         "name": "Ampharos",
@@ -19318,7 +21068,14 @@
             "I": "AMPHAROS",
             "J": "\u30c7\u30f3\u30ea\u30e5\u30a6",
             "S": "AMPHAROS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 180,
+        "family": [
+            179,
+            180,
+            181
+        ]
     },
     {
         "name": "Bellossom",
@@ -19406,7 +21163,14 @@
             "I": "BELLOSSOM",
             "J": "\u30ad\u30ec\u30a4\u30cf\u30ca",
             "S": "BELLOSSOM"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 44,
+        "family": [
+            43,
+            44,
+            182
+        ]
     },
     {
         "name": "Marill",
@@ -19523,7 +21287,20 @@
             "I": "MARILL",
             "J": "\u30de\u30ea\u30eb",
             "S": "MARILL"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 18,
+                "target_species": 184
+            }
+        ],
+        "evolves_from": 350,
+        "family": [
+            184,
+            350,
+            183
+        ]
     },
     {
         "name": "Azumarill",
@@ -19632,7 +21409,14 @@
             "I": "AZUMARILL",
             "J": "\u30de\u30ea\u30eb\u30ea",
             "S": "AZUMARILL"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 183,
+        "family": [
+            184,
+            350,
+            183
+        ]
     },
     {
         "name": "Sudowoodo",
@@ -19743,7 +21527,12 @@
             "I": "SUDOWOODO",
             "J": "\u30a6\u30bd\u30c3\u30ad\u30fc",
             "S": "SUDOWOODO"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            185
+        ]
     },
     {
         "name": "Politoed",
@@ -19853,7 +21642,14 @@
             "I": "POLITOED",
             "J": "\u30cb\u30e7\u30ed\u30c8\u30ce",
             "S": "POLITOED"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 61,
+        "family": [
+            186,
+            60,
+            61
+        ]
     },
     {
         "name": "Hoppip",
@@ -19953,7 +21749,20 @@
             "I": "HOPPIP",
             "J": "\u30cf\u30cd\u30c3\u30b3",
             "S": "HOPPIP"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 18,
+                "target_species": 188
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            187,
+            188,
+            189
+        ]
     },
     {
         "name": "Skiploom",
@@ -20045,7 +21854,20 @@
             "I": "SKIPLOOM",
             "J": "\u30dd\u30dd\u30c3\u30b3",
             "S": "SKIPLOOM"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 27,
+                "target_species": 189
+            }
+        ],
+        "evolves_from": 187,
+        "family": [
+            187,
+            188,
+            189
+        ]
     },
     {
         "name": "Jumpluff",
@@ -20138,7 +21960,14 @@
             "I": "JUMPLUFF",
             "J": "\u30ef\u30bf\u30c3\u30b3",
             "S": "JUMPLUFF"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 188,
+        "family": [
+            187,
+            188,
+            189
+        ]
     },
     {
         "name": "Aipom",
@@ -20265,7 +22094,12 @@
             "I": "AIPOM",
             "J": "\u30a8\u30a4\u30d1\u30e0",
             "S": "AIPOM"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            190
+        ]
     },
     {
         "name": "Sunkern",
@@ -20362,7 +22196,19 @@
             "I": "SUNKERN",
             "J": "\u30d2\u30de\u30ca\u30c3\u30c4",
             "S": "SUNKERN"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 93,
+                "target_species": 192
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            192,
+            191
+        ]
     },
     {
         "name": "Sunflora",
@@ -20454,7 +22300,13 @@
             "I": "SUNFLORA",
             "J": "\u30ad\u30de\u30ef\u30ea",
             "S": "SUNFLORA"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 191,
+        "family": [
+            192,
+            191
+        ]
     },
     {
         "name": "Yanma",
@@ -20555,7 +22407,12 @@
             "I": "YANMA",
             "J": "\u30e4\u30f3\u30e4\u30f3\u30de",
             "S": "YANMA"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            193
+        ]
     },
     {
         "name": "Wooper",
@@ -20670,7 +22527,19 @@
             "I": "WOOPER",
             "J": "\u30a6\u30d1\u30fc",
             "S": "WOOPER"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 20,
+                "target_species": 195
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            194,
+            195
+        ]
     },
     {
         "name": "Quagsire",
@@ -20785,7 +22654,13 @@
             "I": "QUAGSIRE",
             "J": "\u30cc\u30aa\u30fc",
             "S": "QUAGSIRE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 194,
+        "family": [
+            194,
+            195
+        ]
     },
     {
         "name": "Espeon",
@@ -20886,7 +22761,13 @@
             "I": "ESPEON",
             "J": "\u30a8\u30fc\u30d5\u30a3",
             "S": "ESPEON"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 133,
+        "family": [
+            196,
+            133
+        ]
     },
     {
         "name": "Umbreon",
@@ -20986,7 +22867,13 @@
             "I": "UMBREON",
             "J": "\u30d6\u30e9\u30c3\u30ad\u30fc",
             "S": "UMBREON"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 133,
+        "family": [
+            197,
+            133
+        ]
     },
     {
         "name": "Murkrow",
@@ -21093,7 +22980,12 @@
             "I": "MURKROW",
             "J": "\u30e4\u30df\u30ab\u30e9\u30b9",
             "S": "MURKROW"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            198
+        ]
     },
     {
         "name": "Slowking",
@@ -21221,7 +23113,13 @@
             "I": "SLOWKING",
             "J": "\u30e4\u30c9\u30ad\u30f3\u30b0",
             "S": "SLOWKING"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 79,
+        "family": [
+            199,
+            79
+        ]
     },
     {
         "name": "Misdreavus",
@@ -21333,7 +23231,12 @@
             "I": "MISDREAVUS",
             "J": "\u30e0\u30a6\u30de",
             "S": "MISDREAVUS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            200
+        ]
     },
     {
         "name": "Unown",
@@ -21387,7 +23290,12 @@
             "I": "UNOWN",
             "J": "\u30a2\u30f3\u30ce\u30fc\u30f3",
             "S": "UNOWN"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            201
+        ]
     },
     {
         "name": "Wobbuffet",
@@ -21444,7 +23352,13 @@
             "I": "WOBBUFFET",
             "J": "\u30bd\u30fc\u30ca\u30f3\u30b9",
             "S": "WOBBUFFET"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 360,
+        "family": [
+            360,
+            202
+        ]
     },
     {
         "name": "Girafarig",
@@ -21565,7 +23479,12 @@
             "I": "GIRAFARIG",
             "J": "\u30ad\u30ea\u30f3\u30ea\u30ad",
             "S": "GIRAFARIG"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            203
+        ]
     },
     {
         "name": "Pineco",
@@ -21669,7 +23588,19 @@
             "I": "PINECO",
             "J": "\u30af\u30cc\u30ae\u30c0\u30de",
             "S": "PINECO"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 31,
+                "target_species": 205
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            204,
+            205
+        ]
     },
     {
         "name": "Forretress",
@@ -21768,7 +23699,13 @@
             "I": "FORRETRESS",
             "J": "\u30d5\u30a9\u30ec\u30c8\u30b9",
             "S": "FORRETRESS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 204,
+        "family": [
+            204,
+            205
+        ]
     },
     {
         "name": "Dunsparce",
@@ -21887,7 +23824,12 @@
             "I": "DUNSPARCE",
             "J": "\u30ce\u30b3\u30c3\u30c1",
             "S": "DUNSPARCE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            206
+        ]
     },
     {
         "name": "Gligar",
@@ -21995,7 +23937,12 @@
             "I": "GLIGAR",
             "J": "\u30b0\u30e9\u30a4\u30ac\u30fc",
             "S": "GLIGAR"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            207
+        ]
     },
     {
         "name": "Steelix",
@@ -22104,7 +24051,13 @@
             "I": "STEELIX",
             "J": "\u30cf\u30ac\u30cd\u30fc\u30eb",
             "S": "STEELIX"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 95,
+        "family": [
+            208,
+            95
+        ]
     },
     {
         "name": "Snubbull",
@@ -22233,7 +24186,19 @@
             "I": "SNUBBULL",
             "J": "\u30d6\u30eb\u30fc",
             "S": "SNUBBULL"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 23,
+                "target_species": 210
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            209,
+            210
+        ]
     },
     {
         "name": "Granbull",
@@ -22357,7 +24322,13 @@
             "I": "GRANBULL",
             "J": "\u30b0\u30e9\u30f3\u30d6\u30eb",
             "S": "GRANBULL"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 209,
+        "family": [
+            209,
+            210
+        ]
     },
     {
         "name": "Qwilfish",
@@ -22463,7 +24434,12 @@
             "I": "QWILFISH",
             "J": "\u30cf\u30ea\u30fc\u30bb\u30f3",
             "S": "QWILFISH"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            211
+        ]
     },
     {
         "name": "Scizor",
@@ -22561,7 +24537,13 @@
             "I": "SCIZOR",
             "J": "\u30cf\u30c3\u30b5\u30e0",
             "S": "SCIZOR"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 123,
+        "family": [
+            123,
+            212
+        ]
     },
     {
         "name": "Shuckle",
@@ -22663,7 +24645,12 @@
             "I": "SHUCKLE",
             "J": "\u30c4\u30dc\u30c4\u30dc",
             "S": "SHUCKLE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            213
+        ]
     },
     {
         "name": "Heracross",
@@ -22771,7 +24758,12 @@
             "I": "HERACROSS",
             "J": "\u30d8\u30e9\u30af\u30ed\u30b9",
             "S": "HERACROSS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            214
+        ]
     },
     {
         "name": "Sneasel",
@@ -22901,7 +24893,12 @@
             "I": "SNEASEL",
             "J": "\u30cb\u30e5\u30fc\u30e9",
             "S": "SNEASEL"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            215
+        ]
     },
     {
         "name": "Teddiursa",
@@ -23023,7 +25020,19 @@
             "I": "TEDDIURSA",
             "J": "\u30d2\u30e1\u30b0\u30de",
             "S": "TEDDIURSA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 217
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            216,
+            217
+        ]
     },
     {
         "name": "Ursaring",
@@ -23139,7 +25148,13 @@
             "I": "URSARING",
             "J": "\u30ea\u30f3\u30b0\u30de",
             "S": "URSARING"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 216,
+        "family": [
+            216,
+            217
+        ]
     },
     {
         "name": "Slugma",
@@ -23236,7 +25251,19 @@
             "I": "SLUGMA",
             "J": "\u30de\u30b0\u30de\u30c3\u30b0",
             "S": "SLUGMA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 38,
+                "target_species": 219
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            218,
+            219
+        ]
     },
     {
         "name": "Magcargo",
@@ -23336,7 +25363,13 @@
             "I": "MAGCARGO",
             "J": "\u30de\u30b0\u30ab\u30eb\u30b4",
             "S": "MAGCARGO"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 218,
+        "family": [
+            218,
+            219
+        ]
     },
     {
         "name": "Swinub",
@@ -23444,7 +25477,19 @@
             "I": "SWINUB",
             "J": "\u30a6\u30ea\u30e0\u30fc",
             "S": "SWINUB"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 33,
+                "target_species": 221
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            220,
+            221
+        ]
     },
     {
         "name": "Piloswine",
@@ -23545,7 +25590,13 @@
             "I": "PILOSWINE",
             "J": "\u30a4\u30ce\u30e0\u30fc",
             "S": "PILOSWINE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 220,
+        "family": [
+            220,
+            221
+        ]
     },
     {
         "name": "Corsola",
@@ -23669,7 +25720,12 @@
             "I": "CORSOLA",
             "J": "\u30b5\u30cb\u30fc\u30b4",
             "S": "CORSOLA"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            222
+        ]
     },
     {
         "name": "Remoraid",
@@ -23775,7 +25831,19 @@
             "I": "REMORAID",
             "J": "\u30c6\u30c3\u30dd\u30a6\u30aa",
             "S": "REMORAID"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 25,
+                "target_species": 224
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            224,
+            223
+        ]
     },
     {
         "name": "Octillery",
@@ -23877,7 +25945,13 @@
             "I": "OCTILLERY",
             "J": "\u30aa\u30af\u30bf\u30f3",
             "S": "OCTILLERY"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 223,
+        "family": [
+            224,
+            223
+        ]
     },
     {
         "name": "Delibird",
@@ -23977,7 +26051,12 @@
             "I": "DELIBIRD",
             "J": "\u30c7\u30ea\u30d0\u30fc\u30c9",
             "S": "DELIBIRD"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            225
+        ]
     },
     {
         "name": "Mantine",
@@ -24081,7 +26160,12 @@
             "I": "MANTINE",
             "J": "\u30de\u30f3\u30bf\u30a4\u30f3",
             "S": "MANTINE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            226
+        ]
     },
     {
         "name": "Skarmory",
@@ -24186,7 +26270,12 @@
             "I": "SKARMORY",
             "J": "\u30a8\u30a2\u30fc\u30e0\u30c9",
             "S": "SKARMORY"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            227
+        ]
     },
     {
         "name": "Houndour",
@@ -24298,7 +26387,19 @@
             "I": "HOUNDOUR",
             "J": "\u30c7\u30eb\u30d3\u30eb",
             "S": "HOUNDOUR"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 24,
+                "target_species": 229
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            228,
+            229
+        ]
     },
     {
         "name": "Houndoom",
@@ -24403,7 +26504,13 @@
             "I": "HOUNDOOM",
             "J": "\u30d8\u30eb\u30ac\u30fc",
             "S": "HOUNDOOM"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 228,
+        "family": [
+            228,
+            229
+        ]
     },
     {
         "name": "Kingdra",
@@ -24502,7 +26609,14 @@
             "I": "KINGDRA",
             "J": "\u30ad\u30f3\u30b0\u30c9\u30e9",
             "S": "KINGDRA"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 117,
+        "family": [
+            116,
+            117,
+            230
+        ]
     },
     {
         "name": "Phanpy",
@@ -24603,7 +26717,19 @@
             "I": "PHANPY",
             "J": "\u30b4\u30de\u30be\u30a6",
             "S": "PHANPY"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 25,
+                "target_species": 232
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            232,
+            231
+        ]
     },
     {
         "name": "Donphan",
@@ -24699,7 +26825,13 @@
             "I": "DONPHAN",
             "J": "\u30c9\u30f3\u30d5\u30a1\u30f3",
             "S": "DONPHAN"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 231,
+        "family": [
+            232,
+            231
+        ]
     },
     {
         "name": "Porygon2",
@@ -24802,7 +26934,13 @@
             "I": "PORYGON2",
             "J": "\u30dd\u30ea\u30b4\u30f32",
             "S": "PORYGON2"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 137,
+        "family": [
+            137,
+            233
+        ]
     },
     {
         "name": "Stantler",
@@ -24913,7 +27051,12 @@
             "I": "STANTLER",
             "J": "\u30aa\u30c9\u30b7\u30b7",
             "S": "STANTLER"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            234
+        ]
     },
     {
         "name": "Smeargle",
@@ -24967,7 +27110,12 @@
             "I": "SMEARGLE",
             "J": "\u30c9\u30fc\u30d6\u30eb",
             "S": "SMEARGLE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            235
+        ]
     },
     {
         "name": "Tyrogue",
@@ -25061,7 +27209,31 @@
             "I": "TYROGUE",
             "J": "\u30d0\u30eb\u30ad\u30fc",
             "S": "TYROGUE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level_with_attack_lower_than_defence",
+                "method_param": 20,
+                "target_species": 107
+            },
+            {
+                "method": "level_with_attack_greater_than_defence",
+                "method_param": 20,
+                "target_species": 106
+            },
+            {
+                "method": "level_with_attack_equal_to_defence",
+                "method_param": 20,
+                "target_species": 237
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            106,
+            107,
+            236,
+            237
+        ]
     },
     {
         "name": "Hitmontop",
@@ -25161,7 +27333,13 @@
             "I": "HITMONTOP",
             "J": "\u30ab\u30dd\u30a8\u30e9\u30fc",
             "S": "HITMONTOP"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 236,
+        "family": [
+            236,
+            237
+        ]
     },
     {
         "name": "Smoochum",
@@ -25281,7 +27459,19 @@
             "I": "SMOOCHUM",
             "J": "\u30e0\u30c1\u30e5\u30fc\u30eb",
             "S": "SMOOCHUM"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 124
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            124,
+            238
+        ]
     },
     {
         "name": "Elekid",
@@ -25392,7 +27582,19 @@
             "I": "ELEKID",
             "J": "\u30a8\u30ec\u30ad\u30c3\u30c9",
             "S": "ELEKID"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 125
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            125,
+            239
+        ]
     },
     {
         "name": "Magby",
@@ -25503,7 +27705,19 @@
             "I": "MAGBY",
             "J": "\u30d6\u30d3\u30a3",
             "S": "MAGBY"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 126
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            240,
+            126
+        ]
     },
     {
         "name": "Miltank",
@@ -25635,7 +27849,12 @@
             "I": "MILTANK",
             "J": "\u30df\u30eb\u30bf\u30f3\u30af",
             "S": "MILTANK"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            241
+        ]
     },
     {
         "name": "Blissey",
@@ -25768,7 +27987,13 @@
             "I": "BLISSEY",
             "J": "\u30cf\u30d4\u30ca\u30b9",
             "S": "BLISSEY"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 113,
+        "family": [
+            113,
+            242
+        ]
     },
     {
         "name": "Raikou",
@@ -25870,7 +28095,12 @@
             "I": "RAIKOU",
             "J": "\u30e9\u30a4\u30b3\u30a6",
             "S": "RAIKOU"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            243
+        ]
     },
     {
         "name": "Entei",
@@ -25971,7 +28201,12 @@
             "I": "ENTEI",
             "J": "\u30a8\u30f3\u30c6\u30a4",
             "S": "ENTEI"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            244
+        ]
     },
     {
         "name": "Suicune",
@@ -26075,7 +28310,12 @@
             "I": "SUICUNE",
             "J": "\u30b9\u30a4\u30af\u30f3",
             "S": "SUICUNE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            245
+        ]
     },
     {
         "name": "Larvitar",
@@ -26179,7 +28419,20 @@
             "I": "LARVITAR",
             "J": "\u30e8\u30fc\u30ae\u30e9\u30b9",
             "S": "LARVITAR"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 247
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            248,
+            246,
+            247
+        ]
     },
     {
         "name": "Pupitar",
@@ -26275,7 +28528,20 @@
             "I": "PUPITAR",
             "J": "\u30b5\u30ca\u30ae\u30e9\u30b9",
             "S": "PUPITAR"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 55,
+                "target_species": 248
+            }
+        ],
+        "evolves_from": 246,
+        "family": [
+            248,
+            246,
+            247
+        ]
     },
     {
         "name": "Tyranitar",
@@ -26396,7 +28662,14 @@
             "I": "TYRANITAR",
             "J": "\u30d0\u30f3\u30ae\u30e9\u30b9",
             "S": "TYRANITAR"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 247,
+        "family": [
+            248,
+            246,
+            247
+        ]
     },
     {
         "name": "Lugia",
@@ -26515,7 +28788,12 @@
             "I": "LUGIA",
             "J": "\u30eb\u30ae\u30a2",
             "S": "LUGIA"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            249
+        ]
     },
     {
         "name": "Ho-Oh",
@@ -26633,7 +28911,12 @@
             "I": "HO-OH",
             "J": "\u30db\u30a6\u30aa\u30a6",
             "S": "HO-OH"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            250
+        ]
     },
     {
         "name": "Celebi",
@@ -26744,7 +29027,12 @@
             "I": "CELEBI",
             "J": "\u30bb\u30ec\u30d3\u30a3",
             "S": "CELEBI"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            251
+        ]
     },
     {
         "name": "?",
@@ -26798,7 +29086,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            252
+        ]
     },
     {
         "name": "?",
@@ -26852,7 +29145,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            253
+        ]
     },
     {
         "name": "?",
@@ -26906,7 +29204,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            254
+        ]
     },
     {
         "name": "?",
@@ -26960,7 +29263,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            255
+        ]
     },
     {
         "name": "?",
@@ -27014,7 +29322,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            256
+        ]
     },
     {
         "name": "?",
@@ -27068,7 +29381,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            257
+        ]
     },
     {
         "name": "?",
@@ -27122,7 +29440,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            258
+        ]
     },
     {
         "name": "?",
@@ -27176,7 +29499,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            259
+        ]
     },
     {
         "name": "?",
@@ -27230,7 +29558,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            260
+        ]
     },
     {
         "name": "?",
@@ -27284,7 +29617,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            261
+        ]
     },
     {
         "name": "?",
@@ -27338,7 +29676,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            262
+        ]
     },
     {
         "name": "?",
@@ -27392,7 +29735,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            263
+        ]
     },
     {
         "name": "?",
@@ -27446,7 +29794,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            264
+        ]
     },
     {
         "name": "?",
@@ -27500,7 +29853,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            265
+        ]
     },
     {
         "name": "?",
@@ -27554,7 +29912,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            266
+        ]
     },
     {
         "name": "?",
@@ -27608,7 +29971,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            267
+        ]
     },
     {
         "name": "?",
@@ -27662,7 +30030,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            268
+        ]
     },
     {
         "name": "?",
@@ -27716,7 +30089,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            269
+        ]
     },
     {
         "name": "?",
@@ -27770,7 +30148,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            270
+        ]
     },
     {
         "name": "?",
@@ -27824,7 +30207,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            271
+        ]
     },
     {
         "name": "?",
@@ -27878,7 +30266,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            272
+        ]
     },
     {
         "name": "?",
@@ -27932,7 +30325,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            273
+        ]
     },
     {
         "name": "?",
@@ -27986,7 +30384,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            274
+        ]
     },
     {
         "name": "?",
@@ -28040,7 +30443,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            275
+        ]
     },
     {
         "name": "?",
@@ -28094,7 +30502,12 @@
             "I": "?",
             "J": "\uff1f",
             "S": "?"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            276
+        ]
     },
     {
         "name": "Treecko",
@@ -28211,7 +30624,20 @@
             "I": "TREECKO",
             "J": "\u30ad\u30e2\u30ea",
             "S": "TREECKO"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 16,
+                "target_species": 278
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            277,
+            278,
+            279
+        ]
     },
     {
         "name": "Grovyle",
@@ -28322,7 +30748,20 @@
             "I": "GROVYLE",
             "J": "\u30b8\u30e5\u30d7\u30c8\u30eb",
             "S": "GROVYLE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 36,
+                "target_species": 279
+            }
+        ],
+        "evolves_from": 277,
+        "family": [
+            277,
+            278,
+            279
+        ]
     },
     {
         "name": "Sceptile",
@@ -28437,7 +30876,14 @@
             "I": "SCEPTILE",
             "J": "\u30b8\u30e5\u30ab\u30a4\u30f3",
             "S": "SCEPTILE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 278,
+        "family": [
+            277,
+            278,
+            279
+        ]
     },
     {
         "name": "Torchic",
@@ -28546,7 +30992,20 @@
             "I": "TORCHIC",
             "J": "\u30a2\u30c1\u30e3\u30e2",
             "S": "TORCHIC"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 16,
+                "target_species": 281
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            280,
+            281,
+            282
+        ]
     },
     {
         "name": "Combusken",
@@ -28657,7 +31116,20 @@
             "I": "COMBUSKEN",
             "J": "\u30ef\u30ab\u30b7\u30e3\u30e2",
             "S": "COMBUSKEN"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 36,
+                "target_species": 282
+            }
+        ],
+        "evolves_from": 280,
+        "family": [
+            280,
+            281,
+            282
+        ]
     },
     {
         "name": "Blaziken",
@@ -28773,7 +31245,14 @@
             "I": "BLAZIKEN",
             "J": "\u30d0\u30b7\u30e3\u30fc\u30e2",
             "S": "BLAZIKEN"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 281,
+        "family": [
+            280,
+            281,
+            282
+        ]
     },
     {
         "name": "Mudkip",
@@ -28883,7 +31362,20 @@
             "I": "MUDKIP",
             "J": "\u30df\u30ba\u30b4\u30ed\u30a6",
             "S": "MUDKIP"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 16,
+                "target_species": 284
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            283,
+            284,
+            285
+        ]
     },
     {
         "name": "Marshtomp",
@@ -28996,7 +31488,20 @@
             "I": "MARSHTOMP",
             "J": "\u30cc\u30de\u30af\u30ed\u30fc",
             "S": "MARSHTOMP"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 36,
+                "target_species": 285
+            }
+        ],
+        "evolves_from": 283,
+        "family": [
+            283,
+            284,
+            285
+        ]
     },
     {
         "name": "Swampert",
@@ -29113,7 +31618,14 @@
             "I": "SWAMPERT",
             "J": "\u30e9\u30b0\u30e9\u30fc\u30b8",
             "S": "SWAMPERT"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 284,
+        "family": [
+            283,
+            284,
+            285
+        ]
     },
     {
         "name": "Poochyena",
@@ -29223,7 +31735,19 @@
             "I": "POOCHYENA",
             "J": "\u30dd\u30c1\u30a8\u30ca",
             "S": "POOCHYENA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 18,
+                "target_species": 287
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            286,
+            287
+        ]
     },
     {
         "name": "Mightyena",
@@ -29329,7 +31853,13 @@
             "I": "MIGHTYENA",
             "J": "\u30b0\u30e9\u30a8\u30ca",
             "S": "MIGHTYENA"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 286,
+        "family": [
+            286,
+            287
+        ]
     },
     {
         "name": "Zigzagoon",
@@ -29447,7 +31977,19 @@
             "I": "ZIGZAGOON",
             "J": "\u30b8\u30b0\u30b6\u30b0\u30de",
             "S": "ZIGZAGOON"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 20,
+                "target_species": 289
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            288,
+            289
+        ]
     },
     {
         "name": "Linoone",
@@ -29566,7 +32108,13 @@
             "I": "LINOONE",
             "J": "\u30de\u30c3\u30b9\u30b0\u30de",
             "S": "LINOONE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 288,
+        "family": [
+            288,
+            289
+        ]
     },
     {
         "name": "Wurmple",
@@ -29622,7 +32170,27 @@
             "I": "WURMPLE",
             "J": "\u30b1\u30e0\u30c3\u30bd",
             "S": "WURMPLE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level_silcoon",
+                "method_param": 7,
+                "target_species": 291
+            },
+            {
+                "method": "level_cascoon",
+                "method_param": 7,
+                "target_species": 293
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            290,
+            291,
+            292,
+            293,
+            294
+        ]
     },
     {
         "name": "Silcoon",
@@ -29676,7 +32244,20 @@
             "I": "SILCOON",
             "J": "\u30ab\u30e9\u30b5\u30ea\u30b9",
             "S": "SILCOON"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 10,
+                "target_species": 292
+            }
+        ],
+        "evolves_from": 290,
+        "family": [
+            290,
+            291,
+            292
+        ]
     },
     {
         "name": "Beautifly",
@@ -29774,7 +32355,14 @@
             "I": "BEAUTIFLY",
             "J": "\u30a2\u30b2\u30cf\u30f3\u30c8",
             "S": "BEAUTIFLY"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 291,
+        "family": [
+            290,
+            291,
+            292
+        ]
     },
     {
         "name": "Cascoon",
@@ -29828,7 +32416,20 @@
             "I": "CASCOON",
             "J": "\u30de\u30e6\u30eb\u30c9",
             "S": "CASCOON"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 10,
+                "target_species": 294
+            }
+        ],
+        "evolves_from": 290,
+        "family": [
+            290,
+            293,
+            294
+        ]
     },
     {
         "name": "Dustox",
@@ -29927,7 +32528,14 @@
             "I": "DUSTOX",
             "J": "\u30c9\u30af\u30b1\u30a4\u30eb",
             "S": "DUSTOX"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 293,
+        "family": [
+            290,
+            293,
+            294
+        ]
     },
     {
         "name": "Lotad",
@@ -30031,7 +32639,20 @@
             "I": "LOTAD",
             "J": "\u30cf\u30b9\u30dc\u30fc",
             "S": "LOTAD"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 14,
+                "target_species": 296
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            296,
+            297,
+            295
+        ]
     },
     {
         "name": "Lombre",
@@ -30141,7 +32762,20 @@
             "I": "LOMBRE",
             "J": "\u30cf\u30b9\u30d6\u30ec\u30ed",
             "S": "LOMBRE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 97,
+                "target_species": 297
+            }
+        ],
+        "evolves_from": 295,
+        "family": [
+            296,
+            297,
+            295
+        ]
     },
     {
         "name": "Ludicolo",
@@ -30252,7 +32886,14 @@
             "I": "LUDICOLO",
             "J": "\u30eb\u30f3\u30d1\u30c3\u30d1",
             "S": "LUDICOLO"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 296,
+        "family": [
+            296,
+            297,
+            295
+        ]
     },
     {
         "name": "Seedot",
@@ -30353,7 +32994,20 @@
             "I": "SEEDOT",
             "J": "\u30bf\u30cd\u30dc\u30fc",
             "S": "SEEDOT"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 14,
+                "target_species": 299
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            298,
+            299,
+            300
+        ]
     },
     {
         "name": "Nuzleaf",
@@ -30463,7 +33117,20 @@
             "I": "NUZLEAF",
             "J": "\u30b3\u30ce\u30cf\u30ca",
             "S": "NUZLEAF"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 98,
+                "target_species": 300
+            }
+        ],
+        "evolves_from": 298,
+        "family": [
+            298,
+            299,
+            300
+        ]
     },
     {
         "name": "Shiftry",
@@ -30568,7 +33235,14 @@
             "I": "SHIFTRY",
             "J": "\u30c0\u30fc\u30c6\u30f3\u30b0",
             "S": "SHIFTRY"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 299,
+        "family": [
+            298,
+            299,
+            300
+        ]
     },
     {
         "name": "Nincada",
@@ -30666,7 +33340,25 @@
             "I": "NINCADA",
             "J": "\u30c4\u30c1\u30cb\u30f3",
             "S": "NINCADA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 20,
+                "target_species": 302
+            },
+            {
+                "method": "level_with_empty_slot_in_party",
+                "method_param": 20,
+                "target_species": 303
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            301,
+            302,
+            303
+        ]
     },
     {
         "name": "Ninjask",
@@ -30767,7 +33459,13 @@
             "I": "NINJASK",
             "J": "\u30c6\u30c3\u30ab\u30cb\u30f3",
             "S": "NINJASK"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 301,
+        "family": [
+            301,
+            302
+        ]
     },
     {
         "name": "Shedinja",
@@ -30863,7 +33561,13 @@
             "I": "SHEDINJA",
             "J": "\u30cc\u30b1\u30cb\u30f3",
             "S": "SHEDINJA"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 301,
+        "family": [
+            301,
+            303
+        ]
     },
     {
         "name": "Taillow",
@@ -30961,7 +33665,19 @@
             "I": "TAILLOW",
             "J": "\u30b9\u30d0\u30e1",
             "S": "TAILLOW"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 22,
+                "target_species": 305
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            304,
+            305
+        ]
     },
     {
         "name": "Swellow",
@@ -31053,7 +33769,13 @@
             "I": "SWELLOW",
             "J": "\u30aa\u30aa\u30b9\u30d0\u30e1",
             "S": "SWELLOW"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 304,
+        "family": [
+            304,
+            305
+        ]
     },
     {
         "name": "Shroomish",
@@ -31152,7 +33874,19 @@
             "I": "SHROOMISH",
             "J": "\u30ad\u30ce\u30b3\u30b3",
             "S": "SHROOMISH"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 23,
+                "target_species": 307
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            306,
+            307
+        ]
     },
     {
         "name": "Breloom",
@@ -31263,7 +33997,13 @@
             "I": "BRELOOM",
             "J": "\u30ad\u30ce\u30ac\u30c3\u30b5",
             "S": "BRELOOM"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 306,
+        "family": [
+            306,
+            307
+        ]
     },
     {
         "name": "Spinda",
@@ -31397,7 +34137,12 @@
             "I": "SPINDA",
             "J": "\u30d1\u30c3\u30c1\u30fc\u30eb",
             "S": "SPINDA"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            308
+        ]
     },
     {
         "name": "Wingull",
@@ -31498,7 +34243,19 @@
             "I": "WINGULL",
             "J": "\u30ad\u30e3\u30e2\u30e1",
             "S": "WINGULL"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 25,
+                "target_species": 310
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            309,
+            310
+        ]
     },
     {
         "name": "Pelipper",
@@ -31598,7 +34355,13 @@
             "I": "PELIPPER",
             "J": "\u30da\u30ea\u30c3\u30d1\u30fc",
             "S": "PELIPPER"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 309,
+        "family": [
+            309,
+            310
+        ]
     },
     {
         "name": "Surskit",
@@ -31699,7 +34462,19 @@
             "I": "SURSKIT",
             "J": "\u30a2\u30e1\u30bf\u30de",
             "S": "SURSKIT"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 22,
+                "target_species": 312
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            312,
+            311
+        ]
     },
     {
         "name": "Masquerain",
@@ -31802,7 +34577,13 @@
             "I": "MASQUERAIN",
             "J": "\u30a2\u30e1\u30e2\u30fc\u30b9",
             "S": "MASQUERAIN"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 311,
+        "family": [
+            312,
+            311
+        ]
     },
     {
         "name": "Wailmer",
@@ -31914,7 +34695,19 @@
             "I": "WAILMER",
             "J": "\u30db\u30a8\u30eb\u30b3",
             "S": "WAILMER"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 40,
+                "target_species": 314
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            313,
+            314
+        ]
     },
     {
         "name": "Wailord",
@@ -32018,7 +34811,13 @@
             "I": "WAILORD",
             "J": "\u30db\u30a8\u30eb\u30aa\u30fc",
             "S": "WAILORD"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 313,
+        "family": [
+            313,
+            314
+        ]
     },
     {
         "name": "Skitty",
@@ -32141,7 +34940,19 @@
             "I": "SKITTY",
             "J": "\u30a8\u30cd\u30b3",
             "S": "SKITTY"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "item",
+                "method_param": 94,
+                "target_species": 316
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            315,
+            316
+        ]
     },
     {
         "name": "Delcatty",
@@ -32250,7 +35061,13 @@
             "I": "DELCATTY",
             "J": "\u30a8\u30cd\u30b3\u30ed\u30ed",
             "S": "DELCATTY"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 315,
+        "family": [
+            315,
+            316
+        ]
     },
     {
         "name": "Kecleon",
@@ -32388,7 +35205,12 @@
             "I": "KECLEON",
             "J": "\u30ab\u30af\u30ec\u30aa\u30f3",
             "S": "KECLEON"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            317
+        ]
     },
     {
         "name": "Baltoy",
@@ -32490,7 +35312,19 @@
             "I": "BALTOY",
             "J": "\u30e4\u30b8\u30ed\u30f3",
             "S": "BALTOY"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 36,
+                "target_species": 319
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            318,
+            319
+        ]
     },
     {
         "name": "Claydol",
@@ -32597,7 +35431,13 @@
             "I": "CLAYDOL",
             "J": "\u30cd\u30f3\u30c9\u30fc\u30eb",
             "S": "CLAYDOL"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 318,
+        "family": [
+            318,
+            319
+        ]
     },
     {
         "name": "Nosepass",
@@ -32706,7 +35546,12 @@
             "I": "NOSEPASS",
             "J": "\u30ce\u30ba\u30d1\u30b9",
             "S": "NOSEPASS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            320
+        ]
     },
     {
         "name": "Torkoal",
@@ -32807,7 +35652,12 @@
             "I": "TORKOAL",
             "J": "\u30b3\u30fc\u30bf\u30b9",
             "S": "TORKOAL"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            321
+        ]
     },
     {
         "name": "Sableye",
@@ -32930,7 +35780,12 @@
             "I": "SABLEYE",
             "J": "\u30e4\u30df\u30e9\u30df",
             "S": "SABLEYE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            322
+        ]
     },
     {
         "name": "Barboach",
@@ -33031,7 +35886,19 @@
             "I": "BARBOACH",
             "J": "\u30c9\u30b8\u30e7\u30c3\u30c1",
             "S": "BARBOACH"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 324
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            323,
+            324
+        ]
     },
     {
         "name": "Whiscash",
@@ -33133,7 +36000,13 @@
             "I": "WHISCASH",
             "J": "\u30ca\u30de\u30ba\u30f3",
             "S": "WHISCASH"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 323,
+        "family": [
+            323,
+            324
+        ]
     },
     {
         "name": "Luvdisc",
@@ -33236,7 +36109,12 @@
             "I": "LUVDISC",
             "J": "\u30e9\u30d6\u30ab\u30b9",
             "S": "LUVDISC"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            325
+        ]
     },
     {
         "name": "Corphish",
@@ -33348,7 +36226,19 @@
             "I": "CORPHISH",
             "J": "\u30d8\u30a4\u30ac\u30cb",
             "S": "CORPHISH"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 327
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            326,
+            327
+        ]
     },
     {
         "name": "Crawdaunt",
@@ -33459,7 +36349,13 @@
             "I": "CRAWDAUNT",
             "J": "\u30b7\u30b6\u30ea\u30ac\u30fc",
             "S": "CRAWDAUNT"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 326,
+        "family": [
+            326,
+            327
+        ]
     },
     {
         "name": "Feebas",
@@ -33552,7 +36448,19 @@
             "I": "FEEBAS",
             "J": "\u30d2\u30f3\u30d0\u30b9",
             "S": "FEEBAS"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level_with_beauty",
+                "method_param": 170,
+                "target_species": 329
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            328,
+            329
+        ]
     },
     {
         "name": "Milotic",
@@ -33652,7 +36560,13 @@
             "I": "MILOTIC",
             "J": "\u30df\u30ed\u30ab\u30ed\u30b9",
             "S": "MILOTIC"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 328,
+        "family": [
+            328,
+            329
+        ]
     },
     {
         "name": "Carvanha",
@@ -33754,7 +36668,19 @@
             "I": "CARVANHA",
             "J": "\u30ad\u30d0\u30cb\u30a2",
             "S": "CARVANHA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 331
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            330,
+            331
+        ]
     },
     {
         "name": "Sharpedo",
@@ -33860,7 +36786,13 @@
             "I": "SHARPEDO",
             "J": "\u30b5\u30e1\u30cf\u30c0\u30fc",
             "S": "SHARPEDO"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 330,
+        "family": [
+            330,
+            331
+        ]
     },
     {
         "name": "Trapinch",
@@ -33963,7 +36895,20 @@
             "I": "TRAPINCH",
             "J": "\u30ca\u30c3\u30af\u30e9\u30fc",
             "S": "TRAPINCH"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 35,
+                "target_species": 333
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            332,
+            333,
+            334
+        ]
     },
     {
         "name": "Vibrava",
@@ -34062,7 +37007,20 @@
             "I": "VIBRAVA",
             "J": "\u30d3\u30d6\u30e9\u30fc\u30d0",
             "S": "VIBRAVA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 45,
+                "target_species": 334
+            }
+        ],
+        "evolves_from": 332,
+        "family": [
+            332,
+            333,
+            334
+        ]
     },
     {
         "name": "Flygon",
@@ -34167,7 +37125,14 @@
             "I": "FLYGON",
             "J": "\u30d5\u30e9\u30a4\u30b4\u30f3",
             "S": "FLYGON"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 333,
+        "family": [
+            332,
+            333,
+            334
+        ]
     },
     {
         "name": "Makuhita",
@@ -34285,7 +37250,19 @@
             "I": "MAKUHITA",
             "J": "\u30de\u30af\u30ce\u30b7\u30bf",
             "S": "MAKUHITA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 24,
+                "target_species": 336
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            336,
+            335
+        ]
     },
     {
         "name": "Hariyama",
@@ -34400,7 +37377,13 @@
             "I": "HARIYAMA",
             "J": "\u30cf\u30ea\u30c6\u30e4\u30de",
             "S": "HARIYAMA"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 335,
+        "family": [
+            336,
+            335
+        ]
     },
     {
         "name": "Electrike",
@@ -34503,7 +37486,19 @@
             "I": "ELECTRIKE",
             "J": "\u30e9\u30af\u30e9\u30a4",
             "S": "ELECTRIKE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 26,
+                "target_species": 338
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            337,
+            338
+        ]
     },
     {
         "name": "Manectric",
@@ -34601,7 +37596,13 @@
             "I": "MANECTRIC",
             "J": "\u30e9\u30a4\u30dc\u30eb\u30c8",
             "S": "MANECTRIC"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 337,
+        "family": [
+            337,
+            338
+        ]
     },
     {
         "name": "Numel",
@@ -34711,7 +37712,19 @@
             "I": "NUMEL",
             "J": "\u30c9\u30f3\u30e1\u30eb",
             "S": "NUMEL"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 33,
+                "target_species": 340
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            339,
+            340
+        ]
     },
     {
         "name": "Camerupt",
@@ -34818,7 +37831,13 @@
             "I": "CAMERUPT",
             "J": "\u30d0\u30af\u30fc\u30c0",
             "S": "CAMERUPT"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 339,
+        "family": [
+            339,
+            340
+        ]
     },
     {
         "name": "Spheal",
@@ -34932,7 +37951,20 @@
             "I": "SPHEAL",
             "J": "\u30bf\u30de\u30b6\u30e9\u30b7",
             "S": "SPHEAL"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 32,
+                "target_species": 342
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            341,
+            342,
+            343
+        ]
     },
     {
         "name": "Sealeo",
@@ -35038,7 +38070,20 @@
             "I": "SEALEO",
             "J": "\u30c8\u30c9\u30b0\u30e9\u30fc",
             "S": "SEALEO"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 44,
+                "target_species": 343
+            }
+        ],
+        "evolves_from": 341,
+        "family": [
+            341,
+            342,
+            343
+        ]
     },
     {
         "name": "Walrein",
@@ -35145,7 +38190,14 @@
             "I": "WALREIN",
             "J": "\u30c8\u30c9\u30bc\u30eb\u30ac",
             "S": "WALREIN"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 342,
+        "family": [
+            341,
+            342,
+            343
+        ]
     },
     {
         "name": "Cacnea",
@@ -35259,7 +38311,19 @@
             "I": "CACNEA",
             "J": "\u30b5\u30dc\u30cd\u30a2",
             "S": "CACNEA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 32,
+                "target_species": 345
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            344,
+            345
+        ]
     },
     {
         "name": "Cacturne",
@@ -35371,7 +38435,13 @@
             "I": "CACTURNE",
             "J": "\u30ce\u30af\u30bf\u30b9",
             "S": "CACTURNE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 344,
+        "family": [
+            344,
+            345
+        ]
     },
     {
         "name": "Snorunt",
@@ -35469,7 +38539,19 @@
             "I": "SNORUNT",
             "J": "\u30e6\u30ad\u30ef\u30e9\u30b7",
             "S": "SNORUNT"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 42,
+                "target_species": 347
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            346,
+            347
+        ]
     },
     {
         "name": "Glalie",
@@ -35577,7 +38659,13 @@
             "I": "GLALIE",
             "J": "\u30aa\u30cb\u30b4\u30fc\u30ea",
             "S": "GLALIE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 346,
+        "family": [
+            346,
+            347
+        ]
     },
     {
         "name": "Lunatone",
@@ -35686,7 +38774,12 @@
             "I": "LUNATONE",
             "J": "\u30eb\u30ca\u30c8\u30fc\u30f3",
             "S": "LUNATONE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            348
+        ]
     },
     {
         "name": "Solrock",
@@ -35798,7 +38891,12 @@
             "I": "SOLROCK",
             "J": "\u30bd\u30eb\u30ed\u30c3\u30af",
             "S": "SOLROCK"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            349
+        ]
     },
     {
         "name": "Azurill",
@@ -35897,7 +38995,20 @@
             "I": "AZURILL",
             "J": "\u30eb\u30ea\u30ea",
             "S": "AZURILL"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level_with_friendship",
+                "method_param": 0,
+                "target_species": 183
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            184,
+            350,
+            183
+        ]
     },
     {
         "name": "Spoink",
@@ -36006,7 +39117,19 @@
             "I": "SPOINK",
             "J": "\u30d0\u30cd\u30d6\u30fc",
             "S": "SPOINK"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 32,
+                "target_species": 352
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            352,
+            351
+        ]
     },
     {
         "name": "Grumpig",
@@ -36121,7 +39244,13 @@
             "I": "GRUMPIG",
             "J": "\u30d6\u30fc\u30d4\u30c3\u30b0",
             "S": "GRUMPIG"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 351,
+        "family": [
+            352,
+            351
+        ]
     },
     {
         "name": "Plusle",
@@ -36227,7 +39356,12 @@
             "I": "PLUSLE",
             "J": "\u30d7\u30e9\u30b9\u30eb",
             "S": "PLUSLE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            353
+        ]
     },
     {
         "name": "Minun",
@@ -36333,7 +39467,12 @@
             "I": "MINUN",
             "J": "\u30de\u30a4\u30ca\u30f3",
             "S": "MINUN"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            354
+        ]
     },
     {
         "name": "Mawile",
@@ -36455,7 +39594,12 @@
             "I": "MAWILE",
             "J": "\u30af\u30c1\u30fc\u30c8",
             "S": "MAWILE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            355
+        ]
     },
     {
         "name": "Meditite",
@@ -36575,7 +39719,19 @@
             "I": "MEDITITE",
             "J": "\u30a2\u30b5\u30ca\u30f3",
             "S": "MEDITITE"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 37,
+                "target_species": 357
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            356,
+            357
+        ]
     },
     {
         "name": "Medicham",
@@ -36692,7 +39848,13 @@
             "I": "MEDICHAM",
             "J": "\u30c1\u30e3\u30fc\u30ec\u30e0",
             "S": "MEDICHAM"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 356,
+        "family": [
+            356,
+            357
+        ]
     },
     {
         "name": "Swablu",
@@ -36796,7 +39958,19 @@
             "I": "SWABLU",
             "J": "\u30c1\u30eb\u30c3\u30c8",
             "S": "SWABLU"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 35,
+                "target_species": 359
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            358,
+            359
+        ]
     },
     {
         "name": "Altaria",
@@ -36905,7 +40079,13 @@
             "I": "ALTARIA",
             "J": "\u30c1\u30eb\u30bf\u30ea\u30b9",
             "S": "ALTARIA"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 358,
+        "family": [
+            358,
+            359
+        ]
     },
     {
         "name": "Wynaut",
@@ -36965,7 +40145,19 @@
             "I": "WYNAUT",
             "J": "\u30bd\u30fc\u30ca\u30ce",
             "S": "WYNAUT"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 15,
+                "target_species": 202
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            360,
+            202
+        ]
     },
     {
         "name": "Duskull",
@@ -37077,7 +40269,19 @@
             "I": "DUSKULL",
             "J": "\u30e8\u30de\u30ef\u30eb",
             "S": "DUSKULL"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 37,
+                "target_species": 362
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            361,
+            362
+        ]
     },
     {
         "name": "Dusclops",
@@ -37201,7 +40405,13 @@
             "I": "DUSCLOPS",
             "J": "\u30b5\u30de\u30e8\u30fc\u30eb",
             "S": "DUSCLOPS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 361,
+        "family": [
+            361,
+            362
+        ]
     },
     {
         "name": "Roselia",
@@ -37315,7 +40525,12 @@
             "I": "ROSELIA",
             "J": "\u30ed\u30bc\u30ea\u30a2",
             "S": "ROSELIA"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            363
+        ]
     },
     {
         "name": "Slakoth",
@@ -37436,7 +40651,20 @@
             "I": "SLAKOTH",
             "J": "\u30ca\u30de\u30b1\u30ed",
             "S": "SLAKOTH"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 18,
+                "target_species": 365
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            364,
+            365,
+            366
+        ]
     },
     {
         "name": "Vigoroth",
@@ -37553,7 +40781,20 @@
             "I": "VIGOROTH",
             "J": "\u30e4\u30eb\u30ad\u30e2\u30ce",
             "S": "VIGOROTH"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 36,
+                "target_species": 366
+            }
+        ],
+        "evolves_from": 364,
+        "family": [
+            364,
+            365,
+            366
+        ]
     },
     {
         "name": "Slaking",
@@ -37671,7 +40912,14 @@
             "I": "SLAKING",
             "J": "\u30b1\u30c3\u30ad\u30f3\u30b0",
             "S": "SLAKING"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 365,
+        "family": [
+            364,
+            365,
+            366
+        ]
     },
     {
         "name": "Gulpin",
@@ -37789,7 +41037,19 @@
             "I": "GULPIN",
             "J": "\u30b4\u30af\u30ea\u30f3",
             "S": "GULPIN"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 26,
+                "target_species": 368
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            368,
+            367
+        ]
     },
     {
         "name": "Swalot",
@@ -37904,7 +41164,13 @@
             "I": "SWALOT",
             "J": "\u30de\u30eb\u30ce\u30fc\u30e0",
             "S": "SWALOT"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 367,
+        "family": [
+            368,
+            367
+        ]
     },
     {
         "name": "Tropius",
@@ -38014,7 +41280,12 @@
             "I": "TROPIUS",
             "J": "\u30c8\u30ed\u30d4\u30a6\u30b9",
             "S": "TROPIUS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            369
+        ]
     },
     {
         "name": "Whismur",
@@ -38134,7 +41405,20 @@
             "I": "WHISMUR",
             "J": "\u30b4\u30cb\u30e7\u30cb\u30e7",
             "S": "WHISMUR"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 20,
+                "target_species": 371
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            370,
+            371,
+            372
+        ]
     },
     {
         "name": "Loudred",
@@ -38256,7 +41540,20 @@
             "I": "LOUDRED",
             "J": "\u30c9\u30b4\u30fc\u30e0",
             "S": "LOUDRED"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 40,
+                "target_species": 372
+            }
+        ],
+        "evolves_from": 370,
+        "family": [
+            370,
+            371,
+            372
+        ]
     },
     {
         "name": "Exploud",
@@ -38380,7 +41677,14 @@
             "I": "EXPLOUD",
             "J": "\u30d0\u30af\u30aa\u30f3\u30b0",
             "S": "EXPLOUD"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 371,
+        "family": [
+            370,
+            371,
+            372
+        ]
     },
     {
         "name": "Clamperl",
@@ -38478,7 +41782,25 @@
             "I": "CLAMPERL",
             "J": "\u30d1\u30fc\u30eb\u30eb",
             "S": "CLAMPERL"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "trade_with_item",
+                "method_param": 192,
+                "target_species": 374
+            },
+            {
+                "method": "trade_with_item",
+                "method_param": 193,
+                "target_species": 375
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            373,
+            374,
+            375
+        ]
     },
     {
         "name": "Huntail",
@@ -38573,7 +41895,13 @@
             "I": "HUNTAIL",
             "J": "\u30cf\u30f3\u30c6\u30fc\u30eb",
             "S": "HUNTAIL"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 373,
+        "family": [
+            373,
+            374
+        ]
     },
     {
         "name": "Gorebyss",
@@ -38669,7 +41997,13 @@
             "I": "GOREBYSS",
             "J": "\u30b5\u30af\u30e9\u30d3\u30b9",
             "S": "GOREBYSS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 373,
+        "family": [
+            373,
+            375
+        ]
     },
     {
         "name": "Absol",
@@ -38795,7 +42129,12 @@
             "I": "ABSOL",
             "J": "\u30a2\u30d6\u30bd\u30eb",
             "S": "ABSOL"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            376
+        ]
     },
     {
         "name": "Shuppet",
@@ -38907,7 +42246,19 @@
             "I": "SHUPPET",
             "J": "\u30ab\u30b2\u30dc\u30a6\u30ba",
             "S": "SHUPPET"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 37,
+                "target_species": 378
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            377,
+            378
+        ]
     },
     {
         "name": "Banette",
@@ -39016,7 +42367,13 @@
             "I": "BANETTE",
             "J": "\u30b8\u30e5\u30da\u30c3\u30bf",
             "S": "BANETTE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 377,
+        "family": [
+            377,
+            378
+        ]
     },
     {
         "name": "Seviper",
@@ -39121,7 +42478,12 @@
             "I": "SEVIPER",
             "J": "\u30cf\u30d6\u30cd\u30fc\u30af",
             "S": "SEVIPER"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            379
+        ]
     },
     {
         "name": "Zangoose",
@@ -39252,7 +42614,12 @@
             "I": "ZANGOOSE",
             "J": "\u30b6\u30f3\u30b0\u30fc\u30b9",
             "S": "ZANGOOSE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            380
+        ]
     },
     {
         "name": "Relicanth",
@@ -39370,7 +42737,12 @@
             "I": "RELICANTH",
             "J": "\u30b8\u30fc\u30e9\u30f3\u30b9",
             "S": "RELICANTH"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            381
+        ]
     },
     {
         "name": "Aron",
@@ -39486,7 +42858,20 @@
             "I": "ARON",
             "J": "\u30b3\u30b3\u30c9\u30e9",
             "S": "ARON"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 32,
+                "target_species": 383
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            384,
+            382,
+            383
+        ]
     },
     {
         "name": "Lairon",
@@ -39597,7 +42982,20 @@
             "I": "LAIRON",
             "J": "\u30b3\u30c9\u30e9",
             "S": "LAIRON"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 42,
+                "target_species": 384
+            }
+        ],
+        "evolves_from": 382,
+        "family": [
+            384,
+            382,
+            383
+        ]
     },
     {
         "name": "Aggron",
@@ -39731,7 +43129,14 @@
             "I": "AGGRON",
             "J": "\u30dc\u30b9\u30b4\u30c9\u30e9",
             "S": "AGGRON"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 383,
+        "family": [
+            384,
+            382,
+            383
+        ]
     },
     {
         "name": "Castform",
@@ -39842,7 +43247,12 @@
             "I": "CASTFORM",
             "J": "\u30dd\u30ef\u30eb\u30f3",
             "S": "CASTFORM"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            385
+        ]
     },
     {
         "name": "Volbeat",
@@ -39958,7 +43368,12 @@
             "I": "VOLBEAT",
             "J": "\u30d0\u30eb\u30d3\u30fc\u30c8",
             "S": "VOLBEAT"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            386
+        ]
     },
     {
         "name": "Illumise",
@@ -40073,7 +43488,12 @@
             "I": "ILLUMISE",
             "J": "\u30a4\u30eb\u30df\u30fc\u30bc",
             "S": "ILLUMISE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            387
+        ]
     },
     {
         "name": "Lileep",
@@ -40171,7 +43591,19 @@
             "I": "LILEEP",
             "J": "\u30ea\u30ea\u30fc\u30e9",
             "S": "LILEEP"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 40,
+                "target_species": 389
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            388,
+            389
+        ]
     },
     {
         "name": "Cradily",
@@ -40269,7 +43701,13 @@
             "I": "CRADILY",
             "J": "\u30e6\u30ec\u30a4\u30c9\u30eb",
             "S": "CRADILY"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 388,
+        "family": [
+            388,
+            389
+        ]
     },
     {
         "name": "Anorith",
@@ -40371,7 +43809,19 @@
             "I": "ANORITH",
             "J": "\u30a2\u30ce\u30d7\u30b9",
             "S": "ANORITH"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 40,
+                "target_species": 391
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            390,
+            391
+        ]
     },
     {
         "name": "Armaldo",
@@ -40473,7 +43923,13 @@
             "I": "ARMALDO",
             "J": "\u30a2\u30fc\u30de\u30eb\u30c9",
             "S": "ARMALDO"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 390,
+        "family": [
+            390,
+            391
+        ]
     },
     {
         "name": "Ralts",
@@ -40588,7 +44044,20 @@
             "I": "RALTS",
             "J": "\u30e9\u30eb\u30c8\u30b9",
             "S": "RALTS"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 20,
+                "target_species": 393
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            392,
+            393,
+            394
+        ]
     },
     {
         "name": "Kirlia",
@@ -40697,7 +44166,20 @@
             "I": "KIRLIA",
             "J": "\u30ad\u30eb\u30ea\u30a2",
             "S": "KIRLIA"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 394
+            }
+        ],
+        "evolves_from": 392,
+        "family": [
+            392,
+            393,
+            394
+        ]
     },
     {
         "name": "Gardevoir",
@@ -40807,7 +44289,14 @@
             "I": "GARDEVOIR",
             "J": "\u30b5\u30fc\u30ca\u30a4\u30c8",
             "S": "GARDEVOIR"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 393,
+        "family": [
+            392,
+            393,
+            394
+        ]
     },
     {
         "name": "Bagon",
@@ -40917,7 +44406,20 @@
             "I": "BAGON",
             "J": "\u30bf\u30c4\u30d9\u30a4",
             "S": "BAGON"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 30,
+                "target_species": 396
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            395,
+            396,
+            397
+        ]
     },
     {
         "name": "Shelgon",
@@ -41024,7 +44526,20 @@
             "I": "SHELGON",
             "J": "\u30b3\u30e2\u30eb\u30fc",
             "S": "SHELGON"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 50,
+                "target_species": 397
+            }
+        ],
+        "evolves_from": 395,
+        "family": [
+            395,
+            396,
+            397
+        ]
     },
     {
         "name": "Salamence",
@@ -41139,7 +44654,14 @@
             "I": "SALAMENCE",
             "J": "\u30dc\u30fc\u30de\u30f3\u30c0",
             "S": "SALAMENCE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 396,
+        "family": [
+            395,
+            396,
+            397
+        ]
     },
     {
         "name": "Beldum",
@@ -41199,7 +44721,20 @@
             "I": "BELDUM",
             "J": "\u30c0\u30f3\u30d0\u30eb",
             "S": "BELDUM"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 20,
+                "target_species": 399
+            }
+        ],
+        "evolves_from": null,
+        "family": [
+            400,
+            398,
+            399
+        ]
     },
     {
         "name": "Metang",
@@ -41316,7 +44851,20 @@
             "I": "METANG",
             "J": "\u30e1\u30bf\u30f3\u30b0",
             "S": "METANG"
-        }
+        },
+        "evolutions": [
+            {
+                "method": "level",
+                "method_param": 45,
+                "target_species": 400
+            }
+        ],
+        "evolves_from": 398,
+        "family": [
+            400,
+            398,
+            399
+        ]
     },
     {
         "name": "Metagross",
@@ -41433,7 +44981,14 @@
             "I": "METAGROSS",
             "J": "\u30e1\u30bf\u30b0\u30ed\u30b9",
             "S": "METAGROSS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": 399,
+        "family": [
+            400,
+            398,
+            399
+        ]
     },
     {
         "name": "Regirock",
@@ -41543,7 +45098,12 @@
             "I": "REGIROCK",
             "J": "\u30ec\u30b8\u30ed\u30c3\u30af",
             "S": "REGIROCK"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            401
+        ]
     },
     {
         "name": "Regice",
@@ -41653,7 +45213,12 @@
             "I": "REGICE",
             "J": "\u30ec\u30b8\u30a2\u30a4\u30b9",
             "S": "REGICE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            402
+        ]
     },
     {
         "name": "Registeel",
@@ -41764,7 +45329,12 @@
             "I": "REGISTEEL",
             "J": "\u30ec\u30b8\u30b9\u30c1\u30eb",
             "S": "REGISTEEL"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            403
+        ]
     },
     {
         "name": "Kyogre",
@@ -41874,7 +45444,12 @@
             "I": "KYOGRE",
             "J": "\u30ab\u30a4\u30aa\u30fc\u30ac",
             "S": "KYOGRE"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            404
+        ]
     },
     {
         "name": "Groudon",
@@ -41996,7 +45571,12 @@
             "I": "GROUDON",
             "J": "\u30b0\u30e9\u30fc\u30c9\u30f3",
             "S": "GROUDON"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            405
+        ]
     },
     {
         "name": "Rayquaza",
@@ -42114,7 +45694,12 @@
             "I": "RAYQUAZA",
             "J": "\u30ec\u30c3\u30af\u30a6\u30b6",
             "S": "RAYQUAZA"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            406
+        ]
     },
     {
         "name": "Latias",
@@ -42233,7 +45818,12 @@
             "I": "LATIAS",
             "J": "\u30e9\u30c6\u30a3\u30a2\u30b9",
             "S": "LATIAS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            407
+        ]
     },
     {
         "name": "Latios",
@@ -42352,7 +45942,12 @@
             "I": "LATIOS",
             "J": "\u30e9\u30c6\u30a3\u30aa\u30b9",
             "S": "LATIOS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            408
+        ]
     },
     {
         "name": "Jirachi",
@@ -42470,7 +46065,12 @@
             "I": "JIRACHI",
             "J": "\u30b8\u30e9\u30fc\u30c1",
             "S": "JIRACHI"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            409
+        ]
     },
     {
         "name": "Deoxys",
@@ -42596,7 +46196,12 @@
             "I": "DEOXYS",
             "J": "\u30c7\u30aa\u30ad\u30b7\u30b9",
             "S": "DEOXYS"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            410
+        ]
     },
     {
         "name": "Chimecho",
@@ -42704,6 +46309,11 @@
             "I": "CHIMECHO",
             "J": "\u30c1\u30ea\u30fc\u30f3",
             "S": "CHIMECHO"
-        }
+        },
+        "evolutions": [],
+        "evolves_from": null,
+        "family": [
+            411
+        ]
     }
 ]

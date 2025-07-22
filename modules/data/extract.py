@@ -798,6 +798,9 @@ def extract_species(
         english_file.seek(get_address("gEggMoves"))
         egg_moves_data = english_file.read(0x8E6)
 
+        english_file.seek(get_address("gEvolutionTable"))
+        evolution_table = english_file.read(0x4060)
+
         for i in range(412):
             name = string.capwords(read_string(english_file, get_address("gSpeciesNames") + (i * 11)))
             if name == "Ho-oh":
@@ -877,6 +880,40 @@ def extract_species(
                 if tutor_moves_bitfield & (1 << index):
                     tutor_moves.append(tutor_moves_map[index])
 
+            evolutions = []
+            for index in range(5):
+                offset = i * 0x28 + index * 8
+                evolution = evolution_table[offset : offset + 8]
+                method = int.from_bytes(evolution[0:2], byteorder="little")
+                param = int.from_bytes(evolution[2:4], byteorder="little")
+                target_species = int.from_bytes(evolution[4:6], byteorder="little")
+                method_table = [
+                    "",
+                    "level_with_friendship",
+                    "level_with_friendship_during_day",
+                    "level_with_friendship_during_night",
+                    "level",
+                    "trade",
+                    "trade_with_item",
+                    "item",
+                    "level_with_attack_greater_than_defence",
+                    "level_with_attack_equal_to_defence",
+                    "level_with_attack_lower_than_defence",
+                    "level_silcoon",
+                    "level_cascoon",
+                    "level",
+                    "level_with_empty_slot_in_party",
+                    "level_with_beauty",
+                ]
+                if method > 0 and target_species > 0:
+                    evolutions.append(
+                        {
+                            "method": method_table[method],
+                            "method_param": param,
+                            "target_species": target_species,
+                        }
+                    )
+
             species_list.append(
                 {
                     "name": name,
@@ -916,8 +953,24 @@ def extract_species(
                         "egg": egg_moves,
                     },
                     "localised_names": initialise_localised_string(),
+                    "evolutions": evolutions,
+                    "evolves_from": None,
+                    "family": set(),
                 }
             )
+
+    def update_family(species_index: int, species_index_to_add: int) -> None:
+        species_list[species_index]["family"].add(species_index_to_add)
+        for evolution in species_list[species_index]["evolutions"]:
+            species_list[species_index_to_add]["family"].add(evolution["target_species"])
+            species_list[evolution["target_species"]]["evolves_from"] = species_index
+            update_family(evolution["target_species"], species_index_to_add)
+
+    for species_index, species in enumerate(species_list):
+        update_family(species_index, species_index)
+
+    for species in species_list:
+        species["family"] = list(species["family"])
 
     for language_code in "DEFIJS":
         localised_rom = localised_roms[language_code]
