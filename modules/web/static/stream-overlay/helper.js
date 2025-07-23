@@ -467,3 +467,24 @@ export function getLastEncounterSpecies(encounterLog) {
         return null;
     }
 }
+
+
+export function getEmptySpeciesEntry(speciesID, speciesName) {
+    return {
+        species_id: speciesID,
+        species_name: speciesName,
+        total_encounters: 0,
+        shiny_encounters: 0,
+        catches: 0,
+        total_highest_iv_sum: null,
+        total_lowest_iv_sum: null,
+        total_highest_sv: null,
+        total_lowest_sv: null,
+        phase_encounters: 0,
+        phase_highest_iv_sum: null,
+        phase_lowest_iv_sum: null,
+        phase_highest_sv: null,
+        phase_lowest_sv: null,
+        last_encounter_time: null,
+    }
+}
