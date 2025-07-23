@@ -251,8 +251,8 @@ function updateEncounterInfoBubble(speciesName, stats, encounterGender) {
     }
 
     if (!stats.pokemon.hasOwnProperty(speciesName)) {
-        targetTimerBubbles[speciesName][0].style.display = "none";
-        targetTimerBubbles[speciesName][1].innerText = "?";
+        // targetTimerBubbles[speciesName][0].style.display = "none";
+        targetTimerBubbles[speciesName][1].innerText = "never";
         return;
     }
 
