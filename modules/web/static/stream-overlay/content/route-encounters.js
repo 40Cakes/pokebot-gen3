@@ -133,6 +133,8 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
 
     tbody.innerHTML = "";
 
+    let hasAtLeastOneAnti = false;
+    let hasPossibleEncounterThatIsNotAnti = false;
     for (const encounter of encounterList) {
         const species = stats.pokemon[encounter.species_name] ?? getEmptySpeciesEntry(encounter.species_id, encounter.species_name);
         const currentPhase = stats.current_phase;
@@ -180,6 +182,13 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
         let spriteType = "normal";
         let animate = encounter.species_name === animateSpecies;
         if (species && species.phase_highest_sv > 65527) {
+            spriteType = "anti-shiny";
+            hasAtLeastOneAnti = true;
+        }
+        if (encounter.encounter_rate > 0 && (!species || species.phase_highest_sv < 65528)) {
+            hasPossibleEncounterThatIsNotAnti = true;
+        }
+        if (species && encounter.encounter_rate <= 0 && hasAtLeastOneAnti && !hasPossibleEncounterThatIsNotAnti) {
             spriteType = "anti-shiny";
         }
 
