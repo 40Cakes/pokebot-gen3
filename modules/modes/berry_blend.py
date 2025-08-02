@@ -115,7 +115,7 @@ class BerryBlendMode(BotMode):
 
             position_next_frame = (raw_arrow_position + speed) // 256 + 24
             progress = unpack_uint16(context.emulator.read_bytes(pointer + progress_offset, 2))
-            if (progress > 800) ^ (hit_range_start <= position_next_frame < hit_range_end):
+            if (progress > 950) ^ (hit_range_start <= position_next_frame < hit_range_end):
                 self.press_a()
 
             yield
