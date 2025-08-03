@@ -11,6 +11,9 @@ one with 1-3 NPCs around it as the empty ones are for multiplayer only.)
 
 ![image](../images/berry_blender_table.png)
 
+It is recommended to use the "L=A" button setting, which allows the bot
+to make more hits in quick succession.
+
 ## Game Support
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald |
 |:---------|:-------:|:-----------:|:----------:|
