@@ -313,6 +313,16 @@ export function br() {
 }
 
 /**
+ * @param {number} durationInSeconds
+ * @returns {Promise<void>}
+ */
+export async function sleep(durationInSeconds) {
+    return new Promise((resolve, reject) => {
+        window.setTimeout(() => resolve(), Math.floor(durationInSeconds * 1000));
+    });
+}
+
+/**
  * @param {number} num
  * @param {number} min
  * @param {number} max

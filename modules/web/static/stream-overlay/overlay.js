@@ -22,7 +22,7 @@ import {
 import {hideCurrentEncounterStats, showCurrentEncounterStats} from "./content/current-encounter-stats.js";
 import {updateInputs} from "./content/inputs.js";
 import {updateClock} from "./content/clock.js";
-import {getLastEncounterSpecies} from "./helper.js";
+import {getLastEncounterSpecies, sleep} from "./helper.js";
 import {updateDaycareBox} from "./content/daycare.js";
 import {fireConfetti} from "./content/effects.js";
 
@@ -38,49 +38,67 @@ let isInSummaryScreen = false;
 let isInMainMenu = false;
 let wasShinyEncounter = false;
 
-/** @param {OverlayState} state */
+/**
+ * This fetches all the data the overlay needs for initialisation from the backend.
+ *
+ * If a fetch fails, it waits for 5 seconds and then tries again until if finally
+ * succeeded.
+ *
+ * @param {OverlayState} state
+ * @returns {Promise<void>}
+ */
 async function doFullUpdate(state) {
-    const customState = await loadAllData(state);
+    let hadSuccess = false;
+    while (!hadSuccess) {
+        try {
+            const customState = await loadAllData(state);
 
-    if (customState["daycare_mode"]) {
-        state.daycareMode = true;
-    }
+            if (customState["daycare_mode"]) {
+                state.daycareMode = true;
+            }
 
-    if (customState["countdown_target"]) {
-        state.countdownTarget = customState["countdown_target"];
-    }
+            if (customState["countdown_target"]) {
+                state.countdownTarget = customState["countdown_target"];
+            }
 
-    state.additionalTargetTimers.clear();
-    if (customState["species_timers"] && Array.isArray(customState["species_timers"])) {
-        for (const speciesName of customState["species_timers"]) {
-            state.additionalTargetTimers.add(speciesName);
+            state.additionalTargetTimers.clear();
+            if (customState["species_timers"] && Array.isArray(customState["species_timers"])) {
+                for (const speciesName of customState["species_timers"]) {
+                    state.additionalTargetTimers.add(speciesName);
+                }
+            }
+
+            resetCustomInfoBubbles();
+            if (customState["info_bubbles"] && Array.isArray(customState["info_bubbles"])) {
+                for (const infoBubble of customState["info_bubbles"]) {
+                    addInfoBubble(infoBubble);
+                }
+            }
+
+            isInBattle = BATTLE_STATES.includes(state.gameState);
+            isInEggHatch = state.gameState === "EGG_HATCH";
+            isInSummaryScreen = state.gameState === "POKEMON_SUMMARY_SCREEN";
+            isInMainMenu = state.gameState === "MAIN_MENU" || state.gameState === "TITLE_SCREEN";
+
+            updateMapName(state.map);
+            updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+            updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
+            updateShinyLog(state.shinyLog);
+            updateEncounterLog(state.encounterLog);
+            updatePartyList(state.party);
+            updateBadgeList(state.emulator.game.title, state.eventFlags);
+            updatePhaseStats(state.stats);
+            updatePCStorage(state.pokemonStorage, state.party, state.daycare);
+            updateTotalStats(state.stats, state.encounterRate);
+            updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, state.lastEncounterType, state.party, state.countdownTarget);
+            updateDaycareBox(state.emulator.bot_mode, state);
+
+            hadSuccess = true;
+        } catch (error) {
+            console.error(error);
+            await sleep(5);
         }
     }
-
-    resetCustomInfoBubbles();
-    if (customState["info_bubbles"] && Array.isArray(customState["info_bubbles"])) {
-        for (const infoBubble of customState["info_bubbles"]) {
-            addInfoBubble(infoBubble);
-        }
-    }
-
-    isInBattle = BATTLE_STATES.includes(state.gameState);
-    isInEggHatch = state.gameState === "EGG_HATCH";
-    isInSummaryScreen = state.gameState === "POKEMON_SUMMARY_SCREEN";
-    isInMainMenu = state.gameState === "MAIN_MENU" || state.gameState === "TITLE_SCREEN";
-
-    updateMapName(state.map);
-    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
-    updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
-    updateShinyLog(state.shinyLog);
-    updateEncounterLog(state.encounterLog);
-    updatePartyList(state.party);
-    updateBadgeList(state.emulator.game.title, state.eventFlags);
-    updatePhaseStats(state.stats);
-    updatePCStorage(state.pokemonStorage, state.party, state.daycare);
-    updateTotalStats(state.stats, state.encounterRate);
-    updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, state.lastEncounterType, state.party, state.countdownTarget);
-    updateDaycareBox(state.emulator.bot_mode, state);
 }
 
 /**
@@ -293,7 +311,6 @@ function handleInputs(event, state) {
  * @param {OverlayState} state
  */
 function handleCustomEvent(event, state) {
-    console.log(event);
     if (typeof event !== "object" || !event["action"]) {
         return;
     }
@@ -368,6 +385,20 @@ export default async function runOverlay() {
     const state = new OverlayState();
     window.overlayState = state;
 
+    /** @type {EventSource} */
+    let eventSource;
+    /** @type {{[k: string]: (MessageEvent) => any}} */
+    const eventListeners = {};
+    let lastStreamedEventTimestamp = new Date().getTime();
+
+    const setUpEventSource = () => {
+        eventSource = getEventSource(eventListeners);
+        eventSource.onmessage = event => {
+            lastStreamedEventTimestamp = new Date().getTime();
+        };
+        eventSource.onerror = error => eventSource.close();
+    };
+
     clockUpdateInterval = window.setInterval(() => {
         updateClock(config.startDate, config.timeZone, config.overrideDisplayTimezone);
         if (new Date().getSeconds() === 0) {
@@ -376,24 +407,38 @@ export default async function runOverlay() {
             updateShinyLog(state.shinyLog);
             updatePhaseStats(state.stats);
         }
+
+        // We've had issues with the overlay at some point not receiving any
+        // more events from the bot. Since I couldn't figure out what caused
+        // this, we'll just try to reconnect if we haven't received anything
+        // for more than 15 seconds. (This should never happen organically as
+        // button presses alone would reset that counter much more frequently.)
+        const secondsSinceLastEvent = (new Date().getTime() - lastStreamedEventTimestamp) / 1000;
+        if (secondsSinceLastEvent > 15 || eventSource.readyState === EventSource.CLOSED) {
+            try {
+                eventSource.close();
+            } catch (error) {
+                console.error(error);
+            }
+            doFullUpdate(state).then(() => setUpEventSource());
+        }
     }, 1000);
     updateClock(config.startDate, config.timeZone, config.overrideDisplayTimezone);
 
     await doFullUpdate(state);
-    const eventSource = getEventSource();
 
-    eventSource.addEventListener("PerformanceData", event => handlePerformanceData(JSON.parse(event.data), state));
-    eventSource.addEventListener("GameState", event => handleGameState(JSON.parse(event.data), state));
-    eventSource.addEventListener("BotMode", event => handleBotMode(JSON.parse(event.data), state));
-    eventSource.addEventListener("Party", event => handleParty(JSON.parse(event.data), state));
-    eventSource.addEventListener("WildEncounter", event => handleWildEncounter(JSON.parse(event.data), state));
-    eventSource.addEventListener("MapChange", event => handleMapChange(JSON.parse(event.data), state));
-    eventSource.addEventListener("MapEncounters", event => handleMapEncounters(JSON.parse(event.data), state));
-    eventSource.addEventListener("PlayerAvatar", event => handlePlayerAvatar(JSON.parse(event.data), state));
-    eventSource.addEventListener("PokenavCall", event => handlePokenavCall(state));
-    eventSource.addEventListener("FishingAttempt", event => handleFishingAttempt(JSON.parse(event.data), state));
-    eventSource.addEventListener("Inputs", event => handleInputs(JSON.parse(event.data), state));
-    eventSource.addEventListener("CustomEvent", event => handleCustomEvent(JSON.parse(event.data), state));
+    eventListeners["PerformanceData"] = event => handlePerformanceData(JSON.parse(event.data), state);
+    eventListeners["GameState"] = event => handleGameState(JSON.parse(event.data), state);
+    eventListeners["BotMode"] = event => handleBotMode(JSON.parse(event.data), state);
+    eventListeners["Party"] = event => handleParty(JSON.parse(event.data), state);
+    eventListeners["WildEncounter"] = event => handleWildEncounter(JSON.parse(event.data), state);
+    eventListeners["MapChange"] = event => handleMapChange(JSON.parse(event.data), state);
+    eventListeners["MapEncounters"] = event => handleMapEncounters(JSON.parse(event.data), state);
+    eventListeners["PlayerAvatar"] = event => handlePlayerAvatar(JSON.parse(event.data), state);
+    eventListeners["PokenavCall"] = event => handlePokenavCall(state);
+    eventListeners["FishingAttempt"] = event => handleFishingAttempt(JSON.parse(event.data), state);
+    eventListeners["Inputs"] = event => handleInputs(JSON.parse(event.data), state);
+    eventListeners["CustomEvent"] = event => handleCustomEvent(JSON.parse(event.data), state);
 
     if (config.gymMode) {
         document.getElementById("route-encounters").style.display = "none";
@@ -421,14 +466,16 @@ export default async function runOverlay() {
         currentLocation.innerText = state.map.map.pretty_name
             .replace("é", "e")
             .replace("’", "'");
-        eventSource.addEventListener("MapChange", event => {
+        eventListeners["MapChange"] = event => {
             /** @type {MapLocation} */
             const eventData = JSON.parse(event.data);
             currentLocation.innerText = eventData.map.pretty_name
                 .replace("é", "e")
                 .replace("’", "'");
-        });
+        };
     }
+
+    setUpEventSource();
 
     window.handleCustomEvent = handleCustomEvent;
 }
