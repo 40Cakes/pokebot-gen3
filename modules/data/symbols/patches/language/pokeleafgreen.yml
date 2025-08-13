@@ -543,6 +543,12 @@ gPokemonStoragePtr:
   I: 0x3004f60
   J: 0x3005050
   S: 0x3004f60
+gStorage:
+  J: 0x20396fc
+sCursorArea:
+  J: 0x203976c
+sCursorPosition:
+  J: 0x203976d
 #-------------------------#
 
 #--------------#
