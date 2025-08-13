@@ -1,11 +1,14 @@
 import asyncio
+import json
 import time
 from asyncio import Queue, set_event_loop, new_event_loop, AbstractEventLoop
 from dataclasses import dataclass
+from json import JSONDecodeError
 from pathlib import Path
 
 from discord_webhook import DiscordEmbed, DiscordWebhook
 from pypresence import Presence
+from requests.exceptions import RequestException
 
 from modules.console import console
 from modules.context import context
@@ -49,7 +52,7 @@ def discord_send(message: DiscordMessage) -> None:
 
 
 async def _process_message(message: DiscordMessage) -> None:
-    webhook = DiscordWebhook(url=message.webhook_url, content=message.content)
+    webhook = DiscordWebhook(url=message.webhook_url, content=message.content, timeout=10, rate_limit_retry=True)
 
     # If one of the image files do not yet exist (which can happen as things like the
     # encounter GIF or the TCG cards are generated in a separate thread) delay
@@ -114,7 +117,19 @@ async def _process_message(message: DiscordMessage) -> None:
     if message.delay is not None and message.delay > 0:
         await asyncio.sleep(message.delay)
 
-    webhook.execute()
+    # If sending the webhook doesn't succeed, we will try again two more times.
+    tries_remaining = 3
+    while tries_remaining > 0:
+        try:
+            response = webhook.execute()
+            if response.status_code < 400:
+                break
+        except (RequestException, JSONDecodeError):
+            # The `JSONDecodeError` needs to be handled because the `discord-webhook`
+            # library still passes the response content into `json.loads()` even if
+            # the response code looks like an error.
+            await asyncio.sleep(5.0)
+            tries_remaining -= 1
 
 
 def discord_rich_presence_loop() -> None:
@@ -167,13 +182,16 @@ def discord_rich_presence_loop() -> None:
         except:
             pass
 
-        rpc.update(
-            state=f"{location} | {context.rom.short_game_name}",
-            details=" | ".join(details),
-            large_image=large_image,
-            start=int(start),
-            buttons=[{"label": "⏬ Download PokéBot Gen3", "url": "https://github.com/40Cakes/pokebot-gen3"}],
-        )
+        try:
+            rpc.update(
+                state=f"{location} | {context.rom.short_game_name}",
+                details=" | ".join(details),
+                large_image=large_image,
+                start=int(start),
+                buttons=[{"label": "⏬ Download PokéBot Gen3", "url": "https://github.com/40Cakes/pokebot-gen3"}],
+            )
+        except Exception as error:
+            console.print(f"[yellow]Setting Discord Rich Presence failed:[/] {str(error)}")
 
         time.sleep(15)
 
@@ -181,7 +199,12 @@ def discord_rich_presence_loop() -> None:
 async def _handle_message_queue() -> None:
     while True:
         message = await _message_queue.get()
-        await _process_message(message)
+        try:
+            await _process_message(message)
+        except:
+            serialised_message = json.dumps(message, indent=4)
+            console.print_exception()
+            console.print(f"\n[cyan]Failed Discord Message payload:[/]\n{serialised_message}")
 
 
 def discord_message_thread() -> None:
