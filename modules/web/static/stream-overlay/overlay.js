@@ -45,9 +45,10 @@ let wasShinyEncounter = false;
  * succeeded.
  *
  * @param {OverlayState} state
+ * @param {boolean} retryOnError
  * @returns {Promise<void>}
  */
-async function doFullUpdate(state) {
+async function doFullUpdate(state, retryOnError = true) {
     let hadSuccess = false;
     while (!hadSuccess) {
         try {
@@ -95,8 +96,12 @@ async function doFullUpdate(state) {
 
             hadSuccess = true;
         } catch (error) {
-            console.error(error);
-            await sleep(5);
+            if (retryOnError) {
+                console.error(error);
+                await sleep(5);
+            } else {
+                throw error;
+            }
         }
     }
 }
@@ -392,11 +397,20 @@ export default async function runOverlay() {
     let lastStreamedEventTimestamp = new Date().getTime();
 
     const setUpEventSource = () => {
+        try {
+            if (eventSource) {
+                eventSource.close();
+            }
+        } catch (error) {
+            console.error(error);
+        }
+
         eventSource = getEventSource(eventListeners);
-        eventSource.onmessage = event => {
+        eventSource.addEventListener("Ping", event => {
             lastStreamedEventTimestamp = new Date().getTime();
-        };
-        eventSource.onerror = error => eventSource.close();
+        });
+        eventSource.addEventListener("error", () => eventSource.close());
+        lastStreamedEventTimestamp = new Date().getTime();
     };
 
     clockUpdateInterval = window.setInterval(() => {
@@ -413,14 +427,18 @@ export default async function runOverlay() {
         // this, we'll just try to reconnect if we haven't received anything
         // for more than 15 seconds. (This should never happen organically as
         // button presses alone would reset that counter much more frequently.)
-        const secondsSinceLastEvent = (new Date().getTime() - lastStreamedEventTimestamp) / 1000;
-        if (secondsSinceLastEvent > 15 || eventSource.readyState === EventSource.CLOSED) {
-            try {
-                eventSource.close();
-            } catch (error) {
-                console.error(error);
+        if (new Date().getSeconds() % 5 === 0) {
+            const secondsSinceLastEvent = (new Date().getTime() - lastStreamedEventTimestamp) / 1000;
+            if (secondsSinceLastEvent > 15 || eventSource.readyState === EventSource.CLOSED) {
+                try {
+                    eventSource.close();
+                } catch (error) {
+                    console.error(error);
+                }
+                doFullUpdate(state, false)
+                    .then(() => setUpEventSource())
+                    .catch(error => console.error(error));
             }
-            doFullUpdate(state).then(() => setUpEventSource());
         }
     }, 1000);
     updateClock(config.startDate, config.timeZone, config.overrideDisplayTimezone);
