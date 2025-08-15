@@ -9,14 +9,20 @@ function fireConfetti(booms, durationInSections) {
             y = Math.floor(Math.random() * 100);
         } while (x < 57 && y < 66);
 
-        confetti({position: {x, y}});
+        try {
+            confetti({position: {x, y}});
 
-        if (--remaining > 0) {
-            window.setTimeout(() => fireOneConfetti(), Math.floor(Math.random() * maxDelay));
+            if (--remaining > 0) {
+                window.setTimeout(() => fireOneConfetti(), Math.floor(Math.random() * maxDelay));
+            }
+        } catch (error) {
+            console.error(error);
         }
     };
 
-    fireOneConfetti();
+    if (typeof window.confetti === "function") {
+        fireOneConfetti();
+    }
 }
 
 export {fireConfetti};
