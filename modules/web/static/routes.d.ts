@@ -11,7 +11,7 @@ declare module PokeBotApi {
      */
     export type PostEmulatorRequest = {
         // 0 = unthrottled, other values are speed multipliers.
-        emulation_speed?: 0 | 1 | 2 | 3 | 4;
+        emulation_speed?: 0 | 1 | 2 | 3 | 4 | 8 | 16 | 32;
         bot_mode?: string;
         video_enabled?: boolean;
         audio_enabled?: boolean;
@@ -22,7 +22,7 @@ declare module PokeBotApi {
      */
     export type GetEmulatorResponse = {
         // 0 = unthrottled, other values are speed multipliers.
-        emulation_speed: 0 | 1 | 2 | 3 | 4;
+        emulation_speed: 0 | 1 | 2 | 3 | 4 | 8 | 16 | 32;
 
         video_enabled: boolean;
         audio_enabled: boolean;

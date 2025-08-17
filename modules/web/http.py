@@ -628,7 +628,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
 
         for key in new_settings:
             if key == "emulation_speed":
-                if new_settings["emulation_speed"] not in [0, 1, 2, 3, 4]:
+                if new_settings["emulation_speed"] not in [0, 1, 2, 3, 4, 8, 16, 32]:
                     return web.Response(
                         text=f"Setting `emulation_speed` contains an invalid value ('{new_settings['emulation_speed']}')",
                         status=422,
