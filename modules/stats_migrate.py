@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from typing import Iterable
 from zipfile import ZipFile
 from zoneinfo import ZoneInfo
+from pathlib import Path
 
 import numpy
 from rich.progress import Progress
@@ -115,7 +116,7 @@ def migrate_file_based_stats_to_sqlite(
                 continue
             known_personality_values.add(encounter.pokemon.personality_value)
 
-            encounter.encounter_time = datetime.fromtimestamp(encounter.encounter_time.timestamp(), tz=ZoneInfo("UTC"))
+            encounter.encounter_time = datetime.fromtimestamp(encounter.encounter_time.timestamp(), tz=_get_timezone())
 
             if current_shiny_phase is None:
                 current_shiny_phase = ShinyPhase(next_shiny_phase_id, encounter.encounter_time)
@@ -160,6 +161,97 @@ def migrate_file_based_stats_to_sqlite(
             update_shiny_phase(current_shiny_phase)
 
         commit()
+
+        def _update_totals_with_last_encounter(profile_path: Path):
+            """Update totals.json with last_encounter_time_unix and missing stats from encounter_log.json if missing."""
+            encounter_log_path = profile_path / "stats" / "encounter_log.json"
+            totals_path = profile_path / "stats" / "totals.json"
+
+            if not encounter_log_path.exists() or not totals_path.exists():
+                return  # Nothing to do if one file is missing
+
+            # Load files
+            with encounter_log_path.open("r", encoding="utf-8") as f:
+                encounter_log = json.load(f)
+
+            with totals_path.open("r", encoding="utf-8") as f:
+                totals = json.load(f)
+
+            # Collect encounter stats per species
+            encounter_stats = {}
+            for entry in encounter_log.get("encounter_log", []):
+                species_name = entry["pokemon_obj"]["speciesName"]
+                time_encountered = entry["time_encountered"]
+
+                # Parse timestamp
+                try:
+                    dt = datetime.fromisoformat(time_encountered)
+                    dt = dt.replace(tzinfo=ZoneInfo("UTC"))
+                    ts = int(dt.timestamp())
+                except Exception:
+                    continue  # skip bad data
+
+                pokemon = entry["pokemon_obj"]
+
+                # Calculate IV sum for this encounter
+                iv_sum = (
+                    pokemon.get("hpIV", 0)
+                    + pokemon.get("attackIV", 0)
+                    + pokemon.get("defenseIV", 0)
+                    + pokemon.get("spAttackIV", 0)
+                    + pokemon.get("spDefenseIV", 0)
+                    + pokemon.get("speedIV", 0)
+                )
+
+                sv = pokemon.get("shinyValue", 0)
+
+                # Track per-species stats
+                stats = encounter_stats.setdefault(
+                    species_name,
+                    {
+                        "last_time": ts,
+                        "highest_iv_sum": iv_sum,
+                        "lowest_iv_sum": iv_sum,
+                        "highest_sv": sv,
+                        "lowest_sv": sv,
+                    },
+                )
+
+                # Update max/min
+                stats["last_time"] = max(stats["last_time"], ts)
+                stats["highest_iv_sum"] = max(stats["highest_iv_sum"], iv_sum)
+                stats["lowest_iv_sum"] = min(stats["lowest_iv_sum"], iv_sum)
+                stats["highest_sv"] = max(stats["highest_sv"], sv)
+                stats["lowest_sv"] = min(stats["lowest_sv"], sv)
+
+            # Update totals.json if missing values or invalid placeholders
+            for species_name, entry in totals.get("pokemon", {}).items():
+                stats = encounter_stats.get(species_name, {})
+
+                if "last_encounter_time_unix" not in entry:
+                    entry["last_encounter_time_unix"] = stats.get(
+                        "last_time", int(datetime.now(tz=ZoneInfo("UTC")).timestamp())
+                    )
+
+                if "total_highest_iv_sum" not in entry:
+                    entry["total_highest_iv_sum"] = stats.get("highest_iv_sum", 0)
+
+                if "total_lowest_iv_sum" not in entry:
+                    entry["total_lowest_iv_sum"] = stats.get("lowest_iv_sum", 0)
+
+                # Fix phase_highest_sv
+                if "phase_highest_sv" not in entry or entry["phase_highest_sv"] in ("-", None):
+                    entry["phase_highest_sv"] = stats.get("highest_sv", None)
+
+                # Fix phase_lowest_sv
+                if "phase_lowest_sv" not in entry or entry["phase_lowest_sv"] in ("-", None):
+                    entry["phase_lowest_sv"] = stats.get("lowest_sv", None)
+
+            # Save back totals.json
+            with totals_path.open("w", encoding="utf-8") as f:
+                json.dump(totals, f, indent=4)
+
+        _update_totals_with_last_encounter(profile.path)
 
         # If there is a totals file, replace existing encounter summaries with that
         # as it is likely more reliable than the encounter list (which may be incomplete.)
