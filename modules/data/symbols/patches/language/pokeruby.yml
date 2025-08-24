@@ -197,6 +197,12 @@ SUB_8096B38:
   J: 0x809363c
 gPokemonStorage:
   J: 0x202fdbc
+gPokemonStorageSystemPtr:
+  J: 0x838cad0
+sBoxCursorArea:
+  J: 0x2038200
+sBoxCursorPosition:
+  J: 0x2038201
 #-------------------------#
 
 #--------------#
