@@ -266,7 +266,7 @@ class PathMap:
                             else:
                                 x -= 1
                             next_tile = get_map_data(tile.map_group_and_number, (x, y))
-                            if next_tile.elevation == tile.elevation and not next_tile.collision:
+                            if next_tile.elevation in (0, tile.elevation) and not next_tile.collision:
                                 destination = next_tile
                                 steps += 1
                             else:
