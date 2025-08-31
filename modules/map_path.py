@@ -18,6 +18,9 @@ class Direction(IntEnum):
     South = 2
     West = 3
 
+    def __hash__(self):
+        return self.value
+
     def opposite(self):
         return Direction((self.value + 2) % 4)
 
@@ -60,7 +63,7 @@ class PathTile:
     warps_to: tuple[tuple[int, int], tuple[int, int], Direction | None] | None
     waterfall_to: tuple[int, int] | None
     muddy_slope_to: tuple[int, int] | None
-    forced_movement_to: tuple[tuple[int, int], tuple[int, int], int] | None
+    forced_movement_to: dict[Direction, tuple[tuple[int, int], tuple[int, int], int]] | None
     needs_acro_bike: bool
     needs_bunny_hop: bool
     cannot_run: bool
@@ -108,7 +111,7 @@ class PathMap:
             for tile in all_tiles:
                 accessible_from_direction = [False, False, False, False]
                 waterfall_to = None
-                forced_movement_to = None
+                forced_movement_to: dict[Direction, tuple[tuple[int, int], tuple[int, int], int]] | None = None
                 muddy_slope_to = None
                 needs_acro_bike = False
                 needs_bunny_hop = False
@@ -240,7 +243,39 @@ class PathMap:
                             steps += 1
                         else:
                             break
-                    forced_movement_to = destination, steps
+                    forced_movement_to = {
+                        Direction.North: (destination.map_group_and_number, destination.local_position, steps),
+                        Direction.East: (destination.map_group_and_number, destination.local_position, steps),
+                        Direction.South: (destination.map_group_and_number, destination.local_position, steps),
+                        Direction.West: (destination.map_group_and_number, destination.local_position, steps),
+                    }
+                elif tile.tile_type == "Ice":
+                    accessible_from_direction = [True, True, True, True]
+                    forced_movement_to = {}
+                    for direction in (Direction.North, Direction.East, Direction.South, Direction.West):
+                        steps = 0
+                        destination = all_tiles[tile_index(tile.local_position[0], tile.local_position[1])]
+                        x, y = destination.local_position
+                        while destination.tile_type == "Ice":
+                            if direction is Direction.North:
+                                y -= 1
+                            elif direction is Direction.East:
+                                x += 1
+                            elif direction is Direction.South:
+                                y += 1
+                            else:
+                                x -= 1
+                            next_tile = get_map_data(tile.map_group_and_number, (x, y))
+                            if next_tile.elevation == tile.elevation and not next_tile.collision:
+                                destination = next_tile
+                                steps += 1
+                            else:
+                                break
+                        forced_movement_to[direction] = (
+                            destination.map_group_and_number,
+                            destination.local_position,
+                            steps,
+                        )
                 elif not self._is_optional_blocker(tile.local_position):
                     accessible_from_direction = [True, True, True, True]
 
@@ -283,15 +318,7 @@ class PathMap:
                         warps_to,
                         waterfall_to.local_position if waterfall_to is not None else None,
                         muddy_slope_to.local_position if muddy_slope_to is not None else None,
-                        (
-                            (
-                                forced_movement_to[0].map_group_and_number,
-                                forced_movement_to[0].local_position,
-                                forced_movement_to[1],
-                            )
-                            if forced_movement_to is not None and forced_movement_to[1] > 0
-                            else None
-                        ),
+                        forced_movement_to,
                         needs_acro_bike,
                         needs_bunny_hop,
                         cannot_run=(
@@ -874,13 +901,13 @@ def calculate_path(
                 is_muddy_slope = True
 
             if neighbour.forced_movement_to is not None:
-                cost += neighbour.forced_movement_to[2]
-                if neighbour.forced_movement_to[2] < 0:
+                cost += neighbour.forced_movement_to[direction][2]
+                if neighbour.forced_movement_to[direction][2] < 0:
                     raise RuntimeError(
-                        f"Encountered a negative-length forced movement from {neighbour.local_coordinates} to {neighbour.forced_movement_to}."
+                        f"Encountered a negative-length forced movement from {neighbour.local_coordinates} to {neighbour.forced_movement_to[direction]}."
                     )
                 neighbour = _find_tile_by_local_coordinates(
-                    neighbour.forced_movement_to[0], neighbour.forced_movement_to[1]
+                    neighbour.forced_movement_to[direction][0], neighbour.forced_movement_to[direction][1]
                 )
                 neighbour_coordinates = neighbour.global_coordinates
 
