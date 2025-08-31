@@ -1561,7 +1561,10 @@ class MapTab(DebugTab):
                 "Waterfall To": pt.waterfall_to,
                 "Muddy Slope To": pt.muddy_slope_to,
                 "Forced Movement To": (
-                    f"{pt.forced_movement_to[1]} @ {get_map_enum(pt.forced_movement_to[0]).pretty_name} ({pt.forced_movement_to[2]} steps)"
+                    [
+                        f"{direction.name}: {pt.forced_movement_to[direction][1]} @ {get_map_enum(pt.forced_movement_to[direction][0]).pretty_name} ({pt.forced_movement_to[direction][2]} steps)"
+                        for direction in pt.forced_movement_to
+                    ]
                     if pt.forced_movement_to is not None
                     else "None"
                 ),
