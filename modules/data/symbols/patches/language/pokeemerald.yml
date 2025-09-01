@@ -294,6 +294,10 @@ Task_PCMainMenu:
   I: 0x80c6ebc
   J: 0x80c6af4
   S: 0x80c6ebc
+
+#-------------------------#
+#    PC Menu / Storage    #
+#-------------------------#
 Task_PokeStorageMain:
   D: 0x80c7f08
   F: 0x80c7f20
@@ -304,6 +308,14 @@ gPokemonStorage:
   J: 0x20294ac
 gPokemonStoragePtr:
   J: 0x3005af4
+sStorage:
+  J: 0x20399a8
+sCursorArea:
+  J: 0x2039a18
+sCursorPosition:
+  J: 0x2039a19
+#-------------------------#
+
 Task_ExitDoor:
   D: 0x80af454
   F: 0x80af44c
@@ -660,7 +672,7 @@ sNamingScreen:
   J: 0x2039c34
 gSprites:
   J: 0x20205AC
-
+#---------------------#
 
 #---------------------#
 #    Starters Hoenn   #
