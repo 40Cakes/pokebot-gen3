@@ -247,6 +247,10 @@ SUB_8096B38:
   F: 0x8096d70
   I: 0x8096c7c
   S: 0x8096d68
+gPokemonStorageSystemPtr:
+  F: 0x83be798
+  I: 0x83b7a08
+  S: 0x83bae18
 #-------------------------#
 
 #--------------#
