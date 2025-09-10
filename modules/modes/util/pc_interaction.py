@@ -342,30 +342,36 @@ def _do_deposit_actions(actions: list[PCAction]) -> Generator:
                     "Cannot release that Pokémon because only fainted Pokémon would remain in the party."
                 )
             target_index = party.get_index_for_pokemon(action.pokemon)
-            direction = get_scroll_direction(_get_storage_state().cursor_position, target_index, total_items=7)
-            while _get_storage_state().cursor_position != target_index:
-                context.emulator.press_button(direction)
-                yield
-            while _get_storage_state().state != (2 if not context.rom.is_rs else 1):
+
+            if context.rom.is_rs:
+                yield from _release_from_party_rs(context, party, target_index)
+            else:
+                direction = get_scroll_direction(_get_storage_state().cursor_position, target_index, total_items=7)
+                while _get_storage_state().cursor_position != target_index:
+                    context.emulator.press_button(direction)
+                    yield
+
+                context.set_manual_mode("Index reached")
+                while _get_storage_state().state != 2:
+                    context.emulator.press_button("A")
+                    yield
+                yield from _select_menu_option("RELEASE")
                 context.emulator.press_button("A")
                 yield
-            yield from _select_menu_option("RELEASE")
-            context.emulator.press_button("A")
-            yield
-            yield
-            yield
-            if context.rom.is_frlg:
                 yield
-            context.emulator.press_button("Up")
-            yield
-            if context.rom.is_frlg:
                 yield
-            while _get_storage_state().state != 7:
-                context.emulator.press_button("A")
+                if context.rom.is_frlg:
+                    yield
+                context.emulator.press_button("Up")
                 yield
-            while _get_storage_state().state != 0:
+                if context.rom.is_frlg:
+                    yield
+                while _get_storage_state().state != 7:
+                    context.emulator.press_button("A")
+                    yield
+                while _get_storage_state().state != 0:
+                    yield
                 yield
-            yield
     yield from _close_pc_menu()
 
 
@@ -425,3 +431,37 @@ def interact_with_pc(actions: list[PCAction]) -> Generator:
 
     yield from wait_for_no_script_to_run("B")
     yield from wait_for_player_avatar_to_be_controllable("B")
+
+
+def _release_from_party_rs(context, party, target_index):
+    """
+    Handles the special release sequence for Ruby/Sapphire,
+    since their storage behavior differs from other gens.
+    """
+
+    def press_and_wait(button: str, frames: int = 10):
+        context.emulator.press_button(button)
+        return wait_for_n_frames(frames)
+
+    direction = get_scroll_direction(_get_storage_state().cursor_position, target_index, total_items=7)
+
+    while _get_storage_state().cursor_position != target_index:
+        context.emulator.press_button(direction)
+        yield
+
+    yield from wait_for_n_frames(10)
+
+    yield from press_and_wait("A", 10)
+    yield from press_and_wait("Up", 10)
+    yield from press_and_wait("Up", 10)
+    yield from press_and_wait("A", 10)
+    yield from press_and_wait("Up", 10)
+    yield from press_and_wait("A", 20)
+
+    old_party_len = len(party)
+    while len(get_party()) >= old_party_len:
+        yield
+
+    yield from press_and_wait("A", 10)
+    yield from press_and_wait("A", 10)
+    yield
