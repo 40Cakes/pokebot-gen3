@@ -17,6 +17,8 @@ const infoBubblePokeNav = document.querySelector("#info-bubble-pokenav");
 const infoBubblePokeNavCalls = document.querySelector("#info-bubble-pokenav span");
 const infoBubblePCStorage = document.querySelector("#info-bubble-pc-storage");
 const infoBubblePCStorageNumber = document.querySelector("#info-bubble-pc-storage span");
+const infoBubbleCountdown = document.querySelector("#info-bubble-countdown");
+const infoBubbleCountdownText = document.querySelector("#info-bubble-countdown span");
 
 /** @type {array<InfoBubble>} */
 const customInfoBubbles = [];
@@ -31,6 +33,8 @@ const targetTimerBubbles = {};
 let lastFemale = null;
 /** @type {number | null} */
 let pcStorageTimer = null;
+/** @type {number | null} */
+let countdownTimer = null;
 
 /**
  * @param {StreamEvents.MapEncounters} mapEncounters
@@ -38,8 +42,9 @@ let pcStorageTimer = null;
  * @param {string[] | null} targetTimers
  * @param {EncounterType} lastEncounterType
  * @param {Pokemon[]} party
+ * @param {number | null} countdownTarget
  */
-function updateInfoBubbles(mapEncounters, stats, targetTimers, lastEncounterType, party) {
+function updateInfoBubbles(mapEncounters, stats, targetTimers, lastEncounterType, party, countdownTarget) {
     let activeAbility = mapEncounters.active_ability;
     if (lastEncounterType === "hatched") {
         for (const member of party) {
@@ -128,6 +133,15 @@ function updateInfoBubbles(mapEncounters, stats, targetTimers, lastEncounterType
         bubbleContainer.append(bubble);
         updateEncounterInfoBubble(speciesName, stats);
     }
+    for (const speciesName of Object.keys(targetTimerBubbles)) {
+        if (!targetTimers.includes(speciesName)) {
+            targetTimerBubbles[speciesName][0].remove();
+            if (targetTimerBubbles[speciesName][3]) {
+                window.clearTimeout(targetTimerBubbles[speciesName][3])
+            }
+            delete targetTimerBubbles[speciesName];
+        }
+    }
 
     updateFishingInfoBubble(stats);
     updatePokeNavInfoBubble(stats);
@@ -143,6 +157,87 @@ function updateInfoBubbles(mapEncounters, stats, targetTimers, lastEncounterType
         updatePCStorageCounter();
         pcStorageTimer = window.setInterval(updatePCStorageCounter, 10000);
     }
+
+    if (countdownTimer) {
+        window.clearInterval(countdownTimer);
+        countdownTimer = null;
+    }
+    if (countdownTarget) {
+        let targetTimestamp;
+        if (typeof countdownTarget === "string") {
+            targetTimestamp = new Date(countdownTarget).getTime();
+        } else if (countdownTarget < 10000000000) {
+            targetTimestamp = countdownTarget * 1000;
+        } else {
+            targetTimestamp = countdownTarget;
+        }
+
+        if (targetTimestamp > new Date().getTime()) {
+            infoBubbleCountdown.style.opacity = "1";
+            infoBubbleCountdown.style.display = "inline-block";
+            const updateCountdown = () => {
+                const now = new Date().getTime();
+                const diff = Math.floor((targetTimestamp - now) / 1000);
+                if (now < targetTimestamp) {
+                    const days = Math.floor(diff / 86400);
+                    const hours = Math.floor((diff % 86400) / 3600);
+                    const minutes = Math.floor((diff % 3600) / 60);
+                    const seconds = Math.floor(diff % 60);
+
+                    const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+
+                    if (days > 0) {
+                        if (days > 9) {
+                            infoBubbleCountdownText.style.minWidth = "13vh";
+                        } else {
+                            infoBubbleCountdownText.style.minWidth = "12vh";
+                        }
+                        infoBubbleCountdownText.innerHTML = `${days.toLocaleString('en')} <small>day${days !== 1 ? 's' : ''}</small> ${timeString}`;
+                    } else {
+                        infoBubbleCountdownText.style.minWidth = "7.1vh";
+                        infoBubbleCountdownText.innerText = timeString;
+                    }
+                } else {
+                    const fadeOutInSeconds = 1.0;
+
+                    infoBubbleCountdownText.innerText = "00:00:00";
+                    infoBubbleCountdown.style.opacity = "1";
+                    const bbox = infoBubbleCountdown.getBoundingClientRect();
+                    infoBubbleCountdown.style.width = `${bbox.width}px`;
+                    infoBubbleCountdown.style.height = `${bbox.height}px`;
+                    infoBubbleCountdown.style.boxSizing = "border-box";
+                    infoBubbleCountdown.style.transition = `opacity ${fadeOutInSeconds}s, width ${fadeOutInSeconds}s, padding ${fadeOutInSeconds}s, margin ${fadeOutInSeconds}s`;
+                    infoBubbleCountdown.style.opacity = "0";
+                    window.clearInterval(countdownTimer);
+                    countdownTimer = null;
+
+                    window.setTimeout(
+                        () => {
+                            infoBubbleCountdown.style.overflow = "hidden";
+                            infoBubbleCountdown.style.width = "0";
+                            infoBubbleCountdown.style.padding = "0";
+                            infoBubbleCountdown.style.margin = "0 -.5vh";
+                        },
+                        Math.round(fadeOutInSeconds * 1000));
+
+                    window.setTimeout(
+                        () => {
+                            infoBubbleCountdown.style.display = "none";
+                            infoBubbleCountdown.style.transition = "";
+                            infoBubbleCountdown.style.opacity = "1";
+                        },
+                        Math.round(fadeOutInSeconds * 2000));
+                }
+            };
+
+            updateCountdown();
+            countdownTimer = window.setInterval(updateCountdown, 1000);
+        } else {
+            infoBubbleCountdown.style.display = "none";
+        }
+    } else {
+        infoBubbleCountdown.style.display = "none";
+    }
 }
 
 /**
@@ -156,8 +251,8 @@ function updateEncounterInfoBubble(speciesName, stats, encounterGender) {
     }
 
     if (!stats.pokemon.hasOwnProperty(speciesName)) {
-        targetTimerBubbles[speciesName][0].style.display = "none";
-        targetTimerBubbles[speciesName][1].innerText = "?";
+        // targetTimerBubbles[speciesName][0].style.display = "none";
+        targetTimerBubbles[speciesName][1].innerText = "never";
         return;
     }
 
@@ -232,7 +327,7 @@ function updatePokeNavInfoBubble(stats) {
 }
 
 /**
- * @param {{info_bubble_id: string, info_bubble_type?: string | null, info_bubble_icon?: string | null, quantity?: number, quantityTarget?: number, content?: string}} data
+ * @param {{info_bubble_id: string, info_bubble_type?: string | null, info_bubble_icon?: string | null, quantity?: number, quantity_target?: number, content?: string}} data
  */
 function addInfoBubble(data) {
     if (!customInfoBubbles[data.info_bubble_id]) {
@@ -258,6 +353,14 @@ function addInfoBubble(data) {
 function hideInfoBubble(infoBubbleID) {
     if (customInfoBubbles[infoBubbleID]) {
         customInfoBubbles[infoBubbleID].remove();
+        delete customInfoBubbles[infoBubbleID];
+    }
+}
+
+function resetCustomInfoBubbles() {
+    for (const infoBubbleID of Object.keys(customInfoBubbles)) {
+        customInfoBubbles[infoBubbleID].remove();
+        delete customInfoBubbles[infoBubbleID];
     }
 }
 
@@ -269,4 +372,5 @@ export {
     updatePokeNavInfoBubble,
     addInfoBubble,
     hideInfoBubble,
+    resetCustomInfoBubbles,
 };

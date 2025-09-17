@@ -33,7 +33,13 @@ Before starting Safari Mode, ensure you meet the following criteria:
 ![Safari Mode Start Screen](../images/safari_target_rse.png)
 ![Safari Mode Start Screen](../images/safari_target.png)
 
-4. **Decide whether to use Repel**, especially for Pokémon not hunted by Fishing. Since some targets are located far from the Safari entrance, ensure you have enough repels to do a full cycle (4 re-entries) before a soft reset.
+- `Ruby` / `Sapphire` / `Emerald`
+4. **Decide whether to use Feeder**, this option becomes available for most Pokémon once you have at least two Pokéblocks of the same flavor (Spicy, Sour, Bitter, etc.). You can then select which type of Pokéblock you want to place in the feeder.
+
+![Safari Mode Start Screen](../images/feeder_prompt_windows.png)
+![Safari Mode Start Screen](../images/pokeblock_prompt_windows.png)
+
+5. **Decide whether to use Repel**, especially for Pokémon not hunted by Fishing. Since some targets are located far from the Safari entrance, ensure you have enough repels to do a full cycle (4 re-entries) before a soft reset.
 
 ![Safari Mode Start Screen](../images/repel_prompt_windows.png)
 
@@ -69,6 +75,8 @@ The bot uses optimal catch patterns, which are available in these
 ---
 
 ## Game Support
+
+> ⚠️ **Warning**: The feeder feature doesn't work for other languages than English
 
 |              | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald | 🔥 FireRed | 🌿 LeafGreen |
 |:-------------|:-------:|:-----------:|:----------:|:----------:|:------------:|

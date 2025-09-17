@@ -212,17 +212,20 @@ def run_watcher():
         current_second = int(time())
         current_game_state = get_game_state()
 
-        if current_second != previous_second and subscriptions["PerformanceData"] > 0:
-            send_message(
-                DataSubscription.PerformanceData,
-                data={
-                    "fps": context.emulator.get_current_fps(),
-                    "frame_count": context.emulator.get_frame_count(),
-                    "current_time_spent_in_bot_fraction": context.emulator.get_current_time_spent_in_bot_fraction(),
-                    "encounter_rate": context.stats.encounter_rate,
-                },
-                event_type="PerformanceData",
-            )
+        if current_second != previous_second:
+            send_message(None, data=None, event_type="Ping")
+
+            if subscriptions["PerformanceData"] > 0:
+                send_message(
+                    DataSubscription.PerformanceData,
+                    data={
+                        "fps": context.emulator.get_current_fps(),
+                        "frame_count": context.emulator.get_frame_count(),
+                        "current_time_spent_in_bot_fraction": context.emulator.get_current_time_spent_in_bot_fraction(),
+                        "encounter_rate": context.stats.encounter_rate,
+                    },
+                    event_type="PerformanceData",
+                )
 
         if subscriptions["Player"] > 0:
             if state_cache.player.age_in_frames >= 60:
@@ -329,7 +332,7 @@ def run_watcher():
                     send_message(DataSubscription.Map, data=current_coords, event_type="MapTileChange")
                     previous_game_state["map_local_coordinates"] = current_coords
 
-        if subscriptions["MapEncounters"] > 0:
+        if subscriptions["MapEncounters"] > 0 and current_game_state is GameState.OVERWORLD:
             if state_cache.effective_wild_encounters.age_in_frames >= 300:
                 # If the cached encounter data is too old, tell the main thread to update it at the next
                 # possible opportunity.
@@ -406,7 +409,7 @@ def run_watcher():
 
 
 def send_message(
-    subscription_flag: DataSubscription,
+    subscription_flag: DataSubscription | None,
     data: str | list | tuple | dict | int | float | None,
     event_type: str | None = None,
     do_not_json_encode: bool = False,
@@ -417,7 +420,7 @@ def send_message(
         message = f"data: {json.dumps(data)}"
 
     for index in reversed(range(len(subscribers))):
-        if subscribers[index][2] & subscription_flag:
+        if subscription_flag is None or subscribers[index][2] & subscription_flag:
             try:
                 subscribers[index][1].put_nowait(message)
                 subscribers[index][4].set()

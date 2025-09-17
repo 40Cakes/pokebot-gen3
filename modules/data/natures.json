@@ -13,11 +13,7 @@
         "defence_modifier": 1,
         "speed_modifier": 1,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": null,
-            "disliked": null
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Lonely",
@@ -33,11 +29,7 @@
         "defence_modifier": 0.9,
         "speed_modifier": 1,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": "Spicy",
-            "disliked": "Sour"
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Brave",
@@ -53,11 +45,7 @@
         "defence_modifier": 1,
         "speed_modifier": 0.9,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": "Spicy",
-            "disliked": "Sweet"
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Adamant",
@@ -73,11 +61,7 @@
         "defence_modifier": 1,
         "speed_modifier": 1,
         "special_attack_modifier": 0.9,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": "Spicy",
-            "disliked": "Dry"
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Naughty",
@@ -93,11 +77,7 @@
         "defence_modifier": 1,
         "speed_modifier": 1,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 0.9,
-        "pokeblock": {
-            "liked": "Spicy",
-            "disliked": "Bitter"
-        }
+        "special_defence_modifier": 0.9
     },
     {
         "name": "Bold",
@@ -113,11 +93,7 @@
         "defence_modifier": 1.1,
         "speed_modifier": 1,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": "Sour",
-            "disliked": "Spicy"
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Docile",
@@ -133,11 +109,7 @@
         "defence_modifier": 1,
         "speed_modifier": 1,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": null,
-            "disliked": null
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Relaxed",
@@ -153,11 +125,7 @@
         "defence_modifier": 1.1,
         "speed_modifier": 0.9,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": "Sour",
-            "disliked": "Sweet"
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Impish",
@@ -173,11 +141,7 @@
         "defence_modifier": 1.1,
         "speed_modifier": 1,
         "special_attack_modifier": 0.9,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": "Sour",
-            "disliked": "Dry"
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Lax",
@@ -193,11 +157,7 @@
         "defence_modifier": 1.1,
         "speed_modifier": 1,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 0.9,
-        "pokeblock": {
-            "liked": "Sour",
-            "disliked": "Bitter"
-        }
+        "special_defence_modifier": 0.9
     },
     {
         "name": "Timid",
@@ -213,11 +173,7 @@
         "defence_modifier": 1,
         "speed_modifier": 1.1,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": "Sweet",
-            "disliked": "Spicy"
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Hasty",
@@ -233,11 +189,7 @@
         "defence_modifier": 0.9,
         "speed_modifier": 1.1,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": "Sweet",
-            "disliked": "Sour"
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Serious",
@@ -253,11 +205,7 @@
         "defence_modifier": 1,
         "speed_modifier": 1,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": null,
-            "disliked": null
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Jolly",
@@ -273,11 +221,7 @@
         "defence_modifier": 1,
         "speed_modifier": 1.1,
         "special_attack_modifier": 0.9,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": "Sweet",
-            "disliked": "Dry"
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Naive",
@@ -293,11 +237,7 @@
         "defence_modifier": 1,
         "speed_modifier": 1.1,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 0.9,
-        "pokeblock": {
-            "liked": "Sweet",
-            "disliked": "Bitter"
-        }
+        "special_defence_modifier": 0.9
     },
     {
         "name": "Modest",
@@ -313,11 +253,7 @@
         "defence_modifier": 1,
         "speed_modifier": 1,
         "special_attack_modifier": 1.1,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": "Dry",
-            "disliked": "Spicy"
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Mild",
@@ -333,11 +269,7 @@
         "defence_modifier": 0.9,
         "speed_modifier": 1,
         "special_attack_modifier": 1.1,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": "Dry",
-            "disliked": "Sour"
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Quiet",
@@ -353,11 +285,7 @@
         "defence_modifier": 1,
         "speed_modifier": 0.9,
         "special_attack_modifier": 1.1,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": "Dry",
-            "disliked": "Sweet"
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Bashful",
@@ -373,11 +301,7 @@
         "defence_modifier": 1,
         "speed_modifier": 1,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": null,
-            "disliked": null
-        }
+        "special_defence_modifier": 1
     },
     {
         "name": "Rash",
@@ -393,11 +317,7 @@
         "defence_modifier": 1,
         "speed_modifier": 1,
         "special_attack_modifier": 1.1,
-        "special_defence_modifier": 0.9,
-        "pokeblock": {
-            "liked": "Dry",
-            "disliked": "Bitter"
-        }
+        "special_defence_modifier": 0.9
     },
     {
         "name": "Calm",
@@ -413,11 +333,7 @@
         "defence_modifier": 1,
         "speed_modifier": 1,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 1.1,
-        "pokeblock": {
-            "liked": "Bitter",
-            "disliked": "Spicy"
-        }
+        "special_defence_modifier": 1.1
     },
     {
         "name": "Gentle",
@@ -433,11 +349,7 @@
         "defence_modifier": 0.9,
         "speed_modifier": 1,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 1.1,
-        "pokeblock": {
-            "liked": "Bitter",
-            "disliked": "Sour"
-        }
+        "special_defence_modifier": 1.1
     },
     {
         "name": "Sassy",
@@ -453,11 +365,7 @@
         "defence_modifier": 1,
         "speed_modifier": 0.9,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 1.1,
-        "pokeblock": {
-            "liked": "Bitter",
-            "disliked": "Sweet"
-        }
+        "special_defence_modifier": 1.1
     },
     {
         "name": "Careful",
@@ -473,11 +381,7 @@
         "defence_modifier": 1,
         "speed_modifier": 1,
         "special_attack_modifier": 0.9,
-        "special_defence_modifier": 1.1,
-        "pokeblock": {
-            "liked": "Bitter",
-            "disliked": "Dry"
-        }
+        "special_defence_modifier": 1.1
     },
     {
         "name": "Quirky",
@@ -493,10 +397,6 @@
         "defence_modifier": 1,
         "speed_modifier": 1,
         "special_attack_modifier": 1,
-        "special_defence_modifier": 1,
-        "pokeblock": {
-            "liked": null,
-            "disliked": null
-        }
+        "special_defence_modifier": 1
     }
 ]

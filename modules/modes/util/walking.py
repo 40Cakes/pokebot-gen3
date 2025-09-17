@@ -113,7 +113,7 @@ class TimedOutTryingToReachWaypointError(BotModeError):
 
 @debug.track
 def follow_waypoints(
-    path: Iterable[Waypoint], run: bool = True, final_facing_direction: Direction | None = None
+    path: Iterable[Waypoint | None], run: bool = True, final_facing_direction: Direction | None = None
 ) -> Generator:
     """
     Follows a given set of waypoints.
@@ -161,6 +161,10 @@ def follow_waypoints(
     current_position = get_map_data_for_current_position()
     last_waypoint = None
     for waypoint in path:
+        if waypoint is None:
+            yield
+            continue
+
         # For the first waypoint it is possible that the player avatar is not facing the same way as it needs to
         # walk. This leads to the first navigation step to actually become two: Turning around, then doing the step.
         # When in tall grass, that could lead to an encounter starting mid-step which messes up the battle handling.

@@ -54,11 +54,11 @@ class Party:
         return any([pokemon.is_egg for pokemon in self._pokemon])
 
     @property
-    def eggs(self) -> list[Pokemon]:
+    def eggs(self) -> list[PartyPokemon]:
         return [pokemon for pokemon in self._pokemon if pokemon.is_egg]
 
     @property
-    def non_eggs(self) -> list[Pokemon]:
+    def non_eggs(self) -> list[PartyPokemon]:
         return [pokemon for pokemon in self._pokemon if not pokemon.is_egg]
 
     @property
@@ -99,7 +99,7 @@ class Party:
                 return party_index
         raise RuntimeError("This Pokémon is not in the player's party.")
 
-    def to_list(self) -> list[PartyPokemon]:
+    def to_list(self) -> list[dict]:
         return [pokemon.to_dict() for pokemon in self._pokemon]
 
 

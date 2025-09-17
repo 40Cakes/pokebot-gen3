@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>Pokébot Stream Overlay</title>
     <link rel="stylesheet" href="./overlay.css">
+    <script src="./deps/tsparticles.confetti.bundle.min.js"></script>
     <script type="module">
         import CrossedOut from "./component/crossed-out.js";
         import InfoBubble from "./component/info-bubble.js";
@@ -67,6 +68,11 @@
             <info-bubble id="info-bubble-repel" style="display: none">
                 <item-sprite item="Repel"></item-sprite>
                 Repel <small>Lvl.</small> <span></span>
+            </info-bubble>
+
+            <info-bubble id="info-bubble-countdown" style="display: none">
+                <overlay-sprite icon="clock" style="transform: scale(2)"></overlay-sprite>
+                <span style="display: inline-block"></span>
             </info-bubble>
         </div>
 

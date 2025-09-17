@@ -42,6 +42,7 @@ from modules.pokemon import (
     get_nature_by_name,
     get_species_by_national_dex,
     LearnedMove,
+    ContestConditions,
 )
 from modules.pokemon_party import get_party
 from modules.roms import ROMLanguage
@@ -126,6 +127,7 @@ def debug_create_pokemon(
     evs: StatsValues | None = None,
     current_hp: int | None = None,
     status_condition: StatusCondition = StatusCondition.Healthy,
+    contest_conditions: ContestConditions | None = None,
 ) -> Pokemon:
     """
     Generates a Pokémon data block given a set of criteria.
@@ -271,6 +273,17 @@ def debug_create_pokemon(
     if is_egg and friendship > species.egg_cycles:
         friendship = species.egg_cycles
 
+    contest_conditions_data = decrypted_data[62:68]
+    if contest_conditions is not None:
+        contest_conditions_data = (
+            pack_uint8(contest_conditions.coolness)
+            + pack_uint8(contest_conditions.beauty)
+            + pack_uint8(contest_conditions.cuteness)
+            + pack_uint8(contest_conditions.smartness)
+            + pack_uint8(contest_conditions.toughness)
+            + pack_uint8(contest_conditions.feel)
+        )
+
     data_to_encrypt = (
         pack_uint16(species.index)
         + pack_uint16(held_item.index if held_item is not None else 0)
@@ -292,7 +305,8 @@ def debug_create_pokemon(
         + pack_uint8(evs.speed)
         + pack_uint8(evs.special_attack)
         + pack_uint8(evs.special_defence)
-        + decrypted_data[62:72]
+        + contest_conditions_data
+        + decrypted_data[68:72]
         + pack_uint32(iv_egg_ability)
         + decrypted_data[76:80]
     )

@@ -11,7 +11,9 @@ import {updatePhaseStats} from "./content/phase-stats.js";
 import {updatePCStorage, updateTotalStats} from "./content/total-stats.js";
 import {
     addInfoBubble,
-    hideFishingInfoBubble, hideInfoBubble,
+    hideFishingInfoBubble,
+    hideInfoBubble,
+    resetCustomInfoBubbles,
     updateEncounterInfoBubble,
     updateFishingInfoBubble,
     updateInfoBubbles,
@@ -20,8 +22,9 @@ import {
 import {hideCurrentEncounterStats, showCurrentEncounterStats} from "./content/current-encounter-stats.js";
 import {updateInputs} from "./content/inputs.js";
 import {updateClock} from "./content/clock.js";
-import {getLastEncounterSpecies} from "./helper.js";
+import {getLastEncounterSpecies, sleep} from "./helper.js";
 import {updateDaycareBox} from "./content/daycare.js";
+import {fireConfetti} from "./content/effects.js";
 
 const BATTLE_STATES = ["BATTLE_STARTING", "BATTLE", "BATTLE_ENDING"];
 
@@ -35,27 +38,72 @@ let isInSummaryScreen = false;
 let isInMainMenu = false;
 let wasShinyEncounter = false;
 
-/** @param {OverlayState} state */
-async function doFullUpdate(state) {
-    await loadAllData(state);
+/**
+ * This fetches all the data the overlay needs for initialisation from the backend.
+ *
+ * If a fetch fails, it waits for 5 seconds and then tries again until if finally
+ * succeeded.
+ *
+ * @param {OverlayState} state
+ * @param {boolean} retryOnError
+ * @returns {Promise<void>}
+ */
+async function doFullUpdate(state, retryOnError = true) {
+    let hadSuccess = false;
+    while (!hadSuccess) {
+        try {
+            const customState = await loadAllData(state);
 
-    isInBattle = BATTLE_STATES.includes(state.gameState);
-    isInEggHatch = state.gameState === "EGG_HATCH";
-    isInSummaryScreen = state.gameState === "POKEMON_SUMMARY_SCREEN";
-    isInMainMenu = state.gameState === "MAIN_MENU" || state.gameState === "TITLE_SCREEN";
+            if (customState["daycare_mode"]) {
+                state.daycareMode = true;
+            }
 
-    updateMapName(state.map);
-    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
-    updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
-    updateShinyLog(state.shinyLog);
-    updateEncounterLog(state.encounterLog);
-    updatePartyList(state.party);
-    updateBadgeList(state.emulator.game.title, state.eventFlags);
-    updatePhaseStats(state.stats);
-    updatePCStorage(state.pokemonStorage, state.party, state.daycare);
-    updateTotalStats(state.stats, state.encounterRate);
-    updateInfoBubbles(state.mapEncounters, state.stats, config.targetTimers, state.lastEncounterType, state.party);
-    updateDaycareBox(state.emulator.bot_mode, state);
+            if (customState["countdown_target"]) {
+                state.countdownTarget = customState["countdown_target"];
+            }
+
+            state.additionalTargetTimers.clear();
+            if (customState["species_timers"] && Array.isArray(customState["species_timers"])) {
+                for (const speciesName of customState["species_timers"]) {
+                    state.additionalTargetTimers.add(speciesName);
+                }
+            }
+
+            resetCustomInfoBubbles();
+            if (customState["info_bubbles"] && Array.isArray(customState["info_bubbles"])) {
+                for (const infoBubble of customState["info_bubbles"]) {
+                    addInfoBubble(infoBubble);
+                }
+            }
+
+            isInBattle = BATTLE_STATES.includes(state.gameState);
+            isInEggHatch = state.gameState === "EGG_HATCH";
+            isInSummaryScreen = state.gameState === "POKEMON_SUMMARY_SCREEN";
+            isInMainMenu = state.gameState === "MAIN_MENU" || state.gameState === "TITLE_SCREEN";
+
+            updateMapName(state.map);
+            updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+            updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
+            updateShinyLog(state.shinyLog);
+            updateEncounterLog(state.encounterLog);
+            updatePartyList(state.party);
+            updateBadgeList(state.emulator.game.title, state.eventFlags);
+            updatePhaseStats(state.stats);
+            updatePCStorage(state.pokemonStorage, state.party, state.daycare);
+            updateTotalStats(state.stats, state.encounterRate);
+            updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, state.lastEncounterType, state.party, state.countdownTarget);
+            updateDaycareBox(state.emulator.bot_mode, state);
+
+            hadSuccess = true;
+        } catch (error) {
+            if (retryOnError) {
+                console.error(error);
+                await sleep(5);
+            } else {
+                throw error;
+            }
+        }
+    }
 }
 
 /**
@@ -71,7 +119,7 @@ async function doUpdateAfterEncounter(state) {
 
         updateShinyLog(state.shinyLog);
         updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
-        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
         updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
         updatePhaseStats(state.stats);
         updateTotalStats(state.stats, state.encounterRate);
@@ -157,7 +205,7 @@ function handleBotMode(event, state) {
 
     if (previousModeWasDaycare !== newModeIsDaycare) {
         updateDaycareBox(event, state);
-        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
         updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
     }
 }
@@ -191,12 +239,12 @@ function handleWildEncounter(event, state) {
         wasShinyEncounter = true;
     }
 
-    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.encounterLog, state.additionalRouteSpecies, event.pokemon.species_name_for_stats);
+    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, event.pokemon.species_name_for_stats);
     updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
     updatePhaseStats(state.stats);
     updateTotalStats(state.stats, state.encounterRate);
     updateEncounterInfoBubble(event.pokemon.species_name_for_stats, state.stats, event.pokemon.gender);
-    updateInfoBubbles(state.mapEncounters, state.stats, config.targetTimers, event.type, state.party);
+    updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, event.type, state.party, state.countdownTarget);
     updateEncounterLog(state.encounterLog);
     showCurrentEncounterStats(event);
 }
@@ -222,7 +270,7 @@ function handleMapChange(event, state) {
  */
 function handleMapEncounters(event, state) {
     state.mapEncounters = event;
-    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
     updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
 }
 
@@ -232,7 +280,7 @@ function handleMapEncounters(event, state) {
  */
 function handlePlayerAvatar(event, state) {
     if (state.logPlayerAvatarChange(event)) {
-        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+        updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
         updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
     }
 }
@@ -268,7 +316,6 @@ function handleInputs(event, state) {
  * @param {OverlayState} state
  */
 function handleCustomEvent(event, state) {
-    console.log(event);
     if (typeof event !== "object" || !event["action"]) {
         return;
     }
@@ -281,6 +328,60 @@ function handleCustomEvent(event, state) {
         case "hide_info_bubble":
             hideInfoBubble(event.info_bubble_id);
             break;
+
+        case "reset_custom_info_bubbles":
+            resetCustomInfoBubbles();
+            break;
+
+        case "add_species_timer":
+            state.additionalTargetTimers.add(event.species_name);
+            updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, state.lastEncounterType, state.party, state.countdownTarget);
+            break;
+
+        case "hide_species_timer":
+            state.additionalTargetTimers.delete(event.species_name);
+            updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, state.lastEncounterType, state.party, state.countdownTarget);
+            break;
+
+        case "reset_species_timers":
+            state.additionalTargetTimers.clear();
+            updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, state.lastEncounterType, state.party, state.countdownTarget);
+            break;
+
+        case "set_countdown":
+            state.countdownTarget = event.timestamp;
+            updateInfoBubbles(state.mapEncounters, state.stats, state.targetTimers, state.lastEncounterType, state.party, state.countdownTarget);
+            break;
+
+        case "enable_daycare_mode":
+        case "disable_daycare_mode":
+            state.daycareMode = event["action"] === "enable_daycare_mode";
+            if (state.daycareMode) {
+                fetchers.daycare().then(data => {
+                    state.daycare = data;
+                    updateDaycareBox(state.emulator.bot_mode, state);
+                    updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+                });
+            } else {
+                updateDaycareBox(state.emulator.bot_mode, state);
+                updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
+                updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
+            }
+            break;
+
+        case "confetti":
+            let booms = 50;
+            if (event["booms"] && Number.isInteger(event["booms"])) {
+                booms = event["booms"];
+            }
+
+            let durationInSeconds = 10;
+            if (event["duration_in_seconds"] && typeof event["duration_in_seconds"] === "number") {
+                durationInSeconds = event["duration_in_seconds"];
+            }
+
+            fireConfetti(booms, durationInSeconds);
+            break;
     }
 }
 
@@ -288,6 +389,29 @@ function handleCustomEvent(event, state) {
 export default async function runOverlay() {
     const state = new OverlayState();
     window.overlayState = state;
+
+    /** @type {EventSource} */
+    let eventSource;
+    /** @type {{[k: string]: (MessageEvent) => any}} */
+    const eventListeners = {};
+    let lastStreamedEventTimestamp = new Date().getTime();
+
+    const setUpEventSource = () => {
+        try {
+            if (eventSource) {
+                eventSource.close();
+            }
+        } catch (error) {
+            console.error(error);
+        }
+
+        eventSource = getEventSource(eventListeners);
+        eventSource.addEventListener("Ping", event => {
+            lastStreamedEventTimestamp = new Date().getTime();
+        });
+        eventSource.addEventListener("error", () => eventSource.close());
+        lastStreamedEventTimestamp = new Date().getTime();
+    };
 
     clockUpdateInterval = window.setInterval(() => {
         updateClock(config.startDate, config.timeZone, config.overrideDisplayTimezone);
@@ -297,24 +421,42 @@ export default async function runOverlay() {
             updateShinyLog(state.shinyLog);
             updatePhaseStats(state.stats);
         }
+
+        // We've had issues with the overlay at some point not receiving any
+        // more events from the bot. Since I couldn't figure out what caused
+        // this, we'll just try to reconnect if we haven't received anything
+        // for more than 15 seconds. (This should never happen organically as
+        // button presses alone would reset that counter much more frequently.)
+        if (new Date().getSeconds() % 5 === 0) {
+            const secondsSinceLastEvent = (new Date().getTime() - lastStreamedEventTimestamp) / 1000;
+            if (secondsSinceLastEvent > 15 || eventSource.readyState === EventSource.CLOSED) {
+                try {
+                    eventSource.close();
+                } catch (error) {
+                    console.error(error);
+                }
+                doFullUpdate(state, false)
+                    .then(() => setUpEventSource())
+                    .catch(error => console.error(error));
+            }
+        }
     }, 1000);
     updateClock(config.startDate, config.timeZone, config.overrideDisplayTimezone);
 
     await doFullUpdate(state);
-    const eventSource = getEventSource();
 
-    eventSource.addEventListener("PerformanceData", event => handlePerformanceData(JSON.parse(event.data), state));
-    eventSource.addEventListener("GameState", event => handleGameState(JSON.parse(event.data), state));
-    eventSource.addEventListener("BotMode", event => handleBotMode(JSON.parse(event.data), state));
-    eventSource.addEventListener("Party", event => handleParty(JSON.parse(event.data), state));
-    eventSource.addEventListener("WildEncounter", event => handleWildEncounter(JSON.parse(event.data), state));
-    eventSource.addEventListener("MapChange", event => handleMapChange(JSON.parse(event.data), state));
-    eventSource.addEventListener("MapEncounters", event => handleMapEncounters(JSON.parse(event.data), state));
-    eventSource.addEventListener("PlayerAvatar", event => handlePlayerAvatar(JSON.parse(event.data), state));
-    eventSource.addEventListener("PokenavCall", event => handlePokenavCall(state));
-    eventSource.addEventListener("FishingAttempt", event => handleFishingAttempt(JSON.parse(event.data), state));
-    eventSource.addEventListener("Inputs", event => handleInputs(JSON.parse(event.data), state));
-    eventSource.addEventListener("CustomEvent", event => handleCustomEvent(JSON.parse(event.data), state));
+    eventListeners["PerformanceData"] = event => handlePerformanceData(JSON.parse(event.data), state);
+    eventListeners["GameState"] = event => handleGameState(JSON.parse(event.data), state);
+    eventListeners["BotMode"] = event => handleBotMode(JSON.parse(event.data), state);
+    eventListeners["Party"] = event => handleParty(JSON.parse(event.data), state);
+    eventListeners["WildEncounter"] = event => handleWildEncounter(JSON.parse(event.data), state);
+    eventListeners["MapChange"] = event => handleMapChange(JSON.parse(event.data), state);
+    eventListeners["MapEncounters"] = event => handleMapEncounters(JSON.parse(event.data), state);
+    eventListeners["PlayerAvatar"] = event => handlePlayerAvatar(JSON.parse(event.data), state);
+    eventListeners["PokenavCall"] = event => handlePokenavCall(state);
+    eventListeners["FishingAttempt"] = event => handleFishingAttempt(JSON.parse(event.data), state);
+    eventListeners["Inputs"] = event => handleInputs(JSON.parse(event.data), state);
+    eventListeners["CustomEvent"] = event => handleCustomEvent(JSON.parse(event.data), state);
 
     if (config.gymMode) {
         document.getElementById("route-encounters").style.display = "none";
@@ -342,14 +484,16 @@ export default async function runOverlay() {
         currentLocation.innerText = state.map.map.pretty_name
             .replace("é", "e")
             .replace("’", "'");
-        eventSource.addEventListener("MapChange", event => {
+        eventListeners["MapChange"] = event => {
             /** @type {MapLocation} */
             const eventData = JSON.parse(event.data);
             currentLocation.innerText = eventData.map.pretty_name
                 .replace("é", "e")
                 .replace("’", "'");
-        });
+        };
     }
+
+    setUpEventSource();
 
     window.handleCustomEvent = handleCustomEvent;
 }

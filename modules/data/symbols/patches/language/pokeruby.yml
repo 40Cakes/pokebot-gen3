@@ -110,8 +110,9 @@ gBattlescriptCurrInstr:
   J: 0x2024970
 GTASKS:
   J: 0x3004a50
+## The Window struct doesn't contain the language value in JP, so we read at address -2 (language struct is 0x2)
 gWindowTemplate_Contest_MoveDescription:
-  J: 0x3004160
+  J: 0x300415e
 gEnemyParty:
   J: 0x30044f0
 gBattleTypeFlags:
@@ -196,6 +197,12 @@ SUB_8096B38:
   J: 0x809363c
 gPokemonStorage:
   J: 0x202fdbc
+gPokemonStorageSystemPtr:
+  J: 0x838cad0
+sBoxCursorArea:
+  J: 0x2038200
+sBoxCursorPosition:
+  J: 0x2038201
 #-------------------------#
 
 #--------------#

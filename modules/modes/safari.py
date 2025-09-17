@@ -1,4 +1,5 @@
 from typing import Generator, Tuple
+from collections import Counter
 
 from modules.context import context
 from modules.battle_state import BattleOutcome
@@ -9,17 +10,20 @@ from modules.pokemon import get_species_by_name, get_opponent
 from modules.memory import get_event_flag
 from modules.menuing import StartMenuNavigator
 from modules.modes.util.walking import wait_for_player_avatar_to_be_controllable
-from modules.items import get_item_by_name
-from modules.modes.util.higher_level_actions import unmount_bicycle
+from modules.items import get_item_by_name, get_pokeblocks
+from modules.modes.util.higher_level_actions import unmount_bicycle, put_pokeblock_in_feeder
 from modules.safari_strategy import (
     SafariPokemon,
     SafariPokemonRSE,
     SafariHuntingMode,
     SafariHuntingObject,
+    RSESafariStrategy,
     get_safari_pokemon,
     get_navigation_path,
     get_safari_balls_left,
     get_safari_zone_config,
+    get_pokeblock_type_counts,
+    get_lowest_feel_pokeblock_by_type,
 )
 from modules.runtime import get_sprites_path
 from modules.sprites import get_regular_sprite
@@ -57,6 +61,9 @@ class SafariMode(BotMode):
         self._should_reenter = False
         self._atleast_one_pokemon_catched = False
         self._target_caught = False
+        self._use_feeder = False
+        self._feeder_direction = None
+        self._pokeblock_type_in_feeder = None
         self._use_repel = False
         self._money_spent_limit = 15000  # Since you can only have 30 Pokeblock, running 30 times is more than enough
 
@@ -108,19 +115,7 @@ class SafariMode(BotMode):
         pokemon_choices = []
         safari_pokemon_list = self._safari_config["safari_pokemon_list"]
 
-        for safari_pokemon in safari_pokemon_list.available_pokemon():
-            species = safari_pokemon.value.species
-            sprite_path = get_regular_sprite(species)
-            pokemon_choices.append(Selection(f"{safari_pokemon.value.species.name}", sprite_path))
-
-        pokemon_choice = ask_for_choice_scroll(
-            choices=pokemon_choices,
-            window_title="Select a Pokemon to hunt...",
-            button_width=172,
-            button_height=170,
-            options_per_row=3,
-        )
-
+        pokemon_choice = self._select_pokemon(safari_pokemon_list)
         if pokemon_choice is None:
             context.set_manual_mode()
             yield
@@ -131,22 +126,22 @@ class SafariMode(BotMode):
         self._check_mode_requirement(target.value.mode, target.value.hunting_object)
         self._check_map_requirement(target.value.map_location)
 
-        if target.value.mode != SafariHuntingMode.FISHING:
-            mode = ask_for_choice(
-                [
-                    Selection("Use Repel", get_sprites_path() / "items" / "Repel.png"),
-                    Selection("No Repel", get_sprites_path() / "other" / "No Repel.png"),
-                ],
-                window_title="Use Repel?",
-            )
+        pokeblocks = get_pokeblocks()
+        type_counts = Counter(p.type for p in pokeblocks)
 
-            if mode is None:
+        if any(count >= 2 for count in type_counts.values()):
+            feeder_direction = RSESafariStrategy.get_facing_direction_for_position(target.value.tile_location)
+            self._feeder_direction = feeder_direction
+            if feeder_direction:
+                yield from self._ask_use_feeder()
+                if self._use_feeder:
+                    yield from self._select_pokeblock_type()
+
+        if target.value.mode != SafariHuntingMode.FISHING:
+            if not self._ask_use_repel():
                 context.set_manual_mode()
                 yield
                 return
-
-            if mode == "Use Repel":
-                self._use_repel = True
 
         if target.value.hunting_object:
             yield from register_key_item(get_item_by_name(target.value.hunting_object))
@@ -240,6 +235,12 @@ class SafariMode(BotMode):
         for map_group, coords in path:
             yield from navigate_to(map_group, coords)
 
+        if self._use_feeder:
+            index, pokeblock = get_lowest_feel_pokeblock_by_type(self._pokeblock_type_in_feeder)
+            if pokeblock is not None:
+                yield from ensure_facing_direction(self._feeder_direction)
+                yield from put_pokeblock_in_feeder(pokeblock)
+
         if mode in (SafariHuntingMode.SPIN, SafariHuntingMode.SURF):
             if self._use_repel and not repel_is_active():
                 yield from apply_repel()
@@ -291,3 +292,70 @@ class SafariMode(BotMode):
         self._should_reset = False
         for _ in range(5):
             yield
+
+    def _select_pokemon(self, safari_pokemon_list):
+        pokemon_choices = [
+            Selection(safari_pokemon.value.species.name, get_regular_sprite(safari_pokemon.value.species))
+            for safari_pokemon in safari_pokemon_list.available_pokemon()
+        ]
+
+        return ask_for_choice_scroll(
+            choices=pokemon_choices,
+            window_title="Select a Pokemon to hunt...",
+            button_width=172,
+            button_height=170,
+            options_per_row=3,
+        )
+
+    def _ask_use_feeder(self) -> Generator:
+        feeder_mode = ask_for_choice(
+            [
+                Selection("Use Feeder", get_sprites_path() / "other" / "Feeder.png"),
+                Selection("No Feeder", get_sprites_path() / "other" / "Feeder.png"),
+            ],
+            window_title="Use feeder?",
+        )
+
+        if feeder_mode is None:
+            context.set_manual_mode()
+            yield
+            return
+
+        if feeder_mode == "Use Feeder":
+            self._use_feeder = True
+        yield
+
+    def _select_pokeblock_type(self) -> Generator:
+        type_counts = get_pokeblock_type_counts()
+        pokeblock_choices = [
+            Selection(f"{type_name} ×{count}", get_sprites_path() / "pokeblocks" / f"{type_name.lower()}.png")
+            for type_name, count in type_counts
+        ]
+
+        pokeblock_type_choice = ask_for_choice_scroll(
+            choices=pokeblock_choices,
+            window_title="Select a Pokéblock Type...",
+            button_width=172,
+            button_height=170,
+            options_per_row=3,
+        )
+
+        if pokeblock_type_choice is None:
+            context.set_manual_mode()
+            yield
+            return
+
+        self._pokeblock_type_in_feeder = pokeblock_type_choice.split()[0]
+        yield
+
+    def _ask_use_repel(self) -> bool:
+        choice = ask_for_choice(
+            [
+                Selection("Use Repel", get_sprites_path() / "items" / "Repel.png"),
+                Selection("No Repel", get_sprites_path() / "other" / "No Repel.png"),
+            ],
+            window_title="Use Repel?",
+        )
+        if choice == "Use Repel":
+            self._use_repel = True
+        return choice is not None

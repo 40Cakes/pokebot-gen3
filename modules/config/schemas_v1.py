@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Literal
 
 from confz import BaseConfig
-from pydantic import ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field
 from pydantic.types import Annotated, ClassVar, NonNegativeInt, PositiveInt
 
 
@@ -191,6 +190,7 @@ class Logging(BaseConfig):
 
     filename: ClassVar = "logging.yml"
     save_pk3: LoggingSavePK3 = Field(default_factory=lambda: LoggingSavePK3())
+    create_save_state_for_shiny: bool = True
     log_encounters: bool = False
     log_encounters_to_console: bool = True
     desktop_notifications: bool = True

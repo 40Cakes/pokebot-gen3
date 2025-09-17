@@ -42,6 +42,12 @@ const config = {
     // in the PC storage system.
     showPCStorageCounter: false,
 
+    // An ISO date string (e.g. `2025-01-01T12:34:56` or a UNIX
+    // timestamp (in seconds or ms.) If set, the overlay will
+    // display an info bubble counting down to that moment in
+    // time.
+    countdownTarget: null,
+
     // These can be used to hardcode the longest phase in case
     // this data is incorrect in the stats database.
     overrideLongestPhase: {

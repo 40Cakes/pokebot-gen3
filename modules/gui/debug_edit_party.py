@@ -16,6 +16,7 @@ from modules.pokemon import (
     get_move_by_name,
     get_species_by_name,
     LearnedMove,
+    ContestConditions,
 )
 from modules.pokemon_party import get_party
 
@@ -126,6 +127,15 @@ class PokemonEditFrame:
             "special_defence": tkinter.IntVar(value=pokemon.evs.special_defence),
         }
 
+        self._contest_conditions = {
+            "coolness": tkinter.IntVar(value=pokemon.contest_conditions.coolness),
+            "beauty": tkinter.IntVar(value=pokemon.contest_conditions.beauty),
+            "cuteness": tkinter.IntVar(value=pokemon.contest_conditions.cuteness),
+            "smartness": tkinter.IntVar(value=pokemon.contest_conditions.smartness),
+            "toughness": tkinter.IntVar(value=pokemon.contest_conditions.toughness),
+            "feel": tkinter.IntVar(value=pokemon.contest_conditions.feel),
+        }
+
         self._moves = (
             tkinter.StringVar(value=pokemon.moves[0].move.name if pokemon.moves[0] is not None else "(None)"),
             tkinter.StringVar(value=pokemon.moves[1].move.name if pokemon.moves[1] is not None else "(None)"),
@@ -211,6 +221,14 @@ class PokemonEditFrame:
             ),
             current_hp=self._current_hp_var.get(),
             status_condition=status_name_map[self._status_condition.get()],
+            contest_conditions=ContestConditions(
+                self._contest_conditions["coolness"].get(),
+                self._contest_conditions["beauty"].get(),
+                self._contest_conditions["cuteness"].get(),
+                self._contest_conditions["smartness"].get(),
+                self._contest_conditions["toughness"].get(),
+                self._contest_conditions["feel"].get(),
+            ),
         )
 
     def _build_frame(self) -> ttk.Frame:
@@ -436,6 +454,19 @@ class PokemonEditFrame:
         self._status_condition.current(list(status_name_map.values()).index(self._pokemon.status_condition))
         self._status_condition.grid(sticky="W", column=0, row=1)
         status_frame.grid(sticky="W", column=0, row=8, padx=5, pady=(0, 5))
+
+        contest_frame = ttk.Frame(right_box)
+        label = ttk.Label(contest_frame, text="Contest Conditions:")
+        label.grid(sticky="W", column=0, row=0)
+        n = 1
+        for condition in ["coolness", "beauty", "cuteness", "smartness", "toughness", "feel"]:
+            ttk.Label(contest_frame, text=condition.title()).grid(sticky="W", column=0, row=n)
+            condition_field = ttk.Spinbox(
+                contest_frame, from_=0, to=255, width=3, textvariable=self._contest_conditions[condition]
+            )
+            condition_field.grid(sticky="W", column=1, row=n, padx=5)
+            n += 1
+        contest_frame.grid(sticky="W", column=0, row=9, padx=5, pady=(8, 5))
 
         def recalculate_max_hp(var=None, index=None, mode=None):
             if self._species is None:

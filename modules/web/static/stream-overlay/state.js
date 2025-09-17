@@ -1,3 +1,5 @@
+import config from "./config.js";
+
 export const WILD_ENCOUNTER_TYPES = [
     "land",
     "surfing",
@@ -106,6 +108,15 @@ export default class OverlayState {
         step_counter: 0,
     };
 
+    /** @type {boolean} */
+    daycareMode = false;
+
+    /** @type {number | null} */
+    countdownTarget = config.countdownTarget ?? null;
+
+    /** @type {Set<string>} */
+    additionalTargetTimers = new Set();
+
     /** @type {Set<string>} */
     additionalRouteSpecies = new Set();
 
@@ -126,6 +137,18 @@ export default class OverlayState {
         if (this.lastEncounter && ["hatched", "gift", "static"].includes(this.lastEncounter.type)) {
             this.additionalRouteSpecies.add(this.lastEncounter.pokemon.species_name_for_stats);
         }
+    }
+
+    /** @returns {string[]} */
+    get targetTimers() {
+        const timers = new Set();
+        for (const speciesName of config.targetTimers) {
+            timers.add(speciesName);
+        }
+        for (const speciesName of this.additionalTargetTimers) {
+            timers.add(speciesName);
+        }
+        return [...timers];
     }
 
     /** @return {Encounter|null} */
@@ -222,7 +245,7 @@ export default class OverlayState {
                 species_id: encounter.pokemon.species.index,
                 species_name: encounter.pokemon.species.name,
                 total_encounters: 1,
-                shiny_encounters: encounter.pokemon.is_shiny ? 1 : 0,
+                shiny_encounters: 0,
                 catches: 0,
                 total_highest_iv_sum: ivSum,
                 total_lowest_iv_sum: ivSum,
@@ -288,10 +311,14 @@ export default class OverlayState {
 
         if (encounter.pokemon.is_shiny) {
             this.stats.totals.shiny_encounters++;
-            this.stats.pokemon[speciesName].shiny_encounters++;
+            // We don't do this because then the overlay would show '1 missed' during
+            // the encounter (because `shiny_encounters` would be lower than `catches`.)
+            // The stats are being reloaded from the bot after the encounter ends anyway.
+            // this.stats.pokemon[speciesName].shiny_encounters++;
 
             if (["hatched", "gift", "static"].includes(encounter.type)) {
                 this.stats.totals.catches++;
+                this.stats.pokemon[speciesName].shiny_encounters++;
                 this.stats.pokemon[speciesName].catches++;
             }
 

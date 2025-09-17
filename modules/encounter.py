@@ -86,6 +86,13 @@ def run_custom_catch_filters(pokemon: "Pokemon") -> str | bool:
     return result
 
 
+def is_repeat_encounter(encounter_info: EncounterInfo) -> bool:
+    return (
+        context.stats.last_encounter is not None
+        and context.stats.last_encounter.pokemon.personality_value == encounter_info.pokemon.personality_value
+    )
+
+
 class EncounterValue(Enum):
     Shiny = auto()
     ShinyOnBlockList = auto()
@@ -137,11 +144,9 @@ def judge_encounter(pokemon: "Pokemon") -> EncounterValue:
 
 def log_encounter(encounter_info: EncounterInfo) -> None:
     pokemon = encounter_info.pokemon
-    if (
-        context.stats.last_encounter is not None
-        and context.stats.last_encounter.pokemon.personality_value == pokemon.personality_value
-    ):
-        # Avoid double-logging an encounter.
+
+    # Avoid double-logging an encounter.
+    if is_repeat_encounter(encounter_info):
         return
 
     log_entry = context.stats.log_encounter(encounter_info)
@@ -196,43 +201,53 @@ def handle_encounter(
     do_not_switch_to_manual: bool = False,
 ) -> BattleAction:
     pokemon = encounter_info.pokemon
+    repeat_encounter = is_repeat_encounter(encounter_info)
+
+    alert = None
     match encounter_info.value:
         case EncounterValue.Shiny:
-            console.print(f"[bold yellow]Shiny {pokemon.species.name} found![/]")
-            alert = "Shiny found!", f"Found a ✨shiny {pokemon.species.name}✨! 🥳"
-            if context.config.logging.save_pk3.shiny:
-                save_pk3(pokemon)
+            if not repeat_encounter:
+                console.print(f"[bold yellow]Shiny {pokemon.species.name} found![/]")
+                alert = "Shiny found!", f"Found a ✨shiny {pokemon.species.name}✨! 🥳"
+                if context.config.logging.save_pk3.shiny:
+                    save_pk3(pokemon)
             is_of_interest = True
 
         case EncounterValue.CustomFilterMatch:
-            filter_result = encounter_info.catch_filters_result
-            console.print(f"[pink green]Custom filter triggered for {pokemon.species.name}: '{filter_result}'[/]")
-            alert = "Custom filter triggered!", f"Found a {pokemon.species.name} that matched one of your filters."
-            if context.config.logging.save_pk3.custom:
-                save_pk3(pokemon)
+            if not repeat_encounter:
+                filter_result = encounter_info.catch_filters_result
+                console.print(f"[pink green]Custom filter triggered for {pokemon.species.name}: '{filter_result}'[/]")
+                alert = "Custom filter triggered!", f"Found a {pokemon.species.name} that matched one of your filters."
+                if context.config.logging.save_pk3.custom:
+                    save_pk3(pokemon)
             is_of_interest = True
 
         case EncounterValue.Roamer:
-            console.print(f"[pink yellow]Roaming {pokemon.species.name} found![/]")
-            alert = "Roaming Pokémon found!", f"Encountered a roaming {pokemon.species.name}."
-            # If this is the first time the Roamer is encountered
-            if pokemon.species not in get_pokedex().seen_species and context.config.logging.save_pk3.roamer:
-                save_pk3(pokemon)
+            if not repeat_encounter:
+                console.print(f"[pink yellow]Roaming {pokemon.species.name} found![/]")
+                alert = "Roaming Pokémon found!", f"Encountered a roaming {pokemon.species.name}."
+                # If this is the first time the Roamer is encountered
+                if pokemon.species not in get_pokedex().seen_species and context.config.logging.save_pk3.roamer:
+                    save_pk3(pokemon)
             is_of_interest = True
 
         case EncounterValue.ShinyOnBlockList:
-            console.print(f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...[/]")
-            alert = None
-            if context.config.logging.save_pk3.shiny:
-                save_pk3(pokemon)
+            if not repeat_encounter:
+                console.print(
+                    f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...[/]"
+                )
+                if context.config.logging.save_pk3.shiny:
+                    save_pk3(pokemon)
             is_of_interest = False
 
         case EncounterValue.RoamerOnBlockList:
-            console.print(f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...[/]")
-            alert = None
-            # If this is the first time the Roamer is encountered
-            if pokemon.species not in get_pokedex().seen_species and context.config.logging.save_pk3.roamer:
-                save_pk3(pokemon)
+            if not repeat_encounter:
+                console.print(
+                    f"[bold yellow]{pokemon.species.name} is on the catch block list, skipping encounter...[/]"
+                )
+                # If this is the first time the Roamer is encountered
+                if pokemon.species not in get_pokedex().seen_species and context.config.logging.save_pk3.roamer:
+                    save_pk3(pokemon)
             is_of_interest = False
 
         case EncounterValue.Trash | _:
@@ -251,11 +266,12 @@ def handle_encounter(
     battle_is_active = get_game_state() in (GameState.BATTLE, GameState.BATTLE_STARTING, GameState.BATTLE_ENDING)
 
     if is_of_interest:
-        if not context.testing:
+        if not repeat_encounter and not context.testing:
             filename_suffix = (
                 f"{encounter_info.value.name}_{make_string_safe_for_file_name(pokemon.species_name_for_stats)}"
             )
-            context.emulator.create_save_state(suffix=filename_suffix)
+            if context.config.logging.create_save_state_for_shiny:
+                context.emulator.create_save_state(suffix=filename_suffix)
 
         if context.config.battle.auto_catch and not disable_auto_catch and battle_is_active:
             encounter_info.battle_action = BattleAction.Catch
