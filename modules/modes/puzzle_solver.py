@@ -199,8 +199,9 @@ class PuzzleSolverMode(BotMode):
                 def path():
                     yield from navigate_to(MapRSE.ROUTE134, (61, 31))
                     yield from dive()
-                    yield from navigate_to(MapRSE.UNDERWATER_ROUTE134, (8, 8))
-                    yield from navigate_to(MapRSE.UNDERWATER_SEALED_CHAMBER, (12, 44))
+                    yield from wait_for_player_avatar_to_be_controllable("A")
+                    yield from navigate_to(MapRSE.UNDERWATER_ROUTE134, (8, 8), False)
+                    yield from navigate_to(MapRSE.UNDERWATER_SEALED_CHAMBER, (12, 44), False)
                     yield from surface_from_dive()
                     context.message = "Solving Sealed Chamber Puzzle...\nStarting solution..."
                     yield from navigate_to(MapRSE.SEALED_CHAMBER_OUTER_ROOM, (10, 3))
