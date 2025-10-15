@@ -350,8 +350,6 @@ def _do_deposit_actions(actions: list[PCAction]) -> Generator:
                 while _get_storage_state().cursor_position != target_index:
                     context.emulator.press_button(direction)
                     yield
-
-                context.set_manual_mode("Index reached")
                 while _get_storage_state().state != 2:
                     context.emulator.press_button("A")
                     yield
