@@ -313,6 +313,7 @@ def navigate_to(
     avoid_encounters: bool = True,
     avoid_scripted_events: bool = True,
     expecting_script: bool = False,
+    final_facing_direction: Direction | None = None,
 ) -> Generator:
     """
     Tries to walk the player to a given location while circumventing obstacles.
@@ -333,6 +334,9 @@ def navigate_to(
                                   still navigate via those tiles of there is no other option.
     :param expecting_script: This will accept if a script is triggered during navigation (presumably at the destination)
                              and will not show an error about that.
+    :param final_facing_direction: A direction that the player avatar should face after reaching its
+                                   destination. This can be useful to make it bump into an obstacle with
+                                   the Mach Bike.
     """
 
     def waypoint_generator():
@@ -367,7 +371,7 @@ def navigate_to(
 
     while True:
         try:
-            yield from follow_waypoints(waypoint_generator(), run)
+            yield from follow_waypoints(waypoint_generator(), run, final_facing_direction=final_facing_direction)
             break
         except TimedOutTryingToReachWaypointError:
             # If we run into a timeout while trying to follow the waypoints, this is likely because of either of
