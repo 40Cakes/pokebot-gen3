@@ -20,6 +20,7 @@
                 img {
                     float: left;
                     margin-right: 2vh;
+                    margin-bottom: 1rem;
                     height: 6vh;
                 }
             }
@@ -27,12 +28,19 @@
             .gender-icon {
                 position: absolute;
                 left: 6vh;
-                bottom: 1vh;
+                bottom: 2vh;
             }
 
             > div {
                 margin-bottom: .5vh;
                 font-size: 80%;
+
+                &.daycare-ivs {
+                    font-size: 70%;
+                    > small:first-of-type {
+                        font-size: 100%;
+                    }
+                }
 
                 &:first-of-type {
                     margin-bottom: 1vh;
