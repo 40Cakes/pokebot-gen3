@@ -40,7 +40,7 @@ from .._interface import BotModeError
 from ...game import get_symbol_name_before
 from ...items import Item, get_item_bag, ItemPocket, Pokeblock, get_pokeblocks
 from ...map import get_map_objects, get_map_data_for_current_position
-from ...map_path import calculate_path, PathFindingError
+from ...map_path import calculate_path, PathFindingError, Direction
 from ...mart import get_mart_buyable_items, get_mart_buy_menu_scroll_position, get_mart_main_menu_scroll_position
 from ...pokeblock_feeder import get_active_pokeblock_feeder_for_location
 
@@ -547,7 +547,7 @@ def talk_to_npc(local_object_id: int):
             raise BotModeError(f"Could not find an empty tile around local object #{local_object_id}")
 
         try:
-            yield from navigate_to(*nearest_tile)
+            yield from navigate_to(*nearest_tile, final_facing_direction=Direction.from_string(nearest_tile_facing))
             yield from ensure_facing_direction(nearest_tile_facing)
         except (PathFindingError, BotModeError):
             pass
