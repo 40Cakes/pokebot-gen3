@@ -1,4 +1,4 @@
-import {speciesSprite} from "../helper.js";
+import {colouredIV, speciesSprite} from "../helper.js";
 import {fetchers} from "../connection.js";
 
 const DAYCARE_UPDATE_INTERVAL = 10000;
@@ -81,6 +81,31 @@ const updateDaycareBox = (botMode, state) => {
         level.innerText = newLevel.toString();
         level.prepend(levelLabel);
         li.append(level);
+
+        const slash = () => {
+            const element = document.createElement("small");
+            element.innerText = "/";
+            return element;
+        }
+        const ivs = document.createElement("div");
+        ivs.className = "daycare-ivs";
+        const ivsLabel = document.createElement("small");
+        ivsLabel.innerText = "IVs: ";
+        ivs.append(
+            ivsLabel,
+            colouredIV(pokemon.ivs.hp),
+            slash(),
+            colouredIV(pokemon.ivs.attack),
+            slash(),
+            colouredIV(pokemon.ivs.defence),
+            slash(),
+            colouredIV(pokemon.ivs.special_attack),
+            slash(),
+            colouredIV(pokemon.ivs.special_defence),
+            "/",
+            colouredIV(pokemon.ivs.speed),
+        );
+        li.append(ivs);
 
         const heldItem = document.createElement("div");
         const heldItemLabel = document.createElement("small");
