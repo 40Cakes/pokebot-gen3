@@ -169,7 +169,8 @@ class EmulatorControls:
                 if get_game_state() not in (GameState.TITLE_SCREEN, GameState.MAIN_MENU):
                     try:
                         is_selectable = mode.is_selectable()
-                    except Exception:
+                    except Exception as exc:
+                        print("exception", str(exc))
                         if context.debug:
                             console.print_exception()
                         is_selectable = False

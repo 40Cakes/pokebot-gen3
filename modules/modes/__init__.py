@@ -37,6 +37,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .static_gift_resets import StaticGiftResetsMode
         from .static_soft_resets import StaticSoftResetsMode
         from .sweet_scent import SweetScentMode
+        from .contest import ContestMode
 
         _bot_modes = [
             BerryBlendMode,
@@ -61,6 +62,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
             StaticSoftResetsMode,
             SweetScentMode,
             SudowoodoMode,
+            ContestMode,
         ]
 
         for mode in plugin_get_additional_bot_modes():
