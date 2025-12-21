@@ -817,6 +817,9 @@ class StatsDatabase:
     def get_shiny_log(self) -> list[ShinyPhase]:
         return list(self._query_shiny_phases("end_time IS NOT NULL ORDER BY end_time DESC"))
 
+    def has_encounter_with_personality_value(self, personality_value: int) -> bool:
+        return self.count_encounters("personality_value = ?", [personality_value]) > 0
+
     def query_encounters(
         self,
         where_clause: str | None = None,
