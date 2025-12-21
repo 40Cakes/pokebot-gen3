@@ -86,7 +86,21 @@ def run_custom_catch_filters(pokemon: "Pokemon") -> str | bool:
     return result
 
 
+_is_first_encounter = True
+
+
 def is_repeat_encounter(encounter_info: EncounterInfo) -> bool:
+    # For the first encounter, do a more expensive lookup whether the encounter's PV
+    # is already in the stats DB. Normally, this shouldn't be necessary (and we want
+    # to avoid putting more load on sqlite.) But during the first encounter, there's a
+    # chance that we've just reloaded a save state from a shiny encounter, and we don't
+    # want this to be counted again and mess up the stats. Thus, _only_ for the first
+    # encounter, we will check the entire encounter DB.
+    if _is_first_encounter:
+        return context.stats.has_encounter_with_personality_value(encounter_info.pokemon.personality_value)
+
+    # Otherwise, we just check whether the personality value matches the previous
+    # encounter.
     return (
         context.stats.last_encounter is not None
         and context.stats.last_encounter.pokemon.personality_value == encounter_info.pokemon.personality_value
@@ -148,6 +162,9 @@ def log_encounter(encounter_info: EncounterInfo) -> None:
     # Avoid double-logging an encounter.
     if is_repeat_encounter(encounter_info):
         return
+
+    global _is_first_encounter
+    _is_first_encounter = False
 
     log_entry = context.stats.log_encounter(encounter_info)
     if context.config.logging.log_encounters_to_console:
