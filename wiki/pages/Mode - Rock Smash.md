@@ -53,7 +53,7 @@ If you have any Repel items in your inventory, the game will offer you this choi
 
 (This area only exists in Emerald.)
 
-The mode will continuously try to enter the Safari Zone, so make sure you have some cash. The bot will use up to ₽25,000 and then soft reset to start over. If you have less cash than that, it will soft-reset when money runs out.
+The mode will continuously try to enter the Safari Zone, so make sure you have some cash. The bot will first **use up all the player's cash in Safari Zone entrance fees** and then soft reset to start over.
 
 - Go to the _entrance_ of the Safari Zone (see image below)
 - Make sure you have some cash on you

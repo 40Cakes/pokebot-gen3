@@ -78,11 +78,30 @@ class RockSmashMode(BotMode):
         self._using_mach_bike = False
         self._nosepass_frames: deque[int] = deque(maxlen=1000)
 
+        self._should_delay_a_frame: bool = False
+        self._duplicates_found: int = 0
+
     def on_safari_zone_timeout(self) -> bool:
         self._in_safari_zone = False
         return True
 
     def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | None:
+        # Because we might be soft-resetting fairly often in this mode, and it can take a
+        # while to get an encounter, there's a decent chance to end up with the same RNG
+        # value at some point even though the starting value was different. (This might
+        # happen to random overworld events and the like.)
+        #
+        # For that reason, we will do the expensive thing of checking each encounter with
+        # the stats DB to identify duplicates. If a duplicate has been found, we will wait
+        # for a single frame after the battle is over so we're not in sync with a previous
+        # RNG sequence any more.
+        #
+        # Also, after each reset we will delay one frame for each duplicate that we have
+        # previously encountered.
+        if context.stats.has_encounter_with_personality_value(encounter.pokemon.personality_value):
+            self._should_delay_a_frame = True
+            self._duplicates_found += 1
+
         if encounter.pokemon.species.name == "Nosepass":
             self._nosepass_frames.append(context.frame)
             if len(self._nosepass_frames) > 1:
@@ -195,7 +214,6 @@ class RockSmashMode(BotMode):
 
         self._using_mach_bike = get_player().registered_item == get_item_by_name("Mach Bike")
 
-        starting_cash = get_player().money
         while True:
             match get_player_avatar().map_group_and_number:
                 case MapRSE.GRANITE_CAVE_B2F:
@@ -207,16 +225,20 @@ class RockSmashMode(BotMode):
                         yield
                 case MapRSE.ROUTE121_SAFARI_ZONE_ENTRANCE:
                     current_cash = get_player().money
-                    if current_cash < 500 or starting_cash - current_cash > 25000:
+                    if current_cash < 500:
                         yield from soft_reset()
                         yield from wait_for_unique_rng_value()
-                        for _ in range(5):
+                        # See note in `on_battle_started()`
+                        for _ in range(5 + self._duplicates_found):
                             yield
-                        starting_cash = get_player().money
                     yield from self.enter_safari_zone()
                 case MapRSE.SAFARI_ZONE_NORTHEAST:
                     self._in_safari_zone = True
                     for _ in self.safari_zone():
+                        # See note in `on_battle_started()`
+                        if self._should_delay_a_frame:
+                            self._should_delay_a_frame = False
+                            yield
                         if self._in_safari_zone:
                             yield
                         else:
