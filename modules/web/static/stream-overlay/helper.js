@@ -438,6 +438,34 @@ export function getSpeciesGoal(speciesName, checklistConfig, stats) {
 }
 
 /**
+ * @param {string} speciesName
+ * @param {StreamOverlay.SectionChecklist} checklistConfig
+ * @param {PokeBotApi.GetStatsResponse} stats
+ * @return {number}
+ */
+export function getSpeciesCatches(speciesName, checklistConfig, stats) {
+    if (typeof checklistConfig[speciesName] !== "undefined") {
+        let result = stats.pokemon[speciesName]?.catches ?? 0;
+        for (const similarSpeciesName of checklistConfig[speciesName].similarSpecies) {
+            result += stats.pokemon[similarSpeciesName]?.catches ?? 0;
+        }
+        return result;
+    }
+
+    for (const [checklistSpeciesName, checklistEntry] of Object.entries(checklistConfig)) {
+        if (Array.isArray(checklistEntry.similarSpecies) && checklistEntry.similarSpecies.includes(speciesName)) {
+            let result = stats.pokemon[checklistSpeciesName]?.catches ?? 0;
+            for (const similarSpeciesName of checklistEntry.similarSpecies) {
+                result += stats.pokemon[similarSpeciesName]?.catches ?? 0;
+            }
+            return result;
+        }
+    }
+
+    return 0;
+}
+
+/**
  * @param {StreamOverlay.SectionChecklist} sectionChecklist
  * @param {PokeBotApi.GetStatsResponse} stats
  * @return {{caught: number; goal: number}}
