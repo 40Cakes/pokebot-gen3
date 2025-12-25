@@ -80,7 +80,9 @@ def make_string_safe_for_file_name(base_string: str) -> str:
 
 def save_pk3(pokemon: Pokemon) -> None:
     """
-    Takes the byte data of [obj]Pokémon.data and outputs it in a pkX format in the /profiles/[PROFILE]/pokemon dir.
+    Takes the decrypted byte data of the Pokémon and outputs it in PKHeX-compatible .pk3 format
+    in the /profiles/[PROFILE]/pokemon dir. The data is decrypted and formatted to match PKHeX's
+    export standards.
     """
     pokemon_dir_path = context.profile.path / "pokemon"
     if not pokemon_dir_path.exists():
@@ -98,9 +100,9 @@ def save_pk3(pokemon: Pokemon) -> None:
     if os.path.exists(pk3_file):
         os.remove(pk3_file)
 
-    # Open the file and write the data
+    # Open the file and write the decrypted data (PKHeX-compatible format)
     with open(pk3_file, "wb") as binary_file:
-        binary_file.write(pokemon.data)
+        binary_file.write(pokemon._decrypted_data_pkhex)
 
 
 def get_rng_state_history() -> set:
