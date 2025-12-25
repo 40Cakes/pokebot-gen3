@@ -100,9 +100,9 @@ def save_pk3(pokemon: Pokemon) -> None:
     if os.path.exists(pk3_file):
         os.remove(pk3_file)
 
-    # Open the file and write the decrypted data (PKHeX-compatible format)
+    # Open the file and write the decrypted data (export format)
     with open(pk3_file, "wb") as binary_file:
-        binary_file.write(pokemon._decrypted_data_pkhex)
+        binary_file.write(pokemon._decrypted_data_export)
 
 
 def get_rng_state_history() -> set:

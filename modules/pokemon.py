@@ -916,18 +916,18 @@ class Pokemon:
         return self.data[:32] + decrypted.tobytes() + self.data[80:100]
 
     @cached_property
-    def _decrypted_data_pkhex(self) -> bytes:
+    def _decrypted_data_export(self) -> bytes:
         """
-        Returns the decrypted Pokémon data in PKHeX-compatible format.
+        Returns the decrypted Pokémon data in export format.
         The substructures are decrypted and reordered to standard order (0, 1, 2, 3),
         and the checksum is recalculated from the decrypted data.
 
-        This format matches what PKHeX expects for .pk3 files.
+        This format is compatible with standard .pk3 file readers.
 
         For more information regarding encryption and substructure ordering, see:
         https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Format
 
-        :return: The decrypted data in PKHeX-compatible format.
+        :return: The decrypted data in export format.
         """
         # Use the existing _decrypted_data which already decrypts and reorders correctly
         decrypted = self._decrypted_data
