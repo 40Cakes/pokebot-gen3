@@ -6,7 +6,7 @@ import {
     renderTableRow,
     br,
     small,
-    getSpeciesGoal, overlaySprite, getEmptySpeciesEntry
+    getSpeciesGoal, overlaySprite, getEmptySpeciesEntry, getSpeciesCatches
 } from "../helper.js";
 
 const mapNameSpan = document.querySelector("#route-encounters > h2 > span");
@@ -144,7 +144,7 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
 
         const goal = getSpeciesGoal(encounter.species_name, checklistConfig, stats);
         if (goal) {
-            catches = [species.catches, small(`/${goal}`)];
+            catches = [getSpeciesCatches(encounter.species_name, checklistConfig, stats), small(`/${goal}`)];
         } else {
             catches = [formatInteger(species.catches)];
         }

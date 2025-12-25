@@ -1,5 +1,5 @@
 import config from "../config.js";
-import {formatInteger, getSectionProgress} from "../helper.js";
+import {formatInteger, getSectionProgress, getSpeciesCatches} from "../helper.js";
 
 /** @type {HTMLUListElement} */
 const ul = document.querySelector("#section-checklist ul");
@@ -67,17 +67,7 @@ const updateSectionChecklist = (checklistConfig, stats, mapEncounters, additiona
         const configEntry = checklistConfig[speciesName];
         const elements = speciesListElements[speciesName];
 
-        let completion = 0;
-        if (stats.pokemon.hasOwnProperty(speciesName)) {
-            completion += stats.pokemon[speciesName].catches;
-        }
-        if (Array.isArray(configEntry.similarSpecies)) {
-            for (const similarSpecies of configEntry.similarSpecies) {
-                if (stats.pokemon.hasOwnProperty(similarSpecies)) {
-                    completion += stats.pokemon[similarSpecies].catches;
-                }
-            }
-        }
+        let completion = getSpeciesCatches(speciesName, checklistConfig, stats);
 
         const isCompleted = configEntry.goal && completion >= configEntry.goal;
         elements.countSpan.innerText = formatInteger(completion);
@@ -102,13 +92,13 @@ const updateSectionChecklist = (checklistConfig, stats, mapEncounters, additiona
         }
 
         for (const encounter of routeEncounters) {
-            if (encounter.species_name === speciesName) {
+            if (encounter.species_name === speciesName || (Array.isArray(configEntry.similarSpecies) && configEntry.similarSpecies.includes(encounter.species_name))) {
                 isAvailableOnThisRoute = true;
                 break;
             }
         }
         for (const additionalSpeciesName of additionalRouteSpecies) {
-            if (additionalSpeciesName === speciesName) {
+            if (additionalSpeciesName === speciesName || (Array.isArray(configEntry.similarSpecies) && configEntry.similarSpecies.includes(additionalSpeciesName))) {
                 isAvailableOnThisRoute = true;
                 break;
             }
