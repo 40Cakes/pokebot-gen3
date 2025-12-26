@@ -915,8 +915,7 @@ class Pokemon:
         )
         return self.data[:32] + decrypted.tobytes() + self.data[80:100]
 
-    @cached_property
-    def _decrypted_data_export(self) -> bytes:
+    def to_pk3(self) -> bytes:
         """
         Returns the decrypted Pokémon data in export format.
         The substructures are decrypted and reordered to standard order (0, 1, 2, 3),

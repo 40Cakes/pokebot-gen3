@@ -102,7 +102,7 @@ def save_pk3(pokemon: Pokemon) -> None:
 
     # Open the file and write the decrypted data (export format)
     with open(pk3_file, "wb") as binary_file:
-        binary_file.write(pokemon._decrypted_data_export)
+        binary_file.write(pokemon.to_pk3())
 
 
 def get_rng_state_history() -> set:
