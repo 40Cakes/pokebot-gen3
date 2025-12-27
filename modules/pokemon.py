@@ -915,6 +915,32 @@ class Pokemon:
         )
         return self.data[:32] + decrypted.tobytes() + self.data[80:100]
 
+    def to_pk3(self) -> bytes:
+        """
+        Returns the decrypted Pokémon data in export format.
+        The substructures are decrypted and reordered to standard order (0, 1, 2, 3),
+        and the checksum is recalculated from the decrypted data.
+
+        This format is compatible with standard .pk3 file readers.
+
+        For more information regarding encryption and substructure ordering, see:
+        https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)#Format
+
+        :return: The decrypted data in export format.
+        """
+        # Use the existing _decrypted_data which already decrypts and reorders correctly
+        decrypted = self._decrypted_data
+
+        # Recalculate checksum from decrypted substructures
+        checksum = self.calculate_checksum()
+
+        # Build result with updated checksum
+        result = bytearray(decrypted[:28])  # Header up to checksum
+        result.extend(checksum.to_bytes(2, byteorder="little"))  # Updated checksum
+        result.extend(decrypted[30:])  # Rest of the data (padding + substructures + party data)
+
+        return bytes(result)
+
     @property
     def _character_set(self) -> Literal["international", "japanese"]:
         """
