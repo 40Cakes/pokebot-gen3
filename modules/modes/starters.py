@@ -1,5 +1,5 @@
 import random
-from typing import Generator
+from typing import Generator, Callable
 
 from modules.context import context
 from modules.encounter import handle_encounter, EncounterInfo
@@ -77,7 +77,7 @@ def run_frlg() -> Generator:
         )
 
 
-def run_rse_hoenn() -> Generator:
+def run_rse_hoenn(get_active_encounter: Callable[[], EncounterInfo]) -> Generator:
     # Set up: Ask for starter choice because we cannot deduce that from the player location.
     starter_choice = ask_for_choice(
         [
@@ -139,14 +139,10 @@ def run_rse_hoenn() -> Generator:
             context.emulator.press_button("A")
             yield
 
-        handle_encounter(
-            EncounterInfo.create(get_party()[0], EncounterType.Gift),
-            do_not_log_battle_action=True,
-            disable_auto_catch=True,
-        )
+        handle_encounter(get_active_encounter(), do_not_log_battle_action=True, disable_auto_catch=True)
 
 
-def run_rse_johto():
+def run_rse_johto(get_active_encounter: Callable[[], EncounterInfo]):
     starter_choice = ask_for_choice(
         [
             Selection("Chikorita", get_sprites_path() / "pokemon" / "normal" / "Chikorita.png"),
@@ -195,11 +191,7 @@ def run_rse_johto():
         yield from StartMenuNavigator("POKEMON").step()
         yield from PokemonPartyMenuNavigator(get_party_size() - 1, "summary").step()
 
-        handle_encounter(
-            EncounterInfo.create(get_party()[-1], EncounterType.Gift),
-            disable_auto_catch=True,
-            do_not_log_battle_action=True,
-        )
+        handle_encounter(get_active_encounter(), disable_auto_catch=True, do_not_log_battle_action=True)
 
 
 class StartersMode(BotMode):
@@ -215,7 +207,12 @@ class StartersMode(BotMode):
         if context.rom.is_rse:
             return player_avatar.map_group_and_number in [(0, 16), (1, 4)]
 
+    def __init__(self):
+        super().__init__()
+        self._active_encounter: EncounterInfo | None = None
+
     def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | None:
+        self._active_encounter = encounter
         return BattleAction.CustomAction
 
     def run(self) -> Generator:
@@ -242,6 +239,6 @@ class StartersMode(BotMode):
             )
 
             if get_save_data().get_map_group_and_number() == MapRSE.ROUTE101:
-                yield from run_rse_hoenn()
+                yield from run_rse_hoenn(lambda: self._active_encounter)
             else:
-                yield from run_rse_johto()
+                yield from run_rse_johto(lambda: self._active_encounter)

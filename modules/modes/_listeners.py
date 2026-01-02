@@ -91,7 +91,7 @@ class BattleListener(BotListener):
 
             if encounter_type not in (EncounterType.Trainer, EncounterType.Tutorial):
                 if BattleType.FirstBattle in get_battle_state().type:
-                    self._active_wild_encounter = EncounterInfo.create(get_party()[0])
+                    self._active_wild_encounter = EncounterInfo.create(get_party()[0], EncounterType.Gift)
                 else:
                     self._active_wild_encounter = EncounterInfo.create(opponent)
             else:

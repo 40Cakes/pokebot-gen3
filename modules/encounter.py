@@ -89,7 +89,7 @@ def run_custom_catch_filters(pokemon: "Pokemon") -> str | bool:
 _is_first_encounter = True
 
 
-def is_repeat_encounter(encounter_info: EncounterInfo) -> bool:
+def is_repeat_encounter(pokemon: "Pokemon") -> bool:
     # For the first encounter, do a more expensive lookup whether the encounter's PV
     # is already in the stats DB. Normally, this shouldn't be necessary (and we want
     # to avoid putting more load on sqlite.) But during the first encounter, there's a
@@ -97,13 +97,13 @@ def is_repeat_encounter(encounter_info: EncounterInfo) -> bool:
     # want this to be counted again and mess up the stats. Thus, _only_ for the first
     # encounter, we will check the entire encounter DB.
     if _is_first_encounter:
-        return context.stats.has_encounter_with_personality_value(encounter_info.pokemon.personality_value)
+        return context.stats.has_encounter_with_personality_value(pokemon.personality_value)
 
     # Otherwise, we just check whether the personality value matches the previous
     # encounter.
     return (
         context.stats.last_encounter is not None
-        and context.stats.last_encounter.pokemon.personality_value == encounter_info.pokemon.personality_value
+        and context.stats.last_encounter.pokemon.personality_value == pokemon.personality_value
     )
 
 
@@ -113,6 +113,7 @@ class EncounterValue(Enum):
     Roamer = auto()
     RoamerOnBlockList = auto()
     CustomFilterMatch = auto()
+    RepeatEncounter = auto()
     Trash = auto()
 
     @property
@@ -128,6 +129,9 @@ def judge_encounter(pokemon: "Pokemon") -> EncounterValue:
     :param pokemon: The Pokémon that has been encountered.
     :return: The perceived 'value' of the encounter.
     """
+
+    if is_repeat_encounter(pokemon):
+        return EncounterValue.RepeatEncounter
 
     if pokemon.is_shiny:
         context.config.reload_file("catch_block")
@@ -160,7 +164,7 @@ def log_encounter(encounter_info: EncounterInfo) -> None:
     pokemon = encounter_info.pokemon
 
     # Avoid double-logging an encounter.
-    if is_repeat_encounter(encounter_info):
+    if encounter_info.value is EncounterValue.RepeatEncounter:
         return
 
     global _is_first_encounter
@@ -218,7 +222,7 @@ def handle_encounter(
     do_not_switch_to_manual: bool = False,
 ) -> BattleAction:
     pokemon = encounter_info.pokemon
-    repeat_encounter = is_repeat_encounter(encounter_info)
+    repeat_encounter = encounter_info.value is EncounterValue.RepeatEncounter
 
     alert = None
     match encounter_info.value:

@@ -210,11 +210,15 @@ def set_rom(rom: ROM) -> None:
                     _load_symbols("pokeleafgreen_rev1.sym", rom.language)
             _load_event_flags_and_vars("frlg.txt")
 
+    set_character_table("japanese" if rom.language is ROMLanguage.Japanese else "international")
+
+
+def set_character_table(character_table: Literal["international", "japanese"] = "international") -> None:
+    global _current_character_table
     _prepare_character_tables()
-    if rom.language == ROMLanguage.Japanese:
-        _current_character_table = _character_table_japanese
-    else:
-        _current_character_table = _character_table_international
+    _current_character_table = (
+        _character_table_japanese if character_table == "japanese" else _character_table_international
+    )
 
 
 def get_symbol(symbol_name: str) -> tuple[int, int]:
