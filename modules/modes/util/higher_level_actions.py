@@ -375,12 +375,15 @@ def buy_in_shop(shopping_list: list[tuple[Item, int]]):
             context.emulator.press_button("Down")
             yield
             yield
-        while get_task(select_quantity_task).data_value(1) != quantity:
-            current_quantity = get_task(select_quantity_task).data_value(1)
-            if abs(current_quantity - quantity) > 7:
-                context.emulator.press_button("Left" if reverse_scroll else "Right")
-            else:
-                context.emulator.press_button("Down" if reverse_scroll else "Up")
+        while (current_quantity := get_task(select_quantity_task).data_value(1)) != quantity:
+            if current_quantity <= quantity - 7:
+                context.emulator.press_button("Right")
+            elif current_quantity >= quantity + 7:
+                context.emulator.press_button("Left")
+            elif current_quantity < quantity:
+                context.emulator.press_button("Up")
+            elif current_quantity > quantity:
+                context.emulator.press_button("Down")
             yield
 
         yield from wait_until_task_is_active(buy_menu_task, "A")
@@ -426,7 +429,7 @@ def sell_in_shop(items_to_sell: list[tuple[Item, int]]):
         shop_menu_task = "Task_ShopMenu"
         sell_menu_cb2 = "CB2_BAGMENURUN"
         if context.rom.is_emerald:
-            select_quantity_task = "Task_BuyHowManyDialogueHandleInput"
+            select_quantity_task = "Task_ChooseHowManyToSell"
         else:
             select_quantity_task = "Task_SelectQuantityToSell"
         select_quantity_index = 8
@@ -475,20 +478,28 @@ def sell_in_shop(items_to_sell: list[tuple[Item, int]]):
                 to_sell = slot_quantity
 
             yield from scroll_to_item_in_bag(item)
-            context.emulator.press_button("A")
-            yield from wait_until_task_is_active(select_quantity_task)
-            reverse_scroll = to_sell > slot_quantity / 2
-            if reverse_scroll:
-                context.emulator.press_button("Down")
-                yield
-                yield
-            while get_task(select_quantity_task).data_value(select_quantity_index) != to_sell:
-                current_quantity = get_task(select_quantity_task).data_value(select_quantity_index)
-                if abs(current_quantity - to_sell) > 7:
-                    context.emulator.press_button("Left" if reverse_scroll else "Right")
-                else:
-                    context.emulator.press_button("Down" if reverse_scroll else "Up")
-                yield
+            if not context.rom.is_rs and slot_quantity == 1:
+                # In FR/LG and Emerald, if there is only one item in a slot, the mart menu
+                # will not use the regular quantity selection but instead just ask a yes/no
+                # question.
+                yield from wait_until_task_is_active("Task_CallYesOrNoCallback", "A")
+            else:
+                yield from wait_until_task_is_active(select_quantity_task, "A")
+                reverse_scroll = to_sell > slot_quantity / 2
+                if reverse_scroll:
+                    context.emulator.press_button("Down")
+                    yield
+                    yield
+                while (current_quantity := get_task(select_quantity_task).data_value(select_quantity_index)) != to_sell:
+                    if current_quantity <= to_sell - 7:
+                        context.emulator.press_button("Right")
+                    elif current_quantity >= to_sell + 7:
+                        context.emulator.press_button("Left")
+                    elif current_quantity < to_sell:
+                        context.emulator.press_button("Up")
+                    elif current_quantity > to_sell:
+                        context.emulator.press_button("Down")
+                    yield
             yield from wait_until_task_is_active(sell_menu_task, "A")
             yield
 
