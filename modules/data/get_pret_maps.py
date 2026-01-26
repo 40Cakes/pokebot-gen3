@@ -55,22 +55,19 @@ def _might_be_map_coordinates(value) -> bool:
         out.write(f"class MapGroup{game_code}(Enum):\n")
         for map_group in map_group_names:
             out.write(f"    {map_group_names[map_group]} = {map_group}\n")
-        out.write(
-            f"""    def __contains__(self, item):
+        out.write(f"""    def __contains__(self, item):
         if _might_be_map_coordinates(item):
             return self.value == item[0]
         elif isinstance(item, Map{game_code}):
             return self.value == item.value[0]
         else:
-            return NotImplemented"""
-        )
+            return NotImplemented""")
 
         out.write("\n\n\n")
 
         out.write(f"class Map{game_code}(Enum):\n")
         out.write("    " + "\n".join(output).strip() + "\n")
-        out.write(
-            f"""
+        out.write(f"""
     def __eq__(self, other):
         if _might_be_map_coordinates(other):
             return self.value == other
@@ -92,5 +89,4 @@ def _might_be_map_coordinates(value) -> bool:
         elif isinstance(item, MapLocation):
             return item.map_group == self.value[0] and item.map_number == self.value[1]
         else:
-            return NotImplemented\n"""
-        )
+            return NotImplemented\n""")

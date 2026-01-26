@@ -320,9 +320,7 @@ class EmulatorControls:
         self.stats_label.config(text=" | ".join(stats))
 
     def _reset_shiny_phase_stats(self):
-        is_the_user_sure = ask_for_confirmation(
-            dedent(
-                """
+        is_the_user_sure = ask_for_confirmation(dedent("""
                 This will reset all stats from your current shiny phase -- such
                 as encounters, IV/SV records, fishing attempts etc. -- to zero.
                 
@@ -334,9 +332,7 @@ class EmulatorControls:
                 Total encounter numbers will not be affected.
                 
                 This cannot be undone! Are you sure you want to proceed?
-                """
-            )
-        )
+                """))
 
         if is_the_user_sure:
             context.stats.clear_current_shiny_phase()

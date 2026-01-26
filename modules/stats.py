@@ -708,16 +708,14 @@ class StatsDatabase:
             (self.current_shiny_phase.start_time, self.current_shiny_phase.shiny_phase_id),
         )
 
-        self._execute_write(
-            """
+        self._execute_write("""
             UPDATE encounter_summaries
             SET phase_encounters = 0,
                 phase_highest_iv_sum = NULL,
                 phase_lowest_iv_sum = NULL,
                 phase_highest_sv = NULL,
                 phase_lowest_sv = NULL
-            """
-        )
+            """)
 
         for index in self._encounter_summaries:
             summary = self._encounter_summaries[index]
@@ -991,8 +989,7 @@ class StatsDatabase:
             return int(result[0]) + 1
 
     def _get_encounter_summaries(self) -> dict[int, EncounterSummary]:
-        result = self._cursor.execute(
-            """
+        result = self._cursor.execute("""
             SELECT
                 species_id,
                 species_name,
@@ -1011,8 +1008,7 @@ class StatsDatabase:
                 last_encounter_time
             FROM encounter_summaries
             ORDER BY species_id
-            """
-        )
+            """)
 
         encounter_summaries = {}
         for row in result:
@@ -1165,16 +1161,14 @@ class StatsDatabase:
             (encounter.encounter_time, encounter.encounter_id, self.current_shiny_phase.shiny_phase_id),
         )
 
-        self._execute_write(
-            """
+        self._execute_write("""
             UPDATE encounter_summaries
                SET phase_encounters = 0,
                    phase_highest_iv_sum = NULL,
                    phase_lowest_iv_sum = NULL,
                    phase_highest_sv = NULL,
                    phase_lowest_sv = NULL
-            """
-        )
+            """)
 
     def _insert_or_update_encounter_summary(self, encounter_summary: EncounterSummary) -> None:
         if encounter_summary.species is None:
@@ -1314,20 +1308,14 @@ class StatsDatabase:
         if from_schema_version <= 0:
             self._execute_write("CREATE TABLE schema_version (version INT UNSIGNED)")
 
-            self._execute_write(
-                dedent(
-                    """
+            self._execute_write(dedent("""
                     CREATE TABLE base_data (
                         data_key INT UNSIGNED PRIMARY KEY,
                         value TEXT DEFAULT NULL
                     )
-                    """
-                )
-            )
+                    """))
 
-            self._execute_write(
-                dedent(
-                    """
+            self._execute_write(dedent("""
                     CREATE TABLE encounter_summaries (
                         species_id INT UNSIGNED PRIMARY KEY,
                         species_name TEXT NOT NULL,
@@ -1345,13 +1333,9 @@ class StatsDatabase:
                         phase_lowest_sv INT UNSIGNED DEFAULT NULL,
                         last_encounter_time DATETIME
                     )
-                    """
-                )
-            )
+                    """))
 
-            self._execute_write(
-                dedent(
-                    """
+            self._execute_write(dedent("""
                     CREATE TABLE shiny_phases (
                         shiny_phase_id INT UNSIGNED PRIMARY KEY,
                         start_time DATETIME NOT NULL,
@@ -1379,13 +1363,9 @@ class StatsDatabase:
                         snapshot_species_encounters INT UNSIGNED DEFAULT NULL,
                         snapshot_species_shiny_encounters INT UNSIGNED DEFAULT NULL
                     )
-                    """
-                )
-            )
+                    """))
 
-            self._execute_write(
-                dedent(
-                    """
+            self._execute_write(dedent("""
                     CREATE TABLE encounters (
                         encounter_id INT UNSIGNED PRIMARY KEY,
                         species_id INT UNSIGNED NOT NULL,
@@ -1402,50 +1382,32 @@ class StatsDatabase:
                         outcome INT UNSIGNED DEFAULT NULL,
                         data BLOB NOT NULL
                     )
-                    """
-                )
-            )
+                    """))
 
-            self._execute_write(
-                dedent(
-                    """
+            self._execute_write(dedent("""
                     CREATE TABLE pickup_items (
                         item_id INT UNSIGNED PRIMARY KEY,
                         item_name TEXT NOT NULL,
                         times_picked_up INT NOT NULL DEFAULT 0
                     )
-                    """
-                )
-            )
+                    """))
 
         if from_schema_version <= 1:
-            self._execute_write(
-                dedent(
-                    """
+            self._execute_write(dedent("""
                     ALTER TABLE shiny_phases
                         ADD pokenav_calls INT UNSIGNED DEFAULT 0
-                    """
-                )
-            )
+                    """))
 
-            self._execute_write(
-                dedent(
-                    """
+            self._execute_write(dedent("""
                     DROP TABLE base_data
-                    """
-                )
-            )
+                    """))
 
-            self._execute_write(
-                dedent(
-                    """
+            self._execute_write(dedent("""
                     CREATE TABLE base_data (
                         data_key TEXT PRIMARY KEY,
                         value TEXT DEFAULT NULL
                     )
-                    """
-                )
-            )
+                    """))
 
         self._execute_write("DELETE FROM schema_version")
         self._execute_write("INSERT INTO schema_version VALUES (?)", (current_schema_version,))

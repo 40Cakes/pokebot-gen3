@@ -17,7 +17,6 @@ from modules.gui.emulator_controls import DebugEmulatorControls, EmulatorControl
 from modules.sprites import generate_placeholder_image
 from modules.version import pokebot_name, pokebot_version
 
-
 # Defines how many frames can be reverted at the most in stepping mode.
 stepping_mode_frame_history_size = 128
 stepping_mode_forward_key = "<space>"
