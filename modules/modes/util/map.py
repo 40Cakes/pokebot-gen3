@@ -108,7 +108,7 @@ def find_closest_pokemon_center(
                 pass
 
     if pokemon_center is None:
-        raise BotModeError("Could not find a suitable oath from here to a Pokemon Center nearby.")
+        raise BotModeError("Could not find a suitable path from here to a Pokemon Center nearby.")
 
     return pokemon_center
 

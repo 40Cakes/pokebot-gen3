@@ -43,7 +43,6 @@ from modules.state_cache import state_cache, StateCacheItem
 from modules.version import pokebot_version, pokebot_name
 from modules.web.http_stream import add_subscriber
 
-
 custom_state: dict = {}
 
 

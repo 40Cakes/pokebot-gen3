@@ -167,7 +167,7 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
             catches.push(missedShiniesLabel);
         }
 
-        if (goal && species.catches >= goal) {
+        if (goal && (species.catches >= goal || species.species_name === "Gloom" || species.species_name === "Wobbuffet")) {
             const tick = document.createElement("img")
             tick.src = "/static/sprites/stream-overlay/tick.png";
             tick.classList.add("tick");

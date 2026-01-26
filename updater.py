@@ -12,7 +12,6 @@ from modules.console import console
 from modules.runtime import get_base_path
 from modules.version import pokebot_version
 
-
 # Module `exceptions` is not being used, but it needs to be imported because otherwise `modules.console`
 # runs into a circular import issue.
 

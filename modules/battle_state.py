@@ -25,6 +25,7 @@ from modules.pokemon import (
     get_opponent,
     get_type_by_name,
     HIDDEN_POWER_MAP,
+    get_move_by_name,
 )
 from modules.state_cache import state_cache
 from modules.tasks import get_global_script_context
@@ -531,7 +532,7 @@ class BattlePokemon:
             result.append(LearnedMove(move, total_pp, current_pp, total_pp - move.pp))
         return result
 
-    def knows_move(self, move: str | Move, with_pp_remaining: bool = False):
+    def knows_move(self, move: str | Move, with_pp_remaining: bool = False) -> bool:
         if isinstance(move, Move):
             move = move.name
         for learned_move in self.moves:
@@ -539,6 +540,20 @@ class BattlePokemon:
                 learned_move is not None
                 and learned_move.move.name == move
                 and (not with_pp_remaining or learned_move.pp > 0)
+            ):
+                return True
+        return False
+
+    def can_use_move(self, move: str | Move) -> bool:
+        if isinstance(move, str):
+            move = get_move_by_name(move)
+        for learned_move in self.moves:
+            if (
+                learned_move is not None
+                and learned_move.move is move
+                and learned_move.pp > 0
+                and (self.disabled_move is not move or self.disabled_turns_remaining <= 0)
+                and (self.encored_move is move or self.encore_turns_remaining <= 0)
             ):
                 return True
         return False
