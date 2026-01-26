@@ -1,0 +1,29 @@
+#safari-rates {
+    display: none;
+
+    > div {
+        position: relative;
+
+        > p {
+            margin: .75rem 2rem;
+
+            small {
+                display: inline-block;
+                width: 17rem;
+                opacity: var(--muted-font-opacity);
+            }
+
+            strong {
+                display: inline-block;
+            }
+        }
+
+        > small {
+            display: block;
+            position: absolute;
+            top: .25rem;
+            right: 2rem;
+            opacity: var(--muted-font-opacity);
+        }
+    }
+}

@@ -25,6 +25,7 @@ import {updateClock} from "./content/clock.js";
 import {getLastEncounterSpecies, sleep} from "./helper.js";
 import {updateDaycareBox} from "./content/daycare.js";
 import {fireConfetti} from "./content/effects.js";
+import {showSafariRates} from "./content/safari-rates.js";
 
 const BATTLE_STATES = ["BATTLE_STARTING", "BATTLE", "BATTLE_ENDING"];
 
@@ -74,6 +75,12 @@ async function doFullUpdate(state, retryOnError = true) {
                 for (const infoBubble of customState["info_bubbles"]) {
                     addInfoBubble(infoBubble);
                 }
+            }
+
+            if (customState["safari_rates"] && customState["safari_rates"]["catch_rate"] && customState["safari_rates"]["escape_rate"]) {
+                showSafariRates(customState["safari_rates"]["catch_rate"], customState["safari_rates"]["escape_rate"]);
+            } else {
+                showSafariRates(null, null);
             }
 
             isInBattle = BATTLE_STATES.includes(state.gameState);
@@ -367,6 +374,10 @@ function handleCustomEvent(event, state) {
                 updateRouteEncountersList(state.mapEncounters, state.stats, state.lastEncounterType, config.sectionChecklist, state.emulator.bot_mode, state.daycareMode, state.encounterLog, state.additionalRouteSpecies, getLastEncounterSpecies(state.encounterLog));
                 updateSectionChecklist(config.sectionChecklist, state.stats, state.mapEncounters, state.additionalRouteSpecies, state.lastEncounterType);
             }
+            break;
+
+        case "update_safari_rates":
+            showSafariRates(event["safari_rates"]["catch_rate"], event["safari_rates"]["escape_rate"])
             break;
 
         case "confetti":
