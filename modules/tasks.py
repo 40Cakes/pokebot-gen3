@@ -162,7 +162,7 @@ class ScriptContext:
 
 
 def get_tasks() -> TaskList:
-    if state_cache.tasks.age_in_frames == 0:
+    if state_cache.tasks.age_in_frames == 0 and state_cache.tasks.value is not None:
         return state_cache.tasks.value
 
     task_list = TaskList(read_symbol("gTasks"))
