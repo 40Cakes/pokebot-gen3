@@ -259,6 +259,8 @@ class RockSmashMode(BotMode):
                         while is_near_entrance_door() or get_global_script_context().is_active:
                             yield
                         yield from wait_for_player_avatar_to_be_standing_still()
+                        if self._using_mach_bike:
+                            yield from self.mount_bicycle()
 
                     self._in_safari_zone = True
                     if self._using_mach_bike:
@@ -269,6 +271,7 @@ class RockSmashMode(BotMode):
                             else:
                                 break
                         yield from self.unmount_bicycle()
+                        yield from apply_white_flute_if_available()
                     else:
                         for _ in navigate_to(MapRSE.SAFARI_ZONE_NORTHEAST, (12, 7)):
                             if self._in_safari_zone:
@@ -479,5 +482,6 @@ class RockSmashMode(BotMode):
 
             yield from follow_waypoints(bike_waypoints())
             yield from self.unmount_bicycle()
+            yield from apply_white_flute_if_available()
         else:
             yield from navigate_to(MapRSE.SAFARI_ZONE_SOUTHEAST, (8, 0))

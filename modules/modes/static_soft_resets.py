@@ -127,7 +127,7 @@ class StaticSoftResetsMode(BotMode):
 
             if encounter.name == "Groudon/Kyogre":
                 yield from wait_for_task_to_start_and_finish("Task_MapNamePopup")
-                context.emulator.press_button("Left")
+                context.emulator.press_button(get_player_avatar().facing_direction)
                 yield from wait_for_n_frames(2)
                 yield from wait_for_task_to_start_and_finish("Task_BattleStart", "B")
             # The first cry happens before the battle starts.
