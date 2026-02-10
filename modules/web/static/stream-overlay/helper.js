@@ -424,10 +424,9 @@ export function calculatePSP(encounters) {
 /**
  * @param {string} speciesName
  * @param {StreamOverlay.SectionChecklist} checklistConfig
- * @param {PokeBotApi.GetStatsResponse} stats
  * @return {number}
  */
-export function getSpeciesGoal(speciesName, checklistConfig, stats) {
+export function getSpeciesGoal(speciesName, checklistConfig) {
     for (const [checklistSpeciesName, checklistEntry] of Object.entries(checklistConfig)) {
         if (checklistSpeciesName === speciesName || (Array.isArray(checklistEntry.similarSpecies) && checklistEntry.similarSpecies.includes(speciesName))) {
             return checklistEntry.goal;
@@ -441,22 +440,30 @@ export function getSpeciesGoal(speciesName, checklistConfig, stats) {
  * @param {string} speciesName
  * @param {StreamOverlay.SectionChecklist} checklistConfig
  * @param {PokeBotApi.GetStatsResponse} stats
+ * @param {string[]} [avoidCountingSpecies]
  * @return {number}
  */
-export function getSpeciesCatches(speciesName, checklistConfig, stats) {
+export function getSpeciesCatches(speciesName, checklistConfig, stats, avoidCountingSpecies = []) {
     if (typeof checklistConfig[speciesName] !== "undefined") {
         let result = stats.pokemon[speciesName]?.catches ?? 0;
         for (const similarSpeciesName of checklistConfig[speciesName].similarSpecies) {
-            result += stats.pokemon[similarSpeciesName]?.catches ?? 0;
+            if (!avoidCountingSpecies.includes(similarSpeciesName)) {
+                result += stats.pokemon[similarSpeciesName]?.catches ?? 0;
+            }
         }
         return result;
     }
 
     for (const [checklistSpeciesName, checklistEntry] of Object.entries(checklistConfig)) {
         if (Array.isArray(checklistEntry.similarSpecies) && checklistEntry.similarSpecies.includes(speciesName)) {
-            let result = stats.pokemon[checklistSpeciesName]?.catches ?? 0;
+            let result = 0;
+            if (!avoidCountingSpecies.includes(checklistSpeciesName)) {
+                result += stats.pokemon[checklistSpeciesName]?.catches ?? 0;
+            }
             for (const similarSpeciesName of checklistEntry.similarSpecies) {
-                result += stats.pokemon[similarSpeciesName]?.catches ?? 0;
+                if (similarSpeciesName === speciesName || !avoidCountingSpecies.includes(similarSpeciesName)) {
+                    result += stats.pokemon[similarSpeciesName]?.catches ?? 0;
+                }
             }
             return result;
         }
