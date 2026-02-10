@@ -1,18 +1,208 @@
 import {
+    br,
     colouredIVSum,
     colouredShinyValue,
     formatInteger,
-    speciesSprite,
+    getEmptySpeciesEntry,
+    getSpeciesCatches,
+    getSpeciesGoal,
+    overlaySprite,
     renderTableRow,
-    br,
     small,
-    getSpeciesGoal, overlaySprite, getEmptySpeciesEntry, getSpeciesCatches
+    speciesSprite
 } from "../helper.js";
 
 const mapNameSpan = document.querySelector("#route-encounters > h2 > span");
 const tbody = document.querySelector("#route-encounters tbody");
 const table = document.querySelector("#route-encounters table");
 const noEncountersMessage = document.querySelector("#no-encounters-on-this-route-message");
+
+const ALTERNATIVE_SPECIES = {
+    "Ivysaur": ["Bulbasaur"],
+    "Venusaur": ["Ivysaur", "Bulbasaur"],
+    "Charmeleon": ["Charmander"],
+    "Charizard": ["Charmeleon", "Charmander"],
+    "Wartortle": ["Squirtle"],
+    "Blastoise": ["Wartortle", "Squirtle"],
+    "Metapod": ["Caterpie"],
+    "Butterfree": ["Metapod", "Caterpie"],
+    "Kakuna": ["Weedle"],
+    "Beedrill": ["Kakuna", "Weedle"],
+    "Pidgeotto": ["Pidgey"],
+    "Pidgeot": ["Pidgeotto", "Pidgey"],
+    "Raticate": ["Rattata"],
+    "Fearow": ["Spearow"],
+    "Arbok": ["Ekans"],
+    "Pikachu": ["Pichu"],
+    "Raichu": ["Pikachu", "Pichu"],
+    "Sandslash": ["Sandshrew"],
+    "Nidorina": ["Nidoran♀"],
+    "Nidoqueen": ["Nidorina", "Nidoran♀"],
+    "Nidorino": ["Nidoran♂"],
+    "Nidoking": ["Nidorino", "Nidoran♂"],
+    "Clefairy": ["Cleffa"],
+    "Clefable": ["Clefairy", "Cleffa"],
+    "Ninetales": ["Vulpix"],
+    "Jigglypuff": ["Igglybuff"],
+    "Wigglytuff": ["Jigglypuff", "Igglybuff"],
+    "Golbat": ["Zubat"],
+    "Gloom": ["Oddish"],
+    "Vileplume": ["Gloom", "Oddish"],
+    "Parasect": ["Paras"],
+    "Venomoth": ["Venonat"],
+    "Dugtrio": ["Diglett"],
+    "Persian": ["Meowth"],
+    "Golduck": ["Psyduck"],
+    "Primeape": ["Mankey"],
+    "Arcanine": ["Growlithe"],
+    "Poliwhirl": ["Poliwag"],
+    "Poliwrath": ["Poliwhirl", "Poliwag"],
+    "Kadabra": ["Abra"],
+    "Alakazam": ["Kadabra", "Abra"],
+    "Machoke": ["Machop"],
+    "Machamp": ["Machoke", "Machop"],
+    "Weepinbell": ["Bellsprout"],
+    "Victreebel": ["Weepinbell", "Bellsprout"],
+    "Tentacruel": ["Tentacool"],
+    "Graveler": ["Geodude"],
+    "Golem": ["Graveler", "Geodude"],
+    "Rapidash": ["Ponyta"],
+    "Slowbro": ["Slowpoke"],
+    "Magneton": ["Magnemite"],
+    "Dodrio": ["Doduo"],
+    "Dewgong": ["Seel"],
+    "Muk": ["Grimer"],
+    "Cloyster": ["Shellder"],
+    "Haunter": ["Gastly"],
+    "Gengar": ["Haunter", "Gastly"],
+    "Hypno": ["Drowzee"],
+    "Kingler": ["Krabby"],
+    "Electrode": ["Voltorb"],
+    "Exeggutor": ["Exeggcute"],
+    "Marowak": ["Cubone"],
+    "Hitmonlee": ["Tyrogue"],
+    "Hitmonchan": ["Tyrogue"],
+    "Weezing": ["Koffing"],
+    "Rhydon": ["Rhyhorn"],
+    "Seadra": ["Horsea"],
+    "Seaking": ["Goldeen"],
+    "Starmie": ["Staryu"],
+    "Jynx": ["Smoochum"],
+    "Electabuzz": ["Elekid"],
+    "Magmar": ["Magby"],
+    "Gyarados": ["Magikarp"],
+    "Vaporeon": ["Eevee"],
+    "Jolteon": ["Eevee"],
+    "Flareon": ["Eevee"],
+    "Omastar": ["Omanyte"],
+    "Kabutops": ["Kabuto"],
+    "Dragonair": ["Dratini"],
+    "Dragonite": ["Dragonair", "Dratini"],
+    "Bayleef": ["Chikorita"],
+    "Meganium": ["Bayleef", "Chikorita"],
+    "Quilava": ["Cyndaquil"],
+    "Typhlosion": ["Quilava", "Cyndaquil"],
+    "Croconaw": ["Totodile"],
+    "Feraligatr": ["Croconaw", "Totodile"],
+    "Furret": ["Sentret"],
+    "Noctowl": ["Hoothoot"],
+    "Ledian": ["Ledyba"],
+    "Ariados": ["Spinarak"],
+    "Crobat": ["Golbat", "Zubat"],
+    "Lanturn": ["Chinchou"],
+    "Togetic": ["Togepi"],
+    "Xatu": ["Natu"],
+    "Flaaffy": ["Mareep"],
+    "Ampharos": ["Flaaffy", "Mareep"],
+    "Bellossom": ["Gloom", "Oddish"],
+    "Marill": ["Azurill"],
+    "Azumarill": ["Marill", "Azurill"],
+    "Politoed": ["Poliwhirl", "Poliwag"],
+    "Skiploom": ["Hoppip"],
+    "Jumpluff": ["Skiploom", "Hoppip"],
+    "Sunflora": ["Sunkern"],
+    "Quagsire": ["Wooper"],
+    "Espeon": ["Eevee"],
+    "Umbreon": ["Eevee"],
+    "Slowking": ["Slowpoke"],
+    "Wobbuffet": ["Wynaut"],
+    "Forretress": ["Pineco"],
+    "Steelix": ["Onix"],
+    "Granbull": ["Snubbull"],
+    "Scizor": ["Scyther"],
+    "Ursaring": ["Teddiursa"],
+    "Magcargo": ["Slugma"],
+    "Piloswine": ["Swinub"],
+    "Octillery": ["Remoraid"],
+    "Houndoom": ["Houndour"],
+    "Kingdra": ["Seadra", "Horsea"],
+    "Donphan": ["Phanpy"],
+    "Porygon2": ["Porygon"],
+    "Hitmontop": ["Tyrogue"],
+    "Blissey": ["Chansey"],
+    "Pupitar": ["Larvitar"],
+    "Tyranitar": ["Pupitar", "Larvitar"],
+    "Grovyle": ["Treecko"],
+    "Sceptile": ["Grovyle", "Treecko"],
+    "Combusken": ["Torchic"],
+    "Blaziken": ["Combusken", "Torchic"],
+    "Marshtomp": ["Mudkip"],
+    "Swampert": ["Marshtomp", "Mudkip"],
+    "Mightyena": ["Poochyena"],
+    "Linoone": ["Zigzagoon"],
+    "Silcoon": ["Wurmple"],
+    "Beautifly": ["Silcoon", "Wurmple"],
+    "Cascoon": ["Wurmple"],
+    "Dustox": ["Cascoon", "Wurmple"],
+    "Lombre": ["Lotad"],
+    "Ludicolo": ["Lombre", "Lotad"],
+    "Nuzleaf": ["Seedot"],
+    "Shiftry": ["Nuzleaf", "Seedot"],
+    "Ninjask": ["Nincada"],
+    "Shedinja": ["Nincada"],
+    "Swellow": ["Taillow"],
+    "Breloom": ["Shroomish"],
+    "Pelipper": ["Wingull"],
+    "Masquerain": ["Surskit"],
+    "Wailord": ["Wailmer"],
+    "Delcatty": ["Skitty"],
+    "Claydol": ["Baltoy"],
+    "Whiscash": ["Barboach"],
+    "Crawdaunt": ["Corphish"],
+    "Milotic": ["Feebas"],
+    "Sharpedo": ["Carvanha"],
+    "Vibrava": ["Trapinch"],
+    "Flygon": ["Vibrava", "Trapinch"],
+    "Hariyama": ["Makuhita"],
+    "Manectric": ["Electrike"],
+    "Camerupt": ["Numel"],
+    "Sealeo": ["Spheal"],
+    "Walrein": ["Sealeo", "Spheal"],
+    "Cacturne": ["Cacnea"],
+    "Glalie": ["Snorunt"],
+    "Grumpig": ["Spoink"],
+    "Medicham": ["Meditite"],
+    "Altaria": ["Swablu"],
+    "Dusclops": ["Duskull"],
+    "Vigoroth": ["Slakoth"],
+    "Slaking": ["Vigoroth", "Slakoth"],
+    "Swalot": ["Gulpin"],
+    "Loudred": ["Whismur"],
+    "Exploud": ["Loudred", "Whismur"],
+    "Huntail": ["Clamperl"],
+    "Gorebyss": ["Clamperl"],
+    "Banette": ["Shuppet"],
+    "Lairon": ["Aron"],
+    "Aggron": ["Lairon", "Aron"],
+    "Cradily": ["Lileep"],
+    "Armaldo": ["Anorith"],
+    "Kirlia": ["Ralts"],
+    "Gardevoir": ["Kirlia", "Ralts"],
+    "Shelgon": ["Bagon"],
+    "Salamence": ["Shelgon", "Bagon"],
+    "Metang": ["Beldum"],
+    "Metagross": ["Metang", "Beldum"]
+};
 
 /**
  * @param {PokeBotApi.GetMapResponse} map
@@ -21,43 +211,49 @@ const updateMapName = map => {
     mapNameSpan.innerText = map.map.pretty_name;
 };
 
+const animateRouteEncounterSprite = (speciesName) => {
+    for (const entry of cachedRouteEncountersList) {
+        if (entry.speciesName === speciesName && entry.spriteElement) {
+            entry.spriteElement.animate();
+        }
+    }
+};
+
 /**
- * @param {PokeBotApi.GetMapEncountersResponse} encounters
- * @param {PokeBotApi.GetStatsResponse} stats
- * @param {EncounterType} encounterType
- * @param {StreamOverlay.SectionChecklist} checklistConfig
- * @param {string} botMode
- * @param {boolean} daycareMode
- * @param {Encounter[]} [encounterLog]
- * @param {Set<string>} [additionalRouteSpecies]
- * @param {string} [animateSpecies]
+ * @param {OverlayState} state
+ * @return {MapEncounter[]}
  */
-const updateRouteEncountersList = (encounters, stats, encounterType, checklistConfig, botMode, daycareMode, encounterLog = [], additionalRouteSpecies = null, animateSpecies = null) => {
+const getEncounterList = (state) => {
     /** @type {MapEncounter[]} encounterList */
     let encounterList;
     /** @type {MapEncounter[]} regularEncounterList */
     let regularEncounterList;
-    if (daycareMode || botMode.toLowerCase().includes("daycare") || botMode.toLowerCase().includes("kecleon")) {
+
+    if (
+        state.daycareMode ||
+        state.emulator.bot_mode.toLowerCase().includes("daycare") ||
+        state.emulator.bot_mode.toLowerCase().includes("kecleon")
+    ) {
         encounterList = [];
         regularEncounterList = [];
-    } else if (encounterType === "surfing") {
-        encounterList = [...encounters.effective.surf_encounters];
-        regularEncounterList = [...encounters.regular.surf_encounters];
-    } else if (encounterType === "fishing_old_rod") {
-        encounterList = [...encounters.effective.old_rod_encounters];
-        regularEncounterList = [...encounters.regular.old_rod_encounters];
-    } else if (encounterType === "fishing_good_rod") {
-        encounterList = [...encounters.effective.good_rod_encounters];
-        regularEncounterList = [...encounters.regular.good_rod_encounters];
-    } else if (encounterType === "fishing_super_rod") {
-        encounterList = [...encounters.effective.super_rod_encounters];
-        regularEncounterList = [...encounters.regular.super_rod_encounters];
-    } else if (encounterType === "rock_smash") {
-        encounterList = [...encounters.effective.rock_smash_encounters];
-        regularEncounterList = [...encounters.regular.rock_smash_encounters];
+    } else if (state.lastEncounterType === "surfing") {
+        encounterList = [...state.mapEncounters.effective.surf_encounters];
+        regularEncounterList = [...state.mapEncounters.regular.surf_encounters];
+    } else if (state.lastEncounterType === "fishing_old_rod") {
+        encounterList = [...state.mapEncounters.effective.old_rod_encounters];
+        regularEncounterList = [...state.mapEncounters.regular.old_rod_encounters];
+    } else if (state.lastEncounterType === "fishing_good_rod") {
+        encounterList = [...state.mapEncounters.effective.good_rod_encounters];
+        regularEncounterList = [...state.mapEncounters.regular.good_rod_encounters];
+    } else if (state.lastEncounterType === "fishing_super_rod") {
+        encounterList = [...state.mapEncounters.effective.super_rod_encounters];
+        regularEncounterList = [...state.mapEncounters.regular.super_rod_encounters];
+    } else if (state.lastEncounterType === "rock_smash") {
+        encounterList = [...state.mapEncounters.effective.rock_smash_encounters];
+        regularEncounterList = [...state.mapEncounters.regular.rock_smash_encounters];
     } else {
-        encounterList = [...encounters.effective.land_encounters];
-        regularEncounterList = [...encounters.regular.land_encounters];
+        encounterList = [...state.mapEncounters.effective.land_encounters];
+        regularEncounterList = [...state.mapEncounters.regular.land_encounters];
     }
 
     // Add species that could appear on this map but are currently blocked by Repel and
@@ -81,7 +277,7 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
 
     // Add species to this list that have been encountered here but are not part of the
     // regular encounter table (i.e. egg hatches, gift Pokémon, ...)
-    for (const speciesName of additionalRouteSpecies) {
+    for (const speciesName of state.additionalRouteSpecies) {
         let alreadyInList = false;
         for (const encounterSpecies of encounterList) {
             if (encounterSpecies.species_name === speciesName) {
@@ -94,9 +290,9 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
         }
     }
 
-    if (botMode.toLowerCase().includes("feebas") && ["surfing", "fishing_old_rod", "fishing_good_rod", "fishing_super_rod"].includes(encounterType)) {
+    if (state.emulator.bot_mode.toLowerCase().includes("feebas") && ["surfing", "fishing_old_rod", "fishing_good_rod", "fishing_super_rod"].includes(state.lastEncounterType)) {
         let hasRecentlySeenFeebas = false;
-        for (const recentEncounter of encounterLog) {
+        for (const recentEncounter of state.encounterLog) {
             if (recentEncounter.pokemon.species.name === "Feebas") {
                 hasRecentlySeenFeebas = true;
                 break;
@@ -117,101 +313,300 @@ const updateRouteEncountersList = (encounters, stats, encounterType, checklistCo
                 max_level: 25,
                 encounter_rate: 0.5
             });
-            encounterList = newEncounterList;
+
+            return newEncounterList;
         }
     }
+
+    return encounterList;
+}
+
+/**
+ * @typedef {object} RouteEncounterEntry
+ * @property {HTMLTableRowElement | null} element
+ * @property {PokemonSprite | null} spriteElement
+ * @property {string} speciesName
+ * @property {boolean} isAnti
+ * @property {number} encounterRate
+ * @property {number | null} highestSV
+ * @property {number | null} lowestSV
+ * @property {number | null} highestIVSum
+ * @property {number | null} lowestIVSum
+ * @property {number} phaseEncounters
+ * @property {number | null} phaseEncounterShare
+ * @property {number} totalEncounters
+ * @property {number | null} shinyRateDivisor
+ * @property {number} shiniesObtained
+ * @property {number} shinyTargetCount
+ * @property {number} missedShinies
+ */
+
+/** @type {RouteEncounterEntry[]} cachedRouteEncountersList */
+let cachedRouteEncountersList = [];
+
+/**
+ * @param {RouteEncounterEntry[]} encountersList
+ */
+const renderRouteEncountersList = (encountersList) => {
+    const renderEncounterRate = (rate) => {
+        if (rate === 0) {
+            return [""];
+        } else {
+            return [Math.round(rate * 100) + "%"];
+        }
+    };
+
+    const renderSVRecords = (highest, lowest) => {
+        if (highest === null || lowest === null) {
+            return [""];
+        } else {
+            return [colouredShinyValue(lowest), br(), colouredShinyValue(highest)];
+        }
+    };
+
+    const renderIVRecords = (highest, lowest) => {
+        if (highest === null || lowest === null) {
+            return [""];
+        } else {
+            return [colouredIVSum(highest), br(), colouredIVSum(lowest)];
+        }
+    };
+
+    const renderPhaseEncounters = (encounters, fraction) => {
+        if (encounters === 0) {
+            return ["0"];
+        } else {
+            return [
+                formatInteger(encounters),
+                br(),
+                small((100 * fraction).toLocaleString("en", {maximumFractionDigits: 2}) + "%"),
+            ];
+        }
+    };
+
+    const renderTotalEncounters = (totalEncounters, shinyRateDivisor) => {
+        if (shinyRateDivisor === null) {
+            return [formatInteger(totalEncounters)];
+        } else {
+            const shinyRateLabel = document.createElement("span");
+            shinyRateLabel.classList.add("shiny-rate");
+            const sparkles = overlaySprite("sparkles");
+            shinyRateLabel.append("(", sparkles, ` 1/${formatInteger(shinyRateDivisor)})`);
+            return [formatInteger(totalEncounters), shinyRateLabel];
+        }
+    };
+
+    const renderCatchCount = (catches, goal, misses) => {
+        const result = [catches.toString()];
+        if (goal > 0) {
+            result.push(small(`/${goal}`));
+        }
+        if (misses > 0) {
+            const missedShiniesLabel = document.createElement("span");
+            missedShiniesLabel.classList.add("missed-shinies")
+            missedShiniesLabel.textContent = `(${formatInteger(misses)} missed)`;
+            result.push(missedShiniesLabel);
+        }
+
+        if (goal > 0 && catches >= goal) {
+            const tick = document.createElement("img")
+            tick.src = "/static/sprites/stream-overlay/tick.png";
+            tick.classList.add("tick");
+            result.push(tick);
+        } else if (goal > 0) {
+            const tick = document.createElement("img")
+            tick.src = "/static/sprites/stream-overlay/target.png";
+            tick.classList.add("tick");
+            result.push(tick);
+        }
+
+        return result;
+    };
+
+    while (cachedRouteEncountersList.length > encountersList.length) {
+        const entry = cachedRouteEncountersList.pop();
+        entry.element.remove();
+    }
+
+    while (encountersList.length > cachedRouteEncountersList.length) {
+        const entry = encountersList[cachedRouteEncountersList.length];
+        const sprite = speciesSprite(entry.speciesName, entry.isAnti ? "anti-shiny" : "normal");
+        const row = renderTableRow({
+            sprite: sprite,
+            rate: renderEncounterRate(entry.encounterRate),
+            svRecords: renderSVRecords(entry.highestSV, entry.lowestSV),
+            ivRecords: renderIVRecords(entry.highestIVSum, entry.lowestIVSum),
+            phaseEncounters: renderPhaseEncounters(entry.phaseEncounters, entry.phaseEncounterShare),
+            totalEncounters: renderTotalEncounters(entry.totalEncounters, entry.shinyRateDivisor),
+            catches: renderCatchCount(entry.shiniesObtained, entry.shinyTargetCount, entry.missedShinies),
+        });
+        tbody.append(row);
+        entry.element = row;
+        entry.spriteElement = sprite;
+        cachedRouteEncountersList.push(entry);
+    }
+
+    for (let index = 0; index < encountersList.length; index++) {
+        const entry = encountersList[index];
+        const cached = cachedRouteEncountersList[index];
+        const row = cached.element;
+
+        if (entry.speciesName !== cached.speciesName || entry.isAnti !== cached.isAnti) {
+            cached.spriteElement.remove();
+            cached.spriteElement = speciesSprite(entry.speciesName, entry.isAnti ? "anti-shiny" : "normal");
+            row.children[0].textContent = "";
+            row.children[0].append(cached.spriteElement);
+        }
+
+        if (entry.encounterRate !== cached.encounterRate) {
+            cached.encounterRate = entry.encounterRate;
+            row.children[1].textContent = "";
+            row.children[1].append(...renderEncounterRate(entry.encounterRate));
+        }
+
+        if (entry.lowestSV !== cached.lowestSV || entry.highestSV !== cached.highestSV) {
+            cached.lowestSV = entry.lowestSV;
+            cached.highestSV = entry.highestSV;
+            row.children[2].textContent = "";
+            row.children[2].append(...renderSVRecords(entry.highestSV, entry.lowestSV));
+        }
+
+        if (entry.lowestIVSum !== cached.lowestIVSum || entry.highestIVSum !== cached.highestIVSum) {
+            cached.lowestIVSum = entry.lowestIVSum;
+            cached.highestIVSum = entry.highestIVSum;
+            row.children[3].textContent = "";
+            row.children[3].append(...renderIVRecords(entry.highestIVSum, entry.lowestIVSum));
+        }
+
+        if (entry.phaseEncounters !== cached.phaseEncounters || entry.phaseEncounterShare !== cached.phaseEncounterShare) {
+            cached.phaseEncounters = entry.phaseEncounters;
+            cached.phaseEncounterShare = entry.phaseEncounterShare;
+            row.children[4].textContent = "";
+            row.children[4].append(...renderPhaseEncounters(entry.phaseEncounters, entry.phaseEncounterShare));
+        }
+
+        if (entry.totalEncounters !== cached.totalEncounters || entry.shinyRateDivisor !== cached.shinyRateDivisor) {
+            cached.totalEncounters = entry.totalEncounters;
+            cached.shinyRateDivisor = entry.shinyRateDivisor;
+            row.children[5].textContent = "";
+            row.children[5].append(...renderTotalEncounters(entry.totalEncounters, entry.shinyRateDivisor));
+        }
+
+        if (entry.shiniesObtained !== cached.shiniesObtained || entry.shinyTargetCount !== cached.shinyTargetCount || entry.missedShinies !== cached.missedShinies) {
+            cached.shiniesObtained = entry.shiniesObtained;
+            cached.shinyTargetCount = entry.shinyTargetCount;
+            cached.missedShinies = entry.missedShinies;
+            row.children[6].textContent = "";
+            row.children[6].append(...renderCatchCount(entry.shiniesObtained, entry.shinyTargetCount, entry.missedShinies));
+        }
+    }
+};
+
+/**
+ * @param {OverlayState} state
+ * @param {StreamOverlay.SectionChecklist} checklistConfig
+ */
+const updateRouteEncountersList = (state, checklistConfig) => {
+    const encounterList = getEncounterList(state);
 
     // Display a 'no encounters on this map' message if no encounters exist at all.
     if (encounterList.length === 0) {
         noEncountersMessage.style.display = "block";
         table.style.display = "none";
+
+        while (cachedRouteEncountersList.length > 0) {
+            const row = cachedRouteEncountersList.pop();
+            row.element.remove();
+        }
+
         return;
+    } else if (cachedRouteEncountersList.length === 0) {
+        noEncountersMessage.style.display = "none";
+        table.style.display = "table";
     }
 
-    noEncountersMessage.style.display = "none";
-    table.style.display = "table";
+    let numberOfAntis = 0;
+    let numberOfPossibleEncounters = 0;
 
-    tbody.innerHTML = "";
-
-    let hasAtLeastOneAnti = false;
-    let hasPossibleEncounterThatIsNotAnti = false;
+    /** @type {Object.<string, RouteEncounterEntry>} routeEncounters */
+    const routeEncounters = {};
     for (const encounter of encounterList) {
-        const species = stats.pokemon[encounter.species_name] ?? getEmptySpeciesEntry(encounter.species_id, encounter.species_name);
-        const currentPhase = stats.current_phase;
+        const species = state.stats.pokemon[encounter.species_name] ?? getEmptySpeciesEntry(encounter.species_id, encounter.species_name);
+        const currentPhase = state.stats.current_phase;
 
-        let catches = "0";
-        let totalEncounters = "0";
-
-        const goal = getSpeciesGoal(encounter.species_name, checklistConfig, stats);
-        if (goal) {
-            catches = [getSpeciesCatches(encounter.species_name, checklistConfig, stats), small(`/${goal}`)];
-        } else {
-            catches = [formatInteger(species.catches)];
-        }
-        totalEncounters = [formatInteger(species.total_encounters)];
-
-        if (species.shiny_encounters > 0) {
-            const shinyRate = Math.round(species.total_encounters / species.shiny_encounters).toLocaleString("en");
-            const shinyRateLabel = document.createElement("span");
-            shinyRateLabel.classList.add("shiny-rate");
-            const sparkles = overlaySprite("sparkles");
-            shinyRateLabel.append("(", sparkles, ` 1/${shinyRate})`);
-            totalEncounters.push(shinyRateLabel);
-        }
-
-        if (species.shiny_encounters > species.catches) {
-            const missedShinies = species.shiny_encounters - species.catches;
-            const missedShiniesLabel = document.createElement("span");
-            missedShiniesLabel.classList.add("missed-shinies")
-            missedShiniesLabel.textContent = `(${formatInteger(missedShinies)} missed)`;
-            catches.push(missedShiniesLabel);
-        }
-
-        if (goal && (species.catches >= goal || species.species_name === "Gloom" || species.species_name === "Wobbuffet")) {
-            const tick = document.createElement("img")
-            tick.src = "/static/sprites/stream-overlay/tick.png";
-            tick.classList.add("tick");
-            catches.push(tick);
-        } else if (goal) {
-            const tick = document.createElement("img")
-            tick.src = "/static/sprites/stream-overlay/target.png";
-            tick.classList.add("tick");
-            catches.push(tick);
-        }
-
-        let spriteType = "normal";
-        let animate = encounter.species_name === animateSpecies;
+        let isAnti = false;
         if (species && species.phase_highest_sv > 65527) {
-            spriteType = "anti-shiny";
-            hasAtLeastOneAnti = true;
-        }
-        if (encounter.encounter_rate > 0 && (!species || species.phase_highest_sv < 65528)) {
-            hasPossibleEncounterThatIsNotAnti = true;
-        }
-        if (species && encounter.encounter_rate <= 0 && hasAtLeastOneAnti && !hasPossibleEncounterThatIsNotAnti) {
-            spriteType = "anti-shiny";
+            isAnti = true;
+            numberOfAntis++;
         }
 
-        tbody.append(renderTableRow({
-            sprite: speciesSprite(encounter.species_name, spriteType, animate),
-            odds: encounter.encounter_rate > 0 ? Math.round(encounter.encounter_rate * 100) + "%" : "",
-            svRecords: species && species.phase_lowest_sv && species.phase_highest_sv
-                ? [colouredShinyValue(species.phase_lowest_sv), br(), colouredShinyValue(species.phase_highest_sv)]
-                : "",
-            ivRecords: species && species.phase_highest_iv_sum && species.phase_lowest_iv_sum
-                ? [colouredIVSum(species.phase_highest_iv_sum), br(), colouredIVSum(species.phase_lowest_iv_sum)]
-                : "",
-            phaseEncounters: species && species.phase_encounters > 0 && currentPhase.encounters > 0
-                ? [
-                    formatInteger(species.phase_encounters),
-                    br(),
-                    small((100 * species.phase_encounters / currentPhase.encounters).toLocaleString("en", {maximumFractionDigits: 2}) + "%"),
-                ]
-                : "0",
-            totalEncounters: totalEncounters,
-            catches: catches,
-        }));
+        if (encounter.encounter_rate > 0) {
+            numberOfPossibleEncounters++;
+        } else if (numberOfAntis === numberOfPossibleEncounters) {
+            // Show the entire list (including encounters that are dropped due to Repel) as
+            // anti-shiny if all possible encounters have been encountered as an anti already.
+            isAnti = true;
+        }
+
+        routeEncounters[encounter.species_name] = {
+            element: null,
+            spriteElement: null,
+            speciesName: encounter.species_name,
+            isAnti: isAnti,
+            encounterRate: encounter.encounter_rate,
+            highestSV: species?.phase_highest_sv,
+            lowestSV: species?.phase_lowest_sv,
+            highestIVSum: species?.phase_highest_iv_sum,
+            lowestIVSum: species?.phase_lowest_iv_sum,
+            phaseEncounters: species?.phase_encounters ?? 0,
+            phaseEncounterShare: species ? species.phase_encounters / currentPhase.encounters : null,
+            totalEncounters: species?.total_encounters ?? 0,
+            shinyRateDivisor: species ? Math.round(species.total_encounters / species.shiny_encounters) : null,
+            shiniesObtained: species?.catches ?? 0,
+            shinyTargetCount: getSpeciesGoal(encounter.species_name, checklistConfig),
+            missedShinies: (species?.shiny_encounters ?? 0) - (species?.catches ?? 0),
+        };
     }
-};
 
-export {updateMapName, updateRouteEncountersList};
+    for (const entry of Object.values(routeEncounters)) {
+        const speciesCatches = getSpeciesCatches(entry.speciesName, checklistConfig, state.stats, Object.keys(routeEncounters));
+        if (entry.shiniesObtained < entry.shinyTargetCount) {
+            entry.shinyTargetCount -= Math.min(speciesCatches - entry.shiniesObtained, entry.shinyTargetCount - 1);
+        }
+
+        if (!ALTERNATIVE_SPECIES.hasOwnProperty(entry.speciesName)) {
+            continue;
+        }
+
+        for (const alternativeSpeciesName of ALTERNATIVE_SPECIES[entry.speciesName]) {
+            if (!routeEncounters.hasOwnProperty(alternativeSpeciesName)) {
+                if (state.stats.pokemon.hasOwnProperty(alternativeSpeciesName)) {
+                    const alternativeSpecies = state.stats.pokemon[alternativeSpeciesName];
+                    if (alternativeSpecies.catches > 1) {
+                        entry.shinyTargetCount -= Math.max(0, Math.min(entry.shinyTargetCount, alternativeSpecies.catches - 1));
+                    }
+                }
+                continue;
+            }
+
+            const alternative = routeEncounters[alternativeSpeciesName];
+            if (entry.shinyTargetCount > 0) {
+                entry.shinyTargetCount--;
+                alternative.shinyTargetCount -= entry.shinyTargetCount;
+            }
+
+            if (entry.shinyTargetCount > 0 && entry.shiniesObtained < entry.shinyTargetCount) {
+                let alternativeExcess = alternative.shiniesObtained - alternative.shinyTargetCount;
+                while (alternativeExcess > 0 && entry.shinyTargetCount > entry.shiniesObtained) {
+                    alternativeExcess--;
+                    alternative.shinyTargetCount++;
+                    entry.shinyTargetCount--;
+                }
+            }
+        }
+    }
+
+    renderRouteEncountersList(Object.values(routeEncounters));
+}
+
+export {updateMapName, animateRouteEncounterSprite, updateRouteEncountersList};
