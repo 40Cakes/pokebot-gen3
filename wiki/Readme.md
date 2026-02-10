@@ -33,6 +33,7 @@ For quick help and support, reach out in Discord [#pokebot-gen3-support❔](http
 - 🟡 [Nugget Bridge](pages/Mode%20-%20Nugget%20Bridge.md)
 - 🧩 [Puzzle Solver](pages/Mode%20-%20Puzzle%20Solver.md)
 - 🏃 [Roamer Resets](pages/Mode%20-%20Roamer%20Resets.md)
+- 🏃 [Roamer Re-Encounter](pages/Mode%20-%20Roamer%20Re-Encounter.md)
 - 🪨 [Rock Smash](pages/Mode%20-%20Rock%20Smash.md)
 - 🏞️ [Safari](pages/Mode%20-%20Safari.md)
 - 🔄 [Spin](pages/Mode%20-%20Spin.md)
