@@ -117,6 +117,7 @@ export type GlobalStats = {
     current_phase: {
         start_time: string;
         encounters: number;
+        anti_shiny_encounters: number;
         highest_iv_sum: SpeciesRecord;
         lowest_iv_sum: SpeciesRecord;
         highest_sv: SpeciesRecord;
