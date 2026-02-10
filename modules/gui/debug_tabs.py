@@ -1171,6 +1171,7 @@ class EmulatorTab(DebugTab):
             "Session Time at 1×": f"{session_time_at_1x}",
             "RNG Seed": hex(unpack_uint32(read_symbol("gRngValue"))),
             "Encounters/h (at 1×)": context.stats.encounter_rate_at_1x,
+            "Encounters in Timing Log": len(context.stats._encounter_timestamps),
             "Controller Stack": [controller.__qualname__ for controller in context.controller_stack],
             "RTC": rtc.isoformat() if rtc is not None else None,
             "Currently Running Actions": debug.action_stack,

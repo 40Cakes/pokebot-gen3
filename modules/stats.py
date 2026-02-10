@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import sys
 import threading
@@ -611,8 +612,19 @@ class StatsDatabase:
         self._pickup_items: dict[int, PickupItem] = self._get_pickup_items()
         self._base_data: dict[str, str | None] = self._get_base_data()
 
-        self._encounter_timestamps: deque[float] = deque(maxlen=100)
-        self._encounter_frames: deque[int] = deque(maxlen=100)
+        # Normally, the encounter rate is calculated based on the previous 100 encounters. Which
+        # is accurate enough to get a rough idea of how fast things are going, and it means that
+        # a long break in between encounters (due to changing modes, playing manually etc.) will
+        # be flushed out reasonably soon.
+        # But when trying to measure a more accurate encounters/hr for a given route, we need a
+        # larger sample size because the encounter rate can fluctuate quite a bit in some modes.
+        #
+        # So rather than constantly having to edit this file, this allows setting the environment
+        # variable `POKEBOT_ENCOUNTER_BENCHMARK` to anything but an empty string in order to
+        # increase the sample size to 1,000.
+        encounter_buffer_size = 1000 if os.getenv("POKEBOT_ENCOUNTER_BENCHMARK", "") != "" else 100
+        self._encounter_timestamps: deque[float] = deque(maxlen=encounter_buffer_size)
+        self._encounter_frames: deque[int] = deque(maxlen=encounter_buffer_size)
 
     def set_data(self, key: str, value: str | None):
         self._execute_write("REPLACE INTO base_data (data_key, value) VALUES (?, ?)", (key, value))
