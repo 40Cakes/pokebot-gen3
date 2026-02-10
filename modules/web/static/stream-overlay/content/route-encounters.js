@@ -12,7 +12,8 @@ import {
     speciesSprite
 } from "../helper.js";
 
-const mapNameSpan = document.querySelector("#route-encounters > h2 > span");
+const mapNameSpan = document.querySelector("#map-name");
+const antiShinyCounter = document.querySelector("#anti-shiny-counter");
 const tbody = document.querySelector("#route-encounters tbody");
 const table = document.querySelector("#route-encounters table");
 const noEncountersMessage = document.querySelector("#no-encounters-on-this-route-message");
@@ -344,6 +345,8 @@ const getEncounterList = (state) => {
 /** @type {RouteEncounterEntry[]} cachedRouteEncountersList */
 let cachedRouteEncountersList = [];
 
+let cachedAntiShinyCount = 0;
+
 /**
  * @param {RouteEncounterEntry[]} encountersList
  */
@@ -607,6 +610,21 @@ const updateRouteEncountersList = (state, checklistConfig) => {
     }
 
     renderRouteEncountersList(Object.values(routeEncounters));
+
+    if (cachedAntiShinyCount !== state.stats.current_phase.anti_shiny_encounters) {
+        cachedAntiShinyCount = state.stats.current_phase.anti_shiny_encounters;
+        antiShinyCounter.textContent = "";
+        if (cachedAntiShinyCount > 0) {
+            const sparkles = [];
+            for (let index = 0; index < cachedAntiShinyCount; index++) {
+                const img = document.createElement("img");
+                img.src = "/static/sprites/stream-overlay/anti-shiny.png";
+                img.alt = "";
+                sparkles.push(img);
+            }
+            antiShinyCounter.append(...sparkles);
+        }
+    }
 }
 
 export {updateMapName, animateRouteEncounterSprite, updateRouteEncountersList};

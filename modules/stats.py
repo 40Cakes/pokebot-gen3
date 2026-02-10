@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from modules.profiles import Profile
 
 
-current_schema_version = 2
+current_schema_version = 3
 
 
 class StatsDatabaseSchemaTooNew(Exception):
@@ -187,6 +187,7 @@ class ShinyPhase:
     end_time: datetime | None = None
     shiny_encounter: Encounter | None = None
     encounters: int = 0
+    anti_shiny_encounters: int = 0
     highest_iv_sum: SpeciesRecord | None = None
     lowest_iv_sum: SpeciesRecord | None = None
     highest_sv: SpeciesRecord | None = None
@@ -212,13 +213,13 @@ class ShinyPhase:
             datetime.fromisoformat(row[2]) if row[2] is not None else None,
             shiny_encounter,
             row[4],
-            SpeciesRecord.from_row_values(row[5], row[6]),
-            SpeciesRecord.from_row_values(row[7], row[8]),
-            SpeciesRecord.from_row_values(row[9], row[10]),
-            SpeciesRecord.from_row_values(row[11], row[12]),
-            SpeciesRecord.from_row_values(row[13], row[14]),
-            SpeciesRecord.from_row_values(row[15], row[16]),
-            row[17],
+            row[5],
+            SpeciesRecord.from_row_values(row[6], row[7]),
+            SpeciesRecord.from_row_values(row[8], row[9]),
+            SpeciesRecord.from_row_values(row[10], row[11]),
+            SpeciesRecord.from_row_values(row[12], row[13]),
+            SpeciesRecord.from_row_values(row[14], row[15]),
+            SpeciesRecord.from_row_values(row[16], row[17]),
             row[18],
             row[19],
             row[20],
@@ -227,6 +228,7 @@ class ShinyPhase:
             row[23],
             row[24],
             row[25],
+            row[26],
         )
 
     @classmethod
@@ -248,6 +250,9 @@ class ShinyPhase:
 
             if self.lowest_sv is None or self.lowest_sv > encounter.shiny_value:
                 self.lowest_sv = SpeciesRecord.create(encounter.shiny_value, encounter.pokemon)
+
+        if encounter.pokemon.is_anti_shiny:
+            self.anti_shiny_encounters += 1
 
         if self.current_streak is None or not self.current_streak.is_same_species(encounter.pokemon):
             self.current_streak = SpeciesRecord.create(1, encounter.pokemon)
@@ -285,6 +290,7 @@ class ShinyPhase:
                 "start_time": self.start_time.isoformat(),
                 "end_time": self.end_time.isoformat() if self.end_time is not None else None,
                 "encounters": self.encounters,
+                "anti_shiny_encounters": self.anti_shiny_encounters,
                 "highest_iv_sum": self.highest_iv_sum.to_dict() if self.highest_iv_sum is not None else None,
                 "lowest_iv_sum": self.lowest_iv_sum.to_dict() if self.lowest_iv_sum is not None else None,
                 "highest_sv": self.highest_sv.to_dict() if self.highest_sv is not None else None,
@@ -549,6 +555,7 @@ class GlobalStats:
             "current_phase": {
                 "start_time": phase.start_time.isoformat(),
                 "encounters": phase.encounters,
+                "anti_shiny_encounters": phase.anti_shiny_encounters,
                 "highest_iv_sum": phase.highest_iv_sum.to_dict() if phase.highest_iv_sum is not None else None,
                 "lowest_iv_sum": phase.lowest_iv_sum.to_dict() if phase.lowest_iv_sum is not None else None,
                 "highest_sv": phase.highest_sv.to_dict() if phase.highest_sv is not None else None,
@@ -935,6 +942,7 @@ class StatsDatabase:
                 shiny_phases.end_time,
                 shiny_phases.shiny_encounter_id,
                 shiny_phases.encounters,
+                shiny_phases.anti_shiny_encounters,
                 shiny_phases.highest_iv_sum,
                 shiny_phases.highest_iv_sum_species,
                 shiny_phases.lowest_iv_sum,
@@ -980,12 +988,12 @@ class StatsDatabase:
         )
 
         for row in result:
-            if row[26] is not None:
-                encounter = Encounter.from_row_data(row[26:])
+            if row[27] is not None:
+                encounter = Encounter.from_row_data(row[27:])
             else:
                 encounter = None
 
-            yield ShinyPhase.from_row_data(row[:26], encounter)
+            yield ShinyPhase.from_row_data(row[:27], encounter)
 
     def _query_single_shiny_phase(self, where_clause: str, parameters: tuple | None = None) -> ShinyPhase | None:
         result = list(self._query_shiny_phases(where_clause, parameters, limit=1))
@@ -1112,6 +1120,7 @@ class StatsDatabase:
             """
             UPDATE shiny_phases
             SET encounters = ?,
+                anti_shiny_encounters = ?,
                 highest_iv_sum = ?,
                 highest_iv_sum_species = ?,
                 lowest_iv_sum = ?,
@@ -1137,6 +1146,7 @@ class StatsDatabase:
             """,
             (
                 shiny_phase.encounters,
+                shiny_phase.anti_shiny_encounters,
                 shiny_phase.highest_iv_sum.value if shiny_phase.highest_iv_sum is not None else None,
                 shiny_phase.highest_iv_sum.species_id_for_database if shiny_phase.highest_iv_sum is not None else None,
                 shiny_phase.lowest_iv_sum.value if shiny_phase.lowest_iv_sum is not None else None,
@@ -1420,6 +1430,12 @@ class StatsDatabase:
                         value TEXT DEFAULT NULL
                     )
                     """))
+
+        if from_schema_version <= 2:
+            self._execute_write(dedent("""
+                ALTER TABLE shiny_phases
+                    ADD anti_shiny_encounters INT UNSIGNED DEFAULT 0
+                """))
 
         self._execute_write("DELETE FROM schema_version")
         self._execute_write("INSERT INTO schema_version VALUES (?)", (current_schema_version,))

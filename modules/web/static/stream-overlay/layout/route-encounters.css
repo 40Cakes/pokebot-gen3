@@ -1,4 +1,19 @@
 #route-encounters {
+    h2 {
+        position: relative;
+    }
+
+    #anti-shiny-counter {
+        position: absolute;
+        right: 1rem;
+        top: .3rem;
+
+        img {
+            transform: scale(1.25);
+            margin-right: .33rem;
+        }
+    }
+
     table {
         width: 100%;
         flex: 1;
