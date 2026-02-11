@@ -294,6 +294,10 @@ export default class OverlayState {
         updateStreak("max", "current_phase", "highest_sv", encounter.pokemon.species.name, sv);
         updateStreak("min", "current_phase", "lowest_sv", encounter.pokemon.species.name, sv);
 
+        if (encounter.pokemon.is_anti_shiny) {
+            this.stats.current_phase.anti_shiny_encounters++;
+        }
+
         if (this.stats.current_phase?.current_streak?.species_name === encounter.pokemon.species.name) {
             this.stats.current_phase.current_streak.value++;
         } else {
