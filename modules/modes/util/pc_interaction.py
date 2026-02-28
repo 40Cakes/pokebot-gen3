@@ -3,21 +3,25 @@ from enum import Enum, auto
 from typing import Generator
 
 from modules.context import context
+from modules.debug import debug
 from modules.game import decode_string
-from modules.memory import get_game_state, get_game_state_symbol, read_symbol, GameState, unpack_uint32
-from modules.menuing import get_scroll_direction
+from modules.items import Item, get_item_storage, get_item_bag
+from modules.memory import get_game_state, get_game_state_symbol, read_symbol, GameState, unpack_uint32, unpack_uint16
+from modules.menuing import get_scroll_direction, is_fade_active, scroll_to_item_in_bag
 from modules.modes import BotModeError
 from modules.modes.util import (
     wait_until_task_is_active,
     wait_for_n_frames,
     wait_for_no_script_to_run,
     wait_for_player_avatar_to_be_controllable,
+    wait_until_script_is_active,
+    wait_for_fade_to_finish,
 )
 from modules.player import get_player_avatar, player_avatar_is_controllable
 from modules.pokemon import Pokemon
 from modules.pokemon_party import get_party, get_party_size
 from modules.pokemon_storage import get_pokemon_storage
-from modules.tasks import get_task
+from modules.tasks import get_task, get_global_script_context, task_is_active
 
 
 class PCStorageSection(Enum):
@@ -25,6 +29,8 @@ class PCStorageSection(Enum):
     DepositPokemon = auto()
     MovePokemon = auto()
     MoveItems = auto()
+    WithdrawItem = auto()
+    DepositItem = auto()
 
 
 class PCStorageActionType(Enum):
@@ -36,12 +42,20 @@ class PCStorageActionType(Enum):
 
 class PCAction:
     def __init__(
-        self, section: PCStorageSection, action: PCStorageActionType, pokemon: Pokemon, target_box: int | None = None
+        self,
+        section: PCStorageSection,
+        action: PCStorageActionType,
+        pokemon: Pokemon | None = None,
+        target_box: int | None = None,
+        item: Item | None = None,
+        quantity: int | None = None,
     ):
         self.section = section
         self.action = action
         self.pokemon = pokemon
         self.target_box = target_box
+        self.item = item
+        self.quantity = quantity
 
     @classmethod
     def withdraw_pokemon_from_box(cls, pokemon: Pokemon) -> "PCAction":
@@ -59,6 +73,14 @@ class PCAction:
     def release_pokemon_from_box(cls, pokemon: Pokemon) -> "PCAction":
         return cls(PCStorageSection.MovePokemon, PCStorageActionType.ReleaseFromBox, pokemon)
 
+    @classmethod
+    def withdraw_item(cls, item: Item, quantity: int) -> "PCAction":
+        return cls(PCStorageSection.WithdrawItem, PCStorageActionType.Withdraw, item=item, quantity=quantity)
+
+    @classmethod
+    def deposit_item(cls, item: Item, quantity: int) -> "PCAction":
+        return cls(PCStorageSection.DepositItem, PCStorageActionType.Deposit, item=item, quantity=quantity)
+
 
 @dataclass
 class MenuCursor:
@@ -70,6 +92,28 @@ def _get_menu_cursor() -> MenuCursor:
     symbol_name = "gMenu" if context.rom.is_rs else "sMenu"
     data = read_symbol(symbol_name)
     return MenuCursor(data[2], (data[3], data[4]))
+
+
+def _get_item_storage_menu_cursor_position() -> int:
+    if context.rom.is_emerald:
+        data = read_symbol("gPlayerPCItemPageInfo")
+        return unpack_uint16(data[0:2]) + unpack_uint16(data[2:4])
+    elif context.rom.is_rs:
+        task = get_task("ItemStorage_ProcessInput")
+        return task.data_value(0) + task.data_value(1)
+    else:
+        data = read_symbol("sListMenuState")
+        return unpack_uint16(data[4:6]) + unpack_uint16(data[6:8])
+
+
+def _get_item_withdraw_quantity_cursor_position() -> int:
+    task = get_task(_get_select_item_withdraw_quantity_task_name())
+    if context.rom.is_emerald:
+        return task.data_value(2)
+    elif context.rom.is_rs:
+        return task.data_value(3)
+    else:
+        return task.data_value(8)
 
 
 def _get_storage_menu() -> list[tuple[int, str]]:
@@ -146,9 +190,63 @@ def _get_storage_task_name() -> str:
     return "Task_PokemonStorageSystem" if context.rom.is_rs else "Task_PCMainMenu"
 
 
-def _open_pc_menu(menu_index: int) -> Generator:
+def _get_pc_main_menu_script_name() -> str:
+    return "EventScript_PCMainMenu"
+
+
+def _get_multi_choice_input_task_name() -> str:
+    return "Task_MultichoiceMenu_HandleInput" if context.rom.is_frlg else "Task_HandleMultichoiceInput"
+
+
+def _get_item_storage_menu_task_name() -> str:
+    return "Task_TopMenu_ItemStorageSubmenu_HandleInput" if context.rom.is_frlg else "ItemStorageMenuProcessInput"
+
+
+def _get_choose_item_quantity_task_name() -> str:
+    if context.rom.is_frlg:
+        return "Task_SelectQuantityToDeposit"
+    elif context.rom.is_rs:
+        return "sub_80A6BE0"
+    else:
+        return "Task_ChooseHowManyToDeposit"
+
+
+def _get_item_withdraw_menu_task_name() -> str:
+    return "Task_ItemPcMain" if context.rom.is_frlg else "ItemStorage_ProcessInput"
+
+
+def _get_select_item_withdraw_quantity_task_name() -> str:
+    return "Task_ItemPcHandleWithdrawMultiple" if context.rom.is_frlg else "ItemStorage_HandleQuantityRolling"
+
+
+def _get_bag_menu_task_name() -> str:
+    return "sub_80A50C8" if context.rom.is_rs else "Task_BagMenu_HandleInput"
+
+
+@debug.track
+def _open_pc_menu(button_to_press: str = "A") -> Generator:
+    yield from wait_until_script_is_active(_get_pc_main_menu_script_name(), button_to_press)
+    yield from wait_until_task_is_active(_get_multi_choice_input_task_name())
+    yield
+
+
+@debug.track
+def _open_pokemon_storage_menu(menu_index: int) -> Generator:
+    # If we're in the item menu -> close until we're back at the main menu
+    if get_global_script_context().is_active and "EventScript_AccessPlayersPC" in get_global_script_context().stack:
+        yield from _open_pc_menu("B")
+
+    # If we're in the main menu: open storage menu
+    if get_global_script_context().is_active and _get_pc_main_menu_script_name() in get_global_script_context().stack:
+        while _get_menu_cursor().cursor_position > 0:
+            context.emulator.press_button("Up")
+            yield
+            yield
+        yield from wait_until_task_is_active(_get_storage_task_name(), "A")
     while get_task(_get_storage_task_name()).data_value(0) != 2:
         yield
+
+    # Select the correct section
     while get_task(_get_storage_task_name()).data_value(1) != menu_index:
         context.emulator.press_button("Down" if get_task(_get_storage_task_name()).data_value(1) < menu_index else "Up")
         yield
@@ -161,12 +259,65 @@ def _open_pc_menu(menu_index: int) -> Generator:
         yield from wait_until_task_is_active("Task_PokeStorageMain", "A")
 
 
+@debug.track
+def _open_item_storage_menu(menu_index: int) -> Generator:
+    # If we're in the Pokémon storage menu -> close until we're back at the main menu
+    if (
+        get_global_script_context().is_active
+        and "EventScript_AccessPokemonStorage" in get_global_script_context().stack
+    ):
+        yield from _open_pc_menu("B")
+
+    # If we're in the main menu: open item menu
+    if get_global_script_context().is_active and _get_pc_main_menu_script_name() in get_global_script_context().stack:
+        while _get_menu_cursor().cursor_position != 1:
+            context.emulator.press_button("Down" if _get_menu_cursor().cursor_position < 1 else "Up")
+            yield
+            yield
+        yield from wait_until_task_is_active(_get_item_storage_menu_task_name(), "A")
+        yield
+
+    # Select the correct section
+    while _get_menu_cursor().cursor_position != menu_index:
+        context.emulator.press_button("Down" if _get_menu_cursor().cursor_position < menu_index else "Up")
+        yield
+
+    while True:
+        if task_is_active(_get_item_withdraw_menu_task_name()):
+            yield
+            break
+
+        if task_is_active(_get_bag_menu_task_name()):
+            while not is_fade_active():
+                yield
+            yield from wait_for_fade_to_finish()
+            break
+
+        context.emulator.press_button("A")
+        yield
+
+
+@debug.track
+def _back_to_pokemon_storage_menu() -> Generator:
+    yield from wait_until_task_is_active(_get_storage_task_name(), "B")
+    while get_task(_get_storage_task_name()).data_value(0) != 2:
+        yield
+
+
+@debug.track
+def _back_to_item_storage_menu() -> Generator:
+    yield from wait_until_task_is_active(_get_item_storage_menu_task_name(), "B")
+    yield
+
+
+@debug.track
 def _close_pc_menu() -> Generator:
     while get_game_state() is not GameState.OVERWORLD:
         context.emulator.press_button("B")
         yield
 
 
+@debug.track
 def _select_box(box_index: int) -> Generator:
     state = _get_storage_state()
     if state.active_box != box_index:
@@ -187,6 +338,7 @@ def _select_box(box_index: int) -> Generator:
             yield
 
 
+@debug.track
 def _select_box_slot(slot_index: int) -> Generator:
     state = _get_storage_state()
     if state.cursor_area != 0 or state.cursor_position != slot_index:
@@ -218,6 +370,7 @@ def _select_box_slot(slot_index: int) -> Generator:
             yield
 
 
+@debug.track
 def _select_menu_option(option_to_select: str) -> Generator:
     menu_option_map = [
         "CANCEL",
@@ -251,8 +404,9 @@ def _select_menu_option(option_to_select: str) -> Generator:
             yield
 
 
+@debug.track
 def _do_withdraw_actions(actions: list[PCAction]) -> Generator:
-    yield from _open_pc_menu(0)
+    yield from _open_pokemon_storage_menu(0)
     for action in actions:
         if action.action is PCStorageActionType.Withdraw:
             if get_party_size() == 6:
@@ -272,11 +426,12 @@ def _do_withdraw_actions(actions: list[PCAction]) -> Generator:
                 yield
             yield
 
-    yield from _close_pc_menu()
+    yield from _back_to_pokemon_storage_menu()
 
 
+@debug.track
 def _do_deposit_actions(actions: list[PCAction]) -> Generator:
-    yield from _open_pc_menu(1)
+    yield from _open_pokemon_storage_menu(1)
     for action in actions:
         if action.action is PCStorageActionType.Deposit:
             party = get_party()
@@ -370,11 +525,12 @@ def _do_deposit_actions(actions: list[PCAction]) -> Generator:
                 while _get_storage_state().state != 0:
                     yield
                 yield
-    yield from _close_pc_menu()
+    yield from _back_to_pokemon_storage_menu()
 
 
+@debug.track
 def _do_move_pokemon_actions(actions: list[PCAction]) -> Generator:
-    yield from _open_pc_menu(2)
+    yield from _open_pokemon_storage_menu(2)
     for action in actions:
         if action.action is PCStorageActionType.ReleaseFromBox:
             box, slot = get_pokemon_storage().get_slot_for_pokemon(action.pokemon)
@@ -401,9 +557,117 @@ def _do_move_pokemon_actions(actions: list[PCAction]) -> Generator:
             while _get_storage_state().state != 0:
                 yield
             yield
-    yield from _close_pc_menu()
+    yield from _back_to_pokemon_storage_menu()
 
 
+@debug.track
+def _do_withdraw_items_actions(actions: list[PCAction]) -> Generator:
+    yield from _open_item_storage_menu(0)
+    for action in actions:
+        if get_item_storage().quantity_of(action.item) < action.quantity:
+            raise BotModeError(
+                f"Cannot withdraw {action.quantity}× {action.item.name} because there are not enough in the PC ({get_item_storage().quantity_of(action.item)})."
+            )
+        if not get_item_bag().has_space_for(action.item, action.quantity):
+            raise BotModeError(
+                f"Cannot withdraw {action.quantity}× {action.item.name} because is no space for it in the bag."
+            )
+
+        quantity_left = action.quantity
+        while quantity_left > 0:
+            target_slot = get_item_storage().first_slot_index_for(action.item)
+            while (current_slot := _get_item_storage_menu_cursor_position()) != target_slot:
+                context.emulator.press_button("Down" if current_slot < target_slot else "Up")
+                yield
+                yield
+                yield
+            max_quantity = get_item_storage().items[target_slot].quantity
+            if max_quantity == 1:
+                yield
+                context.emulator.press_button("A")
+                yield
+                yield from wait_until_task_is_active(_get_item_withdraw_menu_task_name(), "A")
+                quantity_left -= 1
+            else:
+                quantity_to_select = min(max_quantity, quantity_left)
+                yield from wait_until_task_is_active(_get_select_item_withdraw_quantity_task_name(), "A")
+                reverse_scroll = quantity_to_select > max_quantity // 2
+                if reverse_scroll:
+                    context.emulator.press_button("Down")
+                    yield
+                    yield
+                while (current_quantity := _get_item_withdraw_quantity_cursor_position()) != quantity_to_select:
+                    if current_quantity <= quantity_to_select - 7:
+                        context.emulator.press_button("Right")
+                    elif current_quantity >= quantity_to_select + 7:
+                        context.emulator.press_button("Left")
+                    elif current_quantity < quantity_to_select:
+                        context.emulator.press_button("Up")
+                    elif current_quantity > quantity_to_select:
+                        context.emulator.press_button("Down")
+                    yield
+                    yield
+                yield from wait_until_task_is_active(_get_item_withdraw_menu_task_name(), "A")
+                quantity_left -= quantity_to_select
+
+    yield from _back_to_item_storage_menu()
+
+
+@debug.track
+def _do_deposit_items_actions(actions: list[PCAction]) -> Generator:
+    yield from _open_item_storage_menu(1)
+    for action in actions:
+        if get_item_bag().quantity_of(action.item) < action.quantity:
+            raise BotModeError(
+                f"Cannot deposit {action.quantity}× {action.item.name} because there are not enough in the bag ({get_item_bag().quantity_of(action.item)})."
+            )
+        if not get_item_storage().has_space_for(action.item):
+            raise BotModeError(
+                f"Cannot deposit {action.quantity}× {action.item.name} because is no space for it in the PC."
+            )
+
+        quantity_left = action.quantity
+        while quantity_left > 0:
+            yield from scroll_to_item_in_bag(action.item)
+            max_quantity = (
+                get_item_bag().pocket_for(action.item)[get_item_bag().first_slot_index_for(action.item)].quantity
+            )
+            if max_quantity == 1:
+                yield
+                context.emulator.press_button("A")
+                yield
+                yield from wait_until_task_is_active(_get_bag_menu_task_name(), "A")
+                quantity_left -= 1
+            else:
+                quantity_to_select = min(max_quantity, quantity_left)
+                yield from wait_until_task_is_active(_get_choose_item_quantity_task_name(), "A")
+                reverse_scroll = quantity_to_select > max_quantity // 2
+                if reverse_scroll:
+                    context.emulator.press_button("Down")
+                    yield
+                    yield
+                while (
+                    current_quantity := get_task(_get_choose_item_quantity_task_name()).data_value(
+                        1 if context.rom.is_rs else 8
+                    )
+                ) != quantity_to_select:
+                    if current_quantity <= quantity_to_select - 7:
+                        context.emulator.press_button("Right")
+                    elif current_quantity >= quantity_to_select + 7:
+                        context.emulator.press_button("Left")
+                    elif current_quantity < quantity_to_select:
+                        context.emulator.press_button("Up")
+                    elif current_quantity > quantity_to_select:
+                        context.emulator.press_button("Down")
+                    yield
+                    yield
+                yield from wait_until_task_is_active(_get_bag_menu_task_name(), "A")
+                quantity_left -= quantity_to_select
+
+    yield from _back_to_item_storage_menu()
+
+
+@debug.track
 def interact_with_pc(actions: list[PCAction]) -> Generator:
     targeted_tile = get_player_avatar().map_location_in_front
     if targeted_tile.tile_type != "PC":
@@ -412,13 +676,9 @@ def interact_with_pc(actions: list[PCAction]) -> Generator:
     if not player_avatar_is_controllable():
         raise BotModeError("Player is not controllable. Cannot interact with PC.")
 
-    yield from wait_until_task_is_active(_get_storage_task_name(), "A")
+    yield from _open_pc_menu()
 
     # Run the actions
-    actions_for_withdraw_menu = [action for action in actions if action.section is PCStorageSection.WithdrawPokemon]
-    if len(actions_for_withdraw_menu) > 0:
-        yield from _do_withdraw_actions(actions_for_withdraw_menu)
-
     actions_for_deposit_menu = [action for action in actions if action.section is PCStorageSection.DepositPokemon]
     if len(actions_for_deposit_menu) > 0:
         yield from _do_deposit_actions(actions_for_deposit_menu)
@@ -427,6 +687,19 @@ def interact_with_pc(actions: list[PCAction]) -> Generator:
     if len(actions_for_move_pokemon_menu) > 0:
         yield from _do_move_pokemon_actions(actions_for_move_pokemon_menu)
 
+    actions_for_withdraw_menu = [action for action in actions if action.section is PCStorageSection.WithdrawPokemon]
+    if len(actions_for_withdraw_menu) > 0:
+        yield from _do_withdraw_actions(actions_for_withdraw_menu)
+
+    actions_for_deposit_items_menu = [action for action in actions if action.section is PCStorageSection.DepositItem]
+    if len(actions_for_deposit_items_menu) > 0:
+        yield from _do_deposit_items_actions(actions_for_deposit_items_menu)
+
+    actions_for_withdraw_items_menu = [action for action in actions if action.section is PCStorageSection.WithdrawItem]
+    if len(actions_for_withdraw_items_menu) > 0:
+        yield from _do_withdraw_items_actions(actions_for_withdraw_items_menu)
+
+    yield from _close_pc_menu()
     yield from wait_for_no_script_to_run("B")
     yield from wait_for_player_avatar_to_be_controllable("B")
 
