@@ -251,6 +251,13 @@ gPokemonStorageSystemPtr:
   F: 0x83be798
   I: 0x83b7a08
   S: 0x83bae18
+ItemStorage_ProcessInput:
+EventScript_PCMainMenu:
+EventScript_AccessPokemonStorage:
+EventScript_AccessPlayersPC:
+ItemStorageMenuProcessInput:
+sub_80A6BE0:
+ItemStorage_HandleQuantityRolling:
 #-------------------------#
 
 #--------------#

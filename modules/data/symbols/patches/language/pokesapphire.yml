@@ -201,6 +201,13 @@ sBoxCursorArea:
   J: 0x2038200
 sBoxCursorPosition:
   J: 0x2038201
+ItemStorage_ProcessInput:
+EventScript_PCMainMenu:
+EventScript_AccessPokemonStorage:
+EventScript_AccessPlayersPC:
+ItemStorageMenuProcessInput:
+sub_80A6BE0:
+ItemStorage_HandleQuantityRolling:
 #-------------------------#
 
 #--------------#
@@ -263,7 +270,7 @@ SUB_808A060:
   J: 0x8086ea8
 Task_PartyMenuPrintRun:
   J: 0x806bb90
-  
+
 #----------------#
 
 #-------------------#
