@@ -92,7 +92,7 @@ export default class InfoBubble extends HTMLElement {
                     small = document.createElement("small");
                     this.append(small);
                 }
-                small.innerText = "/" + formatInteger(newValue)
+                small.innerText = "/" + formatInteger(newTarget)
             } else if (small) {
                 this.quantityTarget = null;
                 small.remove();

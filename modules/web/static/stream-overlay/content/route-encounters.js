@@ -388,7 +388,7 @@ const renderRouteEncountersList = (encountersList) => {
     };
 
     const renderTotalEncounters = (totalEncounters, shinyRateDivisor) => {
-        if (shinyRateDivisor === null) {
+        if (shinyRateDivisor === null || shinyRateDivisor === Infinity) {
             return [formatInteger(totalEncounters)];
         } else {
             const shinyRateLabel = document.createElement("span");
