@@ -314,6 +314,14 @@ sCursorArea:
   J: 0x2039a18
 sCursorPosition:
   J: 0x2039a19
+gPlayerPCItemPageInfo:
+EventScript_PCMainMenu:
+EventScript_AccessPokemonStorage:
+EventScript_AccessPlayersPC:
+ItemStorageMenuProcessInput:
+Task_ChooseHowManyToDeposit:
+ItemStorage_ProcessInput:
+ItemStorage_HandleQuantityRolling:
 #-------------------------#
 
 Task_ExitDoor:

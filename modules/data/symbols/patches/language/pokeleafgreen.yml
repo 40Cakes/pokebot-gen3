@@ -549,6 +549,14 @@ sCursorArea:
   J: 0x203976c
 sCursorPosition:
   J: 0x203976d
+sListMenuState:
+EventScript_PCMainMenu:
+EventScript_AccessPokemonStorage:
+EventScript_AccessPlayersPC:
+Task_TopMenu_ItemStorageSubmenu_HandleInput:
+Task_SelectQuantityToDeposit:
+Task_ItemPcMain:
+Task_ItemPcHandleWithdrawMultiple:
 #-------------------------#
 
 #--------------#
