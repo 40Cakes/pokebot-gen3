@@ -447,8 +447,17 @@ export default class PokemonSprite extends HTMLElement {
             return;
         }
 
+        let spriteType;
+        if (this.shiny) {
+            spriteType = "shiny";
+        } else if (this.antiShiny) {
+            spriteType = "anti-shiny";
+        } else {
+            spriteType = "normal";
+        }
+
         const spritePath = this.species !== "Egg"
-            ? speciesSpritePath(this.species, this.shiny ? "shiny" : "normal", true)
+            ? speciesSpritePath(this.species, spriteType, true)
             : eggSpritePath(true);
         this.sprite.src = spritePath;
         const fileNameWithoutExtension = spritePath.substring(spritePath.lastIndexOf("/") + 1, spritePath.lastIndexOf("."))
@@ -456,7 +465,7 @@ export default class PokemonSprite extends HTMLElement {
         this.animationTimeout = window.setTimeout(
             () => {
                 this.sprite.src = this.species !== "Egg"
-                    ? speciesSpritePath(this.species, this.shiny ? "shiny" : "normal", false)
+                    ? speciesSpritePath(this.species, spriteType, false)
                     : eggSpritePath(false);
                 this.animationTimeout = null;
             },
