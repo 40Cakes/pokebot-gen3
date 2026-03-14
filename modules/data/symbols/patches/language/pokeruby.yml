@@ -203,13 +203,20 @@ sBoxCursorArea:
   J: 0x2038200
 sBoxCursorPosition:
   J: 0x2038201
-ItemStorage_ProcessInput: {}
-EventScript_PCMainMenu: {}
-EventScript_AccessPokemonStorage: {}
-EventScript_AccessPlayersPC: {}
-ItemStorageMenuProcessInput: {}
-sub_80A6BE0: {}
-ItemStorage_HandleQuantityRolling: {}
+ItemStorage_ProcessInput:
+  J: 0x8134ed8
+EventScript_PCMainMenu:
+  J: 0x817fc2d
+EventScript_AccessPokemonStorage:
+  J: 0x817fc8f
+EventScript_AccessPlayersPC:
+  J: 0x817fc7a
+ItemStorageMenuProcessInput:
+  J: 0x8134c3c
+sub_80A6BE0:
+  J: 0x80a2d70
+ItemStorage_HandleQuantityRolling:
+  J: 0x8135208
 #-------------------------#
 
 #--------------#

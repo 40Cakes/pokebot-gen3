@@ -554,14 +554,50 @@ sCursorArea:
   J: 0x203976c
 sCursorPosition:
   J: 0x203976d
-sListMenuState: {}
-EventScript_PCMainMenu: {}
-EventScript_AccessPokemonStorage: {}
-EventScript_AccessPlayersPC: {}
-Task_TopMenu_ItemStorageSubmenu_HandleInput: {}
-Task_SelectQuantityToDeposit: {}
-Task_ItemPcMain: {}
-Task_ItemPcHandleWithdrawMultiple: {}
+sListMenuState:
+  J: 0x203ad5c
+EventScript_PCMainMenu:
+  D: 0x81a9849
+  F: 0x81a54e6
+  I: 0x81a42e4
+  J: 0x8194264
+  S: 0x81a6551
+EventScript_AccessPokemonStorage:
+  D: 0x81a98b6
+  F: 0x81a5553
+  I: 0x81a4351
+  J: 0x81942d1
+  S: 0x81a65be
+EventScript_AccessPlayersPC:
+  D: 0x81a98a1
+  F: 0x81a553e
+  I: 0x81a433c
+  J: 0x81942bc
+  S: 0x81a65a9
+Task_TopMenu_ItemStorageSubmenu_HandleInput:
+  D: 0x80ebcdc
+  F: 0x80ebd9c
+  I: 0x80ebcdc
+  J: 0x80eca64
+  S: 0x80ebdc4
+Task_SelectQuantityToDeposit:
+  D: 0x810ac08
+  F: 0x810acc8
+  I: 0x810ac4c
+  J: 0x810b684
+  S: 0x810ad34
+Task_ItemPcMain:
+  D: 0x8106f48
+  F: 0x810dfe0
+  I: 0x810df64
+  J: 0x810e96c
+  S: 0x810e04c
+Task_ItemPcHandleWithdrawMultiple:
+  D: 0x810e75c
+  F: 0x810e81c
+  I: 0x810e7a0
+  J: 0x810f1e8
+  S: 0x810e888
 #-------------------------#
 
 #--------------#
@@ -771,6 +807,10 @@ Route15_Text_MyaIntro:
   J: 0x0
 Route15_Text_MyaDefeat:
   J: 0x0
+Route25_EventScript_FranklinRematch:
+  D: 0x0
+Route25_EventScript_KelseyRematch:
+  D: 0x0
 
 # Unused
 Task_ExitNonDoor:

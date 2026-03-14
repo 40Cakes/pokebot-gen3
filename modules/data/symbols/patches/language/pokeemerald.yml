@@ -314,14 +314,50 @@ sCursorArea:
   J: 0x2039a18
 sCursorPosition:
   J: 0x2039a19
-gPlayerPCItemPageInfo: {}
-EventScript_PCMainMenu: {}
-EventScript_AccessPokemonStorage: {}
-EventScript_AccessPlayersPC: {}
-ItemStorageMenuProcessInput: {}
-Task_ChooseHowManyToDeposit: {}
-ItemStorage_ProcessInput: {}
-ItemStorage_HandleQuantityRolling: {}
+gPlayerPCItemPageInfo:
+  J: 0x203ca68
+EventScript_PCMainMenu:
+  D: 0x827d4b7
+  F: 0x8277072
+  I: 0x8271a03
+  J: 0x8242e38
+  S: 0x8275bb7
+EventScript_AccessPokemonStorage:
+  D: 0x827d507
+  F: 0x82770b2
+  I: 0x8271a68
+  J: 0x8242e96
+  S: 0x8275be8
+EventScript_AccessPlayersPC:
+  D: 0x827d507
+  F: 0x82770b2
+  I: 0x8271a43
+  J: 0x8242e58
+  S: 0x8275be8
+ItemStorageMenuProcessInput:
+  D: 0x816aea0
+  F: 0x816c09c
+  I: 0x816ae90
+  J: 0x816b06c
+  S: 0x816afa0
+Task_ChooseHowManyToDeposit:
+  D: 0x81ad5a0
+  F: 0x81ad6b4
+  I: 0x81ad580
+  J: 0x81ad890
+  S: 0x81ad698
+ItemStorage_ProcessInput:
+  D: 0x816bf74
+  F: 0x816c09c
+  I: 0x81adf60
+  J: 0x816c154
+  S: 0x81af124
+ItemStorage_HandleQuantityRolling:
+  D: 0x816c480
+  F: 0x816c5a8
+  I: 0x816c470
+  J: 0x816c630
+  S: 0x816c580
 #-------------------------#
 
 Task_ExitDoor:
