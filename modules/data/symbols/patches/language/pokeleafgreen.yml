@@ -549,14 +549,50 @@ sCursorArea:
   J: 0x203976c
 sCursorPosition:
   J: 0x203976d
-sListMenuState: {}
-EventScript_PCMainMenu: {}
-EventScript_AccessPokemonStorage: {}
-EventScript_AccessPlayersPC: {}
-Task_TopMenu_ItemStorageSubmenu_HandleInput: {}
-Task_SelectQuantityToDeposit: {}
-Task_ItemPcMain: {}
-Task_ItemPcHandleWithdrawMultiple: {}
+sListMenuState:
+  J: 0x203ad5c
+EventScript_PCMainMenu:
+  D: 0x81a9825
+  F: 0x81a54c2
+  I: 0x81a42c0
+  J: 0x8194240
+  S: 0x81a652d
+EventScript_AccessPokemonStorage:
+  D: 0x81a9892
+  F: 0x81a552f
+  I: 0x81a432d
+  J: 0x81942ad
+  S: 0x81a659a
+EventScript_AccessPlayersPC:
+  D: 0x81a987d
+  F: 0x81a551a
+  I: 0x81a4318
+  J: 0x8194298
+  S: 0x81a6585
+Task_TopMenu_ItemStorageSubmenu_HandleInput:
+  D: 0x80ebcb4
+  F: 0x80ebd74
+  I: 0x80ebcb4
+  J: 0x80eca3c
+  S: 0x80ebd9c
+Task_SelectQuantityToDeposit:
+  D: 0x810abe0
+  F: 0x810aca0
+  I: 0x810ac24
+  J: 0x810b65c
+  S: 0x810ad0c
+Task_ItemPcMain:
+  D: 0x810def8
+  F: 0x810dfb8
+  I: 0x810df3c
+  J: 0x810e944
+  S: 0x810e024
+Task_ItemPcHandleWithdrawMultiple:
+  D: 0x810e734
+  F: 0x810e7f4
+  I: 0x810e778
+  J: 0x810f1c0
+  S: 0x810e860
 #-------------------------#
 
 #--------------#
@@ -715,6 +751,10 @@ Route15_Text_MyaIntro:
   J: 0x0
 Route15_Text_MyaDefeat:
   J: 0x0
+Route25_EventScript_FranklinRematch:
+  D: 0x0
+Route25_EventScript_KelseyRematch:
+  D: 0x0
 
 # Ununsed symbols that were conflicting with currently used symbols
 # We set them to 0x0 to 'get them out of our way' and correctly target the desired symbol

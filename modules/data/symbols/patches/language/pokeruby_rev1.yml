@@ -251,13 +251,34 @@ gPokemonStorageSystemPtr:
   F: 0x83be798
   I: 0x83b7a08
   S: 0x83bae18
-ItemStorage_ProcessInput: {}
-EventScript_PCMainMenu: {}
-EventScript_AccessPokemonStorage: {}
-EventScript_AccessPlayersPC: {}
-ItemStorageMenuProcessInput: {}
-sub_80A6BE0: {}
-ItemStorage_HandleQuantityRolling: {}
+ItemStorage_ProcessInput:
+  F: 0x813a768
+  I: 0x813a6a4
+  S: 0x813a7a4
+EventScript_PCMainMenu:
+  F: 0x81a5428
+  I: 0x81a09cd
+  S: 0x81a32ed
+EventScript_AccessPokemonStorage:
+  F: 0x81a548a
+  I: 0x81a0a2f
+  S: 0x81a334f
+EventScript_AccessPlayersPC:
+  F: 0x81a5475
+  I: 0x81a0a1a
+  S: 0x81a333a
+ItemStorageMenuProcessInput:
+  F: 0x813a4bc
+  I: 0x813a3f8
+  S: 0x813a4f8
+sub_80A6BE0:
+  F: 0x80a6e18
+  I: 0x80a6d24
+  S: 0x80a6e28
+ItemStorage_HandleQuantityRolling:
+  F: 0x813aa6c
+  I: 0x813a9a8
+  S: 0x813aaa8
 #-------------------------#
 
 #--------------#
