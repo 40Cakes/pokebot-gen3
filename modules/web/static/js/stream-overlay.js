@@ -889,23 +889,22 @@ function timers() {
     }, 500)
 }
 
-function pokemonSprite(name, shiny, anti, animated) {
-    if (animated) {
-        if (shiny) {
-            return "sprites/pokemon-animated/shiny/" + name + ".gif"
-        }
+function normalizePokemonName(name) {
+    return String(name)
+        .normalize("NFKD")
+        .replace(/\u2642/g, "_m") // Nidoran♂
+        .replace(/\u2640/g, "_f") // Nidoran♀
+        .replace(/['’]/g, "_");   // Farfetch'd
+}
 
-        return "sprites/pokemon-animated/normal/" + name + ".gif"
-    }
+function pokemonSprite(name, shiny = false, anti = false, animated = false) {
+    const normalized = normalizePokemonName(name);
 
-    if (shiny) {
-        return "sprites/pokemon/shiny/" + name + ".png"
-    }
-    if (anti) {
-        return "sprites/pokemon/anti-shiny/" + name + ".png"
-    }
+    const base = animated ? "sprites/pokemon-animated" : "sprites/pokemon";
+    const variant = shiny ? "shiny" : anti ? "anti-shiny" : "normal";
+    const ext = animated ? "gif" : "png";
 
-    return "sprites/pokemon/normal/" + name + ".png"
+    return `${base}/${variant}/${normalized}.${ext}`;
 }
 
 function SVImage(sv) {
