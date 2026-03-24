@@ -191,7 +191,11 @@ def run_rse_johto(get_active_encounter: Callable[[], EncounterInfo]):
         yield from StartMenuNavigator("POKEMON").step()
         yield from PokemonPartyMenuNavigator(get_party_size() - 1, "summary").step()
 
-        handle_encounter(get_active_encounter(), disable_auto_catch=True, do_not_log_battle_action=True)
+        handle_encounter(
+            EncounterInfo.create(get_party()[-1], EncounterType.Gift),
+            disable_auto_catch=True,
+            do_not_log_battle_action=True,
+        )
 
 
 class StartersMode(BotMode):
