@@ -809,6 +809,24 @@ SafariZone_EventScript_TimesUp:
   I: 0x82a6033
   J: 0x82623e8
   S: 0x82aae5a
+EventScript_PokeBlockFeeder:
+  D: 0x82b678f
+  F: 0x82ad176
+  I: 0x82a6055
+  J: 0x826240a
+  S: 0x82aae7c
+ListMenuDummyTask:
+  D: 0x81adf80
+  F: 0x81ae094
+  I: 0x81adf60
+  J: 0x81ae130
+  S: 0x81ae078
+SafariZone_EventScript_PokeblockPlaced:
+  D: 0x82b67c5
+  F: 0x82ad1ac
+  I: 0x82a608b
+  J: 0x8262441
+  S: 0x82aaeb3
 # 0xb
 Route121_SafariZoneEntrance_EventScript_ExitSafariZone:
   D: 0x8232697
