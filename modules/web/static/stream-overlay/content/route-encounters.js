@@ -545,7 +545,7 @@ const updateRouteEncountersList = (state, checklistConfig) => {
 
         if (encounter.encounter_rate > 0) {
             numberOfPossibleEncounters++;
-        } else if (numberOfAntis === numberOfPossibleEncounters) {
+        } else if (numberOfAntis === numberOfPossibleEncounters && numberOfPossibleEncounters > 0) {
             // Show the entire list (including encounters that are dropped due to Repel) as
             // anti-shiny if all possible encounters have been encountered as an anti already.
             isAnti = true;
