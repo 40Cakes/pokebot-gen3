@@ -89,6 +89,7 @@ Taillow also has a fairly short cry (17 frames.)
 [Illuminate](https://bulbapedia.bulbagarden.net/wiki/Illuminate_(Ability)) is an ability that
 doubles the odds of an encounter for every step. The first Pokémon in our party is a fainted
 Volbeat that has that ability.
+For the Safari Zone, the first Pokémon in our party is instead a fainted Staryu because it has a higher level, giving us a more favourable battle transition.
 
 The [White Flute](https://bulbapedia.bulbagarden.net/wiki/White_Flute) is an item that when
 used also doubles encounter odds until we leave the map.
