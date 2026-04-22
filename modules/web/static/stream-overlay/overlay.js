@@ -488,11 +488,23 @@ export default async function runOverlay() {
         const updateChecklist = () => {
             fetchers.eventFlags().then(flags => {
                 for (const li of gymListEntries) {
-                    if (flags[li.dataset.flag]) {
-                        li.className = "completed";
-                    } else {
-                        li.className = "";
+                    let isCompleted = true;
+                    let flagRequirements = li.dataset.flag.replaceAll(" ", "").split(",");
+                    for (const requirement of flagRequirements) {
+                        if (requirement[0] === "!") {
+                            if (flags[requirement.slice(1)]) {
+                                isCompleted = false;
+                                break;
+                            }
+                        } else {
+                            if (!flags[requirement]) {
+                                isCompleted = false;
+                                break;
+                            }
+                        }
                     }
+
+                    li.className = isCompleted ? "completed" : "";
                 }
             });
         }
