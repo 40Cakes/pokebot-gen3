@@ -217,7 +217,7 @@
 
     <div class="content-box" id="gym-message" style="display: none;">
         <h2>
-            <img src="../sprites/stream-overlay/target.png">Dewford/Petalburg Gyms and Awakening of Groudon
+            <img src="../sprites/stream-overlay/target.png">Mossdeep Gym and Flooding Hoenn 🌊
         </h2>
 
         <p style="text-align: center; line-height: 1.5rem;">
@@ -226,16 +226,14 @@
         </p>
 
         <ul>
-            <li data-flag="BADGE02_GET">Defeat Brawly at Dewford Gym to get the Knuckle Badge</li>
-            <li data-flag="BADGE05_GET">Defeat Norman at Petalburg Gym to get the Balance Badge</li>
-            <li data-flag="RECEIVED_HM_SURF">Receive HM03 Surf</li>
-            <li data-flag="HIDE_ROUTE_119_TEAM_AQUA">Defeat Team Aqua at the Weather Institute</li>
-            <li data-flag="RECEIVED_HM_FLY">Rival Battle on Route 119</li>
-            <li data-flag="RECEIVED_DEVON_SCOPE">Get the Devon Scope</li>
-            <li data-flag="HIDE_MT_PYRE_SUMMIT_ARCHIE">Defeat Team Aqua at Mt. Pyre</li>
-            <li data-flag="HIDE_MAGMA_HIDEOUT_GRUNTS">Defeat Team Magma at the Jagged Pass, Groudon awakens</li>
-            <li data-flag="ITEM_AQUA_HIDEOUT_B1F_MASTER_BALL">Get the Master Ball</li>
-            <li data-flag="TEAM_AQUA_ESCAPED_IN_SUBMARINE">Clear Team Aqua's base in Lilycove City</li>
+            <li data-flag="BADGE07_GET">Defeat Tate and Liza at Mossdeep Gym to get the Mind Badge</li>
+            <li data-flag="HIDE_MOSSDEEP_CITY_SPACE_CENTER_MAGMA_NOTE">Defeat Team Magma at the Space Center</li>
+            <li data-flag="RECEIVED_HM_DIVE">Pester Steven until he gives us HM07 Dive</li>
+            <li data-flag="KYOGRE_ESCAPED_SEAFLOOR_CAVERN">Defeat Team Aqua in the Seafloor Cavern and release Kyogre</li>
+            <li data-flag="HIDE_CAVE_OF_ORIGIN_B1F_WALLACE">Talk to Wallace in the Cave of Origin</li>
+            <li data-flag="HIDE_SKY_PILLAR_TOP_RAYQUAZA">Awaken Rayquaza in Sky Pillar</li>
+            <li data-flag="HIDE_SKY_PILLAR_TOP_RAYQUAZA, !LEGENDARIES_IN_SOOTOPOLIS">Witness Rayquaza ending the Groudon/Kyogre battle</li>
+            <li data-flag="RECEIVED_HM_WATERFALL">Receive HM08 Waterfall from Wallace</li>
         </ul>
         <div class="current-location">
             <img src="/static/sprites/stream-overlay/pin.png"><span></span>
@@ -353,13 +351,13 @@
         <ul class="stats-list">
             <li>
                 <div class="icon"><img src="/static/sprites/stream-overlay/hourglass.png"></div>
-                <div class="label">Phase<br>Timer</div>
+                <div class="label" id="phase-timer-label">Phase<br>Timer</div>
                 <div class="value" id="phase-timer-stat"></div>
             </li>
 
             <li>
                 <div class="icon"><img src="/static/sprites/stream-overlay/hash.png"></div>
-                <div class="label">Phase<br>Encounters</div>
+                <div class="label" id="phase-encounters-label">Phase<br>Encounters</div>
                 <div class="value" id="phase-encounters-stat"></div>
             </li>
 

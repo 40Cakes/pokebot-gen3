@@ -237,7 +237,7 @@ const getEncounterList = (state) => {
     ) {
         encounterList = [];
         regularEncounterList = [];
-    } else if (state.lastEncounterType === "surfing") {
+    } else if (state.lastEncounterType === "surfing" || state.map.map.name.toLowerCase().includes("underwater")) {
         encounterList = [...state.mapEncounters.effective.surf_encounters];
         regularEncounterList = [...state.mapEncounters.regular.surf_encounters];
     } else if (state.lastEncounterType === "fishing_old_rod") {

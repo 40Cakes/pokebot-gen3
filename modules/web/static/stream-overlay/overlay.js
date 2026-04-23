@@ -240,6 +240,14 @@ function handleWildEncounter(event, state) {
         window.clearTimeout(hideEncounterStatsTimeout);
     }
 
+    if (state.lastEncounter?.pokemon?.species?.name === "Regirock" && event.pokemon?.species?.name !== "Regirock") {
+        document.querySelector("#phase-timer-label").innerHTML = "Phase<br/>Timer";
+        document.querySelector("#phase-encounters-label").innerHTML = "Phase<br/>Encounters";
+    } else if (event.pokemon?.species?.name === "Regirock") {
+        document.querySelector("#phase-timer-label").innerHTML = "pekempy’s<br/>Pain Timer";
+        document.querySelector("#phase-encounters-label").innerHTML = "pekempy’s Pain<br/>Counter";
+    }
+
     state.logEncounter(event);
     if (!WILD_ENCOUNTER_TYPES.includes(event.type)) {
         hideEncounterStatsTimeout = window.setTimeout(() => hideCurrentEncounterStats(), 1000 * config.nonBattleEncounterStatsTimeoutInSeconds);
@@ -488,11 +496,23 @@ export default async function runOverlay() {
         const updateChecklist = () => {
             fetchers.eventFlags().then(flags => {
                 for (const li of gymListEntries) {
-                    if (flags[li.dataset.flag]) {
-                        li.className = "completed";
-                    } else {
-                        li.className = "";
+                    let isCompleted = true;
+                    let flagRequirements = li.dataset.flag.replaceAll(" ", "").split(",");
+                    for (const requirement of flagRequirements) {
+                        if (requirement[0] === "!") {
+                            if (flags[requirement.slice(1)]) {
+                                isCompleted = false;
+                                break;
+                            }
+                        } else {
+                            if (!flags[requirement]) {
+                                isCompleted = false;
+                                break;
+                            }
+                        }
                     }
+
+                    li.className = isCompleted ? "completed" : "";
                 }
             });
         }
