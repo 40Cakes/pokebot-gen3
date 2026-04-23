@@ -278,7 +278,12 @@ def follow_waypoints(
                     context.emulator.hold_button(waypoint.walking_direction)
                 else:
                     context.emulator.hold_button(waypoint.walking_direction)
-                    if run and not waypoint.is_water_tile and not AvatarFlags.OnAcroBike in get_player_avatar().flags:
+                    if (
+                        run
+                        and not waypoint.is_water_tile
+                        and not AvatarFlags.OnAcroBike in get_player_avatar().flags
+                        and not AvatarFlags.Underwater in get_player_avatar().flags
+                    ):
                         context.emulator.hold_button("B")
             else:
                 context.emulator.reset_held_buttons()
