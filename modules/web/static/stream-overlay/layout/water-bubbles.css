@@ -1,0 +1,36 @@
+@keyframes water-bubble-rise {
+    from {
+        transform: translateY(0);
+        opacity: .5;
+    }
+
+    25%  { margin-left: -10px; }
+    50%  { margin-left: 10px; }
+    75%  { margin-left: -6px; }
+
+    to {
+        transform: translateY(calc(-100vh - 600px));
+        opacity: .25
+    }
+}
+
+
+.water-bubble {
+    right: 1280px;
+    bottom: 160px;
+
+    position: absolute;
+    z-index: 9;
+    width: 7em;
+    height: 7em;
+
+    border-radius: 50%;
+    border: .2em #cef solid;
+    box-shadow: #eff 1em 0 0 inset;
+    background-color: #cef;
+    margin: auto;
+
+    animation-name: water-bubble-rise;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+}
