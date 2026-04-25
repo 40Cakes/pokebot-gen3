@@ -24,7 +24,7 @@ import {updateInputs} from "./content/inputs.js";
 import {updateClock} from "./content/clock.js";
 import {getLastEncounterSpecies, sleep} from "./helper.js";
 import {updateDaycareBox} from "./content/daycare.js";
-import {fireConfetti} from "./content/effects.js";
+import {fireConfetti, fireWaterBubbleBurst} from "./content/effects.js";
 import {showSafariRates} from "./content/safari-rates.js";
 
 const BATTLE_STATES = ["BATTLE_STARTING", "BATTLE", "BATTLE_ENDING"];
@@ -467,6 +467,10 @@ export default async function runOverlay() {
                     .catch(error => console.error(error));
             }
         }
+
+        if (state.map.map.type === "Underwater" && Math.random() * 600 < 1) {
+            fireWaterBubbleBurst();
+        }
     }, 1000);
     updateClock(config.startDate, config.timeZone, config.overrideDisplayTimezone);
 
@@ -535,4 +539,17 @@ export default async function runOverlay() {
     setUpEventSource();
 
     window.handleCustomEvent = handleCustomEvent;
+
+    // Debug shortcuts
+    window.addEventListener("keydown", event => {
+        // Alt+Shift+W for Water Bubbles
+        if (event.altKey && event.shiftKey && event.code === "KeyW") {
+            fireWaterBubbleBurst();
+        }
+
+        // Alt+Shift+C for Confetti
+        if (event.altKey && event.shiftKey && event.code === "KeyC") {
+            fireConfetti(50, 10);
+        }
+    });
 }
