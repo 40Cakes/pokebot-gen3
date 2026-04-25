@@ -178,10 +178,14 @@ export default class OverlayState {
                 this.#cachedLastEncounterType = this.lastEncounter.type;
             }
 
-            if (this.#cachedLastEncounterType === "land" && this.playerAvatar && this.playerAvatar.flags.Surfing) {
+            if (this.#cachedLastEncounterType === "land" && this.playerAvatar && (this.playerAvatar.flags.Surfing || this.playerAvatar.flags.Underwater)) {
                 this.#cachedLastEncounterType = "surfing";
-            } else if (this.#cachedLastEncounterType === "surfing" && this.playerAvatar && !this.playerAvatar.flags.Surfing) {
+            } else if (this.#cachedLastEncounterType === "surfing" && this.playerAvatar && !this.playerAvatar.flags.Surfing && !this.playerAvatar.flags.Underwater) {
                 this.#cachedLastEncounterType = "land";
+            }
+
+            if (this.#cachedLastEncounterType === "land" && this.lastEncounter.map.toLowerCase().includes("underwater")) {
+                this.#cachedLastEncounterType = "surfing";
             }
         }
 
@@ -193,6 +197,9 @@ export default class OverlayState {
         this.#cachedLastEncounter = encounter;
         if (WILD_ENCOUNTER_TYPES.includes(encounter.type)) {
             this.#cachedLastEncounterType = encounter.type;
+            if (this.#cachedLastEncounterType === "land" && encounter.map.toLowerCase().includes("underwater")) {
+                this.#cachedLastEncounterType = "surfing";
+            }
         }
 
         const speciesName = encounter.pokemon.species_name_for_stats;
@@ -377,10 +384,10 @@ export default class OverlayState {
      * */
     logPlayerAvatarChange(data) {
         this.playerAvatar = data;
-        if (this.lastEncounterType === "land" && data.flags.Surfing) {
+        if (this.lastEncounterType === "land" && (data.flags.Surfing || data.flags.Underwater)) {
             this.#cachedLastEncounterType = "surfing";
             return true;
-        } else if (this.lastEncounterType === "surfing" && !data.flags.Surfing) {
+        } else if (this.lastEncounterType === "surfing" && !data.flags.Surfing && !data.flags.Underwater) {
             this.#cachedLastEncounterType = "land";
             return true;
         }
