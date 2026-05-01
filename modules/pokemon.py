@@ -717,7 +717,8 @@ class Species:
     name: str
     types: list[Type]
     abilities: list[Ability]
-    held_items: list[HeldItem]
+    _held_items_rse: list[HeldItem]
+    _held_items_frlg: list[HeldItem]
     base_stats: StatsValues
     gender_ratio: int
     egg_cycles: int
@@ -733,6 +734,10 @@ class Species:
     evolutions: list[SpeciesEvolution]
     evolves_from: int | None
     family: list[int]
+
+    @property
+    def held_items(self) -> list[HeldItem]:
+        return self._held_items_rse if context.rom is not None and context.rom.is_rse else self._held_items_frlg
 
     def has_type(self, type_to_find: Type) -> bool:
         return any(t.index == type_to_find.index for t in self.types)
@@ -762,7 +767,8 @@ class Species:
             name=data["name"],
             types=list(map(get_type_by_name, data["types"])),
             abilities=list(map(get_ability_by_name, data["abilities"])),
-            held_items=list(map(lambda e: HeldItem(e[0], e[1]), data["held_items"])),
+            _held_items_rse=list(map(lambda e: HeldItem(e[0], e[1]), data["held_items_rse"])),
+            _held_items_frlg=list(map(lambda e: HeldItem(e[0], e[1]), data["held_items_frlg"])),
             base_stats=StatsValues.from_dict(data["base_stats"]),
             gender_ratio=data["gender_ratio"],
             egg_cycles=data["egg_cycles"],

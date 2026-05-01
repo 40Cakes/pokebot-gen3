@@ -10,6 +10,7 @@ from modules.runtime import get_base_path
 
 if TYPE_CHECKING:
     from modules.encounter import EncounterInfo
+    from modules.items import Item
     from modules.modes import BotMode, BotListener
     from modules.profiles import Profile
 
@@ -145,6 +146,13 @@ def plugin_egg_hatched(hatched_pokemon: "EncounterInfo") -> Generator[None, None
         elif result is True:
             do_not_switch_to_manual = True
     return do_not_switch_to_manual
+
+
+def plugin_picked_up_items(list_of_items: list["Item"]) -> Generator:
+    for plugin in plugins:
+        result = plugin.on_picked_up_items(list_of_items)
+        if isinstance(result, GeneratorType):
+            yield from result
 
 
 def plugin_whiteout() -> Generator:

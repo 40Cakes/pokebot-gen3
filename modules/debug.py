@@ -32,7 +32,8 @@ class DebugUtil:
                 self.action_stack.append(f"{name}({', '.join(formatted_args)})")
 
             try:
-                yield from generator_function(*args, **kwargs)
+                return_value = yield from generator_function(*args, **kwargs)
+                return return_value
             finally:
                 if self.enabled:
                     self.action_stack.pop()

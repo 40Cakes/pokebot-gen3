@@ -959,3 +959,15 @@ def get_encounter_type() -> EncounterType:
         return EncounterType.Surfing
     else:
         return EncounterType.Land
+
+
+@dataclass
+class HandledBattleResult:
+    outcome: BattleOutcome
+    encounter_type: EncounterType
+    money_gained: int
+    party_indices_with_stolen_items: list[int]
+    party_indices_with_picked_up_items: list[int]
+    party_indices_that_took_damage_or_changed_status: list[int]
+    party_indices_that_gained_exp: list[int]
+    party_indices_that_evolved: list[int]

@@ -9,34 +9,62 @@ from modules.battle_state import (
     get_current_battle_script_instruction,
     BattlePokemon,
     get_battle_state,
+    get_encounter_type,
+    get_last_battle_outcome,
+    HandledBattleResult,
 )
 from modules.battle_strategies import BattleStrategy
 from modules.context import context
 from modules.debug import debug
+from modules.items import Item, get_item_by_index
 from modules.keyboard import handle_naming_screen
-from modules.memory import get_game_state, GameState
+from modules.memory import get_game_state, GameState, read_symbol, unpack_uint16
 from modules.menuing import scroll_to_party_menu_index
+from modules.player import get_player
 from modules.plugins import plugin_should_nickname_pokemon
-from modules.pokemon_party import get_party, get_party_size
+from modules.pokemon import StatusCondition
+from modules.pokemon_party import get_party, get_party_size, PartyPokemon
 from modules.tasks import task_is_active
 
 if TYPE_CHECKING:
     from modules.encounter import EncounterInfo
 
 
+_last_handled_battle_result: HandledBattleResult | None = None
+
+
 @debug.track
-def handle_battle(strategy: BattleStrategy) -> Generator:
+def handle_battle(strategy: BattleStrategy) -> Generator[None, None, HandledBattleResult]:
     """
     This is the main battle-handling function that will attempt to finish the
     battle, calling the battle strategy's callbacks whenever a decision is
     needed.
     :param strategy: The battle strategy that should be queried each time there
                      is a decision to make.
+    :return: A data class structure listing some things that have changed
+             during the battle.
     """
+    before_cash = get_player().money
+    before_party = get_party()
+    encounter_type = get_encounter_type()
+
+    stolen_items: list[tuple[int, Item]] = []
+    items_before_pickup: list[Item] | None = None
+
     while battle_is_active() and context.bot_mode != "Manual":
         instruction = get_current_battle_script_instruction()
         if get_main_battle_callback() in ("HandleTurnActionSelectionState", "sub_8012324"):
             yield from handle_battle_action_selection(strategy)
+        elif get_current_battle_script_instruction() == "BattleScript_ItemSteal":
+            result = yield from handle_item_stealing()
+            if result is not None:
+                stolen_items.append(result)
+        elif (
+            get_current_battle_script_instruction() == "BattleScript_PayDayMoneyAndPickUpItems"
+            and items_before_pickup is None
+        ):
+            items_before_pickup = [pokemon.held_item for pokemon in get_party()]
+            yield
         elif instruction == "BattleScript_AskToLearnMove":
             yield from handle_move_replacement_dialogue(strategy)
         elif task_is_active("Task_EvolutionScene"):
@@ -52,6 +80,75 @@ def handle_battle(strategy: BattleStrategy) -> Generator:
         else:
             context.emulator.press_button("B")
             yield
+
+    outcome = get_last_battle_outcome()
+    party_indices_with_picked_up_items = []
+    party_indices_that_took_damage_or_changed_status = []
+    party_indices_that_gained_exp = []
+    party_indices_that_evolved = []
+
+    after_party = get_party()
+    for index in range(len(after_party)):
+        if len(before_party) <= index:
+            break
+
+        before: PartyPokemon = before_party[index]
+        after: PartyPokemon = after_party[index]
+
+        if before.current_hp > after.current_hp or (
+            before.status_condition is StatusCondition.Healthy and after.status_condition is not StatusCondition.Healthy
+        ):
+            party_indices_that_took_damage_or_changed_status.append(index)
+
+        if before.total_exp < after.total_exp:
+            party_indices_that_gained_exp.append(index)
+
+            if before.species.name != after.species.name:
+                party_indices_that_evolved.append(index)
+
+        if items_before_pickup is not None and index < len(items_before_pickup):
+            if after.held_item is not items_before_pickup[index]:
+                party_indices_with_picked_up_items.append(index)
+
+    party_indices_with_stolen_items = set()
+    for party_index, item in stolen_items:
+        after: PartyPokemon = after_party[party_index]
+        if after.held_item is item:
+            party_indices_with_stolen_items.add(party_index)
+
+    result = HandledBattleResult(
+        outcome,
+        encounter_type,
+        get_player().money - before_cash,
+        list(party_indices_with_stolen_items),
+        party_indices_with_picked_up_items,
+        party_indices_that_took_damage_or_changed_status,
+        party_indices_that_gained_exp,
+        party_indices_that_evolved,
+    )
+
+    global _last_handled_battle_result
+    _last_handled_battle_result = result
+
+    return result
+
+
+@debug.track
+def handle_item_stealing() -> Generator[None, None, tuple[int, Item] | None]:
+    item_index = unpack_uint16(read_symbol("gLastUsedItem"))
+    if read_symbol("gBattlerAttacker")[0] == 0:
+        stolen_by = get_battle_state().own_side.left_battler.party_index
+    elif read_symbol("gBattlerAttacker")[0] == 2:
+        stolen_by = get_battle_state().own_side.right_battler.party_index
+    else:
+        stolen_by = None
+
+    while get_current_battle_script_instruction() == "BattleScript_ItemSteal":
+        context.emulator.press_button("B")
+        yield
+
+    if stolen_by is not None:
+        return stolen_by, get_item_by_index(item_index)
 
 
 @debug.track
@@ -160,3 +257,7 @@ def handle_nickname_caught_pokemon(encounter: "EncounterInfo"):
     ):
         context.emulator.press_button("B")
         yield
+
+
+def get_last_handled_battle_result() -> HandledBattleResult | None:
+    return _last_handled_battle_result

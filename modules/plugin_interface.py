@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Iterable, Generator
 if TYPE_CHECKING:
     from modules.battle_state import BattleOutcome
     from modules.encounter import EncounterInfo
+    from modules.items import Item
     from modules.modes import BotMode, BotListener
     from modules.pokemon import Pokemon
     from modules.profiles import Profile
@@ -145,6 +146,22 @@ class BotPlugin:
                  And/or it can return a boolean, which if True indicates that the bot
                  should not switch to manual mode in any case (which is the default for
                  gift Pokémon and hatched eggs once a shiny/CCF match is found.)
+        """
+        pass
+
+    def on_picked_up_items(self, list_of_items: list["Item"]) -> Generator | None:
+        """
+        This is called after retrieving items from Pokémon with the ability Pickup
+        OR that have been stolen in a previous battle using Thief or Covet.
+
+        :param list_of_items: List of items that have been retrieved. The same item
+                              can appear multiple times in this list if there is
+                              more than one Pokémon with Pickup in the party, and
+                              they happened to have picked up the same item at the
+                              same time.
+        :return: This _may_ return a Generator (so you can use `yield` inside here), in
+                 which case the current bot mode is suspended and this generator function
+                 takes control.
         """
         pass
 
