@@ -7,7 +7,13 @@ from modules.encounter import handle_encounter, EncounterInfo, log_encounter
 from modules.map import get_map_objects, get_map_data_for_current_position
 from modules.map_data import MapFRLG, MapRSE, is_safari_map
 from modules.memory import GameState, get_game_state, get_game_state_symbol, read_symbol, unpack_uint32, unpack_uint16
-from modules.menuing import CheckForPickup, MenuWrapper, should_check_for_pickup, RotatePokemon
+from modules.menuing import (
+    MenuWrapper,
+    should_check_for_pickup,
+    RotatePokemon,
+    take_held_items_from_multiple_party_pokemon,
+    get_items_available_for_pickup,
+)
 from modules.player import TileTransitionState, get_player_avatar, player_avatar_is_standing_still
 from modules.pokemon import StatusCondition, clear_opponent, get_opponent
 from modules.pokemon_party import get_party
@@ -23,6 +29,7 @@ from ..battle_state import (
     get_battle_state,
     BattleType,
     get_main_battle_callback,
+    HandledBattleResult,
 )
 from ..battle_strategies import DefaultBattleStrategy, BattleStrategy
 from ..battle_strategies.catch import CatchStrategy
@@ -37,6 +44,7 @@ from ..plugins import (
     plugin_wild_encounter_visible,
     plugin_egg_starting_to_hatch,
     plugin_should_nickname_pokemon,
+    plugin_picked_up_items,
 )
 from ..text_printer import get_text_printer, TextPrinterState
 
@@ -198,20 +206,24 @@ class BattleListener(BotListener):
     def fight(self, strategy: BattleStrategy):
         first_non_fainted_lead_before_battle = get_party().first_non_fainted.index
         yield from plugin_battle_started(self._active_wild_encounter)
-        yield from handle_battle(strategy)
+        result = yield from handle_battle(strategy)
         yield from self._wait_until_battle_is_over()
+
+        if len(result.party_indices_with_picked_up_items) > 0:
+            context.stats.log_pickup_items(
+                [get_party()[index].held_item for index in result.party_indices_with_picked_up_items]
+            )
 
         if (
             get_game_state() != GameState.BATTLE
             and not get_global_script_context().is_active
             and player_avatar_is_standing_still()
         ):
-            if (
-                should_check_for_pickup()
-                and context.bot_mode_instance is not None
-                and context.bot_mode_instance.on_pickup_threshold_reached()
+            if context.bot_mode_instance is not None and (
+                len(result.party_indices_with_stolen_items) > 0
+                or (should_check_for_pickup() and context.bot_mode_instance.on_pickup_threshold_reached())
             ):
-                yield from self.check_for_pickup()
+                yield from self.retrieve_held_items(result)
             if strategy.choose_new_lead_after_battle() is not None:
                 if context.bot_mode != "Manual":
                     yield from self.rotate_lead_pokemon(
@@ -219,8 +231,26 @@ class BattleListener(BotListener):
                     )
 
     @debug.track
-    def check_for_pickup(self):
-        yield from MenuWrapper(CheckForPickup()).step()
+    def retrieve_held_items(self, result: HandledBattleResult):
+        pickup_item_names = get_items_available_for_pickup()
+        pokemon_with_picked_up_item = []
+        for pokemon in get_party():
+            if (
+                not pokemon.is_egg
+                and pokemon.ability.name == "Pickup"
+                and (held_item := pokemon.held_item) is not None
+                and held_item.name in pickup_item_names
+            ):
+                pokemon_with_picked_up_item.append(pokemon.index)
+
+        retrieved_items = yield from take_held_items_from_multiple_party_pokemon(
+            [
+                *result.party_indices_with_stolen_items,
+                *pokemon_with_picked_up_item,
+            ],
+            force_checking=len(result.party_indices_with_stolen_items) == 0,
+        )
+        plugin_picked_up_items(retrieved_items)
 
     @debug.track
     def rotate_lead_pokemon(self, new_lead_index: int, old_lead_index: int):

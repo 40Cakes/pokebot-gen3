@@ -34,6 +34,8 @@ class ItemStealMode(BotMode):
         self._controller.battle_strategy = ItemStealingBattleStrategy
 
     def on_battle_started(self, encounter: EncounterInfo | None) -> BattleAction | BattleStrategy | None:
+        if encounter and len(encounter.pokemon.species.held_items) == 0:
+            return BattleAction.RunAway
         return self._controller.on_battle_started(encounter)
 
     def on_battle_ended(self, outcome: BattleOutcome) -> None:

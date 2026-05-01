@@ -4,7 +4,7 @@ from typing import Optional, Literal
 from modules.battle_strategies import BattleStrategy, DefaultBattleStrategy
 from modules.context import context
 from modules.debug import debug
-from modules.encounter import handle_encounter
+from modules.encounter import EncounterInfo, handle_encounter
 from modules.map import get_map_data_for_current_position, get_effective_encounter_rates_for_current_map
 from modules.map_data import MapFRLG, get_map_enum
 from modules.modes import BotModeError, BattleAction
@@ -27,7 +27,10 @@ class PokecenterLoopController:
         self._needs_healing = False
         self._leave_pokemon_center = False
 
-    def on_battle_started(self, encounter: "EncounterInfo | None") -> BattleAction | BattleStrategy:
+    def on_battle_started(self, encounter: "EncounterInfo | None") -> BattleAction | BattleStrategy | None:
+        if encounter is None:
+            return None
+
         action = handle_encounter(encounter, enable_auto_battle=True)
         return self.battle_strategy() if action is BattleAction.Fight else action
 

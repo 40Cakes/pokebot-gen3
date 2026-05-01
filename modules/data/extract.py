@@ -921,7 +921,8 @@ def extract_species(
                     "hoenn_dex_number": hoenn_dex_number,
                     "types": list(sorted({type_list[info[6]]["name"], type_list[info[7]]["name"]})),
                     "abilities": abilities,
-                    "held_items": held_items,
+                    "held_items_rse": held_items,
+                    "held_items_frlg": None,
                     "base_stats": {
                         "hp": info[0],
                         "attack": info[1],
@@ -958,6 +959,27 @@ def extract_species(
                     "family": set(),
                 }
             )
+
+    with open(other_editions_roms["FIRE"].file, "rb") as firered_file:
+        set_rom(other_editions_roms["FIRE"])
+        for i in range(412):
+            firered_file.seek(get_address("gSpeciesInfo") + (i * 28))
+            info = firered_file.read(28)
+
+            item1 = int.from_bytes(info[12:14], byteorder="little")
+            item2 = int.from_bytes(info[14:16], byteorder="little")
+            if item1 == 0 and item2 == 0:
+                held_items = []
+            elif item1 == item2:
+                held_items = [(item_list[item1]["name"], 1)]
+            elif item2 == 0:
+                held_items = [(item_list[item1]["name"], 0.5)]
+            elif item1 == 0:
+                held_items = [(item_list[item2]["name"], 0.05)]
+            else:
+                held_items = [(item_list[item1]["name"], 0.5), (item_list[item2]["name"], 0.05)]
+
+            species_list[i]["held_items_frlg"] = held_items
 
     def update_family(species_index: int, species_index_to_add: int) -> None:
         species_list[species_index]["family"].add(species_index_to_add)

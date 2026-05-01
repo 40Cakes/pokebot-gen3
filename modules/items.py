@@ -404,7 +404,9 @@ class ItemBag:
         else:
             stack_size = 99
 
-        return any(slot.item == item and slot.quantity + quantity <= stack_size for slot in pocket)
+        space = sum([stack_size - slot.quantity for slot in pocket if slot.item is item])
+        space += (pocket_size - len(pocket)) * stack_size
+        return quantity <= space
 
     def pocket_for(self, item: Item) -> list[ItemSlot]:
         match item.pocket:
@@ -478,11 +480,10 @@ class ItemStorage:
                 result.append(ItemSlot(item, quantity))
         return result
 
-    def has_space_for(self, item: Item) -> bool:
-        if len(self.items) < self.number_of_slots:
-            return True
-
-        return any(slot.item == item and slot.quantity < 999 for slot in self.items)
+    def has_space_for(self, item: Item, quantity: int = 1) -> bool:
+        space = sum([999 - slot.quantity for slot in self.items if slot.item is item])
+        space += (self.number_of_slots - len(self.items)) * 999
+        return quantity <= space
 
     def first_slot_index_for(self, item: Item) -> int | None:
         for index, slot in enumerate(self.items):
