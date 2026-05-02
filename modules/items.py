@@ -408,8 +408,9 @@ class ItemBag:
         space += (pocket_size - len(pocket)) * stack_size
         return quantity <= space
 
-    def pocket_for(self, item: Item) -> list[ItemSlot]:
-        match item.pocket:
+    def pocket_for(self, item: Item | ItemPocket) -> list[ItemSlot]:
+        pocket = item.pocket if isinstance(item, Item) else item
+        match pocket:
             case ItemPocket.Items:
                 return self.items
             case ItemPocket.KeyItems:
@@ -421,7 +422,7 @@ class ItemBag:
             case ItemPocket.Berries:
                 return self.berries
             case _:
-                raise RuntimeError(f"Invalid bag pocket: {str(item.pocket)}")
+                raise RuntimeError(f"Invalid bag pocket: {str(pocket)}")
 
     def quantity_of(self, item: Item) -> int:
         return sum(slot.quantity for slot in self.pocket_for(item) if slot.item == item)
@@ -432,6 +433,11 @@ class ItemBag:
             (slot_index for slot_index in range(len(pocket)) if pocket[slot_index].item == item),
             None,
         )
+
+    def lowest_quantity_slot_index_for(self, item: Item) -> int | None:
+        pocket = self.pocket_for(item)
+        slots = [(index, slot.quantity) for index, slot in enumerate(pocket) if slot.item is item]
+        return min(slots, key=lambda s: s[1])[0] if len(slots) > 0 else None
 
     @property
     def number_of_repels(self) -> int:
@@ -490,6 +496,10 @@ class ItemStorage:
             if slot.item.index == item.index:
                 return index
         return None
+
+    def lowest_quantity_slot_index_for(self, item: Item) -> int | None:
+        slots = [(index, slot.quantity) for index, slot in enumerate(self.items) if slot.item is item]
+        return min(slots, key=lambda s: s[1])[0] if len(slots) > 0 else None
 
     def quantity_of(self, item: Item) -> int:
         return sum(slot.quantity for slot in self.items if slot.item == item)

@@ -3,7 +3,7 @@ from typing import Generator, Iterable
 
 from modules.context import context
 from modules.game_stats import get_game_stat, GameStat
-from modules.items import Item, get_item_bag
+from modules.items import Item, get_item_bag, ItemPocket
 from modules.memory import GameState, get_event_flag, get_game_state, read_symbol, unpack_uint16
 from modules.menu_parsers import (
     CursorOptionEmerald,
@@ -68,6 +68,20 @@ def scroll_to_item_in_bag(item: Item) -> Generator:
 
     :param item: Item to scroll to
     """
+    slot_index = get_item_bag().first_slot_index_for(item)
+    if slot_index is None:
+        raise RuntimeError(f"Could not find any {item.name}")
+    yield from scroll_to_item_slot(item.pocket, slot_index)
+
+
+def scroll_to_item_slot(pocket: ItemPocket, slot_index: int) -> Generator:
+    """
+    This will scroll inside the item bag menu to reach a certain slot in a certain
+    item bag pocket.
+
+    :param pocket: The pocket to open.
+    :param slot_index: The index number to scroll to in that pocket.
+    """
 
     def open_pocket_index() -> int:
         if context.rom.is_emerald:
@@ -89,6 +103,11 @@ def scroll_to_item_in_bag(item: Item) -> Generator:
             scroll_position = unpack_uint16(read_symbol("gBagMenuState", offset=14 + (bag_index * 2), size=2))
         return cursor_position + scroll_position
 
+    if len(get_item_bag().pocket_for(pocket)) <= slot_index:
+        raise RuntimeError(
+            f"There is no slot index {slot_index} in the '{pocket.name}' pocket. It only has {len(get_item_bag().pocket_for(pocket))} slots."
+        )
+
     # Wait for fade-in to finish (happens when the bag is opened, during which time inputs
     # are not yet active.)
     while (
@@ -98,7 +117,7 @@ def scroll_to_item_in_bag(item: Item) -> Generator:
         yield
 
     # Select the correct pocket
-    target_pocket_index = item.pocket.index
+    target_pocket_index = pocket.index
     while open_pocket_index() != target_pocket_index:
         if open_pocket_index() < target_pocket_index:
             context.emulator.press_button("Right")
@@ -108,9 +127,6 @@ def scroll_to_item_in_bag(item: Item) -> Generator:
             yield
 
     # Scroll to the item
-    slot_index = get_item_bag().first_slot_index_for(item)
-    if slot_index is None:
-        raise RuntimeError(f"Could not find any {item.name}")
     while currently_selected_slot() != slot_index:
         if currently_selected_slot() < slot_index:
             context.emulator.press_button("Down")
