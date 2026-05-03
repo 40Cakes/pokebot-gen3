@@ -49,6 +49,10 @@
                 transform: scale(.9);
             }
 
+            > pokemon-sprite[species="Chinchou"] img {
+                margin-left: -.9vh;
+            }
+
             > span {
                 display: block;
                 font-size: .75rem;
