@@ -7,7 +7,7 @@ from modules.debug import debug
 from modules.game import decode_string
 from modules.items import Item, get_item_storage, get_item_bag
 from modules.memory import get_game_state, get_game_state_symbol, read_symbol, GameState, unpack_uint32, unpack_uint16
-from modules.menuing import get_scroll_direction, is_fade_active, scroll_to_item_in_bag
+from modules.menuing import get_scroll_direction, is_fade_active, scroll_to_item_slot
 from modules.modes import BotModeError
 from modules.modes.util import (
     wait_until_task_is_active,
@@ -31,11 +31,13 @@ class PCStorageSection(Enum):
     MoveItems = auto()
     WithdrawItem = auto()
     DepositItem = auto()
+    TossItem = auto()
 
 
 class PCStorageActionType(Enum):
     Withdraw = auto()
     Deposit = auto()
+    Toss = auto()
     ReleaseFromParty = auto()
     ReleaseFromBox = auto()
 
@@ -80,6 +82,10 @@ class PCAction:
     @classmethod
     def deposit_item(cls, item: Item, quantity: int) -> "PCAction":
         return cls(PCStorageSection.DepositItem, PCStorageActionType.Deposit, item=item, quantity=quantity)
+
+    @classmethod
+    def toss_item(cls, item: Item, quantity: int) -> "PCAction":
+        return cls(PCStorageSection.TossItem, PCStorageActionType.Toss, item=item, quantity=quantity)
 
 
 @dataclass
@@ -575,7 +581,7 @@ def _do_withdraw_items_actions(actions: list[PCAction]) -> Generator:
 
         quantity_left = action.quantity
         while quantity_left > 0:
-            target_slot = get_item_storage().first_slot_index_for(action.item)
+            target_slot = get_item_storage().lowest_quantity_slot_index_for(action.item)
             while (current_slot := _get_item_storage_menu_cursor_position()) != target_slot:
                 context.emulator.press_button("Down" if current_slot < target_slot else "Up")
                 yield
@@ -628,10 +634,11 @@ def _do_deposit_items_actions(actions: list[PCAction]) -> Generator:
 
         quantity_left = action.quantity
         while quantity_left > 0:
-            yield from scroll_to_item_in_bag(action.item)
-            max_quantity = (
-                get_item_bag().pocket_for(action.item)[get_item_bag().first_slot_index_for(action.item)].quantity
-            )
+            # Deposit the stack with the smallest quantity first. That will not be the fastest
+            # way to do it, but it will optimise inventory slot usage.
+            smallest_stack_slot_index = get_item_bag().lowest_quantity_slot_index_for(action.item)
+            yield from scroll_to_item_slot(action.item.pocket, smallest_stack_slot_index)
+            max_quantity = get_item_bag().pocket_for(action.item)[smallest_stack_slot_index].quantity
             if max_quantity == 1:
                 yield
                 context.emulator.press_button("A")
@@ -667,6 +674,58 @@ def _do_deposit_items_actions(actions: list[PCAction]) -> Generator:
     yield from _back_to_item_storage_menu()
 
 
+def _do_toss_items_actions(actions: list[PCAction]) -> Generator:
+    yield from _open_item_storage_menu(2)
+    for action in actions:
+        if get_item_storage().quantity_of(action.item) < action.quantity:
+            raise BotModeError(
+                f"Cannot toss {action.quantity}× {action.item.name} because there are not enough in the PC ({get_item_storage().quantity_of(action.item)})."
+            )
+
+        quantity_left = action.quantity
+        while quantity_left > 0:
+            # Toss the stack with the smallest quantity first. That will not be the fastest
+            # way to do it, but it will optimise inventory slot usage.
+            target_slot = get_item_storage().lowest_quantity_slot_index_for(action.item)
+            while (current_slot := _get_item_storage_menu_cursor_position()) != target_slot:
+                context.emulator.press_button("Down" if current_slot < target_slot else "Up")
+                yield
+                yield
+                yield
+            max_quantity = get_item_storage().items[target_slot].quantity
+
+            if max_quantity == 1:
+                yield
+                context.emulator.press_button("A")
+                yield
+                yield
+                yield from wait_until_task_is_active(_get_item_withdraw_menu_task_name(), "A")
+                quantity_left -= 1
+            else:
+                quantity_to_select = min(max_quantity, quantity_left)
+                yield from wait_until_task_is_active(_get_select_item_withdraw_quantity_task_name(), "A")
+                reverse_scroll = quantity_to_select > max_quantity // 2
+                if reverse_scroll:
+                    context.emulator.press_button("Down")
+                    yield
+                    yield
+                while (current_quantity := _get_item_withdraw_quantity_cursor_position()) != quantity_to_select:
+                    if current_quantity <= quantity_to_select - 7:
+                        context.emulator.press_button("Right")
+                    elif current_quantity >= quantity_to_select + 7:
+                        context.emulator.press_button("Left")
+                    elif current_quantity < quantity_to_select:
+                        context.emulator.press_button("Up")
+                    elif current_quantity > quantity_to_select:
+                        context.emulator.press_button("Down")
+                    yield
+                    yield
+                yield from wait_until_task_is_active(_get_item_withdraw_menu_task_name(), "A")
+                quantity_left -= quantity_to_select
+
+    yield from _back_to_item_storage_menu()
+
+
 @debug.track
 def interact_with_pc(actions: list[PCAction]) -> Generator:
     targeted_tile = get_player_avatar().map_location_in_front
@@ -675,6 +734,9 @@ def interact_with_pc(actions: list[PCAction]) -> Generator:
 
     if not player_avatar_is_controllable():
         raise BotModeError("Player is not controllable. Cannot interact with PC.")
+
+    if context.rom.is_frlg and any([action.section is PCStorageSection.TossItem for action in actions]):
+        raise BotModeError("Tossing items from the PC is not supported in FR/LG.")
 
     yield from _open_pc_menu()
 
@@ -690,6 +752,10 @@ def interact_with_pc(actions: list[PCAction]) -> Generator:
     actions_for_withdraw_menu = [action for action in actions if action.section is PCStorageSection.WithdrawPokemon]
     if len(actions_for_withdraw_menu) > 0:
         yield from _do_withdraw_actions(actions_for_withdraw_menu)
+
+    actions_for_toss_items_menu = [action for action in actions if action.section is PCStorageSection.TossItem]
+    if len(actions_for_toss_items_menu) > 0:
+        yield from _do_toss_items_actions(actions_for_toss_items_menu)
 
     actions_for_deposit_items_menu = [action for action in actions if action.section is PCStorageSection.DepositItem]
     if len(actions_for_deposit_items_menu) > 0:
