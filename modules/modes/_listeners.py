@@ -250,7 +250,7 @@ class BattleListener(BotListener):
             ],
             force_checking=len(result.party_indices_with_stolen_items) == 0,
         )
-        plugin_picked_up_items(retrieved_items)
+        yield from plugin_picked_up_items(retrieved_items)
 
     @debug.track
     def rotate_lead_pokemon(self, new_lead_index: int, old_lead_index: int):

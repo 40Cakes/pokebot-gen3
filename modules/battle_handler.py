@@ -49,7 +49,7 @@ def handle_battle(strategy: BattleStrategy) -> Generator[None, None, HandledBatt
     encounter_type = get_encounter_type()
 
     stolen_items: list[tuple[int, Item]] = []
-    items_before_pickup: list[Item] | None = None
+    items_before_pickup: list[Item | None] | None = None
 
     while battle_is_active() and context.bot_mode != "Manual":
         instruction = get_current_battle_script_instruction()
@@ -107,7 +107,7 @@ def handle_battle(strategy: BattleStrategy) -> Generator[None, None, HandledBatt
                 party_indices_that_evolved.append(index)
 
         if items_before_pickup is not None and index < len(items_before_pickup):
-            if after.held_item is not items_before_pickup[index]:
+            if after.held_item is not items_before_pickup[index] and after.held_item is not None:
                 party_indices_with_picked_up_items.append(index)
 
     party_indices_with_stolen_items = set()
