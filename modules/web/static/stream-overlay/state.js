@@ -371,7 +371,7 @@ export default class OverlayState {
 
     /** @param {StreamEvents.MapChange} map */
     logNewMap(map) {
-        this.map = map.map;
+        this.map = map;
         this.additionalRouteSpecies.clear();
         if (this.lastEncounter && ["hatched", "gift", "static"].includes(this.lastEncounter.type) && !this.additionalRouteSpecies.has(this.lastEncounter.pokemon.species_name_for_stats)) {
             this.additionalRouteSpecies.add(this.lastEncounter.pokemon.species_name_for_stats);

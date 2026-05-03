@@ -9,7 +9,7 @@ import {
     overlaySprite,
     renderTableRow,
     small,
-    speciesSprite
+    speciesSprite, speciesSpritePath
 } from "../helper.js";
 
 const mapNameSpan = document.querySelector("#map-name");
@@ -17,6 +17,7 @@ const antiShinyCounter = document.querySelector("#anti-shiny-counter");
 const tbody = document.querySelector("#route-encounters tbody");
 const table = document.querySelector("#route-encounters table");
 const noEncountersMessage = document.querySelector("#no-encounters-on-this-route-message");
+const bufferedSpriteSpecies = new Set();
 
 const ALTERNATIVE_SPECIES = {
     "Ivysaur": ["Bulbasaur"],
@@ -214,7 +215,7 @@ const updateMapName = map => {
 
 const animateRouteEncounterSprite = (speciesName) => {
     for (const entry of cachedRouteEncountersList) {
-        if (entry.speciesName === speciesName && entry.spriteElement) {
+        if (entry.spriteElement?.species === speciesName) {
             entry.spriteElement.animate();
         }
     }
@@ -237,6 +238,12 @@ const getEncounterList = (state) => {
     ) {
         encounterList = [];
         regularEncounterList = [];
+    } else if (state.lastEncounter?.pokemon?.species?.name === "Rayquaza") {
+        // When hunting Rayquaza, we need to move between the top floor and 5F of Sky Pillar,
+        // but on 5F there are some more encounters. That leads to constant flickering of the
+        // encounter list. So instead, we only show Rayquaza in that case.
+        encounterList = state.mapEncounters.effective.land_encounters.filter(e => e.species_name === "Rayquaza");
+        regularEncounterList = encounterList;
     } else if (state.lastEncounterType === "surfing" || state.map.map.name.toLowerCase().includes("underwater")) {
         encounterList = [...state.mapEncounters.effective.surf_encounters];
         regularEncounterList = [...state.mapEncounters.regular.surf_encounters];
@@ -348,9 +355,33 @@ let cachedRouteEncountersList = [];
 let cachedAntiShinyCount = 0;
 
 /**
+ * @param {string} speciesName
+ */
+const bufferSprites = (speciesName) => {
+    const bufferSingleSprite = (path) => {
+        const link = document.createElement("link");
+        link.rel = "preload";
+        link.href = path;
+        link.as = "image";
+        document.head.append(link);
+    };
+
+    bufferSingleSprite(speciesSpritePath(speciesName, "normal"));
+    bufferSingleSprite(speciesSpritePath(speciesName, "anti-shiny"));
+    bufferSingleSprite(speciesSpritePath(speciesName, "shiny"));
+    bufferSingleSprite(speciesSpritePath(speciesName, "normal", true));
+    bufferSingleSprite(speciesSpritePath(speciesName, "anti-shiny", true));
+    bufferSingleSprite(speciesSpritePath(speciesName, "shiny", true));
+    bufferSingleSprite(speciesSpritePath(speciesName, "normal-cropped"));
+    bufferSingleSprite(speciesSpritePath(speciesName, "shiny-cropped"));
+};
+
+/**
  * @param {RouteEncounterEntry[]} encountersList
  */
 const renderRouteEncountersList = (encountersList) => {
+    encountersList.forEach(encounter => bufferSprites(encounter.speciesName));
+
     const renderEncounterRate = (rate) => {
         if (rate === 0) {
             return [""];
@@ -454,8 +485,8 @@ const renderRouteEncountersList = (encountersList) => {
         const cached = cachedRouteEncountersList[index];
         const row = cached.element;
 
-        if (entry.speciesName !== cached.speciesName || entry.isAnti !== cached.isAnti) {
-            cached.spriteElement.remove();
+        if (entry.speciesName !== cached.spriteElement?.species || entry.isAnti !== cached.spriteElement?.antiShiny) {
+            cached.spriteElement?.remove();
             cached.spriteElement = speciesSprite(entry.speciesName, entry.isAnti ? "anti-shiny" : "normal");
             row.children[0].textContent = "";
             row.children[0].append(cached.spriteElement);
