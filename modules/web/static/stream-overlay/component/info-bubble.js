@@ -148,7 +148,7 @@ export default class InfoBubble extends HTMLElement {
             return;
         }
 
-        let currentCounter = Number.parseInt(this.content.innerText);
+        let currentCounter = Number.parseInt(this.content.innerText.replaceAll(/\D/g, ""));
         if (isNaN(currentCounter) || this.content.innerText === "") {
             this.content.innerText = formatInteger(this.quantity);
             return;
