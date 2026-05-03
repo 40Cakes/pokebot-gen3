@@ -2,6 +2,7 @@ from enum import IntEnum
 from typing import Generator, Iterable
 
 from modules.context import context
+from modules.debug import debug
 from modules.game_stats import get_game_stat, GameStat
 from modules.items import Item, get_item_bag, ItemPocket
 from modules.memory import GameState, get_event_flag, get_game_state, read_symbol, unpack_uint16
@@ -17,6 +18,7 @@ from modules.menu_parsers import (
 )
 from modules.modes._asserts import assert_has_pokemon_with_any_move
 from modules.modes._interface import BotModeError
+from modules.player import player_avatar_is_controllable
 from modules.pokemon import get_move_by_name
 from modules.pokemon_party import get_party, get_party_size, PartyPokemon
 from modules.tasks import get_task, task_is_active
@@ -181,6 +183,7 @@ class BaseMenuNavigator:
         self.navigator = None
         self.current_step = step
 
+    @debug.track
     def step(self):
         """
         Iterates through the steps of navigating the menu for the desired outcome.
@@ -518,6 +521,15 @@ class PokemonPartyMenuNavigator(BaseMenuNavigator):
                     self.navigator = None
                     self.subnavigator = None
 
+        if self.primary_option in (
+            CursorOptionEmerald.SWEET_SCENT,
+            CursorOptionFRLG.SWEET_SCENT,
+            CursorOptionRS.SWEET_SCENT,
+        ):
+            while get_game_state() is not GameState.OVERWORLD or not player_avatar_is_controllable():
+                yield
+            self.current_step = "exit"
+
     def select_switch(self):
         if self.game in ["POKEMON EMER", "POKEMON FIRE", "POKEMON LEAF"]:
             while not task_is_active("Task_HandleSelectionMenuInput"):
@@ -788,6 +800,7 @@ def should_check_for_pickup():
         return get_game_stat(GameStat.TOTAL_BATTLES) % context.config.battle.pickup_check_frequency == 0
 
 
+@debug.track
 def use_field_move(move_name: str):
     assert_has_pokemon_with_any_move([move_name], f"No Pokémon with move {move_name} in party.")
     move_name_upper = move_name.upper()
