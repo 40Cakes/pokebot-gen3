@@ -18,6 +18,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
         from .berry_blend import BerryBlendMode
         from .bunny_hop import BunnyHopMode
         from .daycare import DaycareMode
+        from .daycare_soft_resets import DaycareSoftResetsMode
         from .ev_train import EVTrainMode
         from .feebas import FeebasMode
         from .fishing import FishingMode
@@ -43,6 +44,7 @@ def get_bot_modes() -> list[Type[BotMode]]:
             BerryBlendMode,
             BunnyHopMode,
             DaycareMode,
+            DaycareSoftResetsMode,
             EVTrainMode,
             FeebasMode,
             FishingMode,
