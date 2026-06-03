@@ -25,6 +25,8 @@
 
 ## Instructions
 
+For soft-resetting a ready Daycare egg before hatching, use [Daycare Soft Resets](Mode%20-%20Daycare%20Soft%20Resets.md).
+
 Start this mode while being on Route 117 (in R/S/E) or Sevii Island Four (FR/LG), the bot will
 collect up to five eggs, and once all have hatched, release them in the Daycare PC if they're
 not Shiny.

@@ -23,6 +23,7 @@ For quick help and support, reach out in Discord [#pokebot-gen3-support❔](http
 - 🚲 [Acro Bike Bunny Hop](pages/Mode%20-%20Acro%20Bike%20Bunny%20Hop.md)
 - 🍓 [Berry Blender](pages/Mode%20-%20Berry%20Blender.md)
 - 🥚 [Daycare](pages/Mode%20-%20Daycare.md)
+- 🐣 [Daycare Soft Resets](pages/Mode%20-%20Daycare%20Soft%20Resets.md)
 - 💊 [EV Train](pages/Mode%20-%20EV%20Train.md)
 - 🐟 [Feebas](pages/Mode%20-%20Feebas.md)
 - 🎣 [Fishing](pages/Mode%20-%20Fishing.md)

@@ -8,6 +8,8 @@ Common encounters that are typically encountered via random encounters (with Spi
 
 Use `CTRL` + `F` to find the Pokémon you're trying to hunt, and then check the wiki page for that method for further information.
 
+Pokemon hunted via [Daycare](Mode%20-%20Daycare.md) can also use [Daycare Soft Resets](Mode%20-%20Daycare%20Soft%20Resets.md) when the save is made in front of the Daycare man with an egg ready.
+
 ---
 
 ## Useful Links
