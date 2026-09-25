@@ -296,6 +296,3 @@ class StateCache:
             self._battle_state.value = new_battle_state
         else:
             self._battle_state.checked()
-
-
-state_cache: StateCache = StateCache()

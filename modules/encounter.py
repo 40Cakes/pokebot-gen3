@@ -20,10 +20,8 @@ from modules.roamer import get_roamer
 from modules.runtime import get_sprites_path
 
 if TYPE_CHECKING:
+    from modules.map_data import MapFRLG, MapRSE
     from modules.pokemon import Pokemon
-
-
-_custom_catch_filters: Callable[["Pokemon"], str | bool] | None = None
 
 
 @dataclass
@@ -70,23 +68,19 @@ class EncounterInfo:
 
 
 def run_custom_catch_filters(pokemon: "Pokemon") -> str | bool:
-    global _custom_catch_filters
-    if _custom_catch_filters is None:
+    if context.custom_catch_filters is None:
         if (context.profile.path / "customcatchfilters.py").is_file():
             module = importlib.import_module(".customcatchfilters", f"profiles.{context.profile.path.name}")
-            _custom_catch_filters = module.custom_catch_filters
+            context.custom_catch_filters = module.custom_catch_filters
         else:
             from profiles.customcatchfilters import custom_catch_filters
 
-            _custom_catch_filters = custom_catch_filters
+            context.custom_catch_filters = custom_catch_filters
 
-    result = _custom_catch_filters(pokemon) or plugin_judge_encounter(pokemon)
+    result = context.custom_catch_filters(pokemon) or plugin_judge_encounter(pokemon)
     if result is True:
         result = "Matched a custom catch filter"
     return result
-
-
-_is_first_encounter = True
 
 
 def is_repeat_encounter(pokemon: "Pokemon") -> bool:
@@ -96,7 +90,7 @@ def is_repeat_encounter(pokemon: "Pokemon") -> bool:
     # chance that we've just reloaded a save state from a shiny encounter, and we don't
     # want this to be counted again and mess up the stats. Thus, _only_ for the first
     # encounter, we will check the entire encounter DB.
-    if _is_first_encounter:
+    if context.stats.is_first_encounter:
         return context.stats.has_encounter_with_personality_value(pokemon.personality_value)
 
     # Otherwise, we just check whether the personality value matches the previous
@@ -167,8 +161,7 @@ def log_encounter(encounter_info: EncounterInfo) -> None:
     if encounter_info.value is EncounterValue.RepeatEncounter:
         return
 
-    global _is_first_encounter
-    _is_first_encounter = False
+    context.stats.is_first_encounter = False
 
     log_entry = context.stats.log_encounter(encounter_info)
     if context.config.logging.log_encounters_to_console:

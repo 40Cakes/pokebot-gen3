@@ -45,7 +45,7 @@ class FishingAttempt:
         }
 
 
-_route119_fishing_spots = []
+_route119_fishing_spots: dict[str, list[tuple[int, int]]] = {}
 
 
 def get_feebas_tiles() -> list[tuple[int, int]]:
@@ -57,27 +57,29 @@ def get_feebas_tiles() -> list[tuple[int, int]]:
         return []
 
     global _route119_fishing_spots
-    if len(_route119_fishing_spots) == 0:
+    if context.rom.id not in _route119_fishing_spots:
+        _route119_fishing_spots[context.rom.id] = []
+    if len(_route119_fishing_spots[context.rom.id]) == 0:
         route119 = get_map_data(MapRSE.ROUTE119, (0, 0))
         route119_tiles = route119.all_tiles()
         for y in range(139):
             for x in range(route119.map_size[0]):
                 tile = route119_tiles[x][y]
                 if tile.is_surfable and tile.tile_type != "Waterfall":
-                    _route119_fishing_spots.append((x, y))
+                    _route119_fishing_spots[context.rom.id].append((x, y))
 
     seed = unpack_uint16(get_save_block(1, offset + 2, size=2))
     feebas_tiles = []
     n = 0
     while n < 6:
         seed = (1103515245 * seed + 12345) & 0xFFFF_FFFF
-        spot_index = (seed >> 16) % len(_route119_fishing_spots)
+        spot_index = (seed >> 16) % len(_route119_fishing_spots[context.rom.id])
 
         if spot_index == 0:
-            spot_index = len(_route119_fishing_spots)
+            spot_index = len(_route119_fishing_spots[context.rom.id])
 
         if spot_index >= 4:
-            feebas_tiles.append(_route119_fishing_spots[spot_index - 1])
+            feebas_tiles.append(_route119_fishing_spots[context.rom.id][spot_index - 1])
             n += 1
 
     return feebas_tiles

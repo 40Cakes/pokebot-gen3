@@ -6,7 +6,6 @@ from functools import cached_property
 from modules.context import context
 from modules.memory import get_save_block, unpack_uint16, decrypt16
 from modules.runtime import get_data_path
-from modules.state_cache import state_cache
 
 
 class ItemType(Enum):
@@ -539,8 +538,8 @@ def get_item_by_move_id(move_id: int) -> Item | None:
 
 
 def get_item_bag() -> ItemBag:
-    if state_cache.item_bag.age_in_frames == 0:
-        return state_cache.item_bag.value
+    if context.state_cache.item_bag.age_in_frames == 0:
+        return context.state_cache.item_bag.value
 
     offset = 0x310 if context.rom.is_frlg else 0x560
     items_count = ItemPocket.Items.capacity
@@ -553,13 +552,13 @@ def get_item_bag() -> ItemBag:
     data = get_save_block(1, offset=offset, size=data_size)
 
     item_bag = ItemBag(data, items_count, key_items_count, poke_balls_count, tms_hms_count, berries_count)
-    state_cache.item_bag = item_bag
+    context.state_cache.item_bag = item_bag
     return item_bag
 
 
 def get_item_storage() -> ItemStorage:
-    if state_cache.item_storage.age_in_frames == 0:
-        return state_cache.item_storage.value
+    if context.state_cache.item_storage.age_in_frames == 0:
+        return context.state_cache.item_storage.value
 
     if context.rom.is_frlg:
         items_count = 30
@@ -570,7 +569,7 @@ def get_item_storage() -> ItemStorage:
 
     data = get_save_block(1, offset=offset, size=items_count * 4)
     item_storage = ItemStorage(data, items_count)
-    state_cache.item_storage = item_storage
+    context.state_cache.item_storage = item_storage
     return item_storage
 
 

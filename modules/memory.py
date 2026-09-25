@@ -3,15 +3,14 @@ from enum import IntEnum, auto
 
 from modules.context import context
 from modules.game import (
-    _event_flags,
-    _event_vars,
     get_event_flag_offset,
     get_event_var_offset,
     get_symbol,
     get_symbol_name,
     get_symbol_name_before,
+    event_flag_exists,
+    event_var_exists,
 )
-from modules.state_cache import state_cache
 
 
 def unpack_sint8(value: bytes | int) -> int:
@@ -246,13 +245,13 @@ def get_game_state_symbol() -> str:
     callback2 = read_symbol("gMain", 4, 4)  # gMain.callback2
     addr = unpack_uint32(callback2) - 1
     callback_name = get_symbol_name(addr)
-    state_cache.callback2 = callback_name
+    context.state_cache.callback2 = callback_name
     return callback_name
 
 
 def get_game_state() -> GameState:
-    if state_cache.game_state.age_in_frames == 0:
-        return state_cache.game_state.value
+    if context.state_cache.game_state.age_in_frames == 0:
+        return context.state_cache.game_state.value
 
     match get_game_state_symbol():
         case (
@@ -318,7 +317,7 @@ def get_game_state() -> GameState:
         case _:
             result = GameState.UNKNOWN
 
-    state_cache.game_state = result
+    context.state_cache.game_state = result
     return result
 
 
@@ -334,7 +333,7 @@ def game_has_started() -> bool:
 
 
 def get_event_flag(flag_name: str) -> bool:
-    if flag_name not in _event_flags:
+    if not event_flag_exists(flag_name):
         return False
 
     flag_offset = get_event_flag_offset(flag_name)
@@ -359,7 +358,7 @@ def get_event_flag_by_number(flag_number: int) -> bool:
 
 
 def set_event_flag(flag_name: str, new_value: bool | None = None) -> bool:
-    if flag_name not in _event_flags:
+    if not event_flag_exists(flag_name):
         return False
 
     flag_offset = get_event_flag_offset(flag_name)
@@ -391,10 +390,10 @@ def set_event_flag_by_number(flag_number: int) -> None:
 
 
 def get_event_var(var_name: str) -> int:
-    if var_name not in _event_vars:
+    if not event_var_exists(var_name):
         return -1
     else:
-        return unpack_uint16(get_save_block(1, offset=_event_vars[var_name], size=2))
+        return unpack_uint16(get_save_block(1, offset=get_event_var_offset(var_name), size=2))
 
 
 def get_event_var_by_number(var_number: int) -> int:
@@ -409,7 +408,7 @@ def get_event_var_by_number(var_number: int) -> int:
 
 
 def set_event_var(var_name: str, new_value: int) -> bool:
-    if var_name not in _event_vars:
+    if not event_var_exists(var_name):
         return False
 
     if new_value < 0 or new_value > 2**16 - 1:

@@ -1,6 +1,6 @@
 import os
 import shutil
-from typing import Generator, Optional, TYPE_CHECKING
+from typing import Generator, Optional, TYPE_CHECKING, Callable
 
 from modules.config import Config
 from modules.runtime import get_base_path
@@ -9,9 +9,11 @@ if TYPE_CHECKING:
     from modules.gui import PokebotGui
     from modules.libmgba import LibmgbaEmulator
     from modules.modes import BotListener, BotMode
+    from modules.pokemon import Pokemon
     from modules.profiles import Profile
     from modules.roms import ROM
     from modules.stats import StatsDatabase
+    from modules.state_cache import StateCache
 
 
 def _initialise_config() -> None:
@@ -46,7 +48,11 @@ class BotContext:
         self.gui: Optional["PokebotGui"] = None
         self.profile: Optional["Profile"] = None
         self.stats: Optional["StatsDatabase"] = None
+        self.state_cache: Optional["StateCache"] = None
+        self.custom_catch_filters: Callable[["Pokemon"], str | bool] | None = None
         self.debug: bool = False
+        self.debug_action_stack: list[str] = []
+        self.debug_values = {}
         self.testing: bool = False
 
         self._current_message: str = ""

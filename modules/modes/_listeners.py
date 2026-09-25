@@ -15,7 +15,7 @@ from modules.menuing import (
     get_items_available_for_pickup,
 )
 from modules.player import TileTransitionState, get_player_avatar, player_avatar_is_standing_still
-from modules.pokemon import StatusCondition, clear_opponent, get_opponent
+from modules.pokemon import StatusCondition, get_opponent
 from modules.pokemon_party import get_party
 from modules.tasks import get_global_script_context, task_is_active, get_task
 from ._interface import BattleAction, BotListener, BotMode, FrameInfo
@@ -139,7 +139,6 @@ class BattleListener(BotListener):
             outcome = get_last_battle_outcome()
             if not self._reported_end_of_battle:
                 self._reported_end_of_battle = True
-                clear_opponent()
                 bot_mode.on_battle_ended(outcome)
                 _ensure_plugin_hook_will_run(plugin_battle_ended(outcome))
                 if self._active_wild_encounter is not None:

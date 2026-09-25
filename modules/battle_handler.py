@@ -30,9 +30,6 @@ if TYPE_CHECKING:
     from modules.encounter import EncounterInfo
 
 
-_last_handled_battle_result: HandledBattleResult | None = None
-
-
 @debug.track
 def handle_battle(strategy: BattleStrategy) -> Generator[None, None, HandledBattleResult]:
     """
@@ -126,9 +123,6 @@ def handle_battle(strategy: BattleStrategy) -> Generator[None, None, HandledBatt
         party_indices_that_gained_exp,
         party_indices_that_evolved,
     )
-
-    global _last_handled_battle_result
-    _last_handled_battle_result = result
 
     return result
 
@@ -257,7 +251,3 @@ def handle_nickname_caught_pokemon(encounter: "EncounterInfo"):
     ):
         context.emulator.press_button("B")
         yield
-
-
-def get_last_handled_battle_result() -> HandledBattleResult | None:
-    return _last_handled_battle_result

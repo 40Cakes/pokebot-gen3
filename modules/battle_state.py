@@ -27,7 +27,6 @@ from modules.pokemon import (
     HIDDEN_POWER_MAP,
     get_move_by_name,
 )
-from modules.state_cache import state_cache
 from modules.tasks import get_global_script_context
 
 
@@ -806,8 +805,8 @@ class BattlePokemon:
 
 
 def get_battle_state() -> BattleState:
-    if state_cache.battle_state.age_in_frames == 0:
-        return state_cache.battle_state.value
+    if context.state_cache.battle_state.age_in_frames == 0:
+        return context.state_cache.battle_state.value
 
     battle_state = BattleState(
         read_symbol("gBattleTypeFlags", size=0x04),
@@ -823,7 +822,7 @@ def get_battle_state() -> BattleState:
         unpack_uint16(read_symbol("gBattleWeather", size=0x02)),
     )
 
-    state_cache.battle_state = battle_state
+    context.state_cache.battle_state = battle_state
     return battle_state
 
 

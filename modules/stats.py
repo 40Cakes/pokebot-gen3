@@ -592,6 +592,7 @@ class StatsDatabase:
     def __init__(self, profile: "Profile"):
         self.encounter_rate: int = 0
         self.encounter_rate_at_1x: float = 0.0
+        self.is_first_encounter: bool = True
 
         self._connection = sqlite3.connect(profile.path / "stats.db", check_same_thread=False)
         self._cursor = self._connection.cursor()

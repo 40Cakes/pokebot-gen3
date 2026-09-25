@@ -115,7 +115,7 @@ class RockSmashMode(BotMode):
                 else:
                     encounter_rate_at_1x = 0
 
-                debug.debug_values["Nosepass per Hour"] = encounter_rate_at_1x
+                context.debug_values["Nosepass per Hour"] = encounter_rate_at_1x
         return handle_encounter(encounter)
 
     def on_battle_ended(self, outcome: "BattleOutcome") -> None:

@@ -9,7 +9,6 @@ from typing import Iterator
 from modules.context import context
 from modules.game import get_symbol_name_before
 from modules.memory import get_symbol_name, read_symbol, unpack_uint16, unpack_uint32
-from modules.state_cache import state_cache
 
 
 class Task:
@@ -162,11 +161,11 @@ class ScriptContext:
 
 
 def get_tasks() -> TaskList:
-    if state_cache.tasks.age_in_frames == 0 and state_cache.tasks.value is not None:
-        return state_cache.tasks.value
+    if context.state_cache.tasks.age_in_frames == 0 and context.state_cache.tasks.value is not None:
+        return context.state_cache.tasks.value
 
     task_list = TaskList(read_symbol("gTasks"))
-    state_cache.tasks = task_list
+    context.state_cache.tasks = task_list
     return task_list
 
 
@@ -179,20 +178,20 @@ def task_is_active(task_name: str) -> bool:
 
 
 def get_global_script_context() -> ScriptContext:
-    if state_cache.global_script_context.age_in_frames == 0:
-        return state_cache.global_script_context.value
+    if context.state_cache.global_script_context.age_in_frames == 0:
+        return context.state_cache.global_script_context.value
 
     ctx = ScriptContext(read_symbol("sScriptContext1" if context.rom.is_rs else "sGlobalScriptContext"))
-    state_cache.global_script_context = ctx
+    context.state_cache.global_script_context = ctx
     return ctx
 
 
 def get_immediate_script_context() -> ScriptContext:
-    if state_cache.immediate_script_context.age_in_frames == 0:
-        return state_cache.immediate_script_context.value
+    if context.state_cache.immediate_script_context.age_in_frames == 0:
+        return context.state_cache.immediate_script_context.value
 
     ctx = ScriptContext(read_symbol("sScriptContext2" if context.rom.is_rs else "sImmediateScriptContext"))
-    state_cache.immediate_script_context = ctx
+    context.state_cache.immediate_script_context = ctx
     return ctx
 
 

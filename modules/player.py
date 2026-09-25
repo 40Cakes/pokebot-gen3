@@ -17,7 +17,6 @@ from modules.memory import (
     decrypt16,
 )
 from modules.pokemon import Item, get_item_by_index
-from modules.state_cache import state_cache
 from modules.tasks import task_is_active
 
 
@@ -229,8 +228,8 @@ class Player:
 
 
 def get_player() -> Player:
-    if state_cache.player.age_in_frames == 0:
-        return state_cache.player.value
+    if context.state_cache.player.age_in_frames == 0:
+        return context.state_cache.player.value
 
     if context.rom.is_rse:
         save_block_1_offset = 0x490
@@ -241,13 +240,13 @@ def get_player() -> Player:
     save_block_2 = get_save_block(2, size=0x0E)
 
     player = Player(save_block_1, save_block_2)
-    state_cache.player = player
+    context.state_cache.player = player
     return player
 
 
 def get_player_avatar() -> PlayerAvatar:
-    if state_cache.player_avatar.age_in_frames == 0:
-        return state_cache.player_avatar.value
+    if context.state_cache.player_avatar.age_in_frames == 0:
+        return context.state_cache.player_avatar.value
 
     player_avatar_data = read_symbol("gPlayerAvatar")
     object_event_id = player_avatar_data[5]
@@ -255,7 +254,7 @@ def get_player_avatar() -> PlayerAvatar:
     map_group_and_number = get_save_block(1, offset=4, size=2)
 
     player_avatar = PlayerAvatar(object_event, player_avatar_data, map_group_and_number)
-    state_cache.player_avatar = player_avatar
+    context.state_cache.player_avatar = player_avatar
 
     return player_avatar
 

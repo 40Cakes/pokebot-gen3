@@ -13,6 +13,7 @@ from apispec import APISpec
 from apispec.yaml_utils import load_operations_from_docstring
 
 from modules.daycare import get_daycare_data
+from modules.game import get_current_game_data
 
 try:
     from aiortc import MediaStreamTrack, VideoStreamTrack, RTCPeerConnection, RTCSessionDescription
@@ -26,7 +27,6 @@ except ImportError:
 
 from modules.console import console
 from modules.context import context
-from modules.game import _event_flags
 from modules.items import get_item_bag, get_item_storage
 from modules.libmgba import inputs_to_strings
 from modules.main import work_queue
@@ -39,7 +39,7 @@ from modules.pokedex import get_pokedex
 from modules.pokemon_party import get_party
 from modules.pokemon_storage import get_pokemon_storage
 from modules.runtime import get_base_path
-from modules.state_cache import state_cache, StateCacheItem
+from modules.state_cache import StateCacheItem
 from modules.version import pokebot_version, pokebot_name
 from modules.web.http_stream import add_subscriber
 
@@ -116,7 +116,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
             - player
         """
 
-        cached_player = state_cache.player
+        cached_player = context.state_cache.player
         _update_via_work_queue(cached_player, get_player)
 
         try:
@@ -140,7 +140,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
             - player
         """
 
-        cached_avatar = state_cache.player_avatar
+        cached_avatar = context.state_cache.player_avatar
         _update_via_work_queue(cached_avatar, get_player_avatar)
 
         data = cached_avatar.value.to_dict() if cached_avatar.value is not None else {}
@@ -160,8 +160,8 @@ def http_server(host: str, port: int) -> web.AppRunner:
             - player
         """
 
-        cached_bag = state_cache.item_bag
-        cached_storage = state_cache.item_storage
+        cached_bag = context.state_cache.item_bag
+        cached_storage = context.state_cache.item_storage
         if cached_bag.age_in_seconds > 1:
             _update_via_work_queue(cached_bag, get_item_bag)
         if cached_storage.age_in_seconds > 1:
@@ -187,7 +187,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
           tags:
             - pokemon
         """
-        cached_party = state_cache.party
+        cached_party = context.state_cache.party
         _update_via_work_queue(cached_party, get_party)
 
         return web.json_response(cached_party.value.to_list())
@@ -206,7 +206,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
             - pokemon
         """
 
-        cached_pokedex = state_cache.pokedex
+        cached_pokedex = context.state_cache.pokedex
         if cached_pokedex.age_in_seconds > 1:
             _update_via_work_queue(cached_pokedex, get_pokedex)
 
@@ -235,7 +235,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
             - pokemon
         """
 
-        cached_storage = state_cache.pokemon_storage
+        cached_storage = context.state_cache.pokemon_storage
         _update_via_work_queue(cached_storage, get_pokemon_storage)
 
         if "format" in request.query and request.query.getone("format") == "size-only":
@@ -277,10 +277,10 @@ def http_server(host: str, port: int) -> web.AppRunner:
             - pokemon
         """
 
-        if state_cache.game_state.value != GameState.BATTLE:
+        if context.state_cache.game_state.value != GameState.BATTLE:
             result = None
         else:
-            cached_opponent = state_cache.opponent
+            cached_opponent = context.state_cache.opponent
             if cached_opponent.value is not None:
                 result = cached_opponent.value[0].to_dict()
             else:
@@ -302,7 +302,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
             - map
         """
 
-        cached_avatar = state_cache.player_avatar
+        cached_avatar = context.state_cache.player_avatar
         _update_via_work_queue(cached_avatar, get_player_avatar)
 
         if cached_avatar.value is not None:
@@ -336,7 +336,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
             - map
         """
 
-        effective_encounters = state_cache.effective_wild_encounters
+        effective_encounters = context.state_cache.effective_wild_encounters
         _update_via_work_queue(effective_encounters, get_effective_encounter_rates_for_current_map)
 
         return web.json_response(effective_encounters.value.to_dict())
@@ -445,11 +445,11 @@ def http_server(host: str, port: int) -> web.AppRunner:
 
         flag = request.query.getone("flag", None)
 
-        if flag and flag in _event_flags:
+        if flag and flag in get_current_game_data().event_flags:
             return web.json_response({flag: get_event_flag(flag)})
         result = {}
 
-        for flag in _event_flags:
+        for flag in get_current_game_data().event_flags:
             result[flag] = get_event_flag(flag)
 
         return web.json_response(result)

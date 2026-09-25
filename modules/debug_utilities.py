@@ -7,7 +7,7 @@ from typing import Literal
 import numpy
 
 from modules.context import context
-from modules.game import _event_flags, _event_vars, encode_string
+from modules.game import encode_string, get_current_game_data
 from modules.items import Item, ItemSlot, get_item_bag, _items_by_index, ItemPocket, get_item_by_name
 from modules.map import get_encounter_affecting_abilities
 from modules.memory import (
@@ -32,7 +32,6 @@ from modules.pokemon import (
     Species,
     Nature,
     Move,
-    LearnedMove,
     StatsValues,
     StatusCondition,
     POKEMON_DATA_SUBSTRUCTS_ORDER,
@@ -53,6 +52,7 @@ def export_flags_and_vars(file_path: Path) -> None:
     Exports event flags and event vars into a file, using an INI-like format.
     :param file_path: Path to the target file that flags and vars should be written to.
     """
+    current_game_data = get_current_game_data()
     with open(file_path, "w") as file:
         file.writelines(
             [
@@ -60,9 +60,12 @@ def export_flags_and_vars(file_path: Path) -> None:
                 f"# Game: {context.rom.game_name} ({context.rom.language.name})\n"
                 f"# Profile: {context.profile.path.name}\n"
                 "\n[flags]\n",
-                *[f"{flag_name} = {'1' if get_event_flag(flag_name) else '0'}\n" for flag_name in _event_flags],
+                *[
+                    f"{flag_name} = {'1' if get_event_flag(flag_name) else '0'}\n"
+                    for flag_name in current_game_data.event_flags
+                ],
                 "\n[vars]\n",
-                *[f"{var_name} = {get_event_var(var_name)}\n" for var_name in _event_vars],
+                *[f"{var_name} = {get_event_var(var_name)}\n" for var_name in current_game_data.event_vars],
             ]
         )
 

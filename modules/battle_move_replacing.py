@@ -88,7 +88,7 @@ def handle_move_replacement_dialogue(strategy: BattleStrategy) -> Generator:
             break
 
         if state == LearnMoveState.AskWhetherToLearn and not already_confirmed:
-            debug.action_stack.append("LearnMoveState.AskWhetherToLearn")
+            context.debug_action_stack.append("LearnMoveState.AskWhetherToLearn")
             if task_is_active("Task_HandleReplaceMoveYesNoInput") or task_is_active("sub_806F390"):
                 party_menu_data = get_party_menu_cursor_pos(get_party_size())
                 move_to_learn = get_move_by_index(party_menu_data["data1"])
@@ -120,17 +120,17 @@ def handle_move_replacement_dialogue(strategy: BattleStrategy) -> Generator:
                     context.emulator.press_button("B")
                     yield
             already_confirmed = True
-            debug.action_stack.pop()
+            context.debug_action_stack.pop()
 
         elif state == LearnMoveState.ConfirmCancellation:
-            debug.action_stack.append("LearnMoveState.ConfirmCancellation")
+            context.debug_action_stack.append("LearnMoveState.ConfirmCancellation")
             while get_learn_move_state() not in (LearnMoveState.Unknown, LearnMoveState.DialogueNotActive):
                 context.emulator.press_button("A")
                 yield
-            debug.action_stack.pop()
+            context.debug_action_stack.pop()
 
         elif state == LearnMoveState.SelectMoveToReplace:
-            debug.action_stack.append("LearnMoveState.SelectMoveToReplace")
+            context.debug_action_stack.append("LearnMoveState.SelectMoveToReplace")
             cursor = _get_move_selection_cursor()
             if cursor < move_to_forget:
                 context.emulator.press_button("Down")
@@ -144,7 +144,7 @@ def handle_move_replacement_dialogue(strategy: BattleStrategy) -> Generator:
                 while get_learn_move_state() not in (LearnMoveState.Unknown, LearnMoveState.DialogueNotActive):
                     context.emulator.press_button("A")
                     yield
-            debug.action_stack.pop()
+            context.debug_action_stack.pop()
 
         else:
             context.emulator.press_button("B")
