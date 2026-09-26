@@ -22,7 +22,7 @@ _loaded_game_data: dict[str, GameData] = {}
 _character_table_international: list[str] = []
 _character_table_japanese: list[str] = []
 
-_current_game_data: GameData
+_current_game_data: GameData = GameData({}, {}, {}, {}, {}, {}, [])
 
 
 def get_game_data(rom: ROM) -> GameData:
