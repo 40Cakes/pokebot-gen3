@@ -1,6 +1,7 @@
 import asyncio
 import fractions
 import io
+import json
 import queue
 import re
 import time
@@ -99,6 +100,33 @@ def _update_via_work_queue(
     except Exception:
         console.print_exception()
         return
+
+
+def _set_held_buttons(buttons: list) -> None:
+    """
+    Replaces the set of buttons that are being held down in the emulator (only if the
+    bot is in Manual mode.)
+
+    Entries that are not a valid button name (case-insensitive) will be ignored.
+
+    :param buttons: List of names of the buttons that should be held down.
+    """
+    possible_buttons = ["A", "B", "Select", "Start", "Right", "Left", "Up", "Down", "R", "L"]
+    buttons_to_press = []
+    for button in buttons:
+        if not isinstance(button, str):
+            continue
+        for possible_button in possible_buttons:
+            if button.lower() == possible_button.lower():
+                buttons_to_press.append(possible_button)
+
+    def update_inputs():
+        if context.bot_mode == "Manual":
+            context.emulator.reset_held_buttons()
+            for button_to_press in buttons_to_press:
+                context.emulator.hold_button(button_to_press)
+
+    work_queue.put_nowait(update_inputs)
 
 
 def http_server(host: str, port: int) -> web.AppRunner:
@@ -711,20 +739,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
         if not isinstance(new_buttons, list):
             return web.Response(text="This endpoint expects a JSON array as its payload.", status=422)
 
-        possible_buttons = ["A", "B", "Select", "Start", "Right", "Left", "Up", "Down", "R", "L"]
-        buttons_to_press = []
-        for button in new_buttons:
-            for possible_button in possible_buttons:
-                if button.lower() == possible_button.lower():
-                    buttons_to_press.append(possible_button)
-
-        def update_inputs():
-            if context.bot_mode == "Manual":
-                context.emulator.reset_held_buttons()
-                for button_to_press in buttons_to_press:
-                    context.emulator.hold_button(button_to_press)
-
-        work_queue.put_nowait(update_inputs)
+        _set_held_buttons(new_buttons)
 
         return web.Response(status=204)
 
@@ -890,10 +905,51 @@ def http_server(host: str, port: int) -> web.AppRunner:
 
             @connection.on("datachannel")
             def on_datachannel(channel):
-                @channel.on("message")
-                def on_message(message):
-                    if isinstance(message, str) and message.startswith("ping"):
-                        channel.send("pong" + message[4:])
+                if channel.label == "input":
+                    last_message_time = time.monotonic()
+                    buttons_held = False
+
+                    # Each message contains the full list of buttons that should be held down,
+                    # in the same format as `POST /input`.
+                    @channel.on("message")
+                    def on_input_message(message):
+                        nonlocal last_message_time, buttons_held
+                        last_message_time = time.monotonic()
+                        try:
+                            buttons = json.loads(message)
+                        except (TypeError, ValueError):
+                            return
+                        if isinstance(buttons, list):
+                            _set_held_buttons(buttons)
+                            buttons_held = len(buttons) > 0
+
+                    # The client repeats its current input state every second. Some browsers do not
+                    # tell us when a tab is closed, in which case it would take ~30 seconds for the
+                    # connection to time out. So if the client has gone quiet for a few seconds, we
+                    # assume that it has gone away and release any buttons that it held down.
+                    async def release_buttons_if_client_is_gone():
+                        nonlocal buttons_held
+                        while True:
+                            await asyncio.sleep(0.5)
+                            if buttons_held and time.monotonic() - last_message_time > 3:
+                                _set_held_buttons([])
+                                buttons_held = False
+
+                    watchdog = asyncio.ensure_future(release_buttons_if_client_is_gone())
+
+                    # This also gets called if the connection fails or the client goes away, so
+                    # this makes sure that no buttons remain held down in that case.
+                    @channel.on("close")
+                    def on_input_close():
+                        watchdog.cancel()
+                        _set_held_buttons([])
+
+                else:
+
+                    @channel.on("message")
+                    def on_message(message):
+                        if isinstance(message, str) and message.startswith("ping"):
+                            channel.send("pong" + message[4:])
 
             @connection.on("connectionstatechange")
             async def on_connection_state_change():

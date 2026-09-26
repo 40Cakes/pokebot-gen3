@@ -773,23 +773,11 @@
         "Backspace": "Select",
     }
 
-    let abortController = null;
+    // Inputs are sent via a WebRTC data channel, so they only work while video is running.
+    let inputChannel = null;
     const updateInputs = () => {
-        if (document.getElementById("bot_mode").value === "Manual") {
-            if (abortController !== null) {
-                abortController.abort();
-            }
-
-            abortController = new AbortController();
-            fetch("/input", {
-                method: "POST",
-                body: JSON.stringify([...held_buttons]),
-                headers: {"Content-Type": "application/json"},
-                signal: abortController.signal,
-            })
-                .then(() => {
-                    abortController = null;
-                });
+        if (document.getElementById("bot_mode").value === "Manual" && inputChannel?.readyState === "open") {
+            inputChannel.send(JSON.stringify([...held_buttons]));
         }
     };
 
@@ -826,6 +814,25 @@
 
         rtcConnection.addTransceiver("video", {direction: "recvonly"});
         rtcConnection.addTransceiver("audio", {direction: "recvonly"});
+
+        // This needs to be created before the offer, or otherwise the offer will not
+        // include a data channel at all.
+        const channel = rtcConnection.createDataChannel("input");
+        let heartbeatInterval = null;
+        channel.addEventListener("open", () => {
+            inputChannel = channel;
+            updateInputs();
+
+            // The server releases all buttons if it does not hear from us for a few seconds
+            // (in case this tab has been closed), so repeat the current state every second.
+            heartbeatInterval = window.setInterval(updateInputs, 1000);
+        });
+        channel.addEventListener("close", () => {
+            window.clearInterval(heartbeatInterval);
+            if (inputChannel === channel) {
+                inputChannel = null;
+            }
+        });
 
         const offer = await rtcConnection.createOffer();
         await rtcConnection.setLocalDescription(offer);
