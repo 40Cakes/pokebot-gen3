@@ -26,6 +26,7 @@ try:
         RTCSessionDescription,
     )
     from aiortc.contrib.media import MediaRelay
+    from aiortc.mediastreams import MediaStreamError
     from av import VideoFrame, Packet, AudioFrame, AudioResampler
     from PIL import Image
     from av.frame import Frame
@@ -834,6 +835,8 @@ def http_server(host: str, port: int) -> web.AppRunner:
 
             async def _get_audio_data(self) -> bytes:
                 while True:
+                    if self.readyState != "live":
+                        raise MediaStreamError
                     try:
                         data = self._queue.get_nowait()
                         if len(data) > 0:
@@ -857,6 +860,9 @@ def http_server(host: str, port: int) -> web.AppRunner:
                 )
 
             async def recv(self) -> Union[Frame, Packet]:
+                if self.readyState != "live":
+                    raise MediaStreamError
+
                 if self._start is None:
                     # Discard audio that has been queued up before anyone was listening.
                     while not self._queue.empty():
@@ -892,6 +898,21 @@ def http_server(host: str, port: int) -> web.AppRunner:
         relay = MediaRelay()
         emu_audio = None
         emu_video = None
+
+        def stop_streams_if_unused():
+            """
+            The relay keeps reading from the source tracks even after all subscribers are
+            gone. So once the last connection has closed, we stop the tracks (which ends the
+            relay's reading task) and create new ones for the next client.
+            """
+            nonlocal emu_video, emu_audio
+            if len(rtc_connections) == 0:
+                if emu_video is not None:
+                    emu_video.stop()
+                    emu_video = None
+                if emu_audio is not None:
+                    emu_audio.stop()
+                    emu_audio = None
 
         @route.post("/rtc")
         async def http_post_rtc(request: web.Request):
@@ -956,6 +977,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
                 if connection.connectionState in ("failed", "closed"):
                     await connection.close()
                     rtc_connections.discard(connection)
+                    stop_streams_if_unused()
 
             if emu_video is None:
                 emu_video = EmuVideo()
@@ -969,10 +991,15 @@ def http_server(host: str, port: int) -> web.AppRunner:
             connection.addTrack(relay.subscribe(emu_video, buffered=False))
             connection.addTrack(relay.subscribe(emu_audio))
 
-            await connection.setRemoteDescription(offer)
-
-            answer = await connection.createAnswer()
-            await connection.setLocalDescription(answer)
+            try:
+                await connection.setRemoteDescription(offer)
+                answer = await connection.createAnswer()
+                await connection.setLocalDescription(answer)
+            except Exception:
+                await connection.close()
+                rtc_connections.discard(connection)
+                stop_streams_if_unused()
+                raise
 
             return web.json_response({"sdp": connection.localDescription.sdp, "type": connection.localDescription.type})
 
