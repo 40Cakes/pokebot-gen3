@@ -5,7 +5,6 @@ from modules.context import context
 from modules.game import decode_string, get_symbol
 from modules.memory import read_symbol, unpack_uint32
 from modules.pokemon import Pokemon, Species
-from modules.state_cache import state_cache
 
 
 @dataclass
@@ -138,8 +137,8 @@ class PokemonStorage:
 
 
 def get_pokemon_storage() -> PokemonStorage:
-    if state_cache.pokemon_storage.age_in_frames == 0:
-        return state_cache.pokemon_storage.value
+    if context.state_cache.pokemon_storage.age_in_frames == 0:
+        return context.state_cache.pokemon_storage.value
 
     if not context.rom.is_rs:
         offset = unpack_uint32(read_symbol("gPokemonStoragePtr"))
@@ -148,5 +147,5 @@ def get_pokemon_storage() -> PokemonStorage:
         offset, length = get_symbol("gPokemonStorage")
 
     pokemon_storage = PokemonStorage(offset, context.emulator.read_bytes(offset, length))
-    state_cache.pokemon_storage = pokemon_storage
+    context.state_cache.pokemon_storage = pokemon_storage
     return pokemon_storage

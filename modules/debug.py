@@ -6,17 +6,19 @@ from functools import wraps
 class DebugUtil:
     def __init__(self):
         self.enabled = False
-        self.action_stack = []
-        self.debug_values = {}
 
     def reset(self):
-        self.action_stack = []
-        self.debug_values = {}
+        from modules.context import context
+
+        context.debug_action_stack = []
+        context.debug_values = {}
 
     def track(self, generator_function):
         @wraps(generator_function)
         def wrapper_function(*args, **kwargs):
             if self.enabled:
+                from modules.context import context
+
                 name = generator_function.__name__
                 formatted_args = []
                 spec = inspect.getfullargspec(generator_function)
@@ -29,14 +31,16 @@ class DebugUtil:
                         formatted_args.append(repr(arg))
                 for key, value in kwargs.items():
                     formatted_args.append(f"{key}={repr(value)}")
-                self.action_stack.append(f"{name}({', '.join(formatted_args)})")
+                context.debug_action_stack.append(f"{name}({', '.join(formatted_args)})")
 
             try:
                 return_value = yield from generator_function(*args, **kwargs)
                 return return_value
             finally:
                 if self.enabled:
-                    self.action_stack.pop()
+                    from modules.context import context
+
+                    context.debug_action_stack.pop()
 
         return wrapper_function
 

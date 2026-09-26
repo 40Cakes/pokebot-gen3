@@ -3,7 +3,6 @@ from typing import Generator
 from modules.context import context
 from modules.memory import read_symbol, get_event_var
 from modules.pokemon import Pokemon, Move, Species, Ability
-from modules.state_cache import state_cache
 
 
 class PartyPokemon(Pokemon):
@@ -112,8 +111,8 @@ def get_party() -> Party:
     :return: The player's party of Pokémon.
     """
 
-    if state_cache.party.age_in_frames == 0:
-        return state_cache.party.value
+    if context.state_cache.party.age_in_frames == 0:
+        return context.state_cache.party.value
 
     def read_party_pokemon(party_index: int) -> PartyPokemon | None:
         party_pokemon = PartyPokemon(read_symbol("gPlayerParty", offset=party_index * 100, size=100), party_index)
@@ -147,7 +146,7 @@ def get_party() -> Party:
         list_of_pokemon.append(pokemon)
 
     party = Party(list_of_pokemon)
-    state_cache.party = party
+    context.state_cache.party = party
 
     return party
 
@@ -157,8 +156,8 @@ def get_opponent_party() -> Party | None:
     Gets the opponent's party (obviously only makes sense to check when in a battle.)
     :return: The full party of the opponent, or `None` if there is no valid opponent at the moment.
     """
-    if state_cache.opponent.age_in_frames == 0:
-        return state_cache.opponent.value
+    if context.state_cache.opponent.age_in_frames == 0:
+        return context.state_cache.opponent.value
 
     list_of_pokemon = []
     data = read_symbol("gEnemyParty")
@@ -173,7 +172,7 @@ def get_opponent_party() -> Party | None:
         list_of_pokemon.append(pokemon)
 
     party = Party(list_of_pokemon)
-    state_cache.opponent = party
+    context.state_cache.opponent = party
 
     return party
 

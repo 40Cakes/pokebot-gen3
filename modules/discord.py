@@ -12,7 +12,6 @@ from requests.exceptions import RequestException
 
 from modules.console import console
 from modules.context import context
-from modules.state_cache import state_cache
 from modules.version import pokebot_version
 
 _event_loop: AbstractEventLoop | None = None
@@ -153,7 +152,7 @@ def discord_rich_presence_loop() -> None:
     while True:
         location = "N/A"
         try:
-            player_avatar = state_cache.player_avatar.value
+            player_avatar = context.state_cache.player_avatar.value
             if player_avatar is not None:
                 location = player_avatar.map_location.map_name.title()
         except:

@@ -8,7 +8,7 @@ from modules.context import context
 from modules.memory import get_game_state
 from modules.modes import BotMode, BotModeError, FrameInfo, get_bot_listeners, get_bot_mode_by_name
 from modules.plugins import plugin_profile_loaded, load_built_in_plugins
-from modules.state_cache import state_cache
+from modules.state_cache import StateCache
 from modules.stats import StatsDatabase
 from modules.tasks import get_global_script_context, get_tasks
 
@@ -45,6 +45,9 @@ def main_loop() -> None:
             )
             console.print("\n[red bold]Please do not ask for support if there are any problem with this game.[/]\n")
 
+        context.state_cache = StateCache()
+        context.stats = StatsDatabase(context.profile)
+
         # Built-in plugins are only loaded if some bot configuration actually requires them.
         # Since profile configuration can override global configuration, they can only be
         # loaded at this point where the profile has been loaded and so the full config is
@@ -54,8 +57,6 @@ def main_loop() -> None:
         # because they might add bot modes.
         load_built_in_plugins()
         plugin_profile_loaded(context.profile)
-
-        context.stats = StatsDatabase(context.profile)
 
         if context.config.http.http_server.enable:
             from modules.web.http import start_http_server
@@ -98,7 +99,7 @@ def main_loop() -> None:
 
             # Reset all bot listeners if the emulator has been reset.
             if previous_frame_info is not None and previous_frame_info.frame_count > frame_info.frame_count:
-                state_cache.reset()
+                context.state_cache.reset()
                 context.bot_listeners = get_bot_listeners(context.rom)
 
             if context.bot_mode == "Manual":

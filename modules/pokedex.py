@@ -3,7 +3,6 @@ from functools import cached_property
 from modules.context import context
 from modules.memory import get_save_block
 from modules.pokemon import Species, get_species_by_national_dex
-from modules.state_cache import state_cache
 
 
 class Pokedex:
@@ -71,8 +70,8 @@ class Pokedex:
 
 
 def get_pokedex() -> Pokedex:
-    if state_cache.pokedex.age_in_frames == 0:
-        return state_cache.pokedex.value
+    if context.state_cache.pokedex.age_in_frames == 0:
+        return context.state_cache.pokedex.value
 
     if context.rom.is_emerald:
         seen1_offset = 0x988
@@ -90,5 +89,5 @@ def get_pokedex() -> Pokedex:
         get_save_block(1, offset=seen2_offset, size=0x34),
     )
 
-    state_cache.pokedex = pokedex
+    context.state_cache.pokedex = pokedex
     return pokedex

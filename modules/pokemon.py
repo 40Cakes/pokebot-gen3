@@ -1510,37 +1510,6 @@ def get_opponent() -> Pokemon | None:
         return opponent_party[0]
 
 
-last_opid = pack_uint32(0)  # ReadSymbol('gEnemyParty', size=4)
-
-
-def clear_opponent() -> None:
-    global last_opid
-    last_opid = pack_uint32(0)
-
-
-def opponent_changed() -> bool:
-    """
-    Checks if the current opponent/encounter from `gEnemyParty` has changed since the function was last called.
-    Very fast way to check as this only reads the first 4 bytes (PID) and does not decode the Pokémon data.
-
-    :return: True if opponent changed, otherwise False (bool)
-    """
-    try:
-        global last_opid
-        opponent_pid = read_symbol("gEnemyParty", size=4)
-        battle_type = unpack_uint32(read_symbol("gBattleTypeFlags", size=0x04))
-        trainer_or_tutorial = (1 << 3) | (1 << 9)
-        if opponent_pid != last_opid and opponent_pid != b"\x00\x00\x00\x00" and battle_type & trainer_or_tutorial:
-            last_opid = opponent_pid
-            return True
-        else:
-            return False
-    except SystemExit:
-        raise
-    except Exception:
-        return False
-
-
 def pokemon_has_usable_damaging_move(pokemon: Pokemon) -> bool:
     """
     Checks if the given Pokémon has at least one usable attacking move.

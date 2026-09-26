@@ -1,25 +1,132 @@
-import yaml
+from dataclasses import dataclass
 from typing import Literal
+
+import yaml
 
 from modules.roms import ROM, ROMLanguage
 from modules.runtime import get_data_path
 
-_symbols: dict[str, tuple[int, int]] = {}
-_reverse_symbols: dict[int, tuple[str, str, int]] = {}
-_event_flags: dict[str, tuple[int, int]] = {}
-_reverse_event_flags: dict[int, str] = {}
-_event_vars: dict[str, int] = {}
-_reverse_event_vars: dict[int, str] = {}
+
+@dataclass
+class GameData:
+    symbols: dict[str, tuple[int, int]]
+    reverse_symbols: dict[int, tuple[str, str, int]]
+    event_flags: dict[str, tuple[int, int]]
+    reverse_event_flags: dict[int, str]
+    event_vars: dict[str, int]
+    reverse_event_vars: dict[int, str]
+    character_table: list[str]
+
+
+_loaded_game_data: dict[str, GameData] = {}
 _character_table_international: list[str] = []
 _character_table_japanese: list[str] = []
-_current_character_table: list[str] = []
+
+_current_game_data: GameData
 
 
-def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
-    global _symbols, _reverse_symbols
+def get_game_data(rom: ROM) -> GameData:
+    global _loaded_game_data
 
-    _symbols.clear()
-    _reverse_symbols.clear()
+    if rom.id in _loaded_game_data:
+        return _loaded_game_data[rom.id]
+
+    if len(_character_table_international) == 0:
+        _prepare_character_tables()
+
+    character_table = (
+        _character_table_japanese if rom.language is ROMLanguage.Japanese else _character_table_international
+    )
+    game_data: GameData | None = None
+    match rom.game_code:
+        case "AXV":
+            if rom.language is ROMLanguage.Japanese or (rom.language is ROMLanguage.English and rom.revision == 0):
+                game_data = GameData(
+                    *_load_symbols("pokeruby.sym", rom.language), *_load_event_flags_and_vars("rs.txt"), character_table
+                )
+            elif rom.language is ROMLanguage.German:
+                game_data = GameData(
+                    *_load_symbols("pokeruby_de.sym", rom.language),
+                    *_load_event_flags_and_vars("rs.txt"),
+                    character_table,
+                )
+            else:
+                game_data = GameData(
+                    *_load_symbols("pokeruby_rev1.sym", rom.language),
+                    *_load_event_flags_and_vars("rs.txt"),
+                    character_table,
+                )
+
+        case "AXP":
+            if rom.language is ROMLanguage.Japanese or (rom.language is ROMLanguage.English and rom.revision == 0):
+                game_data = GameData(
+                    *_load_symbols("pokesapphire.sym", rom.language),
+                    *_load_event_flags_and_vars("rs.txt"),
+                    character_table,
+                )
+            elif rom.language is ROMLanguage.German:
+                game_data = GameData(
+                    *_load_symbols("pokesapphire_de.sym", rom.language),
+                    *_load_event_flags_and_vars("rs.txt"),
+                    character_table,
+                )
+            else:
+                game_data = GameData(
+                    *_load_symbols("pokesapphire_rev1.sym", rom.language),
+                    *_load_event_flags_and_vars("rs.txt"),
+                    character_table,
+                )
+
+        case "BPE":
+            game_data = GameData(
+                *_load_symbols("pokeemerald.sym", rom.language),
+                *_load_event_flags_and_vars("emerald.txt"),
+                character_table,
+            )
+
+        case "BPR":
+            match rom.revision:
+                case 0:
+                    game_data = GameData(
+                        *_load_symbols("pokefirered.sym", rom.language),
+                        *_load_event_flags_and_vars("frlg.txt"),
+                        character_table,
+                    )
+                case 1:
+                    game_data = GameData(
+                        *_load_symbols("pokefirered_rev1.sym", rom.language),
+                        *_load_event_flags_and_vars("frlg.txt"),
+                        character_table,
+                    )
+
+        case "BPG":
+            match rom.revision:
+                case 0:
+                    game_data = GameData(
+                        *_load_symbols("pokeleafgreen.sym", rom.language),
+                        *_load_event_flags_and_vars("frlg.txt"),
+                        character_table,
+                    )
+                case 1:
+                    game_data = GameData(
+                        *_load_symbols("pokeleafgreen_rev1.sym", rom.language),
+                        *_load_event_flags_and_vars("frlg.txt"),
+                        character_table,
+                    )
+
+    if game_data is None:
+        raise RuntimeError("Could not figure out which symbols/event flags/event vars to load for this ROM.")
+
+    _loaded_game_data[rom.id] = game_data
+
+    return game_data
+
+
+def _load_symbols(
+    symbols_file: str, language: ROMLanguage
+) -> tuple[dict[str, tuple[int, int]], dict[int, tuple[str, str, int]]]:
+    symbols: dict[str, tuple[int, int]] = {}
+    reverse_symbols: dict[int, tuple[str, str, int]] = {}
 
     for d in [get_data_path() / "symbols", get_data_path() / "symbols" / "patches"]:
         with open(d / symbols_file) as f:
@@ -36,8 +143,8 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
                 if label == ".gcc2_compiled" or label == ".gcc2_compiled.":
                     continue
 
-                _symbols[label.upper()] = (address, length)
-                _reverse_symbols[address] = (label.upper(), label, length)
+                symbols[label.upper()] = (address, length)
+                reverse_symbols[address] = (label.upper(), label, length)
 
     language_code = str(language)
     language_patch_file = symbols_file.replace(".sym", ".yml")
@@ -55,29 +162,38 @@ def _load_symbols(symbols_file: str, language: ROMLanguage) -> None:
                     if isinstance(addresses_list, int):
                         addresses_list = [addresses_list]
 
-                    if label.upper() in _symbols:
-                        existing_address = _symbols[label.upper()][0]
+                    if label.upper() in symbols:
+                        existing_address = symbols[label.upper()][0]
                         if (
-                            existing_address in _reverse_symbols
-                            and _reverse_symbols[existing_address][0] == label.upper()
+                            existing_address in reverse_symbols
+                            and reverse_symbols[existing_address][0] == label.upper()
                         ):
-                            _reverse_symbols.pop(existing_address, None)
+                            reverse_symbols.pop(existing_address, None)
 
                     for addr in addresses_list:
                         if addr is not None:
-                            _symbols[label.upper()] = (
+                            symbols[label.upper()] = (
                                 addr,
-                                _symbols[label.upper()][1] if label.upper() in _symbols else 0,
+                                symbols[label.upper()][1] if label.upper() in symbols else 0,
                             )
-                            _reverse_symbols[addr] = (
+                            reverse_symbols[addr] = (
                                 label.upper(),
                                 label,
-                                _symbols[label.upper()][1] if label.upper() in _symbols else 0,
+                                symbols[label.upper()][1] if label.upper() in symbols else 0,
                             )
 
+    return symbols, reverse_symbols
 
-def _load_event_flags_and_vars(file_name: str) -> None:  # TODO Japanese ROMs not working
-    global _event_flags, _reverse_event_flags, _event_vars, _reverse_event_vars
+
+def _load_event_flags_and_vars(
+    file_name: str,
+) -> tuple[
+    dict[str, tuple[int, int]], dict[int, str], dict[str, int], dict[int, str]
+]:  # TODO Japanese ROMs not working
+    event_flags: dict[str, tuple[int, int]] = {}
+    reverse_event_flags: dict[int, str] = {}
+    event_vars: dict[str, int] = {}
+    reverse_event_vars: dict[int, str] = {}
 
     match file_name:
         case "rs.txt":
@@ -92,21 +208,19 @@ def _load_event_flags_and_vars(file_name: str) -> None:  # TODO Japanese ROMs no
         case _:
             raise RuntimeError("Invalid argument to _load_event_flags_and_vars()")
 
-    _event_flags.clear()
-    _reverse_event_flags.clear()
     with open(get_data_path() / "event_flags" / file_name) as file_handle:
         for s in file_handle:
             number, name = s.strip().split(" ")
-            _event_flags[name] = (int(number) // 8) + flags_offset, int(number) % 8
-            _reverse_event_flags[int(number)] = name
+            event_flags[name] = (int(number) // 8) + flags_offset, int(number) % 8
+            reverse_event_flags[int(number)] = name
 
-    _event_vars.clear()
-    _reverse_event_vars.clear()
     with open(get_data_path() / "event_vars" / file_name) as file_handle:
         for s in file_handle:
             number, name = s.strip().split(" ")
-            _event_vars[name] = int(number) * 2 + vars_offset
-            _reverse_event_vars[int(number)] = name
+            event_vars[name] = int(number) * 2 + vars_offset
+            reverse_event_vars[int(number)] = name
+
+    return event_flags, reverse_event_flags, event_vars, reverse_event_vars
 
 
 def _prepare_character_tables() -> None:
@@ -169,64 +283,20 @@ def _prepare_character_tables() -> None:
 
 
 def set_rom(rom: ROM) -> None:
-    global _symbols, _current_character_table
-
-    match rom.game_code:
-        case "AXV":
-            if rom.language is ROMLanguage.Japanese or (rom.language is ROMLanguage.English and rom.revision == 0):
-                _load_symbols("pokeruby.sym", rom.language)
-            elif rom.language is ROMLanguage.German:
-                _load_symbols("pokeruby_de.sym", rom.language)
-            else:
-                _load_symbols("pokeruby_rev1.sym", rom.language)
-            _load_event_flags_and_vars("rs.txt")
-
-        case "AXP":
-            if rom.language is ROMLanguage.Japanese or (rom.language is ROMLanguage.English and rom.revision == 0):
-                _load_symbols("pokesapphire.sym", rom.language)
-            elif rom.language is ROMLanguage.German:
-                _load_symbols("pokesapphire_de.sym", rom.language)
-            else:
-                _load_symbols("pokesapphire_rev1.sym", rom.language)
-            _load_event_flags_and_vars("rs.txt")
-
-        case "BPE":
-            _load_symbols("pokeemerald.sym", rom.language)
-            _load_event_flags_and_vars("emerald.txt")
-
-        case "BPR":
-            match rom.revision:
-                case 0:
-                    _load_symbols("pokefirered.sym", rom.language)
-                case 1:
-                    _load_symbols("pokefirered_rev1.sym", rom.language)
-            _load_event_flags_and_vars("frlg.txt")
-
-        case "BPG":
-            match rom.revision:
-                case 0:
-                    _load_symbols("pokeleafgreen.sym", rom.language)
-                case 1:
-                    _load_symbols("pokeleafgreen_rev1.sym", rom.language)
-            _load_event_flags_and_vars("frlg.txt")
-
-    set_character_table("japanese" if rom.language is ROMLanguage.Japanese else "international")
+    global _current_game_data
+    _current_game_data = get_game_data(rom)
 
 
-def set_character_table(character_table: Literal["international", "japanese"] = "international") -> None:
-    global _current_character_table
-    _prepare_character_tables()
-    _current_character_table = (
-        _character_table_japanese if character_table == "japanese" else _character_table_international
-    )
+def get_current_game_data() -> GameData:
+    return _current_game_data
 
 
 def get_symbol(symbol_name: str) -> tuple[int, int]:
     canonical_name = symbol_name.strip().upper()
-    if canonical_name not in _symbols:
+    if canonical_name not in _current_game_data.symbols:
         raise RuntimeError(f"Unknown symbol: {symbol_name}!")
 
-    return _symbols[canonical_name]
+    return _current_game_data.symbols[canonical_name]
 
 
 def get_symbol_name(address: int, pretty_name: bool = False) -> str:
@@ -239,7 +309,7 @@ def get_symbol_name(address: int, pretty_name: bool = False) -> str:
 
     :return: name of the symbol (str)
     """
-    return _reverse_symbols.get(address, ("", ""))[(1 if pretty_name else 0)]
+    return _current_game_data.reverse_symbols.get(address, ("", "", 0))[(1 if pretty_name else 0)]
 
 
 def get_symbol_name_before(address: int, pretty_name: bool = False) -> str:
@@ -255,30 +325,38 @@ def get_symbol_name_before(address: int, pretty_name: bool = False) -> str:
     maximum_lookahead = 1024
     return next(
         (
-            _reverse_symbols[address - lookahead][(1 if pretty_name else 0)]
+            _current_game_data.reverse_symbols[address - lookahead][(1 if pretty_name else 0)]
             for lookahead in range(maximum_lookahead)
-            if address - lookahead in _reverse_symbols
+            if address - lookahead in _current_game_data.reverse_symbols
         ),
         hex(address),
     )
 
 
+def event_flag_exists(flag_name: str) -> bool:
+    return flag_name in _current_game_data.event_flags
+
+
 def get_event_flag_offset(flag_name: str) -> tuple[int, int]:
-    return _event_flags[flag_name]
+    return _current_game_data.event_flags[flag_name]
 
 
 def get_event_flag_name(flag_number: int) -> str:
     if flag_number == 0:
         return ""
-    return _reverse_event_flags.get(flag_number, str(flag_number))
+    return _current_game_data.reverse_event_flags.get(flag_number, str(flag_number))
+
+
+def event_var_exists(flag_name: str) -> bool:
+    return flag_name in _current_game_data.event_vars
 
 
 def get_event_var_offset(var_name: str) -> int:
-    return _event_vars[var_name]
+    return _current_game_data.event_vars[var_name]
 
 
 def get_event_var_name(var_number: int) -> str:
-    return _reverse_event_vars.get(var_number, str(var_number))
+    return _current_game_data.reverse_event_vars.get(var_number, str(var_number))
 
 
 def decode_string(
@@ -298,7 +376,7 @@ def decode_string(
     :return: decoded bytes (string)
     """
     if character_set == "rom_default":
-        character_table = _current_character_table
+        character_table = _current_game_data.character_table
     elif character_set == "international":
         character_table = _character_table_international
     elif character_set == "japanese":
@@ -326,7 +404,7 @@ def decode_string(
                 string += " "
         elif i == 0xFD:
             if cursor >= len(encoded_string):
-                return
+                return string
 
             # Marks a variable (the following byte indicates which variable should
             # be substituted.)
@@ -340,7 +418,7 @@ def decode_string(
                 string += "{Var" + str(i - 1) + "}"
         elif i == 0xFC:
             if cursor >= len(encoded_string):
-                return
+                return string
 
             # Text formatting codes, which can be followed by 1, 2, or 3 bytes.
             i = encoded_string[cursor]
@@ -365,7 +443,7 @@ def encode_string(
     ignore_errors: bool = False,
 ) -> bytes:
     if character_set == "rom_default":
-        character_table = _current_character_table
+        character_table = _current_game_data.character_table
     elif character_set == "international":
         character_table = _character_table_international
     elif character_set == "japanese":

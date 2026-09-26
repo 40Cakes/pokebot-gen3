@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Union, Optional
 from PIL import Image, ImageDraw, ImageTk, ImageOps
 
 from modules.battle_state import get_battle_state, battle_is_active
-from modules.berry_trees import get_all_berry_trees, get_berry_tree_by_id
+from modules.berry_trees import get_berry_tree_by_id
 from modules.clock import get_clock_time, get_play_time
 from modules.context import context
 from modules.daycare import get_daycare_data
@@ -17,13 +17,11 @@ from modules.debug import debug
 from modules.fishing import get_feebas_tiles
 from modules.game import (
     decode_string,
-    _symbols,
-    _reverse_symbols,
-    _event_flags,
     get_event_flag_name,
     get_event_var_name,
     get_symbol_name,
     get_symbol_name_before,
+    get_current_game_data,
 )
 from modules.game_stats import GameStat, get_game_stat
 from modules.gui.emulator_controls import DebugTab
@@ -543,9 +541,10 @@ class SymbolsTab(DebugTab):
 
         items: dict[str, str] = {}
         detached_items = set()
-        for symbol, values in _symbols.items():
+        current_game_data = get_current_game_data()
+        for symbol, values in current_game_data.symbols.items():
             address, length = values
-            _, symbol, _ = _reverse_symbols[address]
+            _, symbol, _ = current_game_data.reverse_symbols[address]
             if length == 0:
                 continue
             if not (symbol.startswith("s") or symbol.startswith("l") or symbol.startswith("g")):
@@ -971,7 +970,11 @@ class EventFlagsTab(DebugTab):
     def _get_data(self):
         search_phrase = self._search_field.get().upper()
 
-        return {flag: get_event_flag(flag) for flag in _event_flags if len(search_phrase) == 0 or search_phrase in flag}
+        return {
+            flag: get_event_flag(flag)
+            for flag in get_current_game_data().event_flags
+            if len(search_phrase) == 0 or search_phrase in flag
+        }
 
 
 class EventVarsTab(DebugTab):
@@ -1174,8 +1177,8 @@ class EmulatorTab(DebugTab):
             "Encounters in Timing Log": len(context.stats._encounter_timestamps),
             "Controller Stack": [controller.__qualname__ for controller in context.controller_stack],
             "RTC": rtc.isoformat() if rtc is not None else None,
-            "Currently Running Actions": debug.action_stack,
-            "Debug Values": debug.debug_values,
+            "Currently Running Actions": context.debug_action_stack,
+            "Debug Values": context.debug_values,
         }
 
 

@@ -17,7 +17,6 @@ from modules.player import get_player, get_player_avatar
 from modules.pokedex import get_pokedex
 from modules.pokemon import get_opponent
 from modules.pokemon_party import get_party
-from modules.state_cache import state_cache
 
 update_interval_in_ms = 1000 / 60
 queue_size = 10
@@ -176,24 +175,24 @@ def run_watcher():
     update_interval = update_interval_in_ms / 1000
     previous_second = int(time())
 
-    if state_cache.player_avatar.value is not None:
-        map_group_and_number = state_cache.player_avatar.value.map_group_and_number
-        map_local_coordinates = state_cache.player_avatar.value.local_coordinates
+    if context.state_cache.player_avatar.value is not None:
+        map_group_and_number = context.state_cache.player_avatar.value.map_group_and_number
+        map_local_coordinates = context.state_cache.player_avatar.value.local_coordinates
     else:
         map_group_and_number = (-1, -1)
         map_local_coordinates = (-1, -1)
 
     previous_game_state = {
-        "party": state_cache.party.frame,
-        "pokedex": state_cache.pokedex.frame,
-        "opponent": state_cache.opponent.frame,
+        "party": context.state_cache.party.frame,
+        "pokedex": context.state_cache.pokedex.frame,
+        "opponent": context.state_cache.opponent.frame,
         "wild_encounter": context.stats.last_encounter.encounter_id if context.stats.last_encounter is not None else 0,
-        "fishing_attempt": state_cache.fishing_attempt.frame,
-        "player": state_cache.player.frame,
-        "player_avatar": state_cache.player_avatar.frame,
+        "fishing_attempt": context.state_cache.fishing_attempt.frame,
+        "player": context.state_cache.player.frame,
+        "player_avatar": context.state_cache.player_avatar.frame,
         "map_group_and_number": map_group_and_number,
         "map_local_coordinates": map_local_coordinates,
-        "map_encounters": state_cache.effective_wild_encounters.frame,
+        "map_encounters": context.state_cache.effective_wild_encounters.frame,
         "pokenav_calls": (
             context.stats.current_shiny_phase.pokenav_calls if context.stats.current_shiny_phase is not None else 0
         ),
@@ -228,54 +227,58 @@ def run_watcher():
                 )
 
         if subscriptions["Player"] > 0:
-            if state_cache.player.age_in_frames >= 60:
+            if context.state_cache.player.age_in_frames >= 60:
                 # If the cached party data is too old, tell the main thread to update it at the next
                 # possible opportunity.
                 work_queue.put_nowait(get_player)
-            if state_cache.player.frame > previous_game_state["player"]:
-                previous_game_state["player"] = state_cache.player.frame
-                send_message(DataSubscription.Player, data=state_cache.player.value.to_dict(), event_type="Player")
+            if context.state_cache.player.frame > previous_game_state["player"]:
+                previous_game_state["player"] = context.state_cache.player.frame
+                send_message(
+                    DataSubscription.Player, data=context.state_cache.player.value.to_dict(), event_type="Player"
+                )
 
         if subscriptions["PlayerAvatar"] > 0:
-            if state_cache.player_avatar.age_in_frames > 4:
+            if context.state_cache.player_avatar.age_in_frames > 4:
                 # If the cached player avatar data is too old, tell the main thread to update it at the next
                 # possible opportunity.
                 work_queue.put_nowait(get_player_avatar)
-            if state_cache.player_avatar.frame > previous_game_state["player_avatar"]:
-                previous_game_state["player_avatar"] = state_cache.player_avatar.frame
+            if context.state_cache.player_avatar.frame > previous_game_state["player_avatar"]:
+                previous_game_state["player_avatar"] = context.state_cache.player_avatar.frame
                 send_message(
                     DataSubscription.PlayerAvatar,
-                    data=state_cache.player_avatar.value.to_dict(),
+                    data=context.state_cache.player_avatar.value.to_dict(),
                     event_type="PlayerAvatar",
                 )
 
         if subscriptions["Party"] > 0:
-            if state_cache.party.age_in_frames >= 60:
+            if context.state_cache.party.age_in_frames >= 60:
                 # If the cached party data is too old, tell the main thread to update it at the next
                 # possible opportunity.
                 work_queue.put_nowait(get_party)
-            if state_cache.party.frame > previous_game_state["party"]:
-                previous_game_state["party"] = state_cache.party.frame
-                send_message(DataSubscription.Party, data=state_cache.party.value.to_list(), event_type="Party")
+            if context.state_cache.party.frame > previous_game_state["party"]:
+                previous_game_state["party"] = context.state_cache.party.frame
+                send_message(DataSubscription.Party, data=context.state_cache.party.value.to_list(), event_type="Party")
 
         if subscriptions["Pokedex"] > 0:
-            if state_cache.pokedex.age_in_seconds > 0:
+            if context.state_cache.pokedex.age_in_seconds > 0:
                 # If the cached Pokédex data is too old, tell the main thread to update it at the next
                 # possible opportunity.
                 work_queue.put_nowait(get_pokedex)
-            if state_cache.pokedex.frame > previous_game_state["pokedex"]:
-                previous_game_state["pokedex"] = state_cache.pokedex.frame
-                send_message(DataSubscription.Pokedex, data=state_cache.pokedex.value.to_dict(), event_type="Pokedex")
+            if context.state_cache.pokedex.frame > previous_game_state["pokedex"]:
+                previous_game_state["pokedex"] = context.state_cache.pokedex.frame
+                send_message(
+                    DataSubscription.Pokedex, data=context.state_cache.pokedex.value.to_dict(), event_type="Pokedex"
+                )
 
         if subscriptions["Opponent"] > 0:
             if current_game_state == GameState.BATTLE:
-                if state_cache.opponent.age_in_frames >= 60:
+                if context.state_cache.opponent.age_in_frames >= 60:
                     # If the cached opponent data is too old, tell the main thread to update it at the next
                     # possible opportunity.
                     work_queue.put_nowait(get_opponent)
-                if state_cache.opponent.frame > previous_game_state["opponent"]:
-                    previous_game_state["opponent"] = state_cache.opponent.frame
-                    data = state_cache.opponent.value[0]
+                if context.state_cache.opponent.frame > previous_game_state["opponent"]:
+                    previous_game_state["opponent"] = context.state_cache.opponent.frame
+                    data = context.state_cache.opponent.value[0]
                     if data is not None:
                         data = data.to_dict()
                     send_message(DataSubscription.Opponent, data=data, event_type="Opponent")
@@ -295,8 +298,8 @@ def run_watcher():
                 previous_game_state["wild_encounter"] = context.stats.last_encounter.encounter_id
 
         if subscriptions["FishingAttempt"] > 0:
-            if state_cache.fishing_attempt.value != context.stats.last_fishing_attempt:
-                state_cache.fishing_attempt = context.stats.last_fishing_attempt
+            if context.state_cache.fishing_attempt.value != context.stats.last_fishing_attempt:
+                context.state_cache.fishing_attempt = context.stats.last_fishing_attempt
                 send_message(
                     DataSubscription.FishingAttempt,
                     data=context.stats.last_fishing_attempt.to_dict(),
@@ -307,16 +310,16 @@ def run_watcher():
             send_message(DataSubscription.GameState, data=current_game_state.name, event_type="GameState")
 
         if (subscriptions["Map"] > 0 or subscriptions["MapTile"] > 0) and current_game_state == GameState.OVERWORLD:
-            if state_cache.player_avatar.age_in_frames > 4:
+            if context.state_cache.player_avatar.age_in_frames > 4:
                 # If the cached player avatar data is too old, tell the main thread to update it at the next
                 # possible opportunity.
                 work_queue.put_nowait(get_player_avatar)
-            elif state_cache.player_avatar.value is not None:
-                previous_game_state["player_avatar"] = state_cache.player_avatar.frame
-                current_map = state_cache.player_avatar.value.map_group_and_number
-                current_coords = state_cache.player_avatar.value.local_coordinates
+            elif context.state_cache.player_avatar.value is not None:
+                previous_game_state["player_avatar"] = context.state_cache.player_avatar.frame
+                current_map = context.state_cache.player_avatar.value.map_group_and_number
+                current_coords = context.state_cache.player_avatar.value.local_coordinates
                 if current_map != previous_game_state["map_group_and_number"]:
-                    map_data = state_cache.player_avatar.value.map_location
+                    map_data = context.state_cache.player_avatar.value.map_location
                     data = {
                         "map": map_data.dict_for_map(),
                         "player_position": map_data.local_position,
@@ -333,13 +336,13 @@ def run_watcher():
                     previous_game_state["map_local_coordinates"] = current_coords
 
         if subscriptions["MapEncounters"] > 0 and current_game_state is GameState.OVERWORLD:
-            if state_cache.effective_wild_encounters.age_in_frames >= 300:
+            if context.state_cache.effective_wild_encounters.age_in_frames >= 300:
                 # If the cached encounter data is too old, tell the main thread to update it at the next
                 # possible opportunity.
                 work_queue.put_nowait(get_effective_encounter_rates_for_current_map)
-            if state_cache.effective_wild_encounters.frame > previous_game_state["map_encounters"]:
-                encounters = state_cache.effective_wild_encounters.value
-                previous_game_state["map_encounters"] = state_cache.effective_wild_encounters.frame
+            if context.state_cache.effective_wild_encounters.frame > previous_game_state["map_encounters"]:
+                encounters = context.state_cache.effective_wild_encounters.value
+                previous_game_state["map_encounters"] = context.state_cache.effective_wild_encounters.frame
                 send_message(DataSubscription.MapEncounters, data=encounters.to_dict(), event_type="MapEncounters")
 
         if subscriptions["PokenavCall"] > 0:

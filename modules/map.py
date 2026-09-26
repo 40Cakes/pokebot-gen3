@@ -27,7 +27,6 @@ from modules.pokemon import (
     get_type_by_name,
 )
 from modules.pokemon_party import get_current_repel_level, get_party, Pokemon
-from modules.state_cache import state_cache
 
 if TYPE_CHECKING:
     from modules.battle_state import EncounterType
@@ -2217,8 +2216,8 @@ def _calculate_effective_encounters(
 
 
 def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterList | None:
-    if state_cache.effective_wild_encounters.age_in_frames == 0:
-        return state_cache.effective_wild_encounters.value
+    if context.state_cache.effective_wild_encounters.age_in_frames == 0:
+        return context.state_cache.effective_wild_encounters.value
 
     from modules.player import get_player_avatar
 
@@ -2280,7 +2279,7 @@ def get_effective_encounter_rates_for_current_map() -> EffectiveWildEncounterLis
             ),
         )
 
-    state_cache.effective_wild_encounters = encounter_list
+    context.state_cache.effective_wild_encounters = encounter_list
 
     return encounter_list
 
