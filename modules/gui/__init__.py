@@ -1,25 +1,38 @@
 import contextlib
 import os
 import platform
-from tkinter import Tk, ttk
 from typing import TYPE_CHECKING
 
 import PIL.Image
-import PIL.ImageTk
-import darkdetect
-from ttkthemes import ThemedTk
 
 from modules.console import console
 from modules.context import context
 from modules.debug import debug
 from modules.game import set_rom
-from modules.gui.create_profile_screen import CreateProfileScreen
-from modules.gui.emulator_screen import EmulatorScreen
-from modules.gui.load_state_window import LoadStateWindow
-from modules.gui.select_profile_screen import SelectProfileScreen
 from modules.libmgba import LibmgbaEmulator, input_map
 from modules.sprites import choose_random_sprite, crop_sprite_square
 from modules.version import pokebot_name, pokebot_version
+
+# Only PokebotGui needs these. Importing `modules.gui.headless` runs this package's
+# `__init__` first, so importing them unconditionally would make headless mode depend
+# on a GUI toolkit it never uses.
+try:
+    from tkinter import Tk, ttk
+
+    import PIL.ImageTk
+    import darkdetect
+    from ttkthemes import ThemedTk
+
+    from modules.gui.create_profile_screen import CreateProfileScreen
+    from modules.gui.emulator_screen import EmulatorScreen
+    from modules.gui.load_state_window import LoadStateWindow
+    from modules.gui.select_profile_screen import SelectProfileScreen
+
+    GUI_AVAILABLE = True
+    GUI_IMPORT_ERROR = None
+except ImportError as exc:
+    GUI_AVAILABLE = False
+    GUI_IMPORT_ERROR = exc
 
 if TYPE_CHECKING:
     from pokebot import StartupSettings
@@ -28,6 +41,12 @@ if TYPE_CHECKING:
 
 class PokebotGui:
     def __init__(self, main_loop: callable, on_exit: callable, no_theme: bool = False, use_opengl: bool = False):
+        if not GUI_AVAILABLE:
+            raise RuntimeError(
+                "The graphical interface is unavailable because Tk could not be imported "
+                f"({GUI_IMPORT_ERROR}). Install tkinter for this Python, or run the bot "
+                "with --headless."
+            )
         if not no_theme:
             theme = "equilux" if darkdetect.isDark() else "clam"
             self.window = ThemedTk(className="PokeBot", theme=theme)
