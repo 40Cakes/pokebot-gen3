@@ -1,4 +1,5 @@
 import asyncio
+import fractions
 import io
 import queue
 import re
@@ -16,9 +17,16 @@ from modules.daycare import get_daycare_data
 from modules.game import get_current_game_data
 
 try:
-    from aiortc import MediaStreamTrack, VideoStreamTrack, RTCPeerConnection, RTCSessionDescription
+    from aiortc import (
+        MediaStreamTrack,
+        VideoStreamTrack,
+        RTCConfiguration,
+        RTCPeerConnection,
+        RTCSessionDescription,
+    )
     from aiortc.contrib.media import MediaRelay
-    from av import VideoFrame, Packet, AudioFrame
+    from av import VideoFrame, Packet, AudioFrame, AudioResampler
+    from PIL import Image
     from av.frame import Frame
 
     webrtc_available = True
@@ -762,45 +770,107 @@ def http_server(host: str, port: int) -> web.AppRunner:
         class EmuVideo(VideoStreamTrack):
             def __init__(self):
                 super().__init__()
+                self._black_image: Image.Image = Image.new("RGB", (240, 160))
 
             async def recv(self) -> Union[Frame, Packet]:
                 pts, time_base = await self.next_timestamp()
 
-                frame = VideoFrame.from_image(context.emulator.get_current_screen_image())
+                # If video is disabled, mGBA does not render anything, so the screen buffer
+                # would contain rubbish. Send a black image instead.
+                if context.video:
+                    image = context.emulator.get_current_screen_image()
+                else:
+                    image = self._black_image
+
+                # The same frame object is passed to the encoders of all connected clients, which
+                # run in separate threads. The encoder would convert the frame to YUV if it isn't
+                # already, but `reformat()` is not thread-safe and crashes the process if several
+                # threads call it on the same frame at once. So convert it once, here.
+                frame = VideoFrame.from_image(image).reformat(format="yuv420p")
                 frame.pts = pts
                 frame.time_base = time_base
 
                 return frame
 
         class EmuAudio(MediaStreamTrack):
+            """
+            Streams the emulator's audio output.
+
+            The emulator's sample rate depends on the host's audio device and may change at
+            runtime (e.g. when that device disappears), but aiortc's encoder cannot handle a
+            change of sample rate mid-stream. So all audio is resampled to a fixed rate here.
+            """
+
             kind = "audio"
+            output_sample_rate = 48000
+
+            # If the timestamp of the audio lags behind the wall clock by more than this
+            # many seconds, it is assumed that the emulator has not been producing audio
+            # for a while (because it was paused or running unthrottled.)
+            maximum_lag = 0.25
 
             def __init__(self):
                 super().__init__()
                 self._queue: Queue[bytes] = context.emulator.get_last_audio_data()
+                self._resampler: AudioResampler | None = None
+                self._resampler_input_rate: int | None = None
                 self._start: float | None = None
-                self._timestamp: float = 0
+                self._timestamp: int = 0
 
-            async def recv(self) -> Union[Frame, Packet]:
-                sample_rate = context.emulator.get_sample_rate()
-                data = b""
-                while len(data) == 0:
+            async def _get_audio_data(self) -> bytes:
+                while True:
                     try:
-                        part = self._queue.get_nowait()
+                        data = self._queue.get_nowait()
+                        if len(data) > 0:
+                            return data
                     except queue.Empty:
                         await asyncio.sleep(1 / 480)
-                        continue
-                    data += part
 
+            def _resample(self, data: bytes) -> bytes:
+                input_sample_rate = context.emulator.get_sample_rate()
+                if self._resampler is None or self._resampler_input_rate != input_sample_rate:
+                    self._resampler = AudioResampler(format="s16", layout="stereo", rate=self.output_sample_rate)
+                    self._resampler_input_rate = input_sample_rate
+
+                input_frame = AudioFrame(format="s16", layout="stereo", samples=len(data) // 4)
+                input_frame.planes[0].update(data)
+                input_frame.sample_rate = input_sample_rate
+
+                return b"".join(
+                    bytes(output_frame.planes[0])[: output_frame.samples * 4]
+                    for output_frame in self._resampler.resample(input_frame)
+                )
+
+            async def recv(self) -> Union[Frame, Packet]:
                 if self._start is None:
-                    self._start = time.time()
+                    # Discard audio that has been queued up before anyone was listening.
+                    while not self._queue.empty():
+                        try:
+                            self._queue.get_nowait()
+                        except queue.Empty:
+                            break
+
+                # The resampler may hold back some samples, so it is possible that we
+                # need to feed it more than one chunk before we get any output.
+                data = b""
+                while len(data) == 0:
+                    data = self._resample(await self._get_audio_data())
+
+                now = time.time()
+                if self._start is None:
+                    self._start = now
+                elif now - (self._start + self._timestamp / self.output_sample_rate) > self.maximum_lag:
+                    # Skip the timestamp ahead so that the browser treats this as a gap in
+                    # the audio rather than as audio that has been delayed.
+                    self._timestamp = int((now - self._start) * self.output_sample_rate)
 
                 frame = AudioFrame(format="s16", layout="stereo", samples=len(data) // 4)
                 frame.planes[0].update(data)
+                frame.sample_rate = self.output_sample_rate
+                frame.time_base = fractions.Fraction(1, self.output_sample_rate)
                 frame.pts = self._timestamp
-                frame.sample_rate = sample_rate
 
-                self._timestamp += len(data) // 4
+                self._timestamp += frame.samples
 
                 return frame
 
@@ -810,12 +880,12 @@ def http_server(host: str, port: int) -> web.AppRunner:
 
         @route.post("/rtc")
         async def http_post_rtc(request: web.Request):
-            nonlocal rtc_connections, emu_video, emu_audio
+            nonlocal emu_video, emu_audio
 
             params = await request.json()
             offer = RTCSessionDescription(sdp=params["sdp"], type=params["type"])
 
-            connection = RTCPeerConnection()
+            connection = RTCPeerConnection(RTCConfiguration(iceServers=[]))
             rtc_connections.add(connection)
 
             @connection.on("datachannel")
@@ -827,7 +897,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
 
             @connection.on("connectionstatechange")
             async def on_connection_state_change():
-                if connection.connectionState == "failed":
+                if connection.connectionState in ("failed", "closed"):
                     await connection.close()
                     rtc_connections.discard(connection)
 
@@ -837,7 +907,10 @@ def http_server(host: str, port: int) -> web.AppRunner:
             if emu_audio is None:
                 emu_audio = EmuAudio()
 
-            connection.addTrack(relay.subscribe(emu_video))
+            # Video is not buffered so that a slow client always gets the most recent frame
+            # rather than lagging further and further behind. Audio needs to be buffered because
+            # dropping parts of it would be audible.
+            connection.addTrack(relay.subscribe(emu_video, buffered=False))
             connection.addTrack(relay.subscribe(emu_audio))
 
             await connection.setRemoteDescription(offer)
