@@ -773,23 +773,11 @@
         "Backspace": "Select",
     }
 
-    let abortController = null;
+    // Inputs are sent via a WebRTC data channel, so they only work while video is running.
+    let inputChannel = null;
     const updateInputs = () => {
-        if (document.getElementById("bot_mode").value === "Manual") {
-            if (abortController !== null) {
-                abortController.abort();
-            }
-
-            abortController = new AbortController();
-            fetch("/input", {
-                method: "POST",
-                body: JSON.stringify([...held_buttons]),
-                headers: {"Content-Type": "application/json"},
-                signal: abortController.signal,
-            })
-                .then(() => {
-                    abortController = null;
-                });
+        if (document.getElementById("bot_mode").value === "Manual" && inputChannel?.readyState === "open") {
+            inputChannel.send(JSON.stringify([...held_buttons]));
         }
     };
 
@@ -814,37 +802,47 @@
         video.style.display = "block";
         const audio = document.getElementById("gba_audio");
 
-        const config = {
-            sdpSemantics: "unified-plan",
-            iceServers: [{urls: ['stun:stun.l.google.com:19302']}],
-        };
-
-        const rtcConnection = new RTCPeerConnection(config);
+        const rtcConnection = new RTCPeerConnection();
 
         rtcConnection.addEventListener("track", (event) => {
             if (event.track.kind === "video") {
-                video.srcObject = event.streams[0];
+                video.srcObject = new MediaStream([event.track]);
             } else if (event.track.kind === "audio") {
-                audio.srcObject = event.streams[0];
+                audio.srcObject = new MediaStream([event.track]);
             }
         });
 
         rtcConnection.addTransceiver("video", {direction: "recvonly"});
         rtcConnection.addTransceiver("audio", {direction: "recvonly"});
 
+        // This needs to be created before the offer, or otherwise the offer will not
+        // include a data channel at all.
+        const channel = rtcConnection.createDataChannel("input");
+        let heartbeatInterval = null;
+        channel.addEventListener("open", () => {
+            inputChannel = channel;
+            updateInputs();
+
+            // The server releases all buttons if it does not hear from us for a few seconds
+            // (in case this tab has been closed), so repeat the current state every second.
+            heartbeatInterval = window.setInterval(updateInputs, 1000);
+        });
+        channel.addEventListener("close", () => {
+            window.clearInterval(heartbeatInterval);
+            if (inputChannel === channel) {
+                inputChannel = null;
+            }
+        });
+
         const offer = await rtcConnection.createOffer();
         await rtcConnection.setLocalDescription(offer);
 
-        if (rtcConnection.iceGatheringState !== "complete") {
-            await new Promise(resolve => {
-                rtcConnection.addEventListener("icegatheringstatechange", () => {
-                    if (rtcConnection.iceGatheringState === "complete") {
-                        resolve();
-                    }
-                })
-            });
-        }
-
+        // The offer is deliberately sent before any ICE candidates have been gathered.
+        // Browsers usually hide their local IP addresses behind random mDNS hostnames that
+        // the server cannot resolve, and some (Firefox) also mark the list of candidates as
+        // complete -- at which point the server would give up without even trying.
+        // Without any candidates, the server instead waits for the browser to contact one
+        // of the server's (real) addresses, which are included in the answer.
         const response = await fetch("/rtc", {
             method: "POST",
             headers: {"Content-Type": "application/json"},

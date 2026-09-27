@@ -56,7 +56,6 @@ def get_feebas_tiles() -> list[tuple[int, int]]:
     else:
         return []
 
-    global _route119_fishing_spots
     if context.rom.id not in _route119_fishing_spots:
         _route119_fishing_spots[context.rom.id] = []
     if len(_route119_fishing_spots[context.rom.id]) == 0:

@@ -1,5 +1,7 @@
 import asyncio
+import fractions
 import io
+import json
 import queue
 import re
 import time
@@ -16,9 +18,17 @@ from modules.daycare import get_daycare_data
 from modules.game import get_current_game_data
 
 try:
-    from aiortc import MediaStreamTrack, VideoStreamTrack, RTCPeerConnection, RTCSessionDescription
+    from aiortc import (
+        MediaStreamTrack,
+        VideoStreamTrack,
+        RTCConfiguration,
+        RTCPeerConnection,
+        RTCSessionDescription,
+    )
     from aiortc.contrib.media import MediaRelay
-    from av import VideoFrame, Packet, AudioFrame
+    from aiortc.mediastreams import MediaStreamError
+    from av import VideoFrame, Packet, AudioFrame, AudioResampler
+    from PIL import Image
     from av.frame import Frame
 
     webrtc_available = True
@@ -91,6 +101,33 @@ def _update_via_work_queue(
     except Exception:
         console.print_exception()
         return
+
+
+def _set_held_buttons(buttons: list) -> None:
+    """
+    Replaces the set of buttons that are being held down in the emulator (only if the
+    bot is in Manual mode.)
+
+    Entries that are not a valid button name (case-insensitive) will be ignored.
+
+    :param buttons: List of names of the buttons that should be held down.
+    """
+    possible_buttons = ["A", "B", "Select", "Start", "Right", "Left", "Up", "Down", "R", "L"]
+    buttons_to_press = []
+    for button in buttons:
+        if not isinstance(button, str):
+            continue
+        for possible_button in possible_buttons:
+            if button.lower() == possible_button.lower():
+                buttons_to_press.append(possible_button)
+
+    def update_inputs():
+        if context.bot_mode == "Manual":
+            context.emulator.reset_held_buttons()
+            for button_to_press in buttons_to_press:
+                context.emulator.hold_button(button_to_press)
+
+    work_queue.put_nowait(update_inputs)
 
 
 def http_server(host: str, port: int) -> web.AppRunner:
@@ -703,20 +740,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
         if not isinstance(new_buttons, list):
             return web.Response(text="This endpoint expects a JSON array as its payload.", status=422)
 
-        possible_buttons = ["A", "B", "Select", "Start", "Right", "Left", "Up", "Down", "R", "L"]
-        buttons_to_press = []
-        for button in new_buttons:
-            for possible_button in possible_buttons:
-                if button.lower() == possible_button.lower():
-                    buttons_to_press.append(possible_button)
-
-        def update_inputs():
-            if context.bot_mode == "Manual":
-                context.emulator.reset_held_buttons()
-                for button_to_press in buttons_to_press:
-                    context.emulator.hold_button(button_to_press)
-
-        work_queue.put_nowait(update_inputs)
+        _set_held_buttons(new_buttons)
 
         return web.Response(status=204)
 
@@ -762,45 +786,112 @@ def http_server(host: str, port: int) -> web.AppRunner:
         class EmuVideo(VideoStreamTrack):
             def __init__(self):
                 super().__init__()
+                self._black_image: Image.Image = Image.new("RGB", (240, 160))
 
             async def recv(self) -> Union[Frame, Packet]:
                 pts, time_base = await self.next_timestamp()
 
-                frame = VideoFrame.from_image(context.emulator.get_current_screen_image())
+                # If video is disabled, mGBA does not render anything, so the screen buffer
+                # would contain rubbish. Send a black image instead.
+                if context.video:
+                    image = context.emulator.get_current_screen_image()
+                else:
+                    image = self._black_image
+
+                # The same frame object is passed to the encoders of all connected clients, which
+                # run in separate threads. The encoder would convert the frame to YUV if it isn't
+                # already, but `reformat()` is not thread-safe and crashes the process if several
+                # threads call it on the same frame at once. So convert it once, here.
+                frame = VideoFrame.from_image(image).reformat(format="yuv420p")
                 frame.pts = pts
                 frame.time_base = time_base
 
                 return frame
 
         class EmuAudio(MediaStreamTrack):
+            """
+            Streams the emulator's audio output.
+
+            The emulator's sample rate depends on the host's audio device and may change at
+            runtime (e.g. when that device disappears), but aiortc's encoder cannot handle a
+            change of sample rate mid-stream. So all audio is resampled to a fixed rate here.
+            """
+
             kind = "audio"
+            output_sample_rate = 48000
+
+            # If the timestamp of the audio lags behind the wall clock by more than this
+            # many seconds, it is assumed that the emulator has not been producing audio
+            # for a while (because it was paused or running unthrottled.)
+            maximum_lag = 0.25
 
             def __init__(self):
                 super().__init__()
                 self._queue: Queue[bytes] = context.emulator.get_last_audio_data()
+                self._resampler: AudioResampler | None = None
+                self._resampler_input_rate: int | None = None
                 self._start: float | None = None
-                self._timestamp: float = 0
+                self._timestamp: int = 0
 
-            async def recv(self) -> Union[Frame, Packet]:
-                sample_rate = context.emulator.get_sample_rate()
-                data = b""
-                while len(data) == 0:
+            async def _get_audio_data(self) -> bytes:
+                while True:
+                    if self.readyState != "live":
+                        raise MediaStreamError
                     try:
-                        part = self._queue.get_nowait()
+                        data = self._queue.get_nowait()
+                        if len(data) > 0:
+                            return data
                     except queue.Empty:
                         await asyncio.sleep(1 / 480)
-                        continue
-                    data += part
+
+            def _resample(self, data: bytes) -> bytes:
+                input_sample_rate = context.emulator.get_sample_rate()
+                if self._resampler is None or self._resampler_input_rate != input_sample_rate:
+                    self._resampler = AudioResampler(format="s16", layout="stereo", rate=self.output_sample_rate)
+                    self._resampler_input_rate = input_sample_rate
+
+                input_frame = AudioFrame(format="s16", layout="stereo", samples=len(data) // 4)
+                input_frame.planes[0].update(data)
+                input_frame.sample_rate = input_sample_rate
+
+                return b"".join(
+                    bytes(output_frame.planes[0])[: output_frame.samples * 4]
+                    for output_frame in self._resampler.resample(input_frame)
+                )
+
+            async def recv(self) -> Union[Frame, Packet]:
+                if self.readyState != "live":
+                    raise MediaStreamError
 
                 if self._start is None:
-                    self._start = time.time()
+                    # Discard audio that has been queued up before anyone was listening.
+                    while not self._queue.empty():
+                        try:
+                            self._queue.get_nowait()
+                        except queue.Empty:
+                            break
+
+                # The resampler may hold back some samples, so it is possible that we
+                # need to feed it more than one chunk before we get any output.
+                data = b""
+                while len(data) == 0:
+                    data = self._resample(await self._get_audio_data())
+
+                now = time.time()
+                if self._start is None:
+                    self._start = now
+                elif now - (self._start + self._timestamp / self.output_sample_rate) > self.maximum_lag:
+                    # Skip the timestamp ahead so that the browser treats this as a gap in
+                    # the audio rather than as audio that has been delayed.
+                    self._timestamp = int((now - self._start) * self.output_sample_rate)
 
                 frame = AudioFrame(format="s16", layout="stereo", samples=len(data) // 4)
                 frame.planes[0].update(data)
+                frame.sample_rate = self.output_sample_rate
+                frame.time_base = fractions.Fraction(1, self.output_sample_rate)
                 frame.pts = self._timestamp
-                frame.sample_rate = sample_rate
 
-                self._timestamp += len(data) // 4
+                self._timestamp += frame.samples
 
                 return frame
 
@@ -808,28 +899,85 @@ def http_server(host: str, port: int) -> web.AppRunner:
         emu_audio = None
         emu_video = None
 
+        def stop_streams_if_unused():
+            """
+            The relay keeps reading from the source tracks even after all subscribers are
+            gone. So once the last connection has closed, we stop the tracks (which ends the
+            relay's reading task) and create new ones for the next client.
+            """
+            nonlocal emu_video, emu_audio
+            if len(rtc_connections) == 0:
+                if emu_video is not None:
+                    emu_video.stop()
+                    emu_video = None
+                if emu_audio is not None:
+                    emu_audio.stop()
+                    emu_audio = None
+
         @route.post("/rtc")
         async def http_post_rtc(request: web.Request):
-            nonlocal rtc_connections, emu_video, emu_audio
+            nonlocal emu_video, emu_audio
 
             params = await request.json()
             offer = RTCSessionDescription(sdp=params["sdp"], type=params["type"])
 
-            connection = RTCPeerConnection()
+            connection = RTCPeerConnection(RTCConfiguration(iceServers=[]))
             rtc_connections.add(connection)
 
             @connection.on("datachannel")
             def on_datachannel(channel):
-                @channel.on("message")
-                def on_message(message):
-                    if isinstance(message, str) and message.startswith("ping"):
-                        channel.send("pong" + message[4:])
+                if channel.label == "input":
+                    last_message_time = time.monotonic()
+                    buttons_held = False
+
+                    # Each message contains the full list of buttons that should be held down,
+                    # in the same format as `POST /input`.
+                    @channel.on("message")
+                    def on_input_message(message):
+                        nonlocal last_message_time, buttons_held
+                        last_message_time = time.monotonic()
+                        try:
+                            buttons = json.loads(message)
+                        except (TypeError, ValueError):
+                            return
+                        if isinstance(buttons, list):
+                            _set_held_buttons(buttons)
+                            buttons_held = len(buttons) > 0
+
+                    # The client repeats its current input state every second. Some browsers do not
+                    # tell us when a tab is closed, in which case it would take ~30 seconds for the
+                    # connection to time out. So if the client has gone quiet for a few seconds, we
+                    # assume that it has gone away and release any buttons that it held down.
+                    async def release_buttons_if_client_is_gone():
+                        nonlocal buttons_held
+                        while True:
+                            await asyncio.sleep(0.5)
+                            if buttons_held and time.monotonic() - last_message_time > 3:
+                                _set_held_buttons([])
+                                buttons_held = False
+
+                    watchdog = asyncio.ensure_future(release_buttons_if_client_is_gone())
+
+                    # This also gets called if the connection fails or the client goes away, so
+                    # this makes sure that no buttons remain held down in that case.
+                    @channel.on("close")
+                    def on_input_close():
+                        watchdog.cancel()
+                        _set_held_buttons([])
+
+                else:
+
+                    @channel.on("message")
+                    def on_message(message):
+                        if isinstance(message, str) and message.startswith("ping"):
+                            channel.send("pong" + message[4:])
 
             @connection.on("connectionstatechange")
             async def on_connection_state_change():
-                if connection.connectionState == "failed":
+                if connection.connectionState in ("failed", "closed"):
                     await connection.close()
                     rtc_connections.discard(connection)
+                    stop_streams_if_unused()
 
             if emu_video is None:
                 emu_video = EmuVideo()
@@ -837,13 +985,21 @@ def http_server(host: str, port: int) -> web.AppRunner:
             if emu_audio is None:
                 emu_audio = EmuAudio()
 
-            connection.addTrack(relay.subscribe(emu_video))
+            # Video is not buffered so that a slow client always gets the most recent frame
+            # rather than lagging further and further behind. Audio needs to be buffered because
+            # dropping parts of it would be audible.
+            connection.addTrack(relay.subscribe(emu_video, buffered=False))
             connection.addTrack(relay.subscribe(emu_audio))
 
-            await connection.setRemoteDescription(offer)
-
-            answer = await connection.createAnswer()
-            await connection.setLocalDescription(answer)
+            try:
+                await connection.setRemoteDescription(offer)
+                answer = await connection.createAnswer()
+                await connection.setLocalDescription(answer)
+            except Exception:
+                await connection.close()
+                rtc_connections.discard(connection)
+                stop_streams_if_unused()
+                raise
 
             return web.json_response({"sdp": connection.localDescription.sdp, "type": connection.localDescription.type})
 

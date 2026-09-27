@@ -8,6 +8,8 @@ from unittest import mock
 
 from rich.console import Console
 
+from modules.state_cache import StateCache
+
 sys.path.append(str(Path(__file__).parent.parent))
 
 from modules.modes._interface import BotMode
@@ -246,6 +248,7 @@ def _set_up_test_emulator(profile: "Profile"):
 
     context.emulator = LibmgbaEmulator(context.profile, do_nothing, is_test_run=True)
     context.stats = MockStatsDatabase()
+    context.state_cache = StateCache()
     context.bot_listeners = get_bot_listeners(context.rom)
     context.frame = 0
     context.controller_stack.clear()

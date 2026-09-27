@@ -595,11 +595,17 @@ class LibmgbaEmulator:
         else:
             self._gba_audio.clear()
 
-        try:
-            self._last_audio_data.put_nowait(audio_data)
-        except queue.Full:
-            self._last_audio_data.get()
-            self._last_audio_data.put_nowait(audio_data)
+        # When running unthrottled, the audio data is just silence and there would be far more of it
+        # than could be played back in real time. So it is only made available when throttled.
+        if self._throttled:
+            try:
+                self._last_audio_data.put_nowait(audio_data)
+            except queue.Full:
+                try:
+                    self._last_audio_data.get_nowait()
+                except queue.Empty:
+                    pass
+                self._last_audio_data.put_nowait(audio_data)
 
         self._on_frame_callback()
 
