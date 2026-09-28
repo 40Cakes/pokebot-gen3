@@ -1,7 +1,8 @@
 import queue
 import sys
 from collections import deque
-from typing import Generator
+from concurrent.futures import Future
+from typing import Generator, Callable, TypeVar
 
 from modules.console import console
 from modules.context import context
@@ -16,7 +17,7 @@ from modules.tasks import get_global_script_context, get_tasks
 # This is currently used by the HTTP server component (which runs in a separate thread) to trigger things
 # such as extracting the current party, which need to be done from the main thread.
 # Each entry here will be executed exactly once and then removed from the queue.
-work_queue: queue.Queue[callable] = queue.Queue()
+work_queue: queue.Queue[Callable[[], object]] = queue.Queue()
 
 
 # Keeps a list of inputs that have been pressed for each frame so that the HTTP server
@@ -147,3 +148,39 @@ def main_loop() -> None:
     except Exception:
         console.print_exception(show_locals=True)
         sys.exit(1)
+
+
+T = TypeVar("T")
+
+
+def submit_to_work_queue(callback: Callable[[], T]) -> Future[T]:
+    """
+    Schedules a callback to be run in the main thread (in between two frames.)
+
+    Code running in other threads (such as the HTTP server) must not access the
+    emulator (or change the bot's state) directly. Otherwise the reads/writes
+    might happen while the emulation of a frame is in progress, potentially
+    leading to invalid data being read or settings being changed mid-frame.
+
+    So anything that wants to interact with the emulator from another thread
+    needs to go through this.
+
+    If the callback raises an exception, it is stored in the returned future
+    rather than raised in the main thread (where it would end the bot.) So
+    callers need to check the future's result, or errors will go unnoticed.
+
+    :param callback: The function that should be run in the main thread.
+    :return: A future that will contain whatever the callback returned.
+    """
+    future = Future()
+
+    def run_callback():
+        if not future.set_running_or_notify_cancel():
+            return
+        try:
+            future.set_result(callback())
+        except Exception as e:
+            future.set_exception(e)
+
+    work_queue.put_nowait(run_callback)
+    return future

@@ -260,7 +260,7 @@ def get_game_state() -> GameState:
             | "CB2_LOADMAPFORQLPLAYBACK"
             | "CB2_ENTERFIELDFROMQUESTLOG"
         ):
-            return GameState.QUEST_LOG
+            result = GameState.QUEST_LOG
         case "CB2_OVERWORLD":
             result = GameState.OVERWORLD
         case "BATTLEMAINCB2":
