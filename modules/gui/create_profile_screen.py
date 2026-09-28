@@ -1,11 +1,11 @@
 import re
 from tkinter import StringVar, Tk, ttk
-from typing import Union
+from typing import Union, Callable
 
 import plyer
 from PIL import Image, ImageOps, ImageTk
 
-from modules.profiles import create_profile, list_available_profiles, profile_directory_exists
+from modules.profiles import Profile, create_profile, list_available_profiles, profile_directory_exists
 from modules.roms import ROM, list_available_roms
 from modules.runtime import get_sprites_path
 from modules.save_import import MigrationError, migrate_save_state
@@ -13,10 +13,12 @@ from modules.version import pokebot_name
 
 
 class CreateProfileScreen:
-    def __init__(self, window: Tk, enable_profile_selection_screen: callable, run_profile: callable):
+    def __init__(
+        self, window: Tk, enable_profile_selection_screen: Callable[[], None], return_profile: Callable[[Profile], None]
+    ):
         self.window = window
         self.enable_profile_selection_screen = enable_profile_selection_screen
-        self.run_profile = run_profile
+        self.return_profile = return_profile
         self.frame: ttk.Frame | None = None
 
     def enable(self) -> None:
@@ -159,7 +161,7 @@ class CreateProfileScreen:
                 return
 
             profile = create_profile(name, selected_rom)
-            self.run_profile(profile)
+            self.return_profile(profile)
 
         def handle_load_save_press():
             def handle_selected_file(selection: list[str]) -> None:
@@ -171,7 +173,7 @@ class CreateProfileScreen:
                 try:
                     with open(selection[0], "rb") as file:
                         profile = migrate_save_state(file, sv_name.get(), selected_rom)
-                    self.run_profile(profile)
+                    self.return_profile(profile)
                 except MigrationError as error:
                     message_label.config(text=str(error), foreground="red")
                     message_label.grid(row=3, column=0, columnspan=2)

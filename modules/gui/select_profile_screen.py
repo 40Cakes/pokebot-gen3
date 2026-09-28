@@ -1,15 +1,17 @@
 from datetime import date, datetime
 from tkinter import Tk, ttk, StringVar
-from typing import Union
+from typing import Union, Callable
 
 from modules.profiles import Profile, list_available_profiles
 
 
 class SelectProfileScreen:
-    def __init__(self, window: Tk, enable_profile_creation_screen: callable, run_profile: callable):
+    def __init__(
+        self, window: Tk, enable_profile_creation_screen: Callable[[], None], return_profile: Callable[[Profile], None]
+    ):
         self.window = window
         self.enable_profile_creation_screen = enable_profile_creation_screen
-        self.run_profile = run_profile
+        self.return_profile = return_profile
         self.frame: Union[ttk.Frame, None] = None
 
         self._filter_term = ""
@@ -102,7 +104,8 @@ class SelectProfileScreen:
             selected_name = treeview.item(item, "text")
             for profile in available_profiles:
                 if profile.path.name == selected_name:
-                    self.run_profile(profile)
+                    self.return_profile(profile)
+                    return
 
         search_field: ttk.Entry | None = None
 

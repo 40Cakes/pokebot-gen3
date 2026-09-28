@@ -1,15 +1,14 @@
 import contextlib
 import os
 import platform
-from typing import TYPE_CHECKING
+import time
+from typing import TYPE_CHECKING, Callable, Optional
 
 import PIL.Image
 
 from modules.console import console
 from modules.context import context
-from modules.debug import debug
-from modules.game import set_rom
-from modules.libmgba import LibmgbaEmulator, input_map
+from modules.libmgba import input_map
 from modules.sprites import choose_random_sprite, crop_sprite_square
 from modules.version import pokebot_name, pokebot_version
 
@@ -35,12 +34,13 @@ except ImportError as exc:
     GUI_IMPORT_ERROR = exc
 
 if TYPE_CHECKING:
-    from pokebot import StartupSettings
     from modules.profiles import Profile
 
 
 class PokebotGui:
-    def __init__(self, main_loop: callable, on_exit: callable, no_theme: bool = False, use_opengl: bool = False):
+    def __init__(
+        self, on_exit: Callable[[], None], no_theme: bool = False, always_on_top: bool = False, use_opengl: bool = False
+    ):
         if not GUI_AVAILABLE:
             raise RuntimeError(
                 "The graphical interface is unavailable because Tk could not be imported "
@@ -54,9 +54,7 @@ class PokebotGui:
             self.window = Tk(className="PokeBot")
             ttk.Style().theme_use("default")
         self._current_screen = None
-        self._main_loop = main_loop
         self._on_exit = on_exit
-        self._startup_settings: "StartupSettings | None" = None
         self.inputs_enabled = True
         self.is_headless = False
 
@@ -68,14 +66,24 @@ class PokebotGui:
 
         self._apply_key_config()
 
+        self._selected_profile: Optional["Profile"] = None
+        self._has_selected_profile: bool = False
+
+        def select_profile(profile: Optional["Profile"]) -> None:
+            self._selected_profile = profile
+            self._has_selected_profile = True
+
         self._create_profile_screen = CreateProfileScreen(
-            self.window, self._enable_select_profile_screen, self._run_profile
+            self.window, self._enable_select_profile_screen, select_profile
         )
         self._select_profile_screen = SelectProfileScreen(
-            self.window, self._enable_create_profile_screen, self._run_profile
+            self.window, self._enable_create_profile_screen, select_profile
         )
         self._emulator_screen = EmulatorScreen(self.window, use_opengl)
         self._set_app_icon()
+
+        if always_on_top:
+            self.window.wm_attributes("-topmost", True)
 
     def _apply_key_config(self) -> None:
         """Applies key settings from the configuration."""
@@ -87,17 +95,24 @@ class PokebotGui:
         for action, value in dict(key_config.emulator).items():
             self._emulator_keys[value.lower()] = action
 
-    def run(self, startup_settings: "StartupSettings") -> None:
-        self._startup_settings = startup_settings
-        if startup_settings.always_on_top:
-            self.window.wm_attributes("-topmost", True)
+    def run_profile_selection(self) -> Optional["Profile"]:
+        self._enable_select_profile_screen()
+        self._has_selected_profile = False
+        self._selected_profile = None
+        while not self._has_selected_profile:
+            self.window.update()
+            self.window.update_idletasks()
+            time.sleep(1 / 60)
 
-        if startup_settings.profile is not None:
-            self._run_profile(startup_settings.profile)
-        else:
-            self._enable_select_profile_screen()
+        return self._selected_profile
 
-        self.window.mainloop()
+    def run_profile(self) -> None:
+        self._reset_screen()
+        self._current_screen = self._emulator_screen
+        self._emulator_screen.enable()
+
+    def on_frame(self) -> None:
+        self._emulator_screen.update()
 
     def on_settings_updated(self) -> None:
         if self._current_screen == self._emulator_screen:
@@ -147,27 +162,6 @@ class PokebotGui:
         self._reset_screen()
         self._current_screen = self._select_profile_screen
         self._select_profile_screen.enable()
-
-    def _run_profile(self, profile: "Profile") -> None:
-        self._reset_screen()
-        context.profile = profile
-        context.config.load(profile.path, strict=False)
-        set_rom(profile.rom)
-        context.emulator = LibmgbaEmulator(profile, self._emulator_screen.update)
-
-        if self._startup_settings:
-            context.audio = not self._startup_settings.no_audio
-            context.video = not self._startup_settings.no_video
-            context.emulation_speed = self._startup_settings.emulation_speed
-            context.debug = self._startup_settings.debug
-            context.bot_mode = self._startup_settings.bot_mode
-
-            if context.debug:
-                debug.enabled = True
-
-        self._current_screen = self._emulator_screen
-        self._emulator_screen.enable()
-        self._main_loop()
 
     def _handle_key_down_event(self, event):
         keysym_with_modifier = ("ctrl+" if event.state & 4 else "") + event.keysym.lower()
