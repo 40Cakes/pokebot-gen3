@@ -10,9 +10,9 @@ from time import sleep, time
 from modules.console import console
 from modules.context import context
 from modules.libmgba import inputs_to_strings
-from modules.main import work_queue, inputs_each_frame
+from modules.main import work_queue, inputs_each_frame, submit_to_work_queue
 from modules.map import get_effective_encounter_rates_for_current_map
-from modules.memory import GameState, get_game_state
+from modules.memory import GameState
 from modules.player import get_player, get_player_avatar
 from modules.pokedex import get_pokedex
 from modules.pokemon import get_opponent
@@ -196,20 +196,22 @@ def run_watcher():
         "pokenav_calls": (
             context.stats.current_shiny_phase.pokenav_calls if context.stats.current_shiny_phase is not None else 0
         ),
-        "game_state": get_game_state(),
+        "game_state": context.state_cache.game_state.value,
     }
     previous_emulator_state = {
         "bot_mode": context.bot_mode,
         "emulation_speed": context.emulation_speed,
         "audio_enabled": context.audio,
         "video_enabled": context.video,
-        "inputs": context.emulator.get_inputs(),
+        "inputs": inputs_each_frame[-1] if len(inputs_each_frame) > 0 else 0,
         "message": context.message,
     }
 
     while len(subscribers) > 0:
         current_second = int(time())
-        current_game_state = get_game_state()
+        # This thread must not read emulator memory itself. The main loop updates the game
+        # state in the state cache every frame.
+        current_game_state = context.state_cache.game_state.value
 
         if current_second != previous_second:
             send_message(None, data=None, event_type="Ping")
@@ -319,12 +321,19 @@ def run_watcher():
                 current_map = context.state_cache.player_avatar.value.map_group_and_number
                 current_coords = context.state_cache.player_avatar.value.local_coordinates
                 if current_map != previous_game_state["map_group_and_number"]:
-                    map_data = context.state_cache.player_avatar.value.map_location
-                    data = {
-                        "map": map_data.dict_for_map(),
-                        "player_position": map_data.local_position,
-                        "tiles": map_data.dicts_for_all_tiles(),
-                    }
+                    player_avatar = context.state_cache.player_avatar.value
+
+                    # `MapLocation` reads most of its data from emulator memory when it is accessed,
+                    # so this has to happen in the main thread.
+                    def get_map_change_data():
+                        map_data = player_avatar.map_location
+                        return {
+                            "map": map_data.dict_for_map(),
+                            "player_position": map_data.local_position,
+                            "tiles": map_data.dicts_for_all_tiles(),
+                        }
+
+                    data = submit_to_work_queue(get_map_change_data).result()
 
                     if subscriptions["MapEncounters"] > 0:
                         work_queue.put_nowait(get_effective_encounter_rates_for_current_map)

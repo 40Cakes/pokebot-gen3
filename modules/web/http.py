@@ -7,7 +7,7 @@ import re
 import time
 from queue import Queue
 from threading import Thread
-from typing import Union
+from typing import Callable, TypeVar, Union
 
 import aiohttp.client_exceptions
 from aiohttp import web
@@ -39,7 +39,7 @@ from modules.console import console
 from modules.context import context
 from modules.items import get_item_bag, get_item_storage
 from modules.libmgba import inputs_to_strings
-from modules.main import work_queue
+from modules.main import work_queue, submit_to_work_queue
 from modules.map import get_map_data, get_effective_encounter_rates_for_current_map
 from modules.map_data import MapFRLG, MapRSE
 from modules.memory import GameState, get_event_flag, get_game_state
@@ -55,8 +55,24 @@ from modules.web.http_stream import add_subscriber
 
 custom_state: dict = {}
 
+T = TypeVar("T")
 
-def _update_via_work_queue(
+
+async def _run_via_work_queue(callback: Callable[[], T]) -> T:
+    """
+    Runs a callback in the main thread (in between two frames) and waits for it to
+    finish, without blocking the event loop.
+
+    The HTTP server runs in a separate thread, so it must not access the emulator (or
+    change the bot's state) directly. Anything that does needs to go through here.
+
+    :param callback: The function that should be run in the main thread.
+    :return: Whatever the callback returned.
+    """
+    return await asyncio.wrap_future(submit_to_work_queue(callback))
+
+
+async def _update_via_work_queue(
     state_cache_entry: StateCacheItem, update_callback: callable, maximum_age_in_frames: int = 5
 ) -> None:
     """
@@ -89,18 +105,10 @@ def _update_via_work_queue(
     if state_cache_entry.age_in_frames < maximum_age_in_frames:
         return
 
-    def do_update():
-        try:
-            update_callback()
-        except Exception:
-            console.print_exception()
-
     try:
-        work_queue.put_nowait(do_update)
-        work_queue.join()
+        await _run_via_work_queue(update_callback)
     except Exception:
         console.print_exception()
-        return
 
 
 def _set_held_buttons(buttons: list) -> None:
@@ -154,7 +162,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
         """
 
         cached_player = context.state_cache.player
-        _update_via_work_queue(cached_player, get_player)
+        await _update_via_work_queue(cached_player, get_player)
 
         try:
             data = cached_player.value.to_dict() if cached_player.value is not None else None
@@ -178,7 +186,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
         """
 
         cached_avatar = context.state_cache.player_avatar
-        _update_via_work_queue(cached_avatar, get_player_avatar)
+        await _update_via_work_queue(cached_avatar, get_player_avatar)
 
         data = cached_avatar.value.to_dict() if cached_avatar.value is not None else {}
         return web.json_response(data)
@@ -200,9 +208,9 @@ def http_server(host: str, port: int) -> web.AppRunner:
         cached_bag = context.state_cache.item_bag
         cached_storage = context.state_cache.item_storage
         if cached_bag.age_in_seconds > 1:
-            _update_via_work_queue(cached_bag, get_item_bag)
+            await _update_via_work_queue(cached_bag, get_item_bag)
         if cached_storage.age_in_seconds > 1:
-            _update_via_work_queue(cached_storage, get_item_storage)
+            await _update_via_work_queue(cached_storage, get_item_storage)
 
         return web.json_response(
             {
@@ -225,7 +233,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
             - pokemon
         """
         cached_party = context.state_cache.party
-        _update_via_work_queue(cached_party, get_party)
+        await _update_via_work_queue(cached_party, get_party)
 
         return web.json_response(cached_party.value.to_list())
 
@@ -245,7 +253,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
 
         cached_pokedex = context.state_cache.pokedex
         if cached_pokedex.age_in_seconds > 1:
-            _update_via_work_queue(cached_pokedex, get_pokedex)
+            await _update_via_work_queue(cached_pokedex, get_pokedex)
 
         return web.json_response(cached_pokedex.value.to_dict())
 
@@ -273,7 +281,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
         """
 
         cached_storage = context.state_cache.pokemon_storage
-        _update_via_work_queue(cached_storage, get_pokemon_storage)
+        await _update_via_work_queue(cached_storage, get_pokemon_storage)
 
         if "format" in request.query and request.query.getone("format") == "size-only":
             return web.json_response(
@@ -298,7 +306,12 @@ def http_server(host: str, port: int) -> web.AppRunner:
           tags:
             - pokemon
         """
-        return web.json_response(get_daycare_data().to_dict())
+
+        def get_daycare_dict():
+            daycare_data = get_daycare_data()
+            return daycare_data.to_dict() if daycare_data is not None else None
+
+        return web.json_response(await _run_via_work_queue(get_daycare_dict))
 
     @route.get("/opponent")
     async def http_get_opponent(request: web.Request):
@@ -340,22 +353,22 @@ def http_server(host: str, port: int) -> web.AppRunner:
         """
 
         cached_avatar = context.state_cache.player_avatar
-        _update_via_work_queue(cached_avatar, get_player_avatar)
+        await _update_via_work_queue(cached_avatar, get_player_avatar)
 
-        if cached_avatar.value is not None:
+        def get_map_dict():
+            if cached_avatar.value is None:
+                return None
             try:
                 map_data = cached_avatar.value.map_location
-                data = {
+                return {
                     "map": map_data.dict_for_map(),
                     "player_position": map_data.local_position,
                     "tiles": map_data.dicts_for_all_tiles(),
                 }
             except (RuntimeError, TypeError):
-                data = None
-        else:
-            data = None
+                return None
 
-        return web.json_response(data)
+        return web.json_response(await _run_via_work_queue(get_map_dict))
 
     @route.get("/map_encounters")
     async def http_get_map_encounters(request: web.Request):
@@ -374,7 +387,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
         """
 
         effective_encounters = context.state_cache.effective_wild_encounters
-        _update_via_work_queue(effective_encounters, get_effective_encounter_rates_for_current_map)
+        await _update_via_work_queue(effective_encounters, get_effective_encounter_rates_for_current_map)
 
         return web.json_response(effective_encounters.value.to_dict())
 
@@ -415,13 +428,14 @@ def http_server(host: str, port: int) -> web.AppRunner:
         except ValueError:
             return web.Response(text=f"No such map: {map_group}, {map_number}", status=404)
 
-        map_data = get_map_data((map_group, map_number), local_position=(0, 0))
-        return web.json_response(
-            {
+        def get_map_dict():
+            map_data = get_map_data((map_group, map_number), local_position=(0, 0))
+            return {
                 "map": map_data.dict_for_map(),
                 "tiles": map_data.dicts_for_all_tiles(),
             }
-        )
+
+        return web.json_response(await _run_via_work_queue(get_map_dict))
 
     @route.get("/game_state")
     async def http_get_game_state(request: web.Request):
@@ -436,7 +450,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
           tags:
             - game
         """
-        game_state = get_game_state()
+        game_state = await _run_via_work_queue(get_game_state)
         if game_state is not None:
             game_state = game_state.name
 
@@ -483,13 +497,14 @@ def http_server(host: str, port: int) -> web.AppRunner:
         flag = request.query.getone("flag", None)
 
         if flag and flag in get_current_game_data().event_flags:
-            return web.json_response({flag: get_event_flag(flag)})
-        result = {}
+            flags_to_read = [flag]
+        else:
+            flags_to_read = get_current_game_data().event_flags
 
-        for flag in get_current_game_data().event_flags:
-            result[flag] = get_event_flag(flag)
+        def read_event_flags():
+            return {flag_name: get_event_flag(flag_name) for flag_name in flags_to_read}
 
-        return web.json_response(result)
+        return web.json_response(await _run_via_work_queue(read_event_flags))
 
     @route.get("/encounter_log")
     async def http_get_encounter_log(request: web.Request):
@@ -662,6 +677,8 @@ def http_server(host: str, port: int) -> web.AppRunner:
         if not isinstance(new_settings, dict):
             return web.Response(text="This endpoint expects a JSON object as its payload.", status=422)
 
+        # All settings are validated before any of them is applied, so that an invalid
+        # request does not leave the settings half-changed.
         for key in new_settings:
             if key == "emulation_speed":
                 if new_settings["emulation_speed"] not in [0, 1, 2, 3, 4, 8, 16, 32]:
@@ -669,30 +686,41 @@ def http_server(host: str, port: int) -> web.AppRunner:
                         text=f"Setting `emulation_speed` contains an invalid value ('{new_settings['emulation_speed']}')",
                         status=422,
                     )
-                context.emulation_speed = new_settings["emulation_speed"]
             elif key == "bot_mode":
                 if new_settings["bot_mode"] not in get_bot_mode_names():
                     return web.Response(
                         text=f"Setting `bot_mode` contains an invalid value ('{new_settings['bot_mode']}'). Possible values are: {', '.join(get_bot_mode_names())}",
                         status=422,
                     )
-                context.bot_mode = new_settings["bot_mode"]
             elif key == "video_enabled":
                 if not isinstance(new_settings["video_enabled"], bool):
                     return web.Response(
                         text="Setting `video_enabled` did not contain a boolean value.",
                         status=422,
                     )
-                context.video = new_settings["video_enabled"]
             elif key == "audio_enabled":
                 if not isinstance(new_settings["audio_enabled"], bool):
                     return web.Response(
                         text="Setting `audio_enabled` did not contain a boolean value.",
                         status=422,
                     )
-                context.audio = new_settings["audio_enabled"]
             else:
                 return web.Response(text=f"Unrecognised setting: '{key}'.", status=422)
+
+        # These setters change the emulator's audio/video setup and update the GUI,
+        # so this must run in the main thread to avoid race conditions.
+        def apply_settings():
+            if "emulation_speed" in new_settings:
+                context.emulation_speed = new_settings["emulation_speed"]
+            if "bot_mode" in new_settings:
+                context.bot_mode = new_settings["bot_mode"]
+            if "video_enabled" in new_settings:
+                context.video = new_settings["video_enabled"]
+            if "audio_enabled" in new_settings:
+                context.audio = new_settings["audio_enabled"]
+
+        # If the client goes away while waiting, the settings should still be applied.
+        await asyncio.shield(_run_via_work_queue(apply_settings))
 
         return await http_get_emulator(request)
 
@@ -709,7 +737,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
           tags:
             - emulator
         """
-        return web.json_response(inputs_to_strings(context.emulator.get_inputs()))
+        return web.json_response(inputs_to_strings(await _run_via_work_queue(context.emulator.get_inputs)))
 
     @route.post("/input")
     async def http_post_input(request: web.Request):
