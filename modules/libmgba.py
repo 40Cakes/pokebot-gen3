@@ -5,6 +5,7 @@ import zlib
 from collections import deque
 from contextlib import contextmanager
 from queue import Queue
+from typing import Callable
 
 import PIL.Image
 import PIL.PngImagePlugin
@@ -109,7 +110,7 @@ class LibmgbaEmulator:
     _audio_sample_rate: int = 32768
     _last_audio_data: Queue[bytes]
 
-    def __init__(self, profile: Profile, on_frame_callback: callable, is_test_run: bool = False):
+    def __init__(self, profile: Profile, on_frame_callback: Callable[[], None], is_test_run: bool = False):
         if not is_test_run:
             console.print(f"Running [cyan]{libmgba_version_string()}[/]")
 

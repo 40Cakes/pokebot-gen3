@@ -34,6 +34,7 @@ class MockStatsDatabase:
         self.encounter_rate = 0
         self.encounter_rate_at_1x = 0
         self.logged_encounters: list["Encounter"] = []
+        self.is_first_encounter = False
 
     def log_encounter(self, encounter_info: "EncounterInfo") -> "Encounter":
         from modules.stats import Encounter

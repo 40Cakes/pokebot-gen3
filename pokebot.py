@@ -116,9 +116,12 @@ if __name__ == "__main__":
         from requirements import check_requirements
 
         check_requirements()
+    from modules.debug import debug
     from modules.context import context
     from modules.console import console
     from modules.exceptions_hook import register_exception_hook
+    from modules.game import set_rom
+    from modules.libmgba import LibmgbaEmulator
     from modules.main import main_loop
     from modules.modes import get_bot_mode_names
     from modules.plugins import load_plugins
@@ -149,7 +152,7 @@ if __name__ == "__main__":
     if startup_settings.headless:
         from modules.gui.headless import PokebotHeadless
 
-        gui = PokebotHeadless(main_loop, on_exit)
+        gui = PokebotHeadless(on_exit)
     else:
         from modules.gui import PokebotGui
 
@@ -157,7 +160,30 @@ if __name__ == "__main__":
         # be disabled using a command-line argument but for backward-compatibility reasons we
         # accept either.
         no_theme = os.getenv("POKEBOT_UNTHEMED") == "1" or startup_settings.no_theme
-        gui = PokebotGui(main_loop, on_exit, no_theme=no_theme, use_opengl=startup_settings.use_opengl)
+        gui = PokebotGui(
+            on_exit,
+            no_theme=no_theme,
+            always_on_top=startup_settings.always_on_top,
+            use_opengl=startup_settings.use_opengl,
+        )
+
+    profile = startup_settings.profile if startup_settings.profile is not None else gui.run_profile_selection()
+    if profile is None:
+        raise RuntimeError("No profile was selected.")
+
+    context.profile = profile
+    context.config.load(profile.path, strict=False)
+    set_rom(profile.rom)
+    context.emulator = LibmgbaEmulator(profile, gui.on_frame)
+    context.audio = not startup_settings.no_audio
+    context.video = not startup_settings.no_video
+    context.emulation_speed = startup_settings.emulation_speed
+    context.debug = startup_settings.debug and not startup_settings.headless
+    context.bot_mode = startup_settings.bot_mode
     context.gui = gui
 
-    gui.run(startup_settings)
+    if context.debug:
+        debug.enabled = True
+
+    gui.run_profile()
+    main_loop()

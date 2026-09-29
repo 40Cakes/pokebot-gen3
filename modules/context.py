@@ -1,5 +1,6 @@
 import os
 import shutil
+import threading
 from typing import Generator, Optional, TYPE_CHECKING, Callable
 
 from modules.config import Config
@@ -187,8 +188,17 @@ class BotContext:
         return self.profile.rom if self.profile else None
 
     def _update_gui(self) -> None:
-        if self.gui:
+        if not self.gui:
+            return
+
+        # Tk must only be used from the main thread, so updates triggered from
+        # other threads (HTTP server, plugins) are run through the work queue.
+        if threading.current_thread() is threading.main_thread():
             self.gui.on_settings_updated()
+        else:
+            from modules.main import work_queue
+
+            work_queue.put_nowait(self.gui.on_settings_updated)
 
 
 context = BotContext()
