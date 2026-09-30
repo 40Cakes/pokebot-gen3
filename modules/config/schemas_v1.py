@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Literal
 
 from confz import BaseConfig
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 from pydantic.types import Annotated, ClassVar, NonNegativeInt, PositiveInt
 
 
@@ -211,6 +211,7 @@ class HTTP(BaseConfig):
 
     filename: ClassVar = "http.yml"
     http_server: HTTPServer = Field(default_factory=lambda: HTTPServer())
+    webrtc: WebRTC = Field(default_factory=lambda: WebRTC())
 
 
 class OBS(BaseConfig):
@@ -240,6 +241,29 @@ class HTTPServer(BaseConfig):
     enable: bool = False
     ip: str = "127.0.0.1"
     port: Annotated[int, Field(gt=0, lt=65536)] = 8888
+
+
+class WebRTC(BaseConfig):
+    """Schema for the webrtc section in the HTTP config."""
+
+    enabled: bool = False
+    turn: WebRTCTurn | None = None
+
+
+class WebRTCTurn(BaseConfig):
+    """Schema for the webrtc.turn section in the HTTP config."""
+
+    urls: list[str]
+    secret: str
+
+    @model_validator(mode="after")
+    def check_turn_settings(self) -> "WebRTCTurn":
+        if len(self.urls) == 0:
+            raise ValueError("`urls` must contain at least one TURN server URL.")
+        for url in self.urls:
+            if not url.startswith(("turn:", "turns:")):
+                raise ValueError(f"TURN server URL '{url}' must start with 'turn:' or 'turns:'.")
+        return self
 
 
 class ProfileMetadata(BaseConfig):

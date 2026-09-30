@@ -1,13 +1,10 @@
 import asyncio
-import fractions
 import io
-import json
 import queue
 import re
-import time
-from queue import Queue
+import sys
 from threading import Thread
-from typing import Callable, TypeVar, Union
+from typing import Callable, TypeVar
 
 import aiohttp.client_exceptions
 from aiohttp import web
@@ -16,24 +13,6 @@ from apispec.yaml_utils import load_operations_from_docstring
 
 from modules.daycare import get_daycare_data
 from modules.game import get_current_game_data
-
-try:
-    from aiortc import (
-        MediaStreamTrack,
-        VideoStreamTrack,
-        RTCConfiguration,
-        RTCPeerConnection,
-        RTCSessionDescription,
-    )
-    from aiortc.contrib.media import MediaRelay
-    from aiortc.mediastreams import MediaStreamError
-    from av import VideoFrame, Packet, AudioFrame, AudioResampler
-    from PIL import Image
-    from av.frame import Frame
-
-    webrtc_available = True
-except ImportError:
-    webrtc_available = False
 
 from modules.console import console
 from modules.context import context
@@ -48,10 +27,19 @@ from modules.player import get_player, get_player_avatar
 from modules.pokedex import get_pokedex
 from modules.pokemon_party import get_party
 from modules.pokemon_storage import get_pokemon_storage
-from modules.runtime import get_base_path
+from modules.runtime import get_base_path, is_bundled_app
 from modules.state_cache import StateCacheItem
 from modules.version import pokebot_version, pokebot_name
 from modules.web.http_stream import add_subscriber
+
+try:
+    from modules.web import webrtc
+except ModuleNotFoundError as error:
+    # WebRTC is optional, so it's fine if its packages are missing (see `_get_webrtc_error()`.)
+    # Any other missing module is a bug though.
+    if error.name is None or error.name.split(".")[0] not in ("aiortc", "av"):
+        raise
+    webrtc = None
 
 custom_state: dict = {}
 
@@ -138,10 +126,31 @@ def _set_held_buttons(buttons: list) -> None:
     work_queue.put_nowait(update_inputs)
 
 
+def _get_webrtc_error() -> str | None:
+    """
+    :return: A message explaining why WebRTC cannot be used, or `None` if it can.
+    """
+    if not context.config.http.webrtc.enabled:
+        return "WebRTC is disabled. Set `webrtc.enabled` in `http.yml` to enable it."
+
+    if webrtc is None:
+        if is_bundled_app():
+            return "WebRTC is not available in the bundled version of the bot."
+        return (
+            "WebRTC requires the `aiortc` package, which is not installed. You can install it with:\n"
+            f'"{sys.executable}" -m pip install "aiortc~=1.10.0"'
+        )
+
+    return None
+
+
 def http_server(host: str, port: int) -> web.AppRunner:
     """
     Run Flask server to make bot data available via HTTP requests.
     """
+
+    if context.config.http.webrtc.enabled and (webrtc_error := _get_webrtc_error()) is not None:
+        console.print(webrtc_error, style="yellow", markup=False, highlight=False, soft_wrap=True)
 
     server = web.Application()
     route = web.RouteTableDef()
@@ -808,238 +817,120 @@ def http_server(host: str, port: int) -> web.AppRunner:
 
         return response
 
-    if webrtc_available:
-        rtc_connections: set[RTCPeerConnection] = set()
+    @route.get("/rtc/config")
+    async def http_get_rtc_config(request: web.Request):
+        """
+        ---
+        get:
+          description: >
+            Returns the ICE configuration (TURN servers and short-lived credentials) that a
+            browser should use for its `RTCPeerConnection` before calling `/rtc`.
+          responses:
+            200:
+              content:
+                application/json: {}
+            503:
+              description: WebRTC is disabled or not installed.
+          tags:
+            - streams
+        """
+        if (error := _get_webrtc_error()) is not None:
+            return web.Response(text=error, status=503, content_type="text/plain")
 
-        class EmuVideo(VideoStreamTrack):
-            def __init__(self):
-                super().__init__()
-                self._black_image: Image.Image = Image.new("RGB", (240, 160))
+        return web.json_response(webrtc.get_client_config(), headers={"Cache-Control": "no-store"})
 
-            async def recv(self) -> Union[Frame, Packet]:
-                pts, time_base = await self.next_timestamp()
+    @route.post("/rtc")
+    async def http_post_rtc(request: web.Request):
+        """
+        ---
+        post:
+          description: >
+            Answers a browser's WebRTC offer and sets up a connection that streams video and audio, and
+            receives input via a data channel labelled `input`. The response contains the answer's `sdp`
+            and `type`, as well as an `id` for the new connection that can be passed to `/rtc/close`.
+          requestBody:
+            description: The offer's session description.
+            content:
+              application/json:
+                schema: {}
+          responses:
+            200:
+              content:
+                application/json: {}
+            503:
+              description: WebRTC is disabled or not installed.
+          tags:
+            - streams
+        """
+        if (error := _get_webrtc_error()) is not None:
+            return web.Response(text=error, status=503, content_type="text/plain")
 
-                # If video is disabled, mGBA does not render anything, so the screen buffer
-                # would contain rubbish. Send a black image instead.
-                if context.video:
-                    image = context.emulator.get_current_screen_image()
-                else:
-                    image = self._black_image
+        params = await request.json()
+        answer = await webrtc.answer_offer(params["sdp"], params["type"], _set_held_buttons)
+        return web.json_response(answer)
 
-                # The same frame object is passed to the encoders of all connected clients, which
-                # run in separate threads. The encoder would convert the frame to YUV if it isn't
-                # already, but `reformat()` is not thread-safe and crashes the process if several
-                # threads call it on the same frame at once. So convert it once, here.
-                frame = VideoFrame.from_image(image).reformat(format="yuv420p")
-                frame.pts = pts
-                frame.time_base = time_base
+    @route.post("/rtc/close")
+    async def http_post_rtc_close(request: web.Request):
+        """
+        ---
+        post:
+          description: >
+            Closes WebRTC connections, given the IDs that `/rtc` returned for them. Any buttons held
+            down by those connections are released. Returns the IDs of the connections that have
+            been closed; unknown IDs (e.g. of connections that have already been closed) are ignored.
+          requestBody:
+            description: JSON array of connection IDs
+            content:
+              application/json:
+                schema: {}
+                examples:
+                  close_one_connection:
+                    summary: Close one connection
+                    value: ["0b7c3f4e-5d2a-4c8e-9f1b-2a6d8e4c1f3a"]
+          responses:
+            200:
+              content:
+                application/json: {}
+            422:
+              description: The payload is not a JSON array of strings.
+            503:
+              description: WebRTC is disabled or not installed.
+          tags:
+            - streams
+        """
+        if (error := _get_webrtc_error()) is not None:
+            return web.Response(text=error, status=503, content_type="text/plain")
 
-                return frame
+        try:
+            connection_ids = await request.json()
+        except ValueError:
+            connection_ids = None
+        if not isinstance(connection_ids, list) or not all(isinstance(id, str) for id in connection_ids):
+            return web.Response(text="This endpoint expects a JSON array of connection IDs as its payload.", status=422)
 
-        class EmuAudio(MediaStreamTrack):
-            """
-            Streams the emulator's audio output.
+        return web.json_response(await webrtc.close_connections(connection_ids))
 
-            The emulator's sample rate depends on the host's audio device and may change at
-            runtime (e.g. when that device disappears), but aiortc's encoder cannot handle a
-            change of sample rate mid-stream. So all audio is resampled to a fixed rate here.
-            """
+    @route.post("/rtc/close_all")
+    async def http_post_rtc_close_all(request: web.Request):
+        """
+        ---
+        post:
+          description: >
+            Closes all WebRTC connections and releases any buttons they held down. Returns the IDs of
+            the connections that have been closed.
+          responses:
+            200:
+              content:
+                application/json: {}
+            503:
+              description: WebRTC is disabled or not installed.
+          tags:
+            - streams
+        """
+        if (error := _get_webrtc_error()) is not None:
+            return web.Response(text=error, status=503, content_type="text/plain")
 
-            kind = "audio"
-            output_sample_rate = 48000
-
-            # If the timestamp of the audio lags behind the wall clock by more than this
-            # many seconds, it is assumed that the emulator has not been producing audio
-            # for a while (because it was paused or running unthrottled.)
-            maximum_lag = 0.25
-
-            def __init__(self):
-                super().__init__()
-                self._queue: Queue[bytes] = context.emulator.get_last_audio_data()
-                self._resampler: AudioResampler | None = None
-                self._resampler_input_rate: int | None = None
-                self._start: float | None = None
-                self._timestamp: int = 0
-
-            async def _get_audio_data(self) -> bytes:
-                while True:
-                    if self.readyState != "live":
-                        raise MediaStreamError
-                    try:
-                        data = self._queue.get_nowait()
-                        if len(data) > 0:
-                            return data
-                    except queue.Empty:
-                        await asyncio.sleep(1 / 480)
-
-            def _resample(self, data: bytes) -> bytes:
-                input_sample_rate = context.emulator.get_sample_rate()
-                if self._resampler is None or self._resampler_input_rate != input_sample_rate:
-                    self._resampler = AudioResampler(format="s16", layout="stereo", rate=self.output_sample_rate)
-                    self._resampler_input_rate = input_sample_rate
-
-                input_frame = AudioFrame(format="s16", layout="stereo", samples=len(data) // 4)
-                input_frame.planes[0].update(data)
-                input_frame.sample_rate = input_sample_rate
-
-                return b"".join(
-                    bytes(output_frame.planes[0])[: output_frame.samples * 4]
-                    for output_frame in self._resampler.resample(input_frame)
-                )
-
-            async def recv(self) -> Union[Frame, Packet]:
-                if self.readyState != "live":
-                    raise MediaStreamError
-
-                if self._start is None:
-                    # Discard audio that has been queued up before anyone was listening.
-                    while not self._queue.empty():
-                        try:
-                            self._queue.get_nowait()
-                        except queue.Empty:
-                            break
-
-                # The resampler may hold back some samples, so it is possible that we
-                # need to feed it more than one chunk before we get any output.
-                data = b""
-                while len(data) == 0:
-                    data = self._resample(await self._get_audio_data())
-
-                now = time.time()
-                if self._start is None:
-                    self._start = now
-                elif now - (self._start + self._timestamp / self.output_sample_rate) > self.maximum_lag:
-                    # Skip the timestamp ahead so that the browser treats this as a gap in
-                    # the audio rather than as audio that has been delayed.
-                    self._timestamp = int((now - self._start) * self.output_sample_rate)
-
-                frame = AudioFrame(format="s16", layout="stereo", samples=len(data) // 4)
-                frame.planes[0].update(data)
-                frame.sample_rate = self.output_sample_rate
-                frame.time_base = fractions.Fraction(1, self.output_sample_rate)
-                frame.pts = self._timestamp
-
-                self._timestamp += frame.samples
-
-                return frame
-
-        relay = MediaRelay()
-        emu_audio = None
-        emu_video = None
-
-        def stop_streams_if_unused():
-            """
-            The relay keeps reading from the source tracks even after all subscribers are
-            gone. So once the last connection has closed, we stop the tracks (which ends the
-            relay's reading task) and create new ones for the next client.
-            """
-            nonlocal emu_video, emu_audio
-            if len(rtc_connections) == 0:
-                if emu_video is not None:
-                    emu_video.stop()
-                    emu_video = None
-                if emu_audio is not None:
-                    emu_audio.stop()
-                    emu_audio = None
-
-        @route.post("/rtc")
-        async def http_post_rtc(request: web.Request):
-            nonlocal emu_video, emu_audio
-
-            params = await request.json()
-            offer = RTCSessionDescription(sdp=params["sdp"], type=params["type"])
-
-            connection = RTCPeerConnection(RTCConfiguration(iceServers=[]))
-            rtc_connections.add(connection)
-
-            @connection.on("datachannel")
-            def on_datachannel(channel):
-                if channel.label == "input":
-                    last_message_time = time.monotonic()
-                    buttons_held = False
-
-                    # Each message contains the full list of buttons that should be held down,
-                    # in the same format as `POST /input`.
-                    @channel.on("message")
-                    def on_input_message(message):
-                        nonlocal last_message_time, buttons_held
-                        last_message_time = time.monotonic()
-                        try:
-                            buttons = json.loads(message)
-                        except (TypeError, ValueError):
-                            return
-                        if isinstance(buttons, list):
-                            _set_held_buttons(buttons)
-                            buttons_held = len(buttons) > 0
-
-                    # The client repeats its current input state every second. Some browsers do not
-                    # tell us when a tab is closed, in which case it would take ~30 seconds for the
-                    # connection to time out. So if the client has gone quiet for a few seconds, we
-                    # assume that it has gone away and release any buttons that it held down.
-                    async def release_buttons_if_client_is_gone():
-                        nonlocal buttons_held
-                        while True:
-                            await asyncio.sleep(0.5)
-                            if buttons_held and time.monotonic() - last_message_time > 3:
-                                _set_held_buttons([])
-                                buttons_held = False
-
-                    watchdog = asyncio.ensure_future(release_buttons_if_client_is_gone())
-
-                    # This also gets called if the connection fails or the client goes away, so
-                    # this makes sure that no buttons remain held down in that case.
-                    @channel.on("close")
-                    def on_input_close():
-                        watchdog.cancel()
-                        _set_held_buttons([])
-
-                else:
-
-                    @channel.on("message")
-                    def on_message(message):
-                        if isinstance(message, str) and message.startswith("ping"):
-                            channel.send("pong" + message[4:])
-
-            @connection.on("connectionstatechange")
-            async def on_connection_state_change():
-                if connection.connectionState in ("failed", "closed"):
-                    await connection.close()
-                    rtc_connections.discard(connection)
-                    stop_streams_if_unused()
-
-            if emu_video is None:
-                emu_video = EmuVideo()
-
-            if emu_audio is None:
-                emu_audio = EmuAudio()
-
-            # Video is not buffered so that a slow client always gets the most recent frame
-            # rather than lagging further and further behind. Audio needs to be buffered because
-            # dropping parts of it would be audible.
-            connection.addTrack(relay.subscribe(emu_video, buffered=False))
-            connection.addTrack(relay.subscribe(emu_audio))
-
-            try:
-                await connection.setRemoteDescription(offer)
-                answer = await connection.createAnswer()
-                await connection.setLocalDescription(answer)
-            except Exception:
-                await connection.close()
-                rtc_connections.discard(connection)
-                stop_streams_if_unused()
-                raise
-
-            return web.json_response({"sdp": connection.localDescription.sdp, "type": connection.localDescription.type})
-
-    else:
-
-        @route.post("/rtc")
-        async def http_post_rtc(request: web.Request):
-            return web.Response(
-                text="WebRTC is not available because aiortc was not installed.",
-                status=503,
-                headers={"Content-Type": "text/plain"},
-            )
+        return web.json_response(await webrtc.close_all_connections())
 
     @route.get("/stream_video")
     async def http_get_video_stream(request: web.Request):
