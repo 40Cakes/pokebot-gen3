@@ -23,8 +23,7 @@
 
 <div id="first_row">
     <div id="video_container">
-        <audio id="gba_audio" autoplay="true"></audio>
-        <video id="gba_video" autoplay="true" playsinline="true"></video>
+        <video id="gba_video" controls="true" playsinline="true"></video>
         <div id="gba_video_placeholder" onclick="startVideo()">Start Video</div>
     </div>
 
@@ -297,8 +296,6 @@
         };
         eventSource.onopen = () => {
             document.getElementById("screen_connection_lost").style.display = "none";
-            document.getElementById("gba_video").src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
-            document.getElementById("gba_video").src = "/stream_video?fps=30&cache_buster=" + (new Date).toString();
         };
     });
 
@@ -800,15 +797,29 @@
         document.getElementById("gba_video_placeholder").remove();
         const video = document.getElementById("gba_video");
         video.style.display = "block";
-        const audio = document.getElementById("gba_audio");
 
-        const rtcConnection = new RTCPeerConnection();
+        // If the server has a TURN server configured (because browsers cannot reach its IP address
+        // directly, e.g. when it runs in a Docker container), this contains that server.
+        const configResponse = await fetch("/rtc/config");
+        if (!configResponse.ok) {
+            // E.g. if WebRTC is disabled, or the packages it needs are not installed.
+            showVideoError(await configResponse.text());
+            return;
+        }
+        const rtcConfig = await configResponse.json();
+        const useTurn = rtcConfig.iceServers.length > 0;
 
+        const rtcConnection = new RTCPeerConnection({
+            iceServers: rtcConfig.iceServers,
+            iceTransportPolicy: rtcConfig.iceTransportPolicy,
+        });
+
+        // The server sends audio and video as a single stream, so this fires twice with the same
+        // stream. Both tracks play in the video element, so its controls (mute etc.) apply to both.
         rtcConnection.addEventListener("track", (event) => {
-            if (event.track.kind === "video") {
-                video.srcObject = new MediaStream([event.track]);
-            } else if (event.track.kind === "audio") {
-                audio.srcObject = new MediaStream([event.track]);
+            if (video.srcObject !== event.streams[0]) {
+                video.srcObject = event.streams[0];
+                playVideo(video);
             }
         });
 
@@ -832,26 +843,101 @@
             if (inputChannel === channel) {
                 inputChannel = null;
             }
+
+            // If the bot closes the connection (see `/rtc/close`), the data channel closes while the
+            // connection itself still counts as connected. If the network fails instead, the
+            // connection's state changes first.
+            if (rtcConnection.connectionState === "connected") {
+                rtcConnection.close();
+                video.srcObject = null;
+                showVideoError("The connection has been closed by the bot.");
+            }
         });
 
         const offer = await rtcConnection.createOffer();
         await rtcConnection.setLocalDescription(offer);
 
-        // The offer is deliberately sent before any ICE candidates have been gathered.
-        // Browsers usually hide their local IP addresses behind random mDNS hostnames that
-        // the server cannot resolve, and some (Firefox) also mark the list of candidates as
-        // complete -- at which point the server would give up without even trying.
+        // Without a TURN server, the offer is deliberately sent before any ICE candidates have
+        // been gathered. Browsers usually hide their local IP addresses behind random mDNS
+        // hostnames that the server cannot resolve, and some (Firefox) also mark the list of
+        // candidates as complete -- at which point the server would give up without even trying.
         // Without any candidates, the server instead waits for the browser to contact one
         // of the server's (real) addresses, which are included in the answer.
+        //
+        // With a TURN server, the browser only gathers relay candidates (`iceTransportPolicy` is
+        // 'relay'), which the server can use. So in that case we wait for them and send the
+        // updated local description, which contains them.
+        let description = offer;
+        if (useTurn) {
+            await waitForIceGathering(rtcConnection, 3000);
+            description = rtcConnection.localDescription;
+            if (!description.sdp.includes(" typ relay")) {
+                rtcConnection.close();
+                showVideoError("Could not connect to the TURN server. Check the `webrtc.turn` settings in `http.yml`.");
+                return;
+            }
+        }
+
         const response = await fetch("/rtc", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({sdp: offer.sdp, type: offer.type}),
+            body: JSON.stringify({sdp: description.sdp, type: description.type}),
         });
+
+        if (!response.ok) {
+            rtcConnection.close();
+            showVideoError(await response.text());
+            return;
+        }
 
         const answer = await response.json();
 
-        await rtcConnection.setRemoteDescription(answer);
+        await rtcConnection.setRemoteDescription({sdp: answer.sdp, type: answer.type});
+    }
+
+    async function playVideo(video) {
+        try {
+            await video.play();
+        } catch (error) {
+            if (error.name !== "NotAllowedError") {
+                throw error;
+            }
+            // Browsers may refuse to play audio without a recent click (the one on 'Start Video' may
+            // have expired while connecting.) Playing muted is always allowed, and the user can
+            // unmute using the video controls.
+            video.muted = true;
+            await video.play();
+        }
+    }
+
+    function showVideoError(message) {
+        document.getElementById("gba_video").style.display = "none";
+        const placeholder = document.createElement("div");
+        placeholder.id = "gba_video_placeholder";
+        placeholder.textContent = message + "\n\nClick to try again.";
+        placeholder.addEventListener("click", startVideo);
+        document.getElementById("video_container").appendChild(placeholder);
+    }
+
+    function waitForIceGathering(rtcConnection, timeoutMs) {
+        return new Promise((resolve) => {
+            if (rtcConnection.iceGatheringState === "complete") {
+                resolve();
+                return;
+            }
+            const done = () => {
+                window.clearTimeout(timeout);
+                rtcConnection.removeEventListener("icegatheringstatechange", onChange);
+                resolve();
+            };
+            const onChange = () => {
+                if (rtcConnection.iceGatheringState === "complete") {
+                    done();
+                }
+            };
+            const timeout = window.setTimeout(done, timeoutMs);
+            rtcConnection.addEventListener("icegatheringstatechange", onChange);
+        });
     }
 </script>
 
@@ -935,6 +1021,11 @@
         justify-content: center;
         align-items: center;
         height: 100%;
+        padding: 1rem;
+        box-sizing: border-box;
+        text-align: center;
+        white-space: pre-line;
+        overflow-wrap: anywhere;
     }
 
     #gba_video_placeholder:hover {

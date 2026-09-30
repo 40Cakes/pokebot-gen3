@@ -4,3 +4,18 @@ http_server:
   enable: false
   ip: 127.0.0.1
   port: 8888
+
+# WebRTC can be used to stream video and audio data to the web UI. It also has a
+# channel for inputs, so the bot can be controlled remotely.
+# Requires the `aiortc` package.
+webrtc:
+  enabled: false
+  # Only needed if browsers cannot reach the bot's IP address directly, e.g. if the bot runs
+  # in a Docker container or in a NAT environment.
+  turn: null
+  #turn:
+  #  urls:
+  #    - turn:bot.example.com:3478?transport=udp
+  #    - turn:bot.example.com:3478?transport=tcp
+  #  # Shared secret, the same as coturn's `static-auth-secret`
+  #  secret: long-random-string
