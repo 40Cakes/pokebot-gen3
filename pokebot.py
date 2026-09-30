@@ -5,9 +5,11 @@ import atexit
 import os
 import pathlib
 import platform
+import signal
+import sys
 from dataclasses import dataclass
 
-from modules.runtime import is_bundled_app, get_base_path
+from modules.runtime import get_base_path
 from modules.version import pokebot_name, pokebot_version
 
 OS_NAME = platform.system()
@@ -25,7 +27,7 @@ def on_exit() -> None:
         import os
 
         parent_process_name = psutil.Process(os.getppid()).name()
-        if parent_process_name == "py.exe" or is_bundled_app():
+        if parent_process_name == "py.exe":
             if gui is not None and gui.window is not None:
                 gui.window.withdraw()
 
@@ -112,7 +114,9 @@ def parse_arguments(bot_mode_names: list[str]) -> StartupSettings:
 
 
 if __name__ == "__main__":
-    if not is_bundled_app():
+    can_update_and_install_dependencies = not (get_base_path() / ".is_frozen").exists()
+
+    if can_update_and_install_dependencies:
         from requirements import check_requirements
 
         check_requirements()
@@ -126,7 +130,6 @@ if __name__ == "__main__":
     from modules.modes import get_bot_mode_names
     from modules.plugins import load_plugins
     from modules.profiles import Profile, profile_directory_exists, load_profile_by_name
-    from updater import run_updater
 
     register_exception_hook()
     load_plugins()
@@ -143,10 +146,30 @@ if __name__ == "__main__":
 
         win32api.SetConsoleCtrlHandler(win32_signal_handler, True)
 
+    # SIGTERM is what service managers (systemd, Docker, ...) send to stop the bot. By default,
+    # Python would just die without saving the emulator state, so we shut down the same way as
+    # when the window is closed. Python runs signal handlers in the main thread in between two
+    # bytecode instructions, so this never happens in the middle of emulating a frame.
+    # `sys.exit()` is not an option here because it would wait for the (non-daemon) HTTP server
+    # thread to end before running the atexit handlers, i.e. forever.
+    def sigterm_handler(signal_number, stack_frame):
+        # Ignore repeated SIGTERMs so they can't interrupt writing the save state.
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
+        if context.emulator is not None:
+            context.emulator.shutdown()
+            context.emulator = None
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os._exit(0)
+
+    signal.signal(signal.SIGTERM, sigterm_handler)
+
     startup_settings = parse_arguments(get_bot_mode_names())
     console.print(f"Starting [bold cyan]{pokebot_name} {pokebot_version}![/]")
 
-    if not is_bundled_app() and not (get_base_path() / ".git").is_dir():
+    if can_update_and_install_dependencies and not (get_base_path() / ".git").is_dir():
+        from updater import run_updater
+
         run_updater()
 
     if startup_settings.headless:
