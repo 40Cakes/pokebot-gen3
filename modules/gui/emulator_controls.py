@@ -10,6 +10,7 @@ from modules.console import console
 from modules.context import context
 from modules.gui.debug_menu import DebugMenu
 from modules.gui.multi_select_window import ask_for_confirmation
+from modules.gui.scaling import scaled
 from modules.libmgba import LibmgbaEmulator
 from modules.memory import GameState, get_game_state
 from modules.modes import get_bot_modes
@@ -42,7 +43,7 @@ class EmulatorControls:
         return 0
 
     def get_additional_height(self) -> int:
-        return 200
+        return scaled(200)
 
     def add_to_window(self) -> None:
         from modules.gui import LoadStateWindow
@@ -359,7 +360,7 @@ class DebugEmulatorControls(EmulatorControls):
         self.debug_tabs: list[DebugTab] = []
 
     def get_additional_width(self) -> int:
-        return 550
+        return scaled(550)
 
     def add_to_window(self):
         self.debug_frame = ttk.Frame(self.window, padding=(10, 5))

@@ -225,9 +225,7 @@ def _get_tkinter_install_hint() -> str:
 
     match platform.system():
         case "Windows":
-            return (
-                "Run the Python installer again, choose 'Modify' and make sure that 'tcl/tk and IDLE' is ticked."
-            )
+            return "Run the Python installer again, choose 'Modify' and make sure that 'tcl/tk and IDLE' is ticked."
 
         case "Darwin":
             if sys.base_prefix.startswith(("/opt/homebrew", "/usr/local")):
@@ -264,9 +262,7 @@ def _get_tkinter_install_hint() -> str:
             elif "alpine" in distribution_ids:
                 return "Install it with: sudo apk add python3-tkinter"
 
-    return (
-        "Install your distribution's Tk package for Python (usually called `python3-tk` or `python3-tkinter`)."
-    )
+    return "Install your distribution's Tk package for Python (usually called `python3-tk` or `python3-tkinter`)."
 
 
 def _check_tkinter() -> None:

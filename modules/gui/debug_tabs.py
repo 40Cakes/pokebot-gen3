@@ -25,6 +25,7 @@ from modules.game import (
 )
 from modules.game_stats import GameStat, get_game_stat
 from modules.gui.emulator_controls import DebugTab
+from modules.gui.scaling import scaled
 from modules.items import get_item_bag, get_item_storage, get_pokeblocks
 from modules.map import (
     get_map_data_for_current_position,
@@ -102,9 +103,9 @@ class FancyTreeview:
             treeview_scrollbar_combo, columns="value", show="tree headings", selectmode="browse", height=height
         )
 
-        self._tv.column("#0", width=220)
+        self._tv.column("#0", width=scaled(220))
         self._tv.heading("#0", text="Key", anchor="w")
-        self._tv.column("value", width=270)
+        self._tv.column("value", width=scaled(270))
         self._tv.heading("value", text="Value", anchor="w")
 
         scrollbar = ttk.Scrollbar(treeview_scrollbar_combo, orient=tkinter.VERTICAL, command=self._tv.yview)
@@ -511,7 +512,7 @@ class SymbolsTab(DebugTab):
 
         self._mini_window = tkinter.Toplevel(context.gui.window)
         self._mini_window.title("Add a symbol to list")
-        self._mini_window.geometry("480x480")
+        self._mini_window.geometry(f"{scaled(480)}x{scaled(480)}")
 
         def remove_window(event=None):
             self._mini_window.destroy()
@@ -533,13 +534,13 @@ class SymbolsTab(DebugTab):
             tv_frame, columns=("name", "address", "length"), show="headings", selectmode="browse", height=22
         )
 
-        tv.column("name", width=300)
+        tv.column("name", width=scaled(300))
         tv.heading("name", text="Symbol Name")
 
-        tv.column("address", width=90)
+        tv.column("address", width=scaled(90))
         tv.heading("address", text="Address")
 
-        tv.column("length", width=90)
+        tv.column("length", width=scaled(90))
         tv.heading("length", text="Length")
 
         items: dict[str, str] = {}
@@ -1033,7 +1034,7 @@ class EventVarsTab(DebugTab):
 
         self._mini_window = tkinter.Toplevel(context.gui.window)
         self._mini_window.title(f"Change flag value")
-        self._mini_window.geometry("300x100")
+        self._mini_window.geometry(f"{scaled(300)}x{scaled(100)}")
 
         def remove_window(event=None):
             self._mini_window.destroy()

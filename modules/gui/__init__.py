@@ -25,6 +25,7 @@ try:
     from modules.gui.create_profile_screen import CreateProfileScreen
     from modules.gui.emulator_screen import EmulatorScreen
     from modules.gui.load_state_window import LoadStateWindow
+    from modules.gui.scaling import get_integer_ui_scale, initialise_ui_scaling, scaled
     from modules.gui.select_profile_screen import SelectProfileScreen
 
     GUI_AVAILABLE = True
@@ -58,7 +59,8 @@ class PokebotGui:
         self.inputs_enabled = True
         self.is_headless = False
 
-        self.window.geometry("540x400")
+        initialise_ui_scaling(self.window)
+        self.window.geometry(f"{scaled(540)}x{scaled(400)}")
         self.window.resizable(context.debug, True)
         self.window.protocol("WM_DELETE_WINDOW", self._close_window)
         self.window.bind("<KeyPress>", self._handle_key_down_event)
@@ -189,7 +191,7 @@ class PokebotGui:
                     case "toggle_stepping_mode":
                         self._emulator_screen.toggle_stepping_mode()
                     case "zoom_in":
-                        self._emulator_screen.scale = min(5, self._emulator_screen.scale + 1)
+                        self._emulator_screen.scale = min(5 * get_integer_ui_scale(), self._emulator_screen.scale + 1)
                     case "zoom_out":
                         self._emulator_screen.scale = max(1, self._emulator_screen.scale - 1)
                     case "toggle_manual":

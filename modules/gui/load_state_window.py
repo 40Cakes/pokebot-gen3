@@ -9,6 +9,7 @@ import PIL.ImageDraw
 import PIL.ImageTk
 
 from modules.context import context
+from modules.gui.scaling import get_integer_ui_scale, scaled
 from modules.runtime import get_sprites_path
 
 
@@ -35,7 +36,11 @@ class LoadStateWindow:
 
         self._load_save_window = Toplevel(window)
         self._load_save_window.title("Load a Save State")
-        self._load_save_window.geometry("525x500")
+        # The previews are scaled by a whole number (to keep them sharp), which can be larger than
+        # the actual UI scale. So the width needs to be based on that rather than just `scaled()`.
+        preview_column_width = 240 * get_integer_ui_scale()
+        window_width = 2 * preview_column_width + scaled(45)
+        self._load_save_window.geometry(f"{window_width}x{scaled(500)}")
         self._load_save_window.protocol("WM_DELETE_WINDOW", remove_window)
         self._load_save_window.bind("<Escape>", remove_window)
         self._load_save_window.rowconfigure(0, weight=1)
@@ -53,7 +58,7 @@ class LoadStateWindow:
         canvas.configure(yscrollcommand=scrollbar.set)
         canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
-        frame = ttk.Frame(canvas, width=500)
+        frame = ttk.Frame(canvas, width=scaled(500))
         frame.columnconfigure(0, weight=1)
         frame.columnconfigure(1, weight=1)
         canvas.create_window((0, 0), window=frame, anchor="nw")
@@ -87,11 +92,15 @@ class LoadStateWindow:
             if is_png:
                 try:
                     photo = PhotoImage(master=canvas, file=state)
+                    if get_integer_ui_scale() > 1:
+                        photo = photo.zoom(get_integer_ui_scale())
                 except TclError:
                     photo = None
 
             if photo is None:
-                placeholder = PIL.Image.new(mode="RGBA", size=(240, 160))
+                placeholder = PIL.Image.new(
+                    mode="RGBA", size=(240 * get_integer_ui_scale(), 160 * get_integer_ui_scale())
+                )
                 draw = PIL.ImageDraw.Draw(placeholder)
                 draw.rectangle(xy=[(0, 0), (placeholder.width, placeholder.height)], fill="#000000FF")
                 possible_sprites = [
@@ -115,7 +124,10 @@ class LoadStateWindow:
                 sprite = PIL.Image.open(get_sprites_path() / "items" / f"{random.choice(possible_sprites)}.png")
                 if sprite.mode != "RGBA":
                     sprite = sprite.convert("RGBA")
-                sprite = sprite.resize((sprite.width * 3, sprite.height * 3), resample=False)
+                sprite = sprite.resize(
+                    (sprite.width * 3 * get_integer_ui_scale(), sprite.height * 3 * get_integer_ui_scale()),
+                    resample=False,
+                )
                 sprite_position = (
                     placeholder.width // 2 - sprite.width // 2,
                     placeholder.height // 2 - sprite.height // 2,
