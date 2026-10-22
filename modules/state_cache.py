@@ -24,6 +24,7 @@ class StateCacheItem(Generic[T]):
         self.frame: int = 0
         self.time: float = time.time()
         self._last_check_frame: int = 0
+        self._has_value: bool = False
 
     @property
     def value(self) -> T:
@@ -35,13 +36,22 @@ class StateCacheItem(Generic[T]):
         self.frame = context.emulator.get_frame_count()
         self.time = time.time()
         self._last_check_frame = self.frame
+        self._has_value = True
 
     @property
     def age_in_seconds(self) -> float | None:
+        # An entry that has never been populated must not be considered fresh,
+        # otherwise callers would happily return its initial value (`None`).
+        if not self._has_value:
+            return 1000000.0
+
         return time.time() - self.time
 
     @property
     def age_in_frames(self) -> int | None:
+        if not self._has_value:
+            return 1000000
+
         current_frame_count = context.emulator.get_frame_count()
 
         # This condition will trigger when the emulator has been reset, and

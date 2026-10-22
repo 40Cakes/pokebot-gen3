@@ -781,7 +781,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
 
     @route.get("/stream_events")
     async def http_get_events_stream(request: web.Request):
-        subscribed_topics = request.query.getall("topic")
+        subscribed_topics = request.query.getall("topic", [])
         if len(subscribed_topics) == 0:
             return web.Response(
                 text="You need to provide at least one `topic` parameter in the query.",
@@ -1021,7 +1021,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
     @route.get("/static/stream-overlay")
     @route.get("/static/stream-overlay/")
     async def http_stream_overlay_redirect(request: web.Request):
-        return web.HTTPFound(location="/static/stream-overlay/index.html")
+        raise web.HTTPFound(location="/static/stream-overlay/index.html")
 
     @route.get("/")
     async def http_index(request: web.Request):
