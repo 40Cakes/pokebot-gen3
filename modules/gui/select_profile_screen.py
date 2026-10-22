@@ -2,6 +2,7 @@ from datetime import date, datetime
 from tkinter import Tk, ttk, StringVar
 from typing import Union, Callable
 
+from modules.gui.scaling import scaled
 from modules.profiles import Profile, list_available_profiles
 
 
@@ -71,11 +72,11 @@ class SelectProfileScreen:
         treeview = ttk.Treeview(
             container, columns=("profile_name", "game", "last_played"), show="headings", selectmode="browse"
         )
-        treeview.column("profile_name", width=200)
+        treeview.column("profile_name", width=scaled(200))
         treeview.heading("profile_name", text="Profile Name", command=lambda: sort_by("profile_name"))
-        treeview.column("game", width=150)
+        treeview.column("game", width=scaled(150))
         treeview.heading("game", text="Game", command=lambda: sort_by("game"))
-        treeview.column("last_played", width=170)
+        treeview.column("last_played", width=scaled(170))
         treeview.heading("last_played", text="Last Played ↑", command=lambda: sort_by("last_played"))
 
         scrollbar = ttk.Scrollbar(container, orient="vertical", command=treeview.yview)

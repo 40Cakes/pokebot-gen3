@@ -7,6 +7,7 @@ from rich.prompt import Prompt
 
 from modules.console import console
 from modules.context import context
+from modules.gui.scaling import scaled
 
 
 @dataclass
@@ -41,7 +42,7 @@ def ask_for_choice(choices: list[Selection], window_title: str = "Choose...") ->
 
     maximum_number_of_lines = 1 + max(choice.button_label.count("\n") for choice in choices)
 
-    window_geometry = (len(choices) * 164, 160 + (maximum_number_of_lines * 20))
+    window_geometry = (scaled(len(choices) * 164), scaled(160 + (maximum_number_of_lines * 20)))
     window.title(window_title)
     window.geometry(f"{window_geometry[0]}x{window_geometry[1]}")
     window.protocol("WM_DELETE_WINDOW", remove_window)
@@ -65,8 +66,8 @@ def ask_for_choice(choices: list[Selection], window_title: str = "Choose...") ->
     column = 0
     for selection in choices:
         photo = PhotoImage(master=canvas, file=selection.sprite)
-        if photo.width() < 128:
-            photo = photo.zoom(128 // photo.width())
+        if photo.width() < scaled(128):
+            photo = photo.zoom(scaled(128) // photo.width())
 
         photo_buffer.append(photo)
         button_frame = ttk.Frame(frame, padding=5)
@@ -126,7 +127,7 @@ def ask_for_confirmation(message: str, window_title: str = "Confirmation") -> bo
         window = None
 
     window.title(window_title)
-    window.geometry("400x180")
+    window.geometry(f"{scaled(400)}x{scaled(180)}")
     window.protocol("WM_DELETE_WINDOW", remove_window)
     window.bind("<Escape>", remove_window)
     window.rowconfigure(0, weight=1)
@@ -135,7 +136,7 @@ def ask_for_confirmation(message: str, window_title: str = "Confirmation") -> bo
     frame = ttk.Frame(window, padding=10)
     frame.pack(fill="both", expand=True)
 
-    label = ttk.Label(frame, text=message, anchor="center", wraplength=250)
+    label = ttk.Label(frame, text=message, anchor="center", wraplength=scaled(250))
     label.pack(pady=20)
 
     button_frame = ttk.Frame(frame)
@@ -153,9 +154,9 @@ def ask_for_confirmation(message: str, window_title: str = "Confirmation") -> bo
         # Scale the window to fit the label.
         if not checked_window_height:
             checked_window_height = True
-            window_height = label.winfo_reqheight() + 100
-            if window_height > 180:
-                window.geometry(f"400x{window_height}")
+            window_height = label.winfo_reqheight() + scaled(100)
+            if window_height > scaled(180):
+                window.geometry(f"{scaled(400)}x{window_height}")
 
         time.sleep(1 / 60)
 
@@ -194,8 +195,8 @@ def ask_for_choice_scroll(
 
     scrollbar_width = 20
 
-    window_width = options_per_row * button_width + scrollbar_width
-    window_height = visible_rows * button_height + 50
+    window_width = scaled(options_per_row * button_width + scrollbar_width)
+    window_height = scaled(visible_rows * button_height + 50)
     window_geometry = (window_width, window_height)
 
     window.title(window_title)
@@ -224,8 +225,8 @@ def ask_for_choice_scroll(
 
     for selection in choices:
         photo = PhotoImage(master=canvas, file=selection.sprite)
-        if photo.width() < 128:
-            photo = photo.zoom(128 // photo.width())
+        if photo.width() < scaled(128):
+            photo = photo.zoom(scaled(128) // photo.width())
 
         photo_buffer.append(photo)
         button_frame = ttk.Frame(content_frame, padding=5)

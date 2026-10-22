@@ -3,6 +3,7 @@ import tkinter
 from tkinter import Tk, Toplevel, ttk
 
 from modules.context import context
+from modules.gui.scaling import scaled
 from modules.debug_utilities import debug_create_pokemon, debug_write_party
 from modules.items import get_item_by_index, get_item_by_name
 from modules.pokemon import (
@@ -37,7 +38,7 @@ class PartyEditMenu:
         self.window: Toplevel | None = Toplevel(main_window)
 
         self.window.title("Edit Party")
-        self.window.geometry("640x560")
+        self.window.geometry(f"{scaled(640)}x{scaled(560)}")
         self.window.protocol("WM_DELETE_WINDOW", self._remove_window)
         self.window.bind("<Escape>", self._remove_window)
         self.window.rowconfigure(0, weight=1)
@@ -575,7 +576,7 @@ class PokemonEditFrame:
             exp_window = None
 
         exp_window.title(f"Set Experience for {self._species.name}")
-        exp_window.geometry("360x160")
+        exp_window.geometry(f"{scaled(360)}x{scaled(160)}")
         exp_window.protocol("WM_DELETE_WINDOW", remove_window)
         exp_window.bind("<Escape>", remove_window)
         exp_window.rowconfigure(0, weight=1)

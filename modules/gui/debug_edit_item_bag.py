@@ -2,6 +2,7 @@ import time
 from tkinter import ttk, Tk, Toplevel, StringVar, IntVar, Canvas
 
 from modules.context import context
+from modules.gui.scaling import scaled
 from modules.debug_utilities import debug_write_item_bag
 from modules.items import ItemPocket, get_item_bag, _items_by_index, get_item_by_name, ItemSlot
 
@@ -12,7 +13,7 @@ class ItemBagEditMenu:
         self.window: Toplevel | None = Toplevel(main_window)
 
         self.window.title("Edit Item Bag")
-        self.window.geometry("425x640")
+        self.window.geometry(f"{scaled(425)}x{scaled(640)}")
         self.window.protocol("WM_DELETE_WINDOW", self._remove_window)
         self.window.bind("<Escape>", self._remove_window)
         self.window.rowconfigure(0, weight=1)
@@ -104,7 +105,7 @@ class ItemPocketFrame:
         canvas.configure(yscrollcommand=scrollbar.set)
         canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
-        inner_frame = ttk.Frame(canvas, width=400)
+        inner_frame = ttk.Frame(canvas, width=scaled(400))
         inner_frame.columnconfigure(0, weight=1)
         inner_frame.columnconfigure(1, weight=1)
         canvas.create_window((0, 0), window=inner_frame, anchor="nw")

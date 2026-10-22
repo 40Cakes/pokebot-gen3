@@ -14,6 +14,7 @@ except ImportError:
 
 from modules.gui.debug_tabs import *
 from modules.gui.emulator_controls import DebugEmulatorControls, EmulatorControls
+from modules.gui.scaling import get_integer_ui_scale, scaled
 from modules.sprites import generate_placeholder_image
 from modules.version import pokebot_name, pokebot_version
 
@@ -42,7 +43,7 @@ class EmulatorScreen:
 
         self.width: int = 240
         self.height: int = 160
-        self._scale: int = 2
+        self._scale: int = 2 * get_integer_ui_scale()
 
         self._stepping_mode: bool = False
         self._stepping_button: Union[Button, None] = None
@@ -100,12 +101,12 @@ class EmulatorScreen:
 
         self._add_canvas()
         self._initialise_controls(context.debug)
-        self.scale = 2
+        self.scale = 2 * get_integer_ui_scale()
 
     def disable(self) -> None:
         if self.frame:
             self.frame.destroy()
-        self.window.geometry("540x400")
+        self.window.geometry(f"{scaled(540)}x{scaled(400)}")
         self.window.resizable(context.debug, True)
 
     def update(self) -> None:
@@ -246,7 +247,7 @@ class EmulatorScreen:
         if self._use_opengl:
             self._glfw_gui = GlfwGui(None, None)
             threading.Thread(target=self._glfw_gui.run_opengl_window, daemon=True).start()
-        self.canvas = Canvas(self.window, width=480, height=320)
+        self.canvas = Canvas(self.window, width=self.width * self._scale, height=self.height * self._scale)
         if not self._use_opengl:
             self.canvas.grid(sticky="NW", row=0, column=0)
 

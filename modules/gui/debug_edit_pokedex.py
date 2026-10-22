@@ -2,6 +2,7 @@ import time
 from tkinter import Tk, Toplevel, ttk, StringVar, Canvas
 
 from modules.context import context
+from modules.gui.scaling import scaled
 from modules.debug_utilities import debug_write_pokedex
 from modules.pokedex import get_pokedex
 from modules.pokemon import get_species_by_national_dex
@@ -13,7 +14,7 @@ class PokedexEditMenu:
         self.window: Toplevel | None = Toplevel(main_window)
 
         self.window.title("Edit Pokédex")
-        self.window.geometry("480x640")
+        self.window.geometry(f"{scaled(480)}x{scaled(640)}")
         self.window.protocol("WM_DELETE_WINDOW", self._remove_window)
         self.window.bind("<Escape>", self._remove_window)
         self.window.rowconfigure(0, weight=1)
@@ -31,7 +32,7 @@ class PokedexEditMenu:
         canvas.configure(yscrollcommand=scrollbar.set)
         canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
-        inner_frame = ttk.Frame(canvas, width=400)
+        inner_frame = ttk.Frame(canvas, width=scaled(400))
         inner_frame.columnconfigure(0, weight=1)
         inner_frame.columnconfigure(1, weight=1)
         canvas.create_window((0, 0), window=inner_frame, anchor="nw")

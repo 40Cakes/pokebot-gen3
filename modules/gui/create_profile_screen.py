@@ -5,6 +5,7 @@ from typing import Union, Callable
 import plyer
 from PIL import Image, ImageOps, ImageTk
 
+from modules.gui.scaling import get_integer_ui_scale, scaled
 from modules.profiles import Profile, create_profile, list_available_profiles, profile_directory_exists
 from modules.roms import ROM, list_available_roms
 from modules.runtime import get_sprites_path
@@ -36,7 +37,7 @@ class CreateProfileScreen:
             return
 
         if len(list_available_profiles()) == 0:
-            self.window.geometry("540x480")
+            self.window.geometry(f"{scaled(540)}x{scaled(480)}")
             self._show_welcome_message()
         else:
             self._show_return_button()
@@ -65,7 +66,7 @@ class CreateProfileScreen:
         container.grid(sticky="N", row=row)
 
         birch_sprite = Image.open(get_sprites_path() / "other" / "Birch.png")
-        birch_sprite = ImageOps.scale(birch_sprite, 2, resample=False)
+        birch_sprite = ImageOps.scale(birch_sprite, 2 * get_integer_ui_scale(), resample=False)
         flipped_birch_sprite = ImageOps.mirror(birch_sprite)
         birch_image = ImageTk.PhotoImage(birch_sprite)
         flipped_birch_image = ImageTk.PhotoImage(flipped_birch_sprite)
