@@ -1,40 +1,40 @@
 import platform
 import sys
 
-from modules.runtime import get_base_path, is_bundled_app, is_virtualenv
+from modules.runtime import get_base_path, is_virtualenv
 from modules.version import pokebot_name, pokebot_version
 
-recommended_python_version = "3.13"
-supported_python_versions = ["3.11", "3.12", "3.13"]
+recommended_python_version = "3.14"
+supported_python_versions = ["3.11", "3.12", "3.13", "3.14"]
 
 libmgba_tag = "0.2.0-2"
 libmgba_ver = "0.2.0"
 
 # This is a list of requirements for `pip`, akin to `requirements.txt`.
 required_modules = [
-    "confz==2.0.1",
-    "numpy~=2.1.0",
+    "confz~=2.1",
+    "numpy~=2.4.0",
     "setuptools",
-    "ruamel.yaml~=0.18.2",
-    "pypresence~=4.3.0",
-    "obsws-python~=1.6.0",
-    "discord-webhook~=1.2.1",
-    "rich~=13.5.2",
-    "cffi~=1.17.1",
-    "Pillow~=10.4.0",
-    "sounddevice~=0.4.6",
-    "pyperclip3~=0.4.1",
-    "plyer~=2.1.0",
-    "notify-py~=0.3.42",
-    "apispec~=6.3.0",
-    "ttkthemes~=3.2.2",
+    "ruamel.yaml~=0.19.1",
+    "pypresence~=4.6",
+    "obsws-python~=1.8",
+    "discord-webhook~=1.4",
+    "rich~=15.0",
+    "cffi~=2.0",
+    "Pillow~=12.0",
+    "sounddevice~=0.5.0",
+    "plyer~=2.1",
+    "notify-py~=0.3.43",
+    "apispec~=6.10",
+    "ttkthemes~=3.3",
     "darkdetect~=0.8.0",
-    "show-in-file-manager~=1.1.4",
-    "aiohttp~=3.10.9",
+    "show-in-file-manager~=1.1",
+    "aiohttp~=3.13",
+    "requests~=2.32",
 ]
 
 if platform.system() == "Windows":
-    required_modules.extend(["pywin32>=306", "psutil~=5.9.5"])
+    required_modules.extend(["pywin32>=306", "psutil~=7.2"])
 
 
 def get_requirements_hash() -> str:
@@ -150,7 +150,10 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
                 supported_linux_releases = [
                     ("ubuntu", "23.04"),
                     ("ubuntu", "23.10"),
+                    ("ubuntu", "24.04"),
+                    ("ubuntu", "26.04"),
                     ("debian", "12"),
+                    ("debian", "13"),
                     ("pop", "22.04"),
                     ("arch", "none"),
                 ]
@@ -202,6 +205,8 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
             print(f"ERROR: Could not download libmgba-py ({libmgba_url})")
             sys.exit(1)
 
+    _check_tkinter()
+
     # Mark the requirements for the current bot version as checked, so we do not
     # have to run all of this again until the next update.
     with open(get_base_path() / ".last-requirements-check", "w") as file:
@@ -212,6 +217,70 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
     return True
 
 
+def _get_tkinter_install_hint() -> str:
+    """
+    :return: Instructions on how to install Tk for the Python installation that is currently running.
+    """
+    python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+
+    match platform.system():
+        case "Windows":
+            return (
+                "Run the Python installer again, choose 'Modify' and make sure that 'tcl/tk and IDLE' is ticked."
+            )
+
+        case "Darwin":
+            if sys.base_prefix.startswith(("/opt/homebrew", "/usr/local")):
+                return f"Install it with Homebrew: brew install python-tk@{python_version}"
+            return "Install Python using the installer from https://www.python.org/, which includes Tk."
+
+        case "Linux":
+            # Distribution packages only help if this is the distribution's own Python and not,
+            # say, one that has been built by pyenv.
+            if sys.base_prefix != "/usr":
+                return (
+                    "This Python installation has been built without Tk support. Install your "
+                    "distribution's Tk development package (e.g. `tk-dev`) and then reinstall this Python."
+                )
+
+            try:
+                linux_release = platform.freedesktop_os_release()
+            except OSError:
+                linux_release = {}
+            distribution_ids = {linux_release.get("ID", ""), *linux_release.get("ID_LIKE", "").split()}
+
+            if distribution_ids & {"debian", "ubuntu"}:
+                return (
+                    "Install it with: sudo apt install python3-tk\n"
+                    f"  (If this is not your distribution's default Python, e.g. one from the deadsnakes "
+                    f"PPA, the package is called python{python_version}-tk instead.)"
+                )
+            elif distribution_ids & {"fedora", "rhel", "centos"}:
+                return "Install it with: sudo dnf install python3-tkinter"
+            elif "arch" in distribution_ids:
+                return "Install it with: sudo pacman -S tk"
+            elif distribution_ids & {"suse", "opensuse"}:
+                return "Install it with: sudo zypper install python3-tk"
+            elif "alpine" in distribution_ids:
+                return "Install it with: sudo apk add python3-tkinter"
+
+    return (
+        "Install your distribution's Tk package for Python (usually called `python3-tk` or `python3-tkinter`)."
+    )
+
+
+def _check_tkinter() -> None:
+    # Tk cannot be installed with `pip`, so all we can do is tell the user how to get it
+    # if it is missing.
+    try:
+        import tkinter
+    except ImportError as error:
+        print(f"WARNING: Tk is not available in this Python installation ({error}).")
+        print("The GUI needs it, but we cannot install it for you.")
+        print(f"  {_get_tkinter_install_hint()}")
+        print("Alternatively, you can run the bot without a GUI using `--headless`.\n")
+
+
 def check_requirements() -> bool:
     """
     Checks whether the dependencies of this app are up-to-date, and if necessary runs
@@ -219,12 +288,6 @@ def check_requirements() -> bool:
 
     :return: Whether requirements are up-to-date.
     """
-
-    # Never check requirements if we are in a bundle generated by pyinstaller, since all the
-    # requirements should already be included. Also, it's not possible to download requirements
-    # inside a bundle anyway.
-    if is_bundled_app():
-        return True
 
     # We do not want to do download requirements every single time the bot is started.
     # As a quick sanity check, we store the current bot version in `.last-requirements-check`.

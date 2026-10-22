@@ -72,6 +72,11 @@ if TYPE_CHECKING:
     from modules.libmgba import LibmgbaEmulator
 
 
+def _copy_to_clipboard(text: str) -> None:
+    context.gui.window.clipboard_clear()
+    context.gui.window.clipboard_append(text)
+
+
 class FancyTreeview:
     def __init__(
         self,
@@ -221,9 +226,7 @@ class FancyTreeview:
         if len(selection) < 1:
             return
 
-        import pyperclip3
-
-        pyperclip3.copy(str(self._tv.item(selection[0])["values"][0]))
+        _copy_to_clipboard(str(self._tv.item(selection[0])["values"][0]))
 
     def _handle_action(self, callback: callable) -> None:
         selection = self._tv.selection()
@@ -963,9 +966,7 @@ class EventFlagsTab(DebugTab):
         set_event_flag(flag)
 
     def _copy_name(self, flag: str):
-        import pyperclip3
-
-        pyperclip3.copy(flag)
+        _copy_to_clipboard(flag)
 
     def _get_data(self):
         search_phrase = self._search_field.get().upper()
@@ -1022,9 +1023,7 @@ class EventVarsTab(DebugTab):
         context.gui.window.after(50, select_all)
 
     def _copy_name(self, var: str):
-        import pyperclip3
-
-        pyperclip3.copy(var)
+        _copy_to_clipboard(var)
 
     def _change_value(self, var: str):
         current_value = get_event_var(var)

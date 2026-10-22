@@ -54,7 +54,8 @@ def write_file(file: Path, value: str, mode: str = "w") -> bool:
         if os.path.exists(tmp_file):
             with contextlib.suppress(Exception):
                 os.unlink(tmp_file)
-        return True
+
+    return True
 
 
 def make_string_safe_for_file_name(base_string: str) -> str:
