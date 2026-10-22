@@ -241,7 +241,7 @@ class DebugMenu(Menu):
                 if var.get():
                     _enable_listener(listener_class)
 
-            var.trace("w", update_handler)
+            var.trace_add("write", update_handler)
 
             return var
 

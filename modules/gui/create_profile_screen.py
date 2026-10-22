@@ -131,7 +131,7 @@ class CreateProfileScreen:
                 message_label.config(text="")
                 message_label.grid_remove()
 
-        sv_name.trace("w", handle_name_input_change)
+        sv_name.trace_add("write", handle_name_input_change)
 
         entry = ttk.Entry(container, textvariable=sv_name)
         entry.grid(column=1, row=0, sticky="EW")
