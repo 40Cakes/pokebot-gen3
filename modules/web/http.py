@@ -27,7 +27,7 @@ from modules.player import get_player, get_player_avatar
 from modules.pokedex import get_pokedex
 from modules.pokemon_party import get_party
 from modules.pokemon_storage import get_pokemon_storage
-from modules.runtime import get_base_path, is_bundled_app
+from modules.runtime import get_base_path
 from modules.state_cache import StateCacheItem
 from modules.version import pokebot_version, pokebot_name
 from modules.web.http_stream import add_subscriber
@@ -134,8 +134,6 @@ def _get_webrtc_error() -> str | None:
         return "WebRTC is disabled. Set `webrtc.enabled` in `http.yml` to enable it."
 
     if webrtc is None:
-        if is_bundled_app():
-            return "WebRTC is not available in the bundled version of the bot."
         return (
             "WebRTC requires the `aiortc` package, which is not installed. You can install it with:\n"
             f'"{sys.executable}" -m pip install "aiortc~=1.10.0"'
