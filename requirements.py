@@ -30,6 +30,7 @@ required_modules = [
     "darkdetect~=0.8.0",
     "show-in-file-manager~=1.1",
     "aiohttp~=3.13",
+    "requests~=2.32",
 ]
 
 if platform.system() == "Windows":
