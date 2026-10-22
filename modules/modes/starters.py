@@ -1,13 +1,17 @@
 import random
+from functools import cache
 from typing import Generator, Callable
 
+from modules.console import console
 from modules.context import context
 from modules.encounter import handle_encounter, EncounterInfo
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.map_data import MapFRLG, MapRSE
 from modules.menuing import PokemonPartyMenuNavigator, StartMenuNavigator
 from modules.modes.util.walking import navigate_to
-from modules.player import get_player_avatar
+from modules.memory import read_symbol, unpack_uint32
+from modules.player import get_player, get_player_avatar
+from modules.pokemon import get_nature_by_name
 from modules.pokemon_party import get_party_size, get_party
 from modules.runtime import get_sprites_path
 from modules.save_data import get_save_data
@@ -24,6 +28,83 @@ from .util import (
 )
 from ..battle_state import get_main_battle_callback, EncounterType
 
+# Default number of RNG advances between the `gRngValue` read one frame before the bot starts confirming the
+# starter selection and the starter's personality value (measured on FireRed USA rev 0 with the input sequence
+# in `run_frlg()`.) Other revisions/languages/text speeds may differ, so `run_frlg()` re-measures it after
+# every attempt.
+_FRLG_STARTER_RNG_ADVANCES = 183
+
+
+@cache
+def _rng_jump(steps: int) -> tuple[int, int]:
+    """:return: (multiplier, increment) that advance the Gen3 LCG by `steps` in one go."""
+    multiplier, increment = 1, 0
+    for _ in range(steps):
+        increment = (increment * 0x41C64E6D + 0x6073) & 0xFFFF_FFFF
+        multiplier = (multiplier * 0x41C64E6D) & 0xFFFF_FFFF
+    return multiplier, increment
+
+
+def _advance_rng(rng: int, steps: int) -> int:
+    multiplier, increment = _rng_jump(steps)
+    return (multiplier * rng + increment) & 0xFFFF_FFFF
+
+
+def frlg_starter_personality_value(rng: int, rng_advances: int) -> int:
+    """:return: Personality value of the starter generated `rng_advances` after `rng`."""
+    return _advance_rng(rng, rng_advances + 1) >> 16 | (_advance_rng(rng, rng_advances + 2) >> 16) << 16
+
+
+def frlg_starter_is_target(
+    rng: int, rng_advances: int, trainer_id: int, secret_id: int, nature_indices: set[int]
+) -> bool:
+    """
+    :param nature_indices: Natures to accept (as `PID % 25`), or an empty set to accept any.
+    :return: Whether the starter generated from this RNG value would be shiny (and have a wanted nature.)
+    """
+    pid = frlg_starter_personality_value(rng, rng_advances)
+    if trainer_id ^ secret_id ^ (pid & 0xFFFF) ^ (pid >> 16) >= 8:
+        return False
+    return not nature_indices or pid % 25 in nature_indices
+
+
+def find_frlg_starter_rng_advances(rng: int, personality_value: int, max_advances: int = 10_000) -> int | None:
+    """:return: How many RNG advances after `rng` the given starter was generated, if within `max_advances`."""
+    low = _advance_rng(rng, 1)
+    for rng_advances in range(max_advances):
+        high = _advance_rng(low, 1)
+        if low >> 16 | (high >> 16) << 16 == personality_value:
+            return rng_advances
+        low = high
+    return None
+
+
+def _get_frlg_starter_nature_indices() -> set[int]:
+    try:
+        return {get_nature_by_name(name.strip().title()).index for name in context.config.cheats.frlg_starter_natures}
+    except KeyError as error:
+        raise BotModeError(f"Unknown nature {error} in `frlg_starter_natures` (cheats.yml).")
+
+
+def wait_for_frlg_starter_target_frame(rng_advances: int, nature_indices: set[int]) -> Generator[None, None, int]:
+    """
+    Waits (without touching memory) until pressing A on the current frame will result in a
+    shiny starter, i.e. what a human RNG manipulator would do with a timer. Gives up after
+    ~10x the expected number of frames, in which case the bot just confirms on that frame.
+
+    :return: The RNG value that the prediction was based on (used for re-measuring the offset.)
+    """
+    player = get_player()
+    expected_frames = 8192 * 25 // len(nature_indices) if nature_indices else 8192
+    context.message = "Waiting for a frame that results in a shiny starter..."
+    for _ in range(10 * expected_frames):
+        rng = unpack_uint32(read_symbol("gRngValue"))
+        yield
+        if frlg_starter_is_target(rng, rng_advances, player.trainer_id, player.secret_id, nature_indices):
+            break
+    context.message = ""
+    return rng
+
 
 def run_frlg() -> Generator:
     starter_choice = ask_for_choice(
@@ -38,6 +119,11 @@ def run_frlg() -> Generator:
     if starter_choice is None:
         return
 
+    rng_manipulation = context.config.cheats.frlg_starter_rng_manipulation
+    if rng_manipulation:
+        nature_indices = _get_frlg_starter_nature_indices()
+        rng_advances = _FRLG_STARTER_RNG_ADVANCES
+
     while context.bot_mode != "Manual":
         yield from soft_reset(mash_random_keys=True)
         starter = starter_choice
@@ -51,12 +137,23 @@ def run_frlg() -> Generator:
             case "Squirtle":
                 yield from navigate_to(map=MapFRLG.PALLET_TOWN_PROFESSOR_OAKS_LAB, coordinates=(9, 5))
         yield from ensure_facing_direction("Up")
-        yield from wait_for_unique_rng_value()
+        if rng_manipulation:
+            predicted_from_rng = yield from wait_for_frlg_starter_target_frame(rng_advances, nature_indices)
+        else:
+            yield from wait_for_unique_rng_value()
 
         # Wait for and confirm the first question (the 'Do you choose ...')
         while get_party_size() == 0:
             context.emulator.press_button("A")
             yield
+
+        if rng_manipulation:
+            measured = find_frlg_starter_rng_advances(predicted_from_rng, get_party()[0].personality_value)
+            if measured is not None and measured != rng_advances:
+                console.print(
+                    f"Measured {measured} RNG advances before the starter is generated (expected {rng_advances})."
+                )
+                rng_advances = measured
 
         # Wait for and say no to the second question (the 'Do you want to give ... a nickname')
         yield from wait_for_task_to_start_and_finish("Task_YesNoMenu_HandleInput", button_to_press="B")

@@ -2,3 +2,8 @@
 
 random_soft_reset_rng: false
 faster_pickup: false
+
+# FRLG only: wait in front of the starter for a frame that will produce a shiny instead of soft resetting
+frlg_starter_rng_manipulation: false
+# Only accept these natures when manipulating, e.g. [Modest, Timid]. Leave empty to accept any nature.
+frlg_starter_natures: []
