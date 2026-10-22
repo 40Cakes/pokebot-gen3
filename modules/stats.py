@@ -595,6 +595,11 @@ class StatsDatabase:
         self.is_first_encounter: bool = True
 
         self._connection = sqlite3.connect(profile.path / "stats.db", check_same_thread=False)
+        # This cursor is only for writes (see `_execute_write()`.) Read queries must use
+        # `self._connection.execute()`, which creates a new cursor each time, because they
+        # can come from other threads (such as the HTTP server.) Sharing a cursor between
+        # threads is unsafe: one thread's `execute()` can finalise the statement that
+        # another thread is still iterating over, which crashes the interpreter.
         self._cursor = self._connection.cursor()
         self._lock = threading.Lock()
 
@@ -845,7 +850,7 @@ class StatsDatabase:
         limit: int | None = 10,
         offset: int = 0,
     ) -> Iterable[Encounter]:
-        result = self._cursor.execute(
+        result = self._connection.execute(
             f"""
             SELECT
                 encounter_id,
@@ -873,7 +878,7 @@ class StatsDatabase:
             yield Encounter.from_row_data(row)
 
     def count_encounters(self, where_clause: str | None = None, parameters: tuple | list | None = None) -> int:
-        result = self._cursor.execute(
+        result = self._connection.execute(
             f"""
             SELECT COUNT(*)
             FROM encounters
@@ -912,7 +917,7 @@ class StatsDatabase:
                 self.encounter_rate_at_1x = 0
 
     def _get_next_encounter_id(self) -> int:
-        result = self._cursor.execute(
+        result = self._connection.execute(
             "SELECT encounter_id FROM encounters ORDER BY encounter_id DESC LIMIT 1"
         ).fetchone()
         if result is None:
@@ -935,7 +940,7 @@ class StatsDatabase:
     def _query_shiny_phases(
         self, where_clause: str, parameters: tuple | list | None = None, limit: int | None = 10, offset: int = 0
     ) -> Iterable[ShinyPhase]:
-        result = self._cursor.execute(
+        result = self._connection.execute(
             f"""
             SELECT
                 shiny_phases.shiny_phase_id,
@@ -1001,7 +1006,7 @@ class StatsDatabase:
         return result[0] if len(result) > 0 else None
 
     def _get_next_shiny_phase_id(self) -> int:
-        result = self._cursor.execute(
+        result = self._connection.execute(
             "SELECT shiny_phase_id FROM shiny_phases ORDER BY shiny_phase_id DESC LIMIT 1"
         ).fetchone()
         if result is None:
@@ -1010,7 +1015,7 @@ class StatsDatabase:
             return int(result[0]) + 1
 
     def _get_encounter_summaries(self) -> dict[int, EncounterSummary]:
-        result = self._cursor.execute("""
+        result = self._connection.execute("""
             SELECT
                 species_id,
                 species_name,
@@ -1060,14 +1065,16 @@ class StatsDatabase:
 
     def _get_pickup_items(self) -> dict[int, PickupItem]:
         pickup_items = {}
-        result = self._cursor.execute("SELECT item_id, item_name, times_picked_up FROM pickup_items ORDER BY item_id")
+        result = self._connection.execute(
+            "SELECT item_id, item_name, times_picked_up FROM pickup_items ORDER BY item_id"
+        )
         for row in result:
             pickup_items[int(row[0])] = PickupItem(get_item_by_index(int(row[0])), int(row[2]))
         return pickup_items
 
     def _get_base_data(self) -> dict[str, str | None]:
         data_list = {}
-        result = self._cursor.execute("SELECT data_key, value FROM base_data ORDER BY data_key")
+        result = self._connection.execute("SELECT data_key, value FROM base_data ORDER BY data_key")
         for row in result:
             data_list[row[0]] = row[1]
         return data_list
@@ -1296,11 +1303,11 @@ class StatsDatabase:
         """
         :return: The version number of the database schema, or 0 if this is a new database.
         """
-        result = self._cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='schema_version'")
+        result = self._connection.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='schema_version'")
         if result.fetchone() is None:
             return 0
 
-        result = self._cursor.execute("SELECT version FROM schema_version").fetchone()
+        result = self._connection.execute("SELECT version FROM schema_version").fetchone()
         if result is None:
             return 0
 
