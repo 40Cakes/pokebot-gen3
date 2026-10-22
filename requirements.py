@@ -204,6 +204,8 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
             print(f"ERROR: Could not download libmgba-py ({libmgba_url})")
             sys.exit(1)
 
+    _check_tkinter()
+
     # Mark the requirements for the current bot version as checked, so we do not
     # have to run all of this again until the next update.
     with open(get_base_path() / ".last-requirements-check", "w") as file:
@@ -212,6 +214,70 @@ def update_requirements(ask_for_confirmation: bool = True) -> bool:
     print("")
 
     return True
+
+
+def _get_tkinter_install_hint() -> str:
+    """
+    :return: Instructions on how to install Tk for the Python installation that is currently running.
+    """
+    python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+
+    match platform.system():
+        case "Windows":
+            return (
+                "Run the Python installer again, choose 'Modify' and make sure that 'tcl/tk and IDLE' is ticked."
+            )
+
+        case "Darwin":
+            if sys.base_prefix.startswith(("/opt/homebrew", "/usr/local")):
+                return f"Install it with Homebrew: brew install python-tk@{python_version}"
+            return "Install Python using the installer from https://www.python.org/, which includes Tk."
+
+        case "Linux":
+            # Distribution packages only help if this is the distribution's own Python and not,
+            # say, one that has been built by pyenv.
+            if sys.base_prefix != "/usr":
+                return (
+                    "This Python installation has been built without Tk support. Install your "
+                    "distribution's Tk development package (e.g. `tk-dev`) and then reinstall this Python."
+                )
+
+            try:
+                linux_release = platform.freedesktop_os_release()
+            except OSError:
+                linux_release = {}
+            distribution_ids = {linux_release.get("ID", ""), *linux_release.get("ID_LIKE", "").split()}
+
+            if distribution_ids & {"debian", "ubuntu"}:
+                return (
+                    "Install it with: sudo apt install python3-tk\n"
+                    f"  (If this is not your distribution's default Python, e.g. one from the deadsnakes "
+                    f"PPA, the package is called python{python_version}-tk instead.)"
+                )
+            elif distribution_ids & {"fedora", "rhel", "centos"}:
+                return "Install it with: sudo dnf install python3-tkinter"
+            elif "arch" in distribution_ids:
+                return "Install it with: sudo pacman -S tk"
+            elif distribution_ids & {"suse", "opensuse"}:
+                return "Install it with: sudo zypper install python3-tk"
+            elif "alpine" in distribution_ids:
+                return "Install it with: sudo apk add python3-tkinter"
+
+    return (
+        "Install your distribution's Tk package for Python (usually called `python3-tk` or `python3-tkinter`)."
+    )
+
+
+def _check_tkinter() -> None:
+    # Tk cannot be installed with `pip`, so all we can do is tell the user how to get it
+    # if it is missing.
+    try:
+        import tkinter
+    except ImportError as error:
+        print(f"WARNING: Tk is not available in this Python installation ({error}).")
+        print("The GUI needs it, but we cannot install it for you.")
+        print(f"  {_get_tkinter_install_hint()}")
+        print("Alternatively, you can run the bot without a GUI using `--headless`.\n")
 
 
 def check_requirements() -> bool:
