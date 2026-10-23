@@ -443,6 +443,18 @@ class ItemBag:
         return sum(slot.quantity for slot in self.items if slot.item.name in ("Repel", "Super Repel", "Max Repel"))
 
     @property
+    def number_of_repel_steps(self) -> int:
+        result = 0
+        for slot in self.items:
+            if slot.item.name == "Repel":
+                result += 100 * slot.quantity
+            elif slot.item.name == "Super Repel":
+                result += 200 * slot.quantity
+            elif slot.item.name == "Max Repel":
+                result += 250 * slot.quantity
+        return result
+
+    @property
     def number_of_balls_except_master_ball(self) -> int:
         return sum(slot.quantity for slot in self.poke_balls if slot.item.index != 1)
 

@@ -167,8 +167,6 @@ class RoamerResetMode(BotMode):
             context.emulator.reset_held_buttons()
 
             yield from soft_reset()
-            yield from wait_for_unique_rng_value()
-
             yield from wait_for_player_avatar_to_be_standing_still()
 
             # Leave bedroom
@@ -185,6 +183,12 @@ class RoamerResetMode(BotMode):
                 context.emulator.press_button("Down")
                 yield
                 yield
+
+            # The roamer is generated as soon as the colour has been chosen. Up to this point, the
+            # number of RNG calls varies a little, which can make runs that started from different
+            # (but close) RNG values end up with the same RNG value here, and so with the same
+            # roamer. So the RNG value is only made unique at this point.
+            yield from wait_for_unique_rng_value()
 
             while get_global_script_context().is_active:
                 context.emulator.press_button("A")

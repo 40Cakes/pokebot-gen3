@@ -27,7 +27,10 @@ Before starting Safari Mode, ensure you meet the following criteria:
 ![Safari Mode Start Screen](../images/safari_mode_start_rse.png)
 ![Safari Mode Start Screen](../images/safari_mode_start_frlg.png)
 
-2. **Have enough money**: You need more than ₽500 to start the hunt.
+2. **Have enough money**: You need more than ₽500 to start the hunt. In `Emerald`, we recommend at least
+   **₽10,000** (more if you use a custom catch filter that matches often, see the note on soft resets below.)
+   If you have less, the bot will warn you the first time you start the mode. Select the mode again to
+   start it anyway.
 3. **Choose a Pokémon** to hunt from the available Safari Zone list.
 
 ![Safari Mode Start Screen](../images/safari_target_rse.png)
@@ -68,9 +71,35 @@ The bot uses optimal catch patterns, which are available in these
 [lookup tables](https://www.docdroid.net/g3I5Qtl/frlg-lookup-tables-pdf), to maximize catch rates for each Pokémon.
 
 3. If you used atleast one safari ball, the bot will exit the Safari and re-entry if you have enough money or soft reset. Since some Pokémon catching can take 20+ Safari balls, you might want to have a full bag when finding that Shiny Chansey.
-4. After spending ₽15.000 without catching a Pokémon in the last 30 Safari runs, the bot will:
-    - Perform a soft reset to save cash.
-    - Or exit Safari Mode and switch to manual control for you to save your game if a Pokémon was captured during these 30 Safari runs.
+   As the bot doesn't use up any steps while hunting, it only leaves the Safari Zone after such a catch attempt.
+4. Once you have less than ₽500 left, the bot will:
+    - Perform a soft reset to get your cash back, if it hasn't caught any Pokémon since the last reset.
+    - Or exit Safari Mode and switch to manual control for you to save your game if a Pokémon was captured since the last reset.
+
+---
+
+## Note on soft resets in Emerald
+
+Emerald starts its random number generator from the same value every time the game is reset. Without
+countermeasures, the game tends to end up in the exact same state after each reset, and the bot would keep
+encountering the same Pokémon over and over again.
+
+To prevent that, the bot waits for a random moment at a few points: up to about 4 seconds after entering the
+Safari Zone and again after arriving at the hunting spot, and up to a quarter of a second after every battle.
+This is not necessary, and so not done:
+
+- in Ruby, Sapphire, FireRed and LeafGreen, which start their random number generator differently,
+- during your very first run, until the first reset. The bot remembers that it has done such a run in
+  `flags.txt` in your profile directory. (If you delete that file or the relevant line in it, the next run
+  will be without waiting again, but it might then repeat encounters from your earlier runs.)
+
+This makes the bot avoid long runs of repeated encounters, but it cannot rule out that an individual encounter
+repeats one from an earlier run, and this gets more likely the more often the bot resets.
+As the bot only uses up an entry after a failed catch attempt, **₽10,000** (20 entries) is usually enough.
+If you use a custom catch filter that matches often, bring more cash.
+
+If you have enabled the [`random_soft_reset_rng` cheat](Configuration%20-%20Cheats.md), the bot will skip
+the waiting time.
 
 ---
 
