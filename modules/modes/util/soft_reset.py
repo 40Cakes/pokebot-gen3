@@ -45,6 +45,22 @@ def soft_reset(mash_random_keys: bool = True) -> Generator:
         yield
 
 
+def advance_rng_sequence(steps: int = 1) -> int:
+    """
+    Sets the game's RNG to the value it would have after `steps` more calls to `Random()`,
+    without emulating any frames. Most of the time the RNG advances once per frame, so this
+    can be used to skip waiting if the `random_soft_reset_rng` cheat is enabled.
+
+    :param steps: Number of RNG advances to skip.
+    :return: The new RNG value.
+    """
+    rng_value = unpack_uint32(read_symbol("gRngValue"))
+    for _ in range(steps):
+        rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
+    write_symbol("gRngValue", pack_uint32(rng_value))
+    return rng_value
+
+
 @debug.track
 def wait_for_unique_rng_value() -> Generator:
     """
@@ -57,8 +73,7 @@ def wait_for_unique_rng_value() -> Generator:
     context.message = "Waiting for a unique frame before continuing..."
     while rng_value in rng_history:
         if context.config.cheats.random_soft_reset_rng:
-            rng_value = (1103515245 * rng_value + 24691) & 0xFFFF_FFFF
-            write_symbol("gRngValue", pack_uint32(rng_value))
+            rng_value = advance_rng_sequence()
         else:
             rng_value = unpack_uint32(read_symbol("gRngValue"))
             yield

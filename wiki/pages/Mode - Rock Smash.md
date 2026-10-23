@@ -64,6 +64,30 @@ The mode will continuously try to enter the Safari Zone, so make sure you have s
 ![image](../images/safari_zone.png)
 
 
+## Note on soft resets in Emerald
+
+Emerald starts its random number generator from the same value every time the game is reset. Without
+countermeasures, the game tends to end up in the exact same state after each reset, and the bot would keep
+encountering the same Pokémon over and over again.
+
+To prevent that, the bot waits for a random moment on the 'Would you like to use Rock Smash?' question:
+up to about 4 seconds for the first rock after a reset, and up to a quarter of a second for every other rock.
+This is not necessary, and so not done:
+
+- in Ruby and Sapphire, which start their random number generator differently,
+- in Granite Cave without Repel, because the bot never resets in that case,
+- during your very first run in Granite Cave (with Repel) or in the Safari Zone, until the first reset. The bot
+  remembers that it has done such a run in `flags.txt` in your profile directory. (If you delete that file or
+  the relevant line in it, the next run will be without waiting again, but it might then repeat encounters
+  from your earlier runs.)
+
+**Every reset makes the hunt a bit slower, so bring as many Repels (Granite Cave) or as much cash (Safari Zone)
+as you can.**
+
+If you have enabled the [`random_soft_reset_rng` cheat](Configuration%20-%20Cheats.md), the bot will skip
+the waiting time.
+
+
 ## Game Support
 |          | 🟥 Ruby | 🔷 Sapphire | 🟢 Emerald |
 |:---------|:-------:|:-----------:|:----------:|

@@ -119,3 +119,39 @@ def get_rng_state_history() -> set:
 
 def save_rng_state_history(data: set) -> bool:
     return bool(write_file(context.profile.path / "soft_reset_frames.json", json.dumps(list(data))))
+
+
+def get_profile_flags() -> set[str]:
+    """
+    Profile flags are stored in `flags.txt` in the profile directory, one flag per line. Empty
+    lines and lines starting with `#` are ignored, so users can edit the file (or delete it to
+    reset all flags.)
+
+    :return: Names of all flags that are set for the current profile.
+    """
+    file = read_file(context.profile.path / "flags.txt")
+    if not file:
+        return set()
+    flags = set()
+    for line in file.splitlines():
+        line = line.strip()
+        if line != "" and not line.startswith("#"):
+            flags.add(line)
+    return flags
+
+
+def set_profile_flag(flag_name: str) -> bool:
+    """
+    Adds a flag to the profile's `flags.txt` (see `get_profile_flags()`), keeping any other
+    content of that file intact.
+
+    :param flag_name: Name of the flag to set.
+    :return: Whether the flag is set now.
+    """
+    if flag_name in get_profile_flags():
+        return True
+    flags_file = context.profile.path / "flags.txt"
+    contents = read_file(flags_file) or ""
+    if contents != "" and not contents.endswith("\n"):
+        contents += "\n"
+    return write_file(flags_file, contents + flag_name + "\n")
