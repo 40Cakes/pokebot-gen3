@@ -106,7 +106,7 @@ class RockSmashMode(BotMode):
                 last_recorded_frame = self._nosepass_frames[-1]
                 frame_diff = last_recorded_frame - first_recorded_frame
                 average_frames_per_encounter = frame_diff / (len(self._nosepass_frames) - 1)
-                average_seconds_per_encounter = average_frames_per_encounter / context.emulator.native_frame_frate
+                average_seconds_per_encounter = average_frames_per_encounter / 59.727500569606
                 if average_seconds_per_encounter > 0:
                     encounter_rate_at_1x = round(3600 / average_seconds_per_encounter, 1)
                 else:
