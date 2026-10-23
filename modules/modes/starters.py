@@ -39,7 +39,7 @@ def run_frlg() -> Generator:
         return
 
     while context.bot_mode != "Manual":
-        yield from soft_reset(mash_random_keys=True)
+        yield from soft_reset()
         starter = starter_choice
         if starter == "Random":
             starter = random.choice(["Bulbasaur", "Charmander", "Squirtle"])
@@ -92,7 +92,7 @@ def run_rse_hoenn(get_active_encounter: Callable[[], EncounterInfo]) -> Generato
         return
 
     while context.bot_mode != "Manual":
-        yield from soft_reset(mash_random_keys=True)
+        yield from soft_reset()
 
         # Starter bag can be accessed from the right or from the bottom, make sure we are looking
         # at it in either case.
@@ -156,7 +156,7 @@ def run_rse_johto(get_active_encounter: Callable[[], EncounterInfo]):
         return
 
     while context.bot_mode != "Manual":
-        yield from soft_reset(mash_random_keys=True)
+        yield from soft_reset()
         starter = starter_choice
         if starter == "Random":
             starter = random.choice(["Chikorita", "Cyndaquil", "Totodile"])

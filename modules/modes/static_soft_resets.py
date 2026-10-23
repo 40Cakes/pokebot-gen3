@@ -122,7 +122,7 @@ class StaticSoftResetsMode(BotMode):
         assert_boxes_or_party_can_fit_pokemon(check_in_saved_game=True)
 
         while context.bot_mode != "Manual":
-            yield from soft_reset(mash_random_keys=True)
+            yield from soft_reset()
             yield from wait_for_unique_rng_value()
 
             if encounter.name == "Groudon/Kyogre":

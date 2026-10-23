@@ -76,7 +76,7 @@ class GameCornerMode(BotMode):
         assert_empty_slot_in_party("This mode requires at least one empty party slot, but your party is full.")
 
         while context.bot_mode != "Manual":
-            yield from soft_reset(mash_random_keys=True)
+            yield from soft_reset()
             yield from wait_for_unique_rng_value()
 
             # Spam A until choice appears
