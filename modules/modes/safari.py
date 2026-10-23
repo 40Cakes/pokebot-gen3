@@ -17,6 +17,7 @@ from modules.player import get_player, get_player_avatar, TileTransitionState
 from modules.pokemon import get_opponent
 from modules.pokemon_party import get_party
 from modules.runtime import get_sprites_path
+from modules.save_data import get_save_data
 from modules.safari_strategy import (
     SafariPokemon,
     SafariHuntingMode,
@@ -39,6 +40,7 @@ from ._asserts import (
 )
 from ._interface import BotMode, BotModeError
 from .util import (
+    RanOutOfRepels,
     spin,
     fish,
     soft_reset,
@@ -184,6 +186,9 @@ class SafariMode(BotMode):
                 context.set_manual_mode()
                 yield
                 return
+            if self._use_repel and get_save_data().get_item_bag().number_of_repels == 0:
+                # Running out of Repels makes the mode soft reset, which wouldn't help in that case.
+                raise BotModeError("In your saved game, you do not have any Repels.")
 
         if target.value.hunting_object:
             yield from register_key_item(get_item_by_name(target.value.hunting_object))
@@ -209,7 +214,7 @@ class SafariMode(BotMode):
                 else:
                     if is_safari_map():
                         yield from self._exit_safari_zone()
-                    context.message = f"You have run out of funds, but you managed to catch at least one Pokémon during this cycle. Consider saving your game."
+                    context.message = f"You have run out of funds or Repels, but you managed to catch at least one Pokémon during this cycle. Consider saving your game."
                     context.set_manual_mode()
                     break
             elif self._should_reenter:
@@ -291,7 +296,13 @@ class SafariMode(BotMode):
 
         if mode in (SafariHuntingMode.SPIN, SafariHuntingMode.SURF):
             if self._use_repel and not repel_is_active():
-                yield from apply_repel()
+                try:
+                    yield from apply_repel()
+                except RanOutOfRepels:
+                    # The saved game still has the Repels, so `run()` will either soft reset to get them
+                    # back, or stop if that would lose a Pokémon that has been caught since the last reset.
+                    self._should_reset = True
+                    return
             yield from unmount_bicycle()
             yield from apply_white_flute_if_available()
         elif mode != SafariHuntingMode.FISHING:
