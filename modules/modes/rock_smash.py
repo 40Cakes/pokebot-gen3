@@ -10,12 +10,11 @@ from modules.encounter import handle_encounter, EncounterInfo
 from modules.files import get_profile_flags, set_profile_flag
 from modules.gui.multi_select_window import Selection, ask_for_choice
 from modules.items import get_item_bag, get_item_by_name
-from modules.map_data import MapRSE, is_safari_map
+from modules.map_data import MapRSE
 from modules.map_path import calculate_path
 from modules.memory import get_event_flag, read_symbol, unpack_uint16
 from modules.player import TileTransitionState, get_player, get_player_avatar, AvatarFlags, get_player_location
 from modules.runtime import get_sprites_path
-from modules.safari_strategy import get_safari_balls_left
 from modules.save_data import get_save_data
 from modules.tasks import task_is_active, get_global_script_context, is_waiting_for_input
 from . import BattleAction
@@ -50,6 +49,23 @@ from .util import (
     walk_one_tile,
     leave_safari_zone,
 )
+
+# On Emerald, this mode benefits a lot from not having to soft reset, due
+# to RNG shenanigans. Thus, we want to warn the user if they try to start
+# the mode without having a lot of repel/cash -- but we don't want to make
+# it _mandatory_ to have a lot. After all, it will still work, but the user
+# will get lots of duplicate encounters and delays. So once a session we
+# may display this warning, but from the second activation of the mode
+# onwards we won't say anything.
+
+# This is equivalent to two stacks of Super Repel, which may get you
+# 400-500 encounters before having to reset.
+_recommended_number_of_repel_steps: int = 19_800 * 2
+_displayed_warning_about_too_few_repel: bool = False
+
+# This is enough for 1,700 Shuckle encounters before resetting.
+_recommended_cash: int = 250_000
+_displayed_warning_about_too_little_cash: bool = False
 
 
 class RockSmashMode(BotMode):
@@ -169,12 +185,20 @@ class RockSmashMode(BotMode):
                 check_in_saved_game=True,
             )
 
-        # TODO: Remove and use the assert_player_has_poke_balls when RSE safari auto catch is implemented
-        # Shuckle catch rate is 35%. So 10 balls should be enough to catch it
-        if is_safari_map() and get_safari_balls_left() < 10:
-            raise BotModeError("Cannot rock smash with less than 10 safari balls")
-        else:
-            assert_player_has_poke_balls()
+            global _displayed_warning_about_too_little_cash
+            if (
+                context.rom.is_emerald
+                and not _displayed_warning_about_too_little_cash
+                and get_save_data().get_player().money < _recommended_cash
+            ):
+                _displayed_warning_about_too_little_cash = True
+                raise BotModeError(
+                    f"You don't have a lot of cash. We recommend you carry at least ${_recommended_cash:,} for best performance. Select mode again to continue anyway."
+                )
+            else:
+                context.message = ""
+
+        assert_player_has_poke_balls()
 
         if get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F and get_item_bag().number_of_repels > 0:
             mode = ask_for_choice(
@@ -206,6 +230,19 @@ class RockSmashMode(BotMode):
 
                 if save_data.get_item_bag().number_of_repels == 0:
                     raise BotModeError("In your saved game, you do not have any Repels.")
+
+                global _displayed_warning_about_too_few_repel
+                if (
+                    context.rom.is_emerald
+                    and not _displayed_warning_about_too_few_repel
+                    and save_data.get_item_bag().number_of_repel_steps < _recommended_number_of_repel_steps
+                ):
+                    _displayed_warning_about_too_few_repel = True
+                    raise BotModeError(
+                        "You don't have a lot of Repel. We recommend you carry two stacks of Max or Super Repel for best performance. Select mode again to continue anyway."
+                    )
+                else:
+                    context.message = ""
 
                 self._using_repel = True
                 yield from self.reset_and_wait()

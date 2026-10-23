@@ -35,8 +35,14 @@ If you have any Repel items in your inventory, the game will offer you this choi
 
 ### With Repel
 
-- Make sure you have some Repel in your inventory (Max Repel works best, but Super Repel or Repel will do.)  
-  While the bot can work with as few as 1 Repel, having a few dozen will improve rates by spending less time resetting.
+- Make sure you have **at least two full stacks (2 × 99) of Max Repel or Super Repel** in your inventory, and
+  preferably more. Max Repel works best. Plain Repel lasts only half as long as Super Repel, so you would need
+  four stacks of those.  
+  The bot only resets once it has used up all of your Repels. Two stacks of Super Repel give you about 400 encounters
+  before that happens. Every reset takes time, and in Emerald, the more often the bot resets, the more likely it
+  is to encounter the same Pokémon again (see [the note on soft resets](#note-on-soft-resets-in-emerald) below.)  
+  The bot can work with as few as 1 Repel. In Emerald, it will warn you the first time you start the mode with
+  fewer than recommended. Select the mode again to start it anyway.
 - Optional, but highly recommended: Get the White Flute.
 - Optional, but highly recommended: Get a Pokémon with the ability Vital Spirit or Pressure as the first Pokémon.
 - Make sure the first non-fainted Pokémon in your party has level 13. The bot will accept Pokémon up to level 16, but
@@ -56,7 +62,9 @@ If you have any Repel items in your inventory, the game will offer you this choi
 The mode will continuously try to enter the Safari Zone, so make sure you have some cash. The bot will first **use up all the player's cash in Safari Zone entrance fees** and then soft reset to start over.
 
 - Go to the _entrance_ of the Safari Zone (see image below)
-- Make sure you have some cash on you
+- Make sure you have some cash on you. In Emerald, we recommend at least **₽250,000**, which is enough for about
+  1,700 encounters before the bot has to reset. If you have less, the bot will warn you the first time you start
+  the mode. Select the mode again to start it anyway.
 - (Optional) Register the Mach Bike to the Select button (this is not required, but it will be a bit faster.)
 - Save the game (**in-game, not a save state**)
 - Start mode
@@ -81,8 +89,8 @@ This is not necessary, and so not done:
   the relevant line in it, the next run will be without waiting again, but it might then repeat encounters
   from your earlier runs.)
 
-**Every reset makes the hunt a bit slower, so bring as many Repels (Granite Cave) or as much cash (Safari Zone)
-as you can.**
+**Every reset makes the hunt a bit slower and makes repeated encounters more likely, so bring at least the
+recommended amount of Repels (Granite Cave) or cash (Safari Zone), and preferably more.**
 
 If you have enabled the [`random_soft_reset_rng` cheat](Configuration%20-%20Cheats.md), the bot will skip
 the waiting time.
