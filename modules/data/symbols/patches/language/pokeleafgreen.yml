@@ -399,6 +399,12 @@ CB2_TitleScreenRun:
   I: 0x8078aec
   J: 0x8078334
   S: 0x8078bd4
+Task_TitleScreenMain:
+  D: 0x8078b88
+  F: 0x8078c48
+  I: 0x8078b74
+  J: 0x80783bc
+  S: 0x8078c5c
 CB2_Intro:
   D: 0x80ecbd0
   F: 0x80ecc90

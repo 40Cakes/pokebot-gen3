@@ -166,7 +166,7 @@ class RoamerResetMode(BotMode):
             self._ran_out_of_repels = False
             context.emulator.reset_held_buttons()
 
-            yield from soft_reset(mash_random_keys=True)
+            yield from soft_reset()
             yield from wait_for_unique_rng_value()
 
             yield from wait_for_player_avatar_to_be_standing_still()
@@ -243,7 +243,7 @@ class RoamerResetMode(BotMode):
             self._ran_out_of_repels = False
             context.emulator.reset_held_buttons()
 
-            yield from soft_reset(mash_random_keys=True)
+            yield from soft_reset()
             yield from wait_for_unique_rng_value()
 
             yield from wait_for_player_avatar_to_be_standing_still()
@@ -311,7 +311,7 @@ class RoamerResetMode(BotMode):
             self._ran_out_of_repels = False
             context.emulator.reset_held_buttons()
 
-            yield from soft_reset(mash_random_keys=True)
+            yield from soft_reset()
             yield from wait_for_unique_rng_value()
 
             yield from wait_for_player_avatar_to_be_standing_still()

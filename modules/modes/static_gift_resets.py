@@ -166,7 +166,7 @@ class StaticGiftResetsMode(BotMode):
         )
 
         while context.bot_mode != "Manual":
-            yield from soft_reset(mash_random_keys=True)
+            yield from soft_reset()
             yield from wait_for_unique_rng_value()
 
             # Spam A through chat boxes
