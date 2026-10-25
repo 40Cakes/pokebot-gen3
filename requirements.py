@@ -5,7 +5,7 @@ from modules.runtime import get_base_path, is_virtualenv
 from modules.version import pokebot_name, pokebot_version
 
 recommended_python_version = "3.14"
-supported_python_versions = ["3.11", "3.12", "3.13", "3.14"]
+supported_python_versions = ["3.11", "3.12", "3.13", "3.14", "3.15"]
 
 libmgba_tag = "0.2.0-2"
 libmgba_ver = "0.2.0"
@@ -13,7 +13,7 @@ libmgba_ver = "0.2.0"
 # This is a list of requirements for `pip`, akin to `requirements.txt`.
 required_modules = [
     "confz~=2.1",
-    "numpy~=2.4.0",
+    "numpy>=2.4,<2.6",
     "setuptools",
     "ruamel.yaml~=0.19.1",
     "pypresence~=4.6",
