@@ -142,6 +142,12 @@ def _get_webrtc_error() -> str | None:
     return None
 
 
+def _encounters_to_response(encounters) -> web.Response:
+    if encounters is None:
+        return web.Response(text="Map encounter data is not available yet.", status=503, content_type="text/plain")
+    return web.json_response(encounters.to_dict())
+
+
 def http_server(host: str, port: int) -> web.AppRunner:
     """
     Run Flask server to make bot data available via HTTP requests.
@@ -389,6 +395,8 @@ def http_server(host: str, port: int) -> web.AppRunner:
             200:
               content:
                 application/json: {}
+            503:
+              description: Map encounter data is not available yet.
           tags:
             - map
         """
@@ -396,7 +404,7 @@ def http_server(host: str, port: int) -> web.AppRunner:
         effective_encounters = context.state_cache.effective_wild_encounters
         await _update_via_work_queue(effective_encounters, get_effective_encounter_rates_for_current_map)
 
-        return web.json_response(effective_encounters.value.to_dict())
+        return _encounters_to_response(effective_encounters.value)
 
     @route.get("/map/{map_group:\\d+}/{map_number:\\d+}")
     async def http_get_map_by_group_and_number(request: web.Request):
