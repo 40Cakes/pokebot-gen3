@@ -31,6 +31,30 @@ python -m unittest tests.test_mode_spin.TestModeSpin.test_it_catches_shinies
 ```
 
 
+## Testing every game and language
+
+Some tests run bot modes with the save states of
+[Johnnie's Pokebot-Profiles](https://github.com/johnnieb333/Pokebot-Profiles)
+(`Drop-In Profiles/Master Tests`), which cover most bot modes in all 5 games
+and 6 languages. They need the matching ROMs in `roms/`, and the path of the
+`Master Tests` directory in the `POKEBOT_MASTER_TESTS` environment variable.
+Without it, these tests are skipped.
+
+```bash
+export POKEBOT_MASTER_TESTS="/path/to/Pokebot-Profiles/Drop-In Profiles/Master Tests"
+python -m unittest tests.test_mode_starter.TestStarterAllLanguages
+```
+
+Each state runs as a sub-test, so one failing game or language doesn't stop
+the others, and failures name the state file.
+
+Most of these states don't contain a save game, which modes that soft reset
+need: call `ensure_save_game()` first, which saves in-game if necessary. Use
+`use_unique_rng_values()` for modes that soft reset, so that each reset gets a
+new encounter. And call `self.bot_mode.forward_hooks_to(mode)` when running a
+real bot mode's `run()`, so that the mode receives its own event hooks.
+
+
 ## Writing tests
 
 Check out one of the existing test files for inspiration, but here are

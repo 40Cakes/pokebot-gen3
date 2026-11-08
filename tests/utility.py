@@ -1,3 +1,4 @@
+import os
 import sys
 import unittest
 from datetime import datetime
@@ -116,6 +117,24 @@ class AutomatedTestBotMode(BotMode):
     @staticmethod
     def name() -> str:
         return "Automated Test"
+
+    def forward_hooks_to(self, bot_mode: BotMode) -> None:
+        """
+        Passes every event hook (`on_battle_started()` etc.) on to `bot_mode`, for tests that run
+        a real bot mode's `run()`: some modes rely on their own hooks, like the Starters mode,
+        which gets the encounter from `on_battle_started()`.
+        """
+        self._on_battle_started = bot_mode.on_battle_started
+        self._on_battle_ended = bot_mode.on_battle_ended
+        self._on_pokemon_evolving_after_battle = bot_mode.on_pokemon_evolving_after_battle
+        self._on_pickup_threshold_reached = bot_mode.on_pickup_threshold_reached
+        self._on_spotted_by_trainer = bot_mode.on_spotted_by_trainer
+        self._on_pokenav_call = bot_mode.on_pokenav_call
+        self._on_repel_effect_ended = bot_mode.on_repel_effect_ended
+        self._on_pokemon_fainted_due_to_poison = bot_mode.on_pokemon_fainted_due_to_poison
+        self._on_whiteout = bot_mode.on_whiteout
+        self._on_safari_zone_timeout = bot_mode.on_safari_zone_timeout
+        self._on_egg_hatched = bot_mode.on_egg_hatched
 
     def set_on_battle_started(self, callback: Optional[OnBattleStartedType]) -> None:
         self._on_battle_started = callback
@@ -403,6 +422,93 @@ def set_next_rng_seed(rng_seed: int) -> None:
 
 def set_next_choice(next_choice: str) -> None:
     mocked_ask_for_choice.return_value = next_choice
+
+
+def use_unique_rng_values() -> None:
+    """
+    Makes `wait_for_unique_rng_value()` behave like the real thing again: it waits frame by frame
+    until the RNG value hasn't been seen before. Only the history is kept in memory instead of
+    the profile directory.
+
+    `set_next_rng_seed()` writes a value to the RNG instead, which is not enough for every game:
+    R/S/E Hoenn starters, for instance, would get the same Pokémon after every soft reset, and
+    those are then discarded as repeat encounters.
+    """
+    from modules.memory import read_symbol, unpack_uint32
+
+    rng_history: set[int] = set()
+
+    def wait_for_unique_rng_value():
+        rng_value = unpack_uint32(read_symbol("gRngValue"))
+        while rng_value in rng_history:
+            yield
+            rng_value = unpack_uint32(read_symbol("gRngValue"))
+        rng_history.add(rng_value)
+
+    mocked_wait_for_unique_rng_value.side_effect = wait_for_unique_rng_value
+
+
+def ensure_save_game() -> Generator:
+    """
+    Saves the game in-game if the loaded state doesn't contain a save game, which modes that soft
+    reset require. The player must be in the overworld with the start menu closed.
+    """
+    from modules.memory import GameState, get_game_state
+    from modules.modes.util import save_the_game
+    from modules.save_data import get_save_data
+
+    if get_save_data() is None:
+        if get_game_state() is not GameState.OVERWORLD:
+            raise AssertionError(
+                f"This state contains no save game, and it can't be saved in-game from here ({get_game_state().name})."
+            )
+        yield from save_the_game()
+
+
+# Johnnie's 'Master Tests' save states (https://github.com/johnnieb333/Pokebot-Profiles, in
+# `Drop-In Profiles/Master Tests`) cover most bot modes in every game and language. They are too
+# many to include here, so tests using them read the directory from this environment variable and
+# are skipped when it is not set.
+MASTER_TESTS_ENVIRONMENT_VARIABLE = "POKEBOT_MASTER_TESTS"
+
+
+def get_master_tests_path() -> Path | None:
+    value = os.environ.get(MASTER_TESTS_ENVIRONMENT_VARIABLE)
+    if not value:
+        return None
+    path = Path(value)
+    return path if path.is_dir() else None
+
+
+def master_test_states(*file_name_patterns: str) -> list[str]:
+    """
+    :param file_name_patterns: Glob patterns for the state file names, such as `Starters-Hoenn*.ss1`.
+                               The file names are not consistent across games and languages, so it
+                               might take several patterns to match all of them.
+    :return: Absolute paths of the matching Master Tests states (`<language>/<game>/states/<file>`).
+    """
+    master_tests_path = get_master_tests_path()
+    if master_tests_path is None:
+        return []
+
+    states = set()
+    for pattern in file_name_patterns:
+        states.update(master_tests_path.glob(f"*/*/states/{pattern}"))
+    return [str(state) for state in sorted(states)]
+
+
+def with_master_test_states(*file_name_patterns: str):
+    """
+    Like `@with_save_state()`, but runs the test with each matching Master Tests state, and skips
+    it if there is none (or the environment variable is not set.)
+    """
+    states = master_test_states(*file_name_patterns)
+    if len(states) == 0:
+        return unittest.skip(
+            f"No Master Tests state matches {', '.join(file_name_patterns)} "
+            f"(set {MASTER_TESTS_ENVIRONMENT_VARIABLE} to the 'Master Tests' directory.)"
+        )
+    return with_save_state(states)
 
 
 class BotTestCase(unittest.TestCase):

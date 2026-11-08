@@ -246,6 +246,10 @@ sNumStartMenuActions:
   J: 0x202e64d
 sCurrentStartMenuActions:
   J: 0x202e64e
+saveDialogCallback:
+  J: 0x3000610
+SaveDialogCB_ProcessOverwriteYesNoMenu:
+  J: 0x806ebd8
 #-----------------#
 
 #----------------#

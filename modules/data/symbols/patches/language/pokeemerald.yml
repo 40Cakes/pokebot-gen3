@@ -486,6 +486,8 @@ sNumStartMenuActions:
   J: 0x20372af
 sCurrentStartMenuActions:
   J: 0x20372b0
+sSaveDialogCallback:
+  J: 0x20372bc
 sRegionMap:
   J: 0x2039e10
 GMAIN:
@@ -643,11 +645,11 @@ gRegionMapEntries:
   J: 0x857cd6c
   S: 0x85a41e4
 SaveOverwriteInputCallback:
-  D: 0x80a0272
-  F: 0x80a026a
-  I: 0x80a026a
-  J: 0x809fb2e
-  S: 0x80a026a
+  D: 0x80a0208
+  F: 0x80a0200
+  I: 0x80a0200
+  J: 0x809fac4
+  S: 0x80a0200
 Std_MsgboxSign:
   D: 0x827ca21
   F: 0x82765e1

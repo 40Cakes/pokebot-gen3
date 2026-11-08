@@ -465,6 +465,12 @@ sNumStartMenuItems:
   J: 0x2037029
 sStartMenuOrder:
   J: 0x203702a
+SaveDialogCB_AskOverwriteOrReplacePreviousFileHandleInput:
+  D: 0x806f840
+  F: 0x806f900
+  I: 0x806f82c
+  J: 0x806f0cc
+  S: 0x806f914
 #-----------------#
 
 #--------------#
