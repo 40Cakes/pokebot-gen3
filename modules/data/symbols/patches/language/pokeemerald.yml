@@ -800,6 +800,41 @@ EventScript_SmashRock:
   I: 0x82914c3
   J: 0x82566d1
   S: 0x829568d
+EventScript_BattleKecleon:
+  D: 0x827da66
+  F: 0x8277626
+  I: 0x8271fbc
+  J: 0x82433e8
+  S: 0x8276169
+BattleFrontier_OutsideEast_EventScript_WaterSudowoodo:
+  D: 0x824b8f9
+  F: 0x8247fa8
+  I: 0x8242d06
+  J: 0x8222a98
+  S: 0x8245c6d
+# These English labels are inside the Kecleon or Sudowoodo scripts in some languages and hide them
+gText_TouchedJudgeForFantasticAppeal:
+  D: 0x0
+CableClub_EventScript_NeedTwoMonsForUnionRoom:
+  F: 0x0
+MauvilleCity_Gym_SetGymTrainers:
+  I: 0x0
+LavaridgeTown_Gym_SetGymTrainers:
+  I: 0x0
+PetalburgCity_Gym_SetGymTrainers:
+  I: 0x0
+SecretBase_EventScript_Trainer7PreChampion:
+  S: 0x0
+SecretBase_EventScript_Trainer7DeclineBattle:
+  S: 0x0
+SecretBase_EventScript_Trainer7PostBattle:
+  S: 0x0
+SecretBase_EventScript_Trainer8:
+  S: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_CoolTrainerFMon1:
+  F: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_YoungsterMon1:
+  S: 0x0
 # These English labels are inside EventScript_SmashRock in some languages and hide it
 Route120_Text_RileyDefeat:
   D: 0x0
