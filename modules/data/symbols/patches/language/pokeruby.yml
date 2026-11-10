@@ -377,6 +377,10 @@ EventScript_DoTrainerBattle:
 #-----------------#
 #      Safari     #
 #-----------------#
+gNumSafariBalls:
+  J: 0x2038504
+gSafariZoneStepCounter:
+  J: 0x2038506
 Route121_SafariZoneEntrance_EventScript_15C383:
   J: 0x8170911
 Route121_SafariZoneEntrance_EventScript_15C3B3:
