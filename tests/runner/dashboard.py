@@ -20,7 +20,13 @@ import psutil
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import run_parallel  # noqa: E402
 
-PAGE = Path(__file__).resolve().parent / "dashboard.html"
+STATIC = Path(__file__).resolve().parent / "static"
+STATIC_FILES = {
+    "/": ("index.html", "text/html; charset=utf-8"),
+    "/style.css": ("style.css", "text/css; charset=utf-8"),
+    "/theme.js": ("theme.js", "text/javascript; charset=utf-8"),
+    "/app.js": ("app.js", "text/javascript; charset=utf-8"),
+}
 SAFE_NAME = re.compile(r"^[A-Za-z0-9_.-]+$")
 PROGRESS_LINE = re.compile(r"\[progress\] (\w+) (\S+) (.*)$", re.M)
 
@@ -152,8 +158,9 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         url = urlparse(self.path)
         query = {key: values[0] for key, values in parse_qs(url.query).items()}
-        if url.path == "/":
-            self.send(200, PAGE.read_bytes(), "text/html; charset=utf-8")
+        if url.path in STATIC_FILES:
+            file_name, content_type = STATIC_FILES[url.path]
+            self.send(200, (STATIC / file_name).read_bytes(), content_type)
         elif url.path == "/api/runs":
             try:
                 languages = run_parallel.available_languages()
