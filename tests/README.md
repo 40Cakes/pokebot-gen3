@@ -33,26 +33,35 @@ python -m unittest tests.test_mode_spin.TestModeSpin.test_it_catches_shinies
 
 ## Testing every game and language
 
-Some tests run bot modes with the save states of
+The `*_in_all_languages` tests use the states of
 [Johnnie's Pokebot-Profiles](https://github.com/johnnieb333/Pokebot-Profiles)
-(`Drop-In Profiles/Master Tests`), which cover most bot modes in all 5 games
-and 6 languages. They need the matching ROMs in `roms/`, and the path of the
-`Master Tests` directory in the `POKEBOT_MASTER_TESTS` environment variable.
-Without it, these tests are skipped.
+(`Drop-In Profiles/Master Tests`), which cover most modes in all 5 games and
+6 languages. They need the matching ROMs in `roms/` and the path of the
+`Master Tests` directory in `POKEBOT_MASTER_TESTS`, otherwise they are skipped.
+`POKEBOT_MASTER_TESTS_FILTER` limits them to states whose path contains some
+text, like `FRA` or `JPN/Ruby`.
 
 ```bash
 export POKEBOT_MASTER_TESTS="/path/to/Pokebot-Profiles/Drop-In Profiles/Master Tests"
-python -m unittest tests.test_mode_starter.TestStarterAllLanguages
+python -m unittest tests.test_mode_starter
 ```
 
-Each state runs as a sub-test, so one failing game or language doesn't stop
-the others, and failures name the state file.
+Each state runs as a sub-test. A test for a mode usually looks like this:
 
-Most of these states don't contain a save game, which modes that soft reset
-need: call `ensure_save_game()` first, which saves in-game if necessary. Use
-`use_unique_rng_values()` for modes that soft reset, so that each reset gets a
-new encounter. And call `self.bot_mode.forward_hooks_to(mode)` when running a
-real bot mode's `run()`, so that the mode receives its own event hooks.
+```python
+class TestSomeMode(BotTestCase):
+    @with_master_test_states("SomeMode-*.ss1", games=RSE_GAMES)
+    @with_frame_timeout(20000)
+    def test_it_gets_encounters_in_all_languages(self):
+        from modules.modes.some_mode import SomeMode
+
+        yield from self.run_mode(SomeMode, 3, choices=["Option to pick"], save_game=True)
+```
+
+`run_mode()` skips states where the mode can't be selected, saves in-game
+first with `save_game=True` (modes that soft reset need it), picks the given
+options in choice windows, and runs the mode until it has logged that many
+encounters. Stopping for a shiny counts as a success.
 
 
 ## Writing tests

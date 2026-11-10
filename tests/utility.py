@@ -1,10 +1,12 @@
 import os
+import random
 import sys
+import tempfile
 import unittest
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Generator, Optional, TypeAlias
+from typing import TYPE_CHECKING, Callable, Generator, Iterable, Optional, TypeAlias
 from unittest import mock
 
 from rich.console import Console
@@ -17,7 +19,7 @@ from modules.modes._interface import BotMode
 from modules.context import context
 
 if TYPE_CHECKING:
-    from modules.battle_state import BattleOutcome
+    from modules.battle_state import BattleOutcome, EncounterType
     from modules.encounter import EncounterInfo
     from modules.fishing import FishingAttempt
     from modules.items import Item
@@ -26,6 +28,9 @@ if TYPE_CHECKING:
     from modules.profiles import Profile
     from modules.roms import ROM
     from modules.stats import Encounter
+
+# For `assert_encounters()`, as None is a value to check there
+NOT_CHECKED = object()
 
 
 class MockStatsDatabase:
@@ -64,6 +69,9 @@ class MockStatsDatabase:
         self.last_fishing_attempt = attempt
 
     def log_pickup_items(self, picked_up_items: list["Item"]) -> None:
+        pass
+
+    def log_pokenav_call(self) -> None:
         pass
 
     def reset_shiny_phase(self, encounter: "Encounter"):
@@ -120,9 +128,8 @@ class AutomatedTestBotMode(BotMode):
 
     def forward_hooks_to(self, bot_mode: BotMode) -> None:
         """
-        Passes every event hook (`on_battle_started()` etc.) on to `bot_mode`, for tests that run
-        a real bot mode's `run()`: some modes rely on their own hooks, like the Starters mode,
-        which gets the encounter from `on_battle_started()`.
+        Passes all event hooks (`on_battle_started()` etc.) to a real bot mode, as some modes
+        rely on them.
         """
         self._on_battle_started = bot_mode.on_battle_started
         self._on_battle_ended = bot_mode.on_battle_ended
@@ -261,6 +268,8 @@ def _set_up_test_emulator(profile: "Profile"):
         tcg_cards=False,
     )
     context.profile = profile
+    # Don't use the local `profiles/customcatchfilters.py`
+    context.custom_catch_filters = lambda pokemon: False
     set_rom(profile.rom)
 
     def do_nothing():
@@ -275,6 +284,11 @@ def _set_up_test_emulator(profile: "Profile"):
     context.emulator.set_audio_enabled(False)
     context.emulator.set_video_enabled(False)
     context.emulator.set_throttle(False)
+    # Manual mode sets the speed to 1x, keep tests unthrottled
+    context.emulator.set_throttle = lambda is_throttled: None
+
+
+_profile_directory: tempfile.TemporaryDirectory | None = None
 
 
 def _load_test_state(state_file: Path) -> None:
@@ -284,7 +298,10 @@ def _load_test_state(state_file: Path) -> None:
 
     with open(state_file, "rb") as handle:
         rom, state_data, save_data = guess_rom_from_save_state(handle, None)
-    context.profile = Profile(rom, Path(__file__).parent, datetime.now())
+    # Each state gets an empty profile directory, as some modes write files there
+    global _profile_directory
+    _profile_directory = tempfile.TemporaryDirectory(prefix="pokebot-test-", ignore_cleanup_errors=True)
+    context.profile = Profile(rom, Path(_profile_directory.name), datetime.now())
     _set_up_test_emulator(context.profile)
     if save_data is not None:
         context.emulator.load_save_game(save_data)
@@ -347,6 +364,12 @@ def _run_test(test_generator: Generator) -> None:
         previous_frame_info.previous_frame = None
 
 
+def _report_progress(event: str, value: str, test_name: str) -> None:
+    """Prints one line per state to stderr if `POKEBOT_TEST_PROGRESS` is set, for tools that follow test runs."""
+    if os.environ.get("POKEBOT_TEST_PROGRESS"):
+        print(f"[progress] {event} {test_name} {value}", file=sys.__stderr__, flush=True)
+
+
 def with_save_state(state_file_names: str | list[str]):
     if isinstance(state_file_names, str):
         state_file_names = [state_file_names]
@@ -354,18 +377,33 @@ def with_save_state(state_file_names: str | list[str]):
     def decorator(generator_function):
         @wraps(generator_function)
         def wrapper_function(self: BotTestCase, *args, **kwargs):
+            _report_progress("total", str(len(state_file_names)), generator_function.__name__)
             for state_file_name in state_file_names:
                 with self.subTest(state_file_name=state_file_name):
+                    _report_progress("start", state_file_name, generator_function.__name__)
+                    result = "fail"
                     try:
                         state_path = Path(__file__).parent / "states" / state_file_name
                         _load_test_state(state_path)
                         set_next_rng_seed(0xFFFF_FFFF)
+                        mocked_ask_for_choice.side_effect = None
+                        mocked_ask_for_choice_scroll.side_effect = None
+                        # Some bot code uses `random`, seed it so that runs are reproducible
+                        random.seed("/".join(Path(state_file_name).parts[-4:]))
                         _run_test(generator_function(self, *args, **kwargs))
+                        result = "ok"
+                    except unittest.SkipTest:
+                        result = "skip"
+                        raise
                     except BaseException as e:
                         e.add_note(f"State File: {state_file_name}")
                         if context.rom is not None:
                             e.add_note(f"Game: {context.rom.short_game_name}")
                         raise
+                    finally:
+                        _report_progress(result, state_file_name, generator_function.__name__)
+                        if _profile_directory is not None:
+                            _profile_directory.cleanup()
             return None
 
         return wrapper_function
@@ -398,11 +436,20 @@ def with_frame_timeout(timeout_in_frames: int):
 ask_for_choice_patcher = mock.patch("modules.gui.multi_select_window.ask_for_choice")
 mocked_ask_for_choice = ask_for_choice_patcher.start()
 
+ask_for_choice_scroll_patcher = mock.patch("modules.gui.multi_select_window.ask_for_choice_scroll")
+mocked_ask_for_choice_scroll = ask_for_choice_scroll_patcher.start()
+
+ask_for_confirmation_patcher = mock.patch("modules.gui.multi_select_window.ask_for_confirmation", return_value=True)
+mocked_ask_for_confirmation = ask_for_confirmation_patcher.start()
+
 wait_for_unique_rng_value_patcher = mock.patch("modules.modes.util.wait_for_unique_rng_value")
 mocked_wait_for_unique_rng_value = wait_for_unique_rng_value_patcher.start()
 
 console_patcher = mock.patch("modules.console.console", new=Console(quiet=True))
 console_patcher.start()
+
+desktop_notification_patcher = mock.patch("modules.gui.desktop_notification.desktop_notification")
+desktop_notification_patcher.start()
 
 
 def set_next_rng_seed(rng_seed: int) -> None:
@@ -421,26 +468,43 @@ def set_next_rng_seed(rng_seed: int) -> None:
 
 
 def set_next_choice(next_choice: str) -> None:
+    mocked_ask_for_choice.side_effect = None
     mocked_ask_for_choice.return_value = next_choice
+
+
+def choose_option(*preferred_labels: str) -> None:
+    """
+    Makes choice windows pick the first option starting with one of `preferred_labels`, or else the
+    first option. Useful when the options depend on the save game.
+    """
+
+    def choose(choices, *args, **kwargs):
+        enabled = [choice.button_label for choice in choices if choice.button_enable]
+        for preferred_label in preferred_labels:
+            for label in enabled:
+                if label.startswith(preferred_label):
+                    return label
+        return enabled[0] if len(enabled) > 0 else None
+
+    mocked_ask_for_choice.side_effect = choose
+    mocked_ask_for_choice_scroll.side_effect = choose
 
 
 def use_unique_rng_values() -> None:
     """
-    Makes `wait_for_unique_rng_value()` behave like the real thing again: it waits frame by frame
-    until the RNG value hasn't been seen before. Only the history is kept in memory instead of
-    the profile directory.
-
-    `set_next_rng_seed()` writes a value to the RNG instead, which is not enough for every game:
-    R/S/E Hoenn starters, for instance, would get the same Pokémon after every soft reset, and
-    those are then discarded as repeat encounters.
+    Makes `wait_for_unique_rng_value()` give each soft reset a new RNG value, otherwise the same
+    Pokémon comes back and repeat encounters are not logged. It advances the RNG and waits a frame,
+    so that both frame-based and clock-seeded games get a new value.
     """
     from modules.memory import read_symbol, unpack_uint32
+    from modules.modes.util.soft_reset import advance_rng_sequence
 
     rng_history: set[int] = set()
 
     def wait_for_unique_rng_value():
         rng_value = unpack_uint32(read_symbol("gRngValue"))
         while rng_value in rng_history:
+            advance_rng_sequence()
             yield
             rng_value = unpack_uint32(read_symbol("gRngValue"))
         rng_history.add(rng_value)
@@ -448,28 +512,71 @@ def use_unique_rng_values() -> None:
     mocked_wait_for_unique_rng_value.side_effect = wait_for_unique_rng_value
 
 
+def give_key_item(item_name: str, instead_of: str | None = None) -> None:
+    """
+    Adds a key item to the bag (in memory only). With `instead_of`, it replaces that item, like
+    swapping bikes at Rydel's.
+    """
+    from modules.debug_utilities import debug_write_item_bag
+    from modules.items import ItemSlot, get_item_bag, get_item_by_name
+
+    bag = get_item_bag()
+    item = get_item_by_name(item_name)
+    if bag.quantity_of(item) > 0:
+        return
+
+    key_items = list(bag.key_items)
+    replaced_index = next(
+        (index for index, slot in enumerate(key_items) if instead_of is not None and slot.item.name == instead_of),
+        None,
+    )
+    if replaced_index is not None:
+        key_items[replaced_index] = ItemSlot(item, 1)
+    else:
+        key_items.append(ItemSlot(item, 1))
+    debug_write_item_bag(bag.items, key_items, bag.poke_balls, bag.tms_hms, bag.berries)
+    # The bag is cached for the current frame
+    context.state_cache.reset()
+
+
 def ensure_save_game() -> Generator:
     """
-    Saves the game in-game if the loaded state doesn't contain a save game, which modes that soft
-    reset require. The player must be in the overworld with the start menu closed.
+    Saves in-game unless the state already has a save game made facing the same tile. Modes that
+    soft reset need it. The player must be in the overworld.
     """
     from modules.memory import GameState, get_game_state
+    from modules.modes import BotModeError
+    from modules.modes._asserts import SavedMapLocation, assert_saved_on_map
     from modules.modes.util import save_the_game
+    from modules.player import get_player_avatar
     from modules.save_data import get_save_data
 
-    if get_save_data() is None:
-        if get_game_state() is not GameState.OVERWORLD:
-            raise AssertionError(
-                f"This state contains no save game, and it can't be saved in-game from here ({get_game_state().name})."
-            )
-        yield from save_the_game()
+    in_overworld = get_game_state() is GameState.OVERWORLD
+    if get_save_data() is not None:
+        if not in_overworld:
+            return
+        avatar = get_player_avatar()
+        targeted_tile = avatar.map_location_in_front
+        if targeted_tile is not None:
+            try:
+                assert_saved_on_map(
+                    SavedMapLocation(avatar.map_group_and_number, targeted_tile.local_position, facing=True), ""
+                )
+                return
+            except BotModeError:
+                pass
+    elif not in_overworld:
+        raise AssertionError(f"This state has no save game and can't be saved from here ({get_game_state().name}).")
+
+    yield from save_the_game()
 
 
-# Johnnie's 'Master Tests' save states (https://github.com/johnnieb333/Pokebot-Profiles, in
-# `Drop-In Profiles/Master Tests`) cover most bot modes in every game and language. They are too
-# many to include here, so tests using them read the directory from this environment variable and
-# are skipped when it is not set.
+# Directory of the 'Master Tests' states from https://github.com/johnnieb333/Pokebot-Profiles
+# (`Drop-In Profiles/Master Tests`). Tests that use them are skipped if it's not set.
 MASTER_TESTS_ENVIRONMENT_VARIABLE = "POKEBOT_MASTER_TESTS"
+
+# Optional, only use the states whose path contains this text (like `FRA` or `JPN/Ruby`)
+MASTER_TESTS_FILTER_ENVIRONMENT_VARIABLE = "POKEBOT_MASTER_TESTS_FILTER"
 
 
 def get_master_tests_path() -> Path | None:
@@ -480,12 +587,19 @@ def get_master_tests_path() -> Path | None:
     return path if path.is_dir() else None
 
 
-def master_test_states(*file_name_patterns: str) -> list[str]:
+# Game directory names in the Master Tests
+RSE_GAMES = ("Emerald", "Ruby", "Sapphire")
+FRLG_GAMES = ("Fire Red", "Leaf Green")
+
+
+def master_test_states(
+    *file_name_patterns: str, exclude: tuple[str, ...] = (), games: tuple[str, ...] | None = None
+) -> list[str]:
     """
-    :param file_name_patterns: Glob patterns for the state file names, such as `Starters-Hoenn*.ss1`.
-                               The file names are not consistent across games and languages, so it
-                               might take several patterns to match all of them.
-    :return: Absolute paths of the matching Master Tests states (`<language>/<game>/states/<file>`).
+    :param file_name_patterns: Glob patterns for state file names (they differ between games and languages)
+    :param exclude: Glob patterns for state file names to leave out
+    :param games: Only use these games (see `RSE_GAMES` and `FRLG_GAMES`)
+    :return: Paths of the matching states
     """
     master_tests_path = get_master_tests_path()
     if master_tests_path is None:
@@ -494,19 +608,26 @@ def master_test_states(*file_name_patterns: str) -> list[str]:
     states = set()
     for pattern in file_name_patterns:
         states.update(master_tests_path.glob(f"*/*/states/{pattern}"))
+    for pattern in exclude:
+        states.difference_update(master_tests_path.glob(f"*/*/states/{pattern}"))
+    if games is not None:
+        states = {state for state in states if state.parent.parent.name in games}
+    path_filter = os.environ.get(MASTER_TESTS_FILTER_ENVIRONMENT_VARIABLE)
+    if path_filter:
+        path_filter = path_filter.replace("\\", "/")
+        states = {state for state in states if path_filter in state.relative_to(master_tests_path).as_posix()}
     return [str(state) for state in sorted(states)]
 
 
-def with_master_test_states(*file_name_patterns: str):
-    """
-    Like `@with_save_state()`, but runs the test with each matching Master Tests state, and skips
-    it if there is none (or the environment variable is not set.)
-    """
-    states = master_test_states(*file_name_patterns)
+def with_master_test_states(
+    *file_name_patterns: str, exclude: tuple[str, ...] = (), games: tuple[str, ...] | None = None
+):
+    """Like `@with_save_state()` for Master Tests states. Skips the test if there are none."""
+    states = master_test_states(*file_name_patterns, exclude=exclude, games=games)
     if len(states) == 0:
         return unittest.skip(
             f"No Master Tests state matches {', '.join(file_name_patterns)} "
-            f"(set {MASTER_TESTS_ENVIRONMENT_VARIABLE} to the 'Master Tests' directory.)"
+            f"(set {MASTER_TESTS_ENVIRONMENT_VARIABLE} to the 'Master Tests' directory)"
         )
     return with_save_state(states)
 
@@ -534,6 +655,114 @@ class BotTestCase(unittest.TestCase):
         from modules.context import context
 
         return context.rom
+
+    def run_until_encounters(self, mode_class: type[BotMode], number_of_encounters: int = 3) -> Generator:
+        """
+        Runs a bot mode until it has logged this many encounters. Like the bot's main loop, it starts
+        a new instance when `run()` ends, as some modes do one action per run.
+        """
+        from modules.context import context
+        from modules.pokemon import get_opponent
+
+        frames_since_last_encounter = 0
+        while len(self.stats.logged_encounters) < number_of_encounters:
+            bot_mode = mode_class()
+            self.bot_mode.forward_hooks_to(bot_mode)
+            frames_in_this_run = 0
+            encounters = len(self.stats.logged_encounters)
+            for _ in bot_mode.run():
+                if len(self.stats.logged_encounters) != encounters:
+                    encounters = len(self.stats.logged_encounters)
+                    frames_since_last_encounter = 0
+                if encounters >= number_of_encounters or context.bot_mode == "Manual":
+                    break
+                frames_in_this_run += 1
+                frames_since_last_encounter += 1
+                yield
+
+            if context.bot_mode == "Manual":
+                # Stopping right after a shiny is the expected behaviour
+                opponent = get_opponent()
+                last_encounter = self.stats.last_encounter
+                if (opponent is not None and opponent.is_shiny) or (
+                    last_encounter and last_encounter.is_shiny and frames_since_last_encounter < 600
+                ):
+                    context.bot_mode_instance.allow_ending_on_manual_mode = True
+                    return
+                encounters = len(self.stats.logged_encounters)
+                self.fail(f"Switched to Manual mode after {encounters} encounter(s): {context.message!r}")
+            if frames_in_this_run == 0 and len(self.stats.logged_encounters) < number_of_encounters:
+                self.fail(f"The mode stopped after {len(self.stats.logged_encounters)} encounter(s).")
+            yield
+
+    def run_mode(
+        self,
+        mode_class: type[BotMode],
+        number_of_encounters: int = 3,
+        choices: Iterable[str] = (),
+        save_game: bool = False,
+    ) -> Generator:
+        """
+        Runs a bot mode the way most tests need: skips the state if the mode can't be selected there,
+        saves in-game first if `save_game` (for modes that soft reset), and picks `choices` in choice
+        windows.
+        """
+        from modules.map_data import get_map_enum
+        from modules.player import get_player_avatar
+
+        if not mode_class.is_selectable():
+            self.skipTest("The mode is not selectable in this state.")
+        if save_game:
+            yield from ensure_save_game()
+        avatar = get_player_avatar()
+        self.start_location = (get_map_enum(avatar.map_group_and_number), avatar.local_coordinates)
+        use_unique_rng_values()
+        choose_option(*choices)
+        yield from self.run_until_encounters(mode_class, number_of_encounters)
+
+    def assert_single_species(self) -> None:
+        species = {encounter.species_name for encounter in self.stats.logged_encounters}
+        self.assertEqual(1, len(species), f"Got different species: {species}")
+
+    def assert_encounters(
+        self,
+        encounter_type: "EncounterType | Iterable[EncounterType] | None" = None,
+        outcome: "BattleOutcome | None" = NOT_CHECKED,
+        species: str | Iterable[str] | None = None,
+        maps: Iterable | None = None,
+        on_start_tile: bool = False,
+    ) -> None:
+        """
+        Checks every logged encounter. `outcome` is checked even when None (no battle outcome, like
+        after a soft reset), except for shinies that stopped the bot.
+        """
+        encounters = self.stats.logged_encounters
+        self.assertGreater(len(encounters), 0, "No encounter was logged.")
+        types = (
+            (encounter_type,)
+            if encounter_type is not None and not isinstance(encounter_type, Iterable)
+            else encounter_type
+        )
+        species = (species,) if isinstance(species, str) else species
+        for encounter in encounters:
+            where = f"{encounter.species_name} on {encounter.map} {encounter.coordinates}"
+            if types is not None:
+                self.assertIn(encounter.type, tuple(types), where)
+            if outcome is not NOT_CHECKED and not encounter.is_shiny:
+                self.assertEqual(outcome, encounter.outcome, where)
+            if species is not None:
+                self.assertIn(encounter.species_name, tuple(species), where)
+            if maps is not None:
+                self.assertIn(encounter.map, tuple(maps), where)
+            if on_start_tile:
+                self.assertEqual(self.start_location, (encounter.map, encounter.coordinates), where)
+
+    def assert_player_on_start_tile(self) -> None:
+        from modules.map_data import get_map_enum
+        from modules.player import get_player_avatar
+
+        avatar = get_player_avatar()
+        self.assertEqual(self.start_location, (get_map_enum(avatar.map_group_and_number), avatar.local_coordinates))
 
     def assertIsInManualMode(self) -> None:
         from modules.context import context
