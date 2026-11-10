@@ -53,7 +53,8 @@ class BerryBlendMode(BotMode):
                 arrow_position_offset = 74
                 speed_offset = 76
                 number_of_players_offset = 126
-                progress_offset = 280
+                # Measured on R/S (J): the progress goes up to 999 there
+                progress_offset = 248
             else:
                 arrow_position_offset = 84
                 speed_offset = 86
