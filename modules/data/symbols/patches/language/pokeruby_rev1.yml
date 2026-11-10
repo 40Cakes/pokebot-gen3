@@ -23,6 +23,17 @@ Std_MsgboxDefault:
   F: 0x81a4bf8
   I: 0x81a019d
   S: 0x81a2abd
+Std_MsgboxSign:
+  F: 0x81a4bee
+  I: 0x81a0193
+  S: 0x81a2ab3
+DoRockSmashMovement:
+  F: 0x81b74c2
+  I: 0x81b2245
+  S: 0x81b4867
+# This English label is inside the French DoRockSmashMovement script and hides it
+FallarborTown_ContestLobby_Text_1B74B4:
+  F: 0x0
 # 0x6
 Std_MsgboxYesNo:
   F: 0x81a4c00

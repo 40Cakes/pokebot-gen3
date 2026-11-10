@@ -30,6 +30,7 @@ from .util import (
     apply_repel,
     repel_is_active,
     wait_for_no_script_to_run,
+    RanOutOfRepels,
 )
 from ..battle_strategies import BattleStrategy
 from ..encounter import handle_encounter, EncounterInfo
@@ -681,7 +682,10 @@ class PuzzleSolverMode(BotMode):
 
         while True and context.bot_mode != "Manual":
             if use_repel and not repel_is_active():
-                yield from apply_repel()
+                try:
+                    yield from apply_repel()
+                except RanOutOfRepels:
+                    raise BotModeError("You ran out of Repels, this puzzle needs some.") from None
 
             yield from path()
 
