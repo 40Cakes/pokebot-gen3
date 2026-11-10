@@ -11,6 +11,10 @@ Task_HandleYesNoInput:
   J: 0x80b0b4c
 Task_FieldMessageBox:
   J: 0x8061c30
+Std_MsgboxSign:
+  J: 0x817f38a
+DoRockSmashMovement:
+  J: 0x818ac01
 # 0x7
 Std_MsgboxDefault:
   J: 0x817f394
