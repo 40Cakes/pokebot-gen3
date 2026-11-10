@@ -680,6 +680,22 @@ def give_key_item(item_name: str, instead_of: str | None = None) -> None:
     context.state_cache.reset()
 
 
+def give_poke_balls(quantity: int, ball_name: str = "Poké Ball") -> None:
+    """
+    Sets how many of a kind of ball are in the bag (in memory only). Catching isn't certain, so a test
+    that must catch something shouldn't depend on a lucky throw.
+    """
+    from modules.debug_utilities import debug_write_item_bag
+    from modules.items import ItemSlot, get_item_bag, get_item_by_name
+
+    bag = get_item_bag()
+    ball = get_item_by_name(ball_name)
+    poke_balls = [slot for slot in bag.poke_balls if slot.item is not ball] + [ItemSlot(ball, quantity)]
+    debug_write_item_bag(bag.items, bag.key_items, poke_balls, bag.tms_hms, bag.berries)
+    # The bag is cached for the current frame
+    context.state_cache.reset()
+
+
 def ensure_save_game() -> Generator:
     """
     Saves in-game unless the state already has a save game made facing the same tile. Modes that

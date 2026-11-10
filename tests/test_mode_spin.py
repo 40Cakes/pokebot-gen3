@@ -1,4 +1,11 @@
-from tests.utility import BotTestCase, set_next_rng_seed, with_frame_timeout, with_master_test_states, with_save_state
+from tests.utility import (
+    BotTestCase,
+    give_poke_balls,
+    set_next_rng_seed,
+    with_frame_timeout,
+    with_master_test_states,
+    with_save_state,
+)
 
 
 class TestSpin(BotTestCase):
@@ -37,6 +44,11 @@ class TestSpin(BotTestCase):
     def test_it_catches_shinies(self):
         from modules.battle_state import BattleOutcome
         from modules.modes.spin import SpinMode
+
+        # The state's 5 Poké Balls catch it about once in three throws, which isn't always enough when
+        # the RNG differs (in other languages, text takes another number of frames). An Ultra Ball
+        # catches it about twice in three, and the bot never throws a Master Ball by itself.
+        give_poke_balls(20, "Ultra Ball")
 
         while True:
             if self.rom.is_emerald:
