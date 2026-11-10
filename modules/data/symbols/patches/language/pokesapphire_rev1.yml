@@ -218,7 +218,7 @@ BattleScript_ForgotAndLearnedNewMove:
 sub_809E260:
   F: 0x809e49c
   I: 0x809e3a8
-  S: 0x809da78
+  S: 0x809e494
 CB2_EvolutionSceneUpdate:
   F: 0x8112770
   I: 0x8112668
@@ -366,7 +366,7 @@ sub_806D198:
   S: 0x806d5d8
 HandlePartyMenuSwitchPokemonInput:
   F: 0x806cfa8
-  I: 0x806cfb4
+  I: 0x806cecc
   S: 0x806cfb4
 SUB_808A060:
   F: 0x808a59c

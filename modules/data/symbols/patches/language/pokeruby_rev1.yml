@@ -101,18 +101,18 @@ MainCB2_Intro:
   S: 0x813bcbc
 CB2_InitTitleScreen:
   F: 0x807c60c
-  I: 0x807c828
+  I: 0x807c4c4
   S: 0x807c5ac
 MainCB2:
   F: 0x807c970
-  I: 0x807c4c4
+  I: 0x807c828
   S: 0x807c910
 CB2_MainMenu:
   F: 0x8009890
   I: 0x8009890
   S: 0x8009890
 CB2_ReturnToFieldLocal:
-  F: 0x8054b60
+  F: 0x8054a3c
   I: 0x8054964
   S: 0x8054a4c
 #-----------------#
@@ -130,9 +130,9 @@ Task_MapNamePopup:
   I: 0x80a3138
   S: 0x80a323c
 CB2_LoadMap:
-  F: 0x8054938
-  I: 0x8054831
-  S: 0x8054948
+  F: 0x8054908
+  I: 0x8054830
+  S: 0x8054918
 Task_BattleStart:
   F: 0x8081e7c
   I: 0x8081d34
