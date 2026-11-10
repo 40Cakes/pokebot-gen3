@@ -1000,6 +1000,12 @@ Route111_Text_DrewPostBattle:
   F: 0x0
 Route123_Text_AlbertoPostBattle:
   D: 0x0
+#--------------#
+#    Roamer    #
+#--------------#
+# Found through the address that IsRoamerAt reads; the other languages use the English one
+sRoamerLocation:
+  J: 0x203b952
 #-------------------#
 #    Item Steal     #
 #-------------------#

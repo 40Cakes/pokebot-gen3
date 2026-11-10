@@ -869,6 +869,12 @@ CB2_RETURNTOFIELDCONTINUESCRIPTPLAYMAPMUSIC:
   I: 0x80568ec
   J: 0x80561a0
   S: 0x80569d4
+#--------------#
+#    Roamer    #
+#--------------#
+# Found through the address that IsRoamerAt reads; the other languages use the English one
+sRoamerLocation:
+  J: 0x203f322
 #-------------------#
 #    Item Steal     #
 #-------------------#

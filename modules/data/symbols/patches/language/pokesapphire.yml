@@ -406,6 +406,12 @@ Route116_Text_170921:
   J: 0x0
 Route116_Text_17094D:
   J: 0x0
+#--------------#
+#    Roamer    #
+#--------------#
+# Found through the address that IsRoamerAt reads; the other languages use the English one
+sRoamerLocation:
+  J: 0x2038ffa
 #-------------------#
 #    Item Steal     #
 #-------------------#
