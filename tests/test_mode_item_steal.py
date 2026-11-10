@@ -1,6 +1,15 @@
+import unittest
 from typing import TYPE_CHECKING
 
-from tests.utility import BotTestCase, use_unique_rng_values, with_frame_timeout, with_master_test_states
+from tests.utility import (
+    FRLG_GAMES,
+    RSE_GAMES,
+    BotTestCase,
+    master_test_states,
+    use_unique_rng_values,
+    with_frame_timeout,
+    with_save_state,
+)
 
 if TYPE_CHECKING:
     from modules.items import Item
@@ -51,10 +60,16 @@ def give_item_to_opponent() -> "Item | None":
     return item
 
 
+# Item Steal works on the same maps as Level Grind. In FR/LG, no Pokémon of the Level Grind maps can hold an
+# item: the 'Item Steal' states are in Route 7, where Meowth can.
+STATES = [
+    *master_test_states("Level Grind*.ss1", games=RSE_GAMES),
+    *master_test_states("Item Steal*.ss1", games=FRLG_GAMES),
+]
+
+
 class TestItemSteal(BotTestCase):
-    # Item Steal works on the same maps as Level Grind. In FR/LG, no Pokémon of the Level Grind maps can
-    # hold an item: the 'Item Steal' states are in Route 7, where Meowth can.
-    @with_master_test_states("Level Grind*.ss1", "Item Steal*.ss1")
+    @with_save_state(STATES) if STATES else unittest.skip("No Master Tests state for Item Steal")
     @with_frame_timeout(60000)
     def test_it_steals_the_opponents_item_in_all_languages(self):
         from modules.battle_state import BattleOutcome, EncounterType
@@ -69,8 +84,10 @@ class TestItemSteal(BotTestCase):
         if not ItemStealMode.is_selectable():
             self.skipTest("The mode is not selectable in this state.")
         encounters = get_wild_encounters_for_map(*get_player_avatar().map_group_and_number)
-        if not any(len(encounter.species.held_items) > 0 for encounter in encounters.land_encounters):
-            self.skipTest("No Pokémon of this map can hold an item, so the mode only runs away.")
+        self.assertTrue(
+            any(len(encounter.species.held_items) > 0 for encounter in encounters.land_encounters),
+            "No Pokémon of this map can hold an item, so the mode only runs away.",
+        )
         use_unique_rng_values()
 
         mode = ItemStealMode()
