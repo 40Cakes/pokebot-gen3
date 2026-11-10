@@ -800,6 +800,19 @@ EventScript_SmashRock:
   I: 0x82914c3
   J: 0x82566d1
   S: 0x829568d
+# These English labels are inside EventScript_SmashRock in some languages and hide it
+Route120_Text_RileyDefeat:
+  D: 0x0
+Route108_Text_CarolinaIntro:
+  F: 0x0
+ArtisanCave_B1F_EventScript_ItemHPUp:
+  I: 0x0
+ArtisanCave_1F_EventScript_ItemCarbos:
+  I: 0x0
+MagmaHideout_1F_EventScript_ItemRareCandy:
+  I: 0x0
+MagmaHideout_2F_2R_EventScript_ItemMaxElixir:
+  I: 0x0
 sSafariZoneStepCounter:
   J: 0x2039d1a
 gNumSafariBalls:
