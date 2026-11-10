@@ -64,6 +64,21 @@ options in choice windows, and runs the mode until it has logged that many
 encounters. Stopping for a shiny counts as a success.
 
 
+### Running tests in parallel
+
+The full suite takes a while in one process. `tests/runner/` runs one process
+per test file and language, and has a local web page to start runs and follow
+them, with each state's result and the output of each process:
+
+```bash
+python tests/runner/dashboard.py
+```
+
+Then open http://127.0.0.1:8765. Runs can also be started without it, for
+example `python tests/runner/run_parallel.py my-run test_mode_spin test_mode_fishing`.
+Logs go to `tests/runner/logs/`.
+
+
 ## Writing tests
 
 Check out one of the existing test files for inspiration, but here are

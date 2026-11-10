@@ -377,8 +377,14 @@ def with_save_state(state_file_names: str | list[str]):
     def decorator(generator_function):
         @wraps(generator_function)
         def wrapper_function(self: BotTestCase, *args, **kwargs):
-            _report_progress("total", str(len(state_file_names)), generator_function.__name__)
-            for state_file_name in state_file_names:
+            states = state_file_names
+            # Set by `tests/runner/run_parallel.py` so that only one process runs the repository's states
+            if os.environ.get("POKEBOT_SKIP_REPOSITORY_STATES"):
+                states = [name for name in state_file_names if Path(name).is_absolute()]
+                if len(states) == 0:
+                    raise unittest.SkipTest("Repository states run in another process.")
+            _report_progress("total", str(len(states)), generator_function.__name__)
+            for state_file_name in states:
                 with self.subTest(state_file_name=state_file_name):
                     _report_progress("start", state_file_name, generator_function.__name__)
                     result = "fail"
