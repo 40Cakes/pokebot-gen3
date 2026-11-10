@@ -869,3 +869,17 @@ CB2_RETURNTOFIELDCONTINUESCRIPTPLAYMAPMUSIC:
   I: 0x80568ec
   J: 0x80561a0
   S: 0x80569d4
+#-------------------#
+#    Item Steal     #
+#-------------------#
+# Found by searching each ROM for the English code and battle script
+BattleScript_ItemSteal:
+  D: 0x81dd507
+  F: 0x81d7a43
+  I: 0x81d66db
+  J: 0x81bd22d
+  S: 0x81d8da3
+gLastUsedItem:
+  J: 0x2023cc8
+gBattlerAttacker:
+  J: 0x2023ccb

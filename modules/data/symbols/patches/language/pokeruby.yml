@@ -407,3 +407,13 @@ Route116_Text_170921:
   J: 0x0
 Route116_Text_17094D:
   J: 0x0
+#-------------------#
+#    Item Steal     #
+#-------------------#
+# Found by searching each ROM for the English code and battle script
+BattleScript_ItemSteal:
+  J: 0x81aa18e
+gLastUsedItem:
+  J: 0x2024964
+gBattlerAttacker:
+  J: 0x2024967

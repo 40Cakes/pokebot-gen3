@@ -560,3 +560,11 @@ RusturfTunnel_EventScript_15C8CA:
   S: 0x0
 RusturfTunnel_EventScript_15C8DF:
   S: 0x0
+#-------------------#
+#    Item Steal     #
+#-------------------#
+# Found by searching each ROM for the English code and battle script
+BattleScript_ItemSteal:
+  F: 0x81e1aee
+  I: 0x81db382
+  S: 0x81de406

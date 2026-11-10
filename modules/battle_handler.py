@@ -129,10 +129,12 @@ def handle_battle(strategy: BattleStrategy) -> Generator[None, None, HandledBatt
 
 @debug.track
 def handle_item_stealing() -> Generator[None, None, tuple[int, Item] | None]:
-    item_index = unpack_uint16(read_symbol("gLastUsedItem"))
-    if read_symbol("gBattlerAttacker")[0] == 0:
+    # The R/S symbol tables give these variables no size
+    item_index = unpack_uint16(read_symbol("gLastUsedItem", size=2))
+    attacker = read_symbol("gBattlerAttacker", size=1)[0]
+    if attacker == 0:
         stolen_by = get_battle_state().own_side.left_battler.party_index
-    elif read_symbol("gBattlerAttacker")[0] == 2:
+    elif attacker == 2:
         stolen_by = get_battle_state().own_side.right_battler.party_index
     else:
         stolen_by = None

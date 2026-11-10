@@ -1000,3 +1000,17 @@ Route111_Text_DrewPostBattle:
   F: 0x0
 Route123_Text_AlbertoPostBattle:
   D: 0x0
+#-------------------#
+#    Item Steal     #
+#-------------------#
+# Found by searching each ROM for the English code and battle script
+BattleScript_ItemSteal:
+  D: 0x82f1162
+  F: 0x82e43f6
+  I: 0x82dc3ae
+  J: 0x82899aa
+  S: 0x82e2bae
+gLastUsedItem:
+  J: 0x2023eac
+gBattlerAttacker:
+  J: 0x2023eaf
