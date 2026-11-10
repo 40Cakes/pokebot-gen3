@@ -64,6 +64,20 @@ options in choice windows, and runs the mode until it has logged that many
 encounters. Stopping for a shiny counts as a success.
 
 
+### The English states in other languages
+
+`POKEBOT_TEST_LANGUAGE` (`D`, `F`, `I`, `J` or `S`) runs the states of
+`tests/states/` in another language. Each state is loaded in English, saved
+in-game, and that save game is continued in the same game in that language
+before the test starts, as save games have the same format (Japanese FR/LG
+just has a shorter last section, which the tests cut). It needs those ROMs
+in `roms/`. In the Safari Zone, Safari mode is left while saving and
+restored afterwards.
+
+```bash
+POKEBOT_TEST_LANGUAGE=F python -m unittest tests.test_battle_evolution
+```
+
 ### Running tests in parallel
 
 The full suite takes a while in one process. `tests/runner/` runs one process

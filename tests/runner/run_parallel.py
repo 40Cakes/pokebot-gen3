@@ -58,9 +58,14 @@ def available_modules() -> list[str]:
     return sorted(path.stem for path in (REPOSITORY / "tests").glob("test_*.py"))
 
 
-def uses_master_tests(module: str) -> bool:
-    """Test files without Master Tests states only use the English states of `tests/states/`, so they run once."""
-    return "with_master_test_states" in (REPOSITORY / "tests" / f"{module}.py").read_text(encoding="utf-8")
+# Master Tests directory name -> language code used by `POKEBOT_TEST_LANGUAGE`
+LANGUAGE_CODES = {"DEU": "D", "ESP": "S", "FRA": "F", "ITA": "I", "JPN": "J", "USA_EUR": "E"}
+
+
+def uses_game_states(module: str) -> bool:
+    """Test files without any save state (unit tests) don't depend on the language, so they run once."""
+    source = (REPOSITORY / "tests" / f"{module}.py").read_text(encoding="utf-8")
+    return "with_master_test_states" in source or "with_save_state" in source
 
 
 def write_json(path: Path, data) -> None:
@@ -99,7 +104,7 @@ class Run:
                     "log": f"{module}.{language}.log",
                 }
                 for module in modules
-                for language in (languages if uses_master_tests(module) else languages[:1])
+                for language in (languages if uses_game_states(module) else languages[:1])
             ],
         }
         self.save()
@@ -123,11 +128,10 @@ class Run:
         environment = dict(
             os.environ,
             POKEBOT_MASTER_TESTS_FILTER=f"{job['language']}/",
+            # The English states of `tests/states/` are continued in this language
+            POKEBOT_TEST_LANGUAGE=LANGUAGE_CODES.get(job["language"], "E"),
             POKEBOT_TEST_PROGRESS="1",
         )
-        # The English states of `tests/states/` don't depend on the language filter, only run them once
-        if job["language"] != self.state["languages"][0]:
-            environment["POKEBOT_SKIP_REPOSITORY_STATES"] = "1"
         with open(self.run_directory / job["log"], "w", encoding="utf-8") as handle:
             process = subprocess.Popen(
                 [sys.executable, "-m", "unittest", "-v", f"tests.{job['module']}"],
@@ -173,7 +177,8 @@ class Run:
 def failures(text: str) -> list[dict]:
     result = []
     for block in re.split(r"^={70}$", text, flags=re.M):
-        state = re.search(r"State File: .*Master Tests[\\/](.*)$", block, re.M)
+        # Master Tests states have absolute paths, the ones of `tests/states/` relative ones
+        state = re.search(r"State File: (?:.*Master Tests[\\/])?(.*)$", block, re.M)
         errors = re.findall(r"^[A-Za-z_.]*(?:Error|Exception): .*$", block, re.M)
         if state:
             message = errors[-1] if errors else "?"
@@ -189,7 +194,8 @@ def summarise(log: Path) -> list[str]:
     lines = [f"{log.stem}: {ran[-1] if ran else 'no result'} -> {result[-1] if result else 'did not finish'}"]
     lines.extend(f"  {failure['state']} => {failure['error']}" for failure in failures(text))
     skipped = {}
-    for reason in re.findall(r"skipped '([^']*)'", text):
+    # unittest quotes the reason with double quotes when it contains an apostrophe
+    for _, reason in re.findall(r"skipped (['\"])(.*)\1$", text, re.M):
         skipped[reason] = skipped.get(reason, 0) + 1
     lines.extend(f"  skipped x{count}: {reason}" for reason, count in sorted(skipped.items()))
     return lines

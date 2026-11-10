@@ -334,6 +334,8 @@ Task_Fanfare:
 #---------------------------#
 #  SSR/SRA/SGR Reset Modes  #
 #---------------------------#
+gQuestLogState:
+  J: 0x203ad72
 Task_EndQuestLog:
   D: 0x8112170
   F: 0x8112230

@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from modules.modes import FrameInfo, BattleAction
     from modules.pokemon import Pokemon
     from modules.profiles import Profile
-    from modules.roms import ROM
+    from modules.roms import ROM, ROMLanguage
     from modules.stats import Encounter
 
 # For `assert_encounters()`, as None is a value to check there
@@ -308,6 +308,140 @@ def _load_test_state(state_file: Path) -> None:
     context.emulator.load_save_state(state_data)
 
 
+def _test_language() -> "ROMLanguage | None":
+    """The language set in `POKEBOT_TEST_LANGUAGE` (D, F, I, J, S), to run the English states in."""
+    from modules.roms import ROMLanguage
+
+    value = os.environ.get("POKEBOT_TEST_LANGUAGE", "").upper()
+    if value in ("", "E"):
+        return None
+    return ROMLanguage(value)
+
+
+def _in_language(language: "ROMLanguage", test: Generator) -> Generator:
+    """
+    Saves in-game, continues that save game in the same game in another language, then runs the test.
+    Save games have the same format in all languages, but for a shorter last section in Japanese FR/LG.
+    """
+    from modules.modes.util import save_the_game
+    from modules.roms import ROMLanguage
+
+    rom = rom_in_language(language)
+
+    # The start menu has no 'Save' option in the Safari Zone. Leave Safari mode while saving and
+    # restore it afterwards, with the Safari Balls and steps left, which aren't in the save game.
+    safari = _leave_safari_mode()
+    yield from _with_frame_limit(save_the_game(), 3000, "Saving the game")
+    save_game = context.emulator.read_save_data()
+    if context.rom.is_frlg and language is ROMLanguage.Japanese:
+        save_game = _shorten_frlg_save_block_1(save_game)
+    switch_to_rom(rom)
+    context.emulator.load_save_game(save_game)
+    yield from _with_frame_limit(_continue_save_game(), 3000, "Continuing the save game")
+    if safari is not None:
+        _restore_safari_mode(*safari)
+    set_next_rng_seed(0xFFFF_FFFF)
+    yield from test
+
+
+def _safari_step_counter_symbol() -> str:
+    return "sSafariZoneStepCounter" if context.rom.is_emerald else "gSafariZoneStepCounter"
+
+
+def _leave_safari_mode() -> tuple[bytes, bytes] | None:
+    """Clears the Safari mode flag, and returns the Safari Balls and steps left if it was set."""
+    from modules.memory import get_event_flag, read_symbol, set_event_flag
+
+    if not get_event_flag("SYS_SAFARI_MODE"):
+        return None
+    balls, steps = bytes(read_symbol("gNumSafariBalls")), bytes(read_symbol(_safari_step_counter_symbol()))
+    set_event_flag("SYS_SAFARI_MODE", False)
+    return balls, steps
+
+
+def _restore_safari_mode(balls: bytes, steps: bytes) -> None:
+    from modules.memory import set_event_flag, write_symbol
+
+    set_event_flag("SYS_SAFARI_MODE", True)
+    write_symbol("gNumSafariBalls", balls)
+    write_symbol(_safari_step_counter_symbol(), steps)
+
+
+def rom_in_language(language: "ROMLanguage") -> "ROM":
+    """The ROM of the current game in another language (the latest revision), or skips the test."""
+    from modules.roms import list_available_roms
+
+    game_code = context.rom.game_code[:3]
+    roms = [rom for rom in list_available_roms() if rom.game_code[:3] == game_code and rom.language is language]
+    if len(roms) == 0:
+        raise unittest.SkipTest(f"No {context.rom.game_name} ROM in {language.name} in roms/.")
+    return max(roms, key=lambda rom: rom.revision)
+
+
+def switch_to_rom(rom: "ROM") -> None:
+    """Starts an emulator with another ROM, from power on. Can be called while a test runs."""
+    from modules.profiles import Profile
+
+    # Setting up an emulator clears the controller stack, which holds the running test
+    controller_stack = list(context.controller_stack)
+    _set_up_test_emulator(Profile(rom, context.profile.path, datetime.now()))
+    context.controller_stack.extend(controller_stack)
+
+
+def _shorten_frlg_save_block_1(save_game: bytes) -> bytes:
+    """
+    The last section of Save Block 1 holds 0xEC0 bytes in Japanese FR/LG instead of 0xEE8, so the game
+    rejects an English save game. The bytes that don't fit are at the very end (Trainer Tower and
+    such), which the tests don't use: cut them and fix the section's checksum.
+    """
+    from modules.memory import pack_uint16, unpack_uint16, unpack_uint32
+
+    japanese_size = 0xEC0
+    save_game = bytearray(save_game)
+    for sector_start in range(0, min(len(save_game), 28 * 0x1000), 0x1000):
+        if unpack_uint16(save_game[sector_start + 0xFF4 : sector_start + 0xFF6]) != 4:
+            continue
+        save_game[sector_start + japanese_size : sector_start + 0xF80] = bytes(0xF80 - japanese_size)
+        checksum = 0
+        for offset in range(sector_start, sector_start + japanese_size, 4):
+            checksum = (checksum + unpack_uint32(save_game[offset : offset + 4])) & 0xFFFF_FFFF
+        save_game[sector_start + 0xFF6 : sector_start + 0xFF8] = pack_uint16(((checksum >> 16) + checksum) & 0xFFFF)
+    return bytes(save_game)
+
+
+def _with_frame_limit(generator: Generator, frames: int, what: str) -> Generator:
+    for frame, _ in enumerate(generator):
+        if frame >= frames:
+            raise AssertionError(f"{what} took more than {frames} frames.")
+        yield
+
+
+def _continue_save_game() -> Generator:
+    """
+    Like `soft_reset()`, but FR/LG may not replay the quest log: a save game made in another
+    language doesn't, and `soft_reset()` would wait for it forever.
+    """
+    from modules.memory import GameState, get_game_state, read_symbol
+    from modules.modes.util import wait_for_player_avatar_to_be_controllable
+    from modules.tasks import task_is_active
+
+    context.emulator.reset()
+    yield
+    while True:
+        match get_game_state():
+            case GameState.TITLE_SCREEN | GameState.MAIN_MENU:
+                context.emulator.press_button("A")
+            case GameState.QUEST_LOG:
+                context.emulator.press_button("B")
+            case GameState.OVERWORLD:
+                if context.rom.is_frlg and read_symbol("gQuestLogState") != b"\x00":
+                    context.emulator.press_button("B")
+                elif not (context.rom.is_frlg and task_is_active("Task_EndQuestLog")):
+                    yield from wait_for_player_avatar_to_be_controllable()
+                    return
+        yield
+
+
 def _run_test(test_generator: Generator) -> None:
 
     from modules.memory import get_game_state
@@ -375,16 +509,12 @@ def with_save_state(state_file_names: str | list[str]):
         state_file_names = [state_file_names]
 
     def decorator(generator_function):
+        # Reported when the test file is imported, so that tools know every test's states from the start
+        _report_progress("total", str(len(state_file_names)), generator_function.__name__)
+
         @wraps(generator_function)
         def wrapper_function(self: BotTestCase, *args, **kwargs):
-            states = state_file_names
-            # Set by `tests/runner/run_parallel.py` so that only one process runs the repository's states
-            if os.environ.get("POKEBOT_SKIP_REPOSITORY_STATES"):
-                states = [name for name in state_file_names if Path(name).is_absolute()]
-                if len(states) == 0:
-                    raise unittest.SkipTest("Repository states run in another process.")
-            _report_progress("total", str(len(states)), generator_function.__name__)
-            for state_file_name in states:
+            for state_file_name in state_file_names:
                 with self.subTest(state_file_name=state_file_name):
                     _report_progress("start", state_file_name, generator_function.__name__)
                     result = "fail"
@@ -396,7 +526,12 @@ def with_save_state(state_file_names: str | list[str]):
                         mocked_ask_for_choice_scroll.side_effect = None
                         # Some bot code uses `random`, seed it so that runs are reproducible
                         random.seed("/".join(Path(state_file_name).parts[-4:]))
-                        _run_test(generator_function(self, *args, **kwargs))
+                        test = generator_function(self, *args, **kwargs)
+                        language = _test_language()
+                        # Master Tests states (absolute paths) are already in their own language
+                        if language is not None and not Path(state_file_name).is_absolute():
+                            test = _in_language(language, test)
+                        _run_test(test)
                         result = "ok"
                     except unittest.SkipTest:
                         result = "skip"

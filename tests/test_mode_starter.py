@@ -53,14 +53,19 @@ class TestStarter(BotTestCase):
     def test_it_stops_when_encountering_shiny(self):
         from modules.modes.starters import StartersMode
 
+        # The RNG advances while text is printed, so in some languages another seed gives the shiny
+        # (the English states are continued in other languages with `POKEBOT_TEST_LANGUAGE`)
+        language = self.rom.language.value
         if self.rom.is_emerald:
-            rng_seed = 0x2FAB1EEB
+            rng_seed = {"D": 0x0DFD87CD, "F": 0x0DFD87CD}.get(language, 0x2FAB1EEB)
             expected_species = "Treecko"
         elif self.rom.is_ruby:
             rng_seed = 0x327B87DF
             expected_species = "Treecko"
         elif self.rom.is_fr:
-            rng_seed = 0x2031F790
+            rng_seed = {"D": 0xCC32BE74, "F": 0xE4B82B0C, "I": 0x6A8B044C, "J": 0xF7C63010, "S": 0x6B6A1D0A}.get(
+                language, 0x2031F790
+            )
             expected_species = "Squirtle"
         else:
             self.fail("No pre-calculated shiny seed available for this game.")
