@@ -1,7 +1,15 @@
-from tests.utility import BotTestCase, with_frame_timeout, with_save_state, set_next_rng_seed, with_master_test_states
+from tests.utility import BotTestCase, set_next_rng_seed, with_frame_timeout, with_master_test_states, with_save_state
 
 
 class TestSpin(BotTestCase):
+    def run_spin(self):
+        from modules.battle_state import BattleOutcome, EncounterType
+        from modules.modes.spin import SpinMode
+
+        yield from self.run_mode(SpinMode, 3)
+        self.assert_encounters(EncounterType.Land, BattleOutcome.RanAway, on_start_tile=True)
+        self.assert_player_on_start_tile()
+
     @with_save_state(
         [
             "emerald/in_tall_grass_after_receiving_pokeballs.ss1",
@@ -11,14 +19,12 @@ class TestSpin(BotTestCase):
     )
     @with_frame_timeout(5000)
     def test_it_gets_three_encounters(self):
-        from modules.modes.spin import SpinMode
+        yield from self.run_spin()
 
-        spin_mode = SpinMode()
-        for _ in spin_mode.run():
-            if len(self.stats.logged_encounters) > 3:
-                return None
-            else:
-                yield
+    @with_master_test_states("Spin*-Everywhere.ss1", "Spin*-Safari*.ss1")
+    @with_frame_timeout(5000)
+    def test_it_gets_three_encounters_in_all_languages(self):
+        yield from self.run_spin()
 
     @with_save_state(
         [
@@ -58,17 +64,3 @@ class TestSpin(BotTestCase):
                 else:
                     set_next_rng_seed(rng_seed)
                 yield
-
-
-class TestSpinAllLanguages(BotTestCase):
-    """Runs the Spin mode with Johnnie's Master Tests states, in every game and language."""
-
-    @with_master_test_states("Spin*-Everywhere.ss1")
-    @with_frame_timeout(5000)
-    def test_it_gets_three_encounters(self):
-        from modules.modes.spin import SpinMode
-
-        for _ in SpinMode().run():
-            if len(self.stats.logged_encounters) >= 3:
-                return
-            yield
