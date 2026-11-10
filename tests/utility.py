@@ -442,7 +442,13 @@ def _continue_save_game() -> Generator:
         yield
 
 
-def _run_test(test_generator: Generator) -> None:
+# `with_frame_timeout()` only counts the test's own frames, not the ones where the battle handler or another
+# listener runs. This limit counts every frame, so that a bot stuck in one of those fails instead of hanging.
+FRAME_LIMIT_FACTOR = 5
+DEFAULT_FRAME_LIMIT = 500_000
+
+
+def _run_test(test_generator: Generator, frame_limit: int = DEFAULT_FRAME_LIMIT) -> None:
 
     from modules.memory import get_game_state
     from modules.modes import get_bot_listeners, FrameInfo
@@ -456,8 +462,13 @@ def _run_test(test_generator: Generator) -> None:
     context.stats.last_encounter = None
     context._current_bot_mode = AutomatedTestBotMode.name()
 
+    frames = 0
     while True:
         context.frame += 1
+        frames += 1
+        if frames > frame_limit:
+            stuck_in = [controller.__qualname__ for controller in context.controller_stack]
+            raise AssertionError(f"The test ran for more than {frame_limit} frames in all, stuck in {stuck_in}.")
 
         game_state = get_game_state()
         script_context = get_global_script_context()
@@ -531,7 +542,8 @@ def with_save_state(state_file_names: str | list[str]):
                         # Master Tests states (absolute paths) are already in their own language
                         if language is not None and not Path(state_file_name).is_absolute():
                             test = _in_language(language, test)
-                        _run_test(test)
+                        timeout = getattr(generator_function, "frame_timeout", None)
+                        _run_test(test, int(timeout * FRAME_LIMIT_FACTOR) if timeout else DEFAULT_FRAME_LIMIT)
                         result = "ok"
                     except unittest.SkipTest:
                         result = "skip"
@@ -569,6 +581,8 @@ def with_frame_timeout(timeout_in_frames: int):
                         screenshot.save(file, format="PNG")
                     raise AssertionError(f"A timeout of {timeout_in_frames} frames has been reached.")
 
+        # Read by `with_save_state()`, for the limit on all frames
+        wrapper_function.frame_timeout = timeout_in_frames
         return wrapper_function
 
     return decorator

@@ -130,3 +130,9 @@ class TestWhatever(BotTestCase):
         # @with_save_state decorator.
         ...
 ```
+
+`with_frame_timeout()` counts the frames where the test itself runs, not
+the ones where the bot's battle handler or another listener does. So that
+the bot getting stuck there fails the test instead of hanging, each state
+also stops after 5 times that many frames in all (500,000 without a
+timeout).
