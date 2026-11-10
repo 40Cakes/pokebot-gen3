@@ -401,7 +401,7 @@ BattleScript_AskToLearnMove:
   F: 0x82e3bb7
   I: 0x82dbb6f
   J: 0x828916b
-  S: 0x82e2373
+  S: 0x82e236f
 BattleScript_ForgotAndLearnedNewMove:
   D: 0x82f0950
   F: 0x82e3be4
@@ -758,17 +758,17 @@ Task_DoFieldMove_RunFunc:
   J: 0x8135670
   S: 0x8135234
 EventScript_UseDiveUnderwater:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  D: 0x829f2a4
+  F: 0x82973e1
+  I: 0x82917e2
+  J: 0x8256935
+  S: 0x829599b
 Task_UseDive:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  D: 0x80b7528
+  F: 0x80b7520
+  I: 0x80b7520
+  J: 0x80b6c64
+  S: 0x80b7520
 #---------------------#
 
 #----------------#

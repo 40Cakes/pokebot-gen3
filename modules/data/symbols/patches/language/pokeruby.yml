@@ -348,9 +348,9 @@ BattleBeginFirstTurn:
 #    Puzzle Solver    #
 #---------------------#
 S_UseDiveUnderwater:
-  J: ~
+  J: 0x818aed3
 Task_Dive:
-  J: ~
+  J: 0x8083fa8
 #---------------------#
 
 #----------------#

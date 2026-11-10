@@ -464,13 +464,13 @@ BattleBeginFirstTurn:
 #    Puzzle Solver    #
 #---------------------#
 S_UseDiveUnderwater:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81b7824
+  I: 0x81b2564
+  S: 0x81b4b75
 Task_Dive:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x8087628
+  I: 0x80874e0
+  S: 0x80875c8
 #---------------------#
 
 #----------------#
