@@ -329,6 +329,8 @@ Task_Fanfare:
 #---------------------------#
 #  SSR/SRA/SGR Reset Modes  #
 #---------------------------#
+gQuestLogState:
+  J: 0x203ad72
 Task_EndQuestLog:
   D: 0x8112148
   F: 0x8112208
@@ -460,6 +462,12 @@ sNumStartMenuItems:
   J: 0x2037029
 sStartMenuOrder:
   J: 0x203702a
+SaveDialogCB_AskOverwriteOrReplacePreviousFileHandleInput:
+  D: 0x806f840
+  F: 0x806f900
+  I: 0x806f82c
+  J: 0x806f0cc
+  S: 0x806f914
 #-----------------#
 
 #--------------#
@@ -836,3 +844,23 @@ CB2_RETURNTOFIELDCONTINUESCRIPTPLAYMAPMUSIC:
   I: ~
   J: ~
   S: ~
+#--------------#
+#    Roamer    #
+#--------------#
+# Found through the address that IsRoamerAt reads; the other languages use the English one
+sRoamerLocation:
+  J: 0x203f322
+#-------------------#
+#    Item Steal     #
+#-------------------#
+# Found by searching each ROM for the English code and battle script
+BattleScript_ItemSteal:
+  D: 0x81dd4e3
+  F: 0x81d7a1f
+  I: 0x81d66b7
+  J: 0x81bd209
+  S: 0x81d8d7f
+gLastUsedItem:
+  J: 0x2023cc8
+gBattlerAttacker:
+  J: 0x2023ccb

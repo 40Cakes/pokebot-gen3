@@ -11,6 +11,10 @@ Task_HandleYesNoInput:
   J: 0x80b0b4c
 Task_FieldMessageBox:
   J: 0x8061c30
+Std_MsgboxSign:
+  J: 0x817f38a
+DoRockSmashMovement:
+  J: 0x818ac01
 # 0x7
 Std_MsgboxDefault:
   J: 0x817f394
@@ -246,6 +250,10 @@ sNumStartMenuActions:
   J: 0x202e64d
 sCurrentStartMenuActions:
   J: 0x202e64e
+saveDialogCallback:
+  J: 0x3000610
+SaveDialogCB_ProcessOverwriteYesNoMenu:
+  J: 0x806ebd8
 #-----------------#
 
 #----------------#
@@ -372,6 +380,10 @@ EventScript_DoTrainerBattle:
 #-----------------#
 #      Safari     #
 #-----------------#
+gNumSafariBalls:
+  J: 0x2038504
+gSafariZoneStepCounter:
+  J: 0x2038506
 Route121_SafariZoneEntrance_EventScript_15C383:
   J: 0x81708a1
 Route121_SafariZoneEntrance_EventScript_15C3B3:
@@ -393,4 +405,37 @@ gTVRecentHappeningsText3:
 Route116_Text_170921:
   J: 0x0
 Route116_Text_17094D:
+  J: 0x0
+#--------------#
+#    Roamer    #
+#--------------#
+# Found through the address that IsRoamerAt reads; the other languages use the English one
+sRoamerLocation:
+  J: 0x2038ffa
+#-------------------#
+#    Item Steal     #
+#-------------------#
+# Found by searching each ROM for the English code and battle script
+BattleScript_ItemSteal:
+  J: 0x81aa11e
+gLastUsedItem:
+  J: 0x2024964
+gBattlerAttacker:
+  J: 0x2024967
+#--------------------------#
+#    Pokéblock feeder      #
+#--------------------------#
+# Found through the code that reads it; the other languages use the English address
+gPokeblockFeeders:
+  J: 0x2038508
+# The script after putting a Pokéblock in a Safari Zone feeder
+EventScript_1C34A0:
+  J: 0x8195963
+# Same as in Japanese Ruby, whose code has the same addresses
+SUB_810B674:
+  J: 0x810661c
+gUnknown_02039248:
+  J: 0x2038f40
+# This English label is inside the Japanese EventScript_1C34A0 and hides it
+MtChimney_Text_1959D8:
   J: 0x0

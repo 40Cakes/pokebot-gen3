@@ -109,7 +109,8 @@ class EVTrainMode(BotMode):
         ev_multiplier = 1
         if lead_pokemon.held_item is not None and lead_pokemon.held_item.name == "Macho Brace":
             ev_multiplier *= 2
-        if lead_pokemon.pokerus_status.days_remaining > 0:
+        # The game keeps doubling EVs after Pokérus is cured
+        if lead_pokemon.pokerus_status.strain > 0 or lead_pokemon.pokerus_status.days_remaining > 0:
             ev_multiplier *= 2
 
         # Checks if opponent evs are desired

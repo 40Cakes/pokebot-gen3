@@ -401,7 +401,7 @@ BattleScript_AskToLearnMove:
   F: 0x82e3bb7
   I: 0x82dbb6f
   J: 0x828916b
-  S: 0x82e2373
+  S: 0x82e236f
 BattleScript_ForgotAndLearnedNewMove:
   D: 0x82f0950
   F: 0x82e3be4
@@ -486,6 +486,8 @@ sNumStartMenuActions:
   J: 0x20372af
 sCurrentStartMenuActions:
   J: 0x20372b0
+sSaveDialogCallback:
+  J: 0x20372bc
 sRegionMap:
   J: 0x2039e10
 GMAIN:
@@ -643,11 +645,11 @@ gRegionMapEntries:
   J: 0x857cd6c
   S: 0x85a41e4
 SaveOverwriteInputCallback:
-  D: 0x80a0272
-  F: 0x80a026a
-  I: 0x80a026a
-  J: 0x809fb2e
-  S: 0x80a026a
+  D: 0x80a0208
+  F: 0x80a0200
+  I: 0x80a0200
+  J: 0x809fac4
+  S: 0x80a0200
 Std_MsgboxSign:
   D: 0x827ca21
   F: 0x82765e1
@@ -756,17 +758,17 @@ Task_DoFieldMove_RunFunc:
   J: 0x8135670
   S: 0x8135234
 EventScript_UseDiveUnderwater:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  D: 0x829f2a4
+  F: 0x82973e1
+  I: 0x82917e2
+  J: 0x8256935
+  S: 0x829599b
 Task_UseDive:
-  D: ~
-  F: ~
-  I: ~
-  J: ~
-  S: ~
+  D: 0x80b7528
+  F: 0x80b7520
+  I: 0x80b7520
+  J: 0x80b6c64
+  S: 0x80b7520
 #---------------------#
 
 #----------------#
@@ -798,6 +800,54 @@ EventScript_SmashRock:
   I: 0x82914c3
   J: 0x82566d1
   S: 0x829568d
+EventScript_BattleKecleon:
+  D: 0x827da66
+  F: 0x8277626
+  I: 0x8271fbc
+  J: 0x82433e8
+  S: 0x8276169
+BattleFrontier_OutsideEast_EventScript_WaterSudowoodo:
+  D: 0x824b8f9
+  F: 0x8247fa8
+  I: 0x8242d06
+  J: 0x8222a98
+  S: 0x8245c6d
+# These English labels are inside the Kecleon or Sudowoodo scripts in some languages and hide them
+gText_TouchedJudgeForFantasticAppeal:
+  D: 0x0
+CableClub_EventScript_NeedTwoMonsForUnionRoom:
+  F: 0x0
+MauvilleCity_Gym_SetGymTrainers:
+  I: 0x0
+LavaridgeTown_Gym_SetGymTrainers:
+  I: 0x0
+PetalburgCity_Gym_SetGymTrainers:
+  I: 0x0
+SecretBase_EventScript_Trainer7PreChampion:
+  S: 0x0
+SecretBase_EventScript_Trainer7DeclineBattle:
+  S: 0x0
+SecretBase_EventScript_Trainer7PostBattle:
+  S: 0x0
+SecretBase_EventScript_Trainer8:
+  S: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_CoolTrainerFMon1:
+  F: 0x0
+BattleFrontier_BattleTowerMultiPartnerRoom_Text_YoungsterMon1:
+  S: 0x0
+# These English labels are inside EventScript_SmashRock in some languages and hide it
+Route120_Text_RileyDefeat:
+  D: 0x0
+Route108_Text_CarolinaIntro:
+  F: 0x0
+ArtisanCave_B1F_EventScript_ItemHPUp:
+  I: 0x0
+ArtisanCave_1F_EventScript_ItemCarbos:
+  I: 0x0
+MagmaHideout_1F_EventScript_ItemRareCandy:
+  I: 0x0
+MagmaHideout_2F_2R_EventScript_ItemMaxElixir:
+  I: 0x0
 sSafariZoneStepCounter:
   J: 0x2039d1a
 gNumSafariBalls:
@@ -950,3 +1000,29 @@ Route111_Text_DrewPostBattle:
   F: 0x0
 Route123_Text_AlbertoPostBattle:
   D: 0x0
+#--------------#
+#    Roamer    #
+#--------------#
+# Found through the address that IsRoamerAt reads; the other languages use the English one
+sRoamerLocation:
+  J: 0x203b952
+#-------------------#
+#    Item Steal     #
+#-------------------#
+# Found by searching each ROM for the English code and battle script
+BattleScript_ItemSteal:
+  D: 0x82f1162
+  F: 0x82e43f6
+  I: 0x82dc3ae
+  J: 0x82899aa
+  S: 0x82e2bae
+gLastUsedItem:
+  J: 0x2023eac
+gBattlerAttacker:
+  J: 0x2023eaf
+#--------------------------#
+#    Pokéblock feeder      #
+#--------------------------#
+# Found through the code that reads it; the other languages use the English address
+sPokeblockFeeders:
+  J: 0x2039d20

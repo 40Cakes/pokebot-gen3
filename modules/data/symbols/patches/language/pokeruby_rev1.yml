@@ -23,6 +23,17 @@ Std_MsgboxDefault:
   F: 0x81a4bf8
   I: 0x81a019d
   S: 0x81a2abd
+Std_MsgboxSign:
+  F: 0x81a4bee
+  I: 0x81a0193
+  S: 0x81a2ab3
+DoRockSmashMovement:
+  F: 0x81b74c2
+  I: 0x81b2245
+  S: 0x81b4867
+# This English label is inside the French DoRockSmashMovement script and hides it
+FallarborTown_ContestLobby_Text_1B74B4:
+  F: 0x0
 # 0x6
 Std_MsgboxYesNo:
   F: 0x81a4c00
@@ -90,18 +101,18 @@ MainCB2_Intro:
   S: 0x813bcbc
 CB2_InitTitleScreen:
   F: 0x807c60c
-  I: 0x807c828
+  I: 0x807c4c4
   S: 0x807c5ac
 MainCB2:
   F: 0x807c970
-  I: 0x807c4c4
+  I: 0x807c828
   S: 0x807c910
 CB2_MainMenu:
   F: 0x8009890
   I: 0x8009890
   S: 0x8009890
 CB2_ReturnToFieldLocal:
-  F: 0x8054b60
+  F: 0x8054a3c
   I: 0x8054964
   S: 0x8054a4c
 #-----------------#
@@ -119,9 +130,9 @@ Task_MapNamePopup:
   I: 0x80a3138
   S: 0x80a323c
 CB2_LoadMap:
-  F: 0x8054938
-  I: 0x8054831
-  S: 0x8054948
+  F: 0x8054908
+  I: 0x8054830
+  S: 0x8054918
 Task_BattleStart:
   F: 0x8081e7c
   I: 0x8081d34
@@ -314,6 +325,10 @@ sub_80712B4:
   F: 0x80716c0
   I: 0x80715e4
   S: 0x80716cc
+SaveDialogCB_ProcessOverwriteYesNoMenu:
+  F: 0x8071ca8
+  I: 0x8071bcc
+  S: 0x8071cb4
 #-----------------#
 
 #----------------#
@@ -449,13 +464,13 @@ BattleBeginFirstTurn:
 #    Puzzle Solver    #
 #---------------------#
 S_UseDiveUnderwater:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x81b7824
+  I: 0x81b2564
+  S: 0x81b4b75
 Task_Dive:
-  F: ~
-  I: ~
-  S: ~
+  F: 0x8087628
+  I: 0x80874e0
+  S: 0x80875c8
 #---------------------#
 
 #----------------#
@@ -545,3 +560,19 @@ RusturfTunnel_EventScript_15C8CA:
   S: 0x0
 RusturfTunnel_EventScript_15C8DF:
   S: 0x0
+#-------------------#
+#    Item Steal     #
+#-------------------#
+# Found by searching each ROM for the English code and battle script
+BattleScript_ItemSteal:
+  F: 0x81e1aee
+  I: 0x81db382
+  S: 0x81de406
+#--------------------------#
+#    Pokéblock feeder      #
+#--------------------------#
+# The script after putting a Pokéblock in a Safari Zone feeder
+EventScript_1C34A0:
+  F: 0x81cb431
+  I: 0x81c510c
+  S: 0x81c8141

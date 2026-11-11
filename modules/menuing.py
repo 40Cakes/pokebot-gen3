@@ -342,11 +342,23 @@ class PokemonPartySubMenuNavigator(BaseMenuNavigator):
             yield
 
     def confirm_desired_option(self):
-        while self.wait_counter < 5:
-            if self.wait_counter == 1:
+        # Own counter, `self.wait_counter` may already be past 5 after `wait_for_init()`
+        for frame in range(5):
+            if frame == 1:
                 context.emulator.press_button("A")
-            self.wait_counter += 1
             yield
+
+        # The menu ignores 'A' while it prints the option's description, which takes longer in some
+        # languages (like Italian FireRed), so press again while the same menu is still open. Some
+        # options (like ITEM) open another menu in the same task, so stop when the options change.
+        if not context.rom.is_rs:
+            options = self.party_menu_internal["actions"]
+            for frame in range(60):
+                if not task_is_active("Task_HandleSelectionMenuInput") or parse_party_menu()["actions"] != options:
+                    break
+                if frame % 5 == 0:
+                    context.emulator.press_button("A")
+                yield
 
         if self.item_to_give is not None:
             while not task_is_active("Task_BagMenu_HandleInput") or get_task("Task_BagMenu_HandleInput").data[0] != 1:
