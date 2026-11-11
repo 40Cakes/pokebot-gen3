@@ -877,7 +877,7 @@ class BotTestCase(unittest.TestCase):
         save_game: bool = False,
     ) -> Generator:
         """
-        Runs a bot mode the way most tests need: skips the state if the mode can't be selected there,
+        Runs a bot mode the way most tests need: fails if the mode can't be selected in this state,
         saves in-game first if `save_game` (for modes that soft reset), and picks `choices` in choice
         windows.
         """
@@ -885,7 +885,9 @@ class BotTestCase(unittest.TestCase):
         from modules.player import get_player_avatar
 
         if not mode_class.is_selectable():
-            self.skipTest("The mode is not selectable in this state.")
+            # Master Tests states are made for one mode: if it can't be selected there, something is wrong (a missing
+            # address, for one), and skipping the state would hide it
+            self.fail("The mode can't be selected in this state.")
         if save_game:
             yield from ensure_save_game()
         avatar = get_player_avatar()

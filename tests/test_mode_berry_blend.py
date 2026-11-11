@@ -10,7 +10,7 @@ class TestBerryBlend(BotTestCase):
         from modules.modes.berry_blend import BerryBlendMode
 
         if not BerryBlendMode.is_selectable():
-            self.skipTest("The mode is not selectable in this state.")
+            self.fail("The mode can't be selected in this state.")
 
         def number_of_berries() -> int:
             return sum(slot.quantity for slot in get_item_bag().berries)

@@ -18,7 +18,7 @@ class TestRoamerReencounter(BotTestCase):
         from modules.roamer import get_roamer
 
         if not RoamerReencounterMode.is_selectable():
-            self.skipTest("The mode is not selectable in this state.")
+            self.fail("The mode can't be selected in this state.")
         roamer = get_roamer()
         # The roamer moves at random when the player changes maps: start it on the player's map, so that the
         # test doesn't depend on luck (the save game doesn't keep where it is, so it would start nowhere)

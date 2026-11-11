@@ -27,17 +27,19 @@ STATIC_FILES = {
     "/theme.js": ("theme.js", "text/javascript; charset=utf-8"),
     "/app.js": ("app.js", "text/javascript; charset=utf-8"),
 }
-SAFE_NAME = re.compile(r"^[A-Za-z0-9_.-]+$")
+SAFE_NAME = run_parallel.RUN_NAME
 PROGRESS_LINE = re.compile(r"\[progress\] (\w+) (\S+) (.*)$", re.M)
 
 
-def is_alive(pid: int | None) -> bool:
-    if pid is None:
-        return False
-    try:
-        return psutil.Process(pid).status() != psutil.STATUS_ZOMBIE
-    except psutil.Error:
-        return False
+def is_alive(pid: int | None, created: float | None) -> bool:
+    return run_parallel.find_process(pid, created) is not None
+
+
+def is_finished(run_directory: Path, state: dict) -> bool:
+    """The run ended, was stopped, or its supervisor is gone (the machine restarted, for one)."""
+    return (run_directory / "done").exists() or not is_alive(
+        state.get("supervisor_pid"), state.get("supervisor_created")
+    )
 
 
 def read_jobs(run_directory: Path) -> dict | None:
@@ -79,13 +81,17 @@ def run_details(name: str) -> dict | None:
     state = read_jobs(run_directory)
     if state is None:
         return None
-    state["done"] = (run_directory / "done").exists()
-    state["supervisor_alive"] = is_alive(state.get("supervisor_pid"))
+    state["supervisor_alive"] = is_alive(state.get("supervisor_pid"), state.get("supervisor_created"))
+    state["done"] = (run_directory / "done").exists() or not state["supervisor_alive"]
     state["now"] = time.time()
     for job in state["jobs"]:
         job["progress"] = progress_of(run_directory / job["log"])
         # A job whose process just ended stays 'running' until the supervisor records it
-        if job["status"] == "running" and not is_alive(job["pid"]) and not state["supervisor_alive"]:
+        if (
+            job["status"] == "running"
+            and not is_alive(job["pid"], job.get("created"))
+            and not state["supervisor_alive"]
+        ):
             job["status"] = "lost"
     return state
 
@@ -97,15 +103,18 @@ def list_runs() -> list[dict]:
             state = read_jobs(run_directory)
             if state is None:
                 continue
+            done = is_finished(run_directory, state)
             counts = {}
             for job in state["jobs"]:
-                counts[job["status"]] = counts.get(job["status"], 0) + 1
+                # Like in `run_details()`: a job still 'running' in a finished run lost its process
+                status = "lost" if done and job["status"] == "running" else job["status"]
+                counts[status] = counts.get(status, 0) + 1
             runs.append(
                 {
                     "name": state["name"],
                     "started": state["started"],
                     "ended": state["ended"],
-                    "done": (run_directory / "done").exists(),
+                    "done": done,
                     "counts": counts,
                 }
             )
@@ -118,13 +127,18 @@ def stop_run(name: str) -> None:
     state = read_jobs(run_directory)
     if state is None:
         return
-    for pid in [state.get("supervisor_pid")] + [job["pid"] for job in state["jobs"] if job["status"] == "running"]:
+    processes = [(state.get("supervisor_pid"), state.get("supervisor_created"))]
+    processes += [(job["pid"], job.get("created")) for job in state["jobs"] if job["status"] == "running"]
+    for pid, created in processes:
+        # Only the run's own processes: after a restart, their pids may belong to other programs
+        process = run_parallel.find_process(pid, created)
+        if process is None:
+            continue
         try:
-            process = psutil.Process(pid)
             for child in process.children(recursive=True):
                 child.kill()
             process.kill()
-        except (psutil.Error, TypeError, ValueError):
+        except psutil.Error:
             pass
     for job in state["jobs"]:
         if job["status"] in ("queued", "running"):
@@ -132,6 +146,7 @@ def stop_run(name: str) -> None:
             job["ended"] = time.time()
     state["ended"] = time.time()
     run_parallel.write_json(run_directory / "jobs.json", state)
+    (run_directory / "done").write_text("done", encoding="utf-8")
 
 
 def tail(path: Path, lines: int) -> str:
@@ -155,7 +170,23 @@ class Handler(BaseHTTPRequestHandler):
     def send_json(self, data, status: int = 200) -> None:
         self.send(status, json.dumps(data).encode("utf-8"), "application/json")
 
+    def is_from_this_page(self) -> bool:
+        """
+        Refuses requests that other web pages make the browser send: the Host header stops DNS rebinding,
+        and Origin cross-site requests (which also can't send a JSON content type without a preflight
+        request, which this server doesn't answer).
+        """
+        port = self.server.server_address[1]
+        hosts = {f"127.0.0.1:{port}", f"localhost:{port}"}
+        if self.headers.get("Host") not in hosts:
+            return False
+        origin = self.headers.get("Origin")
+        return origin is None or urlparse(origin).netloc in hosts
+
     def do_GET(self):
+        if not self.is_from_this_page():
+            self.send_json({"error": "Forbidden"}, 403)
+            return
         url = urlparse(self.path)
         query = {key: values[0] for key, values in parse_qs(url.query).items()}
         if url.path in STATIC_FILES:
@@ -191,6 +222,10 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json({"error": "Not found"}, 404)
 
     def do_POST(self):
+        content_type = self.headers.get("Content-Type", "").split(";")[0].strip()
+        if not self.is_from_this_page() or content_type != "application/json":
+            self.send_json({"error": "Forbidden"}, 403)
+            return
         url = urlparse(self.path)
         try:
             body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", "0"))) or b"{}")

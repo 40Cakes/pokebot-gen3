@@ -82,7 +82,7 @@ class TestItemSteal(BotTestCase):
 
         give_thief_to_lead()
         if not ItemStealMode.is_selectable():
-            self.skipTest("The mode is not selectable in this state.")
+            self.fail("The mode can't be selected in this state.")
         encounters = get_wild_encounters_for_map(*get_player_avatar().map_group_and_number)
         self.assertTrue(
             any(len(encounter.species.held_items) > 0 for encounter in encounters.land_encounters),

@@ -16,6 +16,9 @@ const duration = (seconds) => {
 const when = (timestamp) => new Date(timestamp * 1000).toLocaleString([], { dateStyle: "short", timeStyle: "short" });
 const defaultName = (prefix) => `${prefix}-${new Date().toISOString().slice(5, 16).replace(/[-:T]/g, "")}`;
 const getJson = async (url) => (await fetch(url)).json();
+// The server refuses POST requests without this content type (see `is_from_this_page()` in dashboard.py)
+const postJson = (url, body) =>
+  fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 const remember = (key, value) => { try { localStorage.setItem(key, value); } catch (error) {} };
 const recall = (key) => { try { return localStorage.getItem(key); } catch (error) { return null; } };
 
@@ -47,7 +50,7 @@ document.getElementById("auto-processes").addEventListener("click", () => {
 });
 
 async function startRun(body) {
-  const result = await (await fetch("/api/start", { method: "POST", body: JSON.stringify(body) })).json();
+  const result = await (await postJson("/api/start", body)).json();
   if (result.error) return result.error;
   state.run = body.name;
   state.job = null;
@@ -249,7 +252,7 @@ document.addEventListener("click", async (event) => {
   const jobElement = event.target.closest("[data-job]");
   if (jobElement) { state.job = jobElement.dataset.job; refresh(); return; }
   if (event.target.id === "stop-run" && confirm(`Stop ${state.run}? Its running processes will be killed.`)) {
-    await fetch("/api/stop", { method: "POST", body: JSON.stringify({ name: state.run }) });
+    await postJson("/api/stop", { name: state.run });
     refresh();
   }
   if (event.target.id === "run-again") {

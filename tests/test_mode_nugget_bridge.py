@@ -13,7 +13,7 @@ class TestNuggetBridge(BotTestCase):
         from modules.modes.nugget_bridge import NuggetBridgeMode
 
         if not NuggetBridgeMode.is_selectable():
-            self.skipTest("The mode is not selectable in this state.")
+            self.fail("The mode can't be selected in this state.")
 
         nugget = get_item_by_name("Nugget")
         nuggets_at_start = get_item_bag().quantity_of(nugget)

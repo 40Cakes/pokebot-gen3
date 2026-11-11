@@ -73,7 +73,7 @@ class TestSafari(BotTestCase):
             except BotModeError:
                 continue
             return target
-        self.skipTest(f"No Safari Pokémon can be hunted with {mode.value} in this state.")
+        self.fail(f"No Safari Pokémon can be hunted with {mode.value} in this state.")
 
     def run_safari(self, target, *choices: str):
         from modules.modes.safari import SafariMode

@@ -33,6 +33,9 @@ DETACHED = NO_WINDOW | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
 
 _lock = threading.Lock()
 
+# A run's name is the name of its log directory: no path separators, and no "." or ".." (or hidden directory)
+RUN_NAME = re.compile(r"^[A-Za-z0-9_-][A-Za-z0-9_.-]*$")
+
 
 def recommended_processes() -> int:
     """As many processes as the machine can take: CPU threads minus 2, limited by free memory."""
@@ -41,6 +44,43 @@ def recommended_processes() -> int:
     by_cpu = (os.cpu_count() or 2) - 2
     by_memory = int(psutil.virtual_memory().available * 0.8 // MEMORY_PER_PROCESS)
     return max(1, min(by_cpu, by_memory))
+
+
+def process_created(pid: int) -> float | None:
+    """When a process started, recorded with its pid: pids are reused once a process has ended."""
+    import psutil
+
+    try:
+        return psutil.Process(pid).create_time()
+    except psutil.Error:
+        return None
+
+
+def find_process(pid: int | None, created: float | None):
+    """
+    The running process with this pid, or None if it ended, including when its pid now belongs to another
+    process. `created` is None for runs recorded before it existed, which are only checked by pid.
+    """
+    import psutil
+
+    if pid is None:
+        return None
+    try:
+        process = psutil.Process(pid)
+        if created is not None and abs(process.create_time() - created) > 0.01:
+            return None
+        return None if process.status() == psutil.STATUS_ZOMBIE else process
+    except psutil.Error:
+        return None
+
+
+def run_directory_of(name: str) -> Path:
+    if not RUN_NAME.match(name):
+        raise ValueError(f"Invalid run name: {name!r}")
+    run_directory = LOGS / name
+    if run_directory.resolve().parent != LOGS.resolve():
+        raise ValueError(f"Invalid run name: {name!r}")
+    return run_directory
 
 
 def master_tests_path() -> Path:
@@ -102,6 +142,7 @@ class Run:
         self.state = {
             "name": run_directory.name,
             "supervisor_pid": os.getpid(),
+            "supervisor_created": process_created(os.getpid()),
             "started": time.time(),
             "ended": None,
             "modules": modules,
@@ -113,6 +154,7 @@ class Run:
                     "language": language,
                     "status": "queued",
                     "pid": None,
+                    "created": None,
                     "started": None,
                     "ended": None,
                     "returncode": None,
@@ -162,7 +204,9 @@ class Run:
                 stderr=subprocess.STDOUT,
                 creationflags=NO_WINDOW,
             )
-            self.update(job, status="running", pid=process.pid, started=time.time())
+            self.update(
+                job, status="running", pid=process.pid, created=process_created(process.pid), started=time.time()
+            )
             returncode = process.wait()
         if (self.run_directory / "stop").exists():
             status = "stopped"
@@ -224,7 +268,7 @@ def summarise(log: Path) -> list[str]:
 
 def start(name: str, modules: list[str], languages: list[str], max_processes: int) -> Path:
     master_tests_path()
-    run_directory = LOGS / name
+    run_directory = run_directory_of(name)
     run_directory.mkdir(parents=True, exist_ok=True)
     for old_file in run_directory.glob("*"):
         old_file.unlink()
@@ -276,7 +320,11 @@ def main() -> None:
     if len(positional) < 2:
         print(__doc__)
         sys.exit(1)
-    run_directory = start(positional[0], positional[1:], languages or available_languages(), max_processes)
+    try:
+        run_directory = start(positional[0], positional[1:], languages or available_languages(), max_processes)
+    except ValueError as exception:
+        print(exception)
+        sys.exit(1)
     print(f"Started, results in {run_directory}")
 
 
