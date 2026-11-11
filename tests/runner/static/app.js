@@ -163,7 +163,9 @@ async function refreshRun() {
     for (const language of run.languages) {
       const job = jobs[`${module}.${language}`];
       if (!job) {
-        grid += '<td class="cell same"><div class="meta"><span>Runs once, no game state</span></div></td>';
+        const notTestable = (run.not_in_languages?.[module] || []).includes(language);
+        const label = notTestable ? "Not testable in this language" : "Runs once, no game state";
+        grid += `<td class="cell same"><div class="meta"><span>${label}</span></div></td>`;
         continue;
       }
       const p = job.progress;

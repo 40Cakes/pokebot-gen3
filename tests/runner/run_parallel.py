@@ -68,6 +68,21 @@ def uses_game_states(module: str) -> bool:
     return "with_master_test_states" in source or "with_save_state" in source
 
 
+def module_languages(module: str, languages: list[str]) -> list[str]:
+    """
+    The languages to run a test file in. A test file can list the only languages where its mode works in a
+    `LANGUAGES = ("JPN", "USA_EUR")` line, and isn't run in the others.
+    """
+    if not uses_game_states(module):
+        return languages[:1]
+    source = (REPOSITORY / "tests" / f"{module}.py").read_text(encoding="utf-8")
+    only = re.search(r"^LANGUAGES = \(([^)]*)\)", source, re.M)
+    if only is None:
+        return languages
+    wanted = re.findall(r"[\"']([A-Z_]+)[\"']", only.group(1))
+    return [language for language in languages if language in wanted]
+
+
 def write_json(path: Path, data) -> None:
     temporary = path.with_suffix(".tmp")
     temporary.write_text(json.dumps(data, indent=2), encoding="utf-8")
@@ -104,8 +119,14 @@ class Run:
                     "log": f"{module}.{language}.log",
                 }
                 for module in modules
-                for language in (languages if uses_game_states(module) else languages[:1])
+                for language in module_languages(module, languages)
             ],
+            # Test files that can't run in some languages, for the dashboard
+            "not_in_languages": {
+                module: [language for language in languages if language not in module_languages(module, languages)]
+                for module in modules
+                if uses_game_states(module) and module_languages(module, languages) != languages
+            },
         }
         self.save()
 

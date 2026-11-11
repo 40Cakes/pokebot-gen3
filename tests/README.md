@@ -92,6 +92,10 @@ Then open http://127.0.0.1:8765. Runs can also be started without it, for
 example `python tests/runner/run_parallel.py my-run test_mode_spin test_mode_fishing`.
 Logs go to `tests/runner/logs/`.
 
+A test file for a mode that only works in some languages can list them, as
+in `LANGUAGES = ("JPN", "USA_EUR")`: the runner then doesn't run it in the
+others.
+
 
 ## Writing tests
 

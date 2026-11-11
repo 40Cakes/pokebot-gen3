@@ -1,8 +1,10 @@
 from tests.utility import BotTestCase, with_frame_timeout, with_master_test_states
 
+# The other languages fixed the script oversight the mode uses, so `tests/runner/` only runs it in these
+LANGUAGES = ("JPN", "USA_EUR")
+
 
 class TestNuggetBridge(BotTestCase):
-    # The states only exist in English and Japanese: the other languages fixed the script oversight
     @with_master_test_states("Nugget Bridge*.ss1")
     @with_frame_timeout(60000)
     def test_it_gets_nuggets_in_all_languages(self):
