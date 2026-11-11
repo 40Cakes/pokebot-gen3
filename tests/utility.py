@@ -852,11 +852,14 @@ class BotTestCase(unittest.TestCase):
                 yield
 
             if context.bot_mode == "Manual":
-                # Stopping right after a shiny is the expected behaviour
+                # Stopping right after a shiny is the expected behaviour. A gift or a static encounter has no
+                # battle outcome yet when the bot stops for it, which can be a while after it was logged.
                 opponent = get_opponent()
                 last_encounter = self.stats.last_encounter
                 if (opponent is not None and opponent.is_shiny) or (
-                    last_encounter and last_encounter.is_shiny and frames_since_last_encounter < 600
+                    last_encounter
+                    and last_encounter.is_shiny
+                    and (last_encounter.outcome is None or frames_since_last_encounter < 600)
                 ):
                     context.bot_mode_instance.allow_ending_on_manual_mode = True
                     return
