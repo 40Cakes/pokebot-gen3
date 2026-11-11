@@ -1020,3 +1020,9 @@ gLastUsedItem:
   J: 0x2023eac
 gBattlerAttacker:
   J: 0x2023eaf
+#--------------------------#
+#    Pokéblock feeder      #
+#--------------------------#
+# Found through the code that reads it; the other languages use the English address
+sPokeblockFeeders:
+  J: 0x2039d20

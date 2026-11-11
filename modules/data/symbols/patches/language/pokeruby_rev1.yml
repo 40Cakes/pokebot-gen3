@@ -568,3 +568,11 @@ BattleScript_ItemSteal:
   F: 0x81e1aee
   I: 0x81db382
   S: 0x81de406
+#--------------------------#
+#    Pokéblock feeder      #
+#--------------------------#
+# The script after putting a Pokéblock in a Safari Zone feeder
+EventScript_1C34A0:
+  F: 0x81cb431
+  I: 0x81c510c
+  S: 0x81c8141

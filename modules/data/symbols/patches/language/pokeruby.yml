@@ -423,3 +423,15 @@ gLastUsedItem:
   J: 0x2024964
 gBattlerAttacker:
   J: 0x2024967
+#--------------------------#
+#    Pokéblock feeder      #
+#--------------------------#
+# Found through the code that reads it; the other languages use the English address
+gPokeblockFeeders:
+  J: 0x2038508
+# The script after putting a Pokéblock in a Safari Zone feeder
+EventScript_1C34A0:
+  J: 0x81959d3
+# This English label is inside the Japanese EventScript_1C34A0 and hides it
+MtChimney_Text_1959D8:
+  J: 0x0
