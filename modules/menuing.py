@@ -61,6 +61,41 @@ def party_menu_is_open() -> bool:
         )
 
 
+def _get_open_pocket_index() -> int:
+    if context.rom.is_emerald:
+        return read_symbol("gBagPosition", offset=0x05, size=1)[0]
+    elif context.rom.is_rs:
+        return read_symbol("sCurrentBagPocket")[0]
+    else:
+        return read_symbol("gBagMenuState", offset=0x06, size=1)[0]
+
+
+def open_item_pocket(pocket: ItemPocket) -> Generator:
+    """
+    This will open the item bag and scroll to a specific pocket.
+
+    :param pocket: Bag pocket to open
+    """
+
+    # Wait for fade-in to finish (happens when the bag is opened, during which time inputs
+    # are not yet active.)
+    while (
+        get_game_state() != GameState.BAG_MENU
+        or unpack_uint16(read_symbol("gPaletteFade", offset=0x07, size=0x02)) & 0x80 != 0
+    ):
+        yield
+
+    # Select the correct pocket
+    target_pocket_index = pocket.index
+    while _get_open_pocket_index() != target_pocket_index:
+        if _get_open_pocket_index() < target_pocket_index:
+            context.emulator.press_button("Right")
+        else:
+            context.emulator.press_button("Left")
+        for _ in range(26):
+            yield
+
+
 def scroll_to_item_in_bag(item: Item) -> Generator:
     """
     This will select the correct bag pocket and scroll to the correct position therein.
@@ -70,6 +105,12 @@ def scroll_to_item_in_bag(item: Item) -> Generator:
 
     :param item: Item to scroll to
     """
+
+    # We have to open the bag pocket first before looking up the slot index, because the
+    # TM/HM pocket is re-ordered upon opening so the TMs and HMs are sorted numerically.
+    # Presumably, the same happens for berries.
+    yield from open_item_pocket(item.pocket)
+
     slot_index = get_item_bag().first_slot_index_for(item)
     if slot_index is None:
         raise RuntimeError(f"Could not find any {item.name}")
@@ -85,16 +126,13 @@ def scroll_to_item_slot(pocket: ItemPocket, slot_index: int) -> Generator:
     :param slot_index: The index number to scroll to in that pocket.
     """
 
-    def open_pocket_index() -> int:
-        if context.rom.is_emerald:
-            return read_symbol("gBagPosition", offset=0x05, size=1)[0]
-        elif context.rom.is_rs:
-            return read_symbol("sCurrentBagPocket")[0]
-        else:
-            return read_symbol("gBagMenuState", offset=0x06, size=1)[0]
+    if len(get_item_bag().pocket_for(pocket)) <= slot_index:
+        raise RuntimeError(
+            f"There is no slot index {slot_index} in the '{pocket.name}' pocket. It only has {len(get_item_bag().pocket_for(pocket))} slots."
+        )
 
     def currently_selected_slot() -> int:
-        bag_index = open_pocket_index()
+        bag_index = _get_open_pocket_index()
         if context.rom.is_emerald:
             cursor_position = unpack_uint16(read_symbol("gBagPosition", offset=8 + (bag_index * 2), size=2))
             scroll_position = unpack_uint16(read_symbol("gBagPosition", offset=18 + (bag_index * 2), size=2))
@@ -104,29 +142,6 @@ def scroll_to_item_slot(pocket: ItemPocket, slot_index: int) -> Generator:
             cursor_position = unpack_uint16(read_symbol("gBagMenuState", offset=8 + (bag_index * 2), size=2))
             scroll_position = unpack_uint16(read_symbol("gBagMenuState", offset=14 + (bag_index * 2), size=2))
         return cursor_position + scroll_position
-
-    if len(get_item_bag().pocket_for(pocket)) <= slot_index:
-        raise RuntimeError(
-            f"There is no slot index {slot_index} in the '{pocket.name}' pocket. It only has {len(get_item_bag().pocket_for(pocket))} slots."
-        )
-
-    # Wait for fade-in to finish (happens when the bag is opened, during which time inputs
-    # are not yet active.)
-    while (
-        get_game_state() != GameState.BAG_MENU
-        or unpack_uint16(read_symbol("gPaletteFade", offset=0x07, size=0x02)) & 0x80 != 0
-    ):
-        yield
-
-    # Select the correct pocket
-    target_pocket_index = pocket.index
-    while open_pocket_index() != target_pocket_index:
-        if open_pocket_index() < target_pocket_index:
-            context.emulator.press_button("Right")
-        else:
-            context.emulator.press_button("Left")
-        for _ in range(26):
-            yield
 
     # Scroll to the item
     while currently_selected_slot() != slot_index:
