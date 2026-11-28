@@ -185,7 +185,7 @@ def follow_waypoints(
             else:
                 frames_remaining_until_timeout += 300
         elif waypoint.action is WaypointAction.Waterfall:
-            frames_remaining_until_timeout += 195 + (get_player_location()[0][1] - waypoint.coordinates[1]) * 42
+            frames_remaining_until_timeout += 195 + (get_player_location()[1][1] - waypoint.coordinates[1]) * 42
 
         while not player_is_at(waypoint.map, waypoint.coordinates) or field_effect_is_active:
             player_object = get_player_map_object()

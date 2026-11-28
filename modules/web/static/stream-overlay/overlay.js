@@ -461,7 +461,7 @@ export default async function runOverlay() {
             }
         }
 
-        if (state.map.map.type === "Underwater" && Math.random() * 600 < 1) {
+        if (state.map && state.map.map && state.map.map.type === "Underwater" && Math.random() * 600 < 1) {
             fireWaterBubbleBurst();
         }
     }, 1000);
@@ -493,6 +493,10 @@ export default async function runOverlay() {
         const updateChecklist = () => {
             fetchers.eventFlags().then(flags => {
                 for (const li of gymListEntries) {
+                    if (!li.dataset.flag) {
+                        continue;
+                    }
+
                     let isCompleted = true;
                     let flagRequirements = li.dataset.flag.replaceAll(" ", "").split(",");
                     for (const requirement of flagRequirements) {
@@ -520,12 +524,49 @@ export default async function runOverlay() {
         currentLocation.innerText = state.map.map.pretty_name
             .replace("é", "e")
             .replace("’", "'");
+
+        let numberOfIceFails = 0;
+        const iceFailMessages = [
+            "Fail the ice puzzle once",
+            "Fail it a second time, for good measure",
+            "That was fun, do it again!",
+            "Starting to get embarrassing...",
+            "Oh my.",
+        ];
+
         eventListeners["MapChange"] = event => {
             /** @type {MapLocation} */
             const eventData = JSON.parse(event.data);
             currentLocation.innerText = eventData.map.pretty_name
                 .replace("é", "e")
                 .replace("’", "'");
+
+            if (eventData.map.pretty_name === "Sootopolis City Gym (B1F)" && eventData.player_position[1] < 22) {
+                fetchers.eventFlags().then(flags => {
+                    if (flags["BADGE08_GET"]) {
+                        return;
+                    }
+
+                    if (iceFailMessages.length > numberOfIceFails) {
+                        const lastEntry = document.querySelector("#gym-message ul li[data-flag=BADGE08_GET]");
+                        const entry = document.createElement("li");
+                        entry.className = "completed";
+                        entry.innerText = iceFailMessages[numberOfIceFails];
+                        lastEntry.parentElement.insertBefore(entry, lastEntry);
+                    } else if (numberOfIceFails === iceFailMessages.length) {
+                        const lastEntry = document.querySelector("#gym-message ul li[data-flag=BADGE08_GET]");
+                        const entry = document.createElement("li");
+                        entry.className = "completed ice-challenge-counter";
+                        entry.innerText = `Fail the ice challenge ${numberOfIceFails + 1} times in total`;
+                        lastEntry.parentElement.insertBefore(entry, lastEntry);
+                    } else {
+                        const entry = document.querySelector("#gym-message ul li.ice-challenge-counter");
+                        entry.innerText = `Fail the ice challenge ${numberOfIceFails + 1} times in total`;
+                    }
+
+                    numberOfIceFails++;
+                });
+            }
         };
     }
 
