@@ -207,215 +207,248 @@ def run_watcher():
         "message": context.message,
     }
 
+    last_error = None
     while len(subscribers) > 0:
-        current_second = int(time())
-        # This thread must not read emulator memory itself. The main loop updates the game
-        # state in the state cache every frame.
-        current_game_state = context.state_cache.game_state.value
+        try:
+            current_second = int(time())
+            # This thread must not read emulator memory itself. The main loop updates the game
+            # state in the state cache every frame.
+            current_game_state = context.state_cache.game_state.value
+            if current_game_state is None:
+                # The state cache has just been reset (e.g. after loading a save state with a lower
+                # frame count) and the main thread hasn't read the game state again yet.
+                current_game_state = previous_game_state["game_state"]
 
-        if current_second != previous_second:
-            send_message(None, data=None, event_type="Ping")
+            if current_second != previous_second:
+                send_message(None, data=None, event_type="Ping")
 
-            if subscriptions["PerformanceData"] > 0:
-                send_message(
-                    DataSubscription.PerformanceData,
-                    data={
-                        "fps": context.emulator.get_current_fps(),
-                        "frame_count": context.emulator.get_frame_count(),
-                        "current_time_spent_in_bot_fraction": context.emulator.get_current_time_spent_in_bot_fraction(),
-                        "encounter_rate": context.stats.encounter_rate,
-                    },
-                    event_type="PerformanceData",
-                )
+                if subscriptions["PerformanceData"] > 0:
+                    send_message(
+                        DataSubscription.PerformanceData,
+                        data={
+                            "fps": context.emulator.get_current_fps(),
+                            "frame_count": context.emulator.get_frame_count(),
+                            "current_time_spent_in_bot_fraction": context.emulator.get_current_time_spent_in_bot_fraction(),
+                            "encounter_rate": context.stats.encounter_rate,
+                        },
+                        event_type="PerformanceData",
+                    )
 
-        if subscriptions["Player"] > 0:
-            if context.state_cache.player.age_in_frames >= 60:
-                # If the cached party data is too old, tell the main thread to update it at the next
-                # possible opportunity.
-                work_queue.put_nowait(get_player)
-            if context.state_cache.player.frame > previous_game_state["player"]:
-                previous_game_state["player"] = context.state_cache.player.frame
-                send_message(
-                    DataSubscription.Player, data=context.state_cache.player.value.to_dict(), event_type="Player"
-                )
-
-        if subscriptions["PlayerAvatar"] > 0:
-            if context.state_cache.player_avatar.age_in_frames > 4:
-                # If the cached player avatar data is too old, tell the main thread to update it at the next
-                # possible opportunity.
-                work_queue.put_nowait(get_player_avatar)
-            if context.state_cache.player_avatar.frame > previous_game_state["player_avatar"]:
-                previous_game_state["player_avatar"] = context.state_cache.player_avatar.frame
-                send_message(
-                    DataSubscription.PlayerAvatar,
-                    data=context.state_cache.player_avatar.value.to_dict(),
-                    event_type="PlayerAvatar",
-                )
-
-        if subscriptions["Party"] > 0:
-            if context.state_cache.party.age_in_frames >= 60:
-                # If the cached party data is too old, tell the main thread to update it at the next
-                # possible opportunity.
-                work_queue.put_nowait(get_party)
-            if context.state_cache.party.frame > previous_game_state["party"]:
-                previous_game_state["party"] = context.state_cache.party.frame
-                send_message(DataSubscription.Party, data=context.state_cache.party.value.to_list(), event_type="Party")
-
-        if subscriptions["Pokedex"] > 0:
-            if context.state_cache.pokedex.age_in_seconds > 0:
-                # If the cached Pokédex data is too old, tell the main thread to update it at the next
-                # possible opportunity.
-                work_queue.put_nowait(get_pokedex)
-            if context.state_cache.pokedex.frame > previous_game_state["pokedex"]:
-                previous_game_state["pokedex"] = context.state_cache.pokedex.frame
-                send_message(
-                    DataSubscription.Pokedex, data=context.state_cache.pokedex.value.to_dict(), event_type="Pokedex"
-                )
-
-        if subscriptions["Opponent"] > 0:
-            if current_game_state == GameState.BATTLE:
-                if context.state_cache.opponent.age_in_frames >= 60:
-                    # If the cached opponent data is too old, tell the main thread to update it at the next
+            if subscriptions["Player"] > 0:
+                if context.state_cache.player.age_in_frames >= 60:
+                    # If the cached party data is too old, tell the main thread to update it at the next
                     # possible opportunity.
-                    work_queue.put_nowait(get_opponent)
-                if context.state_cache.opponent.frame > previous_game_state["opponent"]:
-                    previous_game_state["opponent"] = context.state_cache.opponent.frame
-                    data = context.state_cache.opponent.value[0]
-                    if data is not None:
-                        data = data.to_dict()
-                    send_message(DataSubscription.Opponent, data=data, event_type="Opponent")
-            elif previous_game_state["game_state"] == GameState.BATTLE:
-                send_message(DataSubscription.Opponent, data=None, event_type="Opponent")
+                    work_queue.put_nowait(get_player)
+                if (
+                    context.state_cache.player.frame != previous_game_state["player"]
+                    and context.state_cache.player.value is not None
+                ):
+                    previous_game_state["player"] = context.state_cache.player.frame
+                    send_message(
+                        DataSubscription.Player, data=context.state_cache.player.value.to_dict(), event_type="Player"
+                    )
 
-        if subscriptions["WildEncounter"] > 0:
-            if (
-                context.stats.last_encounter is not None
-                and context.stats.last_encounter.encounter_id != previous_game_state["wild_encounter"]
-            ):
-                send_message(
-                    DataSubscription.WildEncounter,
-                    data=context.stats.last_encounter.to_dict(),
-                    event_type="WildEncounter",
-                )
-                previous_game_state["wild_encounter"] = context.stats.last_encounter.encounter_id
+            if subscriptions["PlayerAvatar"] > 0:
+                if context.state_cache.player_avatar.age_in_frames > 4:
+                    # If the cached player avatar data is too old, tell the main thread to update it at the next
+                    # possible opportunity.
+                    work_queue.put_nowait(get_player_avatar)
+                if (
+                    context.state_cache.player_avatar.frame != previous_game_state["player_avatar"]
+                    and context.state_cache.player_avatar.value is not None
+                ):
+                    previous_game_state["player_avatar"] = context.state_cache.player_avatar.frame
+                    send_message(
+                        DataSubscription.PlayerAvatar,
+                        data=context.state_cache.player_avatar.value.to_dict(),
+                        event_type="PlayerAvatar",
+                    )
 
-        if subscriptions["FishingAttempt"] > 0:
-            if context.state_cache.fishing_attempt.value != context.stats.last_fishing_attempt:
-                context.state_cache.fishing_attempt = context.stats.last_fishing_attempt
-                send_message(
-                    DataSubscription.FishingAttempt,
-                    data=context.stats.last_fishing_attempt.to_dict(),
-                    event_type="FishingAttempt",
-                )
+            if subscriptions["Party"] > 0:
+                if context.state_cache.party.age_in_frames >= 60:
+                    # If the cached party data is too old, tell the main thread to update it at the next
+                    # possible opportunity.
+                    work_queue.put_nowait(get_party)
+                if (
+                    context.state_cache.party.frame != previous_game_state["party"]
+                    and context.state_cache.party.value is not None
+                ):
+                    previous_game_state["party"] = context.state_cache.party.frame
+                    send_message(
+                        DataSubscription.Party, data=context.state_cache.party.value.to_list(), event_type="Party"
+                    )
 
-        if subscriptions["GameState"] > 0 and current_game_state != previous_game_state["game_state"]:
-            send_message(DataSubscription.GameState, data=current_game_state.name, event_type="GameState")
+            if subscriptions["Pokedex"] > 0:
+                if context.state_cache.pokedex.age_in_seconds > 0:
+                    # If the cached Pokédex data is too old, tell the main thread to update it at the next
+                    # possible opportunity.
+                    work_queue.put_nowait(get_pokedex)
+                if (
+                    context.state_cache.pokedex.frame != previous_game_state["pokedex"]
+                    and context.state_cache.pokedex.value is not None
+                ):
+                    previous_game_state["pokedex"] = context.state_cache.pokedex.frame
+                    send_message(
+                        DataSubscription.Pokedex, data=context.state_cache.pokedex.value.to_dict(), event_type="Pokedex"
+                    )
 
-        if (subscriptions["Map"] > 0 or subscriptions["MapTile"] > 0) and current_game_state == GameState.OVERWORLD:
-            if context.state_cache.player_avatar.age_in_frames > 4:
-                # If the cached player avatar data is too old, tell the main thread to update it at the next
-                # possible opportunity.
-                work_queue.put_nowait(get_player_avatar)
-            elif context.state_cache.player_avatar.value is not None:
-                previous_game_state["player_avatar"] = context.state_cache.player_avatar.frame
-                current_map = context.state_cache.player_avatar.value.map_group_and_number
-                current_coords = context.state_cache.player_avatar.value.local_coordinates
-                if current_map != previous_game_state["map_group_and_number"]:
-                    player_avatar = context.state_cache.player_avatar.value
+            if subscriptions["Opponent"] > 0:
+                if current_game_state == GameState.BATTLE:
+                    if context.state_cache.opponent.age_in_frames >= 60:
+                        # If the cached opponent data is too old, tell the main thread to update it at the next
+                        # possible opportunity.
+                        work_queue.put_nowait(get_opponent)
+                    if (
+                        context.state_cache.opponent.frame != previous_game_state["opponent"]
+                        and context.state_cache.opponent.value is not None
+                    ):
+                        previous_game_state["opponent"] = context.state_cache.opponent.frame
+                        data = context.state_cache.opponent.value[0]
+                        if data is not None:
+                            data = data.to_dict()
+                        send_message(DataSubscription.Opponent, data=data, event_type="Opponent")
+                elif previous_game_state["game_state"] == GameState.BATTLE:
+                    send_message(DataSubscription.Opponent, data=None, event_type="Opponent")
 
-                    # `MapLocation` reads most of its data from emulator memory when it is accessed,
-                    # so this has to happen in the main thread.
-                    def get_map_change_data():
-                        map_data = player_avatar.map_location
-                        return {
-                            "map": map_data.dict_for_map(),
-                            "player_position": map_data.local_position,
-                            "tiles": map_data.dicts_for_all_tiles(),
-                        }
+            if subscriptions["WildEncounter"] > 0:
+                if (
+                    context.stats.last_encounter is not None
+                    and context.stats.last_encounter.encounter_id != previous_game_state["wild_encounter"]
+                ):
+                    send_message(
+                        DataSubscription.WildEncounter,
+                        data=context.stats.last_encounter.to_dict(),
+                        event_type="WildEncounter",
+                    )
+                    previous_game_state["wild_encounter"] = context.stats.last_encounter.encounter_id
 
-                    data = submit_to_work_queue(get_map_change_data).result()
+            if subscriptions["FishingAttempt"] > 0:
+                if context.state_cache.fishing_attempt.value != context.stats.last_fishing_attempt:
+                    context.state_cache.fishing_attempt = context.stats.last_fishing_attempt
+                    send_message(
+                        DataSubscription.FishingAttempt,
+                        data=context.stats.last_fishing_attempt.to_dict(),
+                        event_type="FishingAttempt",
+                    )
 
-                    if subscriptions["MapEncounters"] > 0:
-                        work_queue.put_nowait(get_effective_encounter_rates_for_current_map)
+            if subscriptions["GameState"] > 0 and current_game_state != previous_game_state["game_state"]:
+                send_message(DataSubscription.GameState, data=current_game_state.name, event_type="GameState")
 
-                    send_message(DataSubscription.Map, data=data, event_type="MapChange")
-                    previous_game_state["map_group_and_number"] = current_map
-                if current_coords != previous_game_state["map_local_coordinates"]:
-                    send_message(DataSubscription.Map, data=current_coords, event_type="MapTileChange")
-                    previous_game_state["map_local_coordinates"] = current_coords
+            if (subscriptions["Map"] > 0 or subscriptions["MapTile"] > 0) and current_game_state == GameState.OVERWORLD:
+                if context.state_cache.player_avatar.age_in_frames > 4:
+                    # If the cached player avatar data is too old, tell the main thread to update it at the next
+                    # possible opportunity.
+                    work_queue.put_nowait(get_player_avatar)
+                elif context.state_cache.player_avatar.value is not None:
+                    previous_game_state["player_avatar"] = context.state_cache.player_avatar.frame
+                    current_map = context.state_cache.player_avatar.value.map_group_and_number
+                    current_coords = context.state_cache.player_avatar.value.local_coordinates
+                    if current_map != previous_game_state["map_group_and_number"]:
+                        player_avatar = context.state_cache.player_avatar.value
 
-        if subscriptions["MapEncounters"] > 0 and current_game_state is GameState.OVERWORLD:
-            if context.state_cache.effective_wild_encounters.age_in_frames >= 300:
-                # If the cached encounter data is too old, tell the main thread to update it at the next
-                # possible opportunity.
-                work_queue.put_nowait(get_effective_encounter_rates_for_current_map)
-            if context.state_cache.effective_wild_encounters.frame > previous_game_state["map_encounters"]:
-                encounters = context.state_cache.effective_wild_encounters.value
-                previous_game_state["map_encounters"] = context.state_cache.effective_wild_encounters.frame
-                send_message(DataSubscription.MapEncounters, data=encounters.to_dict(), event_type="MapEncounters")
+                        # `MapLocation` reads most of its data from emulator memory when it is accessed,
+                        # so this has to happen in the main thread.
+                        def get_map_change_data():
+                            map_data = player_avatar.map_location
+                            return {
+                                "map": map_data.dict_for_map(),
+                                "player_position": map_data.local_position,
+                                "tiles": map_data.dicts_for_all_tiles(),
+                            }
 
-        if subscriptions["PokenavCall"] > 0:
-            if (
-                context.stats.current_shiny_phase is not None
-                and previous_game_state["pokenav_calls"] != context.stats.current_shiny_phase.pokenav_calls
-            ):
-                if previous_game_state["pokenav_calls"] < context.stats.current_shiny_phase.pokenav_calls:
-                    # Only report a Pokénav call if the number has increased. It will 'decrease' (reset
-                    # to 0) when the shiny phase ends.
-                    send_message(DataSubscription.PokenavCall, data=None, event_type="PokenavCall")
-                previous_game_state["pokenav_calls"] = context.stats.current_shiny_phase.pokenav_calls
+                        data = submit_to_work_queue(get_map_change_data).result()
 
-        if subscriptions["BotMode"] > 0 and context.bot_mode != previous_emulator_state["bot_mode"]:
-            previous_emulator_state["bot_mode"] = context.bot_mode
-            send_message(DataSubscription.BotMode, data=context.bot_mode, event_type="BotMode")
+                        if subscriptions["MapEncounters"] > 0:
+                            work_queue.put_nowait(get_effective_encounter_rates_for_current_map)
 
-        if subscriptions["Message"] > 0 and context.message != previous_emulator_state["message"]:
-            previous_emulator_state["message"] = context.message
-            send_message(DataSubscription.Message, data=context.message, event_type="Message")
+                        send_message(DataSubscription.Map, data=data, event_type="MapChange")
+                        previous_game_state["map_group_and_number"] = current_map
+                    if current_coords != previous_game_state["map_local_coordinates"]:
+                        send_message(DataSubscription.Map, data=current_coords, event_type="MapTileChange")
+                        previous_game_state["map_local_coordinates"] = current_coords
 
-        if subscriptions["Inputs"] > 0:
-            combined_inputs = 0
-            for _ in range(len(inputs_each_frame)):
-                combined_inputs |= inputs_each_frame.popleft()
+            if subscriptions["MapEncounters"] > 0 and current_game_state is GameState.OVERWORLD:
+                if context.state_cache.effective_wild_encounters.age_in_frames >= 300:
+                    # If the cached encounter data is too old, tell the main thread to update it at the next
+                    # possible opportunity.
+                    work_queue.put_nowait(get_effective_encounter_rates_for_current_map)
+                if (
+                    context.state_cache.effective_wild_encounters.frame != previous_game_state["map_encounters"]
+                    and context.state_cache.effective_wild_encounters.value is not None
+                ):
+                    encounters = context.state_cache.effective_wild_encounters.value
+                    previous_game_state["map_encounters"] = context.state_cache.effective_wild_encounters.frame
+                    send_message(DataSubscription.MapEncounters, data=encounters.to_dict(), event_type="MapEncounters")
 
-            if combined_inputs != previous_emulator_state["inputs"]:
-                previous_emulator_state["inputs"] = combined_inputs
-                send_message(DataSubscription.Inputs, data=inputs_to_strings(combined_inputs), event_type="Inputs")
+            if subscriptions["PokenavCall"] > 0:
+                if (
+                    context.stats.current_shiny_phase is not None
+                    and previous_game_state["pokenav_calls"] != context.stats.current_shiny_phase.pokenav_calls
+                ):
+                    if previous_game_state["pokenav_calls"] < context.stats.current_shiny_phase.pokenav_calls:
+                        # Only report a Pokénav call if the number has increased. It will 'decrease' (reset
+                        # to 0) when the shiny phase ends.
+                        send_message(DataSubscription.PokenavCall, data=None, event_type="PokenavCall")
+                    previous_game_state["pokenav_calls"] = context.stats.current_shiny_phase.pokenav_calls
 
-        if subscriptions["EmulatorSettings"] > 0:
-            if context.emulation_speed != previous_emulator_state["emulation_speed"]:
-                previous_emulator_state["emulation_speed"] = context.emulation_speed
-                send_message(
-                    DataSubscription.EmulatorSettings, data=context.emulation_speed, event_type="EmulationSpeed"
-                )
+            if subscriptions["BotMode"] > 0 and context.bot_mode != previous_emulator_state["bot_mode"]:
+                previous_emulator_state["bot_mode"] = context.bot_mode
+                send_message(DataSubscription.BotMode, data=context.bot_mode, event_type="BotMode")
 
-            if context.audio != previous_emulator_state["audio_enabled"]:
-                previous_emulator_state["audio_enabled"] = context.audio
-                send_message(DataSubscription.EmulatorSettings, data=context.audio, event_type="AudioEnabled")
+            if subscriptions["Message"] > 0 and context.message != previous_emulator_state["message"]:
+                previous_emulator_state["message"] = context.message
+                send_message(DataSubscription.Message, data=context.message, event_type="Message")
 
-            if context.video != previous_emulator_state["video_enabled"]:
-                previous_emulator_state["video_enabled"] = context.video
-                send_message(DataSubscription.EmulatorSettings, data=context.video, event_type="VideoEnabled")
+            if subscriptions["Inputs"] > 0:
+                combined_inputs = 0
+                for _ in range(len(inputs_each_frame)):
+                    combined_inputs |= inputs_each_frame.popleft()
 
-        if custom_events_queue.qsize() > 0:
-            try:
-                while True:
-                    custom_event = custom_events_queue.get_nowait()
-                    if subscriptions["CustomEvent"] > 0:
-                        send_message(
-                            DataSubscription.CustomEvent,
-                            data=custom_event,
-                            event_type="CustomEvent",
-                            do_not_json_encode=True,
-                        )
-            except Empty:
-                pass
+                if combined_inputs != previous_emulator_state["inputs"]:
+                    previous_emulator_state["inputs"] = combined_inputs
+                    send_message(DataSubscription.Inputs, data=inputs_to_strings(combined_inputs), event_type="Inputs")
 
-        if current_game_state != previous_game_state["game_state"]:
-            previous_game_state["game_state"] = current_game_state
+            if subscriptions["EmulatorSettings"] > 0:
+                if context.emulation_speed != previous_emulator_state["emulation_speed"]:
+                    previous_emulator_state["emulation_speed"] = context.emulation_speed
+                    send_message(
+                        DataSubscription.EmulatorSettings, data=context.emulation_speed, event_type="EmulationSpeed"
+                    )
 
-        if current_second != previous_second:
-            previous_second = current_second
+                if context.audio != previous_emulator_state["audio_enabled"]:
+                    previous_emulator_state["audio_enabled"] = context.audio
+                    send_message(DataSubscription.EmulatorSettings, data=context.audio, event_type="AudioEnabled")
+
+                if context.video != previous_emulator_state["video_enabled"]:
+                    previous_emulator_state["video_enabled"] = context.video
+                    send_message(DataSubscription.EmulatorSettings, data=context.video, event_type="VideoEnabled")
+
+            if custom_events_queue.qsize() > 0:
+                try:
+                    while True:
+                        custom_event = custom_events_queue.get_nowait()
+                        if subscriptions["CustomEvent"] > 0:
+                            send_message(
+                                DataSubscription.CustomEvent,
+                                data=custom_event,
+                                event_type="CustomEvent",
+                                do_not_json_encode=True,
+                            )
+                except Empty:
+                    pass
+
+            if current_game_state != previous_game_state["game_state"]:
+                previous_game_state["game_state"] = current_game_state
+
+            if current_second != previous_second:
+                previous_second = current_second
+
+        except Exception as error:
+            # A single failed update must not kill this thread, or every client would stop
+            # receiving events (including pings) while their connections stay open.
+            if repr(error) != last_error:
+                last_error = repr(error)
+                console.print_exception()
 
         sleep(update_interval)
 
