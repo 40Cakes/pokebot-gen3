@@ -6,12 +6,16 @@ Static run away mode will hunt the [Tower duo Pokémon](https://bulbapedia.bulba
 
 After fleeing from a legendary encounter and reloading the map, the Pokémon will respawn. This mode will use the runaway method as it is generally faster when compared to soft-resets due to not having to wait for a unique frame after every reset.
 
+This mode is available in Emerald, FireRed and LeafGreen, but not in Ruby and Sapphire. In FireRed and LeafGreen, it can only hunt Lugia and Ho-Oh: the other Pokémon below are Emerald only.
+
 **IMPORTANT NOTE:**
 You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling and Pickup config](Configuration%20-%20Battling%20and%20Pickup.md).
 
 ## [Lugia](https://bulbapedia.bulbagarden.net/wiki/Lugia_(Pok%C3%A9mon))
 
 ![image](../../modules/web/static/sprites/pokemon/shiny/Lugia.png)
+
+Games: 🟢 Emerald, 🔥 FireRed, 🌿 LeafGreen
 
 - Place the player in front of Lugia in [Navel Rock](https://bulbapedia.bulbagarden.net/wiki/Navel_Rock)
 - Start mode
@@ -22,6 +26,8 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 
 ![image](../../modules/web/static/sprites/pokemon/shiny/Ho-Oh.png)
 
+Games: 🟢 Emerald, 🔥 FireRed, 🌿 LeafGreen
+
 - Place the player in front of Ho-Oh on [Navel Rock](https://bulbapedia.bulbagarden.net/wiki/Navel_Rock)
 - Start mode
 
@@ -31,16 +37,20 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 
 ![image](../../modules/web/static/sprites/pokemon/shiny/Regice.png)
 
+Games: 🟢 Emerald only
+
 - Place the player in front of Regice in [Island Cave](https://bulbapedia.bulbagarden.net/wiki/Island_Cave)
 - Start mode
 
 ![image](../images/regice.png)
 
-## [Regrock_](https://bulbapedia.bulbagarden.net/wiki/Regrock_(Pok%C3%A9mon))
+## [Regirock](https://bulbapedia.bulbagarden.net/wiki/Regirock_(Pok%C3%A9mon))
 
 ![image](../../modules/web/static/sprites/pokemon/shiny/Regirock.png)
 
-- Place the player in front of Regrock in [Desert Ruins](https://bulbapedia.bulbagarden.net/wiki/Desert_Ruins)
+Games: 🟢 Emerald only
+
+- Place the player in front of Regirock in [Desert Ruins](https://bulbapedia.bulbagarden.net/wiki/Desert_Ruins)
 - Start mode
 
 ![image](../images/regirock.png)
@@ -48,6 +58,8 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 ## [Registeel](https://bulbapedia.bulbagarden.net/wiki/Registeel_(Pok%C3%A9mon))
 
 ![](../../modules/web/static/sprites/pokemon/shiny/Registeel.png)
+
+Games: 🟢 Emerald only
 
 - Place the player in front of Registeel in [Ancient Tomb](https://bulbapedia.bulbagarden.net/wiki/Ancient_Tomb)
 - Start mode
@@ -58,6 +70,8 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 
 ![](../../modules/web/static/sprites/pokemon/shiny/Kyogre.png) 
 
+Games: 🟢 Emerald only
+
 - Place the player anywhere on the platform in [Marine Cave](https://bulbapedia.bulbagarden.net/wiki/Marine_Cave), in front of Kyogre
 - Start mode
 
@@ -67,6 +81,8 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 
 ![image](../../modules/web/static/sprites/pokemon/shiny/Groudon.png) 
 
+Games: 🟢 Emerald only
+
 - Place the player anywhere on the platform in [Terra Cave](https://bulbapedia.bulbagarden.net/wiki/Terra_Cave), in front of Groudon
 - Start mode
 
@@ -75,6 +91,8 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 ## [Rayquaza](https://bulbapedia.bulbagarden.net/wiki/Rayquaza_(Pok%C3%A9mon))
 
 ![image](../../modules/web/static/sprites/pokemon/shiny/Rayquaza.png)
+
+Games: 🟢 Emerald only
 
 - Place the player at the top of [Sky Pillar](https://bulbapedia.bulbagarden.net/wiki/Sky_Pillar), facing Rayquaza
 - Start mode
@@ -86,6 +104,8 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 ![image](../../modules/web/static/sprites/pokemon/shiny/Latias.png)
 ![image](../../modules/web/static/sprites/pokemon/shiny/Latios.png)
 
+Games: 🟢 Emerald only
+
 - Catch the other roamer using [Roamer Resets](Mode%20-%20Roamer%20Resets.md) mode
 - Place the player in the encounter area on [Southern Island](https://bulbapedia.bulbagarden.net/wiki/Southern_Island)
 - Start mode
@@ -95,6 +115,8 @@ You must set `pickup: false` in `battle.yml` to use this mode. See [⚔ Battling
 ## [Mew](https://bulbapedia.bulbagarden.net/wiki/Mew_(Pok%C3%A9mon)) 
 
 ![image](../../modules/web/static/sprites/pokemon/shiny/Mew.png)
+
+Games: 🟢 Emerald only
 
 - Stand on the **left** tile outside the forest on [Faraway Island](https://bulbapedia.bulbagarden.net/wiki/Faraway_Island)
 - Start mode

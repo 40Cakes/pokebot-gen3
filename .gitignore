@@ -20,4 +20,5 @@ stats/
 stream/
 plugins/
 tests/last_frame_timeout.png
+tests/runner/logs/
 modules/web/static/stream-overlay/config.js

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PokéBot test runner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+</head>
+<body>
+<header>
+  <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
+    <circle cx="16" cy="16" r="14" fill="var(--ball-bottom)" stroke="var(--ball-line)" stroke-width="2.5"/>
+    <path d="M2 16a14 14 0 0 1 28 0Z" fill="var(--ball-top)" stroke="var(--ball-line)" stroke-width="2.5"/>
+    <circle cx="16" cy="16" r="4.5" fill="var(--ball-bottom)" stroke="var(--ball-line)" stroke-width="2.5"/>
+  </svg>
+  <div>
+    <h1>PokéBot test runner</h1>
+    <div class="subtitle">Bot modes against the Master Tests states, in every game and language</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="controls">
+    <div class="stepper" role="group" aria-label="Processes at the same time">
+      <span class="label" id="processes-label">Processes</span>
+      <button type="button" id="fewer" aria-label="Fewer processes">−</button>
+      <output id="processes">8</output>
+      <button type="button" id="more" aria-label="More processes">+</button>
+      <button type="button" class="link auto" id="auto-processes" title="Use as many processes as this machine can take" hidden>Auto</button>
+    </div>
+    <button class="button primary" id="run-all">Run all</button>
+    <button class="icon-button" id="theme" aria-label="Switch between light and dark theme" title="Switch theme">
+      <svg class="theme-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>
+      </svg>
+      <svg class="theme-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.5"/>
+        <path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<div class="box notice" id="notice" hidden></div>
+
+<main>
+  <div class="side">
+    <form class="box" id="new-run" aria-labelledby="new-run-title">
+      <h2 class="panel-title" id="new-run-title">New run</h2>
+      <div class="field">
+        <div class="label">Test files <button type="button" class="link" id="toggle-modules">Select all</button></div>
+        <div class="choices" id="module-choices"></div>
+      </div>
+      <div class="field">
+        <div class="label">Languages <button type="button" class="link" id="toggle-languages">Select all</button></div>
+        <div class="choices" id="language-choices"></div>
+      </div>
+      <div class="field">
+        <label class="label" for="run-name">Name</label>
+        <input type="text" id="run-name" pattern="[A-Za-z0-9_.\-]+">
+      </div>
+      <div class="form-error" id="form-error" role="alert"></div>
+      <button class="button primary wide" type="submit">Start run</button>
+    </form>
+    <nav class="box" aria-label="Runs">
+      <h2 class="panel-title">Runs</h2>
+      <div id="runs"></div>
+    </nav>
+  </div>
+  <section>
+    <div id="run"><div class="box empty">Start a run, or pick one on the left.</div></div>
+    <div class="panels" id="panels" hidden>
+      <div class="box">
+        <h3 class="panel-title" id="failures-title">Failures</h3>
+        <div class="failures" id="failures"></div>
+      </div>
+      <div class="box">
+        <div class="output-head">
+          <h3 class="panel-title" id="output-title">Output</h3>
+          <label><input type="checkbox" id="follow" checked> Follow</label>
+        </div>
+        <div class="output-meta" id="output-meta">Pick a cell to see its output.</div>
+        <pre class="log" id="log"></pre>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

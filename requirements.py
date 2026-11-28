@@ -32,10 +32,12 @@ required_modules = [
     "show-in-file-manager~=1.1",
     "aiohttp~=3.13",
     "requests~=2.32",
+    # Also used by the parallel test runner (tests/runner/) on every OS
+    "psutil~=7.2",
 ]
 
 if platform.system() == "Windows":
-    required_modules.extend(["pywin32>=306", "psutil~=7.2"])
+    required_modules.extend(["pywin32>=306"])
 
 
 def get_requirements_hash() -> str:

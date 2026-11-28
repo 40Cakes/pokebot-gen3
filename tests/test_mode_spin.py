@@ -1,7 +1,22 @@
-from tests.utility import BotTestCase, with_frame_timeout, with_save_state, set_next_rng_seed
+from tests.utility import (
+    BotTestCase,
+    give_poke_balls,
+    set_next_rng_seed,
+    with_frame_timeout,
+    with_master_test_states,
+    with_save_state,
+)
 
 
 class TestSpin(BotTestCase):
+    def run_spin(self):
+        from modules.battle_state import BattleOutcome, EncounterType
+        from modules.modes.spin import SpinMode
+
+        yield from self.run_mode(SpinMode, 3)
+        self.assert_encounters(EncounterType.Land, BattleOutcome.RanAway, on_start_tile=True)
+        self.assert_player_on_start_tile()
+
     @with_save_state(
         [
             "emerald/in_tall_grass_after_receiving_pokeballs.ss1",
@@ -11,14 +26,12 @@ class TestSpin(BotTestCase):
     )
     @with_frame_timeout(5000)
     def test_it_gets_three_encounters(self):
-        from modules.modes.spin import SpinMode
+        yield from self.run_spin()
 
-        spin_mode = SpinMode()
-        for _ in spin_mode.run():
-            if len(self.stats.logged_encounters) > 3:
-                return None
-            else:
-                yield
+    @with_master_test_states("Spin*-Everywhere.ss1", "Spin*-Safari*.ss1")
+    @with_frame_timeout(5000)
+    def test_it_gets_three_encounters_in_all_languages(self):
+        yield from self.run_spin()
 
     @with_save_state(
         [
@@ -31,6 +44,11 @@ class TestSpin(BotTestCase):
     def test_it_catches_shinies(self):
         from modules.battle_state import BattleOutcome
         from modules.modes.spin import SpinMode
+
+        # The state's 5 Poké Balls catch it about once in three throws, which isn't always enough when
+        # the RNG differs (in other languages, text takes another number of frames). An Ultra Ball
+        # catches it about twice in three, and the bot never throws a Master Ball by itself.
+        give_poke_balls(20, "Ultra Ball")
 
         while True:
             if self.rom.is_emerald:

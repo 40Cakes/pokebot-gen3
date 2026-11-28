@@ -23,6 +23,17 @@ Std_MsgboxDefault:
   F: 0x81a4b88
   I: 0x81a012d
   S: 0x81a2a4d
+Std_MsgboxSign:
+  F: 0x81a4b7e
+  I: 0x81a0123
+  S: 0x81a2a43
+DoRockSmashMovement:
+  F: 0x81b7452
+  I: 0x81b21d5
+  S: 0x81b47f7
+# This English label is inside the French DoRockSmashMovement script and hides it
+FallarborTown_ContestLobby_Text_1B74B4:
+  F: 0x0
 # 0x6
 Std_MsgboxYesNo:
   F: 0x81a4b90
@@ -207,7 +218,7 @@ BattleScript_ForgotAndLearnedNewMove:
 sub_809E260:
   F: 0x809e49c
   I: 0x809e3a8
-  S: 0x809da78
+  S: 0x809e494
 CB2_EvolutionSceneUpdate:
   F: 0x8112770
   I: 0x8112668
@@ -318,6 +329,10 @@ sub_80712B4:
   F: 0x80716c4
   I: 0x80715e8
   S: 0x80716d0
+SaveDialogCB_ProcessOverwriteYesNoMenu:
+  F: 0x8071cac
+  I: 0x8071bd0
+  S: 0x8071cb8
 #-----------------#
 
 #----------------#
@@ -351,7 +366,7 @@ sub_806D198:
   S: 0x806d5d8
 HandlePartyMenuSwitchPokemonInput:
   F: 0x806cfa8
-  I: 0x806cfb4
+  I: 0x806cecc
   S: 0x806cfb4
 SUB_808A060:
   F: 0x808a59c
@@ -569,3 +584,19 @@ RusturfTunnel_EventScript_15C8CA:
   S: 0x0
 RusturfTunnel_EventScript_15C8DF:
   S: 0x0
+#-------------------#
+#    Item Steal     #
+#-------------------#
+# Found by searching each ROM for the English code and battle script
+BattleScript_ItemSteal:
+  F: 0x81e1a7e
+  I: 0x81db312
+  S: 0x81de396
+#--------------------------#
+#    Pokéblock feeder      #
+#--------------------------#
+# The script after putting a Pokéblock in a Safari Zone feeder
+EventScript_1C34A0:
+  F: 0x81cb3c1
+  I: 0x81c509c
+  S: 0x81c80d1

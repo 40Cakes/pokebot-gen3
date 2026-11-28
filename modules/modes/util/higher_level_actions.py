@@ -271,7 +271,7 @@ def save_the_game():
         save_callback = get_symbol_name_before(unpack_uint32(read_symbol(save_dialogue_callback_name)))
         if not task_is_active(start_menu_task):
             break
-        elif save_callback != overwrite_callback:
+        elif save_callback != overwrite_callback.upper():
             context.emulator.press_button("A")
             yield
         else:
